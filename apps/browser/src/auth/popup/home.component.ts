@@ -81,8 +81,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         tap(async (flag) => {
           // If the flag is turned ON, we must force a reload to ensure the correct UI is shown
           if (flag) {
+            const qParams = await firstValueFrom(this.route.queryParams);
+
             const uniqueQueryParams = {
-              ...this.route.queryParams,
+              ...qParams,
               // adding a unique timestamp to the query params to force a reload
               t: new Date().getTime().toString(),
             };
