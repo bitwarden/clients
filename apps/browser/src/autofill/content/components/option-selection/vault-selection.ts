@@ -2,10 +2,9 @@ import { html } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
+import { Option } from "../common-types";
 import { themes } from "../constants/styles";
 import { User } from "../icons";
-
-import { Option } from "./option-selection";
 
 export function VaultSelection({
   options,

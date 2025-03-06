@@ -5,8 +5,9 @@ import { Theme } from "@bitwarden/common/platform/enums";
 
 import { ActionButton } from "../../../content/components/buttons/action-button";
 import { spacing } from "../../../content/components/constants/styles";
+import { Option } from "../common-types";
 import { FolderSelection } from "../option-selection/folder-selection";
-import { optionSelectionTagName, Option } from "../option-selection/option-selection";
+import { optionSelectionTagName } from "../option-selection/option-selection";
 import { VaultSelection } from "../option-selection/vault-selection";
 
 export function ButtonRow({
