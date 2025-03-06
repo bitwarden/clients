@@ -94,7 +94,7 @@ export class AddCreditDialogComponent implements OnInit {
       }
     } else {
       if (this.creditAmount == null) {
-        this.creditAmount = "10.00";
+        this.creditAmount = "0.00";
       }
       const [userId, email] = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => [a?.id, a?.email])),
