@@ -1,9 +1,28 @@
 import { CollectionView } from "@bitwarden/admin-console/common";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { getNestedCollectionTree } from "./collection-utils";
 
 describe("CollectionUtils Service", () => {
   describe("getNestedCollectionTree", () => {
+    it("should be performant", () => {
+      // This is a temporary test just to illustrate performance difference.
+      // Without changes: 3841ms
+      // With changes: 121ms
+
+      const collections = Array(25000)
+        .fill(null)
+        .map(() => {
+          const coll = new CollectionView();
+          coll.name = Utils.newGuid();
+          return coll;
+        });
+
+      const result = getNestedCollectionTree(collections);
+
+      expect(result.length).toBe(25000);
+    });
+
     it("should return collections properly sorted if provided out of order", () => {
       // Arrange
       const collections: CollectionView[] = [];
