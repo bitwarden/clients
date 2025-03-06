@@ -5,6 +5,9 @@ import { CipherView } from "../models/view/cipher.view";
 export interface CipherIconDetails {
   imageEnabled: boolean;
   image: string | null;
+  /**
+   * @deprecated Fallback to `icon` instead which will default to "bwi-globe" if no other icon is applicable.
+   */
   fallbackImage: string;
   icon: string;
 }
