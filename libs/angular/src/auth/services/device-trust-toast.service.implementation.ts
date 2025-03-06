@@ -20,22 +20,28 @@ export class DeviceTrustToastService implements DeviceTrustToastServiceAbstracti
     private toastService: ToastService,
   ) {
     this.adminLoginApproved$ = this.authRequestService.adminLoginApproved$.pipe(
-      tap(() => {
-        this.toastService.showToast({
-          variant: "success",
-          title: "",
-          message: this.i18nService.t("loginApproved"),
-        });
+      tap((loginApproved: boolean) => {
+        // console.log(loginApproved);
+
+        if (loginApproved) {
+          this.toastService.showToast({
+            variant: "success",
+            title: "",
+            message: this.i18nService.t("loginApproved"),
+          });
+        }
       }),
     );
 
     this.deviceTrusted$ = this.deviceTrustService.deviceTrusted$.pipe(
-      tap(() => {
-        this.toastService.showToast({
-          variant: "success",
-          title: "",
-          message: this.i18nService.t("deviceTrusted"),
-        });
+      tap((deviceTrusted: boolean) => {
+        if (deviceTrusted) {
+          this.toastService.showToast({
+            variant: "success",
+            title: "",
+            message: this.i18nService.t("deviceTrusted"),
+          });
+        }
       }),
     );
 
