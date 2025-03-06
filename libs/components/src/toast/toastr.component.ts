@@ -23,7 +23,6 @@ import { ToastComponent } from "./toast.component";
       transition("active => removed", animate("{{ easeTime }}ms {{ easing }}")),
     ]),
   ],
-  preserveWhitespaces: false,
   standalone: true,
   imports: [ToastComponent],
 })

@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Belangrijke applicaties"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "Geen belangrijke applicaties lopen risico"
+  },
   "accessIntelligence": {
     "message": "Toegangsintelligentie"
   },
@@ -1161,6 +1164,15 @@
   "logInToBitwarden": {
     "message": "Inloggen op Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Voer de code in die naar je e-mailadres is verstuurd"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Voer de code uit je authenticatie-app in"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Druk op je YubiKey om te verifiëren"
+  },
   "authenticationTimeout": {
     "message": "Authenticatie-timeout"
   },
@@ -1399,13 +1411,13 @@
     "message": "Toegang weigeren"
   },
   "notificationSentDeviceAnchor": {
-    "message": "web-app"
+    "message": "webapp"
   },
   "notificationSentDevicePart2": {
-    "message": "Zorg ervoor dat de Vingerafdrukzin overeenkomt met de onderstaande voor je deze goedkeurt."
+    "message": "Zorg ervoor dat de vingerafdrukzin overeenkomt met de onderstaande voor je deze goedkeurt."
   },
   "notificationSentDeviceComplete": {
-    "message": "Ontgrendel Bitwarden op je apparaat. Zorg ervoor dat de vingerafdruk-zin overeenkomt met de onderstaande zin voordat je deze goedkeurt."
+    "message": "Ontgrendel Bitwarden op je apparaat. Zorg ervoor dat de vingerafdrukzin overeenkomt met de onderstaande voor je deze goedkeurt."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Er is een melding naar je apparaat verzonden"
@@ -1443,11 +1455,21 @@
   "rememberMe": {
     "message": "Mijn gegevens onthouden"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "30 dagen niet meer vragen op dit apparaat"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "E-mail met verificatiecode opnieuw versturen"
   },
   "useAnotherTwoStepMethod": {
     "message": "Gebruik een andere methode voor tweestapsaanmelding"
+  },
+  "selectAnotherMethod": {
+    "message": "Kies een andere methode",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Gebruik je herstelcode"
   },
   "insertYubiKey": {
     "message": "Plaats je YubiKey in de USB-poort van je computer en druk op de knop."
@@ -1466,6 +1488,9 @@
   },
   "twoStepOptions": {
     "message": "Opties voor tweestapsaanmelding"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Kies methode voor tweestapsaanmelding"
   },
   "recoveryCodeDesc": {
     "message": "Ben je de toegang tot al je tweestapsaanbieders verloren? Gebruik dan je herstelcode om alle tweestapsaanbieders op je account uit te schakelen."
@@ -1508,6 +1533,9 @@
   },
   "webAuthnMigrated": {
     "message": "(Gemigreerd van FIDO)"
+  },
+  "openInNewTab": {
+    "message": "Openen in nieuwe tab"
   },
   "emailTitle": {
     "message": "E-mailadres"
@@ -1888,10 +1916,10 @@
     "message": "Inlogbescherming nieuwe apparaten inschakelen"
   },
   "turnOffNewDeviceLoginProtectionModalDesc": {
-    "message": "Ga hieronder verder voor het uitschakelen van de e-mailverificatieberichten die Bitwarden stuurt wanneer je inlogt vanaf een nieuw apparaat."
+    "message": "Ga hieronder verder voor het uitschakelen van de verificatie e-mails die Bitwarden stuurt wanneer je inlogt vanaf een nieuw apparaat."
   },
   "turnOnNewDeviceLoginProtectionModalDesc": {
-    "message": "Ga hieronder verder om Bitwarden verificatie e-mails te sturen wanneer je inlogt vanaf een nieuw apparaat.\n\nGa hieronder verder om Bitwarden e-mailverificatieberichten te laten sturen wanneer je inlogt vanaf een nieuw apparaat."
+    "message": "Ga hieronder verder om Bitwarden verificatie e-mails te sturen wanneer je inlogt vanaf een nieuw apparaat."
   },
   "turnOffNewDeviceLoginProtectionWarning": {
     "message": "Als je inlogbescherming voor nieuwe apparaten uitschakelt, kan iedereen op ieder apparaat met je hoofdwachtwoord inloggen. Stel tweestapsaanmelding in om je account te beschermen zonder e-mailverificatieberichten."
@@ -2161,6 +2189,9 @@
   },
   "twoStepLoginRecoveryWarning": {
     "message": "Door aanmelden in twee stappen in te schakelen, kun je jezelf definitief buitensluiten van je Bitwarden-account. Een herstelcode geeft je toegang tot je account in het geval dat je je normale tweestapsaanmelding niet meer kunt gebruiken (bijv. als je je apparaat verliest). De Bitwarden-klantondersteuning kan je niet helpen als je de toegang tot je account verliest. We raden je met klem aan de herstelcode op te schrijven of af te drukken en op een veilige plaats te bewaren."
+  },
+  "yourSingleUseRecoveryCode": {
+    "message": "Met je herstelcode voor eenmalig gebruik kun je tweestapsaanmelding uitschakelen in het geval dat je toegang verliest tot je tweestapsaanmeldingsprovider. Bitwarden adviseert de herstelcode op te schrijven en op een veilige plaats te bewaren."
   },
   "viewRecoveryCode": {
     "message": "Herstelcode weergeven"
@@ -4078,6 +4109,12 @@
   "updateBrowserDesc": {
     "message": "Je maakt gebruik van webbrowser die we niet ondersteunen. De webkluis werkt mogelijk niet goed."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "Je hebt inlogverzoek van een ander apparaat."
+  },
+  "reviewLoginRequest": {
+    "message": "Inlogverzoek afhandelen"
+  },
   "freeTrialEndPromptCount": {
     "message": "Je gratis proefperiode eindigt over $COUNT$ dagen.",
     "placeholders": {
@@ -4171,6 +4208,9 @@
   },
   "recoverAccountTwoStepDesc": {
     "message": "Als je geen toegang tot je account kunt krijgen via je normale tweestapsaanmeldingsmethodes, kun je met je herstelcode alle aanbieders van tweestapsaanmelding in je account uitschakelen."
+  },
+  "logInBelowUsingYourSingleUseRecoveryCode": {
+    "message": "Log hieronder in met behulp van je eenmalige herstelcode. Dit zal alle tweestapsaanbieders op je account uitschakelen."
   },
   "recoverAccountTwoStep": {
     "message": "Tweestapsaanmelding herstellen"
@@ -4463,6 +4503,24 @@
   "encryptionKeyUpdateCannotProceed": {
     "message": "Bijwerken encryptiesleutel kan niet verder gaan"
   },
+  "editFieldLabel": {
+    "message": "$LABEL$ bewerken",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButton": {
+    "message": "$LABEL$ herschikken. Gebruik de pijltjestoets om het item omhoog of omlaag te verplaatsen.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "Bij het bijwerken van je encryptiesleutel konden we je mappen niet decoderen. Om door te gaan met de update, moeten je mappen worden verwijderd. Geen kluisitems worden verwijderd als je doorgaat."
   },
@@ -4733,6 +4791,15 @@
   },
   "masterPassPolicyDesc": {
     "message": "Minimale eisen voor de sterkte van het hoofdwachtwoord instellen."
+  },
+  "passwordStrengthScore": {
+    "message": "Score wachtwoordsterkte $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "twoStepLoginPolicyTitle": {
     "message": "Tweestapsaanmelding vereisen"
@@ -5628,6 +5695,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "Authenticeer WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Beveiligingssleutel lezen"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Wacht op interactie met beveiligingssleutel..."
   },
   "webAuthnNotSupported": {
     "message": "WebAuthn wordt niet ondersteund in deze browser."
@@ -6922,6 +6995,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ heeft je aanvraag geweigerd. Neem contact op met je serviceprovider voor hulp.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ heeft je aanvraag geweigerd: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Kan $SERVICENAME$ gemaskeerde e-mailaccount-ID niet verkrijgen.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -7150,6 +7247,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "DUO tweestapsaanmelding is vereist voor jouw account."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Jouw account vereist Duo-tweestapsaanmelding. Volg de onderstaande stappen om het inloggen te voltooien."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Volg de onderstaande stappen om in te loggen."
   },
   "launchDuo": {
     "message": "DUO starten"
@@ -9246,6 +9349,12 @@
   "deviceManagementDesc": {
     "message": "Apparaatbeheer voor Bitwarden configureren met behulp van de implementatiehandleiding voor jouw platform."
   },
+  "desktopRequired": {
+    "message": "Desktop vereist"
+  },
+  "reopenLinkOnDesktop": {
+    "message": "Open deze link opnieuw vanaf je e-mail op een desktop."
+  },
   "integrationCardTooltip": {
     "message": "$INTEGRATION$ implementatiehandleiding openen.",
     "placeholders": {
@@ -10239,6 +10348,38 @@
   "organizationNameMaxLength": {
     "message": "Organisatienaam mag niet langer zijn dan 50 tekens."
   },
+  "openingExtension": {
+    "message": "Bitwarden-browserextensie openen"
+  },
+  "somethingWentWrong": {
+    "message": "Er is iets fout gegaan..."
+  },
+  "openingExtensionError": {
+    "message": "We konden de Bitwarden-browserextensie niet openen. Klik op de knop om deze nu te openen."
+  },
+  "openExtension": {
+    "message": "Extensie openen"
+  },
+  "doNotHaveExtension": {
+    "message": "Heb je de Bitwarden-browserextensie niet?"
+  },
+  "installExtension": {
+    "message": "Extensie installeren"
+  },
+  "openedExtension": {
+    "message": "Browserextensie geopend"
+  },
+  "openedExtensionViewAtRiskPasswords": {
+    "message": "De Bitwarden-browserextensie is geopend. Je kunt nu je risicovolle wachtwoorden bekijken."
+  },
+  "openExtensionManuallyPart1": {
+    "message": "We konden de Bitwarden-browserextensie niet openen. Open het Bitwarden-pictogram",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openExtensionManuallyPart2": {
+    "message": "vanaf de werkbank.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
   "resellerRenewalWarningMsg": {
     "message": "Je abonnement wordt binnenkort verlengd. Neem voor $RENEWAL_DATE$ contact op met $RESELLER$ om je verlenging te bevestigen en een ononderbroken service te verzekeren.",
     "placeholders": {
@@ -10320,7 +10461,7 @@
     }
   },
   "existingOrganization": {
-    "message": "Bestaande toevoegen"
+    "message": "Bestaande organisatie"
   },
   "selectOrganizationProviderPortal": {
     "message": "Kies een organisatie om aan je providerportaal toe te voegen."
@@ -10345,5 +10486,29 @@
   },
   "assignedExceedsAvailable": {
     "message": "Meer toegewezen dan beschikbare plaatsen."
+  },
+  "removeUnlockWithPinPolicyTitle": {
+    "message": "Ontgrendelen met PIN verwijderen"
+  },
+  "removeUnlockWithPinPolicyDesc": {
+    "message": "Leden niet toestaan hun account te ontgrendelen met een pincode."
+  },
+  "limitedEventLogs": {
+    "message": "$PRODUCT_TYPE$-abonnementen hebben geen toegang tot echte event logs",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Krijg volledige toegang tot event logs van de organisatie door te upgraden naar een Teams- of Enterprise-abonnement."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Upgrade voor echte event log gegevens"
+  },
+  "upgradeEventLogMessage": {
+    "message": "Deze events zijn voorbeelden en weerspiegelen geen echte evenementen binnen je Bitwarden-organisatie."
   }
 }

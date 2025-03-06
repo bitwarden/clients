@@ -158,7 +158,11 @@ export class EncString implements Encrypted {
     return EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE[encType] === encPieces.length;
   }
 
-  async decrypt(orgId: string, key: SymmetricCryptoKey = null, context?: string): Promise<string> {
+  async decrypt(
+    orgId: string | null,
+    key: SymmetricCryptoKey = null,
+    context?: string,
+  ): Promise<string> {
     if (this.decryptedValue != null) {
       return this.decryptedValue;
     }

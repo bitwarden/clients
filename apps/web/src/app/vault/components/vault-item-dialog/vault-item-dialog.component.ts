@@ -36,6 +36,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import {
+  ChangeLoginPasswordService,
   CipherAttachmentsComponent,
   CipherFormComponent,
   CipherFormConfig,
@@ -43,6 +44,9 @@ import {
   CipherFormModule,
   CipherViewComponent,
   DecryptionFailureDialogComponent,
+  DefaultChangeLoginPasswordService,
+  DefaultTaskService,
+  TaskService,
 } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared/shared.module";
@@ -90,7 +94,7 @@ export interface VaultItemDialogParams {
   /**
    * Function to restore a cipher from the trash.
    */
-  restore: (c: CipherView) => Promise<boolean>;
+  restore?: (c: CipherView) => Promise<boolean>;
 }
 
 export enum VaultItemDialogResult {
@@ -136,6 +140,8 @@ export enum VaultItemDialogResult {
     { provide: ViewPasswordHistoryService, useClass: WebViewPasswordHistoryService },
     { provide: CipherFormGenerationService, useClass: WebCipherFormGenerationService },
     RoutedVaultFilterService,
+    { provide: TaskService, useClass: DefaultTaskService },
+    { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
   ],
 })
 export class VaultItemDialogComponent implements OnInit, OnDestroy {
@@ -387,7 +393,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   restore = async () => {
-    await this.params.restore(this.cipher);
+    await this.params.restore?.(this.cipher);
     this.dialogRef.close(VaultItemDialogResult.Restored);
   };
 

@@ -24,7 +24,13 @@ export function NotificationContainer({
   theme = ThemeTypes.Light,
   type,
   ciphers,
-}: NotificationBarIframeInitData & { handleCloseNotification: (e: Event) => void } & {
+  handleSaveAction,
+  handleEditOrUpdateAction,
+}: NotificationBarIframeInitData & {
+  handleCloseNotification: (e: Event) => void;
+  handleSaveAction: (e: Event) => void;
+  handleEditOrUpdateAction: (e: Event) => void;
+} & {
   i18n: { [key: string]: string };
   type: NotificationType; // @TODO typing override for generic `NotificationBarIframeInitData.type`
   ciphers: NotificationCipherData[];
@@ -42,14 +48,17 @@ export function NotificationContainer({
       })}
       ${showBody
         ? NotificationBody({
+            handleEditOrUpdateAction,
             ciphers,
             notificationType: type,
             theme,
           })
         : null}
       ${NotificationFooter({
+        handleSaveAction,
         theme,
         notificationType: type,
+        i18n,
       })}
     </div>
   `;

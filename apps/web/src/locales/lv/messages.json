@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Kritiskās lietotnes"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "Nav riskam pakļautu būtisku lietotņu"
+  },
   "accessIntelligence": {
     "message": "Piekļuves inteliģence"
   },
@@ -1161,6 +1164,15 @@
   "logInToBitwarden": {
     "message": "Pieteikties Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Jāievada e-pastā nosūtītais kods"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Jāievada kods no savas autentificētājlietotnes"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Jāpiespiež sava YubiKey ierīce, lai autentificētu"
+  },
   "authenticationTimeout": {
     "message": "Autentificēšanās noildze"
   },
@@ -1443,11 +1455,21 @@
   "rememberMe": {
     "message": "Atcerēties mani"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Šajā ierīcē 30 dienas vairs nevaicāt"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Atkārtoti nosūtīt apstiprinājuma kodu"
   },
   "useAnotherTwoStepMethod": {
     "message": "Izmantot citu divpakāpju pieteikšanās veidu"
+  },
+  "selectAnotherMethod": {
+    "message": "Atlasīt citu veidu",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Izmantot savu atkopes kodu"
   },
   "insertYubiKey": {
     "message": "Ievietojiet YubiKey datora USB portā un pēc tam pieskarieties tā pogai."
@@ -1466,6 +1488,9 @@
   },
   "twoStepOptions": {
     "message": "Divpakāpju pieteikšanās iespējas"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Atlasīt divpakāpju pieteikšanās veidu"
   },
   "recoveryCodeDesc": {
     "message": "Zaudēta piekļuve visiem divpakāpju pieteikšanās nodrošinātājiem? Jāizmanto atkopšanas kods, lai izslēgtu visus sava konta divpakāpju pieteikšanās nodrošinātājus."
@@ -1508,6 +1533,9 @@
   },
   "webAuthnMigrated": {
     "message": "(Pārgājis no FIDO)"
+  },
+  "openInNewTab": {
+    "message": "Atvērt jaunā cilnē"
   },
   "emailTitle": {
     "message": "E-pasts"
@@ -2161,6 +2189,9 @@
   },
   "twoStepLoginRecoveryWarning": {
     "message": "Divpakāpju pieteikšanās var pastāvīgi liegt piekļuvi Bitwarden kontam. Atkopšanas kods ļauj piekļūt tam gadījumā, kad vairs nav iespējams izmantot ierasto divpakāpju pieteikšanās nodrošinātāju (piemēram, ir pazaudēta ierīce). Bitwarden atbalsts nevarēs palīdzēt, ja tiks pazaudēta piekļuve kontam. Ir ieteicams, ka atkopšanas kods tiek pierakstīts vai izdrukāts un turēts drošā vietā."
+  },
+  "yourSingleUseRecoveryCode": {
+    "message": "Vienreizējas izmantošanas atkopes kodu var izmantot, lai izslēgtu divpakāpju pieteikšanos gadījumā, ja tiek zaudēta piekļuve savam divpakāpju pieteikšanās nodrošinātājam. Bitwarden iesaka pierakstīt atkopes kodu un glabāt to drošā vietā."
   },
   "viewRecoveryCode": {
     "message": "Skatīt atkopšanas kodu"
@@ -4078,6 +4109,12 @@
   "updateBrowserDesc": {
     "message": "Tiek izmantots neatbalstīts tīmekļa pārlūks. Tīmekļa glabātava var nedarboties pareizi."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "Ir neizskatīts pieteikšanās pieprasījums no citas ierīces."
+  },
+  "reviewLoginRequest": {
+    "message": "Izskatīt pieteikšanās pieprasījumu"
+  },
   "freeTrialEndPromptCount": {
     "message": "Bezmaksas izmēģinājums beigsies pēc $COUNT$ dienām.",
     "placeholders": {
@@ -4171,6 +4208,9 @@
   },
   "recoverAccountTwoStepDesc": {
     "message": "Ja kontam nevar piekļūt ar ierastajiem divpakāpju pieteikšanās veidiem, var izmantot atkopšanas kodu, lai atspējotu visus konta divpakāpju pieteikšanās nodrošinātājus."
+  },
+  "logInBelowUsingYourSingleUseRecoveryCode": {
+    "message": "Pieteikties ar vienreizējas izmantošanas atkopes kodu zemāk. Tas kontā izslēgs visus divpakāpju nodrošinātājus."
   },
   "recoverAccountTwoStep": {
     "message": "Atkopt konta divpakāpju pieteikšanos"
@@ -4463,6 +4503,24 @@
   "encryptionKeyUpdateCannotProceed": {
     "message": "Šifrēšanas atslēgas atjaunināšana nav iespējama"
   },
+  "editFieldLabel": {
+    "message": "Labot $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButton": {
+    "message": "Pārkārtot $LABEL$. Jāizmanto bultas taustiņš, lai pārvietotu vienumu augšup vai lejup.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "Šifrēšanas atslēgas atjaunināšanas laikā mapes nevarēja atšifrēt. Lai turpinātu atjaunināšanu, mapes ir jāizdzēš. Glabātavas vienumi netiks izdzēsti, ja turpināsi."
   },
@@ -4733,6 +4791,15 @@
   },
   "masterPassPolicyDesc": {
     "message": "Uzstādīt galvenās paroles stipruma mazākās izpildāmās prasības."
+  },
+  "passwordStrengthScore": {
+    "message": "Paroles stipruma novērtējums $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "twoStepLoginPolicyTitle": {
     "message": "Pieprasīt divpakāpju pieteikšanos"
@@ -5628,6 +5695,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "Autentificēt WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Nolasīt drošības atslēgu"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Gaida mijiedarbību ar drošības atslēgu..."
   },
   "webAuthnNotSupported": {
     "message": "WebAuthn šajā pārlūkā netiek atbalstīts."
@@ -6922,6 +6995,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ atteica pieprasījumu. Lūgums sazināties ar savu pakalpojma nodrošinātāju, lai iegūtu palīdzību.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ atteica pieprasījumu: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Neizdevās iegūt $SERVICENAME$ aizsegta e-pasta konta Id.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -7150,6 +7247,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "Kontam ir nepieciešama DUO divpakāpju pieteikšanās."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Ir nepieciešama Duo divpakāpju pieteikšanās, lai pieteiktos savā kontā. Jāseko zemāk esošajām norādēm, lai pabeigtu pieteikšanos."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Jāseko zemāk esošajām norādēm, lai pabeigtu pieteikšanos."
   },
   "launchDuo": {
     "message": "Palaist DUO"
@@ -9246,6 +9349,12 @@
   "deviceManagementDesc": {
     "message": "Konfigurēt ierīču pārvaldību Bitwarden, izmantojot operētājsistēmai atbilstošas ieviešanas norādes."
   },
+  "desktopRequired": {
+    "message": "Nepieciešams dators"
+  },
+  "reopenLinkOnDesktop": {
+    "message": "Šī saite e-pastā atkārtoti jāatver datorā."
+  },
   "integrationCardTooltip": {
     "message": "Palaist $INTEGRATION$ ieviešanas norādes.",
     "placeholders": {
@@ -10239,6 +10348,38 @@
   "organizationNameMaxLength": {
     "message": "Apvienības nosaukums nevar pārsniegt 50 rakstzīmes."
   },
+  "openingExtension": {
+    "message": "Atver Bitwarden pārlūka paplašinājumu"
+  },
+  "somethingWentWrong": {
+    "message": "Kaut kas nogāja greizi..."
+  },
+  "openingExtensionError": {
+    "message": "Mums bija sarežģījumi Bitwarden pārlūka paplašinājuma atvēršanā. Klikšķināt uz pogas, lai to tagad atvērtu."
+  },
+  "openExtension": {
+    "message": "Atvērt paplašinājumu"
+  },
+  "doNotHaveExtension": {
+    "message": "Nav Bitwarden pārlūka paplašinājuma?"
+  },
+  "installExtension": {
+    "message": "Uzstādīt paplašinājumu"
+  },
+  "openedExtension": {
+    "message": "Atvērt pārlūka paplašinājumu"
+  },
+  "openedExtensionViewAtRiskPasswords": {
+    "message": "Bitwarden pārlūka paplašinājums tika veiksmīgi atvērts. Tagad var pārskatīt savas riskam pakļautās paroles."
+  },
+  "openExtensionManuallyPart1": {
+    "message": "Mums bija sarežģījumi Bitwarden pārlūka paplašinājuma atvēršanā. Rīkjoslā jāatver Bitwarden ikona",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openExtensionManuallyPart2": {
+    "message": "rīkjoslā.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
   "resellerRenewalWarningMsg": {
     "message": "Abonements drīz tiks atjaunots. Lai nodrošinātu nepārtrauktu pakalpojumu, pirms $RENEWAL_DATE$ jāsazinās ar $RESELLER$, lai apstiprinātu atjaunošanu.",
     "placeholders": {
@@ -10345,5 +10486,29 @@
   },
   "assignedExceedsAvailable": {
     "message": "Piešķirtās vietas pārsniedz pieejamās vietas."
+  },
+  "removeUnlockWithPinPolicyTitle": {
+    "message": "Noņemt atslēgšanu ar PIN"
+  },
+  "removeUnlockWithPinPolicyDesc": {
+    "message": "Neļaut dalībniekiem atslēgt savu kontu ar PIN."
+  },
+  "limitedEventLogs": {
+    "message": "$PRODUCT_TYPE$ plāniem nav piekļuve īstajiem notikumu žurnāliem",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Pilna piekļuve apvienības notikumu žurnāliem ir iegūstama, ja izmanto Komandu vai Uzņēmējdarbības plānu."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Uzlabot, lai piekļūtu īstajiem notikumu žurnāla datiem"
+  },
+  "upgradeEventLogMessage": {
+    "message": "Šie notikumu ir tikai piemēri, un tie neatspoguļo īstus notikumus Bitwarden apvienībā."
   }
 }
