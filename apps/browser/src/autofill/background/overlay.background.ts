@@ -2104,6 +2104,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       cipherId: cipher.id,
       action: SHOW_AUTOFILL_BUTTON,
     });
+
+    if (await this.autofillService.isPasswordRepromptRequired(cipher, sender.tab)) {
+      return;
+    }
   }
 
   /**
