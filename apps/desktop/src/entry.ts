@@ -3,8 +3,7 @@ import * as path from "path";
 
 import { app } from "electron";
 
-import { passkey_authenticator } from "@bitwarden/desktop-napi";
-
+//import { passkey_authenticator } from "@bitwarden/desktop-napi";
 
 if (
   process.platform === "darwin" &&
@@ -43,7 +42,10 @@ if (
   // eslint-disable-next-line
   const Main = require("./main").Main;
 
-  passkey_authenticator.register();
+  // Uncomment these lines when the Windows Plugin Authenticator
+  // is fully ready
+  //passkey_authenticator.register();
+  // add: passkey_authenticator.add_authenticator();
 
   const main = new Main();
   main.bootstrap();

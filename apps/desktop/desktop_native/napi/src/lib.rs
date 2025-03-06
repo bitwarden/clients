@@ -820,7 +820,7 @@ pub mod crypto {
 #[napi]
 pub mod passkey_authenticator {
     #[napi]
-    pub fn register() -> i32 {
-        windows_plugin_authenticator::register()
+    pub fn register() {
+        let _ = windows_plugin_authenticator::register();
     }
 }

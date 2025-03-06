@@ -187,5 +187,5 @@ export declare namespace crypto {
   export function argon2(secret: Buffer, salt: Buffer, iterations: number, memory: number, parallelism: number): Promise<Buffer>
 }
 export declare namespace passkey_authenticator {
-  export function register(): number
+  export function register(): void
 }

@@ -3513,8 +3513,8 @@ checksum = "810ce18ed2112484b0d4e15d022e5f598113e220c53e373fb31e67e21670c1ce"
 dependencies = [
  "windows-implement 0.59.0",
  "windows-interface 0.59.0",
- "windows-result 0.3.0",
- "windows-strings 0.3.0",
+ "windows-result 0.3.1",
+ "windows-strings 0.3.1",
  "windows-targets 0.53.0",
 ]
 
@@ -3574,19 +3574,21 @@ dependencies = [
 ]
 
 [[package]]
-name = "windows-link"
-version = "0.1.0"
+name = "windows-interface"
+version = "0.59.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6dccfd733ce2b1753b03b6d3c65edf020262ea35e20ccdf3e288043e6dd620e3"
-
-[[package]]
-name = "windows-plugin-authenticator"
-version = "0.0.0"
+checksum = "cb26fd936d991781ea39e87c3a27285081e3c0da5ca0fcbc02d368cc6f52ff01"
 dependencies = [
  "proc-macro2",
  "quote",
  "syn",
 ]
+
+[[package]]
+name = "windows-link"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6dccfd733ce2b1753b03b6d3c65edf020262ea35e20ccdf3e288043e6dd620e3"
 
 [[package]]
 name = "windows-registry"
