@@ -35,7 +35,12 @@
   </div>
 </ng-container>
 
-<bit-table *ngIf="!(isLoading$ | async)" [dataSource]="dataSource" class="tw-mt-2">
+<bit-table-scroll
+  *ngIf="!(isLoading$ | async)"
+  [dataSource]="dataSource"
+  [rowSize]="53"
+  class="tw-table tw-w-full table-hover table-list"
+>
   <ng-container header>
     <tr>
       <th bitCell bitSortable="name" default>{{ "members" | i18n }}</th>
@@ -44,25 +49,23 @@
       <th bitCell bitSortable="itemsCount">{{ "items" | i18n }}</th>
     </tr>
   </ng-container>
-  <ng-template body let-rows$>
-    <tr bitRow *ngFor="let r of rows$ | async">
-      <td bitCell>
-        <div class="tw-flex tw-items-center">
-          <bit-avatar size="small" [text]="r.name" class="tw-mr-3"></bit-avatar>
-          <div class="tw-flex tw-flex-col">
-            <button type="button" bitLink (click)="edit(r)">
-              {{ r.name }}
-            </button>
+  <ng-template bitRowDef let-row>
+    <td bitCell>
+      <div class="tw-flex tw-items-center">
+        <bit-avatar size="small" [text]="row.name" class="tw-mr-3"></bit-avatar>
+        <div class="tw-flex tw-flex-col">
+          <button type="button" bitLink (click)="edit(row)">
+            {{ row.name }}
+          </button>
 
-            <div class="tw-text-sm tw-mt-1 tw-text-muted">
-              {{ r.email }}
-            </div>
+          <div class="tw-text-sm tw-mt-1 tw-text-muted">
+            {{ row.email }}
           </div>
         </div>
-      </td>
-      <td bitCell class="tw-text-muted tw-w-[278px] tw-p-4">{{ r.groupsCount }}</td>
-      <td bitCell class="tw-text-muted tw-w-[278px] tw-p-4">{{ r.collectionsCount }}</td>
-      <td bitCell class="tw-text-muted tw-w-[278px] tw-p-4">{{ r.itemsCount }}</td>
-    </tr>
+      </div>
+    </td>
+    <td bitCell class="tw-text-muted tw-w-[278px] tw-p-4">{{ row.groupsCount }}</td>
+    <td bitCell class="tw-text-muted tw-w-[278px] tw-p-4">{{ row.collectionsCount }}</td>
+    <td bitCell class="tw-text-muted tw-w-[278px] tw-p-4">{{ row.itemsCount }}</td>
   </ng-template>
-</bit-table>
+</bit-table-scroll>

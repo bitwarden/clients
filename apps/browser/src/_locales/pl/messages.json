@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "Podpowiedź do hasła głównego (opcjonalnie)"
   },
+  "passwordStrengthScore": {
+    "message": "Siła hasła: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Dołącz do organizacji"
   },
@@ -876,6 +885,21 @@
   "logInToBitwarden": {
     "message": "Zaloguj się do Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Wpisz kod wysłany na Twój adres e-mail"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Wpisz kod z aplikacji uwierzytelniającej"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Naciśnij YubiKey aby uwierzytelnić"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Logowanie dwustopniowe Duo jest wymagane dla twojego konta. Wykonaj poniższe kroki, by dokończyć logowanie"
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Wykonaj poniższe kroki, by dokończyć logowanie"
+  },
   "restartRegistration": {
     "message": "Zrestartuj rejestrację"
   },
@@ -1365,11 +1389,21 @@
   "rememberMe": {
     "message": "Zapamiętaj mnie"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Nie pytaj ponownie na tym urządzeniu przez 30 dni"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Wyślij ponownie wiadomość z kodem weryfikacyjnym"
   },
   "useAnotherTwoStepMethod": {
     "message": "Użyj innej metody logowania dwustopniowego"
+  },
+  "selectAnotherMethod": {
+    "message": "Wybierz inną metodę",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Użyj kodu odzyskiwania"
   },
   "insertYubiKey": {
     "message": "Włóż klucz YubiKey do portu USB komputera, a następnie dotknij jego przycisku."
@@ -1383,8 +1417,17 @@
   "webAuthnNewTabOpen": {
     "message": "Otwórz nową kartę"
   },
+  "openInNewTab": {
+    "message": "Otwórz w nowej karcie"
+  },
   "webAuthnAuthenticate": {
     "message": "Uwierzytelnianie WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Odczytaj klucz bezpieczeństwa"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Oczekiwanie na interakcję z kluczem bezpieczeństwa..."
   },
   "loginUnavailable": {
     "message": "Logowanie jest niedostępne"
@@ -1397,6 +1440,9 @@
   },
   "twoStepOptions": {
     "message": "Opcje logowania dwustopniowego"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Wybierz metodę logowania dwustopniowego"
   },
   "recoveryCodeDesc": {
     "message": "Utraciłeś dostęp do wszystkich swoich mechanizmów dwustopniowego logowania? Użyj kodów odzyskiwania, aby wyłączyć dwustopniowe logowanie na Twoim koncie."
@@ -2097,6 +2143,15 @@
   "vaultTimeoutAction1": {
     "message": "Akcja po przekroczeniu limitu czasu"
   },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "Nowe opcje dostosowywania"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Dostosuj swój sejf dzięki akcjom szybkiego kopiowania, trybowi kompaktowemu i więcej!"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "Zobacz wszystkie ustawienia wyglądu"
+  },
   "lock": {
     "message": "Zablokuj",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2391,7 +2446,16 @@
   "atRiskPasswords": {
     "message": "Zagrożone hasła"
   },
-  "atRiskPasswordsDescSingleOrg": {
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ prosi o zmianę jednego hasła, ponieważ jest ono zagrożone.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
     "message": "$ORGANIZATION$ prosi o zmianę $COUNT$ haseł, ponieważ są one zagrożone.",
     "placeholders": {
       "organization": {
@@ -2404,7 +2468,7 @@
       }
     }
   },
-  "atRiskPasswordsDescMultiOrg": {
+  "atRiskPasswordsDescMultiOrgPlural": {
     "message": "Twoje organizacje proszą o zmianę $COUNT$ haseł, ponieważ są one zagrożone.",
     "placeholders": {
       "count": {
@@ -2430,6 +2494,36 @@
   },
   "changeAtRiskPasswordsFasterDesc": {
     "message": "Zaktualizuj swoje ustawienia, aby szybko autouzupełniać hasła i generować nowe"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Przejrzyj zagrożone loginy"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Przejrzyj zagrożone hasła"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Twoje hasła organizacji są zagrożone, ponieważ są słabe, ponownie używane i/lub narażone.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAlt": {
+    "message": "Ilustracja listy loginów, które są zagrożone"
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Szybko wygeneruj silne, unikalne hasło z menu autouzupełniania Bitwarden na stronie narażonej na ryzyko.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAlt": {
+    "message": "Ilustracja menu autouzupełniania Bitwarden pokazująca wygenerowane hasło"
+  },
+  "updateInBitwarden": {
+    "message": "Aktualizacja w Bitwarden"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "Bitwarden poprosi Cię o aktualizację hasła w menedżerze haseł.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAlt": {
+    "message": "Ilustracja powiadomienia Bitwardena, która prosi użytkownika o aktualizację logowania"
   },
   "turnOnAutofill": {
     "message": "Włącz autouzupełnienie"
@@ -4178,6 +4272,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "Kopiuj $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
       }
     }
   },
