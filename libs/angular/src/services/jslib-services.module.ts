@@ -45,8 +45,6 @@ import {
   DefaultAuthRequestApiService,
   DefaultLoginSuccessHandlerService,
   LoginSuccessHandlerService,
-  PasswordLoginStrategy,
-  PasswordLoginStrategyData,
   LoginApprovalComponentServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
@@ -54,8 +52,6 @@ import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstr
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/abstractions/search.service";
-import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
-import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   InternalOrganizationServiceAbstraction,
@@ -157,6 +153,12 @@ import { BulkEncryptService } from "@bitwarden/common/key-management/crypto/abst
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { BulkEncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/bulk-encrypt.service.implementation";
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/multithread-encrypt.service.implementation";
+import {
+  DefaultVaultTimeoutService,
+  DefaultVaultTimeoutSettingsService,
+  VaultTimeoutService,
+  VaultTimeoutSettingsService,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
@@ -243,8 +245,6 @@ import { AuditService } from "@bitwarden/common/services/audit.service";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
 import { SearchService } from "@bitwarden/common/services/search.service";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
-import { VaultTimeoutService } from "@bitwarden/common/services/vault-timeout/vault-timeout.service";
 import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
@@ -463,7 +463,7 @@ const safeProviders: SafeProvider[] = [
       InternalUserDecryptionOptionsServiceAbstraction,
       GlobalStateProvider,
       BillingAccountProfileStateService,
-      VaultTimeoutSettingsServiceAbstraction,
+      VaultTimeoutSettingsService,
       KdfConfigService,
       TaskSchedulerService,
     ],
@@ -697,7 +697,7 @@ const safeProviders: SafeProvider[] = [
       REFRESH_ACCESS_TOKEN_ERROR_CALLBACK,
       LogService,
       LOGOUT_CALLBACK,
-      VaultTimeoutSettingsServiceAbstraction,
+      VaultTimeoutSettingsService,
     ],
   }),
   safeProvider({
@@ -762,8 +762,8 @@ const safeProviders: SafeProvider[] = [
     deps: [MessageListener],
   }),
   safeProvider({
-    provide: VaultTimeoutSettingsServiceAbstraction,
-    useClass: VaultTimeoutSettingsService,
+    provide: VaultTimeoutSettingsService,
+    useClass: DefaultVaultTimeoutSettingsService,
     deps: [
       AccountServiceAbstraction,
       PinServiceAbstraction,
@@ -778,8 +778,8 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: VaultTimeoutService,
-    useClass: VaultTimeoutService,
+    provide: DefaultVaultTimeoutService,
+    useClass: DefaultVaultTimeoutService,
     deps: [
       AccountServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
@@ -791,7 +791,7 @@ const safeProviders: SafeProvider[] = [
       SearchServiceAbstraction,
       StateServiceAbstraction,
       AuthServiceAbstraction,
-      VaultTimeoutSettingsServiceAbstraction,
+      VaultTimeoutSettingsService,
       StateEventRunnerService,
       TaskSchedulerService,
       LogService,
@@ -801,8 +801,8 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: VaultTimeoutServiceAbstraction,
-    useExisting: VaultTimeoutService,
+    provide: VaultTimeoutService,
+    useExisting: DefaultVaultTimeoutService,
   }),
   safeProvider({
     provide: SsoLoginServiceAbstraction,
@@ -1457,37 +1457,6 @@ const safeProviders: SafeProvider[] = [
     provide: LoginSuccessHandlerService,
     useClass: DefaultLoginSuccessHandlerService,
     deps: [SyncService, UserAsymmetricKeysRegenerationService],
-  }),
-  safeProvider({
-    provide: PasswordLoginStrategy,
-    useClass: PasswordLoginStrategy,
-    deps: [
-      PasswordLoginStrategyData,
-      PasswordStrengthServiceAbstraction,
-      PolicyServiceAbstraction,
-      LoginStrategyServiceAbstraction,
-      AccountServiceAbstraction,
-      InternalMasterPasswordServiceAbstraction,
-      KeyService,
-      EncryptService,
-      ApiServiceAbstraction,
-      TokenServiceAbstraction,
-      AppIdServiceAbstraction,
-      PlatformUtilsServiceAbstraction,
-      MessagingServiceAbstraction,
-      LogService,
-      StateServiceAbstraction,
-      TwoFactorServiceAbstraction,
-      InternalUserDecryptionOptionsServiceAbstraction,
-      BillingAccountProfileStateService,
-      VaultTimeoutSettingsServiceAbstraction,
-      KdfConfigService,
-    ],
-  }),
-  safeProvider({
-    provide: PasswordLoginStrategyData,
-    useClass: PasswordLoginStrategyData,
-    deps: [],
   }),
   safeProvider({
     provide: TaskService,

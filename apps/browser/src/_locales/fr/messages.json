@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "Indice du mot de passe principal (facultatif)"
   },
+  "passwordStrengthScore": {
+    "message": "Score de force du mot de passe $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Rejoindre l'organisation"
   },
@@ -177,7 +186,7 @@
     "message": "Copier les notes"
   },
   "copy": {
-    "message": "Copy",
+    "message": "Copier",
     "description": "Copy to clipboard"
   },
   "fill": {
@@ -664,7 +673,7 @@
     "message": "Vérifier l'identité"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Nous ne reconnaissons pas cet appareil. Saisissez le code envoyé à votre courriel pour vérifier votre identité."
   },
   "continueLoggingIn": {
     "message": "Continuer à se connecter"
@@ -876,6 +885,21 @@
   "logInToBitwarden": {
     "message": "Se connecter à Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Saisissez le code envoyé par courriel"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Saisissez le code de votre application d'authentification"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Appuyez sur votre YubiKey pour vous authentifier"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Les identifiants de l'authentification à deux facteurs Duo sont requis pour votre compte. Suivez les étapes ci-dessous afin de réussir à vous connecter."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Suivez les étapes ci-dessous afin de réussir à vous connecter."
+  },
   "restartRegistration": {
     "message": "Redémarrer l'inscription"
   },
@@ -1009,7 +1033,7 @@
     "message": "Demande l'ajout d'un élément si celui-ci n'est pas trouvé dans votre coffre. S'applique à tous les comptes connectés."
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "Toujours montrer les cartes de paiement en tant que suggestions de remplissage automatique dans l'affichage du coffre"
   },
   "showCardsCurrentTab": {
     "message": "Afficher les cartes de paiement sur la Page d'onglet"
@@ -1018,7 +1042,7 @@
     "message": "Liste les éléments des cartes de paiement sur la Page d'onglet pour faciliter la saisie automatique."
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "Toujours montrer les identités en tant que suggestions de remplissage automatique dans l'affichage du coffre"
   },
   "showIdentitiesCurrentTab": {
     "message": "Afficher les identités sur la Page d'onglet"
@@ -1027,10 +1051,10 @@
     "message": "Liste les éléments d'identité sur la Page d'onglet pour faciliter la saisie automatique."
   },
   "clickToAutofillOnVault": {
-    "message": "Click items to autofill on Vault view"
+    "message": "Cliquez sur les éléments pour le remplissage automatique dans 'affichage du coffre"
   },
   "clickToAutofill": {
-    "message": "Click items in autofill suggestion to fill"
+    "message": "Cliquez sur les éléments de la suggestion de remplissage automatique pour les remplir"
   },
   "clearClipboard": {
     "message": "Effacer le presse-papiers",
@@ -1365,11 +1389,21 @@
   "rememberMe": {
     "message": "Rester connecté"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Ne plus demander sur cet appareil pendant 30 jours"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Envoyer à nouveau le courriel de code de vérification"
   },
   "useAnotherTwoStepMethod": {
     "message": "Utiliser une autre méthode d'identification en deux étapes"
+  },
+  "selectAnotherMethod": {
+    "message": "Sélectionnez une autre méthode",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Utilisez votre code de récupération"
   },
   "insertYubiKey": {
     "message": "Insérez votre YubiKey dans le port USB de votre ordinateur puis appuyez sur son bouton."
@@ -1383,8 +1417,17 @@
   "webAuthnNewTabOpen": {
     "message": "Ouvrir un nouvel onglet"
   },
+  "openInNewTab": {
+    "message": "Ouvrir dans un nouvel onglet"
+  },
   "webAuthnAuthenticate": {
     "message": "Authentifier WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Lire la clé de sécurité"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "En attente d'interaction de la clé de sécurité..."
   },
   "loginUnavailable": {
     "message": "Identifiant indisponible"
@@ -1397,6 +1440,9 @@
   },
   "twoStepOptions": {
     "message": "Options d'authentification à feux facteurs"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Sélectionnez la méthode d'authentification à deux facteurs"
   },
   "recoveryCodeDesc": {
     "message": "Accès perdu à tous vos services d'authentification à double facteurs ? Utilisez votre code de récupération pour désactiver tous les services de double authentifications sur votre compte."
@@ -2069,7 +2115,7 @@
     "message": "Générateur de nom d'utilisateur"
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Utiliser ce courriel"
   },
   "useThisPassword": {
     "message": "Utiliser ce mot de passe"
@@ -2089,13 +2135,22 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultCustomization": {
-    "message": "Vault customization"
+    "message": "Personnalisation du coffre"
   },
   "vaultTimeoutAction": {
     "message": "Action après délai d'expiration du coffre"
   },
   "vaultTimeoutAction1": {
     "message": "Expiration de l'action"
+  },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "Nouvelles options de personnalisation"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Personnalisez votre expérience utilisateur du coffre avec des actions de copie rapide, un mode compact et bien plus encore !"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "View all Appearance settings"
   },
   "lock": {
     "message": "Verrouiller",
@@ -2356,7 +2411,7 @@
     "message": "Domaines bloqués"
   },
   "learnMoreAboutBlockedDomains": {
-    "message": "Learn more about blocked domains"
+    "message": "En savoir plus sur les domaines bloqués"
   },
   "excludedDomains": {
     "message": "Domaines exclus"
@@ -2368,19 +2423,19 @@
     "message": "Bitwarden ne demandera pas d'enregistrer les détails de connexion pour ces domaines pour tous les comptes connectés. Vous devez actualiser la page pour que les modifications prennent effet."
   },
   "blockedDomainsDesc": {
-    "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
+    "message": "Le remplissage automatique et d'autres fonctionnalités connexes ne seront pas proposés pour ces sites web. Vous devez actualiser la page pour que les modifications soient prises en compte."
   },
   "autofillBlockedNoticeV2": {
-    "message": "Autofill is blocked for this website."
+    "message": "Le remplissage automatique est bloqué pour ce site web."
   },
   "autofillBlockedNoticeGuidance": {
-    "message": "Change this in settings"
+    "message": "Modifier ceci dans les paramètres"
   },
   "change": {
-    "message": "Change"
+    "message": "Modifier"
   },
   "changeButtonTitle": {
-    "message": "Change password - $ITEMNAME$",
+    "message": "Modifier le mot de passe - $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -2389,10 +2444,19 @@
     }
   },
   "atRiskPasswords": {
-    "message": "At-risk passwords"
+    "message": "Mots de passe à risque"
   },
-  "atRiskPasswordsDescSingleOrg": {
-    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at risk.",
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
+    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at-risk.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2404,8 +2468,8 @@
       }
     }
   },
-  "atRiskPasswordsDescMultiOrg": {
-    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at risk.",
+  "atRiskPasswordsDescMultiOrgPlural": {
+    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at-risk.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2414,10 +2478,10 @@
     }
   },
   "reviewAndChangeAtRiskPassword": {
-    "message": "Review and change one at-risk password"
+    "message": "Examiner et modifier un mot de passe à risque"
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
-    "message": "Review and change $COUNT$ at-risk passwords",
+    "message": "Examiner et modifier les mots de passe à risque $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2426,10 +2490,40 @@
     }
   },
   "changeAtRiskPasswordsFaster": {
-    "message": "Change at-risk passwords faster"
+    "message": "Modifier plus rapidement les mots de passe à risque"
   },
   "changeAtRiskPasswordsFasterDesc": {
     "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Review at-risk logins"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Review at-risk passwords"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAlt": {
+    "message": "Illustration of a list of logins that are at-risk"
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAlt": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  },
+  "updateInBitwarden": {
+    "message": "Update in Bitwarden"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "Bitwarden will then prompt you to update the password in the password manager.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAlt": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
   },
   "turnOnAutofill": {
     "message": "Turn on autofill"
@@ -4178,6 +4272,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "Copy $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
       }
     }
   },

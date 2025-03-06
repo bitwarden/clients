@@ -652,6 +652,15 @@
   "logInToBitwarden": {
     "message": "Войти в Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Введите код, отправленный на ваш email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Введите код из приложения-аутентификатора"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Нажмите на YubiKey для аутентификации"
+  },
   "logInWithPasskey": {
     "message": "Войти с passkey"
   },
@@ -703,6 +712,15 @@
   },
   "masterPassHintLabel": {
     "message": "Подсказка к мастер-паролю"
+  },
+  "passwordStrengthScore": {
+    "message": "Оценка надежности пароля $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Присоединиться к организации"
@@ -816,6 +834,9 @@
   "webauthnCancelOrTimeout": {
     "message": "Аутентификация была отменена или заняла слишком много времени. Пожалуйста, попробуйте еще раз."
   },
+  "openInNewTab": {
+    "message": "Открыть в новой вкладке"
+  },
   "invalidVerificationCode": {
     "message": "Неверный код подтверждения"
   },
@@ -846,11 +867,21 @@
   "rememberMe": {
     "message": "Запомнить меня"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Не спрашивать на этом устройстве в течение 30 дней"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Отправить код подтверждения еще раз"
   },
   "useAnotherTwoStepMethod": {
     "message": "Использовать другой метод двухэтапной аутентификации"
+  },
+  "selectAnotherMethod": {
+    "message": "Выбрать другой способ",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Использовать код восстановления"
   },
   "insertYubiKey": {
     "message": "Вставьте свой YubiKey в USB-порт компьютера и нажмите его кнопку."
@@ -917,6 +948,9 @@
   },
   "twoStepOptions": {
     "message": "Настройки двухэтапной аутентификации"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Выбрать другой метод двухэтапной аутентификации"
   },
   "selfHostedEnvironment": {
     "message": "Окружение пользовательского хостинга"
@@ -2247,6 +2281,12 @@
   "webAuthnAuthenticate": {
     "message": "Аутентификация WebAutn"
   },
+  "readSecurityKey": {
+    "message": "Считать ключ безопасности"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Ожидание взаимодействия с ключом безопасности..."
+  },
   "hideEmail": {
     "message": "Скрыть мой адрес email от получателей."
   },
@@ -3206,6 +3246,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "Для вашего аккаунта требуется двухэтапная аутентификация Duo."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Следуйте указаниям ниже, чтобы завершить авторизацию."
+  },
   "launchDuo": {
     "message": "Запустить Duo в браузере"
   },
@@ -3463,8 +3509,26 @@
   "sshkeyApprovalTitle": {
     "message": "Подтвердить использование ключа SSH"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Предупреждение: Переадресация агента"
+  },
+  "agentForwardingWarningText": {
+    "message": "Этот запрос поступает с удаленного устройства, на которое вы вошли"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "запрашивает доступ к"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "чтобы"
+  },
+  "sshActionLogin": {
+    "message": "авторизоваться на сервере"
+  },
+  "sshActionSign": {
+    "message": "sign a message"
+  },
+  "sshActionGitSign": {
+    "message": "sign a git commit"
   },
   "unknownApplication": {
     "message": "Приложение"

@@ -652,6 +652,15 @@
   "logInToBitwarden": {
     "message": "Bei Bitwarden anmelden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Gib den an deine E-Mail-Adresse gesendeten Code ein"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Gib den Code aus deiner Authenticator-App ein"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Drücke zum Authentifizieren auf deinen YubiKey"
+  },
   "logInWithPasskey": {
     "message": "Mit Passkey anmelden"
   },
@@ -703,6 +712,15 @@
   },
   "masterPassHintLabel": {
     "message": "Master-Passwort-Hinweis"
+  },
+  "passwordStrengthScore": {
+    "message": "Bewertung der Passwortstärke $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Organisation beitreten"
@@ -816,6 +834,9 @@
   "webauthnCancelOrTimeout": {
     "message": "Die Authentifizierung wurde abgebrochen oder hat zu lange gedauert. Bitte versuche es erneut."
   },
+  "openInNewTab": {
+    "message": "In neuem Tab öffnen"
+  },
   "invalidVerificationCode": {
     "message": "Ungültiger Verifizierungscode"
   },
@@ -846,11 +867,21 @@
   "rememberMe": {
     "message": "Angemeldet bleiben"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Für 30 Tage auf diesem Gerät nicht mehr fragen"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "E-Mail mit Bestätigungscode erneut versenden"
   },
   "useAnotherTwoStepMethod": {
     "message": "Eine andere Zwei-Faktor-Anmeldemethode verwenden"
+  },
+  "selectAnotherMethod": {
+    "message": "Wähle eine andere Methode",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Verwende deinen Wiederherstellungscode"
   },
   "insertYubiKey": {
     "message": "Stecke deinen YubiKey in einen USB-Anschluss deines Computers, dann berühre den Button."
@@ -917,6 +948,9 @@
   },
   "twoStepOptions": {
     "message": "Optionen für Zwei-Faktor-Authentifizierung"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Zwei-Faktor-Authentifizierungsmethode auswählen"
   },
   "selfHostedEnvironment": {
     "message": "Selbst gehostete Umgebung"
@@ -1776,7 +1810,7 @@
     "message": "Passwort oder PIN beim Start der App verlangen"
   },
   "requirePasswordWithoutPinOnStart": {
-    "message": "Benötigt ein Passwort beim Starten der App"
+    "message": "Ein Passwort beim Starten der App verlangen"
   },
   "recommendedForSecurity": {
     "message": "Aus Sicherheitsgründen empfohlen."
@@ -2246,6 +2280,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "WebAuthn authentifizieren"
+  },
+  "readSecurityKey": {
+    "message": "Sicherheitsschlüssel auslesen"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Warte auf Sicherheitsschlüssel-Interaktion..."
   },
   "hideEmail": {
     "message": "Meine E-Mail-Adresse vor den Empfängern ausblenden."
@@ -3206,6 +3246,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "Für dein Konto ist die DUO Zwei-Faktor-Authentifizierung erforderlich."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Die Duo-Zwei-Faktor-Authentifizierung ist für dein Konto erforderlich. Folge den Schritten unten, um die Anmeldung abzuschließen."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Folge den Schritten unten, um die Anmeldung abzuschließen."
+  },
   "launchDuo": {
     "message": "Duo im Browser starten"
   },
@@ -3463,8 +3509,26 @@
   "sshkeyApprovalTitle": {
     "message": "Verwendung des SSH-Schlüssels bestätigen"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Warning: Agent Forwarding"
+  },
+  "agentForwardingWarningText": {
+    "message": "This request comes from a remote device that you are logged into"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "fragt den Zugriff an für"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "in order to"
+  },
+  "sshActionLogin": {
+    "message": "authenticate to a server"
+  },
+  "sshActionSign": {
+    "message": "sign a message"
+  },
+  "sshActionGitSign": {
+    "message": "sign a git commit"
   },
   "unknownApplication": {
     "message": "Eine Anwendung"
