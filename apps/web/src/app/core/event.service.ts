@@ -1,10 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
+import { switchMap } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DeviceType, EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EventResponse } from "@bitwarden/common/models/response/event.response";
@@ -19,10 +22,16 @@ export class EventService {
     private i18nService: I18nService,
     policyService: PolicyService,
     private configService: ConfigService,
+    private accountService: AccountService,
   ) {
-    policyService.policies$.subscribe((policies) => {
-      this.policies = policies;
-    });
+    accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) => policyService.policies$(userId)),
+      )
+      .subscribe((policies) => {
+        this.policies = policies;
+      });
   }
 
   getDefaultDateFilters() {

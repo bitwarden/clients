@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import {
   DefaultRegistrationFinishService,
@@ -12,7 +12,9 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { KeyService } from "@bitwarden/key-management";
@@ -30,6 +32,7 @@ export class WebRegistrationFinishService
     private policyApiService: PolicyApiServiceAbstraction,
     private logService: LogService,
     private policyService: PolicyService,
+    private accountService: AccountService,
   ) {
     super(keyService, accountApiService);
   }
@@ -68,7 +71,10 @@ export class WebRegistrationFinishService
     }
 
     const masterPasswordPolicyOpts: MasterPasswordPolicyOptions = await firstValueFrom(
-      this.policyService.masterPasswordPolicyOptions$(policies),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.policyService.masterPasswordPolicyOptions$(userId, policies)),
+      ),
     );
 
     return masterPasswordPolicyOpts;

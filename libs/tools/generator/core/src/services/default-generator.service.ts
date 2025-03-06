@@ -51,7 +51,7 @@ export class DefaultGeneratorService<Options, Policy> implements GeneratorServic
   }
 
   private createEvaluator(userId: UserId) {
-    const evaluator$ = this.policy.getAll$(this.strategy.policy, userId).pipe(
+    const evaluator$ = this.policy.policiesByType$(this.strategy.policy, userId).pipe(
       // create the evaluator from the policies
       this.strategy.toEvaluator(),
     );
