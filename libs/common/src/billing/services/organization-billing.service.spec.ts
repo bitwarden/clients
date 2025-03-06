@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction as OrganizationApiService } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -54,7 +54,7 @@ describe("BillingAccountProfileStateService", () => {
 
   describe("isUpsellingPoliciesEnabled", () => {
     it("returns false when feature flag is disabled", async () => {
-      configService.getFeatureFlag.mockResolvedValue(false);
+      configService.getFeatureFlag$.mockReturnValue(of(false));
       const org = {
         isProviderUser: false,
         canEditSubscription: true,
@@ -63,13 +63,13 @@ describe("BillingAccountProfileStateService", () => {
 
       const actual = await firstValueFrom(sut.isUpsellingPoliciesEnabled$(org));
       expect(actual).toBe(false);
-      expect(configService.getFeatureFlag).toHaveBeenCalledWith(
+      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
         FeatureFlag.PM12276_BreadcrumbEventLogs,
       );
     });
 
     it("returns false when organization belongs to a provider", async () => {
-      configService.getFeatureFlag.mockResolvedValue(true);
+      configService.getFeatureFlag$.mockReturnValue(of(true));
       const org = {
         isProviderUser: true,
         canEditSubscription: true,
@@ -81,7 +81,7 @@ describe("BillingAccountProfileStateService", () => {
     });
 
     it("returns false when cannot edit subscription", async () => {
-      configService.getFeatureFlag.mockResolvedValue(true);
+      configService.getFeatureFlag$.mockReturnValue(of(true));
       const org = {
         isProviderUser: false,
         canEditSubscription: false,
@@ -96,7 +96,7 @@ describe("BillingAccountProfileStateService", () => {
       ["Teams", ProductTierType.Teams],
       ["TeamsStarter", ProductTierType.TeamsStarter],
     ])("returns true when all conditions are met with %s tier", async (_, productTierType) => {
-      configService.getFeatureFlag.mockResolvedValue(true);
+      configService.getFeatureFlag$.mockReturnValue(of(true));
       const org = {
         isProviderUser: false,
         canEditSubscription: true,
@@ -105,13 +105,13 @@ describe("BillingAccountProfileStateService", () => {
 
       const actual = await firstValueFrom(sut.isUpsellingPoliciesEnabled$(org));
       expect(actual).toBe(true);
-      expect(configService.getFeatureFlag).toHaveBeenCalledWith(
+      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
         FeatureFlag.PM12276_BreadcrumbEventLogs,
       );
     });
 
     it("returns false when product tier is not supported", async () => {
-      configService.getFeatureFlag.mockResolvedValue(true);
+      configService.getFeatureFlag$.mockReturnValue(of(true));
       const org = {
         isProviderUser: false,
         canEditSubscription: true,
@@ -123,7 +123,7 @@ describe("BillingAccountProfileStateService", () => {
     });
 
     it("handles all conditions false correctly", async () => {
-      configService.getFeatureFlag.mockResolvedValue(false);
+      configService.getFeatureFlag$.mockReturnValue(of(false));
       const org = {
         isProviderUser: true,
         canEditSubscription: false,
@@ -135,7 +135,7 @@ describe("BillingAccountProfileStateService", () => {
     });
 
     it("verifies feature flag is only called once", async () => {
-      configService.getFeatureFlag.mockResolvedValue(true);
+      configService.getFeatureFlag$.mockReturnValue(of(false));
       const org = {
         isProviderUser: false,
         canEditSubscription: true,
@@ -143,7 +143,7 @@ describe("BillingAccountProfileStateService", () => {
       } as Organization;
 
       await firstValueFrom(sut.isUpsellingPoliciesEnabled$(org));
-      expect(configService.getFeatureFlag).toHaveBeenCalledTimes(1);
+      expect(configService.getFeatureFlag$).toHaveBeenCalledTimes(1);
     });
   });
 });
