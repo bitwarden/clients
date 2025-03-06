@@ -24,8 +24,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { FreeTrial } from "../../core/types/free-trial";
 import { TrialFlowService } from "../services/trial-flow.service";
+import { FreeTrial } from "../types/free-trial";
 
 import { AddCreditDialogResult, openAddCreditDialog } from "./add-credit-dialog.component";
 import {

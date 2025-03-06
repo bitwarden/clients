@@ -7,36 +7,7 @@
   <span class="tw-sr-only">{{ "loading" | i18n }}</span>
 </ng-container>
 <ng-container *ngIf="createOrganization && selfHosted">
-  <ng-container *ngIf="!(useLicenseUploaderComponent$ | async)">
-    <p bitTypography="body1">{{ "uploadLicenseFileOrg" | i18n }}</p>
-    <form [formGroup]="selfHostedForm" [bitSubmit]="submit">
-      <bit-form-field>
-        <bit-label>{{ "licenseFile" | i18n }}</bit-label>
-        <div class="tw-pt-2 tw-pb-1">
-          <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
-            {{ "chooseFile" | i18n }}
-          </button>
-          {{ selectedFile?.name ?? ("noFileChosen" | i18n) }}
-        </div>
-        <input
-          #fileSelector
-          bitInput
-          type="file"
-          formControlName="file"
-          (change)="setSelectedFile($event)"
-          accept="application/JSON"
-          hidden
-          class="tw-hidden"
-        />
-        <bit-hint>{{ "licenseFileDesc" | i18n: "bitwarden_organization_license.json" }}</bit-hint>
-      </bit-form-field>
-      <button type="submit" bitButton bitFormButton buttonType="primary">
-        {{ "submit" | i18n }}
-      </button>
-    </form>
-  </ng-container>
   <organization-self-hosting-license-uploader
-    *ngIf="useLicenseUploaderComponent$ | async"
     (onLicenseFileUploaded)="onLicenseFileUploaded($event)"
   />
 </ng-container>
@@ -245,7 +216,7 @@
             formControlName="additionalSeats"
             placeholder="{{ 'userSeatsDesc' | i18n }}"
           />
-          <bit-hint class="tx-text-sm"
+          <bit-hint class="tw-text-sm"
             >{{
               "userSeatsAdditionalDesc"
                 | i18n
@@ -433,7 +404,11 @@
     <p class="tw-text-muted tw-italic tw-mb-3 tw-block" bitTypography="body2">
       {{ paymentDesc }}
     </p>
-    <app-payment *ngIf="createOrganization || upgradeRequiresPaymentMethod"></app-payment>
+    <app-payment
+      *ngIf="createOrganization || upgradeRequiresPaymentMethod"
+      [showAccountCredit]="false"
+    >
+    </app-payment>
     <app-manage-tax-information
       class="tw-my-4"
       [showTaxIdField]="showTaxIdField"

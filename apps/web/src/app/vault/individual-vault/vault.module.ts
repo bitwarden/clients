@@ -1,9 +1,9 @@
 import { NgModule } from "@angular/core";
 
+import { CollectionBadgeModule } from "../../admin-console/organizations/collections/collection-badge/collection-badge.module";
+import { GroupBadgeModule } from "../../admin-console/organizations/collections/group-badge/group-badge.module";
 import { LooseComponentsModule, SharedModule } from "../../shared";
 import { CollectionDialogModule } from "../components/collection-dialog";
-import { CollectionBadgeModule } from "../org-vault/collection-badge/collection-badge.module";
-import { GroupBadgeModule } from "../org-vault/group-badge/group-badge.module";
 
 import { BulkDialogsModule } from "./bulk-action-dialogs/bulk-dialogs.module";
 import { OrganizationBadgeModule } from "./organization-badge/organization-badge.module";

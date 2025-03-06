@@ -9,7 +9,7 @@ import { StateUpdateOptions } from "./state-update-options";
 export interface GlobalState<T> {
   /**
    * Method for allowing you to manipulate state in an additive way.
-   * @param configureState callback for how you want manipulate this section of state
+   * @param configureState callback for how you want to manipulate this section of state
    * @param options Defaults given by @see {module:state-update-options#DEFAULT_OPTIONS}
    * @param options.shouldUpdate A callback for determining if you want to update state. Defaults to () => true
    * @param options.combineLatestWith An observable that you want to combine with the current state for callbacks. Defaults to null
@@ -18,13 +18,13 @@ export interface GlobalState<T> {
    * Resolves to the new state. If `shouldUpdate` returns false, the promise will resolve to the current state.
    */
   update: <TCombine>(
-    configureState: (state: T, dependency: TCombine) => T,
+    configureState: (state: T | null, dependency: TCombine) => T | null,
     options?: StateUpdateOptions<T, TCombine>,
-  ) => Promise<T>;
+  ) => Promise<T | null>;
 
   /**
    * An observable stream of this state, the first emission of this will be the current state on disk
    * and subsequent updates will be from an update to that state.
    */
-  state$: Observable<T>;
+  state$: Observable<T | null>;
 }

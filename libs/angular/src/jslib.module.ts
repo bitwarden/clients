@@ -30,6 +30,7 @@ import {
 } from "@bitwarden/components";
 
 import { TwoFactorIconComponent } from "./auth/components/two-factor-icon.component";
+import { NotPremiumDirective } from "./billing/directives/not-premium.directive";
 import { DeprecatedCalloutComponent } from "./components/callout.component";
 import { A11yInvalidDirective } from "./directives/a11y-invalid.directive";
 import { ApiActionDirective } from "./directives/api-action.directive";
@@ -40,7 +41,6 @@ import { IfFeatureDirective } from "./directives/if-feature.directive";
 import { InputStripSpacesDirective } from "./directives/input-strip-spaces.directive";
 import { InputVerbatimDirective } from "./directives/input-verbatim.directive";
 import { LaunchClickDirective } from "./directives/launch-click.directive";
-import { NotPremiumDirective } from "./directives/not-premium.directive";
 import { StopClickDirective } from "./directives/stop-click.directive";
 import { StopPropDirective } from "./directives/stop-prop.directive";
 import { TextDragDirective } from "./directives/text-drag.directive";

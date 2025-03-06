@@ -12,6 +12,7 @@ import {
 } from "@bitwarden/bit-common/tools/reports/risk-insights";
 import {
   ApplicationHealthReportDetail,
+  DrawerType,
   PasswordHealthReportApplicationsResponse,
 } from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
 // eslint-disable-next-line no-restricted-imports -- used for dependency injection
@@ -19,7 +20,15 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { AsyncActionsModule, ButtonModule, TabsModule } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  DrawerBodyComponent,
+  DrawerComponent,
+  DrawerHeaderComponent,
+  LayoutComponent,
+  TabsModule,
+} from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { AllApplicationsComponent } from "./all-applications.component";
@@ -51,6 +60,10 @@ export enum RiskInsightsTabType {
     PasswordHealthMembersURIComponent,
     NotifiedMembersTableComponent,
     TabsModule,
+    DrawerComponent,
+    DrawerBodyComponent,
+    DrawerHeaderComponent,
+    LayoutComponent,
   ],
 })
 export class RiskInsightsComponent implements OnInit {
@@ -77,7 +90,7 @@ export class RiskInsightsComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private configService: ConfigService,
-    private dataService: RiskInsightsDataService,
+    protected dataService: RiskInsightsDataService,
     private criticalAppsService: CriticalAppsService,
   ) {
     this.route.queryParams.pipe(takeUntilDestroyed()).subscribe(({ tabIndex }) => {
@@ -137,5 +150,13 @@ export class RiskInsightsComponent implements OnInit {
       queryParams: { tabIndex: newIndex },
       queryParamsHandling: "merge",
     });
+
+    // close drawer when tabs are changed
+    this.dataService.closeDrawer();
+  }
+
+  // Get a list of drawer types
+  get drawerTypes(): typeof DrawerType {
+    return DrawerType;
   }
 }

@@ -7,7 +7,7 @@ import {
   Router,
   RouterStateSnapshot,
 } from "@angular/router";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import {
   canAccessOrgAdmin,
@@ -15,7 +15,9 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
 
@@ -55,12 +57,12 @@ export function organizationPermissionsGuard(
       await syncService.fullSync(false);
     }
 
-    const userId = await firstValueFrom(accountService.activeAccount$.pipe(map((a) => a?.id)));
-
     const org = await firstValueFrom(
-      organizationService
-        .organizations$(userId)
-        .pipe(map((organizations) => organizations.find((org) => route.params.organizationId))),
+      accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => organizationService.organizations$(userId)),
+        getById(route.params.organizationId),
+      ),
     );
 
     if (org == null) {

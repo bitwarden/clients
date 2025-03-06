@@ -1,6 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Subject, filter, firstValueFrom, map, merge, timeout } from "rxjs";
+import "core-js/proposals/explicit-resource-management";
+
+import { filter, firstValueFrom, map, merge, Subject, timeout } from "rxjs";
 
 import { CollectionService, DefaultCollectionService } from "@bitwarden/admin-console/common";
 import {
@@ -18,9 +20,7 @@ import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstracti
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
-import { NotificationsService as NotificationsServiceAbstraction } from "@bitwarden/common/abstractions/notifications.service";
 import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/abstractions/search.service";
-import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService as InternalPolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -71,17 +71,27 @@ import {
   UserNotificationSettingsService,
   UserNotificationSettingsServiceAbstraction,
 } from "@bitwarden/common/autofill/services/user-notification-settings.service";
+import { isUrlInList } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { BulkEncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/bulk-encrypt.service.implementation";
+import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
+import { FallbackBulkEncryptService } from "@bitwarden/common/key-management/crypto/services/fallback-bulk-encrypt.service";
+import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/multithread-encrypt.service.implementation";
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
+import {
+  DefaultVaultTimeoutSettingsService,
+  VaultTimeoutSettingsService,
+  VaultTimeoutStringType,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Fido2ActiveRequestManager as Fido2ActiveRequestManagerAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-active-request-manager.abstraction";
 import { Fido2AuthenticatorService as Fido2AuthenticatorServiceAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-authenticator.service.abstraction";
@@ -109,16 +119,21 @@ import { clearCaches } from "@bitwarden/common/platform/misc/sequentialize";
 import { Account } from "@bitwarden/common/platform/models/domain/account";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { NotificationsService } from "@bitwarden/common/platform/notifications";
+// eslint-disable-next-line no-restricted-imports -- Needed for service creation
+import {
+  DefaultNotificationsService,
+  SignalRConnectionService,
+  UnsupportedWebPushConnectionService,
+  WebPushNotificationsApiService,
+  WorkerWebPushConnectionService,
+} from "@bitwarden/common/platform/notifications/internal";
 import { ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
-import { BulkEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/bulk-encrypt.service.implementation";
-import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
-import { FallbackBulkEncryptService } from "@bitwarden/common/platform/services/cryptography/fallback-bulk-encrypt.service";
-import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
 import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/services/fido2/fido2-active-request-manager";
 import { Fido2AuthenticatorService } from "@bitwarden/common/platform/services/fido2/fido2-authenticator.service";
 import { Fido2ClientService } from "@bitwarden/common/platform/services/fido2/fido2-client.service";
@@ -159,9 +174,7 @@ import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
-import { NotificationsService } from "@bitwarden/common/services/notifications.service";
 import { SearchService } from "@bitwarden/common/services/search.service";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
 import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
@@ -172,7 +185,6 @@ import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-st
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { InternalSendService as InternalSendServiceAbstraction } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
-import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
@@ -191,23 +203,23 @@ import { FolderService } from "@bitwarden/common/vault/services/folder/folder.se
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
 import {
-  PasswordGenerationServiceAbstraction,
-  UsernameGenerationServiceAbstraction,
   legacyPasswordGenerationServiceFactory,
   legacyUsernameGenerationServiceFactory,
+  PasswordGenerationServiceAbstraction,
+  UsernameGenerationServiceAbstraction,
 } from "@bitwarden/generator-legacy";
 import {
   ImportApiService,
   ImportApiServiceAbstraction,
   ImportService,
   ImportServiceAbstraction,
-} from "@bitwarden/importer/core";
+} from "@bitwarden/importer-core";
 import {
-  BiometricStateService,
   BiometricsService,
+  BiometricStateService,
   DefaultBiometricStateService,
-  DefaultKeyService,
   DefaultKdfConfigService,
+  DefaultKeyService,
   KdfConfigService,
   KeyService as KeyServiceAbstraction,
 } from "@bitwarden/key-management";
@@ -244,6 +256,7 @@ import AutofillService from "../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { SafariApp } from "../browser/safariApp";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
+import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { flagEnabled } from "../platform/flags";
 import { UpdateBadge } from "../platform/listeners/update-badge";
@@ -269,7 +282,6 @@ import { BrowserStorageServiceProvider } from "../platform/storage/browser-stora
 import { OffscreenStorageService } from "../platform/storage/offscreen-storage.service";
 import { SyncServiceListener } from "../platform/sync/sync-service.listener";
 import { fromChromeRuntimeMessaging } from "../platform/utils/from-chrome-runtime-messaging";
-import VaultTimeoutService from "../services/vault-timeout/vault-timeout.service";
 import { VaultFilterService } from "../vault/services/vault-filter.service";
 
 import CommandsBackground from "./commands.background";
@@ -300,7 +312,7 @@ export default class MainBackground {
   userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction;
   collectionService: CollectionService;
   vaultTimeoutService?: VaultTimeoutService;
-  vaultTimeoutSettingsService: VaultTimeoutSettingsServiceAbstraction;
+  vaultTimeoutSettingsService: VaultTimeoutSettingsService;
   passwordGenerationService: PasswordGenerationServiceAbstraction;
   syncService: SyncService;
   passwordStrengthService: PasswordStrengthServiceAbstraction;
@@ -314,7 +326,7 @@ export default class MainBackground {
   importService: ImportServiceAbstraction;
   exportService: VaultExportServiceAbstraction;
   searchService: SearchServiceAbstraction;
-  notificationsService: NotificationsServiceAbstraction;
+  notificationsService: NotificationsService;
   stateService: StateServiceAbstraction;
   userNotificationSettingsService: UserNotificationSettingsServiceAbstraction;
   autofillSettingsService: AutofillSettingsServiceAbstraction;
@@ -378,6 +390,8 @@ export default class MainBackground {
   kdfConfigService: KdfConfigService;
   offscreenDocumentService: OffscreenDocumentService;
   syncServiceListener: SyncServiceListener;
+
+  webPushConnectionService: WorkerWebPushConnectionService | UnsupportedWebPushConnectionService;
   themeStateService: DefaultThemeStateService;
   autoSubmitLoginBackground: AutoSubmitLoginBackground;
   sdkService: SdkService;
@@ -408,11 +422,6 @@ export default class MainBackground {
   constructor() {
     // Services
     const lockedCallback = async (userId?: string) => {
-      if (this.notificationsService != null) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.notificationsService.updateConnection(false);
-      }
       await this.refreshBadge();
       await this.refreshMenu(true);
       if (this.systemService != null) {
@@ -557,6 +566,7 @@ export default class MainBackground {
       this.messagingService,
       this.logService,
       this.globalStateProvider,
+      this.singleUserStateProvider,
     );
     this.activeUserStateProvider = new DefaultActiveUserStateProvider(
       this.accountService,
@@ -602,6 +612,7 @@ export default class MainBackground {
     this.popupViewCacheBackgroundService = new PopupViewCacheBackgroundService(
       messageListener,
       this.globalStateProvider,
+      this.taskSchedulerService,
     );
 
     const migrationRunner = new MigrationRunner(
@@ -675,7 +686,7 @@ export default class MainBackground {
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
     this.policyService = new PolicyService(this.stateProvider, this.organizationService);
 
-    this.vaultTimeoutSettingsService = new VaultTimeoutSettingsService(
+    this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
       this.pinService,
       this.userDecryptionOptionsService,
@@ -804,7 +815,7 @@ export default class MainBackground {
       this.apiService,
     );
 
-    this.ssoLoginService = new SsoLoginService(this.stateProvider);
+    this.ssoLoginService = new SsoLoginService(this.stateProvider, this.logService);
 
     this.userVerificationApiService = new UserVerificationApiService(this.apiService);
 
@@ -1034,17 +1045,34 @@ export default class MainBackground {
       this.organizationVaultExportService,
     );
 
-    this.notificationsService = new NotificationsService(
+    if (BrowserApi.isManifestVersion(3)) {
+      const registration = (self as unknown as { registration: ServiceWorkerRegistration })
+        ?.registration;
+
+      if (registration != null) {
+        this.webPushConnectionService = new WorkerWebPushConnectionService(
+          this.configService,
+          new WebPushNotificationsApiService(this.apiService, this.appIdService),
+          registration,
+        );
+      } else {
+        this.webPushConnectionService = new UnsupportedWebPushConnectionService();
+      }
+    } else {
+      this.webPushConnectionService = new UnsupportedWebPushConnectionService();
+    }
+
+    this.notificationsService = new DefaultNotificationsService(
       this.logService,
       this.syncService,
       this.appIdService,
-      this.apiService,
       this.environmentService,
       logoutCallback,
-      this.stateService,
-      this.authService,
       this.messagingService,
-      this.taskSchedulerService,
+      this.accountService,
+      new SignalRConnectionService(this.apiService, this.logService),
+      this.authService,
+      this.webPushConnectionService,
     );
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
@@ -1236,6 +1264,7 @@ export default class MainBackground {
       this.mainContextMenuHandler,
       this.authService,
       this.cipherService,
+      this.accountService,
     );
 
     if (chrome.webRequest != null && chrome.webRequest.onAuthRequired != null) {
@@ -1243,6 +1272,7 @@ export default class MainBackground {
         this.platformUtilsService,
         this.cipherService,
         this.authService,
+        this.accountService,
         chrome.webRequest,
       );
     }
@@ -1259,9 +1289,12 @@ export default class MainBackground {
   }
 
   async bootstrap() {
+    if (this.webPushConnectionService instanceof WorkerWebPushConnectionService) {
+      this.webPushConnectionService.start();
+    }
     this.containerService.attachToGlobal(self);
 
-    await this.sdkLoadService.load();
+    await this.sdkLoadService.loadAndInit();
     // Only the "true" background should run migrations
     await this.stateService.init({ runMigrations: true });
 
@@ -1283,7 +1316,7 @@ export default class MainBackground {
     await (this.i18nService as I18nService).init();
     (this.eventUploadService as EventUploadService).init(true);
 
-    this.popupViewCacheBackgroundService.startObservingTabChanges();
+    this.popupViewCacheBackgroundService.startObservingMessages();
 
     await this.vaultTimeoutService.init(true);
     this.fido2Background.init();
@@ -1324,12 +1357,7 @@ export default class MainBackground {
       setTimeout(async () => {
         await this.refreshBadge();
         await this.fullSync(false);
-        this.taskSchedulerService.setInterval(
-          ScheduledTaskNames.scheduleNextSyncInterval,
-          5 * 60 * 1000, // check every 5 minutes
-        );
-        setTimeout(() => this.notificationsService.init(), 2500);
-        await this.taskSchedulerService.verifyAlarmsState();
+        this.notificationsService.startListening();
         resolve();
       }, 500);
     });
@@ -1352,17 +1380,34 @@ export default class MainBackground {
       return;
     }
 
-    await this.mainContextMenuHandler?.init();
+    const contextMenuIsEnabled = await this.mainContextMenuHandler?.init();
+    if (!contextMenuIsEnabled) {
+      this.onUpdatedRan = this.onReplacedRan = false;
+      return;
+    }
 
     const tab = await BrowserApi.getTabFromCurrentWindow();
+
     if (tab) {
-      await this.cipherContextMenuHandler?.update(tab.url);
+      const currentUrlIsBlocked = await firstValueFrom(
+        this.domainSettingsService.blockedInteractionsUris$.pipe(
+          map((blockedInteractionsUrls) => {
+            if (blockedInteractionsUrls && tab?.url?.length) {
+              return isUrlInList(tab.url, blockedInteractionsUrls);
+            }
+
+            return false;
+          }),
+        ),
+      );
+
+      await this.cipherContextMenuHandler?.update(tab.url, currentUrlIsBlocked);
       this.onUpdatedRan = this.onReplacedRan = false;
     }
   }
 
   async updateOverlayCiphers() {
-    // overlayBackground null in popup only contexts
+    // `overlayBackground` is null in popup only contexts
     if (this.overlayBackground) {
       await this.overlayBackground.updateOverlayCiphers();
     }
@@ -1408,7 +1453,6 @@ export default class MainBackground {
         ForceSetPasswordReason.None;
 
       await this.systemService.clearPendingClipboard();
-      await this.notificationsService.updateConnection(false);
 
       if (nextAccountStatus === AuthenticationStatus.LoggedOut) {
         this.messagingService.send("goHome");
@@ -1512,7 +1556,6 @@ export default class MainBackground {
     }
     await this.refreshBadge();
     await this.mainContextMenuHandler?.noAccess();
-    await this.notificationsService.updateConnection(false);
     await this.systemService.clearPendingClipboard();
     await this.processReloadService.startProcessReload(this.authService);
   }
@@ -1548,13 +1591,16 @@ export default class MainBackground {
   }
 
   async openPopup() {
-    // Chrome APIs cannot open popup
+    const browserAction = BrowserApi.getBrowserAction();
 
-    // TODO: Do we need to open this popup?
-    if (!this.isSafari) {
+    if ("openPopup" in browserAction && typeof browserAction.openPopup === "function") {
+      await browserAction.openPopup();
       return;
     }
-    await SafariApp.sendMessageToApp("showPopover", null, true);
+
+    if (this.isSafari) {
+      await SafariApp.sendMessageToApp("showPopover", null, true);
+    }
   }
 
   async reseedStorage() {
@@ -1618,6 +1664,7 @@ export default class MainBackground {
         this.i18nService,
         this.platformUtilsService,
         this.themeStateService,
+        this.accountService,
       );
     } else {
       this.overlayBackground = new OverlayBackground(
@@ -1635,6 +1682,7 @@ export default class MainBackground {
         this.inlineMenuFieldQualificationService,
         this.themeStateService,
         this.totpService,
+        this.accountService,
         () => this.generatePassword(),
         (password) => this.addPasswordToHistory(password),
       );

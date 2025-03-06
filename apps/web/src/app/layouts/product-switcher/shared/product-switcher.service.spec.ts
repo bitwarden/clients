@@ -11,6 +11,7 @@ import { ProviderService } from "@bitwarden/common/admin-console/abstractions/pr
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -24,6 +25,7 @@ describe("ProductSwitcherService", () => {
   let organizationService: MockProxy<OrganizationService>;
   let providerService: MockProxy<ProviderService>;
   let accountService: FakeAccountService;
+  let platformUtilsService: MockProxy<PlatformUtilsService>;
   let activeRouteParams = convertToParamMap({ organizationId: "1234" });
   const getLastSync = jest.fn().mockResolvedValue(new Date("2024-05-14"));
   const userId = Utils.newGuid() as UserId;
@@ -43,11 +45,13 @@ describe("ProductSwitcherService", () => {
     organizationService = mock<OrganizationService>();
     providerService = mock<ProviderService>();
     accountService = mockAccountServiceWith(userId);
+    platformUtilsService = mock<PlatformUtilsService>();
 
     router.url = "/";
     router.events = of({});
     organizationService.organizations$.mockReturnValue(of([{}] as Organization[]));
     providerService.getAll.mockResolvedValue([] as Provider[]);
+    platformUtilsService.isSelfHost.mockReturnValue(false);
 
     TestBed.configureTestingModule({
       providers: [
@@ -55,6 +59,7 @@ describe("ProductSwitcherService", () => {
         { provide: OrganizationService, useValue: organizationService },
         { provide: ProviderService, useValue: providerService },
         { provide: AccountService, useValue: accountService },
+        { provide: PlatformUtilsService, useValue: platformUtilsService },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -138,10 +143,30 @@ describe("ProductSwitcherService", () => {
     });
 
     describe("Admin/Organizations", () => {
-      it("includes Organizations in other when there are organizations", async () => {
+      it("includes Organizations with the internal route in other when there are organizations on cloud", async () => {
         initiateService();
 
         const products = await firstValueFrom(service.products$);
+
+        const organizations = products.other.find((p) => p.name === "Organizations");
+        expect(organizations).toBeDefined();
+        expect(organizations.marketingRoute.route).toBe("/create-organization");
+        expect(organizations.marketingRoute.external).toBe(false);
+
+        expect(products.other.find((p) => p.name === "Organizations")).toBeDefined();
+        expect(products.bento.find((p) => p.name === "Admin Console")).toBeUndefined();
+      });
+
+      it("includes Organizations with the external route in other when there are organizations on Self-Host", async () => {
+        platformUtilsService.isSelfHost.mockReturnValue(true);
+        initiateService();
+
+        const products = await firstValueFrom(service.products$);
+
+        const organizations = products.other.find((p) => p.name === "Organizations");
+        expect(organizations).toBeDefined();
+        expect(organizations.marketingRoute.route).toBe("https://bitwarden.com/products/business/");
+        expect(organizations.marketingRoute.external).toBe(true);
 
         expect(products.other.find((p) => p.name === "Organizations")).toBeDefined();
         expect(products.bento.find((p) => p.name === "Admin Console")).toBeUndefined();

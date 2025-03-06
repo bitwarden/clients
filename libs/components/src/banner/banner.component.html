@@ -4,21 +4,24 @@
   [attr.role]="useAlertRole ? 'status' : null"
   [attr.aria-live]="useAlertRole ? 'polite' : null"
 >
-  <i class="bwi tw-align-middle tw-text-base" [ngClass]="icon" *ngIf="icon" aria-hidden="true"></i>
+  @if (icon) {
+    <i class="bwi tw-align-middle tw-text-base" [ngClass]="icon" aria-hidden="true"></i>
+  }
   <!-- Overriding focus-visible color for link buttons for a11y against colored background -->
   <span class="tw-grow tw-text-base [&>button[bitlink]:focus-visible:before]:!tw-ring-text-main">
     <ng-content></ng-content>
   </span>
   <!-- Overriding hover and focus-visible colors for a11y against colored background -->
-  <button
-    *ngIf="showClose"
-    class="hover:tw-border-text-main focus-visible:before:tw-ring-text-main"
-    type="button"
-    bitIconButton="bwi-close"
-    buttonType="main"
-    size="default"
-    (click)="onClose.emit()"
-    [attr.title]="'close' | i18n"
-    [attr.aria-label]="'close' | i18n"
-  ></button>
+  @if (showClose) {
+    <button
+      class="hover:tw-border-text-main focus-visible:before:tw-ring-text-main"
+      type="button"
+      bitIconButton="bwi-close"
+      buttonType="main"
+      size="default"
+      (click)="onClose.emit()"
+      [attr.title]="'close' | i18n"
+      [attr.aria-label]="'close' | i18n"
+    ></button>
+  }
 </div>

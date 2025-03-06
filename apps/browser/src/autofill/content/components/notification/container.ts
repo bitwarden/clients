@@ -8,8 +8,7 @@ import {
   NotificationTypes,
   NotificationType,
 } from "../../../notification/abstractions/notification-bar";
-import { createAutofillOverlayCipherDataMock } from "../../../spec/autofill-mocks";
-import { CipherData } from "../cipher/types";
+import { NotificationCipherData } from "../cipher/types";
 import { themes, spacing } from "../constants/styles";
 
 import { NotificationBody, componentClassPrefix as notificationBodyClassPrefix } from "./body";
@@ -24,22 +23,20 @@ export function NotificationContainer({
   i18n,
   theme = ThemeTypes.Light,
   type,
-}: NotificationBarIframeInitData & { handleCloseNotification: (e: Event) => void } & {
+  ciphers,
+  handleSaveAction,
+  handleEditOrUpdateAction,
+}: NotificationBarIframeInitData & {
+  handleCloseNotification: (e: Event) => void;
+  handleSaveAction: (e: Event) => void;
+  handleEditOrUpdateAction: (e: Event) => void;
+} & {
   i18n: { [key: string]: string };
   type: NotificationType; // @TODO typing override for generic `NotificationBarIframeInitData.type`
+  ciphers: NotificationCipherData[];
 }) {
   const headerMessage = getHeaderMessage(i18n, type);
   const showBody = true;
-
-  // @TODO remove mock ciphers for development
-  const ciphers = [
-    createAutofillOverlayCipherDataMock(1),
-    { ...createAutofillOverlayCipherDataMock(2), icon: { imageEnabled: false } },
-    {
-      ...createAutofillOverlayCipherDataMock(3),
-      icon: { imageEnabled: true, image: "https://localhost:8443/icons/webtests.dev/icon.png" },
-    },
-  ] as CipherData[];
 
   return html`
     <div class=${notificationContainerStyles(theme)}>
@@ -51,14 +48,17 @@ export function NotificationContainer({
       })}
       ${showBody
         ? NotificationBody({
+            handleEditOrUpdateAction,
             ciphers,
             notificationType: type,
             theme,
           })
         : null}
       ${NotificationFooter({
+        handleSaveAction,
         theme,
         notificationType: type,
+        i18n,
       })}
     </div>
   `;

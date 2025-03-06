@@ -11,7 +11,6 @@ import {
 import { LogoutReason } from "@bitwarden/auth/common";
 
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
-import { VaultTimeoutSettingsService } from "../abstractions/vault-timeout/vault-timeout-settings.service";
 import { OrganizationConnectionType } from "../admin-console/enums";
 import { OrganizationSponsorshipCreateRequest } from "../admin-console/models/request/organization/organization-sponsorship-create.request";
 import { OrganizationSponsorshipRedeemRequest } from "../admin-console/models/request/organization/organization-sponsorship-redeem.request";
@@ -105,7 +104,8 @@ import { PlanResponse } from "../billing/models/response/plan.response";
 import { SubscriptionResponse } from "../billing/models/response/subscription.response";
 import { TaxInfoResponse } from "../billing/models/response/tax-info.response";
 import { DeviceType } from "../enums";
-import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
+import { VaultTimeoutSettingsService } from "../key-management/vault-timeout";
+import { VaultTimeoutAction } from "../key-management/vault-timeout/enums/vault-timeout-action.enum";
 import { CollectionBulkDeleteRequest } from "../models/request/collection-bulk-delete.request";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
 import { EventRequest } from "../models/request/event.request";
@@ -702,7 +702,7 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   deleteCipherAttachment(id: string, attachmentId: string): Promise<any> {
-    return this.send("DELETE", "/ciphers/" + id + "/attachment/" + attachmentId, null, true, false);
+    return this.send("DELETE", "/ciphers/" + id + "/attachment/" + attachmentId, null, true, true);
   }
 
   deleteCipherAttachmentAdmin(id: string, attachmentId: string): Promise<any> {
@@ -1863,7 +1863,7 @@ export class ApiService implements ApiServiceAbstraction {
     body: any,
     authed: boolean,
     hasResponse: boolean,
-    apiUrl?: string,
+    apiUrl?: string | null,
     alterHeaders?: (headers: Headers) => void,
   ): Promise<any> {
     const env = await firstValueFrom(this.environmentService.environment$);

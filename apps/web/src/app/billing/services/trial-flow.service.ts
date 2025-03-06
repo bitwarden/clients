@@ -16,11 +16,11 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService } from "@bitwarden/components";
 
-import { FreeTrial } from "../../core/types/free-trial";
 import {
   ChangePlanDialogResultType,
   openChangePlanDialog,
 } from "../organizations/change-plan-dialog.component";
+import { FreeTrial } from "../types/free-trial";
 
 @Injectable({ providedIn: "root" })
 export class TrialFlowService {

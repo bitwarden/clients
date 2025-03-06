@@ -66,37 +66,7 @@
   </bit-callout>
 </bit-section>
 <bit-section *ngIf="isSelfHost">
-  <ng-container *ngIf="!(useLicenseUploaderComponent$ | async)">
-    <p bitTypography="body1">{{ "uploadLicenseFilePremium" | i18n }}</p>
-    <form [formGroup]="licenseFormGroup" [bitSubmit]="submitPremiumLicense">
-      <bit-form-field>
-        <bit-label>{{ "licenseFile" | i18n }}</bit-label>
-        <div>
-          <button type="button" bitButton buttonType="secondary" (click)="fileSelector.click()">
-            {{ "chooseFile" | i18n }}
-          </button>
-          {{
-            licenseFormGroup.value.file ? licenseFormGroup.value.file.name : ("noFileChosen" | i18n)
-          }}
-        </div>
-        <input
-          bitInput
-          #fileSelector
-          type="file"
-          formControlName="file"
-          (change)="onLicenseFileSelected($event)"
-          hidden
-          class="tw-hidden"
-        />
-        <bit-hint>{{ "licenseFileDesc" | i18n: "bitwarden_premium_license.json" }}</bit-hint>
-      </bit-form-field>
-      <button type="submit" buttonType="primary" bitButton bitFormButton>
-        {{ "submit" | i18n }}
-      </button>
-    </form>
-  </ng-container>
   <individual-self-hosting-license-uploader
-    *ngIf="useLicenseUploaderComponent$ | async"
     (onLicenseFileUploaded)="onLicenseFileSelectedChanged()"
   />
 </bit-section>

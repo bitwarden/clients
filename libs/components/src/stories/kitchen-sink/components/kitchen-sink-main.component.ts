@@ -36,9 +36,11 @@ class KitchenSinkDialog {
 
     <p class="tw-mt-4">
       <bit-breadcrumbs>
-        <bit-breadcrumb *ngFor="let item of navItems" [icon]="item.icon" [route]="[item.route]">
-          {{ item.name }}
-        </bit-breadcrumb>
+        @for (item of navItems; track item) {
+          <bit-breadcrumb [icon]="item.icon" [route]="[item.route]">
+            {{ item.name }}
+          </bit-breadcrumb>
+        }
       </bit-breadcrumbs>
     </p>
 
@@ -53,12 +55,6 @@ class KitchenSinkDialog {
         run, we'll be able to spot-check visual changes in a more app-like environment than just the
         isolated stories. The stories for the Kitchen Sink exist to be tested by the Chromatic UI
         tests.
-      </p>
-
-      <p bitTypography="body1">
-        NOTE: These stories will treat "Light & Dark" mode as "Light" mode. This is done to avoid a
-        bug with the way that we render the same component twice in the same iframe and how that
-        interacts with the <code>router-outlet</code>.
       </p>
     </bit-callout>
 
