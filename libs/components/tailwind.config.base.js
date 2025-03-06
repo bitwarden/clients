@@ -142,7 +142,7 @@ module.exports = {
         "90vw": "90vw",
       }),
       fontSize: {
-        "3xl": ["28px", "32px"],
+        "3xl": ["1.75rem", "2rem"],
       },
     },
   },
