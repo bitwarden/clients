@@ -89,10 +89,6 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
     allowedCollections?: CollectionId[],
     isAdminConsoleAction?: boolean,
   ): Observable<boolean> {
-    if (cipher.organizationId == null) {
-      return of(true);
-    }
-
     return combineLatest([
       this.organization$(cipher),
       this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion),
@@ -111,6 +107,10 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
 
         if (featureFlagEnabled && !!cipher.permissions) {
           return of(cipher.permissions.delete);
+        }
+
+        if (cipher.organizationId == null) {
+          return of(true);
         }
 
         return this.collectionService
