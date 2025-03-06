@@ -8,7 +8,8 @@ export const NOTIFICATIONS = UserKeyDefinition.array<NotificationViewData>(
   NOTIFICATION_DISK,
   "notifications",
   {
-    deserializer: (task: Jsonify<NotificationViewData>) => NotificationViewData.fromJSON(task),
+    deserializer: (notification: Jsonify<NotificationViewData>) =>
+      NotificationViewData.fromJSON(notification),
     clearOn: ["logout", "lock"],
   },
 );
