@@ -23,13 +23,18 @@ import {
   TableDataSource,
   ToastService,
 } from "@bitwarden/components";
-import { DefaultSendFormConfigService, NoSendsIcon, SendFormConfig } from "@bitwarden/send-ui";
+import {
+  DefaultSendFormConfigService,
+  NoSendsIcon,
+  SendFormConfig,
+  SendAddEditDialogComponent,
+  SendItemDialogResult,
+} from "@bitwarden/send-ui";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 import { SharedModule } from "../../shared";
 
 import { NewSendDropdownComponent } from "./new-send/new-send-dropdown.component";
-import { SendAddEditComponent, SendItemDialogResult } from "./send-add-edit.component";
 
 const BroadcasterSubscriptionId = "SendComponent";
 
@@ -140,7 +145,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
       return;
     }
 
-    this.sendItemDialogRef = SendAddEditComponent.open(this.dialogService, {
+    this.sendItemDialogRef = SendAddEditDialogComponent.open(this.dialogService, {
       formConfig,
     });
 

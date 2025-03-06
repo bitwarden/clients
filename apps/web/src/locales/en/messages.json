@@ -1203,7 +1203,7 @@
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
