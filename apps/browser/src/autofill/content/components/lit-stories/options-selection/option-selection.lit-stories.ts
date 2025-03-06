@@ -28,7 +28,7 @@ export default {
 
 const Template = ({ buttonText, theme, disabled }: Args) => {
   const iconProps = { color: themes[theme].text.main, theme };
-  const activeIconProps = { ...iconProps, color: themes[theme].text.contrast };
+  const activeIconProps = { ...iconProps, color: themes[theme].text.muted };
   const mockVaultOptions = [
     { icon: User(iconProps), activeIcon: User(activeIconProps), text: "My Vault", value: 1 },
     {
