@@ -73,7 +73,7 @@ export class DefaultEndUserNotificationService implements EndUserNotificationSer
    * @param userId
    * @private
    */
-  async fetchNotificationsFromApi(userId: UserId): Promise<void> {
+  private async fetchNotificationsFromApi(userId: UserId): Promise<void> {
     const res = await this.apiService.send("GET", "/notifications", null, true, true);
     const response = new ListResponse(res, NotificationViewResponse);
     const notificationData = response.data.map((n) => new NotificationView(n));
