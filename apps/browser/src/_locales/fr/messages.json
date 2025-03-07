@@ -7,7 +7,7 @@
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "Chez vous, au travail, n'importe où, Bitwarden sécurise mots de passe, clés d'accès et informations sensibles",
+    "message": "Où que vous soyez, Bitwarden sécurise tous vos mots de passe, clés d'accès et informations sensibles",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
@@ -20,7 +20,7 @@
     "message": "Créer un compte"
   },
   "newToBitwarden": {
-    "message": "Nouveau sur Bitwarden ?"
+    "message": "Nouveau sur Bitwarden ?"
   },
   "logInWithPasskey": {
     "message": "Se connecter avec une clé d'accès"
@@ -243,7 +243,7 @@
     "message": "Connectez-vous à votre coffre"
   },
   "autoFillInfo": {
-    "message": "Il n'y a aucun identifiant disponible pour le remplissage automatique de l'onglet actuel du navigateur."
+    "message": "Il n'y a aucun identifiant disponible pour la saisie automatique concernant l'onglet actuel du navigateur."
   },
   "addLogin": {
     "message": "Ajouter un identifiant"
@@ -479,22 +479,6 @@
   "length": {
     "message": "Longueur"
   },
-  "uppercase": {
-    "message": "Majuscules (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Minuscules (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Chiffres (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Caractères spéciaux (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Inclure",
     "description": "Card header for password generator include block"
@@ -526,10 +510,6 @@
   "specialCharactersDescription": {
     "message": "Inclure des caractères spéciaux",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Nombre de mots"
@@ -669,8 +649,8 @@
   "browserNotSupportClipboard": {
     "message": "Votre navigateur web ne supporte pas la copie rapide depuis le presse-papier. Copiez-le manuellement à la place."
   },
-  "verifyIdentity": {
-    "message": "Vérifier l'identité"
+  "verifyYourIdentity": {
+    "message": "Vérifiez votre identité"
   },
   "weDontRecognizeThisDevice": {
     "message": "Nous ne reconnaissons pas cet appareil. Saisissez le code envoyé à votre courriel pour vérifier votre identité."
@@ -1033,7 +1013,7 @@
     "message": "Demande l'ajout d'un élément si celui-ci n'est pas trouvé dans votre coffre. S'applique à tous les comptes connectés."
   },
   "showCardsInVaultViewV2": {
-    "message": "Toujours montrer les cartes de paiement en tant que suggestions de remplissage automatique dans l'affichage du coffre"
+    "message": "Toujours afficher les cartes de paiement en tant que suggestions de saisie automatique dans l'affichage du coffre"
   },
   "showCardsCurrentTab": {
     "message": "Afficher les cartes de paiement sur la Page d'onglet"
@@ -1042,7 +1022,7 @@
     "message": "Liste les éléments des cartes de paiement sur la Page d'onglet pour faciliter la saisie automatique."
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Toujours montrer les identités en tant que suggestions de remplissage automatique dans l'affichage du coffre"
+    "message": "Toujours afficher les identités en tant que suggestions de saisie automatique dans l'affichage du coffre"
   },
   "showIdentitiesCurrentTab": {
     "message": "Afficher les identités sur la Page d'onglet"
@@ -1051,10 +1031,10 @@
     "message": "Liste les éléments d'identité sur la Page d'onglet pour faciliter la saisie automatique."
   },
   "clickToAutofillOnVault": {
-    "message": "Cliquez sur les éléments pour le remplissage automatique dans 'affichage du coffre"
+    "message": "Cliquez sur les éléments dans l'affichage du coffre pour la saisie automatique"
   },
   "clickToAutofill": {
-    "message": "Cliquez sur les éléments de la suggestion de remplissage automatique pour les remplir"
+    "message": "Cliquez sur les éléments de la suggestion de saisie automatique pour les remplir"
   },
   "clearClipboard": {
     "message": "Effacer le presse-papiers",
@@ -1069,6 +1049,56 @@
   },
   "notificationAddSave": {
     "message": "Enregistrer"
+  },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ enregistré dans Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ mis à jour dans Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Enregistrer en tant que nouvel identifiant",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Mettre à jour l'identifiant",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Enregistrer l'identifiant ?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Mettre à jour de l'identifiant existant ?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Identifiant enregistré",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Identifiant mis à jour",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Erreur lors de l'enregistrement",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Oh non ! Nous n'avons pas pu enregistrer cela. Essayez de saisir les détails manuellement.",
+    "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
     "message": "Demander de mettre à jour un identifiant existant"
@@ -2150,7 +2180,7 @@
     "message": "Personnalisez votre expérience utilisateur du coffre avec des actions de copie rapide, un mode compact et bien plus encore !"
   },
   "newCustomizationOptionsCalloutLink": {
-    "message": "View all Appearance settings"
+    "message": "Afficher tous les paramètres d'apparence"
   },
   "lock": {
     "message": "Verrouiller",
@@ -2423,10 +2453,10 @@
     "message": "Bitwarden ne demandera pas d'enregistrer les détails de connexion pour ces domaines pour tous les comptes connectés. Vous devez actualiser la page pour que les modifications prennent effet."
   },
   "blockedDomainsDesc": {
-    "message": "Le remplissage automatique et d'autres fonctionnalités connexes ne seront pas proposés pour ces sites web. Vous devez actualiser la page pour que les modifications soient prises en compte."
+    "message": "La saisie automatique et d'autres fonctionnalités connexes ne seront pas proposées pour ces sites web. Vous devez actualiser la page pour que les modifications soient prises en compte."
   },
   "autofillBlockedNoticeV2": {
-    "message": "Le remplissage automatique est bloqué pour ce site web."
+    "message": "La saisie automatique est bloquée pour ce site web."
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Modifier ceci dans les paramètres"
@@ -2447,7 +2477,7 @@
     "message": "Mots de passe à risque"
   },
   "atRiskPasswordDescSingleOrg": {
-    "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
+    "message": "$ORGANIZATION$ vous demande de modifier un mot de passe car il est à risque.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2456,7 +2486,7 @@
     }
   },
   "atRiskPasswordsDescSingleOrgPlural": {
-    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at-risk.",
+    "message": "$ORGANIZATION$ vous demande de modifier les mots de passe de $COUNT$ parce qu’ils sont à risque.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2469,7 +2499,7 @@
     }
   },
   "atRiskPasswordsDescMultiOrgPlural": {
-    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at-risk.",
+    "message": "Vos organisations vous demandent de modifier les mots de passe $COUNT$ car ils sont à risque.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2493,46 +2523,46 @@
     "message": "Modifier plus rapidement les mots de passe à risque"
   },
   "changeAtRiskPasswordsFasterDesc": {
-    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+    "message": "Mettez à jour vos paramètres afin de pouvoir rapidement saisir automatiquement vos mots de passe et en générer de nouveaux"
   },
   "reviewAtRiskLogins": {
-    "message": "Review at-risk logins"
+    "message": "Examiner les identifiants à risque"
   },
   "reviewAtRiskPasswords": {
-    "message": "Review at-risk passwords"
+    "message": "Examiner les mots de passe à risque"
   },
   "reviewAtRiskLoginsSlideDesc": {
-    "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
+    "message": "Les mots de passe de votre organisation sont à risque, car ils sont faibles, réutilisés et/ou exposés.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
   "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Illustration of a list of logins that are at-risk"
+    "message": "Illustration d'une liste d'identifiants à risque"
   },
   "generatePasswordSlideDesc": {
-    "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
+    "message": "Générez rapidement un mot de passe fort et unique grâce au menu de saisie automatique de Bitwarden sur le site à risque.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
   "generatePasswordSlideImgAlt": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+    "message": "Illustration du menu de saisie automatique de Bitwarden affichant un mot de passe généré"
   },
   "updateInBitwarden": {
-    "message": "Update in Bitwarden"
+    "message": "Mettre à jour dans Bitwarden"
   },
   "updateInBitwardenSlideDesc": {
-    "message": "Bitwarden will then prompt you to update the password in the password manager.",
+    "message": "Bitwarden vous demandera alors de mettre à jour le mot de passe dans le gestionnaire de mots de passe.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
   "updateInBitwardenSlideImgAlt": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+    "message": "Illustration d’une notification de Bitwarden invitant l’utilisateur à mettre à jour l'identifiant"
   },
   "turnOnAutofill": {
-    "message": "Turn on autofill"
+    "message": "Activer la saisie automatique"
   },
   "turnedOnAutofill": {
-    "message": "Turned on autofill"
+    "message": "Activer la saisie automatique"
   },
   "dismiss": {
-    "message": "Dismiss"
+    "message": "Rejeter"
   },
   "websiteItemLabel": {
     "message": "Site web $number$ (URI)",
@@ -2553,7 +2583,7 @@
     }
   },
   "blockedDomainsSavedSuccess": {
-    "message": "Blocked domain changes saved"
+    "message": "Modifications apportées aux domaines bloqués enregistrées"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Changements de domaines exclus enregistrés"
@@ -2778,7 +2808,7 @@
     "message": "Une erreur s'est produite lors de l'enregistrement de vos dates de suppression et d'expiration."
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "Masquer votre adresse courriel aux regards indiscrets."
   },
   "passwordPrompt": {
     "message": "Ressaisir le mot de passe principal"
@@ -2854,7 +2884,7 @@
     "message": "Minutes"
   },
   "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
+    "message": "Les exigences de la politique de sécurité d'Entreprise ont été appliquées à vos options de délai d'expiration"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Les politiques de sécurité de votre organisation ont défini le délai d'expiration de votre coffre à $HOURS$ heure(s) et $MINUTES$ minute(s) maximum.",
@@ -2870,7 +2900,7 @@
     }
   },
   "vaultTimeoutPolicyInEffect1": {
-    "message": "$HOURS$ hour(s) and $MINUTES$ minute(s) maximum.",
+    "message": "$HOURS$ heure(s) et $MINUTES$ minute(s) maximum.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2883,7 +2913,7 @@
     }
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "message": "Le délai d'expiration dépasse la restriction définie par votre organisation : $HOURS$ heure(s) et $MINUTES$ minute(s) maximum",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2994,17 +3024,17 @@
     "message": "Erreur"
   },
   "decryptionError": {
-    "message": "Decryption error"
+    "message": "Erreur de déchiffrement"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+    "message": "Bitwarden n’a pas pu déchiffrer le(s) élément(s) du coffre listé(s) ci-dessous."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
+    "message": "Contacter le service clientèle",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "afin d'éviter toute perte de données supplémentaire.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
@@ -3139,7 +3169,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ a refusé votre demande. Veuillez contacter votre fournisseur de services pour obtenir de l'aide.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3149,7 +3179,7 @@
     }
   },
   "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ a refusé votre demande : $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3319,13 +3349,13 @@
     "message": "Une notification a été envoyée à votre appareil."
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the"
+    "message": "Déverrouillez Bitwarden sur votre appareil ou sur le"
   },
   "notificationSentDeviceAnchor": {
-    "message": "web app"
+    "message": "application web"
   },
   "notificationSentDevicePart2": {
-    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+    "message": "Assurez-vous que la phrase d'empreinte correspond à celle ci-dessous avant de l'approuver."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Une notification a été envoyée à votre appareil"
@@ -3340,7 +3370,7 @@
     "message": "Connexion initiée"
   },
   "logInRequestSent": {
-    "message": "Request sent"
+    "message": "Demande envoyée"
   },
   "exposedMasterPassword": {
     "message": "Mot de passe principal exposé"
@@ -4077,6 +4107,9 @@
   "activeAccount": {
     "message": "Compte actif"
   },
+  "bitwardenAccount": {
+    "message": "Compte Bitwarden"
+  },
   "availableAccounts": {
     "message": "Comptes disponibles"
   },
@@ -4198,10 +4231,10 @@
     "message": "Clé d'identification (passkey) retirée"
   },
   "autofillSuggestions": {
-    "message": "Autofill suggestions"
+    "message": "Suggestions de saisie automatique"
   },
   "itemSuggestions": {
-    "message": "Suggested items"
+    "message": "Éléments suggérés"
   },
   "autofillSuggestionsTip": {
     "message": "Enregistrez un élément de connexion à remplir automatiquement pour ce site"
@@ -4276,7 +4309,7 @@
     }
   },
   "copyFieldValue": {
-    "message": "Copy $FIELD$, $VALUE$",
+    "message": "Copier $FIELD$, $VALUE$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -4513,7 +4546,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "Afficher la détection de correspondance $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -4522,7 +4555,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "Masquer la détection de correspondance $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -4543,7 +4576,7 @@
     "message": "Détails de la carte de paiement"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$ details",
+    "message": "Détails de la carte $BRAND$",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -4666,7 +4699,7 @@
     }
   },
   "reorderFieldUp": {
-    "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
+    "message": "$LABEL$ déplacé vers le haut, position $INDEX$ de $LENGTH$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4753,7 +4786,7 @@
     }
   },
   "reorderFieldDown": {
-    "message": "$LABEL$ moved down, position $INDEX$ of $LENGTH$",
+    "message": "$LABEL$ déplacé vers le bas, position $INDEX$ de $LENGTH$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4776,13 +4809,13 @@
     "message": "Send en fichier"
   },
   "fileSends": {
-    "message": "File Sends"
+    "message": "Envoi de fichiers"
   },
   "textSend": {
     "message": "Send en texte"
   },
   "textSends": {
-    "message": "Text Sends"
+    "message": "Envoi de textes"
   },
   "accountActions": {
     "message": "Actions du compte"
@@ -4863,22 +4896,22 @@
     "message": "Vous n'êtes pas autorisé à modifier cet élément"
   },
   "biometricsStatusHelptextUnlockNeeded": {
-    "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
+    "message": "Le déverrouillage par biométrie n’est pas disponible parce qu'il faut au préalable déverrouiller avec le code PIN ou le mot de passe."
   },
   "biometricsStatusHelptextHardwareUnavailable": {
-    "message": "Biometric unlock is currently unavailable."
+    "message": "Le déverrouillage par biométrie n'est pas disponible actuellement."
   },
   "biometricsStatusHelptextAutoSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "Le déverrouillage par biométrie n'est pas disponible en raison de fichiers système mal configurés."
   },
   "biometricsStatusHelptextManualSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "Le déverrouillage par biométrie n'est pas disponible en raison de fichiers système mal configurés."
   },
   "biometricsStatusHelptextDesktopDisconnected": {
-    "message": "Biometric unlock is unavailable because the Bitwarden desktop app is closed."
+    "message": "Le déverrouillage par biométrie n'est pas disponible car l'application de bureau Bitwarden est fermée."
   },
   "biometricsStatusHelptextNotEnabledInDesktop": {
-    "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
+    "message": "Le déverrouillage par biométrie n'est pas disponible car elle n'est pas activée pour $EMAIL$ dans l'application de bureau Bitwarden.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4887,7 +4920,7 @@
     }
   },
   "biometricsStatusHelptextUnavailableReasonUnknown": {
-    "message": "Biometric unlock is currently unavailable for an unknown reason."
+    "message": "Le déverrouillage par biométrie n'est pas disponible actuellement pour une raison inconnue."
   },
   "authenticating": {
     "message": "Authentification"
@@ -5106,9 +5139,12 @@
     }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Please update your desktop application"
+    "message": "Veuillez mettre à jour votre application de bureau"
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
+    "message": "Pour utiliser le déverrouillage par biométrie, veuillez mettre à jour votre application de bureau ou désactiver le déverrouillage par empreinte digitale dans les paramètres de l'application de bureau."
+  },
+  "changeAtRiskPassword": {
+    "message": "Changer le mot de passe à risque"
   }
 }

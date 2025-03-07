@@ -323,7 +323,7 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "twoStepLogin": {
-    "message": "כניסה דו-שלבית"
+    "message": "כניסה דו־שלבית"
   },
   "logOut": {
     "message": "צא"
@@ -347,7 +347,7 @@
     "message": "מאמת Bitwarden"
   },
   "continueToAuthenticatorPageDesc": {
-    "message": "מאמת Bitwarden מאפשר לך לאחסון מפתחות מאמת וליצור קודי TOTP עבור זרימת אימות דו-שלבית. למד עוד באתר האינטרנט bitwarden.com"
+    "message": "מאמת Bitwarden מאפשר לך לאחסן מפתחות מאמת וליצור קודי TOTP עבור זרימת אימות דו־שלבית. למד עוד באתר האינטרנט bitwarden.com"
   },
   "bitwardenSecretsManager": {
     "message": "מנהל הסודות של Bitwarden"
@@ -362,10 +362,10 @@
     "message": "צור חוויית כניסה חלקה ובטוחה חופשית מסיסמאות מסורתיות עם Passwordless.dev. למד עוד באתר האינטרנט bitwarden.com."
   },
   "freeBitwardenFamilies": {
-    "message": "משפחות Bitwarden בחינם"
+    "message": "Bitwarden למשפחות בחינם"
   },
   "freeBitwardenFamiliesPageDesc": {
-    "message": "אתה זכאי למשפחות Bitwarden בחינם. ממש הצעה זו היום ביישום הרשת."
+    "message": "אתה זכאי ל־Bitwarden למשפחות בחינם. ממש הצעה זו היום ביישום הרשת."
   },
   "version": {
     "message": "גירסה"
@@ -392,7 +392,7 @@
     "message": "שם תיקייה"
   },
   "folderHintText": {
-    "message": "קונן תיקייה על ידי הוספת שם תיקיית האב ואחריו “/”. דוגמה: חברתי/פורומים"
+    "message": "צור תיקייה מקוננת על ידי הוספת שם תיקיית האב ואחריו “/”. דוגמה: חברתי/פורומים"
   },
   "noFoldersAdded": {
     "message": "לא נוספו תיקיות"
@@ -479,22 +479,6 @@
   "length": {
     "message": "אורך"
   },
-  "uppercase": {
-    "message": "אותיות גדולות (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "אותיות קטנות (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "מספרים (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "תווים מיוחדים (*&^%$#@!)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "כלול",
     "description": "Card header for password generator include block"
@@ -527,10 +511,6 @@
     "message": "כלול תווים מיוחדים",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "*&^%$#@!",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "מספר המילים"
   },
@@ -551,7 +531,7 @@
     "message": "מינימום מיוחדים"
   },
   "avoidAmbiguous": {
-    "message": "הימנע מתווים דו-משמעיים",
+    "message": "הימנע מתווים דו־משמעיים",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
@@ -669,8 +649,8 @@
   "browserNotSupportClipboard": {
     "message": "הדפדפן שלך לא תומך בהעתקה ללוח. אנא העתק בצורה ידנית."
   },
-  "verifyIdentity": {
-    "message": "אמת זהות"
+  "verifyYourIdentity": {
+    "message": "Verify your identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "אנחנו לא מזהים את המכשיר הזה. הזן את הקוד שנשלח לדוא\"ל שלך כדי לאמת את זהותך."
@@ -844,25 +824,25 @@
     }
   },
   "autofillError": {
-    "message": "לא ניתן למלא אוטומטית את הפריט שנבחר בדף זה. העתק והדבק את המידע במקום זאת."
+    "message": "לא ניתן למלא אוטומטית את הפריט שנבחר בעמוד זה. העתק והדבק את המידע במקום זאת."
   },
   "totpCaptureError": {
-    "message": "אי אפשר לסרוק קוד QR מהדף הנוכחי"
+    "message": "אי אפשר לסרוק קוד QR מהעמוד הנוכחי"
   },
   "totpCaptureSuccess": {
-    "message": "מפתח מאמת נוסף"
+    "message": "מפתח המאמת נוסף"
   },
   "totpCapture": {
-    "message": "סרוק קוד QR מאמת מהדף הנוכחי"
+    "message": "סרוק קוד QR מאמת מהעמוד הנוכחי"
   },
   "totpHelperTitle": {
-    "message": "הפוך את האימות הדו-שלבי לחלק"
+    "message": "הפוך את האימות הדו־שלבי לחלק"
   },
   "totpHelper": {
-    "message": "Bitwarden יכול לאחסון ולמלא קודים של אימות דו-שלבי. העתק והדבק את המפתח לשדה זה."
+    "message": "Bitwarden יכול לאחסון ולמלא קודים של אימות דו־שלבי. העתק והדבק את המפתח לשדה זה."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden יכול לאחסון ולמלא קודים של אימות דו-שלבי. בחר את סמל המצלמה כדי לצלם את הקוד QR המאמת של אתר זה, או העתק והדבק את המפתח לתוך שדה זה."
+    "message": "Bitwarden יכול לאחסון ולמלא קודים של אימות דו־שלבי. בחר את סמל המצלמה כדי לצלם את הקוד QR המאמת של אתר זה, או העתק והדבק את המפתח לתוך שדה זה."
   },
   "learnMoreAboutAuthenticators": {
     "message": "למד עוד על מאמתים"
@@ -895,7 +875,7 @@
     "message": "לחץ על ה־YubiKey שלך כדי לאמת"
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "נדרשת כניסה דו-שלבית של Duo עבור החשבון שלך. עקוב אחר השלבים למטה כדי לסיים להיכנס."
+    "message": "נדרשת כניסה דו־שלבית של Duo עבור החשבון שלך. עקוב אחר השלבים למטה כדי לסיים להיכנס."
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "עקוב אחר השלבים למטה כדי לסיים להיכנס."
@@ -931,10 +911,10 @@
     "message": "תיקייה נוספה"
   },
   "twoStepLoginConfirmation": {
-    "message": "כניסה דו-שלבית הופכת את החשבון שלך למאובטח יותר בכך שאתה נדרש לאמת את הכניסה שלך עם מכשיר אחר כמו מפתח אבטחה, יישום מאמת, מסרון, שיחת טלפון, או דוא\"ל. ניתן להגדיר כניסה דו-שלבית בכספת הרשת bitwarden.com. האם ברצונך לבקר באתר כעת?"
+    "message": "כניסה דו־שלבית הופכת את החשבון שלך למאובטח יותר בכך שאתה נדרש לאמת את הכניסה שלך עם מכשיר אחר כמו מפתח אבטחה, יישום מאמת, מסרון, שיחת טלפון, או דוא\"ל. ניתן להגדיר כניסה דו־שלבית בכספת הרשת bitwarden.com. האם ברצונך לבקר באתר כעת?"
   },
   "twoStepLoginConfirmationContent": {
-    "message": "הפוך את החשבון שלך למאובטח יותר על ידי הגדרת כניסה דו-שלבית ביישום הרשת של Bitwarden."
+    "message": "הפוך את החשבון שלך למאובטח יותר על ידי הגדרת כניסה דו־שלבית ביישום הרשת של Bitwarden."
   },
   "twoStepLoginConfirmationTitle": {
     "message": "להמשיך אל יישום הרשת?"
@@ -1036,19 +1016,19 @@
     "message": "הצג תמיד כרטיסים כהצעות מילוי אוטומטי בתצוגת כספת"
   },
   "showCardsCurrentTab": {
-    "message": "הצג כרטיסים בדף הכרטיסיות"
+    "message": "הצג כרטיסים בעמוד הכרטיסיות"
   },
   "showCardsCurrentTabDesc": {
-    "message": "רשום פריטי כרטיס בדף הכרטיסיות עבור מילוי אוטומטי קל."
+    "message": "רשום פריטי כרטיס בעמוד הכרטיסיות עבור מילוי אוטומטי קל."
   },
   "showIdentitiesInVaultViewV2": {
     "message": "הצג תמיד זהויות כהצעות למילוי אוטומטי בתצוגת כספת"
   },
   "showIdentitiesCurrentTab": {
-    "message": "הצג זהויות בדף הכרטיסיות"
+    "message": "הצג זהויות בעמוד הכרטיסיות"
   },
   "showIdentitiesCurrentTabDesc": {
-    "message": "הצג פריטי זהות בדף הכרטיסיות עבור מילוי אוטומטי קל."
+    "message": "הצג פריטי זהות בעמוד הכרטיסיות עבור מילוי אוטומטי קל."
   },
   "clickToAutofillOnVault": {
     "message": "לחץ על פריטים כדי למלא אוטומטית בתצוגת כספת"
@@ -1069,6 +1049,56 @@
   },
   "notificationAddSave": {
     "message": "שמור"
+  },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ נשמר אל Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ עודכן ב־Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Save as new login",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Update login",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Save login?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Update existing login?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Login saved",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Login updated",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Error saving",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
     "message": "שאל אם לעדכן פרטי כניסה קיימת"
@@ -1138,10 +1168,10 @@
     "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
-    "message": "ייצוא מ-"
+    "message": "ייצא מ־"
   },
   "exportVault": {
-    "message": "ייצוא כספת"
+    "message": "ייצא כספת"
   },
   "fileFormat": {
     "message": "פורמט הקובץ"
@@ -1156,7 +1186,7 @@
     "message": "סיסמה זו תשמש כדי לייצא ולייבא קובץ זה"
   },
   "accountRestrictedOptionDescription": {
-    "message": "השתמש במפתח הצפנת החשבון שלך, הנגזר משם המשתמש שלך והסיסמה הראשית, כדי להצפין את הייצוא ולהגביל את הייבוא רק לחשבון Bitwarden הנוכחי."
+    "message": "השתמש במפתח הצפנת החשבון שלך, הנגזר משם המשתמש והסיסמה הראשית של חשבונך, כדי להצפין את הייצוא ולהגביל את הייבוא רק לחשבון Bitwarden הנוכחי."
   },
   "passwordProtectedOptionDescription": {
     "message": "הגדר סיסמת קובץ כדי להצפין את הייצוא ולייבא אותו לכל חשבון Bitwarden באמצעות הסיסמה לפענוח."
@@ -1168,7 +1198,7 @@
     "message": "מוגבל חשבון"
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "\"סיסמת קובץ\" ו-\"אשר סיסמת קובץ\" אינם תואמים."
+    "message": "\"סיסמת קובץ\"  ו\"אשר סיסמת קובץ\" אינם תואמים."
   },
   "warning": {
     "message": "אזהרה",
@@ -1179,7 +1209,7 @@
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "confirmVaultExport": {
-    "message": "אשר ייצוא הכספת"
+    "message": "אשר ייצוא כספת"
   },
   "exportWarningDesc": {
     "message": "הקובץ מכיל את פרטי הכספת שלך בפורמט לא מוצפן. מומלץ להעביר את הקובץ רק בדרכים מוצפנות, ומאוד לא מומלץ לשמור או לשלוח את הקובץ הזה בדרכים לא מוצפנות (כדוגמת סתם אימייל). מחק את הקובץ מיד לאחר שסיימת את השימוש בו."
@@ -1203,7 +1233,7 @@
     "message": "העבר לארגון"
   },
   "movedItemToOrg": {
-    "message": "$ITEMNAME$ הועבר ל־$ORGNAME$",
+    "message": "$ITEMNAME$ הועבר אל $ORGNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1294,7 +1324,7 @@
     "message": "גישת חירום."
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "אפשרויות כניסה דו-שלבית קנייניות כגון YubiKey ו־Duo."
+    "message": "אפשרויות כניסה דו־שלבית קנייניות כגון YubiKey ו־Duo."
   },
   "ppremiumSignUpReports": {
     "message": "היגיינת סיסמאות, מצב בריאות החשבון, ודיווחים מעודכנים על פרצות חדשות בכדי לשמור על הכספת שלך בטוחה."
@@ -1333,7 +1363,7 @@
     }
   },
   "premiumPriceV2": {
-    "message": "הכל רק ב-$PRICE$ לשנה!",
+    "message": "הכל רק ב־$PRICE$ לשנה!",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -1412,7 +1442,7 @@
     "message": "הכנס את מפתח האבטחה שלך אל כניסת ה-USB במחשבך. אם יש לו כפתור, לחץ עליו."
   },
   "webAuthnNewTab": {
-    "message": "על מנת להתחיל אימות WebAuthn דו-שלבי. לחץ על הלחצן למטה כדי לפתוח כרטיסייה חדשה ועקוב אחר ההוראות המסופקת בכרטיסייה החדשה."
+    "message": "על מנת להתחיל אימות WebAuthn דו־שלבי. לחץ על הלחצן למטה כדי לפתוח כרטיסייה חדשה ועקוב אחר ההוראות המסופקת בכרטיסייה החדשה."
   },
   "webAuthnNewTabOpen": {
     "message": "פתח כרטיסייה חדשה"
@@ -1433,19 +1463,19 @@
     "message": "כניסה לא זמינה"
   },
   "noTwoStepProviders": {
-    "message": "לחשבון זה מוגדרת כניסה דו-שלבית, עם זאת, אף אחד מהספקים הדו-שלביים שהוגדרו אינו נתמך על ידי דפדפן זה."
+    "message": "לחשבון זה מוגדרת כניסה דו־שלבית, עם זאת, אף אחד מהספקים הדו־שלביים שהוגדרו אינו נתמך על ידי דפדפן זה."
   },
   "noTwoStepProviders2": {
     "message": "אנא השתמש בדפדפן נתמך (כמו לדוגמא Chrome) ו\\או הוסף ספק כניסה דו-שלבית הנתמך בדפדפן זה (כמו לדוגמא אפליקצית אימות)."
   },
   "twoStepOptions": {
-    "message": "אפשרויות כניסה דו-שלבית"
+    "message": "אפשרויות כניסה דו־שלבית"
   },
   "selectTwoStepLoginMethod": {
-    "message": "בחר שיטת כניסה דו-שלבית"
+    "message": "בחר שיטת כניסה דו־שלבית"
   },
   "recoveryCodeDesc": {
-    "message": "איבדת גישה לכל הספקים הדו-גורמיים שלך? השתמש בקוד השחזור שלך כדי להשבית את כל הספקים הדו-גורמיים בחשבון שלך."
+    "message": "איבדת גישה לכל הספקים הדו־גורמיים שלך? השתמש בקוד השחזור שלך כדי להשבית את כל הספקים הדו־גורמיים בחשבון שלך."
   },
   "recoveryCodeTitle": {
     "message": "קוד שחזור"
@@ -1458,7 +1488,7 @@
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
-    "message": "מפתח אבטחה OTP של YubiKey"
+    "message": "מפתח אבטחה OTP של Yubico"
   },
   "yubiKeyDesc": {
     "message": "השתמש בYubiKey עבור גישה לחשבון שלך. עובד עם YubiKey בגירסאות 4, 4C, 4Nano, ומכשירי NEO."
@@ -1527,7 +1557,7 @@
     "message": "URL של שרת הסמלים"
   },
   "environmentSaved": {
-    "message": "URL־ים של הסביבה נשמרו"
+    "message": "כתובות URL של הסביבה נשמרו"
   },
   "showAutoFillMenuOnFormFields": {
     "message": "הצג תפריט מילוי אוטומטי על שדות טופס",
@@ -1671,16 +1701,16 @@
     "message": "הצג סמלי אתר אינטרנט"
   },
   "faviconDesc": {
-    "message": "הצג תמונה ניתנת לזיהוי ליד כל כניסה."
+    "message": "הצג תמונה מוכרת ליד כל כניסה."
   },
   "faviconDescAlt": {
-    "message": "הצג תמונה ניתנת לזיהוי ליד כל כניסה. חל על כל החשבונות המחוברים."
+    "message": "הצג תמונה מוכרת ליד כל כניסה. חל על כל החשבונות המחוברים."
   },
   "enableBadgeCounter": {
     "message": "הצג מונה סמל"
   },
   "badgeCounterDesc": {
-    "message": "מציין כמה כניסות יש לך עבור דף הרשת הנוכחי."
+    "message": "מציין כמה כניסות יש לך עבור עמוד הרשת הנוכחי."
   },
   "cardholderName": {
     "message": "שם בעל הכרטיס"
@@ -2200,7 +2230,7 @@
     "message": "הפריט מולא אוטומטית "
   },
   "insecurePageWarning": {
-    "message": "אזהרה: זהו דף HTTP לא מאובטח, וכל מידע שאתה שולח יכול באופן פוטנציאלי להיראות ולהשתנות על ידי אחרים. הכניסה הזאת נשמרה במקור בדף מאובטח (HTTPS)."
+    "message": "אזהרה: זהו עמוד HTTP לא מאובטח, וכל מידע שאתה שולח יכול באופן פוטנציאלי להיראות ולהשתנות על ידי אחרים. הכניסה הזאת נשמרה במקור בעמוד מאובטח (HTTPS)."
   },
   "insecurePageWarningFillPrompt": {
     "message": "האם עדיין ברצונך להשלים כניסה זו?"
@@ -2347,7 +2377,7 @@
     "message": "חוסר התאמה בין חשבונות"
   },
   "nativeMessagingWrongUserKeyTitle": {
-    "message": "אי-התאמה של מפתח זיהוי ביומטרי"
+    "message": "אי־התאמה של מפתח זיהוי ביומטרי"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "ביטול נעילה ביומטרי נכשל. מפתח הסוד הביומטרי נכשל בביטול נעילת הכספת. נא לנסות להגדיר זיהוי ביומטרי שוב."
@@ -2423,7 +2453,7 @@
     "message": "Bitwarden לא יבקש לשמור פרטי כניסה עבור הדומיינים האלה עבור כל החשבונות המחוברים. אתה מוכרח לרענן את העמוד כדי שהשינויים ייכנסו לתוקף."
   },
   "blockedDomainsDesc": {
-    "message": "לא יוצעו מילוי אוטומטי ותכונות קשורות אחרות עבור האתרים האלה. אתה מוכרח לרענן את הדף כדי שהשינויים ייכנסו לתוקף."
+    "message": "לא יוצעו מילוי אוטומטי ותכונות קשורות אחרות עבור האתרים האלה. אתה מוכרח לרענן את העמוד כדי שהשינויים ייכנסו לתוקף."
   },
   "autofillBlockedNoticeV2": {
     "message": "מילוי אוטומטי חסום עבור אתר זה."
@@ -2769,10 +2799,10 @@
     "message": "תאריך המחיקה שסופק אינו חוקי."
   },
   "expirationDateAndTimeRequired": {
-    "message": "נדרשים תאריך תפוגה וזמן."
+    "message": "נדרשים תאריך וזמן תפוגה."
   },
   "deletionDateAndTimeRequired": {
-    "message": "נדרשים תאריך מחיקה וזמן."
+    "message": "נדרשים תאריך וזמן מחיקה."
   },
   "dateParsingError": {
     "message": "הייתה שגיאה בשמירת תאריכי המחיקה והתפוגה שלך."
@@ -2857,7 +2887,7 @@
     "message": "דרישות מדיניות ארגונית הוחלו על אפשרויות פסק הזמן שלך"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "פוליסות הארגון שלך הגדירו את פסק הזמן לכספת המרבי שלך ל-$HOURS$ שעות ו-$MINUTES$ דקות.",
+    "message": "פוליסות הארגון שלך הגדירו את פסק הזמן לכספת המרבי שלך ל־$HOURS$ שעות ו־$MINUTES$ דקות.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2870,7 +2900,7 @@
     }
   },
   "vaultTimeoutPolicyInEffect1": {
-    "message": "$HOURS$ שעות ו-$MINUTES$ דקות לכל היותר.",
+    "message": "$HOURS$ שעות ו־$MINUTES$ דקות לכל היותר.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2883,7 +2913,7 @@
     }
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "פסק זמן חורג את ההגבלה שהוגדרה על ידי הארגון שלך: $HOURS$ שעות ו-$MINUTES$ דקות לכל היותר",
+    "message": "פסק זמן חורג את ההגבלה שהוגדרה על ידי הארגון שלך: $HOURS$ שעות ו־$MINUTES$ דקות לכל היותר",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2896,7 +2926,7 @@
     }
   },
   "vaultTimeoutPolicyWithActionInEffect": {
-    "message": "פוליסות הארגון שלך משפיעות על פסק הזמן לכספת שלך. פסק זמן מרבי המותר הוא $HOURS$ שעות ו-$MINUTES$ דקות. פעולת פסק הזמן לכספת שלך מוגדרת ל$ACTION$.",
+    "message": "פוליסות הארגון שלך משפיעות על פסק הזמן לכספת שלך. פסק זמן מרבי המותר הוא $HOURS$ שעות ו־$MINUTES$ דקות. פעולת פסק הזמן לכספת שלך מוגדרת ל$ACTION$.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2937,7 +2967,7 @@
     "message": "לא נמצא מזהה ייחודי."
   },
   "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ משתמש/ת ב־SSO עם שרת מפתחות באירוח עצמי. סיסמה ראשית לא דרושה יותר כדי להיכנס עבור חברים של ארגון זה.",
+    "message": "$ORGANIZATION$ משתמש/ת ב־SSO עם שרת מפתחות באירוח עצמי. סיסמה ראשית כבר לא נדרשת כדי להיכנס עבור חברים של ארגון זה.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3055,10 +3085,10 @@
     "message": "השתמש ביכולות מיעון משנה של ספק הדוא\"ל שלך."
   },
   "catchallEmail": {
-    "message": "דוא\"ל תופס-כל"
+    "message": "דוא\"ל תופס־כל"
   },
   "catchallEmailDesc": {
-    "message": "השתמש בתיבת דואר תפוס-כל המוגדרת בדומיין שלך."
+    "message": "השתמש בתיבת דואר תפוס־כל המוגדרת בדומיין שלך."
   },
   "random": {
     "message": "אקראי"
@@ -3139,7 +3169,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ סירב לבקשה שלך. נא ליצור קשר עם נותן השירות שלך לקבלת סיוע.",
+    "message": "$SERVICENAME$ סירב לבקשה שלך. נא ליצור קשר עם נותן השירות שלך עבור סיוע.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3223,16 +3253,16 @@
     "message": "מפתח API"
   },
   "ssoKeyConnectorError": {
-    "message": "שגיאת מחבר מפתח: וודא שמחבר המפתח זמין ופועל כראוי."
+    "message": "שגיאת Key Connector: וודא שה־Key Connector זמין ופועל כראוי."
   },
   "premiumSubcriptionRequired": {
     "message": "נדרש מנוי פרימיום"
   },
   "organizationIsDisabled": {
-    "message": "ארגון מושהה."
+    "message": "ארגון מושעה."
   },
   "disabledOrganizationFilterError": {
-    "message": "לא ניתן לגשת לפריטים בארגון מושהה. פנה אל בעל הארגון שלך עבור סיוע."
+    "message": "לא ניתן לגשת לפריטים בארגון מושעה. פנה אל בעל הארגון שלך עבור סיוע."
   },
   "loggingInTo": {
     "message": "נכנס אל $DOMAIN$",
@@ -3283,7 +3313,7 @@
     "message": "כניסה עם סיסמה ראשית"
   },
   "loggingInAs": {
-    "message": "נכנס כ-"
+    "message": "נכנס כ־"
   },
   "notYou": {
     "message": "לא את/ה?"
@@ -3322,7 +3352,7 @@
     "message": "בטל נעילת Bitwarden במכשיר שלך או ב"
   },
   "notificationSentDeviceAnchor": {
-    "message": "יישום הרשת"
+    "message": "יישום רשת"
   },
   "notificationSentDevicePart2": {
     "message": "וודא שביטוי טביעת האצבע תואם את זה שלמטה לפני שתאשר."
@@ -3488,7 +3518,7 @@
     "description": "European Union"
   },
   "accessDenied": {
-    "message": "גישה נדחתה. אין לך הרשאות כדי לצפות בדף זה."
+    "message": "גישה נדחתה. אין לך הרשאות כדי לצפות בעמוד זה."
   },
   "general": {
     "message": "כללי"
@@ -3596,7 +3626,7 @@
     "message": "קלט הוא לא כתובת דוא\"ל."
   },
   "fieldsNeedAttention": {
-    "message": "$COUNT$ שדות למעלה צריכות את תשומת לבך.",
+    "message": "$COUNT$ שדות למעלה צריכים את תשומת לבך.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3608,7 +3638,7 @@
     "message": "שדה 1 צריך את תשומת לבך."
   },
   "multipleFieldsNeedAttention": {
-    "message": "$COUNT$ שדות צריכות את תשומת לבך.",
+    "message": "$COUNT$ שדות צריכים את תשומת לבך.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3759,7 +3789,7 @@
     "message": "התעלם"
   },
   "importData": {
-    "message": "ייבוא נתונים",
+    "message": "ייבא נתונים",
     "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
   },
   "importError": {
@@ -3948,7 +3978,7 @@
     "message": "להיכנס עם מפתח גישה?"
   },
   "passkeyAlreadyExists": {
-    "message": "מפתח גישה כבר קיים ביישום זה."
+    "message": "מפתח גישה כבר קיים עבור יישום זה."
   },
   "noPasskeysFoundForThisApplication": {
     "message": "לא נמצאו מפתחות גישה עבור יישום זה."
@@ -3993,7 +4023,7 @@
     "message": "אימות נדרש כדי להשתמש במפתח גישה. אמת את זהותך כדי להמשיך."
   },
   "multifactorAuthenticationCancelled": {
-    "message": "אימות רב-גורמי בוטל"
+    "message": "אימות רב־גורמי בוטל"
   },
   "noLastPassDataFound": {
     "message": "לא נמצאו נתוני LastPass"
@@ -4011,7 +4041,7 @@
     "message": "PIN שגוי"
   },
   "multifactorAuthenticationFailed": {
-    "message": "אימות רב-גורמי נכשל"
+    "message": "אימות רב־גורמי נכשל"
   },
   "includeSharedFolders": {
     "message": "כלול תיקיות משותפות"
@@ -4023,7 +4053,7 @@
     "message": "מייבא את החשבון שלך..."
   },
   "lastPassMFARequired": {
-    "message": "נדרש אימות רב-גורמי של LastPass"
+    "message": "נדרש אימות רב־גורמי של LastPass"
   },
   "lastPassMFADesc": {
     "message": "הזן את קוד הגישה החד פעמי שלך מיישום האימות שלך"
@@ -4076,6 +4106,9 @@
   },
   "activeAccount": {
     "message": "חשבון פעיל"
+  },
+  "bitwardenAccount": {
+    "message": "חשבון Bitwarden"
   },
   "availableAccounts": {
     "message": "חשבונות זמינים"
@@ -4375,7 +4408,7 @@
     "description": "Used as a label to indicate that the user is the owner of an item."
   },
   "contactYourOrgAdmin": {
-    "message": "לא ניתן לגשת לפריטים של ארגונים מושבתים. פנה לבעל הארגון שלך לקבלת סיוע."
+    "message": "לא ניתן לגשת לפריטים של ארגונים מושבתים. פנה לבעל הארגון שלך עבור סיוע."
   },
   "additionalInformation": {
     "message": "פרטים נוספים"
@@ -4494,7 +4527,7 @@
     }
   },
   "websiteAdded": {
-    "message": "נוסף אתר אינטרנט"
+    "message": "אתר האינטרנט נוסף"
   },
   "addWebsite": {
     "message": "הוסף אתר אינטרנט"
@@ -4534,7 +4567,7 @@
     "message": "למלא אוטומטית בעת טעינת עמוד?"
   },
   "cardExpiredTitle": {
-    "message": "כרטיס שפג תוקפו"
+    "message": "כרטיס פג תוקף"
   },
   "cardExpiredMessage": {
     "message": "אם חידשת אותו, עדכן את פרטי הכרטיס"
@@ -4726,7 +4759,7 @@
     "message": "לא בחרת כלום."
   },
   "movedItemsToOrg": {
-    "message": "פריטים נבחרים הועברו ל־$ORGNAME$",
+    "message": "פריטים נבחרים הועברו אל $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -4735,7 +4768,7 @@
     }
   },
   "itemsMovedToOrg": {
-    "message": "פריטים הועברו ל־$ORGNAME$",
+    "message": "פריטים הועברו אל $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -4744,7 +4777,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "פריט הועבר ל־$ORGNAME$",
+    "message": "פריט הועבר אל $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -5013,11 +5046,11 @@
     "description": "Represents the ' key in screen reader content as a readable word"
   },
   "lessThanCharacterDescriptor": {
-    "message": "קטן מ-",
+    "message": "קטן מ־",
     "description": "Represents the < key in screen reader content as a readable word"
   },
   "greaterThanCharacterDescriptor": {
-    "message": "גדול מ-",
+    "message": "גדול מ־",
     "description": "Represents the > key in screen reader content as a readable word"
   },
   "commaCharacterDescriptor": {
@@ -5055,13 +5088,13 @@
     "message": "הודעה חשובה"
   },
   "setupTwoStepLogin": {
-    "message": "הגדר כניסה דו-שלבית"
+    "message": "הגדר כניסה דו־שלבית"
   },
   "newDeviceVerificationNoticeContentPage1": {
     "message": "Bitwarden ישלח קוד לדוא\"ל החשבון שלך כדי לאמת כניסות ממכשירים חדשים החל מפברואר 2025."
   },
   "newDeviceVerificationNoticeContentPage2": {
-    "message": "אתה יכול להגדיר כניסה דו-שלבית כדרך חלופית להגן על החשבון שלך או לשנות את הדוא\"ל שלך לאחד שאתה יכול לגשת אליו."
+    "message": "אתה יכול להגדיר כניסה דו־שלבית כדרך חלופית להגן על החשבון שלך או לשנות את הדוא\"ל שלך לאחד שאתה יכול לגשת אליו."
   },
   "remindMeLater": {
     "message": "הזכר לי מאוחר יותר"
@@ -5082,7 +5115,7 @@
     "message": "כן, אני יכול לגשת לדוא\"ל שלי באופן מהימן"
   },
   "turnOnTwoStepLogin": {
-    "message": "הפעל כניסה דו-שלבית"
+    "message": "הפעל כניסה דו־שלבית"
   },
   "changeAcctEmail": {
     "message": "שנה את דוא\"ל החשבון"
@@ -5110,5 +5143,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "כדי להשתמש בביטול נעילה ביומטרי, נא לעדכן את יישום שולחן העבודה שלך, להשבית ביטול נעילה בעזרת טביעת אצבע בהגדרות שולחן העבודה."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }
