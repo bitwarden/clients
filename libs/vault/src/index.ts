@@ -25,8 +25,10 @@ export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.compon
 export * from "./components/carousel";
 
 export * as VaultIcons from "./icons";
-
 export * from "./tasks";
+
+export { DefaultSshImportPromptService } from "./services/default-ssh-import-prompt.service";
+export { SshImportPromptService } from "./services/ssh-import-prompt.service";
 
 export * from "./abstractions/change-login-password.service";
 export * from "./services/default-change-login-password.service";

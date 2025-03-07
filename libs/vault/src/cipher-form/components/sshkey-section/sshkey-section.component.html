@@ -15,6 +15,14 @@
         data-testid="toggle-privateKey-visibility"
         bitPasswordInputToggle
       ></button>
+      <button
+        type="button"
+        bitIconButton="bwi-paste"
+        bitSuffix
+        data-testid="import-privateKey"
+        *ngIf="showImport"
+        (click)="importSshKeyFromClipboard()"
+      ></button>
     </bit-form-field>
 
     <bit-form-field>
