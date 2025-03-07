@@ -151,9 +151,17 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
       await this.router.navigate(["/vault"]);
     } catch (e) {
       this.logService.error(e);
-      const errorMessage =
-        (e as any)?.response?.error_description ?? this.i18nService.t("errorOccurred");
+      let errorMessage =
+        ((e as any)?.response?.error_description as string) ?? this.i18nService.t("errorOccurred");
+
+      if (errorMessage.includes("Invalid New Device OTP")) {
+        errorMessage = this.i18nService.t("invalidVerificationCode");
+      }
+
       codeControl.setErrors({ serverError: { message: errorMessage } });
+      // For enter key press scenarios, we have to manually mark the control as touched
+      // to get the error message to display
+      codeControl.markAsTouched();
     }
   };
 }
