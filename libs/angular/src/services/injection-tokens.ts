@@ -4,6 +4,7 @@ import { Observable, Subject } from "rxjs";
 
 import { LogoutReason } from "@bitwarden/auth/common";
 import { ClientType } from "@bitwarden/common/enums";
+import { VaultTimeout } from "@bitwarden/common/key-management/vault-timeout";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import {
   AbstractStorageService,
@@ -12,7 +13,6 @@ import {
 import { Theme } from "@bitwarden/common/platform/enums";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { Message } from "@bitwarden/common/platform/messaging";
-import { VaultTimeout } from "@bitwarden/common/types/vault-timeout.type";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 // Re-export the SafeInjectionToken from ui-common
 export { SafeInjectionToken } from "@bitwarden/ui-common";

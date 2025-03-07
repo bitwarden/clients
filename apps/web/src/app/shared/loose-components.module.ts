@@ -44,8 +44,8 @@ import { TwoFactorSetupComponent } from "../auth/settings/two-factor/two-factor-
 import { TwoFactorVerifyComponent } from "../auth/settings/two-factor/two-factor-verify.component";
 import { UserVerificationModule } from "../auth/shared/components/user-verification";
 import { SsoComponentV1 } from "../auth/sso-v1.component";
-import { TwoFactorOptionsComponent } from "../auth/two-factor-options.component";
-import { TwoFactorComponent } from "../auth/two-factor.component";
+import { TwoFactorOptionsComponentV1 } from "../auth/two-factor-options-v1.component";
+import { TwoFactorComponentV1 } from "../auth/two-factor-v1.component";
 import { UpdatePasswordComponent } from "../auth/update-password.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { VerifyEmailTokenComponent } from "../auth/verify-email-token.component";
@@ -67,7 +67,6 @@ import { ReusedPasswordsReportComponent as OrgReusedPasswordsReportComponent } f
 import { UnsecuredWebsitesReportComponent as OrgUnsecuredWebsitesReportComponent } from "../tools/reports/pages/organizations/unsecured-websites-report.component";
 import { WeakPasswordsReportComponent as OrgWeakPasswordsReportComponent } from "../tools/reports/pages/organizations/weak-passwords-report.component";
 /* eslint no-restricted-imports: "error" */
-import { AddEditComponent as SendAddEditComponent } from "../tools/send/add-edit.component";
 import { PremiumBadgeComponent } from "../vault/components/premium-badge.component";
 import { AddEditCustomFieldsComponent } from "../vault/individual-vault/add-edit-custom-fields.component";
 import { AddEditComponent } from "../vault/individual-vault/add-edit.component";
@@ -148,16 +147,15 @@ import { SharedModule } from "./shared.module";
     SecurityComponent,
     SecurityKeysComponent,
     SelectableAvatarComponent,
-    SendAddEditComponent,
     SetPasswordComponent,
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
+    TwoFactorComponentV1,
     SsoComponentV1,
     TwoFactorSetupAuthenticatorComponent,
-    TwoFactorComponent,
     TwoFactorSetupDuoComponent,
     TwoFactorSetupEmailComponent,
-    TwoFactorOptionsComponent,
+    TwoFactorOptionsComponentV1,
     TwoFactorRecoveryComponent,
     TwoFactorSetupComponent,
     TwoFactorVerifyComponent,
@@ -212,23 +210,21 @@ import { SharedModule } from "./shared.module";
     SecurityComponent,
     SecurityKeysComponent,
     SelectableAvatarComponent,
-    SendAddEditComponent,
     SetPasswordComponent,
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
+    TwoFactorComponentV1,
     SsoComponentV1,
     TwoFactorSetupAuthenticatorComponent,
-    TwoFactorComponent,
     TwoFactorSetupDuoComponent,
     TwoFactorSetupEmailComponent,
-    TwoFactorOptionsComponent,
-    TwoFactorRecoveryComponent,
+    TwoFactorOptionsComponentV1,
     TwoFactorSetupComponent,
     TwoFactorVerifyComponent,
     TwoFactorSetupWebAuthnComponent,
     TwoFactorSetupYubiKeyComponent,
-    UpdatePasswordComponent,
     UpdateTempPasswordComponent,
+    UpdatePasswordComponent,
     UserLayoutComponent,
     VerifyEmailTokenComponent,
     VerifyRecoverDeleteComponent,

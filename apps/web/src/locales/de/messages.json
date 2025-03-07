@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Kritische Anwendungen"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "No critical applications at risk"
+  },
   "accessIntelligence": {
     "message": "Zugriff auf Informationen"
   },
@@ -99,7 +102,7 @@
     "message": "Anwendung"
   },
   "atRiskPasswords": {
-    "message": "Risikoreiche Passwörter"
+    "message": "Gefährdete Passwörter"
   },
   "requestPasswordChange": {
     "message": "Passwortänderung anfordern"
@@ -111,10 +114,10 @@
     "message": "Anwendungen suchen"
   },
   "atRiskMembers": {
-    "message": "Risikoreiche Mitglieder"
+    "message": "Gefährdete Mitglieder"
   },
   "atRiskMembersWithCount": {
-    "message": "Risikoreiche Mitglieder ($COUNT$)",
+    "message": "Gefährdete Mitglieder ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -123,7 +126,7 @@
     }
   },
   "atRiskApplicationsWithCount": {
-    "message": "Risikoreiche Anwendungen ($COUNT$)",
+    "message": "Gefährdete Anwendungen ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -150,7 +153,7 @@
     "message": "Mitglieder insgesamt"
   },
   "atRiskApplications": {
-    "message": "Risikoreiche Anwendungen"
+    "message": "Gefährdete Anwendungen"
   },
   "totalApplications": {
     "message": "Anwendungen insgesamt"
@@ -1161,6 +1164,15 @@
   "logInToBitwarden": {
     "message": "Bei Bitwarden anmelden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Gib den an deine E-Mail-Adresse gesendeten Code ein"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Gib den Code aus deiner Authenticator-App ein"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Drücke zum Authentifizieren auf deinen YubiKey"
+  },
   "authenticationTimeout": {
     "message": "Authentifizierungs-Timeout"
   },
@@ -1443,11 +1455,21 @@
   "rememberMe": {
     "message": "Angemeldet bleiben"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Für 30 Tage auf diesem Gerät nicht mehr fragen"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "E-Mail mit Bestätigungscode erneut versenden"
   },
   "useAnotherTwoStepMethod": {
     "message": "Verwenden sie eine andere Zwei-Faktor-Anmelde-Methode"
+  },
+  "selectAnotherMethod": {
+    "message": "Wähle eine andere Methode",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Verwende deinen Wiederherstellungscode"
   },
   "insertYubiKey": {
     "message": "Stecken Sie Ihren YubiKey in einen USB-Port Ihres Computers und berühren Sie dessen Knopf."
@@ -1466,6 +1488,9 @@
   },
   "twoStepOptions": {
     "message": "Optionen für Zwei-Faktor-Authentifizierung"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Zwei-Faktor-Authentifizierungsmethode auswählen"
   },
   "recoveryCodeDesc": {
     "message": "Zugang zu allen Zwei-Faktor-Anbietern verloren? Benutze deinen Wiederherstellungscode, um alle Zwei-Faktor-Anbieter in deinem Konto zu deaktivieren."
@@ -1508,6 +1533,9 @@
   },
   "webAuthnMigrated": {
     "message": "(Von FIDO migriert)"
+  },
+  "openInNewTab": {
+    "message": "In neuem Tab öffnen"
   },
   "emailTitle": {
     "message": "E-Mail"
@@ -4081,6 +4109,12 @@
   "updateBrowserDesc": {
     "message": "Du verwendest einen nicht unterstützten Webbrowser. Der Web-Tresor funktioniert möglicherweise nicht richtig."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "Du hast eine ausstehende Anmeldeanfrage von einem anderen Gerät."
+  },
+  "reviewLoginRequest": {
+    "message": "Anmeldeanfrage überprüfen"
+  },
   "freeTrialEndPromptCount": {
     "message": "Deine kostenlose Testversion endet in $COUNT$ Tagen.",
     "placeholders": {
@@ -4470,7 +4504,7 @@
     "message": "Aktualisierung des Verschlüsselungsschlüssels kann nicht fortgesetzt werden"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "$LABEL$ bearbeiten",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4479,7 +4513,7 @@
     }
   },
   "reorderToggleButton": {
-    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "message": "$LABEL$ umsortieren. Verwende die Pfeiltasten, um den Eintrag nach oben oder unten zu verschieben.",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4757,6 +4791,15 @@
   },
   "masterPassPolicyDesc": {
     "message": "Mindestanforderungen für die Stärke des Master-Passworts festlegen."
+  },
+  "passwordStrengthScore": {
+    "message": "Bewertung der Passwortstärke $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "twoStepLoginPolicyTitle": {
     "message": "Zwei-Faktor-Authentifizierung verlangen"
@@ -5652,6 +5695,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "WebAuthn authentifizieren"
+  },
+  "readSecurityKey": {
+    "message": "Sicherheitsschlüssel auslesen"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Warte auf Sicherheitsschlüssel-Interaktion..."
   },
   "webAuthnNotSupported": {
     "message": "WebAuthn wird in diesem Browser nicht unterstützt."
@@ -6947,7 +6996,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ hat deine Anfrage abgelehnt. Bitte wende dich an deinen Dienstanbieter für Unterstützung.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -6957,7 +7006,7 @@
     }
   },
   "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ hat deine Anfrage abgelehnt: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -7198,6 +7247,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "Für dein Konto ist die DUO Zwei-Faktor-Authentifizierung erforderlich."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Die Duo-Zwei-Faktor-Authentifizierung ist für dein Konto erforderlich. Folge den Schritten unten, um die Anmeldung abzuschließen."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Folge den Schritten unten, um die Anmeldung abzuschließen."
   },
   "launchDuo": {
     "message": "DUO starten"
@@ -9295,10 +9350,10 @@
     "message": "Konfiguriere die Geräteverwaltung für Bitwarden mithilfe der Implementierungsanleitung für deine Plattform."
   },
   "desktopRequired": {
-    "message": "Desktop required"
+    "message": "Desktop-Rechner erforderlich"
   },
   "reopenLinkOnDesktop": {
-    "message": "Reopen this link from your email on a desktop."
+    "message": "Öffne diesen Link aus deiner E-Mail auf einem Desktop-Rechner."
   },
   "integrationCardTooltip": {
     "message": "$INTEGRATION$-Implementierungsanleitung starten.",
@@ -10294,35 +10349,35 @@
     "message": "Der Name der Organisation darf 50 Zeichen nicht überschreiten."
   },
   "openingExtension": {
-    "message": "Opening the Bitwarden browser extension"
+    "message": "Bitwarden-Browser-Erweiterung wird geöffnet"
   },
   "somethingWentWrong": {
-    "message": "Something went wrong..."
+    "message": "Etwas ist schiefgelaufen..."
   },
   "openingExtensionError": {
-    "message": "We had trouble opening the Bitwarden browser extension. Click the button to open it now."
+    "message": "Wir hatten Probleme beim Öffnen der Bitwarden-Browser-Erweiterung. Klick auf den Button, um sie jetzt zu öffnen."
   },
   "openExtension": {
-    "message": "Open extension"
+    "message": "Erweiterung öffnen"
   },
   "doNotHaveExtension": {
-    "message": "Don't have the Bitwarden browser extension?"
+    "message": "Du hast die Bitwarden-Browser-Erweiterung nicht?"
   },
   "installExtension": {
-    "message": "Install extension"
+    "message": "Erweiterung installieren"
   },
   "openedExtension": {
-    "message": "Opened the browser extension"
+    "message": "Browser-Erweiterung geöffnet"
   },
   "openedExtensionViewAtRiskPasswords": {
-    "message": "Successfully opened the Bitwarden browser extension. You can now review your at-risk passwords."
+    "message": "Die Bitwarden Browser-Erweiterung wurde erfolgreich geöffnet. Du kannst jetzt deine gefährdeten Passwörter überprüfen."
   },
   "openExtensionManuallyPart1": {
-    "message": "We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon",
+    "message": "Wir hatten Probleme beim Öffnen der Bitwarden-Browser-Erweiterung. Öffne das Bitwarden-Symbol",
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "openExtensionManuallyPart2": {
-    "message": "from the toolbar.",
+    "message": "in der Symbolleiste.",
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "resellerRenewalWarningMsg": {
@@ -10431,5 +10486,29 @@
   },
   "assignedExceedsAvailable": {
     "message": "Die zugewiesenen Plätze überschreiten die verfügbaren Plätze."
+  },
+  "removeUnlockWithPinPolicyTitle": {
+    "message": "Entsperren mit PIN entfernen"
+  },
+  "removeUnlockWithPinPolicyDesc": {
+    "message": "Mitgliedern nicht erlauben, ihr Konto mit einer PIN zu entsperren."
+  },
+  "limitedEventLogs": {
+    "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Get full access to organization event logs by upgrading to a Teams or Enterprise plan."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Upgrade for real event log data"
+  },
+  "upgradeEventLogMessage": {
+    "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
   }
 }
