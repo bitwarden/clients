@@ -1,4 +1,5 @@
 import { Meta, StoryObj } from "@storybook/web-components";
+import { html } from "lit";
 
 import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
@@ -33,7 +34,8 @@ export default {
   },
 } as Meta<NotificationFooterProps>;
 
-const Template = (args: NotificationFooterProps) => NotificationFooter({ ...args });
+const Template = (args: NotificationFooterProps) =>
+  html`<div style="max-width:400px;">${NotificationFooter({ ...args })}</div>`;
 
 export const Default: StoryObj<NotificationFooterProps> = {
   render: Template,
