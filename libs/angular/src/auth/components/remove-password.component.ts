@@ -2,11 +2,11 @@
 // @ts-strict-ignore
 import { Directive, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -21,7 +21,7 @@ export class RemovePasswordComponent implements OnInit {
 
   loading = true;
   organization: Organization;
-  email: string;
+  migratingUser: Account;
 
   constructor(
     private router: Router,
@@ -36,9 +36,9 @@ export class RemovePasswordComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.organization = await this.keyConnectorService.getManagingOrganization();
-    this.email = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.email)),
+    this.migratingUser = await firstValueFrom(this.accountService.activeAccount$);
+    this.organization = await this.keyConnectorService.getManagingOrganization(
+      this.migratingUser.id,
     );
     await this.syncService.fullSync(false);
     this.loading = false;
@@ -46,7 +46,7 @@ export class RemovePasswordComponent implements OnInit {
 
   convert = async () => {
     this.continuing = true;
-    this.actionPromise = this.keyConnectorService.migrateUser();
+    this.actionPromise = this.keyConnectorService.migrateUser(this.migratingUser.id);
 
     try {
       await this.actionPromise;
@@ -55,7 +55,7 @@ export class RemovePasswordComponent implements OnInit {
         title: null,
         message: this.i18nService.t("removedMasterPassword"),
       });
-      await this.keyConnectorService.removeConvertAccountRequired();
+      await this.keyConnectorService.removeConvertAccountRequired(this.migratingUser.id);
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate([""]);
@@ -88,7 +88,7 @@ export class RemovePasswordComponent implements OnInit {
         title: null,
         message: this.i18nService.t("leftOrganization"),
       });
-      await this.keyConnectorService.removeConvertAccountRequired();
+      await this.keyConnectorService.removeConvertAccountRequired(this.migratingUser.id);
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate([""]);
