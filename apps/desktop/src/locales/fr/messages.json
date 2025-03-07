@@ -169,7 +169,7 @@
     "message": "Numéro de passeport"
   },
   "licenseNumber": {
-    "message": "Numéro de permis"
+    "message": "Numéro de licence"
   },
   "email": {
     "message": "Courriel"
@@ -217,25 +217,25 @@
     "message": "Confirmez le mot de passe"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Entrez le mot de passe de la clé SSH."
+    "message": "Saisissez le mot de passe de la clé SSH."
   },
   "enterSshKeyPassword": {
-    "message": "Entrez le mot de passe"
+    "message": "Saisissez le mot de passe"
   },
   "sshAgentUnlockRequired": {
     "message": "Veuillez déverrouiller votre coffre pour approuver la demande de clé SSH."
   },
   "sshAgentUnlockTimeout": {
-    "message": "La requête de clé SSH a expiré."
+    "message": "La demande de clé SSH a expiré."
   },
   "enableSshAgent": {
-    "message": "Activer l'agent SSH"
+    "message": "Activez l'agent SSH"
   },
   "enableSshAgentDesc": {
-    "message": "Activez l'agent SSH pour signer les requêtes SSH directement depuis votre coffre Bitwarden."
+    "message": "Activez l'agent SSH pour signer les demandes SSH directement depuis votre coffre Bitwarden."
   },
   "enableSshAgentHelp": {
-    "message": "L'agent SSH est un service destiné aux développeurs qui vous permet de signer des requêtes SSH directement depuis votre coffre Bitwarden."
+    "message": "L'agent SSH est un service - destiné aux développeurs - qui vous permet de signer des demandes SSH directement depuis votre coffre Bitwarden."
   },
   "premiumRequired": {
     "message": "Premium requis"
@@ -253,14 +253,14 @@
     "message": "Erreur de déchiffrement"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+    "message": "Bitwarden n'a pas pu déchiffrer le(s) élément(s) du coffre listé(s) ci-dessous."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
+    "message": "Contacter le service clientèle",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "afin d'éviter toute perte de données supplémentaire.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
@@ -543,10 +543,6 @@
     "message": "Inclure des caractères spéciaux",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Nombre de mots"
   },
@@ -653,13 +649,13 @@
     "message": "Se connecter à Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Saisissez le code envoyé à votre adresse courriel"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Saisissez le code de votre application d'authentification"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Touchez votre YubiKey pour vous authentifier"
   },
   "logInWithPasskey": {
     "message": "Se connecter avec une clé d'accès"
@@ -714,7 +710,7 @@
     "message": "Indice du mot de passe principal"
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "Score de force du mot de passe $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -747,7 +743,7 @@
     "message": "Demander l'indice"
   },
   "requestPasswordHint": {
-    "message": "Obtenir l'indice du mot de passe"
+    "message": "Demande d'indice de mot de passe"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Saisissez l'adresse courriel de votre compte et votre indice de mot de passe vous sera envoyé"
@@ -835,7 +831,7 @@
     "message": "L'authentification a été annulée ou a pris trop de temps. Veuillez réessayer."
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "Ouvrir dans un nouvel onglet"
   },
   "invalidVerificationCode": {
     "message": "Code de vérification invalide"
@@ -868,7 +864,7 @@
     "message": "Rester connecté"
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "Ne plus demander sur cet appareil pendant 30 jours"
   },
   "sendVerificationCodeEmailAgain": {
     "message": "Envoyer à nouveau le courriel de code de vérification"
@@ -877,11 +873,11 @@
     "message": "Utiliser une autre méthode de connexion en deux étapes"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Sélectionner une autre méthode",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "Utilisez votre code de récupération"
   },
   "insertYubiKey": {
     "message": "Insérez votre YubiKey dans le port USB de votre ordinateur puis appuyez sur son bouton."
@@ -916,14 +912,14 @@
     "message": "Sécurisez votre organisation avec Duo Security à l'aide de l'application Duo Mobile, l'envoi d'un SMS, un appel vocal ou une clé de sécurité U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
-    "message": "Verify your Identity"
+  "verifyYourIdentity": {
+    "message": "Vérifiez votre identité"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Nous ne reconnaissons pas cet appareil. Saisissez le code envoyé à votre adresse courriel pour vérifier votre identité."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Continuer à se connecter"
   },
   "webAuthnTitle": {
     "message": "WebAuthn FIDO2"
@@ -950,7 +946,7 @@
     "message": "Options d'authentification à deux facteurs"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "Sélectionnez la méthode d'authentification à deux facteurs"
   },
   "selfHostedEnvironment": {
     "message": "Environnement auto-hébergé"
@@ -1377,7 +1373,7 @@
     "description": "Copy credit card number"
   },
   "copyEmail": {
-    "message": "Copy email"
+    "message": "Copier le courriel"
   },
   "copySecurityCode": {
     "message": "Copier le code de sécurité",
@@ -1660,13 +1656,13 @@
     "message": "Ce mot de passe sera utilisé pour exporter et importer ce fichier"
   },
   "accountRestrictedOptionDescription": {
-    "message": "Utilisez la clé de chiffrement de votre compte, dérivée du nom d'utilisateur et du mot de passe principal de votre compte, pour chiffrer l'export et restreindre l'import au seul compte Bitwarden actuel."
+    "message": "Utilisez la clé de chiffrement de votre compte, dérivée du nom d'utilisateur et du mot de passe principal de votre compte, pour chiffrer l'exportation et restreindre l'importation au seul compte Bitwarden actuel."
   },
   "passwordProtected": {
     "message": "Protégé par mot de passe"
   },
   "passwordProtectedOptionDescription": {
-    "message": "Définissez un mot de passe de fichier pour chiffrer l'export et déchiffrer son import sur n'importe quel compte Bitwarden."
+    "message": "Définissez un mot de passe de fichier pour chiffrer l'exportation et déchiffrer son importation sur n'importe quel compte Bitwarden."
   },
   "exportTypeHeading": {
     "message": "Type d'exportation"
@@ -1810,7 +1806,7 @@
     "message": "Exiger un mot de passe ou un code PIN au démarrage de Bitwarden"
   },
   "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
+    "message": "Exiger un mot de passe au démarrage de l'application"
   },
   "recommendedForSecurity": {
     "message": "Recommandé pour la sécurité."
@@ -2101,10 +2097,10 @@
     "message": "Les options de biométrie dans le navigateur nécessitent au préalable l'activation des options de biométrie dans l'application de bureau."
   },
   "biometricsManualSetupTitle": {
-    "message": "Automatic setup not available"
+    "message": "Configuration automatique non disponible"
   },
   "biometricsManualSetupDesc": {
-    "message": "Due to the installation method, biometrics support could not be automatically enabled. Would you like to open the documentation on how to do this manually?"
+    "message": "En raison de la méthode d'installation, la prise en charge de la biométrie n'a pas pu être activée automatiquement. Souhaitez-vous ouvrir la documentation sur la manière de procéder manuellement ?"
   },
   "personalOwnershipSubmitError": {
     "message": "En raison d'une politique d'entreprise, il vous est interdit d'enregistrer des éléments dans votre coffre personnel. Sélectionnez une organisation dans l'option Propriété et choisissez parmi les collections disponibles."
@@ -2282,10 +2278,10 @@
     "message": "Authentifier WebAuthn"
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "Lire la clé de sécurité"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Awaiting security key interaction..."
+    "message": "En attente de l'interaction de la clé de sécurité..."
   },
   "hideEmail": {
     "message": "Masquer mon adresse électronique aux destinataires."
@@ -2324,7 +2320,7 @@
     "message": "Votre mot de passe principal ne répond pas aux exigences de politique de sécurité de cette organisation. Pour pouvoir accéder au coffre, vous devez mettre à jour votre mot de passe principal dès maintenant. En poursuivant, vous serez déconnecté de votre session actuelle et vous devrez vous reconnecter. Les sessions actives sur d'autres appareils peuver rester actives pendant encore une heure."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+    "message": "Votre organisation a désactivé le chiffrement des appareils de confiance. Veuillez définir un mot de passe principal pour accéder à votre coffre."
   },
   "tryAgain": {
     "message": "Essayez de nouveau"
@@ -2507,7 +2503,7 @@
     "message": "Export du coffre-fort de l'organisation"
   },
   "exportingOrganizationVaultDesc": {
-    "message": "Seul le coffre-fort de l'organisation associé à $ORGANIZATION$ sera exporté. Les coffres individuels ou d'autres organisations ne seront pas inclus.",
+    "message": "Seul le coffre de l'organisation associé à $ORGANIZATION$ sera exporté. Les coffres individuels ou d'autres organisations ne seront pas inclus.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2624,11 +2620,11 @@
     "message": "Générer un alias de courriel avec un service de transfert externe."
   },
   "forwarderDomainName": {
-    "message": "Email domain",
+    "message": "Domaine du courriel",
     "description": "Labels the domain name email forwarder service option"
   },
   "forwarderDomainNameHint": {
-    "message": "Choose a domain that is supported by the selected service",
+    "message": "Choisissez un domaine qui est pris en charge par le service sélectionné",
     "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
@@ -2684,7 +2680,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ a refusé votre demande. Veuillez contacter votre fournisseur de service pour assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -2694,7 +2690,7 @@
     }
   },
   "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ a refusé votre demande : $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -2738,7 +2734,7 @@
     }
   },
   "forwarderUnknownError": {
-    "message": "Unknown $SERVICENAME$ error occurred.",
+    "message": "Une erreur inconnue $SERVICENAME$ s'est produite.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
     "placeholders": {
       "servicename": {
@@ -2748,7 +2744,7 @@
     }
   },
   "forwarderUnknownForwarder": {
-    "message": "Unknown forwarder: '$SERVICENAME$'.",
+    "message": "Émetteur inconnu : '$SERVICENAME$'.",
     "description": "Displayed when the forwarding service is not supported.",
     "placeholders": {
       "servicename": {
@@ -2822,13 +2818,13 @@
     "message": "Une notification a été envoyée à votre appareil"
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the "
+    "message": "Déverrouillez Bitwarden sur votre appareil ou sur le "
   },
   "notificationSentDeviceAnchor": {
-    "message": "web app"
+    "message": "application web"
   },
   "notificationSentDevicePart2": {
-    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+    "message": "Assurez-vous que la phrase d'empreinte correspond à celle ci-dessous avant d'approuver."
   },
   "needAnotherOptionV1": {
     "message": "Besoin d'une autre option ?"
@@ -2862,7 +2858,7 @@
     "message": "Essayez-vous d'accéder à votre compte ?"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "Tentative d'accès par $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2880,10 +2876,10 @@
     "message": "Heure"
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Confirmer l'accès"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Refuser l'accès"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Connexion confirmée pour $EMAIL$ sur $DEVICE$",
@@ -2920,7 +2916,7 @@
     "message": "Cette demande n'est plus valide."
   },
   "confirmAccessAttempt": {
-    "message": "Confirm access attempt for $EMAIL$",
+    "message": "Confirmer la tentative d’accès pour $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2932,7 +2928,7 @@
     "message": "Connexion demandée"
   },
   "accountAccessRequested": {
-    "message": "Account access requested"
+    "message": "Accès au compte demandé"
   },
   "creatingAccountOn": {
     "message": "Création du compte sur"
@@ -3180,7 +3176,7 @@
     "message": "Sous-menu"
   },
   "toggleSideNavigation": {
-    "message": "Toggle side navigation"
+    "message": "Basculer la navigation latérale"
   },
   "skipToContent": {
     "message": "Accéder au contenu"
@@ -3238,7 +3234,7 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
+    "message": "Erreur de connexion avec le service Duo. Utilisez une autre méthode d'authentification à deux facteurs ou contactez Duo pour obtenir de l'aide."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Lancez Duo et suivez les étapes pour terminer la connexion."
@@ -3247,10 +3243,10 @@
     "message": "L'authentification à double facteur Duo est requise pour votre compte."
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+    "message": "L'authentification à deux facteurs Duo est requise pour votre compte. Suivez les étapes ci-dessous afin de réussir à vous connecter."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Follow the steps below to finish logging in."
+    "message": "Suivez les étapes ci-dessous afin de réussir à vous connecter."
   },
   "launchDuo": {
     "message": "Lancer Duo dans le navigateur"
@@ -3431,7 +3427,7 @@
     "message": "Erreur lors de l'assignation du dossier cible."
   },
   "viewItemsIn": {
-    "message": "View items in $NAME$",
+    "message": "Afficher les éléments dans $NAME$",
     "description": "Button to view the contents of a folder or collection",
     "placeholders": {
       "name": {
@@ -3441,7 +3437,7 @@
     }
   },
   "backTo": {
-    "message": "Back to $NAME$",
+    "message": "Revenir à $NAME$",
     "description": "Navigate back to a previous folder or collection",
     "placeholders": {
       "name": {
@@ -3468,28 +3464,28 @@
     "message": "Données"
   },
   "fileSends": {
-    "message": "File Sends"
+    "message": "Envois de fichiers"
   },
   "textSends": {
-    "message": "Text Sends"
+    "message": "Envois de texte"
   },
   "ssoError": {
-    "message": "No free ports could be found for the sso login."
+    "message": "Aucun port libre n’a pu être trouvé pour la connexion SSO."
   },
   "biometricsStatusHelptextUnlockNeeded": {
-    "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
+    "message": "Le déverrouillage par biométrie n’est pas disponible parce qu'il faut au préalable déverrouiller avec le code PIN ou le mot de passe."
   },
   "biometricsStatusHelptextHardwareUnavailable": {
-    "message": "Biometric unlock is currently unavailable."
+    "message": "Le déverrouillage par biométrie n'est pas disponible actuellement."
   },
   "biometricsStatusHelptextAutoSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "Le déverrouillage par biométrie n'est pas disponible en raison de fichiers système mal configurés."
   },
   "biometricsStatusHelptextManualSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "Le déverrouillage par biométrie n'est pas disponible en raison de fichiers système mal configurés."
   },
   "biometricsStatusHelptextNotEnabledLocally": {
-    "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
+    "message": "Le déverrouillage par biométrie n'est pas disponible car elle n'est pas activée pour $EMAIL$ dans l'application de bureau Bitwarden.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3498,7 +3494,7 @@
     }
   },
   "biometricsStatusHelptextUnavailableReasonUnknown": {
-    "message": "Biometric unlock is currently unavailable for an unknown reason."
+    "message": "Le déverrouillage par biométrie n'est pas disponible actuellement pour une raison inconnue."
   },
   "authorize": {
     "message": "Autoriser"
@@ -3510,25 +3506,25 @@
     "message": "Confirmer l'utilisation de la clé SSH"
   },
   "agentForwardingWarningTitle": {
-    "message": "Warning: Agent Forwarding"
+    "message": "Avertissement : agent émetteur"
   },
   "agentForwardingWarningText": {
-    "message": "This request comes from a remote device that you are logged into"
+    "message": "Cette demande provient d’un appareil distant auquel vous êtes connecté"
   },
   "sshkeyApprovalMessageInfix": {
     "message": "demande l'accès à"
   },
   "sshkeyApprovalMessageSuffix": {
-    "message": "in order to"
+    "message": "afin de"
   },
   "sshActionLogin": {
-    "message": "authenticate to a server"
+    "message": "s’authentifier sur un serveur"
   },
   "sshActionSign": {
-    "message": "sign a message"
+    "message": "signer un message"
   },
   "sshActionGitSign": {
-    "message": "sign a git commit"
+    "message": "signer un engagement Git"
   },
   "unknownApplication": {
     "message": "Une application"
@@ -3588,21 +3584,24 @@
     "message": "Changer le courriel du compte"
   },
   "allowScreenshots": {
-    "message": "Allow screen capture"
+    "message": "Autoriser les captures d'écran"
   },
   "allowScreenshotsDesc": {
-    "message": "Allow the Bitwarden desktop application to be captured in screenshots and viewed in remote desktop sessions. Disabling this will prevent access on some external displays."
+    "message": "Permettre à l'application de bureau Bitwarden d'être enregistrée dans des captures d'écran et affichée dans des sessions de bureau à distance. La désactivation de cette fonction empêchera l'accès à certains écrans externes."
   },
   "confirmWindowStillVisibleTitle": {
-    "message": "Confirm window still visible"
+    "message": "Fenêtre de confirmation toujours visible"
   },
   "confirmWindowStillVisibleContent": {
     "message": "Veuillez confirmer que la fenêtre est toujours visible."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
-    "message": "Extension update required"
+    "message": "Mise à jour de l'extension requise"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
-    "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
+    "message": "L’extension de navigateur que vous utilisez est obsolète. Veuillez la mettre à jour ou désactiver la validation de l'empreinte digitale par l'intégration du navigateur dans les paramètres de l'application de bureau."
+  },
+  "changeAtRiskPassword": {
+    "message": "Changer le mot de passe à risque"
   }
 }
