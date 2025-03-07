@@ -232,14 +232,14 @@ export class VaultHeaderComponent implements OnInit {
     ) {
       const collections = await this.collectionAdminService.getAll(organization.id);
       if (collections.length === organization.maxCollections) {
-        this.showFreeOrgUpgradeDialog(organization);
+        await this.showFreeOrgUpgradeDialog(organization);
         return;
       }
     }
     this.onAddCollection.emit();
   }
 
-  private showFreeOrgUpgradeDialog(organization: Organization): void {
+  private async showFreeOrgUpgradeDialog(organization: Organization): Promise<void> {
     const orgUpgradeSimpleDialogOpts: SimpleDialogOptions = {
       title: this.i18nService.t("upgradeOrganization"),
       content: this.i18nService.t(
@@ -259,21 +259,16 @@ export class VaultHeaderComponent implements OnInit {
     }
 
     const simpleDialog = this.dialogService.openSimpleDialogRef(orgUpgradeSimpleDialogOpts);
+    const result: boolean | undefined = await firstValueFrom(simpleDialog.closed);
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    firstValueFrom(simpleDialog.closed).then((result: boolean | undefined) => {
-      if (!result) {
-        return;
-      }
+    if (!result) {
+      return;
+    }
 
-      if (result && organization.canEditSubscription) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.router.navigate(["/organizations", organization.id, "billing", "subscription"], {
-          queryParams: { upgrade: true },
-        });
-      }
-    });
+    if (organization.canEditSubscription) {
+      await this.router.navigate(["/organizations", organization.id, "billing", "subscription"], {
+        queryParams: { upgrade: true },
+      });
+    }
   }
 }
