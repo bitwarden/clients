@@ -47,7 +47,7 @@ describe("AppearanceV2Component", () => {
 
   const showFavicons$ = new BehaviorSubject<boolean>(true);
   const enableBadgeCounter$ = new BehaviorSubject<boolean>(true);
-  const selectedTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Nord);
+  const selectedTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
   const enableRoutingAnimation$ = new BehaviorSubject<boolean>(true);
   const enableCompactMode$ = new BehaviorSubject<boolean>(false);
   const showQuickCopyActions$ = new BehaviorSubject<boolean>(false);
@@ -135,7 +135,7 @@ describe("AppearanceV2Component", () => {
       enableAnimations: true,
       enableFavicon: true,
       enableBadgeCounter: true,
-      theme: ThemeType.Nord,
+      theme: ThemeType.Light,
       enableCompactMode: false,
       showQuickCopyActions: false,
       width: "default",

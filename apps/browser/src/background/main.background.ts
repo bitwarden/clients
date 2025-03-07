@@ -834,10 +834,7 @@ export default class MainBackground {
       this.configService,
     );
 
-    this.themeStateService = new DefaultThemeStateService(
-      this.globalStateProvider,
-      this.configService,
-    );
+    this.themeStateService = new DefaultThemeStateService(this.globalStateProvider);
 
     this.bulkEncryptService = new FallbackBulkEncryptService(this.encryptService);
 
