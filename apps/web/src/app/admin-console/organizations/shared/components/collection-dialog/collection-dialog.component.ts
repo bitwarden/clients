@@ -2,14 +2,7 @@
 // @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
-import {
-  AbstractControl,
-  AsyncValidatorFn,
-  FormBuilder,
-  FormControl,
-  ValidationErrors,
-  Validators,
-} from "@angular/forms";
+import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
 import {
   combineLatest,
   firstValueFrom,
@@ -21,7 +14,7 @@ import {
   switchMap,
   takeUntil,
 } from "rxjs";
-import { first, tap } from "rxjs/operators";
+import { first } from "rxjs/operators";
 
 import {
   CollectionAccessSelectionView,
@@ -51,6 +44,7 @@ import { SelectModule, BitValidators, DialogService, ToastService } from "@bitwa
 import { openChangePlanDialog } from "../../../../../billing/organizations/change-plan-dialog.component";
 import { SharedModule } from "../../../../../shared";
 import { GroupApiService, GroupView } from "../../../core";
+import { freeOrgCollectionLimitValidator } from "../../validators/free-org-collection-limit.validator";
 import { PermissionMode } from "../access-selector/access-selector.component";
 import {
   AccessItemType,
@@ -190,7 +184,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     if (isBreadcrumbEventLogsEnabled) {
       this.collections = await this.collectionService.getAll();
       this.organizationSelected.setAsyncValidators(
-        this.validateFreeOrgCollectionLimit(this.organizations$, this.collections),
+        freeOrgCollectionLimitValidator(this.organizations$, this.collections, this.i18nService),
       );
       this.formGroup.updateValueAndValidity();
     }
@@ -425,47 +419,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  private validateFreeOrgCollectionLimit(
-    orgs: Observable<Organization[]>,
-    collections: Collection[],
-  ): AsyncValidatorFn {
-    return (control: AbstractControl): Observable<ValidationErrors | null> => {
-      if (!(control instanceof FormControl)) {
-        return of(null);
-      }
-
-      const orgId = control.value;
-
-      if (!orgId) {
-        return of(null);
-      }
-
-      return orgs.pipe(
-        map((organizations) => organizations.find((org) => org.id === orgId)),
-        map((org) => {
-          if (!org) {
-            return null;
-          }
-
-          const orgCollections = collections.filter((c) => c.organizationId === org.id);
-          const hasReachedLimit = org.maxCollections === orgCollections.length;
-
-          if (hasReachedLimit) {
-            this.orgExceedingCollectionLimit = org;
-            return {
-              cannotCreateCollections: { message: this.i18nService.t("cannotCreateCollection") },
-            };
-          }
-
-          return null;
-        }),
-        tap((errors) => {
-          this.buttonDisplayName = errors ? ButtonType.Upgrade : ButtonType.Save;
-        }),
-      );
-    };
   }
 
   private changePlan(org: Organization) {
