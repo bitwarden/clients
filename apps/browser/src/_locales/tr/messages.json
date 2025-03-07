@@ -479,22 +479,6 @@
   "length": {
     "message": "Uzunluk"
   },
-  "uppercase": {
-    "message": "Büyük harf (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Küçük harf (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Rakamlar (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Özel karakterler (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Dahil et",
     "description": "Card header for password generator include block"
@@ -526,10 +510,6 @@
   "specialCharactersDescription": {
     "message": "Özel karakterleri dahil et",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Kelime sayısı"
@@ -669,8 +649,8 @@
   "browserNotSupportClipboard": {
     "message": "Web tarayıcınız panoya kopyalamayı desteklemiyor. Parolayı elle kopyalayın."
   },
-  "verifyIdentity": {
-    "message": "Kimliği doğrula"
+  "verifyYourIdentity": {
+    "message": "Kimliğinizi doğrulayın"
   },
   "weDontRecognizeThisDevice": {
     "message": "Bu cihazı tanıyamadık. Kimliğinizi doğrulamak için e-postanıza gönderilen kodu girin."
@@ -1024,7 +1004,7 @@
     "message": "Hesap eklemeyi öner"
   },
   "vaultSaveOptionsTitle": {
-    "message": "Kasa seçeneklerine kaydet"
+    "message": "Kasaya kaydetme seçenekleri"
   },
   "addLoginNotificationDesc": {
     "message": "\"Hesap ekle\" bildirimi, ilk kez kullandığınız hesap bilgilerini kasanıza kaydetmek isteyip istemediğinizi otomatik olarak sorar."
@@ -1051,7 +1031,7 @@
     "message": "Kolay otomatik doldurma için sekme sayfasında kimlikleri listele."
   },
   "clickToAutofillOnVault": {
-    "message": "Kasa görünümünde otomatik doldurmak istediğiniz kayıtlara tıklayın"
+    "message": "Kasa görünümünde kayıtlara tıklayınca otomatik doldur"
   },
   "clickToAutofill": {
     "message": "Otomatik doldurma önerisindeki kayıtlara tıkladığımda doldur"
@@ -1069,6 +1049,56 @@
   },
   "notificationAddSave": {
     "message": "Kaydet"
+  },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ Bitwarden'a kaydedildi.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ Bitwarden'da güncellendi.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Yeni hesap olarak kaydet",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Hesabı güncelle",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Hesap kaydedilsin mi?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Mevcut hesap güncellensin mi?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Hesap kaydedildi",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Hesap güncellendi",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Kaydetme hatası",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Bu hesabı kaydedemedik. Bilgileri elle girmeyi deneyin.",
+    "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
     "message": "Mevcut hesapları güncellemeyi öner"
@@ -4077,6 +4107,9 @@
   "activeAccount": {
     "message": "Aktif hesap"
   },
+  "bitwardenAccount": {
+    "message": "Bitwarden hesabı"
+  },
   "availableAccounts": {
     "message": "Mevcut hesaplar"
   },
@@ -5110,5 +5143,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }
