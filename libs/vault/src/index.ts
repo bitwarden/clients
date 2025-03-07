@@ -27,6 +27,7 @@ export * from "./components/carousel";
 export * as VaultIcons from "./icons";
 
 export * from "./tasks";
+export * from "./notifications";
 
 export * from "./abstractions/change-login-password.service";
 export * from "./services/default-change-login-password.service";
