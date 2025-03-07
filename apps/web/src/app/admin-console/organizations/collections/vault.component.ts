@@ -77,6 +77,7 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
+import { BillingNotificationService } from "../../../billing/services/billing-notification.service";
 import {
   ResellerWarning,
   ResellerWarningService,
@@ -116,9 +117,6 @@ import {
 import { VaultFilter } from "../../../vault/individual-vault/vault-filter/shared/models/vault-filter.model";
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 import { getNestedCollectionTree } from "../../../vault/utils/collection-utils";
-import { GroupApiService, GroupView } from "../../admin-console/organizations/core";
-import { openEntityEventsDialog } from "../../admin-console/organizations/manage/entity-events.component";
-import { BillingNotificationService } from "../../billing/services/billing-notification.service";
 import { GroupApiService, GroupView } from "../core";
 import { openEntityEventsDialog } from "../manage/entity-events.component";
 
