@@ -23,6 +23,7 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -138,22 +139,29 @@ export class VaultPopupItemsService {
    * Observable that indicates whether there is search text present that is searchable.
    * @private
    */
-  private _hasSearchText = this.searchText$.pipe(
-    switchMap((searchText) => this.searchService.isSearchable(searchText)),
+  private _hasSearchText = combineLatest([
+    this.searchText$,
+    getUserId(this.accountService.activeAccount$),
+  ]).pipe(
+    switchMap(([searchText, userId]) => {
+      return this.searchService.isSearchable(userId, searchText);
+    }),
   );
 
   private _filteredCipherList$: Observable<PopupCipherView[]> = combineLatest([
     this._activeCipherList$,
     this.searchText$,
     this.vaultPopupListFiltersService.filterFunction$,
+    getUserId(this.accountService.activeAccount$),
   ]).pipe(
-    map(([ciphers, searchText, filterFunction]): [CipherView[], string] => [
+    map(([ciphers, searchText, filterFunction, userId]): [CipherView[], string, UserId] => [
       filterFunction(ciphers),
       searchText,
+      userId,
     ]),
     switchMap(
-      ([ciphers, searchText]) =>
-        this.searchService.searchCiphers(searchText, undefined, ciphers) as Promise<
+      ([ciphers, searchText, userId]) =>
+        this.searchService.searchCiphers(userId, searchText, undefined, ciphers) as Promise<
           PopupCipherView[]
         >,
     ),
