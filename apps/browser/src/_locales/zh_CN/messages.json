@@ -479,22 +479,6 @@
   "length": {
     "message": "长度"
   },
-  "uppercase": {
-    "message": "大写 (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "小写 (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "数字 (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "特殊字符 (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "包含",
     "description": "Card header for password generator include block"
@@ -526,10 +510,6 @@
   "specialCharactersDescription": {
     "message": "包含特殊字符",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "单词个数"
@@ -669,8 +649,8 @@
   "browserNotSupportClipboard": {
     "message": "您的浏览器不支持剪贴板简单复制，请手动复制。"
   },
-  "verifyIdentity": {
-    "message": "验证身份"
+  "verifyYourIdentity": {
+    "message": "验证您的身份"
   },
   "weDontRecognizeThisDevice": {
     "message": "我们无法识别这个设备。请输入发送到您电子邮箱中的代码以验证您的身份。"
@@ -1017,7 +997,7 @@
     "message": "搜索类型"
   },
   "noneFolder": {
-    "message": "无文件夹",
+    "message": "默认文件夹",
     "description": "This is the folder for uncategorized items"
   },
   "enableAddLoginNotification": {
@@ -1030,7 +1010,7 @@
     "message": "在密码库中找不到匹配项目时询问添加一个。"
   },
   "addLoginNotificationDescAlt": {
-    "message": "如果在密码库中找不到项目，询问添加一个。适用于所有已登录的账户。"
+    "message": "在密码库中找不到匹配项目时询问添加一个。适用于所有已登录的账户。"
   },
   "showCardsInVaultViewV2": {
     "message": "在密码库视图中将支付卡始终显示为自动填充建议"
@@ -1070,14 +1050,64 @@
   "notificationAddSave": {
     "message": "保存"
   },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ 已保存到 Bitwarden。",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ 已在 Bitwarden 中更新。",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "保存为新的登录",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "更新登录",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "保存登录吗？",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "更新现有的登录吗？",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "登录已保存",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "登录已更新",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "保存时出错",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "哦不！我们无法保存它。请尝试手动输入详细信息。",
+    "description": "Detailed error message shown when saving login details fails."
+  },
   "enableChangedPasswordNotification": {
     "message": "询问更新现有的登录"
   },
   "changedPasswordNotificationDesc": {
-    "message": "在网站上检测到更改时询问更新登录密码。"
+    "message": "在网站上检测到更改时询问更新登录的密码。"
   },
   "changedPasswordNotificationDescAlt": {
-    "message": "当在网站上检测到更改时，询问更新登录项目的密码。适用于所有已登录的账户。"
+    "message": "在网站上检测到更改时询问更新登录的密码。适用于所有已登录的账户。"
   },
   "enableUsePasskeys": {
     "message": "询问保存和使用通行密钥"
@@ -1324,7 +1354,7 @@
     "message": "升级到高级版并接收："
   },
   "premiumPrice": {
-    "message": "全部仅需 $PRICE$ /年！",
+    "message": "所有功能仅需 $PRICE$ /年！",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -1333,7 +1363,7 @@
     }
   },
   "premiumPriceV2": {
-    "message": "全部仅需 $PRICE$ 每年！",
+    "message": "所有功能仅需 $PRICE$ /年！",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -1351,7 +1381,7 @@
     "message": "如果登录包含验证器密钥，当自动填充此登录时，将 TOTP 验证码复制到剪贴板。"
   },
   "enableAutoBiometricsPrompt": {
-    "message": "启动时要求生物识别"
+    "message": "启动时提示生物识别"
   },
   "premiumRequired": {
     "message": "需要高级会员"
@@ -2097,7 +2127,7 @@
     "message": "浏览器重启后使用主密码锁定"
   },
   "lockWithMasterPassOnRestart1": {
-    "message": "浏览器重启时需要主密码"
+    "message": "浏览器重启时要求主密码"
   },
   "selectOneCollection": {
     "message": "您必须至少选择一个集合。"
@@ -2417,10 +2447,10 @@
     "message": "排除域名"
   },
   "excludedDomainsDesc": {
-    "message": "Bitwarden 将不会询问是否为这些域名保存登录信息。您必须刷新页面才能使更改生效。"
+    "message": "Bitwarden 将不会提示保存这些域名的登录信息。您必须刷新页面才能使更改生效。"
   },
   "excludedDomainsDescAlt": {
-    "message": "Bitwarden 将不会询问是否为所有已登录账户的这些域名保存登录信息。您必须刷新页面才能使更改生效。"
+    "message": "Bitwarden 将不会提示为所有已登录账户保存这些域名的登录信息。您必须刷新页面才能使更改生效。"
   },
   "blockedDomainsDesc": {
     "message": "将不会为这些网站提供自动填充和其他相关功能。您必须刷新页面才能使更改生效。"
@@ -2559,7 +2589,7 @@
     "message": "排除域名更改已保存"
   },
   "limitSendViews": {
-    "message": "限制查看"
+    "message": "查看次数限制"
   },
   "limitSendViewsHint": {
     "message": "达到限额后，任何人无法查看此 Send。",
@@ -4077,6 +4107,9 @@
   "activeAccount": {
     "message": "活动账户"
   },
+  "bitwardenAccount": {
+    "message": "Bitwarden 账户"
+  },
   "availableAccounts": {
     "message": "可用账户"
   },
@@ -4830,7 +4863,7 @@
     "message": "自定义超时时间最小为 1 分钟。"
   },
   "additionalContentAvailable": {
-    "message": "其他内容可用"
+    "message": "有更多内容可用"
   },
   "fileSavedToDevice": {
     "message": "文件已保存到设备。可以在设备下载中进行管理。"
@@ -5110,5 +5143,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "要使用生物识别解锁，请更新您的桌面应用程序，或在桌面设置中禁用指纹解锁。"
+  },
+  "changeAtRiskPassword": {
+    "message": "更改有风险的密码"
   }
 }
