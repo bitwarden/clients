@@ -97,14 +97,14 @@ export function compareInputs(
       controlThatShowsError.setErrors({
         // Preserve any pre-existing errors
         ...controlThatShowsError.errors,
-        // Add new inputMatchError
-        inputMatchError: {
+        // Add new compareInputsError
+        compareInputsError: {
           message: errorMessage,
         },
       });
 
       return {
-        inputMatchError: {
+        compareInputsError: {
           message: errorMessage,
         },
       };
@@ -115,15 +115,15 @@ export function compareInputs(
       const errorsObj = controlThatShowsError?.errors;
 
       if (errorsObj != null) {
-        // Remove any inputMatchError if it exists, since that is the sole error we are targeting with this validator
-        if (errorsObj?.inputMatchError) {
-          delete errorsObj.inputMatchError;
+        // Remove any compareInputsError if it exists, since that is the sole error we are targeting with this validator
+        if (errorsObj?.compareInputsError) {
+          delete errorsObj.compareInputsError;
         }
 
         // Check if the errorsObj is now empty
         const isEmptyObj = Object.keys(errorsObj).length === 0;
 
-        // If the errorsObj is empty, set errors to null, otherwise set the errors to an object of pre-existing errors (other than inputMatchError)
+        // If the errorsObj is empty, set errors to null, otherwise set the errors to an object of pre-existing errors (other than compareInputsError)
         controlThatShowsError.setErrors(isEmptyObj ? null : errorsObj);
       }
 
