@@ -10,7 +10,7 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, firstValueFrom, Subject, takeUntil, switchMap } from "rxjs";
+import { firstValueFrom, Subject, takeUntil, switchMap } from "rxjs";
 import { filter, first, map, take } from "rxjs/operators";
 
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
@@ -19,6 +19,7 @@ import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -27,7 +28,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -89,6 +90,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   deleted = false;
   userHasPremiumAccess = false;
   activeFilter: VaultFilter = new VaultFilter();
+  activeUserId: UserId;
 
   private modal: ModalRef = null;
   private componentIsDestroyed$ = new Subject<boolean>();
@@ -206,8 +208,8 @@ export class VaultComponent implements OnInit, OnDestroy {
               tCipher.login.hasTotp &&
               this.userHasPremiumAccess
             ) {
-              const value = await this.totpService.getCode(tCipher.login.totp);
-              this.copyValue(tCipher, value, "verificationCodeTotp", "TOTP");
+              const value = await firstValueFrom(this.totpService.getCode$(tCipher.login.totp));
+              this.copyValue(tCipher, value.code, "verificationCodeTotp", "TOTP");
             }
             break;
           }
@@ -236,15 +238,12 @@ export class VaultComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Store a reference to the current active account during page init
-    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-    // Combine with the activeAccount$ to ensure we only show the dialog for the current account from ngOnInit.
-    // The account switching process updates the cipherService before Vault is destroyed and would cause duplicate emissions
-    combineLatest([this.accountService.activeAccount$, this.cipherService.failedToDecryptCiphers$])
+    this.cipherService
+      .failedToDecryptCiphers$(this.activeUserId)
       .pipe(
-        filter(([account]) => account.id === activeAccount.id),
-        map(([_, ciphers]) => ciphers.filter((c) => !c.isDeleted)),
+        map((ciphers) => ciphers?.filter((c) => !c.isDeleted) ?? []),
         filter((ciphers) => ciphers.length > 0),
         take(1),
         takeUntil(this.componentIsDestroyed$),
@@ -383,8 +382,8 @@ export class VaultComponent implements OnInit, OnDestroy {
           menu.push({
             label: this.i18nService.t("copyVerificationCodeTotp"),
             click: async () => {
-              const value = await this.totpService.getCode(cipher.login.totp);
-              this.copyValue(cipher, value, "verificationCodeTotp", "TOTP");
+              const value = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
+              this.copyValue(cipher, value.code, "verificationCodeTotp", "TOTP");
             },
           });
         }
@@ -496,8 +495,10 @@ export class VaultComponent implements OnInit, OnDestroy {
   async savedCipher(cipher: CipherView) {
     this.cipherId = cipher.id;
     this.action = "view";
-    this.go();
     await this.vaultItemsComponent.refresh();
+    await this.cipherService.clearCache(this.activeUserId);
+    await this.viewComponent.load();
+    this.go();
   }
 
   async deletedCipher(cipher: CipherView) {

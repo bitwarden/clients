@@ -13,7 +13,7 @@ import { OsBiometricService } from "./os-biometrics.service";
 
 export class MainBiometricsService extends DesktopBiometricsService {
   private osBiometricsService: OsBiometricService;
-  private clientKeyHalves = new Map<string, string>();
+  private clientKeyHalves = new Map<string, string | null>();
   private shouldAutoPrompt = true;
 
   constructor(
@@ -104,7 +104,7 @@ export class MainBiometricsService extends DesktopBiometricsService {
     return await this.osBiometricsService.osBiometricsSetup();
   }
 
-  async setClientKeyHalfForUser(userId: UserId, value: string): Promise<void> {
+  async setClientKeyHalfForUser(userId: UserId, value: string | null): Promise<void> {
     this.clientKeyHalves.set(userId, value);
   }
 
@@ -116,7 +116,7 @@ export class MainBiometricsService extends DesktopBiometricsService {
     const biometricKey = await this.osBiometricsService.getBiometricKey(
       "Bitwarden_biometric",
       `${userId}_user_biometric`,
-      this.clientKeyHalves.get(userId),
+      this.clientKeyHalves.get(userId) ?? undefined,
     );
     if (biometricKey == null) {
       return null;
@@ -136,7 +136,7 @@ export class MainBiometricsService extends DesktopBiometricsService {
       service,
       storageKey,
       value,
-      this.clientKeyHalves.get(userId),
+      this.clientKeyHalves.get(userId) ?? undefined,
     );
   }
 

@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "Ana parola ipucu (isteğe bağlı)"
   },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Kuruluşa katıl"
   },
@@ -175,6 +184,10 @@
   },
   "copyNotes": {
     "message": "Notları kopyala"
+  },
+  "copy": {
+    "message": "Kopyala",
+    "description": "Copy to clipboard"
   },
   "fill": {
     "message": "Doldur",
@@ -872,6 +885,21 @@
   "logInToBitwarden": {
     "message": "Bitwarden'a giriş yapın"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "E-posta adresinize gönderilen kodu girin"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Kimlik doğrulama uygulamanızdaki kodu girin"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
+  },
   "restartRegistration": {
     "message": "Kaydı yeniden başlat"
   },
@@ -1024,6 +1052,9 @@
   },
   "clickToAutofillOnVault": {
     "message": "Kasa görünümünde otomatik doldurmak istediğiniz kayıtlara tıklayın"
+  },
+  "clickToAutofill": {
+    "message": "Otomatik doldurma önerisindeki kayıtlara tıkladığımda doldur"
   },
   "clearClipboard": {
     "message": "Panoyu temizle",
@@ -1358,11 +1389,21 @@
   "rememberMe": {
     "message": "Beni hatırla"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Doğrulama kodunu yeniden gönder"
   },
   "useAnotherTwoStepMethod": {
     "message": "Başka bir iki aşamalı giriş yöntemini kullan"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "YubiKey'i bilgisayarınızın USB portuna takın, ardından düğmesine dokunun."
@@ -1376,8 +1417,17 @@
   "webAuthnNewTabOpen": {
     "message": "Yeni sekme aç"
   },
+  "openInNewTab": {
+    "message": "Yeni sekmede aç"
+  },
   "webAuthnAuthenticate": {
     "message": "WebAutn ile doğrula"
+  },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
   },
   "loginUnavailable": {
     "message": "Giriş yapılamıyor"
@@ -1390,6 +1440,9 @@
   },
   "twoStepOptions": {
     "message": "İki aşamalı giriş seçenekleri"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "recoveryCodeDesc": {
     "message": "İki aşamalı doğrulama sağlayıcılarınıza ulaşamıyor musunuz? Kurtarma kodunuzu kullanarak hesabınızdaki tüm iki aşamalı giriş sağlayıcılarını devre dışı bırakabilirsiniz."
@@ -2081,11 +2134,23 @@
     "message": "üreteci kullanabilirsiniz",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
+  "vaultCustomization": {
+    "message": "Kasa kişiselleştirme"
+  },
   "vaultTimeoutAction": {
     "message": "Kasa zaman aşımı eylemi"
   },
   "vaultTimeoutAction1": {
     "message": "Zaman aşımı eylemi"
+  },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "Yeni özelleştirme seçenekleri"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Customize your vault experience with quick copy actions, compact mode, and more!"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "View all Appearance settings"
   },
   "lock": {
     "message": "Kilitle",
@@ -2345,6 +2410,9 @@
   "blockedDomains": {
     "message": "Engellenen alan adları"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Engellenmiş alan adları hakkında bilgi alın"
+  },
   "excludedDomains": {
     "message": "Hariç tutulan alan adları"
   },
@@ -2362,6 +2430,109 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Bunu ayarlardan değiştirebilirsiniz"
+  },
+  "change": {
+    "message": "Değiştir"
+  },
+  "changeButtonTitle": {
+    "message": "Parolayı değiştir - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Riskli parolalar"
+  },
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
+    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at-risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrgPlural": {
+    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at-risk.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Review and change one at-risk password"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Review and change $COUNT$ at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Change at-risk passwords faster"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Review at-risk logins"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Review at-risk passwords"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAlt": {
+    "message": "Illustration of a list of logins that are at-risk"
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAlt": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  },
+  "updateInBitwarden": {
+    "message": "Update in Bitwarden"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "Bitwarden will then prompt you to update the password in the password manager.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAlt": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+  },
+  "turnOnAutofill": {
+    "message": "Otomatik doldurmayı etkinleştir"
+  },
+  "turnedOnAutofill": {
+    "message": "Otomatik doldurma etkinleştirildi"
+  },
+  "dismiss": {
+    "message": "Kapat"
   },
   "websiteItemLabel": {
     "message": "Web sitesi $number$ (URI)",
@@ -2956,6 +3127,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -4077,6 +4272,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "Kopyala: $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
       }
     }
   },

@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Критичные приложения"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "Никакие критически важные приложения не подвергаются риску"
+  },
   "accessIntelligence": {
     "message": "Управление доступом"
   },
@@ -197,6 +200,9 @@
   },
   "notes": {
     "message": "Заметки"
+  },
+  "privateNote": {
+    "message": "Приватная заметка"
   },
   "note": {
     "message": "Заметка"
@@ -1161,13 +1167,22 @@
   "logInToBitwarden": {
     "message": "Войти в Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Введите код, отправленный на ваш email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Введите код из приложения-аутентификатора"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Нажмите на YubiKey для аутентификации"
+  },
   "authenticationTimeout": {
     "message": "Таймаут аутентификации"
   },
   "authenticationSessionTimedOut": {
     "message": "Сеанс аутентификации завершился по времени. Пожалуйста, попробуйте войти еще раз."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Подтвердите вашу личность"
   },
   "weDontRecognizeThisDevice": {
@@ -1443,11 +1458,21 @@
   "rememberMe": {
     "message": "Запомнить меня"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Не спрашивать на этом устройстве в течение 30 дней"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Отправить код подтверждения еще раз"
   },
   "useAnotherTwoStepMethod": {
     "message": "Использовать другой метод двухэтапной аутентификации"
+  },
+  "selectAnotherMethod": {
+    "message": "Выбрать другой способ",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Использовать код восстановления"
   },
   "insertYubiKey": {
     "message": "Вставьте свой YubiKey в USB-порт компьютера и нажмите его кнопку."
@@ -1466,6 +1491,9 @@
   },
   "twoStepOptions": {
     "message": "Настройки двухэтапной аутентификации"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Выбрать другой метод двухэтапной аутентификации"
   },
   "recoveryCodeDesc": {
     "message": "Потеряли доступ ко всем вариантам двухэтапной аутентификации? Используйте код восстановления, чтобы отключить ее для вашего аккаунта."
@@ -1508,6 +1536,9 @@
   },
   "webAuthnMigrated": {
     "message": "(Перенесено из FIDO)"
+  },
+  "openInNewTab": {
+    "message": "Открыть в новой вкладке"
   },
   "emailTitle": {
     "message": "Email"
@@ -2162,6 +2193,9 @@
   "twoStepLoginRecoveryWarning": {
     "message": "При включении двухэтапной аутентификации вы можете навсегда потерять доступ к вашей учетной записи Bitwarden. Код восстановления позволяет получить доступ к вашему аккаунту в случае, если вы больше не можете использовать свой обычный метод двухэтапной аутентификации (например, при потере устройства). Служба поддержки Bitwarden не сможет вам помочь, если вы потеряете доступ к своему аккаунту. Мы рекомендуем вам записать или распечатать код восстановления и хранить его в надежном месте."
   },
+  "yourSingleUseRecoveryCode": {
+    "message": "Одноразовый код восстановления можно использовать для отключения двухэтапной аутентификации в случае потери доступа к провайдеру двухэтапной аутентификации. Bitwarden рекомендует записать код восстановления и хранить его в надежном месте."
+  },
   "viewRecoveryCode": {
     "message": "Просмотреть код восстановления"
   },
@@ -2207,19 +2241,22 @@
     "message": "Просмотр элементов"
   },
   "viewItemsHidePass": {
-    "message": "Просмотр элементов, скрытых паролей"
+    "message": "Просмотр элементов, пароли скрыты"
   },
   "editItems": {
-    "message": "Изменить элементы"
+    "message": "Изменение элементов"
   },
   "editItemsHidePass": {
-    "message": "Изменить элементы, скрытые пароли"
+    "message": "Изменение элементов, пароли скрыты"
   },
   "disable": {
     "message": "Отключить"
   },
   "revokeAccess": {
     "message": "Отозвать доступ"
+  },
+  "revoke": {
+    "message": "Отозвать"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Этот провайдер двухэтапной аутентификации включен для вашего аккаунта."
@@ -4078,6 +4115,12 @@
   "updateBrowserDesc": {
     "message": "Вы используете неподдерживаемый браузер. Веб-хранилище может работать некорректно."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "У вас есть незавершенный запрос на авторизацию с другого устройства."
+  },
+  "reviewLoginRequest": {
+    "message": "Просмотр запроса на вход"
+  },
   "freeTrialEndPromptCount": {
     "message": "Ваша бесплатная пробная версия заканчивается через $COUNT$ дней.",
     "placeholders": {
@@ -4171,6 +4214,9 @@
   },
   "recoverAccountTwoStepDesc": {
     "message": "Если вы не можете получить доступ к своему аккаунту с помощью двухэтапной аутентификации, для ее отключения вы можете использовать свой код восстановления."
+  },
+  "logInBelowUsingYourSingleUseRecoveryCode": {
+    "message": "Авторизуйтесь, используя одноразовый код восстановления. Это отключит всех провайдеров двухэтапной аутентификации вашего аккаунта."
   },
   "recoverAccountTwoStep": {
     "message": "Восстановить двухэтапную аутентификацию аккаунта"
@@ -4463,6 +4509,24 @@
   "encryptionKeyUpdateCannotProceed": {
     "message": "Обновление ключа шифрования невозможно"
   },
+  "editFieldLabel": {
+    "message": "Изменить $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButton": {
+    "message": "Изменить порядок $LABEL$. Используйте клавиши курсора для перемещения элемента вверх или вниз.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "При обновлении ключа шифрования не удалось расшифровать папки. Чтобы продолжить обновление, папки необходимо удалить. При продолжении обновления элементы хранилища удалены не будут."
   },
@@ -4733,6 +4797,15 @@
   },
   "masterPassPolicyDesc": {
     "message": "Установите требования к надежности мастер-пароля."
+  },
+  "passwordStrengthScore": {
+    "message": "Оценка надежности пароля $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "twoStepLoginPolicyTitle": {
     "message": "Требуется двухэтапная аутентификация"
@@ -5014,11 +5087,39 @@
   "requireSsoExemption": {
     "message": "Владельцы и администраторы организаций освобождены от применения этой политики."
   },
+  "limitSendViews": {
+    "message": "Лимит просмотров"
+  },
+  "limitSendViewsHint": {
+    "message": "Никто не сможет просмотреть эту Send после лимита просмотров.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "Осталось просмотров: $ACCESSCOUNT$",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Информация о Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Текст для отправки"
+  },
   "sendTypeFile": {
     "message": "Файл"
   },
   "sendTypeText": {
     "message": "Текст"
+  },
+  "sendPasswordDescV3": {
+    "message": "Добавьте опциональный пароль для доступа получателей к этой Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Новая Send",
@@ -5044,19 +5145,15 @@
     "message": "Удалить Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Вы действительно хотите удалить эту Send?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Какой это тип Send?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Вы уверены, что хотите безвозвратно удалить эту Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Дата удаления"
   },
-  "deletionDateDesc": {
-    "message": "Эта Send будет окончательно удалена в указанные дату и время.",
+  "deletionDateDescV2": {
+    "message": "С этой даты Send будет удалена навсегда.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5068,21 +5165,6 @@
   },
   "maxAccessCount": {
     "message": "Максимум обращений"
-  },
-  "maxAccessCountDesc": {
-    "message": "Если задано, пользователи больше не смогут получить доступ к этой Send, как только будет достигнуто максимальное количество обращений.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Текущих обращений"
-  },
-  "sendPasswordDesc": {
-    "message": "По возможности запрашивать у пользователей пароль для доступа к этой Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Личные заметки об этой Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Отключено"
@@ -5110,13 +5192,6 @@
   "removePasswordConfirmation": {
     "message": "Вы уверены, что хотите удалить пароль?"
   },
-  "hideEmail": {
-    "message": "Скрыть мой адрес email от получателей."
-  },
-  "disableThisSend": {
-    "message": "Деактивировать эту Send, чтобы никто не мог получить к ней доступ.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Все Send’ы"
   },
@@ -5126,6 +5201,9 @@
   },
   "pendingDeletion": {
     "message": "Ожидание удаления"
+  },
+  "hideTextByDefault": {
+    "message": "Скрыть текст по умолчанию"
   },
   "expired": {
     "message": "Срок истек"
@@ -5348,13 +5426,6 @@
     "message": "Всегда показывать email пользователя получателям при создании или редактировании Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "На данный момент действуют следующие политики организации:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Пользователям не разрешается скрывать свой адрес email от получателей при создании или редактировании Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "Изменена политика $ID$.",
     "placeholders": {
@@ -5453,27 +5524,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Отключить личное владение для пользователей организации"
-  },
-  "textHiddenByDefault": {
-    "message": "При доступе к Send скрывать текст по умолчанию",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Понятное имя для описания этой Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Текст, который отправится вместе с Send."
-  },
-  "sendFileDesc": {
-    "message": "Файл, который отправится вместе с Send."
-  },
-  "copySendLinkOnSave": {
-    "message": "Скопировать ссылку в буфер обмена после сохранения, чтобы поделиться этой Send."
-  },
-  "sendLinkLabel": {
-    "message": "Ссылка на Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Send",
@@ -5623,11 +5673,20 @@
   "dateParsingError": {
     "message": "Произошла ошибка при сохранении данных о сроках удаления и истечения."
   },
+  "hideYourEmail": {
+    "message": "Скрыть ваш email от просматривающих."
+  },
   "webAuthnFallbackMsg": {
     "message": "Для подтверждения 2ЭА нажмите кнопку ниже."
   },
   "webAuthnAuthenticate": {
     "message": "Аутентификация WebAutn"
+  },
+  "readSecurityKey": {
+    "message": "Считать ключ безопасности"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Ожидание взаимодействия с ключом безопасности..."
   },
   "webAuthnNotSupported": {
     "message": "WebAuthn не поддерживается в этом браузере."
@@ -6922,6 +6981,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ отклонил(а) ваш запрос. Обратитесь за помощью к своему провайдеру.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ отклонил(а) ваш запрос: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Не удалось получить скрытый идентификатор email аккаунта $SERVICENAME$.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -7150,6 +7233,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "Для вашего аккаунта требуется двухэтапная аутентификация Duo."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Следуйте указаниям ниже, чтобы завершить авторизацию."
   },
   "launchDuo": {
     "message": "Запустить Duo"
@@ -8635,7 +8724,7 @@
     "message": "Ограничить удаление коллекций владельцам и администраторам"
   },
   "limitItemDeletionDesc": {
-    "message": "Ограничить удаление элементов для пользователей с разрешением 'Может управлять'"
+    "message": "Ограничить удаление элементов для пользователей с разрешением «Может управлять»"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Владельцы и администраторы могут управлять всеми коллекциями и элементами"
@@ -9246,6 +9335,12 @@
   "deviceManagementDesc": {
     "message": "Настройте управление устройствами для Bitwarden, используя руководство по внедрению для вашей платформы."
   },
+  "desktopRequired": {
+    "message": "Требуется компьютер"
+  },
+  "reopenLinkOnDesktop": {
+    "message": "Откройте эту ссылку из email на вашем компьютере."
+  },
   "integrationCardTooltip": {
     "message": "Запустить руководство по внедрению $INTEGRATION$.",
     "placeholders": {
@@ -9739,8 +9834,14 @@
   "learnMoreAboutApi": {
     "message": "Узнайте больше об API Bitwarden"
   },
+  "fileSend": {
+    "message": "Файловая Send"
+  },
   "fileSends": {
     "message": "Файловая Send"
+  },
+  "textSend": {
+    "message": "Текстовая Send"
   },
   "textSends": {
     "message": "Текстовая Send"
@@ -9974,10 +10075,6 @@
   "specialCharactersDescription": {
     "message": "Включить специальные символы",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Добавить вложение"
@@ -10239,6 +10336,38 @@
   "organizationNameMaxLength": {
     "message": "Название организации не может превышать 50 символов."
   },
+  "openingExtension": {
+    "message": "Открытие расширения для браузера Bitwarden"
+  },
+  "somethingWentWrong": {
+    "message": "Что-то пошло не так..."
+  },
+  "openingExtensionError": {
+    "message": "У нас возникли проблемы с открытием расширения для браузера Bitwarden. Нажмите на кнопку, чтобы открыть его сейчас."
+  },
+  "openExtension": {
+    "message": "Открыть расширение"
+  },
+  "doNotHaveExtension": {
+    "message": "У вас нет расширения браузера Bitwarden?"
+  },
+  "installExtension": {
+    "message": "Установить расширение"
+  },
+  "openedExtension": {
+    "message": "Открыто расширение браузера"
+  },
+  "openedExtensionViewAtRiskPasswords": {
+    "message": "Расширение для браузера Bitwarden успешно открыто. Теперь вы можете просмотреть свои пароли, подверженные риску."
+  },
+  "openExtensionManuallyPart1": {
+    "message": "У нас возникли проблемы с открытием расширения для браузера Bitwarden. Нажмите на значок Bitwarden",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openExtensionManuallyPart2": {
+    "message": "на панели инструментов.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
   "resellerRenewalWarningMsg": {
     "message": "Ваша подписка скоро будет продлена. Чтобы обеспечить непрерывность сервиса, свяжитесь с $RESELLER$ для подтверждения продления до $RENEWAL_DATE$.",
     "placeholders": {
@@ -10341,9 +10470,36 @@
     }
   },
   "addedExistingOrganization": {
-    "message": "Added existing organization"
+    "message": "Добавлена ​​существующая организация"
   },
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
+  },
+  "changeAtRiskPassword": {
+    "message": "Изменить пароль, находящийся под угрозой"
+  },
+  "removeUnlockWithPinPolicyTitle": {
+    "message": "Отключить разблокировку PIN-кодом"
+  },
+  "removeUnlockWithPinPolicyDesc": {
+    "message": "Не разрешать пользователям разблокировать свои аккаунты с помощью PIN-кода."
+  },
+  "limitedEventLogs": {
+    "message": "Планы $PRODUCT_TYPE$ не имеют доступа к реальным журналам событий",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Получите полный доступ к журналам событий организации, перейдя на план Teams или Enterprise."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Upgrade for real event log data"
+  },
+  "upgradeEventLogMessage": {
+    "message": "Эти события являются лишь примерами и не отражают реальных событий в вашей организации Bitwarden."
   }
 }

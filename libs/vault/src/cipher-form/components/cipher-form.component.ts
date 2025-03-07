@@ -133,6 +133,10 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
    */
   protected updatedCipherView: CipherView | null;
 
+  get website(): string | null {
+    return this.updatedCipherView?.login?.uris?.[0]?.uri ?? null;
+  }
+
   protected loading: boolean = true;
 
   CipherType = CipherType;
@@ -140,11 +144,11 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
   ngAfterViewInit(): void {
     if (this.submitBtn) {
       this.bitSubmit.loading$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((loading) => {
-        this.submitBtn.loading = loading;
+        this.submitBtn.loading.set(loading);
       });
 
       this.bitSubmit.disabled$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((disabled) => {
-        this.submitBtn.disabled = disabled;
+        this.submitBtn.disabled.set(disabled);
       });
     }
   }

@@ -44,6 +44,7 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
@@ -74,15 +75,15 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
-import { TrialFlowService } from "../../billing/services/trial-flow.service";
-import { FreeTrial } from "../../billing/types/free-trial";
-import { SharedModule } from "../../shared/shared.module";
-import { AssignCollectionsWebComponent } from "../components/assign-collections";
 import {
   CollectionDialogAction,
   CollectionDialogTabType,
   openCollectionDialog,
-} from "../components/collection-dialog";
+} from "../../admin-console/organizations/shared/components/collection-dialog";
+import { TrialFlowService } from "../../billing/services/trial-flow.service";
+import { FreeTrial } from "../../billing/types/free-trial";
+import { SharedModule } from "../../shared/shared.module";
+import { AssignCollectionsWebComponent } from "../components/assign-collections";
 import {
   VaultItemDialogComponent,
   VaultItemDialogMode,
@@ -166,7 +167,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected selectedCollection: TreeNode<CollectionView> | undefined;
   protected canCreateCollections = false;
   protected currentSearchText$: Observable<string>;
-  private activeUserId: UserId;
   private searchText$ = new Subject<string>();
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
@@ -271,9 +271,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         : "trashCleanupWarning",
     );
 
-    this.activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     const firstSetup$ = this.route.queryParams.pipe(
       first(),
@@ -337,19 +335,26 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.currentSearchText$ = this.route.queryParams.pipe(map((queryParams) => queryParams.search));
 
     const ciphers$ = combineLatest([
-      this.cipherService.cipherViews$.pipe(filter((c) => c !== null)),
+      this.cipherService.cipherViews$(activeUserId).pipe(filter((c) => c !== null)),
       filter$,
       this.currentSearchText$,
     ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
       concatMap(async ([ciphers, filter, searchText]) => {
-        const failedCiphers = await firstValueFrom(this.cipherService.failedToDecryptCiphers$);
+        const failedCiphers = await firstValueFrom(
+          this.cipherService.failedToDecryptCiphers$(activeUserId),
+        );
         const filterFunction = createFilterFunction(filter);
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
 
-        if (await this.searchService.isSearchable(searchText)) {
-          return await this.searchService.searchCiphers(searchText, [filterFunction], allCiphers);
+        if (await this.searchService.isSearchable(activeUserId, searchText)) {
+          return await this.searchService.searchCiphers(
+            activeUserId,
+            searchText,
+            [filterFunction],
+            allCiphers,
+          );
         }
 
         return allCiphers.filter(filterFunction);
@@ -378,7 +383,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           collectionsToReturn = selectedCollection?.children.map((c) => c.node) ?? [];
         }
 
-        if (await this.searchService.isSearchable(searchText)) {
+        if (await this.searchService.isSearchable(activeUserId, searchText)) {
           collectionsToReturn = this.searchPipe.transform(
             collectionsToReturn,
             searchText,
@@ -416,7 +421,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         switchMap(async (params) => {
           const cipherId = getCipherIdFromParams(params);
           if (cipherId) {
-            if (await this.cipherService.get(cipherId)) {
+            if (await this.cipherService.get(cipherId, activeUserId)) {
               let action = params.action;
               // Default to "view"
               if (action == null) {
@@ -459,7 +464,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     firstSetup$
       .pipe(
-        switchMap(() => this.cipherService.failedToDecryptCiphers$),
+        switchMap(() => this.cipherService.failedToDecryptCiphers$(activeUserId)),
         map((ciphers) => ciphers.filter((c) => !c.isDeleted)),
         filter((ciphers) => ciphers.length > 0),
         take(1),
@@ -480,7 +485,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         switchMap(() =>
           combineLatest([
             filter$,
-            this.billingAccountProfileStateService.hasPremiumFromAnySource$(this.activeUserId),
+            this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
             allCollections$,
             this.organizations$,
             ciphers$,
@@ -732,7 +737,8 @@ export class VaultComponent implements OnInit, OnDestroy {
    * @returns
    */
   async editCipherId(id: string, cloneMode?: boolean) {
-    const cipher = await this.cipherService.get(id);
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const cipher = await this.cipherService.get(id, activeUserId);
 
     if (
       cipher &&
@@ -768,7 +774,8 @@ export class VaultComponent implements OnInit, OnDestroy {
    * @returns Promise<void>
    */
   async viewCipherById(id: string) {
-    const cipher = await this.cipherService.get(id);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const cipher = await this.cipherService.get(id, activeUserId);
     // If cipher exists (cipher is null when new) and MP reprompt
     // is on for this cipher, then show password reprompt.
     if (
@@ -959,7 +966,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     try {
-      await this.cipherService.restoreWithServer(c.id);
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.cipherService.restoreWithServer(c.id, activeUserId);
       this.toastService.showToast({
         variant: "success",
         title: null,
@@ -1041,7 +1049,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     try {
-      await this.deleteCipherWithServer(c.id, permanent);
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.deleteCipherWithServer(c.id, activeUserId, permanent);
 
       this.toastService.showToast({
         variant: "success",
@@ -1137,7 +1146,8 @@ export class VaultComponent implements OnInit, OnDestroy {
       typeI18nKey = "password";
     } else if (field === "totp") {
       aType = "TOTP";
-      value = await this.totpService.getCode(cipher.login.totp);
+      const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
+      value = totpResponse.code;
       typeI18nKey = "verificationCodeTotp";
     } else {
       this.toastService.showToast({
@@ -1176,10 +1186,10 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected deleteCipherWithServer(id: string, permanent: boolean) {
+  protected deleteCipherWithServer(id: string, userId: UserId, permanent: boolean) {
     return permanent
-      ? this.cipherService.deleteWithServer(id)
-      : this.cipherService.softDeleteWithServer(id);
+      ? this.cipherService.deleteWithServer(id, userId)
+      : this.cipherService.softDeleteWithServer(id, userId);
   }
 
   protected async repromptCipher(ciphers: CipherView[]) {

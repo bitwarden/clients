@@ -66,7 +66,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     protected messagingService: MessagingService,
     eventCollectionService: EventCollectionService,
     protected policyService: PolicyService,
-    protected organizationService: OrganizationService,
+    organizationService: OrganizationService,
     logService: LogService,
     passwordRepromptService: PasswordRepromptService,
     dialogService: DialogService,
@@ -135,12 +135,15 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
 
     if (this.showTotp()) {
       await this.totpUpdateCode();
-      const interval = this.totpService.getTimeInterval(this.cipher.login.totp);
-      await this.totpTick(interval);
-
-      this.totpInterval = window.setInterval(async () => {
+      const totpResponse = await firstValueFrom(this.totpService.getCode$(this.cipher.login.totp));
+      if (totpResponse) {
+        const interval = totpResponse.period;
         await this.totpTick(interval);
-      }, 1000);
+
+        this.totpInterval = window.setInterval(async () => {
+          await this.totpTick(interval);
+        }, 1000);
+      }
     }
 
     this.cardIsExpired = isCardExpired(this.cipher.card);
@@ -273,7 +276,8 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       return;
     }
 
-    this.totpCode = await this.totpService.getCode(this.cipher.login.totp);
+    const totpResponse = await firstValueFrom(this.totpService.getCode$(this.cipher.login.totp));
+    this.totpCode = totpResponse?.code;
     if (this.totpCode != null) {
       if (this.totpCode.length > 4) {
         const half = Math.floor(this.totpCode.length / 2);
@@ -303,8 +307,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       this.cipher.type === CipherType.Login &&
       this.cipher.login.totp &&
       this.organization?.productTierType != ProductTierType.Free &&
-      ((this.canAccessPremium && this.cipher.organizationId == null) ||
-        this.cipher.organizationUseTotp)
+      (this.cipher.organizationUseTotp || this.canAccessPremium)
     );
   }
 

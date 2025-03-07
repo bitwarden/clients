@@ -12,6 +12,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -35,6 +36,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import {
+  ChangeLoginPasswordService,
   CipherAttachmentsComponent,
   CipherFormComponent,
   CipherFormConfig,
@@ -42,6 +44,9 @@ import {
   CipherFormModule,
   CipherViewComponent,
   DecryptionFailureDialogComponent,
+  DefaultChangeLoginPasswordService,
+  DefaultTaskService,
+  TaskService,
 } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared/shared.module";
@@ -89,7 +94,7 @@ export interface VaultItemDialogParams {
   /**
    * Function to restore a cipher from the trash.
    */
-  restore: (c: CipherView) => Promise<boolean>;
+  restore?: (c: CipherView) => Promise<boolean>;
 }
 
 export enum VaultItemDialogResult {
@@ -135,6 +140,8 @@ export enum VaultItemDialogResult {
     { provide: ViewPasswordHistoryService, useClass: WebViewPasswordHistoryService },
     { provide: CipherFormGenerationService, useClass: WebCipherFormGenerationService },
     RoutedVaultFilterService,
+    { provide: TaskService, useClass: DefaultTaskService },
+    { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
   ],
 })
 export class VaultItemDialogComponent implements OnInit, OnDestroy {
@@ -355,8 +362,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       this.formConfig.mode = "edit";
       this.formConfig.initialValues = null;
     }
-
-    let cipher = await this.cipherService.get(cipherView.id);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    let cipher = await this.cipherService.get(cipherView.id, activeUserId);
 
     // When the form config is used within the Admin Console, retrieve the cipher from the admin endpoint (if not found in local state)
     if (this.formConfig.isAdminConsole && (cipher == null || this.formConfig.admin)) {
@@ -386,7 +393,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   restore = async () => {
-    await this.params.restore(this.cipher);
+    await this.params.restore?.(this.cipher);
     this.dialogRef.close(VaultItemDialogResult.Restored);
   };
 
@@ -448,9 +455,12 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       result.action === AttachmentDialogResult.Removed ||
       result.action === AttachmentDialogResult.Uploaded
     ) {
-      const updatedCipher = await this.cipherService.get(this.formConfig.originalCipher?.id);
       const activeUserId = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      const updatedCipher = await this.cipherService.get(
+        this.formConfig.originalCipher?.id,
+        activeUserId,
       );
 
       const updatedCipherView = await updatedCipher.decrypt(
@@ -490,9 +500,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     if (config.originalCipher == null) {
       return;
     }
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     return await config.originalCipher.decrypt(
       await this.cipherService.getKeyForCipherKeyDecryption(config.originalCipher, activeUserId),
     );
@@ -574,10 +582,14 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     // - The cipher is unassigned
     const asAdmin = this.organization?.canEditAllCiphers || cipherIsUnassigned;
 
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
+
     if (this.cipher.isDeleted) {
-      await this.cipherService.deleteWithServer(this.cipher.id, asAdmin);
+      await this.cipherService.deleteWithServer(this.cipher.id, activeUserId, asAdmin);
     } else {
-      await this.cipherService.softDeleteWithServer(this.cipher.id, asAdmin);
+      await this.cipherService.softDeleteWithServer(this.cipher.id, activeUserId, asAdmin);
     }
   }
 

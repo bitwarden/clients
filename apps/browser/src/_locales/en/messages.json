@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "Master password hint (optional)"
   },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Join organization"
   },
@@ -175,6 +184,10 @@
   },
   "copyNotes": {
     "message": "Copy notes"
+  },
+  "copy": {
+    "message": "Copy",
+    "description": "Copy to clipboard"
   },
   "fill":{
     "message": "Fill",
@@ -466,22 +479,6 @@
   "length": {
     "message": "Length"
   },
-  "uppercase": {
-    "message": "Uppercase (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Lowercase (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Numbers (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Special characters (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Include",
     "description": "Card header for password generator include block"
@@ -513,10 +510,6 @@
   "specialCharactersDescription": {
     "message": "Include special characters",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Number of words"
@@ -656,8 +649,8 @@
   "browserNotSupportClipboard": {
     "message": "Your web browser does not support easy clipboard copying. Copy it manually instead."
   },
-  "verifyIdentity": {
-    "message": "Verify identity"
+  "verifyYourIdentity": {
+    "message": "Verify your identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
@@ -872,6 +865,21 @@
   "logInToBitwarden": {
     "message": "Log in to Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
+  },
   "restartRegistration": {
     "message": "Restart registration"
   },
@@ -1025,6 +1033,9 @@
   "clickToAutofillOnVault": {
     "message": "Click items to autofill on Vault view"
   },
+  "clickToAutofill": {
+    "message": "Click items in autofill suggestion to fill"
+  },
   "clearClipboard": {
     "message": "Clear clipboard",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1038,6 +1049,56 @@
   },
   "notificationAddSave": {
     "message": "Save"
+  },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ saved to Bitwarden.",
+      "placeholders": {
+        "username": {
+          "content": "$1"
+        }
+      },
+      "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ updated in Bitwarden.",
+      "placeholders": {
+        "username": {
+          "content": "$1"
+        }
+      },
+      "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Save as new login",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Update login",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Save login?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Update existing login?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Login saved",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Login updated",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Error saving",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
     "message": "Ask to update existing login"
@@ -1358,11 +1419,21 @@
   "rememberMe": {
     "message": "Remember me"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Send verification code email again"
   },
   "useAnotherTwoStepMethod": {
     "message": "Use another two-step login method"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "Insert your YubiKey into your computer's USB port, then touch its button."
@@ -1376,8 +1447,17 @@
   "webAuthnNewTabOpen": {
     "message": "Open new tab"
   },
+  "openInNewTab": {
+    "message": "Open in new tab"
+  },
   "webAuthnAuthenticate": {
     "message": "Authenticate WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
   },
   "loginUnavailable": {
     "message": "Login unavailable"
@@ -1390,6 +1470,9 @@
   },
   "twoStepOptions": {
     "message": "Two-step login options"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "recoveryCodeDesc": {
     "message": "Lost access to all of your two-factor providers? Use your recovery code to turn off all two-factor providers from your account."
@@ -2081,11 +2164,23 @@
     "message": "to create a strong unique password",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
+  "vaultCustomization": {
+    "message": "Vault customization"
+  },
   "vaultTimeoutAction": {
     "message": "Vault timeout action"
   },
   "vaultTimeoutAction1": {
     "message": "Timeout action"
+  },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "New customization options"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Customize your vault experience with quick copy actions, compact mode, and more!"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "View all Appearance settings"
   },
   "lock": {
     "message": "Lock",
@@ -2345,6 +2440,9 @@
   "blockedDomains": {
     "message": "Blocked domains"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Learn more about blocked domains"
+  },
   "excludedDomains": {
     "message": "Excluded domains"
   },
@@ -2362,6 +2460,109 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Change this in settings"
+  },
+  "change": {
+    "message": "Change"
+  },
+  "changeButtonTitle": {
+    "message": "Change password - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "At-risk passwords"
+  },
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
+    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at-risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+          "content": "$2",
+          "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrgPlural": {
+    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at-risk.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Review and change one at-risk password"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Review and change $COUNT$ at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Change at-risk passwords faster"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Review at-risk logins"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Review at-risk passwords"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAlt": {
+    "message": "Illustration of a list of logins that are at-risk"
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAlt": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  },
+  "updateInBitwarden": {
+    "message": "Update in Bitwarden"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "Bitwarden will then prompt you to update the password in the password manager.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAlt": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+  },
+  "turnOnAutofill": {
+    "message": "Turn on autofill"
+  },
+  "turnedOnAutofill": {
+    "message": "Turned on autofill"
+  },
+  "dismiss": {
+    "message": "Dismiss"
   },
   "websiteItemLabel": {
     "message": "Website $number$ (URI)",
@@ -2956,6 +3157,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -3882,6 +4107,9 @@
   "activeAccount": {
     "message": "Active account"
   },
+  "bitwardenAccount": {
+    "message": "Bitwarden account"
+  },
   "availableAccounts": {
     "message": "Available accounts"
   },
@@ -4077,6 +4305,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "Copy $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
       }
     }
   },
@@ -4901,5 +5143,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

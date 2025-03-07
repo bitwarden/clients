@@ -543,10 +543,6 @@
     "message": "Include special characters",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Number of words"
   },
@@ -652,6 +648,15 @@
   "logInToBitwarden": {
     "message": "Log in to Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
   "logInWithPasskey": {
     "message": "Log in with passkey"
   },
@@ -703,6 +708,15 @@
   },
   "masterPassHintLabel": {
     "message": "Master password hint"
+  },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Join organization"
@@ -816,6 +830,9 @@
   "webauthnCancelOrTimeout": {
     "message": "The authentication was cancelled or took too long. Please try again."
   },
+  "openInNewTab": {
+    "message": "Open in new tab"
+  },
   "invalidVerificationCode": {
     "message": "Invalid verification code"
   },
@@ -846,11 +863,21 @@
   "rememberMe": {
     "message": "Remember me"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Send verification code email again"
   },
   "useAnotherTwoStepMethod": {
     "message": "Use another two-step login method"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "Insert your YubiKey into your computer's USB port, then touch its button."
@@ -885,7 +912,7 @@
     "message": "Verify with Duo Security for your organization using the Duo Mobile app, SMS, phone call, or U2F security key.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
@@ -917,6 +944,9 @@
   },
   "twoStepOptions": {
     "message": "Two-step login options"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "selfHostedEnvironment": {
     "message": "Self-hosted environment"
@@ -1775,6 +1805,9 @@
   "requirePasswordOnStart": {
     "message": "Require password or PIN on app start"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Require password on app start"
+  },
   "recommendedForSecurity": {
     "message": "Recommended for security."
   },
@@ -2244,6 +2277,12 @@
   "webAuthnAuthenticate": {
     "message": "Authenticate WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
+  },
   "hideEmail": {
     "message": "Hide my email address from recipients."
   },
@@ -2629,6 +2668,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -3179,6 +3242,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
+  },
   "launchDuo": {
     "message": "Launch Duo in Browser"
   },
@@ -3436,8 +3505,26 @@
   "sshkeyApprovalTitle": {
     "message": "Confirm SSH key usage"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Warning: Agent Forwarding"
+  },
+  "agentForwardingWarningText": {
+    "message": "This request comes from a remote device that you are logged into"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "is requesting access to"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "in order to"
+  },
+  "sshActionLogin": {
+    "message": "authenticate to a server"
+  },
+  "sshActionSign": {
+    "message": "sign a message"
+  },
+  "sshActionGitSign": {
+    "message": "sign a git commit"
   },
   "unknownApplication": {
     "message": "An application"
@@ -3496,19 +3583,25 @@
   "changeAcctEmail": {
     "message": "Change account email"
   },
-  "organizationUpgradeRequired": {
-    "message": "Organization upgrade required"
+  "allowScreenshots": {
+    "message": "Allow screen capture"
   },
-  "upgradeOrganization": {
-    "message": "Upgrade organization"
+  "allowScreenshotsDesc": {
+    "message": "Allow the Bitwarden desktop application to be captured in screenshots and viewed in remote desktop sessions. Disabling this will prevent access on some external displays."
   },
-  "upgradeOrganizationDesc": {
-    "message": "This feature is not available for free organizations. Switch to a paid plan to unlock more features."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Confirm window still visible"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Please confirm that the window is still visible."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Extension update required"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

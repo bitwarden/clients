@@ -363,7 +363,8 @@ describe("Cipher Service", () => {
       configService.getFeatureFlag.mockResolvedValue(true);
       configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(true));
 
-      searchService.indexedEntityId$ = of(null);
+      searchService.indexedEntityId$.mockReturnValue(of(null));
+
       stateService.getUserId.mockResolvedValue(mockUserId);
 
       const keys = {
@@ -382,8 +383,16 @@ describe("Cipher Service", () => {
         Cipher1: cipher1,
         Cipher2: cipher2,
       });
-      cipherService.cipherViews$ = decryptedCiphers.pipe(map((ciphers) => Object.values(ciphers)));
-      cipherService.failedToDecryptCiphers$ = failedCiphers = new BehaviorSubject<CipherView[]>([]);
+      jest
+        .spyOn(cipherService, "cipherViews$")
+        .mockImplementation((userId: UserId) =>
+          decryptedCiphers.pipe(map((ciphers) => Object.values(ciphers))),
+        );
+
+      failedCiphers = new BehaviorSubject<CipherView[]>([]);
+      jest
+        .spyOn(cipherService, "failedToDecryptCiphers$")
+        .mockImplementation((userId: UserId) => failedCiphers);
 
       encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(32));
       encryptedKey = new EncString("Re-encrypted Cipher Key");

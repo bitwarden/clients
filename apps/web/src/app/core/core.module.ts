@@ -33,6 +33,8 @@ import {
   SetPasswordJitService,
   SsoComponentService,
   LoginDecryptionOptionsService,
+  TwoFactorAuthComponentService,
+  TwoFactorAuthDuoComponentService,
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
@@ -53,6 +55,10 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import {
+  VaultTimeout,
+  VaultTimeoutStringType,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
@@ -92,7 +98,6 @@ import {
   DefaultThemeStateService,
   ThemeStateService,
 } from "@bitwarden/common/platform/theming/theme-state.service";
-import { VaultTimeout, VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
   KdfConfigService,
@@ -108,6 +113,8 @@ import {
   WebRegistrationFinishService,
   WebLoginComponentService,
   WebLoginDecryptionOptionsService,
+  WebTwoFactorAuthComponentService,
+  WebTwoFactorAuthDuoComponentService,
 } from "../auth";
 import { WebSsoComponentService } from "../auth/core/services/login/web-sso-component.service";
 import { AcceptOrganizationInviteService } from "../auth/organization-invite/accept-organization.service";
@@ -261,6 +268,12 @@ const safeProviders: SafeProvider[] = [
     useClass: WebLockComponentService,
     deps: [],
   }),
+  // TODO: PM-18182 - Refactor component services into lazy loaded modules
+  safeProvider({
+    provide: TwoFactorAuthComponentService,
+    useClass: WebTwoFactorAuthComponentService,
+    deps: [],
+  }),
   safeProvider({
     provide: SetPasswordJitService,
     useClass: WebSetPasswordJitService,
@@ -295,6 +308,7 @@ const safeProviders: SafeProvider[] = [
       PasswordGenerationServiceAbstraction,
       PlatformUtilsService,
       SsoLoginServiceAbstraction,
+      Router,
     ],
   }),
   safeProvider({
@@ -326,6 +340,11 @@ const safeProviders: SafeProvider[] = [
     provide: SsoComponentService,
     useClass: WebSsoComponentService,
     deps: [I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: TwoFactorAuthDuoComponentService,
+    useClass: WebTwoFactorAuthDuoComponentService,
+    deps: [PlatformUtilsService],
   }),
   safeProvider({
     provide: LoginDecryptionOptionsService,

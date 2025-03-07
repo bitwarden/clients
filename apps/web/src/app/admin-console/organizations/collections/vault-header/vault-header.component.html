@@ -1,0 +1,151 @@
+<app-header [title]="title" [icon]="icon">
+  <bit-breadcrumbs *ngIf="showBreadcrumbs" slot="breadcrumbs">
+    <bit-breadcrumb
+      [route]="[]"
+      [queryParams]="{ organizationId: organization.id, collectionId: null }"
+      queryParamsHandling="merge"
+    >
+      {{ organization.name }}
+      <span>
+        {{ "collections" | i18n | lowercase }}
+      </span>
+    </bit-breadcrumb>
+
+    <ng-container>
+      <bit-breadcrumb
+        *ngFor="let collection of collections"
+        icon="bwi-collection"
+        [route]="[]"
+        [queryParams]="{ collectionId: collection.id }"
+        queryParamsHandling="merge"
+      >
+        {{ collection.name }}
+      </bit-breadcrumb>
+    </ng-container>
+  </bit-breadcrumbs>
+
+  <ng-container slot="title-suffix">
+    <ng-container
+      *ngIf="
+        collection != null && (canEditCollection || canDeleteCollection || canViewCollectionInfo)
+      "
+    >
+      <button
+        bitIconButton="bwi-angle-down"
+        [bitMenuTriggerFor]="editCollectionMenu"
+        size="small"
+        type="button"
+        aria-haspopup="true"
+      ></button>
+      <bit-menu #editCollectionMenu>
+        <ng-container *ngIf="canEditCollection">
+          <button
+            type="button"
+            bitMenuItem
+            (click)="editCollection(CollectionDialogTabType.Info, false)"
+          >
+            <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
+            {{ "editInfo" | i18n }}
+          </button>
+          <button
+            type="button"
+            bitMenuItem
+            (click)="editCollection(CollectionDialogTabType.Access, false)"
+          >
+            <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
+            {{ "access" | i18n }}
+          </button>
+        </ng-container>
+        <ng-container *ngIf="!canEditCollection && canViewCollectionInfo">
+          <button
+            type="button"
+            bitMenuItem
+            (click)="editCollection(CollectionDialogTabType.Info, true)"
+          >
+            <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
+            {{ "viewInfo" | i18n }}
+          </button>
+          <button
+            type="button"
+            bitMenuItem
+            (click)="editCollection(CollectionDialogTabType.Access, true)"
+          >
+            <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
+            {{ "viewAccess" | i18n }}
+          </button>
+        </ng-container>
+        <button type="button" *ngIf="canDeleteCollection" bitMenuItem (click)="deleteCollection()">
+          <span class="tw-text-danger">
+            <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
+            {{ "delete" | i18n }}
+          </span>
+        </button>
+      </bit-menu>
+    </ng-container>
+    <small *ngIf="loading">
+      <i
+        class="bwi bwi-spinner bwi-spin text-muted"
+        title="{{ 'loading' | i18n }}"
+        aria-hidden="true"
+      ></i>
+      <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+    </small>
+  </ng-container>
+
+  <bit-search
+    *ngIf="organization?.isProviderUser && !organization?.isMember"
+    class="tw-grow"
+    [ngModel]="searchText"
+    (ngModelChange)="onSearchTextChanged($event)"
+    [placeholder]="'searchCollection' | i18n"
+  ></bit-search>
+
+  <div
+    *ngIf="filter.type !== 'trash' && filter.collectionId !== Unassigned && organization"
+    class="tw-shrink-0"
+  >
+    <!-- "New" menu is always shown unless the user cannot create a cipher and cannot create a collection-->
+    <ng-container *ngIf="canCreateCipher || canCreateCollection">
+      <div appListDropdown>
+        <button
+          bitButton
+          buttonType="primary"
+          type="button"
+          [bitMenuTriggerFor]="addOptions"
+          id="newItemDropdown"
+          appA11yTitle="{{ 'new' | i18n }}"
+        >
+          <i class="bwi bwi-plus-f" aria-hidden="true"></i>
+          {{ "new" | i18n }}<i class="bwi tw-ml-2" aria-hidden="true"></i>
+        </button>
+        <bit-menu #addOptions aria-labelledby="newItemDropdown">
+          <ng-container *ngIf="canCreateCipher">
+            <button type="button" bitMenuItem (click)="addCipher(CipherType.Login)">
+              <i class="bwi bwi-globe" slot="start" aria-hidden="true"></i>
+              {{ "typeLogin" | i18n }}
+            </button>
+            <button type="button" bitMenuItem (click)="addCipher(CipherType.Card)">
+              <i class="bwi bwi-credit-card" slot="start" aria-hidden="true"></i>
+              {{ "typeCard" | i18n }}
+            </button>
+            <button type="button" bitMenuItem (click)="addCipher(CipherType.Identity)">
+              <i class="bwi bwi-id-card" slot="start" aria-hidden="true"></i>
+              {{ "typeIdentity" | i18n }}
+            </button>
+            <button type="button" bitMenuItem (click)="addCipher(CipherType.SecureNote)">
+              <i class="bwi bwi-sticky-note" slot="start" aria-hidden="true"></i>
+              {{ "note" | i18n }}
+            </button>
+          </ng-container>
+          <ng-container *ngIf="canCreateCollection">
+            <bit-menu-divider *ngIf="canCreateCipher"></bit-menu-divider>
+            <button type="button" bitMenuItem (click)="addCollection()">
+              <i class="bwi bwi-fw bwi-collection" aria-hidden="true"></i>
+              {{ "collection" | i18n }}
+            </button>
+          </ng-container>
+        </bit-menu>
+      </div>
+    </ng-container>
+  </div>
+</app-header>
