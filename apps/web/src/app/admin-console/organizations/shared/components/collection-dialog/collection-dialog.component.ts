@@ -35,10 +35,11 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { BitValidators, DialogService, ToastService } from "@bitwarden/components";
+import { SelectModule, BitValidators, DialogService, ToastService } from "@bitwarden/components";
 
-import { GroupApiService, GroupView } from "../../../admin-console/organizations/core";
-import { PermissionMode } from "../../../admin-console/organizations/shared/components/access-selector/access-selector.component";
+import { SharedModule } from "../../../../../shared";
+import { GroupApiService, GroupView } from "../../../core";
+import { PermissionMode } from "../access-selector/access-selector.component";
 import {
   AccessItemType,
   AccessItemValue,
@@ -46,7 +47,8 @@ import {
   CollectionPermission,
   convertToPermission,
   convertToSelectionView,
-} from "../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
+} from "../access-selector/access-selector.models";
+import { AccessSelectorModule } from "../access-selector/access-selector.module";
 
 export enum CollectionDialogTabType {
   Info = 0,
@@ -80,6 +82,8 @@ export enum CollectionDialogAction {
 
 @Component({
   templateUrl: "collection-dialog.component.html",
+  standalone: true,
+  imports: [SharedModule, AccessSelectorModule, SelectModule],
 })
 export class CollectionDialogComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
@@ -289,7 +293,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       if (this.tabIndex === CollectionDialogTabType.Access && !accessTabError) {
         this.toastService.showToast({
           variant: "error",
-          title: null,
           message: this.i18nService.t(
             "fieldOnTabRequiresAttention",
             this.i18nService.t("collectionInfo"),
@@ -298,7 +301,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       } else if (this.tabIndex === CollectionDialogTabType.Info && accessTabError) {
         this.toastService.showToast({
           variant: "error",
-          title: null,
           message: this.i18nService.t("fieldOnTabRequiresAttention", this.i18nService.t("access")),
         });
       }
@@ -327,7 +329,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
     this.toastService.showToast({
       variant: "success",
-      title: null,
       message: this.i18nService.t(
         this.editMode ? "editedCollectionId" : "createdCollectionId",
         collectionView.name,
@@ -357,7 +358,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
     this.toastService.showToast({
       variant: "success",
-      title: null,
       message: this.i18nService.t("deletedCollectionId", this.collection?.name),
     });
 
@@ -493,10 +493,7 @@ function mapUserToAccessItemView(
  */
 export function openCollectionDialog(
   dialogService: DialogService,
-  config: DialogConfig<CollectionDialogParams>,
+  config: DialogConfig<CollectionDialogParams, DialogRef<CollectionDialogResult>>,
 ) {
-  return dialogService.open<CollectionDialogResult, CollectionDialogParams>(
-    CollectionDialogComponent,
-    config,
-  );
+  return dialogService.open(CollectionDialogComponent, config);
 }

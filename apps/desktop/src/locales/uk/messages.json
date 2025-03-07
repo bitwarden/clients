@@ -543,10 +543,6 @@
     "message": "Спеціальні символи",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Кількість слів"
   },
@@ -916,8 +912,8 @@
     "message": "Авторизуйтесь за допомогою Duo Security для вашої організації з використанням програми Duo Mobile, SMS, телефонного виклику, або ключа безпеки U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
-    "message": "Підтвердьте свою особу"
+  "verifyYourIdentity": {
+    "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "Ми не розпізнаємо цей пристрій. Введіть код, надісланий на вашу електронну пошту, щоб підтвердити вашу особу."
@@ -3604,5 +3600,8 @@
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Ви використовуєте застарілу версію розширення браузера. Оновіть його або вимкніть перевірку цифрового відбитка інтеграції з браузером у налаштуваннях комп'ютерної програми."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

@@ -201,6 +201,9 @@
   "notes": {
     "message": "Нотатки"
   },
+  "privateNote": {
+    "message": "Private note"
+  },
   "note": {
     "message": "Нотатка"
   },
@@ -1179,8 +1182,8 @@
   "authenticationSessionTimedOut": {
     "message": "Час очікування сеансу автентифікації завершився. Перезапустіть процес входу в систему."
   },
-  "verifyIdentity": {
-    "message": "Підтвердьте свою особу"
+  "verifyYourIdentity": {
+    "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "Ми не розпізнаємо цей пристрій. Введіть код, надісланий на вашу електронну пошту, щоб підтвердити вашу особу."
@@ -2251,6 +2254,9 @@
   },
   "revokeAccess": {
     "message": "Відкликати доступ"
+  },
+  "revoke": {
+    "message": "Revoke"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Для вашого облікового запису увімкнено цей спосіб двоетапної перевірки."
@@ -5081,11 +5087,39 @@
   "requireSsoExemption": {
     "message": "Власники організації та адміністратори звільняються від дотримання цієї політики."
   },
+  "limitSendViews": {
+    "message": "Limit views"
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
   "sendTypeFile": {
     "message": "Файл"
   },
   "sendTypeText": {
     "message": "Текст"
+  },
+  "sendPasswordDescV3": {
+    "message": "Add an optional password for recipients to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Нове відправлення",
@@ -5111,19 +5145,15 @@
     "message": "Видалити відправлення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Ви дійсно хочете видалити це відправлення?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Який це тип відправлення?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Are you sure you want to permanently delete this Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Термін дії"
   },
-  "deletionDateDesc": {
-    "message": "Відправлення буде остаточно видалено у вказаний час.",
+  "deletionDateDescV2": {
+    "message": "The Send will be permanently deleted on this date.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5135,21 +5165,6 @@
   },
   "maxAccessCount": {
     "message": "Максимальна кількість доступів"
-  },
-  "maxAccessCountDesc": {
-    "message": "Якщо встановлено, користувачі більше не зможуть отримати доступ до цього відправлення після досягнення максимальної кількості доступів.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Поточна кількість доступів"
-  },
-  "sendPasswordDesc": {
-    "message": "Ви можете встановити пароль для доступу до цього відправлення.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Особисті нотатки про це відправлення.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Вимкнено"
@@ -5177,13 +5192,6 @@
   "removePasswordConfirmation": {
     "message": "Ви дійсно хочете вилучити пароль?"
   },
-  "hideEmail": {
-    "message": "Приховувати мою адресу електронної пошти від отримувачів."
-  },
-  "disableThisSend": {
-    "message": "Деактивувати це відправлення для скасування доступу до нього.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Усі відправлення"
   },
@@ -5193,6 +5201,9 @@
   },
   "pendingDeletion": {
     "message": "Очікується видалення"
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
   },
   "expired": {
     "message": "Термін дії завершився"
@@ -5415,13 +5426,6 @@
     "message": "Завжди показувати отримувачам адресу е-пошти учасників під час створення чи редагування відправлень.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "Наразі діють такі політики організації:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Користувачам не дозволяється приховувати свою адресу електронної пошти від отримувачів під час створення чи редагування відправлень.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "Змінено політику $ID$.",
     "placeholders": {
@@ -5520,27 +5524,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Вилучити особисту власність для учасників організації"
-  },
-  "textHiddenByDefault": {
-    "message": "При доступі до відправлення типово приховувати текст",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Опис цього відправлення.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Текст, який ви хочете відправити."
-  },
-  "sendFileDesc": {
-    "message": "Файл, який ви хочете відправити."
-  },
-  "copySendLinkOnSave": {
-    "message": "Копіювати посилання, щоб поділитися відправленням після збереження."
-  },
-  "sendLinkLabel": {
-    "message": "Посилання на відправлення",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Відправлення",
@@ -5689,6 +5672,9 @@
   },
   "dateParsingError": {
     "message": "При збереженні дат видалення і терміну дії виникла помилка."
+  },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
   },
   "webAuthnFallbackMsg": {
     "message": "Щоб засвідчити ваш 2FA, натисніть кнопку внизу."
@@ -9848,8 +9834,14 @@
   "learnMoreAboutApi": {
     "message": "Докладніше про Bitwarden API"
   },
+  "fileSend": {
+    "message": "File Send"
+  },
   "fileSends": {
     "message": "Відправлення файлів"
+  },
+  "textSend": {
+    "message": "Text Send"
   },
   "textSends": {
     "message": "Відправлення тексту"
@@ -10083,10 +10075,6 @@
   "specialCharactersDescription": {
     "message": "Спеціальні символи",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Додати вкладення"
@@ -10486,6 +10474,9 @@
   },
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"

@@ -479,22 +479,6 @@
   "length": {
     "message": "लंबाई"
   },
-  "uppercase": {
-    "message": "बड़े अक्षर (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "छोटे अक्षर (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "संख्या (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "विशेष अक्षर (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Include",
     "description": "Card header for password generator include block"
@@ -526,10 +510,6 @@
   "specialCharactersDescription": {
     "message": "Include special characters",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Number of Words"
@@ -669,8 +649,8 @@
   "browserNotSupportClipboard": {
     "message": "आपका वेब ब्राउज़र आसान क्लिपबोर्ड कॉपीिंग का समर्थन नहीं करता है। इसके बजाय इसे मैन्युअल रूप से कॉपी करें।"
   },
-  "verifyIdentity": {
-    "message": "पहचान सत्यापित करें"
+  "verifyYourIdentity": {
+    "message": "Verify your identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
@@ -1069,6 +1049,56 @@
   },
   "notificationAddSave": {
     "message": "Yes, Save Now"
+  },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ को बिटवार्डन में सहेजा गया।",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ को बिटवार्डन में अपडेट किया गया।",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Save as new login",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Update login",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Save login?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Update existing login?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Login saved",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Login updated",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Error saving",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
     "message": "मौजूदा लॉगिन को अपडेट करने के लिए कहें"
@@ -4077,6 +4107,9 @@
   "activeAccount": {
     "message": "Active account"
   },
+  "bitwardenAccount": {
+    "message": "Bitwarden account"
+  },
   "availableAccounts": {
     "message": "Available accounts"
   },
@@ -5110,5 +5143,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

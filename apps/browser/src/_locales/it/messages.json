@@ -479,22 +479,6 @@
   "length": {
     "message": "Lunghezza"
   },
-  "uppercase": {
-    "message": "Maiuscole (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Minuscole (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Numeri (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Caratteri speciali (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Includi",
     "description": "Card header for password generator include block"
@@ -526,10 +510,6 @@
   "specialCharactersDescription": {
     "message": "Includi caratteri speciali",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Numero di parole"
@@ -669,8 +649,8 @@
   "browserNotSupportClipboard": {
     "message": "Il tuo browser non supporta copiare dagli appunti. Copialo manualmente."
   },
-  "verifyIdentity": {
-    "message": "Verifica identità"
+  "verifyYourIdentity": {
+    "message": "Verifica la tua identità"
   },
   "weDontRecognizeThisDevice": {
     "message": "Non riconosciamo questo dispositivo. Inserisci il codice inviato alla tua e-mail per verificare la tua identità."
@@ -1069,6 +1049,56 @@
   },
   "notificationAddSave": {
     "message": "Salva"
+  },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ salvato in Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ aggiornato in Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Salva come nuovo accesso",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Aggiorna accesso",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Salvare l'accesso?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Aggiornare l'accesso esistente?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Accesso salvato",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Accesso aggiornato",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Errore nel salvataggio",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Oh no! Non abbiamo potuto salvarlo. Prova a inserire manualmente i dettagli.",
+    "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
     "message": "Chiedi di aggiornare il login esistente"
@@ -4077,6 +4107,9 @@
   "activeAccount": {
     "message": "Account attivo"
   },
+  "bitwardenAccount": {
+    "message": "Account Bitwarden"
+  },
   "availableAccounts": {
     "message": "Account disponibili"
   },
@@ -5110,5 +5143,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "Per usare lo sblocco biometrico, aggiornare l'applicazione desktop o disabilitare lo sblocco dell'impronta digitale nelle impostazioni del desktop."
+  },
+  "changeAtRiskPassword": {
+    "message": "Cambia parola d'accesso a rischio"
   }
 }
