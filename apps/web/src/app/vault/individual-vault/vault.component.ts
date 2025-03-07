@@ -222,16 +222,13 @@ export class VaultComponent implements OnInit, OnDestroy {
               }),
             ),
           ]).pipe(
-            map(([subscription, paymentSource]) => {
-              if (!paymentSource) {
-                return null;
-              }
-              return this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
+            map(([subscription, paymentSource]) =>
+              this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
                 org,
                 subscription,
                 paymentSource,
-              );
-            }),
+              ),
+            ),
           ),
         ),
       );
