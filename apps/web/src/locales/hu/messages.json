@@ -201,6 +201,9 @@
   "notes": {
     "message": "Jegyzetek"
   },
+  "privateNote": {
+    "message": "Személyes jegyzet"
+  },
   "note": {
     "message": "Jegyzet"
   },
@@ -1009,7 +1012,7 @@
     "message": "A hivatkozás lejárt"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Kezdd előlről a regisztrációt vagy próbálj belépni."
   },
   "youMayAlreadyHaveAnAccount": {
     "message": "Lehet hogy már rendelkezel fiókkal"
@@ -1179,7 +1182,7 @@
   "authenticationSessionTimedOut": {
     "message": "A hitelesítési munkamenet időkifutással lejárt. Indítsuk újra a bejelentkezési folyamatot."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Személyazonosság ellenőrzése"
   },
   "weDontRecognizeThisDevice": {
@@ -1583,7 +1586,7 @@
     "message": "Biztos folytatni szeretnénk?"
   },
   "moveSelectedItemsDesc": {
-    "message": "Choose a folder that you would like to add the $COUNT$ selected item(s) to.",
+    "message": "Válassz ki egy mappát, amihez ezt a(z) $COUNT$ kiválasztott elemet hozzá szeretnéd adni.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1618,10 +1621,10 @@
     "message": "UUID másolása"
   },
   "errorRefreshingAccessToken": {
-    "message": "Access Token Refresh Error"
+    "message": "Hozzáférési token frissítés hiba"
   },
   "errorRefreshingAccessTokenDesc": {
-    "message": "No refresh token or API keys found. Please try logging out and logging back in."
+    "message": "Nem található frissítőtoken vagy API kulcs. Kérlek próbálj kilépni és újra belépni."
   },
   "warning": {
     "message": "Figyelmeztetés"
@@ -1639,7 +1642,7 @@
     "message": "Ez az exportálás titkosítatlan formátumban tartalmazza a titkos adatokat. Ne tároljuk vagy ne küldjük el az exportált fájlt nem biztonságos csatornákon (például emailben). A használat befejezése után azonnal töröljük."
   },
   "encExportKeyWarningDesc": {
-    "message": "Ez az exportálás titkosítja az adatokat a fiók titkosítási kulcsával. Ha valaha a diók forgatási kulcsa más lesz, akkor újra exportálni kell, mert nem lehet visszafejteni ezt az exportálási fájlt."
+    "message": "Ez az exportálás titkosítja az adatokat a fiók titkosítási kulcsával. Ha valaha a fiók forgatási kulcsa más lesz, akkor újra exportálni kell, mert nem lehet visszafejteni ezt az exportálási fájlt."
   },
   "encExportAccountWarningDesc": {
     "message": "A fiók titkosítási kulcsai minden Bitwarden felhasználói fiókhoz egyediek, ezért nem importálhatunk titkosított exportálást egy másik fiókba."
@@ -1678,7 +1681,7 @@
     "message": "Fájl jelszó megerősítés"
   },
   "accountRestrictedOptionDescription": {
-    "message": "Használjuk a fiókjfelhasználónevéből és a fő jelszóból származó titkosítási kulcsot az exportálás titkosításához és az importálás korlátozásához csak az aktuális Bitwarden fiókra."
+    "message": "Használjuk a fiók felhasználónevéből és a mesterjelszóból származó titkosítási kulcsot az exportálás titkosításához és az importálás korlátozásához csak az aktuális Bitwarden fiókra."
   },
   "passwordProtectedOptionDescription": {
     "message": "Hozzunk létre egy felhasználó által generált jelszót az exportálás védelme érdekében. Ezzel más fiókokban is használható exportálást hozhatunk létre."
@@ -1901,7 +1904,7 @@
     "message": "Munkamenetek hitelesítésének eldobása"
   },
   "deauthorizeSessionsDesc": {
-    "message": "Aggódunk a egy másik eszközön történő bejelentkezés miatt? Az alábbiakban ismertetett módon dobjuk el az összes hitelesítést az összes számítógépen és eszközön. Ez a biztonsági lépés akkor ajánlott, ha korábban nyilvános helyen levő számítógépet használtunk vagy véletlenül mentettünk jelszót egy olyan eszközön, amely nem a sajátunk. Ez a lépés törli az összes korábban megjegyzett kétlépéses bejelentkezési munkamenetet."
+    "message": "Aggódunk a egy másik eszközön történő bejelentkezés miatt? Az alábbiakban ismertetett módon dobjuk el az összes hitelesítést az összes számítógépen és eszközön. Ez a biztonsági lépés akkor ajánlott, ha korábban nyilvános helyen levő számítógépet használtunk vagy véletlenül mentettünk jelszót egy olyan eszközön, amely nem a sajátunk. Ez a lépés törli az összes korábban megjegyzett kétfaktoros bejelentkezési munkamenetet."
   },
   "deauthorizeSessionsWarning": {
     "message": "A folytatásban s felhasználó kiléptetésre kerül az aktuális munkamenetből, szükséges az ismételt bejelentkezés. Ismételten megjelenik a kétlépcsős bejelentkezés, ha az engedélyezett.  Más eszközök aktív munkamenetei akár egy óráig is aktívak maradhatnak."
@@ -2251,6 +2254,9 @@
   },
   "revokeAccess": {
     "message": "Hozzáférés visszavonása"
+  },
+  "revoke": {
+    "message": "Visszavonás"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Ez a kétlépéses bejelentkezés szolgáltató már engedélyezett a fiókon."
@@ -4501,7 +4507,7 @@
     }
   },
   "encryptionKeyUpdateCannotProceed": {
-    "message": "Encryption key update cannot proceed"
+    "message": "A titkosítókulcs frissítése nem végrehajtható"
   },
   "editFieldLabel": {
     "message": "$LABEL$ szerkesztése",
@@ -4522,7 +4528,7 @@
     }
   },
   "keyUpdateFoldersFailed": {
-    "message": "When updating your encryption key, your folders could not be decrypted. To continue with the update, your folders must be deleted. No vault items will be deleted if you proceed."
+    "message": "A titkosítókulcs frissítésekor a mappáid nem fejthetőek vissza. A frissítés folytatásához a mappáidat törölni kell. Semmi nem fog törlődni, ha folytatod."
   },
   "keyUpdated": {
     "message": "A kulcs frissítésre került."
@@ -4567,7 +4573,7 @@
     "message": "Nincs kiválasztva semmi."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Kapj tanácsokat, bejelentéseket és közvélemény-kutatásokat a Bitwardentől a postaládádba."
   },
   "unsubscribe": {
     "message": "Leiratkozás"
@@ -4700,10 +4706,10 @@
     "message": "A választott mesterjelszó gyenge. Erős jelszót kell használni a Bitwarden fiók megfelelő védelme érdekében. Biztosan ezt a mesterjelszót szeretnénk használni?"
   },
   "rotateAccountEncKey": {
-    "message": "A fiók titkosító kulcs forgatása is"
+    "message": "A felhasználói fiókom titkosítókódját is cseréljük le"
   },
   "rotateEncKeyTitle": {
-    "message": "Titkosító kulcs forgatása"
+    "message": "Titkosító kulcs cseréje"
   },
   "rotateEncKeyConfirmation": {
     "message": "Biztosan fordításra kerüljön a fiók titkosító kulcsa?"
@@ -4753,7 +4759,7 @@
     "message": "Az API kulcs használható a Bitwarden nyilvános API hitelesítéséhez."
   },
   "apiKeyRotateDesc": {
-    "message": "Az API kulcs forgatása érvényteleníti a korábbi kulcsot. Az API kulcs forgatható, ha a jelenlegi kulcs már nem tűnik biztonságosnak."
+    "message": "Az API kulcs cseréje érvényteleníti a korábbi kulcsot. Ha azt gondolod, hogy a jelenlegi kulcs nem biztonságos akkor lecserélheted az API kulcsot."
   },
   "apiKeyWarning": {
     "message": "Az API kulcs teljes hozzáférést biztosít a szervezethez. Célszerű titokban tartani."
@@ -4772,7 +4778,7 @@
     "message": "API kulcs megtekintése"
   },
   "rotateApiKey": {
-    "message": "API kulcs forgatása"
+    "message": "API kulcs cseréje"
   },
   "selectOneCollection": {
     "message": "Legalább egy gyűjteményt ki kell választani."
@@ -5081,11 +5087,39 @@
   "requireSsoExemption": {
     "message": "A szervezet tulajdonosai és adminisztrátorai mentesülnek az irányelv végrehajtása alól."
   },
+  "limitSendViews": {
+    "message": "Megtekintések korlátozása"
+  },
+  "limitSendViewsHint": {
+    "message": "Senki sem tudja megtekinteni ezt a Send elemet a korlát elérése után.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ megtekintés maradt.",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send részletek",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Megosztandó szöveg"
+  },
   "sendTypeFile": {
     "message": "Fájl"
   },
   "sendTypeText": {
     "message": "Szöveg"
+  },
+  "sendPasswordDescV3": {
+    "message": "Adjunk meg egy opcionális jelszót a címzetteknek a Send eléréséhez.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Új Send",
@@ -5111,19 +5145,15 @@
     "message": "Küldés törlése",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Biztosan törlésre kerüljön ez a küldés?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Milyen típusú ez a küldés?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Biztosan véglegesen törlésre kerüljön ez a Send elem?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Törlési dátum"
   },
-  "deletionDateDesc": {
-    "message": "A Send véglegesen törölve lesz a meghatározott időpontban.",
+  "deletionDateDescV2": {
+    "message": "A Send véglegesen törölve lesz ebben az időpontban.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5135,21 +5165,6 @@
   },
   "maxAccessCount": {
     "message": "Maximális elérési szám"
-  },
-  "maxAccessCountDesc": {
-    "message": "Amennyiben be van állítva, a Send elérhetetlen lesz, amint elérik a meghatározott hozzáférések számát.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Aktuális elérési szám"
-  },
-  "sendPasswordDesc": {
-    "message": "Opcionálissan egy jelszó kérhető a felhasználóktól a Küldés eléréséhez.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Személyes megjegyzések erről a Küldésről.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Letiltva"
@@ -5177,13 +5192,6 @@
   "removePasswordConfirmation": {
     "message": "Biztosan eltávolításra kerüljön ez a jelszó?"
   },
-  "hideEmail": {
-    "message": "Saját email cím elrejtése a címzettek elől."
-  },
-  "disableThisSend": {
-    "message": "A Send letiltásával mindenki hozzáférése megvonható.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Összes küldés"
   },
@@ -5193,6 +5201,9 @@
   },
   "pendingDeletion": {
     "message": "Függőben lévő törlés"
+  },
+  "hideTextByDefault": {
+    "message": "Szöveg elrejtése alapértelmezetten"
   },
   "expired": {
     "message": "Lejárt"
@@ -5415,13 +5426,6 @@
     "message": "Ne engedjük, hogy a felhasználók elrejtsék email címüket a címzettek elől a Send elem létrehozása vagy szerkesztése során.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "A következő szervezeti irányelvek vannak érvényben:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "A felhasználók nem rejthetik el email címüket a címzettek elől egy Send elem létrehozásakor vagy szerkesztésekor.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "$ID$ szabály módosításra került.",
     "placeholders": {
@@ -5521,27 +5525,6 @@
   "personalOwnershipCheckboxDesc": {
     "message": "A szervezeti felhasználók személyes tulajdon letiltása"
   },
-  "textHiddenByDefault": {
-    "message": "A Küldés elérésekor alapértelmezés szerint a szöveg elrejtése",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Barátságos név a Küldés leírására.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "A küldendő szöveg."
-  },
-  "sendFileDesc": {
-    "message": "A küldendő fájl."
-  },
-  "copySendLinkOnSave": {
-    "message": "A hivatkozás másolása a Küldés megosztásához a vágólapra mentéskor."
-  },
-  "sendLinkLabel": {
-    "message": "Hivatkozás küldése",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "send": {
     "message": "Küldés",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5574,10 +5557,10 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
   },
   "developmentDevOpsAndITTeamsChooseBWSecret": {
-    "message": "Development, DevOps, and IT teams choose Bitwarden Secrets Manager to securely manage and deploy their infrastructure and machine secrets."
+    "message": "Fejlesztők, DevOps és informatikai csapatok választják a Bitwarden Secret Managert hogy biztonságosan tudják telepíteni az infrastruktúra és eszköztitkokat."
   },
   "centralizeSecretsManagement": {
-    "message": "Centralize secrets management."
+    "message": "Központosítsd a titkosított adattárolást."
   },
   "centralizeSecretsManagementDescription": {
     "message": "Securely store and manage secrets in one location to prevent secret sprawl across your organization."
@@ -5616,7 +5599,7 @@
     "message": "További Bitwarden termékek"
   },
   "requestAccessToSecretsManager": {
-    "message": "Request access to Secrets Manager"
+    "message": "Igényelj hozzáférést a Secrets Managerhez"
   },
   "youNeedApprovalFromYourAdminToTrySecretsManager": {
     "message": "You need approval from your administrator to try Secrets Manager."
@@ -5637,10 +5620,10 @@
     "message": "Open your organization's"
   },
   "usingTheMenuSelect": {
-    "message": "Using the menu, select"
+    "message": "A menü segítségével válassz az alábbiakból"
   },
   "toGrantAccessToSelectedMembers": {
-    "message": "to grant access to selected members."
+    "message": "hogy kiválasztott tagoknak hozzáférést biztosíts."
   },
   "sendVaultCardTryItNow": {
     "message": "próbáljuk ki most",
@@ -5689,6 +5672,9 @@
   },
   "dateParsingError": {
     "message": "Hiba történt a törlés és a lejárati dátum mentésekor."
+  },
+  "hideYourEmail": {
+    "message": "Saját email cím elrejtése a megtekintések elől."
   },
   "webAuthnFallbackMsg": {
     "message": "A 2FA ellenőrzéséhez kattintsunk az alábbi gombra."
@@ -7129,11 +7115,11 @@
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateScimKeyWarning": {
-    "message": "Biztosan forgatni akarjuk a SCIM API kulcsot? A jelenlegi kulcs már nem működik egyik meglévő integrációhoz sem.",
+    "message": "Biztosan szeretnénk lecserélni a SCIM API kulcsot? A jelenlegi kulcs már nem működik egyik meglévő integrációhoz sem.",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateKey": {
-    "message": "Kulcs forgatása"
+    "message": "Kulcs cseréje"
   },
   "scimApiKey": {
     "message": "SCIM API kulcs",
@@ -7148,7 +7134,7 @@
     "description": "the text, 'SCIM' and 'URL', are acronyms and should not be translated."
   },
   "scimApiKeyRotated": {
-    "message": "A SCIM API kulcs sikeresen forgatásra került.",
+    "message": "A SCIM API kulcs sikeresen lecserélésre került.",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "scimSettingsSaved": {
@@ -8899,15 +8885,15 @@
     "message": "A megerősítő email elküldésre került az email címre:"
   },
   "sorryToSeeYouGo": {
-    "message": "Sorry to see you go! Help improve Bitwarden by sharing why you're canceling.",
+    "message": "Sajnáljuk, hogy itt hagysz minket! Segíts fejlődnünk azzal, hogy megosztod, hogy miért mondod fel a szolgáltatást.",
     "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
   },
   "selectCancellationReason": {
-    "message": "Select a reason for canceling",
+    "message": "Válaszd ki a felmondás okát",
     "description": "Used as a form field label for a select input on the offboarding survey."
   },
   "anyOtherFeedback": {
-    "message": "Is there any other feedback you'd like to share?",
+    "message": "Van még bármi visszajelzés, amit meg szeretnél osztani?",
     "description": "Used as a form field label for a textarea input on the offboarding survey."
   },
   "missingFeatures": {
@@ -9431,7 +9417,7 @@
     "message": "Szervezet hozzáadása"
   },
   "createdNewClient": {
-    "message": "Successfully created new client"
+    "message": "Az új ügyfél sikeresen létrejött"
   },
   "noAccess": {
     "message": "Nincs hozzáférés."
@@ -9848,8 +9834,14 @@
   "learnMoreAboutApi": {
     "message": "További információ a Bitwarden API-járól"
   },
+  "fileSend": {
+    "message": "Fájl típusú Send"
+  },
   "fileSends": {
     "message": "Fájl küldés"
+  },
+  "textSend": {
+    "message": "Szöveg típusú Send"
   },
   "textSends": {
     "message": "Szöveg küldés"
@@ -10084,10 +10076,6 @@
     "message": "Speciális karakterek bevonása",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "addAttachment": {
     "message": "Melléklet hozzáadása"
   },
@@ -10219,7 +10207,7 @@
     "message": "Fontos megjegyzés"
   },
   "setupTwoStepLogin": {
-    "message": "Kétlépéses bejelentkezés szükséges"
+    "message": "Kétfaktoros bejelentkezés beállítása"
   },
   "newDeviceVerificationNoticeContentPage1": {
     "message": "A Bitwarden 2025 februárjától kódot küld a fiókhoz tartozó email-címre, amellyel ellenőrizhetők az új eszközökről történő bejelentkezések."
@@ -10486,6 +10474,9 @@
   },
   "assignedExceedsAvailable": {
     "message": "A hozzárendelt helyek száma meghaladja a rendelkezésre álló helyek számát."
+  },
+  "changeAtRiskPassword": {
+    "message": "Kockázatos jelszó megváltoztatása"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Feloldás eltávolítása PIN kóddal"

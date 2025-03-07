@@ -201,6 +201,9 @@
   "notes": {
     "message": "Mga Tala"
   },
+  "privateNote": {
+    "message": "Private note"
+  },
   "note": {
     "message": "Note"
   },
@@ -1179,7 +1182,7 @@
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
@@ -2251,6 +2254,9 @@
   },
   "revokeAccess": {
     "message": "Tanggalin ang access"
+  },
+  "revoke": {
+    "message": "Revoke"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Aktibo ang provider na ito ng dalawang-hakbang na pag-log in sa account mo."
@@ -5081,11 +5087,39 @@
   "requireSsoExemption": {
     "message": "Ang mga may ari ng organisasyon at mga admin ay exempted mula sa pagpapatupad ng patakaran na ito."
   },
+  "limitSendViews": {
+    "message": "Limit views"
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
   "sendTypeFile": {
     "message": "Mag-file"
   },
   "sendTypeText": {
     "message": "Teksto"
+  },
+  "sendPasswordDescV3": {
+    "message": "Add an optional password for recipients to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Bagong Ipadala",
@@ -5111,19 +5145,15 @@
     "message": "I-delete ang Ipadala",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Sigurado ka bang gusto mo na i-delete ang Ipadala na ito?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Anong type ng Send ito",
+  "deleteSendPermanentConfirmation": {
+    "message": "Are you sure you want to permanently delete this Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Petsa ng Pagtanggal"
   },
-  "deletionDateDesc": {
-    "message": "Ang Ipadala ay tatanggalin nang permanente sa tinukoy na petsa at oras.",
+  "deletionDateDescV2": {
+    "message": "The Send will be permanently deleted on this date.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5135,21 +5165,6 @@
   },
   "maxAccessCount": {
     "message": "Maximum na bilang ng access"
-  },
-  "maxAccessCountDesc": {
-    "message": "Kung nakatakda, ang mga user ay hindi na maaaring ma-access ang Send na ito pagkatapos makarating sa maximum access count.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Kasalukuyang access count"
-  },
-  "sendPasswordDesc": {
-    "message": "Maipapayo na mag-require ng password para sa mga user na ma-access ang Send na ito.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Pribadong mga tala tungkol sa Send na ito.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Ipadala nai-delete"
@@ -5177,13 +5192,6 @@
   "removePasswordConfirmation": {
     "message": "Sigurado ka bang gusto mo na tanggalin ang password?"
   },
-  "hideEmail": {
-    "message": "Itago ang aking email address mula sa mga tatanggap."
-  },
-  "disableThisSend": {
-    "message": "Deactivate ang Send na ito para walang maka access dito.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Lahat ng Mga Padala"
   },
@@ -5193,6 +5201,9 @@
   },
   "pendingDeletion": {
     "message": "Nakabinbing pagbura"
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
   },
   "expired": {
     "message": "Paso na"
@@ -5415,13 +5426,6 @@
     "message": "Laging ipakita ang email address ng miyembro sa mga tatanggap kapag lumilikha o nag edit ng isang Ipadala.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "Isang o higit pang mga patakaran ng organisasyon ay nakaapekto sa iyong mga pagpipilian sa Pagpadala."
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Hindi pinapayagan ang mga gumagamit na itago ang kanilang email address mula sa mga tatanggap kapag lumilikha o nag edit ng isang Ipadala.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "Binagong patakaran $ID$.",
     "placeholders": {
@@ -5520,27 +5524,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Alisin ang indibidwal na pagmamay ari para sa mga gumagamit ng organisasyon"
-  },
-  "textHiddenByDefault": {
-    "message": "Kapag na access ang Ipadala, itago ang teksto sa pamamagitan ng default",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Isang friendly name upang ilarawan ang Ipadala na ito.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Ang teksto na nais mong ipadala."
-  },
-  "sendFileDesc": {
-    "message": "Ang file na gusto mong ipadala."
-  },
-  "copySendLinkOnSave": {
-    "message": "Kopyahin ang link upang ibahagi ito Ipadala sa aking clipboard sa save."
-  },
-  "sendLinkLabel": {
-    "message": "Magpadala ng link",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Ipadala",
@@ -5689,6 +5672,9 @@
   },
   "dateParsingError": {
     "message": "Nagkaroon ng error sa pag-save ng iyong mga petsa ng pagbura at pagpaso."
+  },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
   },
   "webAuthnFallbackMsg": {
     "message": "Upang i verify ang iyong 2FA mangyaring i click ang pindutan sa ibaba."
@@ -9848,8 +9834,14 @@
   "learnMoreAboutApi": {
     "message": "Learn more about Bitwarden's API"
   },
+  "fileSend": {
+    "message": "File Send"
+  },
   "fileSends": {
     "message": "File Sends"
+  },
+  "textSend": {
+    "message": "Text Send"
   },
   "textSends": {
     "message": "Text Sends"
@@ -10083,10 +10075,6 @@
   "specialCharactersDescription": {
     "message": "Include special characters",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Add attachment"
@@ -10486,6 +10474,9 @@
   },
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"

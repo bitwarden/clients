@@ -201,6 +201,9 @@
   "notes": {
     "message": "メモ"
   },
+  "privateNote": {
+    "message": "Private note"
+  },
   "note": {
     "message": "メモ"
   },
@@ -1179,8 +1182,8 @@
   "authenticationSessionTimedOut": {
     "message": "認証セッションの有効期限が切れました。ログイン操作を最初からやり直してください。"
   },
-  "verifyIdentity": {
-    "message": "本人確認"
+  "verifyYourIdentity": {
+    "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
@@ -2251,6 +2254,9 @@
   },
   "revokeAccess": {
     "message": "アクセスを取り消す"
+  },
+  "revoke": {
+    "message": "Revoke"
   },
   "twoStepLoginProviderEnabled": {
     "message": "この二段階認証プロバイダは、あなたのアカウントで有効になっています。"
@@ -5081,11 +5087,39 @@
   "requireSsoExemption": {
     "message": "組織の所有者および管理者は、このポリシーの執行から除外されます。"
   },
+  "limitSendViews": {
+    "message": "Limit views"
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
   "sendTypeFile": {
     "message": "ファイル"
   },
   "sendTypeText": {
     "message": "テキスト"
+  },
+  "sendPasswordDescV3": {
+    "message": "Add an optional password for recipients to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "新しい Send を作成",
@@ -5111,19 +5145,15 @@
     "message": "Send を削除",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "この Send を削除してもよろしいですか?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "この Send の種類は何ですか？",
+  "deleteSendPermanentConfirmation": {
+    "message": "Are you sure you want to permanently delete this Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "削除日時"
   },
-  "deletionDateDesc": {
-    "message": "Send は指定された日時に完全に削除されます。",
+  "deletionDateDescV2": {
+    "message": "The Send will be permanently deleted on this date.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5135,21 +5165,6 @@
   },
   "maxAccessCount": {
     "message": "最大アクセス数"
-  },
-  "maxAccessCountDesc": {
-    "message": "設定されている場合、最大アクセス数に達するとユーザーはこの Send にアクセスできなくなります。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "現在のアクセス数"
-  },
-  "sendPasswordDesc": {
-    "message": "必要に応じて、ユーザーがこの Send にアクセスするためのパスワードを要求します。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "この Send に関するプライベートメモ",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "無効"
@@ -5177,13 +5192,6 @@
   "removePasswordConfirmation": {
     "message": "パスワードを削除してもよろしいですか？"
   },
-  "hideEmail": {
-    "message": "受信者に自分のメールアドレスを表示しない"
-  },
-  "disableThisSend": {
-    "message": "誰もアクセスできないように、この Send を無効にします。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "すべての Send"
   },
@@ -5193,6 +5201,9 @@
   },
   "pendingDeletion": {
     "message": "保留中の削除"
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
   },
   "expired": {
     "message": "期限切れ"
@@ -5415,13 +5426,6 @@
     "message": "Send を作成または編集するとき、常にメンバーのメールアドレスを受信者と一緒に表示します。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "現在、以下の組織ポリシーが適用されています。"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Send を作成または編集する際に、ユーザーのメールアドレスを受信者に非表示にすることはできません。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "変更されたポリシー $ID$.",
     "placeholders": {
@@ -5520,27 +5524,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "組織ユーザーの個人所有権を無効にする"
-  },
-  "textHiddenByDefault": {
-    "message": "Send へのアクセス時に既定でテキストを非表示にする",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "この Send を説明するわかりやすい名前",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "送信したいテキスト"
-  },
-  "sendFileDesc": {
-    "message": "送信するファイル"
-  },
-  "copySendLinkOnSave": {
-    "message": "Send の保存時にクリップボードへリンクをコピーします。"
-  },
-  "sendLinkLabel": {
-    "message": "Send リンク",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Send",
@@ -5689,6 +5672,9 @@
   },
   "dateParsingError": {
     "message": "削除と有効期限の保存中にエラーが発生しました。"
+  },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
   },
   "webAuthnFallbackMsg": {
     "message": "二段階認証を確認するには、下のボタンをクリックしてください。"
@@ -9848,8 +9834,14 @@
   "learnMoreAboutApi": {
     "message": "Bitwarden API の詳細"
   },
+  "fileSend": {
+    "message": "File Send"
+  },
   "fileSends": {
     "message": "ファイル Send"
+  },
+  "textSend": {
+    "message": "Text Send"
   },
   "textSends": {
     "message": "テキスト Send"
@@ -10083,10 +10075,6 @@
   "specialCharactersDescription": {
     "message": "特殊記号を含める",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "添付ファイルを追加"
@@ -10486,6 +10474,9 @@
   },
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"
