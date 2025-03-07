@@ -3,6 +3,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   ButtonModule,
   DialogModule,
@@ -44,16 +45,17 @@ export class CredentialGeneratorDialogComponent {
   constructor(
     @Inject(DIALOG_DATA) protected data: CredentialGeneratorParams,
     private dialogService: DialogService,
+    private i18nService: I18nService,
   ) {}
 
   onAlgorithmSelected = (selected?: AlgorithmInfo) => {
     if (selected) {
       this.buttonLabel = selected.useGeneratedValue;
     } else {
-      // clear the credential value when the user is
-      // selecting the credential generation algorithm
-      this.credentialValue = undefined;
+      // default to email
+      this.buttonLabel = this.i18nService.t("useThisEmail");
     }
+    this.credentialValue = undefined;
   };
 
   applyCredentials = () => {

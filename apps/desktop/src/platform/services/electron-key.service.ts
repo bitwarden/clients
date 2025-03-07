@@ -81,7 +81,7 @@ export class ElectronKeyService extends DefaultKeyService {
     // May resolve to null, in which case no client key have is required
     // TODO: Move to windows implementation
     const clientEncKeyHalf = await this.getBiometricEncryptionClientKeyHalf(userKey, userId);
-    await this.biometricService.setClientKeyHalfForUser(userId, clientEncKeyHalf as string);
+    await this.biometricService.setClientKeyHalfForUser(userId, clientEncKeyHalf);
     await this.biometricService.setBiometricProtectedUnlockKeyForUser(userId, userKey.keyB64);
   }
 
