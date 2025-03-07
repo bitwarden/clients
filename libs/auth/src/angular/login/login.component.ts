@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-import { firstValueFrom, Subject, take, takeUntil, tap } from "rxjs";
+import { firstValueFrom, Subject, take, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -19,11 +19,9 @@ import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstraction
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -121,7 +119,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private logService: LogService,
     private validationService: ValidationService,
-    private configService: ConfigService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
@@ -130,9 +127,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     // Add popstate listener to listen for browser back button clicks
     window.addEventListener("popstate", this.handlePopState);
-
-    // TODO: remove this when the UnauthenticatedExtensionUIRefresh feature flag is removed.
-    this.listenForUnauthUiRefreshFlagChanges();
 
     await this.defaultOnInit();
 
@@ -152,30 +146,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  private listenForUnauthUiRefreshFlagChanges() {
-    this.configService
-      .getFeatureFlag$(FeatureFlag.UnauthenticatedExtensionUIRefresh)
-      .pipe(
-        tap(async (flag) => {
-          // If the flag is turned OFF, we must force a reload to ensure the correct UI is shown
-          if (!flag) {
-            const qParams = await firstValueFrom(this.activatedRoute.queryParams);
-            const uniqueQueryParams = {
-              ...qParams,
-              // adding a unique timestamp to the query params to force a reload
-              t: new Date().getTime().toString(), // Adding a unique timestamp as a query parameter
-            };
-
-            await this.router.navigate(["/"], {
-              queryParams: uniqueQueryParams,
-            });
-          }
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
   }
 
   submit = async (): Promise<void> => {
