@@ -1,5 +1,7 @@
 import { Opaque } from "type-fest";
 
+import { ObjectKey } from "../state/object-key";
+
 import { Site, Field, Permission } from "./data";
 
 /** well-known name for a feature extensible through an extension. */
@@ -16,6 +18,11 @@ export type ExtensionId = { site: SiteId; vendor: VendorId };
 
 /** Permission levels for metadata. */
 export type ExtensionPermission = keyof typeof Permission;
+
+/** The preferred vendor to use at each site. */
+export type ExtensionPreferences = {
+  [key in SiteId]?: { vendor: VendorId; updated: Date };
+};
 
 /** The capabilities and descriptive content for an extension */
 export type SiteMetadata = {
@@ -107,3 +114,29 @@ export type ExtensionSet =
        */
       all: true;
     };
+
+/** A key for storing JavaScript objects (`{ an: "example" }`)
+ *  in the extension profile system.
+ *  @remarks The omitted keys are filled by the extension service.
+ */
+export type ExtensionStorageKey<Options> = Omit<
+  ObjectKey<Options>,
+  "target" | "state" | "format" | "classifier"
+>;
+
+/** Extension profiles encapsulate data storage using the extension system.
+ */
+export type ExtensionProfileMetadata<Options, Site extends SiteId> = {
+  /** distinguishes profile metadata types */
+  type: "extension";
+
+  /** The extension site described by this metadata */
+  site: Site;
+
+  /** persistent storage location; `storage.key` is used to construct
+   *  the extension key in the format `${extension.site}.${extension.vendor}.${storage.key}`,
+   *  where `extension.`-prefixed fields are read from extension metadata. Extension
+   *  settings always use the "classified" format and keep all fields private.
+   */
+  storage: ExtensionStorageKey<Options>;
+};

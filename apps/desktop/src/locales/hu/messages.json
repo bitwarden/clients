@@ -543,10 +543,6 @@
     "message": "Speciális karakterek bevonása",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Szavak száma"
   },
@@ -916,7 +912,7 @@
     "message": "Ellenőrzés szervezeti Duo Security segítségével a Duo Mobile alkalmazás, SMS, telefonhívás vagy U2F biztonsági kulcs használatával.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Személyazonosság ellenőrzése"
   },
   "weDontRecognizeThisDevice": {
@@ -3604,5 +3600,8 @@
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Al használt böngésző bővítmény elavult. Frissítsük vagy tiltsuk le a böngésző integráció ujjlenyomat ellenőrzését az asztali alkalmazás beállításainál."
+  },
+  "changeAtRiskPassword": {
+    "message": "Kockázatos jelszó megváltoztatása"
   }
 }
