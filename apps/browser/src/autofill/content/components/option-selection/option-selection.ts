@@ -16,17 +16,20 @@ const { css } = createEmotion({
 });
 
 export class OptionSelection extends LitElement {
-  @property({ type: (selectedOption: Option["value"]) => selectedOption })
-  handleSelectionUpdate?: (args: any) => void;
-
   @property()
   disabled: boolean = false;
 
   @property()
-  theme: Theme = ThemeTypes.Light;
+  label?: string;
 
   @property({ type: Array })
   options: Option[] = [];
+
+  @property()
+  theme: Theme = ThemeTypes.Light;
+
+  @property({ type: (selectedOption: Option["value"]) => selectedOption })
+  handleSelectionUpdate?: (args: any) => void;
 
   @state()
   private showOptions = false;
@@ -74,9 +77,10 @@ export class OptionSelection extends LitElement {
         })}
         ${this.showOptions
           ? OptionItems({
+              label: this.label,
+              options: this.options,
               theme: this.theme,
               topOffset: this.menuTopOffset,
-              options: this.options,
               handleOptionSelection: this.handleOptionSelection,
             })
           : nothing}

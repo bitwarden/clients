@@ -16,6 +16,7 @@ export type ButtonRowProps = {
   };
   selectButtons?: {
     id: string;
+    label?: string;
     options: Option[];
     handleSelectionUpdate?: (args: any) => void;
   }[];
@@ -31,11 +32,12 @@ export function ButtonRow({ theme, primaryButton, selectButtons }: ButtonRowProp
       })}
       <div class=${optionSelectionsStyles}>
         ${selectButtons?.map(
-          ({ id, options, handleSelectionUpdate }) =>
+          ({ id, label, options, handleSelectionUpdate }) =>
             html`
               <option-selection
-                id=${id}
+                key=${id}
                 theme=${theme}
+                .label=${label}
                 .options=${options}
                 .handleSelectionUpdate=${handleSelectionUpdate}
               ></option-selection>
