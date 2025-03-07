@@ -1,4 +1,4 @@
-import { AbstractControl, ValidationErrors, ValidatorFn } from "@angular/forms";
+import { AbstractControl, FormGroup, ValidationErrors, ValidatorFn } from "@angular/forms";
 
 export enum ValidationGoal {
   InputsShouldMatch,
@@ -34,7 +34,7 @@ export enum ValidationGoal {
  *                     be an i18n translated string.
  * @param showErrorOn The control under which you want to display the error (default is controlB).
  *
- * @returns A validator function that can be used in a form group.
+ * @returns A validator function that can be used on a FormGroup.
  */
 export function compareInputs(
   validationGoal: ValidationGoal,
@@ -55,6 +55,10 @@ export function compareInputs(
    * @returns A ValidationErrors object if the validation fails, or null if the validation passes.
    */
   return (formGroup: AbstractControl): ValidationErrors | null => {
+    if (!(formGroup instanceof FormGroup)) {
+      throw new Error("compareInputs only supports validation at the FormGroup level");
+    }
+
     const controlA = formGroup.get(controlNameA);
     const controlB = formGroup.get(controlNameB);
 
