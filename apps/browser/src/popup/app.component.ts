@@ -1,9 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
 import { Subject, takeUntil, firstValueFrom, concatMap, filter, tap } from "rxjs";
 
+import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -68,7 +70,10 @@ export class AppComponent implements OnInit, OnDestroy {
     private animationControlService: AnimationControlService,
     private biometricStateService: BiometricStateService,
     private biometricsService: BiometricsService,
-  ) {}
+    private deviceTrustToastService: DeviceTrustToastService,
+  ) {
+    this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
+  }
 
   async ngOnInit() {
     initPopupClosedListener();
