@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import { html } from "lit";
+import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
@@ -11,16 +11,19 @@ import { OptionItem, optionItemTagName } from "./option-item";
 export function OptionItems({
   theme,
   topOffset,
+  label,
   options,
   handleOptionSelection,
 }: {
   theme: Theme;
   topOffset: number;
+  label?: string;
   options: Option[];
   handleOptionSelection: (selectedOption: Option) => void;
 }) {
   return html`
     <div class=${optionsStyles({ theme, topOffset })} key="container">
+      ${label ? html`<div class=${optionsLabelStyles({ theme })}>${label}</div>` : nothing}
       ${options.map((option) =>
         OptionItem({ ...option, theme, handleSelection: () => handleOptionSelection(option) }),
       )}
@@ -51,4 +54,13 @@ const optionsStyles = ({ theme, topOffset }: { theme: Theme; topOffset: number }
       background-color: ${themes[theme].primary["100"]};
     }
   }
+`;
+
+const optionsLabelStyles = ({ theme }: { theme: Theme }) => css`
+  ${typography.helperMedium}
+
+  user-select: none;
+  padding: 0.375rem ${spacing["3"]};
+  color: ${themes[theme].text.muted};
+  font-weight: 600;
 `;

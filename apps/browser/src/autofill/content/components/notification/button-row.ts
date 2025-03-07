@@ -89,6 +89,7 @@ export function NotificationButtonRow({
           ? [
               {
                 id: "organization",
+                label: "Vault", // @TODO localize
                 options: organizationOptions,
               },
             ]
@@ -97,6 +98,7 @@ export function NotificationButtonRow({
           ? [
               {
                 id: "folder",
+                label: "Folder", // @TODO localize
                 options: folderOptions,
               },
             ]
