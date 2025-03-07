@@ -3,8 +3,6 @@
 import { firstValueFrom } from "rxjs";
 
 import { LogoutReason } from "@bitwarden/auth/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   Argon2KdfConfig,
   KdfConfig,
@@ -13,28 +11,30 @@ import {
   KdfType,
 } from "@bitwarden/key-management";
 
-import { ApiService } from "../../abstractions/api.service";
-import { OrganizationUserType } from "../../admin-console/enums";
-import { Organization } from "../../admin-console/models/domain/organization";
-import { KeysRequest } from "../../models/request/keys.request";
-import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
-import { LogService } from "../../platform/abstractions/log.service";
-import { Utils } from "../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { ApiService } from "../../../abstractions/api.service";
+import { OrganizationService } from "../../../admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationUserType } from "../../../admin-console/enums";
+import { Organization } from "../../../admin-console/models/domain/organization";
+import { AccountService } from "../../../auth/abstractions/account.service";
+import { InternalMasterPasswordServiceAbstraction } from "../../../auth/abstractions/master-password.service.abstraction";
+import { TokenService } from "../../../auth/abstractions/token.service";
+import { IdentityTokenResponse } from "../../../auth/models/response/identity-token.response";
+import { KeysRequest } from "../../../models/request/keys.request";
+import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
+import { LogService } from "../../../platform/abstractions/log.service";
+import { Utils } from "../../../platform/misc/utils";
+import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import {
   ActiveUserState,
   KEY_CONNECTOR_DISK,
   StateProvider,
   UserKeyDefinition,
-} from "../../platform/state";
-import { UserId } from "../../types/guid";
-import { MasterKey } from "../../types/key";
+} from "../../../platform/state";
+import { UserId } from "../../../types/guid";
+import { MasterKey } from "../../../types/key";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "../abstractions/key-connector.service";
-import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
-import { TokenService } from "../abstractions/token.service";
-import { KeyConnectorUserKeyRequest } from "../models/request/key-connector-user-key.request";
-import { SetKeyConnectorKeyRequest } from "../models/request/set-key-connector-key.request";
-import { IdentityTokenResponse } from "../models/response/identity-token.response";
+import { KeyConnectorUserKeyRequest } from "../models/key-connector-user-key.request";
+import { SetKeyConnectorKeyRequest } from "../models/set-key-connector-key.request";
 
 export const USES_KEY_CONNECTOR = new UserKeyDefinition<boolean | null>(
   KEY_CONNECTOR_DISK,
