@@ -479,22 +479,6 @@
   "length": {
     "message": "Garums"
   },
-  "uppercase": {
-    "message": "Lielie burti (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Mazie burti (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Cipari (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Īpašās rakstzīmes (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Iekļaut",
     "description": "Card header for password generator include block"
@@ -526,10 +510,6 @@
   "specialCharactersDescription": {
     "message": "Iekļaut īpašās rakstzīmes",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Vārdu skaits"
@@ -669,8 +649,8 @@
   "browserNotSupportClipboard": {
     "message": "Pārlūks neatbalsta vienkāršo ievietošanu starpliktuvē. Tā vietā tas jāievieto starpliktuvē pašrocīgi."
   },
-  "verifyIdentity": {
-    "message": "Identitātes apliecināšana"
+  "verifyYourIdentity": {
+    "message": "Apliecināt savu identitāti"
   },
   "weDontRecognizeThisDevice": {
     "message": "Mēs neatpazīstam šo ierīci. Jāievada kods, kas tika nosūtīts e-pastā, lai apliecinātu savu identitāti."
@@ -1069,6 +1049,56 @@
   },
   "notificationAddSave": {
     "message": "Jā, saglabāt"
+  },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ saglabāts Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ atjaunināts Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Saglabāt kā jaunu pieteikšanās vienumu",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Atjaunināt pieteikšanās vienumu",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Saglabāt pieteikšanās vienumu?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Atjaunināt esošo pieteikšanās vienumu?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Pieteikšanās vienums saglabāts",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Pieteikšanās vienums atjaunināts",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Kļūda saglabāšanas laikā",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Ak nē! Mēs nevarējā šo saglabāt. Jāmēģina pašrocīgi ievadīt informāciju.",
+    "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
     "message": "Vaicāt atjaunināt esošu pieteikšanās vienumu"
@@ -4077,6 +4107,9 @@
   "activeAccount": {
     "message": "Pašlaik izmantotais konts"
   },
+  "bitwardenAccount": {
+    "message": "Bitwarden konts"
+  },
   "availableAccounts": {
     "message": "Pieejamie konti"
   },
@@ -5110,5 +5143,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "Lai izmantotu atslēgšanu ar biometriju, lūgums atjaunināt darbvirsmas lietotni vai atspējot atslēgšanu ar pirkstu nospiedumu darbvirsmas iestatījumos."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

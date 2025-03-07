@@ -1,6 +1,6 @@
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { SiteId } from "@bitwarden/common/tools/extension";
+import { ExtensionProfileMetadata } from "@bitwarden/common/tools/extension/type";
 import { ObjectKey } from "@bitwarden/common/tools/state/object-key";
 import { Constraints } from "@bitwarden/common/tools/types";
 
@@ -61,13 +61,7 @@ export type CoreProfileMetadata<Options> = {
  *  manager. Extension profiles store their data
  *  using the extension system.
  */
-export type ExtensionProfileMetadata<Options, Site extends SiteId> = {
-  /** distinguishes profile metadata types */
-  type: "extension";
-
-  /** The extension site described by this metadata */
-  site: Site;
-
+export type ForwarderProfileMetadata<Options> = ExtensionProfileMetadata<Options, "forwarder"> & {
   constraints: ProfileConstraints<Options>;
 };
 
@@ -77,4 +71,4 @@ export type ExtensionProfileMetadata<Options, Site extends SiteId> = {
  */
 export type ProfileMetadata<Options> =
   | CoreProfileMetadata<Options>
-  | ExtensionProfileMetadata<Options, "forwarder">;
+  | ForwarderProfileMetadata<Options>;

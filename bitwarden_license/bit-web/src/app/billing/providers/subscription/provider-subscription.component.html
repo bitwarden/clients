@@ -1,7 +1,7 @@
 <app-header></app-header>
 <bit-container>
   <ng-container *ngIf="!firstLoaded && loading">
-    <i class="bwi bwi-spinner bwi-spin text-muted" title="{{ 'loading' | i18n }}"></i>
+    <i class="bwi bwi-spinner bwi-spin tw-text-muted" title="{{ 'loading' | i18n }}"></i>
     <span class="tw-sr-only">{{ "loading" | i18n }}</span>
   </ng-container>
   <ng-container *ngIf="firstLoaded && !loading">
@@ -11,7 +11,7 @@
     <ng-container>
       <div class="tw-flex-col">
         <strong
-          class="tw-block tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300 pb-2"
+          class="tw-block tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300 tw-pb-2"
           >{{ "details" | i18n }} &#160;<span
             bitBadge
             variant="success"

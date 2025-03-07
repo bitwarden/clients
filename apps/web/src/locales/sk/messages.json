@@ -6,7 +6,7 @@
     "message": "Kritické aplikácie"
   },
   "noCriticalAppsAtRisk": {
-    "message": "No critical applications at risk"
+    "message": "Nie sú ohrozené žiadne kritické aplikácie"
   },
   "accessIntelligence": {
     "message": "Prehľad o prístupe"
@@ -200,6 +200,9 @@
   },
   "notes": {
     "message": "Poznámky"
+  },
+  "privateNote": {
+    "message": "Private note"
   },
   "note": {
     "message": "Poznámka"
@@ -1179,8 +1182,8 @@
   "authenticationSessionTimedOut": {
     "message": "Relácia overovania skončila. Znovu spustite proces prihlásenia."
   },
-  "verifyIdentity": {
-    "message": "Overte svoju totožnosť"
+  "verifyYourIdentity": {
+    "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "Nespoznávame toto zariadenie. Pre overenie vašej identity zadajte kód ktorý bol zaslaný na váš email."
@@ -2251,6 +2254,9 @@
   },
   "revokeAccess": {
     "message": "Zrušiť prístup"
+  },
+  "revoke": {
+    "message": "Odvolať"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Tento poskytovateľ overenia je povolený pre váš účet."
@@ -5081,11 +5087,39 @@
   "requireSsoExemption": {
     "message": "Vlastníci a administrátori organizácie sú vyňatí z uplatnenia tohto pravidla."
   },
+  "limitSendViews": {
+    "message": "Limit views"
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
   "sendTypeFile": {
     "message": "Súbor"
   },
   "sendTypeText": {
     "message": "Text"
+  },
+  "sendPasswordDescV3": {
+    "message": "Add an optional password for recipients to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Vytvoriť nový Send",
@@ -5111,19 +5145,15 @@
     "message": "Zmazať Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Naozaj chcete odstrániť tento Send?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Aký typ Send to je?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Are you sure you want to permanently delete this Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Dátum vymazania"
   },
-  "deletionDateDesc": {
-    "message": "Odoslanie bude natrvalo odstránené v zadaný dátum a čas.",
+  "deletionDateDescV2": {
+    "message": "The Send will be permanently deleted on this date.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5135,21 +5165,6 @@
   },
   "maxAccessCount": {
     "message": "Maximálny počet prístupov"
-  },
-  "maxAccessCountDesc": {
-    "message": "Ak je nastavené, používatelia už nebudú mať prístup k tomuto Sendu po dosiahnutí maximálneho počtu prístupov.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Súčasný počet prístupov"
-  },
-  "sendPasswordDesc": {
-    "message": "Voliteľne môžete vyžadovať heslo pre používateľov na prístup k tomuto odoslaniu.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Zabezpečená poznámka o tomto Odoslaní.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Vypnuté"
@@ -5177,13 +5192,6 @@
   "removePasswordConfirmation": {
     "message": "Naozaj chcete odstrániť heslo?"
   },
-  "hideEmail": {
-    "message": "Skryť moju emailovú adresu pred príjemcami."
-  },
-  "disableThisSend": {
-    "message": "Vypnúť tento Send, aby k nemu nikto nemal prístup.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Všetky Sendy"
   },
@@ -5193,6 +5201,9 @@
   },
   "pendingDeletion": {
     "message": "Čakajúce odstránenie"
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
   },
   "expired": {
     "message": "Expirované"
@@ -5415,13 +5426,6 @@
     "message": "Nedovoľte používateľom skryť svoju e-mailovú adresu pred príjemcami pri vytváraní alebo úpravách Sendu.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "V súčasnosti platia nasledujúce pravidlá organizácie:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Používatelia nemajú povolené skryť svoju e-mailovú adresu pred príjemcami pri vytváraní alebo úpravách Sendu.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "Upravená politika $ID$.",
     "placeholders": {
@@ -5520,27 +5524,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Zakázať osobné vlastníctvo pre používateľov organizácie"
-  },
-  "textHiddenByDefault": {
-    "message": "Pri prístupe k Odoslaniu, predvolene skryť text",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Priateľský názov pre popísanie tohto Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Text, ktorý chcete odoslať."
-  },
-  "sendFileDesc": {
-    "message": "Súbor, ktorý chcete odoslať."
-  },
-  "copySendLinkOnSave": {
-    "message": "Kopírovať odkaz na zdieľanie tohto Send do schránky počas ukladania."
-  },
-  "sendLinkLabel": {
-    "message": "Odkaz na Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Send",
@@ -5689,6 +5672,9 @@
   },
   "dateParsingError": {
     "message": "Pri ukladaní dátumov odstránenia a vypršania platnosti sa vyskytla chyba."
+  },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
   },
   "webAuthnFallbackMsg": {
     "message": "Na overenie 2FA, prosím, kliknite na tlačidlo nižšie."
@@ -9848,8 +9834,14 @@
   "learnMoreAboutApi": {
     "message": "Dozvedieť sa viac o Bitwarden API"
   },
+  "fileSend": {
+    "message": "File Send"
+  },
   "fileSends": {
     "message": "Sendy so súborom"
+  },
+  "textSend": {
+    "message": "Text Send"
   },
   "textSends": {
     "message": "Textové Sendy"
@@ -10083,10 +10075,6 @@
   "specialCharactersDescription": {
     "message": "Zahrnúť špeciálne znaky",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Priložiť prílohu"
@@ -10487,6 +10475,9 @@
   "assignedExceedsAvailable": {
     "message": "Počet pridelených sedení presahuje počet dostupných sedení."
   },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Odstrániť odomknutie PIN kódom"
   },
@@ -10503,7 +10494,7 @@
     }
   },
   "upgradeForFullEvents": {
-    "message": "Get full access to organization event logs by upgrading to a Teams or Enterprise plan."
+    "message": "Prechodom na plán Teams alebo Enterprise získate úplný prístup k denníku udalostí organizácie."
   },
   "upgradeEventLogTitle": {
     "message": "Upgrade for real event log data"

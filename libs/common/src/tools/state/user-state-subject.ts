@@ -523,6 +523,7 @@ export class UserStateSubject<
 
   private onError(value: any) {
     if (!this.isDisposed) {
+      this.log.debug(value, "forwarding error to subscribers");
       this.output.error(value);
     }
 

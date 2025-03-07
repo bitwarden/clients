@@ -314,7 +314,7 @@ export class AppComponent implements OnDestroy, OnInit {
 
     await this.stateEventRunnerService.handleEvent("logout", userId);
 
-    await this.searchService.clearIndex();
+    await this.searchService.clearIndex(userId);
     this.authService.logOut(async () => {
       await this.stateService.clean({ userId: userId });
       await this.accountService.clean(userId);

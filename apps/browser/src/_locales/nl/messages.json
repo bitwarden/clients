@@ -479,22 +479,6 @@
   "length": {
     "message": "Lengte"
   },
-  "uppercase": {
-    "message": "Hoofdletters (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Kleine letters (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Cijfers (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Speciale tekens (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Toevoegen",
     "description": "Card header for password generator include block"
@@ -526,10 +510,6 @@
   "specialCharactersDescription": {
     "message": "Speciale tekens toevoegen",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Aantal woorden"
@@ -669,8 +649,8 @@
   "browserNotSupportClipboard": {
     "message": "Je webbrowser ondersteunt kopiëren naar plakbord niet. Kopieer handmatig."
   },
-  "verifyIdentity": {
-    "message": "Identiteit verifiëren"
+  "verifyYourIdentity": {
+    "message": "Verifieer je identiteit"
   },
   "weDontRecognizeThisDevice": {
     "message": "We herkennen dit apparaat niet. Voer de code in die naar je e-mail is verzonden om je identiteit te verifiëren."
@@ -1069,6 +1049,56 @@
   },
   "notificationAddSave": {
     "message": "Ja, nu opslaan"
+  },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ opgeslagen in Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ bijgewerkt in Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Als nieuwe login opslaan",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Login bijwerken",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Login opslaan?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Bestaande login bijwerken?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Login opgeslagen",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Login bijgewerkt",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Fout bij opslaan",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Oh nee! We konden dit niet opslaan. Probeer de gegevens handmatig in te voeren.",
+    "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
     "message": "Vraag om bijwerken bestaande login"
@@ -4077,6 +4107,9 @@
   "activeAccount": {
     "message": "Actief account"
   },
+  "bitwardenAccount": {
+    "message": "Bitwarden-account"
+  },
   "availableAccounts": {
     "message": "Beschikbare accounts"
   },
@@ -5110,5 +5143,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "Als je biometrische gegevens wilt gebruiken, moet je de desktopapplicatie bijwerken of vingerafdrukontgrendeling uitschakelen in de instellingen van de desktopapplicatie."
+  },
+  "changeAtRiskPassword": {
+    "message": "Risicovol wachtwoord wijzigen"
   }
 }
