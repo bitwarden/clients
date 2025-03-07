@@ -921,12 +921,12 @@ describe("AutofillService", () => {
         .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
         .mockImplementation(() => of(true));
       jest.spyOn(autofillService, "getShouldAutoCopyTotp").mockResolvedValue(true);
-      jest.spyOn(totpService, "getCode").mockResolvedValue(totpCode);
+      totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
 
       const autofillResult = await autofillService.doAutoFill(autofillOptions);
 
       expect(autofillService.getShouldAutoCopyTotp).toHaveBeenCalled();
-      expect(totpService.getCode).toHaveBeenCalledWith(autofillOptions.cipher.login.totp);
+      expect(totpService.getCode$).toHaveBeenCalledWith(autofillOptions.cipher.login.totp);
       expect(autofillResult).toBe(totpCode);
     });
 
@@ -940,7 +940,7 @@ describe("AutofillService", () => {
       const autofillResult = await autofillService.doAutoFill(autofillOptions);
 
       expect(autofillService.getShouldAutoCopyTotp).not.toHaveBeenCalled();
-      expect(totpService.getCode).not.toHaveBeenCalled();
+      expect(totpService.getCode$).not.toHaveBeenCalled();
       expect(autofillResult).toBeNull();
     });
 
@@ -956,12 +956,12 @@ describe("AutofillService", () => {
     it("returns a null value if the login does not contain a TOTP value", async () => {
       autofillOptions.cipher.login.totp = undefined;
       jest.spyOn(autofillService, "getShouldAutoCopyTotp");
-      jest.spyOn(totpService, "getCode");
+      jest.spyOn(totpService, "getCode$");
 
       const autofillResult = await autofillService.doAutoFill(autofillOptions);
 
       expect(autofillService.getShouldAutoCopyTotp).not.toHaveBeenCalled();
-      expect(totpService.getCode).not.toHaveBeenCalled();
+      expect(totpService.getCode$).not.toHaveBeenCalled();
       expect(autofillResult).toBeNull();
     });
 
@@ -984,12 +984,12 @@ describe("AutofillService", () => {
         .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
         .mockImplementation(() => of(true));
       jest.spyOn(autofillService, "getShouldAutoCopyTotp").mockResolvedValue(false);
-      jest.spyOn(totpService, "getCode");
+      jest.spyOn(totpService, "getCode$");
 
       const autofillResult = await autofillService.doAutoFill(autofillOptions);
 
       expect(autofillService.getShouldAutoCopyTotp).toHaveBeenCalled();
-      expect(totpService.getCode).not.toHaveBeenCalled();
+      expect(totpService.getCode$).not.toHaveBeenCalled();
       expect(autofillResult).toBeNull();
     });
   });

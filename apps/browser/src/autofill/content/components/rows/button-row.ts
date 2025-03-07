@@ -11,16 +11,18 @@ import { DropdownMenu } from "../dropdown-menu";
 export function ButtonRow({
   theme,
   buttonAction,
+  buttonText,
 }: {
   theme: Theme;
   buttonAction: (e: Event) => void;
+  buttonText: string;
 }) {
   return html`
     <div class=${buttonRowStyles}>
       ${[
         ActionButton({
           buttonAction: buttonAction,
-          buttonText: "Action Button",
+          buttonText,
           theme,
         }),
         DropdownContainer({
