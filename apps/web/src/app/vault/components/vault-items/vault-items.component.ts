@@ -79,6 +79,13 @@ export class VaultItemsComponent {
 
   @Output() onEvent = new EventEmitter<VaultItemEvent>();
 
+  protected limitItemDeletion$ = this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion);
+  protected editableItems: VaultItem[] = [];
+  protected dataSource = new TableDataSource<VaultItem>();
+  protected selection = new SelectionModel<VaultItem>(true, [], true);
+  protected canDeleteSelected$: Observable<boolean>;
+  protected canRestoreSelected$: Observable<boolean>;
+
   constructor(
     protected cipherAuthorizationService: CipherAuthorizationService,
     private configService: ConfigService,
@@ -90,7 +97,7 @@ export class VaultItemsComponent {
           .filter((item) => item.cipher)
           .map((item) => item.cipher);
 
-        if (ciphers.length === 0) {
+        if (this.selection.selected.length === 0) {
           return of(true);
         }
 
@@ -109,14 +116,30 @@ export class VaultItemsComponent {
         return canDelete$;
       }),
     );
-  }
 
-  protected limitItemDeletion$ = this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion);
-  protected editableItems: VaultItem[] = [];
-  protected dataSource = new TableDataSource<VaultItem>();
-  protected selection = new SelectionModel<VaultItem>(true, [], true);
-  protected canDeleteSelected$: Observable<boolean> = of(true);
-  protected canRestoreSelected$: Observable<boolean> = of(true);
+    this.canRestoreSelected$ = this.selection.changed.pipe(
+      startWith(null),
+      switchMap(() => {
+        const ciphers = this.selection.selected
+          .filter((item) => item.cipher)
+          .map((item) => item.cipher);
+
+        if (this.selection.selected.length === 0) {
+          return of(true);
+        }
+
+        const canRestoreCiphers$ = ciphers.map((c) =>
+          cipherAuthorizationService.canRestoreCipher$(c, this.showAdminActions),
+        );
+
+        const canRestore$ = combineLatest(canRestoreCiphers$).pipe(
+          map((results) => results.every((item) => item)),
+        );
+
+        return canRestore$;
+      }),
+    );
+  }
 
   get showExtraColumn() {
     return this.showCollections || this.showGroups || this.showOwner;

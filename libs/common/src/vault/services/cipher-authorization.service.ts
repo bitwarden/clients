@@ -105,7 +105,7 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
           }
         }
 
-        if (featureFlagEnabled && !!cipher.permissions) {
+        if (featureFlagEnabled) {
           return of(cipher.permissions.delete);
         }
 
@@ -135,24 +135,20 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
    * {@link CipherAuthorizationService.canRestoreCipher$}
    */
   canRestoreCipher$(cipher: CipherLike, isAdminConsoleAction?: boolean): Observable<boolean> {
-    if (cipher.organizationId == null) {
-      return of(true);
-    }
-
     return this.organization$(cipher).pipe(
-      switchMap((organization) => {
+      map((organization) => {
         if (isAdminConsoleAction) {
           // If the user is an admin, they can restore an unassigned cipher
           if (!cipher.collectionIds || cipher.collectionIds.length === 0) {
-            return of(organization?.canEditUnassignedCiphers === true);
+            return organization?.canEditUnassignedCiphers === true;
           }
 
           if (organization?.canEditAllCiphers) {
-            return of(true);
+            return true;
           }
         }
 
-        return of(cipher.permissions.restore);
+        return cipher.permissions.restore;
       }),
     );
   }

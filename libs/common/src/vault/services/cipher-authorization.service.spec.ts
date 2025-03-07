@@ -75,15 +75,6 @@ describe("CipherAuthorizationService", () => {
   });
 
   describe("canRestoreCipher$", () => {
-    it("should return true if cipher has no organizationId", (done) => {
-      const cipher = createMockCipher(null, []) as CipherView;
-
-      cipherAuthorizationService.canRestoreCipher$(cipher).subscribe((result) => {
-        expect(result).toBe(true);
-        done();
-      });
-    });
-
     it("should return true if isAdminConsoleAction and cipher is unassigned", (done) => {
       const cipher = createMockCipher("org1", []) as CipherView;
       const organization = createMockOrganization({ canEditUnassignedCiphers: true });
