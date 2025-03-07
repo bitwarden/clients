@@ -61,11 +61,21 @@ export class PopupViewCacheService implements ViewCacheService {
 
     this.router.events
       .pipe(
-        filter((e) => e instanceof NavigationEnd),
+        filter((e) => {
+          return e instanceof NavigationEnd;
+        }),
         /** Skip the first navigation triggered by `popupRouterCacheGuard` */
         skip(1),
+        filter((e: NavigationEnd) =>
+          // viewing/editing a cipher and navigating back to the vault list should not clear the cache
+          ["/view-cipher", "/edit-cipher", "/tabs/vault"].every(
+            (route) => !e.urlAfterRedirects.startsWith(route),
+          ),
+        ),
       )
-      .subscribe(() => this.clearState());
+      .subscribe((e) => {
+        return this.clearState();
+      });
   }
 
   /**

@@ -40,6 +40,8 @@ export const SAVE_VIEW_CACHE_COMMAND = new CommandDefinition<{
 
 export const ClEAR_VIEW_CACHE_COMMAND = new CommandDefinition("clear-view-cache");
 
+export const TAB_CHANGED_COMMAND = new CommandDefinition("tabChanged");
+
 export class PopupViewCacheBackgroundService {
   private popupViewCacheState = this.globalStateProvider.get(POPUP_VIEW_CACHE_KEY);
   private popupRouteHistoryState = this.globalStateProvider.get(POPUP_ROUTE_HISTORY_KEY);
@@ -68,6 +70,11 @@ export class PopupViewCacheBackgroundService {
           })),
         ),
       )
+      .subscribe();
+
+    this.messageListener
+      .messages$(TAB_CHANGED_COMMAND)
+      .pipe(concatMap(() => this.clearState()))
       .subscribe();
 
     this.messageListener
