@@ -479,22 +479,6 @@
   "length": {
     "message": "Länge"
   },
-  "uppercase": {
-    "message": "Großbuchstaben (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Kleinbuchstaben (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Zahlen (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Sonderzeichen (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Einschließen",
     "description": "Card header for password generator include block"
@@ -526,10 +510,6 @@
   "specialCharactersDescription": {
     "message": "Sonderzeichen einschließen",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Anzahl der Wörter"
@@ -669,8 +649,8 @@
   "browserNotSupportClipboard": {
     "message": "Den Browser unterstützt das einfache Kopieren nicht. Bitte kopiere es manuell."
   },
-  "verifyIdentity": {
-    "message": "Identität verifizieren"
+  "verifyYourIdentity": {
+    "message": "Verify your identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "Wir erkennen dieses Gerät nicht. Gib den an deine E-Mail-Adresse gesendeten Code ein, um deine Identität zu verifizieren."
@@ -1069,6 +1049,56 @@
   },
   "notificationAddSave": {
     "message": "Ja, jetzt speichern"
+  },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ in Bitwarden gespeichert.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ in Bitwarden aktualisiert.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Save as new login",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Update login",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Save login?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Update existing login?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Login saved",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Login updated",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Error saving",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
     "message": "Nach dem Aktualisieren bestehender Zugangsdaten fragen"
@@ -2447,7 +2477,7 @@
     "message": "Gefährdete Passwörter"
   },
   "atRiskPasswordDescSingleOrg": {
-    "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
+    "message": "$ORGANIZATION$ fordert dich auf, ein Passwort zu ändern, da es gefährdet ist.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2456,7 +2486,7 @@
     }
   },
   "atRiskPasswordsDescSingleOrgPlural": {
-    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at-risk.",
+    "message": "$ORGANIZATION$ fordert dich auf, diese $COUNT$ Passwörter zu ändern, da diese gefährdet sind.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2469,7 +2499,7 @@
     }
   },
   "atRiskPasswordsDescMultiOrgPlural": {
-    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at-risk.",
+    "message": "Deine Organisationen fordern dich auf, diese $COUNT$ Passwörter zu ändern, da diese gefährdet sind.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2496,34 +2526,34 @@
     "message": "Aktualisiere deine Einstellungen, damit du deine Passwörter schnell automatisch ausfüllen kannst und neue generieren kannst"
   },
   "reviewAtRiskLogins": {
-    "message": "Review at-risk logins"
+    "message": "Überprüfung gefährdeter Zugangsdaten"
   },
   "reviewAtRiskPasswords": {
-    "message": "Review at-risk passwords"
+    "message": "Überprüfung gefährdeter Passwörter"
   },
   "reviewAtRiskLoginsSlideDesc": {
-    "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
+    "message": "Die Passwörter deiner Organisationen sind gefährdet, weil sie schwach, wiederverwendet und/oder ungeschützt sind.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
   "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Illustration of a list of logins that are at-risk"
+    "message": "Illustration einer Liste gefährdeter Zugangsdaten"
   },
   "generatePasswordSlideDesc": {
-    "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
+    "message": "Generiere schnell ein starkes, einzigartiges Passwort mit dem Bitwarden-Autofill-Menü auf der gefährdeten Website.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
   "generatePasswordSlideImgAlt": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+    "message": "Illustration des Bitwarden Autofill-Menüs, das ein generiertes Passwort anzeigt"
   },
   "updateInBitwarden": {
-    "message": "Update in Bitwarden"
+    "message": "In Bitwarden aktualisieren"
   },
   "updateInBitwardenSlideDesc": {
-    "message": "Bitwarden will then prompt you to update the password in the password manager.",
+    "message": "Bitwarden wird dich dann auffordern, das Passwort im Passwort-Manager zu aktualisieren.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
   "updateInBitwardenSlideImgAlt": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+    "message": "Illustration einer Bitwarden-Benachrichtigung, die den Benutzer dazu auffordert, den Login zu aktualisieren"
   },
   "turnOnAutofill": {
     "message": "Auto-Ausfüllen aktivieren"
@@ -4077,6 +4107,9 @@
   "activeAccount": {
     "message": "Aktives Konto"
   },
+  "bitwardenAccount": {
+    "message": "Bitwarden Account"
+  },
   "availableAccounts": {
     "message": "Verfügbare Konten"
   },
@@ -5110,5 +5143,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "Um biometrisches Entsperren zu verwenden, aktualisiere bitte deine Desktop-Anwendung oder deaktiviere die Entsperrung per Fingerabdruck in den Desktop-Einstellungen."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

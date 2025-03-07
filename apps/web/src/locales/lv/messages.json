@@ -201,6 +201,9 @@
   "notes": {
     "message": "Piezīmes"
   },
+  "privateNote": {
+    "message": "Personiska piezīme"
+  },
   "note": {
     "message": "Piezīme"
   },
@@ -1179,8 +1182,8 @@
   "authenticationSessionTimedOut": {
     "message": "Iestājās autentificēšanās sesijas noildze. Lūgums sākt pieteikšanos no jauna."
   },
-  "verifyIdentity": {
-    "message": "Jāapliecina sava identitāte"
+  "verifyYourIdentity": {
+    "message": "Apliecināt savu identitāti"
   },
   "weDontRecognizeThisDevice": {
     "message": "Mēs neatpazīstam šo ierīci. Jāievada kods, kas tika nosūtīts e-pastā, lai apliecinātu savu identitāti."
@@ -2251,6 +2254,9 @@
   },
   "revokeAccess": {
     "message": "Atsaukt piekļuvi"
+  },
+  "revoke": {
+    "message": "Atsaukt"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Kontā ir iespējots šis divpakāpju pieteikšanās nodrošinātājs."
@@ -5081,11 +5087,39 @@
   "requireSsoExemption": {
     "message": "Uz apvienības īpašniekiem un pārvaldītājiem neattiecas šīs nosacījumu kopas piemērošana."
   },
+  "limitSendViews": {
+    "message": "Ierobežot skatījumus"
+  },
+  "limitSendViewsHint": {
+    "message": "Neviens nevar apskatīt šo Send pēc tam, kad ir sasniegts ierobežojums.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "Atlikuši $ACCESSCOUNT$ skatījumi",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Informācija par Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Kopīgojamais teksts"
+  },
   "sendTypeFile": {
     "message": "Datne"
   },
   "sendTypeText": {
     "message": "Teksts"
+  },
+  "sendPasswordDescV3": {
+    "message": "Pēc izvēles var pievienot paroli saņēmējiem, lai varētu piekļūt šim Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Jauns Send",
@@ -5111,19 +5145,15 @@
     "message": "Izdzēst Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Vai tiešām izdzēst šo Send?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Kāds ir šī Send veids?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Vai tiešām neatgriezeniski izdzēst šo Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Dzēšanas datums"
   },
-  "deletionDateDesc": {
-    "message": "Send tiks neatgriezeniski izdzēsts norādītajā datumā un laikā.",
+  "deletionDateDescV2": {
+    "message": "Send šajā datumā tiks neatgriezeniski izdzēsts.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5135,21 +5165,6 @@
   },
   "maxAccessCount": {
     "message": "Lielākais pieļaujamais piekļuves reižu skaits"
-  },
-  "maxAccessCountDesc": {
-    "message": "Ja iestatīts, lietotāji nevarēs piekļūt šim Send, kad tiks sasniegts lielākais pieļaujamais piekļūšanas reižu skaits.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Pašreizējais piekļuvju skaits"
-  },
-  "sendPasswordDesc": {
-    "message": "Pēc izvēles pieprasīt paroli, lai lietotāji varētu piekļūt šim Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Personīgas piezīmes par šo Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Atspējots"
@@ -5177,13 +5192,6 @@
   "removePasswordConfirmation": {
     "message": "Vai tiešām noņemt paroli?"
   },
-  "hideEmail": {
-    "message": "Slēpt e-pasta adresi no saņēmējiem."
-  },
-  "disableThisSend": {
-    "message": "Izslēgt šo Send, lai neviens tam nevarētu piekļūt.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Visi Send"
   },
@@ -5193,6 +5201,9 @@
   },
   "pendingDeletion": {
     "message": "Gaida dzēšanu"
+  },
+  "hideTextByDefault": {
+    "message": "Pēc noklusējuma paslēpt tekstu"
   },
   "expired": {
     "message": "Beidzies izmantošanas laiks"
@@ -5415,13 +5426,6 @@
     "message": "Vienmēr rādīt dalībnieka e-pasta adresi saņēmējiem, kad tiek izveidots vai labots Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "Ir spēkā zemāk uzskaitītie apvienības nosacījumi:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Lietotājiem nav ļauts slēpt e-pasta adresi no saņēmējiem, kad tiek izveidots vai labots Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "Nosacījums $ID$ izmainīts.",
     "placeholders": {
@@ -5520,27 +5524,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Atspējot personīgās īpašumtiesības apvienības lietotājiem"
-  },
-  "textHiddenByDefault": {
-    "message": "Pēc noklusējuma paslēpt tekstu, kad piekļūst Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Lasāms nosaukums, kas apraksta šo Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Teksts, kuru ir vēlme nosūtīt."
-  },
-  "sendFileDesc": {
-    "message": "Datne, kuru ir vēlme nosūtīt."
-  },
-  "copySendLinkOnSave": {
-    "message": "Saglabāšanas brīdī ievietot saiti starpliktuvē, lai kopīgotu šo Send."
-  },
-  "sendLinkLabel": {
-    "message": "Send saite",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Send",
@@ -5689,6 +5672,9 @@
   },
   "dateParsingError": {
     "message": "Atgadījās kļūda, saglabājot dzēšanas un derīguma beigu datumus."
+  },
+  "hideYourEmail": {
+    "message": "Paslēpt e-pasta adresi no apskatītājiem."
   },
   "webAuthnFallbackMsg": {
     "message": "Lai apstiprinātu 2FA, lūgums klikšķināt uz zemāk esošās pogas."
@@ -9848,8 +9834,14 @@
   "learnMoreAboutApi": {
     "message": "Uzzināt vairāk par Bitwarden API"
   },
+  "fileSend": {
+    "message": "Datņu Send"
+  },
   "fileSends": {
     "message": "Datņu Send"
+  },
+  "textSend": {
+    "message": "Teksta Send"
   },
   "textSends": {
     "message": "Teksta Send"
@@ -10083,10 +10075,6 @@
   "specialCharactersDescription": {
     "message": "Iekļaut īpašās rakstzīmes",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Pievienot pielikumu"
@@ -10486,6 +10474,9 @@
   },
   "assignedExceedsAvailable": {
     "message": "Piešķirtās vietas pārsniedz pieejamās vietas."
+  },
+  "changeAtRiskPassword": {
+    "message": "Mainīt riskam pakļautu paroli"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Noņemt atslēgšanu ar PIN"

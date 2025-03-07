@@ -201,6 +201,9 @@
   "notes": {
     "message": "備註"
   },
+  "privateNote": {
+    "message": "Private note"
+  },
   "note": {
     "message": "備註"
   },
@@ -1179,8 +1182,8 @@
   "authenticationSessionTimedOut": {
     "message": "此驗證工作階段已逾時。請重試登入。"
   },
-  "verifyIdentity": {
-    "message": "核實你的身份"
+  "verifyYourIdentity": {
+    "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
@@ -2251,6 +2254,9 @@
   },
   "revokeAccess": {
     "message": "撤銷存取權限"
+  },
+  "revoke": {
+    "message": "Revoke"
   },
   "twoStepLoginProviderEnabled": {
     "message": "您的帳戶已啟用此兩步驟登入方式。"
@@ -5081,11 +5087,39 @@
   "requireSsoExemption": {
     "message": "組織擁有者與管理員不受此原則的執行影響。"
   },
+  "limitSendViews": {
+    "message": "Limit views"
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
   "sendTypeFile": {
     "message": "檔案"
   },
   "sendTypeText": {
     "message": "文字"
+  },
+  "sendPasswordDescV3": {
+    "message": "Add an optional password for recipients to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "建立新 Send",
@@ -5111,19 +5145,15 @@
     "message": "刪除 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "您確定要刪除此 Send 嗎？",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "這是什麽類型的 Send？",
+  "deleteSendPermanentConfirmation": {
+    "message": "Are you sure you want to permanently delete this Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "刪除日期"
   },
-  "deletionDateDesc": {
-    "message": "此 Send 將在指定的日期和時間後被永久刪除。",
+  "deletionDateDescV2": {
+    "message": "The Send will be permanently deleted on this date.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5135,21 +5165,6 @@
   },
   "maxAccessCount": {
     "message": "最大存取次數"
-  },
-  "maxAccessCountDesc": {
-    "message": "如果設定此選項，當達到最大存取次數時，使用者將無法再次存取此 Send。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "目前存取次數"
-  },
-  "sendPasswordDesc": {
-    "message": "選用。使用者需提供密碼才能存取此 Send。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "關於此 Send 的私人備註。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "已停用"
@@ -5177,13 +5192,6 @@
   "removePasswordConfirmation": {
     "message": "您確定要移除此密碼嗎？"
   },
-  "hideEmail": {
-    "message": "對收件人隱藏我的電子郵件地址。"
-  },
-  "disableThisSend": {
-    "message": "停用此 Send 以阻止任何人存取。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "所有 Send"
   },
@@ -5193,6 +5201,9 @@
   },
   "pendingDeletion": {
     "message": "等待刪除"
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
   },
   "expired": {
     "message": "已逾期"
@@ -5415,13 +5426,6 @@
     "message": "建立或編輯 Send 時，始終對收件人顯示成員的電子郵件地址。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "以下組織原則目前作用中："
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "使用者在建立或編輯 Send 時不允許隱藏他們的電子郵件地址。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "原則 $ID$ 已修改。",
     "placeholders": {
@@ -5520,27 +5524,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "停用組織使用者的個人擁有權"
-  },
-  "textHiddenByDefault": {
-    "message": "存取此 Send 時，將預設隱藏文字",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "用於描述此 Send 的易記名稱。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "您想要傳送的文字。"
-  },
-  "sendFileDesc": {
-    "message": "您想要傳送的檔案。"
-  },
-  "copySendLinkOnSave": {
-    "message": "儲存時複製連結至剪貼簿以便共用此 Send。"
-  },
-  "sendLinkLabel": {
-    "message": "Send 連結",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Send",
@@ -5689,6 +5672,9 @@
   },
   "dateParsingError": {
     "message": "儲存刪除日期和逾期日期時發生錯誤。"
+  },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
   },
   "webAuthnFallbackMsg": {
     "message": "要驗證您的 2FA，請點選下方的按鈕。"
@@ -9848,8 +9834,14 @@
   "learnMoreAboutApi": {
     "message": "瞭解更多關於 Bitwarden API 的資訊"
   },
+  "fileSend": {
+    "message": "File Send"
+  },
   "fileSends": {
     "message": "File Sends"
+  },
+  "textSend": {
+    "message": "Text Send"
   },
   "textSends": {
     "message": "Text Sends"
@@ -10083,10 +10075,6 @@
   "specialCharactersDescription": {
     "message": "包含特殊字元",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "新增附件"
@@ -10486,6 +10474,9 @@
   },
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"

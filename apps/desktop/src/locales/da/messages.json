@@ -543,10 +543,6 @@
     "message": "Inkludér specialtegn",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Antal ord"
   },
@@ -916,8 +912,8 @@
     "message": "Bekræft med Duo Security for din organisation vha. Duo Mobile-app, SMS, telefonopkald eller U2F-sikkerhedsnøgle.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
-    "message": "Bekræft identiteten"
+  "verifyYourIdentity": {
+    "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "Denne enhed er ikke genkendt. Angiv koden i den tilsendte e-mail for at bekræfte identiteten."
@@ -3604,5 +3600,8 @@
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Den anvendte webbrowserudvidelse er forældet. Opdatér den venligst eller deaktivér webbrowserintegreret fingeraftryksbekræftelse i computer-app indstillingerne."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

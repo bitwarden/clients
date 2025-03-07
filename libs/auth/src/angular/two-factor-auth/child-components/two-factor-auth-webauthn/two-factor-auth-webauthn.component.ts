@@ -108,6 +108,8 @@ export class TwoFactorAuthWebAuthnComponent implements OnInit, OnDestroy {
           this.webAuthnResultEmitter.emit({ token });
         },
         (error: string) => {
+          this.logService.error("WebAuthn error: ", error);
+
           this.toastService.showToast({
             variant: "error",
             title: this.i18nService.t("errorOccurred"),

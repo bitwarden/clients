@@ -543,10 +543,6 @@
     "message": "Συμπερίληψη ειδικών χαρακτήρων",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Αριθμός λέξεων"
   },
@@ -916,8 +912,8 @@
     "message": "Επαληθεύστε με το Duo Security για τον οργανισμό σας χρησιμοποιώντας την εφαρμογή Duo Mobile, μήνυμα SMS, τηλεφωνική κλήση ή κλειδί ασφαλείας U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
-    "message": "Επαληθεύστε την ταυτότητά σας"
+  "verifyYourIdentity": {
+    "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "Δεν αναγνωρίζουμε αυτή τη συσκευή. Εισάγετε τον κωδικό που στάλθηκε στο email σας για να επαληθεύσετε την ταυτότητά σας."
@@ -3604,5 +3600,8 @@
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Η επέκταση περιηγητή που χρησιμοποιείτε είναι ξεπερασμένη. Παρακαλούμε ενημερώστε την ή απενεργοποιήστε την επικύρωση δακτυλικών αποτυπωμάτων του προγράμματος περιήγησης στις ρυθμίσεις της εφαρμογής για την επιφάνεια εργασίας."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }
