@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { BulkEncryptService } from "@bitwarden/common/key-management/crypto/abstractions/bulk-encrypt.service";
 import { Decryptable } from "@bitwarden/common/platform/interfaces/decryptable.interface";
 import { InitializerMetadata } from "@bitwarden/common/platform/interfaces/initializer-metadata.interface";
@@ -11,7 +9,7 @@ import { EncryptService } from "../abstractions/encrypt.service";
  * @deprecated For the feature flag from PM-4154, remove once feature is rolled out
  */
 export class FallbackBulkEncryptService implements BulkEncryptService {
-  private featureFlagEncryptService: BulkEncryptService;
+  private featureFlagEncryptService?: BulkEncryptService;
 
   constructor(protected encryptService: EncryptService) {}
 

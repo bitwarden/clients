@@ -4,8 +4,8 @@ import { EncryptService } from "../../key-management/crypto/abstractions/encrypt
 
 export class ContainerService {
   constructor(
-    private keyService: KeyService,
-    private encryptService: EncryptService,
+    private keyService: KeyService | null,
+    private encryptService: EncryptService | null,
   ) {}
 
   attachToGlobal(global: any) {

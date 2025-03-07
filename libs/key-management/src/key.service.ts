@@ -545,7 +545,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     const keyPair = await this.cryptoFunctionService.rsaGenerateKeyPair(2048);
     const publicB64 = Utils.fromBufferToB64(keyPair[0]);
     const privateEnc = await this.encryptService.encrypt(keyPair[1], key);
-    return [publicB64, privateEnc];
+    return [publicB64, privateEnc!];
   }
 
   /**
@@ -732,10 +732,10 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     const storePin = await this.shouldStoreKey(KeySuffixOptions.Pin, userId);
     if (storePin) {
       // Decrypt userKeyEncryptedPin with user key
-      const pin = await this.encryptService.decryptToUtf8(
+      const pin = (await this.encryptService.decryptToUtf8(
         (await this.pinService.getUserKeyEncryptedPin(userId))!,
         key,
-      );
+      ))!;
 
       const pinKeyEncryptedUserKey = await this.pinService.createPinKeyEncryptedUserKey(
         pin,
@@ -827,9 +827,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     let protectedSymKey: EncString;
     if (encryptionKey.key.byteLength === 32) {
       const stretchedEncryptionKey = await this.keyGenerationService.stretchKey(encryptionKey);
-      protectedSymKey = await this.encryptService.encrypt(newSymKey, stretchedEncryptionKey);
+      protectedSymKey = (await this.encryptService.encrypt(newSymKey, stretchedEncryptionKey))!;
     } else if (encryptionKey.key.byteLength === 64) {
-      protectedSymKey = await this.encryptService.encrypt(newSymKey, encryptionKey);
+      protectedSymKey = (await this.encryptService.encrypt(newSymKey, encryptionKey))!;
     } else {
       throw new Error("Invalid key size.");
     }

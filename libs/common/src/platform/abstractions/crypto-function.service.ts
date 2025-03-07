@@ -49,7 +49,7 @@ export abstract class CryptoFunctionService {
   abstract aesDecryptFastParameters(
     data: string,
     iv: string,
-    mac: string,
+    mac: string | null,
     key: SymmetricCryptoKey,
   ): CbcDecryptParameters<Uint8Array | string>;
   abstract aesDecryptFast({
