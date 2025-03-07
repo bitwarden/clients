@@ -48,11 +48,11 @@ describe("DeviceTrustToastService", () => {
   };
 
   describe("setupListeners$", () => {
-    describe("given adminLoginApproved$ emits true and deviceTrusted$ emits true", () => {
+    describe("given adminLoginApproved$ emits and deviceTrusted$ emits", () => {
       beforeEach(() => {
         // Arrange
-        authRequestService.adminLoginApproved$ = of(true);
-        deviceTrustService.deviceTrusted$ = of(true);
+        authRequestService.adminLoginApproved$ = of(undefined);
+        deviceTrustService.deviceTrusted$ = of(undefined);
         sut = initService();
       });
 
@@ -77,10 +77,10 @@ describe("DeviceTrustToastService", () => {
       });
     });
 
-    describe("given adminLoginApproved$ emits true and deviceTrusted$ does not emit", () => {
+    describe("given adminLoginApproved$ emits and deviceTrusted$ does not emit", () => {
       beforeEach(() => {
         // Arrange
-        authRequestService.adminLoginApproved$ = of(true);
+        authRequestService.adminLoginApproved$ = of(undefined);
         deviceTrustService.deviceTrusted$ = EMPTY;
         sut = initService();
       });
@@ -106,11 +106,11 @@ describe("DeviceTrustToastService", () => {
       });
     });
 
-    describe("given adminLoginApproved$ does not emit and deviceTrusted$ emits true", () => {
+    describe("given adminLoginApproved$ does not emit and deviceTrusted$ emits", () => {
       beforeEach(() => {
         // Arrange
         authRequestService.adminLoginApproved$ = EMPTY;
-        deviceTrustService.deviceTrusted$ = of(true);
+        deviceTrustService.deviceTrusted$ = of(undefined);
         sut = initService();
       });
 
@@ -140,35 +140,6 @@ describe("DeviceTrustToastService", () => {
         // Arrange
         authRequestService.adminLoginApproved$ = EMPTY;
         deviceTrustService.deviceTrusted$ = EMPTY;
-        sut = initService();
-      });
-
-      it("should NOT trigger a toast for login approval", (done) => {
-        // Act
-        sut.setupListeners$.subscribe({
-          complete: () => {
-            expect(toastService.showToast).not.toHaveBeenCalledWith(loginApprovalToastOptions); // Assert
-            done();
-          },
-        });
-      });
-
-      it("should NOT trigger a toast for device trust", (done) => {
-        // Act
-        sut.setupListeners$.subscribe({
-          complete: () => {
-            expect(toastService.showToast).not.toHaveBeenCalledWith(deviceTrustedToastOptions); // Assert
-            done();
-          },
-        });
-      });
-    });
-
-    describe("given adminLoginApproved$ emits false and deviceTrusted$ emits false", () => {
-      beforeEach(() => {
-        // Arrange
-        authRequestService.adminLoginApproved$ = of(false);
-        deviceTrustService.deviceTrusted$ = of(false);
         sut = initService();
       });
 
