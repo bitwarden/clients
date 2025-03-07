@@ -543,10 +543,6 @@
     "message": "Sonderzeichen einschließen",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Anzahl der Wörter"
   },
@@ -916,8 +912,8 @@
     "message": "Nutze Duo Security, um dich mit der Duo-Mobile-App, SMS, per Anruf oder U2F-Sicherheitsschlüssel bei deiner Organisation zu verifizieren.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
-    "message": "Verifiziere deine Identität"
+  "verifyYourIdentity": {
+    "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "Wir erkennen dieses Gerät nicht. Gib den an deine E-Mail-Adresse gesendeten Code ein, um deine Identität zu verifizieren."
@@ -3510,25 +3506,25 @@
     "message": "Verwendung des SSH-Schlüssels bestätigen"
   },
   "agentForwardingWarningTitle": {
-    "message": "Warning: Agent Forwarding"
+    "message": "Warnung: Agent-Weiterleitung"
   },
   "agentForwardingWarningText": {
-    "message": "This request comes from a remote device that you are logged into"
+    "message": "Diese Anfrage kommt von einem entfernten Gerät, bei dem du angemeldet bist"
   },
   "sshkeyApprovalMessageInfix": {
     "message": "fragt den Zugriff an für"
   },
   "sshkeyApprovalMessageSuffix": {
-    "message": "in order to"
+    "message": "um"
   },
   "sshActionLogin": {
-    "message": "authenticate to a server"
+    "message": "sich bei einem Server anzumelden"
   },
   "sshActionSign": {
-    "message": "sign a message"
+    "message": "eine Nachricht zu signieren"
   },
   "sshActionGitSign": {
-    "message": "sign a git commit"
+    "message": "einen Git Commit zu signieren"
   },
   "unknownApplication": {
     "message": "Eine Anwendung"
@@ -3604,5 +3600,8 @@
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Die von dir verwendete Browser-Erweiterung ist veraltet. Bitte aktualisiere sie oder deaktiviere die Fingerabdrucküberprüfung der Browser-Integration in den Einstellungen der Desktop-App."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

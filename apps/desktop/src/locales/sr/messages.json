@@ -543,10 +543,6 @@
     "message": "Укључити специјална слова",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Број речи"
   },
@@ -916,8 +912,8 @@
     "message": "Провери са Duo Security за вашу организацију користећи Duo Mobile апликацију, СМС, телефонски позив, или U2F кључ.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
-    "message": "Потврдите идентитет"
+  "verifyYourIdentity": {
+    "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "Не препознајемо овај уређај. Унесите код послат на адресу ваше електронске поште да би сте потврдили ваш идентитет."
@@ -3604,5 +3600,8 @@
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Додатак који користите је застарело. Молимо ажурирајте га или онемогућите валидацију отисача претраживача Интеграција на поставки апликација за компјутер."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }
