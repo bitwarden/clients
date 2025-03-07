@@ -4,7 +4,7 @@ import { html, nothing } from "lit";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { Option } from "../common-types";
-import { themes, typography, spacing } from "../constants/styles";
+import { themes, typography, scrollbarStyles, spacing } from "../constants/styles";
 
 import { OptionItem, optionItemTagName } from "./option-item";
 
@@ -21,12 +21,17 @@ export function OptionItems({
   options: Option[];
   handleOptionSelection: (selectedOption: Option) => void;
 }) {
+  // @TODO get client vendor from context
+  const isSafari = false;
+
   return html`
     <div class=${optionsStyles({ theme, topOffset })} key="container">
       ${label ? html`<div class=${optionsLabelStyles({ theme })}>${label}</div>` : nothing}
-      ${options.map((option) =>
-        OptionItem({ ...option, theme, handleSelection: () => handleOptionSelection(option) }),
-      )}
+      <div class=${optionsWrapper({ isSafari, theme })}>
+        ${options.map((option) =>
+          OptionItem({ ...option, theme, handleSelection: () => handleOptionSelection(option) }),
+        )}
+      </div>
     </div>
   `;
 }
@@ -44,10 +49,10 @@ const optionsStyles = ({ theme, topOffset }: { theme: Theme; topOffset: number }
   background-color: ${themes[theme].background.DEFAULT};
   padding: 0.25rem 0;
   max-width: fit-content;
-  overflow-y: auto;
+  overflow-y: hidden;
   color: ${themes[theme].text.main};
 
-  > [class*="${optionItemTagName}-"] {
+  [class*="${optionItemTagName}-"] {
     padding: 0.375rem ${spacing["3"]};
 
     :hover {
@@ -63,4 +68,11 @@ const optionsLabelStyles = ({ theme }: { theme: Theme }) => css`
   padding: 0.375rem ${spacing["3"]};
   color: ${themes[theme].text.muted};
   font-weight: 600;
+`;
+
+const optionsWrapper = ({ isSafari, theme }: { isSafari: boolean; theme: Theme }) => css`
+  max-height: 152px;
+  overflow-y: scroll;
+
+  ${isSafari ? scrollbarStyles(theme).safari : scrollbarStyles(theme).default}
 `;
