@@ -12,6 +12,7 @@ import { LogoutReason } from "@bitwarden/auth/common";
 
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
 import { OrganizationConnectionType } from "../admin-console/enums";
+import { CollectionBulkDeleteRequest } from "../admin-console/models/request/collection-bulk-delete.request";
 import { OrganizationSponsorshipCreateRequest } from "../admin-console/models/request/organization/organization-sponsorship-create.request";
 import { OrganizationSponsorshipRedeemRequest } from "../admin-console/models/request/organization/organization-sponsorship-redeem.request";
 import { OrganizationConnectionRequest } from "../admin-console/models/request/organization-connection.request";
@@ -106,7 +107,6 @@ import { TaxInfoResponse } from "../billing/models/response/tax-info.response";
 import { DeviceType } from "../enums";
 import { VaultTimeoutSettingsService } from "../key-management/vault-timeout";
 import { VaultTimeoutAction } from "../key-management/vault-timeout/enums/vault-timeout-action.enum";
-import { CollectionBulkDeleteRequest } from "../models/request/collection-bulk-delete.request";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
 import { EventRequest } from "../models/request/event.request";
 import { KdfRequest } from "../models/request/kdf.request";
