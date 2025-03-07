@@ -12,7 +12,7 @@ import {
   ProviderSubscriptionResponse,
 } from "@bitwarden/common/billing/models/response/provider-subscription-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ToastService } from "@bitwarden/components";
+import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
 
 @Component({
   selector: "app-provider-subscription",
@@ -33,7 +33,7 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
     private billingApiService: BillingApiServiceAbstraction,
     private i18nService: I18nService,
     private route: ActivatedRoute,
-    private toastService: ToastService,
+    private billingNotificationService: BillingNotificationService,
   ) {}
 
   async ngOnInit() {
@@ -54,20 +54,26 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
       return;
     }
     this.loading = true;
-    this.subscription = await this.billingApiService.getProviderSubscription(this.providerId);
-    this.totalCost =
-      ((100 - this.subscription.discountPercentage) / 100) * this.sumCost(this.subscription.plans);
-    this.loading = false;
+    try {
+      this.subscription = await this.billingApiService.getProviderSubscription(this.providerId);
+      this.totalCost =
+        ((100 - this.subscription.discountPercentage) / 100) *
+        this.sumCost(this.subscription.plans);
+    } catch (error) {
+      this.billingNotificationService.handleError(error);
+    } finally {
+      this.loading = false;
+    }
   }
 
   protected updateTaxInformation = async (taxInformation: TaxInformation) => {
-    const request = ExpandedTaxInfoUpdateRequest.From(taxInformation);
-    await this.billingApiService.updateProviderTaxInformation(this.providerId, request);
-    this.toastService.showToast({
-      variant: "success",
-      title: null,
-      message: this.i18nService.t("updatedTaxInformation"),
-    });
+    try {
+      const request = ExpandedTaxInfoUpdateRequest.From(taxInformation);
+      await this.billingApiService.updateProviderTaxInformation(this.providerId, request);
+      this.billingNotificationService.showSuccess(this.i18nService.t("updatedTaxInformation"));
+    } catch (error) {
+      this.billingNotificationService.handleError(error);
+    }
   };
 
   protected getFormattedCost(
