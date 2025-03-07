@@ -31,6 +31,7 @@
 ./apps/browser/src/safari/desktop/AppDelegate.swift
 ./apps/browser/src/safari/desktop/Info.plist
 ./apps/browser/src/safari/safari/SafariWebExtensionHandler.swift
+./apps/browser/src/safari/safari/SafariExtensionViewController.swift
 ./apps/browser/src/safari/safari/Info.plist
 ./apps/browser/src/safari/desktop.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
 ./SECURITY.md
