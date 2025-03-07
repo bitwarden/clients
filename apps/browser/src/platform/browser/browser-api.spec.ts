@@ -2,6 +2,8 @@ import { mock } from "jest-mock-extended";
 
 import { BrowserApi } from "./browser-api";
 
+type ChromeSettingsGet = chrome.types.ChromeSetting<boolean>["get"];
+
 describe("BrowserApi", () => {
   const executeScriptResult = ["value"];
 
@@ -468,19 +470,23 @@ describe("BrowserApi", () => {
 
   describe("browserAutofillSettingsOverridden", () => {
     it("returns true if the browser autofill settings are overridden", async () => {
-      const expectedDetails = {
-        value: false,
-        levelOfControl: "controlled_by_this_extension",
-      } as chrome.types.ChromeSettingGetResultDetails;
-      chrome.privacy.services.autofillAddressEnabled.get = jest.fn((details, callback) =>
-        callback(expectedDetails),
-      );
-      chrome.privacy.services.autofillCreditCardEnabled.get = jest.fn((details, callback) =>
-        callback(expectedDetails),
-      );
-      chrome.privacy.services.passwordSavingEnabled.get = jest.fn((details, callback) =>
-        callback(expectedDetails),
-      );
+      const mockFn = jest.fn<
+        void,
+        [
+          details: chrome.types.ChromeSettingGetDetails,
+          callback: (details: chrome.types.ChromeSettingGetResult<boolean>) => void,
+        ],
+        never
+      >((details, callback) => {
+        callback({
+          value: false,
+          levelOfControl: "controlled_by_this_extension",
+        });
+      });
+      chrome.privacy.services.autofillAddressEnabled.get = mockFn as unknown as ChromeSettingsGet;
+      chrome.privacy.services.autofillCreditCardEnabled.get =
+        mockFn as unknown as ChromeSettingsGet;
+      chrome.privacy.services.passwordSavingEnabled.get = mockFn as unknown as ChromeSettingsGet;
 
       const result = await BrowserApi.browserAutofillSettingsOverridden();
 
@@ -488,19 +494,24 @@ describe("BrowserApi", () => {
     });
 
     it("returns false if the browser autofill settings are not overridden", async () => {
-      const expectedDetails = {
-        value: true,
-        levelOfControl: "controlled_by_this_extension",
-      } as chrome.types.ChromeSettingGetResultDetails;
-      chrome.privacy.services.autofillAddressEnabled.get = jest.fn((details, callback) =>
-        callback(expectedDetails),
-      );
-      chrome.privacy.services.autofillCreditCardEnabled.get = jest.fn((details, callback) =>
-        callback(expectedDetails),
-      );
-      chrome.privacy.services.passwordSavingEnabled.get = jest.fn((details, callback) =>
-        callback(expectedDetails),
-      );
+      const mockFn = jest.fn<
+        void,
+        [
+          details: chrome.types.ChromeSettingGetDetails,
+          callback: (details: chrome.types.ChromeSettingGetResult<boolean>) => void,
+        ],
+        never
+      >((details, callback) => {
+        callback({
+          value: true,
+          levelOfControl: "controlled_by_this_extension",
+        });
+      });
+
+      chrome.privacy.services.autofillAddressEnabled.get = mockFn as unknown as ChromeSettingsGet;
+      chrome.privacy.services.autofillCreditCardEnabled.get =
+        mockFn as unknown as ChromeSettingsGet;
+      chrome.privacy.services.passwordSavingEnabled.get = mockFn as unknown as ChromeSettingsGet;
 
       const result = await BrowserApi.browserAutofillSettingsOverridden();
 
@@ -508,19 +519,23 @@ describe("BrowserApi", () => {
     });
 
     it("returns false if the browser autofill settings are not controlled by the extension", async () => {
-      const expectedDetails = {
-        value: false,
-        levelOfControl: "controlled_by_other_extensions",
-      } as chrome.types.ChromeSettingGetResultDetails;
-      chrome.privacy.services.autofillAddressEnabled.get = jest.fn((details, callback) =>
-        callback(expectedDetails),
-      );
-      chrome.privacy.services.autofillCreditCardEnabled.get = jest.fn((details, callback) =>
-        callback(expectedDetails),
-      );
-      chrome.privacy.services.passwordSavingEnabled.get = jest.fn((details, callback) =>
-        callback(expectedDetails),
-      );
+      const mockFn = jest.fn<
+        void,
+        [
+          details: chrome.types.ChromeSettingGetDetails,
+          callback: (details: chrome.types.ChromeSettingGetResult<boolean>) => void,
+        ],
+        never
+      >((details, callback) => {
+        callback({
+          value: false,
+          levelOfControl: "controlled_by_other_extensions",
+        });
+      });
+      chrome.privacy.services.autofillAddressEnabled.get = mockFn as unknown as ChromeSettingsGet;
+      chrome.privacy.services.autofillCreditCardEnabled.get =
+        mockFn as unknown as ChromeSettingsGet;
+      chrome.privacy.services.passwordSavingEnabled.get = mockFn as unknown as ChromeSettingsGet;
 
       const result = await BrowserApi.browserAutofillSettingsOverridden();
 

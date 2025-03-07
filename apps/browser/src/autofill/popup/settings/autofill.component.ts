@@ -364,7 +364,7 @@ export class AutofillComponent implements OnInit {
       return;
     }
 
-    BrowserApi.updateDefaultBrowserAutofillSettings(!this.defaultBrowserAutofillDisabled);
+    await BrowserApi.updateDefaultBrowserAutofillSettings(!this.defaultBrowserAutofillDisabled);
   }
 
   private handleOverrideDialogAccept = async () => {
