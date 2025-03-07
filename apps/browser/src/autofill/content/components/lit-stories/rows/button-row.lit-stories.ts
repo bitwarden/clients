@@ -1,38 +1,27 @@
 import { Meta, StoryObj } from "@storybook/web-components";
 
-import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
 import { themes } from "../../constants/styles";
-import { ButtonRow } from "../../rows/button-row";
-
-type Args = {
-  theme: Theme;
-  primaryButtonText: string;
-  handlePrimaryButtonClick: (e: Event) => void;
-  handleSelectionUpdate: (selectValue: any, selectId: string) => void;
-};
+import { ButtonRow, ButtonRowProps } from "../../rows/button-row";
 
 export default {
   title: "Components/Rows/Button Row",
-  argTypes: {
-    primaryButtonText: { control: "text" },
-  },
+  argTypes: {},
   args: {
-    primaryButtonText: "Action",
-    handlePrimaryButtonClick: (e: Event) => {
-      window.alert("Button clicked!");
-    },
-    handleSelectionUpdate: (selectValue: any, selectId: string) => {
-      /* eslint-disable-next-line no-console */
-      console.log(selectValue, selectId);
+    primaryButton: {
+      text: "Action",
+      handlePrimaryButtonClick: (e: Event) => {
+        window.alert("Button clicked!");
+      },
     },
   },
-} as Meta<Args>;
+} as Meta<ButtonRowProps>;
 
-const Template = (args: Args) => ButtonRow({ ...args });
+const Component = (args: ButtonRowProps) => ButtonRow({ ...args });
 
-export const Light: StoryObj<Args> = {
-  render: Template,
+export const Light: StoryObj<ButtonRowProps> = {
+  render: Component,
   argTypes: {
     theme: { control: "radio", options: [ThemeTypes.Light] },
   },
@@ -47,8 +36,8 @@ export const Light: StoryObj<Args> = {
   },
 };
 
-export const Dark: StoryObj<Args> = {
-  render: Template,
+export const Dark: StoryObj<ButtonRowProps> = {
+  render: Component,
   argTypes: {
     theme: { control: "radio", options: [ThemeTypes.Dark] },
   },

@@ -6,47 +6,41 @@ import { Theme } from "@bitwarden/common/platform/enums";
 import { ActionButton } from "../../../content/components/buttons/action-button";
 import { spacing } from "../../../content/components/constants/styles";
 import { Option } from "../common-types";
-import { FolderSelection } from "../option-selection/folder-selection";
 import { optionSelectionTagName } from "../option-selection/option-selection";
-import { VaultSelection } from "../option-selection/vault-selection";
 
-export function ButtonRow({
-  theme,
-  primaryButtonText,
-  handlePrimaryButtonClick = (event) => {},
-  handleSelectionUpdate = () => {},
-}: {
+export type ButtonRowProps = {
   theme: Theme;
-  primaryButtonText: string;
-  handlePrimaryButtonClick: (e: Event) => void;
-  handleSelectionUpdate?: (selectValue: any, selectId: string) => void;
-}) {
-  // Placeholders for options data hydration
-  const vaultOptions: Option[] = [];
-  const folderOptions: Option[] = [];
+  primaryButton: {
+    text: string;
+    handlePrimaryButtonClick: (args: any) => void;
+  };
+  selectButtons?: {
+    id: string;
+    options: Option[];
+    handleSelectionUpdate?: (args: any) => void;
+  }[];
+};
 
+export function ButtonRow({ theme, primaryButton, selectButtons }: ButtonRowProps) {
   return html`
     <div class=${buttonRowStyles}>
       ${ActionButton({
-        handleClick: handlePrimaryButtonClick,
-        buttonText: primaryButtonText,
+        handleClick: primaryButton.handlePrimaryButtonClick,
+        buttonText: primaryButton.text,
         theme,
       })}
       <div class=${optionSelectionsStyles}>
-        ${vaultOptions.length > 1
-          ? VaultSelection({
-              theme,
-              options: vaultOptions,
-              handleSelectionUpdate,
-            })
-          : nothing}
-        ${folderOptions.length > 1
-          ? FolderSelection({
-              theme,
-              options: folderOptions,
-              handleSelectionUpdate,
-            })
-          : nothing}
+        ${selectButtons?.map(
+          ({ id, options, handleSelectionUpdate }) =>
+            html`
+              <option-selection
+                id=${id}
+                theme=${theme}
+                .options=${options}
+                .handleSelectionUpdate=${handleSelectionUpdate}
+              ></option-selection>
+            ` || nothing,
+        )}
       </div>
     </div>
   `;

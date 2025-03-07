@@ -5,29 +5,13 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.e
 
 import { Option } from "../../common-types";
 import { themes } from "../../constants/styles";
-import { Business, Family, User } from "../../icons";
-import { FolderSelection } from "../../option-selection/folder-selection";
-import { VaultSelection } from "../../option-selection/vault-selection";
+import { User, Business } from "../../icons";
 import "../../option-selection/option-selection";
+import { mockOrganizationData } from "../mock-data";
 
 const mockOptions: Option[] = [
-  { icon: User, text: "My Vault", value: 0 },
-  {
-    icon: Business,
-    text: "Acme, inc",
-    value: 1,
-  },
-  {
-    icon: Business,
-    default: true,
-    text: "A Really Long Business Name That Just Kinda Goes On For A Really Long Time",
-    value: 2,
-  },
-  {
-    icon: Family,
-    text: "Family Vault",
-    value: 3,
-  },
+  { icon: User, text: "My Vault", value: "0" },
+  ...mockOrganizationData.map(({ id, name }) => ({ icon: Business, text: name, value: id })),
 ];
 
 type ComponentProps = {
@@ -55,12 +39,6 @@ const BaseComponent = ({ disabled, theme, options }: ComponentProps) => {
     <option-selection theme=${theme} .disabled=${disabled} .options=${options}></option-selection>
   `;
 };
-
-const FolderVariant = ({ theme, options }: ComponentProps) =>
-  html`${FolderSelection({ theme, options })}`;
-
-const VaultVariant = ({ theme, options }: ComponentProps) =>
-  html`${VaultSelection({ theme, options })}`;
 
 export const Light: StoryObj<ComponentProps> = {
   render: BaseComponent,
@@ -92,28 +70,4 @@ export const Dark: StoryObj<ComponentProps> = {
       default: "Dark",
     },
   },
-};
-
-export const VaultLight: StoryObj<ComponentProps> = {
-  ...Light,
-  name: "Vault Selector (Light)",
-  render: VaultVariant,
-};
-
-export const VaultDark: StoryObj<ComponentProps> = {
-  ...Dark,
-  name: "Vault Selector (Dark)",
-  render: VaultVariant,
-};
-
-export const FolderLight: StoryObj<ComponentProps> = {
-  ...Light,
-  name: "Folder Selector (Light)",
-  render: FolderVariant,
-};
-
-export const FolderDark: StoryObj<ComponentProps> = {
-  ...Dark,
-  name: "Folder Selector (Dark)",
-  render: FolderVariant,
 };
