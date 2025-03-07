@@ -161,8 +161,9 @@ export class LoginComponent implements OnInit, OnDestroy {
         tap(async (flag) => {
           // If the flag is turned OFF, we must force a reload to ensure the correct UI is shown
           if (!flag) {
+            const qParams = await firstValueFrom(this.activatedRoute.queryParams);
             const uniqueQueryParams = {
-              ...this.activatedRoute.queryParams,
+              ...qParams,
               // adding a unique timestamp to the query params to force a reload
               t: new Date().getTime().toString(), // Adding a unique timestamp as a query parameter
             };
@@ -316,15 +317,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     } else {
       await this.router.navigate(["vault"]);
     }
-  }
-
-  protected async launchSsoBrowserWindow(clientId: "browser" | "desktop"): Promise<void> {
-    const email = this.emailFormControl.value;
-    if (!email) {
-      this.logService.error("Email is required for SSO login");
-      return;
-    }
-    await this.loginComponentService.launchSsoBrowserWindow(email, clientId);
   }
 
   /**
@@ -636,26 +628,26 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   /**
    * Handle the SSO button click.
-   * @param event - The event object.
    */
   async handleSsoClick() {
-    const isEmailValid = await this.validateEmail();
+    const email = this.formGroup.value.email;
 
+    // Make sure the email is valid
+    const isEmailValid = await this.validateEmail();
     if (!isEmailValid) {
       return;
     }
 
-    await this.saveEmailSettings();
-
-    if (this.clientType === ClientType.Web) {
-      await this.router.navigate(["/sso"], {
-        queryParams: { email: this.formGroup.value.email },
-      });
+    // Make sure the email is not empty, for type safety
+    if (!email) {
+      this.logService.error("Email is required for SSO");
       return;
     }
 
-    await this.launchSsoBrowserWindow(
-      this.clientType === ClientType.Browser ? "browser" : "desktop",
-    );
+    // Save the email configuration for the login component
+    await this.saveEmailSettings();
+
+    // Send the user to SSO, either through routing or through redirecting to the web app
+    await this.loginComponentService.redirectToSsoLogin(email);
   }
 }

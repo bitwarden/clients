@@ -16,10 +16,12 @@ import {
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { isUrlInList } from "@bitwarden/common/autofill/utils";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -70,14 +72,9 @@ export class VaultPopupAutofillService {
     this.domainSettingsService.blockedInteractionsUris$,
     this.currentAutofillTab$,
   ]).pipe(
-    map(([blockedInteractionsUris, currentTab]) => {
-      if (blockedInteractionsUris && currentTab?.url?.length) {
-        const tabURL = new URL(currentTab.url);
-        const tabIsBlocked = Object.keys(blockedInteractionsUris).includes(tabURL.hostname);
-
-        if (tabIsBlocked) {
-          return true;
-        }
+    map(([blockedInteractionsUrls, currentTab]) => {
+      if (blockedInteractionsUrls && currentTab) {
+        return isUrlInList(currentTab?.url, blockedInteractionsUrls);
       }
 
       return false;
@@ -89,13 +86,18 @@ export class VaultPopupAutofillService {
     this.domainSettingsService.blockedInteractionsUris$,
     this.currentAutofillTab$,
   ]).pipe(
-    map(([blockedInteractionsUris, currentTab]) => {
-      if (blockedInteractionsUris && currentTab?.url?.length) {
-        const tabURL = new URL(currentTab.url);
-        const tabIsBlocked = Object.keys(blockedInteractionsUris).includes(tabURL.hostname);
+    map(([blockedInteractionsUrls, currentTab]) => {
+      if (blockedInteractionsUrls && currentTab?.url?.length) {
+        const tabHostname = Utils.getHostname(currentTab.url);
+
+        if (!tabHostname) {
+          return false;
+        }
+
+        const tabIsBlocked = isUrlInList(currentTab.url, blockedInteractionsUrls);
 
         const showScriptInjectionIsBlockedBanner =
-          tabIsBlocked && !blockedInteractionsUris[tabURL.hostname]?.bannerIsDismissed;
+          tabIsBlocked && !blockedInteractionsUrls[tabHostname]?.bannerIsDismissed;
 
         return showScriptInjectionIsBlockedBanner;
       }
@@ -108,20 +110,22 @@ export class VaultPopupAutofillService {
   async dismissCurrentTabIsBlockedBanner() {
     try {
       const currentTab = await firstValueFrom(this.currentAutofillTab$);
-      const currentTabURL = currentTab?.url.length && new URL(currentTab.url);
-
-      const currentTabHostname = currentTabURL && currentTabURL.hostname;
+      const currentTabHostname = currentTab?.url.length && Utils.getHostname(currentTab.url);
 
       if (!currentTabHostname) {
         return;
       }
 
-      const blockedURIs = await firstValueFrom(this.domainSettingsService.blockedInteractionsUris$);
-      const tabIsBlocked = Object.keys(blockedURIs).includes(currentTabHostname);
+      const blockedURLs = await firstValueFrom(this.domainSettingsService.blockedInteractionsUris$);
+
+      let tabIsBlocked = false;
+      if (blockedURLs && currentTab?.url?.length) {
+        tabIsBlocked = isUrlInList(currentTab.url, blockedURLs);
+      }
 
       if (tabIsBlocked) {
         void this.domainSettingsService.setBlockedInteractionsUris({
-          ...blockedURIs,
+          ...blockedURLs,
           [currentTabHostname as string]: { bannerIsDismissed: true },
         });
       }
@@ -129,7 +133,7 @@ export class VaultPopupAutofillService {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       throw new Error(
-        "There was a problem dismissing the blocked interaction URI notification banner",
+        "There was a problem dismissing the blocked interaction URL notification banner",
       );
     }
   }
@@ -147,11 +151,9 @@ export class VaultPopupAutofillService {
       }
 
       return this.domainSettingsService.blockedInteractionsUris$.pipe(
-        switchMap((blockedURIs) => {
-          // This blocked URI logic will be updated to use the common util in PM-18219
-          if (blockedURIs && tab?.url?.length) {
-            const tabURL = new URL(tab.url);
-            const tabIsBlocked = Object.keys(blockedURIs).includes(tabURL.hostname);
+        switchMap((blockedURLs) => {
+          if (blockedURLs && tab?.url?.length) {
+            const tabIsBlocked = isUrlInList(tab.url, blockedURLs);
 
             if (tabIsBlocked) {
               return of([]);
