@@ -53,30 +53,28 @@ function getI18n() {
   return {
     appName: chrome.i18n.getMessage("appName"),
     close: chrome.i18n.getMessage("close"),
-    never: chrome.i18n.getMessage("never"),
     folder: chrome.i18n.getMessage("folder"),
-    notificationAddSave: chrome.i18n.getMessage("notificationAddSave"),
+    loginSaveSuccess: chrome.i18n.getMessage("loginSaveSuccess"),
+    loginSaveSuccessDetails: chrome.i18n.getMessage("loginSaveSuccessDetails"),
+    loginUpdateSuccess: chrome.i18n.getMessage("loginUpdateSuccess"),
+    loginUpdateSuccessDetails: chrome.i18n.getMessage("loginUpdatedSuccessDetails"),
+    newItem: chrome.i18n.getMessage("newItem"),
+    never: chrome.i18n.getMessage("never"),
     notificationAddDesc: chrome.i18n.getMessage("notificationAddDesc"),
-    notificationEdit: chrome.i18n.getMessage("edit"),
-    notificationChangeSave: chrome.i18n.getMessage("notificationChangeSave"),
+    notificationAddSave: chrome.i18n.getMessage("notificationAddSave"),
     notificationChangeDesc: chrome.i18n.getMessage("notificationChangeDesc"),
+    notificationChangeSave: chrome.i18n.getMessage("notificationChangeSave"),
+    notificationEdit: chrome.i18n.getMessage("edit"),
     notificationUnlock: chrome.i18n.getMessage("notificationUnlock"),
     notificationUnlockDesc: chrome.i18n.getMessage("notificationUnlockDesc"),
-
-    // @TODO move values to message catalog
-    saveAction: "Save",
-    saveAsNewLoginAction: "Save as new login",
-    updateLoginAction: "Update login",
-    saveLoginPrompt: "Save login?",
-    updateLoginPrompt: "Update existing login?",
-    loginSaveSuccess: "Login saved",
-    loginSaveSuccessDetails: "Login saved to Bitwarden.",
-    loginUpdateSuccess: "Login updated",
-    loginUpdateSuccessDetails: "Login updated in Bitwarden.",
-    saveFailure: "Error saving",
-    saveFailureDetails: "Oh no! We couldn't save this. Try entering the details as a New item",
-    newItem: "New item",
-    view: "View",
+    saveAction: chrome.i18n.getMessage("notificationAddSave"),
+    saveAsNewLoginAction: chrome.i18n.getMessage("saveAsNewLoginAction"),
+    saveFailure: chrome.i18n.getMessage("saveFailure"),
+    saveFailureDetails: chrome.i18n.getMessage("saveFailureDetails"),
+    saveLoginPrompt: chrome.i18n.getMessage("saveLoginPrompt"),
+    updateLoginAction: chrome.i18n.getMessage("updateLoginAction"),
+    updateLoginPrompt: chrome.i18n.getMessage("updateLoginPrompt"),
+    view: chrome.i18n.getMessage("view"),
   };
 }
 
@@ -289,9 +287,17 @@ function handleSaveCipherAttemptCompletedMessage(message: NotificationBarWindowM
   );
 }
 
+function openViewVaultItemPopout(e: Event, cipherId: string) {
+  e.preventDefault();
+  sendPlatformMessage({
+    command: "bgOpenVault",
+    cipherId,
+  });
+}
+
 function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
   const { theme, type } = notificationBarIframeInitData;
-  const { error } = message;
+  const { error, username, cipherId } = message;
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme);
 
@@ -305,6 +311,8 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
       handleCloseNotification,
       i18n,
       error,
+      username,
+      handleOpenVault: (e) => openViewVaultItemPopout(e, cipherId),
     }),
     document.body,
   );

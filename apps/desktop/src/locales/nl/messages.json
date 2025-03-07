@@ -652,6 +652,15 @@
   "logInToBitwarden": {
     "message": "Inloggen op Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Voer de code in die naar je e-mailadres is verstuurd"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Voer de code uit je authenticatie-app in"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Druk op je YubiKey om te verifiëren"
+  },
   "logInWithPasskey": {
     "message": "Inloggen met passkey"
   },
@@ -703,6 +712,15 @@
   },
   "masterPassHintLabel": {
     "message": "Hoofdwachtwoordhint"
+  },
+  "passwordStrengthScore": {
+    "message": "Score wachtwoordsterkte $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Join organisatie"
@@ -816,6 +834,9 @@
   "webauthnCancelOrTimeout": {
     "message": "De authenticatie werd geannuleerd of duurde te lang. Probeer het opnieuw."
   },
+  "openInNewTab": {
+    "message": "Openen in nieuwe tab"
+  },
   "invalidVerificationCode": {
     "message": "Ongeldige verificatiecode"
   },
@@ -846,11 +867,21 @@
   "rememberMe": {
     "message": "Mijn gegevens onthouden"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "30 dagen niet meer vragen op dit apparaat"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "E-mail met verificatiecode opnieuw versturen"
   },
   "useAnotherTwoStepMethod": {
     "message": "Gebruik een andere methode voor tweestapsaanmelding"
+  },
+  "selectAnotherMethod": {
+    "message": "Kies een andere methode",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Gebruik je herstelcode"
   },
   "insertYubiKey": {
     "message": "Plaats je YubiKey in de USB-poort van je computer en druk op de knop."
@@ -917,6 +948,9 @@
   },
   "twoStepOptions": {
     "message": "Opties voor tweestapsaanmelding"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Kies methode voor tweestapsaanmelding"
   },
   "selfHostedEnvironment": {
     "message": "Zelfgehoste omgeving"
@@ -2247,6 +2281,12 @@
   "webAuthnAuthenticate": {
     "message": "Verifieer WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "Beveiligingssleutel lezen"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Wacht op interactie met beveiligingssleutel..."
+  },
   "hideEmail": {
     "message": "Verberg mijn e-mailadres voor ontvangers."
   },
@@ -3206,6 +3246,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "Jouw account vereist Duo-tweestapsaanmelding."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Jouw account vereist Duo-tweestapsaanmelding. Volg de onderstaande stappen om het inloggen te voltooien."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Volg de onderstaande stappen om in te loggen."
+  },
   "launchDuo": {
     "message": "Start Duo in browser"
   },
@@ -3463,8 +3509,26 @@
   "sshkeyApprovalTitle": {
     "message": "Gebruik SSH-sleutel bevestigen"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Waarschuwing: Agent doorsturen"
+  },
+  "agentForwardingWarningText": {
+    "message": "Dit verzoek komt van een extern apparaat waarop je bent ingelogd"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "vraagt toegang tot"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "om te"
+  },
+  "sshActionLogin": {
+    "message": "autenticeer naar een server"
+  },
+  "sshActionSign": {
+    "message": "een bericht te ondertekenen"
+  },
+  "sshActionGitSign": {
+    "message": "een git-commit te ondertekenen"
   },
   "unknownApplication": {
     "message": "Een applicatie"

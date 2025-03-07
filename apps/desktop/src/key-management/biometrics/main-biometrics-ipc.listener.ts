@@ -44,9 +44,6 @@ export class MainBiometricsIPCListener {
               message.userId as UserId,
             );
           case BiometricAction.SetClientKeyHalf:
-            if (message.key == null) {
-              return;
-            }
             return await this.biometricService.setClientKeyHalfForUser(
               message.userId as UserId,
               message.key,
