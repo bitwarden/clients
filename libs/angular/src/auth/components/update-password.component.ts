@@ -3,10 +3,10 @@
 import { Directive } from "@angular/core";
 import { Router } from "@angular/router";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
@@ -40,7 +40,7 @@ export class UpdatePasswordComponent extends BaseChangePasswordComponent {
     policyService: PolicyService,
     keyService: KeyService,
     messagingService: MessagingService,
-    private apiService: ApiService,
+    private masterPasswordApiService: MasterPasswordApiService,
     private userVerificationService: UserVerificationService,
     private logService: LogService,
     dialogService: DialogService,
@@ -117,9 +117,7 @@ export class UpdatePasswordComponent extends BaseChangePasswordComponent {
       request.key = newUserKey[1].encryptedString;
 
       // Update user's password
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.apiService.postPassword(request);
+      await this.masterPasswordApiService.postPassword(request);
 
       this.toastService.showToast({
         variant: "success",
