@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Observable } from "rxjs";
 
@@ -96,7 +94,7 @@ describe("BrowserTaskSchedulerService", () => {
     jest.clearAllTimers();
     jest.useRealTimers();
 
-    globalThis.browser = undefined;
+    (globalThis.browser as any) = undefined;
   });
 
   describe("setTimeout", () => {
