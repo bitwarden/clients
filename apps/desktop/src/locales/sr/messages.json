@@ -543,10 +543,6 @@
     "message": "Укључити специјална слова",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Број речи"
   },
@@ -652,6 +648,15 @@
   "logInToBitwarden": {
     "message": "Пријавите се на Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Унесите кôд послат на ваш имејл"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Унесите кôд из апликације за аутентификацију"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Стисните Ваш YubiKey за аутентификацију"
+  },
   "logInWithPasskey": {
     "message": "Пријавите се са приступним кључем"
   },
@@ -703,6 +708,15 @@
   },
   "masterPassHintLabel": {
     "message": "Савет главне лозинке"
+  },
+  "passwordStrengthScore": {
+    "message": "Снага лозинкe $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Придружи Организацију"
@@ -816,6 +830,9 @@
   "webauthnCancelOrTimeout": {
     "message": "Аутентификација је отказана или је трајала предуго. Молим вас, покушајте поново."
   },
+  "openInNewTab": {
+    "message": "Отвори у новом језичку"
+  },
   "invalidVerificationCode": {
     "message": "Неисправан верификациони код"
   },
@@ -846,11 +863,21 @@
   "rememberMe": {
     "message": "Запамти ме"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Не питајте поново на овом уређају 30 дана"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Поново послати верификациони код на имејл"
   },
   "useAnotherTwoStepMethod": {
     "message": "Користите другу методу пријављивања у два корака"
+  },
+  "selectAnotherMethod": {
+    "message": "Изаберите другу методу",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Употребите шифру за опоравак"
   },
   "insertYubiKey": {
     "message": "Убаците свој YubiKey у УСБ порт рачунара, а затим додирните његово дугме."
@@ -885,8 +912,8 @@
     "message": "Провери са Duo Security за вашу организацију користећи Duo Mobile апликацију, СМС, телефонски позив, или U2F кључ.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
-    "message": "Потврдите идентитет"
+  "verifyYourIdentity": {
+    "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "Не препознајемо овај уређај. Унесите код послат на адресу ваше електронске поште да би сте потврдили ваш идентитет."
@@ -917,6 +944,9 @@
   },
   "twoStepOptions": {
     "message": "Опције дво-коракне пријаве"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Одабрати методу пријављивања у два корака"
   },
   "selfHostedEnvironment": {
     "message": "Самостално окружење"
@@ -1775,6 +1805,9 @@
   "requirePasswordOnStart": {
     "message": "Захтевај лозинку или ПИН при покретању"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Захтевај лозинку при покретању"
+  },
   "recommendedForSecurity": {
     "message": "Препоручује се за сигурност."
   },
@@ -2244,6 +2277,12 @@
   "webAuthnAuthenticate": {
     "message": "WebAutn аутентификација"
   },
+  "readSecurityKey": {
+    "message": "Читај сигурносни кључ"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Чека се интеракција сигурносног кључа..."
+  },
   "hideEmail": {
     "message": "Сакриј моју е-адресу од примаоца."
   },
@@ -2551,7 +2590,7 @@
     "message": "Користите подешено catch-all пријемно сандуче вашег домена."
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Користи овај имејл"
   },
   "random": {
     "message": "Случајно"
@@ -2629,6 +2668,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Погрешан АПИ токен $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ одбио ваш захтев. Обратите се свом провајдеру сервиса за помоћ.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ одбио ваш захтев: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -2745,14 +2808,23 @@
   "loginInitiated": {
     "message": "Пријава је покренута"
   },
+  "logInRequestSent": {
+    "message": "Захтев је послат"
+  },
   "notificationSentDevice": {
     "message": "Обавештење је послато на ваш уређај."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Обавештење је послато на ваш уређај"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Уверите се да је ваш налог откључан и да се фраза отиска подудара на другом уређају"
+  "notificationSentDevicePart1": {
+    "message": "Откључај Bitwarden на твом уређају или на "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "веб апликација"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Потврдите да се фраза отиска поклапа са овом испод пре одобравања."
   },
   "needAnotherOptionV1": {
     "message": "Треба Вам друга опција?"
@@ -2782,11 +2854,11 @@
     "message": "Пребаци бројање слова",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Да ли покушавате да се пријавите?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Да ли покушавате да приступите вашем налогу?"
   },
-  "logInAttemptBy": {
-    "message": "Покушај пријаве од $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Покушај приступа са $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2875,11 @@
   "time": {
     "message": "Време"
   },
-  "confirmLogIn": {
-    "message": "Потврди пријављивање"
+  "confirmAccess": {
+    "message": "Потврдите приступ"
   },
-  "denyLogIn": {
-    "message": "Одбиј пријављивање"
+  "denyAccess": {
+    "message": "Одбити приступ"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Пријава потврђена за $EMAIL$ на $DEVICE$",
@@ -2843,8 +2915,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Овај захтев више не важи."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Потврдити пријаву за $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Потврдити приступ за $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2926,9 @@
   },
   "logInRequested": {
     "message": "Захтев пријаве"
+  },
+  "accountAccessRequested": {
+    "message": "Приступ рачуна је затражен"
   },
   "creatingAccountOn": {
     "message": "Креирај налог на"
@@ -3167,6 +3242,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "Duo пријава у два корака је потребна за ваш налог."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "За ваш налог је потребан два корака. Следите наведене кораке да бисте завршили пријављивање."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Следите наведене кораке да бисте завршили пријављивање."
+  },
   "launchDuo": {
     "message": "Покренути Duo у претраживачу"
   },
@@ -3424,8 +3505,26 @@
   "sshkeyApprovalTitle": {
     "message": "Потврдите употребу SSH кључа"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Warning: Agent Forwarding"
+  },
+  "agentForwardingWarningText": {
+    "message": "This request comes from a remote device that you are logged into"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "тражи приступ"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "in order to"
+  },
+  "sshActionLogin": {
+    "message": "authenticate to a server"
+  },
+  "sshActionSign": {
+    "message": "sign a message"
+  },
+  "sshActionGitSign": {
+    "message": "sign a git commit"
   },
   "unknownApplication": {
     "message": "Апликација"
@@ -3484,19 +3583,25 @@
   "changeAcctEmail": {
     "message": "Променити имејл налога"
   },
-  "organizationUpgradeRequired": {
-    "message": "Потребна је надоградња организације"
+  "allowScreenshots": {
+    "message": "Дозволи снимање екрана"
   },
-  "upgradeOrganization": {
-    "message": "Надогради организацију"
+  "allowScreenshotsDesc": {
+    "message": "Дозволите да Bitwarden апликација прихвата скриншот и преглед у удаљених радних површина. Онемогућавање то ће спречити приступ неким спољним дисплејима."
   },
-  "upgradeOrganizationDesc": {
-    "message": "Ова функција није доступна за бесплатне организације. Пребаците се на плаћени пакет да бисте откључали више функција."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Потврдите да је прозор и даље видљив"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Потврдите да је прозор и даље видљив."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Неопходна надоградња додатка"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Додатак који користите је застарело. Молимо ажурирајте га или онемогућите валидацију отисача претраживача Интеграција на поставки апликација за компјутер."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

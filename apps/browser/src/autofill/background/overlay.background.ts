@@ -13,8 +13,10 @@ import {
 } from "rxjs";
 import { parse } from "tldts";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   AutofillOverlayVisibility,
   SHOW_AUTOFILL_BUTTON,
@@ -34,6 +36,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
@@ -225,6 +228,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private inlineMenuFieldQualificationService: InlineMenuFieldQualificationService,
     private themeStateService: ThemeStateService,
     private totpService: TotpService,
+    private accountService: AccountService,
     private generatePasswordCallback: () => Promise<string>,
     private addPasswordCallback: (password: string) => Promise<void>,
   ) {
@@ -405,13 +409,20 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     currentTab: chrome.tabs.Tab,
     updateAllCipherTypes: boolean,
   ): Promise<CipherView[]> {
-    if (updateAllCipherTypes || !this.cardAndIdentityCiphers) {
-      return this.getAllCipherTypeViews(currentTab);
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    if (!activeUserId) {
+      return [];
     }
 
-    const cipherViews = (await this.cipherService.getAllDecryptedForUrl(currentTab.url || "")).sort(
-      (a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b),
-    );
+    if (updateAllCipherTypes || !this.cardAndIdentityCiphers) {
+      return this.getAllCipherTypeViews(currentTab, activeUserId);
+    }
+
+    const cipherViews = (
+      await this.cipherService.getAllDecryptedForUrl(currentTab.url || "", activeUserId)
+    ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
 
     return this.cardAndIdentityCiphers
       ? cipherViews.concat(...this.cardAndIdentityCiphers)
@@ -422,15 +433,19 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Queries all cipher types from the user's vault returns them sorted by last used.
    *
    * @param currentTab - The current tab
+   * @param userId - The active user id
    */
-  private async getAllCipherTypeViews(currentTab: chrome.tabs.Tab): Promise<CipherView[]> {
+  private async getAllCipherTypeViews(
+    currentTab: chrome.tabs.Tab,
+    userId: UserId,
+  ): Promise<CipherView[]> {
     if (!this.cardAndIdentityCiphers) {
       this.cardAndIdentityCiphers = new Set([]);
     }
 
     this.cardAndIdentityCiphers.clear();
     const cipherViews = (
-      await this.cipherService.getAllDecryptedForUrl(currentTab.url || "", [
+      await this.cipherService.getAllDecryptedForUrl(currentTab.url || "", userId, [
         CipherType.Card,
         CipherType.Identity,
       ])
@@ -692,13 +707,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     };
 
     if (cipher.type === CipherType.Login) {
-      const totpCode = await this.totpService.getCode(cipher.login?.totp);
-      const totpCodeTimeInterval = this.totpService.getTimeInterval(cipher.login?.totp);
+      const totpResponse = cipher.login?.totp
+        ? await firstValueFrom(this.totpService.getCode$(cipher.login.totp))
+        : undefined;
+
       inlineMenuData.login = {
         username: cipher.login.username,
-        totp: totpCode,
+        totp: totpResponse?.code,
         totpField: this.isTotpFieldForCurrentField(),
-        totpCodeTimeInterval: totpCodeTimeInterval,
+        totpCodeTimeInterval: totpResponse?.period,
         passkey: hasPasskey
           ? {
               rpName: cipher.login.fido2Credentials[0].rpName,
@@ -1116,9 +1133,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.updateLastUsedInlineMenuCipher(inlineMenuCipherId, cipher);
 
       if (cipher.login?.totp) {
-        this.platformUtilsService.copyToClipboard(
-          await this.totpService.getCode(cipher.login.totp),
-        );
+        const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
+
+        if (totpResponse?.code) {
+          this.platformUtilsService.copyToClipboard(totpResponse.code);
+        } else {
+          this.logService.error("Failed to get TOTP code for inline menu cipher");
+        }
       }
       return;
     }
@@ -2399,10 +2420,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     try {
       this.closeInlineMenu(sender);
-      await this.cipherService.setAddEditCipherInfo({
-        cipher: cipherView,
-        collectionIds: cipherView.collectionIds,
-      });
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.cipherService.setAddEditCipherInfo(
+        {
+          cipher: cipherView,
+          collectionIds: cipherView.collectionIds,
+        },
+        activeUserId,
+      );
 
       await this.openAddEditVaultItemPopout(sender.tab, {
         cipherId: cipherView.id,

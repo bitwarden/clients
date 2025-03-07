@@ -11,8 +11,6 @@ import {
   unauthGuardFn,
   activeAuthGuard,
 } from "@bitwarden/angular/auth/guards";
-import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
-import { twofactorRefactorSwap } from "@bitwarden/angular/utils/two-factor-component-refactor-route-swap";
 import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
 import {
   AnonLayoutWrapperComponent,
@@ -38,10 +36,11 @@ import {
   SsoComponent,
   VaultIcon,
   LoginDecryptionOptionsComponent,
+  TwoFactorAuthComponent,
+  TwoFactorAuthGuard,
   NewDeviceVerificationComponent,
   DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { LockComponent } from "@bitwarden/key-management-ui";
 import {
   NewDeviceVerificationNoticePageOneComponent,
@@ -71,8 +70,7 @@ import { EmergencyAccessComponent } from "./auth/settings/emergency-access/emerg
 import { EmergencyAccessViewComponent } from "./auth/settings/emergency-access/view/emergency-access-view.component";
 import { SecurityRoutingModule } from "./auth/settings/security/security-routing.module";
 import { SsoComponentV1 } from "./auth/sso-v1.component";
-import { TwoFactorAuthComponent } from "./auth/two-factor-auth.component";
-import { TwoFactorComponent } from "./auth/two-factor.component";
+import { TwoFactorComponentV1 } from "./auth/two-factor-v1.component";
 import { UpdatePasswordComponent } from "./auth/update-password.component";
 import { UpdateTempPasswordComponent } from "./auth/update-temp-password.component";
 import { VerifyEmailTokenComponent } from "./auth/verify-email-token.component";
@@ -90,9 +88,10 @@ import { DomainRulesComponent } from "./settings/domain-rules.component";
 import { PreferencesComponent } from "./settings/preferences.component";
 import { CredentialGeneratorComponent } from "./tools/credential-generator/credential-generator.component";
 import { ReportsModule } from "./tools/reports";
-import { AccessComponent } from "./tools/send/access.component";
-import { SendAccessExplainerComponent } from "./tools/send/send-access-explainer.component";
+import { AccessComponent, SendAccessExplainerComponent } from "./tools/send/send-access";
 import { SendComponent } from "./tools/send/send.component";
+import { BrowserExtensionPromptInstallComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt-install.component";
+import { BrowserExtensionPromptComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt.component";
 import { VaultModule } from "./vault/individual-vault/vault.module";
 
 const routes: Routes = [
@@ -504,6 +503,51 @@ const routes: Routes = [
           },
         },
       },
+      ...unauthUiRefreshSwap(
+        TwoFactorComponentV1,
+        TwoFactorAuthComponent,
+        {
+          path: "2fa",
+          canActivate: [unauthGuardFn()],
+          children: [
+            {
+              path: "",
+              component: TwoFactorComponentV1,
+            },
+            {
+              path: "",
+              component: EnvironmentSelectorComponent,
+              outlet: "environment-selector",
+            },
+          ],
+          data: {
+            pageTitle: {
+              key: "verifyYourIdentity",
+            },
+          } satisfies RouteDataProperties & AnonLayoutWrapperData,
+        },
+        {
+          path: "2fa",
+          canActivate: [unauthGuardFn(), TwoFactorAuthGuard],
+          children: [
+            {
+              path: "",
+              component: TwoFactorAuthComponent,
+            },
+            {
+              path: "",
+              component: EnvironmentSelectorComponent,
+              outlet: "environment-selector",
+            },
+          ],
+          data: {
+            pageTitle: {
+              key: "verifyYourIdentity",
+            },
+            titleAreaMaxWidth: "md",
+          } satisfies RouteDataProperties & AnonLayoutWrapperData,
+        },
+      ),
       {
         path: "lock",
         canActivate: [deepLinkGuard(), lockGuard()],
@@ -520,25 +564,6 @@ const routes: Routes = [
           pageIcon: LockIcon,
           showReadonlyHostname: true,
         } satisfies AnonLayoutWrapperData,
-      },
-      {
-        path: "2fa",
-        canActivate: [unauthGuardFn()],
-        children: [
-          ...twofactorRefactorSwap(TwoFactorComponent, TwoFactorAuthComponent, {
-            path: "",
-          }),
-          {
-            path: "",
-            component: EnvironmentSelectorComponent,
-            outlet: "environment-selector",
-          },
-        ],
-        data: {
-          pageTitle: {
-            key: "verifyIdentity",
-          },
-        } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
       {
         path: "authentication-timeout",
@@ -585,11 +610,7 @@ const routes: Routes = [
       },
       {
         path: "device-verification",
-        canActivate: [
-          canAccessFeature(FeatureFlag.NewDeviceVerification),
-          unauthGuardFn(),
-          activeAuthGuard(),
-        ],
+        canActivate: [unauthGuardFn(), activeAuthGuard()],
         children: [
           {
             path: "",
@@ -599,7 +620,7 @@ const routes: Routes = [
         data: {
           pageIcon: DeviceVerificationIcon,
           pageTitle: {
-            key: "verifyIdentity",
+            key: "verifyYourIdentity",
           },
           pageSubtitle: {
             key: "weDontRecognizeThisDevice",
@@ -695,6 +716,23 @@ const routes: Routes = [
         data: {
           maxWidth: "3xl",
         } satisfies AnonLayoutWrapperData,
+      },
+      {
+        path: "browser-extension-prompt",
+        data: {
+          pageIcon: VaultIcons.BrowserExtensionIcon,
+        } satisfies AnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            component: BrowserExtensionPromptComponent,
+          },
+          {
+            path: "",
+            component: BrowserExtensionPromptInstallComponent,
+            outlet: "secondary",
+          },
+        ],
       },
     ],
   },

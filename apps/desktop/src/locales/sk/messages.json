@@ -543,10 +543,6 @@
     "message": "Zahrnúť špeciálne znaky",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Počet slov"
   },
@@ -652,6 +648,15 @@
   "logInToBitwarden": {
     "message": "Prihlásenie do Bitwardenu"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Zadajte kód zaslaný na váš e-mail"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Zadajte kód z overovacej aplikácie"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Stlačte YubiKey na overenie"
+  },
   "logInWithPasskey": {
     "message": "Prihlásiť sa s prístupovým kľúčom"
   },
@@ -703,6 +708,15 @@
   },
   "masterPassHintLabel": {
     "message": "Nápoveď k hlavnému heslu"
+  },
+  "passwordStrengthScore": {
+    "message": "Sila hesla $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Pripojte sa k organizácii"
@@ -816,6 +830,9 @@
   "webauthnCancelOrTimeout": {
     "message": "Overenie bolo zrušené alebo trvalo príliš dlho. Skúste to znova."
   },
+  "openInNewTab": {
+    "message": "Otvoriť v novej karte"
+  },
   "invalidVerificationCode": {
     "message": "Neplatný verifikačný kód"
   },
@@ -846,11 +863,21 @@
   "rememberMe": {
     "message": "Zapamätaj si ma"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Nepýtať sa znova na tomto zariadení 30 dní"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Znovu zaslať overovací kód e-mailom"
   },
   "useAnotherTwoStepMethod": {
     "message": "Použiť inú dvojstupňovú metódu prihlásenia"
+  },
+  "selectAnotherMethod": {
+    "message": "Vyberte iný spôsob",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Použiť obnovovací kód"
   },
   "insertYubiKey": {
     "message": "Vložte váš YubiKey do USB portu počítača a stlačte jeho tlačidlo."
@@ -885,7 +912,7 @@
     "message": "Overiť sa prostredníctvom Duo Security vašej organizácie použitím Duo Mobile aplikácie, SMS, telefonátu alebo U2F bezpečnostným kľúčom.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Overte svoju totožnosť"
   },
   "weDontRecognizeThisDevice": {
@@ -917,6 +944,9 @@
   },
   "twoStepOptions": {
     "message": "Možnosti dvojstupňového prihlásenia"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Vyberte metódu dvojstupňového prihlásenia"
   },
   "selfHostedEnvironment": {
     "message": "Prevádzkované vo vlastnom prostredí"
@@ -1775,6 +1805,9 @@
   "requirePasswordOnStart": {
     "message": "Pri spustení aplikácie vyžadovať heslo alebo PIN"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Pri spustení aplikácie vyžadovať heslo"
+  },
   "recommendedForSecurity": {
     "message": "Odporúča sa z hľadiska bezpečnosti."
   },
@@ -2244,6 +2277,12 @@
   "webAuthnAuthenticate": {
     "message": "Overiť cez WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "Prečítať bezpečnostný kľúč"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Čaká sa na interakciu s bezpečnostným kľúčom..."
+  },
   "hideEmail": {
     "message": "Skryť moju e-mailovú adresu pred príjemcami."
   },
@@ -2575,10 +2614,10 @@
     "message": "Prehľadávať môj trezor"
   },
   "forwardedEmail": {
-    "message": "Alias preposlaného e-mailu"
+    "message": "Alias presmerovaného e-mailu"
   },
   "forwardedEmailDesc": {
-    "message": "Vytvoriť e-mailový alias pomocou externej služby preposielania."
+    "message": "Vytvoriť e-mailový alias pomocou externej služby presmerovania."
   },
   "forwarderDomainName": {
     "message": "E-mailová doména",
@@ -2603,11 +2642,11 @@
     }
   },
   "forwarderGeneratedBy": {
-    "message": "Vygenerované s Bitwarden.",
+    "message": "Vygenerované Bitwardenom.",
     "description": "Displayed with the address on the forwarding service's configuration screen."
   },
   "forwarderGeneratedByWithWebsite": {
-    "message": "Webstránka: $WEBSITE$. Vygenerované s Bitwarden.",
+    "message": "Webstránka: $WEBSITE$. Vygenerované Bitwardenon.",
     "description": "Displayed with the address on the forwarding service's configuration screen.",
     "placeholders": {
       "WEBSITE": {
@@ -2629,6 +2668,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Neplatný token API $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "Služba $SERVICENAME$ odmietla vašu žiadosť. Obráťte sa na svojho poskytovateľa služieb a požiadajte o pomoc.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "Služba $SERVICENAME$ odmietla vašu žiadosť: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -2745,14 +2808,23 @@
   "loginInitiated": {
     "message": "Iniciované prihlásenie"
   },
+  "logInRequestSent": {
+    "message": "Požiadavka bola odoslaná"
+  },
   "notificationSentDevice": {
     "message": "Do vášho zariadenia bolo odoslané upozornenie."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Do vášho zariadenia bolo odoslané upozornenie"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Uistite sa, že je váš účet odomknutý a fráza odtlačku prsta sa zhoduje s frázou na druhom zariadení"
+  "notificationSentDevicePart1": {
+    "message": "Odomknúť Bitwarden vo svojom zariadení alebo vo "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "webovej aplikácii"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Pred schválením sa uistite, že sa odtlačok prístupovej frázy zhoduje s tou uvedenou nižšie."
   },
   "needAnotherOptionV1": {
     "message": "Potrebujete inú možnosť?"
@@ -2782,11 +2854,11 @@
     "message": "Prepnúť počítadlo znakov",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Snažíte sa prihlásiť?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Snažíte sa získať prístup k svojmu účtu?"
   },
-  "logInAttemptBy": {
-    "message": "Pokus o prihlásenie pomocou $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Pokus o prístup z $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2875,11 @@
   "time": {
     "message": "Čas"
   },
-  "confirmLogIn": {
-    "message": "Potvrdiť prihlásenie"
+  "confirmAccess": {
+    "message": "Potvrdiť prístup"
   },
-  "denyLogIn": {
-    "message": "Odmietnuť prihlásenie"
+  "denyAccess": {
+    "message": "Zamietnuť prístup"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Potvrdené prihlásenie pomocou $EMAIL$ na $DEVICE$",
@@ -2843,8 +2915,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Táto žiadosť už nie je platná."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Potvrdiť pokus o prihlásenie pomocou $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Potvrďte pokus o prístup pre $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2926,9 @@
   },
   "logInRequested": {
     "message": "Požadované prihlásenie"
+  },
+  "accountAccessRequested": {
+    "message": "Žiadosť o prístup k účtu"
   },
   "creatingAccountOn": {
     "message": "Vytváranie účtu na"
@@ -3167,6 +3242,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "Pre váš účet je potrebné dvojstupňové prihlásenie Duo."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Pre váš účet sa vyžaduje dvojstupňové prihlásenie Duo. Na dokončenie prihlásenia postupujte podľa pokynov."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Na dokončenie prihlásenia postupujte podľa pokynov."
+  },
   "launchDuo": {
     "message": "Spustiť Duo v prehliadači"
   },
@@ -3424,8 +3505,26 @@
   "sshkeyApprovalTitle": {
     "message": "Potvrdiť použitie kľúča SSH"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Upozornenie: Presmerovanie agenta"
+  },
+  "agentForwardingWarningText": {
+    "message": "Táto požiadavka prichádza zo vzdialeného zariadenia, do ktorého ste prihlásení"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "žiada o prístup k"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "in order to"
+  },
+  "sshActionLogin": {
+    "message": "authenticate to a server"
+  },
+  "sshActionSign": {
+    "message": "podpísať správu"
+  },
+  "sshActionGitSign": {
+    "message": "podpísať git commit"
   },
   "unknownApplication": {
     "message": "Aplikácia"
@@ -3484,19 +3583,25 @@
   "changeAcctEmail": {
     "message": "Zmeniť e-mail účtu"
   },
-  "organizationUpgradeRequired": {
-    "message": "Vyžaduje sa upgrade organizácie"
+  "allowScreenshots": {
+    "message": "Povoliť snímanie obrazovky"
   },
-  "upgradeOrganization": {
-    "message": "Upgrade organizácie"
+  "allowScreenshotsDesc": {
+    "message": "Umožní zachytenie Bitwardenu na snímkach obrazovky a jej zobrazenie v reláciách vzdialenej plochy. Zakázanie tejto funkcie zabráni prístupu na niektoré externé displeje."
   },
-  "upgradeOrganizationDesc": {
-    "message": "Táto funkcia nie je k dispozícii pre bezplatné organizácie. Ak chcete odomknúť ďalšie funkcie, prejdite na platený plán."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Potvrdiť viditeľnosť okna"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Potvrďte, že okno je stále viditeľné."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Rozšírenie musíte aktualizovať"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Rozšírenie prehliadača, ktoré používate, je zastarané. Aktualizujte ho alebo zakážte overenie odtlačkov integrácie prehliadača v nastaveniach desktopovej aplikácie."
+  },
+  "changeAtRiskPassword": {
+    "message": "Zmeniť rizikové heslá"
   }
 }

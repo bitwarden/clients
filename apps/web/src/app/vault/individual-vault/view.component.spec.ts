@@ -12,6 +12,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -21,6 +22,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { ChangeLoginPasswordService, DefaultTaskService, TaskService } from "@bitwarden/vault";
 
 import { ViewCipherDialogParams, ViewCipherDialogResult, ViewComponent } from "./view.component";
 
@@ -82,7 +84,33 @@ describe("ViewComponent", () => {
           },
         },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(ViewComponent, {
+        remove: {
+          providers: [
+            { provide: TaskService, useClass: DefaultTaskService },
+            { provide: PlatformUtilsService, useValue: PlatformUtilsService },
+            {
+              provide: ChangeLoginPasswordService,
+              useValue: ChangeLoginPasswordService,
+            },
+          ],
+        },
+        add: {
+          providers: [
+            {
+              provide: TaskService,
+              useValue: mock<TaskService>(),
+            },
+            { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
+            {
+              provide: ChangeLoginPasswordService,
+              useValue: mock<ChangeLoginPasswordService>(),
+            },
+          ],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(ViewComponent);
     component = fixture.componentInstance;

@@ -459,7 +459,7 @@
     "message": "确定要覆盖当前用户名吗？"
   },
   "noneFolder": {
-    "message": "无文件夹",
+    "message": "默认文件夹",
     "description": "This is the folder for uncategorized items"
   },
   "addFolder": {
@@ -542,10 +542,6 @@
   "specialCharactersDescription": {
     "message": "包含特殊字符",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "单词数"
@@ -652,6 +648,15 @@
   "logInToBitwarden": {
     "message": "登录到 Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "输入发送到您的电子邮箱的代码"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "输入来自您的验证器 App 的代码"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "按下 YubiKey 以验证身份"
+  },
   "logInWithPasskey": {
     "message": "使用通行密钥登录"
   },
@@ -703,6 +708,15 @@
   },
   "masterPassHintLabel": {
     "message": "主密码提示"
+  },
+  "passwordStrengthScore": {
+    "message": "密码强度评分 $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "加入组织"
@@ -816,6 +830,9 @@
   "webauthnCancelOrTimeout": {
     "message": "身份验证被取消或耗时过长。请重试。"
   },
+  "openInNewTab": {
+    "message": "在新标签页中打开"
+  },
   "invalidVerificationCode": {
     "message": "无效的验证码"
   },
@@ -846,20 +863,30 @@
   "rememberMe": {
     "message": "记住我"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "30 天内在此设备上不再询问"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "再次发送验证码电子邮件"
   },
   "useAnotherTwoStepMethod": {
     "message": "使用其他两步登录方式"
   },
+  "selectAnotherMethod": {
+    "message": "选择其他方式",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "使用您的恢复代码"
+  },
   "insertYubiKey": {
     "message": "将您的 YubiKey 插入计算机的 USB 端口，然后触摸其按钮。"
   },
   "insertU2f": {
-    "message": "将您的安全钥匙插入计算机的 USB 端口。如果它有按钮，请触摸它。"
+    "message": "将您的安全密钥插入计算机的 USB 端口。如果它有按钮，请触摸它。"
   },
   "recoveryCodeDesc": {
-    "message": "无法访问您所有的双重身份提供程序吗？请使用您的恢复代码来停用您账户中所有的双重身份提供程序。"
+    "message": "无法访问您所有的双重身份提供程序吗？请使用您的恢复代码来关闭您账户中所有的双重身份提供程序。"
   },
   "recoveryCodeTitle": {
     "message": "恢复代码"
@@ -872,7 +899,7 @@
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
-    "message": "Yubico OTP 安全钥匙"
+    "message": "Yubico OTP 安全密钥"
   },
   "yubiKeyDesc": {
     "message": "使用 YubiKey 来访问您的账户。支持 YubiKey 4、4 Nano、4C 以及 NEO 设备。"
@@ -882,10 +909,10 @@
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
-    "message": "为您的组织使用 Duo Security 的 Duo 移动 App、短信、电话或 U2F 安全钥匙来进行验证。",
+    "message": "为您的组织使用 Duo Security 的 Duo 移动 App、短信、电话或 U2F 安全密钥来进行验证。",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "验证您的身份"
   },
   "weDontRecognizeThisDevice": {
@@ -898,7 +925,7 @@
     "message": "FIDO2 WebAuthn"
   },
   "webAuthnDesc": {
-    "message": "使用任何 WebAuthn 兼容的安全钥匙访问您的帐户。"
+    "message": "使用任何 WebAuthn 兼容的安全密钥访问您的帐户。"
   },
   "emailTitle": {
     "message": "电子邮箱"
@@ -913,10 +940,13 @@
     "message": "此账户已设置两步登录，但此设备不支持任何已配置的两步登录提供程序。"
   },
   "noTwoStepProviders2": {
-    "message": "请添加能更好支持跨设备使用的其他提供程序（例如验证器 App）。"
+    "message": "请添加其他跨设备支持更好的提供程序（例如验证器 App）。"
   },
   "twoStepOptions": {
     "message": "两步登录选项"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "选择两步登录方式"
   },
   "selfHostedEnvironment": {
     "message": "自托管环境"
@@ -1127,7 +1157,7 @@
     "message": "无效的主密码"
   },
   "twoStepLoginConfirmation": {
-    "message": "两步登录要求您从其他设备（例如安全钥匙、验证器 App、短信、电话或者电子邮件）来验证您的登录，这能使您的账户更加安全。两步登录需要在 bitwarden.com 网页版密码库中设置。现在访问此网站吗？"
+    "message": "两步登录要求您从其他设备（例如安全密钥、验证器 App、短信、电话或者电子邮件）来验证您的登录，这能使您的账户更加安全。两步登录需要在 bitwarden.com 网页版密码库中设置。现在访问此网站吗？"
   },
   "twoStepLogin": {
     "message": "两步登录"
@@ -1264,7 +1294,7 @@
     "message": "确认隐藏到托盘"
   },
   "confirmTrayDesc": {
-    "message": "禁用此设置也将禁用其他与托盘相关的设置。"
+    "message": "关闭此设置也将关闭其他与托盘相关的设置。"
   },
   "language": {
     "message": "语言"
@@ -1398,7 +1428,7 @@
     "message": "感谢您支持 Bitwarden。"
   },
   "premiumPrice": {
-    "message": "全部仅需 $PRICE$ /年！",
+    "message": "所有功能仅需 $PRICE$ /年！",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -1542,7 +1572,7 @@
     "message": "没有在已知的数据泄露中发现此密码，它暂时比较安全。"
   },
   "baseDomain": {
-    "message": "基础域",
+    "message": "基础域名",
     "description": "Domain name. Ex. website.com"
   },
   "domainName": {
@@ -1585,7 +1615,7 @@
     "message": "退出"
   },
   "showHide": {
-    "message": "显示/隐藏",
+    "message": "显示 / 隐藏",
     "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
   },
   "hideToTray": {
@@ -1721,7 +1751,7 @@
     "message": "脆弱的主密码"
   },
   "weakMasterPasswordDesc": {
-    "message": "您选择的主密码较弱。您应该使用强密码（或密码短语）来正确保护您的 Bitwarden 账户。仍要使用此主密码吗？"
+    "message": "您选择的主密码较弱。您应该使用强密码（或密码短语）来正确保护您的 Bitwarden 账户。确定要使用这个主密码吗？"
   },
   "pin": {
     "message": "PIN 码",
@@ -1764,16 +1794,19 @@
     "message": "解锁您的密码库"
   },
   "autoPromptWindowsHello": {
-    "message": "应用程序启动时要求使用 Windows Hello"
+    "message": "应用程序启动时提示 Windows Hello"
   },
   "autoPromptPolkit": {
-    "message": "启动时请求系统身份验证"
+    "message": "启动时提示系统身份验证"
   },
   "autoPromptTouchId": {
-    "message": "应用程序启动时要求使用触控 ID"
+    "message": "应用程序启动时提示触控 ID"
   },
   "requirePasswordOnStart": {
-    "message": "应用程序启动时要求输入密码或 PIN 码"
+    "message": "应用程序启动时要求密码或 PIN 码"
+  },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "应用程序启动时要求密码"
   },
   "recommendedForSecurity": {
     "message": "安全起见，推荐设置。"
@@ -1907,7 +1940,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
-    "message": "$TOTAL$ 不足",
+    "message": "总计 $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -2016,7 +2049,7 @@
     "message": "很遗憾，目前仅 Mac App Store 版本支持浏览器集成。"
   },
   "browserIntegrationWindowsStoreDesc": {
-    "message": "很遗憾，Microsoft Store 版本目前不支持浏览器整合。"
+    "message": "很遗憾，Microsoft Store 版本目前不支持浏览器集成。"
   },
   "browserIntegrationLinuxDesc": {
     "message": "很遗憾，Linux 版本目前不支持浏览器集成。"
@@ -2155,7 +2188,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createdSend": {
-    "message": "Send 已创建",
+    "message": "Send 已添加",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
@@ -2174,7 +2207,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
-    "message": "创建 Send",
+    "message": "新增 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
@@ -2239,10 +2272,16 @@
     "message": "已过期"
   },
   "pendingDeletion": {
-    "message": "等待删除"
+    "message": "待删除"
   },
   "webAuthnAuthenticate": {
     "message": "验证 WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "读取安全密钥"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "等待安全密钥交互……"
   },
   "hideEmail": {
     "message": "对接收者隐藏我的电子邮箱地址。"
@@ -2284,7 +2323,7 @@
     "message": "您的组织禁用了信任设备加密。要访问您的密码库，请设置一个主密码。"
   },
   "tryAgain": {
-    "message": "请重试"
+    "message": "重试"
   },
   "verificationRequiredForActionSetPinToContinue": {
     "message": "此操作需要验证。设置一个 PIN 码以继续。"
@@ -2374,7 +2413,7 @@
     "message": "自动注册"
   },
   "resetPasswordAutoEnrollInviteWarning": {
-    "message": "此组织有一个企业策略，将自动为你注册密码重置。注册后将允许组织管理员更改您的主密码。"
+    "message": "此组织有一个企业策略，将自动为您注册密码重置。注册后将允许组织管理员更改您的主密码。"
   },
   "vaultExportDisabled": {
     "message": "密码库导出已禁用"
@@ -2551,7 +2590,7 @@
     "message": "使用您的域名配置的 Catch-all 收件箱。"
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "使用此电子邮箱"
   },
   "random": {
     "message": "随机"
@@ -2640,6 +2679,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ 拒绝了您的请求。请联系您的服务提供商寻求帮助。",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ 拒绝了您的请求：$ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "无法获取 $SERVICENAME$ 电子邮箱账户 ID。",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -2707,7 +2770,7 @@
     "message": "组织已停用"
   },
   "disabledOrganizationFilterError": {
-    "message": "无法访问已停用组织中的项目。请联系您的组织所有者获取协助。"
+    "message": "无法访问已停用组织中的项目。请联系您的组织所有者寻求帮助。"
   },
   "neverLockWarning": {
     "message": "确定要使用「从不」选项吗？将锁定选项设置为「从不」会将密码库的加密密钥存储在您的设备上。如果使用此选项，您必须确保您的设备安全。"
@@ -2745,14 +2808,23 @@
   "loginInitiated": {
     "message": "登录已发起"
   },
+  "logInRequestSent": {
+    "message": "请求已发送"
+  },
   "notificationSentDevice": {
     "message": "通知已发送到您的设备。"
   },
   "aNotificationWasSentToYourDevice": {
     "message": "通知已发送到您的设备"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "确保您的账户已解锁，并且指纹短语与其他设备上的相匹配。"
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "网页 App"
+  },
+  "notificationSentDevicePart2": {
+    "message": "在批准前，请确保指纹短语与下面的相匹配。"
   },
   "needAnotherOptionV1": {
     "message": "需要其他选项吗？"
@@ -2782,11 +2854,11 @@
     "message": "字符计数开关",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "您正在尝试登录吗？"
+  "areYouTryingToAccessYourAccount": {
+    "message": "您正在尝试访问您的账户吗？"
   },
-  "logInAttemptBy": {
-    "message": "$EMAIL$ 的登录尝试",
+  "accessAttemptBy": {
+    "message": "$EMAIL$ 的访问尝试",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2875,11 @@
   "time": {
     "message": "时间"
   },
-  "confirmLogIn": {
-    "message": "确认登录"
+  "confirmAccess": {
+    "message": "确认访问"
   },
-  "denyLogIn": {
-    "message": "拒绝登录"
+  "denyAccess": {
+    "message": "拒绝访问"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "已确认 $EMAIL$ 在 $DEVICE$ 上的登录",
@@ -2843,8 +2915,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "此请求已失效。"
   },
-  "confirmLoginAtemptForMail": {
-    "message": "确认 $EMAIL$ 的登录尝试",
+  "confirmAccessAttempt": {
+    "message": "确认 $EMAIL$ 的访问尝试",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2926,9 @@
   },
   "logInRequested": {
     "message": "已请求登录"
+  },
+  "accountAccessRequested": {
+    "message": "已请求账户访问"
   },
   "creatingAccountOn": {
     "message": "创建账户至"
@@ -2886,7 +2961,7 @@
     "message": "主密码弱且曾经暴露"
   },
   "weakAndBreachedMasterPasswordDesc": {
-    "message": "识别到弱密码且其出现在数据泄露中。请使用一个强且唯一的密码以保护你的账户。确定要使用这个密码吗？"
+    "message": "识别到弱密码且其出现在数据泄露中。请使用一个强且唯一的密码以保护您的账户。确定要使用这个密码吗？"
   },
   "useThisPassword": {
     "message": "使用此密码"
@@ -3159,13 +3234,19 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "与 Duo 服务连接时出错。请使用不同的两步登录方式或联系 Duo 获取协助。"
+    "message": "与 Duo 服务连接时出错。请使用其他两步登录方式或联系 Duo 寻求帮助。"
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "启动 Duo 然后按照步骤完成登录。"
   },
   "duoRequiredByOrgForAccount": {
     "message": "您的账户要求使用 Duo 两步登录。"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "您的账户要求使用 Duo 两步登录。请按照以下步骤完成登录。"
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "按照以下步骤完成登录。"
   },
   "launchDuo": {
     "message": "在浏览器中启动 Duo"
@@ -3424,8 +3505,26 @@
   "sshkeyApprovalTitle": {
     "message": "确认 SSH 密钥的使用"
   },
+  "agentForwardingWarningTitle": {
+    "message": "警告：代理转发"
+  },
+  "agentForwardingWarningText": {
+    "message": "此请求来自您登录的某台远程设备"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "正在请求访问"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "为了"
+  },
+  "sshActionLogin": {
+    "message": "向服务器验证身份"
+  },
+  "sshActionSign": {
+    "message": "签署一条消息"
+  },
+  "sshActionGitSign": {
+    "message": "签名一个 Git 提交"
   },
   "unknownApplication": {
     "message": "某个应用程序"
@@ -3484,19 +3583,25 @@
   "changeAcctEmail": {
     "message": "更改账户电子邮箱"
   },
-  "organizationUpgradeRequired": {
-    "message": "需要升级组织"
+  "allowScreenshots": {
+    "message": "允许屏幕截图"
   },
-  "upgradeOrganization": {
-    "message": "升级组织"
+  "allowScreenshotsDesc": {
+    "message": "允许捕获 Bitwarden 桌面应用程序屏幕截图并在远程桌面会话中查看。禁用后将阻止在某些外部显示器上访问。"
   },
-  "upgradeOrganizationDesc": {
-    "message": "此功能不适用于免费组织。请切换到付费计划以解锁更多功能。"
+  "confirmWindowStillVisibleTitle": {
+    "message": "确认窗口仍然可见"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "请确认窗口仍然可见。"
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "扩展需要更新"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "您正在使用的浏览器扩展已过时。请更新它或在桌面 App 的设置中禁用浏览器集成指纹验证。"
+  },
+  "changeAtRiskPassword": {
+    "message": "更改有风险的密码"
   }
 }

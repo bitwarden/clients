@@ -543,10 +543,6 @@
     "message": "Speciális karakterek bevonása",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Szavak száma"
   },
@@ -652,6 +648,15 @@
   "logInToBitwarden": {
     "message": "Bejelentkezés a Bitwardenbe"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Adjuk meg az email címre elküldött kódot."
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Adjuk meg a hitelesítő alkalmazása által generált kódot."
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Nyomjuk meg a YubiKey-t a hitelesítéshez."
+  },
   "logInWithPasskey": {
     "message": "Bejelentkezés hozzáférési kulccsal"
   },
@@ -703,6 +708,15 @@
   },
   "masterPassHintLabel": {
     "message": "Mesterjelszó emlékeztető"
+  },
+  "passwordStrengthScore": {
+    "message": "A jelszó erősségi pontszáma $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Csatlakozás szervezethez"
@@ -816,6 +830,9 @@
   "webauthnCancelOrTimeout": {
     "message": "A hitelesítés megszakításra került vagy túl sokáig tartott. Próbáljuk újra."
   },
+  "openInNewTab": {
+    "message": "Megnyitás új fülön"
+  },
   "invalidVerificationCode": {
     "message": "Érvénytelen ellenőrző kód"
   },
@@ -846,11 +863,21 @@
   "rememberMe": {
     "message": "Adatok megjegyzése"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Ne kérdezzen újra ezen az eszközön 30 napig"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Megerősítő kód ismételt elküldése emailben"
   },
   "useAnotherTwoStepMethod": {
     "message": "Másik kétlépcsős bejelentkezési mód használata"
+  },
+  "selectAnotherMethod": {
+    "message": "Másik módszer választás",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Helyreállító kód használata"
   },
   "insertYubiKey": {
     "message": "A YubiKey beillesztése a számítógép USB portjába és a rajta levő gomb megnyomása."
@@ -885,7 +912,7 @@
     "message": "Ellenőrzés szervezeti Duo Security segítségével a Duo Mobile alkalmazás, SMS, telefonhívás vagy U2F biztonsági kulcs használatával.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Személyazonosság ellenőrzése"
   },
   "weDontRecognizeThisDevice": {
@@ -917,6 +944,9 @@
   },
   "twoStepOptions": {
     "message": "Kétlépcsős bejelentkezés opciók"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Kétlépcsős bejelentkezési mód használata"
   },
   "selfHostedEnvironment": {
     "message": "Saját üzemeltetésű környezet"
@@ -1775,6 +1805,9 @@
   "requirePasswordOnStart": {
     "message": "Jelszó vagy PIN kód szükséges az alkalmazás indításakor"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Jelszó szükséges az alkalmazás indításakor"
+  },
   "recommendedForSecurity": {
     "message": "Biztonsági szempontból ajánlott."
   },
@@ -2244,6 +2277,12 @@
   "webAuthnAuthenticate": {
     "message": "WebAutn hitelesítés"
   },
+  "readSecurityKey": {
+    "message": "Biztonsági kulcs olvasása"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Várakozás a biztonsági kulcs interakciójára..."
+  },
   "hideEmail": {
     "message": "Saját email cím elrejtése a címzettek elől."
   },
@@ -2640,6 +2679,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ elutasította a kérést. Vegyük fel a kapcsolatot szolgáltatóval segítségért.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ elutasította a kérést: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Nem lehet beolvasni $SERVICENAME$ maszkolt email fiók azonosítót.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -2745,14 +2808,23 @@
   "loginInitiated": {
     "message": "A bejelentkezés elindításra került."
   },
+  "logInRequestSent": {
+    "message": "A kérés elküldésre került."
+  },
   "notificationSentDevice": {
     "message": "Egy értesítés lett elküldve az eszközre."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Egy értesítés lett elküldve az eszközre."
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Ellenőrizzük, hogy a széf feloldásra került és az ujjlenyomat kifejezés egyezik a másik eszközön levővel."
+  "notificationSentDevicePart1": {
+    "message": "A Bitwarden zárolás feloldása az eszközön vagy: "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "webalkalmazás"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Jóváhagyás előtt győződjünk meg arról, hogy az ujjlenyomat kifejezés megegyezik az alábbi kifejezéssel."
   },
   "needAnotherOptionV1": {
     "message": "Másik opció szükséges?"
@@ -2782,10 +2854,10 @@
     "message": "Karakterszámláló váltás",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Megpróbálunk bejelentkezni?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "A fiókhoz próbálunk hozzáférni?"
   },
-  "logInAttemptBy": {
+  "accessAttemptBy": {
     "message": "Bejelentkezési kísérlet $EMAIL$ segítségével",
     "placeholders": {
       "email": {
@@ -2803,11 +2875,11 @@
   "time": {
     "message": "Időpont"
   },
-  "confirmLogIn": {
-    "message": "Bejelentkezés megerősítése"
+  "confirmAccess": {
+    "message": "Hozzáférés megerősítése"
   },
-  "denyLogIn": {
-    "message": "Bejelentkezés megtagadása"
+  "denyAccess": {
+    "message": "Hozzáférés megtagadása"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "A bejelelentketés $EMAIL$ email címmel megerősítésre került $DEVICE$ eszközön.",
@@ -2843,7 +2915,7 @@
   "thisRequestIsNoLongerValid": {
     "message": "A kérés a továbbiakban már nem érvényes."
   },
-  "confirmLoginAtemptForMail": {
+  "confirmAccessAttempt": {
     "message": "Bejelentkezési kísérlet megerősítése $EMAIL$ email címmel",
     "placeholders": {
       "email": {
@@ -2854,6 +2926,9 @@
   },
   "logInRequested": {
     "message": "Bejelentkezés megkérve"
+  },
+  "accountAccessRequested": {
+    "message": "Fiók hozzáférés kérés történt."
   },
   "creatingAccountOn": {
     "message": "Fiók létrehozása:"
@@ -3167,6 +3242,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "A fiókhoz kétlépcsős DUO bejelentkezés szükséges."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo kétlépcsős bejelentkezés szükséges a fiókhoz. Kövessük az alábbi lépéseket a bejelentkezés befejezéséhez."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Kövessük az alábbi lépéseket a bejelentkezés befejezéséhez."
+  },
   "launchDuo": {
     "message": "A Duo elindítása a böngészőben"
   },
@@ -3424,8 +3505,26 @@
   "sshkeyApprovalTitle": {
     "message": "SSH kulcs használat megerősítése"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Figyelmeztetés: Böngésző továbbítás"
+  },
+  "agentForwardingWarningText": {
+    "message": "Ez a kérelem egy távoli eszközről érkezik, amelyre bejelentkeztünk"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "hozzáférést kér:"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "azért, hogy"
+  },
+  "sshActionLogin": {
+    "message": "hitelesítsük magunkat a szerveren"
+  },
+  "sshActionSign": {
+    "message": "aláírjunk egy üzenetet"
+  },
+  "sshActionGitSign": {
+    "message": "aléírjunk egy git commit elemet"
   },
   "unknownApplication": {
     "message": "Egy alkalmazás"
@@ -3484,19 +3583,25 @@
   "changeAcctEmail": {
     "message": "Fiók email cím megváltoztatása"
   },
-  "organizationUpgradeRequired": {
-    "message": "A szervezet felminősítése szükséges."
+  "allowScreenshots": {
+    "message": "Képernyőrögzítés engedélyezése"
   },
-  "upgradeOrganization": {
-    "message": "Szervezeti áttérés"
+  "allowScreenshotsDesc": {
+    "message": "Engedélyezi a Bitwarden asztali alkalmazásnak a képernyőképek rögzítését és távoli asztali munkamenetekben megtekintését. Ennek letiltása megakadályozza a hozzáférést bizonyos külső kijelzőkhöz."
   },
-  "upgradeOrganizationDesc": {
-    "message": "Ez a szolgáltatás nem elérhető ingyenes szervezeteknek. Váltás fizetős díjcsomagra a további funkciók feloldásához."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Erősítsük meg, hogy az ablak továbbra is látható."
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Ellenőrizzük, hogy az ablak továbbra is látható-e."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Kiterjesztés frissítés szükséges"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Al használt böngésző bővítmény elavult. Frissítsük vagy tiltsuk le a böngésző integráció ujjlenyomat ellenőrzését az asztali alkalmazás beállításainál."
+  },
+  "changeAtRiskPassword": {
+    "message": "Kockázatos jelszó megváltoztatása"
   }
 }
