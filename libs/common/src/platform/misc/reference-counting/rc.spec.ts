@@ -1,11 +1,3 @@
-// Temporary workaround for Symbol.dispose
-// remove when https://github.com/jestjs/jest/issues/14874 is resolved and *released*
-const disposeSymbol: unique symbol = Symbol("Symbol.dispose");
-const asyncDisposeSymbol: unique symbol = Symbol("Symbol.asyncDispose");
-(Symbol as any).asyncDispose ??= asyncDisposeSymbol as unknown as SymbolConstructor["asyncDispose"];
-(Symbol as any).dispose ??= disposeSymbol as unknown as SymbolConstructor["dispose"];
-
-// Import needs to be after the workaround
 import { Rc } from "./rc";
 
 export class FreeableTestValue {

@@ -124,7 +124,9 @@ class MyWebPushConnector implements WebPushConnector {
           return this.webPushApiService.putSubscription(subscription.toJSON());
         }).pipe(
           switchMap(() => this.pushEvent$),
-          map((e) => new NotificationResponse(e.data.json().data)),
+          map((e) => {
+            return new NotificationResponse(e.data.json().data);
+          }),
         );
       }),
     );

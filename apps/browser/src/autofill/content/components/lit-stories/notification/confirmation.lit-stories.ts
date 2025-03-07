@@ -7,7 +7,7 @@ import { NotificationConfirmationBody } from "../../notification/confirmation";
 type Args = {
   buttonText: string;
   confirmationMessage: string;
-  handleClick: () => void;
+  handleOpenVault: () => void;
   theme: Theme;
   error: string;
 };
