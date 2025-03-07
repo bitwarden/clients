@@ -8,10 +8,10 @@ import { ToastService } from "@bitwarden/components";
 import { DeviceTrustToastService as DeviceTrustToastServiceAbstraction } from "./device-trust-toast.service.abstraction";
 
 export class DeviceTrustToastService implements DeviceTrustToastServiceAbstraction {
-  private adminLoginApproved$: Observable<boolean>;
-  private deviceTrusted$: Observable<boolean>;
+  private adminLoginApproved$: Observable<void>;
+  private deviceTrusted$: Observable<void>;
 
-  setupListeners$: Observable<boolean>;
+  setupListeners$: Observable<void>;
 
   constructor(
     private authRequestService: AuthRequestServiceAbstraction,
@@ -20,26 +20,22 @@ export class DeviceTrustToastService implements DeviceTrustToastServiceAbstracti
     private toastService: ToastService,
   ) {
     this.adminLoginApproved$ = this.authRequestService.adminLoginApproved$.pipe(
-      tap((loginApproved: boolean) => {
-        if (loginApproved) {
-          this.toastService.showToast({
-            variant: "success",
-            title: "",
-            message: this.i18nService.t("loginApproved"),
-          });
-        }
+      tap(() => {
+        this.toastService.showToast({
+          variant: "success",
+          title: "",
+          message: this.i18nService.t("loginApproved"),
+        });
       }),
     );
 
     this.deviceTrusted$ = this.deviceTrustService.deviceTrusted$.pipe(
-      tap((deviceTrusted: boolean) => {
-        if (deviceTrusted) {
-          this.toastService.showToast({
-            variant: "success",
-            title: "",
-            message: this.i18nService.t("deviceTrusted"),
-          });
-        }
+      tap(() => {
+        this.toastService.showToast({
+          variant: "success",
+          title: "",
+          message: this.i18nService.t("deviceTrusted"),
+        });
       }),
     );
 
