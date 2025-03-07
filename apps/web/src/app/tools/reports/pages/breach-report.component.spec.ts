@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { mock, MockProxy } from "jest-mock-extended";

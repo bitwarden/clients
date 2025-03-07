@@ -37,7 +37,6 @@ import {
   selector: "app-two-factor",
   templateUrl: "two-factor-v1.component.html",
 })
- 
 export class TwoFactorComponentV1 extends BaseTwoFactorComponent implements OnInit, OnDestroy {
   @ViewChild("twoFactorOptions", { read: ViewContainerRef, static: true })
   twoFactorOptionsModal: ViewContainerRef;
