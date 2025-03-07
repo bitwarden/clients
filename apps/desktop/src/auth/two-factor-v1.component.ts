@@ -37,7 +37,6 @@ const BroadcasterSubscriptionId = "TwoFactorComponent";
   selector: "app-two-factor",
   templateUrl: "two-factor-v1.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class TwoFactorComponentV1 extends BaseTwoFactorComponent implements OnDestroy {
   @ViewChild("twoFactorOptions", { read: ViewContainerRef, static: true })
   twoFactorOptionsModal: ViewContainerRef;

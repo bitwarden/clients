@@ -15,7 +15,6 @@ import {
   DrawerType,
   PasswordHealthReportApplicationsResponse,
 } from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
-// eslint-disable-next-line no-restricted-imports -- used for dependency injection
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
