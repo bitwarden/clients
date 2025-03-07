@@ -201,6 +201,9 @@
   "notes": {
     "message": "ಟಿಪ್ಪಣಿಗಳು"
   },
+  "privateNote": {
+    "message": "Private note"
+  },
   "note": {
     "message": "Note"
   },
@@ -1179,7 +1182,7 @@
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
@@ -2251,6 +2254,9 @@
   },
   "revokeAccess": {
     "message": "Revoke access"
+  },
+  "revoke": {
+    "message": "Revoke"
   },
   "twoStepLoginProviderEnabled": {
     "message": "ಈ ಎರಡು ಹಂತದ ಲಾಗಿನ್ ಒದಗಿಸುವವರನ್ನು ನಿಮ್ಮ ಖಾತೆಯಲ್ಲಿ ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ."
@@ -5081,11 +5087,39 @@
   "requireSsoExemption": {
     "message": "ಸಂಸ್ಥೆಯ ಮಾಲೀಕರು ಮತ್ತು ನಿರ್ವಾಹಕರು ಈ ನೀತಿಯ ಜಾರಿಯಿಂದ ವಿನಾಯಿತಿ ಪಡೆದಿದ್ದಾರೆ."
   },
+  "limitSendViews": {
+    "message": "Limit views"
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
   "sendTypeFile": {
     "message": "ಫೈಲ್"
   },
   "sendTypeText": {
     "message": "ಪಠ್ಯ"
+  },
+  "sendPasswordDescV3": {
+    "message": "Add an optional password for recipients to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "ಹೊಸ ಕಳುಹಿಸುವಿಕೆಯನ್ನು ರಚಿಸಿ",
@@ -5111,19 +5145,15 @@
     "message": "ಅಳಿಸಿ ಕಳುಹಿಸಿ",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "ಈ ಕಳುಹಿಸುವಿಕೆಯನ್ನು ಅಳಿಸಲು ನೀವು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "ಇದು ಯಾವ ರೀತಿಯ ಕಳುಹಿಸುತ್ತದೆ?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Are you sure you want to permanently delete this Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "ಅಳಿಸುವ ದಿನಾಂಕ"
   },
-  "deletionDateDesc": {
-    "message": "ಕಳುಹಿಸಿದ ದಿನಾಂಕ ಮತ್ತು ಸಮಯದ ಮೇಲೆ ಕಳುಹಿಸುವಿಕೆಯನ್ನು ಶಾಶ್ವತವಾಗಿ ಅಳಿಸಲಾಗುತ್ತದೆ.",
+  "deletionDateDescV2": {
+    "message": "The Send will be permanently deleted on this date.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5135,21 +5165,6 @@
   },
   "maxAccessCount": {
     "message": "ಗರಿಷ್ಠ ಪ್ರವೇಶ ಎಣಿಕೆ"
-  },
-  "maxAccessCountDesc": {
-    "message": "ಹೊಂದಿಸಿದ್ದರೆ, ಗರಿಷ್ಠ ಪ್ರವೇಶ ಎಣಿಕೆ ತಲುಪಿದ ನಂತರ ಬಳಕೆದಾರರಿಗೆ ಈ ಕಳುಹಿಸುವಿಕೆಯನ್ನು ಪ್ರವೇಶಿಸಲು ಸಾಧ್ಯವಾಗುವುದಿಲ್ಲ.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "ಪ್ರಸ್ತುತ ಪ್ರವೇಶ ಎಣಿಕೆ"
-  },
-  "sendPasswordDesc": {
-    "message": "ಈ ಕಳುಹಿಸುವಿಕೆಯನ್ನು ಪ್ರವೇಶಿಸಲು ಬಳಕೆದಾರರಿಗೆ ಪಾಸ್‌ವರ್ಡ್ ಐಚ್ ಗತ್ಯವಿದೆ.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "ಈ ಕಳುಹಿಸುವ ಬಗ್ಗೆ ಖಾಸಗಿ ಟಿಪ್ಪಣಿಗಳು.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ"
@@ -5177,13 +5192,6 @@
   "removePasswordConfirmation": {
     "message": "ಪಾಸ್ವರ್ಡ್ ಅನ್ನು ತೆಗೆದುಹಾಕಲು ನೀವು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ?"
   },
-  "hideEmail": {
-    "message": "ಸ್ವೀಕರಿಸುವವರಿಂದ ನನ್ನ ಇಮೇಲ್ ವಿಳಾಸವನ್ನು ಮರೆಮಾಡಿ."
-  },
-  "disableThisSend": {
-    "message": "ಇದನ್ನು ಕಳುಹಿಸುವುದನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ ಇದರಿಂದ ಯಾರೂ ಅದನ್ನು ಪ್ರವೇಶಿಸಲಾಗುವುದಿಲ್ಲ.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "ಎಲ್ಲಾ ಕಳುಹಿಸುತ್ತದೆ"
   },
@@ -5193,6 +5201,9 @@
   },
   "pendingDeletion": {
     "message": "ಅಳಿಸುವಿಕೆ ಬಾಕಿ ಉಳಿದಿದೆ"
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
   },
   "expired": {
     "message": "ಅವಧಿ ಮೀರಿದೆ"
@@ -5415,13 +5426,6 @@
     "message": "ಕಳುಹಿಸುವಿಕೆಯನ್ನು ರಚಿಸುವಾಗ ಅಥವಾ ಸಂಪಾದಿಸುವಾಗ ಬಳಕೆದಾರರು ತಮ್ಮ ಇಮೇಲ್ ವಿಳಾಸವನ್ನು ಸ್ವೀಕರಿಸುವವರಿಂದ ಮರೆಮಾಡಲು ಅನುಮತಿಸಬೇಡಿ.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "ಕೆಳಗಿನ ಸಂಸ್ಥೆಯ ನೀತಿಗಳು ಪ್ರಸ್ತುತ ಜಾರಿಯಲ್ಲಿವೆ:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "ಕಳುಹಿಸುವಿಕೆಯನ್ನು ರಚಿಸುವಾಗ ಅಥವಾ ಸಂಪಾದಿಸುವಾಗ ಬಳಕೆದಾರರು ತಮ್ಮ ಇಮೇಲ್ ವಿಳಾಸವನ್ನು ಸ್ವೀಕರಿಸುವವರಿಂದ ಮರೆಮಾಡಲು ಅನುಮತಿಸಲಾಗುವುದಿಲ್ಲ.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "ಮಾರ್ಪಡಿಸಿದ ನೀತಿ $ID$.",
     "placeholders": {
@@ -5520,27 +5524,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "ಸಂಸ್ಥೆ ಬಳಕೆದಾರರಿಗಾಗಿ ವೈಯಕ್ತಿಕ ಮಾಲೀಕತ್ವವನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ"
-  },
-  "textHiddenByDefault": {
-    "message": "ಕಳುಹಿಸುವಿಕೆಯನ್ನು ಪ್ರವೇಶಿಸುವಾಗ, ಪಠ್ಯವನ್ನು ಪೂರ್ವನಿಯೋಜಿತವಾಗಿ ಮರೆಮಾಡಿ",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "ಇದನ್ನು ಕಳುಹಿಸಲು ವಿವರಿಸಲು ಸ್ನೇಹಪರ ಹೆಸರು.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "ನೀವು ಕಳುಹಿಸಲು ಬಯಸುವ ಪಠ್ಯ."
-  },
-  "sendFileDesc": {
-    "message": "ನೀವು ಕಳುಹಿಸಲು ಬಯಸುವ ಫೈಲ್."
-  },
-  "copySendLinkOnSave": {
-    "message": "ಇದನ್ನು ಹಂಚಿಕೊಳ್ಳಲು ಲಿಂಕ್ ಅನ್ನು ನಕಲಿಸಿ ಉಳಿಸಿದ ನಂತರ ನನ್ನ ಕ್ಲಿಪ್‌ಬೋರ್ಡ್‌ಗೆ ಕಳುಹಿಸಿ."
-  },
-  "sendLinkLabel": {
-    "message": "ಲಿಂಕ್ ಕಳುಹಿಸಿ",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "ಕಳುಹಿಸಿ",
@@ -5689,6 +5672,9 @@
   },
   "dateParsingError": {
     "message": "ನಿಮ್ಮ ಅಳಿಸುವಿಕೆ ಮತ್ತು ಮುಕ್ತಾಯ ದಿನಾಂಕಗಳನ್ನು ಉಳಿಸುವಲ್ಲಿ ದೋಷ ಕಂಡುಬಂದಿದೆ."
+  },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
   },
   "webAuthnFallbackMsg": {
     "message": "ನಿಮ್ಮ 2FA ಅನ್ನು ಪರಿಶೀಲಿಸಲು ದಯವಿಟ್ಟು ಕೆಳಗಿನ ಬಟನ್ ಕ್ಲಿಕ್ ಮಾಡಿ."
@@ -9848,8 +9834,14 @@
   "learnMoreAboutApi": {
     "message": "Learn more about Bitwarden's API"
   },
+  "fileSend": {
+    "message": "File Send"
+  },
   "fileSends": {
     "message": "File Sends"
+  },
+  "textSend": {
+    "message": "Text Send"
   },
   "textSends": {
     "message": "Text Sends"
@@ -10083,10 +10075,6 @@
   "specialCharactersDescription": {
     "message": "Include special characters",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Add attachment"
@@ -10486,6 +10474,9 @@
   },
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"
