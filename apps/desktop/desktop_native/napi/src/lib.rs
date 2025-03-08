@@ -816,3 +816,11 @@ pub mod crypto {
             .map(Buffer::from)
     }
 }
+
+#[napi]
+pub mod passkey_authenticator {
+    #[napi]
+    pub fn register() {
+        let _ = windows_plugin_authenticator::register();
+    }
+}
