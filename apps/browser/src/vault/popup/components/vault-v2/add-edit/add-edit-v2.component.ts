@@ -440,6 +440,32 @@ const mapAddEditCipherInfoToInitialValues = (
     initialValues.name = cipher.name;
   }
 
+  if (cipher.type === CipherType.Card) {
+    const card = cipher.card;
+
+    if (card != null) {
+      if (card.cardholderName != null) {
+        initialValues.cardholderName = card.cardholderName;
+      }
+
+      if (card.number != null) {
+        initialValues.number = card.number;
+      }
+
+      if (card.expMonth != null) {
+        initialValues.expMonth = card.expMonth;
+      }
+
+      if (card.expYear != null) {
+        initialValues.expYear = card.expYear;
+      }
+
+      if (card.code != null) {
+        initialValues.code = card.code;
+      }
+    }
+  }
+
   if (cipher.type === CipherType.Login) {
     const login = cipher.login;
 
