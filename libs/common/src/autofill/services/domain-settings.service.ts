@@ -155,7 +155,15 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
   }
 
   async setEquivalentDomains(newValue: EquivalentDomains, userId: UserId): Promise<void> {
-    await this.stateProvider.getUser(userId, EQUIVALENT_DOMAINS).update(() => newValue);
+    await this.stateProvider.getUser(userId, EQUIVALENT_DOMAINS).update(() => newValue, {
+      shouldUpdate: (previous) => {
+        if (newValue.length === 0 && previous.length === 0) {
+          return false;
+        } else {
+          return true;
+        }
+      },
+    });
   }
 
   async setDefaultUriMatchStrategy(newValue: UriMatchStrategySetting): Promise<void> {
