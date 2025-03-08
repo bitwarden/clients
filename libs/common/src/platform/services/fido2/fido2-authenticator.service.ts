@@ -133,6 +133,7 @@ export class Fido2AuthenticatorService<ParentWindowReference>
         userVerification: params.requireUserVerification,
         rpId: params.rpEntity.id,
       });
+
       const cipherId = response.cipherId;
       userVerified = response.userVerified;
 
@@ -181,7 +182,6 @@ export class Fido2AuthenticatorService<ParentWindowReference>
         );
         throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.Unknown);
       }
-
       const authData = await generateAuthData({
         rpId: params.rpEntity.id,
         credentialId: parseCredentialId(credentialId),

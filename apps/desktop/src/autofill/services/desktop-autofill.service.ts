@@ -1,7 +1,6 @@
 import { Injectable, OnDestroy } from "@angular/core";
 import { autofill } from "desktop_native/napi";
 import {
-  EMPTY,
   Subject,
   distinctUntilChanged,
   filter,
@@ -59,9 +58,9 @@ export class DesktopAutofillService implements OnDestroy {
       .pipe(
         distinctUntilChanged(),
         switchMap((enabled) => {
-          if (!enabled) {
+          /*if (!enabled) {
             return EMPTY;
-          }
+          }*/
 
           return this.accountService.activeAccount$.pipe(
             map((account) => account?.id),
