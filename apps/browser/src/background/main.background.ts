@@ -111,6 +111,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -259,6 +260,7 @@ import { BackgroundBrowserBiometricsService } from "../key-management/biometrics
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { flagEnabled } from "../platform/flags";
+import { IpcBackgroundService } from "../platform/ipc/ipc-background.service";
 import { UpdateBadge } from "../platform/listeners/update-badge";
 /* eslint-disable no-restricted-imports */
 import { ChromeMessageSender } from "../platform/messaging/chrome-message.sender";
@@ -398,6 +400,8 @@ export default class MainBackground {
   sdkLoadService: SdkLoadService;
   cipherAuthorizationService: CipherAuthorizationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
+
+  ipcService: IpcService;
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
@@ -1286,6 +1290,8 @@ export default class MainBackground {
     );
 
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
+
+    this.ipcService = new IpcBackgroundService(this.logService);
   }
 
   async bootstrap() {
@@ -1352,6 +1358,7 @@ export default class MainBackground {
     }
 
     await this.initOverlayAndTabsBackground();
+    await this.ipcService.init();
 
     return new Promise<void>((resolve) => {
       setTimeout(async () => {
