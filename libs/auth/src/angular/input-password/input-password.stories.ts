@@ -18,7 +18,7 @@ import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line import/no-restricted-paths, no-restricted-imports
 import { PreloadedEnglishI18nModule } from "../../../../../apps/web/src/app/core/tests";
 
-import { InputPasswordComponent } from "./input-password.component";
+import { InputPasswordComponent, Flow } from "./input-password.component";
 
 export default {
   title: "Auth/Input Password",
@@ -88,6 +88,12 @@ export default {
     }),
   ],
   args: {
+    Flow: {
+      SetInitialPassword: Flow.SetInitialPassword,
+      ChangeExistingPassword: Flow.ChangeExistingPassword,
+      ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey:
+        Flow.ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey,
+    },
     masterPasswordPolicyOptions: {
       minComplexity: 4,
       minLength: 14,
@@ -101,11 +107,29 @@ export default {
 
 type Story = StoryObj<InputPasswordComponent>;
 
-export const Default: Story = {
+export const SetInitialPassword: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <auth-input-password></auth-input-password>
+      <auth-input-password [flow]="Flow.SetInitialPassword"></auth-input-password>
+    `,
+  }),
+};
+
+export const ChangeExistingPassword: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <auth-input-password [flow]="Flow.ChangeExistingPassword"></auth-input-password>
+    `,
+  }),
+};
+
+export const ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <auth-input-password [flow]="Flow.ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey"></auth-input-password>
     `,
   }),
 };
@@ -114,7 +138,7 @@ export const WithPolicy: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <auth-input-password [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"></auth-input-password>
+      <auth-input-password [flow]="Flow.SetInitialPassword" [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"></auth-input-password>
     `,
   }),
 };
@@ -123,7 +147,7 @@ export const InlineButton: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <auth-input-password [btnBlock]="false" [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"></auth-input-password>
+      <auth-input-password [flow]="Flow.SetInitialPassword" [btnBlock]="false" [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"></auth-input-password>
     `,
   }),
 };

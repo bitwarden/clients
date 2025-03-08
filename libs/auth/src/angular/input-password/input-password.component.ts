@@ -36,6 +36,29 @@ import { PasswordCalloutComponent } from "../password-callout/password-callout.c
 
 import { PasswordInputResult } from "./password-input-result";
 
+/**
+ * Determines which form input elements will be displayed in the UI.
+ */
+export enum Flow {
+  /**
+   * - Input: New master password
+   * - Input: Confirm new master password
+   * - Input: Hint
+   * - Checkbox: Check for breaches
+   */
+  SetInitialPassword,
+  /**
+   * Everything above, plus:
+   * - Input: Current master password (as the first element in the UI)
+   */
+  ChangeExistingPassword,
+  /**
+   * Everything above, plus:
+   * - Checkbox: Rotate user key (as the last element in the UI)
+   */
+  ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey,
+}
+
 @Component({
   standalone: true,
   selector: "auth-input-password",
@@ -57,12 +80,14 @@ import { PasswordInputResult } from "./password-input-result";
 export class InputPasswordComponent {
   @Output() onPasswordFormSubmit = new EventEmitter<PasswordInputResult>();
 
+  @Input({ required: true }) flow: Flow;
   @Input({ required: true }) email: string;
-  @Input() buttonText: string;
   @Input() masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
   @Input() loading: boolean = false;
+  @Input() buttonText: string;
   @Input() btnBlock: boolean = true;
 
+  protected Flow = Flow;
   private minHintLength = 0;
   protected maxHintLength = 50;
   protected minPasswordLength = Utils.minimumPasswordLength;
@@ -73,25 +98,33 @@ export class InputPasswordComponent {
 
   protected formGroup = this.formBuilder.group(
     {
-      password: ["", [Validators.required, Validators.minLength(this.minPasswordLength)]],
-      confirmedPassword: ["", Validators.required],
+      currentPassword: ["", Validators.required],
+      newPassword: ["", [Validators.required, Validators.minLength(this.minPasswordLength)]],
+      confirmNewPassword: ["", Validators.required],
       hint: [
         "", // must be string (not null) because we check length in validation
         [Validators.minLength(this.minHintLength), Validators.maxLength(this.maxHintLength)],
       ],
       checkForBreaches: true,
+      rotateAccountEncryptionKey: false,
     },
     {
       validators: [
         InputsFieldMatch.compareInputs(
+          "doNotMatch",
+          "currentPassword",
+          "newPassword",
+          this.i18nService.t("yourNewPasswordCannotBeTheSameAsYourCurrentPassword"),
+        ),
+        InputsFieldMatch.compareInputs(
           "match",
-          "password",
-          "confirmedPassword",
+          "newPassword",
+          "confirmNewPassword",
           this.i18nService.t("masterPassDoesntMatch"),
         ),
         InputsFieldMatch.compareInputs(
           "doNotMatch",
-          "password",
+          "newPassword",
           "hint",
           this.i18nService.t("hintEqualsPassword"),
         ),
@@ -132,7 +165,7 @@ export class InputPasswordComponent {
       return;
     }
 
-    const password = this.formGroup.controls.password.value;
+    const password = this.formGroup.controls.newPassword.value;
 
     const passwordEvaluatedSuccessfully = await this.evaluatePassword(
       password,
