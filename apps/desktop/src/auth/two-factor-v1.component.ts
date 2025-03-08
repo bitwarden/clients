@@ -29,6 +29,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
 
+import { DesktopTwoFactorFormCacheService } from "./services/desktop-two-factor-form-cache.service";
 import { TwoFactorOptionsComponentV1 } from "./two-factor-options-v1.component";
 
 const BroadcasterSubscriptionId = "TwoFactorComponent";
@@ -69,6 +70,7 @@ export class TwoFactorComponentV1 extends BaseTwoFactorComponent implements OnDe
     accountService: AccountService,
     toastService: ToastService,
     @Inject(WINDOW) protected win: Window,
+    twoFactorFormCacheService: DesktopTwoFactorFormCacheService,
   ) {
     super(
       loginStrategyService,
@@ -90,6 +92,7 @@ export class TwoFactorComponentV1 extends BaseTwoFactorComponent implements OnDe
       masterPasswordService,
       accountService,
       toastService,
+      twoFactorFormCacheService,
     );
     this.onSuccessfulLogin = async () => {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.

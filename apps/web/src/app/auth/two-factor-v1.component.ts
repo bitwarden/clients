@@ -7,6 +7,7 @@ import { Subject, takeUntil, lastValueFrom } from "rxjs";
 
 import { TwoFactorComponentV1 as BaseTwoFactorComponent } from "@bitwarden/angular/auth/components/two-factor-v1.component";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
+import { TwoFactorFormCacheService } from "@bitwarden/auth/angular";
 import {
   LoginStrategyServiceAbstraction,
   LoginEmailServiceAbstraction,
@@ -74,6 +75,7 @@ export class TwoFactorComponentV1 extends BaseTwoFactorComponent implements OnIn
     toastService: ToastService,
     private formBuilder: FormBuilder,
     @Inject(WINDOW) protected win: Window,
+    twoFactorFormCacheService: TwoFactorFormCacheService,
   ) {
     super(
       loginStrategyService,
@@ -95,6 +97,7 @@ export class TwoFactorComponentV1 extends BaseTwoFactorComponent implements OnIn
       masterPasswordService,
       accountService,
       toastService,
+      twoFactorFormCacheService,
     );
     this.onSuccessfulLoginNavigate = this.goAfterLogIn;
   }

@@ -35,6 +35,7 @@ import {
   LoginDecryptionOptionsService,
   TwoFactorAuthComponentService,
   TwoFactorAuthDuoComponentService,
+  TwoFactorFormCacheService,
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
@@ -117,6 +118,7 @@ import {
   WebTwoFactorAuthDuoComponentService,
 } from "../auth";
 import { WebSsoComponentService } from "../auth/core/services/login/web-sso-component.service";
+import { WebTwoFactorFormCacheService } from "../auth/core/services/two-factor-auth/web-two-factor-form-cache.service";
 import { AcceptOrganizationInviteService } from "../auth/organization-invite/accept-organization.service";
 import { HtmlStorageService } from "../core/html-storage.service";
 import { I18nService } from "../core/i18n.service";
@@ -272,6 +274,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: TwoFactorAuthComponentService,
     useClass: WebTwoFactorAuthComponentService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: TwoFactorFormCacheService,
+    useClass: WebTwoFactorFormCacheService,
     deps: [],
   }),
   safeProvider({

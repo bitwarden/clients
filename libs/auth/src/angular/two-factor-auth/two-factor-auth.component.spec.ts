@@ -1,10 +1,8 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ActivatedRoute, convertToParamMap, Router } from "@angular/router";
+import { ActivatedRoute, Router, convertToParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
@@ -39,6 +37,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 
 import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
 
+import { TwoFactorFormCacheService } from "./abstractions/two-factor-form-cache.service.abstraction";
 import { TwoFactorAuthComponentService } from "./two-factor-auth-component.service";
 import { TwoFactorAuthComponent } from "./two-factor-auth.component";
 
@@ -73,6 +72,7 @@ describe("TwoFactorAuthComponent", () => {
   let anonLayoutWrapperDataService: MockProxy<AnonLayoutWrapperDataService>;
   let mockEnvService: MockProxy<EnvironmentService>;
   let mockLoginSuccessHandlerService: MockProxy<LoginSuccessHandlerService>;
+  let mockTwoFactorFormCacheService: MockProxy<TwoFactorFormCacheService>;
 
   let mockUserDecryptionOpts: {
     noMasterPassword: UserDecryptionOptions;
@@ -112,6 +112,10 @@ describe("TwoFactorAuthComponent", () => {
     mockLoginSuccessHandlerService = mock<LoginSuccessHandlerService>();
 
     anonLayoutWrapperDataService = mock<AnonLayoutWrapperDataService>();
+
+    mockTwoFactorFormCacheService = mock<TwoFactorFormCacheService>();
+    mockTwoFactorFormCacheService.isEnabled$.mockReturnValue(of(false));
+    mockTwoFactorFormCacheService.formData$.mockReturnValue(of(null));
 
     mockUserDecryptionOpts = {
       noMasterPassword: new UserDecryptionOptions({
@@ -195,6 +199,7 @@ describe("TwoFactorAuthComponent", () => {
         { provide: EnvironmentService, useValue: mockEnvService },
         { provide: AnonLayoutWrapperDataService, useValue: anonLayoutWrapperDataService },
         { provide: LoginSuccessHandlerService, useValue: mockLoginSuccessHandlerService },
+        { provide: TwoFactorFormCacheService, useValue: mockTwoFactorFormCacheService },
       ],
     });
 

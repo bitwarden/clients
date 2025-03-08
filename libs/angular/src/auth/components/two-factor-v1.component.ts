@@ -8,6 +8,7 @@ import { first } from "rxjs/operators";
 
 // eslint-disable-next-line no-restricted-imports
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
+import { TwoFactorFormCacheService } from "@bitwarden/auth/angular";
 import {
   LoginStrategyServiceAbstraction,
   LoginEmailServiceAbstraction,
@@ -100,6 +101,7 @@ export class TwoFactorComponentV1 extends CaptchaProtectedComponent implements O
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected accountService: AccountService,
     protected toastService: ToastService,
+    protected twoFactorFormCacheService: TwoFactorFormCacheService,
   ) {
     super(environmentService, i18nService, platformUtilsService, toastService);
 
@@ -435,6 +437,10 @@ export class TwoFactorComponentV1 extends CaptchaProtectedComponent implements O
     }
 
     if (this.emailPromise != null) {
+      return;
+    }
+
+    if ((await this.twoFactorFormCacheService.getFormData()).emailSent) {
       return;
     }
 
