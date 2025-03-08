@@ -176,7 +176,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     try {
       const credentials = new PasswordLoginCredentials(
         this.email,
-        passwordInputResult.password,
+        passwordInputResult.newPassword,
         captchaBypassToken,
         null,
       );

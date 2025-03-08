@@ -165,10 +165,10 @@ export class InputPasswordComponent {
       return;
     }
 
-    const password = this.formGroup.controls.newPassword.value;
+    const newPassword = this.formGroup.controls.newPassword.value;
 
     const passwordEvaluatedSuccessfully = await this.evaluatePassword(
-      password,
+      newPassword,
       this.passwordStrengthScore,
       this.formGroup.controls.checkForBreaches.value,
     );
@@ -185,26 +185,28 @@ export class InputPasswordComponent {
     }
 
     const masterKey = await this.keyService.makeMasterKey(
-      password,
+      newPassword,
       this.email.trim().toLowerCase(),
       kdfConfig,
     );
 
-    const masterKeyHash = await this.keyService.hashMasterKey(password, masterKey);
+    const masterKeyHash = await this.keyService.hashMasterKey(newPassword, masterKey);
 
     const localMasterKeyHash = await this.keyService.hashMasterKey(
-      password,
+      newPassword,
       masterKey,
       HashPurpose.LocalAuthorization,
     );
 
     this.onPasswordFormSubmit.emit({
+      currentPassword: this.formGroup.controls.currentPassword.value,
+      newPassword,
+      hint: this.formGroup.controls.hint.value,
+      rotateAccountEncryptionKey: this.formGroup.controls.rotateAccountEncryptionKey.value,
+      kdfConfig,
       masterKey,
       masterKeyHash,
       localMasterKeyHash,
-      kdfConfig,
-      hint: this.formGroup.controls.hint.value,
-      password,
     });
   };
 

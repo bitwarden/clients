@@ -357,7 +357,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.logIn(passwordInputResult.password, captchaToken);
+    await this.logIn(passwordInputResult.newPassword, captchaToken);
 
     this.submitting = false;
 
