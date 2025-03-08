@@ -10,10 +10,13 @@ const paths = {
   extensionDistDir: "./macos/dist",
   extensionDist: "./macos/dist/autofill-extension.appex",
   macOsProject: "./macos/desktop.xcodeproj",
-  macOsConfig: "./macos/production.xcconfig",
 };
 
-async function buildMacOs() {
+exports.default = buildMacOs;
+
+async function buildMacOs(context) {
+  console.log("### Building Autofill Extension");
+
   if (fse.existsSync(paths.macosBuild)) {
     fse.removeSync(paths.macosBuild);
   }
@@ -22,15 +25,34 @@ async function buildMacOs() {
     fse.removeSync(paths.extensionDistDir);
   }
 
+  let configuration;
+  if (context !== undefined) {
+    // Extract the first target name (assuming there's at least one target)
+    const appOutDir = context.appOutDir;
+
+    if (appOutDir.includes("mas-dev")) {
+      configuration = "Debug";
+    } else if (appOutDir.includes("mas")) {
+      configuration = "ReleaseAppStore";
+    } else if (appOutDir.includes("mac")) {
+      configuration = "ReleaseDeveloper";
+    } else {
+      console.log("### Unable to determine configuration, skipping Autofill Extension build");
+      return;
+    }
+  } else {
+    console.log("### No context found, skipping Autofill Extension build");
+    return;
+  }
+
   const proc = child.spawn("xcodebuild", [
     "-project",
     paths.macOsProject,
     "-alltargets",
     "-configuration",
-    "Release",
-    // Uncomment when signing is fixed
-    // "-xcconfig",
-    // paths.macOsConfig,
+    configuration,
+    "CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO",
+    "OTHER_CODE_SIGN_FLAGS='--timestamp'"
   ]);
   stdOutProc(proc);
   await new Promise((resolve, reject) =>
