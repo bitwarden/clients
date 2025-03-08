@@ -5,6 +5,10 @@ import { ipcMain } from "electron";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { passwords } from "@bitwarden/desktop-napi";
 
+const WindowsNotFoundError = "Password not found.";
+const MacOSNotFoundError = "The specified item could not be found in the keychain.";
+const UnixNotFoundError = "no result";
+
 export class DesktopCredentialStorageListener {
   constructor(
     private serviceName: string,
@@ -36,12 +40,16 @@ export class DesktopCredentialStorageListener {
         return val;
       } catch (e) {
         if (
-          e.message === "Password not found." ||
-          e.message === "The specified item could not be found in the keychain."
+          e.message === WindowsNotFoundError ||
+          e.message === MacOSNotFoundError ||
+          e.message === UnixNotFoundError
         ) {
           return null;
         }
-        this.logService.info(e);
+        this.logService.warning(
+          `Error while event in the keytar action: ${message?.action ?? "Unknown action"}`,
+          e,
+        );
       }
     });
   }
