@@ -233,6 +233,7 @@ import { DefaultStateProvider } from "@bitwarden/common/platform/state/implement
 import { StateEventRegistrarService } from "@bitwarden/common/platform/state/state-event-registrar.service";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state/state-event-runner.service";
 /* eslint-enable import/no-restricted-paths */
+import { SecureStorageService } from "@bitwarden/common/platform/storage/secure-storage.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports -- Needed for DI
 import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
@@ -336,7 +337,6 @@ import {
   OBSERVABLE_MEMORY_STORAGE,
   SECURE_STORAGE,
   STATE_FACTORY,
-  SUPPORTS_SECURE_STORAGE,
   SYSTEM_LANGUAGE,
   SYSTEM_THEME_OBSERVABLE,
   WINDOW,
@@ -361,12 +361,6 @@ const safeProviders: SafeProvider[] = [
     provide: LOCALE_ID as SafeInjectionToken<string>,
     useFactory: (i18nService: I18nServiceAbstraction) => i18nService.translationLocale,
     deps: [I18nServiceAbstraction],
-  }),
-  safeProvider({
-    provide: SUPPORTS_SECURE_STORAGE,
-    useFactory: (platformUtilsService: PlatformUtilsServiceAbstraction) =>
-      platformUtilsService.supportsSecureStorage(),
-    deps: [PlatformUtilsServiceAbstraction],
   }),
   safeProvider({
     provide: LOCALES_DIRECTORY,
@@ -611,8 +605,7 @@ const safeProviders: SafeProvider[] = [
     deps: [
       SingleUserStateProvider,
       GlobalStateProvider,
-      SUPPORTS_SECURE_STORAGE,
-      SECURE_STORAGE,
+      SecureStorageService,
       KeyGenerationServiceAbstraction,
       EncryptService,
       LogService,
