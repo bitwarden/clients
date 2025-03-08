@@ -34,6 +34,14 @@ export class ToastService {
     };
 
     this.toastrService.show(null, options.title, toastrConfig);
+
+    requestAnimationFrame(() => {
+      const toastElement = document.querySelector("#toast-container") as HTMLElement;
+      if (toastElement) {
+        toastElement.setAttribute("tabindex", "-1");
+        toastElement.focus();
+      }
+    });
   }
 
   /**
