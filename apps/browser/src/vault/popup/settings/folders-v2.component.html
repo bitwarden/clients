@@ -19,7 +19,7 @@
               slot="end"
               type="button"
               (click)="openAddEditFolderDialog(folder)"
-              [appA11yTitle]="'editFolder' | i18n"
+              [appA11yTitle]="'editFolderWithName' | i18n: folder.name"
               bitIconButton="bwi-pencil-square"
               class="tw-self-end"
               data-testid="edit-folder-button"
