@@ -87,7 +87,7 @@
           (click)="openAddEditCustomFieldDialog({ index: i, label: field.value.name })"
           [appA11yTitle]="'editFieldLabel' | i18n: field.value.name"
           bitIconButton="bwi-pencil-square"
-          class="tw-self-end"
+          class="tw-self-center tw-mt-2"
           data-testid="edit-custom-field-button"
           *ngIf="!isPartialEdit"
         ></button>
@@ -95,7 +95,7 @@
         <button
           type="button"
           bitIconButton="bwi-hamburger"
-          class="tw-self-end"
+          class="tw-self-center tw-mt-2"
           cdkDragHandle
           [appA11yTitle]="'reorderToggleButton' | i18n: field.value.name"
           (keydown)="handleKeyDown($event, field.value.name, i)"
