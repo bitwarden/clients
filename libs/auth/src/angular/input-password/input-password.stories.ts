@@ -129,7 +129,9 @@ export const ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey: Stor
   render: (args) => ({
     props: args,
     template: `
-      <auth-input-password [flow]="Flow.ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey"></auth-input-password>
+      <auth-input-password
+        [flow]="Flow.ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey"
+      ></auth-input-password>
     `,
   }),
 };
@@ -138,16 +140,37 @@ export const WithPolicy: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <auth-input-password [flow]="Flow.SetInitialPassword" [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"></auth-input-password>
+      <auth-input-password
+        [flow]="Flow.SetInitialPassword"
+        [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
+      ></auth-input-password>
     `,
   }),
 };
 
-export const InlineButton: Story = {
+export const SecondaryButton: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <auth-input-password [flow]="Flow.SetInitialPassword" [btnBlock]="false" [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"></auth-input-password>
+      <auth-input-password
+        [flow]="Flow.SetInitialPassword"
+        [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
+        [secondaryButtonText]="'Cancel'"
+      ></auth-input-password>
+    `,
+  }),
+};
+
+export const InlineButtons: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <auth-input-password
+        [flow]="Flow.SetInitialPassword"
+        [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
+        [secondaryButtonText]="'Cancel'"
+        [fullWidthButtons]="false"
+      ></auth-input-password>
     `,
   }),
 };

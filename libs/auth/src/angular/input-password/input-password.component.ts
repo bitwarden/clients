@@ -84,8 +84,9 @@ export class InputPasswordComponent {
   @Input({ required: true }) email: string;
   @Input() masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
   @Input() loading: boolean = false;
-  @Input() buttonText: string;
-  @Input() btnBlock: boolean = true;
+  @Input() primaryButtonText: string;
+  @Input() secondaryButtonText: string;
+  @Input() fullWidthButtons: boolean = true;
 
   protected Flow = Flow;
   private minHintLength = 0;
