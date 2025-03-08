@@ -5,6 +5,7 @@ import { CollectionView } from "@bitwarden/admin-console/common";
 @Pipe({
   name: "collectionNameFromId",
   pure: true,
+  standalone: true,
 })
 export class GetCollectionNameFromIdPipe implements PipeTransform {
   transform(value: string, collections: CollectionView[]) {
