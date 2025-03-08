@@ -212,7 +212,7 @@ export class AddEditV2Component implements OnInit {
   /**
    * Handle back button
    */
-  async handleBackButton() {
+  handleBackButton = async () => {
     if (this.inFido2PopoutWindow) {
       this.popupCloseWarningService.disable();
       BrowserFido2UserInterfaceSession.abortPopout(this.fido2PopoutSessionData.sessionId);
@@ -225,7 +225,7 @@ export class AddEditV2Component implements OnInit {
     }
 
     await this.popupRouterCacheService.back();
-  }
+  };
 
   async onCipherSaved(cipher: CipherView) {
     if (BrowserPopupUtils.inPopout(window)) {
