@@ -61,9 +61,7 @@ export class PopupViewCacheService implements ViewCacheService {
 
     this.router.events
       .pipe(
-        filter((e) => {
-          return e instanceof NavigationEnd;
-        }),
+        filter((e) => e instanceof NavigationEnd),
         /** Skip the first navigation triggered by `popupRouterCacheGuard` */
         skip(1),
         filter((e: NavigationEnd) =>
