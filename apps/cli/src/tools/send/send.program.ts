@@ -163,7 +163,16 @@ export class SendProgram extends BaseProgram {
     return new Command("get")
       .arguments("<id>")
       .description("Get Sends owned by you.")
-      .option("--output <output>", "Output directory or filename for attachment.")
+      .option("--file", "Specifies to return the file content of a Send", true)
+      .option("--password <password>", "Password needed to access the Send.")
+      .option("--passwordenv <passwordenv>", "Environment variable storing the Send's password")
+      .option(
+        "--passwordfile <passwordfile>",
+        "Path to a file containing the Sends password as its first line",
+      )
+      .option("--obj", "Return the Send's json object rather than the Send's content")
+      .option("--output <location>", "Specify a file path to save a File-type Send to")
+      .option("--raw", "Return the raw content of a Send", true)
       .option("--text", "Specifies to return the text content of a Send")
       .on("--help", () => {
         writeLn("");
@@ -192,6 +201,10 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.searchService,
           this.serviceContainer.encryptService,
           this.serviceContainer.apiService,
+          this.serviceContainer.platformUtilsService,
+          this.serviceContainer.keyService,
+          this.serviceContainer.cryptoFunctionService,
+          this.serviceContainer.sendApiService,
         );
         const response = await cmd.run(id, options);
         this.processResponse(response);
@@ -252,6 +265,10 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.searchService,
           this.serviceContainer.encryptService,
           this.serviceContainer.apiService,
+          this.serviceContainer.platformUtilsService,
+          this.serviceContainer.keyService,
+          this.serviceContainer.cryptoFunctionService,
+          this.serviceContainer.sendApiService,
         );
         const cmd = new SendEditCommand(
           this.serviceContainer.sendService,
