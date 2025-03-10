@@ -66,7 +66,6 @@ describe("Menu", () => {
 @Component({
   selector: "test-app",
   template: `
-    <!-- eslint-disable-next-line -->
     <button type="button" [bitMenuTriggerFor]="testMenu" class="testclass">Open menu</button>
 
     <bit-menu #testMenu>
