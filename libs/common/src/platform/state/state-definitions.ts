@@ -144,6 +144,7 @@ export const SM_ONBOARDING_DISK = new StateDefinition("smOnboarding", "disk", {
 
 // Tools
 
+export const EXTENSION_DISK = new StateDefinition("extension", "disk");
 export const GENERATOR_DISK = new StateDefinition("generator", "disk");
 export const GENERATOR_MEMORY = new StateDefinition("generator", "memory");
 export const BROWSER_SEND_MEMORY = new StateDefinition("sendBrowser", "memory");
