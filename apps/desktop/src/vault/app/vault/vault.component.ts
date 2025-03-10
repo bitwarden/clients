@@ -493,12 +493,14 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async savedCipher(cipher: CipherView) {
-    this.cipherId = cipher.id;
+    this.cipherId = null;
     this.action = "view";
     await this.vaultItemsComponent.refresh();
+    this.cipherId = cipher.id;
     await this.cipherService.clearCache(this.activeUserId);
     await this.vaultItemsComponent.load(this.activeFilter.buildFilter());
     this.go();
+    await this.vaultItemsComponent.refresh();
   }
 
   async deletedCipher(cipher: CipherView) {
