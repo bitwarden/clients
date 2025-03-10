@@ -50,40 +50,29 @@ describe("freeOrgCollectionLimitValidator", () => {
     expect(value).toBeNull();
   });
 
-  it("returns null if organization has not reached collection limit", async () => {
+  it("returns null if organization has not reached collection limit (Observable)", async () => {
     const org = { id: "org-id", maxCollections: 2 } as Organization;
     const collections = [{ organizationId: "org-id" } as Collection];
     const validator = freeOrgCollectionLimitValidator(of([org]), collections, i18nService);
     const control = new FormControl("org-id");
 
-    const result = validator(control);
+    const result$ = validator(control) as Observable<ValidationErrors | null>;
 
-    if (result instanceof Promise) {
-      await expect(result).resolves.toBeNull();
-    } else {
-      const value = await lastValueFrom(result);
-      expect(value).toBeNull();
-    }
+    const value = await lastValueFrom(result$);
+    expect(value).toBeNull();
   });
 
-  it("returns error if organization has reached collection limit", async () => {
+  it("returns error if organization has reached collection limit (Observable)", async () => {
     const org = { id: "org-id", maxCollections: 1 } as Organization;
     const collections = [{ organizationId: "org-id" } as Collection];
     const validator = freeOrgCollectionLimitValidator(of([org]), collections, i18nService);
     const control = new FormControl("org-id");
 
-    const result = validator(control);
+    const result$ = validator(control) as Observable<ValidationErrors | null>;
 
-    if (result instanceof Promise) {
-      await expect(result).resolves.toEqual({
-        cannotCreateCollections: { message: "cannotCreateCollection" },
-      });
-    } else {
-      result.subscribe((value) =>
-        expect(value).toEqual({
-          cannotCreateCollections: { message: "cannotCreateCollection" },
-        }),
-      );
-    }
+    const value = await lastValueFrom(result$);
+    expect(value).toEqual({
+      cannotCreateCollections: { message: "cannotCreateCollection" },
+    });
   });
 });
