@@ -154,12 +154,10 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       bypassValidation = false;
     }
 
-    await this.decryptObj(
+    await this.decryptObj<Cipher, CipherView>(
+      this,
       model,
-      {
-        name: null,
-        notes: null,
-      },
+      ["name", "notes"],
       this.organizationId,
       encKey,
     );

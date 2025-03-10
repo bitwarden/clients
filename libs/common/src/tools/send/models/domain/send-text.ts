@@ -30,11 +30,10 @@ export class SendText extends Domain {
   }
 
   decrypt(key: SymmetricCryptoKey): Promise<SendTextView> {
-    return this.decryptObj(
+    return this.decryptObj<SendText, SendTextView>(
+      this,
       new SendTextView(this),
-      {
-        text: null,
-      },
+      ["text"],
       null,
       key,
     );
