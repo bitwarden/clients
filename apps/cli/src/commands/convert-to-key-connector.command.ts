@@ -39,7 +39,7 @@ export class ConvertToKeyConnectorCommand {
       );
     }
 
-    const organization = await this.keyConnectorService.getManagingOrganization();
+    const organization = await this.keyConnectorService.getManagingOrganization(this.userId);
 
     const answer: inquirer.Answers = await inquirer.createPromptModule({ output: process.stderr })({
       type: "list",
@@ -71,7 +71,7 @@ export class ConvertToKeyConnectorCommand {
         throw e;
       }
 
-      await this.keyConnectorService.removeConvertAccountRequired();
+      await this.keyConnectorService.removeConvertAccountRequired(this.userId);
       await this.keyConnectorService.setUsesKeyConnector(true, this.userId);
 
       // Update environment URL - required for api key login
@@ -83,7 +83,7 @@ export class ConvertToKeyConnectorCommand {
       return Response.success();
     } else if (answer.convert === "leave") {
       await this.organizationApiService.leave(organization.id);
-      await this.keyConnectorService.removeConvertAccountRequired();
+      await this.keyConnectorService.removeConvertAccountRequired(this.userId);
       return Response.success();
     } else {
       await this.logout();
