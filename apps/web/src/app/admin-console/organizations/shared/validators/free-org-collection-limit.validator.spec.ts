@@ -1,5 +1,5 @@
-import { FormControl } from "@angular/forms";
-import { lastValueFrom, of } from "rxjs";
+import { AbstractControl, FormControl, ValidationErrors } from "@angular/forms";
+import { lastValueFrom, Observable, of } from "rxjs";
 
 import { Collection } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -21,14 +21,33 @@ describe("freeOrgCollectionLimitValidator", () => {
     const validator = freeOrgCollectionLimitValidator(of(orgs), [], i18nService);
     const control = new FormControl("org-id");
 
-    const result = validator(control);
+    const result: Observable<ValidationErrors> = validator(control) as Observable<ValidationErrors>;
 
-    if (result instanceof Promise) {
-      await expect(result).resolves.toBeNull();
-    } else {
-      const value = await lastValueFrom(result);
-      expect(value).toBeNull();
-    }
+    const value = await lastValueFrom(result);
+    expect(value).toBeNull();
+  });
+
+  it("returns null if control is not an instance of FormControl", async () => {
+    const validator = freeOrgCollectionLimitValidator(of([]), [], i18nService);
+    const control = {} as AbstractControl;
+
+    const result: Observable<ValidationErrors | null> = validator(
+      control,
+    ) as Observable<ValidationErrors>;
+
+    const value = await lastValueFrom(result);
+    expect(value).toBeNull();
+  });
+
+  it("returns null if control is not provided", async () => {
+    const validator = freeOrgCollectionLimitValidator(of([]), [], i18nService);
+
+    const result: Observable<ValidationErrors | null> = validator(
+      undefined as any,
+    ) as Observable<ValidationErrors>;
+
+    const value = await lastValueFrom(result);
+    expect(value).toBeNull();
   });
 
   it("returns null if organization has not reached collection limit", async () => {
