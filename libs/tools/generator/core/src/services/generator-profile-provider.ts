@@ -86,7 +86,7 @@ export class GeneratorProfileProvider {
         );
 
         const policies$ = profile.constraints.type
-          ? this.policyService.getAll$(profile.constraints.type, account.id)
+          ? this.policyService.policiesByType$(profile.constraints.type, account.id)
           : of([]);
 
         const context: ProfileContext<Settings> = {

@@ -2,7 +2,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
 import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
-import { FakeActiveUserState, FakeSingleUserState } from "../../../../spec/fake-state";
+import { FakeSingleUserState } from "../../../../spec/fake-state";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
@@ -15,26 +15,25 @@ import { MasterPasswordPolicyOptions } from "../../../admin-console/models/domai
 import { Organization } from "../../../admin-console/models/domain/organization";
 import { Policy } from "../../../admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "../../../admin-console/models/domain/reset-password-policy-options";
-import { POLICIES, PolicyService } from "../../../admin-console/services/policy/policy.service";
 import { PolicyId, UserId } from "../../../types/guid";
 import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
+
+import { DefaultPolicyService, getFirstPolicy } from "./default-policy.service";
+import { POLICIES } from "./policy-state";
 
 describe("PolicyService", () => {
   const userId = "userId" as UserId;
   let stateProvider: FakeStateProvider;
   let organizationService: MockProxy<OrganizationService>;
-  let activeUserState: FakeActiveUserState<Record<PolicyId, PolicyData>>;
   let singleUserState: FakeSingleUserState<Record<PolicyId, PolicyData>>;
 
-  let policyService: PolicyService;
+  let policyService: DefaultPolicyService;
 
   beforeEach(() => {
     const accountService = mockAccountServiceWith(userId);
     stateProvider = new FakeStateProvider(accountService);
     organizationService = mock<OrganizationService>();
-
-    activeUserState = stateProvider.activeUser.getFake(POLICIES);
-    singleUserState = stateProvider.singleUser.getFake(activeUserState.userId, POLICIES);
+    singleUserState = stateProvider.singleUser.getFake(userId, POLICIES);
 
     const organizations$ = of([
       // User
@@ -58,21 +57,24 @@ describe("PolicyService", () => {
       organization("org6", true, true, OrganizationUserStatusType.Confirmed, true),
     ]);
 
-    organizationService.organizations$.mockReturnValue(organizations$);
+    organizationService.organizations$.calledWith(userId).mockReturnValue(organizations$);
 
-    policyService = new PolicyService(stateProvider, organizationService);
+    policyService = new DefaultPolicyService(stateProvider, organizationService);
   });
 
   it("upsert", async () => {
-    activeUserState.nextState(
+    singleUserState.nextState(
       arrayToRecord([
         policyData("1", "test-organization", PolicyType.MaximumVaultTimeout, true, { minutes: 14 }),
       ]),
     );
 
-    await policyService.upsert(policyData("99", "test-organization", PolicyType.DisableSend, true));
+    await policyService.upsert(
+      policyData("99", "test-organization", PolicyType.DisableSend, true),
+      userId,
+    );
 
-    expect(await firstValueFrom(policyService.policies$)).toEqual([
+    expect(await firstValueFrom(policyService.policies$(userId))).toEqual([
       {
         id: "1",
         organizationId: "test-organization",
@@ -90,7 +92,7 @@ describe("PolicyService", () => {
   });
 
   it("replace", async () => {
-    activeUserState.nextState(
+    singleUserState.nextState(
       arrayToRecord([
         policyData("1", "test-organization", PolicyType.MaximumVaultTimeout, true, { minutes: 14 }),
       ]),
@@ -103,7 +105,7 @@ describe("PolicyService", () => {
       userId,
     );
 
-    expect(await firstValueFrom(policyService.policies$)).toEqual([
+    expect(await firstValueFrom(policyService.policies$(userId))).toEqual([
       {
         id: "2",
         organizationId: "test-organization",
@@ -123,7 +125,9 @@ describe("PolicyService", () => {
       const model = [
         new Policy(policyData("1", "test-organization-3", PolicyType.MasterPassword, true, data)),
       ];
-      const result = await firstValueFrom(policyService.masterPasswordPolicyOptions$(model));
+      jest.spyOn(policyService as any, "policies$").mockReturnValue(of(model));
+
+      const result = await firstValueFrom(policyService.masterPasswordPolicyOptions$(userId));
 
       expect(result).toEqual({
         minComplexity: 5,
@@ -136,7 +140,7 @@ describe("PolicyService", () => {
       });
     });
 
-    it("returns null", async () => {
+    it("returns undefined", async () => {
       const data: any = {};
       const model = [
         new Policy(
@@ -146,10 +150,11 @@ describe("PolicyService", () => {
           policyData("4", "test-organization-3", PolicyType.MaximumVaultTimeout, true, data),
         ),
       ];
+      jest.spyOn(policyService as any, "policies$").mockReturnValue(of(model));
 
-      const result = await firstValueFrom(policyService.masterPasswordPolicyOptions$(model));
+      const result = await firstValueFrom(policyService.masterPasswordPolicyOptions$(userId));
 
-      expect(result).toEqual(null);
+      expect(result).toBeUndefined();
     });
 
     it("returns specified policy options", async () => {
@@ -162,8 +167,9 @@ describe("PolicyService", () => {
         ),
         new Policy(policyData("4", "test-organization-3", PolicyType.MasterPassword, true, data)),
       ];
+      jest.spyOn(policyService as any, "policies$").mockReturnValue(of(model));
 
-      const result = await firstValueFrom(policyService.masterPasswordPolicyOptions$(model));
+      const result = await firstValueFrom(policyService.masterPasswordPolicyOptions$(userId));
 
       expect(result).toEqual({
         minComplexity: 0,
@@ -214,44 +220,31 @@ describe("PolicyService", () => {
     });
   });
 
-  describe("get$", () => {
+  describe("policiesByType$", () => {
     it("returns the specified PolicyType", async () => {
-      activeUserState.nextState(
+      singleUserState.nextState(
         arrayToRecord([
           policyData("policy1", "org1", PolicyType.ActivateAutofill, true),
           policyData("policy2", "org1", PolicyType.DisablePersonalVaultExport, true),
-          policyData("policy3", "org1", PolicyType.RemoveUnlockWithPin, true),
         ]),
       );
 
-      await expect(
-        firstValueFrom(policyService.get$(PolicyType.ActivateAutofill)),
-      ).resolves.toMatchObject({
-        id: "policy1",
-        organizationId: "org1",
-        type: PolicyType.ActivateAutofill,
-        enabled: true,
-      });
-      await expect(
-        firstValueFrom(policyService.get$(PolicyType.DisablePersonalVaultExport)),
-      ).resolves.toMatchObject({
+      const result = await firstValueFrom(
+        policyService
+          .policiesByType$(PolicyType.DisablePersonalVaultExport, userId)
+          .pipe(getFirstPolicy),
+      );
+
+      expect(result).toEqual({
         id: "policy2",
         organizationId: "org1",
         type: PolicyType.DisablePersonalVaultExport,
         enabled: true,
       });
-      await expect(
-        firstValueFrom(policyService.get$(PolicyType.RemoveUnlockWithPin)),
-      ).resolves.toMatchObject({
-        id: "policy3",
-        organizationId: "org1",
-        type: PolicyType.RemoveUnlockWithPin,
-        enabled: true,
-      });
     });
 
     it("does not return disabled policies", async () => {
-      activeUserState.nextState(
+      singleUserState.nextState(
         arrayToRecord([
           policyData("policy1", "org1", PolicyType.ActivateAutofill, true),
           policyData("policy2", "org1", PolicyType.DisablePersonalVaultExport, false),
@@ -259,14 +252,16 @@ describe("PolicyService", () => {
       );
 
       const result = await firstValueFrom(
-        policyService.get$(PolicyType.DisablePersonalVaultExport),
+        policyService
+          .policiesByType$(PolicyType.DisablePersonalVaultExport, userId)
+          .pipe(getFirstPolicy),
       );
 
-      expect(result).toBeNull();
+      expect(result).toBeUndefined();
     });
 
     it("does not return policies that do not apply to the user because the user's role is exempt", async () => {
-      activeUserState.nextState(
+      singleUserState.nextState(
         arrayToRecord([
           policyData("policy1", "org1", PolicyType.ActivateAutofill, true),
           policyData("policy2", "org2", PolicyType.DisablePersonalVaultExport, false),
@@ -274,44 +269,49 @@ describe("PolicyService", () => {
       );
 
       const result = await firstValueFrom(
-        policyService.get$(PolicyType.DisablePersonalVaultExport),
+        policyService
+          .policiesByType$(PolicyType.DisablePersonalVaultExport, userId)
+          .pipe(getFirstPolicy),
       );
-
-      expect(result).toBeNull();
+      expect(result).toBeUndefined();
     });
 
     it.each([
       ["owners", "org2"],
       ["administrators", "org6"],
     ])("returns the password generator policy for %s", async (_, organization) => {
-      activeUserState.nextState(
+      singleUserState.nextState(
         arrayToRecord([
           policyData("policy1", "org1", PolicyType.ActivateAutofill, false),
           policyData("policy2", organization, PolicyType.PasswordGenerator, true),
         ]),
       );
 
-      const result = await firstValueFrom(policyService.get$(PolicyType.PasswordGenerator));
+      const result = await firstValueFrom(
+        policyService.policiesByType$(PolicyType.PasswordGenerator, userId).pipe(getFirstPolicy),
+      );
 
       expect(result).toBeTruthy();
     });
 
     it("does not return policies for organizations that do not use policies", async () => {
-      activeUserState.nextState(
+      singleUserState.nextState(
         arrayToRecord([
           policyData("policy1", "org3", PolicyType.ActivateAutofill, true),
           policyData("policy2", "org2", PolicyType.DisablePersonalVaultExport, true),
         ]),
       );
 
-      const result = await firstValueFrom(policyService.get$(PolicyType.ActivateAutofill));
+      const result = await firstValueFrom(
+        policyService.policiesByType$(PolicyType.ActivateAutofill, userId).pipe(getFirstPolicy),
+      );
 
-      expect(result).toBeNull();
+      expect(result).toBeUndefined();
     });
   });
 
-  describe("getAll$", () => {
-    it("returns the specified PolicyTypes", async () => {
+  describe("policies$", () => {
+    it("returns all policies when none are disabled", async () => {
       singleUserState.nextState(
         arrayToRecord([
           policyData("policy1", "org4", PolicyType.DisablePersonalVaultExport, true),
@@ -321,15 +321,19 @@ describe("PolicyService", () => {
         ]),
       );
 
-      const result = await firstValueFrom(
-        policyService.getAll$(PolicyType.DisablePersonalVaultExport, activeUserState.userId),
-      );
+      const result = await firstValueFrom(policyService.policies$(userId));
 
       expect(result).toEqual([
         {
           id: "policy1",
           organizationId: "org4",
           type: PolicyType.DisablePersonalVaultExport,
+          enabled: true,
+        },
+        {
+          id: "policy2",
+          organizationId: "org1",
+          type: PolicyType.ActivateAutofill,
           enabled: true,
         },
         {
@@ -347,7 +351,7 @@ describe("PolicyService", () => {
       ]);
     });
 
-    it("does not return disabled policies", async () => {
+    it("returns all policies when some are disabled", async () => {
       singleUserState.nextState(
         arrayToRecord([
           policyData("policy1", "org4", PolicyType.DisablePersonalVaultExport, true),
@@ -357,9 +361,7 @@ describe("PolicyService", () => {
         ]),
       );
 
-      const result = await firstValueFrom(
-        policyService.getAll$(PolicyType.DisablePersonalVaultExport, activeUserState.userId),
-      );
+      const result = await firstValueFrom(policyService.policies$(userId));
 
       expect(result).toEqual([
         {
@@ -367,6 +369,18 @@ describe("PolicyService", () => {
           organizationId: "org4",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+        },
+        {
+          id: "policy2",
+          organizationId: "org1",
+          type: PolicyType.ActivateAutofill,
+          enabled: true,
+        },
+        {
+          id: "policy3",
+          organizationId: "org5",
+          type: PolicyType.DisablePersonalVaultExport,
+          enabled: false,
         },
         {
           id: "policy4",
@@ -377,7 +391,7 @@ describe("PolicyService", () => {
       ]);
     });
 
-    it("does not return policies that do not apply to the user because the user's role is exempt", async () => {
+    it("returns policies that do not apply to the user because the user's role is exempt", async () => {
       singleUserState.nextState(
         arrayToRecord([
           policyData("policy1", "org4", PolicyType.DisablePersonalVaultExport, true),
@@ -387,9 +401,7 @@ describe("PolicyService", () => {
         ]),
       );
 
-      const result = await firstValueFrom(
-        policyService.getAll$(PolicyType.DisablePersonalVaultExport, activeUserState.userId),
-      );
+      const result = await firstValueFrom(policyService.policies$(userId));
 
       expect(result).toEqual([
         {
@@ -399,8 +411,20 @@ describe("PolicyService", () => {
           enabled: true,
         },
         {
+          id: "policy2",
+          organizationId: "org1",
+          type: PolicyType.ActivateAutofill,
+          enabled: true,
+        },
+        {
           id: "policy3",
           organizationId: "org5",
+          type: PolicyType.DisablePersonalVaultExport,
+          enabled: true,
+        },
+        {
+          id: "policy4",
+          organizationId: "org2",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
         },
@@ -417,14 +441,24 @@ describe("PolicyService", () => {
         ]),
       );
 
-      const result = await firstValueFrom(
-        policyService.getAll$(PolicyType.DisablePersonalVaultExport, activeUserState.userId),
-      );
+      const result = await firstValueFrom(policyService.policies$(userId));
 
       expect(result).toEqual([
         {
           id: "policy1",
           organizationId: "org4",
+          type: PolicyType.DisablePersonalVaultExport,
+          enabled: true,
+        },
+        {
+          id: "policy2",
+          organizationId: "org1",
+          type: PolicyType.ActivateAutofill,
+          enabled: true,
+        },
+        {
+          id: "policy3",
+          organizationId: "org3",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
         },
@@ -438,9 +472,9 @@ describe("PolicyService", () => {
     });
   });
 
-  describe("policyAppliesToActiveUser$", () => {
+  describe("policyAppliesToUser$", () => {
     it("returns true when the policyType applies to the user", async () => {
-      activeUserState.nextState(
+      singleUserState.nextState(
         arrayToRecord([
           policyData("policy1", "org4", PolicyType.DisablePersonalVaultExport, true),
           policyData("policy2", "org1", PolicyType.ActivateAutofill, true),
@@ -450,14 +484,14 @@ describe("PolicyService", () => {
       );
 
       const result = await firstValueFrom(
-        policyService.policyAppliesToActiveUser$(PolicyType.DisablePersonalVaultExport),
+        policyService.policyAppliesToUser$(PolicyType.DisablePersonalVaultExport, userId),
       );
 
       expect(result).toBe(true);
     });
 
     it("returns false when policyType is disabled", async () => {
-      activeUserState.nextState(
+      singleUserState.nextState(
         arrayToRecord([
           policyData("policy2", "org1", PolicyType.ActivateAutofill, true),
           policyData("policy3", "org5", PolicyType.DisablePersonalVaultExport, false), // disabled
@@ -465,14 +499,14 @@ describe("PolicyService", () => {
       );
 
       const result = await firstValueFrom(
-        policyService.policyAppliesToActiveUser$(PolicyType.DisablePersonalVaultExport),
+        policyService.policyAppliesToUser$(PolicyType.DisablePersonalVaultExport, userId),
       );
 
       expect(result).toBe(false);
     });
 
     it("returns false when the policyType does not apply to the user because the user's role is exempt", async () => {
-      activeUserState.nextState(
+      singleUserState.nextState(
         arrayToRecord([
           policyData("policy2", "org1", PolicyType.ActivateAutofill, true),
           policyData("policy4", "org2", PolicyType.DisablePersonalVaultExport, true), // owner
@@ -480,14 +514,14 @@ describe("PolicyService", () => {
       );
 
       const result = await firstValueFrom(
-        policyService.policyAppliesToActiveUser$(PolicyType.DisablePersonalVaultExport),
+        policyService.policyAppliesToUser$(PolicyType.DisablePersonalVaultExport, userId),
       );
 
       expect(result).toBe(false);
     });
 
     it("returns false for organizations that do not use policies", async () => {
-      activeUserState.nextState(
+      singleUserState.nextState(
         arrayToRecord([
           policyData("policy2", "org1", PolicyType.ActivateAutofill, true),
           policyData("policy3", "org3", PolicyType.DisablePersonalVaultExport, true), // does not use policies
@@ -495,7 +529,7 @@ describe("PolicyService", () => {
       );
 
       const result = await firstValueFrom(
-        policyService.policyAppliesToActiveUser$(PolicyType.DisablePersonalVaultExport),
+        policyService.policyAppliesToUser$(PolicyType.DisablePersonalVaultExport, userId),
       );
 
       expect(result).toBe(false);

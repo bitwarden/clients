@@ -89,9 +89,13 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
       );
   }
 
-  private allowPersonalOwnership$ = this.policyService
-    .policyAppliesToActiveUser$(PolicyType.PersonalOwnership)
-    .pipe(map((p) => !p));
+  private allowPersonalOwnership$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) =>
+      this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+    ),
+    map((p) => !p),
+  );
 
   private getCipher(userId: UserId, id?: CipherId): Promise<Cipher | null> {
     if (id == null) {

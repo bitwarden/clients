@@ -99,7 +99,7 @@ export class SendOptionsComponent implements OnInit {
     this.accountService.activeAccount$
       .pipe(
         getUserId,
-        switchMap((userId) => this.policyService.getAll$(PolicyType.SendOptions, userId)),
+        switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendOptions, userId)),
         map((policies) => policies?.some((p) => p.data.disableHideEmail)),
         takeUntilDestroyed(),
       )
