@@ -22,7 +22,7 @@
         readonly
         bitInput
         type="password"
-        [value]="card.number"
+        [value]="card.number | creditCardNumber: cipher.card.brand"
         aria-readonly="true"
         data-testid="cardholder-number"
         class="tw-font-mono"

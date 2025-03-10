@@ -1,12 +1,15 @@
-use std::{ffi::c_void, str::FromStr};
+use std::{
+    ffi::c_void,
+    str::FromStr,
+    sync::{atomic::AtomicBool, Arc},
+};
 
 use anyhow::{anyhow, Result};
 use base64::{engine::general_purpose::STANDARD as base64_engine, Engine};
 use rand::RngCore;
-use retry::delay::Fixed;
 use sha2::{Digest, Sha256};
 use windows::{
-    core::{factory, h, s, HSTRING},
+    core::{factory, h, HSTRING},
     Foundation::IAsyncOperation,
     Security::{
         Credentials::{
@@ -14,17 +17,7 @@ use windows::{
         },
         Cryptography::CryptographicBuffer,
     },
-    Win32::{
-        Foundation::HWND,
-        System::WinRT::IUserConsentVerifierInterop,
-        UI::{
-            Input::KeyboardAndMouse::{
-                keybd_event, GetAsyncKeyState, SetFocus, KEYEVENTF_EXTENDEDKEY, KEYEVENTF_KEYUP,
-                VK_MENU,
-            },
-            WindowsAndMessaging::{FindWindowA, SetForegroundWindow},
-        },
-    },
+    Win32::{Foundation::HWND, System::WinRT::IUserConsentVerifierInterop},
 };
 
 use crate::{
@@ -32,7 +25,10 @@ use crate::{
     crypto::CipherString,
 };
 
-use super::{decrypt, encrypt};
+use super::{
+    decrypt, encrypt,
+    windows_focus::{focus_security_prompt, set_focus},
+};
 
 /// The Windows OS implementation of the biometric trait.
 pub struct Biometric {}
@@ -88,14 +84,14 @@ impl super::BiometricTrait for Biometric {
         let bitwarden = h!("Bitwarden");
 
         let result = KeyCredentialManager::RequestCreateAsync(
-            &bitwarden,
+            bitwarden,
             KeyCredentialCreationOption::FailIfExists,
         )?
         .get()?;
 
         let result = match result.Status()? {
             KeyCredentialStatus::CredentialAlreadyExists => {
-                KeyCredentialManager::OpenAsync(&bitwarden)?.get()?
+                KeyCredentialManager::OpenAsync(bitwarden)?.get()?
             }
             KeyCredentialStatus::Success => result,
             _ => return Err(anyhow!("Failed to create key credential")),
@@ -103,8 +99,22 @@ impl super::BiometricTrait for Biometric {
 
         let challenge_buffer = CryptographicBuffer::CreateFromByteArray(&challenge)?;
         let async_operation = result.Credential()?.RequestSignAsync(&challenge_buffer)?;
-        focus_security_prompt()?;
-        let signature = async_operation.get()?;
+        focus_security_prompt();
+
+        let done = Arc::new(AtomicBool::new(false));
+        let done_clone = done.clone();
+        let _ = std::thread::spawn(move || loop {
+            if !done_clone.load(std::sync::atomic::Ordering::Relaxed) {
+                focus_security_prompt();
+                std::thread::sleep(std::time::Duration::from_millis(500));
+            } else {
+                break;
+            }
+        });
+
+        let signature = async_operation.get();
+        done.store(true, std::sync::atomic::Ordering::Relaxed);
+        let signature = signature?;
 
         if signature.Status()? != KeyCredentialStatus::Success {
             return Err(anyhow!("Failed to sign data"));
@@ -116,8 +126,8 @@ impl super::BiometricTrait for Biometric {
         CryptographicBuffer::CopyToByteArray(&signature_buffer, &mut signature_value)?;
 
         let key = Sha256::digest(&*signature_value);
-        let key_b64 = base64_engine.encode(&key);
-        let iv_b64 = base64_engine.encode(&challenge);
+        let key_b64 = base64_engine.encode(key);
+        let iv_b64 = base64_engine.encode(challenge);
         Ok(OsDerivedKey { key_b64, iv_b64 })
     }
 
@@ -151,12 +161,12 @@ impl super::BiometricTrait for Biometric {
             Ok(secret) => {
                 // If the secret is a CipherString, it is encrypted and we need to decrypt it.
                 let secret = decrypt(&secret, &key_material)?;
-                return Ok(secret);
+                Ok(secret)
             }
             Err(_) => {
                 // If the secret is not a CipherString, it is not encrypted and we can return it
                 //  directly.
-                return Ok(encrypted_secret);
+                Ok(encrypted_secret)
             }
         }
     }
@@ -166,57 +176,6 @@ fn random_challenge() -> [u8; 16] {
     let mut challenge = [0u8; 16];
     rand::thread_rng().fill_bytes(&mut challenge);
     challenge
-}
-
-/// Searches for a window that looks like a security prompt and set it as focused.
-///
-/// Gives up after 1.5 seconds with a delay of 500ms between each try.
-fn focus_security_prompt() -> Result<()> {
-    unsafe fn try_find_and_set_focus(
-        class_name: windows::core::PCSTR,
-    ) -> retry::OperationResult<(), ()> {
-        let hwnd = unsafe { FindWindowA(class_name, None) };
-        if let Ok(hwnd) = hwnd {
-            set_focus(hwnd);
-            return retry::OperationResult::Ok(());
-        }
-        retry::OperationResult::Retry(())
-    }
-
-    let class_name = s!("Credential Dialog Xaml Host");
-    retry::retry_with_index(Fixed::from_millis(500), |current_try| {
-        if current_try > 3 {
-            return retry::OperationResult::Err(());
-        }
-
-        unsafe { try_find_and_set_focus(class_name) }
-    })
-    .map_err(|_| anyhow!("Failed to find security prompt"))
-}
-
-fn set_focus(window: HWND) {
-    let mut pressed = false;
-
-    unsafe {
-        // Simulate holding down Alt key to bypass windows limitations
-        //  https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getasynckeystate#return-value
-        //  The most significant bit indicates if the key is currently being pressed. This means the
-        //  value will be negative if the key is pressed.
-        if GetAsyncKeyState(VK_MENU.0 as i32) >= 0 {
-            pressed = true;
-            keybd_event(VK_MENU.0 as u8, 0, KEYEVENTF_EXTENDEDKEY, 0);
-        }
-        SetForegroundWindow(window);
-        SetFocus(window);
-        if pressed {
-            keybd_event(
-                VK_MENU.0 as u8,
-                0,
-                KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP,
-                0,
-            );
-        }
-    }
 }
 
 #[cfg(test)]
@@ -245,20 +204,21 @@ mod tests {
         assert_eq!(iv.len(), 16);
     }
 
-    #[test]
+    #[tokio::test]
     #[cfg(feature = "manual_test")]
-    fn test_prompt() {
+    async fn test_prompt() {
         <Biometric as BiometricTrait>::prompt(
             vec![0, 0, 0, 0, 0, 0, 0, 0],
             String::from("Hello from Rust"),
         )
+        .await
         .unwrap();
     }
 
-    #[test]
+    #[tokio::test]
     #[cfg(feature = "manual_test")]
-    fn test_available() {
-        assert!(<Biometric as BiometricTrait>::available().unwrap())
+    async fn test_available() {
+        assert!(<Biometric as BiometricTrait>::available().await.unwrap())
     }
 
     #[test]
@@ -275,7 +235,7 @@ mod tests {
 
         match secret {
             CipherString::AesCbc256_B64 { iv, data: _ } => {
-                assert_eq!(iv_b64, base64_engine.encode(&iv));
+                assert_eq!(iv_b64, base64_engine.encode(iv));
             }
             _ => panic!("Invalid cipher string"),
         }

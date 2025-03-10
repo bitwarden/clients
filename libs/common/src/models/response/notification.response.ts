@@ -12,7 +12,16 @@ export class NotificationResponse extends BaseResponse {
     this.contextId = this.getResponseProperty("ContextId");
     this.type = this.getResponseProperty("Type");
 
-    const payload = this.getResponseProperty("Payload");
+    let payload = this.getResponseProperty("Payload");
+
+    if (typeof payload === "string") {
+      try {
+        payload = JSON.parse(payload);
+      } catch {
+        // guess it was a string
+      }
+    }
+
     switch (this.type) {
       case NotificationType.SyncCipherCreate:
       case NotificationType.SyncCipherDelete:
@@ -44,6 +53,9 @@ export class NotificationResponse extends BaseResponse {
         break;
       case NotificationType.SyncOrganizationStatusChanged:
         this.payload = new OrganizationStatusPushNotification(payload);
+        break;
+      case NotificationType.SyncOrganizationCollectionSettingChanged:
+        this.payload = new OrganizationCollectionSettingChangedPushNotification(payload);
         break;
       default:
         break;
@@ -124,5 +136,19 @@ export class OrganizationStatusPushNotification extends BaseResponse {
     super(response);
     this.organizationId = this.getResponseProperty("OrganizationId");
     this.enabled = this.getResponseProperty("Enabled");
+  }
+}
+
+export class OrganizationCollectionSettingChangedPushNotification extends BaseResponse {
+  organizationId: string;
+  limitCollectionCreation: boolean;
+  limitCollectionDeletion: boolean;
+
+  constructor(response: any) {
+    super(response);
+
+    this.organizationId = this.getResponseProperty("OrganizationId");
+    this.limitCollectionCreation = this.getResponseProperty("LimitCollectionCreation");
+    this.limitCollectionDeletion = this.getResponseProperty("LimitCollectionDeletion");
   }
 }

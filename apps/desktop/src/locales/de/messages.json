@@ -211,7 +211,7 @@
     "message": "Dein eingegebenes Passwort ist falsch."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "Importieren"
   },
   "confirmSshKeyPassword": {
     "message": "Passwort bestätigen"
@@ -248,6 +248,20 @@
   },
   "error": {
     "message": "Fehler"
+  },
+  "decryptionError": {
+    "message": "Entschlüsselungsfehler"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden konnte folgende(n) Tresor-Eintrag/Einträge nicht entschlüsseln."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Kontaktiere unser Customer Success Team",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": ", um zusätzlichen Datenverlust zu vermeiden.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
     "message": "Januar"
@@ -529,10 +543,6 @@
     "message": "Sonderzeichen einschließen",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Anzahl der Wörter"
   },
@@ -638,6 +648,15 @@
   "logInToBitwarden": {
     "message": "Bei Bitwarden anmelden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Gib den an deine E-Mail-Adresse gesendeten Code ein"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Gib den Code aus deiner Authenticator-App ein"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Drücke zum Authentifizieren auf deinen YubiKey"
+  },
   "logInWithPasskey": {
     "message": "Mit Passkey anmelden"
   },
@@ -689,6 +708,15 @@
   },
   "masterPassHintLabel": {
     "message": "Master-Passwort-Hinweis"
+  },
+  "passwordStrengthScore": {
+    "message": "Bewertung der Passwortstärke $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Organisation beitreten"
@@ -802,6 +830,9 @@
   "webauthnCancelOrTimeout": {
     "message": "Die Authentifizierung wurde abgebrochen oder hat zu lange gedauert. Bitte versuche es erneut."
   },
+  "openInNewTab": {
+    "message": "In neuem Tab öffnen"
+  },
   "invalidVerificationCode": {
     "message": "Ungültiger Verifizierungscode"
   },
@@ -832,11 +863,21 @@
   "rememberMe": {
     "message": "Angemeldet bleiben"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Für 30 Tage auf diesem Gerät nicht mehr fragen"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "E-Mail mit Bestätigungscode erneut versenden"
   },
   "useAnotherTwoStepMethod": {
     "message": "Eine andere Zwei-Faktor-Anmeldemethode verwenden"
+  },
+  "selectAnotherMethod": {
+    "message": "Wähle eine andere Methode",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Verwende deinen Wiederherstellungscode"
   },
   "insertYubiKey": {
     "message": "Stecke deinen YubiKey in einen USB-Anschluss deines Computers, dann berühre den Button."
@@ -871,6 +912,15 @@
     "message": "Nutze Duo Security, um dich mit der Duo-Mobile-App, SMS, per Anruf oder U2F-Sicherheitsschlüssel bei deiner Organisation zu verifizieren.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
+  "verifyYourIdentity": {
+    "message": "Verifiziere deine Identität"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Wir erkennen dieses Gerät nicht. Gib den an deine E-Mail-Adresse gesendeten Code ein, um deine Identität zu verifizieren."
+  },
+  "continueLoggingIn": {
+    "message": "Anmeldung fortsetzen"
+  },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
@@ -894,6 +944,9 @@
   },
   "twoStepOptions": {
     "message": "Optionen für Zwei-Faktor-Authentifizierung"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Zwei-Faktor-Authentifizierungsmethode auswählen"
   },
   "selfHostedEnvironment": {
     "message": "Selbst gehostete Umgebung"
@@ -1365,9 +1418,6 @@
   "premiumPurchase": {
     "message": "Premium-Mitgliedschaft kaufen"
   },
-  "premiumPurchaseAlert": {
-    "message": "Du kannst deine Premium-Mitgliedschaft im bitwarden.com Web-Tresor kaufen. Möchtest du die Webseite jetzt besuchen?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Du kannst Premium über deine Kontoeinstellungen in der Bitwarden Web-App kaufen."
   },
@@ -1754,6 +1804,9 @@
   },
   "requirePasswordOnStart": {
     "message": "Passwort oder PIN beim Start der App verlangen"
+  },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Ein Passwort beim Starten der App verlangen"
   },
   "recommendedForSecurity": {
     "message": "Aus Sicherheitsgründen empfohlen."
@@ -2224,6 +2277,12 @@
   "webAuthnAuthenticate": {
     "message": "WebAuthn authentifizieren"
   },
+  "readSecurityKey": {
+    "message": "Sicherheitsschlüssel auslesen"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Warte auf Sicherheitsschlüssel-Interaktion..."
+  },
   "hideEmail": {
     "message": "Meine E-Mail-Adresse vor den Empfängern ausblenden."
   },
@@ -2530,6 +2589,9 @@
   "catchallEmailDesc": {
     "message": "Verwende den konfigurierten Catch-All-Posteingang deiner Domain."
   },
+  "useThisEmail": {
+    "message": "Diese E-Mail-Adresse verwenden"
+  },
   "random": {
     "message": "Zufällig"
   },
@@ -2606,6 +2668,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Ungültiger API-Token von $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ hat deine Anfrage abgelehnt. Bitte wende dich an deinen Dienstanbieter für Unterstützung.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ hat deine Anfrage abgelehnt: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -2722,14 +2808,23 @@
   "loginInitiated": {
     "message": "Anmeldung eingeleitet"
   },
+  "logInRequestSent": {
+    "message": "Anfrage gesendet"
+  },
   "notificationSentDevice": {
     "message": "Eine Benachrichtigung wurde an dein Gerät gesendet."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Eine Benachrichtigung wurde an dein Gerät gesendet"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Stelle sicher, dass dein Konto entsperrt ist und die Fingerabdruck-Phrase mit der vom anderen Gerät übereinstimmt"
+  "notificationSentDevicePart1": {
+    "message": "Entsperre Bitwarden auf deinem Gerät oder mit der "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "Web-App"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Stelle vor der Genehmigung sicher, dass die Fingerabdruck-Phrase mit der unten stehenden übereinstimmt."
   },
   "needAnotherOptionV1": {
     "message": "Brauchst du eine andere Option?"
@@ -2759,11 +2854,11 @@
     "message": "Zeichenanzahl ein-/ausschalten",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Versuchst du dich anzumelden?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Versuchst du auf dein Konto zuzugreifen?"
   },
-  "logInAttemptBy": {
-    "message": "Anmeldeversuch von $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Zugriffsversuch von $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2780,11 +2875,11 @@
   "time": {
     "message": "Zeit"
   },
-  "confirmLogIn": {
-    "message": "Anmeldung genehmigen"
+  "confirmAccess": {
+    "message": "Zugriff bestätigen"
   },
-  "denyLogIn": {
-    "message": "Anmeldung ablehnen"
+  "denyAccess": {
+    "message": "Zugriff ablehnen"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Anmeldung von $EMAIL$ auf $DEVICE$ bestätigt",
@@ -2820,8 +2915,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Diese Anfrage ist nicht mehr gültig."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Anmeldeversuch von $EMAIL$ genehmigen",
+  "confirmAccessAttempt": {
+    "message": "Zugriffsversuch für $EMAIL$ bestätigen",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2831,6 +2926,9 @@
   },
   "logInRequested": {
     "message": "Anmeldung angefordert"
+  },
+  "accountAccessRequested": {
+    "message": "Kontozugriff angefragt"
   },
   "creatingAccountOn": {
     "message": "Konto wird erstellt bei"
@@ -2864,6 +2962,12 @@
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Schwaches Passwort erkannt und in einem Datendiebstahl gefunden. Verwende ein starkes und einzigartiges Passwort, um dein Konto zu schützen. Bist du sicher, dass du dieses Passwort verwenden möchtest?"
+  },
+  "useThisPassword": {
+    "message": "Dieses Passwort verwenden"
+  },
+  "useThisUsername": {
+    "message": "Diesen Benutzernamen verwenden"
   },
   "checkForBreaches": {
     "message": "Bekannte Datendiebstähle auf dieses Passwort überprüfen"
@@ -3138,6 +3242,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "Für dein Konto ist die DUO Zwei-Faktor-Authentifizierung erforderlich."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Die Duo-Zwei-Faktor-Authentifizierung ist für dein Konto erforderlich. Folge den Schritten unten, um die Anmeldung abzuschließen."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Folge den Schritten unten, um die Anmeldung abzuschließen."
+  },
   "launchDuo": {
     "message": "Duo im Browser starten"
   },
@@ -3362,6 +3472,30 @@
   "ssoError": {
     "message": "Es konnten keine freien Ports für die SSO-Anmeldung gefunden werden."
   },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometrisches Entsperren ist nicht verfügbar, da zuerst mit PIN oder Passwort entsperrt werden muss."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometrisches Entsperren ist derzeit nicht verfügbar."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometrisches Entsperren ist aufgrund falsch konfigurierter Systemdateien nicht verfügbar."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometrisches Entsperren ist aufgrund falsch konfigurierter Systemdateien nicht verfügbar."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "Biometrisches Entsperren ist nicht verfügbar, da es für $EMAIL$ in der Bitwarden Desktop-App nicht aktiviert ist.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Biometrisches Entsperren ist derzeit aus einem unbekannten Grund nicht verfügbar."
+  },
   "authorize": {
     "message": "Autorisieren"
   },
@@ -3371,8 +3505,26 @@
   "sshkeyApprovalTitle": {
     "message": "Verwendung des SSH-Schlüssels bestätigen"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Warnung: Agent-Weiterleitung"
+  },
+  "agentForwardingWarningText": {
+    "message": "Diese Anfrage kommt von einem entfernten Gerät, bei dem du angemeldet bist"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "fragt den Zugriff an für"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "um"
+  },
+  "sshActionLogin": {
+    "message": "sich bei einem Server zu authentifizieren"
+  },
+  "sshActionSign": {
+    "message": "eine Nachricht zu signieren"
+  },
+  "sshActionGitSign": {
+    "message": "einen Git-Commit zu signieren"
   },
   "unknownApplication": {
     "message": "Eine Anwendung"
@@ -3394,5 +3546,62 @@
   },
   "fileSavedToDevice": {
     "message": "Datei auf Gerät gespeichert. Greife darauf über die Downloads deines Geräts zu."
+  },
+  "importantNotice": {
+    "message": "Wichtiger Hinweis"
+  },
+  "setupTwoStepLogin": {
+    "message": "Zwei-Faktor-Authentifizierung einrichten"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Ab Februar 2025 wird Bitwarden einen Code an deine Konto-E-Mail-Adresse senden, um Anmeldungen von neuen Geräten zu verifizieren."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Du kannst die Zwei-Faktor-Authentifizierung als eine alternative Methode einrichten, um dein Konto zu schützen, oder deine E-Mail-Adresse zu einer anderen ändern, auf die du zugreifen kannst."
+  },
+  "remindMeLater": {
+    "message": "Erinnere mich später"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Hast du zuverlässigen Zugriff auf deine E-Mail-Adresse $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nein, habe ich nicht"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Ja, ich kann zuverlässig auf meine E-Mails zugreifen"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Zwei-Faktor-Authentifizierung aktivieren"
+  },
+  "changeAcctEmail": {
+    "message": "E-Mail-Adresse des Kontos ändern"
+  },
+  "allowScreenshots": {
+    "message": "Bildschirmaufnahme erlauben"
+  },
+  "allowScreenshotsDesc": {
+    "message": "Erlaube der Bitwarden Desktop-Anwendung in Screenshots festgehalten und in Remote Desktop-Sitzungen angezeigt zu werden. Das Deaktivieren dieser Option verhindert den Zugriff über einige externe Monitore."
+  },
+  "confirmWindowStillVisibleTitle": {
+    "message": "Bestätigungsfenster noch sichtbar"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Bitte bestätige, dass das Fenster noch sichtbar ist."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Aktualisierung der Erweiterung notwendig"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "Die von dir verwendete Browser-Erweiterung ist veraltet. Bitte aktualisiere sie oder deaktiviere die Fingerabdrucküberprüfung der Browser-Integration in den Einstellungen der Desktop-App."
+  },
+  "changeAtRiskPassword": {
+    "message": "Gefährdetes Passwort ändern"
   }
 }

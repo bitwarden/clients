@@ -3,7 +3,7 @@
 <bit-container>
   <ng-container *ngIf="loading">
     <i
-      class="bwi bwi-spinner bwi-spin text-muted"
+      class="bwi bwi-spinner bwi-spin tw-text-muted"
       title="{{ 'loading' | i18n }}"
       aria-hidden="true"
     ></i>
@@ -37,8 +37,6 @@
           }}</a>
         </bit-hint>
       </bit-form-field>
-
-      <hr />
 
       <bit-radio-group formControlName="memberDecryptionType">
         <bit-label>{{ "memberDecryptionOption" | i18n }}</bit-label>
@@ -89,19 +87,19 @@
             {{ "trustedDevices" | i18n }}
           </bit-label>
           <bit-hint>
-            {{ "memberDecryptionOptionTdeDescriptionPartOne" | i18n }}
-            <a bitLink routerLink="../policies">{{
-              "memberDecryptionOptionTdeDescriptionLinkOne" | i18n
-            }}</a>
-            {{ "memberDecryptionOptionTdeDescriptionPartTwo" | i18n }}
-            <a bitLink routerLink="../policies">{{
-              "memberDecryptionOptionTdeDescriptionLinkTwo" | i18n
-            }}</a>
-            {{ "memberDecryptionOptionTdeDescriptionPartThree" | i18n }}
-            <a bitLink routerLink="../policies">{{
-              "memberDecryptionOptionTdeDescriptionLinkThree" | i18n
-            }}</a>
-            {{ "memberDecryptionOptionTdeDescriptionPartFour" | i18n }}
+            {{ "memberDecryptionOptionTdeDescPart1" | i18n }}
+            <a bitLink routerLink="../policies">
+              {{ "memberDecryptionOptionTdeDescLink1" | i18n }}
+            </a>
+            {{ "memberDecryptionOptionTdeDescPart2" | i18n }}
+            <a bitLink routerLink="../policies">
+              {{ "memberDecryptionOptionTdeDescLink2" | i18n }}
+            </a>
+            {{ "memberDecryptionOptionTdeDescPart3" | i18n }}
+            <a bitLink routerLink="../policies">
+              {{ "memberDecryptionOptionTdeDescLink3" | i18n }}
+            </a>
+            {{ "memberDecryptionOptionTdeDescPart4" | i18n }}
           </bit-hint>
         </bit-radio-button>
       </bit-radio-group>
@@ -148,7 +146,7 @@
             aria-live="polite"
             *ngIf="haveTestedKeyConnector && !keyConnectorUrl.hasError('invalidUrl')"
           >
-            <small class="text-success">
+            <small class="tw-text-success-600">
               <i class="bwi bwi-check-circle" aria-hidden="true"></i>
               {{ "keyConnectorTestSuccess" | i18n }}
             </small>
@@ -156,7 +154,7 @@
         </bit-form-field>
       </ng-container>
 
-      <hr />
+      <hr class="tw-mb-4" />
 
       <bit-form-field>
         <bit-label>{{ "type" | i18n }}</bit-label>
@@ -173,8 +171,10 @@
       *ngIf="ssoConfigForm.get('configType').value === ssoType.OpenIdConnect"
       [formGroup]="openIdForm"
     >
-      <div class="config-section">
-        <h2 class="secondary-header">{{ "openIdConnectConfig" | i18n }}</h2>
+      <div>
+        <h2 bitTypography="h2">
+          {{ "openIdConnectConfig" | i18n }}
+        </h2>
 
         <bit-form-field>
           <bit-label>{{ "callbackPath" | i18n }}</bit-label>
@@ -246,14 +246,15 @@
 
         <!-- Optional customizations -->
         <div
-          class="section-header d-flex flex-row align-items-center mt-3 mb-3"
+          class="tw-flex tw-flex-row tw-items-center tw-my-3 tw-text-main hover:tw-cursor-pointer"
           (click)="toggleOpenIdCustomizations()"
         >
-          <h3 class="mb-0 mr-2" id="customizations-header">
+          <h3 class="tw-mb-0 tw-mr-2 tw-font-normal tw-uppercase" id="customizations-header">
             {{ "openIdOptionalCustomizations" | i18n }}
           </h3>
           <button
-            class="mb-1 btn btn-link"
+            bitLink
+            linkType="primary"
             type="button"
             appStopClick
             role="button"
@@ -314,8 +315,10 @@
     <!-- SAML2 SP -->
     <div *ngIf="ssoConfigForm.get('configType').value === ssoType.Saml2" [formGroup]="samlForm">
       <!-- SAML2 SP -->
-      <div class="config-section">
-        <h2 class="secondary-header">{{ "samlSpConfig" | i18n }}</h2>
+      <div>
+        <h2 bitTypography="h2">
+          {{ "samlSpConfig" | i18n }}
+        </h2>
 
         <bit-form-control>
           <bit-label>{{ "spUniqueEntityId" | i18n }}</bit-label>
@@ -457,8 +460,10 @@
       </div>
 
       <!-- SAML2 IDP -->
-      <div class="config-section">
-        <h2 class="secondary-header">{{ "samlIdpConfig" | i18n }}</h2>
+      <div>
+        <h2 bitTypography="h2">
+          {{ "samlIdpConfig" | i18n }}
+        </h2>
 
         <bit-form-field>
           <bit-label>{{ "idpEntityId" | i18n }}</bit-label>

@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Aplicações críticas"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "No critical applications at risk"
+  },
   "accessIntelligence": {
     "message": "Acessar a Inteligência"
   },
@@ -34,24 +37,6 @@
   },
   "restoreMembers": {
     "message": "Restaurar membro"
-  },
-  "revokeMembersWarning": {
-    "message": "Membros com contas reivindicadas e não reivindicadas terão resultados diferentes quando forem removidos:"
-  },
-  "claimedAccountRevoke": {
-    "message": "Conta criada: Revogar acesso à conta Bitwarden"
-  },
-  "unclaimedAccountRevoke": {
-    "message": "Conta não reivindicada: Revogar acesso aos dados da organização"
-  },
-  "claimedAccount": {
-    "message": "Conta reivindicada"
-  },
-  "unclaimedAccount": {
-    "message": "Conta não reivindicada"
-  },
-  "restoreMembersInstructions": {
-    "message": "Para restaurar a conta de um membro, vá para aba Revogado. O processo pode levar alguns segundos para ser concluído e não pode ser interrompido ou cancelado."
   },
   "cannotRestoreAccessError": {
     "message": "Não é possível restaurar acesso à organização"
@@ -131,6 +116,39 @@
   "atRiskMembers": {
     "message": "Membros de risco"
   },
+  "atRiskMembersWithCount": {
+    "message": "At-risk members ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskApplicationsWithCount": {
+    "message": "At-risk applications ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskMembersDescription": {
+    "message": "These members are logging into applications with weak, exposed, or reused passwords."
+  },
+  "atRiskApplicationsDescription": {
+    "message": "These applications have weak, exposed, or reused passwords."
+  },
+  "atRiskMembersDescriptionWithApp": {
+    "message": "These members are logging into $APPNAME$ with weak, exposed, or reused passwords.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
   "totalMembers": {
     "message": "Total de membros"
   },
@@ -139,6 +157,12 @@
   },
   "totalApplications": {
     "message": "Todos os aplicativos"
+  },
+  "unmarkAsCriticalApp": {
+    "message": "Unmark as critical app"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Critical application successfully unmarked"
   },
   "whatTypeOfItem": {
     "message": "Que tipo de item é este?"
@@ -176,6 +200,9 @@
   },
   "notes": {
     "message": "Notas"
+  },
+  "privateNote": {
+    "message": "Private note"
   },
   "note": {
     "message": "Nota"
@@ -443,6 +470,18 @@
   "editFolder": {
     "message": "Editar Pasta"
   },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
+  },
   "baseDomain": {
     "message": "Domínio de base",
     "description": "Domain name. Example: website.com"
@@ -706,15 +745,6 @@
   },
   "itemName": {
     "message": "Nome do item"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Você não pode remover coleções com permissões de Somente leitura: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "ex.",
@@ -1002,6 +1032,9 @@
   "no": {
     "message": "Não"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Inicie a sessão ou crie uma nova conta para acessar seu cofre seguro."
   },
@@ -1137,17 +1170,41 @@
   "logInToBitwarden": {
     "message": "Inicie a sessão no Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
   "authenticationTimeout": {
     "message": "Tempo de autenticação esgotado"
   },
   "authenticationSessionTimedOut": {
     "message": "A sessão de autenticação expirou. Por favor, reinicie o processo de “login”."
   },
-  "verifyIdentity": {
-    "message": "Verifique sua identidade"
+  "verifyYourIdentity": {
+    "message": "Verify your Identity"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
+  "whatIsADevice": {
+    "message": "What is a device?"
+  },
+  "aDeviceIs": {
+    "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
   },
   "logInInitiated": {
     "message": "Login iniciado"
+  },
+  "logInRequestSent": {
+    "message": "Request sent"
   },
   "submit": {
     "message": "Enviar"
@@ -1338,11 +1395,38 @@
   "notificationSentDevice": {
     "message": "Uma notificação foi enviada para seu dispositivo."
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Unlock Bitwarden on your device. Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Uma notificação foi enviada para seu dispositivo."
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Certifique-se que sua conta esteja desbloqueado e que a frase de impressão digital corresponda à do outro dispositivo."
   },
   "versionNumber": {
     "message": "Versão $VERSION_NUMBER$",
@@ -1377,11 +1461,21 @@
   "rememberMe": {
     "message": "Lembrar de mim"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Enviar código de verificação para o e-mail novamente"
   },
   "useAnotherTwoStepMethod": {
     "message": "Utilizar outro método de verificação em duas etapas"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "Insira a sua YubiKey na porta USB do seu computador, e depois toque no botão da mesma."
@@ -1400,6 +1494,9 @@
   },
   "twoStepOptions": {
     "message": "Opções de login em duas etapas"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "recoveryCodeDesc": {
     "message": "Perdeu o acesso a todos os seus provedores de duas etapas? Utilize o seu código de recuperação para desativar todos os provedores de duas etapas da sua conta."
@@ -1442,6 +1539,9 @@
   },
   "webAuthnMigrated": {
     "message": "(Migrado de FIDO)"
+  },
+  "openInNewTab": {
+    "message": "Open in new tab"
   },
   "emailTitle": {
     "message": "E-mail"
@@ -1631,9 +1731,6 @@
     "message": "Evitar caracteres ambíguos",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
-  "regeneratePassword": {
-    "message": "Gerar Nova Senha"
-  },
   "length": {
     "message": "Comprimento"
   },
@@ -1733,6 +1830,12 @@
   "logBackIn": {
     "message": "Por favor, reinicie a sessão."
   },
+  "currentSession": {
+    "message": "Current session"
+  },
+  "requestPending": {
+    "message": "Request pending"
+  },
   "logBackInOthersToo": {
     "message": "Por favor, reinicie a sessão. Se estiver usando outros aplicativos do Bitwarden, encerre a sessão e reinicie também."
   },
@@ -1800,12 +1903,6 @@
   "dangerZone": {
     "message": "Zona de perigo"
   },
-  "dangerZoneDesc": {
-    "message": "Cuidado, essas ações não são reversíveis!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Cuidado, esta ação não é reversível!"
-  },
   "deauthorizeSessions": {
     "message": "Desautorizar sessões"
   },
@@ -1814,6 +1911,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "O processo também desconectará você da sua sessão atual, exigindo que você inicie a sessão novamente. Você também será solicitado a efetuar login em duas etapas novamente, se estiver ativado. Sessões ativas em outros dispositivos podem continuar ativas por até uma hora."
+  },
+  "newDeviceLoginProtection": {
+    "message": "New device login"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Turn off new device login protection"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Turn on new device login protection"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to have bitwarden send you verification emails when you login from a new device."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "With new device login protection turned off, anyone with your master password can access your account from any device. To protect your account without verification emails, set up two-step login."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "New device login protection changes saved"
   },
   "sessionsDeauthorized": {
     "message": "Todas as Sessões Desautorizadas"
@@ -2078,6 +2196,9 @@
   "twoStepLoginRecoveryWarning": {
     "message": "A configuração de login em duas etapas pode bloqueá-lo permanentemente da sua conta no Bitwarden. Um código de recuperação permite que você acesse sua conta no caso de não poder mais usar seu provedor de login em duas etapas normalmente (exemplo: você perde seu dispositivo). O suporte do Bitwarden não será capaz de ajudá-lo se você perder o acesso à sua conta. Recomendamos que você anote ou imprima o código de recuperação e o mantenha em um lugar seguro."
   },
+  "yourSingleUseRecoveryCode": {
+    "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
+  },
   "viewRecoveryCode": {
     "message": "Ver código de recuperação"
   },
@@ -2116,14 +2237,29 @@
   "manage": {
     "message": "Gerenciar"
   },
-  "canManage": {
-    "message": "Pode gerenciar"
+  "manageCollection": {
+    "message": "Manage collection"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
   },
   "disable": {
     "message": "Desabilitar"
   },
   "revokeAccess": {
     "message": "Revogar acesso"
+  },
+  "revoke": {
+    "message": "Revoke"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Este provedor de login em duas etapas está ativado em sua conta."
@@ -2314,11 +2450,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Houve um problema ao ler a chave de segurança. Tente novamente."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "Devido às limitações da plataforma, o WebAuthn não pode ser usado em todos os aplicativos do Bitwarden. Você deve habilitar outro provedor de login em duas etapas, para que você possa acessar a sua conta quando o WebAuthn não puder ser usado. Plataformas suportadas:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "Cofre web e extensões de navegador em um desktop/laptop com um navegador habilitado para WebAuthn (Chrome, Opera, Vivaldi ou Firefox com o FIDO U2F ativado)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "Due to platform limitations, WebAuthn cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when WebAuthn cannot be used."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Seu código de recuperação de login em duas etapas do Bitwarden"
@@ -3284,6 +3417,12 @@
       }
     }
   },
+  "inviteSingleEmailDesc": {
+    "message": "You have 1 invite remaining."
+  },
+  "inviteZeroEmailDesc": {
+    "message": "You have 0 invites remaining."
+  },
   "userUsingTwoStep": {
     "message": "Este usuário está usando o login em duas etapas para proteger a sua conta."
   },
@@ -3735,6 +3874,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "Unlinked SSO."
+  },
   "unlinkedSsoUser": {
     "message": "SSO desvinculado para o usuário $ID$.",
     "placeholders": {
@@ -3782,6 +3924,76 @@
   },
   "device": {
     "message": "Dispositivo"
+  },
+  "loginStatus": {
+    "message": "Login status"
+  },
+  "firstLogin": {
+    "message": "First login"
+  },
+  "trusted": {
+    "message": "Trusted"
+  },
+  "needsApproval": {
+    "message": "Needs approval"
+  },
+  "areYouTryingtoLogin": {
+    "message": "Are you trying to log in?"
+  },
+  "logInAttemptBy": {
+    "message": "Login attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "deviceType": {
+    "message": "Device Type"
+  },
+  "ipAddress": {
+    "message": "IP Address"
+  },
+  "confirmLogIn": {
+    "message": "Confirm login"
+  },
+  "denyLogIn": {
+    "message": "Deny login"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "This request is no longer valid."
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Login request has already expired."
+  },
+  "justNow": {
+    "message": "Just now"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Requested $MINUTES$ minutes ago",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "creatingAccountOn": {
     "message": "Criando conta em"
@@ -3900,8 +4112,17 @@
   "updateBrowser": {
     "message": "Atualizar Navegador"
   },
+  "generatingRiskInsights": {
+    "message": "Generating your risk insights..."
+  },
   "updateBrowserDesc": {
     "message": "Você está usando um navegador da Web não suportado. O cofre web pode não funcionar corretamente."
+  },
+  "youHaveAPendingLoginRequest": {
+    "message": "You have a pending login request from another device."
+  },
+  "reviewLoginRequest": {
+    "message": "Review login request"
   },
   "freeTrialEndPromptCount": {
     "message": "Your free trial ends in $COUNT$ days.",
@@ -3996,6 +4217,9 @@
   },
   "recoverAccountTwoStepDesc": {
     "message": "Se você não puder acessar sua conta por meio de seus métodos normais de login em duas etapas, poderá usar seu código de recuperação de login em duas etapas para desativar a funcionalidade de duas etapas da sua conta."
+  },
+  "logInBelowUsingYourSingleUseRecoveryCode": {
+    "message": "Log in below using your single-use recovery code. This will turn off all two-step providers on your account."
   },
   "recoverAccountTwoStep": {
     "message": "Recuperar login em duas etapas da conta"
@@ -4288,6 +4512,24 @@
   "encryptionKeyUpdateCannotProceed": {
     "message": "A atualização da chave de criptografia não pode continuar"
   },
+  "editFieldLabel": {
+    "message": "Edit $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButton": {
+    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "Ao atualizar sua chave de criptografia, suas pastas não puderam ser descriptografadas. Para continuar com a atualização, suas pastas devem ser excluídas. Nenhum item de cofre será excluído se você prosseguir."
   },
@@ -4559,6 +4801,15 @@
   "masterPassPolicyDesc": {
     "message": "Defina os requisitos mínimos para a força da senha mestra."
   },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "twoStepLoginPolicyTitle": {
     "message": "Exigir login em duas etapas"
   },
@@ -4573,9 +4824,6 @@
   },
   "passwordGeneratorPolicyDesc": {
     "message": "Defina os requisitos mínimos para configuração do gerador de senhas."
-  },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Uma ou mais políticas da organização estão afetando as suas configurações do gerador."
   },
   "masterPasswordPolicyInEffect": {
     "message": "Uma ou mais políticas da organização exigem que a sua senha mestra cumpra aos seguintes requisitos:"
@@ -4842,11 +5090,39 @@
   "requireSsoExemption": {
     "message": "Os Proprietários e Administradores da Organização estão isentos da aplicação desta política."
   },
+  "limitSendViews": {
+    "message": "Limit views"
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
   "sendTypeFile": {
     "message": "Arquivo"
   },
   "sendTypeText": {
     "message": "Texto"
+  },
+  "sendPasswordDescV3": {
+    "message": "Add an optional password for recipients to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Criar Novo Send",
@@ -4872,19 +5148,15 @@
     "message": "Excluir Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Você tem certeza que deseja excluir este Send?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Que tipo de Send é este?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Are you sure you want to permanently delete this Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Data de Exclusão"
   },
-  "deletionDateDesc": {
-    "message": "O Send será eliminado permanentemente na data e hora especificadas.",
+  "deletionDateDescV2": {
+    "message": "The Send will be permanently deleted on this date.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -4896,21 +5168,6 @@
   },
   "maxAccessCount": {
     "message": "Contagem Máxima de Acessos"
-  },
-  "maxAccessCountDesc": {
-    "message": "Se atribuído, usuários não poderão mais acessar este Send assim que o número máximo de acessos for atingido.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Contagem Atual de Acessos"
-  },
-  "sendPasswordDesc": {
-    "message": "Opcionalmente exigir uma senha para os usuários acessarem este Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Notas privadas sobre esse Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Desativado"
@@ -4938,13 +5195,6 @@
   "removePasswordConfirmation": {
     "message": "Você tem certeza que deseja remover a senha?"
   },
-  "hideEmail": {
-    "message": "Ocultar meu endereço de e-mail dos destinatários."
-  },
-  "disableThisSend": {
-    "message": "Desabilite este Send para que ninguém possa acessá-lo.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Todos os Sends"
   },
@@ -4954,6 +5204,9 @@
   },
   "pendingDeletion": {
     "message": "Exclusão pendente"
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
   },
   "expired": {
     "message": "Expirado"
@@ -5176,13 +5429,6 @@
     "message": "Não permitir que os usuários ocultem seus endereços de e-mail dos destinatários ao criar ou editar um Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "As seguintes políticas da organização estão em vigor atualmente:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Os usuários não têm permissão para ocultar seus endereços de e-mail dos destinatários ao criar ou editar um Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "Política modificada $ID$.",
     "placeholders": {
@@ -5281,27 +5527,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Desativar propriedade pessoal para usuários da organização"
-  },
-  "textHiddenByDefault": {
-    "message": "Ao acessar o Send, ocultar o texto por padrão",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Um nome amigável para descrever este Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "O texto que você deseja enviar."
-  },
-  "sendFileDesc": {
-    "message": "O arquivo que você deseja enviar."
-  },
-  "copySendLinkOnSave": {
-    "message": "Copie o link para compartilhar este Send para minha área de transferência depois de salvar."
-  },
-  "sendLinkLabel": {
-    "message": "Link do Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Send",
@@ -5451,11 +5676,20 @@
   "dateParsingError": {
     "message": "Ocorreu um erro ao salvar as suas datas de exclusão e validade."
   },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
+  },
   "webAuthnFallbackMsg": {
     "message": "Para verificar seu 2FA, por favor, clique no botão abaixo."
   },
   "webAuthnAuthenticate": {
     "message": "Autenticar WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
   },
   "webAuthnNotSupported": {
     "message": "O WebAuthn não é suportado neste navegador."
@@ -5669,6 +5903,20 @@
   },
   "error": {
     "message": "Erro"
+  },
+  "decryptionError": {
+    "message": "Decryption error"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Contact customer success",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "to avoid additional data loss.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
     "message": "Gerenciar usuários também devem ser concedidos com a permissão de gerenciar a recuperação de contas"
@@ -6531,15 +6779,6 @@
     "message": "Gerador",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "O que você gostaria de gerar?"
-  },
-  "passwordType": {
-    "message": "Tipo de Senha"
-  },
-  "regenerateUsername": {
-    "message": "Recriar Usuário"
-  },
   "generateUsername": {
     "message": "Gerar Usuário"
   },
@@ -6580,9 +6819,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Tipo de Usuário"
-  },
   "plusAddressedEmail": {
     "message": "E-mail alternativo (com um +)",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -6595,6 +6831,9 @@
   },
   "catchallEmailDesc": {
     "message": "Use o catch-all configurado no seu domínio."
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "random": {
     "message": "Aleatório",
@@ -6745,6 +6984,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Não foi possível obter a máscara do ID da conta de email $SERVICENAME$.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -6798,9 +7061,6 @@
   "hostname": {
     "message": "Hostname",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "Token de acesso API"
   },
   "deviceVerification": {
     "message": "Verificação do dispositivo"
@@ -6976,6 +7236,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "A autenticação em duas etapas do Duo é necessária para sua conta."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
   },
   "launchDuo": {
     "message": "Abrir o Duo"
@@ -7512,18 +7778,6 @@
   },
   "noCollection": {
     "message": "Sem coleções"
-  },
-  "canView": {
-    "message": "Pode ver"
-  },
-  "canViewExceptPass": {
-    "message": "Pode ver, exceto senhas"
-  },
-  "canEdit": {
-    "message": "Pode editar"
-  },
-  "canEditExceptPass": {
-    "message": "Pode editar, exceto senhas"
   },
   "noCollectionsAdded": {
     "message": "Nenhuma coleção adicionada"
@@ -8148,33 +8402,33 @@
   "trustedDevices": {
     "message": "Dispositivos confiáveis"
   },
-  "memberDecryptionOptionTdeDescriptionPartOne": {
-    "message": "Uma vez autenticados, os membros descriptografarão os dados do cofre usando uma chave armazenada no seu dispositivo",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO Required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart1": {
+    "message": "Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkOne": {
-    "message": "organização única",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescLink1": {
+    "message": "single organization",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartTwo": {
-    "message": "política,",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart2": {
+    "message": "policy,",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkTwo": {
-    "message": "Necessário SSO",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescLink2": {
+    "message": "SSO required",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartThree": {
-    "message": "política e",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart3": {
+    "message": "policy, and",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkThree": {
-    "message": "gerenciar recuperação de conta",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescLink3": {
+    "message": "account recovery administration",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartFour": {
-    "message": "política com inscrição automática será ativada quando esta opção for utilizada.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart4": {
+    "message": "policy will turn on when this option is used.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "As permissões da sua organização foram atualizadas, exigindo que você defina uma senha mestra.",
@@ -8250,6 +8504,18 @@
   },
   "approveRequest": {
     "message": "Aprovar solicitação"
+  },
+  "deviceApproved": {
+    "message": "Device approved"
+  },
+  "deviceRemoved": {
+    "message": "Device removed"
+  },
+  "removeDevice": {
+    "message": "Remove device"
+  },
+  "removeDeviceConfirmation": {
+    "message": "Are you sure you want to remove this device?"
   },
   "noDeviceRequests": {
     "message": "Nenhum pedido de dispositivo"
@@ -8460,6 +8726,9 @@
   "limitCollectionDeletionDesc": {
     "message": "Limitar exclusão de coleção a proprietários e administradores"
   },
+  "limitItemDeletionDesc": {
+    "message": "Limit item deletion to members with the Can manage permission"
+  },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Proprietários e administradores podem gerenciar todas as coleções e itens"
   },
@@ -8508,9 +8777,6 @@
   "selfHostBaseUrl": {
     "message": "URL do servidor auto-host",
     "description": "Label for field requesting a self-hosted integration service URL"
-  },
-  "aliasDomain": {
-    "message": "Alias do domínio"
   },
   "alreadyHaveAccount": {
     "message": "Já tem uma conta?"
@@ -8573,11 +8839,11 @@
   "readOnlyCollectionAccess": {
     "message": "Você não tem acesso para gerenciar esta coleção."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "Falta conceder o Poder de Gerenciar Permissões"
+  "grantManageCollectionWarningTitle": {
+    "message": "Missing Manage Collection Permissions"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Conceda o poder de gerenciar permissões para habilitar o gerenciamento completo da coleção, incluindo a exclusão da coleção."
+  "grantManageCollectionWarning": {
+    "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
   },
   "grantCollectionAccess": {
     "message": "Conceder acesso de grupos ou membros a esta coleção."
@@ -9072,6 +9338,12 @@
   "deviceManagementDesc": {
     "message": "Configure o gerenciamento de dispositivos para o Bitwarden usando o guia de implementação da sua plataforma."
   },
+  "desktopRequired": {
+    "message": "Desktop required"
+  },
+  "reopenLinkOnDesktop": {
+    "message": "Reopen this link from your email on a desktop."
+  },
   "integrationCardTooltip": {
     "message": "Inicie o guia de implementação $INTEGRATION$.",
     "placeholders": {
@@ -9137,6 +9409,9 @@
   },
   "monthPerMember": {
     "message": "mês por membro"
+  },
+  "monthPerMemberBilledAnnually": {
+    "message": "month per member billed annually"
   },
   "seats": {
     "message": "Lugares"
@@ -9285,6 +9560,18 @@
   },
   "updatedTaxInformation": {
     "message": "Informações fiscais atualizadas"
+  },
+  "billingInvalidTaxIdError": {
+    "message": "Invalid tax ID, if you believe this is an error please contact support."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "We were unable to validate your tax ID, if you believe this is an error please contact support."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Invalid tax ID, if you believe this is an error please contact support."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "An error occurred while previewing the invoice. Please try again later."
   },
   "unverified": {
     "message": "Não verificado"
@@ -9550,8 +9837,14 @@
   "learnMoreAboutApi": {
     "message": "Saiba mais sobre a API do Bitwarden"
   },
+  "fileSend": {
+    "message": "File Send"
+  },
   "fileSends": {
     "message": "Arquivos enviados"
+  },
+  "textSend": {
+    "message": "Text Send"
   },
   "textSends": {
     "message": "Texto enviado"
@@ -9645,6 +9938,15 @@
   },
   "sshKeyAlgorithm": {
     "message": "Algoritmo da chave"
+  },
+  "sshPrivateKey": {
+    "message": "Private key"
+  },
+  "sshPublicKey": {
+    "message": "Public key"
+  },
+  "sshFingerprint": {
+    "message": "Fingerprint"
   },
   "sshKeyFingerprint": {
     "message": "Impressão digital"
@@ -9777,10 +10079,6 @@
     "message": "Incluir caracteres especiais",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "addAttachment": {
     "message": "Adicionar anexo"
   },
@@ -9899,8 +10197,62 @@
   "descriptorCode": {
     "message": "Código do descritor"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Você não pode remover coleções com permissões de Somente leitura: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "importantNotice": {
+    "message": "Important notice"
+  },
+  "setupTwoStepLogin": {
+    "message": "Set up two-step login"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+  },
+  "remindMeLater": {
+    "message": "Remind me later"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "No, I do not"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Yes, I can reliably access my email"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Turn on two-step login"
+  },
+  "changeAcctEmail": {
+    "message": "Change account email"
+  },
   "removeMembers": {
     "message": "Remover membro?"
+  },
+  "devices": {
+    "message": "Devices"
+  },
+  "deviceListDescription": {
+    "message": "Your account was logged in to each of the devices below. If you do not recognize a device, remove it now."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Your account was logged in to each of the devices below."
   },
   "claimedDomains": {
     "message": "Claimed domains"
@@ -9983,5 +10335,174 @@
   },
   "domainClaimed": {
     "message": "Domain claimed"
+  },
+  "organizationNameMaxLength": {
+    "message": "Organization name cannot exceed 50 characters."
+  },
+  "openingExtension": {
+    "message": "Opening the Bitwarden browser extension"
+  },
+  "somethingWentWrong": {
+    "message": "Something went wrong..."
+  },
+  "openingExtensionError": {
+    "message": "We had trouble opening the Bitwarden browser extension. Click the button to open it now."
+  },
+  "openExtension": {
+    "message": "Open extension"
+  },
+  "doNotHaveExtension": {
+    "message": "Don't have the Bitwarden browser extension?"
+  },
+  "installExtension": {
+    "message": "Install extension"
+  },
+  "openedExtension": {
+    "message": "Opened the browser extension"
+  },
+  "openedExtensionViewAtRiskPasswords": {
+    "message": "Successfully opened the Bitwarden browser extension. You can now review your at-risk passwords."
+  },
+  "openExtensionManuallyPart1": {
+    "message": "We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openExtensionManuallyPart2": {
+    "message": "from the toolbar.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "resellerRenewalWarningMsg": {
+    "message": "Your subscription will renew soon. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarningMgs": {
+    "message": "An invoice for your subscription was issued on $ISSUED_DATE$. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $DUE_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsg": {
+    "message": "The invoice for your subscription has not been paid. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "restartOrganizationSubscription": {
+    "message": "Organization subscription restarted"
+  },
+  "restartSubscription": {
+    "message": "Restart your subscription"
+  },
+  "suspendedManagedOrgMessage": {
+    "message": "Contact $PROVIDER$ for assistance.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme c"
+      }
+    }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Delete is a new action!"
+  },
+  "seatsRemaining": {
+    "message": "You have $REMAINING$ seats remaining out of $TOTAL$ seats assigned to this organization. Contact your provider to manage your subscription.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Existing organization"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Select an organization to add to your Provider Portal."
+  },
+  "noOrganizations": {
+    "message": "There are no organizations to list"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "Your provider subscription will receive a credit for any remaining time in the organization's subscription."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Do you want to add this organization to $PROVIDER$?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Added existing organization"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Assigned seats exceed available seats."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
+  },
+  "removeUnlockWithPinPolicyTitle": {
+    "message": "Remove Unlock with PIN"
+  },
+  "removeUnlockWithPinPolicyDesc": {
+    "message": "Do not allow members to unlock their account with a PIN."
+  },
+  "limitedEventLogs": {
+    "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Get full access to organization event logs by upgrading to a Teams or Enterprise plan."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Upgrade for real event log data"
+  },
+  "upgradeEventLogMessage": {
+    "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
   }
 }

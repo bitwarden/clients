@@ -66,9 +66,9 @@ a {
   }
 }
 
-input,
+input:not(bit-form-field input),
 select,
-textarea {
+textarea:not(bit-form-field textarea) {
   @include themify($themes) {
     color: themed("textColor");
     background-color: themed("inputBackgroundColor");

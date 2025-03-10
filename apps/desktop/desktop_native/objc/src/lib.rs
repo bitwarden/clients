@@ -68,13 +68,13 @@ mod objc {
 
     use super::*;
 
-    extern "C" {
-        pub fn runCommand(context: *mut c_void, value: *const c_char);
-        pub fn freeObjCString(value: &ObjCString);
+    unsafe extern "C" {
+        pub unsafe fn runCommand(context: *mut c_void, value: *const c_char);
+        pub unsafe fn freeObjCString(value: &ObjCString);
     }
 
     /// This function is called from the ObjC code to return the output of the command
-    #[no_mangle]
+    #[unsafe(no_mangle)]
     pub extern "C" fn commandReturn(context: &mut CommandContext, value: ObjCString) -> bool {
         let value: String = match value.try_into() {
             Ok(value) => value,
@@ -100,7 +100,7 @@ mod objc {
             }
         };
 
-        return true;
+        true
     }
 }
 
@@ -115,7 +115,7 @@ pub async fn run_command(input: String) -> Result<String> {
     unsafe { objc::runCommand(context.as_ptr(), c_input.as_ptr()) };
 
     // Convert output from ObjC code to Rust string
-    let objc_output = rx.await?.try_into()?;
+    let objc_output = rx.await?;
 
     // Convert output from ObjC code to Rust string
     // let objc_output = output.try_into()?;

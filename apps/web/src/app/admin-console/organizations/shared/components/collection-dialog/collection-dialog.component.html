@@ -1,0 +1,152 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog [disablePadding]="!loading" dialogSize="large">
+    <span bitDialogTitle>
+      <ng-container *ngIf="editMode">
+        {{ "editCollection" | i18n }}
+        <span class="tw-text-sm tw-normal-case tw-text-muted" *ngIf="!loading">{{
+          collection.name
+        }}</span>
+      </ng-container>
+      <ng-container *ngIf="!editMode">
+        {{ "newCollection" | i18n }}
+      </ng-container>
+    </span>
+    <div bitDialogContent>
+      <ng-container *ngIf="loading" #spinner>
+        <i class="bwi bwi-spinner bwi-lg bwi-spin" aria-hidden="true"></i>
+      </ng-container>
+      <bit-tab-group *ngIf="!loading" [(selectedIndex)]="tabIndex">
+        <bit-tab label="{{ 'collectionInfo' | i18n }}">
+          <bit-form-field>
+            <bit-label>{{ "name" | i18n }}</bit-label>
+            <input bitInput appAutofocus formControlName="name" />
+          </bit-form-field>
+
+          <bit-form-field *ngIf="showOrgSelector">
+            <bit-label>{{ "organization" | i18n }}</bit-label>
+            <bit-select bitInput formControlName="selectedOrg">
+              <bit-option
+                *ngFor="let org of organizations$ | async"
+                icon="bwi-business"
+                [value]="org.id"
+                [label]="org.name"
+              >
+              </bit-option>
+            </bit-select>
+          </bit-form-field>
+
+          <bit-form-field>
+            <bit-label>{{ "externalId" | i18n }}</bit-label>
+            <input bitInput formControlName="externalId" />
+            <bit-hint>{{ "externalIdDesc" | i18n }}</bit-hint>
+          </bit-form-field>
+
+          <bit-form-field>
+            <bit-label>{{ "nestCollectionUnder" | i18n }}</bit-label>
+            <bit-select bitInput formControlName="parent">
+              <bit-option [value]="undefined" [label]="'noCollection' | i18n"> </bit-option>
+              <bit-option
+                *ngIf="deletedParentName"
+                disabled
+                icon="bwi-collection"
+                [value]="deletedParentName"
+                label="{{ deletedParentName }} ({{ 'deleted' | i18n }})"
+              >
+              </bit-option>
+              <bit-option
+                *ngFor="let collection of nestOptions"
+                icon="bwi-collection"
+                [value]="collection.name"
+                [label]="collection.name"
+              >
+              </bit-option>
+            </bit-select>
+          </bit-form-field>
+        </bit-tab>
+        <bit-tab label="{{ 'access' | i18n }}">
+          <div class="tw-mb-3">
+            <ng-container *ngIf="dialogReadonly">
+              <span>{{ "readOnlyCollectionAccess" | i18n }}</span>
+            </ng-container>
+            <ng-container *ngIf="!dialogReadonly">
+              <bit-callout
+                title="{{ 'grantManageCollectionWarningTitle' | i18n }}"
+                type="warning"
+                *ngIf="showAddAccessWarning"
+              >
+                {{ "grantManageCollectionWarning" | i18n }}
+              </bit-callout>
+              <span *ngIf="organization.useGroups">{{ "grantCollectionAccess" | i18n }}</span>
+              <span *ngIf="!organization.useGroups">{{
+                "grantCollectionAccessMembersOnly" | i18n
+              }}</span>
+              <span *ngIf="organization.allowAdminAccessToAllCollectionItems">
+                {{ " " + ("adminCollectionAccess" | i18n) }}
+              </span>
+            </ng-container>
+          </div>
+          <div
+            class="tw-mb-3 tw-text-danger"
+            *ngIf="
+              formGroup.controls.access.hasError('managePermissionRequired') &&
+              !showAddAccessWarning
+            "
+          >
+            <i class="bwi bwi-error"></i> {{ "managePermissionRequired" | i18n }}
+          </div>
+          <bit-access-selector
+            *ngIf="organization.useGroups"
+            [permissionMode]="dialogReadonly ? PermissionMode.Readonly : PermissionMode.Edit"
+            formControlName="access"
+            [items]="accessItems"
+            [columnHeader]="'groupSlashMemberColumnHeader' | i18n"
+            [selectorLabelText]="'selectGroupsAndMembers' | i18n"
+            [selectorHelpText]="'userPermissionOverrideHelperDesc' | i18n"
+            [emptySelectionText]="'noMembersOrGroupsAdded' | i18n"
+          ></bit-access-selector>
+          <bit-access-selector
+            *ngIf="!organization.useGroups"
+            [permissionMode]="dialogReadonly ? PermissionMode.Readonly : PermissionMode.Edit"
+            formControlName="access"
+            [items]="accessItems"
+            [columnHeader]="'memberColumnHeader' | i18n"
+            [selectorLabelText]="'selectMembers' | i18n"
+            [emptySelectionText]="'noMembersAdded' | i18n"
+          ></bit-access-selector>
+        </bit-tab>
+      </bit-tab-group>
+    </div>
+    <ng-container bitDialogFooter>
+      <button
+        type="submit"
+        bitButton
+        bitFormButton
+        buttonType="primary"
+        [disabled]="loading || dialogReadonly"
+      >
+        {{ "save" | i18n }}
+      </button>
+      <button
+        type="button"
+        bitButton
+        bitFormButton
+        buttonType="secondary"
+        (click)="cancel()"
+        [disabled]="loading"
+      >
+        {{ "cancel" | i18n }}
+      </button>
+      <button
+        *ngIf="showDeleteButton"
+        type="button"
+        bitIconButton="bwi-trash"
+        buttonType="danger"
+        class="tw-ml-auto"
+        bitFormButton
+        [appA11yTitle]="'delete' | i18n"
+        [bitAction]="delete"
+        [disabled]="loading"
+      ></button>
+    </ng-container>
+  </bit-dialog>
+</form>

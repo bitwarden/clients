@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Kriittiset sovellukset"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "No critical applications at risk"
+  },
   "accessIntelligence": {
     "message": "Access Intelligence"
   },
@@ -12,7 +15,7 @@
     "message": "Risk Insights"
   },
   "passwordRisk": {
-    "message": "Password Risk"
+    "message": "Salasanariski"
   },
   "reviewAtRiskPasswords": {
     "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
@@ -34,24 +37,6 @@
   },
   "restoreMembers": {
     "message": "Palauta jäsenet"
-  },
-  "revokeMembersWarning": {
-    "message": "Members with claimed and unclaimed accounts will have different results when revoked:"
-  },
-  "claimedAccountRevoke": {
-    "message": "Claimed account: Revoke access to Bitwarden account"
-  },
-  "unclaimedAccountRevoke": {
-    "message": "Unclaimed account: Revoke access to organization data"
-  },
-  "claimedAccount": {
-    "message": "Claimed account"
-  },
-  "unclaimedAccount": {
-    "message": "Unclaimed account"
-  },
-  "restoreMembersInstructions": {
-    "message": "To restore a member's account, go to the Revoked tab. The process may take a few seconds to complete and cannot be interrupted or canceled."
   },
   "cannotRestoreAccessError": {
     "message": "Cannot restore organization access"
@@ -131,6 +116,39 @@
   "atRiskMembers": {
     "message": "Riskialttiit jäsenet"
   },
+  "atRiskMembersWithCount": {
+    "message": "At-risk members ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskApplicationsWithCount": {
+    "message": "At-risk applications ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskMembersDescription": {
+    "message": "These members are logging into applications with weak, exposed, or reused passwords."
+  },
+  "atRiskApplicationsDescription": {
+    "message": "These applications have weak, exposed, or reused passwords."
+  },
+  "atRiskMembersDescriptionWithApp": {
+    "message": "These members are logging into $APPNAME$ with weak, exposed, or reused passwords.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
   "totalMembers": {
     "message": "Jäseniä yhteensä"
   },
@@ -139,6 +157,12 @@
   },
   "totalApplications": {
     "message": "Sovelluksia yhteensä"
+  },
+  "unmarkAsCriticalApp": {
+    "message": "Unmark as critical app"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Critical application successfully unmarked"
   },
   "whatTypeOfItem": {
     "message": "Minkä tyyppinen kohde tämä on?"
@@ -176,6 +200,9 @@
   },
   "notes": {
     "message": "Merkinnät"
+  },
+  "privateNote": {
+    "message": "Private note"
   },
   "note": {
     "message": "Muistiinpano"
@@ -443,6 +470,18 @@
   "editFolder": {
     "message": "Muokkaa kansiota"
   },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
+  },
   "baseDomain": {
     "message": "Pääverkkotunnus",
     "description": "Domain name. Example: website.com"
@@ -706,15 +745,6 @@
   },
   "itemName": {
     "message": "Kohteen nimi"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Et voi poistaa kokoelmia, joihin sinulla on vain tarkasteluoikeus: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "esim.",
@@ -1002,6 +1032,9 @@
   "no": {
     "message": "Ei"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Käytä salattua holviasi kirjautumalla sisään tai luo uusi tili."
   },
@@ -1137,17 +1170,41 @@
   "logInToBitwarden": {
     "message": "Kirjaudu Bitwardeniin"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Tunnistaudu painamalla YubiKeytäsi"
+  },
   "authenticationTimeout": {
     "message": "Todennuksen aikakatkaisu"
   },
   "authenticationSessionTimedOut": {
     "message": "Todennusistunto aikakatkaistiin. Ole hyvä ja aloita kirjautumisprosessi uudelleen."
   },
-  "verifyIdentity": {
-    "message": "Vahvista henkilöllisyytesi"
+  "verifyYourIdentity": {
+    "message": "Verify your Identity"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
+  "whatIsADevice": {
+    "message": "What is a device?"
+  },
+  "aDeviceIs": {
+    "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
   },
   "logInInitiated": {
     "message": "Kirjautuminen aloitettu"
+  },
+  "logInRequestSent": {
+    "message": "Request sent"
   },
   "submit": {
     "message": "Jatka"
@@ -1338,11 +1395,38 @@
   "notificationSentDevice": {
     "message": "Laitteellesi on lähetetty ilmoitus."
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Unlock Bitwarden on your device. Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Laitteeseesi lähetettiin ilmoitus"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
   },
   "versionNumber": {
     "message": "Versio $VERSION_NUMBER$",
@@ -1377,11 +1461,21 @@
   "rememberMe": {
     "message": "Muista minut"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Lähetä todennuskoodi sähköpostitse uudelleen"
   },
   "useAnotherTwoStepMethod": {
     "message": "Käytä vaihtoehtoista todennustapaa"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "Kytke YubiKey-todennuslaitteesi tietokoneen USB-porttiin ja paina sen painiketta."
@@ -1400,6 +1494,9 @@
   },
   "twoStepOptions": {
     "message": "Kaksivaiheisen kirjautumisen asetukset"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "recoveryCodeDesc": {
     "message": "Etkö voi käyttää kaksivaiheisen kirjautumisen todentajiasi? Poista kaikki määritetyt todentajat käytöstä palautuskoodillasi."
@@ -1442,6 +1539,9 @@
   },
   "webAuthnMigrated": {
     "message": "(siirretty FIDO:sta)"
+  },
+  "openInNewTab": {
+    "message": "Open in new tab"
   },
   "emailTitle": {
     "message": "Sähköposti"
@@ -1631,9 +1731,6 @@
     "message": "Vältä epäselviä merkkejä",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
-  "regeneratePassword": {
-    "message": "Luo uusi salasana"
-  },
   "length": {
     "message": "Pituus"
   },
@@ -1733,6 +1830,12 @@
   "logBackIn": {
     "message": "Kirjaudu sisään uudelleen."
   },
+  "currentSession": {
+    "message": "Current session"
+  },
+  "requestPending": {
+    "message": "Request pending"
+  },
   "logBackInOthersToo": {
     "message": "Kirjaudu uudelleen sisään. Jos käytät muita Bitwarden-sovelluksia, kirjaudu myös niihin uudelleen."
   },
@@ -1800,12 +1903,6 @@
   "dangerZone": {
     "message": "Vaaravyöhyke"
   },
-  "dangerZoneDesc": {
-    "message": "Ole varovainen! Näitä toimintoja ei ole mahdollista kumota!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Ole varoivainen. Tätä ei ole mahdollista perua!"
-  },
   "deauthorizeSessions": {
     "message": "Mitätöi kaikki istunnot"
   },
@@ -1814,6 +1911,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "Jatkaminen uloskirjaa myös nykyisen istunnon pakottaen uudelleenkirjautumisen sekä kaksivaiheinen kirjautumisen, jos se on määritetty. Muiden laitteiden aktiiviset istunnot saattavat toimia vielä tunnin ajan."
+  },
+  "newDeviceLoginProtection": {
+    "message": "New device login"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Turn off new device login protection"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Turn on new device login protection"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to have bitwarden send you verification emails when you login from a new device."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "With new device login protection turned off, anyone with your master password can access your account from any device. To protect your account without verification emails, set up two-step login."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "New device login protection changes saved"
   },
   "sessionsDeauthorized": {
     "message": "Kaikki istunnot mitätöitiin"
@@ -2078,6 +2196,9 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Kaksivaiheisen kirjautumisen käyttöönotto voi lukita sinut ulos Bitwarden-tililtäsi pysyvästi. Palautuskoodi mahdollistaa pääsyn tilillesi myös silloin, kun et voi käyttää normaaleja kaksivaiheisen kirjautumisen todentajiasi (esim. kadotat todennuslaitteesi tai se varastetaan). Bitwardenin asiakaspalvelukaan ei voi auttaa sinua, jos menetät pääsyn tillesi. Suosittelemme, että kirjoitat palautuskoodin muistiin tai tulostat sen ja säilytät sitä turvallisessa paikassa (esim. kassakaapissa tai pankin tallelokerossa)."
   },
+  "yourSingleUseRecoveryCode": {
+    "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
+  },
   "viewRecoveryCode": {
     "message": "Näytä palautuskoodi"
   },
@@ -2116,14 +2237,29 @@
   "manage": {
     "message": "Hallitse"
   },
-  "canManage": {
-    "message": "Voi hallita"
+  "manageCollection": {
+    "message": "Manage collection"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
   },
   "disable": {
     "message": "Poista käytöstä"
   },
   "revokeAccess": {
     "message": "Mitätöi käyttöoikeudet"
+  },
+  "revoke": {
+    "message": "Revoke"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Tämä kaksivaiheisen kirjautumisen todentaja on määritetty tilillesi."
@@ -2314,11 +2450,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Suojausavainta luettaessa havaittiin ongelma. Yritä uudelleen."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "Alustakohtaisten rajoitusten vuoksi WebAuthn-todennuslaiteet eivät ole käytettävissä kaikissa Bitwarden-sovelluksissa. Sinun tulisi määrittää eri kaksivaiheisen kirjautumisen todentaja, jotta pääset tilillesi myös silloin kun WebAuthn-laitteen käyttö ei ole mahdollista. Tuetut alustat:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "Verkkoholvi ja selainlaajennukset pöytäkoneissa/kannettavissa, joissa on WebAuthn-tekniikkaa tukeva selain (Chrome, Opera, Vivaldi tai Firefox FIDO U2F käyttöön otettuna)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "Due to platform limitations, WebAuthn cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when WebAuthn cannot be used."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Bitwardenin kaksivaiheisen kirjautumisen palautuskoodisi"
@@ -3284,6 +3417,12 @@
       }
     }
   },
+  "inviteSingleEmailDesc": {
+    "message": "Sinulla on 1 kutsu jäljellä."
+  },
+  "inviteZeroEmailDesc": {
+    "message": "Sinulla on 0 kutsua jäljellä."
+  },
   "userUsingTwoStep": {
     "message": "Käyttäjä on suojannut tilinsä kaksivaiheisella kirjautumisella."
   },
@@ -3735,6 +3874,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "Unlinked SSO."
+  },
   "unlinkedSsoUser": {
     "message": "Poisti kertakirjautumisen käyttäjältä \"$ID$\".",
     "placeholders": {
@@ -3782,6 +3924,76 @@
   },
   "device": {
     "message": "Laite"
+  },
+  "loginStatus": {
+    "message": "Kirjautumisen tila"
+  },
+  "firstLogin": {
+    "message": "Ensimmäinen kirjautuminen"
+  },
+  "trusted": {
+    "message": "Luotettu"
+  },
+  "needsApproval": {
+    "message": "Vaatii hyväksynnän"
+  },
+  "areYouTryingtoLogin": {
+    "message": "Yritätkö kirjautua sisään?"
+  },
+  "logInAttemptBy": {
+    "message": "Kirjautumisyritys osoitteella $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "deviceType": {
+    "message": "Device Type"
+  },
+  "ipAddress": {
+    "message": "IP Address"
+  },
+  "confirmLogIn": {
+    "message": "Confirm login"
+  },
+  "denyLogIn": {
+    "message": "Deny login"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "This request is no longer valid."
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Login request has already expired."
+  },
+  "justNow": {
+    "message": "Juuri nyt"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Pyydetty $MINUTES$ minuuttia sitten",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "creatingAccountOn": {
     "message": "Luodaan tili palvelimelle"
@@ -3900,8 +4112,17 @@
   "updateBrowser": {
     "message": "Päivitä selain"
   },
+  "generatingRiskInsights": {
+    "message": "Generating your risk insights..."
+  },
   "updateBrowserDesc": {
     "message": "Käytät selainta, jota ei tueta. Verkkoholvi ei välttämättä toimi oikein."
+  },
+  "youHaveAPendingLoginRequest": {
+    "message": "You have a pending login request from another device."
+  },
+  "reviewLoginRequest": {
+    "message": "Review login request"
   },
   "freeTrialEndPromptCount": {
     "message": "Ilmainen kokeilujakso päättyy $COUNT$ päivän kuluttua.",
@@ -3996,6 +4217,9 @@
   },
   "recoverAccountTwoStepDesc": {
     "message": "Jos et pääse tilillesi käyttämilläsi kaksivaiheisen kirjautumisen todentajilla, voit kaksivaiheisen kirjautumisen palautuskoodillasi poistaa kaikki tilillesi määritetyt todentajat käytöstä."
+  },
+  "logInBelowUsingYourSingleUseRecoveryCode": {
+    "message": "Log in below using your single-use recovery code. This will turn off all two-step providers on your account."
   },
   "recoverAccountTwoStep": {
     "message": "Vapauta tili kaksivaiheisesta kirjautumisesta"
@@ -4288,6 +4512,24 @@
   "encryptionKeyUpdateCannotProceed": {
     "message": "Salausavaimen päivitystä ei voida jatkaa"
   },
+  "editFieldLabel": {
+    "message": "Edit $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButton": {
+    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "Kansioidesi salausta ei voitu purkaa salausavaimesi päivityksen aikana. Jatkaaksesi päivitystä kansiosi on poistettava. Holvin kohteita ei poisteta, jos jatkat."
   },
@@ -4559,6 +4801,15 @@
   "masterPassPolicyDesc": {
     "message": "Aseta pääsalasanan vahvuusvaatimukset."
   },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "twoStepLoginPolicyTitle": {
     "message": "Vaadi kaksivaiheinen kirjautuminen"
   },
@@ -4573,9 +4824,6 @@
   },
   "passwordGeneratorPolicyDesc": {
     "message": "Aseta salasanageneraattorin vaatimukset."
-  },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Yksi tai useampi organisaatiokäytäntö vaikuttaa generaattorisi asetuksiin."
   },
   "masterPasswordPolicyInEffect": {
     "message": "Yksi tai useampi organisaatiokäytäntö edellyttää, että pääsalasanasi täyttää seuraavat vaatimukset:"
@@ -4842,11 +5090,39 @@
   "requireSsoExemption": {
     "message": "Organisaation omistajat ja ylläpitäjät on vapautettu tämän käytännön piiristä."
   },
+  "limitSendViews": {
+    "message": "Limit views"
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
   "sendTypeFile": {
     "message": "Tiedosto"
   },
   "sendTypeText": {
     "message": "Teksti"
+  },
+  "sendPasswordDescV3": {
+    "message": "Add an optional password for recipients to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Uusi Send",
@@ -4872,19 +5148,15 @@
     "message": "Poista Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Haluatko varmasti poistaa Sendin?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Minkä tyyppinen Send tämä on?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Are you sure you want to permanently delete this Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Poistoajankohta"
   },
-  "deletionDateDesc": {
-    "message": "Send poistuu pysyvästi määritettynä ajankohtana.",
+  "deletionDateDescV2": {
+    "message": "The Send will be permanently deleted on this date.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -4896,21 +5168,6 @@
   },
   "maxAccessCount": {
     "message": "Käyttökertojen enimmäismäärä"
-  },
-  "maxAccessCountDesc": {
-    "message": "Jos määritetty, käyttäjät eivät voi avata Sendiä käyttökertojen enimmäismäärän täytyttyä.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Käyttökertojen nykyinen määrä"
-  },
-  "sendPasswordDesc": {
-    "message": "Halutessasi, vaadi käyttäjiä syöttämään salasana Sendin avaamiseksi.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Yksityisiä merkintöjä tästä Sendistä.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Poistettu käytöstä"
@@ -4938,13 +5195,6 @@
   "removePasswordConfirmation": {
     "message": "Haluatko varmasti poistaa salasanan?"
   },
-  "hideEmail": {
-    "message": "Piilota sähköpostiosoitteeni vastaanottajilta."
-  },
-  "disableThisSend": {
-    "message": "Poista Send käytöstä, jottei kukaan voi avata sitä.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Kaikki Sendit"
   },
@@ -4954,6 +5204,9 @@
   },
   "pendingDeletion": {
     "message": "Odottaa poistoa"
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
   },
   "expired": {
     "message": "Erääntynyt"
@@ -5176,13 +5429,6 @@
     "message": "Näytä jäsenen sähköpostiosoite aina vastaanottajien ohessa, kun Send luodaan tai sitä muokataan.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "Seuraavat organisaatiokäytännöt ovat aktiivisia:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Käyttäjiltä on estetty sähköpostiosoitteen piilotus kun he luovat tai muokkaavat Sendiä.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "Muokkasi käytäntöä \"$ID$\".",
     "placeholders": {
@@ -5281,27 +5527,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Poista yksityisen omistajuuden valinta käytöstä organisaation käyttäjiltä"
-  },
-  "textHiddenByDefault": {
-    "message": "Piilota teksti oletuksena kun Send avataan",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Kuvaava nimi Sendille.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Teksti, jonka haluat lähettää."
-  },
-  "sendFileDesc": {
-    "message": "Tiedosto, jonka haluat lähettää."
-  },
-  "copySendLinkOnSave": {
-    "message": "Kopioi Sendin linkki leikepöydälle tallennettaessa."
-  },
-  "sendLinkLabel": {
-    "message": "Send-linkki",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Send",
@@ -5451,11 +5676,20 @@
   "dateParsingError": {
     "message": "Tapahtui virhe tallennettaessa poisto- ja erääntymisajankohtia."
   },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
+  },
   "webAuthnFallbackMsg": {
     "message": "Vahvista kaksivaiheinen kirjautuminen (2FA) alla olevalla painikeella."
   },
   "webAuthnAuthenticate": {
     "message": "WebAuthn-todennus"
+  },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
   },
   "webAuthnNotSupported": {
     "message": "WebAuthn-todennusta ei tueta tässä selaimessa."
@@ -5669,6 +5903,20 @@
   },
   "error": {
     "message": "Virhe"
+  },
+  "decryptionError": {
+    "message": "Decryption error"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Ota yhteyttä asiakkaaseen",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "lisätietojen menettämisen välttämiseksi.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
     "message": "\"Tilien palautusavun hallinta\" -oikeuden kanssa on myönnettävä myös \"Käyttäjien hallinta\" -oikeus."
@@ -6531,15 +6779,6 @@
     "message": "Generaattori",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Mitä haluat luoda?"
-  },
-  "passwordType": {
-    "message": "Salasanan tyyppi"
-  },
-  "regenerateUsername": {
-    "message": "Luo uusi käyttäjätunnus"
-  },
   "generateUsername": {
     "message": "Luo käyttäjätunnus"
   },
@@ -6580,9 +6819,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Käyttäjätunnuksen tyyppi"
-  },
   "plusAddressedEmail": {
     "message": "Plus+merkkinen sähköposti",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -6595,6 +6831,9 @@
   },
   "catchallEmailDesc": {
     "message": "Käytä verkkotunnuksesi catch-all-postilaatikkoa."
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "random": {
     "message": "Satunnainen",
@@ -6745,6 +6984,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "$SERVICENAME$ -palvelun peittämän sähköpostitilin tunnistetta ei saatu.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -6798,9 +7061,6 @@
   "hostname": {
     "message": "Isäntä",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "API-käyttötunniste"
   },
   "deviceVerification": {
     "message": "Laitevahvistus"
@@ -6976,6 +7236,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "Tilillesi kirjautuminen vaatii Duo-vahvistuksen."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
   },
   "launchDuo": {
     "message": "Avaa Duo"
@@ -7512,18 +7778,6 @@
   },
   "noCollection": {
     "message": "Ei kokoelmaa"
-  },
-  "canView": {
-    "message": "Voi tarkastella"
-  },
-  "canViewExceptPass": {
-    "message": "Voi tarkastella (ei salasanoja)"
-  },
-  "canEdit": {
-    "message": "Voi muokata"
-  },
-  "canEditExceptPass": {
-    "message": "Voi muokata (ei salasanoja)"
   },
   "noCollectionsAdded": {
     "message": "Kokoelmia ei ole lisätty"
@@ -8148,33 +8402,33 @@
   "trustedDevices": {
     "message": "Luotetut laitteet"
   },
-  "memberDecryptionOptionTdeDescriptionPartOne": {
-    "message": "Kun jäsenet ovat tunnistautuneet, he voivat purkaa holvin salauksen omalla laitteellaan säilytettävällä avaimella.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO Required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart1": {
+    "message": "Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkOne": {
-    "message": "\"Yksittäinen organisaatio\"",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescLink1": {
+    "message": "single organization",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartTwo": {
-    "message": "ja",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart2": {
+    "message": "policy,",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkTwo": {
-    "message": "\"Kertakirjautuminen vaaditaan\"",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescLink2": {
+    "message": "SSO required",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartThree": {
-    "message": "-käytännöt sekä",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart3": {
+    "message": "policy, and",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkThree": {
-    "message": "\"Tilien palautusavun hallinta\"",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescLink3": {
+    "message": "account recovery administration",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartFour": {
-    "message": "-käytäntö automaattisella liitoksella otetaan käyttöön tämän valinnan käyttöönoton yhteydessä.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart4": {
+    "message": "policy will turn on when this option is used.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Organisaatiosi käyttöoikeuksia muutettiin ja tämän seurauksena sinun on asetettava pääsalasana.",
@@ -8250,6 +8504,18 @@
   },
   "approveRequest": {
     "message": "Hyväksy pyyntö"
+  },
+  "deviceApproved": {
+    "message": "Device approved"
+  },
+  "deviceRemoved": {
+    "message": "Device removed"
+  },
+  "removeDevice": {
+    "message": "Remove device"
+  },
+  "removeDeviceConfirmation": {
+    "message": "Are you sure you want to remove this device?"
   },
   "noDeviceRequests": {
     "message": "Laitepyyntöjä ei ole"
@@ -8460,6 +8726,9 @@
   "limitCollectionDeletionDesc": {
     "message": "Rajoita kokoelmien poisto omistajille ja ylläpitäjille"
   },
+  "limitItemDeletionDesc": {
+    "message": "Limit item deletion to members with the Can manage permission"
+  },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Omistajat ja ylläpitäjät voivat hallita kaikkia kokoelmia ja kohteita"
   },
@@ -8508,9 +8777,6 @@
   "selfHostBaseUrl": {
     "message": "Itse ylläpidetyn palvelimen URL-osoite",
     "description": "Label for field requesting a self-hosted integration service URL"
-  },
-  "aliasDomain": {
-    "message": "Aliaksen verkkotunnus"
   },
   "alreadyHaveAccount": {
     "message": "Onko sinulla jo tili?"
@@ -8573,11 +8839,11 @@
   "readOnlyCollectionAccess": {
     "message": "Oikeutesi eivät riitä kokoelman hallintaan."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "\"Voi hallita\" -käyttöoikeus puuttuu"
+  "grantManageCollectionWarningTitle": {
+    "message": "Missing Manage Collection Permissions"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Myönnä ”Voi hallita” -oikeus, joka mahdollistaa kokoelman täydellisen hallinnan, mukaan lukien sen poistamisen."
+  "grantManageCollectionWarning": {
+    "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
   },
   "grantCollectionAccess": {
     "message": "Myönnä ryhmille tai henkilöille kokoelman käyttöoikeus."
@@ -9072,6 +9338,12 @@
   "deviceManagementDesc": {
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
+  "desktopRequired": {
+    "message": "Desktop required"
+  },
+  "reopenLinkOnDesktop": {
+    "message": "Reopen this link from your email on a desktop."
+  },
   "integrationCardTooltip": {
     "message": "Launch $INTEGRATION$ implementation guide.",
     "placeholders": {
@@ -9137,6 +9409,9 @@
   },
   "monthPerMember": {
     "message": "kuukaudessa/jäsen"
+  },
+  "monthPerMemberBilledAnnually": {
+    "message": "month per member billed annually"
   },
   "seats": {
     "message": "Käyttäjäpaikat"
@@ -9285,6 +9560,18 @@
   },
   "updatedTaxInformation": {
     "message": "Verotiedot muutettiin"
+  },
+  "billingInvalidTaxIdError": {
+    "message": "Invalid tax ID, if you believe this is an error please contact support."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "We were unable to validate your tax ID, if you believe this is an error please contact support."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Invalid tax ID, if you believe this is an error please contact support."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "An error occurred while previewing the invoice. Please try again later."
   },
   "unverified": {
     "message": "Vahvistamaton"
@@ -9550,8 +9837,14 @@
   "learnMoreAboutApi": {
     "message": "Lisätietoja Bitwardenin API:sta"
   },
+  "fileSend": {
+    "message": "File Send"
+  },
   "fileSends": {
     "message": "Tiedosto-Sendit"
+  },
+  "textSend": {
+    "message": "Text Send"
   },
   "textSends": {
     "message": "Teksti-Sendit"
@@ -9645,6 +9938,15 @@
   },
   "sshKeyAlgorithm": {
     "message": "Avainalgoritmi"
+  },
+  "sshPrivateKey": {
+    "message": "Private key"
+  },
+  "sshPublicKey": {
+    "message": "Public key"
+  },
+  "sshFingerprint": {
+    "message": "Fingerprint"
   },
   "sshKeyFingerprint": {
     "message": "Sormenjälki"
@@ -9777,10 +10079,6 @@
     "message": "Sisällytä erikoismerkkejä",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "addAttachment": {
     "message": "Lisää liite"
   },
@@ -9899,8 +10197,62 @@
   "descriptorCode": {
     "message": "Descriptor code"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Et voi poistaa kokoelmia, joihin sinulla on vain tarkasteluoikeus: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "importantNotice": {
+    "message": "Tärkeä ilmoitus"
+  },
+  "setupTwoStepLogin": {
+    "message": "Määritä kaksivaiheinen kirjautuminen"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+  },
+  "remindMeLater": {
+    "message": "Remind me later"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "No, I do not"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Yes, I can reliably access my email"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Ota kaksivaiheinen kirjautuminen käyttöön"
+  },
+  "changeAcctEmail": {
+    "message": "Muuta tilin sähköpostiosoitetta"
+  },
   "removeMembers": {
     "message": "Poista jäsenet"
+  },
+  "devices": {
+    "message": "Devices"
+  },
+  "deviceListDescription": {
+    "message": "Your account was logged in to each of the devices below. If you do not recognize a device, remove it now."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Your account was logged in to each of the devices below."
   },
   "claimedDomains": {
     "message": "Claimed domains"
@@ -9983,5 +10335,174 @@
   },
   "domainClaimed": {
     "message": "Domain claimed"
+  },
+  "organizationNameMaxLength": {
+    "message": "Organization name cannot exceed 50 characters."
+  },
+  "openingExtension": {
+    "message": "Opening the Bitwarden browser extension"
+  },
+  "somethingWentWrong": {
+    "message": "Something went wrong..."
+  },
+  "openingExtensionError": {
+    "message": "We had trouble opening the Bitwarden browser extension. Click the button to open it now."
+  },
+  "openExtension": {
+    "message": "Open extension"
+  },
+  "doNotHaveExtension": {
+    "message": "Don't have the Bitwarden browser extension?"
+  },
+  "installExtension": {
+    "message": "Install extension"
+  },
+  "openedExtension": {
+    "message": "Opened the browser extension"
+  },
+  "openedExtensionViewAtRiskPasswords": {
+    "message": "Successfully opened the Bitwarden browser extension. You can now review your at-risk passwords."
+  },
+  "openExtensionManuallyPart1": {
+    "message": "We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openExtensionManuallyPart2": {
+    "message": "from the toolbar.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "resellerRenewalWarningMsg": {
+    "message": "Your subscription will renew soon. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarningMgs": {
+    "message": "An invoice for your subscription was issued on $ISSUED_DATE$. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $DUE_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsg": {
+    "message": "The invoice for your subscription has not been paid. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "restartOrganizationSubscription": {
+    "message": "Organization subscription restarted"
+  },
+  "restartSubscription": {
+    "message": "Restart your subscription"
+  },
+  "suspendedManagedOrgMessage": {
+    "message": "Contact $PROVIDER$ for assistance.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme c"
+      }
+    }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Delete is a new action!"
+  },
+  "seatsRemaining": {
+    "message": "You have $REMAINING$ seats remaining out of $TOTAL$ seats assigned to this organization. Contact your provider to manage your subscription.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Existing organization"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Select an organization to add to your Provider Portal."
+  },
+  "noOrganizations": {
+    "message": "There are no organizations to list"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "Your provider subscription will receive a credit for any remaining time in the organization's subscription."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Do you want to add this organization to $PROVIDER$?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Added existing organization"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Assigned seats exceed available seats."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
+  },
+  "removeUnlockWithPinPolicyTitle": {
+    "message": "Remove Unlock with PIN"
+  },
+  "removeUnlockWithPinPolicyDesc": {
+    "message": "Do not allow members to unlock their account with a PIN."
+  },
+  "limitedEventLogs": {
+    "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Get full access to organization event logs by upgrading to a Teams or Enterprise plan."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Upgrade for real event log data"
+  },
+  "upgradeEventLogMessage": {
+    "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
   }
 }

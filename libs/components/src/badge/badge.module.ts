@@ -1,9 +1,9 @@
 import { NgModule } from "@angular/core";
 
-import { BadgeDirective } from "./badge.directive";
+import { BadgeComponent } from "./badge.component";
 
 @NgModule({
-  imports: [BadgeDirective],
-  exports: [BadgeDirective],
+  imports: [BadgeComponent],
+  exports: [BadgeComponent],
 })
 export class BadgeModule {}

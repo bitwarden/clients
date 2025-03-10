@@ -3,10 +3,14 @@
   [ngClass]="calloutClass"
   [attr.aria-labelledby]="titleId"
 >
-  <header id="{{ titleId }}" class="tw-mb-1 tw-mt-0 tw-text-base tw-font-semibold" *ngIf="title">
-    <i class="bwi" [ngClass]="[icon, headerClass]" *ngIf="icon" aria-hidden="true"></i>
-    {{ title }}
-  </header>
+  @if (title) {
+    <header id="{{ titleId }}" class="tw-mb-1 tw-mt-0 tw-text-base tw-font-semibold">
+      @if (icon) {
+        <i class="bwi" [ngClass]="[icon, headerClass]" aria-hidden="true"></i>
+      }
+      {{ title }}
+    </header>
+  }
   <div bitTypography="body2">
     <ng-content></ng-content>
   </div>

@@ -8,6 +8,7 @@ import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   AutofillOverlayVisibility,
   CardExpiryDateDelimiters,
@@ -416,8 +417,9 @@ export default class AutofillService implements AutofillServiceInterface {
 
     let totp: string | null = null;
 
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     const canAccessPremium = await firstValueFrom(
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeAccount.id),
     );
     const defaultUriMatch = await this.getDefaultUriMatchStrategy();
 
@@ -463,7 +465,7 @@ export default class AutofillService implements AutofillServiceInterface {
 
         didAutofill = true;
         if (!options.skipLastUsed) {
-          await this.cipherService.updateLastUsedDate(options.cipher.id);
+          await this.cipherService.updateLastUsedDate(options.cipher.id, activeAccount.id);
         }
 
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -492,7 +494,7 @@ export default class AutofillService implements AutofillServiceInterface {
         const shouldAutoCopyTotp = await this.getShouldAutoCopyTotp();
 
         totp = shouldAutoCopyTotp
-          ? await this.totpService.getCode(options.cipher.login.totp)
+          ? (await firstValueFrom(this.totpService.getCode$(options.cipher.login.totp))).code
           : null;
       }),
     );
@@ -526,17 +528,29 @@ export default class AutofillService implements AutofillServiceInterface {
     autoSubmitLogin = false,
   ): Promise<string | null> {
     let cipher: CipherView;
+
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    if (activeUserId == null) {
+      return null;
+    }
+
     if (fromCommand) {
-      cipher = await this.cipherService.getNextCipherForUrl(tab.url);
+      cipher = await this.cipherService.getNextCipherForUrl(tab.url, activeUserId);
     } else {
-      const lastLaunchedCipher = await this.cipherService.getLastLaunchedForUrl(tab.url, true);
+      const lastLaunchedCipher = await this.cipherService.getLastLaunchedForUrl(
+        tab.url,
+        activeUserId,
+        true,
+      );
       if (
         lastLaunchedCipher &&
         Date.now().valueOf() - lastLaunchedCipher.localData?.lastLaunched?.valueOf() < 30000
       ) {
         cipher = lastLaunchedCipher;
       } else {
-        cipher = await this.cipherService.getLastUsedForUrl(tab.url, true);
+        cipher = await this.cipherService.getLastUsedForUrl(tab.url, activeUserId, true);
       }
     }
 
@@ -625,12 +639,19 @@ export default class AutofillService implements AutofillServiceInterface {
     let cipher: CipherView;
     let cacheKey = "";
 
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    if (activeUserId == null) {
+      return null;
+    }
+
     if (cipherType === CipherType.Card) {
       cacheKey = "cardCiphers";
-      cipher = await this.cipherService.getNextCardCipher();
+      cipher = await this.cipherService.getNextCardCipher(activeUserId);
     } else {
       cacheKey = "identityCiphers";
-      cipher = await this.cipherService.getNextIdentityCipher();
+      cipher = await this.cipherService.getNextIdentityCipher(activeUserId);
     }
 
     if (!cipher || !cacheKey || (cipher.reprompt === CipherRepromptType.Password && !fromCommand)) {
@@ -971,7 +992,10 @@ export default class AutofillService implements AutofillServiceInterface {
           }
 
           filledFields[t.opid] = t;
-          let totpValue = await this.totpService.getCode(login.totp);
+          const totpResponse = await firstValueFrom(
+            this.totpService.getCode$(options.cipher.login.totp),
+          );
+          let totpValue = totpResponse.code;
           if (totpValue.length == totps.length) {
             totpValue = totpValue.charAt(i);
           }
@@ -1388,7 +1412,6 @@ export default class AutofillService implements AutofillServiceInterface {
 
     let doesContainValue = false;
     CreditCardAutoFillConstants.CardAttributesExtended.forEach((attributeName) => {
-      // eslint-disable-next-line no-prototype-builtins
       if (doesContainValue || !field[attributeName]) {
         return;
       }
@@ -1514,7 +1537,7 @@ export default class AutofillService implements AutofillServiceInterface {
       );
 
       return CreditCardAutoFillConstants.CardAttributesExtended.find((attributeName) => {
-        const fieldAttributeValue = field[attributeName];
+        const fieldAttributeValue = field[attributeName]?.toLocaleLowerCase();
 
         const fieldAttributeMatch = fieldAttributeValue?.match(dateFormatPattern);
         // break find as soon as a match is found

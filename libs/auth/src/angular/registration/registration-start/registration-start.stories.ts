@@ -28,7 +28,8 @@ import {
 } from "@bitwarden/components";
 
 // FIXME: remove `/apps` import from `/libs`
-// eslint-disable-next-line import/no-restricted-paths
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line import/no-restricted-paths, no-restricted-imports
 import { PreloadedEnglishI18nModule } from "../../../../../../apps/web/src/app/core/tests";
 import { LoginEmailService } from "../../../common";
 import { AnonLayoutWrapperDataService } from "../../anon-layout/anon-layout-wrapper-data.service";

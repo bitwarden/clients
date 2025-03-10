@@ -5,10 +5,10 @@
 <!-- labels inside a form control (checkbox, radio button) should not truncate -->
 <span [ngClass]="{ 'tw-truncate': !isInsideFormControl }">
   <ng-content></ng-content>
-  <ng-container *ngIf="isInsideFormControl">
+  @if (isInsideFormControl) {
     <ng-container *ngTemplateOutlet="endSlotContent"></ng-container>
-  </ng-container>
+  }
 </span>
-<ng-container *ngIf="!isInsideFormControl">
+@if (!isInsideFormControl) {
   <ng-container *ngTemplateOutlet="endSlotContent"></ng-container>
-</ng-container>
+}

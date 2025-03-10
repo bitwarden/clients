@@ -2,7 +2,7 @@ import { mock } from "jest-mock-extended";
 
 import { Utils } from "../../platform/misc/utils";
 import { PlatformUtilsService } from "../abstractions/platform-utils.service";
-import { DecryptParameters } from "../models/domain/decrypt-parameters";
+import { EcbDecryptParameters } from "../models/domain/decrypt-parameters";
 import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 import { WebCryptoFunctionService } from "./web-crypto-function.service";
@@ -253,8 +253,13 @@ describe("WebCrypto Function Service", () => {
       const encData = Utils.fromBufferToB64(encValue);
       const b64Iv = Utils.fromBufferToB64(iv);
       const symKey = new SymmetricCryptoKey(key);
-      const params = cryptoFunctionService.aesDecryptFastParameters(encData, b64Iv, null, symKey);
-      const decValue = await cryptoFunctionService.aesDecryptFast(params, "cbc");
+      const parameters = cryptoFunctionService.aesDecryptFastParameters(
+        encData,
+        b64Iv,
+        null,
+        symKey,
+      );
+      const decValue = await cryptoFunctionService.aesDecryptFast({ mode: "cbc", parameters });
       expect(decValue).toBe(value);
     });
 
@@ -276,8 +281,8 @@ describe("WebCrypto Function Service", () => {
       const iv = Utils.fromBufferToB64(makeStaticByteArray(16));
       const symKey = new SymmetricCryptoKey(makeStaticByteArray(32));
       const data = "ByUF8vhyX4ddU9gcooznwA==";
-      const params = cryptoFunctionService.aesDecryptFastParameters(data, iv, null, symKey);
-      const decValue = await cryptoFunctionService.aesDecryptFast(params, "cbc");
+      const parameters = cryptoFunctionService.aesDecryptFastParameters(data, iv, null, symKey);
+      const decValue = await cryptoFunctionService.aesDecryptFast({ mode: "cbc", parameters });
       expect(decValue).toBe("EncryptMe!");
     });
   });
@@ -287,10 +292,11 @@ describe("WebCrypto Function Service", () => {
       const cryptoFunctionService = getWebCryptoFunctionService();
       const key = makeStaticByteArray(32);
       const data = Utils.fromB64ToArray("z5q2XSxYCdQFdI+qK2yLlw==");
-      const params = new DecryptParameters<string>();
-      params.encKey = Utils.fromBufferToByteString(key);
-      params.data = Utils.fromBufferToByteString(data);
-      const decValue = await cryptoFunctionService.aesDecryptFast(params, "ecb");
+      const parameters: EcbDecryptParameters<string> = {
+        encKey: Utils.fromBufferToByteString(key),
+        data: Utils.fromBufferToByteString(data),
+      };
+      const decValue = await cryptoFunctionService.aesDecryptFast({ mode: "ecb", parameters });
       expect(decValue).toBe("EncryptMe!");
     });
   });
@@ -303,6 +309,15 @@ describe("WebCrypto Function Service", () => {
       const data = Utils.fromB64ToArray("ByUF8vhyX4ddU9gcooznwA==");
       const decValue = await cryptoFunctionService.aesDecrypt(data, iv, key, "cbc");
       expect(Utils.fromBufferToUtf8(decValue)).toBe("EncryptMe!");
+    });
+
+    it("throws if iv is not provided", async () => {
+      const cryptoFunctionService = getWebCryptoFunctionService();
+      const key = makeStaticByteArray(32);
+      const data = Utils.fromB64ToArray("ByUF8vhyX4ddU9gcooznwA==");
+      await expect(() => cryptoFunctionService.aesDecrypt(data, null, key, "cbc")).rejects.toThrow(
+        "IV is required for CBC mode",
+      );
     });
   });
 

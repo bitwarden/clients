@@ -12,6 +12,7 @@ import {
   DefaultDomainSettingsService,
   DomainSettingsService,
 } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   EnvironmentService,
   Region,
@@ -61,6 +62,7 @@ describe("OverlayBackground", () => {
   let overlayBackground: LegacyOverlayBackground;
   const cipherService = mock<CipherService>();
   const autofillService = mock<AutofillService>();
+  let configService: MockProxy<ConfigService>;
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
   let authService: MockProxy<AuthService>;
 
@@ -92,7 +94,9 @@ describe("OverlayBackground", () => {
   };
 
   beforeEach(() => {
-    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockImplementation(() => of(true));
+    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider, configService);
     activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
@@ -106,6 +110,7 @@ describe("OverlayBackground", () => {
       i18nService,
       platformUtilsService,
       themeStateService,
+      accountService,
     );
 
     jest
@@ -201,7 +206,7 @@ describe("OverlayBackground", () => {
       await overlayBackground.updateOverlayCiphers();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url);
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId);
       expect(overlayBackground["cipherService"].sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["overlayLoginCiphers"]).toStrictEqual(
         new Map([
@@ -474,7 +479,6 @@ describe("OverlayBackground", () => {
     it("will set up onMessage and onConnect listeners", () => {
       overlayBackground["setupExtensionMessageListeners"]();
 
-      // eslint-disable-next-line
       expect(chrome.runtime.onMessage.addListener).toHaveBeenCalled();
       expect(chrome.runtime.onConnect.addListener).toHaveBeenCalled();
     });

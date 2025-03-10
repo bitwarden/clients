@@ -1,3 +1,4 @@
+import { FieldRect } from "../background/abstractions/overlay.background";
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { AutofillFieldQualifierType } from "../enums/autofill-field.enums";
@@ -124,4 +125,9 @@ export default class AutofillField {
   fieldQualifier?: AutofillFieldQualifierType;
 
   accountCreationFieldType?: InlineMenuAccountCreationFieldTypes;
+
+  /**
+   * used for totp multiline calculations
+   */
+  fieldRect?: FieldRect;
 }

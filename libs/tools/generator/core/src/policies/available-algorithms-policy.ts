@@ -4,12 +4,8 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 // FIXME: use index.ts imports once policy abstractions and models
 // implement ADR-0002
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import {
-  CredentialAlgorithm,
-  EmailAlgorithms,
-  PasswordAlgorithms,
-  UsernameAlgorithms,
-} from "@bitwarden/generator-core";
+
+import { CredentialAlgorithm, EmailAlgorithms, PasswordAlgorithms, UsernameAlgorithms } from "..";
 
 /** Reduces policies to a set of available algorithms
  *  @param policies the policies to reduce

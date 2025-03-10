@@ -13,6 +13,7 @@ import {
   of,
   shareReplay,
   Subject,
+  switchMap,
   takeUntil,
 } from "rxjs";
 
@@ -22,7 +23,10 @@ import {
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -97,9 +101,14 @@ export const openGroupAddEditDialog = (
   templateUrl: "group-add-edit.component.html",
 })
 export class GroupAddEditComponent implements OnInit, OnDestroy {
-  private organization$ = this.organizationService
-    .get$(this.organizationId)
-    .pipe(shareReplay({ refCount: true }));
+  private organization$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) =>
+      this.organizationService
+        .organizations$(account?.id)
+        .pipe(getOrganizationById(this.organizationId))
+        .pipe(shareReplay({ refCount: true })),
+    ),
+  );
 
   protected PermissionMode = PermissionMode;
   protected ResultType = GroupAddEditDialogResultType;

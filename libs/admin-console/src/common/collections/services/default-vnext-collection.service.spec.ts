@@ -1,7 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { first, firstValueFrom, of, ReplaySubject, takeWhile } from "rxjs";
 
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -91,7 +91,7 @@ describe("DefaultvNextCollectionService", () => {
 
       // Assert emitted values
       expect(result.length).toBe(2);
-      expect(result).toIncludeAllPartialMembers([
+      expect(result).toContainPartialObjects([
         {
           id: collection1.id,
           name: "DEC_NAME_" + collection1.id,
@@ -167,7 +167,7 @@ describe("DefaultvNextCollectionService", () => {
       const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
 
       expect(result.length).toBe(2);
-      expect(result).toIncludeAllPartialMembers([
+      expect(result).toContainPartialObjects([
         {
           id: collection1.id,
           name: makeEncString("ENC_NAME_" + collection1.id),
@@ -205,7 +205,7 @@ describe("DefaultvNextCollectionService", () => {
 
       const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
       expect(result.length).toBe(3);
-      expect(result).toIncludeAllPartialMembers([
+      expect(result).toContainPartialObjects([
         {
           id: collection1.id,
           name: makeEncString("UPDATED_ENC_NAME_" + collection1.id),
@@ -230,7 +230,7 @@ describe("DefaultvNextCollectionService", () => {
 
       const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
       expect(result.length).toBe(1);
-      expect(result).toIncludeAllPartialMembers([
+      expect(result).toContainPartialObjects([
         {
           id: collection1.id,
           name: makeEncString("ENC_NAME_" + collection1.id),
@@ -253,7 +253,7 @@ describe("DefaultvNextCollectionService", () => {
 
       const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
       expect(result.length).toBe(1);
-      expect(result).toIncludeAllPartialMembers([
+      expect(result).toContainPartialObjects([
         {
           id: newCollection3.id,
           name: makeEncString("ENC_NAME_" + newCollection3.id),

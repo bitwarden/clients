@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-import { Classifier } from "@bitwarden/common/tools/state/classifier";
+import { Classifier } from "./state/classifier";
 
 export class PrivateClassifier<Data> implements Classifier<Data, Record<string, never>, Data> {
   constructor(private keys: (keyof Jsonify<Data>)[] = undefined) {}
@@ -17,7 +17,7 @@ export class PrivateClassifier<Data> implements Classifier<Data, Record<string, 
     }
     const secret = picked as Jsonify<Data>;
 
-    return { disclosed: null, secret };
+    return { disclosed: {}, secret };
   }
 
   declassify(_disclosed: Jsonify<Record<keyof Data, never>>, secret: Jsonify<Data>) {

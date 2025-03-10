@@ -1,14 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map, Observable } from "rxjs";
+import { firstValueFrom, map, Observable, Subject } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { KeyService } from "@bitwarden/key-management";
 
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { AppIdService } from "../../platform/abstractions/app-id.service";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "../../platform/abstractions/crypto-function.service";
-import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
@@ -63,6 +63,10 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
 
   supportsDeviceTrust$: Observable<boolean>;
 
+  // Observable emission is used to trigger a toast in consuming components
+  private deviceTrustedSubject = new Subject<void>();
+  deviceTrusted$ = this.deviceTrustedSubject.asObservable();
+
   constructor(
     private keyGenerationService: KeyGenerationService,
     private cryptoFunctionService: CryptoFunctionService,
@@ -79,7 +83,17 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     private configService: ConfigService,
   ) {
     this.supportsDeviceTrust$ = this.userDecryptionOptionsService.userDecryptionOptions$.pipe(
-      map((options) => options?.trustedDeviceOption != null ?? false),
+      map((options) => {
+        return options?.trustedDeviceOption != null ?? false;
+      }),
+    );
+  }
+
+  supportsDeviceTrustByUserId$(userId: UserId): Observable<boolean> {
+    return this.userDecryptionOptionsService.userDecryptionOptionsById$(userId).pipe(
+      map((options) => {
+        return options?.trustedDeviceOption != null ?? false;
+      }),
     );
   }
 
@@ -167,7 +181,8 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     // store device key in local/secure storage if enc keys posted to server successfully
     await this.setDeviceKey(userId, deviceKey);
 
-    this.platformUtilsService.showToast("success", null, this.i18nService.t("deviceTrusted"));
+    // This emission will be picked up by consuming components to handle displaying a toast to the user
+    this.deviceTrustedSubject.next();
 
     return deviceResponse;
   }
@@ -335,6 +350,8 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
       );
 
       return new SymmetricCryptoKey(userKey) as UserKey;
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       // If either decryption effort fails, we want to remove the device key
       this.logService.error("Failed to decrypt using device key. Removing device key.");

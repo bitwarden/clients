@@ -28,9 +28,9 @@ export class BrowserCipherFormGenerationService implements CipherFormGenerationS
     return result.generatedValue;
   }
 
-  async generateUsername(): Promise<string> {
+  async generateUsername(uri: string): Promise<string> {
     const dialogRef = VaultGeneratorDialogComponent.open(this.dialogService, this.overlay, {
-      data: { type: "username" },
+      data: { type: "username", uri: uri },
     });
 
     const result = await firstValueFrom(dialogRef.closed);

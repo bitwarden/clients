@@ -1,11 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
-import { GenerationRequest } from "@bitwarden/common/tools/types";
 
 import {
   CatchallGenerationOptions,
   CredentialGenerator,
+  GenerateRequest,
   GeneratedCredential,
   SubaddressGenerationOptions,
 } from "../types";
@@ -112,25 +112,37 @@ export class EmailRandomizer
   }
 
   generate(
-    request: GenerationRequest,
+    request: GenerateRequest,
     settings: CatchallGenerationOptions,
   ): Promise<GeneratedCredential>;
   generate(
-    request: GenerationRequest,
+    request: GenerateRequest,
     settings: SubaddressGenerationOptions,
   ): Promise<GeneratedCredential>;
   async generate(
-    _request: GenerationRequest,
+    request: GenerateRequest,
     settings: CatchallGenerationOptions | SubaddressGenerationOptions,
   ) {
     if (isCatchallGenerationOptions(settings)) {
       const email = await this.randomAsciiCatchall(settings.catchallDomain);
 
-      return new GeneratedCredential(email, "catchall", Date.now());
+      return new GeneratedCredential(
+        email,
+        "catchall",
+        Date.now(),
+        request.source,
+        request.website,
+      );
     } else if (isSubaddressGenerationOptions(settings)) {
       const email = await this.randomAsciiSubaddress(settings.subaddressEmail);
 
-      return new GeneratedCredential(email, "subaddress", Date.now());
+      return new GeneratedCredential(
+        email,
+        "subaddress",
+        Date.now(),
+        request.source,
+        request.website,
+      );
     }
 
     throw new Error("Invalid settings received by generator.");

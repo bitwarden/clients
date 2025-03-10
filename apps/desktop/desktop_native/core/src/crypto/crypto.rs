@@ -9,13 +9,9 @@ use crate::error::{CryptoError, KdfParamError, Result};
 
 use super::CipherString;
 
-pub fn decrypt_aes256(
-    iv: &[u8; 16],
-    data: &Vec<u8>,
-    key: GenericArray<u8, U32>,
-) -> Result<Vec<u8>> {
+pub fn decrypt_aes256(iv: &[u8; 16], data: &[u8], key: GenericArray<u8, U32>) -> Result<Vec<u8>> {
     let iv = GenericArray::from_slice(iv);
-    let mut data = data.clone();
+    let mut data = data.to_vec();
     let decrypted_key_slice = cbc::Decryptor::<aes::Aes256>::new(&key, iv)
         .decrypt_padded_mut::<Pkcs7>(&mut data)
         .map_err(|_| CryptoError::KeyDecrypt)?;
@@ -54,7 +50,7 @@ pub fn argon2(
 
     let mut hash = [0u8; 32];
     argon
-        .hash_password_into(secret, &salt, &mut hash)
+        .hash_password_into(secret, salt, &mut hash)
         .map_err(|e| KdfParamError::InvalidParams(format!("Argon2 hashing failed: {e}",)))?;
 
     // Argon2 is using some stack memory that is not zeroed. Eventually some function will

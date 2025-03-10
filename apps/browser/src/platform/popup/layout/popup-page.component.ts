@@ -8,7 +8,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
   templateUrl: "popup-page.component.html",
   standalone: true,
   host: {
-    class: "tw-h-full tw-flex tw-flex-col tw-flex-1 tw-overflow-y-hidden",
+    class: "tw-h-full tw-flex tw-flex-col tw-overflow-y-hidden",
   },
   imports: [CommonModule],
 })

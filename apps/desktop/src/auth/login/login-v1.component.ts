@@ -3,7 +3,7 @@
 import { Component, NgZone, OnDestroy, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Subject, takeUntil, tap } from "rxjs";
+import { Subject, firstValueFrom, takeUntil, tap } from "rxjs";
 
 import { LoginComponentV1 as BaseLoginComponent } from "@bitwarden/angular/auth/components/login-v1.component";
 import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstractions/form-validation-errors.service";
@@ -11,11 +11,9 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import {
   LoginStrategyServiceAbstraction,
   LoginEmailServiceAbstraction,
-  RegisterRouteService,
 } from "@bitwarden/auth/common";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -77,8 +75,6 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
     route: ActivatedRoute,
     loginEmailService: LoginEmailServiceAbstraction,
     ssoLoginService: SsoLoginServiceAbstraction,
-    webAuthnLoginService: WebAuthnLoginServiceAbstraction,
-    registerRouteService: RegisterRouteService,
     toastService: ToastService,
     private configService: ConfigService,
   ) {
@@ -100,8 +96,6 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
       route,
       loginEmailService,
       ssoLoginService,
-      webAuthnLoginService,
-      registerRouteService,
       toastService,
     );
     this.onSuccessfulLogin = () => {
@@ -149,10 +143,11 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
       .getFeatureFlag$(FeatureFlag.UnauthenticatedExtensionUIRefresh)
       .pipe(
         tap(async (flag) => {
-          // If the flag is turned ON, we must force a reload to ensure the correct UI is shown
           if (flag) {
+            const qParams = await firstValueFrom(this.route.queryParams);
+
             const uniqueQueryParams = {
-              ...this.route.queryParams,
+              ...qParams,
               // adding a unique timestamp to the query params to force a reload
               t: new Date().getTime().toString(),
             };
@@ -162,7 +157,7 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
             });
           }
         }),
-        takeUntil(this.destroy$),
+        takeUntil(this.componentDestroyed$),
       )
       .subscribe();
   }
@@ -226,9 +221,10 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
     if (!ipc.platform.isAppImage && !ipc.platform.isSnapStore && !ipc.platform.isDev) {
       return super.launchSsoBrowser(clientId, ssoRedirectUri);
     }
+    const email = this.formGroup.controls.email.value;
 
     // Save off email for SSO
-    await this.ssoLoginService.setSsoEmail(this.formGroup.value.email);
+    await this.ssoLoginService.setSsoEmail(email);
 
     // Generate necessary sso params
     const passwordOptions: any = {
@@ -247,8 +243,11 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
     // Save sso params
     await this.ssoLoginService.setSsoState(state);
     await this.ssoLoginService.setCodeVerifier(ssoCodeVerifier);
+
     try {
-      await ipc.platform.localhostCallbackService.openSsoPrompt(codeChallenge, state);
+      await ipc.platform.localhostCallbackService.openSsoPrompt(codeChallenge, state, email);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       this.platformUtilsService.showToast(
         "error",

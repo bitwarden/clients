@@ -10,6 +10,7 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { IdentityCaptchaResponse } from "@bitwarden/common/auth/models/response/identity-captcha.response";
+import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
@@ -208,9 +209,12 @@ export class PasswordLoginStrategy extends LoginStrategy {
   }
 
   private getMasterPasswordPolicyOptionsFromResponse(
-    response: IdentityTokenResponse | IdentityTwoFactorResponse,
+    response:
+      | IdentityTokenResponse
+      | IdentityTwoFactorResponse
+      | IdentityDeviceVerificationResponse,
   ): MasterPasswordPolicyOptions {
-    if (response == null) {
+    if (response == null || response instanceof IdentityDeviceVerificationResponse) {
       return null;
     }
     return MasterPasswordPolicyOptions.fromResponse(response.masterPasswordPolicy);
@@ -232,5 +236,14 @@ export class PasswordLoginStrategy extends LoginStrategy {
     return {
       password: this.cache.value,
     };
+  }
+
+  async logInNewDeviceVerification(deviceVerificationOtp: string): Promise<AuthResult> {
+    const data = this.cache.value;
+    data.tokenRequest.newDeviceOtp = deviceVerificationOtp;
+    this.cache.next(data);
+
+    const [authResult] = await this.startLogIn();
+    return authResult;
   }
 }

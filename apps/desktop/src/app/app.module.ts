@@ -7,23 +7,22 @@ import { NgModule } from "@angular/core";
 
 import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
 import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
-import { DialogModule, CalloutModule } from "@bitwarden/components";
+import { CalloutModule, DialogModule } from "@bitwarden/components";
+import { DecryptionFailureDialogComponent } from "@bitwarden/vault";
 
 import { AccessibilityCookieComponent } from "../auth/accessibility-cookie.component";
 import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { EnvironmentComponent } from "../auth/environment.component";
 import { HintComponent } from "../auth/hint.component";
-import { LockComponent } from "../auth/lock.component";
 import { LoginModule } from "../auth/login/login.module";
-import { RegisterComponent } from "../auth/register.component";
 import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
 import { SsoComponentV1 } from "../auth/sso-v1.component";
-import { TwoFactorOptionsComponent } from "../auth/two-factor-options.component";
-import { TwoFactorComponent } from "../auth/two-factor.component";
+import { TwoFactorOptionsComponentV1 } from "../auth/two-factor-options-v1.component";
+import { TwoFactorComponentV1 } from "../auth/two-factor-v1.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
-import { SshAgentService } from "../platform/services/ssh-agent.service";
-import { PremiumComponent } from "../vault/app/accounts/premium.component";
+import { SshAgentService } from "../autofill/services/ssh-agent.service";
+import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { AddEditCustomFieldsComponent } from "../vault/app/vault/add-edit-custom-fields.component";
 import { AddEditComponent } from "../vault/app/vault/add-edit.component";
 import { AttachmentsComponent } from "../vault/app/vault/attachments.component";
@@ -47,8 +46,6 @@ import { HeaderComponent } from "./layout/header.component";
 import { NavComponent } from "./layout/nav.component";
 import { SearchComponent } from "./layout/search/search.component";
 import { SharedModule } from "./shared/shared.module";
-import { GeneratorComponent } from "./tools/generator.component";
-import { PasswordGeneratorHistoryComponent } from "./tools/password-generator-history.component";
 import { AddEditComponent as SendAddEditComponent } from "./tools/send/add-edit.component";
 import { SendComponent } from "./tools/send/send.component";
 
@@ -62,6 +59,7 @@ import { SendComponent } from "./tools/send/send.component";
     CalloutModule,
     DeleteAccountComponent,
     UserVerificationComponent,
+    DecryptionFailureDialogComponent,
   ],
   declarations: [
     AccessibilityCookieComponent,
@@ -78,13 +76,9 @@ import { SendComponent } from "./tools/send/send.component";
     FolderAddEditComponent,
     HeaderComponent,
     HintComponent,
-    LockComponent,
     NavComponent,
-    GeneratorComponent,
-    PasswordGeneratorHistoryComponent,
     PasswordHistoryComponent,
     PremiumComponent,
-    RegisterComponent,
     RemovePasswordComponent,
     SearchComponent,
     SendAddEditComponent,
@@ -92,9 +86,9 @@ import { SendComponent } from "./tools/send/send.component";
     SetPasswordComponent,
     SettingsComponent,
     ShareComponent,
+    TwoFactorComponentV1,
     SsoComponentV1,
-    TwoFactorComponent,
-    TwoFactorOptionsComponent,
+    TwoFactorOptionsComponentV1,
     UpdateTempPasswordComponent,
     VaultComponent,
     VaultTimeoutInputComponent,

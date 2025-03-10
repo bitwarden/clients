@@ -167,6 +167,8 @@ export abstract class BaseEventsComponent {
     let dates: string[] = null;
     try {
       dates = this.eventService.formatDateFilters(this.start, this.end);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.toastService.showToast({
         variant: "error",

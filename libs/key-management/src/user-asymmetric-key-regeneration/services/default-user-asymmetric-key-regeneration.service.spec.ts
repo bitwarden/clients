@@ -2,8 +2,8 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { of, throwError } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -144,6 +144,56 @@ describe("regenerateIfNeeded", () => {
       validPrivateKey: true,
     };
     setupVerificationResponse(mockVerificationResponse, sdkService);
+
+    await sut.regenerateIfNeeded(userId);
+
+    expect(
+      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
+    ).not.toHaveBeenCalled();
+    expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+  });
+
+  it("should not regenerate when user symmetric key is unavailable", async () => {
+    const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
+      privateKeyDecryptable: true,
+      validPrivateKey: false,
+    };
+    setupVerificationResponse(mockVerificationResponse, sdkService);
+    keyService.userKey$.mockReturnValue(of(undefined as unknown as UserKey));
+
+    await sut.regenerateIfNeeded(userId);
+
+    expect(
+      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
+    ).not.toHaveBeenCalled();
+    expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+  });
+
+  it("should not regenerate when user's encrypted private key is unavailable", async () => {
+    const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
+      privateKeyDecryptable: true,
+      validPrivateKey: false,
+    };
+    setupVerificationResponse(mockVerificationResponse, sdkService);
+    keyService.userEncryptedPrivateKey$.mockReturnValue(
+      of(undefined as unknown as EncryptedString),
+    );
+
+    await sut.regenerateIfNeeded(userId);
+
+    expect(
+      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
+    ).not.toHaveBeenCalled();
+    expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+  });
+
+  it("should not regenerate when user's public key is unavailable", async () => {
+    const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
+      privateKeyDecryptable: true,
+      validPrivateKey: false,
+    };
+    setupVerificationResponse(mockVerificationResponse, sdkService);
+    apiService.getUserPublicKey.mockResolvedValue(undefined as any);
 
     await sut.regenerateIfNeeded(userId);
 

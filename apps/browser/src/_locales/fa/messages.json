@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "یادآور کلمه عبور اصلی (اختیاری)"
   },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Join organization"
   },
@@ -175,6 +184,10 @@
   },
   "copyNotes": {
     "message": "Copy notes"
+  },
+  "copy": {
+    "message": "Copy",
+    "description": "Copy to clipboard"
   },
   "fill": {
     "message": "Fill",
@@ -445,6 +458,18 @@
   "generatePassphrase": {
     "message": "Generate passphrase"
   },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "regeneratePassword": {
     "message": "تولید مجدد کلمه عبور"
   },
@@ -453,25 +478,6 @@
   },
   "length": {
     "message": "طول"
-  },
-  "passwordMinLength": {
-    "message": "حداقل طول گذرواژه"
-  },
-  "uppercase": {
-    "message": "حروف بزرگ (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "حروف کوچک (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "اعداد (‪0-9‬)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "نویسه‌های ویژه (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
   },
   "include": {
     "message": "Include",
@@ -505,10 +511,6 @@
     "message": "Include special characters",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "تعداد کلمات"
   },
@@ -527,10 +529,6 @@
   },
   "minSpecial": {
     "message": "حداقل حرف خاص"
-  },
-  "avoidAmbChar": {
-    "message": "از کاراکترهای مبهم اجتناب کن",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "Avoid ambiguous characters",
@@ -648,14 +646,17 @@
   "rateExtension": {
     "message": "به این افزونه امتیاز دهید"
   },
-  "rateExtensionDesc": {
-    "message": "لطفاً با یک بررسی خوب به ما کمک کنید!"
-  },
   "browserNotSupportClipboard": {
     "message": "مرورگر شما از کپی کلیپ بورد آسان پشتیبانی نمی‌کند. به جای آن به صورت دستی کپی کنید."
   },
-  "verifyIdentity": {
-    "message": "تأیید هویت"
+  "verifyYourIdentity": {
+    "message": "Verify your identity"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
   },
   "yourVaultIsLocked": {
     "message": "گاوصندوق شما قفل شده است. برای ادامه هویت خود را تأیید کنید."
@@ -864,6 +865,21 @@
   "logInToBitwarden": {
     "message": "Log in to Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
+  },
   "restartRegistration": {
     "message": "Restart registration"
   },
@@ -884,6 +900,9 @@
   },
   "no": {
     "message": "خیر"
+  },
+  "location": {
+    "message": "Location"
   },
   "unexpectedError": {
     "message": "یک خطای غیر منتظره رخ داده است."
@@ -996,8 +1015,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Ask to add an item if one isn't found in your vault. Applies to all logged in accounts."
   },
-  "showCardsInVaultView": {
-    "message": "Show cards as Autofill suggestions on Vault view"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "نمایش کارت‌ها در صفحه برگه"
@@ -1005,14 +1024,20 @@
   "showCardsCurrentTabDesc": {
     "message": "برای پر کردن خودکار آسان، موارد کارت را در صفحه برگه فهرست کن."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Show identities as Autofill suggestions on Vault view"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "نشان دادن هویت در صفحه برگه"
   },
   "showIdentitiesCurrentTabDesc": {
     "message": "موارد هویتی را در صفحه برگه برای پر کردن خودکار آسان فهرست کن."
+  },
+  "clickToAutofillOnVault": {
+    "message": "Click items to autofill on Vault view"
+  },
+  "clickToAutofill": {
+    "message": "Click items in autofill suggestion to fill"
   },
   "clearClipboard": {
     "message": "پاکسازی کلیپ بورد",
@@ -1027,6 +1052,56 @@
   },
   "notificationAddSave": {
     "message": "ذخیره"
+  },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ saved to Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ updated in Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Save as new login",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Update login",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Save login?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Update existing login?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Login saved",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Login updated",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Error saving",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
     "message": "درخواست برای به‌روزرسانی ورود به سیستم موجود"
@@ -1160,9 +1235,6 @@
   "moveToOrganization": {
     "message": "انتقال به سازمان"
   },
-  "share": {
-    "message": "اشتراک گذاری"
-  },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ منتقل شد به $ORGNAME$",
     "placeholders": {
@@ -1272,9 +1344,6 @@
   "premiumPurchase": {
     "message": "خرید پرمیوم"
   },
-  "premiumPurchaseAlert": {
-    "message": "شما می‌توانید عضویت پرمیوم را از گاوصندوق وب bitwarden.com خریداری کنید. مایلید اکنون از وب‌سایت بازید کنید؟"
-  },
   "premiumPurchaseAlertV2": {
     "message": "You can purchase Premium from your account settings on the Bitwarden web app."
   },
@@ -1353,11 +1422,21 @@
   "rememberMe": {
     "message": "مرا به خاطر بسپار"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "ارسال دوباره ایمیل کد تأیید"
   },
   "useAnotherTwoStepMethod": {
     "message": "استفاده از روش ورود دو مرحله‌ای دیگر"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "YubiKey خود را وارد پورت USB رایانه کنید، بعد دکمه آن را بفشارید."
@@ -1371,8 +1450,17 @@
   "webAuthnNewTabOpen": {
     "message": "باز کردن زبانه جدید"
   },
+  "openInNewTab": {
+    "message": "Open in new tab"
+  },
   "webAuthnAuthenticate": {
     "message": "تأیید اعتبار در WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
   },
   "loginUnavailable": {
     "message": "ورود به سیستم در دسترس نیست"
@@ -1385,6 +1473,9 @@
   },
   "twoStepOptions": {
     "message": "گزینه‌های ورود دو مرحله‌ای"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "recoveryCodeDesc": {
     "message": "دسترسی به تمامی ارائه‌دهندگان دو مرحله‌ای را از دست داده‌اید؟ از کد بازیابی خود برای غیرفعال‌سازی ارائه‌دهندگان دو مرحله‌ای از حسابتان استفاده کنید."
@@ -2050,14 +2141,14 @@
   "clone": {
     "message": "شبیه سازی"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "یک یا چند سیاست سازمان بر تنظیمات تولید کننده شما تأثیر می‌گذارد."
-  },
   "passwordGenerator": {
     "message": "Password generator"
   },
   "usernameGenerator": {
     "message": "Username generator"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "Use this password"
@@ -2076,11 +2167,23 @@
     "message": "to create a strong unique password",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
+  "vaultCustomization": {
+    "message": "Vault customization"
+  },
   "vaultTimeoutAction": {
     "message": "عمل متوقف شدن گاو‌صندوق"
   },
   "vaultTimeoutAction1": {
     "message": "Timeout action"
+  },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "New customization options"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Customize your vault experience with quick copy actions, compact mode, and more!"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "View all Appearance settings"
   },
   "lock": {
     "message": "قفل",
@@ -2337,6 +2440,12 @@
     "message": "Domains",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Blocked domains"
+  },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Learn more about blocked domains"
+  },
   "excludedDomains": {
     "message": "دامنه های مستثنی"
   },
@@ -2345,6 +2454,118 @@
   },
   "excludedDomainsDescAlt": {
     "message": "Bitwarden will not ask to save login details for these domains for all logged in accounts. You must refresh the page for changes to take effect."
+  },
+  "blockedDomainsDesc": {
+    "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
+  },
+  "autofillBlockedNoticeV2": {
+    "message": "Autofill is blocked for this website."
+  },
+  "autofillBlockedNoticeGuidance": {
+    "message": "Change this in settings"
+  },
+  "change": {
+    "message": "Change"
+  },
+  "changeButtonTitle": {
+    "message": "Change password - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "At-risk passwords"
+  },
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
+    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at-risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrgPlural": {
+    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at-risk.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Review and change one at-risk password"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Review and change $COUNT$ at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Change at-risk passwords faster"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Review at-risk logins"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Review at-risk passwords"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAlt": {
+    "message": "Illustration of a list of logins that are at-risk"
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAlt": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  },
+  "updateInBitwarden": {
+    "message": "Update in Bitwarden"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "Bitwarden will then prompt you to update the password in the password manager.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAlt": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+  },
+  "turnOnAutofill": {
+    "message": "Turn on autofill"
+  },
+  "turnedOnAutofill": {
+    "message": "Turned on autofill"
+  },
+  "dismiss": {
+    "message": "Dismiss"
   },
   "websiteItemLabel": {
     "message": "Website $number$ (URI)",
@@ -2363,6 +2584,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Blocked domain changes saved"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Excluded domain changes saved"
@@ -2392,14 +2616,6 @@
     "message": "Send details",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "جستجوی ارسال‌ها",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "افزودن ارسال",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "متن"
   },
@@ -2416,15 +2632,8 @@
   "hideTextByDefault": {
     "message": "Hide text by default"
   },
-  "maxAccessCountReached": {
-    "message": "به حداکثر تعداد دسترسی رسیده است",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "منقضی شده"
-  },
-  "pendingDeletion": {
-    "message": "در انتظار حذف"
   },
   "passwordProtected": {
     "message": "محافظت ‌شده با کلمه عبور"
@@ -2475,23 +2684,8 @@
     "message": "ویرایش ارسال",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "این چه نوع ارسالی است؟",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "یک نام دوستانه برای توصیف این ارسال.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "پرونده ای که می‌خواهید ارسال کنید."
-  },
   "deletionDate": {
     "message": "تاریخ حذف"
-  },
-  "deletionDateDesc": {
-    "message": "ارسال در تاریخ و ساعت مشخص شده برای همیشه حذف خواهد شد.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "The Send will be permanently deleted on this date.",
@@ -2499,10 +2693,6 @@
   },
   "expirationDate": {
     "message": "تاريخ انقضاء"
-  },
-  "expirationDateDesc": {
-    "message": "در صورت تنظیم، دسترسی به این ارسال در تاریخ و ساعت مشخص شده منقضی می‌شود.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "۱ روز"
@@ -2519,42 +2709,9 @@
   "custom": {
     "message": "سفارشی"
   },
-  "maximumAccessCount": {
-    "message": "تعداد دسترسی حداکثر"
-  },
-  "maximumAccessCountDesc": {
-    "message": "در صورت تنظیم، با رسیدن به حداکثر تعداد دسترسی، کاربران دیگر نمی‌توانند به این ارسال دسترسی پیدا کنند.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "به صورت اختیاری برای دسترسی کاربران به این ارسال به یک کلمه عبور نیاز دارید.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "Add an optional password for recipients to access this Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "یادداشت های خصوصی در مورد این ارسال.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "این ارسال را غیرفعال کنید تا کسی نتواند به آن دسترسی پیدا کند.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "پس از ذخیره، این پیوند ارسال را به کلیپ بورد کپی کن.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "متنی که می‌خواهید ارسال کنید."
-  },
-  "sendHideText": {
-    "message": "متن این ارسال را به طور پیش فرض پنهان کن.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "تعداد دسترسی فعلی"
   },
   "createSend": {
     "message": "ارسال جدید",
@@ -2638,18 +2795,6 @@
   "sendFileCalloutHeader": {
     "message": "قبل از اینکه شروع کنی"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "برای استفاده از انتخابگر تاریخ به سبک تقویم",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "اینجا کلیک کنید",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "برای خروج از پنجره خود.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "تاریخ انقضاء ارائه شده معتبر نیست."
   },
@@ -2665,14 +2810,8 @@
   "dateParsingError": {
     "message": "هنگام ذخیره حذف و تاریخ انقضاء شما خطایی روی داد."
   },
-  "hideEmail": {
-    "message": "نشانی ایمیلم را از گیرندگان مخفی کن."
-  },
   "hideYourEmail": {
     "message": "Hide your email address from viewers."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "یک یا چند سیاست سازمان بر گزینه های ارسال شما تأثیر می‌گذارد."
   },
   "passwordPrompt": {
     "message": "درخواست مجدد کلمه عبور اصلی"
@@ -2887,8 +3026,19 @@
   "error": {
     "message": "خطا"
   },
-  "regenerateUsername": {
-    "message": "ایجاد مجدد نام کاربری"
+  "decryptionError": {
+    "message": "Decryption error"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Contact customer success",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "to avoid additional data loss.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "ایجاد نام کاربری"
@@ -2930,9 +3080,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "نوع نام کاربری"
-  },
   "plusAddressedEmail": {
     "message": "به علاوه نشانی ایمیل داده شده",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -2954,12 +3101,6 @@
   },
   "websiteName": {
     "message": "نام وب‌سایت"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "چه چیزی دوست دارید تولید کنید؟"
-  },
-  "passwordType": {
-    "message": "نوع کلمه عبور"
   },
   "service": {
     "message": "سرویس"
@@ -3019,6 +3160,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -3186,11 +3351,17 @@
   "notificationSentDevice": {
     "message": "یک اعلان به دستگاه شما ارسال شده است."
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "A notification was sent to your device"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "You will be notified once the request is approved"
@@ -3200,6 +3371,9 @@
   },
   "loginInitiated": {
     "message": "ورود به سیستم آغاز شد"
+  },
+  "logInRequestSent": {
+    "message": "Request sent"
   },
   "exposedMasterPassword": {
     "message": "کلمه عبور اصلی افشا شده"
@@ -3505,38 +3679,6 @@
   "toggleCollapse": {
     "message": "دکمه بستن",
     "description": "Toggling an expand/collapse state."
-  },
-  "filelessImport": {
-    "message": "Import your data to Bitwarden?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Protect your LastPass data and import to Bitwarden?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Save as unencrypted file",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Import to Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Importing...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Data successfully imported!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Error importing. Check console for details.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Network error encountered during import.",
-    "description": "Notification message for when an import has failed due to a network error."
   },
   "aliasDomain": {
     "message": "دامنه مستعار"
@@ -3968,6 +4110,9 @@
   "activeAccount": {
     "message": "Active account"
   },
+  "bitwardenAccount": {
+    "message": "Bitwarden account"
+  },
   "availableAccounts": {
     "message": "Available accounts"
   },
@@ -4091,6 +4236,9 @@
   "autofillSuggestions": {
     "message": "Autofill suggestions"
   },
+  "itemSuggestions": {
+    "message": "Suggested items"
+  },
   "autofillSuggestionsTip": {
     "message": "Save a login item for this site to autofill"
   },
@@ -4160,6 +4308,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "Copy $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
       }
     }
   },
@@ -4237,15 +4399,6 @@
   },
   "itemName": {
     "message": "Item name"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "organizationIsDeactivated": {
     "message": "Organization is deactivated"
@@ -4667,17 +4820,14 @@
   "textSends": {
     "message": "Text Sends"
   },
-  "bitwardenNewLook": {
-    "message": "Bitwarden has a new look!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "It's easier and more intuitive than ever to autofill and search from the Vault tab. Take a look around!"
-  },
   "accountActions": {
     "message": "Account actions"
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Show number of login autofill suggestions on extension icon"
+  },
+  "showQuickCopyActions": {
+    "message": "Show quick copy actions on Vault"
   },
   "systemDefault": {
     "message": "System default"
@@ -4747,6 +4897,33 @@
   },
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometric unlock is currently unavailable."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometric unlock is unavailable due to misconfigured system files."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometric unlock is unavailable due to misconfigured system files."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Biometric unlock is unavailable because the Bitwarden desktop app is closed."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
   "authenticating": {
     "message": "Authenticating"
@@ -4910,6 +5087,42 @@
   "beta": {
     "message": "Beta"
   },
+  "importantNotice": {
+    "message": "Important notice"
+  },
+  "setupTwoStepLogin": {
+    "message": "Set up two-step login"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+  },
+  "remindMeLater": {
+    "message": "Remind me later"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "No, I do not"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Yes, I can reliably access my email"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Turn on two-step login"
+  },
+  "changeAcctEmail": {
+    "message": "Change account email"
+  },
   "extensionWidth": {
     "message": "Extension width"
   },
@@ -4918,5 +5131,23 @@
   },
   "extraWide": {
     "message": "Extra wide"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Please update your desktop application"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

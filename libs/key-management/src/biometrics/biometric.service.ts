@@ -1,37 +1,42 @@
+import { UserId } from "@bitwarden/common/types/guid";
+import { UserKey } from "@bitwarden/common/types/key";
+
+import { BiometricsStatus } from "./biometrics-status";
+
 /**
  * The biometrics service is used to provide access to the status of and access to biometric functionality on the platforms.
  */
 export abstract class BiometricsService {
+  supportsBiometric() {
+    throw new Error("Method not implemented.");
+  }
   /**
-   * Check if the platform supports biometric authentication.
+   * Performs a biometric prompt, without unlocking any keys
+   * @returns true if the biometric prompt was successful, false otherwise
    */
-  abstract supportsBiometric(): Promise<boolean>;
+  abstract authenticateWithBiometrics(): Promise<boolean>;
 
   /**
-   * Checks whether biometric unlock is currently available at the moment (e.g. if the laptop lid is shut, biometric unlock may not be available)
+   * Gets the status of biometrics for the platform system states.
+   * @returns the status of biometrics
    */
-  abstract isBiometricUnlockAvailable(): Promise<boolean>;
+  abstract getBiometricsStatus(): Promise<BiometricsStatus>;
 
   /**
-   * Performs biometric authentication
+   * Retrieves a userkey for the provided user, as present in the biometrics system.
+   * THIS NEEDS TO BE VERIFIED FOR RECENCY AND VALIDITY
+   * @param userId the user to unlock
+   * @returns the user key
    */
-  abstract authenticateBiometric(): Promise<boolean>;
+  abstract unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null>;
+
   /**
-   * Determine whether biometrics support requires going through a setup process.
-   * This is currently only needed on Linux.
-   *
-   * @returns true if biometrics support requires setup, false if it does not (is already setup, or did not require it in the first place)
+   * Gets the status of biometrics for a current user. This includes system states (hardware unavailable) but also user specific states (needs unlock with master-password).
+   * @param userId the user to check the biometrics status for
+   * @returns the status of biometrics for the user
    */
-  abstract biometricsNeedsSetup(): Promise<boolean>;
-  /**
-   * Determine whether biometrics support can be automatically setup, or requires user interaction.
-   * Auto-setup is prevented by sandboxed environments, such as Snap and Flatpak.
-   *
-   * @returns true if biometrics support can be automatically setup, false if it requires user interaction.
-   */
-  abstract biometricsSupportsAutoSetup(): Promise<boolean>;
-  /**
-   * Start automatic biometric setup, which places the required configuration files / changes the required settings.
-   */
-  abstract biometricsSetup(): Promise<void>;
+  abstract getBiometricsStatusForUser(userId: UserId): Promise<BiometricsStatus>;
+
+  abstract getShouldAutopromptNow(): Promise<boolean>;
+  abstract setShouldAutopromptNow(value: boolean): Promise<void>;
 }

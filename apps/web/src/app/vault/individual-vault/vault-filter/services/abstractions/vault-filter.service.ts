@@ -4,8 +4,8 @@ import { Observable } from "rxjs";
 
 import { CollectionAdminView, CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FolderView } from "@bitwarden/common/src/vault/models/view/folder.view";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import {
   CipherTypeFilter,

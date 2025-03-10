@@ -1,6 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 
+import { Opaque } from "type-fest";
+
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant } from "@bitwarden/components";
 
@@ -28,6 +31,10 @@ export type ApplicationHealthReportDetail = {
   atRiskMemberCount: number;
   memberDetails: MemberDetailsFlat[];
   atRiskMemberDetails: MemberDetailsFlat[];
+};
+
+export type ApplicationHealthReportDetailWithCriticalFlag = ApplicationHealthReportDetail & {
+  isMarkedAsCritical: boolean;
 };
 
 /**
@@ -78,6 +85,7 @@ export type WeakPasswordScore = {
  * How many times a password has been exposed
  */
 export type ExposedPasswordDetail = {
+  cipherId: string;
   exposedXTimes: number;
 } | null;
 
@@ -90,3 +98,62 @@ export type MemberDetailsFlat = {
   email: string;
   cipherId: string;
 };
+
+/**
+ * Member email with the number of at risk passwords
+ * At risk member detail that contains the email
+ * and the count of at risk ciphers
+ */
+export type AtRiskMemberDetail = {
+  email: string;
+  atRiskPasswordCount: number;
+};
+
+/*
+ * A list of applications and the count of
+ * at risk passwords for each application
+ */
+export type AtRiskApplicationDetail = {
+  applicationName: string;
+  atRiskPasswordCount: number;
+};
+
+export type AppAtRiskMembersDialogParams = {
+  members: MemberDetailsFlat[];
+  applicationName: string;
+};
+
+/**
+ * Request to drop a password health report application
+ * Model is expected by the API endpoint
+ */
+export interface PasswordHealthReportApplicationDropRequest {
+  organizationId: OrganizationId;
+  passwordHealthReportApplicationIds: string[];
+}
+
+/**
+ * Response from the API after marking an app as critical
+ */
+export interface PasswordHealthReportApplicationsResponse {
+  id: PasswordHealthReportApplicationId;
+  organizationId: OrganizationId;
+  uri: string;
+}
+/*
+ * Request to save a password health report application
+ * Model is expected by the API endpoint
+ */
+export interface PasswordHealthReportApplicationsRequest {
+  organizationId: OrganizationId;
+  url: string;
+}
+
+export enum DrawerType {
+  None = 0,
+  AppAtRiskMembers = 1,
+  OrgAtRiskMembers = 2,
+  OrgAtRiskApps = 3,
+}
+
+export type PasswordHealthReportApplicationId = Opaque<string, "PasswordHealthReportApplicationId">;

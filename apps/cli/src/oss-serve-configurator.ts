@@ -76,6 +76,7 @@ export class OssServeConfigurator {
       this.serviceContainer.organizationUserApiService,
       this.serviceContainer.apiService,
       this.serviceContainer.eventCollectionService,
+      this.serviceContainer.accountService,
     );
     this.createCommand = new CreateCommand(
       this.serviceContainer.cipherService,
@@ -115,6 +116,7 @@ export class OssServeConfigurator {
       this.serviceContainer.folderApiService,
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.cipherAuthorizationService,
+      this.serviceContainer.accountService,
     );
     this.confirmCommand = new ConfirmCommand(
       this.serviceContainer.apiService,
@@ -122,7 +124,10 @@ export class OssServeConfigurator {
       this.serviceContainer.encryptService,
       this.serviceContainer.organizationUserApiService,
     );
-    this.restoreCommand = new RestoreCommand(this.serviceContainer.cipherService);
+    this.restoreCommand = new RestoreCommand(
+      this.serviceContainer.cipherService,
+      this.serviceContainer.accountService,
+    );
     this.shareCommand = new ShareCommand(
       this.serviceContainer.cipherService,
       this.serviceContainer.accountService,
@@ -147,6 +152,7 @@ export class OssServeConfigurator {
       this.serviceContainer.environmentService,
       this.serviceContainer.sendApiService,
       this.serviceContainer.billingAccountProfileStateService,
+      this.serviceContainer.accountService,
     );
     this.sendDeleteCommand = new SendDeleteCommand(
       this.serviceContainer.sendService,
@@ -164,6 +170,7 @@ export class OssServeConfigurator {
       this.sendGetCommand,
       this.serviceContainer.sendApiService,
       this.serviceContainer.billingAccountProfileStateService,
+      this.serviceContainer.accountService,
     );
     this.sendListCommand = new SendListCommand(
       this.serviceContainer.sendService,

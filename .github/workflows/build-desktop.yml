@@ -1,7 +1,7 @@
 name: Build Desktop
 
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, synchronize]
     branches-ignore:
       - 'l10n_master'
@@ -25,6 +25,8 @@ on:
       - '!*.md'
       - '!*.txt'
       - '.github/workflows/build-desktop.yml'
+  workflow_call:
+    inputs: {}
   workflow_dispatch:
     inputs:
       sdk_branch:
@@ -37,15 +39,9 @@ defaults:
     shell: bash
 
 jobs:
-  check-run:
-    name: Check PR run
-    uses: bitwarden/gh-actions/.github/workflows/check-run.yml@main
-
   electron-verify:
     name: Verify Electron Version
     runs-on: ubuntu-22.04
-    needs:
-      - check-run
     steps:
       - name: Check out repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -67,8 +63,6 @@ jobs:
   setup:
     name: Setup
     runs-on: ubuntu-22.04
-    needs:
-      - check-run
     outputs:
       package_version: ${{ steps.retrieve-version.outputs.package_version }}
       release_channel: ${{ steps.release-channel.outputs.channel }}
@@ -76,6 +70,7 @@ jobs:
       rc_branch_exists: ${{ steps.branch-check.outputs.rc_branch_exists }}
       hotfix_branch_exists: ${{ steps.branch-check.outputs.hotfix_branch_exists }}
       node_version: ${{ steps.retrieve-node-version.outputs.node_version }}
+      has_secrets: ${{ steps.check-secrets.outputs.has_secrets }}
     defaults:
       run:
         working-directory: apps/desktop
@@ -137,6 +132,14 @@ jobs:
           NODE_NVMRC=$(cat .nvmrc)
           NODE_VERSION=${NODE_NVMRC/v/''}
           echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check secrets
+        id: check-secrets
+        env:
+          AZURE_KV_CI_SERVICE_PRINCIPAL: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+        run: |
+          has_secrets=${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL != '' }}
+          echo "has_secrets=$has_secrets" >> $GITHUB_OUTPUT
 
   linux:
     name: Linux Build
@@ -207,7 +210,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         id: cache
         with:
           path: |
@@ -232,42 +235,42 @@ jobs:
         run: npm run dist:lin
 
       - name: Upload .deb artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
           if-no-files-found: error
 
       - name: Upload .rpm artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.rpm
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.rpm
           if-no-files-found: error
 
       - name: Upload .freebsd artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-x64.freebsd
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x64.freebsd
           if-no-files-found: error
 
       - name: Upload .snap artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: bitwarden_${{ env._PACKAGE_VERSION }}_amd64.snap
           path: apps/desktop/dist/bitwarden_${{ env._PACKAGE_VERSION }}_amd64.snap
           if-no-files-found: error
 
       - name: Upload .AppImage artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           if-no-files-found: error
 
       - name: Upload auto-update artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: ${{ needs.setup.outputs.release_channel }}-linux.yml
           path: apps/desktop/dist/${{ needs.setup.outputs.release_channel }}-linux.yml
@@ -280,7 +283,7 @@ jobs:
           sudo npm run pack:lin:flatpak
 
       - name: Upload flatpak artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: com.bitwarden.desktop.flatpak
           path: apps/desktop/dist/com.bitwarden.desktop.flatpak
@@ -333,12 +336,14 @@ jobs:
           rustup show
 
       - name: Login to Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
         with:
           creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: "bitwarden-ci"
@@ -353,7 +358,7 @@ jobs:
         working-directory: ./
 
       - name: Download SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' }}
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           github_token: ${{secrets.GITHUB_TOKEN}}
@@ -366,14 +371,14 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Override SDK
-        if: ${{ inputs.sdk_branch != '' }}
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
         working-directory: ./
         run: |
           ls -l ../
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         id: cache
         with:
           path: |
@@ -386,7 +391,16 @@ jobs:
         working-directory: apps/desktop/desktop_native
         run: node build.js cross-platform
 
-      - name: Build & Sign (dev)
+      - name: Build
+        run: npm run build
+
+      - name: Pack
+        if: ${{ needs.setup.outputs.has_secrets == 'false' }}
+        run: |
+          npm run pack:win
+
+      - name: Pack & Sign (dev)
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         env:
           ELECTRON_BUILDER_SIGN: 1
           SIGNING_VAULT_URL: ${{ steps.retrieve-secrets.outputs.code-signing-vault-url }}
@@ -395,10 +409,10 @@ jobs:
           SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
           SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
         run: |
-          npm run build
           npm run pack:win
 
       - name: Rename appx files for store
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
           Copy-Item "./dist/Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.appx" `
             -Destination "./dist/Bitwarden-${{ env._PACKAGE_VERSION }}-ia32-store.appx"
@@ -408,6 +422,7 @@ jobs:
             -Destination "./dist/Bitwarden-${{ env._PACKAGE_VERSION }}-arm64-store.appx"
 
       - name: Package for Chocolatey
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
           Copy-Item -Path ./stores/chocolatey -Destination ./dist/chocolatey -Recurse
           Copy-Item -Path ./dist/nsis-web/Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe `
@@ -419,6 +434,7 @@ jobs:
           choco pack ./dist/chocolatey/bitwarden.nuspec --version "$env:_PACKAGE_VERSION" --out ./dist/chocolatey
 
       - name: Fix NSIS artifact names for auto-updater
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
           Rename-Item -Path .\dist\nsis-web\Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z `
             -NewName bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
@@ -428,91 +444,103 @@ jobs:
             -NewName bitwarden-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
 
       - name: Upload portable exe artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
       - name: Upload installer exe artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/nsis-web/Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
       - name: Upload appx ia32 artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.appx
           if-no-files-found: error
 
       - name: Upload store appx ia32 artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-ia32-store.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-ia32-store.appx
           if-no-files-found: error
 
       - name: Upload NSIS ia32 artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
           if-no-files-found: error
 
       - name: Upload appx x64 artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-x64.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x64.appx
           if-no-files-found: error
 
       - name: Upload store appx x64 artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-x64-store.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x64-store.appx
           if-no-files-found: error
 
       - name: Upload NSIS x64 artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: bitwarden-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
           if-no-files-found: error
 
       - name: Upload appx ARM64 artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.appx
           if-no-files-found: error
 
       - name: Upload store appx ARM64 artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-arm64-store.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-arm64-store.appx
           if-no-files-found: error
 
       - name: Upload NSIS ARM64 artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: bitwarden-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
           if-no-files-found: error
 
       - name: Upload nupkg artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: bitwarden.${{ env._PACKAGE_VERSION }}.nupkg
           path: apps/desktop/dist/chocolatey/bitwarden.${{ env._PACKAGE_VERSION }}.nupkg
           if-no-files-found: error
 
       - name: Upload auto-update artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: ${{ needs.setup.outputs.release_channel }}.yml
           path: apps/desktop/dist/nsis-web/${{ needs.setup.outputs.release_channel }}.yml
@@ -561,24 +589,26 @@ jobs:
 
       - name: Cache Build
         id: build-cache
-        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: apps/desktop/build
           key: ${{ runner.os }}-${{ github.run_id }}-build
 
       - name: Cache Safari
         id: safari-cache
-        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
 
       - name: Login to Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
         with:
           creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
 
       - name: Download Provisioning Profiles secrets
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: profiles
@@ -591,6 +621,7 @@ jobs:
             --output none
 
       - name: Get certificates
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
           mkdir -p $HOME/certificates
 
@@ -613,6 +644,7 @@ jobs:
             jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
 
       - name: Set up keychain
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
@@ -642,6 +674,7 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
       - name: Set up provisioning profiles
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
           cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
             $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
@@ -661,7 +694,7 @@ jobs:
         working-directory: ./
 
       - name: Download SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' }}
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           github_token: ${{secrets.GITHUB_TOKEN}}
@@ -674,14 +707,14 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Override SDK
-        if: ${{ inputs.sdk_branch != '' }}
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
         working-directory: ./
         run: |
           ls -l ../
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         id: cache
         with:
           path: |
@@ -701,6 +734,7 @@ jobs:
   browser-build:
     name: Browser Build
     needs: setup
+    if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     uses: ./.github/workflows/build-browser.yml
     secrets: inherit
 
@@ -708,6 +742,7 @@ jobs:
   macos-package-github:
     name: MacOS Package GitHub Release Assets
     runs-on: macos-13
+    if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     needs:
       - browser-build
       - macos-build
@@ -749,14 +784,14 @@ jobs:
 
       - name: Get Build Cache
         id: build-cache
-        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: apps/desktop/build
           key: ${{ runner.os }}-${{ github.run_id }}-build
 
       - name: Setup Safari Cache
         id: safari-cache
-        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
@@ -869,7 +904,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         id: cache
         with:
           path: |
@@ -918,28 +953,28 @@ jobs:
         run: npm run pack:mac
 
       - name: Upload .zip artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal-mac.zip
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal-mac.zip
           if-no-files-found: error
 
       - name: Upload .dmg artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
           if-no-files-found: error
 
       - name: Upload .dmg blockmap artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg.blockmap
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg.blockmap
           if-no-files-found: error
 
       - name: Upload auto-update artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: ${{ needs.setup.outputs.release_channel }}-mac.yml
           path: apps/desktop/dist/${{ needs.setup.outputs.release_channel }}-mac.yml
@@ -949,6 +984,7 @@ jobs:
   macos-package-mas:
     name: MacOS Package Prod Release Asset
     runs-on: macos-13
+    if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     needs:
       - browser-build
       - macos-build
@@ -990,14 +1026,14 @@ jobs:
 
       - name: Get Build Cache
         id: build-cache
-        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: apps/desktop/build
           key: ${{ runner.os }}-${{ github.run_id }}-build
 
       - name: Setup Safari Cache
         id: safari-cache
-        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
@@ -1117,7 +1153,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         id: cache
         with:
           path: |
@@ -1166,7 +1202,7 @@ jobs:
         run: npm run pack:mac:mas
 
       - name: Upload .pkg artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.pkg
           path: apps/desktop/dist/mas-universal/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.pkg
@@ -1193,9 +1229,11 @@ jobs:
         if: |
           github.event_name != 'pull_request_target'
           && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
-        uses: slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0 # v1.27.0
+        uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d # v2.0.0
         with:
           channel-id: C074F5UESQ0
+          method: chat.postMessage
+          token: ${{ steps.retrieve-slack-secret.outputs.slack-bot-token }}
           payload: |
             {
               "blocks": [
@@ -1209,13 +1247,13 @@ jobs:
               ]
             }
         env:
-          SLACK_BOT_TOKEN: ${{ steps.retrieve-slack-secret.outputs.slack-bot-token }}
           BUILD_NUMBER: ${{ needs.setup.outputs.build_number }}
 
 
   macos-package-dev:
     name: MacOS Package Dev Release Asset
     runs-on: macos-13
+    if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     needs:
       - browser-build
       - macos-build
@@ -1252,14 +1290,14 @@ jobs:
 
       - name: Get Build Cache
         id: build-cache
-        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: apps/desktop/build
           key: ${{ runner.os }}-${{ github.run_id }}-build
 
       - name: Setup Safari Cache
         id: safari-cache
-        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
@@ -1372,7 +1410,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         id: cache
         with:
           path: |
@@ -1424,7 +1462,7 @@ jobs:
           zip -r Bitwarden-${{ env._PACKAGE_VERSION }}-masdev-universal.zip Bitwarden.app
 
       - name: Upload masdev artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-masdev-universal.zip
           path: apps/desktop/dist/mas-dev-universal/Bitwarden-${{ env._PACKAGE_VERSION }}-masdev-universal.zip
@@ -1433,7 +1471,7 @@ jobs:
 
   crowdin-push:
     name: Crowdin Push
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
     needs:
       - linux
       - windows

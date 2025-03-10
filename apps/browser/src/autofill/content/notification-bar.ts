@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ServerConfig } from "../../../../../libs/common/src/platform/abstractions/config/server-config";
+import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
+
 import {
   AddLoginMessageData,
   ChangePasswordMessageData,
@@ -192,6 +193,8 @@ async function loadNotificationBar() {
         {
           command: "saveCipherAttemptCompleted",
           error: msg.data?.error,
+          username: msg.data?.username,
+          cipherId: msg.data?.cipherId,
         },
         "*",
       );
@@ -842,6 +845,7 @@ async function loadNotificationBar() {
       theme: typeData.theme,
       removeIndividualVault: typeData.removeIndividualVault,
       importType: typeData.importType,
+      launchTimestamp: typeData.launchTimestamp,
     };
     const notificationBarUrl = "notification/bar.html";
 
@@ -851,10 +855,10 @@ async function loadNotificationBar() {
     }
 
     closeBar(false);
-    openBar(type, notificationBarUrl, notificationBarInitData);
+    void openBar(type, notificationBarUrl, notificationBarInitData);
   }
 
-  function openBar(
+  async function openBar(
     type: string,
     barPage: string,
     notificationBarInitData: NotificationBarIframeInitData,
@@ -864,22 +868,59 @@ async function loadNotificationBar() {
     if (document.body == null) {
       return;
     }
+    const useComponentBar: boolean = await sendExtensionMessage("notificationRefreshFlagValue");
 
     setupInitNotificationBarMessageListener(notificationBarInitData);
     const barPageUrl: string = chrome.runtime.getURL(barPage);
 
+    function getIframeStyle(useComponentBar: boolean): string {
+      const isNotificationFresh =
+        notificationBarInitData.launchTimestamp &&
+        Date.now() - notificationBarInitData.launchTimestamp < 500;
+
+      const baseStyle = useComponentBar
+        ? isNotificationFresh
+          ? "height: calc(276px + 25px); width: 450px; right: 0; transform:translateX(100%); opacity:0;"
+          : "height: calc(276px + 25px); width: 450px; right: 0; transform:translateX(0%); opacity:1;"
+        : "height: 42px; width: 100%;";
+
+      const transitionStyle =
+        isNotificationFresh && useComponentBar
+          ? "transition: transform 0.15s ease-in, opacity 0.15s ease; transform:translateX(0%); opacity:1; transition-delay: 0.25s;"
+          : "";
+
+      notificationBarIframe.style.cssText = baseStyle + " border: 0; min-height: initial;";
+
+      if (isNotificationFresh && useComponentBar) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            notificationBarIframe.style.cssText += transitionStyle;
+          });
+        });
+      }
+
+      return baseStyle + " border: 0; min-height: initial;";
+    }
+
     notificationBarIframe = document.createElement("iframe");
-    notificationBarIframe.style.cssText =
-      "height: 42px; width: 100%; border: 0; min-height: initial;";
+    notificationBarIframe.style.cssText = getIframeStyle(useComponentBar);
     notificationBarIframe.id = "bit-notification-bar-iframe";
     notificationBarIframe.src = barPageUrl;
+
+    function getFrameStyle(useComponentBar: boolean): string {
+      return (
+        (useComponentBar
+          ? "height: calc(276px + 25px); width: 450px; right: 0;"
+          : "height: 42px; width: 100%; left: 0;") +
+        " top: 0; padding: 0; position: fixed;" +
+        " z-index: 2147483647; visibility: visible;"
+      );
+    }
 
     const frameDiv = document.createElement("div");
     frameDiv.setAttribute("aria-live", "polite");
     frameDiv.id = "bit-notification-bar";
-    frameDiv.style.cssText =
-      "height: 42px; width: 100%; top: 0; left: 0; padding: 0; position: fixed; " +
-      "z-index: 2147483647; visibility: visible;";
+    frameDiv.style.cssText = getFrameStyle(useComponentBar);
     frameDiv.appendChild(notificationBarIframe);
     document.body.appendChild(frameDiv);
 

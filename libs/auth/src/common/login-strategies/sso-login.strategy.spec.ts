@@ -12,10 +12,14 @@ import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/id
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
 import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import {
+  VaultTimeoutAction,
+  VaultTimeoutSettingsService,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -23,7 +27,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -61,6 +64,7 @@ describe("SsoLoginStrategy", () => {
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
+  let environmentService: MockProxy<EnvironmentService>;
 
   let ssoLoginStrategy: SsoLoginStrategy;
   let credentials: SsoLoginCredentials;
@@ -96,6 +100,7 @@ describe("SsoLoginStrategy", () => {
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     kdfConfigService = mock<KdfConfigService>();
+    environmentService = mock<EnvironmentService>();
 
     tokenService.getTwoFactorToken.mockResolvedValue(null);
     appIdService.getAppId.mockResolvedValue(deviceId);
@@ -140,6 +145,7 @@ describe("SsoLoginStrategy", () => {
       billingAccountProfileStateService,
       vaultTimeoutSettingsService,
       kdfConfigService,
+      environmentService,
     );
     credentials = new SsoLoginCredentials(ssoCode, ssoCodeVerifier, ssoRedirectUrl, ssoOrgId);
   });

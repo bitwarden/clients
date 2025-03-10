@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
@@ -34,7 +32,7 @@ export default {
 type Story = StoryObj<SearchComponent>;
 
 export const Default: Story = {
-  render: (args: SearchComponent) => ({
+  render: (args) => ({
     props: args,
     template: `
       <bit-search [(ngModel)]="searchText" [placeholder]="placeholder" [disabled]="disabled"></bit-search>

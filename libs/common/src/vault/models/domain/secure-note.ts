@@ -20,8 +20,12 @@ export class SecureNote extends Domain {
     this.type = obj.type;
   }
 
-  decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<SecureNoteView> {
-    return Promise.resolve(new SecureNoteView(this));
+  async decrypt(
+    orgId: string,
+    context = "No Cipher Context",
+    encKey?: SymmetricCryptoKey,
+  ): Promise<SecureNoteView> {
+    return new SecureNoteView(this);
   }
 
   toSecureNoteData(): SecureNoteData {

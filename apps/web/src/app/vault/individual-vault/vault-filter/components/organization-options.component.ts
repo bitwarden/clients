@@ -1,7 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
-import { combineLatest, map, Observable, of, Subject, switchMap, takeUntil } from "rxjs";
+import {
+  combineLatest,
+  firstValueFrom,
+  map,
+  Observable,
+  of,
+  Subject,
+  switchMap,
+  takeUntil,
+} from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -15,7 +24,9 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -60,6 +71,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private configService: ConfigService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
@@ -67,16 +79,19 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
       map((policies) => policies.filter((policy) => policy.type === PolicyType.ResetPassword)),
     );
 
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const managingOrg$ = this.configService
       .getFeatureFlag$(FeatureFlag.AccountDeprovisioning)
       .pipe(
         switchMap((isAccountDeprovisioningEnabled) =>
           isAccountDeprovisioningEnabled
-            ? this.organizationService.organizations$.pipe(
-                map((organizations) =>
-                  organizations.find((o) => o.userIsManagedByOrganization === true),
-                ),
-              )
+            ? this.organizationService
+                .organizations$(userId)
+                .pipe(
+                  map((organizations) =>
+                    organizations.find((o) => o.userIsManagedByOrganization === true),
+                  ),
+                )
             : of(null),
         ),
       );
@@ -146,7 +161,11 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
         return this.syncService.fullSync(true);
       });
       await this.actionPromise;
-      this.platformUtilsService.showToast("success", null, "Unlinked SSO");
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("unlinkedSso"),
+      });
     } catch (e) {
       this.logService.error(e);
     }
@@ -166,7 +185,11 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     try {
       this.actionPromise = this.organizationApiService.leave(org.id);
       await this.actionPromise;
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("leftOrganization"));
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("leftOrganization"),
+      });
     } catch (e) {
       this.logService.error(e);
     }
@@ -199,11 +222,11 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
         );
       try {
         await this.actionPromise;
-        this.platformUtilsService.showToast(
-          "success",
-          null,
-          this.i18nService.t("withdrawPasswordResetSuccess"),
-        );
+        this.toastService.showToast({
+          variant: "success",
+          title: null,
+          message: this.i18nService.t("withdrawPasswordResetSuccess"),
+        });
         await this.syncService.fullSync(true);
       } catch (e) {
         this.logService.error(e);

@@ -1,5 +1,6 @@
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { AfterViewInit, Component, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, ReactiveFormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { firstValueFrom, Observable } from "rxjs";
@@ -9,6 +10,7 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
@@ -18,6 +20,7 @@ import {
   FormFieldModule,
   RadioButtonModule,
   TypographyModule,
+  LinkModule,
 } from "@bitwarden/components";
 
 import {
@@ -39,9 +42,10 @@ import {
     FormFieldModule,
     AsyncActionsModule,
     ReactiveFormsModule,
+    LinkModule,
   ],
 })
-export class NewDeviceVerificationNoticePageOneComponent implements OnInit {
+export class NewDeviceVerificationNoticePageOneComponent implements OnInit, AfterViewInit {
   protected formGroup = this.formBuilder.group({
     hasEmailAccess: new FormControl(0),
   });
@@ -57,6 +61,8 @@ export class NewDeviceVerificationNoticePageOneComponent implements OnInit {
     private newDeviceVerificationNoticeService: NewDeviceVerificationNoticeService,
     private platformUtilsService: PlatformUtilsService,
     private configService: ConfigService,
+    private liveAnnouncer: LiveAnnouncer,
+    private i18nService: I18nService,
   ) {
     this.isDesktop = this.platformUtilsService.getClientType() === ClientType.Desktop;
   }
@@ -68,6 +74,10 @@ export class NewDeviceVerificationNoticePageOneComponent implements OnInit {
     }
     this.currentEmail = currentAcct.email;
     this.currentUserId = currentAcct.id;
+  }
+
+  ngAfterViewInit() {
+    void this.liveAnnouncer.announce(this.i18nService.t("importantNotice"), "polite");
   }
 
   submit = async () => {
@@ -111,4 +121,10 @@ export class NewDeviceVerificationNoticePageOneComponent implements OnInit {
 
     await this.router.navigate(["/vault"]);
   };
+
+  navigateToNewDeviceVerificationHelp(event: Event) {
+    event.preventDefault();
+
+    this.platformUtilsService.launchUri("https://bitwarden.com/help/new-device-verification/");
+  }
 }

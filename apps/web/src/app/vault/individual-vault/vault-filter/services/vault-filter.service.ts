@@ -5,6 +5,7 @@ import {
   BehaviorSubject,
   combineLatest,
   combineLatestWith,
+  filter,
   firstValueFrom,
   map,
   Observable,
@@ -21,6 +22,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ActiveUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -45,8 +47,14 @@ const NestingDelimiter = "/";
 
 @Injectable()
 export class VaultFilterService implements VaultFilterServiceAbstraction {
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+
+  memberOrganizations$ = this.activeUserId$.pipe(
+    switchMap((id) => this.organizationService.memberOrganizations$(id)),
+  );
+
   organizationTree$: Observable<TreeNode<OrganizationFilter>> = combineLatest([
-    this.organizationService.memberOrganizations$,
+    this.memberOrganizations$,
     this.policyService.policyAppliesToActiveUser$(PolicyType.SingleOrg),
     this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
   ]).pipe(
@@ -57,12 +65,20 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
 
   protected _organizationFilter = new BehaviorSubject<Organization>(null);
 
-  filteredFolders$: Observable<FolderView[]> = this.folderService.folderViews$.pipe(
-    combineLatestWith(this.cipherService.cipherViews$, this._organizationFilter),
+  filteredFolders$: Observable<FolderView[]> = this.activeUserId$.pipe(
+    switchMap((userId) =>
+      combineLatest([
+        this.folderService.folderViews$(userId),
+        this.cipherService.cipherViews$(userId),
+        this._organizationFilter,
+      ]),
+    ),
+    filter(([folders, ciphers, org]) => !!ciphers), // ciphers may be null, meaning decryption is in progress. Ignore this emission
     switchMap(([folders, ciphers, org]) => {
       return this.filterFolders(folders, ciphers, org);
     }),
   );
+
   folderTree$: Observable<TreeNode<FolderFilter>> = this.filteredFolders$.pipe(
     map((folders) => this.buildFolderTree(folders)),
   );
@@ -95,6 +111,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     protected i18nService: I18nService,
     protected stateProvider: StateProvider,
     protected collectionService: CollectionService,
+    protected accountService: AccountService,
   ) {}
 
   async getCollectionNodeFromTree(id: string) {
@@ -260,6 +277,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
       folderCopy.id = f.id;
       folderCopy.revisionDate = f.revisionDate;
       folderCopy.icon = "bwi-folder";
+      folderCopy.fullName = f.name; // save full folder name before separating it into parts
       const parts = f.name != null ? f.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
       ServiceUtils.nestedTraverse(nodes, 0, parts, folderCopy, null, NestingDelimiter);
     });

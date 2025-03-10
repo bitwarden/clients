@@ -1,0 +1,80 @@
+<popup-page>
+  <popup-header slot="header" pageTitle="{{ 'blockedDomains' | i18n }}" showBackButton>
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+
+  <div class="tw-bg-background-alt">
+    <bit-section>
+      <p class="tw-m-0">{{ "blockedDomainsDesc" | i18n }}</p>
+      <a
+        bitLink
+        linkType="primary"
+        rel="noreferrer"
+        target="_blank"
+        href="https://bitwarden.com/help/blocking-uris/"
+        >{{ "learnMoreAboutBlockedDomains" | i18n }}</a
+      >
+    </bit-section>
+    <bit-section *ngIf="!isLoading">
+      <bit-section-header>
+        <h2 bitTypography="h6">{{ "domainsTitle" | i18n }}</h2>
+        <span bitTypography="body2" slot="end">{{
+          blockedDomainsState.length + domainForms.value.length
+        }}</span>
+      </bit-section-header>
+      <bit-item *ngFor="let domain of blockedDomainsState; let i = index; trackBy: trackByFunction">
+        <bit-item-content *ngIf="i < fieldsEditThreshold">
+          <div id="blockedDomain{{ i }}">{{ domain }}</div>
+        </bit-item-content>
+        <button
+          *ngIf="i < fieldsEditThreshold"
+          appA11yTitle="{{ 'remove' | i18n }}"
+          bitIconButton="bwi-minus-circle"
+          buttonType="danger"
+          size="small"
+          slot="end"
+          type="button"
+          (click)="removeDomain(i)"
+        ></button>
+      </bit-item>
+      <form [formGroup]="domainListForm">
+        <bit-card
+          formArrayName="domains"
+          *ngFor="let domain of domainForms.controls; let i = index"
+        >
+          <bit-form-field disableMargin>
+            <bit-label>{{ "websiteItemLabel" | i18n: i + fieldsEditThreshold + 1 }}</bit-label>
+            <input
+              bitInput
+              #uriInput
+              appInputVerbatim
+              bitInput
+              id="blockedDomain{{ i + fieldsEditThreshold }}"
+              inputmode="url"
+              name="blockedDomain{{ i + fieldsEditThreshold }}"
+              type="text"
+              (change)="fieldChange()"
+              formControlName="{{ i }}"
+            />
+          </bit-form-field>
+        </bit-card>
+        <button bitLink class="tw-pt-2" type="button" linkType="primary" (click)="addNewDomain()">
+          <i class="bwi bwi-plus-circle bwi-fw" aria-hidden="true"></i> {{ "addDomain" | i18n }}
+        </button>
+      </form>
+    </bit-section>
+  </div>
+  <popup-footer slot="footer">
+    <button
+      bitButton
+      buttonType="primary"
+      type="submit"
+      [disabled]="dataIsPristine"
+      (click)="saveChanges()"
+    >
+      {{ "save" | i18n }}
+    </button>
+  </popup-footer>
+</popup-page>

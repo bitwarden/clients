@@ -18,7 +18,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { ButtonModule } from "@bitwarden/components";
 
 // FIXME: remove `/apps` import from `/libs`
-// eslint-disable-next-line import/no-restricted-paths
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line import/no-restricted-paths, no-restricted-imports
 import { PreloadedEnglishI18nModule } from "../../../../../apps/web/src/app/core/tests";
 import { LockIcon } from "../icons";
 import { RegistrationCheckEmailIcon } from "../icons/registration-check-email.icon";

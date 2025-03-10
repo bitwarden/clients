@@ -7,6 +7,7 @@ import { app, BrowserWindow, Menu, MenuItemConstructorOptions, nativeImage, Tray
 import { firstValueFrom } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { BiometricStateService, BiometricsService } from "@bitwarden/key-management";
 
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 import { cleanUserAgent, isDev } from "../utils";
@@ -25,6 +26,8 @@ export class TrayMain {
     private windowMain: WindowMain,
     private i18nService: I18nService,
     private desktopSettingsService: DesktopSettingsService,
+    private biometricsStateService: BiometricStateService,
+    private biometricService: BiometricsService,
   ) {
     if (process.platform === "win32") {
       this.icon = path.join(__dirname, "/images/icon.ico");
@@ -77,6 +80,10 @@ export class TrayMain {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.hideToTray();
       }
+    });
+
+    win.on("restore", async () => {
+      await this.biometricService.setShouldAutopromptNow(true);
     });
 
     win.on("close", async (e: Event) => {

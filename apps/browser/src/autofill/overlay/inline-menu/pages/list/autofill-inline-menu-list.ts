@@ -5,7 +5,7 @@ import "lit/polyfill-support.js";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EVENTS, UPDATE_PASSKEYS_HEADINGS_ON_SCROLL } from "@bitwarden/common/autofill/constants";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
 import { InlineMenuFillTypes } from "../../../../enums/autofill-overlay.enum";
@@ -413,6 +413,29 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   }
 
   /**
+   * Filters the ciphers to include only TOTP-related ones if the field is a TOTP field.
+   * If the field is a TOTP field but no TOTP is present, it returns an empty array.
+   *
+   * @param ciphers - The list of ciphers to filter.
+   * @returns The filtered list of ciphers or an empty list if no valid TOTP ciphers are present.
+   */
+  private getFilteredCiphersForTotpField(ciphers: InlineMenuCipherData[]): InlineMenuCipherData[] {
+    if (!ciphers?.length) {
+      return [];
+    }
+
+    const isTotpField =
+      this.inlineMenuFillType === CipherType.Login &&
+      ciphers.some((cipher) => cipher.login?.totpField);
+
+    if (isTotpField) {
+      return ciphers.filter((cipher) => cipher.login?.totp);
+    }
+
+    return ciphers;
+  }
+
+  /**
    * Updates the list items with the passed ciphers.
    * If no ciphers are passed, the no results inline menu is built.
    *
@@ -427,12 +450,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       return;
     }
 
-    this.ciphers = ciphers;
+    this.ciphers = this.getFilteredCiphersForTotpField(ciphers);
     this.currentCipherIndex = 0;
     this.showInlineMenuAccountCreation = showInlineMenuAccountCreation;
     this.resetInlineMenuContainer();
 
-    if (!ciphers?.length) {
+    if (!this.ciphers?.length) {
       this.buildNoResultsInlineMenuList();
       return;
     }
@@ -1163,7 +1186,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     if (cipher.login?.totpField && cipher.login?.totp) {
-      return this.buildTotpElement(cipher.login?.totp);
+      return this.buildTotpElement(cipher.login?.totp, cipher.login?.username, cipher.reprompt);
     }
     const subTitleText = this.getSubTitleText(cipher);
     const cipherSubtitleElement = this.buildCipherSubtitleElement(subTitleText);
@@ -1175,12 +1198,27 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   }
 
   /**
+   * Checks if there is more than one TOTP element being displayed.
+   *
+   * @returns {boolean} - Returns true if more than one TOTP element is displayed, otherwise false.
+   */
+  private multipleTotpElements(): boolean {
+    return (
+      this.ciphers.filter((cipher) => cipher.login?.totpField && cipher.login?.totp).length > 1
+    );
+  }
+
+  /**
    * Builds a TOTP element for a given TOTP code.
    *
    * @param totp - The TOTP code to display.
    */
 
-  private buildTotpElement(totpCode: string): HTMLDivElement | null {
+  private buildTotpElement(
+    totpCode: string,
+    username: string,
+    reprompt: CipherRepromptType,
+  ): HTMLDivElement | null {
     if (!totpCode) {
       return null;
     }
@@ -1196,12 +1234,18 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
     containerElement.appendChild(totpHeading);
 
-    const subtitleElement = document.createElement("span");
-    subtitleElement.classList.add("cipher-subtitle");
-    subtitleElement.textContent = formattedTotpCode;
-    subtitleElement.setAttribute("aria-label", this.getTranslation("totpCodeAria"));
-    subtitleElement.setAttribute("data-testid", "totp-code");
-    containerElement.appendChild(subtitleElement);
+    if (this.multipleTotpElements() && username) {
+      const usernameSubtitle = this.buildCipherSubtitleElement(username);
+      containerElement.appendChild(usernameSubtitle);
+    }
+
+    const totpCodeSpan = document.createElement("span");
+    totpCodeSpan.classList.toggle("cipher-subtitle");
+    totpCodeSpan.classList.toggle("masked-totp", !!reprompt);
+    totpCodeSpan.textContent = reprompt ? "●●●●●●" : formattedTotpCode;
+    totpCodeSpan.setAttribute("aria-label", this.getTranslation("totpCodeAria"));
+    totpCodeSpan.setAttribute("data-testid", "totp-code");
+    containerElement.appendChild(totpCodeSpan);
 
     return containerElement;
   }

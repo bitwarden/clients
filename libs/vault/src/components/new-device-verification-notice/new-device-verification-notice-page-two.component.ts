@@ -1,5 +1,6 @@
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { AfterViewInit, Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, Observable } from "rxjs";
 
@@ -12,6 +13,7 @@ import {
   Environment,
   EnvironmentService,
 } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ButtonModule, LinkModule, TypographyModule } from "@bitwarden/components";
@@ -24,7 +26,7 @@ import { NewDeviceVerificationNoticeService } from "../../services/new-device-ve
   templateUrl: "./new-device-verification-notice-page-two.component.html",
   imports: [CommonModule, JslibModule, TypographyModule, ButtonModule, LinkModule],
 })
-export class NewDeviceVerificationNoticePageTwoComponent implements OnInit {
+export class NewDeviceVerificationNoticePageTwoComponent implements OnInit, AfterViewInit {
   protected isWeb: boolean;
   protected isDesktop: boolean;
   protected permanentFlagEnabled = false;
@@ -39,6 +41,8 @@ export class NewDeviceVerificationNoticePageTwoComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     private environmentService: EnvironmentService,
     private configService: ConfigService,
+    private liveAnnouncer: LiveAnnouncer,
+    private i18nService: I18nService,
   ) {
     this.isWeb = this.platformUtilsService.getClientType() === ClientType.Web;
     this.isDesktop = this.platformUtilsService.getClientType() === ClientType.Desktop;
@@ -54,6 +58,10 @@ export class NewDeviceVerificationNoticePageTwoComponent implements OnInit {
       return;
     }
     this.currentUserId = currentAcct.id;
+  }
+
+  ngAfterViewInit() {
+    void this.liveAnnouncer.announce(this.i18nService.t("setupTwoStepLogin"), "polite");
   }
 
   async navigateToTwoStepLogin(event: Event) {

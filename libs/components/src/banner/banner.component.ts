@@ -3,8 +3,9 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit, Output, EventEmitter } from "@angular/core";
 
+import { I18nPipe } from "@bitwarden/ui-common";
+
 import { IconButtonModule } from "../icon-button";
-import { I18nPipe } from "../shared/i18n.pipe";
 
 type BannerTypes = "premium" | "info" | "warning" | "danger";
 

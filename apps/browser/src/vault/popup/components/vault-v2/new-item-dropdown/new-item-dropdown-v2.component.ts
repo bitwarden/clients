@@ -2,18 +2,20 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
-import { RouterLink } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { ButtonModule, DialogService, MenuModule, NoItemsModule } from "@bitwarden/components";
+import { AddEditFolderDialogComponent } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
 import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
-import { AddEditFolderDialogComponent } from "../add-edit-folder-dialog/add-edit-folder-dialog.component";
 
 export interface NewItemInitialValues {
   folderId?: string;
@@ -35,10 +37,16 @@ export class NewItemDropdownV2Component implements OnInit {
    */
   @Input()
   initialValues: NewItemInitialValues;
+  constructor(
+    private router: Router,
+    private dialogService: DialogService,
+    private configService: ConfigService,
+  ) {}
 
-  constructor(private dialogService: DialogService) {}
+  sshKeysEnabled = false;
 
   async ngOnInit() {
+    this.sshKeysEnabled = await this.configService.getFeatureFlag(FeatureFlag.SSHKeyVaultItem);
     this.tab = await BrowserApi.getTabFromCurrentWindow();
   }
 
@@ -64,6 +72,6 @@ export class NewItemDropdownV2Component implements OnInit {
   }
 
   openFolderDialog() {
-    this.dialogService.open(AddEditFolderDialogComponent);
+    AddEditFolderDialogComponent.open(this.dialogService);
   }
 }

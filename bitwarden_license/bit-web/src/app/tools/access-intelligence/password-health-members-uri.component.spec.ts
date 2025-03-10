@@ -10,8 +10,12 @@ import {
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TableModule } from "@bitwarden/components";
 import { LooseComponentsModule } from "@bitwarden/web-vault/app/shared";
@@ -24,6 +28,7 @@ describe("PasswordHealthMembersUriComponent", () => {
   let fixture: ComponentFixture<PasswordHealthMembersURIComponent>;
   let cipherServiceMock: MockProxy<CipherService>;
   const passwordHealthServiceMock = mock<PasswordHealthService>();
+  const userId = Utils.newGuid() as UserId;
 
   const activeRouteParams = convertToParamMap({ organizationId: "orgId" });
 
@@ -36,6 +41,7 @@ describe("PasswordHealthMembersUriComponent", () => {
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: AuditService, useValue: mock<AuditService>() },
         { provide: OrganizationService, useValue: mock<OrganizationService>() },
+        { provide: AccountService, useValue: mockAccountServiceWith(userId) },
         {
           provide: PasswordStrengthServiceAbstraction,
           useValue: mock<PasswordStrengthServiceAbstraction>(),

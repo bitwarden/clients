@@ -8,7 +8,6 @@ import { VaultIcons } from "@bitwarden/vault";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
-import { VaultListItemsContainerComponent } from "../components/vault-v2/vault-list-items-container/vault-list-items-container.component";
 import { VaultPopupItemsService } from "../services/vault-popup-items.service";
 
 import { TrashListItemsContainerComponent } from "./trash-list-items-container/trash-list-items-container.component";
@@ -22,7 +21,6 @@ import { TrashListItemsContainerComponent } from "./trash-list-items-container/t
     PopupPageComponent,
     PopupHeaderComponent,
     PopOutComponent,
-    VaultListItemsContainerComponent,
     TrashListItemsContainerComponent,
     CalloutModule,
     NoItemsModule,

@@ -38,7 +38,11 @@ export class Attachment extends Domain {
     );
   }
 
-  async decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<AttachmentView> {
+  async decrypt(
+    orgId: string,
+    context = "No Cipher Context",
+    encKey?: SymmetricCryptoKey,
+  ): Promise<AttachmentView> {
     const view = await this.decryptObj(
       new AttachmentView(this),
       {
@@ -46,6 +50,7 @@ export class Attachment extends Domain {
       },
       orgId,
       encKey,
+      "DomainType: Attachment; " + context,
     );
 
     if (this.key != null) {
@@ -64,6 +69,8 @@ export class Attachment extends Domain {
       const encryptService = Utils.getContainerService().getEncryptService();
       const decValue = await encryptService.decryptToBytes(this.key, encKey);
       return new SymmetricCryptoKey(decValue);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       // TODO: error?
     }

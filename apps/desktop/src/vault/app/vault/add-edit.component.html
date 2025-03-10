@@ -516,11 +516,10 @@
                   type="button"
                   class="row-btn"
                   appStopClick
-                  appA11yTitle="{{ 'regenerateSshKey' | i18n }}"
-                  (click)="generateSshKey()"
-                  *ngIf="cipher.edit || !editMode"
+                  appA11yTitle="{{ 'importSshKeyFromClipboard' | i18n }}"
+                  (click)="importSshKeyFromClipboard()"
                 >
-                  <i class="bwi bwi-lg bwi-generate" aria-hidden="true"></i>
+                  <i class="bwi bwi-lg bwi-paste" aria-hidden="true"></i>
                 </button>
               </div>
             </div>
@@ -568,16 +567,6 @@
                   <i class="bwi bwi-lg bwi-clone" aria-hidden="true"></i>
                 </button>
               </div>
-            </div>
-            <div class="box-content-row box-content-row-flex" appBoxRow>
-              <button
-                type="button"
-                class="row-btn"
-                appStopClick
-                (click)="importSshKeyFromClipboard()"
-              >
-                {{ "importSshKeyFromClipboard" | i18n }}
-              </button>
             </div>
           </div>
         </div>

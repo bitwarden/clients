@@ -24,7 +24,7 @@ export class CatchallConstraints implements StateConstraints<CatchallGenerationO
       this.domain = parsed.groups.domain;
     }
   }
-  private domain: string;
+  readonly domain: string;
 
   constraints: Readonly<Constraints<CatchallGenerationOptions>> = {};
 

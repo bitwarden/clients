@@ -31,16 +31,10 @@ interface AddUnlockVaultQueueMessage extends NotificationQueueMessage {
   type: "unlock";
 }
 
-interface AddRequestFilelessImportQueueMessage extends NotificationQueueMessage {
-  type: "fileless-import";
-  importType?: string;
-}
-
 type NotificationQueueMessageItem =
   | AddLoginQueueMessage
   | AddChangePasswordQueueMessage
-  | AddUnlockVaultQueueMessage
-  | AddRequestFilelessImportQueueMessage;
+  | AddUnlockVaultQueueMessage;
 
 type LockedVaultPendingNotificationsData = {
   commandToRetry: {
@@ -106,6 +100,7 @@ type NotificationBackgroundExtensionMessageHandlers = {
   bgChangedPassword: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgRemoveTabFromNotificationQueue: ({ sender }: BackgroundSenderParam) => void;
   bgSaveCipher: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
+  bgOpenVault: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgNeverSave: ({ sender }: BackgroundSenderParam) => Promise<void>;
   bgUnlockPopoutOpened: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgReopenUnlockPopout: ({ sender }: BackgroundSenderParam) => Promise<void>;
@@ -122,7 +117,6 @@ export {
   AddChangePasswordQueueMessage,
   AddLoginQueueMessage,
   AddUnlockVaultQueueMessage,
-  AddRequestFilelessImportQueueMessage,
   NotificationQueueMessageItem,
   LockedVaultPendingNotificationsData,
   AdjustNotificationBarMessageData,

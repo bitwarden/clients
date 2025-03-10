@@ -7,7 +7,11 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { ButtonModule } from "../../../../components/src/button";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { I18nMockService } from "../../../../components/src/utils/i18n-mock.service";
 import { LockIcon } from "../icons";
 

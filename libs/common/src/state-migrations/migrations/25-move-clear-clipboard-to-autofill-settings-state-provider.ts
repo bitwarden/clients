@@ -3,6 +3,8 @@
 import { StateDefinitionLike, MigrationHelper } from "../migration-helper";
 import { Migrator } from "../migrator";
 
+// FIXME: Remove when updating file. Eslint update
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ClearClipboardDelay = {
   Never: null as null,
   TenSeconds: 10,

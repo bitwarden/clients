@@ -20,7 +20,7 @@
     "**/node_modules/@bitwarden/desktop-napi/index.js",
     "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node"
   ],
-  "electronVersion": "33.2.1",
+  "electronVersion": "34.0.0",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
@@ -133,7 +133,7 @@
     "entitlements": "resources/entitlements.mas.plist",
     "entitlementsInherit": "resources/entitlements.mas.inherit.plist",
     "entitlementsLoginHelper": "resources/entitlements.mas.loginhelper.plist",
-    "hardenedRuntime": false,
+    "hardenedRuntime": true,
     "extendInfo": {
       "LSMinimumSystemVersion": "12",
       "ElectronTeamID": "LTZ2PFU5D6"
