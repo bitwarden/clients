@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Ne"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Ensalutu aŭ kreu novan konton por aliri vian sekuran trezorejon."
   },

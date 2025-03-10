@@ -901,6 +901,9 @@
   "no": {
     "message": "Nei"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "En uventet feil har oppstått."
   },

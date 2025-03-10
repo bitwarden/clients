@@ -1032,6 +1032,9 @@
   "no": {
     "message": "არა"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "სისტემაში შედით ან შექმენით ახალი ანგარიში თქვენს დაცულ საცავთან საწვდომად."
   },

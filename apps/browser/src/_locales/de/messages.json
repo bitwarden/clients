@@ -650,7 +650,7 @@
     "message": "Den Browser unterstützt das einfache Kopieren nicht. Bitte kopiere es manuell."
   },
   "verifyYourIdentity": {
-    "message": "Verify your identity"
+    "message": "Verifiziere deine Identität"
   },
   "weDontRecognizeThisDevice": {
     "message": "Wir erkennen dieses Gerät nicht. Gib den an deine E-Mail-Adresse gesendeten Code ein, um deine Identität zu verifizieren."
@@ -901,6 +901,9 @@
   "no": {
     "message": "Nein"
   },
+  "location": {
+    "message": "Standort"
+  },
   "unexpectedError": {
     "message": "Ein unerwarteter Fehler ist aufgetreten."
   },
@@ -1069,35 +1072,35 @@
     "description": "Shown to user after login is updated."
   },
   "saveAsNewLoginAction": {
-    "message": "Save as new login",
+    "message": "Als neue Zugangsdaten speichern",
     "description": "Button text for saving login details as a new entry."
   },
   "updateLoginAction": {
-    "message": "Update login",
+    "message": "Zugangsdaten aktualisieren",
     "description": "Button text for updating an existing login entry."
   },
   "saveLoginPrompt": {
-    "message": "Save login?",
+    "message": "Zugangsdaten speichern?",
     "description": "Prompt asking the user if they want to save their login details."
   },
   "updateLoginPrompt": {
-    "message": "Update existing login?",
+    "message": "Bestehende Zugangsdaten aktualisieren?",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
-    "message": "Login saved",
+    "message": "Zugangsdaten gespeichert",
     "description": "Message displayed when login details are successfully saved."
   },
   "loginUpdateSuccess": {
-    "message": "Login updated",
+    "message": "Zugangsdaten aktualisiert",
     "description": "Message displayed when login details are successfully updated."
   },
   "saveFailure": {
-    "message": "Error saving",
+    "message": "Fehler beim Speichern",
     "description": "Error message shown when the system fails to save login details."
   },
   "saveFailureDetails": {
-    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "message": "Oh nein! Das konnten wir nicht speichern. Versuch, die Details manuell einzugeben.",
     "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
@@ -2532,18 +2535,18 @@
     "message": "Überprüfung gefährdeter Passwörter"
   },
   "reviewAtRiskLoginsSlideDesc": {
-    "message": "Die Passwörter deiner Organisationen sind gefährdet, weil sie schwach, wiederverwendet und/oder ungeschützt sind.",
+    "message": "Die Passwörter deiner Organisationen sind gefährdet, weil sie schwach, wiederverwendet und/oder kompromittiert sind.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
   "reviewAtRiskLoginSlideImgAlt": {
     "message": "Illustration einer Liste gefährdeter Zugangsdaten"
   },
   "generatePasswordSlideDesc": {
-    "message": "Generiere schnell ein starkes, einzigartiges Passwort mit dem Bitwarden-Autofill-Menü auf der gefährdeten Website.",
+    "message": "Generiere schnell ein starkes, einzigartiges Passwort mit dem Bitwarden Auto-Ausfüllen-Menü auf der gefährdeten Website.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
   "generatePasswordSlideImgAlt": {
-    "message": "Illustration des Bitwarden Autofill-Menüs, das ein generiertes Passwort anzeigt"
+    "message": "Illustration des Bitwarden Auto-Ausfüllen-Menüs, das ein generiertes Passwort anzeigt"
   },
   "updateInBitwarden": {
     "message": "In Bitwarden aktualisieren"
@@ -2553,7 +2556,7 @@
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
   "updateInBitwardenSlideImgAlt": {
-    "message": "Illustration einer Bitwarden-Benachrichtigung, die den Benutzer dazu auffordert, den Login zu aktualisieren"
+    "message": "Illustration einer Bitwarden-Benachrichtigung, die den Benutzer dazu auffordert, die Zugangsdaten zu aktualisieren"
   },
   "turnOnAutofill": {
     "message": "Auto-Ausfüllen aktivieren"
@@ -4108,7 +4111,7 @@
     "message": "Aktives Konto"
   },
   "bitwardenAccount": {
-    "message": "Bitwarden Account"
+    "message": "Bitwarden-Konto"
   },
   "availableAccounts": {
     "message": "Verfügbare Konten"
@@ -5145,6 +5148,6 @@
     "message": "Um biometrisches Entsperren zu verwenden, aktualisiere bitte deine Desktop-Anwendung oder deaktiviere die Entsperrung per Fingerabdruck in den Desktop-Einstellungen."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "Gefährdetes Passwort ändern"
   }
 }
