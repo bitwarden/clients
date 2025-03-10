@@ -26,6 +26,7 @@ import { SecureNote } from "../../models/domain/secure-note";
 import { CardView } from "../../models/view/card.view";
 import { IdentityView } from "../../models/view/identity.view";
 import { LoginView } from "../../models/view/login.view";
+import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 
 describe("Cipher DTO", () => {
   it("Convert from empty CipherData", () => {
@@ -54,6 +55,7 @@ describe("Cipher DTO", () => {
       fields: null,
       passwordHistory: null,
       key: null,
+      permissions: undefined,
     });
   });
 
@@ -75,6 +77,7 @@ describe("Cipher DTO", () => {
         notes: "EncryptedString",
         creationDate: "2022-01-01T12:00:00.000Z",
         deletedDate: null,
+        permissions: new CipherPermissionsApi(),
         reprompt: CipherRepromptType.None,
         key: "EncryptedString",
         login: {
@@ -149,6 +152,7 @@ describe("Cipher DTO", () => {
         localData: null,
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
         deletedDate: null,
+        permissions: new CipherPermissionsApi(),
         reprompt: 0,
         key: { encryptedString: "EncryptedString", encryptionType: 0 },
         login: {
@@ -228,6 +232,7 @@ describe("Cipher DTO", () => {
       cipher.deletedDate = null;
       cipher.reprompt = CipherRepromptType.None;
       cipher.key = mockEnc("EncKey");
+      cipher.permissions = new CipherPermissionsApi();
 
       const loginView = new LoginView();
       loginView.username = "username";
@@ -270,6 +275,7 @@ describe("Cipher DTO", () => {
         deletedDate: null,
         reprompt: 0,
         localData: undefined,
+        permissions: new CipherPermissionsApi(),
       });
     });
   });
@@ -297,6 +303,7 @@ describe("Cipher DTO", () => {
         secureNote: {
           type: SecureNoteType.Generic,
         },
+        permissions: new CipherPermissionsApi(),
       };
     });
 
@@ -326,6 +333,7 @@ describe("Cipher DTO", () => {
         fields: null,
         passwordHistory: null,
         key: { encryptedString: "EncKey", encryptionType: 0 },
+        permissions: new CipherPermissionsApi(),
       });
     });
 
@@ -353,6 +361,7 @@ describe("Cipher DTO", () => {
       cipher.secureNote = new SecureNote();
       cipher.secureNote.type = SecureNoteType.Generic;
       cipher.key = mockEnc("EncKey");
+      cipher.permissions = new CipherPermissionsApi();
 
       const keyService = mock<KeyService>();
       const encryptService = mock<EncryptService>();
@@ -387,6 +396,7 @@ describe("Cipher DTO", () => {
         deletedDate: null,
         reprompt: 0,
         localData: undefined,
+        permissions: new CipherPermissionsApi(),
       });
     });
   });
@@ -409,6 +419,7 @@ describe("Cipher DTO", () => {
         notes: "EncryptedString",
         creationDate: "2022-01-01T12:00:00.000Z",
         deletedDate: null,
+        permissions: new CipherPermissionsApi(),
         reprompt: CipherRepromptType.None,
         card: {
           cardholderName: "EncryptedString",
@@ -455,6 +466,7 @@ describe("Cipher DTO", () => {
         fields: null,
         passwordHistory: null,
         key: { encryptedString: "EncKey", encryptionType: 0 },
+        permissions: new CipherPermissionsApi(),
       });
     });
 
@@ -480,6 +492,7 @@ describe("Cipher DTO", () => {
       cipher.deletedDate = null;
       cipher.reprompt = CipherRepromptType.None;
       cipher.key = mockEnc("EncKey");
+      cipher.permissions = new CipherPermissionsApi();
 
       const cardView = new CardView();
       cardView.cardholderName = "cardholderName";
@@ -522,6 +535,7 @@ describe("Cipher DTO", () => {
         deletedDate: null,
         reprompt: 0,
         localData: undefined,
+        permissions: new CipherPermissionsApi(),
       });
     });
   });
@@ -544,6 +558,7 @@ describe("Cipher DTO", () => {
         notes: "EncryptedString",
         creationDate: "2022-01-01T12:00:00.000Z",
         deletedDate: null,
+        permissions: new CipherPermissionsApi(),
         reprompt: CipherRepromptType.None,
         key: "EncKey",
         identity: {
@@ -614,6 +629,7 @@ describe("Cipher DTO", () => {
         fields: null,
         passwordHistory: null,
         key: { encryptedString: "EncKey", encryptionType: 0 },
+        permissions: new CipherPermissionsApi(),
       });
     });
 
@@ -639,6 +655,7 @@ describe("Cipher DTO", () => {
       cipher.deletedDate = null;
       cipher.reprompt = CipherRepromptType.None;
       cipher.key = mockEnc("EncKey");
+      cipher.permissions = new CipherPermissionsApi();
 
       const identityView = new IdentityView();
       identityView.firstName = "firstName";
@@ -681,6 +698,7 @@ describe("Cipher DTO", () => {
         deletedDate: null,
         reprompt: 0,
         localData: undefined,
+        permissions: new CipherPermissionsApi(),
       });
     });
   });
