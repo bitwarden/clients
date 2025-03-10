@@ -201,6 +201,9 @@
   "notes": {
     "message": "Notoj"
   },
+  "privateNote": {
+    "message": "Private note"
+  },
   "note": {
     "message": "Note"
   },
@@ -1179,7 +1182,7 @@
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
@@ -2251,6 +2254,9 @@
   },
   "revokeAccess": {
     "message": "Revoke access"
+  },
+  "revoke": {
+    "message": "Revoke"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Ĉi tiu du-ŝtupa ensaluta provizanto estas ebligita en via konto."
@@ -5081,11 +5087,39 @@
   "requireSsoExemption": {
     "message": "Organizaj Posedantoj kaj Administrantoj estas esceptitaj de la apliko de ĉi tiu politiko."
   },
+  "limitSendViews": {
+    "message": "Limit views"
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
   "sendTypeFile": {
     "message": "Dosiero"
   },
   "sendTypeText": {
     "message": "Teksto"
+  },
+  "sendPasswordDescV3": {
+    "message": "Add an optional password for recipients to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Krei novan sendon",
@@ -5111,19 +5145,15 @@
     "message": "Forigi Sendu",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Ĉu vi certe volas forigi ĉi tiun Sendon?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Kia Sendo estas ĉi tio?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Are you sure you want to permanently delete this Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Dato de Forigo"
   },
-  "deletionDateDesc": {
-    "message": "La Sendo estos definitive forigita en la specifaj dato kaj horo.",
+  "deletionDateDescV2": {
+    "message": "The Send will be permanently deleted on this date.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5135,21 +5165,6 @@
   },
   "maxAccessCount": {
     "message": "Maksimuma Aliro-Kalkulo"
-  },
-  "maxAccessCountDesc": {
-    "message": "Se agordite, uzantoj ne plu povos aliri ĉi tiun sendon post kiam la maksimuma alira kalkulo estos atingita.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Nuna Alira Kalkulo"
-  },
-  "sendPasswordDesc": {
-    "message": "Laŭvole postulas pasvorton por uzantoj aliri ĉi tiun Sendon.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Privataj notoj pri ĉi tiu Sendo.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Neebligita"
@@ -5177,13 +5192,6 @@
   "removePasswordConfirmation": {
     "message": "Ĉu vi certe volas forigi la pasvorton?"
   },
-  "hideEmail": {
-    "message": "Hide my email address from recipients."
-  },
-  "disableThisSend": {
-    "message": "Malŝalti ĉi tiun Sendon por ke neniu povu aliri ĝin.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Ĉiuj Sendoj"
   },
@@ -5193,6 +5201,9 @@
   },
   "pendingDeletion": {
     "message": "Atendanta forigo"
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
   },
   "expired": {
     "message": "Eksvalidiĝis"
@@ -5415,13 +5426,6 @@
     "message": "Always show member’s email address with recipients when creating or editing a Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "The following organization policies are currently in effect:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Users are not allowed to hide their email address from recipients when creating or editing a Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "Modified policy $ID$.",
     "placeholders": {
@@ -5520,27 +5524,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Malebligi personan posedon por organizaj uzantoj"
-  },
-  "textHiddenByDefault": {
-    "message": "Alirante la Sendon, kaŝu la tekston defaŭlte",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Amika nomo por priskribi ĉi tiun Sendon.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "La teksto, kiun vi volas sendi."
-  },
-  "sendFileDesc": {
-    "message": "La dosiero, kiun vi volas sendi."
-  },
-  "copySendLinkOnSave": {
-    "message": "Kopiu la ligon por dividi ĉi tion Sendu al mia tondujo post konservado."
-  },
-  "sendLinkLabel": {
-    "message": "Sendi ligon",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Sendi",
@@ -5689,6 +5672,9 @@
   },
   "dateParsingError": {
     "message": "Estis eraro konservante viajn forigajn kaj eksvalidajn datojn."
+  },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
   },
   "webAuthnFallbackMsg": {
     "message": "To verify your 2FA please click the button below."
@@ -9848,8 +9834,14 @@
   "learnMoreAboutApi": {
     "message": "Learn more about Bitwarden's API"
   },
+  "fileSend": {
+    "message": "File Send"
+  },
   "fileSends": {
     "message": "File Sends"
+  },
+  "textSend": {
+    "message": "Text Send"
   },
   "textSends": {
     "message": "Text Sends"
@@ -10083,10 +10075,6 @@
   "specialCharactersDescription": {
     "message": "Include special characters",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Add attachment"
@@ -10486,6 +10474,9 @@
   },
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"

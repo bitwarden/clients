@@ -479,22 +479,6 @@
   "length": {
     "message": "Długość"
   },
-  "uppercase": {
-    "message": "Wielkie litery (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Małe litery (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Cyfry (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Znaki specjalne (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Uwzględnij",
     "description": "Card header for password generator include block"
@@ -526,10 +510,6 @@
   "specialCharactersDescription": {
     "message": "Uwzględnij znaki specjalne",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Liczba słów"
@@ -669,8 +649,8 @@
   "browserNotSupportClipboard": {
     "message": "Przeglądarka nie obsługuje łatwego kopiowania schowka. Skopiuj element ręcznie."
   },
-  "verifyIdentity": {
-    "message": "Zweryfikuj tożsamość"
+  "verifyYourIdentity": {
+    "message": "Potwierdź swoją tożsamość"
   },
   "weDontRecognizeThisDevice": {
     "message": "Nie rozpoznajemy tego urządzenia. Wpisz kod wysłany na Twój e-mail, aby zweryfikować tożsamość."
@@ -1069,6 +1049,56 @@
   },
   "notificationAddSave": {
     "message": "Zapisz"
+  },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ został zapisany w Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ został zaktualizowany w Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Zapisz jako nowy login",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Zaktualizuj dane logowania",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Zapisać dane logowania?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Zaktualizować istniejące dane logowania?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Dane logowania zapisane",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Dane logowania zostały zaktualizowane",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Błąd podczas zapisywania",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "O nie! Nie mogliśmy zapisać tego. Spróbuj wprowadzić szczegóły ręcznie.",
+    "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
     "message": "Poproś o aktualizację istniejących danych logowania"
@@ -4077,6 +4107,9 @@
   "activeAccount": {
     "message": "Aktywne konto"
   },
+  "bitwardenAccount": {
+    "message": "Konto Bitwarden"
+  },
   "availableAccounts": {
     "message": "Dostępne konta"
   },
@@ -5110,5 +5143,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "Aby używać odblokowywania biometrycznego, zaktualizuj aplikację na komputerze lub wyłącz odblokowywanie odciskiem palca w ustawieniach aplikacji na komputerze."
+  },
+  "changeAtRiskPassword": {
+    "message": "Zmień hasło zagrożone"
   }
 }

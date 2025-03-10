@@ -201,6 +201,9 @@
   "notes": {
     "message": "Catatan"
   },
+  "privateNote": {
+    "message": "Private note"
+  },
   "note": {
     "message": "Note"
   },
@@ -1179,7 +1182,7 @@
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
@@ -2251,6 +2254,9 @@
   },
   "revokeAccess": {
     "message": "Cabut Akses"
+  },
+  "revoke": {
+    "message": "Revoke"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Penyedia proses masuk dua langkah ini diaktifkan di akun Anda."
@@ -5081,11 +5087,39 @@
   "requireSsoExemption": {
     "message": "Pemilik dan Administrator Organisasi dibebaskan dari penegakan kebijakan ini."
   },
+  "limitSendViews": {
+    "message": "Limit views"
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
   "sendTypeFile": {
     "message": "Berkas"
   },
   "sendTypeText": {
     "message": "Teks"
+  },
+  "sendPasswordDescV3": {
+    "message": "Add an optional password for recipients to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Buat Pengiriman Baru",
@@ -5111,19 +5145,15 @@
     "message": "Hapus Kirim",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Anda yakin ingin menghapus Kirim ini?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Jenis Pengiriman apakah ini?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Are you sure you want to permanently delete this Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Tanggal Penghapusan"
   },
-  "deletionDateDesc": {
-    "message": "Pengiriman akan dihapus secara permanen pada tanggal dan waktu yang ditentukan.",
+  "deletionDateDescV2": {
+    "message": "The Send will be permanently deleted on this date.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5135,21 +5165,6 @@
   },
   "maxAccessCount": {
     "message": "Hitungan Akses Maksimum"
-  },
-  "maxAccessCountDesc": {
-    "message": "Jika disetel, pengguna tidak dapat lagi mengakses pengiriman ini setelah jumlah akses maksimum tercapai.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Hitungan Akses Saat Ini"
-  },
-  "sendPasswordDesc": {
-    "message": "Secara opsional, minta kata sandi bagi pengguna untuk mengakses Kirim ini.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Catatan pribadi tentang Send ini.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Dinonaktifkan"
@@ -5177,13 +5192,6 @@
   "removePasswordConfirmation": {
     "message": "Anda yakin ingin menghapus kata sandi?"
   },
-  "hideEmail": {
-    "message": "Sembunyikan alamat email dari penerima."
-  },
-  "disableThisSend": {
-    "message": "Nonaktifkan Pengiriman ini sehingga tidak ada yang dapat mengaksesnya.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Semua Dikirim"
   },
@@ -5193,6 +5201,9 @@
   },
   "pendingDeletion": {
     "message": "Penghapusan menunggu keputusan"
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
   },
   "expired": {
     "message": "Kedaluwarsa"
@@ -5415,13 +5426,6 @@
     "message": "Pengguna tidak boleh menyembunyikan alamat email dari penerima ketika membuat atau mengubah Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "Ketentuan organization berikut ini sedang berlaku:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Pengguna tidak boleh menyembunyikan alamat email dari penerima ketika membuat atau mengubah Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "Kebijakan yang diubah $ID$.",
     "placeholders": {
@@ -5520,27 +5524,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Nonaktifkan kepemilikan pribadi untuk pengguna organisasi"
-  },
-  "textHiddenByDefault": {
-    "message": "Saat mengakses Send, sembunyikan teks secara default",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Nama yang ramah untuk menggambarkan kirim ini.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Teks yang ingin Anda kirim."
-  },
-  "sendFileDesc": {
-    "message": "File yang ingin Anda kirim."
-  },
-  "copySendLinkOnSave": {
-    "message": "Salin tautan untuk membagikan kirim ini ke clipboard saya saat menyimpan."
-  },
-  "sendLinkLabel": {
-    "message": "Kirim tautan",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Kirim",
@@ -5689,6 +5672,9 @@
   },
   "dateParsingError": {
     "message": "Ada kesalahan menyimpan penghapusan dan tanggal kedaluwarsa Anda."
+  },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
   },
   "webAuthnFallbackMsg": {
     "message": "Untuk mengverifikasi dua-langkat autentikasi anda, silahkan click tombol dibawah."
@@ -9848,8 +9834,14 @@
   "learnMoreAboutApi": {
     "message": "Learn more about Bitwarden's API"
   },
+  "fileSend": {
+    "message": "File Send"
+  },
   "fileSends": {
     "message": "File Sends"
+  },
+  "textSend": {
+    "message": "Text Send"
   },
   "textSends": {
     "message": "Text Sends"
@@ -10083,10 +10075,6 @@
   "specialCharactersDescription": {
     "message": "Include special characters",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Add attachment"
@@ -10486,6 +10474,9 @@
   },
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"

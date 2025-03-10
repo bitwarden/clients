@@ -201,6 +201,9 @@
   "notes": {
     "message": "备注"
   },
+  "privateNote": {
+    "message": "私密备注"
+  },
   "note": {
     "message": "笔记"
   },
@@ -454,7 +457,7 @@
     "message": "未分配"
   },
   "noneFolder": {
-    "message": "无文件夹",
+    "message": "默认文件夹",
     "description": "This is the folder for uncategorized items"
   },
   "selfOwnershipLabel": {
@@ -1179,7 +1182,7 @@
   "authenticationSessionTimedOut": {
     "message": "身份验证会话超时。请重新启动登录过程。"
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "验证您的身份"
   },
   "weDontRecognizeThisDevice": {
@@ -2252,6 +2255,9 @@
   "revokeAccess": {
     "message": "撤销访问权限"
   },
+  "revoke": {
+    "message": "撤销"
+  },
   "twoStepLoginProviderEnabled": {
     "message": "您的账户已启用此两步登录提供程序。"
   },
@@ -2748,7 +2754,7 @@
     "message": "未来的更多高级功能。敬请期待！"
   },
   "premiumPrice": {
-    "message": "全部仅需 $PRICE$ /年！",
+    "message": "所有功能仅需 $PRICE$ /年！",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -2757,7 +2763,7 @@
     }
   },
   "premiumPriceWithFamilyPlan": {
-    "message": "升级高级会员仅需 $PRICE$/年，或成为具有 $FAMILYPLANUSERCOUNT$ 位用户以及无限制的家庭共享的高级账户，通过 ",
+    "message": "升级高级会员仅需 $PRICE$ /年，或成为具有 $FAMILYPLANUSERCOUNT$ 位用户以及无限制的家庭共享的高级账户，通过 ",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -2773,7 +2779,7 @@
     "message": "Bitwarden 家庭版计划。"
   },
   "addons": {
-    "message": "插件"
+    "message": "附加项目"
   },
   "premiumAccess": {
     "message": "高级会员"
@@ -3121,7 +3127,7 @@
     "message": "适用于个人使用，与家人和朋友共享。"
   },
   "planNameTeams": {
-    "message": "团队"
+    "message": "团队版"
   },
   "planDescTeams": {
     "message": "适用于企业和其他团队组织。"
@@ -3130,7 +3136,7 @@
     "message": "团队入门版"
   },
   "planNameEnterprise": {
-    "message": "企业"
+    "message": "企业版"
   },
   "planDescEnterprise": {
     "message": "适用于企业和其他大型组织。"
@@ -3232,7 +3238,7 @@
     }
   },
   "trialThankYou": {
-    "message": "感谢您注册 Bitwarden $PLAN$！",
+    "message": "感谢您注册适用于 $PLAN$ 的 Bitwarden！",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -5081,11 +5087,39 @@
   "requireSsoExemption": {
     "message": "组织的所有者和管理员不受此策略的约束。"
   },
+  "limitSendViews": {
+    "message": "查看次数限制"
+  },
+  "limitSendViewsHint": {
+    "message": "达到限额后，任何人无法查看此 Send。",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "剩余 $ACCESSCOUNT$ 次查看次数",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send 详细信息",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "要分享的文本"
+  },
   "sendTypeFile": {
     "message": "文件"
   },
   "sendTypeText": {
     "message": "文本"
+  },
+  "sendPasswordDescV3": {
+    "message": "添加一个用于接收者访问此 Send 的可选密码。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "新增 Send",
@@ -5111,19 +5145,15 @@
     "message": "删除 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "确定要删除此 Send 吗？",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "这是什么类型的 Send？",
+  "deleteSendPermanentConfirmation": {
+    "message": "您确定要永久删除这个 Send 吗？",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "删除日期"
   },
-  "deletionDateDesc": {
-    "message": "此 Send 将在指定的日期和时间后被永久删除。",
+  "deletionDateDescV2": {
+    "message": "此 Send 将在此日期后被永久删除。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5135,21 +5165,6 @@
   },
   "maxAccessCount": {
     "message": "最大访问次数"
-  },
-  "maxAccessCountDesc": {
-    "message": "设置后，当达到最大访问次数时用户将不再能够访问此 Send。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "当前访问次数"
-  },
-  "sendPasswordDesc": {
-    "message": "可选。用户需要提供密码才能访问此 Send。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "关于此 Send 的私密备注。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "已禁用"
@@ -5177,13 +5192,6 @@
   "removePasswordConfirmation": {
     "message": "确定要移除此密码吗？"
   },
-  "hideEmail": {
-    "message": "对接收者隐藏我的电子邮箱地址。"
-  },
-  "disableThisSend": {
-    "message": "停用此 Send 确保无人能访问它。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "所有 Send"
   },
@@ -5193,6 +5201,9 @@
   },
   "pendingDeletion": {
     "message": "待删除"
+  },
+  "hideTextByDefault": {
+    "message": "默认隐藏文本"
   },
   "expired": {
     "message": "已过期"
@@ -5415,13 +5426,6 @@
     "message": "创建或编辑 Send 时，始终向接收者显示成员的电子邮箱地址。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "以下组织策略目前正起作用："
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "创建或编辑 Send 时，不允许用户对接收者隐藏他们的电子邮箱地址。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "修改了策略 $ID$。",
     "placeholders": {
@@ -5520,27 +5524,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "移除组织用户的个人所有权"
-  },
-  "textHiddenByDefault": {
-    "message": "访问此 Send 时，默认隐藏文本内容",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "用于描述此 Send 的友好名称。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "您想在此 Send 中附加的文本。"
-  },
-  "sendFileDesc": {
-    "message": "您想在此 Send 中附加的文件。"
-  },
-  "copySendLinkOnSave": {
-    "message": "保存时复制链接到剪贴板以便分享此 Send。"
-  },
-  "sendLinkLabel": {
-    "message": "Send 链接",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Send",
@@ -5689,6 +5672,9 @@
   },
   "dateParsingError": {
     "message": "保存您的删除和过期日期时出错。"
+  },
+  "hideYourEmail": {
+    "message": "对查看者隐藏您的电子邮箱地址。"
   },
   "webAuthnFallbackMsg": {
     "message": "要验证您的 2FA，请点击下面的按钮。"
@@ -5976,7 +5962,7 @@
     "message": "您已被邀请加入上面列出的提供商。要接受邀请，您需要登录或创建一个新的 Bitwarden 账户。"
   },
   "providerInviteAcceptFailed": {
-    "message": "无法接受邀请。请联系提供商管理员发送新的邀请。"
+    "message": "无法接受邀请。请向提供商管理员请求发送新的邀请。"
   },
   "providerInviteAcceptedDesc": {
     "message": "管理员确认您的成员资格后，您就可以访问此提供商了。届时我们会向您发送一封电子邮件。"
@@ -9604,7 +9590,7 @@
     "message": "通过审计成员访问权限来识别安全风险"
   },
   "onlyAvailableForEnterpriseOrganization": {
-    "message": "通过升级为企业计划，快速查看整个组织的成员访问权限。"
+    "message": "通过升级为企业版计划，快速查看整个组织的成员访问权限。"
   },
   "date": {
     "message": "日期"
@@ -9848,8 +9834,14 @@
   "learnMoreAboutApi": {
     "message": "进一步了解 Bitwarden API"
   },
+  "fileSend": {
+    "message": "文件 Send"
+  },
   "fileSends": {
     "message": "文件 Send"
+  },
+  "textSend": {
+    "message": "文本 Send"
   },
   "textSends": {
     "message": "文本 Send"
@@ -10083,10 +10075,6 @@
   "specialCharactersDescription": {
     "message": "包含特殊字符",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "添加附件"
@@ -10373,11 +10361,11 @@
     "message": "成功打开 Bitwarden 浏览器扩展。您现在可以审查存在风险的密码了。"
   },
   "openExtensionManuallyPart1": {
-    "message": "我们无法打开 Bitwarden 浏览器扩展。请从工具栏打开 Bitwarden 图标",
+    "message": "我们无法打开 Bitwarden 浏览器扩展。请从工具栏中点击 Bitwarden 图标",
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "openExtensionManuallyPart2": {
-    "message": "。",
+    "message": "来打开它。",
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "resellerRenewalWarningMsg": {
@@ -10487,6 +10475,9 @@
   "assignedExceedsAvailable": {
     "message": "分配的席位超过可用席位。"
   },
+  "changeAtRiskPassword": {
+    "message": "更改有风险的密码"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "移除使用 PIN 码解锁"
   },
@@ -10503,7 +10494,7 @@
     }
   },
   "upgradeForFullEvents": {
-    "message": "升级到团队或企业计划，即可获得对组织事件日志的完整访问权限。"
+    "message": "升级到团队版或企业版计划，即可获得对组织事件日志的完整访问权限。"
   },
   "upgradeEventLogTitle": {
     "message": "升级以访问真实的事件日志数据"

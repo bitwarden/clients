@@ -201,6 +201,9 @@
   "notes": {
     "message": "Notater"
   },
+  "privateNote": {
+    "message": "Private note"
+  },
   "note": {
     "message": "Notat"
   },
@@ -1179,8 +1182,8 @@
   "authenticationSessionTimedOut": {
     "message": "Godkendelsessessionen fik timeout. Genstart loginprocessen."
   },
-  "verifyIdentity": {
-    "message": "Bekræft din identitet"
+  "verifyYourIdentity": {
+    "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "Denne enhed er ikke genkendt. Angiv koden i den tilsendte e-mail for at bekræfte identiteten."
@@ -2251,6 +2254,9 @@
   },
   "revokeAccess": {
     "message": "Ophæv adgang"
+  },
+  "revoke": {
+    "message": "Revoke"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Denne totrins-loginudbyder er aktiveret på kontoen."
@@ -5081,11 +5087,39 @@
   "requireSsoExemption": {
     "message": "Denne politik håndhæves ikke for organisationsejere og -admins."
   },
+  "limitSendViews": {
+    "message": "Limit views"
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
   "sendTypeFile": {
     "message": "Fil"
   },
   "sendTypeText": {
     "message": "Tekst"
+  },
+  "sendPasswordDescV3": {
+    "message": "Add an optional password for recipients to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Ny Send",
@@ -5111,19 +5145,15 @@
     "message": "Slet Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Sikker på, at denne Send skal slettes?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Hvilken type Send er denne?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Are you sure you want to permanently delete this Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Sletningsdato"
   },
-  "deletionDateDesc": {
-    "message": "Denne Send slettes permanent på den angivne dato og tidspunkt.",
+  "deletionDateDescV2": {
+    "message": "The Send will be permanently deleted on this date.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5135,21 +5165,6 @@
   },
   "maxAccessCount": {
     "message": "Maksimalt adgangsantal"
-  },
-  "maxAccessCountDesc": {
-    "message": "Hvis opsat, vil brugere ikke længere kunne tilgå denne Send, når det maksimale adgangsantal er nået.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Aktuelt adgangsantal"
-  },
-  "sendPasswordDesc": {
-    "message": "Valgfrit brugeradgangskodekrav for tilgang til denne Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Fortrolige notater om denne Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Deaktiveret"
@@ -5177,13 +5192,6 @@
   "removePasswordConfirmation": {
     "message": "Sikker på, at adgangskoden skal fjernes?"
   },
-  "hideEmail": {
-    "message": "Skjul min e-mailadresse for modtagere."
-  },
-  "disableThisSend": {
-    "message": "Deaktivér denne Send så ingen kan tilgå den.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Alle Send"
   },
@@ -5193,6 +5201,9 @@
   },
   "pendingDeletion": {
     "message": "Afventer sletning"
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
   },
   "expired": {
     "message": "Udløbet"
@@ -5415,13 +5426,6 @@
     "message": "Vis altid medlemmets e-mailadresse med modtagere, når Sends oprettes eller redigeres.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "Følgende organisationspolitikker er i øjeblikket gældende:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Brugere har ikke lov til at skjule deres e-mailadresser for modtagere, når en Send oprettes eller redigeres.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "Redigerede politik $ID$.",
     "placeholders": {
@@ -5520,27 +5524,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Fjern personligt ejerskab for organisationsbrugere"
-  },
-  "textHiddenByDefault": {
-    "message": "Når Send tilgås, skjul som standard teksten",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Et logisk navn til at beskrive denne Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Teksten, du vil sende."
-  },
-  "sendFileDesc": {
-    "message": "Filen, du vil sende."
-  },
-  "copySendLinkOnSave": {
-    "message": "Kopiér linket for at dele denne Send til udklipsholden ved gem."
-  },
-  "sendLinkLabel": {
-    "message": "Send link",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Send",
@@ -5689,6 +5672,9 @@
   },
   "dateParsingError": {
     "message": "En fejl opstod under forsøget på at gemme sletnings- og udløbsdatoer."
+  },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
   },
   "webAuthnFallbackMsg": {
     "message": "Klik på knappen nedenfor for at bekræfte din 2FA."
@@ -9848,8 +9834,14 @@
   "learnMoreAboutApi": {
     "message": "Læs mere om Bitwardens API"
   },
+  "fileSend": {
+    "message": "File Send"
+  },
   "fileSends": {
     "message": "Fil-Sends"
+  },
+  "textSend": {
+    "message": "Text Send"
   },
   "textSends": {
     "message": "Tekst-Sends"
@@ -10083,10 +10075,6 @@
   "specialCharactersDescription": {
     "message": "Inkludér specialtegn",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Tilføj vedhæftning"
@@ -10486,6 +10474,9 @@
   },
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"

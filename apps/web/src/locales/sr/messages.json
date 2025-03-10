@@ -201,6 +201,9 @@
   "notes": {
     "message": "Напомене"
   },
+  "privateNote": {
+    "message": "Private note"
+  },
   "note": {
     "message": "Белешка"
   },
@@ -1179,8 +1182,8 @@
   "authenticationSessionTimedOut": {
     "message": "Истекло је време сесије за аутентификацију. Молим вас покрените процес пријаве поново."
   },
-  "verifyIdentity": {
-    "message": "Потврдите идентитет"
+  "verifyYourIdentity": {
+    "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "Не препознајемо овај уређај. Унесите код послат на адресу ваше електронске поште да би сте потврдили ваш идентитет."
@@ -2251,6 +2254,9 @@
   },
   "revokeAccess": {
     "message": "Опозови Приступ"
+  },
+  "revoke": {
+    "message": "Revoke"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Овај добављач услуге пријављивања у два корака је омогућен на вашем налогу."
@@ -5081,11 +5087,39 @@
   "requireSsoExemption": {
     "message": "Власници и администратори организација изузети су ове политике."
   },
+  "limitSendViews": {
+    "message": "Limit views"
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
   "sendTypeFile": {
     "message": "Датотека"
   },
   "sendTypeText": {
     "message": "Текст"
+  },
+  "sendPasswordDescV3": {
+    "message": "Add an optional password for recipients to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Креирај ново „Send“",
@@ -5111,19 +5145,15 @@
     "message": "Избриши „Send“",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Сигурно избрисати овај „Send“?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Који је ово тип „Send“-a?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Are you sure you want to permanently delete this Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Брисање после"
   },
-  "deletionDateDesc": {
-    "message": "„The Send“ ће бити трајно избрисан наведеног датума и времена.",
+  "deletionDateDescV2": {
+    "message": "The Send will be permanently deleted on this date.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5135,21 +5165,6 @@
   },
   "maxAccessCount": {
     "message": "Максималан број приступа"
-  },
-  "maxAccessCountDesc": {
-    "message": "Ако је постављено, корисници више неће моћи да приступе овом „send“ када се достигне максимални број приступа.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Тренутни број приступа"
-  },
-  "sendPasswordDesc": {
-    "message": "Опционално захтевајте лозинку за приступ корисницима „Send“-у.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Приватне белешке о овом „Send“.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Онемогућено"
@@ -5177,13 +5192,6 @@
   "removePasswordConfirmation": {
     "message": "Да ли сте сигурни да желите уклонити лозинку?"
   },
-  "hideEmail": {
-    "message": "Сакриј моју е-адресу од примаоца."
-  },
-  "disableThisSend": {
-    "message": "Онемогућите овај „Send“ да нико не би могао да му приступи.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Све „Send“"
   },
@@ -5193,6 +5201,9 @@
   },
   "pendingDeletion": {
     "message": "Брисање на чекању"
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
   },
   "expired": {
     "message": "Истекло"
@@ -5415,13 +5426,6 @@
     "message": "Не дозволите корисницима да сакрију своју е-пошту од примаоца приликом креирања или уређивања „Send“-а.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "Следеће организационе политике су тренутно на снази:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Корисници не могу да сакрију своју е-пошту од примаоца приликом креирања или уређивања „Send“-а.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "Политика $ID$ промењена.",
     "placeholders": {
@@ -5520,27 +5524,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Онемогућите лично власништво за кориснике организације"
-  },
-  "textHiddenByDefault": {
-    "message": "На притуп „Send“-а, сакриј текст по дефаулту",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Име да се опише ово слање.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Текст који желиш да пошаљеш."
-  },
-  "sendFileDesc": {
-    "message": "Датотека коју желиш да пошаљеш."
-  },
-  "copySendLinkOnSave": {
-    "message": "Копирај везу да би поделио слање на бележницу након снимања."
-  },
-  "sendLinkLabel": {
-    "message": "Пошаљи везу",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Пошаљи",
@@ -5689,6 +5672,9 @@
   },
   "dateParsingError": {
     "message": "Појавила се грешка при снимању датума брисања и истицања."
+  },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
   },
   "webAuthnFallbackMsg": {
     "message": "Да би проверили Ваш 2FA Кликните на дугме испод."
@@ -9848,8 +9834,14 @@
   "learnMoreAboutApi": {
     "message": "Сазнајте више о API Bitwarden-а"
   },
+  "fileSend": {
+    "message": "File Send"
+  },
   "fileSends": {
     "message": "Датотека „Send“"
+  },
+  "textSend": {
+    "message": "Text Send"
   },
   "textSends": {
     "message": "Текст „Send“"
@@ -10083,10 +10075,6 @@
   "specialCharactersDescription": {
     "message": "Укључити специјална слова",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Додај прилог"
@@ -10486,6 +10474,9 @@
   },
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"

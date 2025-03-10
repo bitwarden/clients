@@ -201,6 +201,9 @@
   "notes": {
     "message": "Notas"
   },
+  "privateNote": {
+    "message": "Nota privada"
+  },
   "note": {
     "message": "Nota"
   },
@@ -1179,7 +1182,7 @@
   "authenticationSessionTimedOut": {
     "message": "A sessão de autenticação expirou. Por favor, reinicie o processo de início de sessão."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Verifique a sua identidade"
   },
   "weDontRecognizeThisDevice": {
@@ -2251,6 +2254,9 @@
   },
   "revokeAccess": {
     "message": "Revogar o acesso"
+  },
+  "revoke": {
+    "message": "Revogar"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Este fornecedor de verificação de dois passos está ativado na sua conta."
@@ -5081,11 +5087,39 @@
   "requireSsoExemption": {
     "message": "Os proprietários e administradores da organização estão isentos da aplicação desta política."
   },
+  "limitSendViews": {
+    "message": "Limitar visualizações"
+  },
+  "limitSendViewsHint": {
+    "message": "Ninguém poderá ver este Send depois de o limite ser atingido.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ visualizações restantes",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Detalhes do Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Texto a partilhar"
+  },
   "sendTypeFile": {
     "message": "Ficheiro"
   },
   "sendTypeText": {
     "message": "Texto"
+  },
+  "sendPasswordDescV3": {
+    "message": "Adicione uma palavra-passe opcional para os destinatários acederem a este Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Novo Send",
@@ -5111,19 +5145,15 @@
     "message": "Eliminar Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Tem a certeza de que pretende eliminar este Send?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Que tipo de Send é este?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Tem a certeza de que pretende eliminar permanentemente este Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Data de eliminação"
   },
-  "deletionDateDesc": {
-    "message": "O Send será permanentemente eliminado na data e hora especificadas.",
+  "deletionDateDescV2": {
+    "message": "O Send será permanentemente eliminado nesta data.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5135,21 +5165,6 @@
   },
   "maxAccessCount": {
     "message": "Número máximo de acessos"
-  },
-  "maxAccessCountDesc": {
-    "message": "Se definido, os utilizadores deixarão de poder aceder a este Send quando a contagem máxima de acessos for atingida.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Número de acessos atual"
-  },
-  "sendPasswordDesc": {
-    "message": "Opcionalmente, exigir uma palavra-passe para os utilizadores acederem a este Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Notas privadas sobre este Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Desativado"
@@ -5177,13 +5192,6 @@
   "removePasswordConfirmation": {
     "message": "Tem a certeza de que pretende remover a palavra-passe?"
   },
-  "hideEmail": {
-    "message": "Ocultar o meu endereço de e-mail dos destinatários."
-  },
-  "disableThisSend": {
-    "message": "Desative este Send para que ninguém possa aceder ao mesmo.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Todos os Sends"
   },
@@ -5193,6 +5201,9 @@
   },
   "pendingDeletion": {
     "message": "Eliminação pendente"
+  },
+  "hideTextByDefault": {
+    "message": "Ocultar texto por predefinição"
   },
   "expired": {
     "message": "Expirado"
@@ -5415,13 +5426,6 @@
     "message": "Mostrar sempre o endereço de e-mail do membro com os destinatários ao criar ou editar um Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "As seguintes políticas da organização estão atualmente em vigor:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Os utilizadores não estão autorizados a ocultar o seu endereço de e-mail dos destinatários quando criam ou editam um Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "Política $ID$ modificada.",
     "placeholders": {
@@ -5520,27 +5524,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Remover a propriedade individual dos utilizadores da organização"
-  },
-  "textHiddenByDefault": {
-    "message": "Ao aceder ao Send, ocultar o texto por defeito",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Um nome simpático para descrever este Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "O texto que deseja enviar."
-  },
-  "sendFileDesc": {
-    "message": "O ficheiro que deseja enviar."
-  },
-  "copySendLinkOnSave": {
-    "message": "Copiar o link para partilhar este Send para a minha área de transferência ao guardar."
-  },
-  "sendLinkLabel": {
-    "message": "Link do Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Send",
@@ -5689,6 +5672,9 @@
   },
   "dateParsingError": {
     "message": "Ocorreu um erro ao guardar as suas datas de eliminação e validade."
+  },
+  "hideYourEmail": {
+    "message": "Oculte o seu endereço de e-mail dos visualizadores."
   },
   "webAuthnFallbackMsg": {
     "message": "Para verificar a sua 2FA, por favor, clique no botão abaixo."
@@ -9848,8 +9834,14 @@
   "learnMoreAboutApi": {
     "message": "Saiba mais sobre a API do Bitwarden"
   },
+  "fileSend": {
+    "message": "Send de ficheiro"
+  },
   "fileSends": {
     "message": "Sends de ficheiros"
+  },
+  "textSend": {
+    "message": "Send de texto"
   },
   "textSends": {
     "message": "Sends de texto"
@@ -10083,10 +10075,6 @@
   "specialCharactersDescription": {
     "message": "Incluir carateres especiais",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Adicionar anexo"
@@ -10486,6 +10474,9 @@
   },
   "assignedExceedsAvailable": {
     "message": "Os lugares atribuídos excedem os lugares disponíveis."
+  },
+  "changeAtRiskPassword": {
+    "message": "Alterar palavra-passe em risco"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remover o desbloqueio com PIN"
