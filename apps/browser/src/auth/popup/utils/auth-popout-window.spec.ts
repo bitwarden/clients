@@ -72,7 +72,7 @@ describe("AuthPopoutWindow", () => {
 
     it("closes any existing popup window types that are open to the login extension route", async () => {
       const loginTab = createChromeTabMock({
-        url: chrome.runtime.getURL("popup/index.html#/home"),
+        url: chrome.runtime.getURL("popup/index.html#/login"),
       });
       jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([loginTab]);
       jest.spyOn(BrowserApi, "removeWindow");
