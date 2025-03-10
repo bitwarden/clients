@@ -9,19 +9,19 @@ import { SetPasswordRequest } from "../../models/request/set-password.request";
 import { UpdateTdeOffboardingPasswordRequest } from "../../models/request/update-tde-offboarding-password.request";
 import { UpdateTempPasswordRequest } from "../../models/request/update-temp-password.request";
 
-import { DefaultMasterPasswordApiService } from "./default-master-password-api.service";
+import { MasterPasswordApiService } from "./master-password-api.service.implementation";
 
-describe("DefaultMasterPasswordApiService", () => {
+describe("MasterPasswordApiService", () => {
   let apiService: MockProxy<ApiService>;
   let logService: MockProxy<LogService>;
 
-  let sut: DefaultMasterPasswordApiService;
+  let sut: MasterPasswordApiService;
 
   beforeEach(() => {
     apiService = mock<ApiService>();
     logService = mock<LogService>();
 
-    sut = new DefaultMasterPasswordApiService(apiService, logService);
+    sut = new MasterPasswordApiService(apiService, logService);
   });
 
   it("should instantiate", () => {

@@ -1,12 +1,13 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
+import { MasterPasswordApiService as MasterPasswordApiServiceAbstraction } from "../../abstractions/master-password-api.service.abstraction";
 import { PasswordRequest } from "../../models/request/password.request";
 import { SetPasswordRequest } from "../../models/request/set-password.request";
 import { UpdateTdeOffboardingPasswordRequest } from "../../models/request/update-tde-offboarding-password.request";
 import { UpdateTempPasswordRequest } from "../../models/request/update-temp-password.request";
 
-export class DefaultMasterPasswordApiService {
+export class MasterPasswordApiService implements MasterPasswordApiServiceAbstraction {
   constructor(
     private apiService: ApiService,
     private logService: LogService,
