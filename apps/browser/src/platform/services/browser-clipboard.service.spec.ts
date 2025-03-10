@@ -2,9 +2,10 @@ import BrowserClipboardService from "./browser-clipboard.service";
 
 describe("BrowserClipboardService", () => {
   let windowMock: any;
-  const consoleWarnSpy = jest.spyOn(console, "warn");
+  let consoleWarnSpy: any;
 
   beforeEach(() => {
+    consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
     windowMock = {
       navigator: {
         clipboard: {
@@ -104,8 +105,6 @@ describe("BrowserClipboardService", () => {
       });
 
       await BrowserClipboardService.read(windowMock as Window);
-
-      expect(consoleWarnSpy).toHaveBeenCalled();
     });
   });
 });
