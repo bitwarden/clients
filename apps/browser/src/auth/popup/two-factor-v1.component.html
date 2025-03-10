@@ -46,6 +46,7 @@
               type="text"
               name="Code"
               [(ngModel)]="token"
+              (ngModelChange)="saveFormData()"
               required
               appAutofocus
               inputmode="tel"
@@ -54,7 +55,13 @@
           </div>
           <div class="box-content-row box-content-row-checkbox" appBoxRow>
             <label for="remember">{{ "rememberMe" | i18n }}</label>
-            <input id="remember" type="checkbox" name="Remember" [(ngModel)]="remember" />
+            <input
+              id="remember"
+              type="checkbox"
+              name="Remember"
+              [(ngModel)]="remember"
+              (ngModelChange)="saveFormData()"
+            />
           </div>
         </div>
       </div>
@@ -74,6 +81,7 @@
               type="password"
               name="Code"
               [(ngModel)]="token"
+              (ngModelChange)="saveFormData()"
               required
               appAutofocus
               appInputVerbatim
@@ -81,7 +89,13 @@
           </div>
           <div class="box-content-row box-content-row-checkbox" appBoxRow>
             <label for="remember">{{ "rememberMe" | i18n }}</label>
-            <input id="remember" type="checkbox" name="Remember" [(ngModel)]="remember" />
+            <input
+              id="remember"
+              type="checkbox"
+              name="Remember"
+              [(ngModel)]="remember"
+              (ngModelChange)="saveFormData()"
+            />
           </div>
         </div>
       </div>
@@ -95,7 +109,13 @@
         <div class="box-content">
           <div class="box-content-row box-content-row-checkbox" appBoxRow>
             <label for="remember">{{ "rememberMe" | i18n }}</label>
-            <input id="remember" type="checkbox" name="Remember" [(ngModel)]="remember" />
+            <input
+              id="remember"
+              type="checkbox"
+              name="Remember"
+              [(ngModel)]="remember"
+              (ngModelChange)="saveFormData()"
+            />
           </div>
         </div>
       </div>
@@ -132,7 +152,13 @@
           <div class="box-content">
             <div class="box-content-row box-content-row-checkbox" appBoxRow>
               <label for="remember">{{ "rememberMe" | i18n }}</label>
-              <input id="remember" type="checkbox" name="Remember" [(ngModel)]="remember" />
+              <input
+                id="remember"
+                type="checkbox"
+                name="Remember"
+                [(ngModel)]="remember"
+                (ngModelChange)="saveFormData()"
+              />
             </div>
           </div>
         </div>

@@ -5,6 +5,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
+import { TwoFactorFormCacheService } from "@bitwarden/auth/angular";
 import {
   LoginStrategyServiceAbstraction,
   LoginEmailServiceAbstraction,
@@ -72,6 +73,7 @@ describe("TwoFactorComponent", () => {
   let mockMasterPasswordService: FakeMasterPasswordService;
   let mockAccountService: FakeAccountService;
   let mockToastService: MockProxy<ToastService>;
+  let mockTwoFactorFormCacheService: MockProxy<TwoFactorFormCacheService>;
 
   let mockUserDecryptionOpts: {
     noMasterPassword: UserDecryptionOptions;
@@ -108,6 +110,11 @@ describe("TwoFactorComponent", () => {
     mockAccountService = mockAccountServiceWith(userId);
     mockToastService = mock<ToastService>();
     mockMasterPasswordService = new FakeMasterPasswordService();
+    mockTwoFactorFormCacheService = mock<TwoFactorFormCacheService>();
+
+    // Setup form cache service mock with necessary observables
+    mockTwoFactorFormCacheService.isEnabled$.mockReturnValue(new BehaviorSubject(false));
+    mockTwoFactorFormCacheService.formData$.mockReturnValue(new BehaviorSubject(null));
 
     mockUserDecryptionOpts = {
       noMasterPassword: new UserDecryptionOptions({
@@ -190,6 +197,7 @@ describe("TwoFactorComponent", () => {
         { provide: InternalMasterPasswordServiceAbstraction, useValue: mockMasterPasswordService },
         { provide: AccountService, useValue: mockAccountService },
         { provide: ToastService, useValue: mockToastService },
+        { provide: TwoFactorFormCacheService, useValue: mockTwoFactorFormCacheService },
       ],
     });
 
