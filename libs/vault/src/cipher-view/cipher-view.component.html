@@ -3,6 +3,19 @@
     {{ "cardExpiredMessage" | i18n }}
   </bit-callout>
 
+  <ng-container *ngIf="isSecurityTasksEnabled$ | async">
+    <bit-callout
+      *ngIf="cipher?.login.uris.length > 0 && hadPendingChangePasswordTask"
+      type="warning"
+      [title]="''"
+    >
+      <i class="bwi bwi-exclamation-triangle tw-text-warning" aria-hidden="true"></i>
+      <a bitLink (click)="launchChangePassword()">
+        {{ "changeAtRiskPassword" | i18n }}
+        <i class="bwi bwi-popout tw-ml-1" aria-hidden="true"></i>
+      </a>
+    </bit-callout>
+  </ng-container>
   <!-- HELPER TEXT -->
   <p
     class="tw-text-sm tw-text-muted"
@@ -23,7 +36,15 @@
   </app-item-details-v2>
 
   <!-- LOGIN CREDENTIALS -->
-  <app-login-credentials-view *ngIf="hasLogin" [cipher]="cipher"></app-login-credentials-view>
+  <app-login-credentials-view
+    *ngIf="hasLogin"
+    [cipher]="cipher"
+    [activeUserId]="activeUserId$ | async"
+    [hadPendingChangePasswordTask]="
+      hadPendingChangePasswordTask && (isSecurityTasksEnabled$ | async)
+    "
+    (handleChangePassword)="launchChangePassword()"
+  ></app-login-credentials-view>
 
   <!-- AUTOFILL OPTIONS -->
   <app-autofill-options-view

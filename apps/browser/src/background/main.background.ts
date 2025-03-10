@@ -834,10 +834,7 @@ export default class MainBackground {
       this.configService,
     );
 
-    this.themeStateService = new DefaultThemeStateService(
-      this.globalStateProvider,
-      this.configService,
-    );
+    this.themeStateService = new DefaultThemeStateService(this.globalStateProvider);
 
     this.bulkEncryptService = new FallbackBulkEncryptService(this.encryptService);
 
@@ -978,7 +975,7 @@ export default class MainBackground {
       this.authService,
       this.accountService,
     );
-    this.totpService = new TotpService(this.cryptoFunctionService, this.logService);
+    this.totpService = new TotpService(this.sdkService);
 
     this.scriptInjectorService = new BrowserScriptInjectorService(
       this.domainSettingsService,
