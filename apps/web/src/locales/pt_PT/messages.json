@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Não"
   },
+  "location": {
+    "message": "Localização"
+  },
   "loginOrCreateNewAccount": {
     "message": "Inicie sessão ou crie uma nova conta para aceder ao seu cofre seguro."
   },

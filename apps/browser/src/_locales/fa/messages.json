@@ -901,6 +901,9 @@
   "no": {
     "message": "خیر"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "یک خطای غیر منتظره رخ داده است."
   },
