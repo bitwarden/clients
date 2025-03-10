@@ -8,6 +8,9 @@ export enum BiometricsCommands {
   /** Get biometric status for a specific user account. This includes both information about availability of cryptographic material (is the user configured for biometric unlock? is a masterpassword unlock needed? But also information about the biometric system's availability in a single status) */
   GetBiometricsStatusForUser = "getBiometricsStatusForUser",
 
+  /** Checks whether the biometric unlock can be enabled. */
+  CanEnableBiometricUnlock = "canEnableBiometricUnlock",
+
   // legacy
   Unlock = "biometricUnlock",
   IsAvailable = "biometricUnlockAvailable",
