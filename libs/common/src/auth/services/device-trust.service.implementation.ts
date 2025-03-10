@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map, Observable } from "rxjs";
+import { firstValueFrom, map, Observable, Subject } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { KeyService } from "@bitwarden/key-management";
@@ -62,6 +62,10 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
   private readonly deviceKeySecureStorageKey: string = "_deviceKey";
 
   supportsDeviceTrust$: Observable<boolean>;
+
+  // Observable emission is used to trigger a toast in consuming components
+  private deviceTrustedSubject = new Subject<void>();
+  deviceTrusted$ = this.deviceTrustedSubject.asObservable();
 
   constructor(
     private keyGenerationService: KeyGenerationService,
@@ -177,7 +181,8 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     // store device key in local/secure storage if enc keys posted to server successfully
     await this.setDeviceKey(userId, deviceKey);
 
-    this.platformUtilsService.showToast("success", null, this.i18nService.t("deviceTrusted"));
+    // This emission will be picked up by consuming components to handle displaying a toast to the user
+    this.deviceTrustedSubject.next();
 
     return deviceResponse;
   }
