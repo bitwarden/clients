@@ -4,7 +4,7 @@ import { html, nothing } from "lit";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { IconProps, Option } from "../common-types";
-import { themes } from "../constants/styles";
+import { themes, spacing } from "../constants/styles";
 
 export const optionItemTagName = "option-item";
 
@@ -47,7 +47,7 @@ export function OptionItem({
 }
 
 const optionItemStyles = css`
-  gap: 6px;
+  gap: ${spacing["2"]};
   user-select: none;
   display: flex;
   flex-direction: row;
