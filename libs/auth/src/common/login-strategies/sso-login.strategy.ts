@@ -278,7 +278,8 @@ export class SsoLoginStrategy extends LoginStrategy {
         // TODO: eventually we post and clean up DB as well once consumed on client
         await this.authRequestService.clearAdminAuthRequest(userId);
 
-        this.platformUtilsService.showToast("success", null, this.i18nService.t("loginApproved"));
+        // This notification will be picked up by the SsoComponent to handle displaying a toast to the user
+        this.authRequestService.emitAdminLoginApproved();
       }
     }
   }
