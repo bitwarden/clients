@@ -60,6 +60,7 @@ import { SendComponent } from "./tools/send/send.component";
     DeleteAccountComponent,
     UserVerificationComponent,
     DecryptionFailureDialogComponent,
+    NavComponent,
   ],
   declarations: [
     AccessibilityCookieComponent,
@@ -76,7 +77,6 @@ import { SendComponent } from "./tools/send/send.component";
     FolderAddEditComponent,
     HeaderComponent,
     HintComponent,
-    NavComponent,
     PasswordHistoryComponent,
     PremiumComponent,
     RemovePasswordComponent,
