@@ -15,6 +15,7 @@ describe("BrowserExtensionPromptService", () => {
   const setAnonLayoutWrapperData = jest.fn();
   const isFirefox = jest.fn().mockReturnValue(false);
   const postMessage = jest.fn();
+  // const originalPostMessage = window.postMessage;
   window.postMessage = postMessage;
 
   beforeEach(() => {
@@ -167,6 +168,33 @@ describe("BrowserExtensionPromptService", () => {
     it("sets error state after timeout", () => {
       expect(setAnonLayoutWrapperData).toHaveBeenCalledWith({
         pageTitle: { key: "somethingWentWrong" },
+      });
+    });
+
+    it("sets manual open state when open extension is called", (done) => {
+      service.openExtension(true);
+
+      jest.advanceTimersByTime(1000);
+
+      service.pageState$.subscribe((state) => {
+        expect(state).toBe(BrowserPromptState.ManualOpen);
+        done();
+      });
+    });
+
+    it("shows success state when extension auto opens", (done) => {
+      service.openExtension(true);
+
+      jest.advanceTimersByTime(500); // don't let timeout occur
+
+      window.dispatchEvent(
+        new MessageEvent("message", { data: { command: VaultMessages.PopupOpened } }),
+      );
+
+      service.pageState$.subscribe((state) => {
+        expect(state).toBe(BrowserPromptState.Success);
+        expect(service["extensionCheckTimeout"]).toBeUndefined();
+        done();
       });
     });
   });
