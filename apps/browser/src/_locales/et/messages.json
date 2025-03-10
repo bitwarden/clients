@@ -901,6 +901,9 @@
   "no": {
     "message": "Ei"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "Tekkis ootamatu viga."
   },

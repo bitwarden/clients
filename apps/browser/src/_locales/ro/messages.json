@@ -901,6 +901,9 @@
   "no": {
     "message": "Nu"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "A survenit o eroare neașteptată."
   },
