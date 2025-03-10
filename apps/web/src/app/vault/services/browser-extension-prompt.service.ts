@@ -64,7 +64,7 @@ export class BrowserExtensionPromptService {
 
       this.extensionCheckTimeout = window.setTimeout(() => {
         this.setErrorState(BrowserPromptState.ManualOpen);
-      }, 1000);
+      }, 750);
     }
   }
 
