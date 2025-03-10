@@ -1,15 +1,7 @@
-import { AsyncPipe } from "@angular/common";
-import { ReactiveFormsModule } from "@angular/forms";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import {
-  ButtonModule,
-  FormFieldModule,
-  I18nMockService,
-  LinkModule,
-  MultiSelectModule,
-} from "@bitwarden/components";
+import { I18nMockService } from "@bitwarden/components";
 
 import { SearchBuilderComponent } from "./search-builder.component";
 
@@ -18,14 +10,7 @@ export default {
   component: SearchBuilderComponent,
   decorators: [
     moduleMetadata({
-      imports: [
-        MultiSelectModule,
-        LinkModule,
-        FormFieldModule,
-        ButtonModule,
-        ReactiveFormsModule,
-        AsyncPipe,
-      ],
+      imports: [],
       providers: [
         {
           provide: I18nService,

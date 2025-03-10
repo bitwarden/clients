@@ -4,11 +4,11 @@ import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { of } from "rxjs";
 
 import {
-  MultiSelectModule,
   SelectItemView,
   FormFieldModule,
   ButtonModule,
   LinkModule,
+  CheckboxModule,
 } from "@bitwarden/components";
 
 @Component({
@@ -81,11 +81,11 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
-    MultiSelectModule,
     LinkModule,
     FormFieldModule,
     ButtonModule,
     ReactiveFormsModule,
+    CheckboxModule,
     AsyncPipe,
   ],
 })
