@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
@@ -24,13 +22,16 @@ export class EncryptServiceImplementation implements EncryptService {
     protected logMacFailures: boolean,
   ) {}
 
-  async encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString> {
+  async encrypt(
+    plainValue: string | Uint8Array,
+    key: SymmetricCryptoKey,
+  ): Promise<EncString | null> {
     if (key == null) {
       throw new Error("No encryption key provided.");
     }
 
     if (plainValue == null) {
-      return Promise.resolve(null);
+      return null;
     }
 
     let plainBuf: Uint8Array;
@@ -43,7 +44,7 @@ export class EncryptServiceImplementation implements EncryptService {
     const encObj = await this.aesEncrypt(plainBuf, key);
     const iv = Utils.fromBufferToB64(encObj.iv);
     const data = Utils.fromBufferToB64(encObj.data);
-    const mac = encObj.mac != null ? Utils.fromBufferToB64(encObj.mac) : null;
+    const mac = encObj.mac != null ? Utils.fromBufferToB64(encObj.mac) : undefined;
     return new EncString(encObj.key.encType, data, iv, mac);
   }
 
@@ -73,9 +74,15 @@ export class EncryptServiceImplementation implements EncryptService {
     encString: EncString,
     key: SymmetricCryptoKey,
     decryptContext: string = "no context",
-  ): Promise<string> {
+  ): Promise<string | null> {
     if (key == null) {
       throw new Error("No key provided for decryption.");
+    }
+    if (encString?.data == null) {
+      throw new Error("No data provided for decryption.");
+    }
+    if (encString?.iv == null) {
+      throw new Error("No initialization vector provided for decryption.");
     }
 
     key = this.resolveLegacyKey(key, encString);
@@ -106,7 +113,7 @@ export class EncryptServiceImplementation implements EncryptService {
     const fastParams = this.cryptoFunctionService.aesDecryptFastParameters(
       encString.data,
       encString.iv,
-      encString.mac,
+      encString.mac ?? null,
       key,
     );
     if (fastParams.macKey != null && fastParams.mac != null) {
@@ -301,6 +308,7 @@ export class EncryptServiceImplementation implements EncryptService {
 
   /**
    * Transform into new key for the old encrypt-then-mac scheme if required, otherwise return the current key unchanged
+   * @param key The key to transform
    * @param encThing The encrypted object (e.g. encString or encArrayBuffer) that you want to decrypt
    */
   resolveLegacyKey(key: SymmetricCryptoKey, encThing: Encrypted): SymmetricCryptoKey {

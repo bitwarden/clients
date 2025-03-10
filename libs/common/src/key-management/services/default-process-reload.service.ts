@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom, map, timeout } from "rxjs";
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
@@ -23,7 +21,7 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
   constructor(
     private pinService: PinServiceAbstraction,
     private messagingService: MessagingService,
-    private reloadCallback: () => Promise<void> = null,
+    private reloadCallback: (() => Promise<void>) | null = null,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private biometricStateService: BiometricStateService,
     private accountService: AccountService,

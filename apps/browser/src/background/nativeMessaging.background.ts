@@ -350,10 +350,10 @@ export class NativeMessagingBackground {
       await this.secureCommunication();
     }
 
-    return await this.encryptService.encrypt(
+    return (await this.encryptService.encrypt(
       JSON.stringify(message),
       this.secureChannel!.sharedSecret!,
-    );
+    ))!;
   }
 
   private postMessage(message: OuterMessage, messageId?: number) {
@@ -394,11 +394,11 @@ export class NativeMessagingBackground {
         return;
       }
       message = JSON.parse(
-        await this.encryptService.decryptToUtf8(
+        (await this.encryptService.decryptToUtf8(
           rawMessage as EncString,
           this.secureChannel.sharedSecret,
           "ipc-desktop-ipc-channel-key",
-        ),
+        ))!,
       );
     } else {
       message = rawMessage as ReceiveMessage;

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { defaultIfEmpty, filter, firstValueFrom, fromEvent, map, Subject, takeUntil } from "rxjs";
 import { Jsonify } from "type-fest";
 
@@ -18,7 +16,7 @@ const workerTTL = 3 * 60000; // 3 minutes
  * @deprecated Replaced by BulkEncryptionService (PM-4154)
  */
 export class MultithreadEncryptServiceImplementation extends EncryptServiceImplementation {
-  private worker: Worker;
+  private worker?: Worker;
   private timeout: any;
 
   private clear$ = new Subject<void>();
@@ -56,7 +54,7 @@ export class MultithreadEncryptServiceImplementation extends EncryptServiceImple
     this.worker.postMessage(JSON.stringify(request));
 
     return await firstValueFrom(
-      fromEvent(this.worker, "message").pipe(
+      fromEvent<MessageEvent>(this.worker, "message").pipe(
         filter((response: MessageEvent) => response.data?.id === request.id),
         map((response) => JSON.parse(response.data.items)),
         map((items) =>
@@ -74,7 +72,7 @@ export class MultithreadEncryptServiceImplementation extends EncryptServiceImple
   private clear() {
     this.clear$.next();
     this.worker?.terminate();
-    this.worker = null;
+    this.worker = undefined;
     this.clearTimeout();
   }
 

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom, fromEvent, filter, map, takeUntil, defaultIfEmpty, Subject } from "rxjs";
 import { Jsonify } from "type-fest";
 
@@ -117,7 +115,7 @@ export class BulkEncryptServiceImplementation implements BulkEncryptService {
       worker.postMessage(JSON.stringify(request));
       results.push(
         firstValueFrom(
-          fromEvent(worker, "message").pipe(
+          fromEvent<MessageEvent>(worker, "message").pipe(
             filter((response: MessageEvent) => response.data?.id === request.id),
             map((response) => JSON.parse(response.data.items)),
             map((items) =>
