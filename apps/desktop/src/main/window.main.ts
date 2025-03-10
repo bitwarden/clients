@@ -95,7 +95,7 @@ export class WindowMain {
         }),
       )
       .subscribe();
-    
+
     this.desktopSettingsService.preventScreenshots$.subscribe((prevent) => {
       if (this.win == null) {
         return;

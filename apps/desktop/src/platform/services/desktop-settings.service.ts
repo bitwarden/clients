@@ -309,7 +309,7 @@ export class DesktopSettingsService {
   async setInModalMode(value: boolean) {
     await this.inModalModeState.update(() => value);
   }
-  
+
   /**
    * Sets the setting for whether or not the screenshot protection is enabled.
    * @param value `true` if the screenshot protection is enabled, `false` if it is not.
