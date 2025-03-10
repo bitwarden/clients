@@ -60,7 +60,6 @@ import {
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import {
   EnvironmentService,
@@ -74,7 +73,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
-import { ThemeType } from "@bitwarden/common/platform/enums";
+import { ThemeTypes } from "@bitwarden/common/platform/enums";
 // eslint-disable-next-line no-restricted-imports -- Needed for DI
 import {
   UnsupportedWebPushConnectionService,
@@ -82,7 +81,6 @@ import {
 } from "@bitwarden/common/platform/notifications/internal";
 import { AppIdService as DefaultAppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
-// eslint-disable-next-line import/no-restricted-paths -- Implementation for memory storage
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
@@ -238,10 +236,10 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: ThemeStateService,
-    useFactory: (globalStateProvider: GlobalStateProvider, configService: ConfigService) =>
+    useFactory: (globalStateProvider: GlobalStateProvider) =>
       // Web chooses to have Light as the default theme
-      new DefaultThemeStateService(globalStateProvider, configService, ThemeType.Light),
-    deps: [GlobalStateProvider, ConfigService],
+      new DefaultThemeStateService(globalStateProvider, ThemeTypes.Light),
+    deps: [GlobalStateProvider],
   }),
   safeProvider({
     provide: CLIENT_TYPE,

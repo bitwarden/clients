@@ -878,7 +878,7 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  }, 
+  },
   "insertYubiKey": {
     "message": "Insert your YubiKey into your computer's USB port, then touch its button."
   },
@@ -1008,6 +1008,9 @@
   },
   "no": {
     "message": "No"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Overwrite password"

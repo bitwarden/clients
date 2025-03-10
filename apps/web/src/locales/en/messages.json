@@ -1053,6 +1053,9 @@
   "no": {
     "message": "No"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Log in or create a new account to access your secure vault."
   },

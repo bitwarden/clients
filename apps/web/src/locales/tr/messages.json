@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Hayır"
   },
+  "location": {
+    "message": "Konum"
+  },
   "loginOrCreateNewAccount": {
     "message": "Güvenli kasanıza ulaşmak için giriş yapın veya yeni bir hesap oluşturun."
   },
@@ -1414,7 +1417,7 @@
     "message": "Erişimi reddet"
   },
   "notificationSentDeviceAnchor": {
-    "message": "web app"
+    "message": "web uygulaması"
   },
   "notificationSentDevicePart2": {
     "message": "Make sure the Fingerprint phrase matches the one below before approving."
@@ -1828,7 +1831,7 @@
     "message": "Lütfen yeniden giriş yapın."
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Geçerli oturum"
   },
   "requestPending": {
     "message": "Request pending"
@@ -2235,7 +2238,7 @@
     "message": "Yönet"
   },
   "manageCollection": {
-    "message": "Manage collection"
+    "message": "Koleksiyonu yönet"
   },
   "viewItems": {
     "message": "View items"
@@ -5683,7 +5686,7 @@
     "message": "WebAutn ile doğrula"
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "Güvenlik anahtarını oku"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Awaiting security key interaction..."
@@ -8509,7 +8512,7 @@
     "message": "Device removed"
   },
   "removeDevice": {
-    "message": "Remove device"
+    "message": "Cihazı kaldır"
   },
   "removeDeviceConfirmation": {
     "message": "Are you sure you want to remove this device?"
@@ -9310,7 +9313,7 @@
     "message": "SCIM"
   },
   "scimIntegrationDescStart": {
-    "message": "Configure ",
+    "message": "Yapılandır ",
     "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
   "scimIntegrationDescEnd": {
@@ -9599,7 +9602,7 @@
     "message": "Export client report"
   },
   "memberAccessReport": {
-    "message": "Member access"
+    "message": "Üye erişimi"
   },
   "memberAccessReportDesc": {
     "message": "Ensure members have access to the right credentials and their accounts are secure. Use this report to obtain a CSV of member access and account configurations."
@@ -9931,7 +9934,7 @@
     "message": "Access to Premium features"
   },
   "additionalStorageGbMessage": {
-    "message": "GB additional storage"
+    "message": "GB ek depolama"
   },
   "sshKeyAlgorithm": {
     "message": "Key algorithm"
@@ -9958,13 +9961,13 @@
     "message": "ED25519"
   },
   "sshKeyAlgorithmRSA2048": {
-    "message": "RSA 2048-Bit"
+    "message": "RSA 2048 bit"
   },
   "sshKeyAlgorithmRSA3072": {
-    "message": "RSA 3072-Bit"
+    "message": "RSA 3072 bit"
   },
   "sshKeyAlgorithmRSA4096": {
-    "message": "RSA 4096-Bit"
+    "message": "RSA 4096 bit"
   },
   "premiumAccounts": {
     "message": "6 premium hesap"
@@ -10006,7 +10009,7 @@
     "message": "20 makine hesabı"
   },
   "current": {
-    "message": "Current"
+    "message": "Geçerli"
   },
   "secretsManagerSubscriptionInfo": {
     "message": "Secrets Manager aboneliğiniz seçtiğiniz plana göre yükseltilecektir"
@@ -10243,7 +10246,7 @@
     "message": "Remove members"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Cihazlar"
   },
   "deviceListDescription": {
     "message": "Your account was logged in to each of the devices below. If you do not recognize a device, remove it now."
@@ -10340,19 +10343,19 @@
     "message": "Opening the Bitwarden browser extension"
   },
   "somethingWentWrong": {
-    "message": "Something went wrong..."
+    "message": "Bir şeyler ters gitti..."
   },
   "openingExtensionError": {
     "message": "We had trouble opening the Bitwarden browser extension. Click the button to open it now."
   },
   "openExtension": {
-    "message": "Open extension"
+    "message": "Uzantıyı aç"
   },
   "doNotHaveExtension": {
     "message": "Don't have the Bitwarden browser extension?"
   },
   "installExtension": {
-    "message": "Install extension"
+    "message": "Uzantıyı yükle"
   },
   "openedExtension": {
     "message": "Opened the browser extension"
