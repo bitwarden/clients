@@ -43,6 +43,11 @@ export abstract class PlatformUtilsService {
   abstract isSelfHost(): boolean;
   abstract copyToClipboard(text: string, options?: ClipboardOptions): void | boolean;
   abstract readFromClipboard(): Promise<string>;
+
+  /**
+   * @deprecated Use `SecureStorageService.support$` to check the current support status of SecureStorage
+   * on the current client.
+   */
   abstract supportsSecureStorage(): boolean;
   abstract getAutofillKeyboardShortcut(): Promise<string>;
 }

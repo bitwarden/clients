@@ -91,6 +91,10 @@ import { StorageServiceProvider } from "@bitwarden/common/platform/services/stor
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
 /* eslint-enable import/no-restricted-paths -- Implementation for memory storage */
+import {
+  SecureStorageService,
+  UnsupportedSecureStorageService,
+} from "@bitwarden/common/platform/storage/secure-storage.service";
 import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
 import {
   DefaultThemeStateService,
@@ -348,6 +352,11 @@ const safeProviders: SafeProvider[] = [
     provide: LoginDecryptionOptionsService,
     useClass: WebLoginDecryptionOptionsService,
     deps: [MessagingService, RouterService, AcceptOrganizationInviteService],
+  }),
+  safeProvider({
+    provide: SecureStorageService,
+    useFactory: () => new UnsupportedSecureStorageService("no-web-api"),
+    deps: [],
   }),
 ];
 

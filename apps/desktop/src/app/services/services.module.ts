@@ -13,7 +13,6 @@ import {
   OBSERVABLE_MEMORY_STORAGE,
   OBSERVABLE_DISK_STORAGE,
   WINDOW,
-  SUPPORTS_SECURE_STORAGE,
   SYSTEM_THEME_OBSERVABLE,
   SafeInjectionToken,
   DEFAULT_VAULT_TIMEOUT,
@@ -90,6 +89,10 @@ import { SystemService } from "@bitwarden/common/platform/services/system.servic
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 // eslint-disable-next-line import/no-restricted-paths -- Implementation for memory storage
 import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
+import {
+  SecureStorageService,
+  SupportedSecureStorageService,
+} from "@bitwarden/common/platform/storage/secure-storage.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -116,14 +119,12 @@ import { flagEnabled } from "../../platform/flags";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { ElectronKeyService } from "../../platform/services/electron-key.service";
 import { ElectronLogRendererService } from "../../platform/services/electron-log.renderer.service";
-import {
-  ELECTRON_SUPPORTS_SECURE_STORAGE,
-  ElectronPlatformUtilsService,
-} from "../../platform/services/electron-platform-utils.service";
+import { ElectronPlatformUtilsService } from "../../platform/services/electron-platform-utils.service";
 import { ElectronRendererMessageSender } from "../../platform/services/electron-renderer-message.sender";
 import { ElectronRendererSecureStorageService } from "../../platform/services/electron-renderer-secure-storage.service";
 import { ElectronRendererStorageService } from "../../platform/services/electron-renderer-storage.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
+import { PortableSecureStorageService } from "../../platform/services/portable-secure-storage.service";
 import { fromIpcMessaging } from "../../platform/utils/from-ipc-messaging";
 import { fromIpcSystemTheme } from "../../platform/utils/from-ipc-system-theme";
 import { BiometricMessageHandlerService } from "../../services/biometric-message-handler.service";
@@ -180,13 +181,6 @@ const safeProviders: SafeProvider[] = [
     provide: PlatformUtilsServiceAbstraction,
     useClass: ElectronPlatformUtilsService,
     deps: [I18nServiceAbstraction, MessagingServiceAbstraction],
-  }),
-  safeProvider({
-    // We manually override the value of SUPPORTS_SECURE_STORAGE here to avoid
-    // the TokenService having to inject the PlatformUtilsService which introduces a
-    // circular dependency on Desktop only.
-    provide: SUPPORTS_SECURE_STORAGE,
-    useValue: ELECTRON_SUPPORTS_SECURE_STORAGE,
   }),
   safeProvider({
     provide: DEFAULT_VAULT_TIMEOUT,
@@ -429,6 +423,17 @@ const safeProviders: SafeProvider[] = [
     provide: LoginApprovalComponentServiceAbstraction,
     useClass: DesktopLoginApprovalComponentService,
     deps: [I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: SecureStorageService,
+    useFactory: (secureStorage: AbstractStorageService) => {
+      if (ipc.platform.isWindowsPortable) {
+        return new PortableSecureStorageService(secureStorage);
+      }
+
+      return new SupportedSecureStorageService(secureStorage);
+    },
+    deps: [SECURE_STORAGE],
   }),
 ];
 
