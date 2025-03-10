@@ -1,4 +1,5 @@
 export { AngleDown } from "./angle-down";
+export { AngleUp } from "./angle-up";
 export { BrandIconContainer } from "./brand-icon-container";
 export { Business } from "./business";
 export { Close } from "./close";
