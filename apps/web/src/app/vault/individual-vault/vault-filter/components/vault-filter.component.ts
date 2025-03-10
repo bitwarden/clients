@@ -281,7 +281,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       },
       action: this.applyFolderFilter,
       edit: {
-        text: "editFolder",
+        filterName: this.i18nService.t("folder"),
         action: this.editFolder,
       },
     };
