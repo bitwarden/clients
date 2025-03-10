@@ -497,7 +497,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.action = "view";
     await this.vaultItemsComponent.refresh();
     await this.cipherService.clearCache(this.activeUserId);
-    await this.viewComponent.load();
+    await this.vaultItemsComponent.load(this.activeFilter.buildFilter());
     this.go();
   }
 
@@ -572,6 +572,8 @@ export class VaultComponent implements OnInit, OnDestroy {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.viewCipher(cipher);
       await this.vaultItemsComponent.refresh();
+      await this.cipherService.clearCache(this.activeUserId);
+      await this.vaultItemsComponent.load(this.activeFilter.buildFilter());
     });
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.modal.onClosed.subscribe(async () => {
