@@ -385,6 +385,15 @@
   "editFolder": {
     "message": "Edit folder"
   },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
     "message": "New folder"
   },
@@ -479,22 +488,6 @@
   "length": {
     "message": "Length"
   },
-  "uppercase": {
-    "message": "Uppercase (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Lowercase (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Numbers (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Special characters (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Include",
     "description": "Card header for password generator include block"
@@ -526,10 +519,6 @@
   "specialCharactersDescription": {
     "message": "Include special characters",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Number of words"
@@ -669,8 +658,8 @@
   "browserNotSupportClipboard": {
     "message": "Your web browser does not support easy clipboard copying. Copy it manually instead."
   },
-  "verifyIdentity": {
-    "message": "Verify identity"
+  "verifyYourIdentity": {
+    "message": "Verify your identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
@@ -921,6 +910,9 @@
   "no": {
     "message": "No"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "An unexpected error has occurred."
   },
@@ -1088,6 +1080,38 @@
       },
       "description": "Shown to user after login is updated."
   },
+  "saveAsNewLoginAction": {
+    "message": "Save as new login",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Update login",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Save login?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Update existing login?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Login saved",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Login updated",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Error saving",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "description": "Detailed error message shown when saving login details fails."
+  },
   "enableChangedPasswordNotification": {
     "message": "Ask to update existing login"
   },
@@ -1150,10 +1174,6 @@
   "light": {
     "message": "Light",
     "description": "Light color"
-  },
-  "solarizedDark": {
-    "message": "Solarized dark",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
     "message": "Export from"
@@ -5117,6 +5137,33 @@
   "extraWide": {
     "message": "Extra wide"
   },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
     "placeholders": {
@@ -5131,5 +5178,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

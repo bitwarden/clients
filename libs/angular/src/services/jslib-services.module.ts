@@ -45,8 +45,6 @@ import {
   DefaultAuthRequestApiService,
   DefaultLoginSuccessHandlerService,
   LoginSuccessHandlerService,
-  PasswordLoginStrategy,
-  PasswordLoginStrategyData,
   LoginApprovalComponentServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
@@ -410,7 +408,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ThemeStateService,
     useClass: DefaultThemeStateService,
-    deps: [GlobalStateProvider, ConfigService],
+    deps: [GlobalStateProvider],
   }),
   safeProvider({
     provide: AbstractThemingService,
@@ -605,7 +603,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: TotpServiceAbstraction,
     useClass: TotpService,
-    deps: [CryptoFunctionServiceAbstraction, LogService],
+    deps: [SdkService],
   }),
   safeProvider({
     provide: TokenServiceAbstraction,
@@ -1459,37 +1457,6 @@ const safeProviders: SafeProvider[] = [
     provide: LoginSuccessHandlerService,
     useClass: DefaultLoginSuccessHandlerService,
     deps: [SyncService, UserAsymmetricKeysRegenerationService],
-  }),
-  safeProvider({
-    provide: PasswordLoginStrategy,
-    useClass: PasswordLoginStrategy,
-    deps: [
-      PasswordLoginStrategyData,
-      PasswordStrengthServiceAbstraction,
-      PolicyServiceAbstraction,
-      LoginStrategyServiceAbstraction,
-      AccountServiceAbstraction,
-      InternalMasterPasswordServiceAbstraction,
-      KeyService,
-      EncryptService,
-      ApiServiceAbstraction,
-      TokenServiceAbstraction,
-      AppIdServiceAbstraction,
-      PlatformUtilsServiceAbstraction,
-      MessagingServiceAbstraction,
-      LogService,
-      StateServiceAbstraction,
-      TwoFactorServiceAbstraction,
-      InternalUserDecryptionOptionsServiceAbstraction,
-      BillingAccountProfileStateService,
-      VaultTimeoutSettingsService,
-      KdfConfigService,
-    ],
-  }),
-  safeProvider({
-    provide: PasswordLoginStrategyData,
-    useClass: PasswordLoginStrategyData,
-    deps: [],
   }),
   safeProvider({
     provide: TaskService,

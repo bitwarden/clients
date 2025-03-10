@@ -18,6 +18,7 @@ import {
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -80,6 +81,7 @@ describe("PasswordLoginStrategy", () => {
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
+  let environmentService: MockProxy<EnvironmentService>;
 
   let passwordLoginStrategy: PasswordLoginStrategy;
   let credentials: PasswordLoginCredentials;
@@ -106,6 +108,7 @@ describe("PasswordLoginStrategy", () => {
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     kdfConfigService = mock<KdfConfigService>();
+    environmentService = mock<EnvironmentService>();
 
     appIdService.getAppId.mockResolvedValue(deviceId);
     tokenService.decodeAccessToken.mockResolvedValue({
@@ -144,6 +147,7 @@ describe("PasswordLoginStrategy", () => {
       billingAccountProfileStateService,
       vaultTimeoutSettingsService,
       kdfConfigService,
+      environmentService,
     );
     credentials = new PasswordLoginCredentials(email, masterPassword);
     tokenResponse = identityTokenResponseFactory(masterPasswordPolicy);

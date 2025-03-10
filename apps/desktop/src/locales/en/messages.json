@@ -543,10 +543,6 @@
     "message": "Include special characters",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Number of words"
   },
@@ -882,7 +878,7 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  }, 
+  },
   "insertYubiKey": {
     "message": "Insert your YubiKey into your computer's USB port, then touch its button."
   },
@@ -916,7 +912,7 @@
     "message": "Verify with Duo Security for your organization using the Duo Mobile app, SMS, phone call, or U2F security key.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
@@ -1012,6 +1008,9 @@
   },
   "no": {
     "message": "No"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Overwrite password"
@@ -3533,9 +3532,6 @@
   "unknownApplication": {
     "message": "An application"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
   },
@@ -3545,7 +3541,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
@@ -3604,5 +3600,8 @@
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

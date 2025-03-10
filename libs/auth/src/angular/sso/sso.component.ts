@@ -199,7 +199,9 @@ export class SsoComponent implements OnInit {
    * @returns True if the value is a valid SSO client type, otherwise false
    */
   private isValidSsoClientType(value: string): value is SsoClientType {
-    return [ClientType.Web, ClientType.Browser, ClientType.Desktop].includes(value as ClientType);
+    return [ClientType.Web, ClientType.Browser, ClientType.Desktop, ClientType.Cli].includes(
+      value as ClientType,
+    );
   }
 
   /**
@@ -427,7 +429,6 @@ export class SsoComponent implements OnInit {
       );
       this.formPromise = this.loginStrategyService.logIn(credentials);
       const authResult = await this.formPromise;
-
       if (authResult.requiresTwoFactor) {
         return await this.handleTwoFactorRequired(orgSsoIdentifier);
       }
@@ -441,9 +442,10 @@ export class SsoComponent implements OnInit {
       // - Browser SSO on extension open
       // Note: you cannot set this in state before 2FA b/c there won't be an account in state.
 
-      // Grabbing the active user id right before making the state set to ensure it exists.
-      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-      await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(orgSsoIdentifier, userId);
+      await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(
+        orgSsoIdentifier,
+        authResult.userId,
+      );
 
       // must come after 2fa check since user decryption options aren't available if 2fa is required
       const userDecryptionOpts = await firstValueFrom(
