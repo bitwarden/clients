@@ -49,17 +49,13 @@ import { UserApiTokenRequest } from "../auth/models/request/identity-token/user-
 import { WebAuthnLoginTokenRequest } from "../auth/models/request/identity-token/webauthn-login-token.request";
 import { KeyConnectorUserKeyRequest } from "../auth/models/request/key-connector-user-key.request";
 import { PasswordHintRequest } from "../auth/models/request/password-hint.request";
-import { PasswordRequest } from "../auth/models/request/password.request";
 import { PasswordlessAuthRequest } from "../auth/models/request/passwordless-auth.request";
 import { SecretVerificationRequest } from "../auth/models/request/secret-verification.request";
 import { SetKeyConnectorKeyRequest } from "../auth/models/request/set-key-connector-key.request";
-import { SetPasswordRequest } from "../auth/models/request/set-password.request";
 import { TwoFactorEmailRequest } from "../auth/models/request/two-factor-email.request";
 import { TwoFactorProviderRequest } from "../auth/models/request/two-factor-provider.request";
 import { TwoFactorRecoveryRequest } from "../auth/models/request/two-factor-recovery.request";
 import { UpdateProfileRequest } from "../auth/models/request/update-profile.request";
-import { UpdateTdeOffboardingPasswordRequest } from "../auth/models/request/update-tde-offboarding-password.request";
-import { UpdateTempPasswordRequest } from "../auth/models/request/update-temp-password.request";
 import { UpdateTwoFactorAuthenticatorRequest } from "../auth/models/request/update-two-factor-authenticator.request";
 import { UpdateTwoFactorDuoRequest } from "../auth/models/request/update-two-factor-duo.request";
 import { UpdateTwoFactorEmailRequest } from "../auth/models/request/update-two-factor-email.request";
@@ -169,8 +165,6 @@ export abstract class ApiService {
   postPrelogin: (request: PreloginRequest) => Promise<PreloginResponse>;
   postEmailToken: (request: EmailTokenRequest) => Promise<any>;
   postEmail: (request: EmailRequest) => Promise<any>;
-  postPassword: (request: PasswordRequest) => Promise<any>;
-  setPassword: (request: SetPasswordRequest) => Promise<any>;
   postSetKeyConnectorKey: (request: SetKeyConnectorKeyRequest) => Promise<any>;
   postSecurityStamp: (request: SecretVerificationRequest) => Promise<any>;
   getAccountRevisionDate: () => Promise<number>;
@@ -189,8 +183,6 @@ export abstract class ApiService {
   postAccountKdf: (request: KdfRequest) => Promise<any>;
   postUserApiKey: (id: string, request: SecretVerificationRequest) => Promise<ApiKeyResponse>;
   postUserRotateApiKey: (id: string, request: SecretVerificationRequest) => Promise<ApiKeyResponse>;
-  putUpdateTempPassword: (request: UpdateTempPasswordRequest) => Promise<any>;
-  putUpdateTdeOffboardingPassword: (request: UpdateTdeOffboardingPasswordRequest) => Promise<any>;
   postConvertToKeyConnector: () => Promise<void>;
   //passwordless
   postAuthRequest: (request: AuthRequest) => Promise<AuthRequestResponse>;
