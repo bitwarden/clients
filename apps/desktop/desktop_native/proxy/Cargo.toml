@@ -8,11 +8,11 @@ publish = { workspace = true }
 [dependencies]
 anyhow = { workspace = true }
 desktop_core = { path = "../core" }
-futures = "=0.3.31"
+futures = { workspace = true }
 log = { workspace = true }
-simplelog = "=0.12.2"
+simplelog = { workspace = true }
 tokio = { workspace = true, features = ["io-std", "io-util", "macros", "rt"] }
 tokio-util = { workspace = true, features = ["codec"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-embed_plist = "=1.2.2"
+embed_plist = { workspace = true }
