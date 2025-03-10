@@ -38,7 +38,7 @@
   "restoreMembers": {
     "message": "Restore members"
   },
-  "cannotRestoreAccessError":{
+  "cannotRestoreAccessError": {
     "message": "Cannot restore organization access"
   },
   "allApplicationsWithCount": {
@@ -1355,8 +1355,8 @@
   "yourAccountIsLocked": {
     "message": "Your account is locked"
   },
-  "uuid":{
-    "message" : "UUID"
+  "uuid": {
+    "message": "UUID"
   },
   "unlock": {
     "message": "Unlock"
@@ -5904,10 +5904,10 @@
   "bulkFilteredMessage": {
     "message": "Excluded, not applicable for this action"
   },
-  "nonCompliantMembersTitle":{
+  "nonCompliantMembersTitle": {
     "message": "Non-compliant members"
   },
-  "nonCompliantMembersError":{
+  "nonCompliantMembersError": {
     "message": "Members that are non-compliant with the Single organization or Two-step login policy cannot be restored until they adhere to the policy requirements"
   },
   "fingerprint": {
@@ -9330,7 +9330,7 @@
     "message": "for Bitwarden using the implementation guide for your Identity Provider.",
     "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "userProvisioning":{
+  "userProvisioning": {
     "message": "User provisioning"
   },
   "scimIntegration": {
@@ -9344,22 +9344,22 @@
     "message": "(System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider.",
     "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "bwdc":{
+  "bwdc": {
     "message": "Bitwarden Directory Connector"
   },
   "bwdcDesc": {
     "message": "Configure Bitwarden Directory Connector to automatically provision users and groups using the implementation guide for your Identity Provider."
   },
-  "eventManagement":{
+  "eventManagement": {
     "message": "Event management"
   },
-  "eventManagementDesc":{
+  "eventManagementDesc": {
     "message": "Integrate Bitwarden event logs with your SIEM (system information and event management) system by using the implementation guide for your platform."
   },
-  "deviceManagement":{
+  "deviceManagement": {
     "message": "Device management"
   },
-  "deviceManagementDesc":{
+  "deviceManagementDesc": {
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
   "desktopRequired": {
@@ -9368,7 +9368,7 @@
   "reopenLinkOnDesktop": {
     "message": "Reopen this link from your email on a desktop."
   },
-  "integrationCardTooltip":{
+  "integrationCardTooltip": {
     "message": "Launch $INTEGRATION$ implementation guide.",
     "placeholders": {
       "integration": {
@@ -9377,7 +9377,7 @@
       }
     }
   },
-  "smIntegrationTooltip":{
+  "smIntegrationTooltip": {
     "message": "Set up $INTEGRATION$.",
     "placeholders": {
       "integration": {
@@ -9386,7 +9386,7 @@
       }
     }
   },
-  "smSdkTooltip":{
+  "smSdkTooltip": {
     "message": "View $SDK$ repository",
     "placeholders": {
       "sdk": {
@@ -9395,7 +9395,7 @@
       }
     }
   },
-  "integrationCardAriaLabel":{
+  "integrationCardAriaLabel": {
     "message": "open $INTEGRATION$ implementation guide in a new tab.",
     "placeholders": {
       "integration": {
@@ -9404,7 +9404,7 @@
       }
     }
   },
-  "smSdkAriaLabel":{
+  "smSdkAriaLabel": {
     "message": "view $SDK$ repository in a new tab.",
     "placeholders": {
       "sdk": {
@@ -9413,7 +9413,7 @@
       }
     }
   },
-  "smIntegrationCardAriaLabel":{
+  "smIntegrationCardAriaLabel": {
     "message": "set up $INTEGRATION$ implementation guide in a new tab.",
     "placeholders": {
       "integration": {
@@ -9820,7 +9820,7 @@
     "message": "Config"
   },
   "learnMoreAboutEmergencyAccess": {
-    "message":"Learn more about emergency access"
+    "message": "Learn more about emergency access"
   },
   "learnMoreAboutMatchDetection": {
     "message": "Learn more about match detection"
@@ -10122,7 +10122,7 @@
   "selfHostingTitleProper": {
     "message": "Self-Hosting"
   },
-  "claim-domain-single-org-warning" : {
+  "claim-domain-single-org-warning": {
     "message": "Claiming a domain will turn on the single organization policy."
   },
   "single-org-revoked-user-warning": {
@@ -10362,6 +10362,36 @@
   },
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
+  },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
+  "copySSHPrivateKey": {
+    "message": "Copy private key"
   },
   "openingExtension": {
     "message": "Opening the Bitwarden browser extension"

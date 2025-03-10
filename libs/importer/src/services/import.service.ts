@@ -15,6 +15,7 @@ import { ImportOrganizationCiphersRequest } from "@bitwarden/common/models/reque
 import { KvpRequest } from "@bitwarden/common/models/request/kvp.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -114,6 +115,7 @@ export class ImportService implements ImportServiceAbstraction {
     private encryptService: EncryptService,
     private pinService: PinServiceAbstraction,
     private accountService: AccountService,
+    private sdkService: SdkService,
   ) {}
 
   getImportOptions(): ImportOption[] {
