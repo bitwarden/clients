@@ -913,7 +913,7 @@
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Kimliyinizi doğrulayın"
   },
   "weDontRecognizeThisDevice": {
     "message": "Bu cihazı tanımırıq. Kimliyinizi doğrulamaq üçün e-poçtunuza göndərilən kodu daxil edin."
@@ -3515,16 +3515,16 @@
     "message": "bura müraciət tələb edir:"
   },
   "sshkeyApprovalMessageSuffix": {
-    "message": "in order to"
+    "message": "məqsəd"
   },
   "sshActionLogin": {
-    "message": "authenticate to a server"
+    "message": "serverdə kimlik doğrulaması et"
   },
   "sshActionSign": {
-    "message": "sign a message"
+    "message": "bir mesajı imzala"
   },
   "sshActionGitSign": {
-    "message": "sign a git commit"
+    "message": "git commit-ini imzala"
   },
   "unknownApplication": {
     "message": "Bir tətbiq"
@@ -3602,6 +3602,6 @@
     "message": "İstifadə etdiyiniz brauzer uzantısı köhnəlib. Lütfən onu güncəlləyin, ya da masaüstü tətbiq ayarlarında brauzer inteqrasiyası üzrə barmaq izi ilə doğrulamanı sıradan çıxardın."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "Riskli parolları dəyişdir"
   }
 }

@@ -901,6 +901,9 @@
   "no": {
     "message": "Nem"
   },
+  "location": {
+    "message": "Hely"
+  },
   "unexpectedError": {
     "message": "Váratlan hiba történt."
   },

@@ -1,4 +1,4 @@
-/* eslint-disable no-undef, @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const config = require("../../libs/components/tailwind.config.base");
 
 config.content = [

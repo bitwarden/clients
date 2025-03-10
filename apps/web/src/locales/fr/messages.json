@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Non"
   },
+  "location": {
+    "message": "Localisation"
+  },
   "loginOrCreateNewAccount": {
     "message": "Connectez-vous ou créez un nouveau compte pour accéder à votre coffre sécurisé."
   },
