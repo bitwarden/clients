@@ -4,7 +4,7 @@ import { html, nothing } from "lit";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { IconProps, Option } from "../common-types";
-import { themes } from "../constants/styles";
+import { themes, spacing } from "../constants/styles";
 
 export const optionItemTagName = "option-item";
 
@@ -32,6 +32,7 @@ export function OptionItem({
   };
 
   const iconProps: IconProps = { color: themes[theme].text.main, theme };
+  const itemIcon = icon?.(iconProps);
 
   return html`<div
     class=${optionItemStyles}
@@ -41,13 +42,16 @@ export function OptionItem({
     @click=${handleSelection}
     @keyup=${handleSelectionKeyUpProxy}
   >
-    ${icon?.(iconProps) ?? nothing}
+    ${itemIcon ? html`<div class=${optionItemIconContainerStyles}>${itemIcon}</div>` : nothing}
     <span class=${optionItemTextStyles}>${text || value}</span>
   </div>`;
 }
 
+const optionItemIconWidth = 16;
+const optionItemGap = spacing["2"];
+
 const optionItemStyles = css`
-  gap: 6px;
+  gap: ${optionItemGap};
   user-select: none;
   display: flex;
   flex-direction: row;
@@ -55,15 +59,22 @@ const optionItemStyles = css`
   align-items: center;
   justify-content: flex-start;
   cursor: pointer;
+`;
+
+const optionItemIconContainerStyles = css`
+  flex-grow: 1;
+  flex-shrink: 1;
+  width: ${optionItemIconWidth}px;
+  height: ${optionItemIconWidth}px;
 
   > svg {
-    width: 1rem;
+    width: 100%;
     height: fit-content;
   }
 `;
 
 const optionItemTextStyles = css`
-  max-width: 260px;
+  flex: 1 1 calc(100% - ${optionItemIconWidth}px - ${optionItemGap});
   overflow-x: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

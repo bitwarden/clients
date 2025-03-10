@@ -1,4 +1,4 @@
-import { css } from "@emotion/css";
+import createEmotion from "@emotion/css/create-instance";
 import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
@@ -7,6 +7,12 @@ import { Option } from "../common-types";
 import { themes, typography, scrollbarStyles, spacing } from "../constants/styles";
 
 import { OptionItem, optionItemTagName } from "./option-item";
+
+export const optionItemsTagName = "option-items";
+
+const { css } = createEmotion({
+  key: optionItemsTagName,
+});
 
 export function OptionItems({
   theme,
@@ -51,14 +57,6 @@ const optionsStyles = ({ theme, topOffset }: { theme: Theme; topOffset: number }
   max-width: fit-content;
   overflow-y: hidden;
   color: ${themes[theme].text.main};
-
-  [class*="${optionItemTagName}-"] {
-    padding: 0.375rem ${spacing["3"]};
-
-    :hover {
-      background-color: ${themes[theme].primary["100"]};
-    }
-  }
 `;
 
 const optionsLabelStyles = ({ theme }: { theme: Theme }) => css`
@@ -72,7 +70,16 @@ const optionsLabelStyles = ({ theme }: { theme: Theme }) => css`
 
 const optionsWrapper = ({ isSafari, theme }: { isSafari: boolean; theme: Theme }) => css`
   max-height: 152px;
-  overflow-y: scroll;
+  overflow-y: auto;
+
+  > [class*="${optionItemTagName}-"] {
+    padding: ${spacing["1.5"]} ${spacing["3"]};
+    max-width: 260px;
+
+    :hover {
+      background-color: ${themes[theme].primary["100"]};
+    }
+  }
 
   ${isSafari ? scrollbarStyles(theme).safari : scrollbarStyles(theme).default}
 `;

@@ -23,7 +23,7 @@ export const mockFolderData = [
   },
   {
     id: "unique-id6",
-    name: "Something else entirely",
+    name: "Something else entirely, with an essence being completely unfolder-like in all the unimportant ways and none of the important ones",
   },
   {
     id: "unique-id7",
