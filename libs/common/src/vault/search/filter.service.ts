@@ -3,6 +3,7 @@ import {
   combineLatest,
   combineLatestWith,
   map,
+  NEVER,
   Observable,
   of,
   OperatorFunction,
@@ -10,8 +11,11 @@ import {
   switchMap,
 } from "rxjs";
 
-import { CollectionService } from "../../../../admin-console/src/common/collections/abstractions";
+// eslint-disable-next-line no-restricted-imports -- temp poc, so we're ignoring the circular package dependency. We'll need to move this to the vault team's package
+import { CollectionService } from "@bitwarden/admin-console/src/common/collections/abstractions";
+
 import { OrganizationService } from "../../admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "../../auth/abstractions/account.service";
 import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { CipherService } from "../abstractions/cipher.service";
 import { FolderService } from "../abstractions/folder/folder.service.abstraction";
@@ -25,22 +29,35 @@ export class FilterService {
   private static registeredPipeline = false;
   searchContext$: Observable<SearchContext>;
   constructor(
+    accountService: AccountService,
     cipherService: CipherService,
     organizationService: OrganizationService,
     folderService: FolderService,
     collectionService: CollectionService,
   ) {
-    const viewsAndIndex$ = cipherService.ciphers$.pipe(
-      switchMap((_) => cipherService.getAllDecrypted()),
-      switchMap((views) => of([views, this.buildIndex(views)] as const)),
+    const activeAccount$ = accountService.activeAccount$.pipe(
+      switchMap((account) => {
+        return account ? of(account) : NEVER;
+      }),
+    );
+    const viewsAndIndex$ = activeAccount$.pipe(
+      switchMap((account) =>
+        cipherService
+          .cipherViews$(account.id)
+          .pipe(switchMap((views) => of([views, this.buildIndex(views)] as const))),
+      ),
     );
 
-    this.searchContext$ = combineLatest([
-      viewsAndIndex$,
-      organizationService.organizations$,
-      folderService.folderViews$,
-      collectionService.decryptedCollections$,
-    ]).pipe(
+    this.searchContext$ = activeAccount$.pipe(
+      switchMap((account) => {
+        const userId = account.id;
+        return combineLatest([
+          viewsAndIndex$,
+          organizationService.organizations$(userId),
+          folderService.folderViews$(userId),
+          collectionService.decryptedCollections$,
+        ]);
+      }),
       switchMap(([[ciphers, index], organizations, folders, collections]) => {
         return of({
           ciphers,
@@ -76,34 +93,45 @@ export class FilterService {
     const builder = new lunr.Builder();
     builder.pipeline.add(this.normalizeAccentsPipelineFunction);
     builder.ref("id");
-    builder.field("shortid", { boost: 100, extractor: (c: CipherView) => c.id.substring(0, 8) });
+    builder.field("shortid", {
+      boost: 100,
+      extractor: lunrExtractor((c: CipherView) => c.id.substring(0, 8)),
+    });
     builder.field("name", { boost: 10 });
     builder.field("subtitle", {
       boost: 5,
-      extractor: (c: CipherView) => {
+      extractor: lunrExtractor((c: CipherView) => {
         if (c.subTitle != null && c.type === CipherType.Card) {
           return c.subTitle.replace(/\*/g, "");
         }
         return c.subTitle;
-      },
+      }),
     });
     builder.field("notes");
     builder.field("login.username", {
-      extractor: (c: CipherView) => (c.type === CipherType.Login ? c.login?.username : null),
+      extractor: lunrExtractor((c: CipherView) =>
+        c.type === CipherType.Login ? c.login?.username : null,
+      ),
     });
     builder.field("login.uris", {
       boost: 2,
-      extractor: (c: CipherView) => this.uriExtractor(c),
+      extractor: lunrExtractor((c: CipherView) => this.uriExtractor(c)),
     });
-    builder.field("fields", { extractor: (c: CipherView) => this.fieldExtractor(c, false) });
-    builder.field("fields_joined", { extractor: (c: CipherView) => this.fieldExtractor(c, true) });
+    builder.field("fields", {
+      extractor: lunrExtractor((c: CipherView) => this.fieldExtractor(c, false)),
+    });
+    builder.field("fields_joined", {
+      extractor: lunrExtractor((c: CipherView) => this.fieldExtractor(c, true)),
+    });
     builder.field("attachments", {
-      extractor: (c: CipherView) => this.attachmentExtractor(c, false),
+      extractor: lunrExtractor((c: CipherView) => this.attachmentExtractor(c, false)),
     });
     builder.field("attachments_joined", {
-      extractor: (c: CipherView) => this.attachmentExtractor(c, true),
+      extractor: lunrExtractor((c: CipherView) => this.attachmentExtractor(c, true)),
     });
-    builder.field("organizationid", { extractor: (c: CipherView) => c.organizationId });
+    builder.field("organizationid", {
+      extractor: lunrExtractor((c: CipherView) => c.organizationId),
+    });
     return lunr(function () {
       this.ref("id");
       this.field("name");
@@ -180,11 +208,11 @@ export class FilterService {
     const uris: string[] = [];
     c.login.uris.forEach((u) => {
       if (u.uri == null || u.uri === "") {
-        return;
+        return null;
       }
       if (u.hostname != null) {
         uris.push(u.hostname);
-        return;
+        return null;
       }
       let uri = u.uri;
       if (u.match !== UriMatchStrategy.RegularExpression) {
@@ -206,4 +234,14 @@ export class FilterService {
   private static normalizeSearchQuery(query: string): string {
     return query?.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   }
+}
+
+type LunrExtractor = (doc: object) => string | string[] | object | object[];
+
+// This is just a helper to allow extractors to be expressed with meaningful types, but adhere to lunr's extractor type
+// the return type of the extractor includes null to match existing lunr behavior
+function lunrExtractor<InputType extends object>(
+  extractor: (doc: InputType) => string | object | object[] | null,
+): LunrExtractor {
+  return extractor as any as LunrExtractor;
 }
