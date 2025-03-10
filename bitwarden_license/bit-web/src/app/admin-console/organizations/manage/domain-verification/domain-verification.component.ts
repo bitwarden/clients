@@ -65,7 +65,6 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async ngOnInit() {
     this.orgDomains$ = this.orgDomainService.orgDomains$;
 

@@ -34,7 +34,6 @@ type EmergencyAccessTakeoverDialogData = {
   selector: "emergency-access-takeover",
   templateUrl: "emergency-access-takeover.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class EmergencyAccessTakeoverComponent
   extends ChangePasswordComponent
   implements OnInit, OnDestroy
@@ -90,7 +89,6 @@ export class EmergencyAccessTakeoverComponent
       .subscribe((enforcedPolicyOptions) => (this.enforcedPolicyOptions = enforcedPolicyOptions));
   }
 
-  // eslint-disable-next-line rxjs-angular/prefer-takeuntil
   ngOnDestroy(): void {
     super.ngOnDestroy();
   }
