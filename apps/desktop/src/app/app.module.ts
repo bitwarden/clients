@@ -46,7 +46,6 @@ import { HeaderComponent } from "./layout/header.component";
 import { NavComponent } from "./layout/nav.component";
 import { SearchComponent } from "./layout/search/search.component";
 import { SharedModule } from "./shared/shared.module";
-import { SendComponent } from "./tools/send/send.component";
 
 @NgModule({
   imports: [
@@ -80,7 +79,6 @@ import { SendComponent } from "./tools/send/send.component";
     PremiumComponent,
     RemovePasswordComponent,
     SearchComponent,
-    SendComponent,
     SetPasswordComponent,
     SettingsComponent,
     ShareComponent,
