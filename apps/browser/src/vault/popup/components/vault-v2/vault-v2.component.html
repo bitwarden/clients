@@ -28,10 +28,7 @@
   ></blocked-injection-banner>
 
   <!-- Show search & filters outside of the scroll area of the page -->
-  <ng-container
-    slot="above-scroll-area"
-    *ngIf="vaultState !== VaultStateEnum.Empty && !(loading$ | async)"
-  >
+  <ng-container slot="above-scroll-area" *ngIf="vaultState !== VaultStateEnum.Empty">
     <vault-at-risk-password-callout
       *appIfFeature="FeatureFlag.SecurityTasks"
     ></vault-at-risk-password-callout>

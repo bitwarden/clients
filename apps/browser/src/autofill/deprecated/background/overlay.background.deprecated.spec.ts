@@ -355,7 +355,7 @@ describe("OverlayBackground", () => {
           icon: {
             fallbackImage: "",
             icon: "bwi-credit-card",
-            image: undefined,
+            image: null,
             imageEnabled: true,
           },
           id: "overlay-cipher-2",
@@ -370,7 +370,7 @@ describe("OverlayBackground", () => {
           icon: {
             fallbackImage: "",
             icon: "bwi-credit-card",
-            image: undefined,
+            image: null,
             imageEnabled: true,
           },
           id: "overlay-cipher-3",
