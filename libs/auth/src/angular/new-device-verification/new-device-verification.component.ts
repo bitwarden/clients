@@ -5,10 +5,10 @@ import { Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { LoginSuccessHandlerService } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -17,7 +17,6 @@ import {
   LinkModule,
 } from "@bitwarden/components";
 
-import { LoginEmailServiceAbstraction } from "../../common/abstractions/login-email.service";
 import { LoginStrategyServiceAbstraction } from "../../common/abstractions/login-strategy.service";
 
 /**
@@ -60,8 +59,7 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
     private loginStrategyService: LoginStrategyServiceAbstraction,
     private logService: LogService,
     private i18nService: I18nService,
-    private syncService: SyncService,
-    private loginEmailService: LoginEmailServiceAbstraction,
+    private loginSuccessHandlerService: LoginSuccessHandlerService,
   ) {}
 
   async ngOnInit() {
@@ -143,9 +141,7 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
         return;
       }
 
-      this.loginEmailService.clearValues();
-
-      await this.syncService.fullSync(true);
+      this.loginSuccessHandlerService.run(authResult.userId);
 
       // If verification succeeds, navigate to vault
       await this.router.navigate(["/vault"]);
