@@ -1,10 +1,12 @@
+import { VendorId } from "../extension";
+
 import { ExtensionPointId } from "./extension-point-id";
 import { IntegrationId } from "./integration-id";
 
 /** The capabilities and descriptive content for an integration */
 export type IntegrationMetadata = {
   /** Uniquely identifies the integrator. */
-  id: IntegrationId;
+  id: IntegrationId & VendorId;
 
   /** Brand name of the integrator. */
   name: string;

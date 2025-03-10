@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 
 import { I18nService } from "../../platform/abstractions/i18n.service";
+import { VendorId } from "../extension";
 
 import { IntegrationContext } from "./integration-context";
 import { IntegrationId } from "./integration-id";
@@ -8,7 +9,7 @@ import { IntegrationMetadata } from "./integration-metadata";
 
 const EXAMPLE_META = Object.freeze({
   // arbitrary
-  id: "simplelogin" as IntegrationId,
+  id: "simplelogin" as IntegrationId & VendorId,
   name: "Example",
   // arbitrary
   extends: ["forwarder"],
@@ -34,7 +35,7 @@ describe("IntegrationContext", () => {
 
     it("throws when the baseurl isn't defined in metadata", () => {
       const noBaseUrl: IntegrationMetadata = {
-        id: "simplelogin" as IntegrationId, // arbitrary
+        id: "simplelogin" as IntegrationId & VendorId, // arbitrary
         name: "Example",
         extends: ["forwarder"], // arbitrary
         selfHost: "maybe",
@@ -56,7 +57,7 @@ describe("IntegrationContext", () => {
 
     it("ignores settings when selfhost is 'never'", () => {
       const selfHostNever: IntegrationMetadata = {
-        id: "simplelogin" as IntegrationId, // arbitrary
+        id: "simplelogin" as IntegrationId & VendorId, // arbitrary
         name: "Example",
         extends: ["forwarder"], // arbitrary
         baseUrl: "example.com",
@@ -71,7 +72,7 @@ describe("IntegrationContext", () => {
 
     it("always reads the settings when selfhost is 'always'", () => {
       const selfHostAlways: IntegrationMetadata = {
-        id: "simplelogin" as IntegrationId, // arbitrary
+        id: "simplelogin" as IntegrationId & VendorId, // arbitrary
         name: "Example",
         extends: ["forwarder"], // arbitrary
         baseUrl: "example.com",
@@ -86,7 +87,7 @@ describe("IntegrationContext", () => {
 
     it("fails when the settings are empty and selfhost is 'always'", () => {
       const selfHostAlways: IntegrationMetadata = {
-        id: "simplelogin" as IntegrationId, // arbitrary
+        id: "simplelogin" as IntegrationId & VendorId, // arbitrary
         name: "Example",
         extends: ["forwarder"], // arbitrary
         baseUrl: "example.com",
@@ -101,7 +102,7 @@ describe("IntegrationContext", () => {
 
     it("reads from the metadata by default when selfhost is 'maybe'", () => {
       const selfHostMaybe: IntegrationMetadata = {
-        id: "simplelogin" as IntegrationId, // arbitrary
+        id: "simplelogin" as IntegrationId & VendorId, // arbitrary
         name: "Example",
         extends: ["forwarder"], // arbitrary
         baseUrl: "example.com",
@@ -117,7 +118,7 @@ describe("IntegrationContext", () => {
 
     it("overrides the metadata when selfhost is 'maybe'", () => {
       const selfHostMaybe: IntegrationMetadata = {
-        id: "simplelogin" as IntegrationId, // arbitrary
+        id: "simplelogin" as IntegrationId & VendorId, // arbitrary
         name: "Example",
         extends: ["forwarder"], // arbitrary
         baseUrl: "example.com",
