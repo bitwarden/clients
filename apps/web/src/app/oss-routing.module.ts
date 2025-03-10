@@ -419,6 +419,7 @@ const routes: Routes = [
             pageTitle: {
               key: "verifyYourIdentity",
             },
+            titleAreaMaxWidth: "md",
           } satisfies RouteDataProperties & AnonLayoutWrapperData,
         },
       ),
