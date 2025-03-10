@@ -1,10 +1,14 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
 import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 
-import { organizationPermissionsGuard } from "../../organizations/guards/org-permissions.guard";
+import {
+  InjectedOrganizationPermissionServices,
+  organizationPermissionsGuard,
+} from "../../organizations/guards/org-permissions.guard";
 import { organizationRedirectGuard } from "../../organizations/guards/org-redirect.guard";
 import { PoliciesComponent } from "../../organizations/policies";
 
@@ -41,7 +45,16 @@ const routes: Routes = [
       {
         path: "policies",
         component: PoliciesComponent,
-        canActivate: [organizationPermissionsGuard((org) => org.canManagePolicies)],
+        canActivate: [
+          organizationPermissionsGuard(
+            async (o: Organization, services: InjectedOrganizationPermissionServices) => {
+              const isUpsellingEnabled = await firstValueFrom(
+                services.organizationBillingService.isUpsellingPoliciesEnabled$(o),
+              );
+              return o.canManagePolicies || isUpsellingEnabled;
+            },
+          ),
+        ],
         data: {
           titleId: "policies",
         },
