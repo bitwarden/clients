@@ -1032,6 +1032,9 @@
   "no": {
     "message": "لا"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "قم بتسجيل الدخول أو أنشئ حساباً جديداً لتتمكن من الوصول إلى خزانتك السرية."
   },
