@@ -6,14 +6,20 @@ import { firstValueFrom } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
+import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { KeyService } from "@bitwarden/key-management";
 
 import { DownloadCommand } from "../../../commands/download.command";
 import { Response } from "../../../models/response";
 import { SendResponse } from "../models/send.response";
+
+import { SendReceiveCommand } from "./receive.command";
 
 export class SendGetCommand extends DownloadCommand {
   constructor(
@@ -22,6 +28,10 @@ export class SendGetCommand extends DownloadCommand {
     private searchService: SearchService,
     encryptService: EncryptService,
     apiService: ApiService,
+    private platformUtilsService: PlatformUtilsService,
+    private keyService: KeyService,
+    private cryptoFunctionService: CryptoFunctionService,
+    private sendApiService: SendApiService,
   ) {
     super(encryptService, apiService);
   }
@@ -65,6 +75,20 @@ export class SendGetCommand extends DownloadCommand {
       } else {
         return Response.notFound();
       }
+    }
+
+    if (options?.file || options?.output || options?.raw) {
+      const sendWithUrl = new SendResponse(sends, webVaultUrl);
+      const receiveCommand = new SendReceiveCommand(
+        this.keyService,
+        this.encryptService,
+        this.cryptoFunctionService,
+        this.platformUtilsService,
+        this.environmentService,
+        this.sendApiService,
+        this.apiService,
+      );
+      return await receiveCommand.run(sendWithUrl.accessUrl, options);
     }
 
     return selector(sends);
