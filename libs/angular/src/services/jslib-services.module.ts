@@ -410,7 +410,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ThemeStateService,
     useClass: DefaultThemeStateService,
-    deps: [GlobalStateProvider, ConfigService],
+    deps: [GlobalStateProvider],
   }),
   safeProvider({
     provide: AbstractThemingService,
@@ -605,7 +605,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: TotpServiceAbstraction,
     useClass: TotpService,
-    deps: [CryptoFunctionServiceAbstraction, LogService],
+    deps: [SdkService],
   }),
   safeProvider({
     provide: TokenServiceAbstraction,

@@ -20,7 +20,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { GroupApiService, GroupView } from "../../../admin-console/organizations/core";
+import { SharedModule } from "../../../../shared";
+import { GroupApiService, GroupView } from "../../core";
 import {
   AccessItemType,
   AccessItemValue,
@@ -30,8 +31,7 @@ import {
   mapGroupToAccessItemView,
   mapUserToAccessItemView,
   PermissionMode,
-} from "../../../admin-console/organizations/shared/components/access-selector";
-import { SharedModule } from "../../../shared";
+} from "../../shared/components/access-selector";
 
 export interface BulkCollectionsDialogParams {
   organizationId: string;
