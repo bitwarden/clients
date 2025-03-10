@@ -246,6 +246,12 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
   disableSectionMargin: boolean = false;
 
   /**
+   * Remove the description margin
+   */
+  @Input({ transform: booleanAttribute })
+  disableDescriptionMargin: boolean = false;
+
+  /**
    * The tooltip text for the organization icon for ciphers that belong to an organization.
    * @param cipher
    */
