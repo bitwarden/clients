@@ -5,6 +5,7 @@ import {
   ElementRef,
   HostBinding,
   HostListener,
+  inject,
   Input,
   NgZone,
   Optional,
@@ -12,6 +13,7 @@ import {
 } from "@angular/core";
 import { NgControl, Validators } from "@angular/forms";
 
+import { DialogService } from "../dialog";
 import { BitFormFieldControl, InputTypes } from "../form-field/form-field-control";
 import { BitFormFieldComponent } from "../form-field/form-field.component";
 
@@ -33,6 +35,8 @@ export function inputBorderClasses(error: boolean) {
   standalone: true,
 })
 export class BitInputDirective implements BitFormFieldControl {
+  private dialogService = inject(DialogService);
+
   @HostBinding("class") @Input() get classList() {
     const classes = [
       "tw-block",
@@ -87,6 +91,19 @@ export class BitInputDirective implements BitFormFieldControl {
   @HostListener("input")
   onInput() {
     this.ngControl?.control?.markAsUntouched();
+  }
+
+  @HostListener("copy")
+  async onCopy() {
+    if (this.type === "password") {
+      await this.dialogService.openSimpleDialog({
+        type: "danger",
+        title: "Unable to copy",
+        content: "Masked fields cannot be copied from. Reveal the field and try again.",
+        acceptButtonText: "Okay",
+        cancelButtonText: null,
+      });
+    }
   }
 
   get hasError() {
