@@ -901,6 +901,9 @@
   "no": {
     "message": "否"
   },
+  "location": {
+    "message": "位置"
+  },
   "unexpectedError": {
     "message": "发生意外错误。"
   },
@@ -1457,7 +1460,7 @@
     "message": "读取安全密钥"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "等待安全密钥交互……"
+    "message": "等待安全密钥交互..."
   },
   "loginUnavailable": {
     "message": "登录不可用"

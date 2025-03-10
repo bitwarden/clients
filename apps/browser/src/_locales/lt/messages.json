@@ -901,6 +901,9 @@
   "no": {
     "message": "Ne"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "Įvyko netikėta klaida."
   },

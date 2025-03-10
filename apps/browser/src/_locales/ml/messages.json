@@ -901,6 +901,9 @@
   "no": {
     "message": "തെറ്റ്"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "ഒരു അപ്രതീക്ഷിത പിശക് സംഭവിച്ചു."
   },
