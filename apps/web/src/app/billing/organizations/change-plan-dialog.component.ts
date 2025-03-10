@@ -721,6 +721,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   submit = async () => {
     if (this.taxComponent !== undefined && !this.taxComponent.validate()) {
+      this.taxComponent.markAllAsTouched();
       return;
     }
 
