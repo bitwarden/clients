@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Ne"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Prijavite se ali ustvarite nov račun za dostop do svojega zavarovanega trezorja."
   },

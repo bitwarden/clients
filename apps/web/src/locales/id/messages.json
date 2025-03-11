@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Tidak"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Masuk atau buat akun baru untuk mengakses brankas Anda."
   },

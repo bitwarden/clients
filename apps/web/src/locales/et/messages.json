@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Ei"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Logi sisse või loo uus konto."
   },

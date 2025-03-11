@@ -1032,6 +1032,9 @@
   "no": {
     "message": "ಇಲ್ಲ"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "ನಿಮ್ಮ ಸುರಕ್ಷಿತ ವಾಲ್ಟ್ ಅನ್ನು ಪ್ರವೇಶಿಸಲು ಲಾಗ್ ಇನ್ ಮಾಡಿ ಅಥವಾ ಹೊಸ ಖಾತೆಯನ್ನು ರಚಿಸಿ."
   },

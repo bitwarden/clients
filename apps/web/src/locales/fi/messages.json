@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Ei"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Käytä salattua holviasi kirjautumalla sisään tai luo uusi tili."
   },

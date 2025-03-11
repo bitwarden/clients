@@ -250,12 +250,6 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     if (verifiedTheme === ThemeTypes.Dark) {
       borderColor = "#4c525f";
     }
-    if (theme === ThemeTypes.Nord) {
-      borderColor = "#2E3440";
-    }
-    if (theme === ThemeTypes.SolarizedDark) {
-      borderColor = "#073642";
-    }
     if (borderColor) {
       this.updateElementStyles(this.iframe, { borderColor });
     }

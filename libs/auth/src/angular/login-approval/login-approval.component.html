@@ -18,8 +18,11 @@
         <p>{{ authRequestResponse?.requestDeviceType }}</p>
       </div>
       <div>
-        <b>{{ "ipAddress" | i18n }}</b>
-        <p>{{ authRequestResponse?.requestIpAddress }}</p>
+        <b>{{ "location" | i18n }}</b>
+        <p>
+          <span class="tw-capitalize">{{ authRequestResponse?.requestCountryName }} </span>
+          ({{ authRequestResponse?.requestIpAddress }})
+        </p>
       </div>
       <div>
         <b>{{ "time" | i18n }}</b>

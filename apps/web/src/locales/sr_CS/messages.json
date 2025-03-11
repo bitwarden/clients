@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Ne"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Ulogujte se ili napravite novi nalog kako biste pristupili Vašem trezoru."
   },

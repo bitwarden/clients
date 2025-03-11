@@ -202,7 +202,7 @@
     "message": "Notlar"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Şəxsi not"
   },
   "note": {
     "message": "Not"
@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Xeyr"
   },
+  "location": {
+    "message": "Yerləşmə"
+  },
   "loginOrCreateNewAccount": {
     "message": "Güvənli seyfinizə müraciət etmək üçün giriş edin və ya yeni bir hesab yaradın."
   },
@@ -1183,7 +1186,7 @@
     "message": "Kimlik doğrulama seansının vaxtı bitdi. Lütfən giriş prosesini yenidən başladın."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Kimliyinizi doğrulayın"
   },
   "weDontRecognizeThisDevice": {
     "message": "Bu cihazı tanımırıq. Kimliyinizi doğrulamaq üçün e-poçtunuza göndərilən kodu daxil edin."
@@ -5088,14 +5091,14 @@
     "message": "Təşkilat sahibləri və administratorlar, bu siyasətin tətbiq edilməsindən azaddırlar."
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "Baxışları limitlə"
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "Limitə çatdıqdan sonra bu Send-ə heç kim baxa bilməz.",
     "description": "Displayed under the limit views field on Send"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "$ACCESSCOUNT$ baxış qaldı",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -5105,11 +5108,11 @@
     }
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Send detalları",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
-    "message": "Text to share"
+    "message": "Paylaşılacaq mətn"
   },
   "sendTypeFile": {
     "message": "Fayl"
@@ -5118,7 +5121,7 @@
     "message": "Mətn"
   },
   "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
+    "message": "Alıcıların bu \"Send\"ə müraciət etməsi üçün ixtiyari bir parol əlavə edin.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
@@ -5146,14 +5149,14 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Are you sure you want to permanently delete this Send?",
+    "message": "Bu Send-i həmişəlik silmək istədiyinizə əminsiniz?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Silinmə tarixi"
   },
   "deletionDateDescV2": {
-    "message": "The Send will be permanently deleted on this date.",
+    "message": "Send, bu tarixdə həmişəlik silinəcək.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5203,7 +5206,7 @@
     "message": "Silinməsi gözlənilir"
   },
   "hideTextByDefault": {
-    "message": "Hide text by default"
+    "message": "Mətni ilkin olaraq gizlət"
   },
   "expired": {
     "message": "Müddəti bitib"
@@ -5674,7 +5677,7 @@
     "message": "Silinmə və son istifadə tarixlərini saxlayarkən xəta baş verdi."
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "E-poçt ünvanınız baxanlardan gizlədilsin."
   },
   "webAuthnFallbackMsg": {
     "message": "2FA-nı doğrulamaq üçün lütfən aşağıdakı düyməyə klikləyin."
@@ -9835,13 +9838,13 @@
     "message": "Bitwarden-nin API-si haqqında daha ətraflı"
   },
   "fileSend": {
-    "message": "File Send"
+    "message": "Fayl \"Send\"i"
   },
   "fileSends": {
     "message": "Fayl \"Send\"ləri"
   },
   "textSend": {
-    "message": "Text Send"
+    "message": "Mətn \"Send\"i"
   },
   "textSends": {
     "message": "Mətn \"Send\"ləri"
@@ -10476,7 +10479,7 @@
     "message": "Təyin edilmiş yer sayı, boş yer sayından çoxdur."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "Riskli parolları dəyişdir"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Kilidi PIN ilə açmanı ləğv et"

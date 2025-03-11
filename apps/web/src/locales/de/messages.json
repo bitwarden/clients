@@ -202,7 +202,7 @@
     "message": "Notizen"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Private Notiz"
   },
   "note": {
     "message": "Notiz"
@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Nein"
   },
+  "location": {
+    "message": "Standort"
+  },
   "loginOrCreateNewAccount": {
     "message": "Sie müssen sich anmelden oder ein neues Konto erstellen, um auf den Tresor zugreifen zu können."
   },
@@ -1183,7 +1186,7 @@
     "message": "Die Authentifizierungssitzung ist abgelaufen. Bitte starte den Anmeldeprozess neu."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Verifiziere deine Identität"
   },
   "weDontRecognizeThisDevice": {
     "message": "Wir erkennen dieses Gerät nicht. Gib den an deine E-Mail-Adresse gesendeten Code ein, um deine Identität zu verifizieren."
@@ -2256,7 +2259,7 @@
     "message": "Zugriff widerrufen"
   },
   "revoke": {
-    "message": "Zurückziehen"
+    "message": "Widerrufen"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Dieser Zwei-Faktor-Authentifizierungsanbieter ist für dein Konto aktiviert."
@@ -5088,14 +5091,14 @@
     "message": "Organisationseigentümer und Administratoren sind von der Durchsetzung dieser Richtlinie ausgenommen."
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "Ansichten begrenzen"
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "Nach Erreichen des Limits kann niemand mehr dieses Send sehen.",
     "description": "Displayed under the limit views field on Send"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "$ACCESSCOUNT$ Ansichten übrig",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -5105,11 +5108,11 @@
     }
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Send-Details",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
-    "message": "Text to share"
+    "message": "Zu teilender Text"
   },
   "sendTypeFile": {
     "message": "Datei"
@@ -5118,7 +5121,7 @@
     "message": "Text"
   },
   "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
+    "message": "Füge ein optionales Passwort hinzu, mit dem Empfänger auf dieses Send zugreifen können.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
@@ -5146,14 +5149,14 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Are you sure you want to permanently delete this Send?",
+    "message": "Bist du sicher, dass du dieses Send dauerhaft löschen möchtest?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Löschdatum"
   },
   "deletionDateDescV2": {
-    "message": "The Send will be permanently deleted on this date.",
+    "message": "Das Send wird an diesem Datum dauerhaft gelöscht.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5203,7 +5206,7 @@
     "message": "Ausstehende Löschung"
   },
   "hideTextByDefault": {
-    "message": "Hide text by default"
+    "message": "Text standardmäßig ausblenden"
   },
   "expired": {
     "message": "Abgelaufen"
@@ -5674,7 +5677,7 @@
     "message": "Es gab einen Fehler beim Speichern deiner Lösch- und Verfallsdaten."
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "Verberge deine E-Mail-Adresse vor Betrachtern."
   },
   "webAuthnFallbackMsg": {
     "message": "Um deine 2FA zu verifizieren, klicke bitte unten auf den Button."
@@ -9835,13 +9838,13 @@
     "message": "Erfahre mehr über die API von Bitwarden"
   },
   "fileSend": {
-    "message": "File Send"
+    "message": "Datei-Send"
   },
   "fileSends": {
     "message": "Datei-Sends"
   },
   "textSend": {
-    "message": "Text Send"
+    "message": "Text-Send"
   },
   "textSends": {
     "message": "Text-Sends"
@@ -10476,7 +10479,7 @@
     "message": "Die zugewiesenen Plätze überschreiten die verfügbaren Plätze."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "Gefährdetes Passwort ändern"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Entsperren mit PIN entfernen"
@@ -10485,7 +10488,7 @@
     "message": "Mitgliedern nicht erlauben, ihr Konto mit einer PIN zu entsperren."
   },
   "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$ Pakete haben keinen Zugriff auf echte Ereignisprotokolle",
+    "message": "$PRODUCT_TYPE$-Abos haben keinen Zugriff auf echte Ereignisprotokolle",
     "placeholders": {
       "product_type": {
         "content": "$1",
@@ -10494,12 +10497,12 @@
     }
   },
   "upgradeForFullEvents": {
-    "message": "Erhalte vollen Zugriff auf Organisations-Event-Logs durch ein Upgrade auf einen Team- oder Enterprise-Plan."
+    "message": "Erhalte vollen Zugriff auf Ereignisprotokolle von Organisationen durch ein Upgrade auf ein Teams- oder Enterprise-Abo."
   },
   "upgradeEventLogTitle": {
     "message": "Upgrade für echte Ereignisprotokolldaten"
   },
   "upgradeEventLogMessage": {
-    "message": "Diese Ereignisse sind nur Beispiele und spiegeln keine realen Ereignisse in deinen Bitwarden-Organisation wider."
+    "message": "Diese Ereignisse sind nur Beispiele und spiegeln keine realen Ereignisse in deiner Bitwarden-Organisation wider."
   }
 }

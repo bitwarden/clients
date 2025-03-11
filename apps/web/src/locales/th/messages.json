@@ -1032,6 +1032,9 @@
   "no": {
     "message": "ไม่ใช่"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "ล็อกอิน หรือ สร้างบัญชีใหม่ เพื่อใช้งานตู้นิรภัยของคุณ"
   },

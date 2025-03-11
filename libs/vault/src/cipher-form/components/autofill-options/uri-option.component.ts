@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { DragDropModule } from "@angular/cdk/drag-drop";
 import { NgForOf, NgIf } from "@angular/common";
 import {
   Component,
@@ -43,6 +44,7 @@ import {
     },
   ],
   imports: [
+    DragDropModule,
     FormFieldModule,
     ReactiveFormsModule,
     IconButtonModule,
@@ -75,6 +77,12 @@ export class UriOptionComponent implements ControlValueAccessor {
   ];
 
   /**
+   * Whether the option can be reordered. If false, the reorder button will be hidden.
+   */
+  @Input({ required: true })
+  canReorder: boolean;
+
+  /**
    * Whether the URI can be removed from the form. If false, the remove button will be hidden.
    */
   @Input({ required: true })
@@ -100,6 +108,9 @@ export class UriOptionComponent implements ControlValueAccessor {
    * The index of the URI in the form. Used to render the correct label.
    */
   @Input({ required: true }) index: number;
+
+  @Output()
+  onKeydown = new EventEmitter<KeyboardEvent>();
 
   /**
    * Emits when the remove button is clicked and URI should be removed from the form.
@@ -131,6 +142,10 @@ export class UriOptionComponent implements ControlValueAccessor {
   // NG_VALUE_ACCESSOR implementation
   private onChange: any = () => {};
   private onTouched: any = () => {};
+
+  protected handleKeydown(event: KeyboardEvent) {
+    this.onKeydown.emit(event);
+  }
 
   constructor(
     private formBuilder: FormBuilder,

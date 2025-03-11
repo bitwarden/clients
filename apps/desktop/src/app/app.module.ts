@@ -46,8 +46,6 @@ import { HeaderComponent } from "./layout/header.component";
 import { NavComponent } from "./layout/nav.component";
 import { SearchComponent } from "./layout/search/search.component";
 import { SharedModule } from "./shared/shared.module";
-import { AddEditComponent as SendAddEditComponent } from "./tools/send/add-edit.component";
-import { SendComponent } from "./tools/send/send.component";
 
 @NgModule({
   imports: [
@@ -60,6 +58,7 @@ import { SendComponent } from "./tools/send/send.component";
     DeleteAccountComponent,
     UserVerificationComponent,
     DecryptionFailureDialogComponent,
+    NavComponent,
   ],
   declarations: [
     AccessibilityCookieComponent,
@@ -76,13 +75,10 @@ import { SendComponent } from "./tools/send/send.component";
     FolderAddEditComponent,
     HeaderComponent,
     HintComponent,
-    NavComponent,
     PasswordHistoryComponent,
     PremiumComponent,
     RemovePasswordComponent,
     SearchComponent,
-    SendAddEditComponent,
-    SendComponent,
     SetPasswordComponent,
     SettingsComponent,
     ShareComponent,

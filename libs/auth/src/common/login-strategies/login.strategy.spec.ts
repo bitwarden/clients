@@ -306,6 +306,31 @@ describe("LoginStrategy", () => {
       expect(result).toEqual(expected);
     });
 
+    it("processes a forcePasswordReset response properly", async () => {
+      const tokenResponse = identityTokenResponseFactory();
+      tokenResponse.forcePasswordReset = true;
+
+      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
+
+      const result = await passwordLoginStrategy.logIn(credentials);
+
+      const expected = new AuthResult();
+      expected.userId = userId;
+      expected.forcePasswordReset = ForceSetPasswordReason.AdminForcePasswordReset;
+      expected.resetMasterPassword = false;
+      expected.twoFactorProviders = {} as Partial<
+        Record<TwoFactorProviderType, Record<string, string>>
+      >;
+      expected.captchaSiteKey = "";
+      expected.twoFactorProviders = null;
+      expect(result).toEqual(expected);
+
+      expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
+        ForceSetPasswordReason.AdminForcePasswordReset,
+        userId,
+      );
+    });
+
     it("rejects login if CAPTCHA is required", async () => {
       // Sample CAPTCHA response
       const tokenResponse = new IdentityCaptchaResponse({

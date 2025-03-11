@@ -70,7 +70,12 @@
 </ng-template>
 
 <ng-template #descriptionText>
-  <div *ngIf="description" class="tw-text-muted tw-px-1 tw-mb-2" bitTypography="body2">
+  <div
+    *ngIf="description"
+    class="tw-text-muted tw-px-1 tw-mb-2"
+    [ngClass]="{ '!tw-mb-0': disableDescriptionMargin }"
+    bitTypography="body2"
+  >
     {{ description }}
   </div>
 </ng-template>

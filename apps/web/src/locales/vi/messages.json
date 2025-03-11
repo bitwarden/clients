@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Không"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Đăng nhập hoặc tạo tài khoản mới để truy cập kho mật khẩu của bạn."
   },

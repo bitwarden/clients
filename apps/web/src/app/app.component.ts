@@ -2,11 +2,13 @@
 // @ts-strict-ignore
 import { DOCUMENT } from "@angular/common";
 import { Component, Inject, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
 import * as jq from "jquery";
 import { Subject, filter, firstValueFrom, map, takeUntil, timeout } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
@@ -95,7 +97,10 @@ export class AppComponent implements OnDestroy, OnInit {
     private apiService: ApiService,
     private appIdService: AppIdService,
     private processReloadService: ProcessReloadServiceAbstraction,
-  ) {}
+    private deviceTrustToastService: DeviceTrustToastService,
+  ) {
+    this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
+  }
 
   ngOnInit() {
     this.i18nService.locale$.pipe(takeUntil(this.destroy$)).subscribe((locale) => {
@@ -173,8 +178,6 @@ export class AppComponent implements OnDestroy, OnInit {
               type: "success",
             });
             if (premiumConfirmed) {
-              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               await this.router.navigate(["settings/subscription/premium"]);
             }
             break;
@@ -359,12 +362,8 @@ export class AppComponent implements OnDestroy, OnInit {
 
   private idleStateChanged() {
     if (this.isIdle) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.notificationsService.disconnectFromInactivity();
     } else {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.notificationsService.reconnectFromActivity();
     }
   }

@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Nie"
   },
+  "location": {
+    "message": "Lokalizacja"
+  },
   "loginOrCreateNewAccount": {
     "message": "Zaloguj się lub utwórz nowe konto, aby uzyskać dostęp do Twojego bezpiecznego sejfu."
   },

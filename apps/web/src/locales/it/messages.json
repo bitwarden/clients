@@ -1032,6 +1032,9 @@
   "no": {
     "message": "No"
   },
+  "location": {
+    "message": "Luogo"
+  },
   "loginOrCreateNewAccount": {
     "message": "Entra o crea un nuovo account per accedere alla tua cassaforte."
   },

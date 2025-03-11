@@ -1412,7 +1412,6 @@ export default class AutofillService implements AutofillServiceInterface {
 
     let doesContainValue = false;
     CreditCardAutoFillConstants.CardAttributesExtended.forEach((attributeName) => {
-      // eslint-disable-next-line no-prototype-builtins
       if (doesContainValue || !field[attributeName]) {
         return;
       }

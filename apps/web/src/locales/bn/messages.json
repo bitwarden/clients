@@ -1032,6 +1032,9 @@
   "no": {
     "message": "No"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "আপনার সুরক্ষিত ভল্টে প্রবেশ করতে লগ ইন করুন অথবা একটি নতুন অ্যাকাউন্ট তৈরি করুন।"
   },

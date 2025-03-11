@@ -1032,6 +1032,9 @@
   "no": {
     "message": "아니오"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "안전 보관함에 접근하려면 로그인하거나 새 계정을 만드세요."
   },

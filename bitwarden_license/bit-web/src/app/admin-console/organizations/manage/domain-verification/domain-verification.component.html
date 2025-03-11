@@ -24,7 +24,7 @@
 
 <ng-container *ngIf="loading">
   <i
-    class="bwi bwi-spinner bwi-spin text-muted"
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
     title="{{ 'loading' | i18n }}"
     aria-hidden="true"
   ></i>
@@ -74,7 +74,7 @@
               {{ orgDomain.lastCheckedDate | date: "medium" }}
             </td>
 
-            <td bitCell class="table-list-options tw-text-right">
+            <td bitCell class="tw-text-right">
               <button
                 [bitMenuTriggerFor]="orgDomainOptions"
                 class="tw-border-none tw-bg-transparent tw-text-main"

@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Nem"
   },
+  "location": {
+    "message": "Hely"
+  },
   "loginOrCreateNewAccount": {
     "message": "Bejelentkezés vagy új fiók létrehozása a biztonsági széf eléréséhez."
   },

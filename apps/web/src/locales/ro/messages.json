@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Nu"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Autentificați-vă sau creați un cont nou pentru a accesa seiful dvs. securizat."
   },

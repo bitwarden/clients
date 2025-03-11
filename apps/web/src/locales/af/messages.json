@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Nee"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Teken aan of skep ’n nuwe rekening vir toegang tot u beveiligde kluis."
   },

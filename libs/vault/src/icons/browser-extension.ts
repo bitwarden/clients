@@ -1,7 +1,7 @@
 import { svgIcon } from "@bitwarden/components";
 
 export const BrowserExtensionIcon = svgIcon`
-<svg width="115" height="114" viewBox="0 0 115 114" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg class="tw-max-w-full" width="115" height="114" viewBox="0 0 115 114" fill="none" xmlns="http://www.w3.org/2000/svg">
   <rect class="tw-stroke-art-primary" width="107.16" height="70.68" rx="10" transform="matrix(-1 0 0 1 111.08 21.66)" stroke-width="4"/>
   <rect class="tw-stroke-art-accent" x="77.88" y="36.91" width="24.79" height="33.34" rx="5" stroke-width="2"/>
   <rect class="tw-fill-art-primary" x="97.97" y="25.65" width="5.7" height="5.7" rx="2" />

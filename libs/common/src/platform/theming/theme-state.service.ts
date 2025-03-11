@@ -1,43 +1,33 @@
-import { Observable, combineLatest, map } from "rxjs";
+import { Observable, map } from "rxjs";
 
-import { FeatureFlag } from "../../enums/feature-flag.enum";
-import { ConfigService } from "../abstractions/config/config.service";
-import { ThemeType } from "../enums";
+import { Theme, ThemeTypes } from "../enums";
 import { GlobalStateProvider, KeyDefinition, THEMING_DISK } from "../state";
 
 export abstract class ThemeStateService {
   /**
    * The users selected theme.
    */
-  abstract selectedTheme$: Observable<ThemeType>;
+  abstract selectedTheme$: Observable<Theme>;
 
   /**
    * A method for updating the current users configured theme.
    * @param theme The chosen user theme.
    */
-  abstract setSelectedTheme(theme: ThemeType): Promise<void>;
+  abstract setSelectedTheme(theme: Theme): Promise<void>;
 }
 
-export const THEME_SELECTION = new KeyDefinition<ThemeType>(THEMING_DISK, "selection", {
+export const THEME_SELECTION = new KeyDefinition<Theme>(THEMING_DISK, "selection", {
   deserializer: (s) => s,
 });
 
 export class DefaultThemeStateService implements ThemeStateService {
   private readonly selectedThemeState = this.globalStateProvider.get(THEME_SELECTION);
 
-  selectedTheme$ = combineLatest([
-    this.selectedThemeState.state$,
-    this.configService.getFeatureFlag$(FeatureFlag.ExtensionRefresh),
-  ]).pipe(
-    map(([theme, isExtensionRefresh]) => {
-      // The extension refresh should not allow for Nord or SolarizedDark
-      // Default the user to their system theme
-      if (
-        isExtensionRefresh &&
-        theme != null &&
-        [ThemeType.Nord, ThemeType.SolarizedDark].includes(theme)
-      ) {
-        return ThemeType.System;
+  selectedTheme$ = this.selectedThemeState.state$.pipe(
+    map((theme) => {
+      // We used to support additional themes. Since these are no longer supported we return null to default to the system theme.
+      if (theme != null && !Object.values(ThemeTypes).includes(theme)) {
+        return null;
       }
 
       return theme;
@@ -47,11 +37,10 @@ export class DefaultThemeStateService implements ThemeStateService {
 
   constructor(
     private globalStateProvider: GlobalStateProvider,
-    private configService: ConfigService,
-    private defaultTheme: ThemeType = ThemeType.System,
+    private defaultTheme: Theme = ThemeTypes.System,
   ) {}
 
-  async setSelectedTheme(theme: ThemeType): Promise<void> {
+  async setSelectedTheme(theme: Theme): Promise<void> {
     await this.selectedThemeState.update(() => theme, {
       shouldUpdate: (currentTheme) => currentTheme !== theme,
     });

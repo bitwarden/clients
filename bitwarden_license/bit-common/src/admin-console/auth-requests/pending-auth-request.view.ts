@@ -13,6 +13,7 @@ export class PendingAuthRequestView implements View {
   requestDeviceIdentifier: string;
   requestDeviceType: string;
   requestIpAddress: string;
+  requestCountryName: string;
   creationDate: Date;
 
   static fromResponse(response: PendingOrganizationAuthRequestResponse): PendingAuthRequestView {

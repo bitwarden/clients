@@ -1032,6 +1032,9 @@
   "no": {
     "message": "否"
   },
+  "location": {
+    "message": "位置"
+  },
   "loginOrCreateNewAccount": {
     "message": "登录或创建一个新账户以访问您的安全密码库。"
   },
@@ -6174,7 +6177,7 @@
     "message": "为所有现有成员和新成员激活浏览器扩展上的页面加载时的自动填充设置。"
   },
   "experimentalFeature": {
-    "message": "不完整或不信任的网站可以使用页面加载时自动填充。"
+    "message": "被入侵或不受信任的网站可以利用页面加载时的自动填充功能。"
   },
   "learnMoreAboutAutofill": {
     "message": "进一步了解自动填充"
@@ -10180,7 +10183,7 @@
     "message": "删除成功"
   },
   "freeFamiliesSponsorship": {
-    "message": "移除免费的 Bitwarden 家庭赞助"
+    "message": "禁用免费 Bitwarden 家庭赞助"
   },
   "freeFamiliesSponsorshipPolicyDesc": {
     "message": "不允许成员通过此组织兑换家庭计划。"
@@ -10479,7 +10482,7 @@
     "message": "更改有风险的密码"
   },
   "removeUnlockWithPinPolicyTitle": {
-    "message": "移除使用 PIN 码解锁"
+    "message": "禁用 PIN 码解锁"
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "不允许成员使用 PIN 码解锁他们的账户。"

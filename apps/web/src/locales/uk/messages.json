@@ -6,7 +6,7 @@
     "message": "Критичні програми"
   },
   "noCriticalAppsAtRisk": {
-    "message": "No critical applications at risk"
+    "message": "Немає критичних програм із ризиком"
   },
   "accessIntelligence": {
     "message": "Управління доступом"
@@ -202,7 +202,7 @@
     "message": "Нотатки"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Приватна нотатка"
   },
   "note": {
     "message": "Нотатка"
@@ -471,16 +471,16 @@
     "message": "Редагування"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Нова тека"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "Назва теки"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Зробіть теку вкладеною, вказавши після основної теки \"/\". Наприклад: Обговорення/Форуми"
   },
   "deleteFolderPermanently": {
-    "message": "Are you sure you want to permanently delete this folder?"
+    "message": "Ви дійсно хочете остаточно видалити цю теку?"
   },
   "baseDomain": {
     "message": "Основний домен",
@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Ні"
   },
+  "location": {
+    "message": "Розташування"
+  },
   "loginOrCreateNewAccount": {
     "message": "Для доступу до сховища увійдіть в обліковий запис, або створіть новий."
   },
@@ -1168,13 +1171,13 @@
     "message": "Увійти в Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Введіть код, надісланий вам електронною поштою"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Введіть код з програми автентифікації"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Натисніть свій YubiKey для автентифікації"
   },
   "authenticationTimeout": {
     "message": "Час очікування автентифікації"
@@ -1183,7 +1186,7 @@
     "message": "Час очікування сеансу автентифікації завершився. Перезапустіть процес входу в систему."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Підтвердьте свою особу"
   },
   "weDontRecognizeThisDevice": {
     "message": "Ми не розпізнаємо цей пристрій. Введіть код, надісланий на вашу електронну пошту, щоб підтвердити вашу особу."
@@ -1201,7 +1204,7 @@
     "message": "Ініційовано вхід"
   },
   "logInRequestSent": {
-    "message": "Request sent"
+    "message": "Запит надіслано"
   },
   "submit": {
     "message": "Відправити"
@@ -1393,13 +1396,13 @@
     "message": "Сповіщення було надіслано на ваш пристрій."
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the "
+    "message": "Розблокуйте Bitwarden на своєму пристрої або у "
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "Ви намагаєтесь отримати доступ до свого облікового запису?"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "Спроба доступу з $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1408,16 +1411,16 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Підтвердити доступ"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Заборонити доступ"
   },
   "notificationSentDeviceAnchor": {
-    "message": "web app"
+    "message": "вебпрограмі"
   },
   "notificationSentDevicePart2": {
-    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+    "message": "Перш ніж підтверджувати, обов'язково перевірте відповідність зазначеної нижче фрази відбитка."
   },
   "notificationSentDeviceComplete": {
     "message": "Unlock Bitwarden on your device. Make sure the Fingerprint phrase matches the one below before approving."
