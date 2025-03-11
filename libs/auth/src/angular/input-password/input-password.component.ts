@@ -40,7 +40,7 @@ import { PasswordInputResult } from "./password-input-result";
 /**
  * Determines which form input elements will be displayed in the UI.
  */
-export enum Flow {
+export enum InputPasswordFlow {
   /**
    * - Input: New master password
    * - Input: Confirm new master password
@@ -82,7 +82,7 @@ export class InputPasswordComponent {
   @Output() onPasswordFormSubmit = new EventEmitter<PasswordInputResult>();
   @Output() onSecondaryButtonClick = new EventEmitter<void>();
 
-  @Input({ required: true }) flow: Flow;
+  @Input({ required: true }) inputPasswordFlow: InputPasswordFlow;
   @Input({ required: true }) email: string;
   @Input() masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
   @Input() loading = false;
@@ -90,7 +90,7 @@ export class InputPasswordComponent {
   @Input() secondaryButtonText: Translation;
   @Input() inlineButtons = false;
 
-  protected Flow = Flow;
+  protected InputPasswordFlow = InputPasswordFlow;
   private minHintLength = 0;
   protected maxHintLength = 50;
   protected minPasswordLength = Utils.minimumPasswordLength;

@@ -5,7 +5,7 @@
 <auth-input-password
   *ngIf="!loading"
   [email]="email"
-  [flow]="0"
+  [inputPasswordFlow]="InputPasswordFlow.SetInitialPassword"
   [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
   [loading]="submitting"
   [primaryButtonText]="{ key: 'createAccount' }"
