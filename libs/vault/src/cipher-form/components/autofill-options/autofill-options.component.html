@@ -5,12 +5,15 @@
     </h2>
   </bit-section-header>
 
-  <bit-card>
+  <bit-card cdkDropList (cdkDropListDropped)="onUriItemDrop($event)">
     <ng-container formArrayName="uris">
       <vault-autofill-uri-option
         *ngFor="let uri of uriControls; let i = index"
+        cdkDrag
         [formControlName]="i"
         (remove)="removeUri(i)"
+        (onKeydown)="onUriItemKeydown($event, i)"
+        [canReorder]="uriControls.length > 1"
         [canRemove]="uriControls.length > 1"
         [defaultMatchDetection]="defaultMatchDetection$ | async"
         [index]="i"
