@@ -901,6 +901,9 @@
   "no": {
     "message": "නැත"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "අනපේක්ෂිත දෝෂයක් සිදුවී ඇත."
   },

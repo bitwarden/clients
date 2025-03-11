@@ -17,7 +17,7 @@ import {
 } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ThemeType } from "@bitwarden/common/platform/enums";
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { DialogService } from "@bitwarden/components";
@@ -47,7 +47,7 @@ export class PreferencesComponent implements OnInit, OnDestroy {
     vaultTimeout: [null as VaultTimeout | null],
     vaultTimeoutAction: [VaultTimeoutAction.Lock],
     enableFavicons: true,
-    theme: [ThemeType.Light],
+    theme: [ThemeTypes.Light as Theme],
     locale: [null as string | null],
   });
 
@@ -90,9 +90,9 @@ export class PreferencesComponent implements OnInit, OnDestroy {
     localeOptions.splice(0, 0, { name: i18nService.t("default"), value: null });
     this.localeOptions = localeOptions;
     this.themeOptions = [
-      { name: i18nService.t("themeLight"), value: ThemeType.Light },
-      { name: i18nService.t("themeDark"), value: ThemeType.Dark },
-      { name: i18nService.t("themeSystem"), value: ThemeType.System },
+      { name: i18nService.t("themeLight"), value: ThemeTypes.Light },
+      { name: i18nService.t("themeDark"), value: ThemeTypes.Dark },
+      { name: i18nService.t("themeSystem"), value: ThemeTypes.System },
     ];
   }
 

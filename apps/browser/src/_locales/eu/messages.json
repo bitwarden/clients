@@ -901,6 +901,9 @@
   "no": {
     "message": "Ez"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "Ustekabeko akatsa gertatu da."
   },

@@ -901,6 +901,9 @@
   "no": {
     "message": "否"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "發生了未預期的錯誤。"
   },

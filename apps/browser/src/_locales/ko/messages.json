@@ -901,6 +901,9 @@
   "no": {
     "message": "아니오"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "예기치 못한 오류가 발생했습니다."
   },

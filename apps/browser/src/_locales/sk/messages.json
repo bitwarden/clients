@@ -901,6 +901,9 @@
   "no": {
     "message": "Nie"
   },
+  "location": {
+    "message": "Poloha"
+  },
   "unexpectedError": {
     "message": "Vyskytla sa neočakávaná chyba."
   },

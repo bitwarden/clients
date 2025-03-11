@@ -1032,6 +1032,9 @@
   "no": {
     "message": "いいえ"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "安全なデータ保管庫へアクセスするためにログインまたはアカウントを作成してください。"
   },
