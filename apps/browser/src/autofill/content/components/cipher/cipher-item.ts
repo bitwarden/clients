@@ -8,6 +8,7 @@ import {
   NotificationType,
   NotificationTypes,
 } from "../../../notification/abstractions/notification-bar";
+import {theme as themeSignal} from "../signals/theme";
 
 import { CipherAction } from "./cipher-action";
 import { CipherIcon } from "./cipher-icon";
@@ -20,17 +21,19 @@ export function CipherItem({
   cipher,
   handleAction,
   notificationType,
-  theme = ThemeTypes.Light,
+  // theme = ThemeTypes.Light,
 }: {
   cipher: NotificationCipherData;
   handleAction?: (e: Event) => void;
   notificationType?: NotificationType;
-  theme: Theme;
+  // theme: Theme;
 }) {
   const { icon } = cipher;
   const uri = (icon.imageEnabled && icon.image) || undefined;
 
   let cipherActionButton = null;
+
+  const theme = themeSignal.get();
 
   if (notificationType === NotificationTypes.Change || notificationType === NotificationTypes.Add) {
     cipherActionButton = html`<div>

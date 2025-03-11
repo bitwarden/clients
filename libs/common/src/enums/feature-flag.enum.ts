@@ -73,7 +73,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.InlineMenuFieldQualification]: FALSE,
   [FeatureFlag.InlineMenuPositioningImprovements]: FALSE,
   [FeatureFlag.NotificationBarAddLoginImprovements]: FALSE,
-  [FeatureFlag.NotificationRefresh]: FALSE,
+  [FeatureFlag.NotificationRefresh]: true,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
 
   /* Tools */
