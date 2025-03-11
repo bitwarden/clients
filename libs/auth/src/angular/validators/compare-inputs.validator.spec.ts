@@ -3,7 +3,7 @@ import { FormControl, FormGroup, ValidationErrors } from "@angular/forms";
 import { compareInputs, ValidationGoal } from "./compare-inputs.validator";
 
 const validationErrorsObj: ValidationErrors = {
-  inputMatchError: {
+  compareInputsError: {
     message: "Custom error message",
   },
 };
