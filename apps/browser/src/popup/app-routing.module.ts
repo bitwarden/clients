@@ -16,7 +16,6 @@ import {
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
-import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
@@ -44,11 +43,6 @@ import {
   VaultIcon,
 } from "@bitwarden/auth/angular";
 import { LockComponent } from "@bitwarden/key-management-ui";
-import {
-  NewDeviceVerificationNoticePageOneComponent,
-  NewDeviceVerificationNoticePageTwoComponent,
-  VaultIcons,
-} from "@bitwarden/vault";
 
 import { fido2AuthGuard } from "../auth/guards/fido2-auth.guard";
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
@@ -614,34 +608,6 @@ const routes: Routes = [
     data: { elevation: 2 } satisfies RouteDataProperties,
   },
   {
-    path: "new-device-notice",
-    component: ExtensionAnonLayoutWrapperComponent,
-    canActivate: [],
-    children: [
-      {
-        path: "",
-        component: NewDeviceVerificationNoticePageOneComponent,
-        data: {
-          pageIcon: VaultIcons.ExclamationTriangle,
-          pageTitle: {
-            key: "importantNotice",
-          },
-          hideFooter: true,
-        },
-      },
-      {
-        path: "setup",
-        component: NewDeviceVerificationNoticePageTwoComponent,
-        data: {
-          pageIcon: VaultIcons.UserLock,
-          pageTitle: {
-            key: "setupTwoStepLogin",
-          },
-        },
-      },
-    ],
-  },
-  {
     path: "tabs",
     component: TabsV2Component,
     data: { elevation: 0 } satisfies RouteDataProperties,
@@ -658,7 +624,7 @@ const routes: Routes = [
       {
         path: "vault",
         component: VaultV2Component,
-        canActivate: [authGuard, NewDeviceVerificationNoticeGuard],
+        canActivate: [authGuard],
         canDeactivate: [clearVaultStateGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
