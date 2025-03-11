@@ -71,7 +71,10 @@ import {
         <bit-label>Attachment</bit-label>
       </bit-form-control>
       <div>
-        <div>
+        <!-- <button class="tw-flex tw-justify-start" type="button" bitLink linkType="secondary">
+          Give feedback
+        </button> -->
+        <div class="tw-flex tw-justify-end">
           <button type="button" bitLink linkType="primary" class="tw-mr-2">Cancel</button>
           <button type="submit" bitButton buttonType="primary">Search</button>
         </div>
