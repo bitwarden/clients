@@ -3,11 +3,11 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nMockService } from "@bitwarden/components";
 
-import { SearchBuilderComponent } from "./search-builder.component";
+import { FilterBuilderComponent } from "./filter-builder.component";
 
 export default {
-  title: "Search/Search Builder",
-  component: SearchBuilderComponent,
+  title: "Filter/Filter Builder",
+  component: FilterBuilderComponent,
   decorators: [
     moduleMetadata({
       imports: [],
@@ -25,13 +25,13 @@ export default {
   ],
 } as Meta;
 
-type Story = StoryObj<SearchBuilderComponent>;
+type Story = StoryObj<FilterBuilderComponent>;
 
 export const Default: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <app-search-builder></app-search-builder>
+      <app-filter-builder></app-filter-builder>
     `,
   }),
 };

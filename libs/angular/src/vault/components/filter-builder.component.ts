@@ -12,7 +12,7 @@ import {
 } from "@bitwarden/components";
 
 @Component({
-  selector: "app-search-builder",
+  selector: "app-filter-builder",
   template: `
     <h4>Search within</h4>
     <form [formGroup]="form" (ngSubmit)="submit()">
@@ -89,7 +89,7 @@ import {
     AsyncPipe,
   ],
 })
-export class SearchBuilderComponent implements OnInit {
+export class FilterBuilderComponent implements OnInit {
   readonly vaults$ = of<SelectItemView[]>([
     { id: "vaultOne", listName: "Vault 1", labelName: "Vault 1", icon: "bwi-vault" },
     { id: "vaultTwo", listName: "Vault 2", labelName: "Vault 2", icon: "bwi-vault" },
