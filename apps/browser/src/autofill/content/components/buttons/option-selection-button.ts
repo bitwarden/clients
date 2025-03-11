@@ -7,6 +7,15 @@ import { IconProps, Option } from "../common-types";
 import { border, spacing, themes, typography } from "../constants/styles";
 import { AngleUp, AngleDown } from "../icons";
 
+export type OptionSelectionButtonProps = {
+  icon?: Option["icon"];
+  isDisabled: boolean;
+  isOpen: boolean;
+  text?: string;
+  theme: Theme;
+  handleButtonClick: (e: Event) => void;
+};
+
 export function OptionSelectionButton({
   icon,
   isDisabled,
@@ -14,21 +23,14 @@ export function OptionSelectionButton({
   text,
   theme,
   handleButtonClick,
-}: {
-  icon?: Option["icon"];
-  isDisabled: boolean;
-  isOpen: boolean;
-  text?: string;
-  theme: Theme;
-  handleButtonClick: (e: Event) => void;
-}) {
+}: OptionSelectionButtonProps) {
   const selectedOptionIconProps: IconProps = { color: themes[theme].text.muted, theme };
 
   const buttonIcon = icon?.(selectedOptionIconProps);
 
   return html`
     <button
-      class=${selectionButtonStyles({ isDisabled, theme })}
+      class=${selectionButtonStyles({ isDisabled, isOpen, theme })}
       title=${text}
       type="button"
       @click=${handleButtonClick}
@@ -44,7 +46,15 @@ export function OptionSelectionButton({
 
 const iconSize = "15px";
 
-const selectionButtonStyles = ({ isDisabled, theme }: { isDisabled: boolean; theme: Theme }) => css`
+const selectionButtonStyles = ({
+  isDisabled,
+  isOpen,
+  theme,
+}: {
+  isDisabled: boolean;
+  isOpen: boolean;
+  theme: Theme;
+}) => css`
   ${typography.body2}
 
   gap: ${spacing["1.5"]};
@@ -71,7 +81,7 @@ const selectionButtonStyles = ({ isDisabled, theme }: { isDisabled: boolean; the
     `
     : `
       border: 1px solid ${themes[theme].text.muted};
-      background-color: transparent;
+      background-color: ${isOpen ? themes[theme].secondary["100"] : "transparent"};
       cursor: pointer;
       color: ${themes[theme].text.muted};
 
