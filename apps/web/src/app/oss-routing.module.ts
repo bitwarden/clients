@@ -378,13 +378,9 @@ const routes: Routes = [
       },
       {
         path: "2fa",
-        component: AnonLayoutWrapperComponent,
+        component: TwoFactorAuthComponent,
         canActivate: [unauthGuardFn(), TwoFactorAuthGuard],
         children: [
-          {
-            path: "",
-            component: TwoFactorAuthComponent,
-          },
           {
             path: "",
             component: EnvironmentSelectorComponent,
