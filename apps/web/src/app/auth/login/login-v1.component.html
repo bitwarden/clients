@@ -1,3 +1,9 @@
+<p i18n>Updated {minutes, plural, =0 {just now} =1 {one minute ago} other {{{ 5 }} minutes ago}}</p>
+
+<p i18n>This is a inline link to <a href="/settings">Settings</a> with text before and after.</p>
+
+<p i18n>A phrase we really <strong>need</strong> to highlight!</p>
+
 <form
   [bitSubmit]="submitForm.bind(null, false)"
   [appApiAction]="formPromise"
@@ -6,7 +12,7 @@
   <ng-container *ngIf="!validatedEmail">
     <div class="tw-mb-3">
       <bit-form-field>
-        <bit-label>{{ "emailAddress" | i18n }}</bit-label>
+        <bit-label i18n="@@email">Email address</bit-label>
         <input bitInput type="email" formControlName="email" appAutofocus />
       </bit-form-field>
     </div>
