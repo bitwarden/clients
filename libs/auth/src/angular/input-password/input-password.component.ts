@@ -23,6 +23,7 @@ import {
   IconButtonModule,
   InputModule,
   ToastService,
+  Translation,
 } from "@bitwarden/components";
 import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
 
@@ -79,13 +80,14 @@ export enum Flow {
 })
 export class InputPasswordComponent {
   @Output() onPasswordFormSubmit = new EventEmitter<PasswordInputResult>();
+  @Output() onSecondaryButtonClick = new EventEmitter<void>();
 
   @Input({ required: true }) flow: Flow;
   @Input({ required: true }) email: string;
   @Input() masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
-  @Input() loading: boolean = false;
-  @Input() primaryButtonText: string;
-  @Input() secondaryButtonText: string;
+  @Input() loading = false;
+  @Input() primaryButtonText: Translation;
+  @Input() secondaryButtonText: Translation;
   @Input() inlineButtons = false;
 
   protected Flow = Flow;

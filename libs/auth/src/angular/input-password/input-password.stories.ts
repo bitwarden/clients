@@ -136,7 +136,7 @@ export const ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey: Stor
   }),
 };
 
-export const WithPolicy: Story = {
+export const WithPolicies: Story = {
   render: (args) => ({
     props: args,
     template: `
@@ -154,8 +154,7 @@ export const SecondaryButton: Story = {
     template: `
       <auth-input-password
         [flow]="Flow.SetInitialPassword"
-        [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
-        [secondaryButtonText]="'Cancel'"
+        [secondaryButtonText]="{ key: 'Cancel' }"
       ></auth-input-password>
     `,
   }),
@@ -167,7 +166,6 @@ export const InlineButton: Story = {
     template: `
       <auth-input-password
         [flow]="Flow.SetInitialPassword"
-        [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
         [inlineButtons]="true"
       ></auth-input-password>
     `,
@@ -180,8 +178,7 @@ export const InlineButtons: Story = {
     template: `
       <auth-input-password
         [flow]="Flow.SetInitialPassword"
-        [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
-        [secondaryButtonText]="'Cancel'"
+        [secondaryButtonText]="{ key: 'Cancel' }"
         [inlineButtons]="true"
       ></auth-input-password>
     `,
