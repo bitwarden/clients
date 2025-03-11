@@ -901,6 +901,9 @@
   "no": {
     "message": "Нет"
   },
+  "location": {
+    "message": "Местоположение"
+  },
   "unexpectedError": {
     "message": "Произошла непредвиденная ошибка."
   },

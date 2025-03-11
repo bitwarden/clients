@@ -38,9 +38,6 @@ export class SymmetricCryptoKey {
     if (encType === EncryptionType.AesCbc256_B64 && key.byteLength === 32) {
       this.encKey = key;
       this.macKey = null;
-    } else if (encType === EncryptionType.AesCbc128_HmacSha256_B64 && key.byteLength === 32) {
-      this.encKey = key.slice(0, 16);
-      this.macKey = key.slice(16, 32);
     } else if (encType === EncryptionType.AesCbc256_HmacSha256_B64 && key.byteLength === 64) {
       this.encKey = key.slice(0, 32);
       this.macKey = key.slice(32, 64);

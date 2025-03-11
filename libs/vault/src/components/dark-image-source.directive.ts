@@ -54,8 +54,7 @@ export class DarkImageSourceDirective implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(([theme, systemTheme]) => {
         const appliedTheme = theme === "system" ? systemTheme : theme;
-        const isDark =
-          appliedTheme === "dark" || appliedTheme === "nord" || appliedTheme === "solarizedDark";
+        const isDark = appliedTheme === "dark";
         this.src = isDark ? this.darkImgSrc() : this.lightImgSrc;
       });
   }

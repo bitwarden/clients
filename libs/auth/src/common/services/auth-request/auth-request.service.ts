@@ -43,6 +43,10 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
   private authRequestPushNotificationSubject = new Subject<string>();
   authRequestPushNotification$: Observable<string>;
 
+  // Observable emission is used to trigger a toast in consuming components
+  private adminLoginApprovedSubject = new Subject<void>();
+  adminLoginApproved$: Observable<void>;
+
   constructor(
     private appIdService: AppIdService,
     private accountService: AccountService,
@@ -53,6 +57,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     private stateProvider: StateProvider,
   ) {
     this.authRequestPushNotification$ = this.authRequestPushNotificationSubject.asObservable();
+    this.adminLoginApproved$ = this.adminLoginApprovedSubject.asObservable();
   }
 
   async getAdminAuthRequest(userId: UserId): Promise<AdminAuthRequestStorable | null> {
@@ -206,5 +211,9 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
 
   async getFingerprintPhrase(email: string, publicKey: Uint8Array): Promise<string> {
     return (await this.keyService.getFingerprint(email.toLowerCase(), publicKey)).join("-");
+  }
+
+  emitAdminLoginApproved(): void {
+    this.adminLoginApprovedSubject.next();
   }
 }

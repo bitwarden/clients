@@ -25,16 +25,6 @@ export class MainSshAgentService {
     private logService: LogService,
     private messagingService: MessagingService,
   ) {
-    ipcMain.handle(
-      "sshagent.importkey",
-      async (
-        event: any,
-        { privateKey, password }: { privateKey: string; password?: string },
-      ): Promise<sshagent.SshKeyImportResult> => {
-        return sshagent.importKey(privateKey, password);
-      },
-    );
-
     ipcMain.handle("sshagent.init", async (event: any, message: any) => {
       this.init();
     });

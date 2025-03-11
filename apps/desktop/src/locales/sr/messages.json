@@ -913,7 +913,7 @@
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Потврдите идентитет"
   },
   "weDontRecognizeThisDevice": {
     "message": "Не препознајемо овај уређај. Унесите код послат на адресу ваше електронске поште да би сте потврдили ваш идентитет."
@@ -3506,25 +3506,25 @@
     "message": "Потврдите употребу SSH кључа"
   },
   "agentForwardingWarningTitle": {
-    "message": "Warning: Agent Forwarding"
+    "message": "Упозорење: Прослеђивање агента"
   },
   "agentForwardingWarningText": {
-    "message": "This request comes from a remote device that you are logged into"
+    "message": "Овај захтев долази са удаљеног уређаја на којим сте пријављени"
   },
   "sshkeyApprovalMessageInfix": {
     "message": "тражи приступ"
   },
   "sshkeyApprovalMessageSuffix": {
-    "message": "in order to"
+    "message": "да бисте"
   },
   "sshActionLogin": {
-    "message": "authenticate to a server"
+    "message": "се аутентификали на серверу"
   },
   "sshActionSign": {
-    "message": "sign a message"
+    "message": "потписати поруку"
   },
   "sshActionGitSign": {
-    "message": "sign a git commit"
+    "message": "потписати „git commit“"
   },
   "unknownApplication": {
     "message": "Апликација"
@@ -3602,6 +3602,6 @@
     "message": "Додатак који користите је застарело. Молимо ажурирајте га или онемогућите валидацију отисача претраживача Интеграција на поставки апликација за компјутер."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "Променити ризичну лозинку"
   }
 }
