@@ -6,7 +6,6 @@ import { Jsonify } from "type-fest";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/sso-token.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
@@ -107,14 +106,6 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     const email = ssoAuthResult.email;
     const ssoEmail2FaSessionToken = ssoAuthResult.ssoEmail2FaSessionToken;
-
-    // Auth guard currently handles redirects for this.
-    if (ssoAuthResult.forcePasswordReset == ForceSetPasswordReason.AdminForcePasswordReset) {
-      await this.masterPasswordService.setForceSetPasswordReason(
-        ssoAuthResult.forcePasswordReset,
-        ssoAuthResult.userId,
-      );
-    }
 
     this.cache.next({
       ...this.cache.value,
