@@ -86,7 +86,7 @@ export class InputPasswordComponent {
   @Input() loading: boolean = false;
   @Input() primaryButtonText: string;
   @Input() secondaryButtonText: string;
-  @Input() fullWidthButtons: boolean = true;
+  @Input() inlineButtons = false;
 
   protected Flow = Flow;
   private minHintLength = 0;

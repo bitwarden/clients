@@ -161,6 +161,19 @@ export const SecondaryButton: Story = {
   }),
 };
 
+export const InlineButton: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <auth-input-password
+        [flow]="Flow.SetInitialPassword"
+        [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
+        [inlineButtons]="true"
+      ></auth-input-password>
+    `,
+  }),
+};
+
 export const InlineButtons: Story = {
   render: (args) => ({
     props: args,
@@ -169,7 +182,7 @@ export const InlineButtons: Story = {
         [flow]="Flow.SetInitialPassword"
         [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
         [secondaryButtonText]="'Cancel'"
-        [fullWidthButtons]="false"
+        [inlineButtons]="true"
       ></auth-input-password>
     `,
   }),
