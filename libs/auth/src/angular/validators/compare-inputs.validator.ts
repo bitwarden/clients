@@ -50,7 +50,7 @@ export function compareInputs(
    *                  perform validation on the FormGroup, which is a subclass of AbstractControl.
    *                  The reason we validate at the FormGroup level and not at the FormControl level
    *                  is because we want to compare two child FormControls in a single validator, so
-   *                  we use the FormControl as the common ancestor.
+   *                  we use the FormGroup as the common ancestor.
    *
    * @returns A ValidationErrors object if the validation fails, or null if the validation passes.
    */
