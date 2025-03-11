@@ -180,6 +180,6 @@ export class UserKeyRotationService {
     if (privateKey == null) {
       throw new Error("No private key found for user key rotation");
     }
-    return (await this.encryptService.encrypt(privateKey, newUserKey)).encryptedString;
+    return (await this.encryptService.encrypt(privateKey, newUserKey))!.encryptedString;
   }
 }
