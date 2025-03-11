@@ -271,16 +271,23 @@ export abstract class LoginStrategy {
       }
     }
 
-    result.resetMasterPassword = response.resetMasterPassword;
-
-    // Convert boolean to enum
-    if (response.forcePasswordReset) {
-      result.forcePasswordReset = ForceSetPasswordReason.AdminForcePasswordReset;
-    }
-
-    // Must come before setting keys, user key needs email to update additional keys
+    // Must come before setting keys, user key needs email to update additional keys.
     const userId = await this.saveAccountInformation(response);
     result.userId = userId;
+
+    result.resetMasterPassword = response.resetMasterPassword;
+
+    // Convert boolean to enum and set the state for the master password service to
+    // so we know when we reach the auth guard that we need to guide them properly to admin
+    // password reset.
+    if (response.forcePasswordReset) {
+      result.forcePasswordReset = ForceSetPasswordReason.AdminForcePasswordReset;
+
+      await this.masterPasswordService.setForceSetPasswordReason(
+        ForceSetPasswordReason.AdminForcePasswordReset,
+        userId,
+      );
+    }
 
     if (response.twoFactorToken != null) {
       // note: we can read email from access token b/c it was saved in saveAccountInformation
@@ -300,7 +307,9 @@ export abstract class LoginStrategy {
 
   // The keys comes from different sources depending on the login strategy
   protected abstract setMasterKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
+
   protected abstract setUserKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
+
   protected abstract setPrivateKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
 
   // Old accounts used master key for encryption. We are forcing migrations but only need to

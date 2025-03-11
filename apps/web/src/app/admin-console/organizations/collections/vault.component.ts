@@ -24,6 +24,7 @@ import {
   switchMap,
   takeUntil,
   tap,
+  catchError,
 } from "rxjs/operators";
 
 import {
@@ -76,6 +77,7 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
+import { BillingNotificationService } from "../../../billing/services/billing-notification.service";
 import {
   ResellerWarning,
   ResellerWarningService,
@@ -256,6 +258,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private organizationBillingService: OrganizationBillingServiceAbstraction,
     private resellerWarningService: ResellerWarningService,
     private accountService: AccountService,
+    private billingNotificationService: BillingNotificationService,
   ) {}
 
   async ngOnInit() {
@@ -636,12 +639,18 @@ export class VaultComponent implements OnInit, OnDestroy {
         combineLatest([
           of(org),
           this.organizationApiService.getSubscription(org.id),
-          this.organizationBillingService.getPaymentSource(org.id),
+          from(this.organizationBillingService.getPaymentSource(org.id)).pipe(
+            catchError((error: unknown) => {
+              this.billingNotificationService.handleError(error);
+              return of(null);
+            }),
+          ),
         ]),
       ),
-      map(([org, sub, paymentSource]) => {
-        return this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(org, sub, paymentSource);
-      }),
+      map(([org, sub, paymentSource]) =>
+        this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(org, sub, paymentSource),
+      ),
+      filter((result) => result !== null),
     );
 
     this.resellerWarning$ = organization$.pipe(

@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Ez"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Saioa hasi edo sortu kontu berri bat zure kutxa gotorrera sartzeko."
   },

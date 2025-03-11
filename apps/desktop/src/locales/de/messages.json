@@ -913,7 +913,7 @@
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Verifiziere deine Identität"
   },
   "weDontRecognizeThisDevice": {
     "message": "Wir erkennen dieses Gerät nicht. Gib den an deine E-Mail-Adresse gesendeten Code ein, um deine Identität zu verifizieren."
@@ -3518,13 +3518,13 @@
     "message": "um"
   },
   "sshActionLogin": {
-    "message": "sich bei einem Server anzumelden"
+    "message": "sich bei einem Server zu authentifizieren"
   },
   "sshActionSign": {
     "message": "eine Nachricht zu signieren"
   },
   "sshActionGitSign": {
-    "message": "einen Git Commit zu signieren"
+    "message": "einen Git-Commit zu signieren"
   },
   "unknownApplication": {
     "message": "Eine Anwendung"
@@ -3602,6 +3602,6 @@
     "message": "Die von dir verwendete Browser-Erweiterung ist veraltet. Bitte aktualisiere sie oder deaktiviere die Fingerabdrucküberprüfung der Browser-Integration in den Einstellungen der Desktop-App."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "Gefährdetes Passwort ändern"
   }
 }

@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Ne"
   },
+  "location": {
+    "message": "Umístění"
+  },
   "loginOrCreateNewAccount": {
     "message": "Pro přístup do Vašeho bezpečného trezoru se přihlaste nebo si vytvořte nový účet."
   },

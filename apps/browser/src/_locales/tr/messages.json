@@ -901,6 +901,9 @@
   "no": {
     "message": "Hayır"
   },
+  "location": {
+    "message": "Konum"
+  },
   "unexpectedError": {
     "message": "Beklenmedik bir hata oluştu."
   },
