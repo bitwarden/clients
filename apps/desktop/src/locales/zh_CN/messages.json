@@ -459,7 +459,7 @@
     "message": "确定要覆盖当前用户名吗？"
   },
   "noneFolder": {
-    "message": "无文件夹",
+    "message": "默认文件夹",
     "description": "This is the folder for uncategorized items"
   },
   "addFolder": {
@@ -542,10 +542,6 @@
   "specialCharactersDescription": {
     "message": "包含特殊字符",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "单词数"
@@ -916,7 +912,7 @@
     "message": "为您的组织使用 Duo Security 的 Duo 移动 App、短信、电话或 U2F 安全密钥来进行验证。",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "验证您的身份"
   },
   "weDontRecognizeThisDevice": {
@@ -1432,7 +1428,7 @@
     "message": "感谢您支持 Bitwarden。"
   },
   "premiumPrice": {
-    "message": "全部仅需 $PRICE$ /年！",
+    "message": "所有功能仅需 $PRICE$ /年！",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -1619,7 +1615,7 @@
     "message": "退出"
   },
   "showHide": {
-    "message": "显示/隐藏",
+    "message": "显示 / 隐藏",
     "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
   },
   "hideToTray": {
@@ -1798,19 +1794,19 @@
     "message": "解锁您的密码库"
   },
   "autoPromptWindowsHello": {
-    "message": "应用程序启动时要求使用 Windows Hello"
+    "message": "应用程序启动时提示 Windows Hello"
   },
   "autoPromptPolkit": {
-    "message": "启动时请求系统身份验证"
+    "message": "启动时提示系统身份验证"
   },
   "autoPromptTouchId": {
-    "message": "应用程序启动时要求使用触控 ID"
+    "message": "应用程序启动时提示触控 ID"
   },
   "requirePasswordOnStart": {
-    "message": "应用程序启动时要求输入密码或 PIN 码"
+    "message": "应用程序启动时要求密码或 PIN 码"
   },
   "requirePasswordWithoutPinOnStart": {
-    "message": "应用程序启动时需要密码"
+    "message": "应用程序启动时要求密码"
   },
   "recommendedForSecurity": {
     "message": "安全起见，推荐设置。"
@@ -3604,5 +3600,8 @@
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "您正在使用的浏览器扩展已过时。请更新它或在桌面 App 的设置中禁用浏览器集成指纹验证。"
+  },
+  "changeAtRiskPassword": {
+    "message": "更改有风险的密码"
   }
 }

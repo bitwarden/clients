@@ -30,7 +30,7 @@ import { Launchable } from "@bitwarden/common/vault/interfaces/launchable";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { PasswordRepromptService, SshImportPromptService } from "@bitwarden/vault";
 
 @Component({
   selector: "app-vault-add-edit",
@@ -76,6 +76,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     cipherAuthorizationService: CipherAuthorizationService,
     toastService: ToastService,
     sdkService: SdkService,
+    sshImportPromptService: SshImportPromptService,
   ) {
     super(
       cipherService,
@@ -98,6 +99,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       cipherAuthorizationService,
       toastService,
       sdkService,
+      sshImportPromptService,
     );
   }
 

@@ -201,6 +201,9 @@
   "notes": {
     "message": "Notlar"
   },
+  "privateNote": {
+    "message": "Özel not"
+  },
   "note": {
     "message": "Not"
   },
@@ -1029,6 +1032,9 @@
   "no": {
     "message": "Hayır"
   },
+  "location": {
+    "message": "Konum"
+  },
   "loginOrCreateNewAccount": {
     "message": "Güvenli kasanıza ulaşmak için giriş yapın veya yeni bir hesap oluşturun."
   },
@@ -1179,8 +1185,8 @@
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
   },
-  "verifyIdentity": {
-    "message": "Kimliğinizi doğrulayın"
+  "verifyYourIdentity": {
+    "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "Bu cihazı tanıyamadık. Kimliğinizi doğrulamak için e-postanıza gönderilen kodu girin."
@@ -1411,7 +1417,7 @@
     "message": "Erişimi reddet"
   },
   "notificationSentDeviceAnchor": {
-    "message": "web app"
+    "message": "web uygulaması"
   },
   "notificationSentDevicePart2": {
     "message": "Make sure the Fingerprint phrase matches the one below before approving."
@@ -1825,7 +1831,7 @@
     "message": "Lütfen yeniden giriş yapın."
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Geçerli oturum"
   },
   "requestPending": {
     "message": "Request pending"
@@ -2232,7 +2238,7 @@
     "message": "Yönet"
   },
   "manageCollection": {
-    "message": "Manage collection"
+    "message": "Koleksiyonu yönet"
   },
   "viewItems": {
     "message": "View items"
@@ -2251,6 +2257,9 @@
   },
   "revokeAccess": {
     "message": "Erişimi iptal et"
+  },
+  "revoke": {
+    "message": "İptal et"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Bu iki aşamalı giriş sağlayıcısı hesabınızda etkin durumda."
@@ -5081,11 +5090,39 @@
   "requireSsoExemption": {
     "message": "Kuruluş sahipleri ve yöneticileri bu ilkenin uygulanmasından muaf tutulur."
   },
+  "limitSendViews": {
+    "message": "Gösterimi sınırla"
+  },
+  "limitSendViewsHint": {
+    "message": "Bu sınıra ulaşıldıktan sonra bu Send'i kimse göremez.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ gösterim kaldı",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send ayrıntıları",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Paylaşılacak metin"
+  },
   "sendTypeFile": {
     "message": "Dosya"
   },
   "sendTypeText": {
     "message": "Metin"
+  },
+  "sendPasswordDescV3": {
+    "message": "Alıcıların bu Send'e erişmesi için isterseniz parola ekleyebilirsiniz.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Yeni Send",
@@ -5111,19 +5148,15 @@
     "message": "Send'i sil",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Bu Send'i silmek istediğinizden emin misiniz?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Bu ne tür bir Send?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Bu Send'i kalıcı olarak silmek istediğinizden emin misiniz?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Silinme tarihi"
   },
-  "deletionDateDesc": {
-    "message": "Bu Send belirtilen tarih ve saatte kalıcı olacak silinecek.",
+  "deletionDateDescV2": {
+    "message": "Bu Send belirtilen tarihte kalıcı olacak silinecek.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5135,21 +5168,6 @@
   },
   "maxAccessCount": {
     "message": "Maksimum erişim sayısı"
-  },
-  "maxAccessCountDesc": {
-    "message": "Bunu ayarlarsanız maksimum erişim sayısına ulaşıldıktan sonra bu Send'e erişilemeyecektir.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Mevcut erişim sayısı"
-  },
-  "sendPasswordDesc": {
-    "message": "Kullanıcıların bu Send'e erişmek için parola girmelerini isteyebilirsiniz.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Bu Send ile ilgili özel notlar.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Devre dışı"
@@ -5177,13 +5195,6 @@
   "removePasswordConfirmation": {
     "message": "Parolayı kaldırmak istediğinizden emin misiniz?"
   },
-  "hideEmail": {
-    "message": "E-posta adresimi alıcılardan gizle."
-  },
-  "disableThisSend": {
-    "message": "Kimsenin erişememesi için bu Send'i devre dışı bırak.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Tüm Send'ler"
   },
@@ -5193,6 +5204,9 @@
   },
   "pendingDeletion": {
     "message": "Silinmesi bekleniyor"
+  },
+  "hideTextByDefault": {
+    "message": "Metni varsayılan olarak gizle"
   },
   "expired": {
     "message": "Süresi dolmuş"
@@ -5415,13 +5429,6 @@
     "message": "Send oluştururken veya düzenlerken üyelerin e-posta adreslerini her zaman alıcılara göster.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "Şu anda yürüklükte olan kuruluş ilkeleri:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Kullanıcıların Send oluştururken veya düzenlerken alıcılardan e-posta adreslerini gizlemelerine izin verilmiyor.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "$ID$ ilkesi düzenlendi.",
     "placeholders": {
@@ -5520,27 +5527,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Kuruluş kullanıcıları için kişisel sahipliği kapat"
-  },
-  "textHiddenByDefault": {
-    "message": "Send'e erişirken varsayılan olarak metni gizle",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Bu Send'i açıklayan anlaşılır bir ad.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Göndermek istediğiniz metin."
-  },
-  "sendFileDesc": {
-    "message": "Göndermek istediğiniz dosya."
-  },
-  "copySendLinkOnSave": {
-    "message": "Kaydettikten sonra bu Send'i paylaşma linkini panoya kopyala."
-  },
-  "sendLinkLabel": {
-    "message": "Send bağlantısı",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Send",
@@ -5690,6 +5676,9 @@
   "dateParsingError": {
     "message": "Silinme ve son kullanma tarihleriniz kaydedilirken bir hata oluştu."
   },
+  "hideYourEmail": {
+    "message": "E-posta adresimi Send'i görüntüleyenlerden gizle."
+  },
   "webAuthnFallbackMsg": {
     "message": "İki aşamalı doğrulamanızı onaylamak için aşağıdaki düğmeye tıklayın."
   },
@@ -5697,7 +5686,7 @@
     "message": "WebAutn ile doğrula"
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "Güvenlik anahtarını oku"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Awaiting security key interaction..."
@@ -8523,7 +8512,7 @@
     "message": "Device removed"
   },
   "removeDevice": {
-    "message": "Remove device"
+    "message": "Cihazı kaldır"
   },
   "removeDeviceConfirmation": {
     "message": "Are you sure you want to remove this device?"
@@ -9324,7 +9313,7 @@
     "message": "SCIM"
   },
   "scimIntegrationDescStart": {
-    "message": "Configure ",
+    "message": "Yapılandır ",
     "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
   "scimIntegrationDescEnd": {
@@ -9613,7 +9602,7 @@
     "message": "Export client report"
   },
   "memberAccessReport": {
-    "message": "Member access"
+    "message": "Üye erişimi"
   },
   "memberAccessReportDesc": {
     "message": "Ensure members have access to the right credentials and their accounts are secure. Use this report to obtain a CSV of member access and account configurations."
@@ -9848,8 +9837,14 @@
   "learnMoreAboutApi": {
     "message": "Learn more about Bitwarden's API"
   },
+  "fileSend": {
+    "message": "Dosya Send'i"
+  },
   "fileSends": {
     "message": "Dosya Send'leri"
+  },
+  "textSend": {
+    "message": "Metin Send'i"
   },
   "textSends": {
     "message": "Metin Send'leri"
@@ -9939,7 +9934,7 @@
     "message": "Access to Premium features"
   },
   "additionalStorageGbMessage": {
-    "message": "GB additional storage"
+    "message": "GB ek depolama"
   },
   "sshKeyAlgorithm": {
     "message": "Key algorithm"
@@ -9966,13 +9961,13 @@
     "message": "ED25519"
   },
   "sshKeyAlgorithmRSA2048": {
-    "message": "RSA 2048-Bit"
+    "message": "RSA 2048 bit"
   },
   "sshKeyAlgorithmRSA3072": {
-    "message": "RSA 3072-Bit"
+    "message": "RSA 3072 bit"
   },
   "sshKeyAlgorithmRSA4096": {
-    "message": "RSA 4096-Bit"
+    "message": "RSA 4096 bit"
   },
   "premiumAccounts": {
     "message": "6 premium hesap"
@@ -10014,7 +10009,7 @@
     "message": "20 makine hesabı"
   },
   "current": {
-    "message": "Current"
+    "message": "Geçerli"
   },
   "secretsManagerSubscriptionInfo": {
     "message": "Secrets Manager aboneliğiniz seçtiğiniz plana göre yükseltilecektir"
@@ -10083,10 +10078,6 @@
   "specialCharactersDescription": {
     "message": "Özel karakterleri dahil et",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Dosya ekle"
@@ -10255,7 +10246,7 @@
     "message": "Remove members"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Cihazlar"
   },
   "deviceListDescription": {
     "message": "Your account was logged in to each of the devices below. If you do not recognize a device, remove it now."
@@ -10352,19 +10343,19 @@
     "message": "Opening the Bitwarden browser extension"
   },
   "somethingWentWrong": {
-    "message": "Something went wrong..."
+    "message": "Bir şeyler ters gitti..."
   },
   "openingExtensionError": {
     "message": "We had trouble opening the Bitwarden browser extension. Click the button to open it now."
   },
   "openExtension": {
-    "message": "Open extension"
+    "message": "Uzantıyı aç"
   },
   "doNotHaveExtension": {
     "message": "Don't have the Bitwarden browser extension?"
   },
   "installExtension": {
-    "message": "Install extension"
+    "message": "Uzantıyı yükle"
   },
   "openedExtension": {
     "message": "Opened the browser extension"
@@ -10486,6 +10477,9 @@
   },
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"
