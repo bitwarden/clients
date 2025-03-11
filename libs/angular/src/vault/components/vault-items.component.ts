@@ -1,7 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { BehaviorSubject, Subject, firstValueFrom, from, switchMap, takeUntil } from "rxjs";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { BehaviorSubject, Observable, Subject, firstValueFrom, map } from "rxjs";
 
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -10,6 +11,8 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { FilterService } from "@bitwarden/common/vault/search/filter.service";
+import { ProcessInstructions } from "@bitwarden/common/vault/search/query.types";
 
 @Directive()
 export class VaultItemsComponent implements OnInit, OnDestroy {
@@ -31,6 +34,7 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private searchTimeout: any = null;
   private isSearchable: boolean = false;
+  private processInstructions$: Observable<ProcessInstructions>;
   private _searchText$ = new BehaviorSubject<string>("");
   get searchText() {
     return this._searchText$.value;
@@ -40,6 +44,7 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
   }
 
   constructor(
+    protected filterService: FilterService,
     protected searchService: SearchService,
     protected cipherService: CipherService,
     protected accountService: AccountService,
@@ -48,14 +53,12 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
-    this._searchText$
-      .pipe(
-        switchMap((searchText) => from(this.searchService.isSearchable(this.userId, searchText))),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((isSearchable) => {
-        this.isSearchable = isSearchable;
-      });
+    const parsed$ = this.filterService.parse(this._searchText$).pipe(takeUntilDestroyed());
+
+    this.processInstructions$ = parsed$.pipe(map((p) => p.processInstructions));
+    parsed$.subscribe(({ isError }) => {
+      this.isSearchable = !isError;
+    });
   }
 
   ngOnDestroy(): void {
@@ -135,11 +138,6 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
       indexedCiphers = [...failedCiphers, ...indexedCiphers];
     }
 
-    this.ciphers = await this.searchService.searchCiphers(
-      this.userId,
-      this.searchText,
-      [this.filter, this.deletedFilter],
-      indexedCiphers,
-    );
+    this.ciphers = await firstValueFrom(this.filterService.filter(this.processInstructions$));
   }
 }
