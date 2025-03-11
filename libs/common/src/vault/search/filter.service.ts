@@ -1,90 +1,105 @@
 import * as lunr from "lunr";
-import {
-  combineLatest,
-  combineLatestWith,
-  map,
-  NEVER,
-  Observable,
-  of,
-  OperatorFunction,
-  pipe,
-  switchMap,
-} from "rxjs";
+import { combineLatest, map, Observable, of, OperatorFunction, pipe, switchMap } from "rxjs";
 
-// eslint-disable-next-line no-restricted-imports -- temp poc, so we're ignoring the circular package dependency. We'll need to move this to the vault team's package
-import { CollectionService } from "@bitwarden/admin-console/src/common/collections/abstractions";
-
-import { OrganizationService } from "../../admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "../../auth/abstractions/account.service";
 import { UriMatchStrategy } from "../../models/domain/domain-service";
-import { CipherService } from "../abstractions/cipher.service";
-import { FolderService } from "../abstractions/folder/folder.service.abstraction";
 import { CipherType, FieldType } from "../enums";
 import { CipherView } from "../models/view/cipher.view";
 
 import { parseQuery } from "./parse";
-import { ProcessInstructions, SearchContext } from "./query.types";
+import {
+  FilterResult,
+  ObservableSearchContextInput,
+  ParseResult,
+  SearchContext,
+} from "./query.types";
 
-export class FilterService {
+export abstract class FilterService {
+  abstract readonly parse: OperatorFunction<string, ParseResult>;
+  abstract readonly filter: OperatorFunction<[string | ParseResult, SearchContext], FilterResult>;
+  abstract context$(context: ObservableSearchContextInput): Observable<SearchContext>;
+}
+
+export class DefaultFilterService implements FilterService {
   private static registeredPipeline = false;
-  searchContext$: Observable<SearchContext>;
-  constructor(
-    accountService: AccountService,
-    cipherService: CipherService,
-    organizationService: OrganizationService,
-    folderService: FolderService,
-    collectionService: CollectionService,
-  ) {
-    const activeAccount$ = accountService.activeAccount$.pipe(
-      switchMap((account) => {
-        return account ? of(account) : NEVER;
-      }),
-    );
-    const viewsAndIndex$ = activeAccount$.pipe(
-      switchMap((account) =>
-        cipherService
-          .cipherViews$(account.id)
-          .pipe(switchMap((views) => of([views, this.buildIndex(views)] as const))),
-      ),
-    );
-
-    this.searchContext$ = activeAccount$.pipe(
-      switchMap((account) => {
-        const userId = account.id;
-        return combineLatest([
-          viewsAndIndex$,
-          organizationService.organizations$(userId),
-          folderService.folderViews$(userId),
-          collectionService.decryptedCollections$,
-        ]);
-      }),
-      switchMap(([[ciphers, index], organizations, folders, collections]) => {
-        return of({
-          ciphers,
-          index,
-          organizations,
-          folders,
-          collections,
-        });
-      }),
-    );
-
+  constructor() {
     // Currently have to ensure this is only done a single time. Lunr allows you to register a function
     // multiple times but they will add a warning message to the console. The way they do that breaks when ran on a service worker.
-    if (!FilterService.registeredPipeline) {
-      FilterService.registeredPipeline = true;
+    if (!DefaultFilterService.registeredPipeline) {
+      DefaultFilterService.registeredPipeline = true;
       //register lunr pipeline function
       lunr.Pipeline.registerFunction(this.normalizeAccentsPipelineFunction, "normalizeAccents");
     }
   }
 
-  parse = map((query: string) => parseQuery(query));
+  context$(context: ObservableSearchContextInput): Observable<SearchContext> {
+    return combineLatest([
+      context.ciphers,
+      context.organizations,
+      context.folders,
+      context.collections,
+    ]).pipe(
+      map(([ciphers, organizations, folders, collections]) => {
+        return {
+          ciphers,
+          organizations,
+          folders,
+          collections,
+          index: this.buildIndex(ciphers),
+        };
+      }),
+    );
+  }
 
-  filter(): OperatorFunction<ProcessInstructions, CipherView[]> {
+  get parse() {
+    return (query: Observable<string> | null | undefined) => {
+      if (query == null) {
+        return of({
+          isError: true as const,
+          processInstructions: null,
+        });
+      } else {
+        return query.pipe(
+          map((query: string) => {
+            try {
+              return {
+                isError: false as const,
+                processInstructions: parseQuery(query),
+              };
+            } catch {
+              return {
+                isError: true as const,
+                processInstructions: null,
+              };
+            }
+          }),
+        );
+      }
+    };
+  }
+
+  get filter(): OperatorFunction<[string | ParseResult, SearchContext], FilterResult> {
     return pipe(
-      combineLatestWith(this.searchContext$),
-      map(([instructions, context]) => {
-        return instructions.filter(context).ciphers;
+      switchMap(([queryOrParsedQuery, context]) => {
+        if (queryOrParsedQuery == null || typeof queryOrParsedQuery === "string") {
+          // it's a string that needs parsing
+          return combineLatest([this.parse(of(queryOrParsedQuery as string)), of(context)]);
+        } else {
+          // It's a parsed query
+          return combineLatest([of(queryOrParsedQuery), of(context)]);
+        }
+      }),
+      map(([parseResult, context]) => {
+        if (parseResult.isError) {
+          return {
+            ...parseResult,
+            ciphers: null,
+          };
+        } else {
+          return {
+            ...parseResult,
+            ciphers: parseResult.processInstructions.filter(context).ciphers,
+          };
+        }
       }),
     );
   }
@@ -154,7 +169,7 @@ export class FilterService {
     const checkFields = fields.every((i: any) => searchableFields.includes(i));
 
     if (checkFields) {
-      return FilterService.normalizeSearchQuery(token.toString());
+      return DefaultFilterService.normalizeSearchQuery(token.toString());
     }
 
     return token;

@@ -267,6 +267,7 @@ import {
 } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
+import { DefaultFilterService, FilterService } from "@bitwarden/common/vault/search/filter.service";
 import {
   CipherAuthorizationService,
   DefaultCipherAuthorizationService,
@@ -485,42 +486,12 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: CipherServiceAbstraction,
-    useFactory: (
-      keyService: KeyService,
-      domainSettingsService: DomainSettingsService,
-      apiService: ApiServiceAbstraction,
-      i18nService: I18nServiceAbstraction,
-      searchService: SearchServiceAbstraction,
-      stateService: StateServiceAbstraction,
-      autofillSettingsService: AutofillSettingsServiceAbstraction,
-      encryptService: EncryptService,
-      bulkEncryptService: BulkEncryptService,
-      fileUploadService: CipherFileUploadServiceAbstraction,
-      configService: ConfigService,
-      stateProvider: StateProvider,
-      accountService: AccountServiceAbstraction,
-    ) =>
-      new CipherService(
-        keyService,
-        domainSettingsService,
-        apiService,
-        i18nService,
-        searchService,
-        stateService,
-        autofillSettingsService,
-        encryptService,
-        bulkEncryptService,
-        fileUploadService,
-        configService,
-        stateProvider,
-        accountService,
-      ),
+    useClass: CipherService,
     deps: [
       KeyService,
       DomainSettingsService,
       ApiServiceAbstraction,
       I18nServiceAbstraction,
-      SearchServiceAbstraction,
       StateServiceAbstraction,
       AutofillSettingsServiceAbstraction,
       EncryptService,
@@ -1462,6 +1433,11 @@ const safeProviders: SafeProvider[] = [
     provide: TaskService,
     useClass: DefaultTaskService,
     deps: [StateProvider, ApiServiceAbstraction, OrganizationServiceAbstraction, ConfigService],
+  }),
+  safeProvider({
+    provide: FilterService,
+    useClass: DefaultFilterService,
+    deps: [],
   }),
 ];
 

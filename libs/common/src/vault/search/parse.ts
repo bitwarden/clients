@@ -20,23 +20,26 @@ import {
 import grammar from "./bitwarden-query-grammar";
 import { ProcessInstructions } from "./query.types";
 
+export const PARSE_ERROR = new Error("Invalid search query");
+
 export function parseQuery(query: string): ProcessInstructions {
   const parser = new Parser(Grammar.fromCompiled(grammar));
   parser.feed(query);
   if (!parser.results) {
     // TODO: Better error handling
     // there should be some invalid token information
-    throw new Error("Invalid search query");
+    throw PARSE_ERROR;
   }
 
   const result = parser.results[0] as AstNode;
 
-  return handleNode(result);
+  const parsed = handleNode(result);
+  return parsed;
 }
 
 function handleNode(node: AstNode): ProcessInstructions {
   if (isSearch(node)) {
-    return handleNode(node.d);
+    return handleNode(node.contents);
   } else if (isOr(node)) {
     const left = handleNode(node.left);
     const right = handleNode(node.right);

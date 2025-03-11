@@ -34,6 +34,7 @@ export type AstNode =
   | IsFavorite;
 
 type AstNodeBase = {
+  d: object[];
   type: AstNodeType;
   start: number;
   end: number;
@@ -41,7 +42,7 @@ type AstNodeBase = {
 };
 export type Search = AstNodeBase & {
   type: "search";
-  d: Or;
+  contents: Or;
 };
 
 export function isSearch(x: AstNode): x is Search {
