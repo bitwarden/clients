@@ -55,6 +55,7 @@ import { SetPasswordComponent } from "../auth/set-password.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { VaultComponent } from "../vault/app/vault/vault.component";
 
+import { Fido2PlaceholderComponent } from "./components/fido2placeholder.component";
 import { SendComponent } from "./tools/send/send.component";
 
 /**
@@ -168,6 +169,10 @@ const routes: Routes = [
     path: "remove-password",
     component: RemovePasswordComponent,
     canActivate: [authGuard],
+  },
+  {
+    path: "passkeys",
+    component: Fido2PlaceholderComponent,
   },
   {
     path: "",

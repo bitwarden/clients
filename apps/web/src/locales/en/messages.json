@@ -10608,5 +10608,8 @@
   },
   "upgradeEventLogMessage":{
     "message" : "These events are examples only and do not reflect real events within your Bitwarden organization."
+  },
+  "cannotCreateCollection": {
+    "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
   }
 }
