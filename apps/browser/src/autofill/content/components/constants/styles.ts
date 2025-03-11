@@ -176,12 +176,12 @@ export const buildIconColorRule = (color: string, rule: RuleName = ruleNames.fil
 
 export function scrollbarStyles(theme: Theme) {
   return {
+    /* FireFox & Chrome support */
     default: `
-      /* FireFox & Chrome support */
       scrollbar-color: ${themes[theme].secondary["500"]} ${themes[theme].background.alt};
     `,
+    /* Safari Support */
     safari: `
-      /* Safari Support */
       ::-webkit-scrollbar {
         overflow: auto;
       }

@@ -37,7 +37,7 @@ export const mockFolderData = [
 
 export const mockOrganizationData = [
   {
-    id: "uniqu-id0",
+    id: "unique-id0",
     name: "Another personal vault",
   },
   {

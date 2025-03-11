@@ -47,7 +47,7 @@ export function OptionItem({
   </div>`;
 }
 
-const optionItemIconWidth = 16;
+export const optionItemIconWidth = 16;
 const optionItemGap = spacing["2"];
 
 const optionItemStyles = css`

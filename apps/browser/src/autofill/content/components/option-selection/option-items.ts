@@ -68,13 +68,16 @@ const optionsLabelStyles = ({ theme }: { theme: Theme }) => css`
   font-weight: 600;
 `;
 
+export const optionsMenuItemMaxWidth = 260;
+export const optionsMenuItemsMaxHeight = 114;
+
 const optionsWrapper = ({ isSafari, theme }: { isSafari: boolean; theme: Theme }) => css`
-  max-height: 152px;
+  max-height: ${optionsMenuItemsMaxHeight}px;
   overflow-y: auto;
 
   > [class*="${optionItemTagName}-"] {
     padding: ${spacing["1.5"]} ${spacing["3"]};
-    max-width: 260px;
+    max-width: ${optionsMenuItemMaxWidth}px;
 
     :hover {
       background-color: ${themes[theme].primary["100"]};

@@ -7,7 +7,8 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { OptionSelectionButton } from "../buttons/option-selection-button";
 import { Option } from "../common-types";
 
-import { OptionItems } from "./option-items";
+import { optionItemIconWidth } from "./option-item";
+import { OptionItems, optionsMenuItemMaxWidth } from "./option-items";
 
 export const optionSelectionTagName = "option-selection";
 
@@ -37,13 +38,38 @@ export class OptionSelection extends LitElement {
   @state()
   private menuTopOffset: number = 0;
 
+  // Determines if the opened menu should be "anchored" to the right or left side of the opening button
+  @state()
+  private menuIsEndJustified: boolean = false;
+
   @state()
   private selection?: Option;
 
   private handleButtonClick = (event: Event) => {
-    this.menuTopOffset = this.offsetTop;
-
     if (!this.disabled) {
+      // Menu is about to be shown
+      if (!this.showOptions) {
+        this.menuTopOffset = this.offsetTop;
+
+        // Distance from right edge of button to left edge of the viewport
+        // Assumes no enclosing frames between the intended host frame and the component
+        const boundingClientRect = this.getBoundingClientRect();
+
+        // Width of the client (minus scrollbar)
+        const documentWidth = document.documentElement.clientWidth;
+
+        // Distance between left edge of the button and right edge of the viewport
+        // (e.g. the max space the menu can use when left-aligned)
+        const distanceFromViewportRightEdge = documentWidth - boundingClientRect.left;
+
+        // The full width the option menu can take up
+        // (base + icon + border + gap + padding)
+        const maxDifferenceThreshold =
+          optionsMenuItemMaxWidth + optionItemIconWidth + 2 + 8 + 12 * 2;
+
+        this.menuIsEndJustified = distanceFromViewportRightEdge < maxDifferenceThreshold;
+      }
+
       this.showOptions = !this.showOptions;
     }
   };
@@ -66,7 +92,7 @@ export class OptionSelection extends LitElement {
     }
 
     return html`
-      <div class=${optionSelectionStyles}>
+      <div class=${optionSelectionStyles({ menuIsEndJustified: this.menuIsEndJustified })}>
         ${OptionSelectionButton({
           icon: this.selection?.icon,
           isDisabled: this.disabled,
@@ -101,8 +127,9 @@ function getDefaultOption(options: Option[] = []) {
   return options.find((option: Option) => option.default) || options[0];
 }
 
-const optionSelectionStyles = css`
+const optionSelectionStyles = ({ menuIsEndJustified }: { menuIsEndJustified: boolean }) => css`
   display: flex;
+  justify-content: ${menuIsEndJustified ? "flex-end" : "flex-start"};
 
   > div,
   > button {
