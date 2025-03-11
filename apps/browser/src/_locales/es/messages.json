@@ -901,6 +901,9 @@
   "no": {
     "message": "No"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "Ha ocurrido un error inesperado."
   },

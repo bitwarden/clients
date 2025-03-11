@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Не"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Увайдзіце або стварыце новы ўліковы запіс для доступу да бяспечнага сховішча."
   },

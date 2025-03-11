@@ -901,6 +901,9 @@
   "no": {
     "message": "Nē"
   },
+  "location": {
+    "message": "Atrašanās vieta"
+  },
   "unexpectedError": {
     "message": "Ir radusies neparedzēta kļūda."
   },

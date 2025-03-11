@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Όχι"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Συνδεθείτε ή δημιουργήστε νέο λογαριασμό για να αποκτήσετε πρόσβαση στο vault σας."
   },

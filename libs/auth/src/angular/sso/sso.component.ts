@@ -199,7 +199,9 @@ export class SsoComponent implements OnInit {
    * @returns True if the value is a valid SSO client type, otherwise false
    */
   private isValidSsoClientType(value: string): value is SsoClientType {
-    return [ClientType.Web, ClientType.Browser, ClientType.Desktop].includes(value as ClientType);
+    return [ClientType.Web, ClientType.Browser, ClientType.Desktop, ClientType.Cli].includes(
+      value as ClientType,
+    );
   }
 
   /**

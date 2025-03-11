@@ -6,7 +6,7 @@
     "message": "Критичне апликације"
   },
   "noCriticalAppsAtRisk": {
-    "message": "No critical applications at risk"
+    "message": "Нема критичних апликација у ризику"
   },
   "accessIntelligence": {
     "message": "Приступи интелигенцији"
@@ -202,7 +202,7 @@
     "message": "Напомене"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Приватна белешка"
   },
   "note": {
     "message": "Белешка"
@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Не"
   },
+  "location": {
+    "message": "Локација"
+  },
   "loginOrCreateNewAccount": {
     "message": "Пријавите се или креирајте нови налог за приступ Сефу."
   },
@@ -1183,7 +1186,7 @@
     "message": "Истекло је време сесије за аутентификацију. Молим вас покрените процес пријаве поново."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Потврдите идентитет"
   },
   "weDontRecognizeThisDevice": {
     "message": "Не препознајемо овај уређај. Унесите код послат на адресу ваше електронске поште да би сте потврдили ваш идентитет."
@@ -2256,7 +2259,7 @@
     "message": "Опозови Приступ"
   },
   "revoke": {
-    "message": "Revoke"
+    "message": "Опозови"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Овај добављач услуге пријављивања у два корака је омогућен на вашем налогу."
@@ -5088,14 +5091,14 @@
     "message": "Власници и администратори организација изузети су ове политике."
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "Ограничити приказе"
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "Нико не може да види ово Send након што се достигне ограничење.",
     "description": "Displayed under the limit views field on Send"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "Осталих прегледа: $ACCESSCOUNT$",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -5105,11 +5108,11 @@
     }
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Детаљи Send-а",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
-    "message": "Text to share"
+    "message": "Текст за дељење"
   },
   "sendTypeFile": {
     "message": "Датотека"
@@ -5118,7 +5121,7 @@
     "message": "Текст"
   },
   "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
+    "message": "Додајте опционалну лозинку за примаоце да приступе овом Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
@@ -5146,14 +5149,14 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Are you sure you want to permanently delete this Send?",
+    "message": "Да ли сте сигурни да желите да трајно избришете овај Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Брисање после"
   },
   "deletionDateDescV2": {
-    "message": "The Send will be permanently deleted on this date.",
+    "message": "Send ће бити трајно обрисано у наведени датум.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5203,7 +5206,7 @@
     "message": "Брисање на чекању"
   },
   "hideTextByDefault": {
-    "message": "Hide text by default"
+    "message": "Сакриј текст подразумевано"
   },
   "expired": {
     "message": "Истекло"
@@ -5674,7 +5677,7 @@
     "message": "Појавила се грешка при снимању датума брисања и истицања."
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "Сакријте свој имејл од гледалаца."
   },
   "webAuthnFallbackMsg": {
     "message": "Да би проверили Ваш 2FA Кликните на дугме испод."
@@ -9835,13 +9838,13 @@
     "message": "Сазнајте више о API Bitwarden-а"
   },
   "fileSend": {
-    "message": "File Send"
+    "message": "Датотека „Send“"
   },
   "fileSends": {
     "message": "Датотека „Send“"
   },
   "textSend": {
-    "message": "Text Send"
+    "message": "Текст „Send“"
   },
   "textSends": {
     "message": "Текст „Send“"
@@ -10476,7 +10479,7 @@
     "message": "Assigned seats exceed available seats."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "Променити ризичну лозинку"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"
@@ -10485,7 +10488,7 @@
     "message": "Do not allow members to unlock their account with a PIN."
   },
   "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",
+    "message": "$PRODUCT_TYPE$ планови немају приступ стварним извештајима догађаја",
     "placeholders": {
       "product_type": {
         "content": "$1",
@@ -10494,12 +10497,12 @@
     }
   },
   "upgradeForFullEvents": {
-    "message": "Get full access to organization event logs by upgrading to a Teams or Enterprise plan."
+    "message": "Добијте потпуни приступ извештајима о догађајима организације надоградњом на Teams или Enterprise."
   },
   "upgradeEventLogTitle": {
-    "message": "Upgrade for real event log data"
+    "message": "Надоградите за извештај о реалним догађајима"
   },
   "upgradeEventLogMessage": {
-    "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
+    "message": "Ови догађаји су само примери и не одражавају стварне догађаје у вашем Bitwarden отганизацији."
   }
 }

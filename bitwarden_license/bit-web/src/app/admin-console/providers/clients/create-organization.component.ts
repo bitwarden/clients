@@ -9,7 +9,6 @@ import { OrganizationPlansComponent } from "@bitwarden/web-vault/app/billing";
   selector: "app-create-organization",
   templateUrl: "create-organization.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class CreateOrganizationComponent implements OnInit {
   @ViewChild(OrganizationPlansComponent, { static: true })
   orgPlansComponent: OrganizationPlansComponent;

@@ -1032,6 +1032,9 @@
   "no": {
     "message": "No"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Identifícate o crea una nueva cuenta para acceder a tu caja fuerte."
   },

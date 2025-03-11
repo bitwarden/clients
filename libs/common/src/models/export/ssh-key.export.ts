@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { import_ssh_key } from "@bitwarden/sdk-internal";
 
 import { EncString } from "../../platform/models/domain/enc-string";
 import { SshKey as SshKeyDomain } from "../../vault/models/domain/ssh-key";
@@ -17,16 +18,18 @@ export class SshKeyExport {
   }
 
   static toView(req: SshKeyExport, view = new SshKeyView()) {
-    view.privateKey = req.privateKey;
-    view.publicKey = req.publicKey;
-    view.keyFingerprint = req.keyFingerprint;
+    const parsedKey = import_ssh_key(req.privateKey);
+    view.privateKey = parsedKey.privateKey;
+    view.publicKey = parsedKey.publicKey;
+    view.keyFingerprint = parsedKey.fingerprint;
     return view;
   }
 
   static toDomain(req: SshKeyExport, domain = new SshKeyDomain()) {
-    domain.privateKey = req.privateKey != null ? new EncString(req.privateKey) : null;
-    domain.publicKey = req.publicKey != null ? new EncString(req.publicKey) : null;
-    domain.keyFingerprint = req.keyFingerprint != null ? new EncString(req.keyFingerprint) : null;
+    const parsedKey = import_ssh_key(req.privateKey);
+    domain.privateKey = new EncString(parsedKey.privateKey);
+    domain.publicKey = new EncString(parsedKey.publicKey);
+    domain.keyFingerprint = new EncString(parsedKey.fingerprint);
     return domain;
   }
 
