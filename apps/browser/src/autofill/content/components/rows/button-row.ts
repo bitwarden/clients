@@ -68,13 +68,15 @@ const buttonRowStyles = css`
 `;
 
 const optionSelectionsStyles = css`
-  gap: 8px;
+  gap: ${spacing["2"]};
   display: flex;
   align-items: center;
   justify-content: flex-end;
   overflow: hidden;
 
   > ${optionSelectionTagName} {
-    min-width: calc(50% - ${spacing["1.5"]});
+    /* assumes two option selections */
+    max-width: calc(50% - ${spacing["1.5"]});
+    min-width: 120px;
   }
 `;

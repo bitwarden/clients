@@ -64,6 +64,7 @@ const selectionButtonStyles = ({
   flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
+  columns: ${iconSize} max-content ${iconSize};
   border-radius: ${border.radius.full};
   padding: ${spacing["1"]} ${spacing["2"]};
   max-height: fit-content;
@@ -98,7 +99,6 @@ const selectionButtonStyles = ({
 `;
 
 const dropdownButtonTextStyles = css`
-  max-width: calc(100% - (${iconSize} * 2));
   overflow-x: hidden;
   text-overflow: ellipsis;
 `;
