@@ -78,8 +78,6 @@ export class EncryptServiceImplementation implements EncryptService {
       throw new Error("No key provided for decryption.");
     }
 
-    key = this.resolveLegacyKey(key, encString);
-
     // DO NOT REMOVE OR MOVE. This prevents downgrade to mac-less CBC, which would compromise integrity and confidentiality.
     if (key.macKey != null && encString?.mac == null) {
       this.logService.error(
@@ -144,8 +142,6 @@ export class EncryptServiceImplementation implements EncryptService {
     if (encThing == null) {
       throw new Error("Nothing provided for decryption.");
     }
-
-    key = this.resolveLegacyKey(key, encThing);
 
     // DO NOT REMOVE OR MOVE. This prevents downgrade to mac-less CBC, which would compromise integrity and confidentiality.
     if (key.macKey != null && encThing.macBytes == null) {
@@ -297,20 +293,5 @@ export class EncryptServiceImplementation implements EncryptService {
     if (this.logMacFailures) {
       this.logService.error(msg);
     }
-  }
-
-  /**
-   * Transform into new key for the old encrypt-then-mac scheme if required, otherwise return the current key unchanged
-   * @param encThing The encrypted object (e.g. encString or encArrayBuffer) that you want to decrypt
-   */
-  resolveLegacyKey(key: SymmetricCryptoKey, encThing: Encrypted): SymmetricCryptoKey {
-    if (
-      encThing.encryptionType === EncryptionType.AesCbc128_HmacSha256_B64 &&
-      key.encType === EncryptionType.AesCbc256_B64
-    ) {
-      return new SymmetricCryptoKey(key.key, EncryptionType.AesCbc128_HmacSha256_B64);
-    }
-
-    return key;
   }
 }
