@@ -30,7 +30,7 @@ import { Launchable } from "@bitwarden/common/vault/interfaces/launchable";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { PasswordRepromptService, SshImportPromptService } from "@bitwarden/vault";
 
 @Component({
   selector: "app-vault-add-edit",
@@ -76,6 +76,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     cipherAuthorizationService: CipherAuthorizationService,
     toastService: ToastService,
     sdkService: SdkService,
+    sshImportPromptService: SshImportPromptService,
   ) {
     super(
       cipherService,
@@ -98,6 +99,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       cipherAuthorizationService,
       toastService,
       sdkService,
+      sshImportPromptService,
     );
   }
 
@@ -135,12 +137,15 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
 
     if (this.showTotp()) {
       await this.totpUpdateCode();
-      const interval = this.totpService.getTimeInterval(this.cipher.login.totp);
-      await this.totpTick(interval);
-
-      this.totpInterval = window.setInterval(async () => {
+      const totpResponse = await firstValueFrom(this.totpService.getCode$(this.cipher.login.totp));
+      if (totpResponse) {
+        const interval = totpResponse.period;
         await this.totpTick(interval);
-      }, 1000);
+
+        this.totpInterval = window.setInterval(async () => {
+          await this.totpTick(interval);
+        }, 1000);
+      }
     }
 
     this.cardIsExpired = isCardExpired(this.cipher.card);
@@ -273,7 +278,8 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       return;
     }
 
-    this.totpCode = await this.totpService.getCode(this.cipher.login.totp);
+    const totpResponse = await firstValueFrom(this.totpService.getCode$(this.cipher.login.totp));
+    this.totpCode = totpResponse?.code;
     if (this.totpCode != null) {
       if (this.totpCode.length > 4) {
         const half = Math.floor(this.totpCode.length / 2);

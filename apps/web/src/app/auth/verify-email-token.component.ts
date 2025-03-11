@@ -16,7 +16,6 @@ import { ToastService } from "@bitwarden/components";
   selector: "app-verify-email-token",
   templateUrl: "verify-email-token.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class VerifyEmailTokenComponent implements OnInit {
   constructor(
     private router: Router,
