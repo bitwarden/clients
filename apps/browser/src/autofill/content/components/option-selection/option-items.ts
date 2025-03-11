@@ -43,7 +43,7 @@ export function OptionItems({
 }
 
 const optionsStyles = ({ theme, topOffset }: { theme: Theme; topOffset: number }) => css`
-  ${typography.body2}
+  ${typography.body1}
 
   -webkit-font-smoothing: antialiased;
   position: absolute;
