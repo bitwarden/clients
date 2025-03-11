@@ -1,6 +1,13 @@
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { map, of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  VaultFilterMetadata,
+  VaultFilterMetadataService,
+} from "@bitwarden/common/vault/search/vault-filter-metadata.service";
 import { I18nMockService } from "@bitwarden/components";
 
 import { FilterBuilderComponent } from "./filter-builder.component";
@@ -20,6 +27,23 @@ export default {
             multiSelectClearAll: "Clear All",
           }),
         },
+        {
+          provide: VaultFilterMetadataService,
+          useValue: {
+            collectMetadata: () => {
+              return map<CipherView[], VaultFilterMetadata>((_ciphers) => {
+                return {
+                  vaults: new Set([null, "1"]),
+                  folders: new Set(["1"]),
+                  collections: new Set(["1"]),
+                  itemTypes: new Set([CipherType.Login]),
+                  fieldNames: new Set(["one", "two"]),
+                  anyHaveAttachment: true,
+                } satisfies VaultFilterMetadata;
+              });
+            },
+          } satisfies VaultFilterMetadataService,
+        },
       ],
     }),
   ],
@@ -31,7 +55,10 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <app-filter-builder></app-filter-builder>
+      <app-filter-builder [ciphers]="ciphers"></app-filter-builder>
     `,
   }),
+  args: {
+    ciphers: of([]),
+  },
 };
