@@ -1,4 +1,4 @@
-import { Observable, map, shareReplay } from "rxjs";
+import { Observable, map } from "rxjs";
 
 import { ActiveUserState, GlobalState, StateProvider } from "../../../platform/state";
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "../../abstractions/vault-settings/vault-settings.service";
@@ -46,10 +46,7 @@ export class VaultSettingsService implements VaultSettingsServiceAbstraction {
    * {@link VaultSettingsServiceAbstraction.clickItemsToAutofillVaultView$$}
    */
   readonly clickItemsToAutofillVaultView$: Observable<boolean> =
-    this.clickItemsToAutofillVaultViewState.state$.pipe(
-      map((x) => x ?? false),
-      shareReplay({ bufferSize: 1, refCount: false }),
-    );
+    this.clickItemsToAutofillVaultViewState.state$.pipe(map((x) => x ?? false));
 
   constructor(private stateProvider: StateProvider) {}
 

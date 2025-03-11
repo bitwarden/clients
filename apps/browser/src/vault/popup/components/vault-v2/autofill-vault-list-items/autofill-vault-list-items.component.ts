@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, map, Observable } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
@@ -33,7 +33,7 @@ import { VaultListItemsContainerComponent } from "../vault-list-items-container/
   selector: "app-autofill-vault-list-items",
   templateUrl: "autofill-vault-list-items.component.html",
 })
-export class AutofillVaultListItemsComponent {
+export class AutofillVaultListItemsComponent implements OnInit {
   /**
    * The list of ciphers that can be used to autofill the current page.
    * @protected
@@ -47,9 +47,7 @@ export class AutofillVaultListItemsComponent {
    */
   protected showRefresh: boolean = BrowserPopupUtils.inSidebar(window);
 
-  /** Flag indicating whether the login item should automatically autofill when clicked  */
-  protected clickItemsToAutofillVaultView$: Observable<boolean> =
-    this.vaultSettingsService.clickItemsToAutofillVaultView$;
+  clickItemsToAutofillVaultView = false;
 
   protected groupByType = toSignal(
     this.vaultPopupItemsService.hasFilterApplied$.pipe(map((hasFilter) => !hasFilter)),
@@ -84,6 +82,12 @@ export class AutofillVaultListItemsComponent {
     private vaultSettingsService: VaultSettingsService,
   ) {
     // TODO: Migrate logic to show Autofill policy toast PM-8144
+  }
+
+  async ngOnInit() {
+    this.clickItemsToAutofillVaultView = await firstValueFrom(
+      this.vaultSettingsService.clickItemsToAutofillVaultView$,
+    );
   }
 
   /**
