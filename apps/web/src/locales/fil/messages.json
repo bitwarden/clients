@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Hindi"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Mag-log in o gumawa ng bagong account para ma-access ang secure vault mo."
   },

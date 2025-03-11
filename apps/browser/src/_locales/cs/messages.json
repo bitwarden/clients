@@ -901,6 +901,9 @@
   "no": {
     "message": "Ne"
   },
+  "location": {
+    "message": "Umístění"
+  },
   "unexpectedError": {
     "message": "Vyskytla se neočekávaná chyba."
   },

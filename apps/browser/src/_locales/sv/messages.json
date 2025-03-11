@@ -901,6 +901,9 @@
   "no": {
     "message": "Nej"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "Ett okänt fel har inträffat."
   },

@@ -27,21 +27,6 @@ describe("SymmetricCryptoKey", () => {
       });
     });
 
-    it("AesCbc128_HmacSha256_B64", () => {
-      const key = makeStaticByteArray(32);
-      const cryptoKey = new SymmetricCryptoKey(key, EncryptionType.AesCbc128_HmacSha256_B64);
-
-      expect(cryptoKey).toEqual({
-        encKey: key.slice(0, 16),
-        encKeyB64: "AAECAwQFBgcICQoLDA0ODw==",
-        encType: 1,
-        key: key,
-        keyB64: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
-        macKey: key.slice(16, 32),
-        macKeyB64: "EBESExQVFhcYGRobHB0eHw==",
-      });
-    });
-
     it("AesCbc256_HmacSha256_B64", () => {
       const key = makeStaticByteArray(64);
       const cryptoKey = new SymmetricCryptoKey(key);

@@ -901,6 +901,9 @@
   "no": {
     "message": "לא"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "אירעה שגיאה לא צפויה."
   },

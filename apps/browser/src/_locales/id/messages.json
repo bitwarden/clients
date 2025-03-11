@@ -901,6 +901,9 @@
   "no": {
     "message": "Tidak"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "Terjadi kesalahan yang tak diduga."
   },

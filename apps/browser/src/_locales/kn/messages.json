@@ -901,6 +901,9 @@
   "no": {
     "message": "ಇಲ್ಲ"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "ಅನಿರೀಕ್ಷಿತ ದೋಷ ಸಂಭವಿಸಿದೆ."
   },

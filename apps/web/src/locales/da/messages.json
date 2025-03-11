@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Nej"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Log ind eller opret en ny konto for at tilgå din sikre boks."
   },
