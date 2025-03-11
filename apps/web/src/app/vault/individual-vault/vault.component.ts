@@ -75,15 +75,15 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
-import { TrialFlowService } from "../../billing/services/trial-flow.service";
-import { FreeTrial } from "../../billing/types/free-trial";
-import { SharedModule } from "../../shared/shared.module";
-import { AssignCollectionsWebComponent } from "../components/assign-collections";
 import {
   CollectionDialogAction,
   CollectionDialogTabType,
   openCollectionDialog,
-} from "../components/collection-dialog";
+} from "../../admin-console/organizations/shared/components/collection-dialog";
+import { TrialFlowService } from "../../billing/services/trial-flow.service";
+import { FreeTrial } from "../../billing/types/free-trial";
+import { SharedModule } from "../../shared/shared.module";
+import { AssignCollectionsWebComponent } from "../components/assign-collections";
 import {
   VaultItemDialogComponent,
   VaultItemDialogMode,

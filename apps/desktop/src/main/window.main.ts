@@ -9,6 +9,7 @@ import { firstValueFrom } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
+import { ThemeTypes, Theme } from "@bitwarden/common/platform/enums";
 import { processisolations } from "@bitwarden/desktop-napi";
 import { BiometricStateService } from "@bitwarden/key-management";
 
@@ -91,7 +92,6 @@ export class WindowMain {
             app.quit();
             return;
           } else {
-            // eslint-disable-next-line
             app.on("second-instance", (event, argv, workingDirectory) => {
               // Someone tried to run a second instance, we should focus our window.
               if (this.win != null) {
@@ -298,11 +298,15 @@ export class WindowMain {
   }
 
   // Retrieve the background color
-  // Resolves background color missmatch when starting the application.
+  // Resolves background color mismatch when starting the application.
   async getBackgroundColor(): Promise<string> {
     let theme = await this.storageService.get("global_theming_selection");
 
-    if (theme == null || theme === "system") {
+    if (
+      theme == null ||
+      !Object.values(ThemeTypes).includes(theme as Theme) ||
+      theme === "system"
+    ) {
       theme = nativeTheme.shouldUseDarkColors ? "dark" : "light";
     }
 
@@ -311,8 +315,6 @@ export class WindowMain {
         return "#ededed";
       case "dark":
         return "#15181e";
-      case "nord":
-        return "#3b4252";
     }
   }
 

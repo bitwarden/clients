@@ -271,7 +271,7 @@ export abstract class LoginStrategy {
       }
     }
 
-    // Must come before setting keys, user key needs email to update additional keys
+    // Must come before setting keys, user key needs email to update additional keys.
     const userId = await this.saveAccountInformation(response);
     result.userId = userId;
 
