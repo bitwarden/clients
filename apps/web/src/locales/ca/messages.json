@@ -1032,6 +1032,9 @@
   "no": {
     "message": "No"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Inicieu sessió o creeu un compte nou per accedir a la caixa forta."
   },

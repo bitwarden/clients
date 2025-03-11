@@ -901,6 +901,9 @@
   "no": {
     "message": "Όχι"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "Παρουσιάστηκε ένα μη αναμενόμενο σφάλμα."
   },

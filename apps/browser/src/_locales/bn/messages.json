@@ -901,6 +901,9 @@
   "no": {
     "message": "না"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "একটি অপ্রত্যাশিত ত্রুটি ঘটেছে।"
   },

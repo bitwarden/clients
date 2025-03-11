@@ -901,6 +901,9 @@
   "no": {
     "message": "Không"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "Một lỗi bất ngờ đã xảy ra."
   },

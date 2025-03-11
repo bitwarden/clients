@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Nē"
   },
+  "location": {
+    "message": "Atrašanās vieta"
+  },
   "loginOrCreateNewAccount": {
     "message": "Jāpiesakās vai jāizveido jauns konts, lai piekļūtu drošajai glabātavai."
   },

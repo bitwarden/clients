@@ -1032,6 +1032,9 @@
   "no": {
     "message": "否"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "登入或建立帳戶以存取您的安全密碼庫。"
   },

@@ -1032,6 +1032,9 @@
   "no": {
     "message": "לא"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "צור חשבון חדש או התחבר כדי לגשת לכספת המאובטחת שלך."
   },
