@@ -1,5 +1,0 @@
-{
-  "ignorePatterns": [
-    "bitwarden-query-grammar.ts" // generated grammar file
-  ]
-}

@@ -362,6 +362,7 @@ export default tseslint.config(
       "libs/components/tailwind.config.js",
 
       "scripts/*.js",
+      "**/*grammar.ts",
     ],
   },
 );
