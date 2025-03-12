@@ -255,13 +255,15 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected async startStandardAuthRequestLogin(clearCache: boolean = false): Promise<void> {
+  protected async startStandardAuthRequestLogin(
+    clearCachedRequest: boolean = false,
+  ): Promise<void> {
     this.showResendNotification = false;
 
     if (await this.configService.getFeatureFlag(FeatureFlag.PM9112_DeviceApprovalPersistence)) {
       // Used for manually refreshing the auth request when clicking the resend auth request
       // on the ui.
-      if (clearCache) {
+      if (clearCachedRequest) {
         this.loginViaAuthRequestCacheService.clearCacheLoginView();
       }
 
