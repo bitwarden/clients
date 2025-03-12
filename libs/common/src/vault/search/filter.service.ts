@@ -44,7 +44,8 @@ export class DefaultFilterService implements FilterService {
           organizations,
           folders,
           collections,
-          index: this.buildIndex(ciphers),
+          // TODO: temp, we will want to build our own index of cipher field-values, and store that here. alternatively, rewrite the way we build a lunr index to be consistent with how we want all-field searching to work.
+          index: null!, // this.buildIndex(ciphers),
         };
       }),
     );
