@@ -13,7 +13,6 @@ import { DecryptionFailureDialogComponent } from "@bitwarden/vault";
 import { AccessibilityCookieComponent } from "../auth/accessibility-cookie.component";
 import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { EnvironmentComponent } from "../auth/environment.component";
-import { HintComponent } from "../auth/hint.component";
 import { LoginModule } from "../auth/login/login.module";
 import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
@@ -74,7 +73,6 @@ import { SharedModule } from "./shared/shared.module";
     EnvironmentComponent,
     FolderAddEditComponent,
     HeaderComponent,
-    HintComponent,
     PasswordHistoryComponent,
     PremiumComponent,
     RemovePasswordComponent,
