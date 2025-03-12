@@ -14,6 +14,7 @@ import {
   isInCollection,
   isInFolder,
   isInOrg,
+  isInTrash,
   isIsFavorite,
   isNot,
   isOr,
@@ -257,6 +258,20 @@ function handleNode(node: AstNode): ProcessInstructions {
               : context.ciphers.filter((cipher) => cipher.organizationId === organizationId),
         };
       },
+      sections: [
+        {
+          start: node.start,
+          end: node.end,
+          type: node.type,
+        },
+      ],
+    };
+  } else if (isInTrash(node)) {
+    return {
+      filter: (context) => ({
+        ...context,
+        ciphers: context.ciphers.filter((cipher) => cipher.isDeleted),
+      }),
       sections: [
         {
           start: node.start,

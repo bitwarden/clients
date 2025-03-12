@@ -13,6 +13,7 @@ export const AstNodeTypeNames = [
   "inFolder",
   "inCollection",
   "inOrg",
+  "inTrash",
   "isFavorite",
 ] as const;
 export type AstNodeType = (typeof AstNodeTypeNames)[number];
@@ -31,6 +32,7 @@ export type AstNode =
   | InFolder
   | InCollection
   | InOrg
+  | InTrash
   | IsFavorite;
 
 type AstNodeBase = {
@@ -163,6 +165,14 @@ export type InOrg = AstNodeBase & {
 
 export function isInOrg(x: AstNode): x is InOrg {
   return x.type === "inOrg";
+}
+
+export type InTrash = AstNodeBase & {
+  type: "inTrash";
+};
+
+export function isInTrash(x: AstNode): x is InTrash {
+  return x.type === "inTrash";
 }
 
 export type IsFavorite = AstNodeBase & {
