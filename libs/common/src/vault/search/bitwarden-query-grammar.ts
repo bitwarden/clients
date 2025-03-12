@@ -264,6 +264,15 @@ const grammar: Grammar = {
     },
     {
       name: "TERM",
+      symbols: [lexer.has("func_in") ? { type: "func_in" } : func_in, { literal: "my_vault" }],
+      postprocess: function (d) {
+        const start = d[0].offset;
+        const length = 11;
+        return { type: "inMyVault", d: d, start, end: start + length, length };
+      },
+    },
+    {
+      name: "TERM",
       symbols: [lexer.has("func_in") ? { type: "func_in" } : func_in, { literal: "trash" }],
       postprocess: function (d) {
         const start = d[0].offset;
@@ -277,7 +286,7 @@ const grammar: Grammar = {
       postprocess: function (d) {
         const start = d[0].offset;
         const length = 11;
-        return { type: "isFavorite", d: d, start, end: d[0].offset + length, length };
+        return { type: "isFavorite", d: d, start, end: start + length, length };
       },
     },
     {

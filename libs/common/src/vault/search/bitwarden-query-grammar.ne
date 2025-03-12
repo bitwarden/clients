@@ -56,10 +56,11 @@ TERM ->
       | %func_in "collection" %access %string {% function(d) { const start = d[0].offset; const end = d[3].offset + d[3].value.length; return { type: 'inCollection', collection: d[3].value, d: d, start, end, length: end - start + 1 } } %}
       # only items assigned to a specified organization
       | %func_in "org" %access %string        {% function(d) { const start = d[0].offset; const end = d[3].offset + d[3].value.length; return { type: 'inOrg', org: d[3].value, d: d, start, end, length: end - start + 1 } } %}
+      | %func_in "my_vault"                   {% function(d) { const start = d[0].offset; const length = 11; return { type: 'inMyVault', d: d, start, end: start + length, length } } %}
       # only items in trash
       | %func_in "trash"                      {% function(d) { const start = d[0].offset; const length = 8; return { type: 'inTrash', d: d, start, end: start + length, length } } %}
       # only items marked as favorites
-      | %func_is "favorite"                   {% function(d) { const start = d[0].offset; const length = 11; return { type: 'isFavorite', d: d, start, end: d[0].offset + length, length } } %}
+      | %func_is "favorite"                   {% function(d) { const start = d[0].offset; const length = 11; return { type: 'isFavorite', d: d, start, end: start + length, length } } %}
       # only items of given type type
       | %func_type %string                    {% function(d) { const start = d[0].offset; const end = d[1].offset + d[1].value.length; return { type: 'type', d:d, cipherType: d[1].value, start, end, length: end - start + 1 } } %}
       # Boolean NOT operator

@@ -13,6 +13,7 @@ export const AstNodeTypeNames = [
   "inFolder",
   "inCollection",
   "inOrg",
+  "inMyVault",
   "inTrash",
   "isFavorite",
   "type",
@@ -33,6 +34,7 @@ export type AstNode =
   | InFolder
   | InCollection
   | InOrg
+  | InMyVault
   | InTrash
   | IsFavorite
   | TypeFilter;
@@ -167,6 +169,14 @@ export type InOrg = AstNodeBase & {
 
 export function isInOrg(x: AstNode): x is InOrg {
   return x.type === "inOrg";
+}
+
+export type InMyVault = AstNodeBase & {
+  type: "inMyVault";
+};
+
+export function isInMyVault(x: AstNode): x is InMyVault {
+  return x.type === "inMyVault";
 }
 
 export type InTrash = AstNodeBase & {

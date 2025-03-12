@@ -13,6 +13,7 @@ import {
   isHasUri,
   isInCollection,
   isInFolder,
+  isInMyVault,
   isInOrg,
   isInTrash,
   isIsFavorite,
@@ -259,6 +260,20 @@ function handleNode(node: AstNode): ProcessInstructions {
               : context.ciphers.filter((cipher) => cipher.organizationId === organizationId),
         };
       },
+      sections: [
+        {
+          start: node.start,
+          end: node.end,
+          type: node.type,
+        },
+      ],
+    };
+  } else if (isInMyVault(node)) {
+    return {
+      filter: (context) => ({
+        ...context,
+        ciphers: context.ciphers.filter((cipher) => cipher.organizationId == null),
+      }),
       sections: [
         {
           start: node.start,
