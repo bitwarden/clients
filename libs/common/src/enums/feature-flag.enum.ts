@@ -29,8 +29,6 @@ export enum FeatureFlag {
 
   PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
   VaultBulkManagementAction = "vault-bulk-management-action",
-  SSHKeyVaultItem = "ssh-key-vault-item",
-  SSHAgent = "ssh-agent",
   UnauthenticatedExtensionUIRefresh = "unauth-ui-refresh",
   CipherKeyEncryption = "cipher-key-encryption",
   TrialPaymentOptional = "PM-8163-trial-payment",
@@ -84,8 +82,6 @@ export const DefaultFeatureFlagValue = {
 
   [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
   [FeatureFlag.VaultBulkManagementAction]: FALSE,
-  [FeatureFlag.SSHKeyVaultItem]: FALSE,
-  [FeatureFlag.SSHAgent]: FALSE,
   [FeatureFlag.UnauthenticatedExtensionUIRefresh]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
   [FeatureFlag.TrialPaymentOptional]: FALSE,
