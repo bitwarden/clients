@@ -21,7 +21,6 @@ import { AccountComponent } from "../auth/popup/account-switching/account.compon
 import { CurrentAccountComponent } from "../auth/popup/account-switching/current-account.component";
 import { ExtensionAnonLayoutWrapperComponent } from "../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
 import { HintComponent } from "../auth/popup/hint.component";
-import { HomeComponent } from "../auth/popup/home.component";
 import { LoginDecryptionOptionsComponentV1 } from "../auth/popup/login-decryption-options/login-decryption-options-v1.component";
 import { LoginViaAuthRequestComponentV1 } from "../auth/popup/login-via-auth-request-v1.component";
 import { RemovePasswordComponent } from "../auth/popup/remove-password.component";
@@ -95,7 +94,6 @@ import "../platform/popup/locales";
     ColorPasswordPipe,
     ColorPasswordCountPipe,
     HintComponent,
-    HomeComponent,
     LoginViaAuthRequestComponentV1,
     LoginDecryptionOptionsComponentV1,
     SetPasswordComponent,
