@@ -148,7 +148,7 @@ export class CipherService implements CipherServiceAbstraction {
    *
    * An empty array indicates that all ciphers were successfully decrypted.
    */
-  failedToDecryptCiphers$(userId: UserId): Observable<CipherView[]> {
+  failedToDecryptCiphers$(userId: UserId): Observable<CipherView[] | null> {
     return this.failedToDecryptCiphersState(userId).state$.pipe(
       filter((ciphers) => ciphers != null),
       switchMap((ciphers) => merge(this.forceCipherViews$, of(ciphers))),
