@@ -1872,7 +1872,7 @@
     "message": "Clé SSH"
   },
   "newItemHeader": {
-    "message": "Nouveau/nouvelle $TYPE$",
+    "message": "Créer un(e) $TYPE$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -4379,7 +4379,7 @@
     }
   },
   "new": {
-    "message": "Nouveau"
+    "message": "Créer"
   },
   "removeItem": {
     "message": "Retirer $NAME$",
