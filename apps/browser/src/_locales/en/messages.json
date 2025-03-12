@@ -3341,9 +3341,6 @@
   "loginWithDevice": {
     "message": "Log in with device"
   },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Log in with device must be set up in the settings of the Bitwarden app. Need another option?"
-  },
   "fingerprintPhraseHeader": {
     "message": "Fingerprint phrase"
   },
@@ -3354,9 +3351,6 @@
     "message": "Resend notification"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "View all log in options"
   },
   "notificationSentDevice": {
@@ -3548,9 +3542,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Your request has been sent to your admin."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "You will be notified once approved."
   },
   "troubleLoggingIn": {
     "message": "Trouble logging in?"

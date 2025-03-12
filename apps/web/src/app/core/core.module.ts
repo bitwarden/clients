@@ -50,6 +50,7 @@ import {
 import { AccountApiService as AccountApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
@@ -279,6 +280,7 @@ const safeProviders: SafeProvider[] = [
     useClass: WebSetPasswordJitService,
     deps: [
       ApiService,
+      MasterPasswordApiService,
       KeyServiceAbstraction,
       EncryptService,
       I18nServiceAbstraction,
