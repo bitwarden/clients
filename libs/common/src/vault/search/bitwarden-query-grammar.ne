@@ -40,7 +40,7 @@ TERM ->
       # naked string search term, search all fields
       %string                                 {% function(d) { const start = d[0].offset; const end = d[0].offset + d[0].value.length; return { type: 'term', value: d[0].value, d: d[0], start, end, length: d[0].value.length } } %} 
       # specified field search term
-      | %string %access %string               {% function(d) { const start = d[0].offset; const end = d[2].offset + d[2].value.length; return { type: 'field term', field: d[0], term: d[2], d: d, start, end, length: end - start + 1 } } %}
+      | %string %access %string               {% function(d) { const start = d[0].offset; const end = d[2].offset + d[2].value.length; return { type: 'field term', field: d[0].value, term: d[2].value, d: d, start, end, length: end - start + 1 } } %}
       # only items with attachments
       | %func_has "attachment"                {% function(d) { const start = d[0].offset; const length = 14; return { type: 'hasAttachment', d: d, start, end: d[0].offset + length, length } } %}
       # only items with URIs
@@ -50,11 +50,11 @@ TERM ->
       # only items assigned to a collection
       | %func_has "collection"                {% function(d) { const start = d[0].offset; const length = 14; return { type: 'hasCollection', d: d, start, end: d[0].offset + length, length } } %}
       # only items assigned to a specified folder
-      | %func_in "folder" %access %string     {% function(d) { const start = d[0].offset; const end = d[3].offset + d[3].value.length; return { type: 'inFolder', folder: d[3], d: d, start, end, length: end - start } } %}
+      | %func_in "folder" %access %string     {% function(d) { const start = d[0].offset; const end = d[3].offset + d[3].value.length; return { type: 'inFolder', folder: d[3].value, d: d, start, end, length: end - start } } %}
       # only items assigned to a specified collection
-      | %func_in "collection" %access %string {% function(d) { const start = d[0].offset; const end = d[3].offset + d[3].value.length; return { type: 'inCollection', collection: d[3], d: d, start, end, length: end - start + 1 } } %}
+      | %func_in "collection" %access %string {% function(d) { const start = d[0].offset; const end = d[3].offset + d[3].value.length; return { type: 'inCollection', collection: d[3].value, d: d, start, end, length: end - start + 1 } } %}
       # only items assigned to a specified organization
-      | %func_in "org" %access %string        {% function(d) { const start = d[0].offset; const end = d[3].offset + d[3].value.length; return { type: 'inOrg', org: d[3], d: d, start, end, length: end - start + 1 } } %}
+      | %func_in "org" %access %string        {% function(d) { const start = d[0].offset; const end = d[3].offset + d[3].value.length; return { type: 'inOrg', org: d[3].value, d: d, start, end, length: end - start + 1 } } %}
       # only items marked as favorites
       | %func_is "favorite"                   {% function(d) { const start = d[0].offset; const length = 11; return { type: 'isFavorite', d: d, start, end: d[0].offset + length, length } } %}
       # Boolean NOT operator

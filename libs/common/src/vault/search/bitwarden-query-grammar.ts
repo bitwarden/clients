@@ -166,8 +166,8 @@ const grammar: Grammar = {
         const end = d[2].offset + d[2].value.length;
         return {
           type: "field term",
-          field: d[0],
-          term: d[2],
+          field: d[0].value,
+          term: d[2].value,
           d: d,
           start,
           end,
@@ -222,7 +222,7 @@ const grammar: Grammar = {
       postprocess: function (d) {
         const start = d[0].offset;
         const end = d[3].offset + d[3].value.length;
-        return { type: "inFolder", folder: d[3], d: d, start, end, length: end - start };
+        return { type: "inFolder", folder: d[3].value, d: d, start, end, length: end - start };
       },
     },
     {
@@ -238,7 +238,7 @@ const grammar: Grammar = {
         const end = d[3].offset + d[3].value.length;
         return {
           type: "inCollection",
-          collection: d[3],
+          collection: d[3].value,
           d: d,
           start,
           end,
@@ -257,7 +257,7 @@ const grammar: Grammar = {
       postprocess: function (d) {
         const start = d[0].offset;
         const end = d[3].offset + d[3].value.length;
-        return { type: "inOrg", org: d[3], d: d, start, end, length: end - start + 1 };
+        return { type: "inOrg", org: d[3].value, d: d, start, end, length: end - start + 1 };
       },
     },
     {
