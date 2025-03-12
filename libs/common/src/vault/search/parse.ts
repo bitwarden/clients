@@ -1,7 +1,7 @@
 import { Parser, Grammar } from "nearley";
 
 import { Utils } from "../../platform/misc/utils";
-import { CardLinkedId, FieldType, LinkedIdType, LoginLinkedId } from "../enums";
+import { CardLinkedId, CipherType, FieldType, LinkedIdType, LoginLinkedId } from "../enums";
 import { CipherView } from "../models/view/cipher.view";
 
 import {
@@ -21,6 +21,7 @@ import {
   isParentheses,
   isSearch,
   isTerm,
+  isTypeFilter,
 } from "./ast";
 import grammar from "./bitwarden-query-grammar";
 import { ProcessInstructions } from "./query.types";
@@ -285,6 +286,25 @@ function handleNode(node: AstNode): ProcessInstructions {
       filter: (context) => ({
         ...context,
         ciphers: context.ciphers.filter((cipher) => cipher.favorite),
+      }),
+      sections: [
+        {
+          start: node.start,
+          end: node.end,
+          type: node.type,
+        },
+      ],
+    };
+  } else if (isTypeFilter(node)) {
+    const typeTest = fieldNameToRegexTest(node.cipherType);
+    return {
+      filter: (context) => ({
+        ...context,
+        ciphers: context.ciphers.filter(
+          (cipher) =>
+            typeTest.test(CipherType[cipher.type]) ||
+            CipherType[node.cipherType as any] === CipherType[cipher.type],
+        ),
       }),
       sections: [
         {

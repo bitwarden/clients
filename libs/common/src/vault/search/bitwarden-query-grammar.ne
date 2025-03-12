@@ -15,6 +15,7 @@ let lexer = moo.compile({
   func_has:           'has:',
   func_in:            'in:',
   func_is:            'is:',
+  func_type:          'type:',
   // function parameter separator
   access:        ':',  
   // string match, includes quoted strings with escaped quotes and backslashes
@@ -59,6 +60,8 @@ TERM ->
       | %func_in "trash"                      {% function(d) { const start = d[0].offset; const length = 8; return { type: 'inTrash', d: d, start, end: start + length, length } } %}
       # only items marked as favorites
       | %func_is "favorite"                   {% function(d) { const start = d[0].offset; const length = 11; return { type: 'isFavorite', d: d, start, end: d[0].offset + length, length } } %}
+      # only items of given type type
+      | %func_type %string                    {% function(d) { const start = d[0].offset; const end = d[1].offset + d[1].value.length; return { type: 'type', d:d, cipherType: d[1].value, start, end, length: end - start + 1 } } %}
       # Boolean NOT operator
       | %NOT _ PARENTHESES                    {% function(d) { const start = d[0].offset; return { type: 'not', value: d[2], d: d, start, end: d[2].end, length: d[2].end - d[0].offset + 1 } } %}
 

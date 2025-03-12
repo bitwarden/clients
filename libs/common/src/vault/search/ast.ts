@@ -15,6 +15,7 @@ export const AstNodeTypeNames = [
   "inOrg",
   "inTrash",
   "isFavorite",
+  "type",
 ] as const;
 export type AstNodeType = (typeof AstNodeTypeNames)[number];
 export type AstNode =
@@ -33,7 +34,8 @@ export type AstNode =
   | InCollection
   | InOrg
   | InTrash
-  | IsFavorite;
+  | IsFavorite
+  | TypeFilter;
 
 type AstNodeBase = {
   d: object[];
@@ -181,4 +183,13 @@ export type IsFavorite = AstNodeBase & {
 
 export function isIsFavorite(x: AstNode): x is IsFavorite {
   return x.type === "isFavorite";
+}
+
+export type TypeFilter = AstNodeBase & {
+  type: "type";
+  cipherType: string;
+};
+
+export function isTypeFilter(x: AstNode): x is TypeFilter {
+  return x.type === "type";
 }
