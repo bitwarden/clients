@@ -220,20 +220,20 @@ function handleNode(node: AstNode): ProcessInstructions {
       ],
     };
   } else if (isInCollection(node)) {
-    // TODO: There is currently no collection name information in a cipher view
+    const collectionTest = termToRegexTest(node.collection);
     return {
       filter: (context) => {
-        const collectionId = context.collections.find(
-          (collection) => collection.name === node.collection,
-        )?.id;
+        const collectionIds = context.collections
+          .filter(
+            (collection) =>
+              collectionTest.test(collection.name) || collectionTest.test(collection.id),
+          )
+          .map((collection) => collection.id);
         return {
           ...context,
-          ciphers:
-            collectionId == null
-              ? // Collection not found, no matches
-                // TODO: should this be an error?
-                []
-              : context.ciphers.filter((cipher) => cipher.collectionIds.includes(collectionId)),
+          ciphers: context.ciphers.filter((cipher) =>
+            collectionIds.some((collectionId) => cipher.collectionIds.includes(collectionId)),
+          ),
         };
       },
       sections: [
