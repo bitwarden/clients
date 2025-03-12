@@ -352,6 +352,15 @@ function fieldValues(cipher: CipherView, fieldTest: RegExp): FieldValues {
         }
         break;
       }
+      case FieldType.Boolean: {
+        if (fieldTest.test(field.name)) {
+          result.push({
+            path: `customField.${field.name}`,
+            value: field.value,
+          });
+        }
+        break;
+      }
       default:
         break;
     }
