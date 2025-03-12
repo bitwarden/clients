@@ -13,11 +13,8 @@ const LOGIN_VIA_AUTH_CACHE_KEY = "login-via-auth-request-form-cache";
 /**
  * This is a cache service used for the login via auth request component.
  *
- * There is small threat vector here because we are caching public/private
- * keys. The caching mechanism clears out after 2 minutes (rigorously tested
- * throughout development of this service). If the public and private key are
- * both accessible then they could be used to approve any new device
- * authentication requests so the threat is very minor.
+ * There is sensitive information stored temporarily here. Cache will be cleared
+ * after 2 minutes.
  */
 @Injectable()
 export class LoginViaAuthRequestCacheService {
@@ -58,9 +55,9 @@ export class LoginViaAuthRequestCacheService {
       return;
     }
 
-    // When the public and private keys get stored they should be converted to a B64 string to ensure
+    // When the keys get stored they should be converted to a B64 string to ensure
     // data can be properly formed when json-ified. If not done, they are not stored properly and
-    // will not be parsable by the cryptography library.
+    // will not be parsable by the cryptography library after coming out of storage.
     this.defaultLoginViaAuthRequestCache.set({
       authRequest,
       authRequestResponse,
