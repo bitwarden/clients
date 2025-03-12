@@ -7,6 +7,7 @@ import {
   EnvironmentSelectorRouteData,
   ExtensionDefaultOverlayPosition,
 } from "@bitwarden/angular/auth/components/environment-selector.component";
+import { unauthUiRefreshSwap } from "@bitwarden/angular/auth/functions/unauth-ui-refresh-route-swap";
 import {
   activeAuthGuard,
   authGuard,
@@ -60,6 +61,7 @@ import { RemovePasswordComponent } from "../auth/popup/remove-password.component
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { TwoFactorOptionsComponentV1 } from "../auth/popup/two-factor-options-v1.component";
+import { TwoFactorComponentV1 } from "../auth/popup/two-factor-v1.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
@@ -141,24 +143,32 @@ const routes: Routes = [
     canActivate: [fido2AuthGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
-  {
-    path: "2fa",
-    component: ExtensionAnonLayoutWrapperComponent,
-    canActivate: [unauthGuardFn(unauthRouteOverrides), TwoFactorAuthGuard],
-    children: [
-      {
-        path: "",
-        component: TwoFactorAuthComponent,
-      },
-    ],
-    data: {
-      elevation: 1,
-      pageTitle: {
-        key: "verifyYourIdentity",
-      },
-      showBackButton: true,
-    } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
-  },
+  ...unauthUiRefreshSwap(
+    TwoFactorComponentV1,
+    ExtensionAnonLayoutWrapperComponent,
+    {
+      path: "2fa",
+      canActivate: [unauthGuardFn(unauthRouteOverrides)],
+      data: { elevation: 1 } satisfies RouteDataProperties,
+    },
+    {
+      path: "2fa",
+      canActivate: [unauthGuardFn(unauthRouteOverrides), TwoFactorAuthGuard],
+      children: [
+        {
+          path: "",
+          component: TwoFactorAuthComponent,
+        },
+      ],
+      data: {
+        elevation: 1,
+        pageTitle: {
+          key: "verifyYourIdentity",
+        },
+        showBackButton: true,
+      } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
+    },
+  ),
   {
     path: "",
     component: ExtensionAnonLayoutWrapperComponent,
