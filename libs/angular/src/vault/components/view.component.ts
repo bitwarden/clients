@@ -41,6 +41,7 @@ import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.v
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { TotpInfo } from "@bitwarden/common/vault/services/totp.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -66,19 +67,18 @@ export class ViewComponent implements OnDestroy, OnInit {
   showPrivateKey: boolean;
   canAccessPremium: boolean;
   showPremiumRequiredTotp: boolean;
-  totpCode: string;
-  totpCodeFormatted: string;
-  totpDash: number;
-  totpSec: number;
-  totpLow: boolean;
   fieldType = FieldType;
   checkPasswordPromise: Promise<number>;
   folder: FolderView;
   cipherType = CipherType;
 
-  private totpInterval: any;
   private previousCipherId: string;
   private passwordReprompted = false;
+
+  /**
+   * Represents TOTP information including display formatting and timing
+   */
+  protected totpInfo$: Observable<TotpInfo> | undefined;
 
   get fido2CredentialCreationDateValue(): string {
     const dateCreated = this.i18nService.t("dateCreated");
@@ -166,19 +166,33 @@ export class ViewComponent implements OnDestroy, OnInit {
       ).find((f) => f.id == this.cipher.folderId);
     }
 
-    if (
+    const canGenerateTotp =
       this.cipher.type === CipherType.Login &&
       this.cipher.login.totp &&
-      (this.cipher.organizationUseTotp || this.canAccessPremium)
-    ) {
-      await this.totpUpdateCode();
-      const interval = this.totpService.getTimeInterval(this.cipher.login.totp);
-      await this.totpTick(interval);
+      (this.cipher.organizationUseTotp || this.canAccessPremium);
 
-      this.totpInterval = setInterval(async () => {
-        await this.totpTick(interval);
-      }, 1000);
-    }
+    this.totpInfo$ = canGenerateTotp
+      ? this.totpService.getCode$(this.cipher.login.totp).pipe(
+          map((response) => {
+            const epoch = Math.round(new Date().getTime() / 1000.0);
+            const mod = epoch % response.period;
+
+            // Format code
+            const totpCodeFormatted =
+              response.code.length > 4
+                ? `${response.code.slice(0, Math.floor(response.code.length / 2))} ${response.code.slice(Math.floor(response.code.length / 2))}`
+                : response.code;
+
+            return {
+              totpCode: response.code,
+              totpCodeFormatted,
+              totpDash: +(Math.round(((78.6 / response.period) * mod + "e+2") as any) + "e-2"),
+              totpSec: response.period - mod,
+              totpLow: response.period - mod <= 7,
+            } as TotpInfo;
+          }),
+        )
+      : undefined;
 
     if (this.previousCipherId !== this.cipherId) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -515,56 +529,11 @@ export class ViewComponent implements OnDestroy, OnInit {
   }
 
   private cleanUp() {
-    this.totpCode = null;
     this.cipher = null;
     this.folder = null;
     this.showPassword = false;
     this.showCardNumber = false;
     this.showCardCode = false;
     this.passwordReprompted = false;
-    if (this.totpInterval) {
-      clearInterval(this.totpInterval);
-    }
-  }
-
-  private async totpUpdateCode() {
-    if (
-      this.cipher == null ||
-      this.cipher.type !== CipherType.Login ||
-      this.cipher.login.totp == null
-    ) {
-      if (this.totpInterval) {
-        clearInterval(this.totpInterval);
-      }
-      return;
-    }
-
-    this.totpCode = await this.totpService.getCode(this.cipher.login.totp);
-    if (this.totpCode != null) {
-      if (this.totpCode.length > 4) {
-        const half = Math.floor(this.totpCode.length / 2);
-        this.totpCodeFormatted =
-          this.totpCode.substring(0, half) + " " + this.totpCode.substring(half);
-      } else {
-        this.totpCodeFormatted = this.totpCode;
-      }
-    } else {
-      this.totpCodeFormatted = null;
-      if (this.totpInterval) {
-        clearInterval(this.totpInterval);
-      }
-    }
-  }
-
-  private async totpTick(intervalSeconds: number) {
-    const epoch = Math.round(new Date().getTime() / 1000.0);
-    const mod = epoch % intervalSeconds;
-
-    this.totpSec = intervalSeconds - mod;
-    this.totpDash = +(Math.round(((78.6 / intervalSeconds) * mod + "e+2") as any) + "e-2");
-    this.totpLow = this.totpSec <= 7;
-    if (mod === 0) {
-      await this.totpUpdateCode();
-    }
   }
 }
