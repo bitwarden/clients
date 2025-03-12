@@ -243,7 +243,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       },
       {
         id: "note",
-        name: this.i18nService.t("typeSecureNote"),
+        name: this.i18nService.t("note"),
         type: CipherType.SecureNote,
         icon: "bwi-sticky-note",
       },
@@ -281,7 +281,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       },
       action: this.applyFolderFilter,
       edit: {
-        text: "editFolder",
+        filterName: this.i18nService.t("folder"),
         action: this.editFolder,
       },
     };

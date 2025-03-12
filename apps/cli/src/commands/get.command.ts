@@ -571,7 +571,7 @@ export class GetCommand extends DownloadCommand {
         const pubKey = Utils.fromB64ToArray(response.publicKey);
         fingerprint = await this.keyService.getFingerprint(id, pubKey);
       } catch {
-        // eslint-disable-next-line
+        // empty - handled by the null check below
       }
     }
 
