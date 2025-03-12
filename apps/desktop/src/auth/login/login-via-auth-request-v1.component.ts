@@ -1,11 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Location } from "@angular/common";
-import { Component, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { LoginViaAuthRequestComponentV1 as BaseLoginViaAuthRequestComponentV1 } from "@bitwarden/angular/auth/components/login-via-auth-request-v1.component";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
+import { SelfHostedEnvConfigDialogComponent } from "@bitwarden/auth/angular";
 import {
   AuthRequestServiceAbstraction,
   LoginStrategyServiceAbstraction,
@@ -24,19 +25,15 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { ToastService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { KeyService } from "@bitwarden/key-management";
-
-import { EnvironmentComponent } from "../environment.component";
 
 @Component({
   selector: "app-login-via-auth-request",
   templateUrl: "login-via-auth-request-v1.component.html",
 })
 export class LoginViaAuthRequestComponentV1 extends BaseLoginViaAuthRequestComponentV1 {
-  @ViewChild("environment", { read: ViewContainerRef, static: true })
-  environmentModal: ViewContainerRef;
   showingModal = false;
 
   constructor(
@@ -62,6 +59,7 @@ export class LoginViaAuthRequestComponentV1 extends BaseLoginViaAuthRequestCompo
     accountService: AccountService,
     private location: Location,
     toastService: ToastService,
+    private dialogService: DialogService,
   ) {
     super(
       router,
@@ -91,24 +89,13 @@ export class LoginViaAuthRequestComponentV1 extends BaseLoginViaAuthRequestCompo
   }
 
   async settings() {
-    const [modal, childComponent] = await this.modalService.openViewRef(
-      EnvironmentComponent,
-      this.environmentModal,
-    );
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    modal.onShown.subscribe(() => {
-      this.showingModal = true;
-    });
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    modal.onClosed.subscribe(() => {
-      this.showingModal = false;
-    });
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    childComponent.onSaved.subscribe(() => {
-      modal.close();
-    });
+    if (await SelfHostedEnvConfigDialogComponent.open(this.dialogService)) {
+      this.toastService.showToast({
+        variant: "success",
+        title: "",
+        message: this.i18nService.t("environmentSaved"),
+      });
+    }
   }
 
   back() {
