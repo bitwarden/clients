@@ -86,13 +86,17 @@ export class SendComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) =>
-        this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
-      ),
-      takeUntil(this.destroy$),
-    );
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((policyAppliesToUser) => {
+        this.disableSend = policyAppliesToUser;
+      });
 
     combineLatest([this._searchText$, this.accountService.activeAccount$.pipe(getUserId)])
       .pipe(
