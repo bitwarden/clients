@@ -37,7 +37,7 @@ export class DefaultSendFormConfigService implements SendFormConfigService {
 
     return {
       mode,
-      sendType: sendType,
+      sendType: send?.type ?? sendType ?? SendType.Text,
       areSendsAllowed,
       originalSend: send,
     };

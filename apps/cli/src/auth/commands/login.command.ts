@@ -322,7 +322,7 @@ export class LoginCommand {
           })({
             type: "input",
             name: "token",
-            message: "New device login code:",
+            message: "New device verification required. Enter OTP sent to login email:",
           });
           newDeviceToken = answer.token;
         }

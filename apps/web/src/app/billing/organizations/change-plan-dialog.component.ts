@@ -59,6 +59,7 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
+import { BillingNotificationService } from "../services/billing-notification.service";
 import { BillingSharedModule } from "../shared/billing-shared.module";
 import { PaymentComponent } from "../shared/payment/payment.component";
 
@@ -209,6 +210,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private taxService: TaxServiceAbstraction,
     private accountService: AccountService,
     private organizationBillingService: OrganizationBillingService,
+    private billingNotificationService: BillingNotificationService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -229,10 +231,14 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
           .organizations$(userId)
           .pipe(getOrganizationById(this.organizationId)),
       );
-      const { accountCredit, paymentSource } =
-        await this.billingApiService.getOrganizationPaymentMethod(this.organizationId);
-      this.accountCredit = accountCredit;
-      this.paymentSource = paymentSource;
+      try {
+        const { accountCredit, paymentSource } =
+          await this.billingApiService.getOrganizationPaymentMethod(this.organizationId);
+        this.accountCredit = accountCredit;
+        this.paymentSource = paymentSource;
+      } catch (error) {
+        this.billingNotificationService.handleError(error);
+      }
     }
 
     if (!this.selfHosted) {
