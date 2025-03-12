@@ -13,7 +13,7 @@
         <strong>{{ "twoFactorDuoApiHostname" | i18n }}:</strong> {{ host }}
       </ng-container>
       <ng-container *ngIf="!enabled">
-        <img class="tw-float-right tw-ml-3" alt="Duo logo" />
+        <img class="tw-float-right tw-ml-3 mfaType2" alt="Duo logo" />
         <p bitTypography="body1">{{ "twoFactorDuoDesc" | i18n }}</p>
         <bit-form-field>
           <bit-label>{{ "twoFactorDuoClientId" | i18n }}</bit-label>
