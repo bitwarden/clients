@@ -38,7 +38,6 @@ import {
   ProviderUserUserDetailsResponse,
 } from "../admin-console/models/response/provider/provider-user.response";
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
-import { AuthRequest } from "../auth/models/request/auth.request";
 import { DeviceVerificationRequest } from "../auth/models/request/device-verification.request";
 import { DisableTwoFactorAuthenticatorRequest } from "../auth/models/request/disable-two-factor-authenticator.request";
 import { EmailTokenRequest } from "../auth/models/request/email-token.request";
@@ -185,9 +184,6 @@ export abstract class ApiService {
   postUserRotateApiKey: (id: string, request: SecretVerificationRequest) => Promise<ApiKeyResponse>;
   postConvertToKeyConnector: () => Promise<void>;
   //passwordless
-  postAuthRequest: (request: AuthRequest) => Promise<AuthRequestResponse>;
-  postAdminAuthRequest: (request: AuthRequest) => Promise<AuthRequestResponse>;
-  getAuthResponse: (id: string, accessCode: string) => Promise<AuthRequestResponse>;
   getAuthRequest: (id: string) => Promise<AuthRequestResponse>;
   putAuthRequest: (id: string, request: PasswordlessAuthRequest) => Promise<AuthRequestResponse>;
   getAuthRequests: () => Promise<ListResponse<AuthRequestResponse>>;
