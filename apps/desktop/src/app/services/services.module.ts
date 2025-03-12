@@ -46,6 +46,7 @@ import {
   AuthService,
   AuthService as AuthServiceAbstraction,
 } from "@bitwarden/common/auth/abstractions/auth.service";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -367,6 +368,7 @@ const safeProviders: SafeProvider[] = [
     useClass: DesktopSetPasswordJitService,
     deps: [
       ApiService,
+      MasterPasswordApiService,
       KeyService,
       EncryptService,
       I18nServiceAbstraction,

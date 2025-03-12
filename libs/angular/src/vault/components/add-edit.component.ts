@@ -15,7 +15,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -208,10 +207,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     this.writeableCollections = await this.loadCollections();
     this.canUseReprompt = await this.passwordRepromptService.enabled();
 
-    const sshKeysEnabled = await this.configService.getFeatureFlag(FeatureFlag.SSHKeyVaultItem);
-    if (sshKeysEnabled) {
-      this.typeOptions.push({ name: this.i18nService.t("typeSshKey"), value: CipherType.SshKey });
-    }
+    this.typeOptions.push({ name: this.i18nService.t("typeSshKey"), value: CipherType.SshKey });
   }
 
   ngOnDestroy() {

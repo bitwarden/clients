@@ -78,7 +78,6 @@ export default class RuntimeBackground {
         BiometricsCommands.GetBiometricsStatusForUser,
         "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag",
         "getInlineMenuFieldQualificationFeatureFlag",
-        "getInlineMenuTotpFeatureFlag",
         "getUserPremiumStatus",
       ];
 
@@ -216,9 +215,6 @@ export default class RuntimeBackground {
           this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
         );
         return result;
-      }
-      case "getInlineMenuTotpFeatureFlag": {
-        return await this.configService.getFeatureFlag(FeatureFlag.InlineMenuTotp);
       }
     }
   }

@@ -1,13 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ToastService } from "@bitwarden/components";
 
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
 import { ProviderOrganizationOrganizationDetailsResponse } from "../../admin-console/models/response/provider/provider-organization.response";
-import { ErrorResponse } from "../../models/response/error.response";
 import { ListResponse } from "../../models/response/list.response";
-import { LogService } from "../../platform/abstractions/log.service";
 import { BillingApiServiceAbstraction } from "../abstractions";
 import { PaymentMethodType } from "../enums";
 import { CreateClientOrganizationRequest } from "../models/request/create-client-organization.request";
@@ -23,11 +20,7 @@ import { PlanResponse } from "../models/response/plan.response";
 import { ProviderSubscriptionResponse } from "../models/response/provider-subscription-response";
 
 export class BillingApiService implements BillingApiServiceAbstraction {
-  constructor(
-    private apiService: ApiService,
-    private logService: LogService,
-    private toastService: ToastService,
-  ) {}
+  constructor(private apiService: ApiService) {}
 
   cancelOrganizationSubscription(
     organizationId: string,
@@ -89,14 +82,12 @@ export class BillingApiService implements BillingApiServiceAbstraction {
   }
 
   async getOrganizationPaymentMethod(organizationId: string): Promise<PaymentMethodResponse> {
-    const response = await this.execute(() =>
-      this.apiService.send(
-        "GET",
-        "/organizations/" + organizationId + "/billing/payment-method",
-        null,
-        true,
-        true,
-      ),
+    const response = await this.apiService.send(
+      "GET",
+      "/organizations/" + organizationId + "/billing/payment-method",
+      null,
+      true,
+      true,
     );
     return new PaymentMethodResponse(response);
   }
@@ -120,34 +111,34 @@ export class BillingApiService implements BillingApiServiceAbstraction {
   async getProviderClientOrganizations(
     providerId: string,
   ): Promise<ListResponse<ProviderOrganizationOrganizationDetailsResponse>> {
-    const response = await this.execute(() =>
-      this.apiService.send("GET", "/providers/" + providerId + "/organizations", null, true, true),
+    const response = await this.apiService.send(
+      "GET",
+      "/providers/" + providerId + "/organizations",
+      null,
+      true,
+      true,
     );
     return new ListResponse(response, ProviderOrganizationOrganizationDetailsResponse);
   }
 
   async getProviderInvoices(providerId: string): Promise<InvoicesResponse> {
-    const response = await this.execute(() =>
-      this.apiService.send(
-        "GET",
-        "/providers/" + providerId + "/billing/invoices",
-        null,
-        true,
-        true,
-      ),
+    const response = await this.apiService.send(
+      "GET",
+      "/providers/" + providerId + "/billing/invoices",
+      null,
+      true,
+      true,
     );
     return new InvoicesResponse(response);
   }
 
   async getProviderSubscription(providerId: string): Promise<ProviderSubscriptionResponse> {
-    const response = await this.execute(() =>
-      this.apiService.send(
-        "GET",
-        "/providers/" + providerId + "/billing/subscription",
-        null,
-        true,
-        true,
-      ),
+    const response = await this.apiService.send(
+      "GET",
+      "/providers/" + providerId + "/billing/subscription",
+      null,
+      true,
+      true,
     );
     return new ProviderSubscriptionResponse(response);
   }
@@ -226,21 +217,5 @@ export class BillingApiService implements BillingApiServiceAbstraction {
       true,
       false,
     );
-  }
-
-  private async execute(request: () => Promise<any>): Promise<any> {
-    try {
-      return await request();
-    } catch (error) {
-      this.logService.error(error);
-      if (error instanceof ErrorResponse) {
-        this.toastService.showToast({
-          variant: "error",
-          title: null,
-          message: error.getSingleMessage(),
-        });
-      }
-      throw error;
-    }
   }
 }
