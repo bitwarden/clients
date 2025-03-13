@@ -6,6 +6,9 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { PreloginRequest } from "../models/request/prelogin.request";
 import { PreloginResponse } from "../models/response/prelogin.response";
 
+// TODO: rename to PrePasswordLoginApiService as this is only used for pre-password login
+// or consider a better name for what we are doing here: retrieving user's KDF settings or
+// their opaque configuration (both password authentication mechanisms)
 export class PreLoginApiService {
   constructor(
     private apiService: ApiService,
