@@ -188,8 +188,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       this.twoFactorAuthComponentService.shouldCheckForWebAuthnQueryParamResponse() &&
       webAuthnSupported
     ) {
-      const webAuthn2faResponse =
-        this.activatedRoute.snapshot.queryParamMap.get("webAuthnResponse");
+      const webAuthn2faResponse = this.activatedRoute.snapshot.paramMap.get("webAuthnResponse");
       if (webAuthn2faResponse) {
         this.selectedProviderType = TwoFactorProviderType.WebAuthn;
         return;
@@ -396,11 +395,6 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       );
     }
 
-    // note: this flow affects both TDE & standard users
-    if (this.isForcePasswordResetRequired(authResult)) {
-      return await this.handleForcePasswordReset(this.orgSsoIdentifier);
-    }
-
     const userDecryptionOpts = await firstValueFrom(
       this.userDecryptionOptionsService.userDecryptionOptions$,
     );
@@ -415,6 +409,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     const requireSetPassword =
       !userDecryptionOpts.hasMasterPassword && userDecryptionOpts.keyConnectorOption === undefined;
 
+    // New users without a master password must set a master password before advancing.
     if (requireSetPassword || authResult.resetMasterPassword) {
       // Change implies going no password -> password in this case
       return await this.handleChangePasswordRequired(this.orgSsoIdentifier);
@@ -522,14 +517,6 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     ];
 
     return forceResetReasons.includes(authResult.forcePasswordReset);
-  }
-
-  private async handleForcePasswordReset(orgIdentifier: string | undefined) {
-    await this.router.navigate(["update-temp-password"], {
-      queryParams: {
-        identifier: orgIdentifier,
-      },
-    });
   }
 
   showContinueButton() {

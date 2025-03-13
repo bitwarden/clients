@@ -15,12 +15,10 @@ import {
   FormFieldModule,
   IconButtonModule,
   LinkModule,
-  ToastService,
 } from "@bitwarden/components";
 
 import { LoginEmailServiceAbstraction } from "../../common/abstractions/login-email.service";
 import { LoginStrategyServiceAbstraction } from "../../common/abstractions/login-strategy.service";
-import { PasswordLoginStrategy } from "../../common/login-strategies/password-login.strategy";
 
 /**
  * Component for verifying a new device via a one-time password (OTP).
@@ -58,11 +56,9 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private formBuilder: FormBuilder,
-    private passwordLoginStrategy: PasswordLoginStrategy,
     private apiService: ApiService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
     private logService: LogService,
-    private toastService: ToastService,
     private i18nService: I18nService,
     private syncService: SyncService,
     private loginEmailService: LoginEmailServiceAbstraction,
@@ -155,9 +151,17 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
       await this.router.navigate(["/vault"]);
     } catch (e) {
       this.logService.error(e);
-      const errorMessage =
-        (e as any)?.response?.error_description ?? this.i18nService.t("errorOccurred");
+      let errorMessage =
+        ((e as any)?.response?.error_description as string) ?? this.i18nService.t("errorOccurred");
+
+      if (errorMessage.includes("Invalid New Device OTP")) {
+        errorMessage = this.i18nService.t("invalidVerificationCode");
+      }
+
       codeControl.setErrors({ serverError: { message: errorMessage } });
+      // For enter key press scenarios, we have to manually mark the control as touched
+      // to get the error message to display
+      codeControl.markAsTouched();
     }
   };
 }
