@@ -161,6 +161,7 @@ export class VaultItemsComponent {
     );
   }
 
+  //@TODO: remove this function when removing the limitItemDeletion$ feature flag.
   get showDelete(): boolean {
     if (this.selection.selected.length === 0) {
       return true;
