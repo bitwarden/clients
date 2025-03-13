@@ -102,6 +102,9 @@ export default {
       requireNumbers: true,
       requireSpecial: true,
     } as MasterPasswordPolicyOptions,
+    argTypes: {
+      onSecondaryButtonClick: { action: "onSecondaryButtonClick" },
+    },
   },
 } as Meta;
 
@@ -154,7 +157,8 @@ export const SecondaryButton: Story = {
     template: `
       <auth-input-password
         [inputPasswordFlow]="InputPasswordFlow.SetInitialPassword"
-        [secondaryButtonText]="{ key: 'Cancel' }"
+        [secondaryButtonText]="{ key: 'cancel' }"
+        (onSecondaryButtonClick)="onSecondaryButtonClick()"
       ></auth-input-password>
     `,
   }),
@@ -178,8 +182,9 @@ export const InlineButtons: Story = {
     template: `
       <auth-input-password
         [inputPasswordFlow]="InputPasswordFlow.SetInitialPassword"
-        [secondaryButtonText]="{ key: 'Cancel' }"
+        [secondaryButtonText]="{ key: 'cancel' }"
         [inlineButtons]="true"
+        (onSecondaryButtonClick)="onSecondaryButtonClick()"
       ></auth-input-password>
     `,
   }),

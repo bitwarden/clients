@@ -84,11 +84,13 @@ export class InputPasswordComponent {
 
   @Input({ required: true }) inputPasswordFlow: InputPasswordFlow;
   @Input({ required: true }) email: string;
-  @Input() masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
+
   @Input() loading = false;
+  @Input() masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
+
+  @Input() inlineButtons = false;
   @Input() primaryButtonText: Translation;
   @Input() secondaryButtonText: Translation;
-  @Input() inlineButtons = false;
 
   protected InputPasswordFlow = InputPasswordFlow;
   private minHintLength = 0;
