@@ -185,7 +185,9 @@ export class AdjustPaymentDialogComponent implements OnInit {
         default:
           return true;
       }
-    } else {return !!this.providerId;}
+    } else {
+      return !!this.providerId;
+    }
   }
 
   static open = (
