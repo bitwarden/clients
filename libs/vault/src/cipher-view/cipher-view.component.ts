@@ -171,6 +171,10 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
   }
 
   async checkPendingChangePasswordTasks(userId: UserId): Promise<void> {
+    if (!(await firstValueFrom(this.isSecurityTasksEnabled$))) {
+      return;
+    }
+
     const tasks = await firstValueFrom(this.defaultTaskService.pendingTasks$(userId));
 
     this.hadPendingChangePasswordTask = tasks?.some((task) => {
