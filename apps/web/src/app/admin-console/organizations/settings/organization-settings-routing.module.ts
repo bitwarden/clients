@@ -48,10 +48,10 @@ const routes: Routes = [
         canActivate: [
           organizationPermissionsGuard(
             async (o: Organization, services: InjectedOrganizationPermissionServices) => {
-              const isUpsellingEnabled = await firstValueFrom(
-                services.organizationBillingService.isUpsellingPoliciesEnabled$(o),
+              const isBreadcrumbingEnabled = await firstValueFrom(
+                services.organizationBillingService.isBreadcrumbingPoliciesEnabled$(o),
               );
-              return o.canManagePolicies || isUpsellingEnabled;
+              return o.canManagePolicies || isBreadcrumbingEnabled;
             },
           ),
         ],

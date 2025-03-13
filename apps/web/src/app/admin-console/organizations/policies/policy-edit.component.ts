@@ -62,7 +62,7 @@ export class PolicyEditComponent implements AfterViewInit {
     enabled: [this.enabled],
   });
   protected organization$: Observable<Organization>;
-  protected isUpsellingEnabled$: Observable<boolean>;
+  protected isBreadcrumbingEnabled$: Observable<boolean>;
 
   constructor(
     @Inject(DIALOG_DATA) protected data: PolicyEditDialogData,
@@ -116,9 +116,9 @@ export class PolicyEditComponent implements AfterViewInit {
       switchMap((userId) => this.organizationService.organizations$(userId)),
       getOrganizationById(this.data.organizationId),
     );
-    this.isUpsellingEnabled$ = this.organization$.pipe(
+    this.isBreadcrumbingEnabled$ = this.organization$.pipe(
       switchMap((organization) =>
-        this.organizationBillingService.isUpsellingPoliciesEnabled$(organization),
+        this.organizationBillingService.isBreadcrumbingPoliciesEnabled$(organization),
       ),
     );
   }

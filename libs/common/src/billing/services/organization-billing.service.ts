@@ -227,7 +227,7 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     await this.billingApiService.restartSubscription(organizationId, request);
   }
 
-  isUpsellingPoliciesEnabled$(organization: Organization): Observable<boolean> {
+  isBreadcrumbingPoliciesEnabled$(organization: Organization): Observable<boolean> {
     if (organization === null || organization === undefined) {
       return of(false);
     }

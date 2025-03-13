@@ -5,7 +5,7 @@
       <span
         bitBadge
         variant="primary"
-        *ngIf="isUpsellingEnabled$ | async"
+        *ngIf="isBreadcrumbingEnabled$ | async"
         (click)="changePlan(organization)"
       >
         {{ "planNameEnterprise" | i18n }}

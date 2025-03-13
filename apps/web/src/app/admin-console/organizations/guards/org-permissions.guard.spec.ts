@@ -107,7 +107,7 @@ describe("Organization Permissions Guard", () => {
 
     it("permits navigation if the user has permissions", async () => {
       const permissionsCallback = jest.fn();
-      organizationBillingService.isUpsellingPoliciesEnabled.mockResolvedValue(false);
+      organizationBillingService.isBreadcrumbingPoliciesEnabled.mockResolvedValue(false);
       permissionsCallback.mockReturnValue(true);
 
       const actual = await TestBed.runInInjectionContext(

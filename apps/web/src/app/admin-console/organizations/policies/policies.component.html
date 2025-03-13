@@ -4,7 +4,7 @@
     bitBadge
     variant="primary"
     slot="title-suffix"
-    *ngIf="isUpsellingEnabled$ | async"
+    *ngIf="isBreadcrumbingEnabled$ | async"
     (click)="changePlan(organization)"
   >
     {{ "upgrade" | i18n }}

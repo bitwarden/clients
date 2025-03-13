@@ -44,7 +44,7 @@ export class PoliciesComponent implements OnInit {
 
   private orgPolicies: PolicyResponse[];
   protected policiesEnabledMap: Map<PolicyType, boolean> = new Map<PolicyType, boolean>();
-  protected isUpsellingEnabled$: Observable<boolean>;
+  protected isBreadcrumbingEnabled$: Observable<boolean>;
 
   constructor(
     private route: ActivatedRoute,
@@ -99,9 +99,9 @@ export class PoliciesComponent implements OnInit {
     this.orgPolicies.forEach((op) => {
       this.policiesEnabledMap.set(op.type, op.enabled);
     });
-    this.isUpsellingEnabled$ = this.organization$.pipe(
+    this.isBreadcrumbingEnabled$ = this.organization$.pipe(
       switchMap((organization) =>
-        this.organizationBillingService.isUpsellingPoliciesEnabled$(organization),
+        this.organizationBillingService.isBreadcrumbingPoliciesEnabled$(organization),
       ),
     );
     this.loading = false;

@@ -64,8 +64,8 @@ export abstract class OrganizationBillingServiceAbstraction {
   ) => Promise<void>;
 
   /**
-   * Determines if upselling policies is enabled for the organizations meeting certain criteria.
+   * Determines if breadcrumbing policies is enabled for the organizations meeting certain criteria.
    * @param organization
    */
-  abstract isUpsellingPoliciesEnabled$(organization: Organization): Observable<boolean>;
+  abstract isBreadcrumbingPoliciesEnabled$(organization: Organization): Observable<boolean>;
 }

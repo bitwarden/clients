@@ -52,7 +52,7 @@ describe("BillingAccountProfileStateService", () => {
     return jest.resetAllMocks();
   });
 
-  describe("isUpsellingPoliciesEnabled", () => {
+  describe("isBreadcrumbingPoliciesEnabled", () => {
     it("returns false when feature flag is disabled", async () => {
       configService.getFeatureFlag$.mockReturnValue(of(false));
       const org = {
@@ -61,7 +61,7 @@ describe("BillingAccountProfileStateService", () => {
         productTierType: ProductTierType.Teams,
       } as Organization;
 
-      const actual = await firstValueFrom(sut.isUpsellingPoliciesEnabled$(org));
+      const actual = await firstValueFrom(sut.isBreadcrumbingPoliciesEnabled$(org));
       expect(actual).toBe(false);
       expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
         FeatureFlag.PM12276_BreadcrumbEventLogs,
@@ -76,7 +76,7 @@ describe("BillingAccountProfileStateService", () => {
         productTierType: ProductTierType.Teams,
       } as Organization;
 
-      const actual = await firstValueFrom(sut.isUpsellingPoliciesEnabled$(org));
+      const actual = await firstValueFrom(sut.isBreadcrumbingPoliciesEnabled$(org));
       expect(actual).toBe(false);
     });
 
@@ -88,7 +88,7 @@ describe("BillingAccountProfileStateService", () => {
         productTierType: ProductTierType.Teams,
       } as Organization;
 
-      const actual = await firstValueFrom(sut.isUpsellingPoliciesEnabled$(org));
+      const actual = await firstValueFrom(sut.isBreadcrumbingPoliciesEnabled$(org));
       expect(actual).toBe(false);
     });
 
@@ -103,7 +103,7 @@ describe("BillingAccountProfileStateService", () => {
         productTierType: productTierType,
       } as Organization;
 
-      const actual = await firstValueFrom(sut.isUpsellingPoliciesEnabled$(org));
+      const actual = await firstValueFrom(sut.isBreadcrumbingPoliciesEnabled$(org));
       expect(actual).toBe(true);
       expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
         FeatureFlag.PM12276_BreadcrumbEventLogs,
@@ -118,7 +118,7 @@ describe("BillingAccountProfileStateService", () => {
         productTierType: ProductTierType.Enterprise,
       } as Organization;
 
-      const actual = await firstValueFrom(sut.isUpsellingPoliciesEnabled$(org));
+      const actual = await firstValueFrom(sut.isBreadcrumbingPoliciesEnabled$(org));
       expect(actual).toBe(false);
     });
 
@@ -130,7 +130,7 @@ describe("BillingAccountProfileStateService", () => {
         productTierType: ProductTierType.Free,
       } as Organization;
 
-      const actual = await firstValueFrom(sut.isUpsellingPoliciesEnabled$(org));
+      const actual = await firstValueFrom(sut.isBreadcrumbingPoliciesEnabled$(org));
       expect(actual).toBe(false);
     });
 
@@ -142,7 +142,7 @@ describe("BillingAccountProfileStateService", () => {
         productTierType: ProductTierType.Teams,
       } as Organization;
 
-      await firstValueFrom(sut.isUpsellingPoliciesEnabled$(org));
+      await firstValueFrom(sut.isBreadcrumbingPoliciesEnabled$(org));
       expect(configService.getFeatureFlag$).toHaveBeenCalledTimes(1);
     });
   });

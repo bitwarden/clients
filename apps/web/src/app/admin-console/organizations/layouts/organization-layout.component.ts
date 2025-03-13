@@ -147,8 +147,12 @@ export class OrganizationLayoutComponent implements OnInit {
     this.canShowPoliciesTab$ = this.organization$.pipe(
       switchMap((organization) =>
         this.organizationBillingService
-          .isUpsellingPoliciesEnabled$(organization)
-          .pipe(map((isUpsellingEnabled) => isUpsellingEnabled || organization.canManagePolicies)),
+          .isBreadcrumbingPoliciesEnabled$(organization)
+          .pipe(
+            map(
+              (isBreadcrumbingEnabled) => isBreadcrumbingEnabled || organization.canManagePolicies,
+            ),
+          ),
       ),
     );
   }
