@@ -4,10 +4,11 @@ import { Jsonify } from "type-fest";
 
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
+import { CipherConfiguration } from "@bitwarden/common/auth/opaque/models/cipher-configuration";
 import { WebAuthnLoginAssertionResponseRequest } from "@bitwarden/common/auth/services/webauthn-login/request/webauthn-login-assertion-response.request";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserKey, MasterKey } from "@bitwarden/common/types/key";
-import { CipherConfiguration } from "@bitwarden/sdk-internal";
+import { KdfConfig } from "@bitwarden/key-management";
 
 export class PasswordLoginCredentials {
   readonly type = AuthenticationType.Password;
@@ -15,6 +16,7 @@ export class PasswordLoginCredentials {
   constructor(
     public email: string,
     public masterPassword: string,
+    public kdfConfig: KdfConfig,
     // TODO: PM-15162 - captcha is deprecated as part of UI refresh work
     public captchaToken?: string,
     public twoFactor?: TokenTwoFactorRequest,

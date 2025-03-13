@@ -9,6 +9,7 @@ import {
   LoginEmailServiceAbstraction,
   LoginStrategyServiceAbstraction,
   LoginSuccessHandlerService,
+  OpaqueLoginCredentials,
   PasswordLoginCredentials,
 } from "@bitwarden/auth/common";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -18,6 +19,8 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
+import { PreloginRequest } from "@bitwarden/common/auth/models/request/prelogin.request";
+import { PreLoginApiService } from "@bitwarden/common/auth/services/pre-login-api.service";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
@@ -39,6 +42,7 @@ import {
   LinkModule,
   ToastService,
 } from "@bitwarden/components";
+import { Argon2KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
 import { VaultIcon, WaveIcon } from "../icons";
@@ -120,6 +124,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private validationService: ValidationService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
+    private preLoginApiService: PreLoginApiService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -167,21 +172,36 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const credentials = new PasswordLoginCredentials(email, masterPassword);
-
     try {
-      // TODO: create PreLoginApiService to handle pre-login requests and move off ApiService
-      // var preLoginResponse = await this.preLoginApiService.preLogin(email);
+      // TODO: is it worth having a pre-password-login.service to extract some of this process out of the
+      // component?  We could at least maybe add a separately testable mechanism for building the
+      // kdf config off of the prelogin response.
+
+      const preLoginRequest = new PreloginRequest(email);
+      const preLoginResponse = await this.preLoginApiService.postPrelogin(preLoginRequest);
+
       // Determine which credentials to build based on response
+      let credentials: PasswordLoginCredentials | OpaqueLoginCredentials;
 
-      // if (response.strategy === "password") {
-      //   const credentials = new PasswordLoginCredentials(email, masterPassword, preLoginResponse.kdfConfig);
-      // }else{
-      //   const credentials = new OpaqueLoginCredentials(email, masterPassword, preLoginResponse.cipherConfiguration);
-      // }
+      if (preLoginResponse.opaqueConfiguration) {
+        credentials = new OpaqueLoginCredentials(
+          email,
+          masterPassword,
+          preLoginResponse.opaqueConfiguration,
+        );
+      } else {
+        // Determine users KDF config based on response
+        const kdfConfig =
+          preLoginResponse.kdf === KdfType.PBKDF2_SHA256
+            ? new PBKDF2KdfConfig(preLoginResponse.kdfIterations)
+            : new Argon2KdfConfig(
+                preLoginResponse.kdfIterations,
+                preLoginResponse.kdfMemory,
+                preLoginResponse.kdfParallelism,
+              );
 
-      // TODO: calling pre-login ahead of time to determine strategy now calls for updating
-      // password login strategy credentials to accept pre-login response like
+        credentials = new PasswordLoginCredentials(email, masterPassword, kdfConfig);
+      }
 
       const authResult = await this.loginStrategyService.logIn(credentials);
 
