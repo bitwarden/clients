@@ -26,6 +26,7 @@ export enum FeatureFlag {
   CriticalApps = "pm-14466-risk-insights-critical-application",
   EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
+  ExportAttachments = "export-attachments",
 
   /* Vault */
   PM9111ExtensionPersistAddEditForm = "pm-9111-extension-persist-add-edit-form",
@@ -81,6 +82,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.CriticalApps]: FALSE,
   [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
+  [FeatureFlag.ExportAttachments]: FALSE,
 
   /* Vault */
   [FeatureFlag.PM9111ExtensionPersistAddEditForm]: FALSE,
