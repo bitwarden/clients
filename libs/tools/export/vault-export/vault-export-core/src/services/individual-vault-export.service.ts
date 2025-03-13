@@ -18,6 +18,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
+import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
@@ -89,12 +90,7 @@ export class IndividualVaultExportService
       const cipherFolder = attachmentsFolder.folder(cipher.id);
       for (const attachment of cipher.attachments) {
         const response = await this.downloadAttachment(cipher.id, attachment.id);
-        const encBuf = await EncArrayBuffer.fromResponse(response);
-        const key =
-          attachment.key != null
-            ? attachment.key
-            : await this.keyService.getOrgKey(cipher.organizationId);
-        const decBuf = await this.encryptService.decryptToBytes(encBuf, key);
+        const decBuf = await this.decryptAttachment(cipher, attachment, response);
         cipherFolder.file(attachment.fileName, decBuf);
       }
     }
@@ -114,6 +110,24 @@ export class IndividualVaultExportService
       throw new Error("Error downloading attachment");
     }
     return response;
+  }
+
+  private async decryptAttachment(
+    cipher: CipherView,
+    attachment: AttachmentView,
+    response: Response,
+  ) {
+    try {
+      const encBuf = await EncArrayBuffer.fromResponse(response);
+      const key =
+        attachment.key != null
+          ? attachment.key
+          : await this.keyService.getOrgKey(cipher.organizationId);
+      return await this.encryptService.decryptToBytes(encBuf, key);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+      throw new Error("Error decrypting attachment");
+    }
   }
 
   private async getDecryptedExport(format: "json" | "csv"): Promise<string> {

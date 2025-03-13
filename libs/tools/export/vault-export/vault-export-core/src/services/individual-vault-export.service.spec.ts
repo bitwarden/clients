@@ -304,6 +304,32 @@ describe("VaultExportService", () => {
       }).rejects.toThrow("Error downloading attachment");
     });
 
+    it("throws error if decrypting attachment fails", async () => {
+      const cipherData = new CipherData();
+      cipherData.id = "mock-id";
+      const cipherView = new CipherView(new Cipher(cipherData));
+      const attachmentView = new AttachmentView(new Attachment(new AttachmentData()));
+      attachmentView.fileName = "mock-file-name";
+      cipherView.attachments = [attachmentView];
+
+      cipherService.getAllDecrypted.mockResolvedValue([cipherView]);
+      folderService.getAllDecryptedFromState.mockResolvedValue([]);
+      encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(255));
+
+      global.fetch = jest.fn(() =>
+        Promise.resolve({
+          status: 200,
+          arrayBuffer: () => Promise.resolve(null),
+        }),
+      ) as any;
+      global.Request = jest.fn(() => {}) as any;
+
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      expect(async () => {
+        await exportService.getExport("zip");
+      }).rejects.toThrow("Error decrypting attachment");
+    });
+
     it("contains attachments with folders", async () => {
       const cipherData = new CipherData();
       cipherData.id = "mock-id";
