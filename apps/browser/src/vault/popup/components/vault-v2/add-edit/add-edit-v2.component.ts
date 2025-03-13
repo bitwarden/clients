@@ -488,5 +488,79 @@ const mapAddEditCipherInfoToInitialValues = (
     initialValues.username = cipher.identity.username;
   }
 
+  if (cipher.type == CipherType.Identity) {
+    const identity = cipher.identity;
+
+    if (identity != null) {
+      if (identity.title != null) {
+        initialValues.title = identity.title;
+      }
+
+      if (identity.firstName != null) {
+        initialValues.firstName = identity.firstName;
+      }
+
+      if (identity.middleName != null) {
+        initialValues.middleName = identity.middleName;
+      }
+
+      if (identity.lastName != null) {
+        initialValues.lastName = identity.lastName;
+      }
+
+      if (identity.company != null) {
+        initialValues.company = identity.company;
+      }
+
+      if (identity.ssn != null) {
+        initialValues.ssn = identity.ssn;
+      }
+
+      if (identity.passportNumber != null) {
+        initialValues.passportNumber = identity.passportNumber;
+      }
+
+      if (identity.licenseNumber != null) {
+        initialValues.licenseNumber = identity.licenseNumber;
+      }
+
+      if (identity.email != null) {
+        initialValues.email = identity.email;
+      }
+
+      if (identity.phone != null) {
+        initialValues.phone = identity.phone;
+      }
+
+      if (identity.address1 != null) {
+        initialValues.address1 = identity.address1;
+      }
+
+      if (identity.address2 != null) {
+        initialValues.address2 = identity.address2;
+      }
+
+      if (identity.address3 != null) {
+        initialValues.address3 = identity.address3;
+      }
+
+      if (identity.city != null) {
+        initialValues.city = identity.city;
+      }
+
+      if (identity.state != null) {
+        initialValues.state = identity.state;
+      }
+
+      if (identity.postalCode != null) {
+        initialValues.postalCode = identity.postalCode;
+      }
+
+      if (identity.country != null) {
+        initialValues.country = identity.country;
+      }
+    }
+  }
+
   return initialValues;
 };
