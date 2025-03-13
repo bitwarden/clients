@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "Password hint"
-  },
-  "enterEmailToGetHint": {
-    "message": "Enter your account email address to receive your master password hint."
-  },
   "getMasterPasswordHint": {
     "message": "Get master password hint"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Self-hosted environment"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Specify the base URL of your on-premises hosted Bitwarden installation."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Custom environment"
-  },
-  "customEnvironmentFooter": {
-    "message": "For advanced users. You can specify the base URL of each service independently."
   },
   "baseUrl": {
     "message": "Server URL"
