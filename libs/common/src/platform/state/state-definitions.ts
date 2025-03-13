@@ -144,6 +144,7 @@ export const SM_ONBOARDING_DISK = new StateDefinition("smOnboarding", "disk", {
 
 // Tools
 
+export const EXTENSION_DISK = new StateDefinition("extension", "disk");
 export const GENERATOR_DISK = new StateDefinition("generator", "disk");
 export const GENERATOR_MEMORY = new StateDefinition("generator", "memory");
 export const BROWSER_SEND_MEMORY = new StateDefinition("sendBrowser", "memory");
@@ -199,3 +200,5 @@ export const NEW_DEVICE_VERIFICATION_NOTICE = new StateDefinition(
 );
 export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk");
 export const SECURITY_TASKS_DISK = new StateDefinition("securityTasks", "disk");
+export const AT_RISK_PASSWORDS_PAGE_DISK = new StateDefinition("atRiskPasswordsPage", "disk");
+export const NOTIFICATION_DISK = new StateDefinition("notifications", "disk");

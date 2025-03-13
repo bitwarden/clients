@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Κρίσιμες εφαρμογές"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "No critical applications at risk"
+  },
   "accessIntelligence": {
     "message": "Πληροφορίες Πρόσβασης"
   },
@@ -197,6 +200,9 @@
   },
   "notes": {
     "message": "Σημειώσεις"
+  },
+  "privateNote": {
+    "message": "Private note"
   },
   "note": {
     "message": "Σημείωση"
@@ -474,7 +480,7 @@
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "deleteFolderPermanently": {
-    "message": "Are you sure you want to permanently delete this folder?"
+    "message": "Είστε σίγουροι ότι θέλετε να διαγράψετε μόνιμα αυτόν το φάκελο;"
   },
   "baseDomain": {
     "message": "Βασικός τομέας",
@@ -1026,6 +1032,9 @@
   "no": {
     "message": "Όχι"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Συνδεθείτε ή δημιουργήστε νέο λογαριασμό για να αποκτήσετε πρόσβαση στο vault σας."
   },
@@ -1161,14 +1170,23 @@
   "logInToBitwarden": {
     "message": "Log in to Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
   "authenticationTimeout": {
     "message": "Authentication timeout"
   },
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
   },
-  "verifyIdentity": {
-    "message": "Επαληθεύστε την ταυτότητά σας"
+  "verifyYourIdentity": {
+    "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
@@ -1443,11 +1461,21 @@
   "rememberMe": {
     "message": "Να με θυμάσαι"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Αποστολή email κωδικού επαλήθευσης ξανά"
   },
   "useAnotherTwoStepMethod": {
     "message": "Χρήση άλλης μεθόδου δύο παραγόντων"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "Τοποθετήστε το YubiKey στη θύρα USB του υπολογιστή σας και έπειτα πατήστε το κουμπί του."
@@ -1466,6 +1494,9 @@
   },
   "twoStepOptions": {
     "message": "Επιλογές σύνδεσης δύο παραγόντων"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "recoveryCodeDesc": {
     "message": "Έχετε χάσει την πρόσβαση σε όλους τους παρόχους δύο παραγόντων; Χρησιμοποιήστε τον κωδικό ανάκτησης για να απενεργοποιήσετε όλους τους παρόχους δύο παραγόντων από το λογαριασμό σας."
@@ -1508,6 +1539,9 @@
   },
   "webAuthnMigrated": {
     "message": "(Μετεγκατάσταση από το FIDO)"
+  },
+  "openInNewTab": {
+    "message": "Open in new tab"
   },
   "emailTitle": {
     "message": "Email"
@@ -2223,6 +2257,9 @@
   },
   "revokeAccess": {
     "message": "Ανάκληση πρόσβασης"
+  },
+  "revoke": {
+    "message": "Revoke"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Ο πάροχος σύνδεσης δύο βημάτων του λογαριασμού σας, είναι ενεργοποιημένος."
@@ -4081,6 +4118,12 @@
   "updateBrowserDesc": {
     "message": "Χρησιμοποιείτε ένα μη υποστηριζόμενο browser. Το web vault ενδέχεται να μην λειτουργεί σωστά."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "You have a pending login request from another device."
+  },
+  "reviewLoginRequest": {
+    "message": "Review login request"
+  },
   "freeTrialEndPromptCount": {
     "message": "Your free trial ends in $COUNT$ days.",
     "placeholders": {
@@ -4758,6 +4801,15 @@
   "masterPassPolicyDesc": {
     "message": "Ορίστε ελάχιστες απαιτήσεις, για ισχύ του κύριου κωδικού."
   },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "twoStepLoginPolicyTitle": {
     "message": "Απαίτηση για σύνδεση δύο βημάτων"
   },
@@ -5038,11 +5090,39 @@
   "requireSsoExemption": {
     "message": "Οι κάτοχοι και οι διαχειριστές του οργανισμού εξαιρούνται από την εφαρμογή αυτής της πολιτικής."
   },
+  "limitSendViews": {
+    "message": "Limit views"
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
   "sendTypeFile": {
     "message": "Αρχείο"
   },
   "sendTypeText": {
     "message": "Κείμενο"
+  },
+  "sendPasswordDescV3": {
+    "message": "Add an optional password for recipients to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Δημιουργία Νέου Send",
@@ -5068,19 +5148,15 @@
     "message": "Διαγραφή Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Είστε βέβαιοι ότι θέλετε να διαγράψετε το Send;",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Τι είδους Send είναι αυτό;",
+  "deleteSendPermanentConfirmation": {
+    "message": "Are you sure you want to permanently delete this Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Ημερομηνία διαγραφής"
   },
-  "deletionDateDesc": {
-    "message": "Το Send θα διαγραφεί οριστικά την καθορισμένη ημερομηνία και ώρα.",
+  "deletionDateDescV2": {
+    "message": "The Send will be permanently deleted on this date.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5092,21 +5168,6 @@
   },
   "maxAccessCount": {
     "message": "Μέγιστος Αριθμός Πρόσβασης"
-  },
-  "maxAccessCountDesc": {
-    "message": "Εάν οριστεί, οι χρήστες δεν θα μπορούν πλέον να έχουν πρόσβαση σε αυτό το send μόλις επιτευχθεί ο μέγιστος αριθμός πρόσβασης.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Τρέχων Αριθμός Πρόσβασης"
-  },
-  "sendPasswordDesc": {
-    "message": "Προαιρετικά απαιτείται κωδικός πρόσβασης για τους χρήστες για να έχουν πρόσβαση σε αυτό το Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Ιδιωτικές σημειώσεις σχετικά με αυτό το Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Απενεργοποιημένο"
@@ -5134,13 +5195,6 @@
   "removePasswordConfirmation": {
     "message": "Είστε βέβαιοι ότι θέλετε να καταργήσετε τον κωδικό πρόσβασης;"
   },
-  "hideEmail": {
-    "message": "Απόκρυψη της διεύθυνσης email μου από τους παραλήπτες."
-  },
-  "disableThisSend": {
-    "message": "Απενεργοποιήστε αυτό το Send έτσι ώστε κανείς να μην μπορεί να έχει πρόσβαση σε αυτό.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Όλα τα Sends"
   },
@@ -5150,6 +5204,9 @@
   },
   "pendingDeletion": {
     "message": "Εκκρεμεί διαγραφή"
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
   },
   "expired": {
     "message": "Έληξε"
@@ -5372,13 +5429,6 @@
     "message": "Μην επιτρέπετε στους χρήστες να αποκρύψουν τη διεύθυνση email τους από τους παραλήπτες κατά τη δημιουργία ή την επεξεργασία ενός send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "Οι ακόλουθες οργανωτικές πολιτικές εφαρμόζονται επί του παρόντος:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Οι χρήστες δεν επιτρέπεται να αποκρύψουν τη διεύθυνση email τους από τους παραλήπτες κατά τη δημιουργία ή την επεξεργασία ενός send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "Τροποποιημένη πολιτική $ID$.",
     "placeholders": {
@@ -5477,27 +5527,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Απενεργοποίηση προσωπικής ιδιοκτησίας για χρήστες οργανισμού"
-  },
-  "textHiddenByDefault": {
-    "message": "Κατά την πρόσβαση στην αποστολή, απόκρυψη του κειμένου από προεπιλογή",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Ένα φιλικό όνομα για την περιγραφή αυτού του Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Το κείμενο που θέλετε να στείλετε."
-  },
-  "sendFileDesc": {
-    "message": "Το αρχείο που θέλετε να στείλετε."
-  },
-  "copySendLinkOnSave": {
-    "message": "Αντιγράψτε το σύνδεσμο, για να μοιραστείτε αυτό το Send στο πρόχειρο μου, κατά την αποθήκευση."
-  },
-  "sendLinkLabel": {
-    "message": "Σύνδεσμος Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Send",
@@ -5647,11 +5676,20 @@
   "dateParsingError": {
     "message": "Παρουσιάστηκε σφάλμα κατά την αποθήκευση των ημερομηνιών διαγραφής και λήξης."
   },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
+  },
   "webAuthnFallbackMsg": {
     "message": "Για να επαληθεύσετε τον 2FA σας παρακαλώ κάντε κλικ στο παρακάτω κουμπί."
   },
   "webAuthnAuthenticate": {
     "message": "Ταυτοποίηση WebAutn"
+  },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
   },
   "webAuthnNotSupported": {
     "message": "Το WebAuthn δεν υποστηρίζεται σε αυτό το πρόγραμμα περιήγησης."
@@ -7198,6 +7236,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
   },
   "launchDuo": {
     "message": "Εκκίνηση Duo"
@@ -9793,8 +9837,14 @@
   "learnMoreAboutApi": {
     "message": "Μάθετε περισσότερα για το API του Bitwarden"
   },
+  "fileSend": {
+    "message": "File Send"
+  },
   "fileSends": {
     "message": "Send αρχείων"
+  },
+  "textSend": {
+    "message": "Text Send"
   },
   "textSends": {
     "message": "Send κειμένων"
@@ -10028,10 +10078,6 @@
   "specialCharactersDescription": {
     "message": "Include special characters",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Προσθήκη συνημμένου"
@@ -10432,10 +10478,31 @@
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
   },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "Do not allow members to unlock their account with a PIN."
+  },
+  "limitedEventLogs": {
+    "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Get full access to organization event logs by upgrading to a Teams or Enterprise plan."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Upgrade for real event log data"
+  },
+  "upgradeEventLogMessage": {
+    "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
   }
 }

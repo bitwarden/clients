@@ -19,6 +19,8 @@ import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
+import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -38,7 +40,6 @@ import {
   USER_KEY,
 } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { ActiveUserState, StateProvider } from "@bitwarden/common/platform/state";
-import { VAULT_TIMEOUT } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.state";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import {
@@ -50,7 +51,6 @@ import {
   UserPrivateKey,
   UserPublicKey,
 } from "@bitwarden/common/types/key";
-import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 
 import { KdfConfigService } from "./abstractions/kdf-config.service";
 import {
@@ -260,7 +260,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
     if (keySuffix === KeySuffixOptions.Pin && userId != null) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises

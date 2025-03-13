@@ -155,13 +155,6 @@ export class SsoComponent implements OnInit {
       return;
     }
 
-    // Detect if we are on the first portion of the SSO flow
-    // and have been sent here from another client with the info in query params
-    if (this.hasParametersFromOtherClientRedirect(qParams)) {
-      this.initializeFromRedirectFromOtherClient(qParams);
-      return;
-    }
-
     // Detect if we have landed here but only have an SSO identifier in the URL.
     // This is used by integrations that want to "short-circuit" the login to send users
     // directly to their IdP to simulate IdP-initiated SSO, so we submit automatically.
@@ -172,8 +165,15 @@ export class SsoComponent implements OnInit {
       return;
     }
 
-    // If we're routed here with no additional parameters, we'll try to determine the
-    // identifier using claimed domain or local state saved from their last attempt.
+    // Detect if we are on the first portion of the SSO flow
+    // and have been sent here from another client with the info in query params.
+    // If so, we want to initialize the SSO flow with those values.
+    if (this.hasParametersFromOtherClientRedirect(qParams)) {
+      this.initializeFromRedirectFromOtherClient(qParams);
+    }
+
+    // Try to determine the identifier using claimed domain or local state
+    // persisted from the user's last login attempt.
     await this.initializeIdentifierFromEmailOrStorage();
   }
 
@@ -199,7 +199,9 @@ export class SsoComponent implements OnInit {
    * @returns True if the value is a valid SSO client type, otherwise false
    */
   private isValidSsoClientType(value: string): value is SsoClientType {
-    return [ClientType.Web, ClientType.Browser, ClientType.Desktop].includes(value as ClientType);
+    return [ClientType.Web, ClientType.Browser, ClientType.Desktop, ClientType.Cli].includes(
+      value as ClientType,
+    );
   }
 
   /**
@@ -427,7 +429,6 @@ export class SsoComponent implements OnInit {
       );
       this.formPromise = this.loginStrategyService.logIn(credentials);
       const authResult = await this.formPromise;
-
       if (authResult.requiresTwoFactor) {
         return await this.handleTwoFactorRequired(orgSsoIdentifier);
       }
@@ -441,16 +442,10 @@ export class SsoComponent implements OnInit {
       // - Browser SSO on extension open
       // Note: you cannot set this in state before 2FA b/c there won't be an account in state.
 
-      // Grabbing the active user id right before making the state set to ensure it exists.
-      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-      await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(orgSsoIdentifier, userId);
-
-      // Users enrolled in admin acct recovery can be forced to set a new password after
-      // having the admin set a temp password for them (affects TDE & standard users)
-      if (authResult.forcePasswordReset == ForceSetPasswordReason.AdminForcePasswordReset) {
-        // Weak password is not a valid scenario here b/c we cannot have evaluated a MP yet
-        return await this.handleForcePasswordReset(orgSsoIdentifier);
-      }
+      await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(
+        orgSsoIdentifier,
+        authResult.userId,
+      );
 
       // must come after 2fa check since user decryption options aren't available if 2fa is required
       const userDecryptionOpts = await firstValueFrom(

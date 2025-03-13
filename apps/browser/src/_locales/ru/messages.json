@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "Подсказка к мастер-паролю (необяз.)"
   },
+  "passwordStrengthScore": {
+    "message": "Оценка надежности пароля $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Присоединиться к организации"
   },
@@ -470,22 +479,6 @@
   "length": {
     "message": "Длина"
   },
-  "uppercase": {
-    "message": "Прописные буквы (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Строчные буквы (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Цифры (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Специальные символы (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Включить",
     "description": "Card header for password generator include block"
@@ -517,10 +510,6 @@
   "specialCharactersDescription": {
     "message": "Включить специальные символы",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Количество слов"
@@ -660,8 +649,8 @@
   "browserNotSupportClipboard": {
     "message": "Ваш браузер не поддерживает копирование данных в буфер обмена. Скопируйте вручную."
   },
-  "verifyIdentity": {
-    "message": "Подтвердить личность"
+  "verifyYourIdentity": {
+    "message": "Подтвердите вашу личность"
   },
   "weDontRecognizeThisDevice": {
     "message": "Мы не распознали это устройство. Введите код, отправленный на ваш email, чтобы подтвердить вашу личность."
@@ -876,6 +865,21 @@
   "logInToBitwarden": {
     "message": "Войти в Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Введите код, отправленный на ваш email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Введите код из приложения-аутентификатора"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Нажмите на YubiKey для аутентификации"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Следуйте указаниям ниже, чтобы завершить авторизацию."
+  },
   "restartRegistration": {
     "message": "Перезапустить регистрацию"
   },
@@ -896,6 +900,9 @@
   },
   "no": {
     "message": "Нет"
+  },
+  "location": {
+    "message": "Местоположение"
   },
   "unexpectedError": {
     "message": "Произошла непредвиденная ошибка."
@@ -1045,6 +1052,56 @@
   },
   "notificationAddSave": {
     "message": "Сохранить"
+  },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ сохранен в Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ обновлен в Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Сохранить как новый логин",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Обновить логин",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Сохранить логин?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Обновить существующий логин?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Логин сохранен",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Логин обновлен",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Ошибка при сохранении",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "О нет! Мы не смогли сохранить это. Попробуйте ввести данные вручную.",
+    "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
     "message": "Спрашивать при обновлении существующего логина"
@@ -1365,11 +1422,21 @@
   "rememberMe": {
     "message": "Запомнить меня"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Не спрашивать на этом устройстве в течение 30 дней"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Отправить код подтверждения еще раз"
   },
   "useAnotherTwoStepMethod": {
     "message": "Использовать другой метод двухэтапной аутентификации"
+  },
+  "selectAnotherMethod": {
+    "message": "Выбрать другой способ",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Использовать код восстановления"
   },
   "insertYubiKey": {
     "message": "Вставьте свой YubiKey в USB-порт компьютера и нажмите его кнопку."
@@ -1383,8 +1450,17 @@
   "webAuthnNewTabOpen": {
     "message": "Открыть новую вкладку"
   },
+  "openInNewTab": {
+    "message": "Открыть в новой вкладке"
+  },
   "webAuthnAuthenticate": {
     "message": "Аутентификация WebAutn"
+  },
+  "readSecurityKey": {
+    "message": "Считать ключ безопасности"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Ожидание взаимодействия с ключом безопасности..."
   },
   "loginUnavailable": {
     "message": "Вход недоступен"
@@ -1397,6 +1473,9 @@
   },
   "twoStepOptions": {
     "message": "Настройки двухэтапной аутентификации"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Выбрать другой метод двухэтапной аутентификации"
   },
   "recoveryCodeDesc": {
     "message": "Потеряли доступ ко всем вариантам двухэтапной аутентификации? Используйте код восстановления, чтобы отключить двухэтапную аутентификацию для вашей учетной записи."
@@ -2097,6 +2176,15 @@
   "vaultTimeoutAction1": {
     "message": "Тайм-аут действия"
   },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "Новые возможности настроек"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Настройте работу с хранилищем с помощью действий быстрого копирования, компактного режима и многого другого!"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "Посмотреть все настройки внешнего вида"
+  },
   "lock": {
     "message": "Блокировка",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2391,8 +2479,17 @@
   "atRiskPasswords": {
     "message": "Пароли, подверженные риску"
   },
-  "atRiskPasswordsDescSingleOrg": {
-    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at risk.",
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ запрашивает смену одного пароля, так как он находится под угрозой.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
+    "message": "$ORGANIZATION$ запрашивает смену $COUNT$ паролей, так как они находятся под угрозой.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2404,8 +2501,8 @@
       }
     }
   },
-  "atRiskPasswordsDescMultiOrg": {
-    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at risk.",
+  "atRiskPasswordsDescMultiOrgPlural": {
+    "message": "Ваша организация запрашивает смену $COUNT$ паролей, так как они находятся под угрозой.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2430,6 +2527,36 @@
   },
   "changeAtRiskPasswordsFasterDesc": {
     "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Обзор логинов, находящихся под угрозой"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Обзор паролей, находящихся под угрозой"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Пароли вашей организации находятся под угрозой, потому что они слабые, повторно используются и/или раскрыты.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAlt": {
+    "message": "Иллюстрация списка логинов, которые находятся под угрозой"
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Быстро сгенерируйте надежный уникальный пароль с помощью меню автозаполнения Bitwarden на сайте, находящемся под угрозой.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAlt": {
+    "message": "Иллюстрация меню автозаполнения Bitwarden, отображающего сгенерированный пароль"
+  },
+  "updateInBitwarden": {
+    "message": "Обновить в Bitwarden"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "После этого Bitwarden предложит вам обновить пароль в менеджере паролей.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAlt": {
+    "message": "Иллюстрация уведомления Bitwarden, предлагающего пользователю обновить логин"
   },
   "turnOnAutofill": {
     "message": "Turn on autofill"
@@ -3983,6 +4110,9 @@
   "activeAccount": {
     "message": "Активный аккаунт"
   },
+  "bitwardenAccount": {
+    "message": "Аккаунт Bitwarden"
+  },
   "availableAccounts": {
     "message": "Доступные аккаунты"
   },
@@ -4178,6 +4308,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "Скопировать $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
       }
     }
   },
@@ -5002,5 +5146,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "Чтобы использовать биометрическую разблокировку, обновите приложение для компьютера или отключите разблокировку по отпечатку пальца в настройках компьютера."
+  },
+  "changeAtRiskPassword": {
+    "message": "Изменить пароль, находящийся под угрозой"
   }
 }

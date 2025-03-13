@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "Подсказване за главната парола (по избор)"
   },
+  "passwordStrengthScore": {
+    "message": "Оценка на сложността на паролата: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Присъединяване към организацията"
   },
@@ -470,22 +479,6 @@
   "length": {
     "message": "Дължина"
   },
-  "uppercase": {
-    "message": "Главни букви (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Малки букви (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Числа (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Специални знаци (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Включване",
     "description": "Card header for password generator include block"
@@ -517,10 +510,6 @@
   "specialCharactersDescription": {
     "message": "Включване на специални знаци",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Брой думи"
@@ -660,8 +649,8 @@
   "browserNotSupportClipboard": {
     "message": "Браузърът не поддържа копиране в буфера, затова копирайте на ръка."
   },
-  "verifyIdentity": {
-    "message": "Потвърждаване на самоличността"
+  "verifyYourIdentity": {
+    "message": "Потвърдете самоличността си"
   },
   "weDontRecognizeThisDevice": {
     "message": "Това устройство е непознато. Въведете кода изпратен на е-пощата Ви, за да потвърдите самоличността си."
@@ -876,6 +865,21 @@
   "logInToBitwarden": {
     "message": "Впишете се в Битуорден"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Въведете кода изпратен на е-пощата Ви"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Въведете кода от Вашето приложение за удостоверяване"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Натиснете бутона на своя YubiKey за удостоверяване"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Вашият акаунт изисква вписване чрез двустепенно удостоверяване с Duo. Следвайте стъпките по-долу, за да завършите вписването."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Следвайте стъпките по-долу, за да завършите вписването."
+  },
   "restartRegistration": {
     "message": "Рестартиране на регистрацията"
   },
@@ -896,6 +900,9 @@
   },
   "no": {
     "message": "Не"
+  },
+  "location": {
+    "message": "Местоположение"
   },
   "unexpectedError": {
     "message": "Възникна неочаквана грешка."
@@ -1045,6 +1052,56 @@
   },
   "notificationAddSave": {
     "message": "Да, нека се запише сега"
+  },
+  "loginSaveSuccessDetails": {
+    "message": "Запазено в Битуорден: $USERNAME$.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "Обновено в Битуорден: $USERNAME$.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Запазване като нов елемент за вписване",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Обновяване на данните за вписване",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Запазване на данните за вписване?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Да се обновят ли текущите данни за вписване?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Данните за вписване са запазени",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Данните за вписване са обновени",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Грешка при запазването",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "О, не! Запазването не беше успешно. Опитайте да въведете данните ръчно.",
+    "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
     "message": "Питане за обновяване на съществуващ запис"
@@ -1365,11 +1422,21 @@
   "rememberMe": {
     "message": "Запомняне"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Не ме питайте отново на това устройство за 30 дни"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Повторно изпращане на писмото за потвърждение"
   },
   "useAnotherTwoStepMethod": {
     "message": "Използвайте друг начин на двустепенно удостоверяване"
+  },
+  "selectAnotherMethod": {
+    "message": "Изберете друг метод",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Използване на код за възстановяване"
   },
   "insertYubiKey": {
     "message": "Поставете устройството на YubiKey в USB порт на компютъра и натиснете бутона на устройството."
@@ -1383,8 +1450,17 @@
   "webAuthnNewTabOpen": {
     "message": "Отваряне на нов раздел"
   },
+  "openInNewTab": {
+    "message": "Отваряне в нов раздел"
+  },
   "webAuthnAuthenticate": {
     "message": "Идентификация WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Прочитане на ключа за сигурност"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Изчакване на действие с ключ за сигурност…"
   },
   "loginUnavailable": {
     "message": "Записът липсва"
@@ -1397,6 +1473,9 @@
   },
   "twoStepOptions": {
     "message": "Настройки на двустепенното удостоверяване"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Изберете начин за двустепенно удостоверяване"
   },
   "recoveryCodeDesc": {
     "message": "Ако сте загубили достъп до двустепенното удостоверяване, може да използвате код за възстановяване, за да изключите двустепенното удостоверяване в абонамента си."
@@ -2097,6 +2176,15 @@
   "vaultTimeoutAction1": {
     "message": "Действие при изтичането на времето за достъп"
   },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "Нови възможности за персонализиране"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Персонализирайте трезора си с бързи действия за копиране, компактен режим и още!"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "Преглед на всички настройки за външния вид"
+  },
   "lock": {
     "message": "Заключване",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2391,7 +2479,16 @@
   "atRiskPasswords": {
     "message": "Пароли в риск"
   },
-  "atRiskPasswordsDescSingleOrg": {
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ изисква да промените една парола, тъй като е в риск.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
     "message": "$ORGANIZATION$ изисква да промените $COUNT$ пароли, тъй като са в риск.",
     "placeholders": {
       "organization": {
@@ -2404,7 +2501,7 @@
       }
     }
   },
-  "atRiskPasswordsDescMultiOrg": {
+  "atRiskPasswordsDescMultiOrgPlural": {
     "message": "Вашата организация изисква да промените $COUNT$ пароли, тъй като са в риск.",
     "placeholders": {
       "count": {
@@ -2430,6 +2527,36 @@
   },
   "changeAtRiskPasswordsFasterDesc": {
     "message": "Променете настройките си, така че да можете бързо да попълвате автоматично паролите си, както и да генерирате нови"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Преглед на елементите за вписване в риск"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Преглед на паролите в риск"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Паролите в организацията Ви са в риск, защото са слаби, преизползвани и/или разкрити.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAlt": {
+    "message": "Илюстрация на списък с елементи за вписване, които са в риск"
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Генерирайте бързо сложна и уникална парола от менюто за автоматично попълване на Битуорден, на уеб сайта, който е в риск.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAlt": {
+    "message": "Илюстрация на автоматичното попълване на Битуорден, показващо генерирана парола"
+  },
+  "updateInBitwarden": {
+    "message": "Обновяване в Битуорден"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "След това Битуорден ще попита дали искате да обновите паролата в управителя на пароли.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAlt": {
+    "message": "Илюстрация на известието на Битуорден, чрез което пита потребителя дали да се обновят данните за вписване"
   },
   "turnOnAutofill": {
     "message": "Включване на автоматичното попълване"
@@ -3249,7 +3376,7 @@
     "message": "Заявката е изпратена"
   },
   "exposedMasterPassword": {
-    "message": "Разобличена главна парола"
+    "message": "Разкрита главна парола"
   },
   "exposedMasterPasswordDesc": {
     "message": "Паролата е намерена в пробив на данни. Използвайте уникална парола, за да защитите вашия акаунт. Наистина ли искате да използвате слаба парола?"
@@ -3983,6 +4110,9 @@
   "activeAccount": {
     "message": "Активиране на регистрацията"
   },
+  "bitwardenAccount": {
+    "message": "Акаунт в Битуорден"
+  },
   "availableAccounts": {
     "message": "Налични регистрации"
   },
@@ -4178,6 +4308,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "Копиране на $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
       }
     }
   },
@@ -5002,5 +5146,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "За да използвате отключването чрез биометрични данни, обновете самостоятелното приложение или изключете отключването чрез пръстов отпечатък в настройките му."
+  },
+  "changeAtRiskPassword": {
+    "message": "Промяна на парола в риск"
   }
 }

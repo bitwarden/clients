@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Critical applications"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "No critical applications at risk"
+  },
   "accessIntelligence": {
     "message": "Access Intelligence"
   },
@@ -197,6 +200,9 @@
   },
   "notes": {
     "message": "Notater"
+  },
+  "privateNote": {
+    "message": "Private note"
   },
   "note": {
     "message": "Note"
@@ -1026,6 +1032,9 @@
   "no": {
     "message": "Nei"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Logg på eller opprett en ny konto for å få tilgang til ditt sikre hvelv."
   },
@@ -1161,13 +1170,22 @@
   "logInToBitwarden": {
     "message": "Logg inn på Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
   "authenticationTimeout": {
     "message": "Authentication timeout"
   },
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
@@ -1443,11 +1461,21 @@
   "rememberMe": {
     "message": "Husk på meg"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Send E-posten med verifiseringskoden på nytt"
   },
   "useAnotherTwoStepMethod": {
     "message": "Bruk en annen 2-trinnsinnloggingsmetode"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "Sett inn din YubiKey i din datamaskins USB-uttak, og så trykk på dens knapp."
@@ -1466,6 +1494,9 @@
   },
   "twoStepOptions": {
     "message": "2-trinnsinnloggingsalternativer"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "recoveryCodeDesc": {
     "message": "Har du mistet tilgang til alle dine 2-trinnsleverandører? Bruk din gjenopprettingskode til å fjerne alle 2-trinnsleverandører fra din konto."
@@ -1508,6 +1539,9 @@
   },
   "webAuthnMigrated": {
     "message": "(Migrert fra FIDO)"
+  },
+  "openInNewTab": {
+    "message": "Open in new tab"
   },
   "emailTitle": {
     "message": "E-post"
@@ -2223,6 +2257,9 @@
   },
   "revokeAccess": {
     "message": "Opphev tilgang"
+  },
+  "revoke": {
+    "message": "Revoke"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Denne 2-trinnsleverandøren er aktivert på din konto."
@@ -4081,6 +4118,12 @@
   "updateBrowserDesc": {
     "message": "Du bruker en ustøttet nettleser. Netthvelvet vil kanskje ikke fungere ordentlig."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "You have a pending login request from another device."
+  },
+  "reviewLoginRequest": {
+    "message": "Review login request"
+  },
   "freeTrialEndPromptCount": {
     "message": "Your free trial ends in $COUNT$ days.",
     "placeholders": {
@@ -4758,6 +4801,15 @@
   "masterPassPolicyDesc": {
     "message": "Sett minimumskrav til hovedpassordets styrke."
   },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "twoStepLoginPolicyTitle": {
     "message": "Krev 2-trinnsinnlogging"
   },
@@ -5038,11 +5090,39 @@
   "requireSsoExemption": {
     "message": "Organisasjonens eiere og administratorer er unntatt fra denne policyens håndheving."
   },
+  "limitSendViews": {
+    "message": "Limit views"
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
   "sendTypeFile": {
     "message": "Fil"
   },
   "sendTypeText": {
     "message": "Tekst"
+  },
+  "sendPasswordDescV3": {
+    "message": "Add an optional password for recipients to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Lag ny Send",
@@ -5068,19 +5148,15 @@
     "message": "Slett Send-en",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Er du sikker på at du vil slette denne Send-en?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Hvilken type Send er dette?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Are you sure you want to permanently delete this Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Dato for sletting"
   },
-  "deletionDateDesc": {
-    "message": "Send-en vil bli permanent slettet på angitt dato og klokkeslett.",
+  "deletionDateDescV2": {
+    "message": "The Send will be permanently deleted on this date.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5092,21 +5168,6 @@
   },
   "maxAccessCount": {
     "message": "Maksimal antall tilganger"
-  },
-  "maxAccessCountDesc": {
-    "message": "Hvis satt, vil ikke brukere lenger ha tilgang til denne Send-en når maksimalt antall aksesseringer er nådd.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Antall nåværende tilganger"
-  },
-  "sendPasswordDesc": {
-    "message": "Valgfritt passordkrav for å få tilgang til denne Send-en.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Private notater om denne Send-en.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Deaktivert"
@@ -5134,13 +5195,6 @@
   "removePasswordConfirmation": {
     "message": "Er du sikker på at du vil fjerne passordet?"
   },
-  "hideEmail": {
-    "message": "Skjul min e-postadresse fra mottakere."
-  },
-  "disableThisSend": {
-    "message": "Deaktiver denne Send-en slik at ingen får tilgang til den.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Alle Send-er"
   },
@@ -5150,6 +5204,9 @@
   },
   "pendingDeletion": {
     "message": "Venter på sletting"
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
   },
   "expired": {
     "message": "Utløpt"
@@ -5372,13 +5429,6 @@
     "message": "Ikke tillat brukere å skjule sin e-postadresse fra mottakere når de oppretter eller endrer en Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "Følgende organisasjonspolicyer er for tiden i virkning:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Brukere kan ikke skjule sin e-postadresse fra mottakere når de oppretter eller endrer en Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "Modifisert policy $ID$.",
     "placeholders": {
@@ -5477,27 +5527,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Deaktiver personlig eierskap for organisasjonsbrukere"
-  },
-  "textHiddenByDefault": {
-    "message": "Når du åpner Send-en, er teksten skjult som standard",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Beskrivende navn for denne Send-en.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Teksten du ønsker å sende."
-  },
-  "sendFileDesc": {
-    "message": "Filen du vil sende."
-  },
-  "copySendLinkOnSave": {
-    "message": "Kopier lenken for å dele denne Send-en til utklippstavlen min ved lagring."
-  },
-  "sendLinkLabel": {
-    "message": "Send lenke",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Send",
@@ -5647,11 +5676,20 @@
   "dateParsingError": {
     "message": "Det oppstod en feil ved lagring av slettingen og utløpsdatoene."
   },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
+  },
   "webAuthnFallbackMsg": {
     "message": "For å verifisere din 2FA vennligst klikk knappen nedenfor."
   },
   "webAuthnAuthenticate": {
     "message": "Autentiser WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
   },
   "webAuthnNotSupported": {
     "message": "WebAuthn støttes ikke i denne nettleseren."
@@ -7198,6 +7236,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
   },
   "launchDuo": {
     "message": "Start Duo"
@@ -9793,8 +9837,14 @@
   "learnMoreAboutApi": {
     "message": "Learn more about Bitwarden's API"
   },
+  "fileSend": {
+    "message": "File Send"
+  },
   "fileSends": {
     "message": "File Sends"
+  },
+  "textSend": {
+    "message": "Text Send"
   },
   "textSends": {
     "message": "Text Sends"
@@ -10028,10 +10078,6 @@
   "specialCharactersDescription": {
     "message": "Inkluder spesialtegn",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Legg til vedlegg"
@@ -10432,10 +10478,31 @@
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
   },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "Do not allow members to unlock their account with a PIN."
+  },
+  "limitedEventLogs": {
+    "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Get full access to organization event logs by upgrading to a Teams or Enterprise plan."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Upgrade for real event log data"
+  },
+  "upgradeEventLogMessage": {
+    "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
   }
 }

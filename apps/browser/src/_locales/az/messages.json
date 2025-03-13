@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "Ana parol ipucu (ixtiyari)"
   },
+  "passwordStrengthScore": {
+    "message": "Parolun güc xalı: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Təşkilata qoşul"
   },
@@ -470,22 +479,6 @@
   "length": {
     "message": "Uzunluq"
   },
-  "uppercase": {
-    "message": "Böyük hərf (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Kiçik hərf (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Rəqəmlər (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Xüsusi simvollar (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Daxil et",
     "description": "Card header for password generator include block"
@@ -517,10 +510,6 @@
   "specialCharactersDescription": {
     "message": "Xüsusi xarakterləri daxil et",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Söz sayı"
@@ -660,8 +649,8 @@
   "browserNotSupportClipboard": {
     "message": "Veb brauzeriniz lövhəyə kopyalamağı dəstəkləmir. Əvəzində əllə kopyalayın."
   },
-  "verifyIdentity": {
-    "message": "Kimliyi doğrula"
+  "verifyYourIdentity": {
+    "message": "Kimliyinizi doğrulayın"
   },
   "weDontRecognizeThisDevice": {
     "message": "Bu cihazı tanımırıq. Kimliyinizi doğrulamaq üçün e-poçtunuza göndərilən kodu daxil edin."
@@ -876,6 +865,21 @@
   "logInToBitwarden": {
     "message": "Bitwarden-ə giriş edin"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "E-poçtunuza göndərilən kodu daxil edin"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Kimlik doğrulayıcı tətbiqinizdəki kodu daxil edin"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Kimliyi doğrulamaq üçün YubiKey-inizə basın"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Hesabınız üçün Duo iki addımlı giriş tələb olunur. Giriş prosesini tamamlamaq üçün aşağıdakı addımları izləyin."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Giriş prosesini tamamlamaq üçün aşağıdakı addımları izləyin."
+  },
   "restartRegistration": {
     "message": "Qeydiyyatı yenidən başlat"
   },
@@ -896,6 +900,9 @@
   },
   "no": {
     "message": "Xeyr"
+  },
+  "location": {
+    "message": "Yerləşmə"
   },
   "unexpectedError": {
     "message": "Gözlənilməz bir xəta baş verdi."
@@ -1045,6 +1052,56 @@
   },
   "notificationAddSave": {
     "message": "Saxla"
+  },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ Bitwarden-də saxlanıldı.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ Bitwarden-də güncəlləndi.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Yeni giriş kimi saxla",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Giriş məlumatlarını güncəllə",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Giriş məlumatları saxlanılsın?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Mövcud giriş məlumatları güncəllənsin?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Giriş məlumatları saxlanıldı",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Giriş məlumatları güncəlləndi",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Saxlama xətası",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Bunu saxlaya bilmədik. Məlumatları manual daxil etməyə çalışın.",
+    "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
     "message": "Mövcud girişin güncəllənməsini soruş"
@@ -1365,11 +1422,21 @@
   "rememberMe": {
     "message": "Məni xatırla"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Bu cihazda 30 gün ərzində soruşulmasın"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Doğrulama kodu olan e-poçtu yenidən göndər"
   },
   "useAnotherTwoStepMethod": {
     "message": "Başqa bir iki addımlı giriş üsulu istifadə edin"
+  },
+  "selectAnotherMethod": {
+    "message": "Başqa üsul seçin",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Geri qaytarma kodunuzu istifadə edin"
   },
   "insertYubiKey": {
     "message": "\"YubiKey\"i kompüterinizin USB portuna taxın, daha sonra düyməsinə toxunun."
@@ -1383,8 +1450,17 @@
   "webAuthnNewTabOpen": {
     "message": "Yeni vərəq aç"
   },
+  "openInNewTab": {
+    "message": "Yeni vərəqdə aç"
+  },
   "webAuthnAuthenticate": {
     "message": "WebAuthn kimlik doğrulama"
+  },
+  "readSecurityKey": {
+    "message": "Güvənlik açarını oxu"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Güvənlik açarı ilə əlaqə gözlənilir..."
   },
   "loginUnavailable": {
     "message": "Giriş edilə bilmir"
@@ -1397,6 +1473,9 @@
   },
   "twoStepOptions": {
     "message": "İki addımlı giriş seçimləri"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "İki addımlı giriş üsulunu seçin"
   },
   "recoveryCodeDesc": {
     "message": "İki faktorlu provayderlərinə müraciəti itirmisiniz? Geri qaytarma kodunuzu istifadə edərək hesabınızdakı bütün iki faktorlu provayderləri sıradan çıxarda bilərsiniz."
@@ -2097,6 +2176,15 @@
   "vaultTimeoutAction1": {
     "message": "Vaxt bitmə əməliyyatı"
   },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "Yeni özəlləşdirmə seçimləri"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Cəld kopyalama fəaliyyəti, yığcam rejim və daha çoxu ilə seyf təcrübənizi özəlləşdirin!"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "Bütün Görünüş ayarlarına bax"
+  },
   "lock": {
     "message": "Kilidlə",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2391,7 +2479,16 @@
   "atRiskPasswords": {
     "message": "Riskli parollar"
   },
-  "atRiskPasswordsDescSingleOrg": {
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$, sizdən bir parolu dəyişdirməyinizi tələb edir, çünki risk altındadır.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
     "message": "$ORGANIZATION$, sizdən $COUNT$ parolu dəyişdirməyinizi tələb edir, çünki risk altındadır.",
     "placeholders": {
       "organization": {
@@ -2404,7 +2501,7 @@
       }
     }
   },
-  "atRiskPasswordsDescMultiOrg": {
+  "atRiskPasswordsDescMultiOrgPlural": {
     "message": "Təşkilatlarınız, sizdən $COUNT$ parolu dəyişdirməyinizi tələb edir, çünki risk altındadır.",
     "placeholders": {
       "count": {
@@ -2430,6 +2527,36 @@
   },
   "changeAtRiskPasswordsFasterDesc": {
     "message": "Cəld şəkildə parollarınızı avto-doldura və yenilərini yarada bilməyiniz üçün ayarlarınızı güncəlləyin"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Risk altındakı giriş məlumatlarını incələ"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Risk altındakı parolları incələ"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Təşkilatınız parolları zəif, təkrar istifadə olunduğu və/və ya ifşa olunduğu üçün risk altındadır.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAlt": {
+    "message": "Risk altındakı girişlərin olduğu siyahının təsviri"
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Risk altında olan saytda Bitwarden avto-doldurma menyusu ilə güclü, unikal parolları cəld yaradın.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAlt": {
+    "message": "Yaradılan parolları göstərən Bitwarden avto-doldurma menyusunun təsviri"
+  },
+  "updateInBitwarden": {
+    "message": "Bitwarden-də güncəllə"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "Bitwarden, daha sonra parol menecerində parolu güncəlləməyinizi istəyəcək.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAlt": {
+    "message": "İstifadəçidən giriş məlumatlarını güncəlləməsini istəyən Bitwarden bildirişinin təsviri"
   },
   "turnOnAutofill": {
     "message": "Avto-doldurmanı işə sal"
@@ -3983,6 +4110,9 @@
   "activeAccount": {
     "message": "Aktiv hesab"
   },
+  "bitwardenAccount": {
+    "message": "Bitwarden hesabı"
+  },
   "availableAccounts": {
     "message": "Mövcud hesablar"
   },
@@ -4178,6 +4308,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "Kopyala: $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
       }
     }
   },
@@ -5002,5 +5146,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "Biometrik kilid açmanı istifadə etmək üçün lütfən masaüstü tətbiqinizi güncəlləyin, ya da masaüstü ayarlarında barmaq izi ilə kilid açmanı sıradan çıxardın."
+  },
+  "changeAtRiskPassword": {
+    "message": "Riskli parolları dəyişdir"
   }
 }

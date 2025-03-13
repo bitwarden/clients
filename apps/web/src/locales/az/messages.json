@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Kritik tətbiqlər"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "Risk altında heç bir kritik tətbiq yoxdur"
+  },
   "accessIntelligence": {
     "message": "Müraciət Kəşfiyyatı"
   },
@@ -197,6 +200,9 @@
   },
   "notes": {
     "message": "Notlar"
+  },
+  "privateNote": {
+    "message": "Şəxsi not"
   },
   "note": {
     "message": "Not"
@@ -1026,6 +1032,9 @@
   "no": {
     "message": "Xeyr"
   },
+  "location": {
+    "message": "Yerləşmə"
+  },
   "loginOrCreateNewAccount": {
     "message": "Güvənli seyfinizə müraciət etmək üçün giriş edin və ya yeni bir hesab yaradın."
   },
@@ -1161,13 +1170,22 @@
   "logInToBitwarden": {
     "message": "Bitwarden-ə giriş edin"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "E-poçtunuza göndərilən kodu daxil edin"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Kimlik doğrulayıcı tətbiqinizdəki kodu daxil edin"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Kimliyi doğrulamaq üçün YubiKey-inizə basın"
+  },
   "authenticationTimeout": {
     "message": "Kimlik doğrulama vaxtı bitdi"
   },
   "authenticationSessionTimedOut": {
     "message": "Kimlik doğrulama seansının vaxtı bitdi. Lütfən giriş prosesini yenidən başladın."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Kimliyinizi doğrulayın"
   },
   "weDontRecognizeThisDevice": {
@@ -1443,11 +1461,21 @@
   "rememberMe": {
     "message": "Məni xatırla"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Bu cihazda 30 gün ərzində soruşulmasın"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Doğrulama kodu olan e-poçtu yenidən göndər"
   },
   "useAnotherTwoStepMethod": {
     "message": "Başqa bir iki addımlı giriş üsulu istifadə edin"
+  },
+  "selectAnotherMethod": {
+    "message": "Başqa üsul seçin",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Geri qaytarma kodunuzu istifadə edin"
   },
   "insertYubiKey": {
     "message": "\"YubiKey\"i kompüterinizin USB portuna taxın, daha sonra düyməsinə toxunun."
@@ -1466,6 +1494,9 @@
   },
   "twoStepOptions": {
     "message": "İki addımlı giriş seçimləri"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "İki addımlı giriş üsulunu seçin"
   },
   "recoveryCodeDesc": {
     "message": "İki addımlı giriş provayderlərinə müraciəti itirmisiniz? Hesabınızdakı bütün iki addımlı giriş provayderlərini söndürmək üçün geri qaytarma kodunuzu istifadə edin."
@@ -1508,6 +1539,9 @@
   },
   "webAuthnMigrated": {
     "message": "(FIDO-dan köçürüldü)"
+  },
+  "openInNewTab": {
+    "message": "Yeni vərəqdə aç"
   },
   "emailTitle": {
     "message": "E-poçt"
@@ -2223,6 +2257,9 @@
   },
   "revokeAccess": {
     "message": "Müraciəti ləğv et"
+  },
+  "revoke": {
+    "message": "Geri al"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Bu iki addımlı giriş provayderi hesabınızda fəallaşdırılıb."
@@ -4081,6 +4118,12 @@
   "updateBrowserDesc": {
     "message": "Dəstəklənməyən bir veb brauzer istifadə edirsiniz. Veb seyf düzgün işləməyə bilər."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "Başqa bir cihazdan gözləyən bir giriş tələbiniz var."
+  },
+  "reviewLoginRequest": {
+    "message": "Giriş tələbini incələ"
+  },
   "freeTrialEndPromptCount": {
     "message": "Ödənişsiz sınaq müddətiniz $COUNT$ günə bitir.",
     "placeholders": {
@@ -4758,6 +4801,15 @@
   "masterPassPolicyDesc": {
     "message": "Ana parol gücü üçün tələbləri ayarla."
   },
+  "passwordStrengthScore": {
+    "message": "Parolun güc xalı: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "twoStepLoginPolicyTitle": {
     "message": "İki addımlı girişi tələb et"
   },
@@ -5038,11 +5090,39 @@
   "requireSsoExemption": {
     "message": "Təşkilat sahibləri və administratorlar, bu siyasətin tətbiq edilməsindən azaddırlar."
   },
+  "limitSendViews": {
+    "message": "Baxışları limitlə"
+  },
+  "limitSendViewsHint": {
+    "message": "Limitə çatdıqdan sonra bu Send-ə heç kim baxa bilməz.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ baxış qaldı",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send detalları",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Paylaşılacaq mətn"
+  },
   "sendTypeFile": {
     "message": "Fayl"
   },
   "sendTypeText": {
     "message": "Mətn"
+  },
+  "sendPasswordDescV3": {
+    "message": "Alıcıların bu \"Send\"ə müraciət etməsi üçün ixtiyari bir parol əlavə edin.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Yeni \"Send\" yarat",
@@ -5068,19 +5148,15 @@
     "message": "\"Send\"i sil",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Bu \"Send\"i silmək istədiyinizə əminsiniz?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "\"Send\"in növü nədir?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Bu Send-i həmişəlik silmək istədiyinizə əminsiniz?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Silinmə tarixi"
   },
-  "deletionDateDesc": {
-    "message": "\"Send\" göstərilən tarix və saatda birdəfəlik silinəcək.",
+  "deletionDateDescV2": {
+    "message": "Send, bu tarixdə həmişəlik silinəcək.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5092,21 +5168,6 @@
   },
   "maxAccessCount": {
     "message": "Maksimal müraciət sayı"
-  },
-  "maxAccessCountDesc": {
-    "message": "Əgər ayarlanıbsa, istifadəçilər maksimal müraciət sayına çatdıqdan sonra bu \"Send\"ə müraciət edə bilməyəcək.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Hazırkı müraciət sayı"
-  },
-  "sendPasswordDesc": {
-    "message": "İstəyinizə görə istifadəçilərdən bu \"Send\"ə müraciət edərkən parol tələb edə bilərsiniz.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Bu \"Send\" ilə bağlı gizli qeydlər.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Sıradan çıxarıldı"
@@ -5134,13 +5195,6 @@
   "removePasswordConfirmation": {
     "message": "Parolu çıxartmaq istədiyinizə əminsiniz?"
   },
-  "hideEmail": {
-    "message": "E-poçt ünvanımı alıcılardan gizlət."
-  },
-  "disableThisSend": {
-    "message": "Heç kimin müraciət edə bilməməsi üçün bu \"Send\"i sıradan çıxart.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Bütün \"Send\"lər"
   },
@@ -5150,6 +5204,9 @@
   },
   "pendingDeletion": {
     "message": "Silinməsi gözlənilir"
+  },
+  "hideTextByDefault": {
+    "message": "Mətni ilkin olaraq gizlət"
   },
   "expired": {
     "message": "Müddəti bitib"
@@ -5372,13 +5429,6 @@
     "message": "\"Send\" yaradarkən və ya ona düzəliş edərkən istifadəçilərin e-poçt ünvanlarını alıcılardan gizlətməsinə icazə verməyin.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "Aşağıdakı təşkilat siyasətləri hal-hazırda qüvvədədir:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "\"Send\" yaradarkən və ya ona düzəliş edərkən istifadəçilərin e-poçt ünvanlarını alıcılardan gizlətməsinə icazə verilmir.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "$ID$ siyasətinə düzəliş edildi.",
     "placeholders": {
@@ -5477,27 +5527,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Təşkilat istifadəçiləri üçün fərdi sahibliyi sıradan çıxart"
-  },
-  "textHiddenByDefault": {
-    "message": "\"Send\"ə müraciət edəndə ilkin olaraq mətni gizlədin",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Bu \"Send\"i açıqlayan bir ad.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Göndərmək istədiyiniz mətn."
-  },
-  "sendFileDesc": {
-    "message": "Göndərmək istədiyiniz fayl."
-  },
-  "copySendLinkOnSave": {
-    "message": "Saxladıqdan sonra bu \"Send\"in paylaşma keçidini lövhəmə kopyala."
-  },
-  "sendLinkLabel": {
-    "message": "\"Send\" keçidi",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Send",
@@ -5647,11 +5676,20 @@
   "dateParsingError": {
     "message": "Silinmə və son istifadə tarixlərini saxlayarkən xəta baş verdi."
   },
+  "hideYourEmail": {
+    "message": "E-poçt ünvanınız baxanlardan gizlədilsin."
+  },
   "webAuthnFallbackMsg": {
     "message": "2FA-nı doğrulamaq üçün lütfən aşağıdakı düyməyə klikləyin."
   },
   "webAuthnAuthenticate": {
     "message": "WebAuthn kimlik doğrulama"
+  },
+  "readSecurityKey": {
+    "message": "Güvənlik açarını oxu"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Güvənlik açarı ilə əlaqə gözlənilir..."
   },
   "webAuthnNotSupported": {
     "message": "WebAuthn bu brauzerdə dəstəklənmir."
@@ -7198,6 +7236,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "Hesabınız üçün DUO iki addımlı giriş tələb olunur."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Hesabınız üçün Duo iki addımlı giriş tələb olunur. Giriş prosesini tamamlamaq üçün aşağıdakı addımları izləyin."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Giriş prosesini tamamlamaq üçün aşağıdakı addımları izləyin."
   },
   "launchDuo": {
     "message": "DUO-nu başlat"
@@ -9793,8 +9837,14 @@
   "learnMoreAboutApi": {
     "message": "Bitwarden-nin API-si haqqında daha ətraflı"
   },
+  "fileSend": {
+    "message": "Fayl \"Send\"i"
+  },
   "fileSends": {
     "message": "Fayl \"Send\"ləri"
+  },
+  "textSend": {
+    "message": "Mətn \"Send\"i"
   },
   "textSends": {
     "message": "Mətn \"Send\"ləri"
@@ -10028,10 +10078,6 @@
   "specialCharactersDescription": {
     "message": "Xüsusi xarakterləri daxil et",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Qoşma əlavə et"
@@ -10432,10 +10478,31 @@
   "assignedExceedsAvailable": {
     "message": "Təyin edilmiş yer sayı, boş yer sayından çoxdur."
   },
+  "changeAtRiskPassword": {
+    "message": "Riskli parolları dəyişdir"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Kilidi PIN ilə açmanı ləğv et"
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "Üzvlərin öz hesablarının kilidini PIN ilə açmasına icazə verilməsin."
+  },
+  "limitedEventLogs": {
+    "message": "$PRODUCT_TYPE$ planında real event log-larına müraciət yoxdur",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Teams və ya Enterprise planına yüksəldərək təşkilatın event log-larına tam müraciət əldə edin."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Real event log dataları üçün yüksəlt"
+  },
+  "upgradeEventLogMessage": {
+    "message": "Bu event-lər sadəcə nümunədir və Bitwarden təşkilatınızdakı real event-ləri əks etdirmir."
   }
 }

@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Kritické aplikace"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "Žádné ohrožené kritické aplikace"
+  },
   "accessIntelligence": {
     "message": "Přístup k inteligenci"
   },
@@ -197,6 +200,9 @@
   },
   "notes": {
     "message": "Poznámka"
+  },
+  "privateNote": {
+    "message": "Soukromá poznámka"
   },
   "note": {
     "message": "Poznámka"
@@ -1026,6 +1032,9 @@
   "no": {
     "message": "Ne"
   },
+  "location": {
+    "message": "Umístění"
+  },
   "loginOrCreateNewAccount": {
     "message": "Pro přístup do Vašeho bezpečného trezoru se přihlaste nebo si vytvořte nový účet."
   },
@@ -1161,13 +1170,22 @@
   "logInToBitwarden": {
     "message": "Přihlásit se do Bitwardenu"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Zadejte kód odeslaný na Váš e-mail"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Zadejte kód z Vaší ověřovací aplikace"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Stiskněte svůj YubiKey pro ověření"
+  },
   "authenticationTimeout": {
     "message": "Časový limit ověření"
   },
   "authenticationSessionTimedOut": {
     "message": "Vypršel časový limit relace ověřování. Restartujte proces přihlášení."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Ověřte svou totožnost"
   },
   "weDontRecognizeThisDevice": {
@@ -1443,11 +1461,21 @@
   "rememberMe": {
     "message": "Zapamatovat mě"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Neptat se na tomto zařízení 30 dnů"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Znovu zaslat ověřovací kód na e-mail"
   },
   "useAnotherTwoStepMethod": {
     "message": "Použít jinou metodu dvoufázového přihlášení"
+  },
+  "selectAnotherMethod": {
+    "message": "Vybrat jinou metodu",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Použít obnovovací kód"
   },
   "insertYubiKey": {
     "message": "Vložte YubiKey do USB portu Vašeho počítače a stiskněte jeho tlačítko."
@@ -1466,6 +1494,9 @@
   },
   "twoStepOptions": {
     "message": "Volby dvoufázového přihlášení"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Vyberte metodu dvoufázového přihlášení"
   },
   "recoveryCodeDesc": {
     "message": "Ztratili jste přístup ke všem nastaveným poskytovatelům dvoufázového přihlášení? Použijte obnovovací kód pro vypnutí dvoufázového přihlášení."
@@ -1508,6 +1539,9 @@
   },
   "webAuthnMigrated": {
     "message": "(Migrováno z FIDO)"
+  },
+  "openInNewTab": {
+    "message": "Otevřít v nové kartě"
   },
   "emailTitle": {
     "message": "E-mail"
@@ -2223,6 +2257,9 @@
   },
   "revokeAccess": {
     "message": "Zrušit přístup"
+  },
+  "revoke": {
+    "message": "Odvolat"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Tento poskytovatel dvoufázového přihlášení je ve Vašem účtu aktivní."
@@ -4081,6 +4118,12 @@
   "updateBrowserDesc": {
     "message": "Používáte nepodporovaný webový prohlížeč. Webový trezor nemusí pracovat správně."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "Máte čekající žádost o přihlášení z jiného zařízení."
+  },
+  "reviewLoginRequest": {
+    "message": "Podívat se na žádost o přihlášení"
+  },
   "freeTrialEndPromptCount": {
     "message": "Vaše zkušební doba končí za $COUNT$ dnů.",
     "placeholders": {
@@ -4758,6 +4801,15 @@
   "masterPassPolicyDesc": {
     "message": "Nastavte minimální požadavky pro sílu hlavního hesla."
   },
+  "passwordStrengthScore": {
+    "message": "Skóre síly hesla: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "twoStepLoginPolicyTitle": {
     "message": "Požadovat dvoufázové přihlášení"
   },
@@ -5038,11 +5090,39 @@
   "requireSsoExemption": {
     "message": "Majitelé a administrátoři organizací jsou od prosazování těchto zásad osvobozeni."
   },
+  "limitSendViews": {
+    "message": "Omezit zobrazení"
+  },
+  "limitSendViewsHint": {
+    "message": "Po dosažení limitu nebude nikdo moci zobrazit tento Send.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "Zbývá $ACCESSCOUNT$ zobrazení",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Podrobnosti Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text ke sdílení"
+  },
   "sendTypeFile": {
     "message": "Soubor"
   },
   "sendTypeText": {
     "message": "Text"
+  },
+  "sendPasswordDescV3": {
+    "message": "Přidá volitelné heslo pro příjemce pro přístup k tomuto Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Nový Send",
@@ -5068,19 +5148,15 @@
     "message": "Smazat Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Opravdu chcete smazat tento Send?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Jakého typu je tento Send?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Opravdu chcete tento Send trvale smazat?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Datum smazání"
   },
-  "deletionDateDesc": {
-    "message": "Tento Send bude trvale smazán v určený datum a čas.",
+  "deletionDateDescV2": {
+    "message": "Tento Send bude trvale smazán v určené datum.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5092,21 +5168,6 @@
   },
   "maxAccessCount": {
     "message": "Maximální počet přístupů"
-  },
-  "maxAccessCountDesc": {
-    "message": "Je-li nastaveno, uživatelé již nebudou mít přístup k tomuto Send, jakmile bude dosaženo maximálního počtu přístupů.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Aktuální počet přístupů"
-  },
-  "sendPasswordDesc": {
-    "message": "Volitelně vyžadovat heslo pro přístup k tomuto Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Soukromé poznámky o tomto Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Zakázáno"
@@ -5134,13 +5195,6 @@
   "removePasswordConfirmation": {
     "message": "Opravdu chcete odebrat heslo?"
   },
-  "hideEmail": {
-    "message": "Skrýt moji e-mailovou adresu před příjemci"
-  },
-  "disableThisSend": {
-    "message": "Deaktivovat tento Send, takže k němu nebude moci nikdo přistoupit",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Všechny Sends"
   },
@@ -5150,6 +5204,9 @@
   },
   "pendingDeletion": {
     "message": "Čekání na smazání"
+  },
+  "hideTextByDefault": {
+    "message": "Ve výchozím nastavení skrýt text"
   },
   "expired": {
     "message": "Vypršela platnost"
@@ -5372,13 +5429,6 @@
     "message": "Při vytváření nebo úpravách Send vždy zobrazí e-mailovou adresu člena s příjemci.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "Aktuálně platí následující zásady organizace:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Uživatelé nesmí při vytváření nebo úpravách Send skrýt svou e-mailovou adresu před příjemci.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "Byly změněny zásady $ID$.",
     "placeholders": {
@@ -5477,27 +5527,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Odebere osobní vlastnictví pro uživatele organizace"
-  },
-  "textHiddenByDefault": {
-    "message": "Při přístupu k Send skrýt text ve výchozím nastavení",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Přátelský název pro popis tohoto Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Text, který chcete odeslat."
-  },
-  "sendFileDesc": {
-    "message": "Soubor, který chcete odeslat."
-  },
-  "copySendLinkOnSave": {
-    "message": "Kopírovat odkaz pro sdílení tohoto Send do mé schránky při uložení"
-  },
-  "sendLinkLabel": {
-    "message": "Odkaz tohoto Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Send",
@@ -5647,11 +5676,20 @@
   "dateParsingError": {
     "message": "Došlo k chybě při ukládání datumů smazání a vypršení platnosti."
   },
+  "hideYourEmail": {
+    "message": "Skryje Vaši e-mailovou adresu před zobrazením."
+  },
   "webAuthnFallbackMsg": {
     "message": "Pro ověření dvoufaktorového ověření klepněte na tlačítko níže."
   },
   "webAuthnAuthenticate": {
     "message": "Ověřit WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Přečíst bezpečnostní klíč"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Čeká se na interakci s bezpečnostním klíčem..."
   },
   "webAuthnNotSupported": {
     "message": "WebAuthn není v tomto prohlížeči podporován."
@@ -7198,6 +7236,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "Pro Váš účet je vyžadováno dvoufázové přihlášení Duo."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Pro Váš účet je nutné dvoufázové přihlášení. Pro dokončení přihlášení postupujte podle následujících kroků."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Postupujte podle kroků níže pro dokončení přihlášení."
   },
   "launchDuo": {
     "message": "Spustit Duo"
@@ -9793,8 +9837,14 @@
   "learnMoreAboutApi": {
     "message": "Další informace o API Bitwardenu"
   },
+  "fileSend": {
+    "message": "Send souboru"
+  },
   "fileSends": {
     "message": "Sends se soubory"
+  },
+  "textSend": {
+    "message": "Send textu"
   },
   "textSends": {
     "message": "Sends s texty"
@@ -10028,10 +10078,6 @@
   "specialCharactersDescription": {
     "message": "Zahrnout speciální znaky",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Přidat přílohu"
@@ -10432,10 +10478,31 @@
   "assignedExceedsAvailable": {
     "message": "Přiřazení uživatelé překračují dostupné uživatele."
   },
+  "changeAtRiskPassword": {
+    "message": "Změnit ohrožené heslo"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Odebrat odemknutí pomocí PIN"
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "Nepovolí členům odemknout svůj účet pomocí PIN."
+  },
+  "limitedEventLogs": {
+    "message": "Plány $PRODUCT_TYPE$ nemají přístup k protokolům reálných událostí",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Získejte plný přístup k protokolům událostí organizace aktualizací do týmů nebo plánu Enterprise."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Aktualizovat pro reálná data protokolu událostí"
+  },
+  "upgradeEventLogMessage": {
+    "message": "Tyto události jsou jen příklady a neodrážejí skutečné události v rámci Vaší organizace Bitwarden."
   }
 }

@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Belangrijke applicaties"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "Geen belangrijke applicaties lopen risico"
+  },
   "accessIntelligence": {
     "message": "Toegangsintelligentie"
   },
@@ -197,6 +200,9 @@
   },
   "notes": {
     "message": "Notities"
+  },
+  "privateNote": {
+    "message": "Privénotitie"
   },
   "note": {
     "message": "Notitie"
@@ -1026,6 +1032,9 @@
   "no": {
     "message": "Nee"
   },
+  "location": {
+    "message": "Locatie"
+  },
   "loginOrCreateNewAccount": {
     "message": "Log in of maak een nieuw account aan om toegang te krijgen tot je beveiligde kluis."
   },
@@ -1161,14 +1170,23 @@
   "logInToBitwarden": {
     "message": "Inloggen op Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Voer de code in die naar je e-mailadres is verstuurd"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Voer de code uit je authenticatie-app in"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Druk op je YubiKey om te verifiëren"
+  },
   "authenticationTimeout": {
     "message": "Authenticatie-timeout"
   },
   "authenticationSessionTimedOut": {
     "message": "De verificatiesessie is verlopen. Start het inlogproces opnieuw op."
   },
-  "verifyIdentity": {
-    "message": "Controleer je identiteit"
+  "verifyYourIdentity": {
+    "message": "Verifieer je identiteit"
   },
   "weDontRecognizeThisDevice": {
     "message": "We herkennen dit apparaat niet. Voer de code in die naar je e-mail is verzonden om je identiteit te verifiëren."
@@ -1443,11 +1461,21 @@
   "rememberMe": {
     "message": "Mijn gegevens onthouden"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "30 dagen niet meer vragen op dit apparaat"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "E-mail met verificatiecode opnieuw versturen"
   },
   "useAnotherTwoStepMethod": {
     "message": "Gebruik een andere methode voor tweestapsaanmelding"
+  },
+  "selectAnotherMethod": {
+    "message": "Kies een andere methode",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Gebruik je herstelcode"
   },
   "insertYubiKey": {
     "message": "Plaats je YubiKey in de USB-poort van je computer en druk op de knop."
@@ -1466,6 +1494,9 @@
   },
   "twoStepOptions": {
     "message": "Opties voor tweestapsaanmelding"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Kies methode voor tweestapsaanmelding"
   },
   "recoveryCodeDesc": {
     "message": "Ben je de toegang tot al je tweestapsaanbieders verloren? Gebruik dan je herstelcode om alle tweestapsaanbieders op je account uit te schakelen."
@@ -1508,6 +1539,9 @@
   },
   "webAuthnMigrated": {
     "message": "(Gemigreerd van FIDO)"
+  },
+  "openInNewTab": {
+    "message": "Openen in nieuwe tab"
   },
   "emailTitle": {
     "message": "E-mailadres"
@@ -2223,6 +2257,9 @@
   },
   "revokeAccess": {
     "message": "Toegang intrekken"
+  },
+  "revoke": {
+    "message": "Intrekken"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Deze tweestapsaanmeldingsaanbieder is geactiveerd voor je account."
@@ -4081,6 +4118,12 @@
   "updateBrowserDesc": {
     "message": "Je maakt gebruik van webbrowser die we niet ondersteunen. De webkluis werkt mogelijk niet goed."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "Je hebt inlogverzoek van een ander apparaat."
+  },
+  "reviewLoginRequest": {
+    "message": "Inlogverzoek afhandelen"
+  },
   "freeTrialEndPromptCount": {
     "message": "Je gratis proefperiode eindigt over $COUNT$ dagen.",
     "placeholders": {
@@ -4758,6 +4801,15 @@
   "masterPassPolicyDesc": {
     "message": "Minimale eisen voor de sterkte van het hoofdwachtwoord instellen."
   },
+  "passwordStrengthScore": {
+    "message": "Score wachtwoordsterkte $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "twoStepLoginPolicyTitle": {
     "message": "Tweestapsaanmelding vereisen"
   },
@@ -5038,11 +5090,39 @@
   "requireSsoExemption": {
     "message": "Eigenaren en beheerders van de organisatie zijn vrijgesteld van de handhaving van dit beleid."
   },
+  "limitSendViews": {
+    "message": "Weergaven limiteren"
+  },
+  "limitSendViewsHint": {
+    "message": "Niemand kan deze Send weergeven als de limiet is bereikt.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ weergaven over",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send-details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Te delen tekst"
+  },
   "sendTypeFile": {
     "message": "Bestand"
   },
   "sendTypeText": {
     "message": "Tekst"
+  },
+  "sendPasswordDescV3": {
+    "message": "Voeg een optioneel wachtwoord toe voor ontvangers om toegang te krijgen tot deze Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Nieuwe Send aanmaken",
@@ -5068,19 +5148,15 @@
     "message": "Send verwijderen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Weet je zeker dat je deze Send wilt verwijderen?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Wat voor soort Send is dit?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Weet je zeker dat je deze Send permanent wil verwijderen?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Verwijderingsdatum"
   },
-  "deletionDateDesc": {
-    "message": "Deze Send wordt definitief verwijderd op de aangegeven datum en tijd.",
+  "deletionDateDescV2": {
+    "message": "Op deze datum wordt de Send definitief verwijderd.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5092,21 +5168,6 @@
   },
   "maxAccessCount": {
     "message": "Maximum toegangsaantal"
-  },
-  "maxAccessCountDesc": {
-    "message": "Als dit is ingesteld kunnen gebruikers deze Send niet meer benaderen zodra het maximale aantal toegang is bereikt.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Huidige toegangsaantal"
-  },
-  "sendPasswordDesc": {
-    "message": "Vereis optioneel een wachtwoord voor gebruikers om toegang te krijgen tot deze Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Privénotities over deze Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Uitgeschakeld"
@@ -5134,13 +5195,6 @@
   "removePasswordConfirmation": {
     "message": "Weet je zeker dat je dit wachtwoord wilt verwijderen?"
   },
-  "hideEmail": {
-    "message": "Verberg mijn e-mailadres voor ontvangers."
-  },
-  "disableThisSend": {
-    "message": "Schakel deze Send uit zodat niemand hem kan benaderen.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Alle Sends"
   },
@@ -5150,6 +5204,9 @@
   },
   "pendingDeletion": {
     "message": "Wordt verwijderd"
+  },
+  "hideTextByDefault": {
+    "message": "Tekst standaard verbergen"
   },
   "expired": {
     "message": "Verlopen"
@@ -5372,13 +5429,6 @@
     "message": "Gebruikers mogen hun e-mailadres niet verbergen voor ontvangers bij het aanmaken of bewerken van een Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "Het volgende organisatiebeleid is momenteel van toepassing:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Gebruikers mogen hun e-mailadres niet verbergen voor ontvangers bij het aanmaken of bewerken van een Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "Bewerkt beleid $ID$.",
     "placeholders": {
@@ -5477,27 +5527,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Schakel persoonlijke eigendom uit voor organisatiegebruikers"
-  },
-  "textHiddenByDefault": {
-    "message": "Verberg de tekst standaard bij het gebruiken van de Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Een vriendelijke naam om deze Send te beschrijven.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "De tekst die je wilt versturen."
-  },
-  "sendFileDesc": {
-    "message": "Het bestand dat je wilt versturen."
-  },
-  "copySendLinkOnSave": {
-    "message": "Kopieer de link om deze Send te delen bij opslaan naar mijn klembord."
-  },
-  "sendLinkLabel": {
-    "message": "Send-link",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Send",
@@ -5647,11 +5676,20 @@
   "dateParsingError": {
     "message": "Er is een fout opgetreden bij het opslaan van je verwijder- en vervaldatum."
   },
+  "hideYourEmail": {
+    "message": "Je e-mailadres voor ontvangers verbergen."
+  },
   "webAuthnFallbackMsg": {
     "message": "Klik op onderstaande knop om je 2FA te verifiëren."
   },
   "webAuthnAuthenticate": {
     "message": "Authenticeer WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Beveiligingssleutel lezen"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Wacht op interactie met beveiligingssleutel..."
   },
   "webAuthnNotSupported": {
     "message": "WebAuthn wordt niet ondersteund in deze browser."
@@ -7198,6 +7236,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "DUO tweestapsaanmelding is vereist voor jouw account."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Jouw account vereist Duo-tweestapsaanmelding. Volg de onderstaande stappen om het inloggen te voltooien."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Volg de onderstaande stappen om in te loggen."
   },
   "launchDuo": {
     "message": "DUO starten"
@@ -9793,8 +9837,14 @@
   "learnMoreAboutApi": {
     "message": "Lees meer over Bitwarden's API"
   },
+  "fileSend": {
+    "message": "Bestand verzenden"
+  },
   "fileSends": {
     "message": "Bestand-Sends"
+  },
+  "textSend": {
+    "message": "Tekst-Sends"
   },
   "textSends": {
     "message": "Tekst-Sends"
@@ -10028,10 +10078,6 @@
   "specialCharactersDescription": {
     "message": "Speciale tekens toevoegen",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Bijlage toevoegen"
@@ -10432,10 +10478,31 @@
   "assignedExceedsAvailable": {
     "message": "Meer toegewezen dan beschikbare plaatsen."
   },
+  "changeAtRiskPassword": {
+    "message": "Risicovol wachtwoord wijzigen"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Ontgrendelen met PIN verwijderen"
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "Leden niet toestaan hun account te ontgrendelen met een pincode."
+  },
+  "limitedEventLogs": {
+    "message": "$PRODUCT_TYPE$-abonnementen hebben geen toegang tot echte event logs",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Krijg volledige toegang tot event logs van de organisatie door te upgraden naar een Teams- of Enterprise-abonnement."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Upgrade voor echte event log gegevens"
+  },
+  "upgradeEventLogMessage": {
+    "message": "Deze events zijn voorbeelden en weerspiegelen geen echte evenementen binnen je Bitwarden-organisatie."
   }
 }

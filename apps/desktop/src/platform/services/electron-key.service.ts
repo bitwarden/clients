@@ -57,8 +57,6 @@ export class ElectronKeyService extends DefaultKeyService {
   }
 
   override async clearStoredUserKey(keySuffix: KeySuffixOptions, userId?: UserId): Promise<void> {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     await super.clearStoredUserKey(keySuffix, userId);
   }
 
@@ -81,7 +79,7 @@ export class ElectronKeyService extends DefaultKeyService {
     // May resolve to null, in which case no client key have is required
     // TODO: Move to windows implementation
     const clientEncKeyHalf = await this.getBiometricEncryptionClientKeyHalf(userKey, userId);
-    await this.biometricService.setClientKeyHalfForUser(userId, clientEncKeyHalf as string);
+    await this.biometricService.setClientKeyHalfForUser(userId, clientEncKeyHalf);
     await this.biometricService.setBiometricProtectedUnlockKeyForUser(userId, userKey.keyB64);
   }
 

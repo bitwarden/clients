@@ -543,10 +543,6 @@
     "message": "Спеціальні символи",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Кількість слів"
   },
@@ -652,6 +648,15 @@
   "logInToBitwarden": {
     "message": "Увійти в Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Введіть код, надісланий вам електронною поштою"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Введіть код з програми автентифікації"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Натисніть свій YubiKey для автентифікації"
+  },
   "logInWithPasskey": {
     "message": "Увійти з ключем доступу"
   },
@@ -703,6 +708,15 @@
   },
   "masterPassHintLabel": {
     "message": "Підказка для головного пароля"
+  },
+  "passwordStrengthScore": {
+    "message": "Рейтинг надійності пароля $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Приєднатися до організації"
@@ -816,6 +830,9 @@
   "webauthnCancelOrTimeout": {
     "message": "Автентифікацію було скасовано або вона тривала надто довго. Повторіть спробу."
   },
+  "openInNewTab": {
+    "message": "Відкрити в новій вкладці"
+  },
   "invalidVerificationCode": {
     "message": "Недійсний код підтвердження"
   },
@@ -846,11 +863,21 @@
   "rememberMe": {
     "message": "Запам'ятати мене"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Більше не запитувати на цьому пристрої протягом 30 днів"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Надіслати код підтвердження ще раз"
   },
   "useAnotherTwoStepMethod": {
     "message": "Інший спосіб двоетапної перевірки"
+  },
+  "selectAnotherMethod": {
+    "message": "Обрати інший спосіб",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Використати код відновлення"
   },
   "insertYubiKey": {
     "message": "Вставте свій YubiKey в USB порт комп'ютера, потім торкніться цієї кнопки."
@@ -885,7 +912,7 @@
     "message": "Авторизуйтесь за допомогою Duo Security для вашої організації з використанням програми Duo Mobile, SMS, телефонного виклику, або ключа безпеки U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Підтвердьте свою особу"
   },
   "weDontRecognizeThisDevice": {
@@ -917,6 +944,9 @@
   },
   "twoStepOptions": {
     "message": "Налаштування двоетапної перевірки"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Виберіть спосіб двоетапної перевірки"
   },
   "selfHostedEnvironment": {
     "message": "Середовище власного хостингу"
@@ -1237,7 +1267,7 @@
     "message": "Завжди показувати піктограму в системному лотку."
   },
   "startToTray": {
-    "message": "Запускати в згорнутому вигляді"
+    "message": "Запускати в системному лотку"
   },
   "startToTrayDesc": {
     "message": "Під час першого запуску програми показувати лише піктограму в системному лотку."
@@ -1776,7 +1806,7 @@
     "message": "Вимагати пароль чи PIN під час запуску"
   },
   "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
+    "message": "Вимагати пароль під час запуску"
   },
   "recommendedForSecurity": {
     "message": "Рекомендовано для безпеки."
@@ -2246,6 +2276,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "Автентифікація WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Зчитати ключ безпеки"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Очікується взаємодія з ключем безпеки..."
   },
   "hideEmail": {
     "message": "Приховувати мою адресу електронної пошти від отримувачів."
@@ -3206,6 +3242,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "Для вашого облікового запису необхідна двоетапна перевірка з Duo."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Для вашого облікового запису необхідно пройти двоетапну перевірку з Duo. Виконайте наведені нижче кроки, щоб завершити вхід."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Виконайте наведені нижче кроки, щоб завершити вхід."
+  },
   "launchDuo": {
     "message": "Запустити Duo в браузері"
   },
@@ -3463,8 +3505,26 @@
   "sshkeyApprovalTitle": {
     "message": "Підтвердження використання ключа SSH"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Попередження: переспрямування агента"
+  },
+  "agentForwardingWarningText": {
+    "message": "Цей запит здійснюється з віддаленого пристрою, до якого ви ввійшли"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "запитує доступ до"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "щоб"
+  },
+  "sshActionLogin": {
+    "message": "пройти автентифікацію на сервері"
+  },
+  "sshActionSign": {
+    "message": "підписати повідомлення"
+  },
+  "sshActionGitSign": {
+    "message": "підписати git коміт"
   },
   "unknownApplication": {
     "message": "Програма"
@@ -3540,5 +3600,8 @@
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Ви використовуєте застарілу версію розширення браузера. Оновіть його або вимкніть перевірку цифрового відбитка інтеграції з браузером у налаштуваннях комп'ютерної програми."
+  },
+  "changeAtRiskPassword": {
+    "message": "Змінити ризикований пароль"
   }
 }
