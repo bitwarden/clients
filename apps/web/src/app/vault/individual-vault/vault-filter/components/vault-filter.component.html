@@ -25,6 +25,7 @@
           placeholder="{{ searchPlaceholder | i18n }}"
           [(ngModel)]="searchText"
           (ngModelChange)="onSearchTextChanged($event)"
+          [history]="searchHistory.history$ | async"
           autocomplete="off"
           appAutofocus
         />

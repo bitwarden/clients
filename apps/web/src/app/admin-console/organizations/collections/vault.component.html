@@ -51,6 +51,8 @@
       [organization]="organization"
       [activeFilter]="activeFilter"
       [searchText]="currentSearchText$ | async"
+      [userId]="userId$ | async"
+      [organizationId]="organizationId$ | async"
       (searchTextChanged)="filterSearchText($event)"
     ></app-organization-vault-filter>
   </div>

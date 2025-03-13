@@ -269,6 +269,10 @@ import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/a
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { DefaultFilterService, FilterService } from "@bitwarden/common/vault/search/filter.service";
 import {
+  SearchHistoryService,
+  DefaultSearchHistoryService,
+} from "@bitwarden/common/vault/search/search-history.service";
+import {
   CipherAuthorizationService,
   DefaultCipherAuthorizationService,
 } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -1450,6 +1454,11 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       ToastService,
     ],
+  }),
+  safeProvider({
+    provide: SearchHistoryService,
+    useClass: DefaultSearchHistoryService,
+    deps: [SingleUserStateProvider, EncryptService, KeyService],
   }),
 ];
 

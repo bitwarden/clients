@@ -172,11 +172,12 @@ export class VaultComponent implements OnInit, OnDestroy {
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
   private hasSubscription$ = new BehaviorSubject<boolean>(false);
+  protected userId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
 
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
-  private organizations$ = this.accountService.activeAccount$
-    .pipe(map((a) => a?.id))
-    .pipe(switchMap((id) => this.organizationService.organizations$(id)));
+  private organizations$ = this.userId$.pipe(
+    switchMap((id) => this.organizationService.organizations$(id)),
+  );
 
   private readonly unpaidSubscriptionDialog$ = this.organizations$.pipe(
     filter((organizations) => organizations.length === 1),
