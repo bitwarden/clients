@@ -513,12 +513,19 @@ export class CipherService implements CipherServiceAbstraction {
 
   async getAllDecryptedForUrl(
     url: string,
-    userId: UserId,
+    userId?: UserId,
     includeOtherTypes?: CipherType[],
     defaultMatch: UriMatchStrategySetting = null,
   ): Promise<CipherView[]> {
     const ciphers = await this.getAllDecrypted(userId);
     return await this.filterCiphersForUrl(ciphers, url, includeOtherTypes, defaultMatch);
+  }
+
+  async getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]> {
+    if (userId) {
+      const ciphers = await this.getAllDecrypted(userId);
+      return ciphers.filter((cipher) => ids.includes(cipher.id));
+    }
   }
 
   async filterCiphersForUrl(

@@ -3583,6 +3583,15 @@
   "changeAcctEmail": {
     "message": "Change account email"
   },
+  "passkeyLogin": {
+    "message": "Log in with passkey?"
+  },
+  "savePasskeyQuestion": {
+    "message": "Save passkey?"
+  },
+  "saveNewPasskey": {
+    "message": "Save as new login"
+  },
   "allowScreenshots": {
     "message": "Allow screen capture"
   },
