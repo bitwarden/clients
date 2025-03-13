@@ -25,6 +25,7 @@ import { CacheData } from "../services/login-strategies/login-strategy.state";
 
 import { LoginStrategy, LoginStrategyData } from "./login.strategy";
 
+// TODO: consider renaming LegacyPasswordLoginStrategy?  Or PasswordHashLoginStrategy?
 export class PasswordLoginStrategyData implements LoginStrategyData {
   tokenRequest: PasswordTokenRequest;
 
