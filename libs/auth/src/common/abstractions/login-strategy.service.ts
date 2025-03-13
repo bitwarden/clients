@@ -13,6 +13,7 @@ import {
   SsoLoginCredentials,
   AuthRequestLoginCredentials,
   WebAuthnLoginCredentials,
+  OpaqueLoginCredentials,
 } from "../models/domain/login-credentials";
 
 export abstract class LoginStrategyServiceAbstraction {
@@ -56,7 +57,8 @@ export abstract class LoginStrategyServiceAbstraction {
       | PasswordLoginCredentials
       | SsoLoginCredentials
       | AuthRequestLoginCredentials
-      | WebAuthnLoginCredentials,
+      | WebAuthnLoginCredentials
+      | OpaqueLoginCredentials,
   ) => Promise<AuthResult>;
   /**
    * Sends a token request to the server with the provided two factor token
