@@ -12,7 +12,6 @@ import { DecryptionFailureDialogComponent } from "@bitwarden/vault";
 
 import { AccessibilityCookieComponent } from "../auth/accessibility-cookie.component";
 import { DeleteAccountComponent } from "../auth/delete-account.component";
-import { EnvironmentComponent } from "../auth/environment.component";
 import { LoginModule } from "../auth/login/login.module";
 import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
@@ -70,7 +69,6 @@ import { SharedModule } from "./shared/shared.module";
     CollectionsComponent,
     ColorPasswordPipe,
     ColorPasswordCountPipe,
-    EnvironmentComponent,
     FolderAddEditComponent,
     HeaderComponent,
     PasswordHistoryComponent,
