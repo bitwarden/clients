@@ -1,7 +1,14 @@
 import { AsyncPipe, CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, Input, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+} from "@angular/core";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { map, Observable, of, startWith } from "rxjs";
+import { map, Observable, startWith } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -123,36 +130,28 @@ const setMap = <T, TResult>(
   ],
 })
 export class FilterBuilderComponent implements OnInit {
-  readonly vaults$ = of<SelectItemView[]>([
-    { id: "vaultOne", listName: "Vault 1", labelName: "Vault 1", icon: "bwi-vault" },
-    { id: "vaultTwo", listName: "Vault 2", labelName: "Vault 2", icon: "bwi-vault" },
-    { id: "vaultThree", listName: "Vault 3", labelName: "Vault 3", icon: "bwi-vault" },
-  ] satisfies SelectItemView[]);
-
-  readonly types$ = of<SelectItemView[]>([
-    { id: "login", listName: "Login", labelName: "Login", icon: "bwi-globe" },
-    { id: "card", listName: "Card", labelName: "Card", icon: "bwi-credit-card" },
-    { id: "identity", listName: "Identity", labelName: "Identity", icon: "bwi-id-card" },
-    { id: "note", listName: "Secure Note", labelName: "Secure Note", icon: "bwi-sticky-note" },
-  ]);
-
-  readonly fields$ = of<SelectItemView[]>([
-    { id: "fieldOne", listName: "Field 1", labelName: "Field 1" },
-    { id: "fieldTwo", listName: "Field 2", labelName: "Field 2" },
-    { id: "fieldThree", listName: "Field 3", labelName: "Field 3" },
-  ]);
-
   form = this.formBuilder.group({
     words: "",
     hasAttachment: false,
-    types: this.formBuilder.control([]),
-    collections: this.formBuilder.control([]),
-    vaults: this.formBuilder.control([]),
-    folders: this.formBuilder.control([]),
-    fields: this.formBuilder.control([]),
+    types: this.formBuilder.control<SelectItemView[]>([]),
+    collections: this.formBuilder.control<SelectItemView[]>([]),
+    vaults: this.formBuilder.control<SelectItemView[]>([]),
+    folders: this.formBuilder.control<SelectItemView[]>([]),
+    fields: this.formBuilder.control<SelectItemView[]>([]),
   });
 
   @Input({ required: true }) ciphers: Observable<CipherView[]> | undefined;
+
+  @Output() searchFilter = new EventEmitter<
+    Partial<{
+      words: string;
+      types: SelectItemView[];
+      collections: SelectItemView[];
+      vaults: SelectItemView[];
+      folders: SelectItemView[];
+      fields: SelectItemView[];
+    }>
+  >();
 
   private loadingFilter: Filter;
   filter$: Observable<Filter>;
@@ -262,5 +261,7 @@ export class FilterBuilderComponent implements OnInit {
     );
   }
 
-  submit() {}
+  submit() {
+    this.searchFilter.emit(this.form.value);
+  }
 }

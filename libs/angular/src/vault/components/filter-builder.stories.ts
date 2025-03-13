@@ -55,10 +55,13 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <app-filter-builder [ciphers]="ciphers"></app-filter-builder>
+      <app-filter-builder [ciphers]="ciphers" (searchFilter)="searchFilter($event)"></app-filter-builder>
     `,
   }),
   args: {
     ciphers: of([]),
+    searchFilter: (d: unknown) => {
+      alert(JSON.stringify(d));
+    },
   },
 };
