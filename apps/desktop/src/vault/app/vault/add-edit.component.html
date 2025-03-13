@@ -773,17 +773,8 @@
     </div>
   </div>
   <div class="footer">
-    <button
-      type="submit"
-      class="primary"
-      appA11yTitle="{{ 'save' | i18n }}"
-      [disabled]="$any(form).loading"
-    >
-      <i
-        class="bwi bwi-save-changes bwi-lg bwi-fw"
-        [hidden]="$any(form).loading"
-        aria-hidden="true"
-      ></i>
+    <button type="submit" class="primary" [disabled]="$any(form).loading">
+      <span [hidden]="$any(form).loading">{{ "save" | i18n }}</span>
       <i
         class="bwi bwi-spinner bwi-spin bwi-lg bwi-fw"
         [hidden]="!$any(form).loading"
@@ -797,10 +788,9 @@
       <button
         type="button"
         (click)="share()"
-        appA11yTitle="{{ 'moveToOrganization' | i18n }}"
         *ngIf="editMode && cipher && !cipher.organizationId && !cloneMode"
       >
-        <i class="bwi bwi-arrow-circle-right bwi-lg bwi-fw" aria-hidden="true"></i>
+        {{ "move" | i18n }}
       </button>
       <button
         #deleteBtn
