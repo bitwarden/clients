@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "أدخل عنوان البريد الإلكتروني لحسابك وسيُرسل تلميح كلمة المرور الخاصة بك إليك"
   },
-  "passwordHint": {
-    "message": "تلميح كلمة المرور"
-  },
-  "enterEmailToGetHint": {
-    "message": "أدخل عنوان البريد الإلكتروني لحسابك لتلقي تلميحات كلمة المرور الرئيسية."
-  },
   "getMasterPasswordHint": {
     "message": "احصل على تلميح لكلمة المرور الرئيسية"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "البيئة المستضافة ذاتيا"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "حدد عنوان URL الأساسي لتثبيت Bitwarden المستضاف محليًا."
-  },
   "selfHostedBaseUrlHint": {
     "message": "حدد عنوان URL الأساسي لمحالّك التي استضافت تثبيت Bitwarden على سبيل المثال: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "بيئة مخصصة"
-  },
-  "customEnvironmentFooter": {
-    "message": "للمستخدمين المتقدمين. يمكنك تحديد عنوان URL الأساسي لكل خدمة بشكل مستقل."
   },
   "baseUrl": {
     "message": "رابط الخادم"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "لا"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "الكتابة فوق كلمة المرور"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "تم إرسال طلبك إلى المشرف الخاص بك."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "سيتم إعلامك بمجرد الموافقة."
-  },
   "troubleLoggingIn": {
     "message": "مشكلة في تسجيل الدخول؟"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "تطبيق"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "استيراد مفاتيح SSH المحمية بكلمة المرور غير معتمد حتى الآن"
-  },
   "invalidSshKey": {
     "message": "مفتاح SSH غير صالح"
   },
@@ -3541,8 +3526,8 @@
   "importSshKeyFromClipboard": {
     "message": "استيراد المفتاح من الحافظة"
   },
-  "sshKeyPasted": {
-    "message": "تم استيراد مفتاح SSH بنجاح"
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
     "message": "تم حفظ الملف على الجهاز. إدارة من تنزيلات جهازك."

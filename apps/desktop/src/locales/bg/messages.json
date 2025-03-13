@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Въведете е-пощата на регистрацията си и подсказката за паролата ще Ви бъде изпратена"
   },
-  "passwordHint": {
-    "message": "Подсказка за паролата"
-  },
-  "enterEmailToGetHint": {
-    "message": "Въведете адреса на е-пощата си, за да получите подсказка за главната парола."
-  },
   "getMasterPasswordHint": {
     "message": "Получете подсказване за главната парола"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Собствена среда"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Укажете базовия адрес за собствената ви инсталирана среда на Bitwarden."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Посочете базовия адрес на Вашата собствена инсталация на Битуорден. Пример: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Специална среда"
-  },
-  "customEnvironmentFooter": {
-    "message": "За специални случаи. Може да укажете основните адреси на всяка ползвана услуга поотделно."
   },
   "baseUrl": {
     "message": "Адрес на сървъра"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Не"
+  },
+  "location": {
+    "message": "Местоположение"
   },
   "overwritePassword": {
     "message": "Обновяване на паролата"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Вашата заявка беше изпратена до администратора Ви."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Ще получите известие, когато тя бъде одобрена."
-  },
   "troubleLoggingIn": {
     "message": "Имате проблем с вписването?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "Приложение"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Внасянето на SSH ключ, които са защитени с парола, все още не се поддържа"
-  },
   "invalidSshKey": {
     "message": "SSH ключът е неправилен"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "Внасяне на ключ от буфера за обмен"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH ключът е внесен успешно"
   },
   "fileSavedToDevice": {

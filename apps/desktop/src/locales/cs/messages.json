@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Zadejte svou e-mailovou adresu, na kterou Vám zašleme nápovědu k heslu"
   },
-  "passwordHint": {
-    "message": "Nápověda pro heslo"
-  },
-  "enterEmailToGetHint": {
-    "message": "Zadejte e-mailovou adresu pro zaslání nápovědy k hlavnímu heslu."
-  },
   "getMasterPasswordHint": {
     "message": "Získat nápovědu pro hlavní heslo"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Vlastní hostované prostředí"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Zadejte základní URL adresu vlastní hostované aplikace Bitwarden."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Zadejte základní URL adresu Vaší vlastní hostované aplikace Bitwarden. Příklad: https://bitwarden.spolecnost.cz"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Vlastní prostředí"
-  },
-  "customEnvironmentFooter": {
-    "message": "Pro pokročilé uživatele. Můžete zadat základní URL adresu každé služby zvlášť."
   },
   "baseUrl": {
     "message": "URL serveru"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Ne"
+  },
+  "location": {
+    "message": "Umístění"
   },
   "overwritePassword": {
     "message": "Přepsat heslo"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Váš požadavek byl odeslán Vašemu správci."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Po schválení budete upozorněni."
-  },
   "troubleLoggingIn": {
     "message": "Potíže s přihlášením?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "Aplikace"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Import šifrovaných SSH klíčů není zatím podporován"
-  },
   "invalidSshKey": {
     "message": "SSH klíč je neplatný"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "Importovat klíč ze schránky"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH klíč byl úspěšně importován"
   },
   "fileSavedToDevice": {

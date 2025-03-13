@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "输入您的账户电子邮箱地址，您的密码提示将发送给您"
   },
-  "passwordHint": {
-    "message": "密码提示"
-  },
-  "enterEmailToGetHint": {
-    "message": "请输入您的账户电子邮箱地址来接收主密码提示。"
-  },
   "getMasterPasswordHint": {
     "message": "获取主密码提示"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "自托管环境"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "指定您本地托管的 Bitwarden 安装的基础 URL。"
-  },
   "selfHostedBaseUrlHint": {
     "message": "指定您的本地托管 Bitwarden 安装的基础 URL。例如：https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "自定义环境"
-  },
-  "customEnvironmentFooter": {
-    "message": "适用于高级用户。您可以分别指定各个服务的基础 URL。"
   },
   "baseUrl": {
     "message": "服务器 URL"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "否"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "覆盖密码"
@@ -2094,7 +2085,7 @@
     "message": "生物识别未设置"
   },
   "biometricsNotEnabledDesc": {
-    "message": "需要先在桌面应用程序的设置中设置生物识别，才能使用浏览器中的生物识别。"
+    "message": "需要首先在桌面端的设置中设置生物识别，才能使用浏览器的生物识别。"
   },
   "biometricsManualSetupTitle": {
     "message": "自动设置不可用"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "您的请求已发送给您的管理员。"
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "批准后，您将收到通知。"
-  },
   "troubleLoggingIn": {
     "message": "登录遇到问题吗？"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "某个应用程序"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "尚不支持导入受密码保护的 SSH 密钥"
-  },
   "invalidSshKey": {
     "message": "此 SSH 密钥无效"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "从剪贴板导入密钥"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH 密钥导入成功"
   },
   "fileSavedToDevice": {

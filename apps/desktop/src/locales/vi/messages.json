@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "Gợi ý mật khẩu"
-  },
-  "enterEmailToGetHint": {
-    "message": "Nhập địa chỉ email tài khoản của bạn để nhận gợi ý mật khẩu chính."
-  },
   "getMasterPasswordHint": {
     "message": "Nhận gợi ý mật khẩu chính"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Môi trường tự lưu trữ"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Chỉ định địa chỉ cơ sở của bản cài đặt Bitwarden được lưu trữ tại máy chủ của bạn."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Nhập địa chỉ cơ sở của bản cài đặt Bitwarden được lưu trữ tại máy chủ của bạn. Ví dụ: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Môi trường tùy chỉnh"
-  },
-  "customEnvironmentFooter": {
-    "message": "Đối với người dùng nâng cao. Bạn có thể chỉ định địa chỉ cơ sở của mỗi dịch vụ một cách độc lập."
   },
   "baseUrl": {
     "message": "Địa chỉ máy chủ"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Không"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Ghi đè lên mật khẩu"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Yêu cầu của bạn đã được gửi đến quản trị viên."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Bạn sẽ có thông báo nếu được phê duyệt."
-  },
   "troubleLoggingIn": {
     "message": "Không thể đăng nhập?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "An application"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {

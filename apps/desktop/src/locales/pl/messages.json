@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Wprowadź adres e-mail swojego konta, a podpowiedź hasła zostanie wysłana do Ciebie"
   },
-  "passwordHint": {
-    "message": "Podpowiedź do hasła"
-  },
-  "enterEmailToGetHint": {
-    "message": "Wpisz adres e-mail powiązany z kontem, aby otrzymać podpowiedź do hasła głównego."
-  },
   "getMasterPasswordHint": {
     "message": "Uzyskaj podpowiedź do hasła głównego"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Samodzielnie hostowane środowisko"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Wpisz podstawowy adres URL hostowanej instalacji Bitwarden."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Określ bazowy adres URL swojej instalacji Bitwarden. Przykład: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Niestandardowe środowisko"
-  },
-  "customEnvironmentFooter": {
-    "message": "Dla zaawansowanych użytkowników. Możesz wpisać podstawowy adres URL niezależnie dla każdej usługi."
   },
   "baseUrl": {
     "message": "Adres URL serwera"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Nie"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Zastąp hasło"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Twoja prośba została wysłana do Twojego administratora."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Zostaniesz powiadomiony po zatwierdzeniu."
-  },
   "troubleLoggingIn": {
     "message": "Problem z zalogowaniem?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "Aplikacja"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importowanie kluczy SSH chronionych hasłem nie jest jeszcze obsługiwane"
-  },
   "invalidSshKey": {
     "message": "Klucz SSH jest nieprawidłowy"
   },
@@ -3541,8 +3526,8 @@
   "importSshKeyFromClipboard": {
     "message": "Importuj klucz ze schowka"
   },
-  "sshKeyPasted": {
-    "message": "Pomyślnie zaimportowano klucz SSH"
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
     "message": "Plik zapisany na urządzeniu. Zarządzaj plikiem na swoim urządzeniu."

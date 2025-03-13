@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "비밀번호 힌트"
-  },
-  "enterEmailToGetHint": {
-    "message": "마스터 비밀번호 힌트를 받으려면 계정의 이메일 주소를 입력하세요."
-  },
   "getMasterPasswordHint": {
     "message": "마스터 비밀번호 힌트 얻기"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "자체 호스팅 환경"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "온-프레미스 Bitwarden이 호스팅되고 있는 서버의 기본 URL을 지정하세요."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "사용자 지정 환경"
-  },
-  "customEnvironmentFooter": {
-    "message": "고급 사용자 전용 설정입니다. 각 서비스의 기본 URL을 개별적으로 지정할 수 있습니다."
   },
   "baseUrl": {
     "message": "서버 URL"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "아니오"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "비밀번호 덮어쓰기"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Your request has been sent to your admin."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "You will be notified once approved."
-  },
   "troubleLoggingIn": {
     "message": "Trouble logging in?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "An application"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {

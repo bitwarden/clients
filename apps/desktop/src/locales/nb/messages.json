@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "Passordhint"
-  },
-  "enterEmailToGetHint": {
-    "message": "Skriv inn din kontos E-postadresse for å motta hintet til ditt superpassord."
-  },
   "getMasterPasswordHint": {
     "message": "Få et hint om superpassordet"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Selvbetjent miljø"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Spesifiser grunn-nettadressen til din selvbetjente Bitwarden-installasjon."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Tilpasset miljø"
-  },
-  "customEnvironmentFooter": {
-    "message": "For avanserte brukere. Du kan bestemme grunn-nettadressen til hver tjeneste separat."
   },
   "baseUrl": {
     "message": "Tjener-nettadresse"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Nei"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Overskriv passordet"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Forespørselen din har blitt sendt til administratoren din."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Du vil bli varslet når det er godkjent."
-  },
   "troubleLoggingIn": {
     "message": "Problemer med å logge inn?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "Et program"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "SSH-nøkkelen er ugyldig"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {

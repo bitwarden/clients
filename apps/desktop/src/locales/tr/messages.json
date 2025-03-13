@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Hesabınızın e-posta adresini girdiğinizde parola ipucunuz size gönderilecektir"
   },
-  "passwordHint": {
-    "message": "Parola ipucu"
-  },
-  "enterEmailToGetHint": {
-    "message": "Ana parola ipucunu almak için hesabınızın e-posta adresini girin."
-  },
   "getMasterPasswordHint": {
     "message": "Ana parola ipucunu al"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Şirket içinde barındırılan ortam"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Kurum içi barındırılan Bitwarden kurulumunuzun taban URL'sini belirtin."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Özel ortam"
-  },
-  "customEnvironmentFooter": {
-    "message": "Üst düzey kullanıcılar için. Her servisin taban URL'sini bağımsız olarak belirleyebilirsiniz."
   },
   "baseUrl": {
     "message": "Sunucu URL'si"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Hayır"
+  },
+  "location": {
+    "message": "Konum"
   },
   "overwritePassword": {
     "message": "Parolanın üzerine yaz"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "İsteğiniz yöneticinize gönderildi."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Onaylandıktan sonra bilgilendirileceksiniz."
-  },
   "troubleLoggingIn": {
     "message": "Giriş yaparken sorun mu yaşıyorsunuz?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "An application"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {

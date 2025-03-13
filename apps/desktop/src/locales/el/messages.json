@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Εισάγετε τη διεύθυνση ηλ. ταχυδρομείου του λογαριασμού σας και θα σας αποσταλεί η υπόδειξη κωδικού πρόσβασης"
   },
-  "passwordHint": {
-    "message": "Υπόδειξη κωδικού πρόσβασης"
-  },
-  "enterEmailToGetHint": {
-    "message": "Εισάγετε τη διεύθυνση ηλ. ταχυδρομείου του λογαριασμού σας για να λάβετε την υπόδειξη του κύριου κωδικού πρόσβασης."
-  },
   "getMasterPasswordHint": {
     "message": "Λήψη υπόδειξης κύριου κωδικού"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Αυτο-φιλοξενούμενο περιβάλλον"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Καθορίστε τη βασική διεύθυνση URL, της εγκατάστασης του Bitwarden που φιλοξενείται στο χώρο σας."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Καθορίστε το βασικό URL της εγκατάστασης Bitwarden που φιλοξενείται στο χώρο σας. Παράδειγμα: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Προσαρμοσμένο περιβάλλον"
-  },
-  "customEnvironmentFooter": {
-    "message": "Για προχωρημένους χρήστες. Μπορείτε να ορίσετε ανεξάρτητα τη βασική διεύθυνση URL κάθε υπηρεσίας."
   },
   "baseUrl": {
     "message": "URL Διακομιστή"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Όχι"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Αντικατάσταση κωδικού πρόσβασης"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Το αίτημά σας εστάλη στον διαχειριστή σας."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Θα ειδοποιηθείτε μόλις εγκριθεί."
-  },
   "troubleLoggingIn": {
     "message": "Πρόβλημα σύνδεσης;"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "Μια εφαρμογή"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Η εισαγωγή κλειδιών SSH που προστατεύονται με κωδικό πρόσβασης δεν υποστηρίζεται ακόμη"
-  },
   "invalidSshKey": {
     "message": "Το SSH κλειδί δεν είναι έγκυρο"
   },
@@ -3541,8 +3526,8 @@
   "importSshKeyFromClipboard": {
     "message": "Εισαγωγή κλειδιού από το πρόχειρο"
   },
-  "sshKeyPasted": {
-    "message": "Το SSH κλειδί εισήχθη με επιτυχία"
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
     "message": "Το αρχείο αποθηκεύτηκε στη συσκευή. Διαχείριση από τις λήψεις της συσκευής σας."

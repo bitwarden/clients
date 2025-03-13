@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "ಪಾಸ್ವರ್ಡ್ ಸುಳಿವು"
-  },
-  "enterEmailToGetHint": {
-    "message": "ವಿಸ್ತರಣೆಯನ್ನು ಪ್ರಾರಂಭಿಸಲು ಮೆನುವಿನಲ್ಲಿರುವ ಬಿಟ್‌ವಾರ್ಡೆನ್ ಐಕಾನ್ ಟ್ಯಾಪ್ ಮಾಡಿ."
-  },
   "getMasterPasswordHint": {
     "message": "ಮಾಸ್ಟರ್ ಪಾಸ್ವರ್ಡ್ ಸುಳಿವನ್ನು ಪಡೆಯಿರಿ"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "ಸ್ವಯಂ ಆತಿಥೇಯ ಪರಿಸರ"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "ನಿಮ್ಮ ಆನ್-ಪ್ರಮೇಯ ಹೋಸ್ಟ್ ಮಾಡಿದ ಬಿಟ್‌ವಾರ್ಡೆನ್ ಸ್ಥಾಪನೆಯ ಮೂಲ URL ಅನ್ನು ನಿರ್ದಿಷ್ಟಪಡಿಸಿ."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "ಕಸ್ಟಮ್ ಪರಿಸರ"
-  },
-  "customEnvironmentFooter": {
-    "message": "ಸುಧಾರಿತ ಬಳಕೆದಾರರಿಗಾಗಿ. ನೀವು ಪ್ರತಿ ಸೇವೆಯ ಮೂಲ URL ಅನ್ನು ಸ್ವತಂತ್ರವಾಗಿ ನಿರ್ದಿಷ್ಟಪಡಿಸಬಹುದು."
   },
   "baseUrl": {
     "message": "ಸರ್ವರ್ URL"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "ಇಲ್ಲ"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "ಪಾಸ್ವರ್ಡ್ ಅನ್ನು ಬದಲಿಸಿ"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Your request has been sent to your admin."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "You will be notified once approved."
-  },
   "troubleLoggingIn": {
     "message": "Trouble logging in?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "An application"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {

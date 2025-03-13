@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Saisissez l'adresse courriel de votre compte et votre indice de mot de passe vous sera envoyé"
   },
-  "passwordHint": {
-    "message": "Indice pour le mot de passe"
-  },
-  "enterEmailToGetHint": {
-    "message": "Saisissez l'adresse électronique de votre compte pour recevoir l'indice de votre mot de passe principal."
-  },
   "getMasterPasswordHint": {
     "message": "Obtenir l'indice du mot de passe principal"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Environnement auto-hébergé"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Spécifiez l'URL de base de votre installation Bitwarden auto-hébergée."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Spécifiez l'URL de base de votre installation Bitwarden hébergée sur site. Exemple : https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Environnement personnalisé"
-  },
-  "customEnvironmentFooter": {
-    "message": "Pour utilisateurs avancés. Vous pouvez spécifier une URL de base indépendante pour chaque service."
   },
   "baseUrl": {
     "message": "URL du serveur"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Non"
+  },
+  "location": {
+    "message": "Emplacement"
   },
   "overwritePassword": {
     "message": "Écraser le mot de passe"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Votre demande a été envoyée à votre administrateur."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Vous serez notifié une fois approuvé."
-  },
   "troubleLoggingIn": {
     "message": "Problème pour vous connecter ?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "Une application"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "L'importation de clés SSH protégées par mot de passe n'est pas encore prise en charge"
-  },
   "invalidSshKey": {
     "message": "La clé SSH est invalide"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "Importer une clé depuis le presse-papiers"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "Clé SSH importée avec succès"
   },
   "fileSavedToDevice": {

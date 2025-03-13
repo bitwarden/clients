@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Jāievada sava konta e-pasta adrese, un paroles norāde tiks nosūtīta"
   },
-  "passwordHint": {
-    "message": "Paroles norāde"
-  },
-  "enterEmailToGetHint": {
-    "message": "Ievadiet sava konta e-pasta adresi, lai saņemtu galvenās paroles norādi!"
-  },
   "getMasterPasswordHint": {
     "message": "Saņemt galvenās paroles norādi"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Pašuzturēta vide"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Norādīt pašuzstādīta Bitwarden pamata URL."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Jānorāda sava pašizvietotā Bitward servera pamata URL. Piemērs: https://bitwarden.uznemums.lv"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Pielāgota vide"
-  },
-  "customEnvironmentFooter": {
-    "message": "Pieredzējušiem lietotājiem. Ir iespējams norādīt URL katram pakalpojumam atsevišķi."
   },
   "baseUrl": {
     "message": "Servera URL"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Nē"
+  },
+  "location": {
+    "message": "Atrašanās vieta"
   },
   "overwritePassword": {
     "message": "Pārrakstīt paroli"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Pieprasījums tika nosūtīts pārvaldītājam."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Tiks saņemts paziņojums, tiklīdz būs apstiprināts."
-  },
   "troubleLoggingIn": {
     "message": "Neizdodas pieteikties?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "Lietotne"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Ar paroli aizsargātu SSH atslēgu ievietošana pagaidām netiek nodrošināta"
-  },
   "invalidSshKey": {
     "message": "SSH atslēga ir nederīga"
   },
@@ -3541,8 +3526,8 @@
   "importSshKeyFromClipboard": {
     "message": "Ievietot atslēgu no starpliktuves"
   },
-  "sshKeyPasted": {
-    "message": "SSH atslēga tika veiksmīgi ievietota"
+  "sshKeyImported": {
+    "message": "SSH atslēga tika sekmīgi ievietota"
   },
   "fileSavedToDevice": {
     "message": "Datne saglabāta ierīcē. Tā ir atrodama ierīces lejupielāžu mapē."

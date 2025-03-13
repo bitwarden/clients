@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "הזן את כתובת דוא\"ל החשבון שלך והרמז לסיסמה שלך יישלח אליך"
   },
-  "passwordHint": {
-    "message": "רמז לסיסמה"
-  },
-  "enterEmailToGetHint": {
-    "message": "הכנס את כתובת האימייל שלך לקבלת רמז עבור הסיסמה הראשית."
-  },
   "getMasterPasswordHint": {
     "message": "הצג את הרמז לסיסמה הראשית"
   },
@@ -913,7 +907,7 @@
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "אמת את זהותך"
   },
   "weDontRecognizeThisDevice": {
     "message": "אנחנו לא מזהים את המכשיר הזה. הזן את הקוד שנשלח לדוא\"ל שלך כדי לאמת את זהותך."
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "סביבה על שרתים מקומיים"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "הזן את כתובת השרת המקומי של Bitwarden."
-  },
   "selfHostedBaseUrlHint": {
     "message": "ציין את בסיס ה־URL של התקנת Bitwarden באירוח מקומי שלך. דוגמה: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "סביבה מותאמת אישית"
-  },
-  "customEnvironmentFooter": {
-    "message": "למשתמשים מתקדמים. באפשרותך לציין את כתובת השרת עבור כל שירות בנפרד."
   },
   "baseUrl": {
     "message": "כתובת שרת"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "לא"
+  },
+  "location": {
+    "message": "מיקום"
   },
   "overwritePassword": {
     "message": "דרוס סיסמה"
@@ -2001,7 +1992,7 @@
     }
   },
   "masterPasswordPolicyRequirementsNotMet": {
-    "message": "הסיסמה הראשית החדשה השלך לא עומדת בדרישות המדיניות."
+    "message": "הסיסמה הראשית החדשה שלך לא עומדת בדרישות המדיניות."
   },
   "receiveMarketingEmailsV2": {
     "message": "קבל עצות, הכרזות, והזדמנויות מחקר מאת Bitwarden בדואר הנכנס שלך."
@@ -2491,7 +2482,7 @@
     "message": "מייצא כספת אישית"
   },
   "exportingIndividualVaultDescription": {
-    "message": "רק פריטי הכספת האישית המשויכת עם $EMAIL$ ייוצאו. פריטי כספת ארגון לא יכללו. רק פרטי פריט כספת ייוצאו ולא יכללו קבצים מצורפים משויכים.",
+    "message": "רק פריטי הכספת האישית המשויכת עם $EMAIL$ ייוצאו. פריטי כספת ארגון לא יכללו. רק פרטי פריט כספת ייוצאו ולא יכללו צרופות משויכות.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2503,7 +2494,7 @@
     "message": "מייצא כספת ארגון"
   },
   "exportingOrganizationVaultDesc": {
-    "message": "רק כספת הארגון המשויכת עם $ORGANIZATION$ ייוצאו. פריטים בכספת אישית או ארגונים אחרים לא יכללו.",
+    "message": "רק כספת הארגון המשויכת עם $ORGANIZATION$ תיוצא. פריטים בכספת אישית או ארגונים אחרים לא יכללו.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "הבקשה שלך נשלחה למנהל שלך."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "תקבל התראה כשתאושר."
-  },
   "troubleLoggingIn": {
     "message": "בעיות בכניסה?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "יישום"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "ייבוא מפתחות SSH מוגנים בסיסמה עדיין לא נתמך"
-  },
   "invalidSshKey": {
     "message": "מפתח ה־SSH אינו תקין"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "ייבא מפתח מלוח ההעתקה"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "מפתח SSH יובא בהצלחה"
   },
   "fileSavedToDevice": {
@@ -3602,6 +3587,6 @@
     "message": "הרחבת הדפדפן בה אתה משתמש היא מיושנת. נא לעדכן אותה או להשבית אימות טביעת אצבע של שילוב דפדפן בהגדרות יישום שולחן העבודה."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "שנה סיסמה בסיכון"
   }
 }

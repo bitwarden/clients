@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "یادآور کلمه عبور"
-  },
-  "enterEmailToGetHint": {
-    "message": "برای دریافت یادآور کلمه عبور اصلی خود نشانی ایمیل‌تان را وارد کنید."
-  },
   "getMasterPasswordHint": {
     "message": "دریافت یادآور کلمه عبور اصلی"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "محیط خود میزبان"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "نشانی اینترنتی پایه فرضی نصب Bitwarden میزبانی شده را مشخص کنید."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "محیط سفارشی"
-  },
-  "customEnvironmentFooter": {
-    "message": "برای کاربران پیشرفته. شما می‌توانید نشانی پایه هر سرویس را مستقلاً تعیین کنید."
   },
   "baseUrl": {
     "message": "نشانی اینترنتی سرور"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "خیر"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "بازنویسی کلمه عبور"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "درخواست شما به مدیرتان فرستاده شد."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "به محض تأیید مطلع خواهید شد."
-  },
   "troubleLoggingIn": {
     "message": "در ورود مشکلی دارید؟"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "An application"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {

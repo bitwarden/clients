@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Gib deine E-Mail-Adresse ein und dein Passwort-Hinweis wird dir zugesandt"
   },
-  "passwordHint": {
-    "message": "Passwort-Hinweis"
-  },
-  "enterEmailToGetHint": {
-    "message": "Gib die E-Mail-Adresse deines Kontos ein, um den Hinweis für dein Master-Passwort zu erhalten."
-  },
   "getMasterPasswordHint": {
     "message": "Hinweis zum Master-Passwort zusenden"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Selbst gehostete Umgebung"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Bitte gib die Basis-URL deiner selbst gehosteten Bitwarden-Installation an."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Gib die Basis-URL deiner vor Ort gehosteten Bitwarden-Installation an. Beispiel: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Benutzerdefinierte Umgebung"
-  },
-  "customEnvironmentFooter": {
-    "message": "Für fortgeschrittene Benutzer. Du kannst die Basis-URL der jeweiligen Dienste unabhängig voneinander festlegen."
   },
   "baseUrl": {
     "message": "Server-URL"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Nein"
+  },
+  "location": {
+    "message": "Standort"
   },
   "overwritePassword": {
     "message": "Passwort ersetzen"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Deine Anfrage wurde an deinen Administrator gesendet."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Nach einer Genehmigung wirst du benachrichtigt."
-  },
   "troubleLoggingIn": {
     "message": "Probleme beim Anmelden?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "Eine Anwendung"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Das Importieren passwortgeschützter SSH-Schlüssel wird noch nicht unterstützt"
-  },
   "invalidSshKey": {
     "message": "Der SSH-Schlüssel ist ungültig"
   },
@@ -3541,8 +3526,8 @@
   "importSshKeyFromClipboard": {
     "message": "Schlüssel aus Zwischenablage importieren"
   },
-  "sshKeyPasted": {
-    "message": "SSH-Schlüssel erfolgreich importiert"
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
     "message": "Datei auf Gerät gespeichert. Greife darauf über die Downloads deines Geräts zu."

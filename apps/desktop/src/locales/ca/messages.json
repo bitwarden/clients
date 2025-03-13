@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Introduïu l'adreça de correu electrònic del compte i se us enviarà la pista de contrasenya"
   },
-  "passwordHint": {
-    "message": "Pista per a la contrasenya"
-  },
-  "enterEmailToGetHint": {
-    "message": "Introduïu l'adreça electrònica del vostre compte per rebre la contrasenya mestra."
-  },
   "getMasterPasswordHint": {
     "message": "Obteniu la pista de contrasenya mestra"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Entorn d'allotjament propi"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Especifiqueu l'URL base de la vostra instal·lació Bitwarden allotjada en un entorn propi."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Entorn personalitzat"
-  },
-  "customEnvironmentFooter": {
-    "message": "Per a usuaris avançats. Podeu especificar l'URL base de cada servei independentment."
   },
   "baseUrl": {
     "message": "URL del servidor"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "No"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Sobreescriu la contrasenya"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "La vostra sol·licitud s'ha enviat a l'administrador."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Se us notificarà una vegada aprovat."
-  },
   "troubleLoggingIn": {
     "message": "Teniu problemes per iniciar la sessió?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "Una aplicació"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {

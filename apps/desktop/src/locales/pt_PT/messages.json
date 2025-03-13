@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Introduza o endereço de e-mail da sua conta e ser-lhe-á enviada a sua dica da palavra-passe"
   },
-  "passwordHint": {
-    "message": "Dica da palavra-passe"
-  },
-  "enterEmailToGetHint": {
-    "message": "Introduza o endereço de e-mail da sua conta para receber a dica da sua palavra-passe mestra."
-  },
   "getMasterPasswordHint": {
     "message": "Obter a dica da palavra-passe mestra"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Ambiente auto-hospedado"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Especifique o URL de base da sua instalação Bitwarden hospedada no local."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Especifique o URL de base da sua instalação Bitwarden hospedada no local. Exemplo: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Ambiente personalizado"
-  },
-  "customEnvironmentFooter": {
-    "message": "Para utilizadores avançados. Pode especificar o URL de base de cada serviço de forma independente."
   },
   "baseUrl": {
     "message": "URL do servidor"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Não"
+  },
+  "location": {
+    "message": "Localização"
   },
   "overwritePassword": {
     "message": "Substituir palavra-passe"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "O seu pedido foi enviado ao seu administrador."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Será notificado quando for aprovado."
-  },
   "troubleLoggingIn": {
     "message": "Problemas a iniciar sessão?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "Uma aplicação"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "A importação de chaves SSH protegidas por palavra-passe ainda não é suportada"
-  },
   "invalidSshKey": {
     "message": "A chave SSH é inválida"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "Importar chave da área de transferência"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "Chave SSH importada com sucesso"
   },
   "fileSavedToDevice": {

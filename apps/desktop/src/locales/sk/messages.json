@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Zadajte e-mailovú adresu účtu a zašleme vám nápoveď k heslu"
   },
-  "passwordHint": {
-    "message": "Nápoveď k heslu"
-  },
-  "enterEmailToGetHint": {
-    "message": "Zadajte e-mailovú adresu na zaslanie nápovede k vášmu hlavnému heslu."
-  },
   "getMasterPasswordHint": {
     "message": "Získať nápoveď k hlavnému heslu"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Prevádzkované vo vlastnom prostredí"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Zadajte URL Bitwarden inštalácie, ktorú prevádzkujete vo vlastnom prostredí."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Zadajte základnú URL adresu lokálne hosťovanej inštalácie Bitwarden. Napríklad: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Vlastné prostredie"
-  },
-  "customEnvironmentFooter": {
-    "message": "Pre pokročilých používateľov. Môžete špecifikovať základnú URL pre každú službu nezávisle."
   },
   "baseUrl": {
     "message": "URL servera"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Nie"
+  },
+  "location": {
+    "message": "Poloha"
   },
   "overwritePassword": {
     "message": "Prepísať heslo"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Vaša žiadosť bola odoslaná správcovi."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Po schválení budete informovaný."
-  },
   "troubleLoggingIn": {
     "message": "Máte problémy s prihlásením?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "Aplikácia"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importovanie kľúčov SSH chránených heslom zatiaľ nie je podporované"
-  },
   "invalidSshKey": {
     "message": "Kľúč SSH je neplatný"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "Importovať kľúč zo schránky"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "Kľúč SSH bol úspešne importovaný"
   },
   "fileSavedToDevice": {

@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Sisesta oma e-maili aadress ja sulle saadetakse sinna parooli vihje"
   },
-  "passwordHint": {
-    "message": "Parooli vihje"
-  },
-  "enterEmailToGetHint": {
-    "message": "Ülemparooli vihje saamiseks sisesta oma konto e-posti aadress."
-  },
   "getMasterPasswordHint": {
     "message": "Tuleta ülemparooli vihjega meelde"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Self-hosted Environment"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Specify the base URL of your on-premise hosted bitwarden installation."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Sisesta enda ise-majutatud Bitwardeni serveri nimi (base URL). Näiteks: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Kohandatud keskkond"
-  },
-  "customEnvironmentFooter": {
-    "message": "For advanced users. You can specify the base URL of each service independently."
   },
   "baseUrl": {
     "message": "Serveri URL"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Ei"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Kirjuta parool üle"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Sinu taotlus saadeti administraatorile."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Kinnitamise järel saad selle kohta teavituse."
-  },
   "troubleLoggingIn": {
     "message": "Ei õnnestu sisse logida?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "An application"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {

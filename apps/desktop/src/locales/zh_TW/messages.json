@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "輸入您帳號的電子郵件，您的密碼提示會傳送給您"
   },
-  "passwordHint": {
-    "message": "密碼提示"
-  },
-  "enterEmailToGetHint": {
-    "message": "請輸入您的帳户電子郵件地址以接收主密碼提示。"
-  },
   "getMasterPasswordHint": {
     "message": "取得主密碼提示"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "自我裝載環境"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "指定您本地托管的 Bitwarden 安裝之基礎 URL。"
-  },
   "selfHostedBaseUrlHint": {
     "message": "指定您自建的 Bitwarden 伺服器的網域 URL。例如：https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "自訂環境"
-  },
-  "customEnvironmentFooter": {
-    "message": "適用於進階使用者。您可以單獨指定各個服務的基礎 URL。"
   },
   "baseUrl": {
     "message": "伺服器 URL"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "否"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "覆寫密碼"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "您的要求已傳送給您的管理員。"
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "核准後將通知您。"
-  },
   "troubleLoggingIn": {
     "message": "登入時遇到困難？"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "應用程式"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "匯入密碼保護的 SSH 密鑰暫時還未支援"
-  },
   "invalidSshKey": {
     "message": "SSH 密鑰不正確"
   },
@@ -3541,8 +3526,8 @@
   "importSshKeyFromClipboard": {
     "message": "從剪貼簿中匯入密鑰"
   },
-  "sshKeyPasted": {
-    "message": "SSH 密鑰成功匯入"
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
     "message": "檔案已儲存到裝置。在您的裝置上管理下載檔案。"

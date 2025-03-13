@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Unesi svoju adresu e-pošte računa i poslat ćemo ti tvoj podsjetnik"
   },
-  "passwordHint": {
-    "message": "Podsjetnik za lozinku"
-  },
-  "enterEmailToGetHint": {
-    "message": "Unesi adresu e-pošte svog računa za primitak podsjetnika glavne lozinke."
-  },
   "getMasterPasswordHint": {
     "message": "Slanje podsjetnika glavne lozinke"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Vlastito hosting okruženje"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Navedi osnovni URL svoje lokalno smještene Bitwarden instalacije."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Navedi osnovni URL svoje lokalne Bitwarden instalacije, npr.: https://bitwarden.tvrtka.hr"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Prilagođeno okruženje"
-  },
-  "customEnvironmentFooter": {
-    "message": "Za napredne korisnike. Samostalno možeš odrediti osnovni URL svake usluge."
   },
   "baseUrl": {
     "message": "URL poslužitelja"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Ne"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Prebriši lozinku"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Tvoj zahtjev je poslan administratoru."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Dobiti ćeš obavijest kada bude odobreno."
-  },
   "troubleLoggingIn": {
     "message": "Problem s prijavom?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "Aplikacija"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Uvoz SSH ključeva zaštićenih lozinkom još nije podržan"
-  },
   "invalidSshKey": {
     "message": "SSH ključ nije valjan"
   },
@@ -3541,8 +3526,8 @@
   "importSshKeyFromClipboard": {
     "message": "Uvezi ključ iz međuspremnika"
   },
-  "sshKeyPasted": {
-    "message": "SSH ključ uspješno uvezen"
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
     "message": "Datoteka spremljena na uređaj. Upravljaj u preuzimanjima svog uređaja."

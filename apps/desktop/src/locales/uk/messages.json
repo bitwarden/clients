@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Введіть адресу е-пошти свого облікового запису і вам буде надіслано підказку для пароля"
   },
-  "passwordHint": {
-    "message": "Підказка для пароля"
-  },
-  "enterEmailToGetHint": {
-    "message": "Введіть свою адресу е-пошти, щоб отримати підказку для головного пароля."
-  },
   "getMasterPasswordHint": {
     "message": "Отримати підказку для головного пароля"
   },
@@ -877,7 +871,7 @@
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Використати код відновлення"
+    "message": "Скористайтеся своїм кодом відновлення"
   },
   "insertYubiKey": {
     "message": "Вставте свій YubiKey в USB порт комп'ютера, потім торкніться цієї кнопки."
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Середовище власного хостингу"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Вкажіть основну URL-адресу вашого встановлення Bitwarden на власному хостингу."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Вкажіть основну URL-адресу вашого встановлення Bitwarden на власному хостингу. Зразок: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Власне середовище"
-  },
-  "customEnvironmentFooter": {
-    "message": "Для досвідчених користувачів. Ви можете вказати основну URL-адресу окремо для кожної служби."
   },
   "baseUrl": {
     "message": "URL-адреса сервера"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Ні"
+  },
+  "location": {
+    "message": "Розташування"
   },
   "overwritePassword": {
     "message": "Перезаписати пароль"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Ваш запит відправлено адміністратору."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Ви отримаєте сповіщення після затвердження."
-  },
   "troubleLoggingIn": {
     "message": "Проблема під час входу?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "Програма"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Імпортування захищених паролем ключів SSH ще не підтримується"
-  },
   "invalidSshKey": {
     "message": "Ключ SSH недійсний"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "Імпортувати ключ із буфера обміну"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "Ключ SSH успішно імпортовано"
   },
   "fileSavedToDevice": {

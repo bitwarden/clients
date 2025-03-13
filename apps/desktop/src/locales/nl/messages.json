@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Als je het e-mailadres van je account invult, versturen we je je wachtwoordhint"
   },
-  "passwordHint": {
-    "message": "Wachtwoordhint"
-  },
-  "enterEmailToGetHint": {
-    "message": "Voer het e-mailadres van je account in om je hoofdwachtwoordhint te ontvangen."
-  },
   "getMasterPasswordHint": {
     "message": "Hoofdwachtwoordhint opvragen"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Zelfgehoste omgeving"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Geef de basis-URL van jouw zelfgehoste Bitwarden-installatie."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specificeer de basis-URL van je zelfgehoste Bitwarden-installatie. Bijvoorbeeld: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Aangepaste omgeving"
-  },
-  "customEnvironmentFooter": {
-    "message": "Voor gevorderde gebruikers. Je kunt de basis-URL van elke dienst afzonderlijk instellen."
   },
   "baseUrl": {
     "message": "Server-URL"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Nee"
+  },
+  "location": {
+    "message": "Locatie"
   },
   "overwritePassword": {
     "message": "Wachtwoord overschrijven"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Je verzoek is naar je beheerder verstuurd."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Je krijgt een melding zodra je bent goedgekeurd."
-  },
   "troubleLoggingIn": {
     "message": "Problemen met inloggen?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "Een applicatie"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importeren van met wachtwoord beveiligde SSH-sleutels wordt nog niet ondersteund"
-  },
   "invalidSshKey": {
     "message": "De SSH-sleutel is ongeldig"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "Sleutel van klembord importeren"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH-sleutel succesvol geïmporteerd"
   },
   "fileSavedToDevice": {

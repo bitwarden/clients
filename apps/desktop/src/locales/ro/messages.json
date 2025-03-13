@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "Indiciu parolă"
-  },
-  "enterEmailToGetHint": {
-    "message": "Adresa de e-mail a contului pentru primirea indiciului parolei principale."
-  },
   "getMasterPasswordHint": {
     "message": "Obținere indiciu parolă principală"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Mediul găzduit local"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Specificați URL-ul de bază al implementări Bitwarden găzduită local."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Mediu personalizat"
-  },
-  "customEnvironmentFooter": {
-    "message": "Pentru utilizatorii avansați. Puteți specifica URL-ul de bază al fiecărui serviciu în mod independent."
   },
   "baseUrl": {
     "message": "URL server"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Nu"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Suprascriere parolă"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Your request has been sent to your admin."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "You will be notified once approved."
-  },
   "troubleLoggingIn": {
     "message": "Trouble logging in?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "An application"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {

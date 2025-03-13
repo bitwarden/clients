@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Введите email вашего аккаунта, и вам будет отправлена подсказка для пароля"
   },
-  "passwordHint": {
-    "message": "Подсказка к паролю"
-  },
-  "enterEmailToGetHint": {
-    "message": "Введите email аккаунта для получения подсказки к мастер-паролю."
-  },
   "getMasterPasswordHint": {
     "message": "Получить подсказку к мастер-паролю"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Окружение пользовательского хостинга"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Укажите URL Bitwarden на вашем сервере."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Укажите базовый URL вашего локального хостинга Bitwarden. Пример: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Пользовательское окружение"
-  },
-  "customEnvironmentFooter": {
-    "message": "Для опытных пользователей. Можно указать URL отдельно для каждой службы."
   },
   "baseUrl": {
     "message": "URL сервера"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Нет"
+  },
+  "location": {
+    "message": "Местоположение"
   },
   "overwritePassword": {
     "message": "Перезаписать пароль"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Ваш запрос был отправлен администратору."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Вас уведомят об одобрении."
-  },
   "troubleLoggingIn": {
     "message": "Не удалось войти?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "Приложение"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Импорт защищенных паролем ключей SSH пока не поддерживается"
-  },
   "invalidSshKey": {
     "message": "Ключ SSH недействителен"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "Импорт ключа из буфера обмена"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "Ключ SSH успешно импортирован"
   },
   "fileSavedToDevice": {

@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "Lösenordsledtråd"
-  },
-  "enterEmailToGetHint": {
-    "message": "Ange din e-postadress för att få din huvudlösenordsledtråd skickad till dig."
-  },
   "getMasterPasswordHint": {
     "message": "Hämta huvudlösenordsledtråd"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Egen-hostad miljö"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Ange bas-URL:en för din \"on-premises\"-hostade Bitwarden-installation."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Anpassad miljö"
-  },
-  "customEnvironmentFooter": {
-    "message": "För avancerade användare. Du kan ange bas-URL:en för varje tjänst oberoende av varandra."
   },
   "baseUrl": {
     "message": "Server-URL"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Nej"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Skriv över lösenord"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Din begäran har skickats till din administratör."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Du kommer att meddelas vid godkännande."
-  },
   "troubleLoggingIn": {
     "message": "Problem med att logga in?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "En applikation"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "SSH-nyckeln är ogiltig"
   },
@@ -3541,8 +3526,8 @@
   "importSshKeyFromClipboard": {
     "message": "Importera nyckel från urklipp"
   },
-  "sshKeyPasted": {
-    "message": "SSH-nyckel har importerats"
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
     "message": "File saved to device. Manage from your device downloads."

@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "Slaptažodžio užuomina"
-  },
-  "enterEmailToGetHint": {
-    "message": "Įveskite savo paskyros el. pašto adresą, kad gautumėte pagrindinio slaptažodžio užuominą."
-  },
   "getMasterPasswordHint": {
     "message": "Gauti pagrindinio slaptažodžio užuominą"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Savarankiškai sukurta aplinka"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Nurodykite pagrindinį URL adresą savo patalpose esančio Bitwarden įdiegimo."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Individualizuota aplinka"
-  },
-  "customEnvironmentFooter": {
-    "message": "Pažengusiems naudotojams. Galite nurodyti kiekvienos paslaugos pagrindinį URL adresą atskirai."
   },
   "baseUrl": {
     "message": "Serverio nuoroda"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Ne"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Perrašyti slaptažodį"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Jūsų prašymas išsiųstas administratoriui."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Jums bus pranešta, kai bus patvirtinta."
-  },
   "troubleLoggingIn": {
     "message": "Nepavyksta prisijungti?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "An application"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {

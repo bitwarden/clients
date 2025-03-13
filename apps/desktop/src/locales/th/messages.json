@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "คำใบ้รหัสผ่าน"
-  },
-  "enterEmailToGetHint": {
-    "message": "ป้อนที่อยู่อีเมลบัญชีของคุณเพื่อรับคำใบ้รหัสผ่านหลักของคุณ"
-  },
   "getMasterPasswordHint": {
     "message": "รับคำใบ้เกี่ยวกับรหัสผ่านหลักของคุณ"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Self-hosted Environment"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Specify the base URL of your on-premise hosted bitwarden installation."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Custom Environment"
-  },
-  "customEnvironmentFooter": {
-    "message": "สำหรับผู้ใช้ขั้นสูง คุณสามารถระบุ URL พื้นฐานของแต่ละบริการแยกกันได้"
   },
   "baseUrl": {
     "message": "URL ของเซิร์ฟเวอร์"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "ไม่ใช่"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "เขียนทับรหัสผ่าน"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Your request has been sent to your admin."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "You will be notified once approved."
-  },
   "troubleLoggingIn": {
     "message": "Trouble logging in?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "An application"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {

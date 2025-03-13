@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Унесите имејл свог налога и биће вам послат савет за лозинку"
   },
-  "passwordHint": {
-    "message": "Савет главне лозинке"
-  },
-  "enterEmailToGetHint": {
-    "message": "Унесите Ваш имејл да би добили савет за Вашу Главну Лозинку."
-  },
   "getMasterPasswordHint": {
     "message": "Добити савет за Главну Лозинку"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Самостално окружење"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Наведите основни УРЛ ваше локалне Bitwarden инсталације."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Наведите основну УРЛ адресу вашег локалног хостовања Bitwarden-а. Пример: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Прилагођено окружење"
-  },
-  "customEnvironmentFooter": {
-    "message": "За напредне кориснике. Можете да одредите независно основни УРЛ сваког сервиса."
   },
   "baseUrl": {
     "message": "УРЛ Сервера"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Не"
+  },
+  "location": {
+    "message": "Локација"
   },
   "overwritePassword": {
     "message": "Промени лозинку"
@@ -3057,9 +3048,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Ваш захтев је послат вашем администратору."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Бићете обавештени када буде одобрено."
-  },
   "troubleLoggingIn": {
     "message": "Имате проблема са пријављивањем?"
   },
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "Апликација"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Увоз лозинке заштићене SSH кључом још увек није подржано"
-  },
   "invalidSshKey": {
     "message": "SSH кључ је неважећи"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "Увезите кључ из оставе"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH кључ је успешно увезен"
   },
   "fileSavedToDevice": {
