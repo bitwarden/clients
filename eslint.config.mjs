@@ -27,6 +27,9 @@ export default tseslint.config(
       importPlugin.flatConfigs.typescript,
       eslintConfigPrettier, // Disables rules that conflict with Prettier
     ],
+    linterOptions: {
+      reportUnusedDisableDirectives: "error",
+    },
     plugins: {
       rxjs: rxjs,
       "rxjs-angular": angularRxjs,
@@ -359,6 +362,7 @@ export default tseslint.config(
       "libs/components/tailwind.config.js",
 
       "scripts/*.js",
+      "**/*grammar.ts",
     ],
   },
 );

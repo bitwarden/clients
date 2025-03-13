@@ -706,4 +706,24 @@ describe("Utils Service", () => {
       });
     });
   });
+
+  describe("escapeRegex", () => {
+    it("escapes special characters", () => {
+      expect(Utils.escapeRegex("^$.*+?()[]{}|\\")).toEqual(
+        "\\^\\$\\.\\*\\+\\?\\(\\)\\[\\]\\{\\}\\|\\\\",
+      );
+    });
+
+    it("does not modify strings with no special characters", () => {
+      expect(Utils.escapeRegex("no special characters")).toEqual("no special characters");
+    });
+
+    it("handles empty strings", () => {
+      expect(Utils.escapeRegex("")).toEqual("");
+    });
+
+    it.each([null, undefined])("handles %s strings", (nullish) => {
+      expect(Utils.escapeRegex(nullish!)).toEqual(nullish);
+    });
+  });
 });

@@ -901,6 +901,9 @@
   "no": {
     "message": "Hindi"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "Namana ang isang hindi inaasahang error."
   },

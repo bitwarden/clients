@@ -901,6 +901,9 @@
   "no": {
     "message": "En"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "Tapahtui odottamaton virhe."
   },

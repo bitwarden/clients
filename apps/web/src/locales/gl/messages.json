@@ -1032,6 +1032,9 @@
   "no": {
     "message": "Non"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Rexístrate ou crea unha nova conta para acceder ó teu baúl."
   },

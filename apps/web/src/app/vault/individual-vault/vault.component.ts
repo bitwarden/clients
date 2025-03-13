@@ -58,11 +58,13 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { FilterService } from "@bitwarden/common/vault/search/filter.service";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { DialogService, Icons, ToastService } from "@bitwarden/components";
 import {
@@ -112,7 +114,6 @@ import { VaultFilterComponent } from "./vault-filter/components/vault-filter.com
 import { VaultFilterService } from "./vault-filter/services/abstractions/vault-filter.service";
 import { RoutedVaultFilterBridgeService } from "./vault-filter/services/routed-vault-filter-bridge.service";
 import { RoutedVaultFilterService } from "./vault-filter/services/routed-vault-filter.service";
-import { createFilterFunction } from "./vault-filter/shared/models/filter-function";
 import {
   All,
   RoutedVaultFilterModel,
@@ -252,6 +253,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private totpService: TotpService,
     private eventCollectionService: EventCollectionService,
     private searchService: SearchService,
+    private filterService: FilterService,
     private searchPipe: SearchPipe,
     private apiService: ApiService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
@@ -262,6 +264,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     protected billingApiService: BillingApiServiceAbstraction,
     private trialFlowService: TrialFlowService,
     private organizationBillingService: OrganizationBillingServiceAbstraction,
+    private folderService: FolderService,
   ) {}
 
   async ngOnInit() {
@@ -334,30 +337,30 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     this.currentSearchText$ = this.route.queryParams.pipe(map((queryParams) => queryParams.search));
 
-    const ciphers$ = combineLatest([
-      this.cipherService.cipherViews$(activeUserId).pipe(filter((c) => c !== null)),
-      filter$,
-      this.currentSearchText$,
-    ]).pipe(
-      filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText]) => {
-        const failedCiphers = await firstValueFrom(
-          this.cipherService.failedToDecryptCiphers$(activeUserId),
-        );
-        const filterFunction = createFilterFunction(filter);
-        // Append any failed to decrypt ciphers to the top of the cipher list
-        const allCiphers = [...failedCiphers, ...ciphers];
+    const context$ = this.accountService.activeAccount$.pipe(
+      switchMap((account) => {
+        return this.filterService.context$({
+          ciphers: this.cipherService.cipherViews$(account.id),
+          folders: this.folderService.folderViews$(account.id),
+          collections: this.collectionService.decryptedCollections$,
+          organizations: this.organizationService.organizations$(account.id),
+        });
+      }),
+    );
 
-        if (await this.searchService.isSearchable(activeUserId, searchText)) {
-          return await this.searchService.searchCiphers(
-            activeUserId,
-            searchText,
-            [filterFunction],
-            allCiphers,
-          );
+    const ciphers$ = combineLatest([this.currentSearchText$, context$]).pipe(
+      switchMap(([currentText, context]) => {
+        return this.filterService.filter(of([currentText, context]));
+      }),
+      // this.filterService.filter,
+      switchMap((result) => {
+        if (result.isError) {
+          // return all ciphers
+          return context$.pipe(map((c) => c.ciphers));
+        } else {
+          // return filtered ciphers
+          return of(result.ciphers);
         }
-
-        return allCiphers.filter(filterFunction);
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
@@ -383,14 +386,15 @@ export class VaultComponent implements OnInit, OnDestroy {
           collectionsToReturn = selectedCollection?.children.map((c) => c.node) ?? [];
         }
 
-        if (await this.searchService.isSearchable(activeUserId, searchText)) {
-          collectionsToReturn = this.searchPipe.transform(
-            collectionsToReturn,
-            searchText,
-            (collection) => collection.name,
-            (collection) => collection.id,
-          );
-        }
+        // TODO: Not sure what this was doing, we probably want to reproduce this
+        // if (await this.searchService.isSearchable(activeUserId, searchText)) {
+        //   collectionsToReturn = this.searchPipe.transform(
+        //     collectionsToReturn,
+        //     searchText,
+        //     (collection) => collection.name,
+        //     (collection) => collection.id,
+        //   );
+        // }
 
         return collectionsToReturn;
       }),

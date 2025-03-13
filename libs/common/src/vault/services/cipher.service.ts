@@ -17,7 +17,6 @@ import { SemVer } from "semver";
 import { KeyService } from "@bitwarden/key-management";
 
 import { ApiService } from "../../abstractions/api.service";
-import { SearchService } from "../../abstractions/search.service";
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AutofillSettingsServiceAbstraction } from "../../autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
@@ -102,7 +101,6 @@ export class CipherService implements CipherServiceAbstraction {
     private domainSettingsService: DomainSettingsService,
     private apiService: ApiService,
     private i18nService: I18nService,
-    private searchService: SearchService,
     private stateService: StateService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private encryptService: EncryptService,
@@ -162,13 +160,6 @@ export class CipherService implements CipherServiceAbstraction {
     // We still want to set null though, that is the indicator that the cache isn't valid and we should do decryption.
     if (value == null || value.length !== 0) {
       await this.setDecryptedCiphers(value, userId);
-    }
-    if (this.searchService != null) {
-      if (value == null) {
-        await this.searchService.clearIndex(userId);
-      } else {
-        await this.searchService.indexCiphers(userId, value);
-      }
     }
   }
 
@@ -394,7 +385,6 @@ export class CipherService implements CipherServiceAbstraction {
   async getAllDecrypted(userId: UserId): Promise<CipherView[]> {
     const decCiphers = await this.getDecryptedCiphers(userId);
     if (decCiphers != null && decCiphers.length !== 0) {
-      await this.reindexCiphers(userId);
       return await this.getDecryptedCiphers(userId);
     }
 
@@ -475,15 +465,6 @@ export class CipherService implements CipherServiceAbstraction {
       },
       [[], []] as [CipherView[], CipherView[]],
     );
-  }
-
-  private async reindexCiphers(userId: UserId) {
-    const reindexRequired =
-      this.searchService != null &&
-      ((await firstValueFrom(this.searchService.indexedEntityId$(userId))) ?? userId) !== userId;
-    if (reindexRequired) {
-      await this.searchService.indexCiphers(userId, await this.getDecryptedCiphers(userId), userId);
-    }
   }
 
   async getAllDecryptedForGrouping(

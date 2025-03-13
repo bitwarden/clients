@@ -901,6 +901,9 @@
   "no": {
     "message": "いいえ"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "予期せぬエラーが発生しました。"
   },

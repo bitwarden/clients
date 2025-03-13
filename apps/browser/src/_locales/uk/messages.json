@@ -81,7 +81,7 @@
     "message": "Підказка для головного пароля (необов'язково)"
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "Рейтинг надійності пароля $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -650,7 +650,7 @@
     "message": "Ваш браузер не підтримує копіювання даних в буфер обміну. Скопіюйте вручну."
   },
   "verifyYourIdentity": {
-    "message": "Verify your identity"
+    "message": "Підтвердьте свою особу"
   },
   "weDontRecognizeThisDevice": {
     "message": "Ми не розпізнаємо цей пристрій. Введіть код, надісланий на вашу електронну пошту, щоб підтвердити вашу особу."
@@ -866,19 +866,19 @@
     "message": "Увійти в Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Введіть код, надісланий вам електронною поштою"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Введіть код з програми автентифікації"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Натисніть свій YubiKey для автентифікації"
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+    "message": "Для вашого облікового запису необхідно пройти двоетапну перевірку з Duo. Виконайте наведені нижче кроки, щоб завершити вхід."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Follow the steps below to finish logging in."
+    "message": "Виконайте наведені нижче кроки, щоб завершити вхід."
   },
   "restartRegistration": {
     "message": "Перезапустити реєстрацію"
@@ -900,6 +900,9 @@
   },
   "no": {
     "message": "Ні"
+  },
+  "location": {
+    "message": "Розташування"
   },
   "unexpectedError": {
     "message": "Сталася неочікувана помилка."
@@ -1034,7 +1037,7 @@
     "message": "Натисніть на запис у режимі перегляду сховища для автозаповнення"
   },
   "clickToAutofill": {
-    "message": "Click items in autofill suggestion to fill"
+    "message": "Натисніть запис у пропозиціях для автозаповнення"
   },
   "clearClipboard": {
     "message": "Очистити буфер обміну",
@@ -1051,7 +1054,7 @@
     "message": "Зберегти"
   },
   "loginSaveSuccessDetails": {
-    "message": "$USERNAME$ saved to Bitwarden.",
+    "message": "$USERNAME$ збережено до Bitwarden.",
     "placeholders": {
       "username": {
         "content": "$1"
@@ -1060,7 +1063,7 @@
     "description": "Shown to user after login is saved."
   },
   "loginUpdatedSuccessDetails": {
-    "message": "$USERNAME$ updated in Bitwarden.",
+    "message": "$USERNAME$ оновлено у Bitwarden.",
     "placeholders": {
       "username": {
         "content": "$1"
@@ -1069,35 +1072,35 @@
     "description": "Shown to user after login is updated."
   },
   "saveAsNewLoginAction": {
-    "message": "Save as new login",
+    "message": "Зберегти як новий запис",
     "description": "Button text for saving login details as a new entry."
   },
   "updateLoginAction": {
-    "message": "Update login",
+    "message": "Оновити запис",
     "description": "Button text for updating an existing login entry."
   },
   "saveLoginPrompt": {
-    "message": "Save login?",
+    "message": "Зберегти запис?",
     "description": "Prompt asking the user if they want to save their login details."
   },
   "updateLoginPrompt": {
-    "message": "Update existing login?",
+    "message": "Оновити наявний запис?",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
-    "message": "Login saved",
+    "message": "Запис збережено",
     "description": "Message displayed when login details are successfully saved."
   },
   "loginUpdateSuccess": {
-    "message": "Login updated",
+    "message": "Запис оновлено",
     "description": "Message displayed when login details are successfully updated."
   },
   "saveFailure": {
-    "message": "Error saving",
+    "message": "Помилка збереження",
     "description": "Error message shown when the system fails to save login details."
   },
   "saveFailureDetails": {
-    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "message": "На жаль, не вдається зберегти. Введіть дані вручну.",
     "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
@@ -1420,7 +1423,7 @@
     "message": "Запам'ятати мене"
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "Більше не запитувати на цьому пристрої протягом 30 днів"
   },
   "sendVerificationCodeEmailAgain": {
     "message": "Надіслати код підтвердження ще раз"
@@ -1429,11 +1432,11 @@
     "message": "Інший спосіб двоетапної перевірки"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Обрати інший спосіб",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "Використати код відновлення"
   },
   "insertYubiKey": {
     "message": "Вставте свій YubiKey в USB порт комп'ютера, потім торкніться цієї кнопки."
@@ -1448,16 +1451,16 @@
     "message": "Відкрити нову вкладку"
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "Відкрити в новій вкладці"
   },
   "webAuthnAuthenticate": {
     "message": "Автентифікація WebAuthn"
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "Зчитати ключ безпеки"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Awaiting security key interaction..."
+    "message": "Очікується взаємодія з ключем безпеки..."
   },
   "loginUnavailable": {
     "message": "Вхід недоступний"
@@ -1472,7 +1475,7 @@
     "message": "Налаштування двоетапної перевірки"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "Виберіть спосіб двоетапної перевірки"
   },
   "recoveryCodeDesc": {
     "message": "Втратили доступ до всіх провайдерів двоетапної перевірки? Скористайтеся кодом відновлення, щоб вимкнути двоетапну перевірку для свого облікового запису."
@@ -2165,7 +2168,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultCustomization": {
-    "message": "Vault customization"
+    "message": "Налаштування сховища"
   },
   "vaultTimeoutAction": {
     "message": "Дія після часу очікування сховища"
@@ -2174,13 +2177,13 @@
     "message": "Дія після часу очікування"
   },
   "newCustomizationOptionsCalloutTitle": {
-    "message": "New customization options"
+    "message": "Нові можливості налаштування"
   },
   "newCustomizationOptionsCalloutContent": {
-    "message": "Customize your vault experience with quick copy actions, compact mode, and more!"
+    "message": "Налаштуйте своє сховище за допомогою швидких дій копіювання, компактного режиму та інших можливостей!"
   },
   "newCustomizationOptionsCalloutLink": {
-    "message": "View all Appearance settings"
+    "message": "Всі налаштування подання"
   },
   "lock": {
     "message": "Блокувати",
@@ -2477,7 +2480,7 @@
     "message": "Ризиковані паролі"
   },
   "atRiskPasswordDescSingleOrg": {
-    "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
+    "message": "$ORGANIZATION$ вимагає зміни один пароль, оскільки він ризикований.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2486,7 +2489,7 @@
     }
   },
   "atRiskPasswordsDescSingleOrgPlural": {
-    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at-risk.",
+    "message": "$ORGANIZATION$ вимагає зміни $COUNT$ паролів, оскільки вони ризиковані.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2499,7 +2502,7 @@
     }
   },
   "atRiskPasswordsDescMultiOrgPlural": {
-    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at-risk.",
+    "message": "Ваші організації вимагають зміни $COUNT$ паролів, оскільки вони ризиковані.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2526,34 +2529,34 @@
     "message": "Оновіть налаштування, щоб швидше автоматично заповнювати й створювати паролі"
   },
   "reviewAtRiskLogins": {
-    "message": "Review at-risk logins"
+    "message": "Переглянути записи з ризиком"
   },
   "reviewAtRiskPasswords": {
-    "message": "Review at-risk passwords"
+    "message": "Переглянути ризиковані паролі"
   },
   "reviewAtRiskLoginsSlideDesc": {
-    "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
+    "message": "Паролі вашої організації ризиковані, оскільки вони ненадійні, повторно використовуються, та/або викриті.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
   "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Illustration of a list of logins that are at-risk"
+    "message": "Ілюстрація списку ризикованих записів"
   },
   "generatePasswordSlideDesc": {
-    "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
+    "message": "Швидко згенеруйте надійний, унікальний пароль через меню автозаповнення Bitwarden на сайті з ризикованим паролем.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
   "generatePasswordSlideImgAlt": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+    "message": "Ілюстрація меню автозаповнення Bitwarden, що показує згенерований пароль"
   },
   "updateInBitwarden": {
-    "message": "Update in Bitwarden"
+    "message": "Оновити в Bitwarden"
   },
   "updateInBitwardenSlideDesc": {
-    "message": "Bitwarden will then prompt you to update the password in the password manager.",
+    "message": "Потім Bitwarden запропонує вам оновити пароль у менеджері паролів.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
   "updateInBitwardenSlideImgAlt": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+    "message": "Ілюстрація сповіщення Bitwarden, що спонукає користувача оновити пароль"
   },
   "turnOnAutofill": {
     "message": "Увімкніть автозаповнення"
@@ -4108,7 +4111,7 @@
     "message": "Активний обліковий запис"
   },
   "bitwardenAccount": {
-    "message": "Bitwarden account"
+    "message": "Обліковий запис Bitwarden"
   },
   "availableAccounts": {
     "message": "Доступні облікові записи"
@@ -4309,7 +4312,7 @@
     }
   },
   "copyFieldValue": {
-    "message": "Copy $FIELD$, $VALUE$",
+    "message": "Копіювати $FIELD$, $VALUE$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -4347,7 +4350,7 @@
     "message": "Сповіщення"
   },
   "appearance": {
-    "message": "Вигляд"
+    "message": "Подання"
   },
   "errorAssigningTargetCollection": {
     "message": "Помилка призначення цільової збірки."
@@ -5145,6 +5148,6 @@
     "message": "Щоб використовувати біометричне розблокування, оновіть комп'ютерну програму, або вимкніть розблокування відбитком пальця в налаштуваннях системи."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "Змінити ризикований пароль"
   }
 }
