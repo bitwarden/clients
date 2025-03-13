@@ -81,7 +81,6 @@ import { IdentityDeviceVerificationResponse } from "../auth/models/response/iden
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
 import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
-import { PreloginResponse } from "../auth/models/response/prelogin.response";
 import { RegisterResponse } from "../auth/models/response/register.response";
 import { SsoPreValidateResponse } from "../auth/models/response/sso-pre-validate.response";
 import { TwoFactorAuthenticatorResponse } from "../auth/models/response/two-factor-authenticator.response";
@@ -111,7 +110,6 @@ import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
 import { EventRequest } from "../models/request/event.request";
 import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
-import { PreloginRequest } from "../models/request/prelogin.request";
 import { RegisterRequest } from "../models/request/register.request";
 import { StorageRequest } from "../models/request/storage.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
@@ -351,19 +349,6 @@ export class ApiService implements ApiServiceAbstraction {
 
   putTaxInfo(request: TaxInfoUpdateRequest): Promise<any> {
     return this.send("PUT", "/accounts/tax", request, true, false);
-  }
-
-  async postPrelogin(request: PreloginRequest): Promise<PreloginResponse> {
-    const env = await firstValueFrom(this.environmentService.environment$);
-    const r = await this.send(
-      "POST",
-      "/accounts/prelogin",
-      request,
-      false,
-      true,
-      env.getIdentityUrl(),
-    );
-    return new PreloginResponse(r);
   }
 
   postEmailToken(request: EmailTokenRequest): Promise<any> {

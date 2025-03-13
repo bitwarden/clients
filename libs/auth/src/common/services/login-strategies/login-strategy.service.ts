@@ -23,7 +23,7 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
-import { PreloginRequest } from "@bitwarden/common/models/request/prelogin.request";
+import { PreloginRequest } from "@bitwarden/common/src/auth/models/request/prelogin.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";

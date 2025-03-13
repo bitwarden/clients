@@ -118,6 +118,7 @@ import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services
 import { KeyConnectorService } from "@bitwarden/common/auth/services/key-connector.service";
 import { MasterPasswordService } from "@bitwarden/common/auth/services/master-password/master-password.service";
 import { PasswordResetEnrollmentServiceImplementation } from "@bitwarden/common/auth/services/password-reset-enrollment.service.implementation";
+import { PreLoginApiService } from "@bitwarden/common/auth/services/pre-login-api.service";
 import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login.service";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/services/two-factor.service";
@@ -1477,6 +1478,11 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       ToastService,
     ],
+  }),
+  safeProvider({
+    provide: PreLoginApiService,
+    useClass: PreLoginApiService,
+    deps: [ApiServiceAbstraction, EnvironmentService],
   }),
   safeProvider({
     provide: OpaqueApiService,
