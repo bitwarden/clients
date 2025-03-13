@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { firstValueFrom, map, Observable } from "rxjs";
 
-import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
+import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { StateService } from "../../../platform/abstractions/state.service";
@@ -17,8 +17,8 @@ import {
 } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
-import { InternalMasterPasswordServiceAbstraction } from "../../abstractions/master-password.service.abstraction";
-import { ForceSetPasswordReason } from "../../models/domain/force-set-password-reason";
+import { EncryptService } from "../../crypto/abstractions/encrypt.service";
+import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
 
 /** Memory since master key shouldn't be available on lock */
 const MASTER_KEY = new UserKeyDefinition<MasterKey>(MASTER_PASSWORD_MEMORY, "masterKey", {

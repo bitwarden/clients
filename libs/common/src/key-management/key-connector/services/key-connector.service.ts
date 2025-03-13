@@ -16,7 +16,6 @@ import { OrganizationService } from "../../../admin-console/abstractions/organiz
 import { OrganizationUserType } from "../../../admin-console/enums";
 import { Organization } from "../../../admin-console/models/domain/organization";
 import { AccountService } from "../../../auth/abstractions/account.service";
-import { InternalMasterPasswordServiceAbstraction } from "../../../auth/abstractions/master-password.service.abstraction";
 import { TokenService } from "../../../auth/abstractions/token.service";
 import { IdentityTokenResponse } from "../../../auth/models/response/identity-token.response";
 import { KeysRequest } from "../../../models/request/keys.request";
@@ -32,6 +31,7 @@ import {
 } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { MasterKey } from "../../../types/key";
+import { InternalMasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "../abstractions/key-connector.service";
 import { KeyConnectorUserKeyRequest } from "../models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../models/set-key-connector-key.request";
