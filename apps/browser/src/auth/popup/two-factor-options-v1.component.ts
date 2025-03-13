@@ -2,6 +2,7 @@ import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
 import { TwoFactorOptionsComponentV1 as BaseTwoFactorOptionsComponent } from "@bitwarden/angular/auth/components/two-factor-options-v1.component";
+import { TwoFactorFormCacheService } from "@bitwarden/auth/angular";
 import {
   TwoFactorProviderDetails,
   TwoFactorService,
@@ -22,6 +23,7 @@ export class TwoFactorOptionsComponentV1 extends BaseTwoFactorOptionsComponent {
     platformUtilsService: PlatformUtilsService,
     environmentService: EnvironmentService,
     private activatedRoute: ActivatedRoute,
+    private twoFactorFormCacheService: TwoFactorFormCacheService,
   ) {
     super(twoFactorService, router, i18nService, platformUtilsService, window, environmentService);
   }
@@ -33,6 +35,14 @@ export class TwoFactorOptionsComponentV1 extends BaseTwoFactorOptionsComponent {
   override async choose(p: TwoFactorProviderDetails) {
     await super.choose(p);
     await this.twoFactorService.setSelectedProvider(p.type);
+
+    // Clear the token when changing provider types
+    await this.twoFactorFormCacheService.saveFormData({
+      token: undefined,
+      remember: undefined,
+      selectedProviderType: p.type,
+      emailSent: false,
+    });
 
     this.navigateTo2FA();
   }
