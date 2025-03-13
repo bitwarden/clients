@@ -10,7 +10,6 @@ import { OrganizationData } from "../../../admin-console/models/data/organizatio
 import { Organization } from "../../../admin-console/models/domain/organization";
 import { ProfileOrganizationResponse } from "../../../admin-console/models/response/profile-organization.response";
 import { KeyConnectorUserKeyResponse } from "../../../auth/models/response/key-connector-user-key.response";
-import { FakeMasterPasswordService } from "../../../auth/services/master-password/fake-master-password.service";
 import { TokenService } from "../../../auth/services/token.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { Utils } from "../../../platform/misc/utils";
@@ -18,6 +17,7 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import { KeyGenerationService } from "../../../platform/services/key-generation.service";
 import { OrganizationId, UserId } from "../../../types/guid";
 import { MasterKey } from "../../../types/key";
+import { FakeMasterPasswordService } from "../../master-password/services/fake-master-password.service";
 import { KeyConnectorUserKeyRequest } from "../models/key-connector-user-key.request";
 
 import {
