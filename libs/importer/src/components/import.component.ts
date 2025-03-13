@@ -37,6 +37,7 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -96,6 +97,7 @@ const safeProviders: SafeProvider[] = [
       EncryptService,
       PinServiceAbstraction,
       AccountService,
+      SdkService,
     ],
   }),
 ];

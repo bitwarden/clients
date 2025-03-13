@@ -20,25 +20,31 @@ export class DefaultChangeLoginPasswordService implements ChangeLoginPasswordSer
       return null;
     }
 
-    // Find the first valid URL that is an HTTP or HTTPS URL
-    const url = cipher.login.uris
+    // Filter for valid URLs that are HTTP(S)
+    const urls = cipher.login.uris
       .map((m) => Utils.getUrl(m.uri))
-      .find((m) => m != null && (m.protocol === "http:" || m.protocol === "https:"));
+      .filter((m) => m != null && (m.protocol === "http:" || m.protocol === "https:"));
 
-    if (url == null) {
+    if (urls.length === 0) {
       return null;
     }
 
-    const [reliable, wellKnownChangeUrl] = await Promise.all([
-      this.hasReliableHttpStatusCode(url.origin),
-      this.getWellKnownChangePasswordUrl(url.origin),
-    ]);
+    for (const url of urls) {
+      const [reliable, wellKnownChangeUrl] = await Promise.all([
+        this.hasReliableHttpStatusCode(url.origin),
+        this.getWellKnownChangePasswordUrl(url.origin),
+      ]);
 
-    if (!reliable || wellKnownChangeUrl == null) {
-      return url.origin;
+      // Some servers return a 200 OK for a resource that should not exist
+      // Which means we cannot trust the well-known URL is valid, so we skip it
+      // to avoid potentially sending users to a 404 page
+      if (reliable && wellKnownChangeUrl != null) {
+        return wellKnownChangeUrl;
+      }
     }
 
-    return wellKnownChangeUrl;
+    // No reliable well-known URL found, fallback to the first URL
+    return urls[0].href;
   }
 
   /**

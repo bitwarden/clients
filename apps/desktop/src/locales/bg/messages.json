@@ -543,10 +543,6 @@
     "message": "Включване на специални знаци",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Брой думи"
   },
@@ -916,7 +912,7 @@
     "message": "Удостоверяване чрез Duo Security за организацията ви, с ползване на приложението Duo Mobile, SMS, телефонен разговор или устройство U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Потвърдете самоличността си"
   },
   "weDontRecognizeThisDevice": {
@@ -3604,5 +3600,8 @@
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Добавката за браузъра, която използвате, е остаряла. Моля, обновете я или изключете интеграцията за проверка на пръстов отпечатък в браузъра от настройките на самостоятелното приложение."
+  },
+  "changeAtRiskPassword": {
+    "message": "Промяна на парола в риск"
   }
 }
