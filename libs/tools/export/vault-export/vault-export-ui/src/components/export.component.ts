@@ -39,6 +39,8 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -179,6 +181,10 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   private onlyManagedCollections = true;
   private onGenerate$ = new Subject<GenerateRequest>();
 
+  private isExportAttachmentsEnabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.ExportAttachments,
+  );
+
   constructor(
     protected i18nService: I18nService,
     protected toastService: ToastService,
@@ -193,6 +199,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     protected organizationService: OrganizationService,
     private accountService: AccountService,
     private collectionService: CollectionService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -251,7 +258,9 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       this.onlyManagedCollections = false;
       return;
     } else {
-      this.formatOptions.push({ name: ".zip (With Attachments)", value: "zip" });
+      if (await firstValueFrom(this.isExportAttachmentsEnabled$)) {
+        this.formatOptions.push({ name: ".zip (with attachments)", value: "zip" });
+      }
     }
 
     this.organizations$ = combineLatest({
