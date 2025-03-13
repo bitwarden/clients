@@ -43,7 +43,6 @@ import {
 } from "../admin-console/models/response/provider/provider-user.response";
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
 import { TokenService } from "../auth/abstractions/token.service";
-import { AuthRequest } from "../auth/models/request/auth.request";
 import { DeviceVerificationRequest } from "../auth/models/request/device-verification.request";
 import { DisableTwoFactorAuthenticatorRequest } from "../auth/models/request/disable-two-factor-authenticator.request";
 import { EmailTokenRequest } from "../auth/models/request/email-token.request";
@@ -54,11 +53,9 @@ import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token
 import { TokenTwoFactorRequest } from "../auth/models/request/identity-token/token-two-factor.request";
 import { UserApiTokenRequest } from "../auth/models/request/identity-token/user-api-token.request";
 import { WebAuthnLoginTokenRequest } from "../auth/models/request/identity-token/webauthn-login-token.request";
-import { KeyConnectorUserKeyRequest } from "../auth/models/request/key-connector-user-key.request";
 import { PasswordHintRequest } from "../auth/models/request/password-hint.request";
 import { PasswordlessAuthRequest } from "../auth/models/request/passwordless-auth.request";
 import { SecretVerificationRequest } from "../auth/models/request/secret-verification.request";
-import { SetKeyConnectorKeyRequest } from "../auth/models/request/set-key-connector-key.request";
 import { TwoFactorEmailRequest } from "../auth/models/request/two-factor-email.request";
 import { TwoFactorProviderRequest } from "../auth/models/request/two-factor-provider.request";
 import { TwoFactorRecoveryRequest } from "../auth/models/request/two-factor-recovery.request";
@@ -100,6 +97,8 @@ import { PlanResponse } from "../billing/models/response/plan.response";
 import { SubscriptionResponse } from "../billing/models/response/subscription.response";
 import { TaxInfoResponse } from "../billing/models/response/tax-info.response";
 import { DeviceType } from "../enums";
+import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
+import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
 import { VaultTimeoutSettingsService } from "../key-management/vault-timeout";
 import { VaultTimeoutAction } from "../key-management/vault-timeout/enums/vault-timeout-action.enum";
 import { CollectionBulkDeleteRequest } from "../models/request/collection-bulk-delete.request";
@@ -275,22 +274,6 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   // TODO: PM-3519: Create and move to AuthRequest Api service
-  // TODO: PM-9724: Remove legacy auth request methods when we remove legacy LoginViaAuthRequestV1Components
-  async postAuthRequest(request: AuthRequest): Promise<AuthRequestResponse> {
-    const r = await this.send("POST", "/auth-requests/", request, false, true);
-    return new AuthRequestResponse(r);
-  }
-  async postAdminAuthRequest(request: AuthRequest): Promise<AuthRequestResponse> {
-    const r = await this.send("POST", "/auth-requests/admin-request", request, true, true);
-    return new AuthRequestResponse(r);
-  }
-
-  async getAuthResponse(id: string, accessCode: string): Promise<AuthRequestResponse> {
-    const path = `/auth-requests/${id}/response?code=${accessCode}`;
-    const r = await this.send("GET", path, null, false, true);
-    return new AuthRequestResponse(r);
-  }
-
   async getAuthRequest(id: string): Promise<AuthRequestResponse> {
     const path = `/auth-requests/${id}`;
     const r = await this.send("GET", path, null, true, true);
