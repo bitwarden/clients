@@ -94,7 +94,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   }
 
   private trialFlowService = inject(TrialFlowService);
-  protected activeUserId$ = getUserId(this.accountService.activeAccount$);
+  protected activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   constructor(
     protected vaultFilterService: VaultFilterService,

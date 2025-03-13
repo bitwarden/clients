@@ -49,14 +49,15 @@ const NestingDelimiter = "/";
 
 @Injectable()
 export class VaultFilterService implements VaultFilterServiceAbstraction {
-  protected activeUserId$ = getUserId(this.accountService.activeAccount$);
+  protected activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   memberOrganizations$ = this.activeUserId$.pipe(
     switchMap((id) => this.organizationService.memberOrganizations$(id)),
   );
 
   collapsedFilterNodes$ = this.activeUserId$.pipe(
-    switchMap((id) => this.collapsedGroupingsState(id).state$.pipe(map((c) => new Set(c)))),
+    switchMap((id) => this.collapsedGroupingsState(id).state$),
+    map((state) => new Set(state)),
   );
 
   organizationTree$: Observable<TreeNode<OrganizationFilter>> = combineLatest([
