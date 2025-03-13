@@ -104,7 +104,6 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-api.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
-import { DefaultOpaqueApiService } from "@bitwarden/common/auth/opaque/default-opaque-api.service";
 import { DefaultOpaqueService } from "@bitwarden/common/auth/opaque/default-opaque.service";
 import { OpaqueApiService } from "@bitwarden/common/auth/opaque/opaque-api.service";
 import { OpaqueService } from "@bitwarden/common/auth/opaque/opaque.service";
@@ -1481,7 +1480,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: OpaqueApiService,
-    useClass: DefaultOpaqueApiService,
+    useClass: OpaqueApiService,
     deps: [ApiServiceAbstraction, EnvironmentService],
   }),
   safeProvider({
