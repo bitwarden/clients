@@ -420,6 +420,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
         if (strategy == null) {
           return null;
         }
+        // TODO: add support for opaque login strategy
         switch (strategy) {
           case AuthenticationType.Password:
             return new PasswordLoginStrategy(
