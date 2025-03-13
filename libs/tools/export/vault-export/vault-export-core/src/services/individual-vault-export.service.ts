@@ -75,7 +75,12 @@ export class IndividualVaultExportService
 
     // attachments
     for (const cipher of await this.cipherService.getAllDecrypted(activeUserId)) {
-      if (!cipher.attachments || cipher.attachments.length === 0 || cipher.deletedDate != null) {
+      if (
+        !cipher.attachments ||
+        cipher.attachments.length === 0 ||
+        cipher.deletedDate != null ||
+        cipher.organizationId != null
+      ) {
         continue;
       }
 
