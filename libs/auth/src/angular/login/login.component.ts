@@ -176,6 +176,8 @@ export class LoginComponent implements OnInit, OnDestroy {
       // TODO: is it worth having a pre-password-login.service to extract some of this process out of the
       // component?  We could at least maybe add a separately testable mechanism for building the
       // kdf config off of the prelogin response.
+      // Or should we put the prelogin process and determination of the login strategy all back into the
+      // login strategy service for re-use in places like the CLI?
 
       const preLoginRequest = new PreloginRequest(email);
       const preLoginResponse = await this.preLoginApiService.postPrelogin(preLoginRequest);
