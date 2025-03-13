@@ -4,27 +4,27 @@ import { of } from "rxjs";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { KeyService } from "@bitwarden/key-management";
 
-import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../spec";
-import { ApiService } from "../../abstractions/api.service";
-import { OrganizationData } from "../../admin-console/models/data/organization.data";
-import { Organization } from "../../admin-console/models/domain/organization";
-import { ProfileOrganizationResponse } from "../../admin-console/models/response/profile-organization.response";
-import { LogService } from "../../platform/abstractions/log.service";
-import { Utils } from "../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
-import { KeyGenerationService } from "../../platform/services/key-generation.service";
-import { OrganizationId, UserId } from "../../types/guid";
-import { MasterKey } from "../../types/key";
-import { KeyConnectorUserKeyRequest } from "../models/request/key-connector-user-key.request";
-import { KeyConnectorUserKeyResponse } from "../models/response/key-connector-user-key.response";
+import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
+import { ApiService } from "../../../abstractions/api.service";
+import { OrganizationData } from "../../../admin-console/models/data/organization.data";
+import { Organization } from "../../../admin-console/models/domain/organization";
+import { ProfileOrganizationResponse } from "../../../admin-console/models/response/profile-organization.response";
+import { KeyConnectorUserKeyResponse } from "../../../auth/models/response/key-connector-user-key.response";
+import { FakeMasterPasswordService } from "../../../auth/services/master-password/fake-master-password.service";
+import { TokenService } from "../../../auth/services/token.service";
+import { LogService } from "../../../platform/abstractions/log.service";
+import { Utils } from "../../../platform/misc/utils";
+import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { KeyGenerationService } from "../../../platform/services/key-generation.service";
+import { OrganizationId, UserId } from "../../../types/guid";
+import { MasterKey } from "../../../types/key";
+import { KeyConnectorUserKeyRequest } from "../models/key-connector-user-key.request";
 
 import {
   USES_KEY_CONNECTOR,
   CONVERT_ACCOUNT_TO_KEY_CONNECTOR,
   KeyConnectorService,
 } from "./key-connector.service";
-import { FakeMasterPasswordService } from "./master-password/fake-master-password.service";
-import { TokenService } from "./token.service";
 
 describe("KeyConnectorService", () => {
   let keyConnectorService: KeyConnectorService;
