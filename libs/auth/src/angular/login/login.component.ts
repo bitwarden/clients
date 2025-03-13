@@ -170,6 +170,19 @@ export class LoginComponent implements OnInit, OnDestroy {
     const credentials = new PasswordLoginCredentials(email, masterPassword);
 
     try {
+      // TODO: create PreLoginApiService to handle pre-login requests and move off ApiService
+      // var preLoginResponse = await this.preLoginApiService.preLogin(email);
+      // Determine which credentials to build based on response
+
+      // if (response.strategy === "password") {
+      //   const credentials = new PasswordLoginCredentials(email, masterPassword, preLoginResponse.kdfConfig);
+      // }else{
+      //   const credentials = new OpaqueLoginCredentials(email, masterPassword, preLoginResponse.cipherConfiguration);
+      // }
+
+      // TODO: calling pre-login ahead of time to determine strategy now calls for updating
+      // password login strategy credentials to accept pre-login response like
+
       const authResult = await this.loginStrategyService.logIn(credentials);
 
       await this.saveEmailSettings();
