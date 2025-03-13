@@ -3,11 +3,11 @@ import { map, of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   VaultFilterMetadata,
   VaultFilterMetadataService,
-} from "@bitwarden/common/vault/search/vault-filter-metadata.service";
+} from "@bitwarden/common/vault/filtering/vault-filter-metadata.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { I18nMockService } from "@bitwarden/components";
 
 import { FilterBuilderComponent } from "./filter-builder.component";

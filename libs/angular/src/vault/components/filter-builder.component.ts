@@ -5,8 +5,8 @@ import { map, Observable, of, startWith } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { VaultFilterMetadataService } from "@bitwarden/common/vault/filtering/vault-filter-metadata.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { VaultFilterMetadataService } from "@bitwarden/common/vault/search/vault-filter-metadata.service";
 import {
   SelectItemView,
   FormFieldModule,
@@ -152,7 +152,7 @@ export class FilterBuilderComponent implements OnInit {
     fields: this.formBuilder.control([]),
   });
 
-  @Input({ required: true }) ciphers: Observable<CipherView[]>;
+  @Input({ required: true }) ciphers: Observable<CipherView[]> | undefined;
 
   private loadingFilter: Filter;
   filter$: Observable<Filter>;
@@ -262,7 +262,5 @@ export class FilterBuilderComponent implements OnInit {
     );
   }
 
-  submit() {
-    // console.log(this.form.value);
-  }
+  submit() {}
 }
