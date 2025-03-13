@@ -7,6 +7,7 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { WebAuthnLoginAssertionResponseRequest } from "@bitwarden/common/auth/services/webauthn-login/request/webauthn-login-assertion-response.request";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserKey, MasterKey } from "@bitwarden/common/types/key";
+import { CipherConfiguration } from "@bitwarden/sdk-internal";
 
 export class PasswordLoginCredentials {
   readonly type = AuthenticationType.Password;
@@ -103,4 +104,15 @@ export class WebAuthnLoginCredentials {
       SymmetricCryptoKey.fromJSON(json.prfKey),
     );
   }
+}
+
+export class OpaqueLoginCredentials {
+  readonly type = AuthenticationType.Opaque;
+
+  constructor(
+    public email: string,
+    public masterPassword: string,
+    public cipherConfiguration: CipherConfiguration,
+    public twoFactor?: TokenTwoFactorRequest,
+  ) {}
 }

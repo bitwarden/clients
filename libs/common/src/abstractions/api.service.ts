@@ -43,6 +43,7 @@ import { DeviceVerificationRequest } from "../auth/models/request/device-verific
 import { DisableTwoFactorAuthenticatorRequest } from "../auth/models/request/disable-two-factor-authenticator.request";
 import { EmailTokenRequest } from "../auth/models/request/email-token.request";
 import { EmailRequest } from "../auth/models/request/email.request";
+import { OpaqueTokenRequest } from "../auth/models/request/identity-token/opaque-token.request";
 import { PasswordTokenRequest } from "../auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token.request";
 import { UserApiTokenRequest } from "../auth/models/request/identity-token/user-api-token.request";
@@ -151,7 +152,8 @@ export abstract class ApiService {
       | PasswordTokenRequest
       | SsoTokenRequest
       | UserApiTokenRequest
-      | WebAuthnLoginTokenRequest,
+      | WebAuthnLoginTokenRequest
+      | OpaqueTokenRequest,
   ) => Promise<
     | IdentityTokenResponse
     | IdentityTwoFactorResponse

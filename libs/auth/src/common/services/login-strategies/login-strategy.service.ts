@@ -204,6 +204,14 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     return null;
   }
 
+  // TODO: solve problem where prelogin needs to determine which strategy to use
+  // but currently we only call pre-login after already in the password strategy
+  // We might have to just update the master password login strategy to perform opaque login
+  // and then call prelogin from there or have the master password login strategy delegate
+  // to individual services based on prelogin response.
+  // We also could extract the pre-login call to the login component and pass in kdf data to the
+  // login strategy service for master password login and opaque login.
+
   async logIn(
     credentials:
       | UserApiLoginCredentials
@@ -309,6 +317,8 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     }
   }
 
+  // TODO: ideally, the process of making master key should stay here but it should get the pre-login kdf data
+  // from the login component or login strategy service
   async makePreloginKey(masterPassword: string, email: string): Promise<MasterKey> {
     email = email.trim().toLowerCase();
     let kdfConfig: KdfConfig | undefined;

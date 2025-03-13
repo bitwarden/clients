@@ -4,4 +4,5 @@ export enum AuthenticationType {
   UserApiKey = 2,
   AuthRequest = 3,
   WebAuthn = 4,
+  Opaque = 5,
 }
