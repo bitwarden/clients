@@ -77,7 +77,8 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     const resetPasswordPolicies$ = this.accountService.activeAccount$.pipe(
       getUserId,
-      switchMap((userId) => this.policyService.policiesByType$(PolicyType.ResetPassword, userId)),
+      switchMap((userId) => this.policyService.policies$(userId)),
+      map((policies) => policies.filter((p) => p.type == PolicyType.ResetPassword)),
     );
 
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
