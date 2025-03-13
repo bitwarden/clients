@@ -17,6 +17,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { OrganizationAutoEnrollStatusResponse } from "@bitwarden/common/admin-console/models/response/organization-auto-enroll-status.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -62,6 +63,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
     private policyApiService: PolicyApiServiceAbstraction,
     policyService: PolicyService,
     protected router: Router,
+    private masterPasswordApiService: MasterPasswordApiService,
     private apiService: ApiService,
     private syncService: SyncService,
     private route: ActivatedRoute,
@@ -195,7 +197,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
     );
     try {
       if (this.resetPasswordAutoEnroll) {
-        this.formPromise = this.apiService
+        this.formPromise = this.masterPasswordApiService
           .setPassword(request)
           .then(async () => {
             await this.onSetPasswordSuccess(masterKey, userKey, newKeyPair);
@@ -222,7 +224,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
             );
           });
       } else {
-        this.formPromise = this.apiService.setPassword(request).then(async () => {
+        this.formPromise = this.masterPasswordApiService.setPassword(request).then(async () => {
           await this.onSetPasswordSuccess(masterKey, userKey, newKeyPair);
         });
       }

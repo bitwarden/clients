@@ -21,6 +21,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
@@ -59,6 +60,7 @@ export class LoginCommand {
     protected loginStrategyService: LoginStrategyServiceAbstraction,
     protected authService: AuthService,
     protected apiService: ApiService,
+    protected masterPasswordApiService: MasterPasswordApiService,
     protected cryptoFunctionService: CryptoFunctionService,
     protected environmentService: EnvironmentService,
     protected passwordGenerationService: PasswordGenerationServiceAbstraction,
@@ -455,7 +457,7 @@ export class LoginCommand {
       request.newMasterPasswordHash = newPasswordHash;
       request.key = newUserKey[1].encryptedString;
 
-      await this.apiService.postPassword(request);
+      await this.masterPasswordApiService.postPassword(request);
 
       return await this.handleUpdatePasswordSuccessResponse();
     } catch (e) {
@@ -492,7 +494,7 @@ export class LoginCommand {
       request.newMasterPasswordHash = newPasswordHash;
       request.masterPasswordHint = hint;
 
-      await this.apiService.putUpdateTempPassword(request);
+      await this.masterPasswordApiService.putUpdateTempPassword(request);
 
       return await this.handleUpdatePasswordSuccessResponse();
     } catch (e) {

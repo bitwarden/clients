@@ -1,7 +1,6 @@
 ﻿@import "variables.scss";
 
 #login-page,
-#login-with-device-page,
 #lock-page,
 #sso-page,
 #set-password-page,
@@ -191,7 +190,6 @@
 }
 
 #login-page,
-#login-with-device-page,
 #login-decryption-options-page {
   flex-direction: column;
   justify-content: unset;
@@ -217,41 +215,6 @@
         @include themify($themes) {
           color: themed("primaryColor");
         }
-      }
-    }
-  }
-}
-
-#login-with-device-page {
-  .content {
-    display: block;
-    padding-top: 70px;
-    width: 350px !important;
-
-    .fingerprint {
-      margin: auto;
-      width: 315px;
-
-      .fingerpint-header {
-        padding-left: 15px;
-      }
-    }
-
-    .section {
-      margin-bottom: 30px;
-    }
-
-    .another-method {
-      display: flex;
-      margin: auto;
-      .description-text {
-        padding-right: 5px;
-      }
-    }
-
-    code {
-      @include themify($themes) {
-        color: themed("codeColor");
       }
     }
   }
