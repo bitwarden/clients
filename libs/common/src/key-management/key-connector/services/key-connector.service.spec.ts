@@ -56,7 +56,6 @@ describe("KeyConnectorService", () => {
     stateProvider = new FakeStateProvider(accountService);
 
     keyConnectorService = new KeyConnectorService(
-      accountService,
       masterPasswordService,
       keyService,
       apiService,
@@ -98,7 +97,7 @@ describe("KeyConnectorService", () => {
       organizationService.organizations$.mockReturnValue(of(orgs));
 
       // Act
-      const result = await keyConnectorService.getManagingOrganization();
+      const result = await keyConnectorService.getManagingOrganization(mockUserId);
 
       // Assert
       expect(result).toEqual(orgs[0]);
@@ -113,7 +112,7 @@ describe("KeyConnectorService", () => {
       organizationService.organizations$.mockReturnValue(of(orgs));
 
       // Act
-      const result = await keyConnectorService.getManagingOrganization();
+      const result = await keyConnectorService.getManagingOrganization(mockUserId);
 
       // Assert
       expect(result).toBeUndefined();
@@ -128,7 +127,7 @@ describe("KeyConnectorService", () => {
       organizationService.organizations$.mockReturnValue(of(orgs));
 
       // Act
-      const result = await keyConnectorService.getManagingOrganization();
+      const result = await keyConnectorService.getManagingOrganization(mockUserId);
 
       // Assert
       expect(result).toBeUndefined();
@@ -143,7 +142,7 @@ describe("KeyConnectorService", () => {
       organizationService.organizations$.mockReturnValue(of(orgs));
 
       // Act
-      const result = await keyConnectorService.getManagingOrganization();
+      const result = await keyConnectorService.getManagingOrganization(mockUserId);
 
       // Assert
       expect(result).toBeUndefined();
@@ -157,7 +156,7 @@ describe("KeyConnectorService", () => {
 
       const newValue = true;
 
-      await keyConnectorService.setConvertAccountRequired(newValue);
+      await keyConnectorService.setConvertAccountRequired(newValue, mockUserId);
 
       expect(await keyConnectorService.getConvertAccountRequired()).toBe(newValue);
     });
@@ -166,9 +165,9 @@ describe("KeyConnectorService", () => {
       const state = stateProvider.activeUser.getFake(CONVERT_ACCOUNT_TO_KEY_CONNECTOR);
       state.nextState(false);
 
-      const newValue: boolean = null;
+      const newValue: boolean | null = null;
 
-      await keyConnectorService.setConvertAccountRequired(newValue);
+      await keyConnectorService.setConvertAccountRequired(newValue, mockUserId);
 
       expect(await keyConnectorService.getConvertAccountRequired()).toBe(newValue);
     });
@@ -258,7 +257,7 @@ describe("KeyConnectorService", () => {
       jest.spyOn(apiService, "postUserKeyToKeyConnector").mockResolvedValue();
 
       // Act
-      await keyConnectorService.migrateUser();
+      await keyConnectorService.migrateUser(mockUserId);
 
       // Assert
       expect(keyConnectorService.getManagingOrganization).toHaveBeenCalled();
@@ -284,7 +283,7 @@ describe("KeyConnectorService", () => {
 
       try {
         // Act
-        await keyConnectorService.migrateUser();
+        await keyConnectorService.migrateUser(mockUserId);
       } catch {
         // Assert
         expect(logService.error).toHaveBeenCalledWith(error);
