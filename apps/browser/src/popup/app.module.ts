@@ -21,7 +21,6 @@ import { AccountComponent } from "../auth/popup/account-switching/account.compon
 import { CurrentAccountComponent } from "../auth/popup/account-switching/current-account.component";
 import { EnvironmentComponent } from "../auth/popup/environment.component";
 import { ExtensionAnonLayoutWrapperComponent } from "../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
-import { HintComponent } from "../auth/popup/hint.component";
 import { RemovePasswordComponent } from "../auth/popup/remove-password.component";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
@@ -93,7 +92,6 @@ import "../platform/popup/locales";
     ColorPasswordPipe,
     ColorPasswordCountPipe,
     EnvironmentComponent,
-    HintComponent,
     SetPasswordComponent,
     SsoComponentV1,
     TabsV2Component,
