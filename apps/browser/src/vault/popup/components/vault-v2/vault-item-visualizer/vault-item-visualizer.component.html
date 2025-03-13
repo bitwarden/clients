@@ -1,1 +1,47 @@
-<p>vault-item-visualizer works!</p>
+<popup-page>
+  <popup-header slot="header" pageTitle="View as QR Code" showBackButton></popup-header>
+  <bit-section>
+    <bit-section-header>
+      <h2 bitTypography="h6">Wi-Fi Login</h2>
+    </bit-section-header>
+    <bit-card>
+      <div class="tw-justify-center tw-items-center"></div>
+    </bit-card>
+  </bit-section>
+  <bit-section>
+    <bit-section-header>
+      <h2 bitTypography="h6">Data to Share</h2>
+    </bit-section-header>
+    <bit-card>
+      <form [formGroup]="dataToShare">
+        <bit-form-field>
+          <bit-label>QR Code Type</bit-label>
+          <bit-select formControlName="qrCodeType" id="qrCodeType">
+            <bit-option value="Wi-Fi" label="Wi-Fi"></bit-option>
+            <bit-option value="Contact" label="Contact"></bit-option>
+            <bit-option value="URL" label="URL"></bit-option>
+          </bit-select>
+        </bit-form-field>
+        <bit-form-field>
+          <bit-label>Item Field with SSID</bit-label>
+          <bit-select formControlName="fieldWithSSID" id="fieldWithSSID">
+            <bit-option value="Username" label="Username"></bit-option>
+            <bit-option value="Website" label="Website"></bit-option>
+            <bit-option value="Custom Field: SSID" label="Custom Field: SSID"></bit-option>
+          </bit-select>
+        </bit-form-field>
+        <bit-form-field>
+          <bit-label>Item Field with Password</bit-label>
+          <bit-select formControlName="fieldWithPassword" id="fieldWithPassword">
+            <bit-option value="Password" label="Password"></bit-option>
+            <bit-option
+              value="Custom Field: Wi-Fi Password"
+              label="Custom Field: Wi-Fi Password"
+            ></bit-option>
+          </bit-select>
+        </bit-form-field>
+      </form>
+    </bit-card>
+  </bit-section>
+  <!-- <popup-footer slot="footer"></popup-footer> -->
+</popup-page>

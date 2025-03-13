@@ -237,11 +237,16 @@ const routes: Routes = [
     path: "view-cipher",
     component: ViewV2Component,
     canActivate: [authGuard],
-    children: [{ path: "visualize", component: VaultItemVisualizerComponent }],
+    // TODO satisfy lifecycles of parent component if visualize is child
     data: {
       // Above "trash"
       elevation: 3,
     } satisfies RouteDataProperties,
+  },
+  {
+    path: "view-cipher/visualize",
+    component: VaultItemVisualizerComponent,
+    canActivate: [authGuard],
   },
   {
     path: "cipher-password-history",

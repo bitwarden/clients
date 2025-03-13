@@ -1,12 +1,46 @@
 import { Component } from "@angular/core";
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 
-// eslint-disable-next-line no-restricted-imports
-import { VisualizeVaultItem } from "../../../../../../../../libs/vault/src/cipher-view/visualize-vault-item/visualize-vault-item.component";
+import {
+  TypographyModule,
+  ButtonModule,
+  ItemModule,
+  SectionComponent,
+  SectionHeaderComponent,
+  CardComponent,
+  FormFieldModule,
+  SelectModule,
+} from "@bitwarden/components";
+
+import { PopupFooterComponent } from "../../../../../platform/popup/layout/popup-footer.component";
+import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup-header.component";
+import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
 
 @Component({
-  selector: "app-vault-item-visualizer",
+  imports: [
+    ReactiveFormsModule,
+    TypographyModule,
+    ButtonModule,
+    ItemModule,
+    SectionComponent,
+    SectionHeaderComponent,
+    CardComponent,
+    PopupPageComponent,
+    PopupHeaderComponent,
+    PopupFooterComponent,
+    FormsModule,
+    FormFieldModule,
+    SelectModule,
+  ],
   standalone: true,
-  imports: [VisualizeVaultItem],
   templateUrl: "./vault-item-visualizer.component.html",
 })
-export class VaultItemVisualizerComponent {}
+export class VaultItemVisualizerComponent {
+  headerText: string;
+
+  dataToShare = new FormGroup({
+    qrCodeType: new FormControl("Wi-Fi"),
+    fieldWithSSID: new FormControl("Username"),
+    fieldWithPassword: new FormControl("Password"),
+  });
+}
