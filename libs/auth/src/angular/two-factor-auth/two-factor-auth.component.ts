@@ -188,8 +188,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       this.twoFactorAuthComponentService.shouldCheckForWebAuthnQueryParamResponse() &&
       webAuthnSupported
     ) {
-      const webAuthn2faResponse =
-        this.activatedRoute.snapshot.queryParamMap.get("webAuthnResponse");
+      const webAuthn2faResponse = this.activatedRoute.snapshot.paramMap.get("webAuthnResponse");
       if (webAuthn2faResponse) {
         this.selectedProviderType = TwoFactorProviderType.WebAuthn;
         return;
