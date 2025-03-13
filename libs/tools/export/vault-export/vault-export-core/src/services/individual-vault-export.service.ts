@@ -5,6 +5,7 @@ import * as papa from "papaparse";
 import { firstValueFrom } from "rxjs";
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -44,6 +45,7 @@ export class IndividualVaultExportService
     cryptoFunctionService: CryptoFunctionService,
     kdfConfigService: KdfConfigService,
     private accountService: AccountService,
+    private apiService: ApiService,
   ) {
     super(pinService, encryptService, cryptoFunctionService, kdfConfigService);
   }
@@ -86,7 +88,7 @@ export class IndividualVaultExportService
 
       const cipherFolder = attachmentsFolder.folder(cipher.id);
       for (const attachment of cipher.attachments) {
-        const response = await fetch(new Request(attachment.url, { cache: "no-store" }));
+        const response = await this.downloadAttachment(cipher.id, attachment.id);
         const encBuf = await EncArrayBuffer.fromResponse(response);
         const key =
           attachment.key != null
@@ -98,6 +100,20 @@ export class IndividualVaultExportService
     }
 
     return zip.generateAsync({ type: "blob" });
+  }
+
+  private async downloadAttachment(cipherId: string, attachmentId: string): Promise<Response> {
+    const attachmentDownloadResponse = await this.apiService.getAttachmentData(
+      cipherId,
+      attachmentId,
+    );
+    const url = attachmentDownloadResponse.url;
+
+    const response = await fetch(new Request(url, { cache: "no-store" }));
+    if (response.status !== 200) {
+      throw new Error("Error downloading attachment");
+    }
+    return response;
   }
 
   private async getDecryptedExport(format: "json" | "csv"): Promise<string> {
