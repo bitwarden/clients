@@ -20,7 +20,6 @@ import { AvatarModule, ButtonModule, FormFieldModule, ToastModule } from "@bitwa
 import { AccountComponent } from "../auth/popup/account-switching/account.component";
 import { CurrentAccountComponent } from "../auth/popup/account-switching/current-account.component";
 import { ExtensionAnonLayoutWrapperComponent } from "../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
-import { HintComponent } from "../auth/popup/hint.component";
 import { LoginDecryptionOptionsComponentV1 } from "../auth/popup/login-decryption-options/login-decryption-options-v1.component";
 import { RemovePasswordComponent } from "../auth/popup/remove-password.component";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
@@ -92,7 +91,6 @@ import "../platform/popup/locales";
     AppComponent,
     ColorPasswordPipe,
     ColorPasswordCountPipe,
-    HintComponent,
     LoginDecryptionOptionsComponentV1,
     SetPasswordComponent,
     SsoComponentV1,
