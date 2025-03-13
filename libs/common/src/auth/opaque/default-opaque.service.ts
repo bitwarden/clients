@@ -62,5 +62,12 @@ export class DefaultOpaqueService implements OpaqueService {
 
   async login(masterPassword: string, ksfConfig: KsfConfig): Promise<Uint8Array> {
     throw new Error("Method not implemented.");
+
+    // TODO: figure out if we are going to implement this as one process with 2 calls to crypto
+    // and API
+    // cryptoClient.opaque_login_start(masterPassword, ksfConfig.toSdkConfig());
+    // cryptoClient.opaque_login_finish(...);
+
+    // TODO: should this logic belong in the login strategy?
   }
 }
