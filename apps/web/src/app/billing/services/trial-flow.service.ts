@@ -11,8 +11,6 @@ import { BillingSourceResponse } from "@bitwarden/common/billing/models/response
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PaymentSourceResponse } from "@bitwarden/common/billing/models/response/payment-source.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService } from "@bitwarden/components";
 
@@ -24,15 +22,12 @@ import { FreeTrial } from "../types/free-trial";
 
 @Injectable({ providedIn: "root" })
 export class TrialFlowService {
-  private resellerManagedOrgAlert: boolean;
-
   constructor(
     private i18nService: I18nService,
     protected dialogService: DialogService,
     private router: Router,
     protected billingApiService: BillingApiServiceAbstraction,
     private organizationApiService: OrganizationApiServiceAbstraction,
-    private configService: ConfigService,
   ) {}
   checkForOrgsWithUpcomingPaymentIssues(
     organization: Organization,
@@ -98,10 +93,6 @@ export class TrialFlowService {
     isCanceled: boolean,
     isUnpaid: boolean,
   ): Promise<boolean> {
-    this.resellerManagedOrgAlert = await this.configService.getFeatureFlag(
-      FeatureFlag.ResellerManagedOrgAlert,
-    );
-
     if (!org?.isOwner && !org.providerId) {
       await this.dialogService.openSimpleDialog({
         title: this.i18nService.t("suspendedOrganizationTitle", org?.name),
@@ -113,7 +104,7 @@ export class TrialFlowService {
       return false;
     }
 
-    if (org.providerId && this.resellerManagedOrgAlert) {
+    if (org.providerId) {
       await this.dialogService.openSimpleDialog({
         title: this.i18nService.t("suspendedOrganizationTitle", org.name),
         content: { key: "suspendedManagedOrgMessage", placeholders: [org.providerName] },
@@ -134,7 +125,7 @@ export class TrialFlowService {
       });
     }
 
-    if (org.isOwner && isCanceled && this.resellerManagedOrgAlert) {
+    if (org.isOwner && isCanceled) {
       await this.changePlan(org);
     }
   }
