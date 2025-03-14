@@ -52,6 +52,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   collectionIds: string[];
   creationDate: Date;
   deletedDate: Date;
+  archivedDate: Date;
   reprompt: CipherRepromptType;
   key: EncString;
 
@@ -89,6 +90,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     this.localData = localData;
     this.creationDate = obj.creationDate != null ? new Date(obj.creationDate) : null;
     this.deletedDate = obj.deletedDate != null ? new Date(obj.deletedDate) : null;
+    this.archivedDate = obj.archivedDate != null ? new Date(obj.archivedDate) : null;
     this.reprompt = obj.reprompt;
 
     switch (this.type) {

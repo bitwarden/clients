@@ -4,7 +4,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { ITreeNodeObject } from "@bitwarden/common/vault/models/domain/tree-node";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
-export type CipherStatus = "all" | "favorites" | "trash" | CipherType;
+export type CipherStatus = "all" | "favorites" | "archive" | "trash" | CipherType;
 
 export type CipherTypeFilter = ITreeNodeObject & { type: CipherStatus; icon: string };
 export type CollectionFilter = CollectionAdminView & {

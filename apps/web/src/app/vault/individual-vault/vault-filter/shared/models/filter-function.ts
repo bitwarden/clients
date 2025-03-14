@@ -26,11 +26,18 @@ export function createFilterFunction(filter: RoutedVaultFilterModel): FilterFunc
     if (filter.type === "sshKey" && cipher.type !== CipherType.SshKey) {
       return false;
     }
+    if (filter.type === "archive" && !cipher.isArchived) {
+      return false;
+    }
     if (filter.type === "trash" && !cipher.isDeleted) {
       return false;
     }
     // Hide trash unless explicitly selected
     if (filter.type !== "trash" && cipher.isDeleted) {
+      return false;
+    }
+    // Hide archived items unless explicitly selected
+    if (filter.type !== "archive" && cipher.isArchived) {
       return false;
     }
     // No folder

@@ -20,6 +20,7 @@ export enum VaultFilterLabel {
   TypeFilter = "typeFilter",
   FolderFilter = "folderFilter",
   CollectionFilter = "collectionFilter",
+  ArchiveFilter = "archiveFilter",
   TrashFilter = "trashFilter",
 }
 

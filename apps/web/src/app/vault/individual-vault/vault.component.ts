@@ -155,6 +155,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   activeFilter: VaultFilter = new VaultFilter();
 
   protected noItemIcon = Icons.Search;
+  protected emptyArchive = Icons.EmptyArchive;
   protected performingInitialLoad = true;
   protected refreshing = false;
   protected processingEvent = false;

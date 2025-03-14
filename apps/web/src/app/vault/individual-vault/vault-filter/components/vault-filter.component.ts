@@ -1,7 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { Router } from "@angular/router";
 import { firstValueFrom, merge, Subject, switchMap, takeUntil } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -47,7 +46,6 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   isLoaded = false;
 
   protected destroy$: Subject<void> = new Subject<void>();
-  private router = inject(Router);
   get filtersList() {
     return this.filters ? Object.values(this.filters) : [];
   }
@@ -58,6 +56,9 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     }
     if (this.activeFilter.isDeleted) {
       return "searchTrash";
+    }
+    if (this.activeFilter.isArchived) {
+      return "searchArchive";
     }
     if (this.activeFilter.cipherType === CipherType.Login) {
       return "searchLogin";
@@ -185,6 +186,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     builderFilter.typeFilter = await this.addTypeFilter();
     builderFilter.folderFilter = await this.addFolderFilter();
     builderFilter.collectionFilter = await this.addCollectionFilter();
+    builderFilter.archiveFilter = await this.addArchiveFilter();
     builderFilter.trashFilter = await this.addTrashFilter();
     return builderFilter;
   }
@@ -321,5 +323,32 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       action: this.applyTypeFilter,
     };
     return trashFilterSection;
+  }
+
+  protected async addArchiveFilter(): Promise<VaultFilterSection> {
+    const archiveFilterSection: VaultFilterSection = {
+      data$: this.vaultFilterService.buildTypeTree(
+        {
+          id: "headArchive",
+          name: "HeadArchive",
+          type: "archive",
+          icon: "bwi-archive",
+        },
+        [
+          {
+            id: "archive",
+            name: this.i18nService.t("archive"),
+            type: "archive",
+            icon: "bwi-archive",
+          },
+        ],
+      ),
+      header: {
+        showHeader: false,
+        isSelectable: true,
+      },
+      action: this.applyTypeFilter,
+    };
+    return archiveFilterSection;
   }
 }

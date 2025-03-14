@@ -72,7 +72,7 @@
       <span class="tw-sr-only">{{ "loading" | i18n }}</span>
     </div>
     <div
-      *ngIf="isEmpty && !performingInitialLoad"
+      *ngIf="isEmpty && !performingInitialLoad && filter.type !== 'archive'"
       class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
     >
       <bit-icon [icon]="noItemIcon" aria-hidden="true"></bit-icon>
@@ -87,6 +87,20 @@
         <i class="bwi bwi-plus-f bwi-fw" aria-hidden="true"></i>
         {{ "newItem" | i18n }}
       </button>
+    </div>
+
+    <!-- Empty state for Archive -->
+    <div
+      *ngIf="isEmpty && !performingInitialLoad && filter.type === 'archive'"
+      class="tw-flex tw-flex-col tw-items-center tw-h-full tw-pt-52"
+    >
+      <div class="tw-relative">
+        <bit-icon [icon]="emptyArchive" aria-hidden="true"></bit-icon>
+      </div>
+      <div bitTypography="h4" class="tw-mt-4">{{ "noItemsInArchive" | i18n }}</div>
+      <p class="tw-text-center tw-max-w-md">
+        {{ "archivedItemsDescription" | i18n }}
+      </p>
     </div>
   </div>
 </div>
