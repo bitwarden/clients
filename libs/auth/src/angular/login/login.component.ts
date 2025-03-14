@@ -18,7 +18,6 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
-import { PreLoginApiService } from "@bitwarden/common/auth/services/pre-login-api.service";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
@@ -121,7 +120,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private validationService: ValidationService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
-    private preLoginApiService: PreLoginApiService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
