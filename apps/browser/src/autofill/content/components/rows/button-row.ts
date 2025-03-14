@@ -57,6 +57,7 @@ const buttonRowStyles = css`
   width: 100%;
   max-height: 52px;
   white-space: nowrap;
+  padding-top: ${spacing[1]};
 
   > button {
     max-width: min-content;
