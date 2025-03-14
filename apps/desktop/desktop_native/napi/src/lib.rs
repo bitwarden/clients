@@ -748,3 +748,12 @@ pub mod crypto {
             .map(Buffer::from)
     }
 }
+
+#[napi]
+pub mod passkey_authenticator {
+    #[napi]
+    pub fn register() {
+        #[cfg(target_os = "windows")]
+        let _ = windows_plugin_authenticator::register();
+    }
+}
