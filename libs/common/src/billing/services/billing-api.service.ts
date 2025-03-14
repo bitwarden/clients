@@ -1,6 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 
+import { TaxInfoResponse } from "@bitwarden/common/billing/models/response/tax-info.response";
+
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
 import { ProviderOrganizationOrganizationDetailsResponse } from "../../admin-console/models/response/provider/provider-organization.response";
@@ -143,6 +145,17 @@ export class BillingApiService implements BillingApiServiceAbstraction {
     return new ProviderSubscriptionResponse(response);
   }
 
+  async getProviderTaxInformation(providerId: string): Promise<TaxInfoResponse> {
+    const response = await this.apiService.send(
+      "GET",
+      "/providers/" + providerId + "/billing/tax-information",
+      null,
+      true,
+      true,
+    );
+    return new TaxInfoResponse(response);
+  }
+
   async updateOrganizationPaymentMethod(
     organizationId: string,
     request: UpdatePaymentMethodRequest,
@@ -183,6 +196,19 @@ export class BillingApiService implements BillingApiServiceAbstraction {
     );
   }
 
+  async updateProviderPaymentMethod(
+    providerId: string,
+    request: UpdatePaymentMethodRequest,
+  ): Promise<void> {
+    return await this.apiService.send(
+      "PUT",
+      "/providers/" + providerId + "/billing/payment-method",
+      request,
+      true,
+      false,
+    );
+  }
+
   async updateProviderTaxInformation(providerId: string, request: ExpandedTaxInfoUpdateRequest) {
     return await this.apiService.send(
       "PUT",
@@ -200,6 +226,19 @@ export class BillingApiService implements BillingApiServiceAbstraction {
     return await this.apiService.send(
       "POST",
       "/organizations/" + organizationId + "/billing/payment-method/verify-bank-account",
+      request,
+      true,
+      false,
+    );
+  }
+
+  async verifyProviderBankAccount(
+    providerId: string,
+    request: VerifyBankAccountRequest,
+  ): Promise<void> {
+    return await this.apiService.send(
+      "POST",
+      "/providers/" + providerId + "/billing/payment-method/verify-bank-account",
       request,
       true,
       false,
