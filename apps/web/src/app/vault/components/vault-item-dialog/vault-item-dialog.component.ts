@@ -233,10 +233,10 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
    * A user may restore items if they have delete permissions and the item is in the trash.
    */
   protected async canUserRestore() {
-    const featureFlagEnabled = await firstValueFrom(this.limitItemDeletion$);
-    return this.isTrashFilter && this.cipher?.isDeleted && featureFlagEnabled
-      ? this.cipher?.permissions.restore
-      : this.canDelete;
+    if (await firstValueFrom(this.limitItemDeletion$)) {
+      return this.isTrashFilter && this.cipher?.isDeleted && this.cipher?.permissions.restore;
+    }
+    return this.isTrashFilter && this.cipher?.isDeleted && this.canDelete;
   }
 
   protected showRestore: boolean;
