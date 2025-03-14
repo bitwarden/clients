@@ -43,6 +43,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { isNotSelfUpgradable, ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -168,15 +169,18 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
     this.canUseSecretsManager$ = organization$.pipe(map((org) => org.useSecretsManager));
 
-    const policies$ = organization$.pipe(
-      switchMap((organization) => {
+    const policies$ = combineLatest([
+      this.accountService.activeAccount$.pipe(getUserId),
+      organization$,
+    ]).pipe(
+      switchMap(([userId, organization]) => {
         if (organization.isProviderUser) {
           return from(this.policyApiService.getPolicies(organization.id)).pipe(
             map((response) => Policy.fromListResponse(response)),
           );
         }
 
-        return this.policyService.policies$;
+        return this.policyService.policies$(userId);
       }),
     );
 

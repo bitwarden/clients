@@ -10,7 +10,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -36,7 +35,6 @@ export class SponsoringOrgRowComponent implements OnInit {
     private logService: LogService,
     private dialogService: DialogService,
     private toastService: ToastService,
-    private configService: ConfigService,
     private policyService: PolicyService,
     private accountService: AccountService,
   ) {}
@@ -54,7 +52,7 @@ export class SponsoringOrgRowComponent implements OnInit {
     this.isFreeFamilyPolicyEnabled$ = this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
-        this.policyService.getAll$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
+        this.policyService.policiesByType$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
       ),
       map(
         (policies) =>

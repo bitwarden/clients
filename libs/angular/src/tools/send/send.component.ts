@@ -9,6 +9,7 @@ import {
   from,
   switchMap,
   takeUntil,
+  combineLatest,
 } from "rxjs";
 
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
@@ -85,18 +86,23 @@ export class SendComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-
-    this.policyService
-      .policyAppliesToActiveUser$(PolicyType.DisableSend)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((policyAppliesToActiveUser) => {
-        this.disableSend = policyAppliesToActiveUser;
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((policyAppliesToUser) => {
+        this.disableSend = policyAppliesToUser;
       });
 
-    this._searchText$
+    combineLatest([this._searchText$, this.accountService.activeAccount$.pipe(getUserId)])
       .pipe(
-        switchMap((searchText) => from(this.searchService.isSearchable(userId, searchText))),
+        switchMap(([searchText, userId]) =>
+          from(this.searchService.isSearchable(userId, searchText)),
+        ),
         takeUntil(this.destroy$),
       )
       .subscribe((isSearchable) => {

@@ -28,8 +28,8 @@ import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abs
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
+import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
-import { PolicyService } from "@bitwarden/common/admin-console/services/policy/policy.service";
 import { ProviderApiService } from "@bitwarden/common/admin-console/services/provider/provider-api.service";
 import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -237,7 +237,7 @@ export class ServiceContainer {
   cryptoFunctionService: NodeCryptoFunctionService;
   encryptService: EncryptServiceImplementation;
   authService: AuthService;
-  policyService: PolicyService;
+  policyService: DefaultPolicyService;
   policyApiService: PolicyApiServiceAbstraction;
   logService: ConsoleLogService;
   sendService: SendService;
@@ -469,7 +469,7 @@ export class ServiceContainer {
     this.ssoUrlService = new SsoUrlService();
 
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
-    this.policyService = new PolicyService(this.stateProvider, this.organizationService);
+    this.policyService = new DefaultPolicyService(this.stateProvider, this.organizationService);
 
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
@@ -560,7 +560,11 @@ export class ServiceContainer {
 
     this.providerService = new ProviderService(this.stateProvider);
 
-    this.policyApiService = new PolicyApiService(this.policyService, this.apiService);
+    this.policyApiService = new PolicyApiService(
+      this.policyService,
+      this.apiService,
+      this.accountService,
+    );
 
     this.keyConnectorService = new KeyConnectorService(
       this.accountService,
@@ -672,6 +676,7 @@ export class ServiceContainer {
     this.autofillSettingsService = new AutofillSettingsService(
       this.stateProvider,
       this.policyService,
+      this.accountService,
     );
 
     this.cipherService = new CipherService(

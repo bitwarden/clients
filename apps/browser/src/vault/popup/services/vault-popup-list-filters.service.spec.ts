@@ -36,7 +36,7 @@ describe("VaultPopupListFiltersService", () => {
   let folderViews$ = new BehaviorSubject([]);
   const cipherViews$ = new BehaviorSubject({});
   let decryptedCollections$ = new BehaviorSubject<CollectionView[]>([]);
-  const policyAppliesToActiveUser$ = new BehaviorSubject<boolean>(false);
+  const policyAppliesToUser$ = new BehaviorSubject<boolean>(false);
   let viewCacheService: {
     signal: jest.Mock;
     mockSignal: WritableSignal<CachedFilterState>;
@@ -65,7 +65,7 @@ describe("VaultPopupListFiltersService", () => {
   } as I18nService;
 
   const policyService = {
-    policyAppliesToActiveUser$: jest.fn(() => policyAppliesToActiveUser$),
+    policyAppliesToUser$: jest.fn(() => policyAppliesToUser$),
   };
 
   const state$ = new BehaviorSubject<boolean>(false);
@@ -75,8 +75,8 @@ describe("VaultPopupListFiltersService", () => {
     _memberOrganizations$ = new BehaviorSubject<Organization[]>([]); // Fresh instance per test
     folderViews$ = new BehaviorSubject([]); // Fresh instance per test
     decryptedCollections$ = new BehaviorSubject<CollectionView[]>([]); // Fresh instance per test
-    policyAppliesToActiveUser$.next(false);
-    policyService.policyAppliesToActiveUser$.mockClear();
+    policyAppliesToUser$.next(false);
+    policyService.policyAppliesToUser$.mockClear();
 
     const accountService = mockAccountServiceWith("userId" as UserId);
     const mockCachedSignal = createMockSignal<CachedFilterState>({});
@@ -196,14 +196,15 @@ describe("VaultPopupListFiltersService", () => {
     });
 
     describe("PersonalOwnership policy", () => {
-      it('calls policyAppliesToActiveUser$ with "PersonalOwnership"', () => {
-        expect(policyService.policyAppliesToActiveUser$).toHaveBeenCalledWith(
+      it('calls policyAppliesToUser$ with "PersonalOwnership"', () => {
+        expect(policyService.policyAppliesToUser$).toHaveBeenCalledWith(
           PolicyType.PersonalOwnership,
+          "userId",
         );
       });
 
       it("returns an empty array when the policy applies and there is a single organization", (done) => {
-        policyAppliesToActiveUser$.next(true);
+        policyAppliesToUser$.next(true);
         _memberOrganizations$.next([
           { name: "bobby's org", id: "1234-3323-23223" },
         ] as Organization[]);
@@ -215,7 +216,7 @@ describe("VaultPopupListFiltersService", () => {
       });
 
       it('adds "myVault" when the policy does not apply and there are multiple organizations', (done) => {
-        policyAppliesToActiveUser$.next(false);
+        policyAppliesToUser$.next(false);
         const orgs = [
           { name: "bobby's org", id: "1234-3323-23223" },
           { name: "alice's org", id: "2223-4343-99888" },
@@ -234,7 +235,7 @@ describe("VaultPopupListFiltersService", () => {
       });
 
       it('does not add "myVault" the policy applies and there are multiple organizations', (done) => {
-        policyAppliesToActiveUser$.next(true);
+        policyAppliesToUser$.next(true);
         const orgs = [
           { name: "bobby's org", id: "1234-3323-23223" },
           { name: "alice's org", id: "2223-3242-99888" },
@@ -679,7 +680,7 @@ function createSeededVaultPopupListFiltersService(
   } as any;
 
   const policyServiceMock = {
-    policyAppliesToActiveUser$: jest.fn(() => new BehaviorSubject(false)),
+    policyAppliesToUser$: jest.fn(() => new BehaviorSubject(false)),
   } as any;
 
   const stateProviderMock = {

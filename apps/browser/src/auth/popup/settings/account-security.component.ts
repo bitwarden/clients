@@ -27,8 +27,10 @@ import { FingerprintDialogComponent, VaultTimeoutInputComponent } from "@bitward
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DeviceType } from "@bitwarden/common/enums";
 import {
   VaultTimeout,
@@ -152,8 +154,14 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
     const hasMasterPassword = await this.userVerificationService.hasMasterPassword();
     this.showMasterPasswordOnClientRestartOption = hasMasterPassword;
-    const maximumVaultTimeoutPolicy = this.policyService.get$(PolicyType.MaximumVaultTimeout);
-    if ((await firstValueFrom(this.policyService.get$(PolicyType.MaximumVaultTimeout))) != null) {
+    const maximumVaultTimeoutPolicy = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policiesByType$(PolicyType.MaximumVaultTimeout, userId),
+      ),
+      getFirstPolicy,
+    );
+    if ((await firstValueFrom(maximumVaultTimeoutPolicy)) != null) {
       this.hasVaultTimeoutPolicy = true;
     }
 
@@ -195,7 +203,12 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       timeout = VaultTimeoutStringType.OnRestart;
     }
 
-    this.pinEnabled$ = this.policyService.get$(PolicyType.RemoveUnlockWithPin).pipe(
+    this.pinEnabled$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policiesByType$(PolicyType.RemoveUnlockWithPin, userId),
+      ),
+      getFirstPolicy,
       map((policy) => {
         return policy == null || !policy.enabled;
       }),
