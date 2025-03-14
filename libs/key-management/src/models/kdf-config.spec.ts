@@ -34,19 +34,19 @@ describe("KdfConfig", () => {
 
   it("validateKdfConfigForPrelogin(): should validate the PBKDF2 KDF config", () => {
     const kdfConfig: PBKDF2KdfConfig = new PBKDF2KdfConfig(600_000);
-    expect(() => kdfConfig.validateKdfConfigForPrelogin()).not.toThrow();
+    expect(() => kdfConfig.validateKdfConfigForPreLogin()).not.toThrow();
   });
 
   it("validateKdfConfigForPrelogin(): should validate the Argon2id KDF config", () => {
     const kdfConfig: Argon2KdfConfig = new Argon2KdfConfig(3, 64, 4);
-    expect(() => kdfConfig.validateKdfConfigForPrelogin()).not.toThrow();
+    expect(() => kdfConfig.validateKdfConfigForPreLogin()).not.toThrow();
   });
 
   it("validateKdfConfigForPrelogin(): should throw an error for too low PBKDF2 iterations", () => {
     const kdfConfig: PBKDF2KdfConfig = new PBKDF2KdfConfig(
       PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1,
     );
-    expect(() => kdfConfig.validateKdfConfigForPrelogin()).toThrow(
+    expect(() => kdfConfig.validateKdfConfigForPreLogin()).toThrow(
       `PBKDF2 iterations must be at least ${PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN}, but was ${kdfConfig.iterations}; possible pre-login downgrade attack detected.`,
     );
   });
@@ -57,7 +57,7 @@ describe("KdfConfig", () => {
       64,
       4,
     );
-    expect(() => kdfConfig.validateKdfConfigForPrelogin()).toThrow(
+    expect(() => kdfConfig.validateKdfConfigForPreLogin()).toThrow(
       `Argon2 iterations must be at least ${Argon2KdfConfig.PRELOGIN_ITERATIONS_MIN}, but was ${kdfConfig.iterations}; possible pre-login downgrade attack detected.`,
     );
   });
@@ -68,7 +68,7 @@ describe("KdfConfig", () => {
       Argon2KdfConfig.PRELOGIN_MEMORY_MIN - 1,
       4,
     );
-    expect(() => kdfConfig.validateKdfConfigForPrelogin()).toThrow(
+    expect(() => kdfConfig.validateKdfConfigForPreLogin()).toThrow(
       `Argon2 memory must be at least ${Argon2KdfConfig.PRELOGIN_MEMORY_MIN} MiB, but was ${kdfConfig.memory} MiB; possible pre-login downgrade attack detected.`,
     );
   });
