@@ -6,20 +6,8 @@ import {
 } from "./abstractions/content-message-handler";
 
 /**
- * IMPORTANT: Safari seems to have a bug where it doesn't properly handle
- * window message events from content scripts when the listener these events
- * is registered within a class. This is why these listeners are registered
- * at the top level of this file.
- */
-window.addEventListener("message", handleWindowMessageEvent, false);
-chrome.runtime.onMessage.addListener(handleExtensionMessage);
-setupExtensionDisconnectAction(() => {
-  window.removeEventListener("message", handleWindowMessageEvent);
-  chrome.runtime.onMessage.removeListener(handleExtensionMessage);
-});
-
-/**
  * Handlers for window messages from the content script.
+ * NOTE: These handlers should be above the event listener to ensure they are defined before being used.
  */
 const windowMessageHandlers: ContentMessageWindowEventHandlers = {
   authResult: ({ data, referrer }: { data: any; referrer: string }) =>
@@ -31,6 +19,19 @@ const windowMessageHandlers: ContentMessageWindowEventHandlers = {
     handleDuoResultMessage(data, referrer),
   [VaultMessages.OpenPopup]: () => handleOpenPopupMessage(),
 };
+
+/**
+ * IMPORTANT: Safari seems to have a bug where it doesn't properly handle
+ * window message events from content scripts when the listener these events
+ * is registered within a class. This is why these listeners are registered
+ * at the top level of this file.
+ */
+window.addEventListener("message", handleWindowMessageEvent, false);
+chrome.runtime.onMessage.addListener(handleExtensionMessage);
+setupExtensionDisconnectAction(() => {
+  window.removeEventListener("message", handleWindowMessageEvent);
+  chrome.runtime.onMessage.removeListener(handleExtensionMessage);
+});
 
 /**
  * Handles the post to the web vault showing the extension has been installed
