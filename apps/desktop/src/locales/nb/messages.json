@@ -2772,14 +2772,8 @@
   "loginWithMasterPassword": {
     "message": "Logg inn med hovedpassord"
   },
-  "loggingInAs": {
-    "message": "Logger inn som"
-  },
   "rememberEmail": {
     "message": "Husk på E-postadressen"
-  },
-  "notYou": {
-    "message": "Ikke du?"
   },
   "newAroundHere": {
     "message": "Ny rundt her?"
@@ -3019,9 +3013,6 @@
   },
   "requestAdminApproval": {
     "message": "Be om administratorgodkjennelse"
-  },
-  "approveWithMasterPassword": {
-    "message": "Godkjenn med hovedpassord"
   },
   "region": {
     "message": "Region"

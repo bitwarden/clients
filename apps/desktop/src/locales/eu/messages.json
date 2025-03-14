@@ -2772,14 +2772,8 @@
   "loginWithMasterPassword": {
     "message": "Hasi saioa pasahitz nagusiarekin"
   },
-  "loggingInAs": {
-    "message": "gisa saioa hasi"
-  },
   "rememberEmail": {
     "message": "Emaila gogoratu"
-  },
-  "notYou": {
-    "message": "Zu ez?"
   },
   "newAroundHere": {
     "message": "Berria hemendik?"
@@ -3019,9 +3013,6 @@
   },
   "requestAdminApproval": {
     "message": "Request admin approval"
-  },
-  "approveWithMasterPassword": {
-    "message": "Approve with master password"
   },
   "region": {
     "message": "Region"

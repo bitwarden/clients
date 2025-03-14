@@ -2772,14 +2772,8 @@
   "loginWithMasterPassword": {
     "message": "با کلمه عبور اصلی وارد شوید"
   },
-  "loggingInAs": {
-    "message": "در حال ورود به عنوان"
-  },
   "rememberEmail": {
     "message": "ایمیل را به خاطر بسپار"
-  },
-  "notYou": {
-    "message": "شما نیستید؟"
   },
   "newAroundHere": {
     "message": "اینجا تازه واردی؟"
@@ -3019,9 +3013,6 @@
   },
   "requestAdminApproval": {
     "message": "درخواست تأیید مدیر"
-  },
-  "approveWithMasterPassword": {
-    "message": "تأیید با کلمه عبور اصلی"
   },
   "region": {
     "message": "منطقه"

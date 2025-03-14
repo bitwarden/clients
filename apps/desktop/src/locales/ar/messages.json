@@ -2772,14 +2772,8 @@
   "loginWithMasterPassword": {
     "message": "تسجيل الدخول باستخدام كلمة المرور الرئيسية"
   },
-  "loggingInAs": {
-    "message": "تسجيل الدخول كـ"
-  },
   "rememberEmail": {
     "message": "تذكر البريد الإلكتروني"
-  },
-  "notYou": {
-    "message": "ليس أنت؟"
   },
   "newAroundHere": {
     "message": "جديد هنا؟"
@@ -3019,9 +3013,6 @@
   },
   "requestAdminApproval": {
     "message": "طلب موافقة المشرف"
-  },
-  "approveWithMasterPassword": {
-    "message": "الموافقة بواسطة كلمة المرور الرئيسية"
   },
   "region": {
     "message": "المنطقة"

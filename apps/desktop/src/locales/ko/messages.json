@@ -2772,14 +2772,8 @@
   "loginWithMasterPassword": {
     "message": "마스터 비밀번호로 로그인"
   },
-  "loggingInAs": {
-    "message": "다음으로 로그인 중"
-  },
   "rememberEmail": {
     "message": "이메일 기억하기"
-  },
-  "notYou": {
-    "message": "본인이 아닌가요?"
   },
   "newAroundHere": {
     "message": "새로 찾아오셨나요?"
@@ -3019,9 +3013,6 @@
   },
   "requestAdminApproval": {
     "message": "Request admin approval"
-  },
-  "approveWithMasterPassword": {
-    "message": "Approve with master password"
   },
   "region": {
     "message": "Region"

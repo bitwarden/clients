@@ -2772,14 +2772,8 @@
   "loginWithMasterPassword": {
     "message": "使用主密码登录"
   },
-  "loggingInAs": {
-    "message": "正登录为"
-  },
   "rememberEmail": {
     "message": "记住电子邮箱"
-  },
-  "notYou": {
-    "message": "不是您吗？"
   },
   "newAroundHere": {
     "message": "初来乍到吗？"
@@ -3019,9 +3013,6 @@
   },
   "requestAdminApproval": {
     "message": "请求管理员批准"
-  },
-  "approveWithMasterPassword": {
-    "message": "使用主密码批准"
   },
   "region": {
     "message": "区域"

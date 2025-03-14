@@ -2772,14 +2772,8 @@
   "loginWithMasterPassword": {
     "message": "Iniciar sessão com a palavra-passe mestra"
   },
-  "loggingInAs": {
-    "message": "A iniciar sessão como"
-  },
   "rememberEmail": {
     "message": "Memorizar e-mail"
-  },
-  "notYou": {
-    "message": "Utilizador incorreto?"
   },
   "newAroundHere": {
     "message": "É novo por cá?"
@@ -3019,9 +3013,6 @@
   },
   "requestAdminApproval": {
     "message": "Pedir aprovação do administrador"
-  },
-  "approveWithMasterPassword": {
-    "message": "Aprovar com a palavra-passe mestra"
   },
   "region": {
     "message": "Região"

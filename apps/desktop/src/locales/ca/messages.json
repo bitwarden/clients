@@ -2772,14 +2772,8 @@
   "loginWithMasterPassword": {
     "message": "Inici de sessió amb contrasenya mestra"
   },
-  "loggingInAs": {
-    "message": "Has iniciat sessió com"
-  },
   "rememberEmail": {
     "message": "Recorda el correu electronic"
-  },
-  "notYou": {
-    "message": "No sou vosaltres?"
   },
   "newAroundHere": {
     "message": "Nou per ací?"
@@ -3019,9 +3013,6 @@
   },
   "requestAdminApproval": {
     "message": "Sol·liciteu l'aprovació de l'administrador"
-  },
-  "approveWithMasterPassword": {
-    "message": "Aprova amb contrasenya mestra"
   },
   "region": {
     "message": "Regió"

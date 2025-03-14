@@ -2772,14 +2772,8 @@
   "loginWithMasterPassword": {
     "message": "Inloggen met je hoofdwachtwoord"
   },
-  "loggingInAs": {
-    "message": "Inloggen als"
-  },
   "rememberEmail": {
     "message": "E-mailadres onthouden"
-  },
-  "notYou": {
-    "message": "Ben jij dit niet?"
   },
   "newAroundHere": {
     "message": "Nieuw hier?"
@@ -3019,9 +3013,6 @@
   },
   "requestAdminApproval": {
     "message": "Goedkeuring van beheerder vragen"
-  },
-  "approveWithMasterPassword": {
-    "message": "Goedkeuren met hoofdwachtwoord"
   },
   "region": {
     "message": "Regio"
