@@ -1,6 +1,6 @@
 import { Parser, Grammar } from "nearley";
 
-import { UriMatchStrategy } from "../../models/domain/domain-service";
+import { UriMatchStrategy, UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { Utils } from "../../platform/misc/utils";
 import { CardLinkedId, CipherType, FieldType, LinkedIdType, LoginLinkedId } from "../enums";
 import { CipherView } from "../models/view/cipher.view";
@@ -349,16 +349,13 @@ function handleNode(node: AstNode): ProcessInstructions {
     };
   } else if (isWebsiteMatchFilter(node)) {
     const websiteTest = termToRegexTest(node.website);
-    const matchTest = fieldNameToRegexTest(node.matchType);
-    const matchTypes = Object.keys(UriMatchStrategy)
-      .filter((key) => matchTest.test(key))
-      .map((key) => UriMatchStrategy[key as keyof typeof UriMatchStrategy]);
+    const matchTest = termToRegexTest(node.matchType);
     return {
       filter: (context) => ({
         ...context,
         ciphers: context.ciphers.filter((cipher) =>
           cipher?.login?.uris?.some(
-            (uri) => matchTypes.includes(uri.match) && websiteTest.test(uri.uri),
+            (uri) => matchHostMatchType(uri.match, matchTest) && websiteTest.test(uri.uri),
           ),
         ),
       }),
@@ -373,6 +370,21 @@ function handleNode(node: AstNode): ProcessInstructions {
   } else {
     throw new Error("Invalid node\n" + JSON.stringify(node, null, 2));
   }
+}
+
+function matchHostMatchType(
+  cipherVal: UriMatchStrategySetting | null,
+  queryMatch: RegExp,
+): boolean {
+  if (queryMatch.test("default")) {
+    // default match type is stored as null
+    return cipherVal == null;
+  }
+
+  const matchTypes = Object.keys(UriMatchStrategy)
+    .filter((key) => queryMatch.test(key))
+    .map((key) => UriMatchStrategy[key as keyof typeof UriMatchStrategy]);
+  return cipherVal != null && matchTypes.includes(cipherVal);
 }
 
 /**
