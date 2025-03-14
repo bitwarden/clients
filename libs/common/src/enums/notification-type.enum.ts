@@ -24,4 +24,5 @@ export enum NotificationType {
   SyncOrganizations = 17,
   SyncOrganizationStatusChanged = 18,
   SyncOrganizationCollectionSettingChanged = 19,
+  SyncNotification = 20,
 }

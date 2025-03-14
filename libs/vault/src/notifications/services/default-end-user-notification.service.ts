@@ -58,7 +58,9 @@ export class DefaultEndUserNotificationService implements EndUserNotificationSer
     await this.getNotifications(userId);
   }
 
-  upsert(notification: Notification): any {}
+  async upsert(userId: UserId, notification: NotificationViewData): Promise<void> {
+    await this.updateNotificationState(userId, [notification]);
+  }
 
   async clearState(userId: UserId): Promise<void> {
     await this.updateNotificationState(userId, []);
