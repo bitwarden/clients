@@ -8,7 +8,17 @@ import { CipherConfiguration } from "@bitwarden/common/auth/opaque/models/cipher
 import { WebAuthnLoginAssertionResponseRequest } from "@bitwarden/common/auth/services/webauthn-login/request/webauthn-login-assertion-response.request";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserKey, MasterKey } from "@bitwarden/common/types/key";
-import { KdfConfig } from "@bitwarden/key-management";
+import { KdfConfig } from "../../../../../key-management/src";
+import { PreloginResponse } from "@bitwarden/common/auth/models/response/prelogin.response";
+
+export type LoginCredentials =
+  | PasswordLoginCredentials
+  | SsoLoginCredentials
+  | UserApiLoginCredentials
+  | AuthRequestLoginCredentials
+  | WebAuthnLoginCredentials
+  | PasswordHashLoginCredentials
+  | OpaqueLoginCredentials;
 
 export class PasswordLoginCredentials {
   readonly type = AuthenticationType.Password;
@@ -16,11 +26,26 @@ export class PasswordLoginCredentials {
   constructor(
     public email: string,
     public masterPassword: string,
-    public kdfConfig: KdfConfig,
     // TODO: PM-15162 - captcha is deprecated as part of UI refresh work
     public captchaToken?: string,
     public twoFactor?: TokenTwoFactorRequest,
   ) {}
+
+  toSpecificLoginCredentials(
+    preLoginResponse: PreloginResponse,
+  ): PasswordHashLoginCredentials | OpaqueLoginCredentials {
+    return preLoginResponse.opaqueConfiguration
+      ? new OpaqueLoginCredentials(
+          this.email,
+          this.masterPassword,
+          preLoginResponse.opaqueConfiguration,
+        )
+      : new PasswordHashLoginCredentials(
+          this.email,
+          this.masterPassword,
+          preLoginResponse.toKdfConfig(),
+        );
+  }
 }
 
 export class SsoLoginCredentials {
@@ -106,6 +131,19 @@ export class WebAuthnLoginCredentials {
       SymmetricCryptoKey.fromJSON(json.prfKey),
     );
   }
+}
+
+export class PasswordHashLoginCredentials {
+  readonly type = AuthenticationType.PasswordHash;
+
+  constructor(
+    public email: string,
+    public masterPassword: string,
+    public kdfConfig: KdfConfig,
+    // TODO: PM-15162 - captcha is deprecated as part of UI refresh work
+    public captchaToken?: string,
+    public twoFactor?: TokenTwoFactorRequest,
+  ) {}
 }
 
 export class OpaqueLoginCredentials {

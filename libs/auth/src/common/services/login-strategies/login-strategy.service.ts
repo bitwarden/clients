@@ -64,6 +64,7 @@ import {
   SsoLoginCredentials,
   AuthRequestLoginCredentials,
   WebAuthnLoginCredentials,
+  LoginCredentials,
 } from "../../models";
 
 import {
@@ -73,6 +74,11 @@ import {
   CACHE_EXPIRATION_KEY,
   CACHE_KEY,
 } from "./login-strategy.state";
+import { PreLoginApiService } from "@bitwarden/common/auth/services/pre-login-api.service";
+import {
+  OpaqueLoginStrategy,
+  OpaqueLoginStrategyData,
+} from "../../login-strategies/opaque-login.strategy";
 
 const sessionTimeoutLength = 5 * 60 * 1000; // 5 minutes
 
@@ -124,6 +130,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     protected vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     protected kdfConfigService: KdfConfigService,
     protected taskSchedulerService: TaskSchedulerService,
+    protected preLoginApiService: PreLoginApiService,
   ) {
     this.currentAuthnTypeState = this.stateProvider.get(CURRENT_LOGIN_STRATEGY_KEY);
     this.loginStrategyCacheState = this.stateProvider.get(CACHE_KEY);
@@ -216,16 +223,25 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     await this.clearCache();
     this.authenticationTimeoutSubject.next(false);
 
-    await this.currentAuthnTypeState.update((_) => credentials.type);
-
-    const strategy = await firstValueFrom(this.loginStrategy$);
-
     // Note: We aren't passing the credentials directly to the strategy since they are
     // created in the popup and can cause DeadObject references on Firefox.
     // This is a shallow copy, but use deep copy in future if objects are added to credentials
     // that were created in popup.
     // If the popup uses its own instance of this service, this can be removed.
-    const ownedCredentials = { ...credentials };
+    let ownedCredentials: LoginCredentials;
+
+    // Password credentials may use the PasswordHashLoginStrategy or the OpaqueLoginStrategy
+    if (credentials.type === AuthenticationType.Password) {
+      const preLoginRequest = new PreloginRequest(credentials.email);
+      const preLoginResponse = await this.preLoginApiService.postPrelogin(preLoginRequest);
+      ownedCredentials = credentials.toSpecificLoginCredentials(preLoginResponse);
+    } else {
+      ownedCredentials = { ...credentials };
+    }
+
+    await this.currentAuthnTypeState.update((_) => credentials.type);
+
+    const strategy = await firstValueFrom(this.loginStrategy$);
 
     const result = await strategy?.logIn(ownedCredentials as any);
 
@@ -316,7 +332,9 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     email = email.trim().toLowerCase();
     let kdfConfig: KdfConfig | undefined;
     try {
-      const preloginResponse = await this.apiService.postPrelogin(new PreloginRequest(email));
+      const preloginResponse = await this.preLoginApiService.postPrelogin(
+        new PreloginRequest(email),
+      );
       if (preloginResponse != null) {
         kdfConfig = preloginResponse.toKdfConfig();
       }
@@ -408,7 +426,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
         }
         // TODO: add support for opaque login strategy
         switch (strategy) {
-          case AuthenticationType.Password:
+          case AuthenticationType.PasswordHash:
             return new PasswordLoginStrategy(
               data?.password ?? new PasswordLoginStrategyData(),
               this.passwordStrengthService,
@@ -440,6 +458,14 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
           case AuthenticationType.WebAuthn:
             return new WebAuthnLoginStrategy(
               data?.webAuthn ?? new WebAuthnLoginStrategyData(),
+              ...sharedDeps,
+            );
+          case AuthenticationType.Opaque:
+            return new OpaqueLoginStrategy(
+              data?.opaque ?? new OpaqueLoginStrategyData(),
+              this.passwordStrengthService,
+              this.policyService,
+              this,
               ...sharedDeps,
             );
         }
