@@ -5,13 +5,10 @@
 mod pa;
 
 use pa::{
-    EXPERIMENTAL_WebAuthNPluginAddAuthenticator, DWORD,
-    EXPERIMENTAL_PCWEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
+    DWORD, EXPERIMENTAL_PCWEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
     EXPERIMENTAL_PCWEBAUTHN_PLUGIN_OPERATION_REQUEST,
-    EXPERIMENTAL_PWEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE,
     EXPERIMENTAL_PWEBAUTHN_PLUGIN_OPERATION_RESPONSE,
-    EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE, LPCWSTR, PBYTE, WCHAR,
-    _EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS,
+    EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE, PBYTE,
 };
 use std::ffi::c_uchar;
 use std::ptr;
@@ -21,7 +18,7 @@ use windows::Win32::System::LibraryLoader::*;
 use windows_core::*;
 
 const AUTHENTICATOR_NAME: &str = "Bitwarden Desktop Authenticator";
-const AAGUID: &str = "d548826e-79b4-db40-a3d8-11116f7e8349";
+//const AAGUID: &str = "d548826e-79b4-db40-a3d8-11116f7e8349";
 const CLSID: &str = "0f7dc5d9-69ce-4652-8572-6877fd695062";
 const RPID: &str = "bitwarden.com";
 
@@ -32,13 +29,56 @@ pub fn get_version_number() -> u32 {
 
 /// Handles initialization and registration for the Bitwarden desktop app as a
 /// plugin authenticator with Windows.
+/// For now, also adds the authenticator
 pub fn register() -> std::result::Result<(), String> {
     initialize_com_library()?;
 
+    register_com_library()?;
+
+    add_authenticator()?;
+
+    Ok(())
+}
+
+/// Initializes the COM library for use on the calling thread,
+/// and registers + sets the security values.
+fn initialize_com_library() -> std::result::Result<(), String> {
+    let result = unsafe { CoInitializeEx(None, COINIT_APARTMENTTHREADED) };
+
+    if result.is_err() {
+        return Err(format!(
+            "Error: couldn't initialize the COM library\n{}",
+            result.message()
+        ));
+    }
+
+    match unsafe {
+        CoInitializeSecurity(
+            None,
+            -1,
+            None,
+            None,
+            RPC_C_AUTHN_LEVEL_DEFAULT,
+            RPC_C_IMP_LEVEL_IMPERSONATE,
+            None,
+            EOAC_NONE,
+            None,
+        )
+    } {
+        Ok(_) => Ok(()),
+        Err(e) => Err(format!(
+            "Error: couldn't initialize COM security\n{}",
+            e.message()
+        )),
+    }
+}
+
+/// Registers the Bitwarden Plugin Authenticator COM library with Windows.
+fn register_com_library() -> std::result::Result<(), String> {
     static FACTORY: windows_core::StaticComObject<Factory> = Factory().into_static();
     let clsid: *const GUID = &GUID::from_u128(0xa98925d161f640de9327dc418fcb2ff4);
 
-    if let Err(e) = unsafe {
+    match unsafe {
         CoRegisterClassObject(
             clsid,
             FACTORY.as_interface_ref(),
@@ -46,19 +86,16 @@ pub fn register() -> std::result::Result<(), String> {
             REGCLS_MULTIPLEUSE,
         )
     } {
-        return Err(format!(
+        Ok(_) => Ok(()),
+        Err(e) => Err(format!(
             "Error: couldn't register the COM library\n{}",
             e.message()
-        ));
+        )),
     }
-
-    add_authenticator()?;
-
-    Ok(())
 }
 
-/// This function adds Bitwarden as a plugin authenticator.
-pub fn add_authenticator() -> std::result::Result<(), String> {
+/// Adds Bitwarden as a plugin authenticator.
+fn add_authenticator() -> std::result::Result<(), String> {
     let authenticator_name: HSTRING = AUTHENTICATOR_NAME.into();
     let authenticator_name_ptr = PCWSTR(authenticator_name.as_ptr()).as_ptr();
 
@@ -68,14 +105,14 @@ pub fn add_authenticator() -> std::result::Result<(), String> {
     let relying_party_id: HSTRING = RPID.into();
     let relying_party_id_ptr = PCWSTR(relying_party_id.as_ptr()).as_ptr();
 
-    let aaguid: HSTRING = format!("{{{}}}", AAGUID).into();
-    let aaguid_ptr = PCWSTR(aaguid.as_ptr()).as_ptr();
+    // let aaguid: HSTRING = format!("{{{}}}", AAGUID).into();
+    // let aaguid_ptr = PCWSTR(aaguid.as_ptr()).as_ptr();
 
     // Example authenticator info blob
     let cbor_authenticator_info = "A60182684649444F5F325F30684649444F5F325F310282637072666B686D61632D7365637265740350D548826E79B4DB40A3D811116F7E834904A362726BF5627570F5627576F5098168696E7465726E616C0A81A263616C672664747970656A7075626C69632D6B6579";
     let mut authenticator_info_bytes = hex::decode(cbor_authenticator_info).unwrap();
 
-    let mut add_authenticator_options = EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS {
+    let add_authenticator_options = EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS {
         pwszAuthenticatorName: authenticator_name_ptr,
         pwszPluginClsId: clsid_ptr,
         pwszPluginRpId: relying_party_id_ptr,
@@ -96,52 +133,19 @@ pub fn add_authenticator() -> std::result::Result<(), String> {
     let mut add_response_ptr: *mut EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE =
         &mut add_response;
 
-    unsafe {
+    match unsafe {
         if let Some(api) = delay_load::<EXPERIMENTAL_WebAuthNPluginAddAuthenticatorFnDeclaration>(
             s!("webauthn.dll"),
             s!("EXPERIMENTAL_WebAuthNPluginAddAuthenticator"),
         ) {
-            let result: HRESULT = api(&add_authenticator_options, &mut add_response_ptr);
+            Ok(api(&add_authenticator_options, &mut add_response_ptr))
         } else {
-            return Err(String::from("Error: Can't complete add_authenticator(), as EXPERIMENTAL_WebAuthNPluginAddAuthenticator can't be found."));
+            Err(String::from("Error: Can't complete add_authenticator(), as the function EXPERIMENTAL_WebAuthNPluginAddAuthenticator can't be found."))
         }
-    }
-
-    Ok(())
-}
-
-/// This function initializes the COM library for use on the calling thread,
-/// and registers + sets the security values.
-fn initialize_com_library() -> std::result::Result<(), String> {
-    let result = unsafe { CoInitializeEx(None, COINIT_APARTMENTTHREADED) };
-
-    if result.is_err() {
-        return Err(format!(
-            "Error: couldn't initialize the COM library\n{}",
-            result.message()
-        ));
-    }
-
-    if let Err(e) = unsafe {
-        CoInitializeSecurity(
-            None,
-            -1,
-            None,
-            None,
-            RPC_C_AUTHN_LEVEL_DEFAULT,
-            RPC_C_IMP_LEVEL_IMPERSONATE,
-            None,
-            EOAC_NONE,
-            None,
-        )
     } {
-        return Err(format!(
-            "Error: couldn't initialize COM security\n{}",
-            e.message()
-        ));
+        Ok(_) => Ok(()),
+        Err(e) => Err(e),
     }
-
-    Ok(())
 }
 
 #[repr(C)]
@@ -203,23 +207,23 @@ struct PACOMObject;
 impl EXPERIMENTAL_IPluginAuthenticator_Impl for PACOMObject_Impl {
     unsafe fn EXPERIMENTAL_PluginMakeCredential(
         &self,
-        request: EXPERIMENTAL_PCWEBAUTHN_PLUGIN_OPERATION_REQUEST,
-        response: *mut EXPERIMENTAL_PWEBAUTHN_PLUGIN_OPERATION_RESPONSE,
+        _request: EXPERIMENTAL_PCWEBAUTHN_PLUGIN_OPERATION_REQUEST,
+        _response: *mut EXPERIMENTAL_PWEBAUTHN_PLUGIN_OPERATION_RESPONSE,
     ) -> HRESULT {
         HRESULT(0)
     }
 
     unsafe fn EXPERIMENTAL_PluginGetAssertion(
         &self,
-        request: EXPERIMENTAL_PCWEBAUTHN_PLUGIN_OPERATION_REQUEST,
-        response: *mut EXPERIMENTAL_PWEBAUTHN_PLUGIN_OPERATION_RESPONSE,
+        _request: EXPERIMENTAL_PCWEBAUTHN_PLUGIN_OPERATION_REQUEST,
+        _response: *mut EXPERIMENTAL_PWEBAUTHN_PLUGIN_OPERATION_RESPONSE,
     ) -> HRESULT {
         HRESULT(0)
     }
 
     unsafe fn EXPERIMENTAL_PluginCancelOperation(
         &self,
-        request: EXPERIMENTAL_PCWEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
+        _request: EXPERIMENTAL_PCWEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
     ) -> HRESULT {
         HRESULT(0)
     }
