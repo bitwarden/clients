@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "Падказка да пароля"
-  },
-  "enterEmailToGetHint": {
-    "message": "Увядзіце адрас электроннай пошты ўліковага запісу для атрымання падказкі да асноўнага пароля."
-  },
   "getMasterPasswordHint": {
     "message": "Атрымаць падказку да асноўнага пароля"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Рэдагаваць папку"
+  },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Новая папка"
@@ -1166,10 +1169,6 @@
     "message": "Светлая",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Solarized dark",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Экспартаванне з"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Асяроддзе ўласнага хостынгу"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Увядзіце асноўны URL-адрас вашага лакальнага размяшчэння ўсталяванага Bitwarden."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Карыстальніцкае асяроддзе"
-  },
-  "customEnvironmentFooter": {
-    "message": "Для дасведчаных карыстальнікаў. Можна ўвесці URL-адрасы асобна для кожнай службы."
   },
   "baseUrl": {
     "message": "URL-адрас сервера"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Перацягніце для сартавання"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Тэкст"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Налады былі адрэдагаваныя"
-  },
-  "environmentEditedClick": {
-    "message": "Націсніце тут"
-  },
-  "environmentEditedReset": {
-    "message": "для скіду да прадвызначаных наладаў"
-  },
   "serverVersion": {
     "message": "Версія сервера"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Увайсці з асноўным паролем"
   },
-  "loggingInAs": {
-    "message": "Увайсці як"
-  },
-  "notYou": {
-    "message": "Не вы?"
-  },
   "newAroundHere": {
     "message": "Упершыню тут?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Уваход з прыладай"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Неабходна наладзіць уваход з прыладай у наладах мабільнай праграмы Bitwarden. Патрабуецца іншы варыянт?"
   },
   "fingerprintPhraseHeader": {
     "message": "Фраза адбітка пальца"
@@ -3343,9 +3321,6 @@
     "message": "Адправіць апавяшчэнне паўторна"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "View all log in options"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Запытаць ухваленне адміністратара"
   },
-  "approveWithMasterPassword": {
-    "message": "Approve with master password"
-  },
   "ssoIdentifierRequired": {
     "message": "Organization SSO identifier is required."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Ваш запыт адпраўлены адміністратару."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Вы атрымаеце апавяшчэння пасля яго ўхвалення."
   },
   "troubleLoggingIn": {
     "message": "Праблемы з уваходам?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Extra wide"
+  },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",

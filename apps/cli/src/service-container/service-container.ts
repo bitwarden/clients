@@ -845,6 +845,7 @@ export class ServiceContainer {
       this.collectionService,
       this.organizationService,
       this.accountService,
+      this.configService,
     );
 
     this.masterPasswordApiService = new MasterPasswordApiService(this.apiService, this.logService);

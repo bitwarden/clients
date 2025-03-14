@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Digite o endereço de seu correio eletrônico da sua conta e sua dica da senha será enviada para você"
   },
-  "passwordHint": {
-    "message": "Dica da Senha"
-  },
-  "enterEmailToGetHint": {
-    "message": "Insira o seu endereço de e-mail para receber a dica da sua senha mestra."
-  },
   "getMasterPasswordHint": {
     "message": "Obter dica da senha mestra"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Editar Pasta"
+  },
+  "editFolderWithName": {
+    "message": "Editar pasta: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Nova pasta"
@@ -878,7 +881,7 @@
     "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Follow the steps below to finish logging in."
+    "message": "Siga os passos abaixo para finalizar o login."
   },
   "restartRegistration": {
     "message": "Reiniciar registro"
@@ -902,7 +905,7 @@
     "message": "Não"
   },
   "location": {
-    "message": "Location"
+    "message": "Localização"
   },
   "unexpectedError": {
     "message": "Ocorreu um erro inesperado."
@@ -1165,10 +1168,6 @@
   "light": {
     "message": "Claro",
     "description": "Light color"
-  },
-  "solarizedDark": {
-    "message": "Solarized (escuro)",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
     "message": "Exportar de"
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Ambiente Auto-hospedado"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Especifique a URL de base da sua instalação local do Bitwarden."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Especifique a URL de base da sua instalação local do Bitwarden. Exemplo: https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Ambiente Personalizado"
-  },
-  "customEnvironmentFooter": {
-    "message": "Para usuários avançados. Você pode especificar a URL de base de cada serviço independentemente."
   },
   "baseUrl": {
     "message": "URL do Servidor"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Arrastar para ordenar"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Texto"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "As configurações foram editadas"
-  },
-  "environmentEditedClick": {
-    "message": "Clique aqui"
-  },
-  "environmentEditedReset": {
-    "message": "para redefinir para as configurações pré-configuradas"
-  },
   "serverVersion": {
     "message": "Versão do servidor"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Entrar com a senha mestra"
   },
-  "loggingInAs": {
-    "message": "Logar como"
-  },
-  "notYou": {
-    "message": "Não é você?"
-  },
   "newAroundHere": {
     "message": "Novo por aqui?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Fazer login com dispositivo"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Login com dispositivo deve ser habilitado nas configurações do aplicativo móvel do Bitwarden. Necessita de outra opção?"
   },
   "fingerprintPhraseHeader": {
     "message": "Frase de impressão digital"
@@ -3343,9 +3321,6 @@
     "message": "Reenviar notificação"
   },
   "viewAllLogInOptions": {
-    "message": "Visualizar todas as opções de login"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Visualizar todas as opções de login"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Solicitar aprovação do administrador"
   },
-  "approveWithMasterPassword": {
-    "message": "Aprovar com senha mestra"
-  },
   "ssoIdentifierRequired": {
     "message": "Identificador SSO da organização é necessário."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Seu pedido foi enviado para seu administrador."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Será notificado assim que for aprovado."
   },
   "troubleLoggingIn": {
     "message": "Problemas em efetuar login?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ se moveu para cima, posição $INDEX$ de $LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Extra Grande"
+  },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Você não pode remover coleções com permissões de Somente leitura: $COLLECTIONS$",
