@@ -428,6 +428,9 @@
   "dragToSort": {
     "message": "Húzás a rendezéshez"
   },
+  "dragToReorder": {
+    "message": "Átrendezés áthúzással"
+  },
   "cfTypeText": {
     "message": "Szöveg"
   },
@@ -469,6 +472,19 @@
   },
   "editFolder": {
     "message": "Mappa szerkesztése"
+  },
+  "editWithName": {
+    "message": "$ITEM$: $NAME$ szerkesztése",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Új mappa"
@@ -1269,12 +1285,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Adjuk meg fiók email címét és elküldésre kerül a jelszóra vonatkozó tipp."
-  },
-  "passwordHint": {
-    "message": "Jelszó emlékeztető"
-  },
-  "enterEmailToGetHint": {
-    "message": "A fiók email címének megadása a mesterjelszó emlékeztető fogadásához."
   },
   "getMasterPasswordHint": {
     "message": "Mesterjelszó emlékeztető kérése"
@@ -4530,6 +4540,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "$LABEL$ feljebb került, $INDEX$/$LENGTH$ pozícióba",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ lejjebb került, $INDEX$/$LENGTH$ pozícióba",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "A titkosítókulcs frissítésekor a mappáid nem fejthetőek vissza. A frissítés folytatásához a mappáidat törölni kell. Semmi nem fog törlődni, ha folytatod."
   },
@@ -7264,12 +7308,6 @@
   "numberOfUsers": {
     "message": "Felhasználók száma"
   },
-  "loggingInAs": {
-    "message": "Bejelentkezve mint"
-  },
-  "notYou": {
-    "message": "Ez tévedés?"
-  },
   "pickAnAvatarColor": {
     "message": "Avatar szín választás"
   },
@@ -8393,9 +8431,6 @@
   "requestAdminApproval": {
     "message": "Adminisztrátori jóváhagyás kérés"
   },
-  "approveWithMasterPassword": {
-    "message": "Jóváhagyás mesterjelszóval"
-  },
   "trustedDeviceEncryption": {
     "message": "Megbízható eszköztitkosítás"
   },
@@ -8609,9 +8644,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "A kérés elküldésre került az adminisztrátornak."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "A jóváhagyás után értesítés érkezik."
   },
   "troubleLoggingIn": {
     "message": "Probléma van a bejelentkezéssel?"
@@ -9337,6 +9369,15 @@
   },
   "deviceManagementDesc": {
     "message": "Az eszközkezelés konfigurálása a Bitwarden számára a platform megvalósítási útmutatója segítségével."
+  },
+  "deviceIdMissing": {
+    "message": "Az eszköz AZ hiányzik."
+  },
+  "deviceTypeMissing": {
+    "message": "Az eszköz típus hiányzik."
+  },
+  "deviceCreationDateMissing": {
+    "message": "Az eszköz létrehozás dátuma hiányzik."
   },
   "desktopRequired": {
     "message": "Asztali gép szükséges"
@@ -10339,6 +10380,36 @@
   "organizationNameMaxLength": {
     "message": "A szervezet neve nem haladhatja meg az 50 karaktert."
   },
+  "sshKeyWrongPassword": {
+    "message": "A megadott jelszó helytelen."
+  },
+  "importSshKey": {
+    "message": "Importálás"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Jelszó megerősítése"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Adjuk meg az SSH kulcs jelszót."
+  },
+  "enterSshKeyPassword": {
+    "message": "Jelszó megadása"
+  },
+  "invalidSshKey": {
+    "message": "Az SSH kulcs érvénytelen."
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Az SSH kulcstípus nem támogatott."
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Kulcs importálása vágólapból"
+  },
+  "sshKeyImported": {
+    "message": "Az SSH kulcs sikeresen importálásra került."
+  },
+  "copySSHPrivateKey": {
+    "message": "Személyes kulcs másolása"
+  },
   "openingExtension": {
     "message": "A Bitwarden böngésző bővítmény megnyitása"
   },
@@ -10504,5 +10575,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "Ezek az események csak példák és nem tükröznek valós eseményeket a Bitwarden szervezetén belül."
+  },
+  "cannotCreateCollection": {
+    "message": "Az ingyenes szervezeteknek legfeljebb 2 gyűjteményük lehet. Térjünk át egy fizetett csomagra további gyűjtemények hozzáadásához."
   }
 }

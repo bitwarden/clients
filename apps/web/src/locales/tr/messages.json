@@ -428,6 +428,9 @@
   "dragToSort": {
     "message": "Sıralamak için sürükleyin"
   },
+  "dragToReorder": {
+    "message": "Drag to reorder"
+  },
   "cfTypeText": {
     "message": "Metin"
   },
@@ -469,6 +472,19 @@
   },
   "editFolder": {
     "message": "Klasörü düzenle"
+  },
+  "editWithName": {
+    "message": "Edit $ITEM$: $NAME$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Yeni klasör"
@@ -1269,12 +1285,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Hesabınızın e-posta adresini girdiğinizde parola ipucunuz size gönderilecektir"
-  },
-  "passwordHint": {
-    "message": "Parola ipucu"
-  },
-  "enterEmailToGetHint": {
-    "message": "Ana parola ipucunu almak için hesabınızın e-posta adresini girin."
   },
   "getMasterPasswordHint": {
     "message": "Ana parola ipucunu al"
@@ -4530,6 +4540,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ moved down, position $INDEX$ of $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "When updating your encryption key, your folders could not be decrypted. To continue with the update, your folders must be deleted. No vault items will be deleted if you proceed."
   },
@@ -7264,12 +7308,6 @@
   "numberOfUsers": {
     "message": "Kullanıcı sayısı"
   },
-  "loggingInAs": {
-    "message": "Giriş yapılan kullanıcı:"
-  },
-  "notYou": {
-    "message": "Siz değil misiniz?"
-  },
   "pickAnAvatarColor": {
     "message": "Bir avatar rengi seçin"
   },
@@ -8393,9 +8431,6 @@
   "requestAdminApproval": {
     "message": "Yönetici onayı iste"
   },
-  "approveWithMasterPassword": {
-    "message": "Ana parola ile onayla"
-  },
   "trustedDeviceEncryption": {
     "message": "Güvenilir cihaz şifrelemesi"
   },
@@ -8609,9 +8644,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "İsteğiniz yöneticinize gönderildi."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Onaylandıktan sonra bilgilendirileceksiniz."
   },
   "troubleLoggingIn": {
     "message": "Giriş yaparken sorun mu yaşıyorsunuz?"
@@ -9337,6 +9369,15 @@
   },
   "deviceManagementDesc": {
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
+  },
+  "deviceIdMissing": {
+    "message": "Device ID is missing"
+  },
+  "deviceTypeMissing": {
+    "message": "Device type is missing"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Device creation date is missing"
   },
   "desktopRequired": {
     "message": "Desktop required"
@@ -10339,6 +10380,36 @@
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
   },
+  "sshKeyWrongPassword": {
+    "message": "Girdiğiniz parola yanlış."
+  },
+  "importSshKey": {
+    "message": "İçe aktar"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Parolayı onaylayın"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "SSH anahtarının parolasını girin."
+  },
+  "enterSshKeyPassword": {
+    "message": "Parolayı girin"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
+  "copySSHPrivateKey": {
+    "message": "Copy private key"
+  },
   "openingExtension": {
     "message": "Opening the Bitwarden browser extension"
   },
@@ -10504,5 +10575,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
+  },
+  "cannotCreateCollection": {
+    "message": "Ücretsiz kuruluşların en fazla 2 koleksiyonu olabilir. Daha fazla koleksiyon eklemek için ücretli bir plana geçin."
   }
 }
