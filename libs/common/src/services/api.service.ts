@@ -159,7 +159,7 @@ export class ApiService implements ApiServiceAbstraction {
    * The message (responseJson.ErrorModel.Message) that comes back from the server when a new device verification is required.
    */
   private static readonly NEW_DEVICE_VERIFICATION_REQUIRED_MESSAGE =
-    "New device verification required.";
+    "new device verification required";
 
   constructor(
     private tokenService: TokenService,
