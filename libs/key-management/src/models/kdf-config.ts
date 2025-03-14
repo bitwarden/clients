@@ -10,6 +10,20 @@ import { KdfType } from "../enums/kdf-type.enum";
 export type KdfConfig = PBKDF2KdfConfig | Argon2KdfConfig;
 
 /**
+ * A factory function that instantiates a new KdfConfig from an object that may represent one of several KdfTypes.
+ * This is useful for instantiating the correct KdfConfig from a server response object.
+ */
+export const createKdfConfig = (obj: {
+  kdf: KdfType;
+  kdfIterations: number;
+  kdfMemory?: number;
+  kdfParallelism?: number;
+}): KdfConfig =>
+  obj.kdf === KdfType.PBKDF2_SHA256
+    ? new PBKDF2KdfConfig(obj.kdfIterations)
+    : new Argon2KdfConfig(obj.kdfIterations, obj.kdfMemory, obj.kdfParallelism);
+
+/**
  * Password-Based Key Derivation Function 2 (PBKDF2) KDF configuration.
  */
 export class PBKDF2KdfConfig {

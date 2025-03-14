@@ -36,14 +36,7 @@ import { TaskSchedulerService, ScheduledTaskNames } from "@bitwarden/common/plat
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { MasterKey } from "@bitwarden/common/types/key";
-import {
-  KdfType,
-  KeyService,
-  Argon2KdfConfig,
-  KdfConfig,
-  PBKDF2KdfConfig,
-  KdfConfigService,
-} from "@bitwarden/key-management";
+import { KeyService, KdfConfig, KdfConfigService } from "@bitwarden/key-management";
 
 import { AuthRequestServiceAbstraction, LoginStrategyServiceAbstraction } from "../../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";
@@ -325,14 +318,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     try {
       const preloginResponse = await this.apiService.postPrelogin(new PreloginRequest(email));
       if (preloginResponse != null) {
-        kdfConfig =
-          preloginResponse.kdf === KdfType.PBKDF2_SHA256
-            ? new PBKDF2KdfConfig(preloginResponse.kdfIterations)
-            : new Argon2KdfConfig(
-                preloginResponse.kdfIterations,
-                preloginResponse.kdfMemory,
-                preloginResponse.kdfParallelism,
-              );
+        kdfConfig = preloginResponse.toKdfConfig();
       }
     } catch (e: any) {
       if (e == null || e.statusCode !== 404) {

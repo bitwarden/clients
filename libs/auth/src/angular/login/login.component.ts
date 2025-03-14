@@ -42,7 +42,6 @@ import {
   LinkModule,
   ToastService,
 } from "@bitwarden/components";
-import { Argon2KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
 import { VaultIcon, WaveIcon } from "../icons";
@@ -193,14 +192,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         );
       } else {
         // Determine users KDF config based on response
-        const kdfConfig =
-          preLoginResponse.kdf === KdfType.PBKDF2_SHA256
-            ? new PBKDF2KdfConfig(preLoginResponse.kdfIterations)
-            : new Argon2KdfConfig(
-                preLoginResponse.kdfIterations,
-                preLoginResponse.kdfMemory,
-                preLoginResponse.kdfParallelism,
-              );
+        const kdfConfig = preLoginResponse.toKdfConfig();
 
         credentials = new PasswordLoginCredentials(email, masterPassword, kdfConfig);
       }
