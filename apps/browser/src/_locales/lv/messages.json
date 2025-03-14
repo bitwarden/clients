@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Jāievada sava konta e-pasta adrese, un paroles norāde tiks nosūtīta"
   },
-  "passwordHint": {
-    "message": "Paroles norāde"
-  },
-  "enterEmailToGetHint": {
-    "message": "Norādīt konta e-pasta adresi, lai saņemtu galvenās paroles norādi."
-  },
   "getMasterPasswordHint": {
     "message": "Saņemt galvenās paroles norādi"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Labot mapi"
+  },
+  "editFolderWithName": {
+    "message": "Labot mapi: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Jauna mape"
@@ -1166,10 +1169,6 @@
     "message": "Gaišs",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Solarized Dark",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Izgūt no"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Pašuzturēta vide"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Norādīt pašuzstādīta Bitwarden pamata URL."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Jānorāda sava pašizvietotā Bitward servera pamata URL. Piemērs: https://bitwarden.uznemums.lv"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Pielāgota vide"
-  },
-  "customEnvironmentFooter": {
-    "message": "Pieredzējušiem lietotājiem. Ir iespējams norādīt URL katram pakalpojumam atsevišķi."
   },
   "baseUrl": {
     "message": "Servera URL"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Vilkt, lai kārtotu"
+  },
+  "dragToReorder": {
+    "message": "Vilkt, lai pārkārtotu"
   },
   "cfTypeText": {
     "message": "Teksts"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Iestatījumi ir izmainīti"
-  },
-  "environmentEditedClick": {
-    "message": "Klikšķināt šeit"
-  },
-  "environmentEditedReset": {
-    "message": "lai atiestatītu pirmsuzstādītos iestatījumus"
-  },
   "serverVersion": {
     "message": "Servera versija"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Pieteikties ar galveno paroli"
   },
-  "loggingInAs": {
-    "message": "Piesakās kā"
-  },
-  "notYou": {
-    "message": "Tas neesi Tu?"
-  },
   "newAroundHere": {
     "message": "Jauns šeit?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Pieteikties ar ierīci"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Ir jāuzstāda pieteikšanās ar ierīci Bitwarden lietotnes iestatījumos. Nepieciešama cita iespēja?"
   },
   "fingerprintPhraseHeader": {
     "message": "Atpazīšanas vārdkopa"
@@ -3343,9 +3321,6 @@
     "message": "Atkārtoti nosūtīt paziņojumu"
   },
   "viewAllLogInOptions": {
-    "message": "Skatīt visas pieteikšanās iespējas"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Skatīt visas pieteikšanās iespējas"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Pieprasīt pārvaldītāja apstiprinājumu"
   },
-  "approveWithMasterPassword": {
-    "message": "Apstiprināt ar galveno paroli"
-  },
   "ssoIdentifierRequired": {
     "message": "Ir nepieciešams apvienības SSO identifikators."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Pieprasījums tika nosūtīts pārvaldītājam."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Tiks saņemts paziņojums, tiklīdz būs apstiprināts."
   },
   "troubleLoggingIn": {
     "message": "Neizdodas pieteikties?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Pārkārtot tīmekļvietņu URI. Bultas uz augšu taustiņš ir izmantojams, lai pārvietotu vienumu augšup vai lejup."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ pārvietots augšup, $INDEX$. no $LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Ļoti plats"
+  },
+  "sshKeyWrongPassword": {
+    "message": "Ievadītā parole ir nepareiza."
+  },
+  "importSshKey": {
+    "message": "Ievietot"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Apstiprināt paroli"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Ievadīt SSH atslēgas paroli."
+  },
+  "enterSshKeyPassword": {
+    "message": "Ievadīt paroli"
+  },
+  "invalidSshKey": {
+    "message": "SSH atslēga ir nederīga"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "SSH atslēgas veids netiek atbalstīts"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Ievietot atslēgu no starpliktuves"
+  },
+  "sshKeyImported": {
+    "message": "SSH atslēga tika sekmīgi ievietota"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nevar noņemt krājumus ar tiesībām \"Tikai skatīt\": $COLLECTIONS$",

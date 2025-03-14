@@ -428,6 +428,9 @@
   "dragToSort": {
     "message": "Подредба чрез влачене"
   },
+  "dragToReorder": {
+    "message": "Плъзнете за пренареждане"
+  },
   "cfTypeText": {
     "message": "Текст"
   },
@@ -469,6 +472,19 @@
   },
   "editFolder": {
     "message": "Редактиране на папка"
+  },
+  "editWithName": {
+    "message": "Редактиране на $ITEM$: $NAME$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Нова папка"
@@ -1269,12 +1285,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Въведете е-пощата на регистрацията си и подсказката за паролата ще Ви бъде изпратена"
-  },
-  "passwordHint": {
-    "message": "Подсказка за паролата"
-  },
-  "enterEmailToGetHint": {
-    "message": "Въведете адреса на електронната си поща, за да получите подсказка за главната парола."
   },
   "getMasterPasswordHint": {
     "message": "Подсказка за главната парола"
@@ -4530,6 +4540,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "Преместено нагоре: $LABEL$. Позиция $INDEX$ от $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "Преместено надолу: $LABEL$. Позиция $INDEX$ от $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "Ако актуализирате шифроващия ключ, папките Ви няма да могат да бъдат дешифрирани. За да продължите с промяната, папките трябва да бъдат изтрити. Елементите в трезора няма да бъдат изтрити, ако продължите."
   },
@@ -7264,12 +7308,6 @@
   "numberOfUsers": {
     "message": "Брой потребители"
   },
-  "loggingInAs": {
-    "message": "Вписване като"
-  },
-  "notYou": {
-    "message": "Това не сте Вие?"
-  },
   "pickAnAvatarColor": {
     "message": "Изберете цвят за аватара"
   },
@@ -8393,9 +8431,6 @@
   "requestAdminApproval": {
     "message": "Подаване на заявка за одобрение от администратор"
   },
-  "approveWithMasterPassword": {
-    "message": "Одобряване с главната парола"
-  },
   "trustedDeviceEncryption": {
     "message": "Шифроване чрез доверено устройство"
   },
@@ -8609,9 +8644,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Вашата заявка беше изпратена до администратора Ви."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Ще получите известие, когато тя бъде одобрена."
   },
   "troubleLoggingIn": {
     "message": "Имате проблем с вписването?"
@@ -9337,6 +9369,15 @@
   },
   "deviceManagementDesc": {
     "message": "Настройте управлението на устройства в Битуорден, като използвате ръководството за внедряване за платформата си."
+  },
+  "deviceIdMissing": {
+    "message": "Липсва идентификатор на устройството"
+  },
+  "deviceTypeMissing": {
+    "message": "Липсва тип на устройството"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Липсва дата на създаване на устройството"
   },
   "desktopRequired": {
     "message": "Трябва да сте на компютър"
@@ -10339,6 +10380,36 @@
   "organizationNameMaxLength": {
     "message": "Името на организацията не може да бъде по-дълго от 50 знака."
   },
+  "sshKeyWrongPassword": {
+    "message": "Въведената парола е неправилна."
+  },
+  "importSshKey": {
+    "message": "Внасяне"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Потвърждаване на паролата"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Въведете паролата за SSH-ключа."
+  },
+  "enterSshKeyPassword": {
+    "message": "Въведете паролата"
+  },
+  "invalidSshKey": {
+    "message": "SSH ключът е неправилен"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Типът на SSH ключа не се поддържа"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Внасяне на ключ от буфера за обмен"
+  },
+  "sshKeyImported": {
+    "message": "SSH ключът е внесен успешно"
+  },
+  "copySSHPrivateKey": {
+    "message": "Копиране на частния ключ"
+  },
   "openingExtension": {
     "message": "Отваряне на добавката за браузър на Битуорден"
   },
@@ -10504,5 +10575,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "Тези събития са само за пример и не отразяват истинските събития във Вашата организация."
+  },
+  "cannotCreateCollection": {
+    "message": "Безплатните организации могат да имат не повече от 2 колекции. Надградете до платен план, ако искате да имате повече колекции."
   }
 }

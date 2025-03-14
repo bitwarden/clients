@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Унесите имејл свог налога и биће вам послат савет за лозинку"
   },
-  "passwordHint": {
-    "message": "Савет лозинке"
-  },
-  "enterEmailToGetHint": {
-    "message": "Унесите Ваш имејл да би добили савет за Вашу Главну Лозинку."
-  },
   "getMasterPasswordHint": {
     "message": "Добити савет за Главну Лозинку"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Уреди фасциклу"
+  },
+  "editFolderWithName": {
+    "message": "Уредити фасциклу: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Нова фасцикла"
@@ -1166,10 +1169,6 @@
     "message": "Светла",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Solarized црно",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Извоз од"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Самостално окружење"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Наведите основни УРЛ ваше локалне Bitwarden инсталације."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Наведите основну УРЛ адресу вашег локалног хостовања Bitwarden-а. Пример: https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Прилагођено окружење"
-  },
-  "customEnvironmentFooter": {
-    "message": "За напредне кориснике. Можете да одредите независно основни УРЛ сваког сервиса."
   },
   "baseUrl": {
     "message": "УРЛ Сервера"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Превуците за сортирање"
+  },
+  "dragToReorder": {
+    "message": "Превуците да бисте организовали"
   },
   "cfTypeText": {
     "message": "Текст"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Поставке су уређене"
-  },
-  "environmentEditedClick": {
-    "message": "Кликните овде"
-  },
-  "environmentEditedReset": {
-    "message": "за рисетовање на подразумевана подешавања"
-  },
   "serverVersion": {
     "message": "Верзија сервера"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Пријавите се са главном лозинком"
   },
-  "loggingInAs": {
-    "message": "Пријављивање као"
-  },
-  "notYou": {
-    "message": "Нисте Ви?"
-  },
   "newAroundHere": {
     "message": "Нов овде?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Пријавите се са уређајем"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Пријава помоћу уређаја мора бити подешена у подешавањима Bitwarden апликације. Потребна је друга опција?"
   },
   "fingerprintPhraseHeader": {
     "message": "Сигурносна фраза сефа"
@@ -3343,9 +3321,6 @@
     "message": "Поново послати обавештење"
   },
   "viewAllLogInOptions": {
-    "message": "Погледајте сав извештај у опције"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Погледајте сав извештај у опције"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Затражити одобрење администратора"
   },
-  "approveWithMasterPassword": {
-    "message": "Одобрити са главном лозинком"
-  },
   "ssoIdentifierRequired": {
     "message": "Потребан је SSO идентификатор организације."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Ваш захтев је послат вашем администратору."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Бићете обавештени када буде одобрено."
   },
   "troubleLoggingIn": {
     "message": "Имате проблема са пријављивањем?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Преместити УРЛ сајта. Користите тастер са стрелицом да бисте померили ставку."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ премештено на горе, позиција $INDEX$ од $LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Врло широко"
+  },
+  "sshKeyWrongPassword": {
+    "message": "Лозинка коју сте унели није тачна."
+  },
+  "importSshKey": {
+    "message": "Увоз"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Потврда лозинке"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Унети лозинку за SSH кључ."
+  },
+  "enterSshKeyPassword": {
+    "message": "Унесите лозинку"
+  },
+  "invalidSshKey": {
+    "message": "SSH кључ је неважећи"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Тип SSH кључа није подржан"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Увезите кључ из оставе"
+  },
+  "sshKeyImported": {
+    "message": "SSH кључ је успешно увезен"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Не можете уклонити колекције са дозволама само за приказ: $COLLECTIONS$",

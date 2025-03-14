@@ -428,6 +428,9 @@
   "dragToSort": {
     "message": "Přetáhnutím seřadíte"
   },
+  "dragToReorder": {
+    "message": "Přesuňte tažením"
+  },
   "cfTypeText": {
     "message": "Text"
   },
@@ -469,6 +472,19 @@
   },
   "editFolder": {
     "message": "Upravit složku"
+  },
+  "editWithName": {
+    "message": "Upravit $ITEM$: $NAME$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Nová složka"
@@ -1269,12 +1285,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Zadejte svou e-mailovou adresu, na kterou Vám zašleme nápovědu k heslu"
-  },
-  "passwordHint": {
-    "message": "Nápověda pro heslo"
-  },
-  "enterEmailToGetHint": {
-    "message": "Zadejte e-mailovou adresu pro zaslání nápovědy k hlavnímu heslu."
   },
   "getMasterPasswordHint": {
     "message": "Zaslat nápovědu k hlavnímu heslu"
@@ -4530,6 +4540,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "$LABEL$ - přesunuto nahoru, pozice $INDEX$ z $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ - přesunuto dolů, pozice $INDEX$ z $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "Při aktualizaci šifrovacího klíče se nepodařilo dešifrovat Vaše složky. Chcete-li pokračovat v aktualizaci, musí být Vaše složky smazány. Pokud budete pokračovat, nebudou smazány žádné položky trezoru."
   },
@@ -7264,12 +7308,6 @@
   "numberOfUsers": {
     "message": "Počet uživatelů"
   },
-  "loggingInAs": {
-    "message": "Přihlašování jako"
-  },
-  "notYou": {
-    "message": "Nejste to Vy?"
-  },
   "pickAnAvatarColor": {
     "message": "Zvolte barvu avatara"
   },
@@ -8393,9 +8431,6 @@
   "requestAdminApproval": {
     "message": "Žádost o schválení správcem"
   },
-  "approveWithMasterPassword": {
-    "message": "Schválit hlavním heslem"
-  },
   "trustedDeviceEncryption": {
     "message": "Šifrování důvěryhodného zařízení"
   },
@@ -8609,9 +8644,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Váš požadavek byl odeslán Vašemu správci."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Po schválení budete upozorněni."
   },
   "troubleLoggingIn": {
     "message": "Potíže s přihlášením?"
@@ -9337,6 +9369,15 @@
   },
   "deviceManagementDesc": {
     "message": "Nastaví správu zařízení pro Bitwarden pomocí implementačního průvodce pro Vaši platformu."
+  },
+  "deviceIdMissing": {
+    "message": "Chybí ID zařízení"
+  },
+  "deviceTypeMissing": {
+    "message": "Chybí typ zařízení"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Chybí datum vytvoření zařízení"
   },
   "desktopRequired": {
     "message": "Je vyžadována desktopová aplikace"
@@ -10339,6 +10380,36 @@
   "organizationNameMaxLength": {
     "message": "Název organizace nesmí přesáhnout 50 znaků."
   },
+  "sshKeyWrongPassword": {
+    "message": "Zadané heslo není správné."
+  },
+  "importSshKey": {
+    "message": "Importovat"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Potvrdit heslo"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Zadejte heslo pro SSH klíč."
+  },
+  "enterSshKeyPassword": {
+    "message": "Zadejte heslo"
+  },
+  "invalidSshKey": {
+    "message": "SSH klíč je neplatný"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Typ SSH klíče není podporován"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Importovat klíč ze schránky"
+  },
+  "sshKeyImported": {
+    "message": "SSH klíč byl úspěšně importován"
+  },
+  "copySSHPrivateKey": {
+    "message": "Kopírovat soukromý klíč"
+  },
   "openingExtension": {
     "message": "Otevírání rozšíření Bitwarden pro prohlížeč"
   },
@@ -10504,5 +10575,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "Tyto události jsou jen příklady a neodrážejí skutečné události v rámci Vaší organizace Bitwarden."
+  },
+  "cannotCreateCollection": {
+    "message": "Bezplatné organizace mohou mít až 2 kolekce. Chcete-li přidat více kolekcí, přejděte na placený tarif."
   }
 }

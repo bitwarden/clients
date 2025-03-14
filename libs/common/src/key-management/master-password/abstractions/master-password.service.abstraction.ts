@@ -1,9 +1,9 @@
 import { Observable } from "rxjs";
 
-import { EncString } from "../../platform/models/domain/enc-string";
-import { UserId } from "../../types/guid";
-import { MasterKey, UserKey } from "../../types/key";
-import { ForceSetPasswordReason } from "../models/domain/force-set-password-reason";
+import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
+import { EncString } from "../../../platform/models/domain/enc-string";
+import { UserId } from "../../../types/guid";
+import { MasterKey, UserKey } from "../../../types/key";
 
 export abstract class MasterPasswordServiceAbstraction {
   /**

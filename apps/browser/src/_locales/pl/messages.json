@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Wprowadź adres e-mail swojego konta, a podpowiedź hasła zostanie wysłana do Ciebie"
   },
-  "passwordHint": {
-    "message": "Podpowiedź do hasła"
-  },
-  "enterEmailToGetHint": {
-    "message": "Wpisz adres e-mail powiązany z kontem, aby otrzymać podpowiedź do hasła głównego."
-  },
   "getMasterPasswordHint": {
     "message": "Uzyskaj podpowiedź do hasła głównego"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Edytuj folder"
+  },
+  "editFolderWithName": {
+    "message": "Edytuj folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Nowy folder"
@@ -1166,10 +1169,6 @@
     "message": "Jasny",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Solarized Dark",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Eksportuj z"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Samodzielnie hostowane środowisko"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Wpisz podstawowy adres URL hostowanej instalacji Bitwarden."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Określ bazowy adres URL swojej instalacji Bitwarden. Przykład: https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Niestandardowe środowisko"
-  },
-  "customEnvironmentFooter": {
-    "message": "Dla zaawansowanych użytkowników. Możesz wpisać podstawowy adres URL niezależnie dla każdej usługi."
   },
   "baseUrl": {
     "message": "Adres URL serwera"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Przeciągnij, aby posortować"
+  },
+  "dragToReorder": {
+    "message": "Przeciągnij, aby zmienić kolejność"
   },
   "cfTypeText": {
     "message": "Tekst"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Ustawienia zostały zmienione"
-  },
-  "environmentEditedClick": {
-    "message": "Kliknij tutaj"
-  },
-  "environmentEditedReset": {
-    "message": "aby zresetować do wstępnie skonfigurowanych ustawień"
-  },
   "serverVersion": {
     "message": "Wersja serwera"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Logowanie hasłem głównym"
   },
-  "loggingInAs": {
-    "message": "Logowanie jako"
-  },
-  "notYou": {
-    "message": "To nie Ty?"
-  },
   "newAroundHere": {
     "message": "Nowy użytkownik?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Zaloguj się za pomocą urządzenia"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Logowanie za pomocą urządzenia musi być włączone w ustawieniach aplikacji Bitwarden. Potrzebujesz innej opcji?"
   },
   "fingerprintPhraseHeader": {
     "message": "Unikalny identyfikator konta"
@@ -3343,9 +3321,6 @@
     "message": "Wyślij ponownie powiadomienie"
   },
   "viewAllLogInOptions": {
-    "message": "Zobacz wszystkie sposoby logowania"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Zobacz wszystkie sposoby logowania"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Poproś administratora o zatwierdzenie"
   },
-  "approveWithMasterPassword": {
-    "message": "Zatwierdź przy użyciu hasła głównego"
-  },
   "ssoIdentifierRequired": {
     "message": "Identyfikator organizacji jest wymagany."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Twoja prośba została wysłana do Twojego administratora."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Zostaniesz powiadomiony po zatwierdzeniu."
   },
   "troubleLoggingIn": {
     "message": "Problem z zalogowaniem?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Zmień kolejność URI strony. Użyj klawiszy ze strzałkami, aby przenieść element w górę lub w dół."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ przeniósł się w górę, pozycja $INDEX$ z $LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Bardzo szerokie"
+  },
+  "sshKeyWrongPassword": {
+    "message": "Wprowadzone hasło jest nieprawidłowe."
+  },
+  "importSshKey": {
+    "message": "Importuj"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Potwierdź hasło"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Wprowadź hasło dla klucza SSH."
+  },
+  "enterSshKeyPassword": {
+    "message": "Wprowadź hasło"
+  },
+  "invalidSshKey": {
+    "message": "Klucz SSH jest nieprawidłowy"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Typ klucza SSH nie jest obsługiwany"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Importuj klucz ze schowka"
+  },
+  "sshKeyImported": {
+    "message": "Klucz SSH zaimportowano pomyślnie"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nie można usunąć kolekcji z uprawnieniami tylko do przeglądania: $COLLECTIONS$",

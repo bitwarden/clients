@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Angiv kontoens e-mailadresse og få et adgangskodetip fremsendt"
   },
-  "passwordHint": {
-    "message": "Adgangskodetip"
-  },
-  "enterEmailToGetHint": {
-    "message": "Indtast din kontos e-mailadresse for at modtage dit hovedadgangskodetip."
-  },
   "getMasterPasswordHint": {
     "message": "Få hovedadgangskodetip"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Redigér mappe"
+  },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Ny mappe"
@@ -1166,10 +1169,6 @@
     "message": "Lys",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Solariseret mørk",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Eksportér fra"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Selv-hosted miljø"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Angiv grund-URL'en i din lokal-hostede Bitwarden-installation."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Angiv basis-URL'en for den lokalt-hosted Bitwarden-installation. Eks.: https://bitwarden.firma.dk"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Brugerdefineret miljø"
-  },
-  "customEnvironmentFooter": {
-    "message": "Til avancerede brugere. Du kan angive grund-URL'en for hver service uafhængigt."
   },
   "baseUrl": {
     "message": "Server URL"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Træk for at sortere"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Tekst"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Indstillinger er blevet redigeret"
-  },
-  "environmentEditedClick": {
-    "message": "Klik her"
-  },
-  "environmentEditedReset": {
-    "message": "for at nulstille til forudkonfigurerede indstillinger"
-  },
   "serverVersion": {
     "message": "Server version"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Log ind med hovedadgangskode"
   },
-  "loggingInAs": {
-    "message": "Logger ind som"
-  },
-  "notYou": {
-    "message": "Ikke dig?"
-  },
   "newAroundHere": {
     "message": "Ny her?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Log ind med enhed"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Log ind med enhed skal være opsat i indstillingerne i Bitwarden mobil-appen. Behov for en anden mulighed?"
   },
   "fingerprintPhraseHeader": {
     "message": "Fingeraftrykssætning"
@@ -3343,9 +3321,6 @@
     "message": "Gensend notifikation"
   },
   "viewAllLogInOptions": {
-    "message": "Vis alle indlogningsmuligheder"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Vis alle indlogningsmuligheder"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Anmod om admin-godkendelse"
   },
-  "approveWithMasterPassword": {
-    "message": "Godkend med hovedadgangskode"
-  },
   "ssoIdentifierRequired": {
     "message": "Organisations SSO-identifikator kræves."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Anmodningen er sendt til din admin."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Du underrettes, når godkendelse foreligger."
   },
   "troubleLoggingIn": {
     "message": "Problemer med at logge ind?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ flyttet op, position $INDEX$ af $LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Ekstra bred"
+  },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Samlinger med kun tilladelsen Vis kan ikke fjernes: $COLLECTIONS$",
