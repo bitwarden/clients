@@ -55,6 +55,9 @@ export class IndividualVaultExportService
     super(pinService, encryptService, cryptoFunctionService, kdfConfigService);
   }
 
+  /** Creates an export of an individual vault (My Vault). Based on the provided format it will either be unencrypted, encrypted or password protected and in case zip is selected will include attachments
+   * @param format The format of the export
+   */
   async getExport(format: ExportFormat = "csv"): Promise<ExportedVault> {
     if (format === "encrypted_json") {
       return this.getEncryptedExport();
@@ -64,6 +67,10 @@ export class IndividualVaultExportService
     return this.getDecryptedExport(format);
   }
 
+  /** Creates a password protected export of an individiual vault (My Vault) as a JSON file
+   * @param password The password to encrypt the export with
+   * @returns A password-protected encrypted individual vault export
+   */
   async getPasswordProtectedExport(password: string): Promise<ExportedVaultAsString> {
     const exportVault = await this.getExport("json");
 
@@ -78,6 +85,9 @@ export class IndividualVaultExportService
     } as ExportedVaultAsString;
   }
 
+  /** Creates a unencrypted export of an individual vault including attachments
+   * @returns A unencrypted export including attachments
+   */
   async getDecryptedExportZip(): Promise<ExportedVaultAsBlob> {
     const zip = new JSZip();
 

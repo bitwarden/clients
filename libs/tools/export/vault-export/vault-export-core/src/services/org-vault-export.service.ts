@@ -56,6 +56,12 @@ export class OrganizationVaultExportService
     super(pinService, encryptService, cryptoFunctionService, kdfConfigService);
   }
 
+  /** Creates a password protected export of an organizational vault.
+   * @param organizationId The organization id
+   * @param password The password to protect the export
+   * @param onlyManagedCollections If true only managed collections will be exported
+   * @returns The exported vault
+   */
   async getPasswordProtectedExport(
     organizationId: string,
     password: string,
@@ -74,6 +80,16 @@ export class OrganizationVaultExportService
     } as ExportedVaultAsString;
   }
 
+  /** Creates an export of an organizational vault. Based on the provided format it will either be unencrypted, encrypted
+   * @param organizationId The organization id
+   * @param format The format of the export
+   * @param onlyManagedCollections If true only managed collections will be exported
+   * @returns The exported vault
+   * @throws Error if the format is zip
+   * @throws Error if the organization id is not set
+   * @throws Error if the format is not supported
+   * @throws Error if the organization policies prevent the export
+   */
   async getOrganizationExport(
     organizationId: string,
     format: ExportFormat = "csv",
