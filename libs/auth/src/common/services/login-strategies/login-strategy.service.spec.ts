@@ -49,6 +49,8 @@ import { UserDecryptionOptionsService } from "../user-decryption-options/user-de
 import { LoginStrategyService } from "./login-strategy.service";
 import { CACHE_EXPIRATION_KEY } from "./login-strategy.state";
 
+// TODO: update tests to pass
+// TODO: test makePrePasswordLoginMasterKey
 describe("LoginStrategyService", () => {
   let sut: LoginStrategyService;
 
