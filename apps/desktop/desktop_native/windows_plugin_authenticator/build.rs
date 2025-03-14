@@ -10,6 +10,8 @@ fn windows() {
     let bindings = bindgen::Builder::default()
         .header("pluginauthenticator.hpp")
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
+        .opaque_type("_STORAGE_QUERY_DEPENDENT_VOLUME_RESPONSE")
+        .opaque_type("_STORAGE_QUERY_DEPENDENT_VOLUME_RESPONSE__bindgen_ty_1")
         .generate()
         .expect("Unable to generate bindings.");
 
