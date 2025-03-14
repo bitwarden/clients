@@ -76,7 +76,9 @@
       class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
     >
       <bit-icon [icon]="noItemIcon" aria-hidden="true"></bit-icon>
-      <ng-container *ngIf="filter.type !== 'archive'; else noArchiveContent">
+      <ng-container
+        *ngIf="filter.type !== 'archive' || !(archiveItemEnabled$ | async); else noArchiveContent"
+      >
         <p>{{ "noItemsInList" | i18n }}</p>
         <button
           type="button"

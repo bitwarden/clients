@@ -6,6 +6,7 @@ import { firstValueFrom, merge, Subject, switchMap, takeUntil } from "rxjs";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -186,7 +187,14 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     builderFilter.typeFilter = await this.addTypeFilter();
     builderFilter.folderFilter = await this.addFolderFilter();
     builderFilter.collectionFilter = await this.addCollectionFilter();
-    builderFilter.archiveFilter = await this.addArchiveFilter();
+    // PM19148: Innovation Archive
+    if (
+      await firstValueFrom(
+        this.configService.getFeatureFlag$(FeatureFlag.PM19148_InnovationArchive),
+      )
+    ) {
+      builderFilter.archiveFilter = await this.addArchiveFilter();
+    }
     builderFilter.trashFilter = await this.addTrashFilter();
     return builderFilter;
   }
