@@ -34,7 +34,6 @@ import { ItemHistoryV2Component } from "./item-history/item-history-v2.component
 import { LoginCredentialsViewComponent } from "./login-credentials/login-credentials-view.component";
 import { SshKeyViewComponent } from "./sshkey-sections/sshkey-view.component";
 import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-identity-sections.component";
-
 @Component({
   selector: "app-cipher-view",
   templateUrl: "cipher-view.component.html",

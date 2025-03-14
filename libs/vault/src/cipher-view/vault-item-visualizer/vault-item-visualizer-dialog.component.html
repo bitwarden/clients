@@ -1,0 +1,11 @@
+<bit-dialog background="alt" dialogSize="large" title="View as QR code">
+  <ng-container bitDialogContent>
+    <vault-item-visualizer [cipher]="this.data.cipher"></vault-item-visualizer>
+  </ng-container>
+
+  <ng-container bitDialogFooter>
+    <button bitButton bitDialogClose buttonType="primary" type="button">
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

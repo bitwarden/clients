@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
+import { RouterModule } from "@angular/router";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -10,20 +11,26 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
   CardComponent,
+  DialogModule,
+  DialogService,
   FormFieldModule,
+  IconButtonModule,
   SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
 } from "@bitwarden/components";
 
 import { OrgIconDirective } from "../../components/org-icon.directive";
+import { VaultItemVisualizerDialogComponent } from "../vault-item-visualizer/vault-item-visualizer-dialog.component";
 
 @Component({
   selector: "app-item-details-v2",
   templateUrl: "item-details-v2.component.html",
   standalone: true,
   imports: [
+    RouterModule,
     CommonModule,
+    DialogModule,
     JslibModule,
     CardComponent,
     SectionComponent,
@@ -31,6 +38,8 @@ import { OrgIconDirective } from "../../components/org-icon.directive";
     TypographyModule,
     OrgIconDirective,
     FormFieldModule,
+    IconButtonModule,
+    VaultItemVisualizerDialogComponent,
   ],
 })
 export class ItemDetailsV2Component {
@@ -40,7 +49,15 @@ export class ItemDetailsV2Component {
   @Input() folder?: FolderView;
   @Input() hideOwner?: boolean = false;
 
+  constructor(private dialogService: DialogService) {}
+
   get showOwnership() {
     return this.cipher.organizationId && this.organization && !this.hideOwner;
+  }
+
+  async showVisualization() {
+    return await this.dialogService.open(VaultItemVisualizerDialogComponent, {
+      data: { cipher: this.cipher },
+    });
   }
 }

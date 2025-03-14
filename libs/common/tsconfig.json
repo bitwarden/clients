@@ -10,6 +10,12 @@
       "@bitwarden/vault-export-core": ["../tools/export/vault-export/vault-export-core/src"]
     }
   },
-  "include": ["src", "spec", "./custom-matchers.d.ts", "../key-management/src/index.ts"],
+  "include": [
+    "src",
+    "spec",
+    "./custom-matchers.d.ts",
+    "../key-management/src/index.ts",
+    "../vault/src/cipher-view/visualize-vault-item"
+  ],
   "exclude": ["node_modules", "dist"]
 }
