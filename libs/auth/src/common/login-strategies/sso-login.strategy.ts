@@ -19,7 +19,7 @@ import { AuthRequestServiceAbstraction } from "../abstractions";
 import { SsoLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
 
-import { LoginStrategyData, LoginStrategy } from "./login.strategy";
+import { LoginStrategyData, BaseLoginStrategy } from "./base-login.strategy";
 
 export class SsoLoginStrategyData implements LoginStrategyData {
   captchaBypassToken: string;
@@ -51,7 +51,7 @@ export class SsoLoginStrategyData implements LoginStrategyData {
   }
 }
 
-export class SsoLoginStrategy extends LoginStrategy {
+export class SsoLoginStrategy extends BaseLoginStrategy {
   /**
    * @see {@link SsoLoginStrategyData.email}
    */
@@ -73,7 +73,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     private deviceTrustService: DeviceTrustServiceAbstraction,
     private authRequestService: AuthRequestServiceAbstraction,
     private i18nService: I18nService,
-    ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
+    ...sharedDeps: ConstructorParameters<typeof BaseLoginStrategy>
   ) {
     super(...sharedDeps);
 

@@ -24,7 +24,7 @@ import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { PasswordLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
 
-import { BaseLoginStrategy, LoginStrategyData } from "./login.strategy";
+import { BaseLoginStrategy, LoginStrategyData } from "./base-login.strategy";
 
 export class OpaqueLoginStrategyData implements LoginStrategyData {
   tokenRequest: OpaqueTokenRequest;

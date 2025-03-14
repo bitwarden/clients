@@ -75,7 +75,7 @@ export abstract class LoginStrategyData {
   abstract userEnteredEmail?: string;
 }
 
-export abstract class LoginStrategy {
+export abstract class BaseLoginStrategy {
   protected abstract cache: BehaviorSubject<LoginStrategyData>;
   protected sessionTimeoutSubject = new BehaviorSubject<boolean>(false);
   sessionTimeout$: Observable<boolean> = this.sessionTimeoutSubject.asObservable();

@@ -45,7 +45,7 @@ import {
   AuthRequestLoginStrategy,
   AuthRequestLoginStrategyData,
 } from "../../login-strategies/auth-request-login.strategy";
-import { LoginStrategy } from "../../login-strategies/login.strategy";
+import { BaseLoginStrategy } from "../../login-strategies/base-login.strategy";
 import {
   OpaqueLoginStrategy,
   OpaqueLoginStrategyData,
@@ -82,8 +82,7 @@ import {
 
 const sessionTimeoutLength = 5 * 60 * 1000; // 5 minutes
 
-// TODO: Rename the LoginStrategy abstract class to BaseLoginStrategy, then call this LoginStrategy
-type LoginStrategyType =
+type LoginStrategy =
   | UserApiLoginStrategy
   | PasswordLoginStrategy
   | SsoLoginStrategy
@@ -102,7 +101,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   authenticationSessionTimeout$: Observable<boolean> =
     this.authenticationTimeoutSubject.asObservable();
 
-  private loginStrategy$: Observable<LoginStrategyType | null>;
+  private loginStrategy$: Observable<LoginStrategy | null>;
 
   currentAuthType$: Observable<AuthenticationType | null>;
 
@@ -395,8 +394,8 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   private initializeLoginStrategy(
     strategy: AuthenticationType | null,
     data: CacheData | null,
-  ): LoginStrategyType | null {
-    const sharedDeps: ConstructorParameters<typeof LoginStrategy> = [
+  ): LoginStrategy | null {
+    const sharedDeps: ConstructorParameters<typeof BaseLoginStrategy> = [
       this.accountService,
       this.masterPasswordService,
       this.keyService,

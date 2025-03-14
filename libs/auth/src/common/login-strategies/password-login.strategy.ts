@@ -23,7 +23,7 @@ import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { PasswordLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
 
-import { LoginStrategy, LoginStrategyData } from "./login.strategy";
+import { BaseLoginStrategy, LoginStrategyData } from "./base-login.strategy";
 
 // TODO: consider renaming LegacyPasswordLoginStrategy?  Or PasswordHashLoginStrategy?
 export class PasswordLoginStrategyData implements LoginStrategyData {
@@ -52,7 +52,7 @@ export class PasswordLoginStrategyData implements LoginStrategyData {
   }
 }
 
-export class PasswordLoginStrategy extends LoginStrategy {
+export class PasswordLoginStrategy extends BaseLoginStrategy {
   /** The email address of the user attempting to log in. */
   email$: Observable<string>;
   /** The master key hash used for authentication */
@@ -67,7 +67,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private policyService: PolicyService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
-    ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
+    ...sharedDeps: ConstructorParameters<typeof BaseLoginStrategy>
   ) {
     super(...sharedDeps);
 
