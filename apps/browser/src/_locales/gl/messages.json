@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Introduce o teu correo electrónico e enviarémosche a túa pista do contrasinal mestre"
   },
-  "passwordHint": {
-    "message": "Pista do contrasinal"
-  },
-  "enterEmailToGetHint": {
-    "message": "Introduce a dirección de correo da túa conta para recibir a pista do contrasinal mestre."
-  },
   "getMasterPasswordHint": {
     "message": "Obter pista do contrasinal mestre"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Editar cartafol"
+  },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Novo cartafol"
@@ -1166,10 +1169,6 @@
     "message": "Claro",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Solarizado escuro",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Exportar dende"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Entorno de aloxamento propio"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Especifica a URL base do teu servidor Bitwarden de aloxamento propio."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Especifica a URL base do teu servidor Bitwarden de aloxamento propio. Ex.: https://bitwarden.compañia.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Entorno personalizado"
-  },
-  "customEnvironmentFooter": {
-    "message": "Para usuarios avanzados. Podes especificar o URL base de cada servizo de xeito independente."
   },
   "baseUrl": {
     "message": "URL do servidor"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Arrastra para ordenar"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Texto"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Os axustes foron modificados"
-  },
-  "environmentEditedClick": {
-    "message": "Preme aquí"
-  },
-  "environmentEditedReset": {
-    "message": "para volver á configuración por defecto"
-  },
   "serverVersion": {
     "message": "Versión do Servidor"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Iniciar sesión co contrasinal mestre"
   },
-  "loggingInAs": {
-    "message": "Iniciando sesión como"
-  },
-  "notYou": {
-    "message": "Non es ti?"
-  },
   "newAroundHere": {
     "message": "Novo por aquí?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Iniciar sesión cun dispositivo"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "O inicio de sesión con dispositivos debe estar activado nos axustes da app de Bitwarden. Precisas doutro método?"
   },
   "fingerprintPhraseHeader": {
     "message": "Frase de pegada dixital"
@@ -3343,9 +3321,6 @@
     "message": "Volver enviar notificación"
   },
   "viewAllLogInOptions": {
-    "message": "Ver todas as opcións de inicio de sesión"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Ver todas as opcións de inicio de sesión"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Solicitar aprobación do administrador"
   },
-  "approveWithMasterPassword": {
-    "message": "Aprobar con contrasinal mestre"
-  },
   "ssoIdentifierRequired": {
     "message": "Identificador SSO da organización requirido."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "A solicitude foi enviada ó teu administrador."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Serás notificado cando se aprobe."
   },
   "troubleLoggingIn": {
     "message": "Problemas ao iniciar sesión?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "Subiuse $LABEL$ á posición $INDEX$ de $LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Moi ancho"
+  },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Non podes eliminar coleccións con permisos de Só lectura: $COLLECTIONS$",
