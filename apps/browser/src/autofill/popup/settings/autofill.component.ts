@@ -1,8 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
-import { FormsModule } from "@angular/forms";
+import { Component, DestroyRef, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  FormControl,
+} from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
@@ -73,6 +80,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     SectionHeaderComponent,
     SelectModule,
     TypographyModule,
+    ReactiveFormsModule,
   ],
 })
 export class AutofillComponent implements OnInit {
@@ -93,6 +101,18 @@ export class AutofillComponent implements OnInit {
   protected browserClientIsUnknown: boolean;
   protected autofillOnPageLoadFromPolicy$ =
     this.autofillSettingsService.activateAutofillOnPageLoadFromPolicy$;
+
+  protected autofillOnPageLoadForm = new FormGroup({
+    autofillOnPageLoad: new FormControl(),
+    defaultAutofill: new FormControl(),
+  });
+
+  protected additionalOptionsForm = new FormGroup({
+    enableContextMenuItem: new FormControl(),
+    enableAutoTotpCopy: new FormControl(),
+    clearClipboard: new FormControl(),
+    defaultUriMatch: new FormControl(),
+  });
 
   enableAutofillOnPageLoad: boolean = false;
   enableInlineMenu: boolean = false;
@@ -121,10 +141,12 @@ export class AutofillComponent implements OnInit {
     private messagingService: MessagingService,
     private vaultSettingsService: VaultSettingsService,
     private configService: ConfigService,
+    private formBuilder: FormBuilder,
+    private destroyRef: DestroyRef,
   ) {
     this.autofillOnPageLoadOptions = [
-      { name: i18nService.t("autoFillOnPageLoadYes"), value: true },
-      { name: i18nService.t("autoFillOnPageLoadNo"), value: false },
+      { name: this.i18nService.t("autoFillOnPageLoadYes"), value: true },
+      { name: this.i18nService.t("autoFillOnPageLoadNo"), value: false },
     ];
     this.clearClipboardOptions = [
       { name: i18nService.t("never"), value: ClearClipboardDelay.Never },
@@ -181,26 +203,105 @@ export class AutofillComponent implements OnInit {
       this.inlineMenuVisibility === AutofillOverlayVisibility.OnFieldFocus ||
       this.enableInlineMenuOnIconSelect;
 
+    this.autofillSettingsService.activateAutofillOnPageLoadFromPolicy$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        value
+          ? this.autofillOnPageLoadForm.controls.autofillOnPageLoad.disable({ emitEvent: false })
+          : this.autofillOnPageLoadForm.controls.autofillOnPageLoad.enable({ emitEvent: false });
+      });
+
     this.enableAutofillOnPageLoad = await firstValueFrom(
       this.autofillSettingsService.autofillOnPageLoad$,
+    );
+
+    this.autofillOnPageLoadForm.controls.autofillOnPageLoad.patchValue(
+      this.enableAutofillOnPageLoad,
+      { emitEvent: false },
     );
 
     this.autofillOnPageLoadDefault = await firstValueFrom(
       this.autofillSettingsService.autofillOnPageLoadDefault$,
     );
 
+    if (this.enableAutofillOnPageLoad === false) {
+      this.autofillOnPageLoadForm.controls.defaultAutofill.disable();
+    }
+
+    this.autofillOnPageLoadForm.controls.defaultAutofill.patchValue(
+      this.autofillOnPageLoadDefault,
+      { emitEvent: false },
+    );
+
+    this.autofillOnPageLoadForm.controls.autofillOnPageLoad.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setAutofillOnPageLoad(value);
+        this.enableDefaultAutofillControl(value);
+      });
+
+    this.autofillOnPageLoadForm.controls.defaultAutofill.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setAutofillOnPageLoadDefault(value);
+      });
+
+    /** Additional options form */
+
     this.enableContextMenuItem = await firstValueFrom(
       this.autofillSettingsService.enableContextMenu$,
     );
 
+    this.additionalOptionsForm.controls.enableContextMenuItem.patchValue(
+      this.enableContextMenuItem,
+      { emitEvent: false },
+    );
+
     this.enableAutoTotpCopy = await firstValueFrom(this.autofillSettingsService.autoCopyTotp$);
 
+    this.additionalOptionsForm.controls.enableAutoTotpCopy.patchValue(this.enableAutoTotpCopy, {
+      emitEvent: false,
+    });
+
     this.clearClipboard = await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$);
+
+    this.additionalOptionsForm.controls.clearClipboard.patchValue(this.clearClipboard, {
+      emitEvent: false,
+    });
 
     const defaultUriMatch = await firstValueFrom(
       this.domainSettingsService.defaultUriMatchStrategy$,
     );
     this.defaultUriMatch = defaultUriMatch == null ? UriMatchStrategy.Domain : defaultUriMatch;
+
+    this.additionalOptionsForm.controls.defaultUriMatch.patchValue(this.defaultUriMatch, {
+      emitEvent: false,
+    });
+
+    this.additionalOptionsForm.controls.enableContextMenuItem.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setEnableContextMenu(value);
+        this.messagingService.send("bgUpdateContextMenu");
+      });
+
+    this.additionalOptionsForm.controls.enableAutoTotpCopy.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setAutoCopyTotp(value);
+      });
+
+    this.additionalOptionsForm.controls.clearClipboard.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setClearClipboardDelay(value);
+      });
+
+    this.additionalOptionsForm.controls.defaultUriMatch.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.domainSettingsService.setDefaultUriMatchStrategy(value);
+      });
 
     const command = await this.platformUtilsService.getAutofillKeyboardShortcut();
     await this.setAutofillKeyboardHelperText(command);
@@ -230,17 +331,16 @@ export class AutofillComponent implements OnInit {
       await this.requestPrivacyPermission();
     }
   }
-
-  async updateAutofillOnPageLoad() {
-    await this.autofillSettingsService.setAutofillOnPageLoad(this.enableAutofillOnPageLoad);
+  async getAutofillOnPageLoadFromPolicy() {
+    await firstValueFrom(this.autofillOnPageLoadFromPolicy$);
   }
 
-  async updateAutofillOnPageLoadDefault() {
-    await this.autofillSettingsService.setAutofillOnPageLoadDefault(this.autofillOnPageLoadDefault);
-  }
-
-  async saveDefaultUriMatch() {
-    await this.domainSettingsService.setDefaultUriMatchStrategy(this.defaultUriMatch);
+  enableDefaultAutofillControl(enable: boolean = true) {
+    if (enable) {
+      this.autofillOnPageLoadForm.controls.defaultAutofill.enable();
+    } else {
+      this.autofillOnPageLoadForm.controls.defaultAutofill.disable();
+    }
   }
 
   private async setAutofillKeyboardHelperText(command: string) {
@@ -386,19 +486,6 @@ export class AutofillComponent implements OnInit {
 
   async privacyPermissionGranted(): Promise<boolean> {
     return await BrowserApi.permissionsGranted(["privacy"]);
-  }
-
-  async updateContextMenuItem() {
-    await this.autofillSettingsService.setEnableContextMenu(this.enableContextMenuItem);
-    this.messagingService.send("bgUpdateContextMenu");
-  }
-
-  async updateAutoTotpCopy() {
-    await this.autofillSettingsService.setAutoCopyTotp(this.enableAutoTotpCopy);
-  }
-
-  async saveClearClipboard() {
-    await this.autofillSettingsService.setClearClipboardDelay(this.clearClipboard);
   }
 
   async updateShowCardsCurrentTab() {
