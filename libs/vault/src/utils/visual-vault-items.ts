@@ -26,5 +26,4 @@ export async function generateWiFiQRCode(ssid: string, password: string): Promis
   const accessEncoding = `WIFI:S:${ssid};T:<WPA|WEP|>;P:${password};;`;
 
   return await QRCode.toString(accessEncoding, { type: "svg" });
-  // return await QRCode.toDataURL(dataURL);
 }

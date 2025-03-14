@@ -1,13 +1,4 @@
-import {
-  Component,
-  DestroyRef,
-  effect,
-  ElementRef,
-  OnInit,
-  signal,
-  ViewChild,
-  WritableSignal,
-} from "@angular/core";
+import { Component, DestroyRef, effect, OnInit, signal, WritableSignal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
