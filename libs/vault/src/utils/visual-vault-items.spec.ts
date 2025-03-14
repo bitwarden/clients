@@ -1,8 +1,8 @@
-import { generateWifiQRCode } from "./visual-vault-items";
+import { generateWiFiQRCode } from "./visual-vault-items";
 
-describe("generateWifiQRCode", () => {
+describe("generateWiFiQRCode", () => {
   it("returnsDataUri", () => {
-    const qrCode = generateWifiQRCode("foo", "bar");
+    const qrCode = generateWiFiQRCode("foo", "bar");
     expect(qrCode).toBe("?");
   });
 });

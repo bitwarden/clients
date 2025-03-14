@@ -7,6 +7,7 @@ export { CanDeleteCipherDirective } from "./components/can-delete-cipher.directi
 export { DarkImageSourceDirective } from "./components/dark-image-source.directive";
 
 export * from "./utils/observable-utilities";
+export * from "./utils/visual-vault-items";
 
 export * from "./cipher-view";
 export * from "./cipher-form";

@@ -15,9 +15,11 @@
         <bit-form-field>
           <bit-label>QR Code Type</bit-label>
           <bit-select formControlName="qrCodeType" id="qrCodeType">
-            <bit-option value="Wi-Fi" label="Wi-Fi"></bit-option>
-            <bit-option value="Contact" label="Contact"></bit-option>
-            <bit-option value="URL" label="URL"></bit-option>
+            <bit-option
+              *ngFor="let o of qrCodeOptions"
+              [value]="o.value"
+              [label]="o.name"
+            ></bit-option>
           </bit-select>
         </bit-form-field>
         <bit-form-field>
