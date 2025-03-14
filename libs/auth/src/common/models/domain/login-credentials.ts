@@ -4,12 +4,13 @@ import { Jsonify } from "type-fest";
 
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
+import { PreloginResponse } from "@bitwarden/common/auth/models/response/prelogin.response";
 import { CipherConfiguration } from "@bitwarden/common/auth/opaque/models/cipher-configuration";
 import { WebAuthnLoginAssertionResponseRequest } from "@bitwarden/common/auth/services/webauthn-login/request/webauthn-login-assertion-response.request";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserKey, MasterKey } from "@bitwarden/common/types/key";
+
 import { KdfConfig } from "../../../../../key-management/src";
-import { PreloginResponse } from "@bitwarden/common/auth/models/response/prelogin.response";
 
 export type LoginCredentials =
   | PasswordLoginCredentials
@@ -20,6 +21,11 @@ export type LoginCredentials =
   | PasswordHashLoginCredentials
   | OpaqueLoginCredentials;
 
+/**
+ * Represents email and master password login credentials.
+ * This is not used directly by a LogInStrategy, rather it is transformed into a more specific
+ * PasswordHashLoginCredentials or OpaqueLoginCredentials depending on which strategy is to be used.
+ */
 export class PasswordLoginCredentials {
   readonly type = AuthenticationType.Password;
 
