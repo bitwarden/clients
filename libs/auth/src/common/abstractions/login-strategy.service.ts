@@ -6,6 +6,7 @@ import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { MasterKey } from "@bitwarden/common/types/key";
+import { KdfConfig } from "@bitwarden/key-management";
 
 import {
   UserApiLoginCredentials,
@@ -71,8 +72,15 @@ export abstract class LoginStrategyServiceAbstraction {
   ) => Promise<AuthResult>;
   /**
    * Creates a master key from the provided master password and email.
+   * If a KdfConfig is provided, it will be used to generate the key.
+   * Otherwise, the PrePasswordLogin endpoint will be used to retrieve the user's
+   * KdfConfig.
    */
-  makePreloginKey: (masterPassword: string, email: string) => Promise<MasterKey>;
+  makePrePasswordLoginMasterKey: (
+    masterPassword: string,
+    email: string,
+    kdfConfig?: KdfConfig,
+  ) => Promise<MasterKey>;
   /**
    * Emits true if the authentication session has expired.
    */

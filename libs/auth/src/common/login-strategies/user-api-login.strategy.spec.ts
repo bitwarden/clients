@@ -32,7 +32,7 @@ import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { UserApiLoginCredentials } from "../models/domain/login-credentials";
 
-import { identityTokenResponseFactory } from "./login.strategy.spec";
+import { identityTokenResponseFactory } from "./base-login.strategy.spec";
 import { UserApiLoginStrategy, UserApiLoginStrategyData } from "./user-api-login.strategy";
 
 describe("UserApiLoginStrategy", () => {

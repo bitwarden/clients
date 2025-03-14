@@ -14,7 +14,7 @@ import { UserKey } from "@bitwarden/common/types/key";
 import { WebAuthnLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
 
-import { LoginStrategy, LoginStrategyData } from "./login.strategy";
+import { BaseLoginStrategy, LoginStrategyData } from "./base-login.strategy";
 
 export class WebAuthnLoginStrategyData implements LoginStrategyData {
   tokenRequest: WebAuthnLoginTokenRequest;
@@ -29,12 +29,12 @@ export class WebAuthnLoginStrategyData implements LoginStrategyData {
   }
 }
 
-export class WebAuthnLoginStrategy extends LoginStrategy {
+export class WebAuthnLoginStrategy extends BaseLoginStrategy {
   protected cache: BehaviorSubject<WebAuthnLoginStrategyData>;
 
   constructor(
     data: WebAuthnLoginStrategyData,
-    ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
+    ...sharedDeps: ConstructorParameters<typeof BaseLoginStrategy>
   ) {
     super(...sharedDeps);
 

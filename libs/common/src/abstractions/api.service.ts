@@ -43,6 +43,7 @@ import { DeviceVerificationRequest } from "../auth/models/request/device-verific
 import { DisableTwoFactorAuthenticatorRequest } from "../auth/models/request/disable-two-factor-authenticator.request";
 import { EmailTokenRequest } from "../auth/models/request/email-token.request";
 import { EmailRequest } from "../auth/models/request/email.request";
+import { OpaqueTokenRequest } from "../auth/models/request/identity-token/opaque-token.request";
 import { PasswordTokenRequest } from "../auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token.request";
 import { UserApiTokenRequest } from "../auth/models/request/identity-token/user-api-token.request";
@@ -74,7 +75,6 @@ import { IdentityDeviceVerificationResponse } from "../auth/models/response/iden
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
 import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
-import { PreloginResponse } from "../auth/models/response/prelogin.response";
 import { RegisterResponse } from "../auth/models/response/register.response";
 import { SsoPreValidateResponse } from "../auth/models/response/sso-pre-validate.response";
 import { TwoFactorAuthenticatorResponse } from "../auth/models/response/two-factor-authenticator.response";
@@ -100,7 +100,6 @@ import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
 import { EventRequest } from "../models/request/event.request";
 import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
-import { PreloginRequest } from "../models/request/prelogin.request";
 import { RegisterRequest } from "../models/request/register.request";
 import { StorageRequest } from "../models/request/storage.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
@@ -151,7 +150,8 @@ export abstract class ApiService {
       | PasswordTokenRequest
       | SsoTokenRequest
       | UserApiTokenRequest
-      | WebAuthnLoginTokenRequest,
+      | WebAuthnLoginTokenRequest
+      | OpaqueTokenRequest,
   ) => Promise<
     | IdentityTokenResponse
     | IdentityTwoFactorResponse
@@ -166,7 +166,6 @@ export abstract class ApiService {
   putProfile: (request: UpdateProfileRequest) => Promise<ProfileResponse>;
   putAvatar: (request: UpdateAvatarRequest) => Promise<ProfileResponse>;
   putTaxInfo: (request: TaxInfoUpdateRequest) => Promise<any>;
-  postPrelogin: (request: PreloginRequest) => Promise<PreloginResponse>;
   postEmailToken: (request: EmailTokenRequest) => Promise<any>;
   postEmail: (request: EmailRequest) => Promise<any>;
   postPassword: (request: PasswordRequest) => Promise<any>;

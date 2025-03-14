@@ -225,6 +225,8 @@ export class LoginCommand {
           "Encryption key migration required. Please login through the web vault to update your encryption key.",
         );
       }
+      // TODO: PM-15162 - captcha is deprecated as part of UI refresh work
+
       if (response.captchaSiteKey) {
         const credentials = new PasswordLoginCredentials(email, password);
         const handledResponse = await this.handleCaptchaRequired(twoFactor, credentials);

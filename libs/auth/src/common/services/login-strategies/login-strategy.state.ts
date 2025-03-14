@@ -4,6 +4,7 @@ import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-
 import { KeyDefinition, LOGIN_STRATEGY_MEMORY } from "@bitwarden/common/platform/state";
 
 import { AuthRequestLoginStrategyData } from "../../login-strategies/auth-request-login.strategy";
+import { OpaqueLoginStrategyData } from "../../login-strategies/opaque-login.strategy";
 import { PasswordLoginStrategyData } from "../../login-strategies/password-login.strategy";
 import { SsoLoginStrategyData } from "../../login-strategies/sso-login.strategy";
 import { UserApiLoginStrategyData } from "../../login-strategies/user-api-login.strategy";
@@ -48,6 +49,7 @@ export const AUTH_REQUEST_PUSH_NOTIFICATION_KEY = new KeyDefinition<string | nul
 
 export type CacheData = {
   password?: PasswordLoginStrategyData;
+  opaque?: OpaqueLoginStrategyData;
   sso?: SsoLoginStrategyData;
   userApiKey?: UserApiLoginStrategyData;
   authRequest?: AuthRequestLoginStrategyData;
@@ -68,6 +70,7 @@ export const CACHE_KEY = new KeyDefinition<CacheData | null>(
       }
       return {
         password: data.password ? PasswordLoginStrategyData.fromJSON(data.password) : undefined,
+        opaque: data.opaque ? OpaqueLoginStrategyData.fromJSON(data.opaque) : undefined,
         sso: data.sso ? SsoLoginStrategyData.fromJSON(data.sso) : undefined,
         userApiKey: data.userApiKey
           ? UserApiLoginStrategyData.fromJSON(data.userApiKey)

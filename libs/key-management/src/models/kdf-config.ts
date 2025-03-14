@@ -10,6 +10,20 @@ import { KdfType } from "../enums/kdf-type.enum";
 export type KdfConfig = PBKDF2KdfConfig | Argon2KdfConfig;
 
 /**
+ * A factory function that instantiates a new KdfConfig from an object that may represent one of several KdfTypes.
+ * This is useful for instantiating the correct KdfConfig from a server response object.
+ */
+export const createKdfConfig = (obj: {
+  kdf: KdfType;
+  kdfIterations: number;
+  kdfMemory?: number;
+  kdfParallelism?: number;
+}): KdfConfig =>
+  obj.kdf === KdfType.PBKDF2_SHA256
+    ? new PBKDF2KdfConfig(obj.kdfIterations)
+    : new Argon2KdfConfig(obj.kdfIterations, obj.kdfMemory, obj.kdfParallelism);
+
+/**
  * Password-Based Key Derivation Function 2 (PBKDF2) KDF configuration.
  */
 export class PBKDF2KdfConfig {
@@ -38,7 +52,7 @@ export class PBKDF2KdfConfig {
    * Validates the PBKDF2 KDF configuration for pre-login.
    * A Valid PBKDF2 KDF configuration has KDF iterations between the 5000 and 2_000_000.
    */
-  validateKdfConfigForPrelogin(): void {
+  validateKdfConfigForPreLogin(): void {
     if (PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN > this.iterations) {
       throw new Error(
         `PBKDF2 iterations must be at least ${PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN}, but was ${this.iterations}; possible pre-login downgrade attack detected.`,
@@ -101,7 +115,7 @@ export class Argon2KdfConfig {
   /**
    * Validates the Argon2 KDF configuration for pre-login.
    */
-  validateKdfConfigForPrelogin(): void {
+  validateKdfConfigForPreLogin(): void {
     if (Argon2KdfConfig.PRELOGIN_ITERATIONS_MIN > this.iterations) {
       throw new Error(
         `Argon2 iterations must be at least ${Argon2KdfConfig.PRELOGIN_ITERATIONS_MIN}, but was ${this.iterations}; possible pre-login downgrade attack detected.`,

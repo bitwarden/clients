@@ -12,7 +12,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { UserApiLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
 
-import { LoginStrategy, LoginStrategyData } from "./login.strategy";
+import { BaseLoginStrategy, LoginStrategyData } from "./base-login.strategy";
 
 export class UserApiLoginStrategyData implements LoginStrategyData {
   tokenRequest: UserApiTokenRequest;
@@ -25,13 +25,13 @@ export class UserApiLoginStrategyData implements LoginStrategyData {
   }
 }
 
-export class UserApiLoginStrategy extends LoginStrategy {
+export class UserApiLoginStrategy extends BaseLoginStrategy {
   protected cache: BehaviorSubject<UserApiLoginStrategyData>;
 
   constructor(
     data: UserApiLoginStrategyData,
     private keyConnectorService: KeyConnectorService,
-    ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
+    ...sharedDeps: ConstructorParameters<typeof BaseLoginStrategy>
   ) {
     super(...sharedDeps);
 

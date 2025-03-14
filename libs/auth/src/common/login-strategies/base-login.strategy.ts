@@ -9,6 +9,7 @@ import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-p
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { DeviceRequest } from "@bitwarden/common/auth/models/request/identity-token/device.request";
+import { OpaqueTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/opaque-token.request";
 import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/sso-token.request";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
@@ -45,10 +46,11 @@ import {
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import {
   UserApiLoginCredentials,
-  PasswordLoginCredentials,
   SsoLoginCredentials,
   AuthRequestLoginCredentials,
   WebAuthnLoginCredentials,
+  OpaqueLoginCredentials,
+  PasswordHashLoginCredentials,
 } from "../models/domain/login-credentials";
 import { UserDecryptionOptions } from "../models/domain/user-decryption-options";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
@@ -63,6 +65,7 @@ export abstract class LoginStrategyData {
   tokenRequest:
     | UserApiTokenRequest
     | PasswordTokenRequest
+    | OpaqueTokenRequest
     | SsoTokenRequest
     | WebAuthnLoginTokenRequest
     | undefined;
@@ -72,7 +75,7 @@ export abstract class LoginStrategyData {
   abstract userEnteredEmail?: string;
 }
 
-export abstract class LoginStrategy {
+export abstract class BaseLoginStrategy {
   protected abstract cache: BehaviorSubject<LoginStrategyData>;
   protected sessionTimeoutSubject = new BehaviorSubject<boolean>(false);
   sessionTimeout$: Observable<boolean> = this.sessionTimeoutSubject.asObservable();
@@ -102,10 +105,11 @@ export abstract class LoginStrategy {
   abstract logIn(
     credentials:
       | UserApiLoginCredentials
-      | PasswordLoginCredentials
+      | PasswordHashLoginCredentials
       | SsoLoginCredentials
       | AuthRequestLoginCredentials
-      | WebAuthnLoginCredentials,
+      | WebAuthnLoginCredentials
+      | OpaqueLoginCredentials,
   ): Promise<AuthResult>;
 
   async logInTwoFactor(

@@ -4,10 +4,28 @@ import { Jsonify } from "type-fest";
 
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
+import { PrePasswordLoginResponse } from "@bitwarden/common/auth/models/response/pre-password-login.response";
+import { CipherConfiguration } from "@bitwarden/common/auth/opaque/models/cipher-configuration";
 import { WebAuthnLoginAssertionResponseRequest } from "@bitwarden/common/auth/services/webauthn-login/request/webauthn-login-assertion-response.request";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserKey, MasterKey } from "@bitwarden/common/types/key";
 
+import { KdfConfig } from "../../../../../key-management/src";
+
+export type LoginCredentials =
+  | PasswordLoginCredentials
+  | SsoLoginCredentials
+  | UserApiLoginCredentials
+  | AuthRequestLoginCredentials
+  | WebAuthnLoginCredentials
+  | PasswordHashLoginCredentials
+  | OpaqueLoginCredentials;
+
+/**
+ * Represents email and master password login credentials.
+ * This is not used directly by a LogInStrategy, rather it is transformed into a more specific
+ * PasswordHashLoginCredentials or OpaqueLoginCredentials depending on which strategy is to be used.
+ */
 export class PasswordLoginCredentials {
   readonly type = AuthenticationType.Password;
 
@@ -18,6 +36,22 @@ export class PasswordLoginCredentials {
     public captchaToken?: string,
     public twoFactor?: TokenTwoFactorRequest,
   ) {}
+
+  toSpecificLoginCredentials(
+    preLoginResponse: PrePasswordLoginResponse,
+  ): PasswordHashLoginCredentials | OpaqueLoginCredentials {
+    return preLoginResponse.opaqueConfiguration
+      ? new OpaqueLoginCredentials(
+          this.email,
+          this.masterPassword,
+          preLoginResponse.opaqueConfiguration,
+        )
+      : new PasswordHashLoginCredentials(
+          this.email,
+          this.masterPassword,
+          preLoginResponse.toKdfConfig(),
+        );
+  }
 }
 
 export class SsoLoginCredentials {
@@ -103,4 +137,28 @@ export class WebAuthnLoginCredentials {
       SymmetricCryptoKey.fromJSON(json.prfKey),
     );
   }
+}
+
+export class PasswordHashLoginCredentials {
+  readonly type = AuthenticationType.PasswordHash;
+
+  constructor(
+    public email: string,
+    public masterPassword: string,
+    public kdfConfig: KdfConfig,
+    // TODO: PM-15162 - captcha is deprecated as part of UI refresh work
+    public captchaToken?: string,
+    public twoFactor?: TokenTwoFactorRequest,
+  ) {}
+}
+
+export class OpaqueLoginCredentials {
+  readonly type = AuthenticationType.Opaque;
+
+  constructor(
+    public email: string,
+    public masterPassword: string,
+    public cipherConfiguration: CipherConfiguration,
+    public twoFactor?: TokenTwoFactorRequest,
+  ) {}
 }

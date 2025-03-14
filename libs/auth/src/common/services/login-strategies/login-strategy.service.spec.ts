@@ -12,8 +12,9 @@ import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
-import { PreloginResponse } from "@bitwarden/common/auth/models/response/prelogin.response";
+import { PrePasswordLoginResponse } from "@bitwarden/common/auth/models/response/pre-password-login.response";
 import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
+import { PrePasswordLoginApiService } from "@bitwarden/common/auth/services/pre-password-login-api.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
@@ -48,6 +49,8 @@ import { UserDecryptionOptionsService } from "../user-decryption-options/user-de
 import { LoginStrategyService } from "./login-strategy.service";
 import { CACHE_EXPIRATION_KEY } from "./login-strategy.state";
 
+// TODO: update tests to pass
+// TODO: test makePrePasswordLoginMasterKey
 describe("LoginStrategyService", () => {
   let sut: LoginStrategyService;
 
@@ -75,6 +78,7 @@ describe("LoginStrategyService", () => {
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let taskSchedulerService: MockProxy<TaskSchedulerService>;
+  let prePasswordLoginApiService: MockProxy<PrePasswordLoginApiService>;
 
   let stateProvider: FakeGlobalStateProvider;
   let loginStrategyCacheExpirationState: FakeGlobalState<Date | null>;
@@ -107,6 +111,7 @@ describe("LoginStrategyService", () => {
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     kdfConfigService = mock<KdfConfigService>();
     taskSchedulerService = mock<TaskSchedulerService>();
+    prePasswordLoginApiService = mock<PrePasswordLoginApiService>();
 
     sut = new LoginStrategyService(
       accountService,
@@ -134,6 +139,7 @@ describe("LoginStrategyService", () => {
       vaultTimeoutSettingsService,
       kdfConfigService,
       taskSchedulerService,
+      prePasswordLoginApiService,
     );
 
     loginStrategyCacheExpirationState = stateProvider.getFake(CACHE_EXPIRATION_KEY);
@@ -173,8 +179,8 @@ describe("LoginStrategyService", () => {
         token_type: "Bearer",
       }),
     );
-    apiService.postPrelogin.mockResolvedValue(
-      new PreloginResponse({
+    prePasswordLoginApiService.postPrePasswordLogin.mockResolvedValue(
+      new PrePasswordLoginResponse({
         Kdf: KdfType.Argon2id,
         KdfIterations: 2,
         KdfMemory: 16,
@@ -207,8 +213,8 @@ describe("LoginStrategyService", () => {
       }),
     );
 
-    apiService.postPrelogin.mockResolvedValue(
-      new PreloginResponse({
+    prePasswordLoginApiService.postPrePasswordLogin.mockResolvedValue(
+      new PrePasswordLoginResponse({
         Kdf: KdfType.Argon2id,
         KdfIterations: 2,
         KdfMemory: 16,
@@ -266,8 +272,8 @@ describe("LoginStrategyService", () => {
       }),
     );
 
-    apiService.postPrelogin.mockResolvedValue(
-      new PreloginResponse({
+    prePasswordLoginApiService.postPrePasswordLogin.mockResolvedValue(
+      new PrePasswordLoginResponse({
         Kdf: KdfType.Argon2id,
         KdfIterations: 2,
         KdfMemory: 16,
@@ -305,8 +311,8 @@ describe("LoginStrategyService", () => {
         token_type: "Bearer",
       }),
     );
-    apiService.postPrelogin.mockResolvedValue(
-      new PreloginResponse({
+    prePasswordLoginApiService.postPrePasswordLogin.mockResolvedValue(
+      new PrePasswordLoginResponse({
         Kdf: KdfType.PBKDF2_SHA256,
         KdfIterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1,
       }),
@@ -329,8 +335,8 @@ describe("LoginStrategyService", () => {
     const deviceVerificationOtp = "123456";
 
     // Setup initial login and device verification response
-    apiService.postPrelogin.mockResolvedValue(
-      new PreloginResponse({
+    prePasswordLoginApiService.postPrePasswordLogin.mockResolvedValue(
+      new PrePasswordLoginResponse({
         Kdf: KdfType.Argon2id,
         KdfIterations: 2,
         KdfMemory: 16,

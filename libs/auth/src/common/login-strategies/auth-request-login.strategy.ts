@@ -13,7 +13,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { AuthRequestLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
 
-import { LoginStrategy, LoginStrategyData } from "./login.strategy";
+import { BaseLoginStrategy, LoginStrategyData } from "./base-login.strategy";
 
 export class AuthRequestLoginStrategyData implements LoginStrategyData {
   tokenRequest: PasswordTokenRequest;
@@ -29,7 +29,7 @@ export class AuthRequestLoginStrategyData implements LoginStrategyData {
   }
 }
 
-export class AuthRequestLoginStrategy extends LoginStrategy {
+export class AuthRequestLoginStrategy extends BaseLoginStrategy {
   email$: Observable<string>;
   accessCode$: Observable<string>;
   authRequestId$: Observable<string>;
@@ -39,7 +39,7 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
   constructor(
     data: AuthRequestLoginStrategyData,
     private deviceTrustService: DeviceTrustServiceAbstraction,
-    ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
+    ...sharedDeps: ConstructorParameters<typeof BaseLoginStrategy>
   ) {
     super(...sharedDeps);
 

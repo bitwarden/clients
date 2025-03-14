@@ -14,6 +14,7 @@ export {
   PBKDF2KdfConfig,
   Argon2KdfConfig,
   KdfConfig,
+  createKdfConfig,
   DEFAULT_KDF_CONFIG,
 } from "./models/kdf-config";
 export { KdfConfigService } from "./abstractions/kdf-config.service";

@@ -40,7 +40,7 @@ import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { PasswordLoginCredentials } from "../models/domain/login-credentials";
 
-import { identityTokenResponseFactory } from "./login.strategy.spec";
+import { identityTokenResponseFactory } from "./base-login.strategy.spec";
 import { PasswordLoginStrategy, PasswordLoginStrategyData } from "./password-login.strategy";
 
 const email = "hello@world.com";
@@ -115,7 +115,7 @@ describe("PasswordLoginStrategy", () => {
       sub: userId,
     });
 
-    loginStrategyService.makePreloginKey.mockResolvedValue(masterKey);
+    loginStrategyService.makePrePasswordLoginMasterKey.mockResolvedValue(masterKey);
 
     keyService.hashMasterKey
       .calledWith(masterPassword, expect.anything(), undefined)
