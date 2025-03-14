@@ -18,7 +18,7 @@ import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line import/no-restricted-paths, no-restricted-imports
 import { PreloadedEnglishI18nModule } from "../../../../../apps/web/src/app/core/tests";
 
-import { InputPasswordComponent } from "./input-password.component";
+import { InputPasswordComponent, InputPasswordFlow } from "./input-password.component";
 
 export default {
   title: "Auth/Input Password",
@@ -88,6 +88,12 @@ export default {
     }),
   ],
   args: {
+    InputPasswordFlow: {
+      SetInitialPassword: InputPasswordFlow.SetInitialPassword,
+      ChangeExistingPassword: InputPasswordFlow.ChangeExistingPassword,
+      ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey:
+        InputPasswordFlow.ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey,
+    },
     masterPasswordPolicyOptions: {
       minComplexity: 4,
       minLength: 14,
@@ -101,20 +107,55 @@ export default {
 
 type Story = StoryObj<InputPasswordComponent>;
 
-export const Default: Story = {
+export const SetInitialPassword: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <auth-input-password></auth-input-password>
+      <auth-input-password [inputPasswordFlow]="InputPasswordFlow.SetInitialPassword"></auth-input-password>
     `,
   }),
 };
 
-export const WithPolicy: Story = {
+export const ChangeExistingPassword: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <auth-input-password [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"></auth-input-password>
+      <auth-input-password [inputPasswordFlow]="InputPasswordFlow.ChangeExistingPassword"></auth-input-password>
+    `,
+  }),
+};
+
+export const ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <auth-input-password
+        [inputPasswordFlow]="InputPasswordFlow.ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey"
+      ></auth-input-password>
+    `,
+  }),
+};
+
+export const WithPolicies: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <auth-input-password
+        [inputPasswordFlow]="InputPasswordFlow.SetInitialPassword"
+        [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
+      ></auth-input-password>
+    `,
+  }),
+};
+
+export const SecondaryButton: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <auth-input-password
+        [inputPasswordFlow]="InputPasswordFlow.SetInitialPassword"
+        [secondaryButtonText]="{ key: 'Cancel' }"
+      ></auth-input-password>
     `,
   }),
 };
@@ -123,7 +164,23 @@ export const InlineButton: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <auth-input-password [btnBlock]="false" [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"></auth-input-password>
+      <auth-input-password
+        [inputPasswordFlow]="InputPasswordFlow.SetInitialPassword"
+        [inlineButtons]="true"
+      ></auth-input-password>
+    `,
+  }),
+};
+
+export const InlineButtons: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <auth-input-password
+        [inputPasswordFlow]="InputPasswordFlow.SetInitialPassword"
+        [secondaryButtonText]="{ key: 'Cancel' }"
+        [inlineButtons]="true"
+      ></auth-input-password>
     `,
   }),
 };

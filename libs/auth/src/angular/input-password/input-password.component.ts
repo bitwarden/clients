@@ -23,6 +23,7 @@ import {
   IconButtonModule,
   InputModule,
   ToastService,
+  Translation,
 } from "@bitwarden/components";
 import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
 
@@ -35,6 +36,29 @@ import { SharedModule } from "../../../../components/src/shared";
 import { PasswordCalloutComponent } from "../password-callout/password-callout.component";
 
 import { PasswordInputResult } from "./password-input-result";
+
+/**
+ * Determines which form input elements will be displayed in the UI.
+ */
+export enum InputPasswordFlow {
+  /**
+   * - Input: New master password
+   * - Input: Confirm new master password
+   * - Input: Hint
+   * - Checkbox: Check for breaches
+   */
+  SetInitialPassword,
+  /**
+   * Everything above, plus:
+   * - Input: Current master password (as the first element in the UI)
+   */
+  ChangeExistingPassword,
+  /**
+   * Everything above, plus:
+   * - Checkbox: Rotate user key (as the last element in the UI)
+   */
+  ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey,
+}
 
 @Component({
   standalone: true,
@@ -56,13 +80,17 @@ import { PasswordInputResult } from "./password-input-result";
 })
 export class InputPasswordComponent {
   @Output() onPasswordFormSubmit = new EventEmitter<PasswordInputResult>();
+  @Output() onSecondaryButtonClick = new EventEmitter<void>();
 
+  @Input({ required: true }) inputPasswordFlow: InputPasswordFlow;
   @Input({ required: true }) email: string;
-  @Input() buttonText: string;
   @Input() masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
-  @Input() loading: boolean = false;
-  @Input() btnBlock: boolean = true;
+  @Input() loading = false;
+  @Input() primaryButtonText: Translation;
+  @Input() secondaryButtonText: Translation;
+  @Input() inlineButtons = false;
 
+  protected InputPasswordFlow = InputPasswordFlow;
   private minHintLength = 0;
   protected maxHintLength = 50;
   protected minPasswordLength = Utils.minimumPasswordLength;
@@ -73,25 +101,33 @@ export class InputPasswordComponent {
 
   protected formGroup = this.formBuilder.group(
     {
-      password: ["", [Validators.required, Validators.minLength(this.minPasswordLength)]],
-      confirmedPassword: ["", Validators.required],
+      currentPassword: ["", Validators.required],
+      newPassword: ["", [Validators.required, Validators.minLength(this.minPasswordLength)]],
+      confirmNewPassword: ["", Validators.required],
       hint: [
         "", // must be string (not null) because we check length in validation
         [Validators.minLength(this.minHintLength), Validators.maxLength(this.maxHintLength)],
       ],
       checkForBreaches: true,
+      rotateAccountEncryptionKey: false,
     },
     {
       validators: [
         InputsFieldMatch.compareInputs(
+          "doNotMatch",
+          "currentPassword",
+          "newPassword",
+          this.i18nService.t("yourNewPasswordCannotBeTheSameAsYourCurrentPassword"),
+        ),
+        InputsFieldMatch.compareInputs(
           "match",
-          "password",
-          "confirmedPassword",
+          "newPassword",
+          "confirmNewPassword",
           this.i18nService.t("masterPassDoesntMatch"),
         ),
         InputsFieldMatch.compareInputs(
           "doNotMatch",
-          "password",
+          "newPassword",
           "hint",
           this.i18nService.t("hintEqualsPassword"),
         ),
@@ -132,10 +168,10 @@ export class InputPasswordComponent {
       return;
     }
 
-    const password = this.formGroup.controls.password.value;
+    const newPassword = this.formGroup.controls.newPassword.value;
 
     const passwordEvaluatedSuccessfully = await this.evaluatePassword(
-      password,
+      newPassword,
       this.passwordStrengthScore,
       this.formGroup.controls.checkForBreaches.value,
     );
@@ -152,26 +188,28 @@ export class InputPasswordComponent {
     }
 
     const masterKey = await this.keyService.makeMasterKey(
-      password,
+      newPassword,
       this.email.trim().toLowerCase(),
       kdfConfig,
     );
 
-    const masterKeyHash = await this.keyService.hashMasterKey(password, masterKey);
+    const masterKeyHash = await this.keyService.hashMasterKey(newPassword, masterKey);
 
     const localMasterKeyHash = await this.keyService.hashMasterKey(
-      password,
+      newPassword,
       masterKey,
       HashPurpose.LocalAuthorization,
     );
 
     this.onPasswordFormSubmit.emit({
+      currentPassword: this.formGroup.controls.currentPassword.value,
+      newPassword,
+      hint: this.formGroup.controls.hint.value,
+      rotateAccountEncryptionKey: this.formGroup.controls.rotateAccountEncryptionKey.value,
+      kdfConfig,
       masterKey,
       masterKeyHash,
       localMasterKeyHash,
-      kdfConfig,
-      hint: this.formGroup.controls.hint.value,
-      password,
     });
   };
 
