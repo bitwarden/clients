@@ -1,36 +1,34 @@
 import { CipherConfiguration as CipherConfigurationSdk } from "@bitwarden/sdk-internal";
 
-export type OpaqueKeVersion = 3;
+export type CipherSuite = OPAQUEKE3_RISTRETTO255_3DH_ARGON2ID13_SUITE;
+export type OPAQUEKE3_RISTRETTO255_3DH_ARGON2ID13_SUITE =
+  "OPAQUE_3_RISTRETTO255_OPRF_RISTRETTO255_KEGROUP_3DH_KEX_ARGON2ID13_KSF";
 
 export class CipherConfiguration {
-  opaqueVersion: OpaqueKeVersion;
+  cipherSuite: CipherSuite;
+  argon2Parameters: Argon2IdParameters;
 
-  oprfCs: OprfCs;
-  keGroup: KeGroup;
-  keyExchange: KeyExchange;
-  ksf: KsfConfig;
-
-  constructor(ksf: KsfConfig) {
-    this.opaqueVersion = 3;
-    this.oprfCs = "ristretto255";
-    this.keGroup = "ristretto255";
-    this.keyExchange = "triple-dh";
-    this.ksf = ksf;
+  // only support one ciphersuite for now
+  constructor(ksf: Argon2IdParameters) {
+    this.cipherSuite = "OPAQUE_3_RISTRETTO255_OPRF_RISTRETTO255_KEGROUP_3DH_KEX_ARGON2ID13_KSF";
+    this.argon2Parameters = ksf;
   }
 
   toSdkConfig(): CipherConfigurationSdk {
-    if (this.ksf.algorithm !== "argon2id") {
-      throw new Error("Unsupported KSF algorithm");
+    if (
+      this.cipherSuite !== "OPAQUE_3_RISTRETTO255_OPRF_RISTRETTO255_KEGROUP_3DH_KEX_ARGON2ID13_KSF"
+    ) {
+      throw new Error("Unsupported cipher suite");
     } else {
       return {
-        oprf_cs: this.oprfCs,
-        ke_group: this.keGroup,
-        key_exchange: this.keyExchange,
+        oprf_cs: "ristretto255",
+        ke_group: "ristretto255",
+        key_exchange: "triple-dh",
         ksf: {
           argon2id: [
-            this.ksf.parameters.memory,
-            this.ksf.parameters.iterations,
-            this.ksf.parameters.parallelism,
+            this.argon2Parameters.memory,
+            this.argon2Parameters.iterations,
+            this.argon2Parameters.parallelism,
           ],
         },
       };
@@ -38,22 +36,9 @@ export class CipherConfiguration {
   }
 }
 
-export type OprfCs = "ristretto255";
-export type KeGroup = "ristretto255";
-export type KeyExchange = "triple-dh";
-
 export type Argon2IdParameters = {
   // Memory in KiB
   memory: number;
   iterations: number;
   parallelism: number;
-};
-
-export type KsfParameters = Argon2IdParameters;
-
-type KsfAlgorithm = "argon2id";
-
-export type KsfConfig = {
-  algorithm: KsfAlgorithm;
-  parameters: KsfParameters;
 };

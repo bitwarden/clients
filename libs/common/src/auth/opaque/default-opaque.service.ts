@@ -4,10 +4,13 @@ import { RotateableKeySet } from "@bitwarden/auth/common";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { OpaqueSessionId } from "@bitwarden/common/types/guid";
 
 import { UserKey } from "../../types/key";
 
-import { CipherConfiguration, KsfConfig } from "./models/cipher-configuration";
+import { Argon2IdParameters, CipherConfiguration } from "./models/cipher-configuration";
+import { LoginFinishRequest } from "./models/login-finish.request";
+import { LoginStartRequest } from "./models/login-start.request";
 import { RegistrationFinishRequest } from "./models/registration-finish.request";
 import { RegistrationStartRequest } from "./models/registration-start.request";
 import { OpaqueApiService } from "./opaque-api.service";
@@ -19,8 +22,12 @@ export class DefaultOpaqueService implements OpaqueService {
     private sdkService: SdkService,
   ) {}
 
-  async register(masterPassword: string, userKey: UserKey, ksfConfig: KsfConfig): Promise<void> {
-    const config = new CipherConfiguration(ksfConfig);
+  async register(
+    masterPassword: string,
+    userKey: UserKey,
+    ksfParameters: Argon2IdParameters,
+  ): Promise<OpaqueSessionId> {
+    const config = new CipherConfiguration(ksfParameters);
     const cryptoClient = (await firstValueFrom(this.sdkService.client$)).crypto();
 
     const registrationStart = cryptoClient.opaque_register_start(
@@ -58,16 +65,40 @@ export class DefaultOpaqueService implements OpaqueService {
         keyset,
       ),
     );
+
+    return registrationStartResponse.sessionId;
   }
 
-  async login(masterPassword: string, ksfConfig: KsfConfig): Promise<Uint8Array> {
-    throw new Error("Method not implemented.");
+  async login(
+    email: string,
+    masterPassword: string,
+    ksfConfig: Argon2IdParameters,
+  ): Promise<Uint8Array> {
+    const config = new CipherConfiguration(ksfConfig);
+    const cryptoClient = (await firstValueFrom(this.sdkService.client$)).crypto();
 
-    // TODO: figure out if we are going to implement this as one process with 2 calls to crypto
-    // and API
-    // cryptoClient.opaque_login_start(masterPassword, ksfConfig.toSdkConfig());
-    // cryptoClient.opaque_login_finish(...);
+    const loginStart = cryptoClient.opaque_login_start(masterPassword, config.toSdkConfig());
+    const loginStartResponse = await this.opaqueApiService.loginStart(
+      new LoginStartRequest(email, Utils.fromBufferToB64(loginStart.credential_request)),
+    );
 
-    // TODO: should this logic belong in the login strategy?
+    const loginFinish = cryptoClient.opaque_login_finish(
+      masterPassword,
+      config.toSdkConfig(),
+      Utils.fromB64ToArray(loginStartResponse.credentialResponse),
+      loginStart.state,
+    );
+
+    const success = await this.opaqueApiService.loginFinish(
+      new LoginFinishRequest(
+        loginStartResponse.sessionId,
+        Utils.fromBufferToB64(loginFinish.credential_finalization),
+      ),
+    );
+    if (!success) {
+      throw new Error("Login failed");
+    }
+
+    return loginFinish.export_key;
   }
 }

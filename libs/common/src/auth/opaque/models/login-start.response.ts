@@ -1,7 +1,9 @@
+import { OpaqueSessionId } from "@bitwarden/common/types/guid";
+
 import { BaseResponse } from "../../../models/response/base.response";
 
 export class LoginStartResponse extends BaseResponse {
-  sessionId: string;
+  sessionId: OpaqueSessionId;
   credentialResponse: string;
 
   constructor(response: any) {

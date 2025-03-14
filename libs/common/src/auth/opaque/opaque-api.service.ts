@@ -3,6 +3,9 @@ import { firstValueFrom } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 
+import { LoginFinishRequest } from "./models/login-finish.request";
+import { LoginStartRequest } from "./models/login-start.request";
+import { LoginStartResponse } from "./models/login-start.response";
 import { RegistrationFinishRequest } from "./models/registration-finish.request";
 import { RegistrationFinishResponse } from "./models/registration-finish.response";
 import { RegistrationStartRequest } from "./models/registration-start.request";
@@ -42,10 +45,29 @@ export class OpaqueApiService {
     return new RegistrationFinishResponse(response);
   }
 
-  loginStart(): any {
-    throw new Error("Method not implemented");
+  async loginStart(request: LoginStartRequest): Promise<LoginStartResponse> {
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const response = await this.apiService.send(
+      "POST",
+      `/opaque/start-login`,
+      request,
+      true,
+      true,
+      env.getApiUrl(),
+    );
+    return new LoginStartResponse(response);
   }
-  loginFinish(): any {
-    throw new Error("Method not implemented");
+
+  async loginFinish(request: LoginFinishRequest): Promise<boolean> {
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const response = await this.apiService.send(
+      "POST",
+      `/opaque/finish-login`,
+      request,
+      true,
+      true,
+      env.getApiUrl(),
+    );
+    return response.success;
   }
 }
