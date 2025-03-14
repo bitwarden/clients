@@ -20,10 +20,11 @@ import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
+import { PreloginRequest } from "@bitwarden/common/auth/models/request/prelogin.request";
+import { PreLoginApiService } from "@bitwarden/common/auth/services/pre-login-api.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
-import { PreloginRequest } from "@bitwarden/common/src/auth/models/request/prelogin.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -45,6 +46,10 @@ import {
   AuthRequestLoginStrategyData,
 } from "../../login-strategies/auth-request-login.strategy";
 import { LoginStrategy } from "../../login-strategies/login.strategy";
+import {
+  OpaqueLoginStrategy,
+  OpaqueLoginStrategyData,
+} from "../../login-strategies/opaque-login.strategy";
 import {
   PasswordLoginStrategy,
   PasswordLoginStrategyData,
@@ -74,11 +79,6 @@ import {
   CACHE_EXPIRATION_KEY,
   CACHE_KEY,
 } from "./login-strategy.state";
-import { PreLoginApiService } from "@bitwarden/common/auth/services/pre-login-api.service";
-import {
-  OpaqueLoginStrategy,
-  OpaqueLoginStrategyData,
-} from "../../login-strategies/opaque-login.strategy";
 
 const sessionTimeoutLength = 5 * 60 * 1000; // 5 minutes
 
@@ -206,14 +206,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     return null;
   }
 
-  // TODO: solve problem where prelogin needs to determine which strategy to use
-  // but currently we only call pre-login after already in the password strategy
-  // We might have to just update the master password login strategy to perform opaque login
-  // and then call prelogin from there or have the master password login strategy delegate
-  // to individual services based on prelogin response.
-  // We also could extract the pre-login call to the login component and pass in kdf data to the
-  // login strategy service for master password login and opaque login.
-
   async logIn(
     credentials:
       | UserApiLoginCredentials
@@ -238,6 +230,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       const preLoginResponse = await this.preLoginApiService.postPrelogin(preLoginRequest);
       ownedCredentials = credentials.toSpecificLoginCredentials(preLoginResponse);
     } else {
+      // Shallow copy
       ownedCredentials = { ...credentials };
     }
 

@@ -9,7 +9,6 @@ import {
   LoginEmailServiceAbstraction,
   LoginStrategyServiceAbstraction,
   LoginSuccessHandlerService,
-  OpaqueLoginCredentials,
   PasswordLoginCredentials,
 } from "@bitwarden/auth/common";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -19,7 +18,6 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
-import { PreloginRequest } from "@bitwarden/common/auth/models/request/prelogin.request";
 import { PreLoginApiService } from "@bitwarden/common/auth/services/pre-login-api.service";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -171,32 +169,9 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const credentials = new PasswordLoginCredentials(email, masterPassword);
+
     try {
-      // TODO: is it worth having a pre-password-login.service to extract some of this process out of the
-      // component?  We could at least maybe add a separately testable mechanism for building the
-      // kdf config off of the prelogin response.
-      // Or should we put the prelogin process and determination of the login strategy all back into the
-      // login strategy service for re-use in places like the CLI?
-
-      const preLoginRequest = new PreloginRequest(email);
-      const preLoginResponse = await this.preLoginApiService.postPrelogin(preLoginRequest);
-
-      // Determine which credentials to build based on response
-      let credentials: PasswordLoginCredentials | OpaqueLoginCredentials;
-
-      if (preLoginResponse.opaqueConfiguration) {
-        credentials = new OpaqueLoginCredentials(
-          email,
-          masterPassword,
-          preLoginResponse.opaqueConfiguration,
-        );
-      } else {
-        // Determine users KDF config based on response
-        const kdfConfig = preLoginResponse.toKdfConfig();
-
-        credentials = new PasswordLoginCredentials(email, masterPassword, kdfConfig);
-      }
-
       const authResult = await this.loginStrategyService.logIn(credentials);
 
       await this.saveEmailSettings();

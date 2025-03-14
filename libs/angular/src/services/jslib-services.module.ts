@@ -1486,7 +1486,6 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: OpaqueApiService,
-    useClass: OpaqueApiService,
     deps: [ApiServiceAbstraction, EnvironmentService],
   }),
   safeProvider({

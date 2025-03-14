@@ -216,8 +216,6 @@ export class LoginCommand {
           ),
         );
       } else {
-        // TODO: we have to manually call pre-login API to get the KDF settings for the user
-        // and pass them to PasswordLoginCredentials
         response = await this.loginStrategyService.logIn(
           new PasswordLoginCredentials(email, password, null, twoFactor),
         );
@@ -230,8 +228,6 @@ export class LoginCommand {
       // TODO: PM-15162 - captcha is deprecated as part of UI refresh work
 
       if (response.captchaSiteKey) {
-        // TODO: we have to manually call pre-login API to get the KDF settings for the user
-        // and pass them to PasswordLoginCredentials
         const credentials = new PasswordLoginCredentials(email, password);
         const handledResponse = await this.handleCaptchaRequired(twoFactor, credentials);
 
