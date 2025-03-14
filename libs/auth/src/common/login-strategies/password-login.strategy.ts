@@ -20,7 +20,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 
 import { LoginStrategyServiceAbstraction } from "../abstractions";
-import { PasswordLoginCredentials } from "../models/domain/login-credentials";
+import { PasswordHashLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
 
 import { BaseLoginStrategy, LoginStrategyData } from "./base-login.strategy";
@@ -79,11 +79,16 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
     this.localMasterKeyHash$ = this.cache.pipe(map((state) => state.localMasterKeyHash));
   }
 
-  override async logIn(credentials: PasswordLoginCredentials) {
-    const { email, masterPassword, captchaToken, twoFactor } = credentials;
+  override async logIn(credentials: PasswordHashLoginCredentials) {
+    const { email, masterPassword, captchaToken, twoFactor, kdfConfig } = credentials;
 
     const data = new PasswordLoginStrategyData();
-    data.masterKey = await this.loginStrategyService.makePreloginKey(masterPassword, email);
+
+    data.masterKey = await this.loginStrategyService.makePrePasswordLoginMasterKey(
+      masterPassword,
+      email,
+      kdfConfig,
+    );
     data.userEnteredEmail = email;
 
     // Hash the password early (before authentication) so we don't persist it in memory in plaintext
@@ -222,7 +227,7 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
   }
 
   private evaluateMasterPassword(
-    { masterPassword, email }: PasswordLoginCredentials,
+    { masterPassword, email }: PasswordHashLoginCredentials,
     options: MasterPasswordPolicyOptions,
   ): boolean {
     const passwordStrength = this.passwordStrengthService.getPasswordStrength(

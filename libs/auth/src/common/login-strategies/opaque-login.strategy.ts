@@ -89,7 +89,10 @@ export class OpaqueLoginStrategy extends BaseLoginStrategy {
 
     // TODO: we will still generate a master key here but we need to extract the prelogin call out of the makePreloginKey
     // and simply rename it deriveMasterKey or something similar
-    data.masterKey = await this.loginStrategyService.makePreloginKey(masterPassword, email);
+    data.masterKey = await this.loginStrategyService.makePrePasswordLoginMasterKey(
+      masterPassword,
+      email,
+    );
     data.userEnteredEmail = email;
 
     // Hash the password early (before authentication) so we don't persist it in memory in plaintext

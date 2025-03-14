@@ -46,11 +46,11 @@ import {
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import {
   UserApiLoginCredentials,
-  PasswordLoginCredentials,
   SsoLoginCredentials,
   AuthRequestLoginCredentials,
   WebAuthnLoginCredentials,
   OpaqueLoginCredentials,
+  PasswordHashLoginCredentials,
 } from "../models/domain/login-credentials";
 import { UserDecryptionOptions } from "../models/domain/user-decryption-options";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
@@ -105,7 +105,7 @@ export abstract class BaseLoginStrategy {
   abstract logIn(
     credentials:
       | UserApiLoginCredentials
-      | PasswordLoginCredentials
+      | PasswordHashLoginCredentials
       | SsoLoginCredentials
       | AuthRequestLoginCredentials
       | WebAuthnLoginCredentials

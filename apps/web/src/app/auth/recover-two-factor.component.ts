@@ -88,8 +88,16 @@ export class RecoverTwoFactorComponent implements OnInit {
     const request = new TwoFactorRecoveryRequest();
     request.recoveryCode = this.recoveryCode.replace(/\s/g, "").toLowerCase();
     request.email = this.email.trim().toLowerCase();
-    const key = await this.loginStrategyService.makePreloginKey(this.masterPassword, request.email);
-    request.masterPasswordHash = await this.keyService.hashMasterKey(this.masterPassword, key);
+
+    const masterKey = await this.loginStrategyService.makePrePasswordLoginMasterKey(
+      this.masterPassword,
+      request.email,
+    );
+
+    request.masterPasswordHash = await this.keyService.hashMasterKey(
+      this.masterPassword,
+      masterKey,
+    );
 
     if (this.recoveryCodeLoginFeatureFlagEnabled) {
       await this.handleRecoveryLogin(request);

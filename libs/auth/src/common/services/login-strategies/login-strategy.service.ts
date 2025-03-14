@@ -321,30 +321,33 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     }
   }
 
-  // TODO: ideally, the process of making master key should stay here but it should get the pre-login kdf data
-  // from the login component or login strategy service
-  async makePreloginKey(masterPassword: string, email: string): Promise<MasterKey> {
+  async makePrePasswordLoginMasterKey(
+    masterPassword: string,
+    email: string,
+    kdfConfig?: KdfConfig,
+  ): Promise<MasterKey> {
     email = email.trim().toLowerCase();
-    let kdfConfig: KdfConfig | undefined;
-    try {
-      const preloginResponse = await this.prePasswordLoginApiService.postPrePasswordLogin(
-        new PrePasswordLoginRequest(email),
-      );
-      if (preloginResponse != null) {
-        kdfConfig = preloginResponse.toKdfConfig();
-      }
-    } catch (e: any) {
-      if (e == null || e.statusCode !== 404) {
-        throw e;
-      }
-    }
 
     if (!kdfConfig) {
-      throw new Error("KDF config is required");
-    }
-    kdfConfig.validateKdfConfigForPrelogin();
+      try {
+        const preloginResponse = await this.prePasswordLoginApiService.postPrePasswordLogin(
+          new PrePasswordLoginRequest(email),
+        );
+        kdfConfig = preloginResponse?.toKdfConfig();
+      } catch (e: any) {
+        if (e == null || e.statusCode !== 404) {
+          throw e;
+        }
+      }
 
-    return await this.keyService.makeMasterKey(masterPassword, email, kdfConfig);
+      if (!kdfConfig) {
+        throw new Error("KDF config is required");
+      }
+    }
+
+    kdfConfig.validateKdfConfigForPreLogin();
+
+    return this.keyService.makeMasterKey(masterPassword, email, kdfConfig);
   }
 
   private async clearCache(): Promise<void> {
