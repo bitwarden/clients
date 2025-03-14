@@ -11,7 +11,17 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { filter, firstValueFrom, map, Observable } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  of,
+  switchMap,
+  tap,
+} from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
@@ -49,7 +59,18 @@ const BroadcasterSubscriptionId = "BaseViewComponent";
 
 @Directive()
 export class ViewComponent implements OnDestroy, OnInit {
-  @Input() cipherId: string;
+  /** Observable of cipherId$ that will update each time the `Input` updates */
+  private _cipherId$ = new BehaviorSubject<string>(null);
+
+  @Input()
+  set cipherId(value: string) {
+    this._cipherId$.next(value);
+  }
+
+  get cipherId(): string {
+    return this._cipherId$.getValue();
+  }
+
   @Input() collectionId: string;
   @Output() onEditCipher = new EventEmitter<CipherView>();
   @Output() onCloneCipher = new EventEmitter<CipherView>();
@@ -125,67 +146,35 @@ export class ViewComponent implements OnDestroy, OnInit {
         switch (message.command) {
           case "syncCompleted":
             if (message.successfully) {
-              await this.load();
               this.changeDetectorRef.detectChanges();
             }
             break;
         }
       });
     });
+
+    // Set up the subscription to the activeAccount$ and cipherId$ observables
+    combineLatest([this.accountService.activeAccount$.pipe(getUserId), this._cipherId$])
+      .pipe(
+        tap(() => this.cleanUp()),
+        switchMap(([userId, cipherId]) => {
+          const cipher$ = this.cipherService.cipherViews$(userId).pipe(
+            map((ciphers) => ciphers?.find((c) => c.id === cipherId)),
+            filter((cipher) => !!cipher),
+          );
+          return combineLatest([of(userId), cipher$]);
+        }),
+      )
+      .subscribe(([userId, cipher]) => {
+        this.cipher = cipher;
+
+        void this.constructCipherDetails(userId);
+      });
   }
 
   ngOnDestroy() {
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
     this.cleanUp();
-  }
-
-  async load() {
-    this.cleanUp();
-
-    // Grab individual cipher from `cipherViews$` for the most up-to-date information
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    this.cipher = await firstValueFrom(
-      this.cipherService.cipherViews$(activeUserId).pipe(
-        map((ciphers) => ciphers?.find((c) => c.id === this.cipherId)),
-        filter((cipher) => !!cipher),
-      ),
-    );
-
-    this.canAccessPremium = await firstValueFrom(
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
-    );
-    this.showPremiumRequiredTotp =
-      this.cipher.login.totp && !this.canAccessPremium && !this.cipher.organizationUseTotp;
-    this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher, [
-      this.collectionId as CollectionId,
-    ]);
-
-    if (this.cipher.folderId) {
-      this.folder = await (
-        await firstValueFrom(this.folderService.folderViews$(activeUserId))
-      ).find((f) => f.id == this.cipher.folderId);
-    }
-
-    if (
-      this.cipher.type === CipherType.Login &&
-      this.cipher.login.totp &&
-      (this.cipher.organizationUseTotp || this.canAccessPremium)
-    ) {
-      await this.totpUpdateCode();
-      const interval = this.totpService.getTimeInterval(this.cipher.login.totp);
-      await this.totpTick(interval);
-
-      this.totpInterval = setInterval(async () => {
-        await this.totpTick(interval);
-      }, 1000);
-    }
-
-    if (this.previousCipherId !== this.cipherId) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.eventCollectionService.collect(EventType.Cipher_ClientViewed, this.cipherId);
-    }
-    this.previousCipherId = this.cipherId;
   }
 
   async edit() {
@@ -566,5 +555,47 @@ export class ViewComponent implements OnDestroy, OnInit {
     if (mod === 0) {
       await this.totpUpdateCode();
     }
+  }
+
+  /**
+   * When a cipher is viewed, construct all details for the view that are not directly
+   * available from the cipher object itself.
+   */
+  private async constructCipherDetails(userId: UserId) {
+    this.canAccessPremium = await firstValueFrom(
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(userId),
+    );
+    this.showPremiumRequiredTotp =
+      this.cipher.login.totp && !this.canAccessPremium && !this.cipher.organizationUseTotp;
+    this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher, [
+      this.collectionId as CollectionId,
+    ]);
+
+    if (this.cipher.folderId) {
+      this.folder = await (
+        await firstValueFrom(this.folderService.folderViews$(userId))
+      ).find((f) => f.id == this.cipher.folderId);
+    }
+
+    if (
+      this.cipher.type === CipherType.Login &&
+      this.cipher.login.totp &&
+      (this.cipher.organizationUseTotp || this.canAccessPremium)
+    ) {
+      await this.totpUpdateCode();
+      const interval = this.totpService.getTimeInterval(this.cipher.login.totp);
+      await this.totpTick(interval);
+
+      this.totpInterval = setInterval(async () => {
+        await this.totpTick(interval);
+      }, 1000);
+    }
+
+    if (this.previousCipherId !== this.cipherId) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.eventCollectionService.collect(EventType.Cipher_ClientViewed, this.cipherId);
+    }
+    this.previousCipherId = this.cipherId;
   }
 }
