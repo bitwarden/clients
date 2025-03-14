@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -78,7 +78,7 @@ export enum InputPasswordFlow {
     JslibModule,
   ],
 })
-export class InputPasswordComponent {
+export class InputPasswordComponent implements OnInit {
   @Output() onPasswordFormSubmit = new EventEmitter<PasswordInputResult>();
   @Output() onSecondaryButtonClick = new EventEmitter<void>();
 
@@ -101,7 +101,7 @@ export class InputPasswordComponent {
   protected showErrorSummary = false;
   protected showPassword = false;
 
-  protected formGroup = this.formBuilder.group(
+  protected formGroup = this.formBuilder.nonNullable.group(
     {
       currentPassword: ["", Validators.required],
       newPassword: ["", [Validators.required, Validators.minLength(this.minPasswordLength)]],
@@ -146,6 +146,17 @@ export class InputPasswordComponent {
     private policyService: PolicyService,
     private toastService: ToastService,
   ) {}
+
+  ngOnInit(): void {
+    if (this.inputPasswordFlow === InputPasswordFlow.SetInitialPassword) {
+      this.formGroup.removeControl("currentPassword");
+      this.formGroup.removeControl("rotateAccountEncryptionKey");
+    }
+
+    if (this.inputPasswordFlow === InputPasswordFlow.ChangeExistingPassword) {
+      this.formGroup.removeControl("rotateAccountEncryptionKey");
+    }
+  }
 
   get minPasswordLengthMsg() {
     if (
@@ -203,16 +214,29 @@ export class InputPasswordComponent {
       HashPurpose.LocalAuthorization,
     );
 
-    this.onPasswordFormSubmit.emit({
-      currentPassword: this.formGroup.controls.currentPassword.value,
+    const passwordInputResult: PasswordInputResult = {
       newPassword,
       hint: this.formGroup.controls.hint.value,
-      rotateAccountEncryptionKey: this.formGroup.controls.rotateAccountEncryptionKey.value,
       kdfConfig,
       masterKey,
       masterKeyHash,
       localMasterKeyHash,
-    });
+    };
+
+    if (this.inputPasswordFlow === InputPasswordFlow.ChangeExistingPassword) {
+      passwordInputResult.currentPassword = this.formGroup.controls.currentPassword.value;
+    }
+
+    if (
+      this.inputPasswordFlow ===
+      InputPasswordFlow.ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey
+    ) {
+      passwordInputResult.currentPassword = this.formGroup.controls.currentPassword.value;
+      passwordInputResult.rotateAccountEncryptionKey =
+        this.formGroup.controls.rotateAccountEncryptionKey.value;
+    }
+
+    this.onPasswordFormSubmit.emit(passwordInputResult);
   };
 
   // Returns true if the password passes all checks, false otherwise
