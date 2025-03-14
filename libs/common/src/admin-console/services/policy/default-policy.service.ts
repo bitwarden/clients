@@ -89,7 +89,7 @@ export class DefaultPolicyService implements PolicyService {
     const policies$ = policies ? of(policies) : this.policies$(userId);
     return policies$.pipe(
       map((obsPolicies) => {
-        const enforcedOptions: MasterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
+        let enforcedOptions: MasterPasswordPolicyOptions | undefined = undefined;
         const filteredPolicies =
           obsPolicies.filter((p) => p.type === PolicyType.MasterPassword) ?? [];
 
@@ -100,6 +100,10 @@ export class DefaultPolicyService implements PolicyService {
         filteredPolicies.forEach((currentPolicy) => {
           if (!currentPolicy.enabled || !currentPolicy.data) {
             return;
+          }
+
+          if (!enforcedOptions) {
+            enforcedOptions = new MasterPasswordPolicyOptions();
           }
 
           if (
