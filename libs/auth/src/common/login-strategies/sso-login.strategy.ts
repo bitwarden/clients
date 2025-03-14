@@ -4,12 +4,12 @@ import { firstValueFrom, Observable, map, BehaviorSubject } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/sso-token.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { HttpStatusCode } from "@bitwarden/common/enums";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";

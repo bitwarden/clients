@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Zadejte svou e-mailovou adresu, na kterou Vám zašleme nápovědu k heslu"
   },
-  "passwordHint": {
-    "message": "Nápověda pro heslo"
-  },
-  "enterEmailToGetHint": {
-    "message": "Zadejte e-mailovou adresu pro zaslání nápovědy k hlavnímu heslu."
-  },
   "getMasterPasswordHint": {
     "message": "Zaslat nápovědu k hlavnímu heslu"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Upravit složku"
+  },
+  "editFolderWithName": {
+    "message": "Upravit složku: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Nová složka"
@@ -1166,10 +1169,6 @@
     "message": "Světlý",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Tmavý (solarizovaný)",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Exportovat z"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Vlastní hostované prostředí"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Zadejte základní URL adresu vlastní hostované aplikace Bitwarden."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Zadejte základní URL adresu Vaší vlastní hostované aplikace Bitwarden. Příklad: https://bitwarden.spolecnost.cz"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Vlastní prostředí"
-  },
-  "customEnvironmentFooter": {
-    "message": "Pro pokročilé uživatele. Můžete zadat základní URL adresu každé služby zvlášť."
   },
   "baseUrl": {
     "message": "URL serveru"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Přetáhnutím seřadíte"
+  },
+  "dragToReorder": {
+    "message": "Přesuňte tažením"
   },
   "cfTypeText": {
     "message": "Text"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Nastavení byla upravena"
-  },
-  "environmentEditedClick": {
-    "message": "Klepněte zde"
-  },
-  "environmentEditedReset": {
-    "message": "pro obnovení do přednastavených nastavení"
-  },
   "serverVersion": {
     "message": "Verze serveru"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Přihlásit se pomocí hlavního hesla"
   },
-  "loggingInAs": {
-    "message": "Přihlašování jako"
-  },
-  "notYou": {
-    "message": "Nejste to Vy?"
-  },
   "newAroundHere": {
     "message": "Jste tu noví?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Přihlásit se zařízením"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Přihlášení zařízením musí být nastaveno v aplikaci Bitwarden pro počítač. Potřebujete další volby?"
   },
   "fingerprintPhraseHeader": {
     "message": "Fráze otisku prstu"
@@ -3343,9 +3321,6 @@
     "message": "Znovu odeslat oznámení"
   },
   "viewAllLogInOptions": {
-    "message": "Zobrazit všechny volby přihlášení"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Zobrazit všechny volby přihlášení"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Žádost o schválení správcem"
   },
-  "approveWithMasterPassword": {
-    "message": "Schválit hlavním heslem"
-  },
   "ssoIdentifierRequired": {
     "message": "Je vyžadován SSO identifikátor organizace."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Váš požadavek byl odeslán Vašemu správci."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Po schválení budete upozorněni."
   },
   "troubleLoggingIn": {
     "message": "Potíže s přihlášením?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Změnit pořadí URI webové stránky. Použijte šipky pro posunutí položky nahoru nebo dolů."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ - přesunuto nahoru, pozice $INDEX$ z $LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Extra široký"
+  },
+  "sshKeyWrongPassword": {
+    "message": "Zadané heslo není správné."
+  },
+  "importSshKey": {
+    "message": "Importovat"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Potvrdit heslo"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Zadejte heslo pro SSH klíč."
+  },
+  "enterSshKeyPassword": {
+    "message": "Zadejte heslo"
+  },
+  "invalidSshKey": {
+    "message": "SSH klíč je neplatný"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Typ SSH klíče není podporován"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Importovat klíč ze schránky"
+  },
+  "sshKeyImported": {
+    "message": "SSH klíč byl úspěšně importován"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nemůžete odebrat kolekce s oprávněními jen pro zobrazení: $COLLECTIONS$",

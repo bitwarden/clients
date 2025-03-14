@@ -26,18 +26,23 @@ export enum FeatureFlag {
   CriticalApps = "pm-14466-risk-insights-critical-application",
   EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
+  ExportAttachments = "export-attachments",
+
+  /* Vault */
+  PM9111ExtensionPersistAddEditForm = "pm-9111-extension-persist-add-edit-form",
+  NewDeviceVerificationTemporaryDismiss = "new-device-temporary-dismiss",
+  NewDeviceVerificationPermanentDismiss = "new-device-permanent-dismiss",
+  VaultBulkManagementAction = "vault-bulk-management-action",
+  SecurityTasks = "security-tasks",
+
+  /* Auth */
+  PM9112_DeviceApprovalPersistence = "pm-9112-device-approval-persistence",
 
   PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
-  VaultBulkManagementAction = "vault-bulk-management-action",
   UnauthenticatedExtensionUIRefresh = "unauth-ui-refresh",
   CipherKeyEncryption = "cipher-key-encryption",
   TrialPaymentOptional = "PM-8163-trial-payment",
-  SecurityTasks = "security-tasks",
-  PM9112_DeviceApprovalPersistence = "pm-9112-device-approval-persistence",
-  NewDeviceVerificationTemporaryDismiss = "new-device-temporary-dismiss",
-  NewDeviceVerificationPermanentDismiss = "new-device-permanent-dismiss",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
-  PM9111ExtensionPersistAddEditForm = "pm-9111-extension-persist-add-edit-form",
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   ResellerManagedOrgAlert = "PM-15814-alert-owners-of-reseller-managed-orgs",
   AccountDeprovisioningBanner = "pm-17120-account-deprovisioning-admin-console-banner",
@@ -80,18 +85,23 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.CriticalApps]: FALSE,
   [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
+  [FeatureFlag.ExportAttachments]: FALSE,
+
+  /* Vault */
+  [FeatureFlag.PM9111ExtensionPersistAddEditForm]: FALSE,
+  [FeatureFlag.NewDeviceVerificationTemporaryDismiss]: FALSE,
+  [FeatureFlag.NewDeviceVerificationPermanentDismiss]: FALSE,
+  [FeatureFlag.VaultBulkManagementAction]: FALSE,
+  [FeatureFlag.SecurityTasks]: FALSE,
+
+  /* Auth */
+  [FeatureFlag.PM9112_DeviceApprovalPersistence]: FALSE,
 
   [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
-  [FeatureFlag.VaultBulkManagementAction]: FALSE,
   [FeatureFlag.UnauthenticatedExtensionUIRefresh]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
   [FeatureFlag.TrialPaymentOptional]: FALSE,
-  [FeatureFlag.SecurityTasks]: FALSE,
-  [FeatureFlag.PM9112_DeviceApprovalPersistence]: FALSE,
-  [FeatureFlag.NewDeviceVerificationTemporaryDismiss]: FALSE,
-  [FeatureFlag.NewDeviceVerificationPermanentDismiss]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
-  [FeatureFlag.PM9111ExtensionPersistAddEditForm]: FALSE,
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
   [FeatureFlag.ResellerManagedOrgAlert]: FALSE,
   [FeatureFlag.AccountDeprovisioningBanner]: FALSE,

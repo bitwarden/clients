@@ -24,7 +24,6 @@ import {
   LoginSuccessHandlerService,
 } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
@@ -32,6 +31,7 @@ import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-p
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -188,8 +188,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       this.twoFactorAuthComponentService.shouldCheckForWebAuthnQueryParamResponse() &&
       webAuthnSupported
     ) {
-      const webAuthn2faResponse =
-        this.activatedRoute.snapshot.queryParamMap.get("webAuthnResponse");
+      const webAuthn2faResponse = this.activatedRoute.snapshot.paramMap.get("webAuthnResponse");
       if (webAuthn2faResponse) {
         this.selectedProviderType = TwoFactorProviderType.WebAuthn;
         return;

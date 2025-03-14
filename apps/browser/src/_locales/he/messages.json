@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "הזן את כתובת דוא\"ל החשבון שלך והרמז לסיסמה שלך יישלח אליך"
   },
-  "passwordHint": {
-    "message": "רמז לסיסמה"
-  },
-  "enterEmailToGetHint": {
-    "message": "הכנס את פרטי האימייל שלך לקבלת רמז עבור הסיסמה הראשית."
-  },
   "getMasterPasswordHint": {
     "message": "הצג את הרמז לסיסמה הראשית"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "ערוך תיקייה"
+  },
+  "editFolderWithName": {
+    "message": "ערוך תיקייה: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "תיקייה חדשה"
@@ -650,7 +653,7 @@
     "message": "הדפדפן שלך לא תומך בהעתקה ללוח. אנא העתק בצורה ידנית."
   },
   "verifyYourIdentity": {
-    "message": "Verify your identity"
+    "message": "אמת את זהותך"
   },
   "weDontRecognizeThisDevice": {
     "message": "אנחנו לא מזהים את המכשיר הזה. הזן את הקוד שנשלח לדוא\"ל שלך כדי לאמת את זהותך."
@@ -902,7 +905,7 @@
     "message": "לא"
   },
   "location": {
-    "message": "Location"
+    "message": "מיקום"
   },
   "unexpectedError": {
     "message": "אירעה שגיאה לא צפויה."
@@ -1072,35 +1075,35 @@
     "description": "Shown to user after login is updated."
   },
   "saveAsNewLoginAction": {
-    "message": "Save as new login",
+    "message": "שמור ככניסה חדשה",
     "description": "Button text for saving login details as a new entry."
   },
   "updateLoginAction": {
-    "message": "Update login",
+    "message": "עדכן כניסה",
     "description": "Button text for updating an existing login entry."
   },
   "saveLoginPrompt": {
-    "message": "Save login?",
+    "message": "לשמור כניסה?",
     "description": "Prompt asking the user if they want to save their login details."
   },
   "updateLoginPrompt": {
-    "message": "Update existing login?",
+    "message": "לעדכן כניסה קיימת?",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
-    "message": "Login saved",
+    "message": "כניסה נשמרה",
     "description": "Message displayed when login details are successfully saved."
   },
   "loginUpdateSuccess": {
-    "message": "Login updated",
+    "message": "כניסה עודכנה",
     "description": "Message displayed when login details are successfully updated."
   },
   "saveFailure": {
-    "message": "Error saving",
+    "message": "שגיאה בשמירה",
     "description": "Error message shown when the system fails to save login details."
   },
   "saveFailureDetails": {
-    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "message": "או לא! לא יכלנו לשמור זאת. נסה להזין את הפרטים באופן ידני.",
     "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
@@ -1165,10 +1168,6 @@
   "light": {
     "message": "בהיר",
     "description": "Light color"
-  },
-  "solarizedDark": {
-    "message": "כהה סולארי",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
     "message": "ייצא מ־"
@@ -1273,16 +1272,16 @@
     "message": "האם אתה בטוח שברצונך למחוק קובץ מצורף זה?"
   },
   "deletedAttachment": {
-    "message": "הקובץ המצורף נמחק"
+    "message": "הצרופה נמחקה"
   },
   "newAttachment": {
-    "message": "צרף קובץ חדש"
+    "message": "הוסף צרופה חדשה"
   },
   "noAttachments": {
     "message": "אין קבצים מצורפים."
   },
   "attachmentSaved": {
-    "message": "הקובץ המצורף נשמר"
+    "message": "הצרופה נשמרה"
   },
   "file": {
     "message": "קובץ"
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "סביבה באירוח עצמי"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "הזן את כתובת השרת המקומי של Bitwarden."
-  },
   "selfHostedBaseUrlHint": {
     "message": "ציין את בסיס ה־URL של התקנת Bitwarden באירוח מקומי שלך. דוגמה: https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "סביבה מותאמת אישית"
-  },
-  "customEnvironmentFooter": {
-    "message": "למשתמשים מתקדמים. באפשרותך לציין את כתובת השרת עבור כל שירות בנפרד."
   },
   "baseUrl": {
     "message": "כתובת שרת"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "גרור כדי למיין"
+  },
+  "dragToReorder": {
+    "message": "גרור כדי לסדר מחדש"
   },
   "cfTypeText": {
     "message": "טקסט"
@@ -3003,7 +2999,7 @@
     "message": "מייצא כספת אישית"
   },
   "exportingIndividualVaultDescription": {
-    "message": "רק פריטי הכספת האישית המשויכת עם $EMAIL$ ייוצאו. פריטי כספת ארגון לא יכללו. רק פרטי פריט כספת ייוצאו ולא יכללו קבצים מצורפים משויכים.",
+    "message": "רק פריטי הכספת האישית המשויכת עם $EMAIL$ ייוצאו. פריטי כספת ארגון לא יכללו. רק פרטי פריט כספת ייוצאו ולא יכללו צרופות משויכות.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3015,7 +3011,7 @@
     "message": "מייצא כספת ארגון"
   },
   "exportingOrganizationVaultDesc": {
-    "message": "רק כספת הארגון המשויכת עם $ORGANIZATION$ ייוצאו. פריטים בכספת אישית או ארגונים אחרים לא יכללו.",
+    "message": "רק כספת הארגון המשויכת עם $ORGANIZATION$ תיוצא. פריטים בכספת אישית או ארגונים אחרים לא יכללו.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "הגדרות נערכו"
-  },
-  "environmentEditedClick": {
-    "message": "לחץ כאן"
-  },
-  "environmentEditedReset": {
-    "message": "כדי לאפס את ההגדרות שהוגדרו מראש"
-  },
   "serverVersion": {
     "message": "גרסת שרת"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "כניסה עם סיסמה ראשית"
   },
-  "loggingInAs": {
-    "message": "נכנס כ־"
-  },
-  "notYou": {
-    "message": "לא את/ה?"
-  },
   "newAroundHere": {
     "message": "חדש כאן?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "כניסה עם מכשיר"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "כניסה עם מכשיר צריכה להיות מוגדרת בהגדרות של היישום Bitwarden. צריך אפשרות אחרת?"
   },
   "fingerprintPhraseHeader": {
     "message": "ביטוי טביעת אצבע"
@@ -3343,9 +3321,6 @@
     "message": "שלח מחדש התראה"
   },
   "viewAllLogInOptions": {
-    "message": "הצג את כל אפשרויות הכניסה"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "הצג את כל אפשרויות הכניסה"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "בקש אישור מנהל"
   },
-  "approveWithMasterPassword": {
-    "message": "אשר עם סיסמה ראשית"
-  },
   "ssoIdentifierRequired": {
     "message": "נדרש מזהה SSO של הארגון."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "הבקשה שלך נשלחה למנהל שלך."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "תקבל התראה כשתאושר."
   },
   "troubleLoggingIn": {
     "message": "בעיות בכניסה?"
@@ -3619,7 +3588,7 @@
     }
   },
   "multipleInputEmails": {
-    "message": "1 או יותר דוא\"לים אינם חוקיים"
+    "message": "כתובת דוא\"ל 1 או יותר אינה חוקית"
   },
   "inputTrimValidator": {
     "message": "אסור שקלט יכיל רק רווח לבן.",
@@ -4435,13 +4404,13 @@
     "message": "העלה"
   },
   "addAttachment": {
-    "message": "הוסף קובץ מצורף"
+    "message": "הוסף צרופה"
   },
   "maxFileSizeSansPunctuation": {
     "message": "גודל הקובץ המרבי הוא 500MB"
   },
   "deleteAttachmentName": {
-    "message": "מחק קובץ מצורף $NAME$",
+    "message": "מחק צרופה $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -4459,13 +4428,13 @@
     }
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "האם אתה בטוח שברצונך למחוק לצמיתות קובץ מצורף זה?"
+    "message": "האם אתה בטוח שברצונך למחוק לצמיתות צרופה זו?"
   },
   "premium": {
     "message": "פרימיום"
   },
   "freeOrgsCannotUseAttachments": {
-    "message": "ארגונים חינמיים לא יכולים להשתמש בקבצים מצורפים"
+    "message": "ארגונים חינמיים לא יכולים להשתמש בצרופות"
   },
   "filters": {
     "message": "מסננים"
@@ -4700,6 +4669,9 @@
         "example": "Custom field"
       }
     }
+  },
+  "reorderWebsiteUriButton": {
+    "message": "סדר מחדש כתובת URI של אתר. השתמש במקש חץ כדי להעביר את הפריט למעלה או למטה."
   },
   "reorderFieldUp": {
     "message": "$LABEL$ עבר למעלה, מיקום $INDEX$ מתוך $LENGTH$",
@@ -5132,6 +5104,33 @@
   "extraWide": {
     "message": "רחב במיוחד"
   },
+  "sshKeyWrongPassword": {
+    "message": "הסיסמה שהזנת שגויה."
+  },
+  "importSshKey": {
+    "message": "ייבוא"
+  },
+  "confirmSshKeyPassword": {
+    "message": "אשר סיסמה"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "הזן את הסיסמה עבור מפתח ה־SSH."
+  },
+  "enterSshKeyPassword": {
+    "message": "הזן סיסמה"
+  },
+  "invalidSshKey": {
+    "message": "מפתח ה־SSH אינו תקין"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "סוג מפתח ה־SSH אינו נתמך"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "ייבא מפתח מלוח ההעתקה"
+  },
+  "sshKeyImported": {
+    "message": "מפתח SSH יובא בהצלחה"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "אינך יכול להסיר אוספים עם הרשאות צפייה בלבד: $COLLECTIONS$",
     "placeholders": {
@@ -5148,6 +5147,6 @@
     "message": "כדי להשתמש בביטול נעילה ביומטרי, נא לעדכן את יישום שולחן העבודה שלך, להשבית ביטול נעילה בעזרת טביעת אצבע בהגדרות שולחן העבודה."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "שנה סיסמה בסיכון"
   }
 }

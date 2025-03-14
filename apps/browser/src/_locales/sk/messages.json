@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Zadajte e-mailovú adresu účtu a zašleme vám nápoveď k heslu"
   },
-  "passwordHint": {
-    "message": "Nápoveď k heslu"
-  },
-  "enterEmailToGetHint": {
-    "message": "Zadajte emailovú adresu na zaslanie nápovede pre vaše hlavné heslo."
-  },
   "getMasterPasswordHint": {
     "message": "Získať nápoveď k hlavnému heslu"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Upraviť priečinok"
+  },
+  "editFolderWithName": {
+    "message": "Upraviť priečinok: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Nový priečinok"
@@ -1166,10 +1169,6 @@
     "message": "Svetlý",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Solarized –⁠ tmavý",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Exportovať z"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Prostredie s vlastným hostingom"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Zadajte základnú URL adresu lokálne hosťovanej inštalácie Bitwarden."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Zadajte základnú URL adresu lokálne hosťovanej inštalácie Bitwarden. Napríklad: https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Vlastné prostredie"
-  },
-  "customEnvironmentFooter": {
-    "message": "Pre pokročilých používateľov. Základnú adresu URL každej služby môžete určiť samostatne."
   },
   "baseUrl": {
     "message": "URL servera"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Zoradiť presúvaním"
+  },
+  "dragToReorder": {
+    "message": "Ťahaním preskupiť"
   },
   "cfTypeText": {
     "message": "Text"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Nastavenia boli upravené"
-  },
-  "environmentEditedClick": {
-    "message": "Kliknite sem"
-  },
-  "environmentEditedReset": {
-    "message": "na obnovenie predvolených nastavení"
-  },
   "serverVersion": {
     "message": "Verzia servera"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Prihlásenie pomocou hlavného hesla"
   },
-  "loggingInAs": {
-    "message": "Prihlasujete sa ako"
-  },
-  "notYou": {
-    "message": "Nie ste to vy?"
-  },
   "newAroundHere": {
     "message": "Ste tu nový?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Prihlásiť pomocou zariadenia"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Prihlásenie pomocou zariadenia musí byť nastavené v nastaveniach aplikácie Bitwarden. Potrebujete inú možnosť?"
   },
   "fingerprintPhraseHeader": {
     "message": "Fráza odtlačku prsta"
@@ -3343,9 +3321,6 @@
     "message": "Znova odoslať upozornenie"
   },
   "viewAllLogInOptions": {
-    "message": "Zobraziť všetky možnosti prihlásenia"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Zobraziť všetky možnosti prihlásenia"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Žiadosť o schválenie správcom"
   },
-  "approveWithMasterPassword": {
-    "message": "Schváliť pomocou hlavného hesla"
-  },
   "ssoIdentifierRequired": {
     "message": "Pole identifikátora SSO je povinné."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Vaša žiadosť bola odoslaná správcovi."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Po schválení budete informovaný."
   },
   "troubleLoggingIn": {
     "message": "Máte problémy s prihlásením?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Zmeniť poradie URI webovej stránky. Na presun položky hore alebo dole použite klávesy so šípkami."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ presunuté vyššie, pozícia $INDEX$/$LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Extra široké"
+  },
+  "sshKeyWrongPassword": {
+    "message": "Zadané heslo je nesprávne."
+  },
+  "importSshKey": {
+    "message": "Importovať"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Potvrdiť heslo"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Zadajte heslo pre kľúč SSH."
+  },
+  "enterSshKeyPassword": {
+    "message": "Zadať heslo"
+  },
+  "invalidSshKey": {
+    "message": "Kľúč SSH je neplatný"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Tento typ kľúča SSH nie je podporovaný"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Importovať kľúč zo schránky"
+  },
+  "sshKeyImported": {
+    "message": "Kľúč SSH bol úspešne importovaný"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Zbierky, ktoré môžete len zobraziť nemôžete odstrániť: $COLLECTIONS$",
