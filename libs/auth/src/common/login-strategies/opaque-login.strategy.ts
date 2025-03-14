@@ -24,7 +24,7 @@ import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { PasswordLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
 
-import { LoginStrategy, LoginStrategyData } from "./login.strategy";
+import { BaseLoginStrategy, LoginStrategyData } from "./login.strategy";
 
 export class OpaqueLoginStrategyData implements LoginStrategyData {
   tokenRequest: OpaqueTokenRequest;
@@ -57,7 +57,7 @@ export class OpaqueLoginStrategyData implements LoginStrategyData {
  *
  * A login strategy that uses the ...
  */
-export class OpaqueLoginStrategy extends LoginStrategy {
+export class OpaqueLoginStrategy extends BaseLoginStrategy {
   /** The email address of the user attempting to log in. */
   email$: Observable<string>;
 
@@ -71,7 +71,7 @@ export class OpaqueLoginStrategy extends LoginStrategy {
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private policyService: PolicyService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
-    ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
+    ...sharedDeps: ConstructorParameters<typeof BaseLoginStrategy>
   ) {
     super(...sharedDeps);
 

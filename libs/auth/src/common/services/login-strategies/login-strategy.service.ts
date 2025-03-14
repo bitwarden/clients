@@ -82,6 +82,15 @@ import {
 
 const sessionTimeoutLength = 5 * 60 * 1000; // 5 minutes
 
+// TODO: Rename the LoginStrategy abstract class to BaseLoginStrategy, then call this LoginStrategy
+type LoginStrategyType =
+  | UserApiLoginStrategy
+  | PasswordLoginStrategy
+  | SsoLoginStrategy
+  | AuthRequestLoginStrategy
+  | WebAuthnLoginStrategy
+  | OpaqueLoginStrategy;
+
 export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   private sessionTimeoutSubscription: Subscription | undefined;
   private currentAuthnTypeState: GlobalState<AuthenticationType | null>;
@@ -93,14 +102,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   authenticationSessionTimeout$: Observable<boolean> =
     this.authenticationTimeoutSubject.asObservable();
 
-  private loginStrategy$: Observable<
-    | UserApiLoginStrategy
-    | PasswordLoginStrategy
-    | SsoLoginStrategy
-    | AuthRequestLoginStrategy
-    | WebAuthnLoginStrategy
-    | null
-  >;
+  private loginStrategy$: Observable<LoginStrategyType | null>;
 
   currentAuthType$: Observable<AuthenticationType | null>;
 
@@ -154,7 +156,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     this.loginStrategy$ = this.currentAuthnTypeState.state$.pipe(
       distinctUntilChanged(),
       combineLatestWith(this.loginStrategyCacheState.state$),
-      this.initializeLoginStrategy.bind(this),
+      map(([strategy, data]) => this.initializeLoginStrategy(strategy, data)),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
   }
@@ -397,8 +399,9 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   }
 
   private initializeLoginStrategy(
-    source: Observable<[AuthenticationType | null, CacheData | null]>,
-  ) {
+    strategy: AuthenticationType | null,
+    data: CacheData | null,
+  ): LoginStrategyType | null {
     const sharedDeps: ConstructorParameters<typeof LoginStrategy> = [
       this.accountService,
       this.masterPasswordService,
@@ -418,58 +421,51 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       this.kdfConfigService,
       this.environmentService,
     ];
-
-    return source.pipe(
-      map(([strategy, data]) => {
-        if (strategy == null) {
-          return null;
-        }
-        // TODO: add support for opaque login strategy
-        switch (strategy) {
-          case AuthenticationType.PasswordHash:
-            return new PasswordLoginStrategy(
-              data?.password ?? new PasswordLoginStrategyData(),
-              this.passwordStrengthService,
-              this.policyService,
-              this,
-              ...sharedDeps,
-            );
-          case AuthenticationType.Sso:
-            return new SsoLoginStrategy(
-              data?.sso ?? new SsoLoginStrategyData(),
-              this.keyConnectorService,
-              this.deviceTrustService,
-              this.authRequestService,
-              this.i18nService,
-              ...sharedDeps,
-            );
-          case AuthenticationType.UserApiKey:
-            return new UserApiLoginStrategy(
-              data?.userApiKey ?? new UserApiLoginStrategyData(),
-              this.keyConnectorService,
-              ...sharedDeps,
-            );
-          case AuthenticationType.AuthRequest:
-            return new AuthRequestLoginStrategy(
-              data?.authRequest ?? new AuthRequestLoginStrategyData(),
-              this.deviceTrustService,
-              ...sharedDeps,
-            );
-          case AuthenticationType.WebAuthn:
-            return new WebAuthnLoginStrategy(
-              data?.webAuthn ?? new WebAuthnLoginStrategyData(),
-              ...sharedDeps,
-            );
-          case AuthenticationType.Opaque:
-            return new OpaqueLoginStrategy(
-              data?.opaque ?? new OpaqueLoginStrategyData(),
-              this.passwordStrengthService,
-              this.policyService,
-              this,
-              ...sharedDeps,
-            );
-        }
-      }),
-    );
+    switch (strategy) {
+      case AuthenticationType.PasswordHash:
+        return new PasswordLoginStrategy(
+          data?.password ?? new PasswordLoginStrategyData(),
+          this.passwordStrengthService,
+          this.policyService,
+          this,
+          ...sharedDeps,
+        );
+      case AuthenticationType.Sso:
+        return new SsoLoginStrategy(
+          data?.sso ?? new SsoLoginStrategyData(),
+          this.keyConnectorService,
+          this.deviceTrustService,
+          this.authRequestService,
+          this.i18nService,
+          ...sharedDeps,
+        );
+      case AuthenticationType.UserApiKey:
+        return new UserApiLoginStrategy(
+          data?.userApiKey ?? new UserApiLoginStrategyData(),
+          this.keyConnectorService,
+          ...sharedDeps,
+        );
+      case AuthenticationType.AuthRequest:
+        return new AuthRequestLoginStrategy(
+          data?.authRequest ?? new AuthRequestLoginStrategyData(),
+          this.deviceTrustService,
+          ...sharedDeps,
+        );
+      case AuthenticationType.WebAuthn:
+        return new WebAuthnLoginStrategy(
+          data?.webAuthn ?? new WebAuthnLoginStrategyData(),
+          ...sharedDeps,
+        );
+      case AuthenticationType.Opaque:
+        return new OpaqueLoginStrategy(
+          data?.opaque ?? new OpaqueLoginStrategyData(),
+          this.passwordStrengthService,
+          this.policyService,
+          this,
+          ...sharedDeps,
+        );
+      default:
+        return null;
+    }
   }
 }
