@@ -2,11 +2,10 @@
 // @ts-strict-ignore
 import { Observable } from "rxjs";
 
-import { EncString } from "../../platform/models/domain/enc-string";
-import { UserId } from "../../types/guid";
-import { DeviceKey, UserKey } from "../../types/key";
-
-import { DeviceResponse } from "./devices/responses/device.response";
+import { DeviceResponse } from "../../../auth/abstractions/devices/responses/device.response";
+import { EncString } from "../../../platform/models/domain/enc-string";
+import { UserId } from "../../../types/guid";
+import { DeviceKey, UserKey } from "../../../types/key";
 
 export abstract class DeviceTrustServiceAbstraction {
   /**

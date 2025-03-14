@@ -5,30 +5,30 @@ import { firstValueFrom, map, Observable, Subject } from "rxjs";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { KeyService } from "@bitwarden/key-management";
 
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
-import { AppIdService } from "../../platform/abstractions/app-id.service";
-import { ConfigService } from "../../platform/abstractions/config/config.service";
-import { CryptoFunctionService } from "../../platform/abstractions/crypto-function.service";
-import { I18nService } from "../../platform/abstractions/i18n.service";
-import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
-import { LogService } from "../../platform/abstractions/log.service";
-import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
-import { AbstractStorageService } from "../../platform/abstractions/storage.service";
-import { StorageLocation } from "../../platform/enums";
-import { EncString } from "../../platform/models/domain/enc-string";
-import { StorageOptions } from "../../platform/models/domain/storage-options";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
-import { DEVICE_TRUST_DISK_LOCAL, StateProvider, UserKeyDefinition } from "../../platform/state";
-import { UserId } from "../../types/guid";
-import { UserKey, DeviceKey } from "../../types/key";
-import { DeviceTrustServiceAbstraction } from "../abstractions/device-trust.service.abstraction";
-import { DeviceResponse } from "../abstractions/devices/responses/device.response";
-import { DevicesApiServiceAbstraction } from "../abstractions/devices-api.service.abstraction";
-import { SecretVerificationRequest } from "../models/request/secret-verification.request";
+import { DeviceResponse } from "../../../auth/abstractions/devices/responses/device.response";
+import { DevicesApiServiceAbstraction } from "../../../auth/abstractions/devices-api.service.abstraction";
+import { SecretVerificationRequest } from "../../../auth/models/request/secret-verification.request";
 import {
   DeviceKeysUpdateRequest,
   UpdateDevicesTrustRequest,
-} from "../models/request/update-devices-trust.request";
+} from "../../../auth/models/request/update-devices-trust.request";
+import { AppIdService } from "../../../platform/abstractions/app-id.service";
+import { ConfigService } from "../../../platform/abstractions/config/config.service";
+import { CryptoFunctionService } from "../../../platform/abstractions/crypto-function.service";
+import { I18nService } from "../../../platform/abstractions/i18n.service";
+import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
+import { LogService } from "../../../platform/abstractions/log.service";
+import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
+import { AbstractStorageService } from "../../../platform/abstractions/storage.service";
+import { StorageLocation } from "../../../platform/enums";
+import { EncString } from "../../../platform/models/domain/enc-string";
+import { StorageOptions } from "../../../platform/models/domain/storage-options";
+import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { DEVICE_TRUST_DISK_LOCAL, StateProvider, UserKeyDefinition } from "../../../platform/state";
+import { UserId } from "../../../types/guid";
+import { UserKey, DeviceKey } from "../../../types/key";
+import { EncryptService } from "../../crypto/abstractions/encrypt.service";
+import { DeviceTrustServiceAbstraction } from "../abstractions/device-trust.service.abstraction";
 
 /** Uses disk storage so that the device key can persist after log out and tab removal. */
 export const DEVICE_KEY = new UserKeyDefinition<DeviceKey | null>(
