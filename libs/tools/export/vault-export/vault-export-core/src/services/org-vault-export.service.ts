@@ -77,12 +77,14 @@ export class OrganizationVaultExportService
       throw new Error("OrganizationId must be set");
     }
 
+    if (format === "zip") {
+      throw new Error("Zip export not supported for organization");
+    }
+
     if (format === "encrypted_json") {
       return onlyManagedCollections
         ? this.getEncryptedManagedExport(organizationId)
         : this.getOrganizationEncryptedExport(organizationId);
-    } else if (format === "zip") {
-      throw new Error("Zip export not supported for organization");
     }
 
     return onlyManagedCollections
