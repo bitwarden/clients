@@ -73,6 +73,9 @@ export class IndividualVaultExportService
     zip.file("data.json", dataJson);
 
     const attachmentsFolder = zip.folder("attachments");
+    if (attachmentsFolder == null) {
+      throw new Error("Error creating attachments folder");
+    }
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
