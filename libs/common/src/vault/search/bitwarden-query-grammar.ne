@@ -16,6 +16,7 @@ let lexer = moo.compile({
   func_in:            'in:',
   func_is:            'is:',
   func_type:          'type:',
+  func_website:       'website:',
   // function parameter separator
   access:        ':',  
   // string match, includes quoted strings with escaped quotes and backslashes
@@ -56,6 +57,7 @@ TERM ->
       | %func_in "collection" %access %string {% function(d) { const start = d[0].offset; const end = d[3].offset + d[3].value.length; return { type: 'inCollection', collection: d[3].value, d: d, start, end, length: end - start + 1 } } %}
       # only items assigned to a specified organization
       | %func_in "org" %access %string        {% function(d) { const start = d[0].offset; const end = d[3].offset + d[3].value.length; return { type: 'inOrg', org: d[3].value, d: d, start, end, length: end - start + 1 } } %}
+      # only items in personal vault
       | %func_in "my_vault"                   {% function(d) { const start = d[0].offset; const length = 11; return { type: 'inMyVault', d: d, start, end: start + length, length } } %}
       # only items in trash
       | %func_in "trash"                      {% function(d) { const start = d[0].offset; const length = 8; return { type: 'inTrash', d: d, start, end: start + length, length } } %}
@@ -63,6 +65,10 @@ TERM ->
       | %func_is "favorite"                   {% function(d) { const start = d[0].offset; const length = 11; return { type: 'isFavorite', d: d, start, end: start + length, length } } %}
       # only items of given type type
       | %func_type %string                    {% function(d) { const start = d[0].offset; const end = d[1].offset + d[1].value.length; return { type: 'type', d:d, cipherType: d[1].value, start, end, length: end - start + 1 } } %}
+      # only items with a specified website
+      | %func_website %string                 {% function(d) { const start = d[0].offset; const end = d[1].offset + d[1].value.length; return { type: 'website', d: d, website: d[1].value, start, end, length: end - start + 1 } } %}
+      # only items with a specified website and a given match pattern
+      | %func_website %string %access %string {% function(d) { const start = d[0].offset; const end = d[3].offset + d[3].value.length; return { type: 'websiteMatch', d: d, website: d[1].value, matchType: d[3].value, start, end, length: end - start + 1 } } %}
       # Boolean NOT operator
       | %NOT _ PARENTHESES                    {% function(d) { const start = d[0].offset; return { type: 'not', value: d[2], d: d, start, end: d[2].end, length: d[2].end - d[0].offset + 1 } } %}
 

@@ -15,6 +15,7 @@ declare var func_has: any;
 declare var func_in: any;
 declare var func_is: any;
 declare var func_type: any;
+declare var func_website: any;
 declare var NOT: any;
 declare var WS: any;
 
@@ -34,6 +35,7 @@ let lexer = moo.compile({
   func_in: "in:",
   func_is: "is:",
   func_type: "type:",
+  func_website: "website:",
   // function parameter separator
   access: ":",
   // string match, includes quoted strings with escaped quotes and backslashes
@@ -299,6 +301,40 @@ const grammar: Grammar = {
         const start = d[0].offset;
         const end = d[1].offset + d[1].value.length;
         return { type: "type", d: d, cipherType: d[1].value, start, end, length: end - start + 1 };
+      },
+    },
+    {
+      name: "TERM",
+      symbols: [
+        lexer.has("func_website") ? { type: "func_website" } : func_website,
+        lexer.has("string") ? { type: "string" } : string,
+      ],
+      postprocess: function (d) {
+        const start = d[0].offset;
+        const end = d[1].offset + d[1].value.length;
+        return { type: "website", d: d, website: d[1].value, start, end, length: end - start + 1 };
+      },
+    },
+    {
+      name: "TERM",
+      symbols: [
+        lexer.has("func_website") ? { type: "func_website" } : func_website,
+        lexer.has("string") ? { type: "string" } : string,
+        lexer.has("access") ? { type: "access" } : access,
+        lexer.has("string") ? { type: "string" } : string,
+      ],
+      postprocess: function (d) {
+        const start = d[0].offset;
+        const end = d[3].offset + d[3].value.length;
+        return {
+          type: "websiteMatch",
+          d: d,
+          website: d[1].value,
+          matchType: d[3].value,
+          start,
+          end,
+          length: end - start + 1,
+        };
       },
     },
     {

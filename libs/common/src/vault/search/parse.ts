@@ -1,5 +1,6 @@
 import { Parser, Grammar } from "nearley";
 
+import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { Utils } from "../../platform/misc/utils";
 import { CardLinkedId, CipherType, FieldType, LinkedIdType, LoginLinkedId } from "../enums";
 import { CipherView } from "../models/view/cipher.view";
@@ -23,6 +24,8 @@ import {
   isSearch,
   isTerm,
   isTypeFilter,
+  isWebsiteFilter,
+  isWebsiteMatchFilter,
 } from "./ast";
 import grammar from "./bitwarden-query-grammar";
 import { ProcessInstructions } from "./query.types";
@@ -315,10 +318,48 @@ function handleNode(node: AstNode): ProcessInstructions {
     return {
       filter: (context) => ({
         ...context,
-        ciphers: context.ciphers.filter(
-          (cipher) =>
-            typeTest.test(CipherType[cipher.type]) ||
-            CipherType[node.cipherType as any] === CipherType[cipher.type],
+        ciphers: context.ciphers.filter((cipher) =>
+          matchEnum(CipherType, cipher.type, typeTest, node.cipherType),
+        ),
+      }),
+      sections: [
+        {
+          start: node.start,
+          end: node.end,
+          type: node.type,
+        },
+      ],
+    };
+  } else if (isWebsiteFilter(node)) {
+    const websiteTest = termToRegexTest(node.website);
+    return {
+      filter: (context) => ({
+        ...context,
+        ciphers: context.ciphers.filter((cipher) =>
+          cipher?.login?.uris?.some((uri) => websiteTest.test(uri.uri)),
+        ),
+      }),
+      sections: [
+        {
+          start: node.start,
+          end: node.end,
+          type: node.type,
+        },
+      ],
+    };
+  } else if (isWebsiteMatchFilter(node)) {
+    const websiteTest = termToRegexTest(node.website);
+    const matchTest = fieldNameToRegexTest(node.matchType);
+    const matchTypes = Object.keys(UriMatchStrategy)
+      .filter((key) => matchTest.test(key))
+      .map((key) => UriMatchStrategy[key as keyof typeof UriMatchStrategy]);
+    return {
+      filter: (context) => ({
+        ...context,
+        ciphers: context.ciphers.filter((cipher) =>
+          cipher?.login?.uris?.some(
+            (uri) => matchTypes.includes(uri.match) && websiteTest.test(uri.uri),
+          ),
         ),
       }),
       sections: [
@@ -332,6 +373,25 @@ function handleNode(node: AstNode): ProcessInstructions {
   } else {
     throw new Error("Invalid node\n" + JSON.stringify(node, null, 2));
   }
+}
+
+/**
+ * Match a string against an enum value. The matching string is sent in twice to match the enum in both directions,
+ * number -> string and string -> number.
+ *
+ * @param enumObj The Enum type
+ * @param cipherVal The existing value on a cipher to test for a match
+ * @param valTest The regex test to apply to cipherVal
+ * @param targetValue The raw value to test against the cipherVal
+ * @returns
+ */
+function matchEnum(
+  enumObj: { [name: string]: any },
+  cipherVal: string | number,
+  valTest: RegExp,
+  targetValue: string,
+) {
+  return valTest.test(enumObj[cipherVal]) || enumObj[targetValue] === enumObj[cipherVal];
 }
 
 function hasTerm(cipher: CipherView, termTest: RegExp, fieldTest: RegExp = /.*/i): boolean {

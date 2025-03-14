@@ -17,6 +17,8 @@ export const AstNodeTypeNames = [
   "inTrash",
   "isFavorite",
   "type",
+  "website",
+  "websiteMatch",
 ] as const;
 export type AstNodeType = (typeof AstNodeTypeNames)[number];
 export type AstNode =
@@ -37,7 +39,9 @@ export type AstNode =
   | InMyVault
   | InTrash
   | IsFavorite
-  | TypeFilter;
+  | TypeFilter
+  | WebsiteFilter
+  | WebsiteMatchFilter;
 
 type AstNodeBase = {
   d: object[];
@@ -202,4 +206,23 @@ export type TypeFilter = AstNodeBase & {
 
 export function isTypeFilter(x: AstNode): x is TypeFilter {
   return x.type === "type";
+}
+
+export type WebsiteFilter = AstNodeBase & {
+  type: "website";
+  website: string;
+};
+
+export function isWebsiteFilter(x: AstNode): x is WebsiteFilter {
+  return x.type === "website";
+}
+
+export type WebsiteMatchFilter = AstNodeBase & {
+  type: "websiteMatch";
+  website: string;
+  matchType: string;
+};
+
+export function isWebsiteMatchFilter(x: AstNode): x is WebsiteMatchFilter {
+  return x.type === "websiteMatch";
 }
