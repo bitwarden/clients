@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Adjuk meg fiók email címét és elküldésre kerül a jelszóra vonatkozó tipp."
   },
-  "passwordHint": {
-    "message": "Jelszó emlékeztető"
-  },
-  "enterEmailToGetHint": {
-    "message": "Írd be a felhasználóhoz kötött e-mail címed, hogy megkapd a mesterjelszó emlékeztetőt."
-  },
   "getMasterPasswordHint": {
     "message": "Kérj mesterjelszó emlékeztetőt"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Mappa szerkesztése"
+  },
+  "editFolderWithName": {
+    "message": "Mappa szerkesztése: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Új mappa"
@@ -1166,10 +1169,6 @@
     "message": "Világos",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Szolarizált sötét",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Exportálás innen:"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Saját üzemeltetésű környezet"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "A helyileg működtetett Bitwarden telepítés alap webcímének megadása."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Adjuk meg a helyileg tárolt Bitwarden telepítés alap webcímét. Példa: https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Egyedi környezet"
-  },
-  "customEnvironmentFooter": {
-    "message": "Haladó felhasználóknak. Minden egyes szolgáltatás alap URL-jét külön megadhatod."
   },
   "baseUrl": {
     "message": "Szerver URL"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Húzás a rendezéshez"
+  },
+  "dragToReorder": {
+    "message": "Átrendezés áthúzással"
   },
   "cfTypeText": {
     "message": "Szöveg"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "A beállítások szerkesztésre kerültek."
-  },
-  "environmentEditedClick": {
-    "message": "Kattintás ide"
-  },
-  "environmentEditedReset": {
-    "message": "az előre konfigurált beállítások visszaállításához."
-  },
   "serverVersion": {
     "message": "Szerver verzió"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Bejelentkezés mesterjelszóval"
   },
-  "loggingInAs": {
-    "message": "Bejelentkezve mint"
-  },
-  "notYou": {
-    "message": "Ez tévedés?"
-  },
   "newAroundHere": {
     "message": "Új felhasználó vagyunk?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Bejelentkezés eszközzel"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Az eszközzel történő bejelentkezést a Biwarden mobilalkalmazás beállításaiban kell beállítani. Másik opcióra van szükség?"
   },
   "fingerprintPhraseHeader": {
     "message": "Ujjlenyomat kifejezés"
@@ -3343,9 +3321,6 @@
     "message": "Értesítés újraküldése"
   },
   "viewAllLogInOptions": {
-    "message": "Összes bejelentkezési opció megtekintése"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Összes bejelentkezési opció megtekintése"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Adminisztrátori jóváhagyás kérés"
   },
-  "approveWithMasterPassword": {
-    "message": "Jóváhagyás mesterjelszóval"
-  },
   "ssoIdentifierRequired": {
     "message": "A szervezeti SSO azonosító megadása szükséges."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "A kérés elküldésre került az adminisztrátornak."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "A jóváhagyás után értesítés érkezik."
   },
   "troubleLoggingIn": {
     "message": "Probléma van a bejelentkezéssel?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "A webhely URI átrendezése. A nyílbillentyűkkel mozgassuk az elemet felfelé vagy lefelé."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ feljebb került, $INDEX$/$LENGTH$ pozícióba",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Extra széles"
+  },
+  "sshKeyWrongPassword": {
+    "message": "A megadott jelszó helytelen."
+  },
+  "importSshKey": {
+    "message": "Importálás"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Jelszó megerősítése"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Adjuk meg az SSH kulcs jelszót."
+  },
+  "enterSshKeyPassword": {
+    "message": "Jelszó megadása"
+  },
+  "invalidSshKey": {
+    "message": "Az SSH kulcs érvénytelen."
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Az SSH kulcstípus nem támogatott."
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Kulcs importálása vágólapból"
+  },
+  "sshKeyImported": {
+    "message": "Az SSH kulcs sikeresen importálásra került."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nem távolíthatók el a csak megtekintési engedéllyel bíró gyűjtemények: $COLLECTIONS$",

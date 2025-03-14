@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "계정 이메일 주소를 입력하세요. 그 주소로 비밀번호 힌트가 전송될 것 입니다."
   },
-  "passwordHint": {
-    "message": "비밀번호 힌트"
-  },
-  "enterEmailToGetHint": {
-    "message": "마스터 비밀번호 힌트를 받으려면 계정의 이메일 주소를 입력하세요."
-  },
   "getMasterPasswordHint": {
     "message": "마스터 비밀번호 힌트 얻기"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "폴더 편집"
+  },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "새 폴더"
@@ -1166,10 +1169,6 @@
     "message": "밝은 테마",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Solarized Dark",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "~(으)로부터 내보내기"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "자체 호스팅 환경"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "온-프레미스 Bitwarden이 호스팅되고 있는 서버의 기본 URL을 지정하세요."
-  },
   "selfHostedBaseUrlHint": {
     "message": "온-프레미스 Bitwarden이 호스팅되고 있는 서버의 기본 URL을 지정하세요. 예: https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "사용자 지정 환경"
-  },
-  "customEnvironmentFooter": {
-    "message": "고급 사용자 전용 설정입니다. 각 서비스의 기본 URL을 개별적으로 지정할 수 있습니다."
   },
   "baseUrl": {
     "message": "서버 URL"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "드래그하여 정렬"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "텍스트"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "설정이 편집되었습니다"
-  },
-  "environmentEditedClick": {
-    "message": "여기를 클릭하세요."
-  },
-  "environmentEditedReset": {
-    "message": "사전 구성된 설정으로 재설정하려면"
-  },
   "serverVersion": {
     "message": "서버 버전"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "마스터 비밀번호로 로그인"
   },
-  "loggingInAs": {
-    "message": "다음으로 로그인 중"
-  },
-  "notYou": {
-    "message": "본인이 아닌가요?"
-  },
   "newAroundHere": {
     "message": "새로 찾아오셨나요?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "기기로 로그인"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "기기로 로그인하려면 Bitwarden 모바일 앱 설정에서 설정해야 합니다. 다른 방식이 필요하신가요?"
   },
   "fingerprintPhraseHeader": {
     "message": "지문 구절"
@@ -3344,9 +3322,6 @@
   },
   "viewAllLogInOptions": {
     "message": "모든 로그인 방식 보기"
-  },
-  "viewAllLoginOptionsV1": {
-    "message": "모든 로그인 옵션 보기"
   },
   "notificationSentDevice": {
     "message": "기기에 알림이 전송되었습니다."
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "관리자 인증 필요"
   },
-  "approveWithMasterPassword": {
-    "message": "마스터 비밀번호로 승인"
-  },
   "ssoIdentifierRequired": {
     "message": "조직의 SSO 식별자가 필요합니다"
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "요청이 관리자에게 전송되었습니다."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "승인되면 알림을 받게 됩니다."
   },
   "troubleLoggingIn": {
     "message": "로그인에 문제가 있나요?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$을 위로 이동했습니다. 위치: $INDEX$ / $LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "매우 넓게"
+  },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "보기 권한만 있는 컬렉션은 제거할 수 없습니다: $COLLECTIONS$",

@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Въведете е-пощата на регистрацията си и подсказката за паролата ще Ви бъде изпратена"
   },
-  "passwordHint": {
-    "message": "Подсказка за паролата"
-  },
-  "enterEmailToGetHint": {
-    "message": "Въведете адреса на имейла си, за да получите подсказка за главната си парола."
-  },
   "getMasterPasswordHint": {
     "message": "Подсказка за главната парола"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Редактиране на папка"
+  },
+  "editFolderWithName": {
+    "message": "Редактиране на папка: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Нова папка"
@@ -1166,10 +1169,6 @@
     "message": "Светъл",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Преекспонирано тъмен",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Изнасяне от"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Собствена среда"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Укажете базовия адрес за собствената ви инсталирана среда на Bitwarden."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Посочете базовия адрес на Вашата собствена инсталация на Битуорден. Пример: https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Специална среда"
-  },
-  "customEnvironmentFooter": {
-    "message": "За специални случаи. Може да укажете основните адреси на всяка ползвана услуга поотделно."
   },
   "baseUrl": {
     "message": "Адрес на сървъра"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Подредба чрез влачене"
+  },
+  "dragToReorder": {
+    "message": "Плъзнете за пренареждане"
   },
   "cfTypeText": {
     "message": "Текст"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Настройките баха променени"
-  },
-  "environmentEditedClick": {
-    "message": "Щракнете тук"
-  },
-  "environmentEditedReset": {
-    "message": "за да върнете предварително зададените настройки"
-  },
   "serverVersion": {
     "message": "Версия на сървъра"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Вписване с главната парола"
   },
-  "loggingInAs": {
-    "message": "Вписване като"
-  },
-  "notYou": {
-    "message": "Това не сте Вие?"
-  },
   "newAroundHere": {
     "message": "За пръв път ли сте тук?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Вписване с устройство"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Вписването с устройство трябва да е включено в настройките на приложението на Битуорден. Друга настройка ли търсите?"
   },
   "fingerprintPhraseHeader": {
     "message": "Уникална фраза"
@@ -3343,9 +3321,6 @@
     "message": "Повторно изпращане на известието"
   },
   "viewAllLogInOptions": {
-    "message": "Вижте всички възможности за вписване"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Вижте всички възможности за вписване"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Подаване на заявка за одобрение от администратор"
   },
-  "approveWithMasterPassword": {
-    "message": "Одобряване с главната парола"
-  },
   "ssoIdentifierRequired": {
     "message": "Идентификаторът за еднократна идентификация на организация е задължителен."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Вашата заявка беше изпратена до администратора Ви."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Ще получите известие, когато тя бъде одобрена."
   },
   "troubleLoggingIn": {
     "message": "Имате проблем с вписването?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Преместване на адреса на уеб сайта. Използвайте стрелките, за да преместите елемента нагоре или надолу."
+  },
   "reorderFieldUp": {
     "message": "Преместено нагоре: $LABEL$. Позиция $INDEX$ от $LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Много широко"
+  },
+  "sshKeyWrongPassword": {
+    "message": "Въведената парола е неправилна."
+  },
+  "importSshKey": {
+    "message": "Внасяне"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Потвърждаване на паролата"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Въведете паролата за SSH-ключа."
+  },
+  "enterSshKeyPassword": {
+    "message": "Въведете паролата"
+  },
+  "invalidSshKey": {
+    "message": "SSH ключът е неправилен"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Типът на SSH ключа не се поддържа"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Внасяне на ключ от буфера за обмен"
+  },
+  "sshKeyImported": {
+    "message": "SSH ключът е внесен успешно"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Не можете да премахвате колекции с права „Само за преглед“: $COLLECTIONS$",

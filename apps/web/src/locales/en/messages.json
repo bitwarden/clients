@@ -7329,12 +7329,6 @@
   "numberOfUsers": {
     "message": "Number of users"
   },
-  "loggingInAs": {
-    "message": "Logging in as"
-  },
-  "notYou": {
-    "message": "Not you?"
-  },
   "pickAnAvatarColor": {
     "message": "Pick an avatar color"
   },
@@ -8457,9 +8451,6 @@
   },
   "requestAdminApproval": {
     "message": "Request admin approval"
-  },
-  "approveWithMasterPassword": {
-    "message": "Approve with master password"
   },
   "trustedDeviceEncryption": {
     "message": "Trusted device encryption"

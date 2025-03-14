@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "یادآور کلمه عبور"
-  },
-  "enterEmailToGetHint": {
-    "message": "برای دریافت یادآور کلمه عبور اصلی خود نشانی ایمیل‌تان را وارد کنید."
-  },
   "getMasterPasswordHint": {
     "message": "دریافت یادآور کلمه عبور اصلی"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "ويرايش پوشه"
+  },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "New folder"
@@ -1166,10 +1169,6 @@
     "message": "روشن",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "تاریک خورشیدی",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "صادرات از"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "محیط خود میزبان"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "نشانی اینترنتی پایه فرضی نصب Bitwarden میزبانی شده را مشخص کنید."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "محیط سفارشی"
-  },
-  "customEnvironmentFooter": {
-    "message": "برای کاربران پیشرفته. شما می‌توانید نشانی پایه هر سرویس را مستقلاً تعیین کنید."
   },
   "baseUrl": {
     "message": "نشانی اینترنتی سرور"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "برای مرتب‌سازی بکشید"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "متن"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "تنظیمات ویرایش شده اند"
-  },
-  "environmentEditedClick": {
-    "message": "اینجا کلیک کنید"
-  },
-  "environmentEditedReset": {
-    "message": "برای بازنشانی به تنظیمات از پیش پیکربندی شده"
-  },
   "serverVersion": {
     "message": "نسخه سرور"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "با کلمه عبور اصلی وارد شوید"
   },
-  "loggingInAs": {
-    "message": "در حال ورود به عنوان"
-  },
-  "notYou": {
-    "message": "شما نیستید؟"
-  },
   "newAroundHere": {
     "message": "اینجا تازه واردی؟"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "ورود با دستگاه"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "ورود به سیستم با دستگاه باید در تنظیمات برنامه‌ی Bitwarden تنظیم شود. به گزینه دیگری نیاز دارید؟"
   },
   "fingerprintPhraseHeader": {
     "message": "عبارت اثر انگشت"
@@ -3343,9 +3321,6 @@
     "message": "ارسال مجدد اعلان"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "View all log in options"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "درخواست تأیید مدیر"
   },
-  "approveWithMasterPassword": {
-    "message": "تأیید با کلمه عبور اصلی"
-  },
   "ssoIdentifierRequired": {
     "message": "شناسه سازمان SSO مورد نیاز است."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "درخواست شما به مدیرتان فرستاده شد."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "به محض تأیید مطلع خواهید شد."
   },
   "troubleLoggingIn": {
     "message": "در ورود مشکلی دارید؟"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Extra wide"
+  },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",

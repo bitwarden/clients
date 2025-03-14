@@ -202,7 +202,7 @@
     "message": "הערות"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "הערה פרטית"
   },
   "note": {
     "message": "הערה"
@@ -428,6 +428,9 @@
   "dragToSort": {
     "message": "גרור כדי למיין"
   },
+  "dragToReorder": {
+    "message": "גרור כדי לסדר מחדש"
+  },
   "cfTypeText": {
     "message": "טקסט"
   },
@@ -469,6 +472,19 @@
   },
   "editFolder": {
     "message": "ערוך תיקייה"
+  },
+  "editWithName": {
+    "message": "ערוך $ITEM$: $NAME$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "תיקייה חדשה"
@@ -882,7 +898,7 @@
     "message": "הפעל"
   },
   "newAttachment": {
-    "message": "צרף קובץ חדש"
+    "message": "הוסף צרופה חדשה"
   },
   "deletedAttachment": {
     "message": "קובץ מצורף שנמחק"
@@ -891,7 +907,7 @@
     "message": "האם אתה בטוח שברצונך למחוק קובץ מצורף זה?"
   },
   "attachmentSaved": {
-    "message": "הקובץ המצורף נשמר."
+    "message": "הצרופה נשמרה"
   },
   "file": {
     "message": "קובץ"
@@ -955,7 +971,7 @@
     "message": "מחק תיקייה"
   },
   "deleteAttachment": {
-    "message": "מחק קובץ מצורף"
+    "message": "מחק צרופה"
   },
   "deleteItemConfirmation": {
     "message": "האם אתה בטוח שברצונך למחוק פריט זה?"
@@ -1033,7 +1049,7 @@
     "message": "לא"
   },
   "location": {
-    "message": "Location"
+    "message": "מיקום"
   },
   "loginOrCreateNewAccount": {
     "message": "צור חשבון חדש או התחבר כדי לגשת לכספת המאובטחת שלך."
@@ -1186,7 +1202,7 @@
     "message": "זמן אימות ההפעלה תם. נא להתחיל מחדש את תהליך הכניסה."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "אמת את זהותך"
   },
   "weDontRecognizeThisDevice": {
     "message": "אנחנו לא מזהים את המכשיר הזה. הזן את הקוד שנשלח לדוא\"ל שלך כדי לאמת את זהותך."
@@ -1269,12 +1285,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "הזן את כתובת דוא\"ל החשבון שלך והרמז לסיסמה שלך יישלח אליך"
-  },
-  "passwordHint": {
-    "message": "רמז לסיסמה"
-  },
-  "enterEmailToGetHint": {
-    "message": "הכנס את כתובת האימייל שלך לקבלת רמז עבור הסיסמה הראשית."
   },
   "getMasterPasswordHint": {
     "message": "הצג את הרמז לסיסמה הראשית"
@@ -4530,6 +4540,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "$LABEL$ עבר למעלה, מיקום $INDEX$ מתוך $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ עבר למטה, מיקום $INDEX$ מתוך $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "בעת עדכון מפתח ההצפנה שלך, התיקיות שלך לא היה ניתנות לפענוח. כדי להמשיך עם העדכון, התיקיות שלך מוכרחות להימחק. לא יימחקו פריטי כספת אם תמשיך."
   },
@@ -4721,7 +4765,7 @@
     "message": "לפריט זה יש קובץ מצורף שצריך תיקון."
   },
   "attachmentFixDescription": {
-    "message": "קובץ מצורף זה משתמש בהצפנה מיושנת. בחר 'תקן' כדי להוריד, להצפין מחדש, ולהעלות מחדש את הקובץ המצורף."
+    "message": "צרופה זו משתמשת בהצפנה מיושנת. בחר 'תקן' כדי להוריד, להצפין מחדש, ולהעלות מחדש את הצרופה."
   },
   "fix": {
     "message": "תקן",
@@ -5091,14 +5135,14 @@
     "message": "מנהלי ובעלי הארגון מוחרגים מאכיפת מדיניות זו."
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "הגבל צפיות"
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "אף אחד לא יכול לצפות בסֵנְד זה לאחר ההגעה למגבלה.",
     "description": "Displayed under the limit views field on Send"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "$ACCESSCOUNT$ צפיות נותרו",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -5108,11 +5152,11 @@
     }
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "פרטי סֵנְד",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
-    "message": "Text to share"
+    "message": "טקסט לשיתוף"
   },
   "sendTypeFile": {
     "message": "קובץ"
@@ -5121,7 +5165,7 @@
     "message": "טקסט"
   },
   "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
+    "message": "הוסף סיסמה אופציונלית עבור נמענים כדי לגשת לסֵנְד זה.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
@@ -5149,14 +5193,14 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Are you sure you want to permanently delete this Send?",
+    "message": "האם אתה בטוח שברצונך למחוק לצמיתות סֵנְד זה?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "תאריך מחיקה"
   },
   "deletionDateDescV2": {
-    "message": "The Send will be permanently deleted on this date.",
+    "message": "סֵנְד זה יימחק לצמיתות בתאריך זה.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5206,7 +5250,7 @@
     "message": "ממתין להסרה"
   },
   "hideTextByDefault": {
-    "message": "Hide text by default"
+    "message": "הסתר טקסט כברירת מחדל"
   },
   "expired": {
     "message": "פג תוקף"
@@ -5228,7 +5272,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "downloadAttachments": {
-    "message": "הורד קבצים מצורפים"
+    "message": "הורד צרופות"
   },
   "sendAccessUnavailable": {
     "message": "הסֵנְד שאליו אתה מנסה לגשת אינו קיים או לא זמין יותר.",
@@ -5677,7 +5721,7 @@
     "message": "הייתה שגיאה בשמירת תאריכי המחיקה והתפוגה שלך."
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "הסתר את כתובת הדוא\"ל שלך מצופים."
   },
   "webAuthnFallbackMsg": {
     "message": "כדי לאמת את האימות הדו־גורמי (2FA) שלך לחץ על הלחצן למטה."
@@ -6688,7 +6732,7 @@
     }
   },
   "characterMaximum": {
-    "message": "$MAX$ character maximum",
+    "message": "$MAX$ תווים מקסימום",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -6697,31 +6741,31 @@
     }
   },
   "idpSingleSignOnServiceUrlRequired": {
-    "message": "Required if Entity ID is not a URL."
+    "message": "נדרש אם מזהה הישות אינו URL."
   },
   "offerNoLongerValid": {
-    "message": "This offer is no longer valid. Contact your organization administrators for more information."
+    "message": "הצעה זו אינה תקפה עוד. צור קשר עם מנהלי הארגון שלך למידע נוסף."
   },
   "openIdOptionalCustomizations": {
-    "message": "Optional customizations"
+    "message": "התאמות אישיות אופציונליות"
   },
   "openIdAuthorityRequired": {
-    "message": "Required if Authority is not valid."
+    "message": "נדרשת אם הרשות אינה חוקית."
   },
   "separateMultipleWithComma": {
-    "message": "Separate multiple with a comma."
+    "message": "הפרד מרובים עם פסיק."
   },
   "sessionTimeout": {
-    "message": "Your session has timed out. Please go back and try logging in again."
+    "message": "זמן ההפעלה שלך תם. נא לחזור ולנסות להיכנס שוב."
   },
   "exportingPersonalVaultTitle": {
-    "message": "Exporting individual vault"
+    "message": "מייצא כספת אישית"
   },
   "exportingOrganizationVaultTitle": {
-    "message": "Exporting organization vault"
+    "message": "מייצא כספת ארגון"
   },
   "exportingIndividualVaultDescription": {
-    "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
+    "message": "רק פריטי הכספת האישית המשויכת עם $EMAIL$ ייוצאו. פריטי כספת ארגון לא יכללו. רק פרטי פריט כספת ייוצאו ולא יכללו צרופות משויכות.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -6730,7 +6774,7 @@
     }
   },
   "exportingOrganizationVaultDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. Items in individual vaults or other organizations will not be included.",
+    "message": "רק כספת הארגון המשויכת עם $ORGANIZATION$ תיוצא. פריטים בכספת אישית או ארגונים אחרים לא יכללו.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6739,32 +6783,32 @@
     }
   },
   "accessDenied": {
-    "message": "Access denied. You do not have permission to view this page."
+    "message": "גישה נדחתה. אין לך הרשאות כדי לצפות בעמוד זה."
   },
   "masterPassword": {
-    "message": "Master password"
+    "message": "סיסמה ראשית"
   },
   "security": {
-    "message": "Security"
+    "message": "אבטחה"
   },
   "keys": {
-    "message": "Keys"
+    "message": "מפתחות"
   },
   "billingHistory": {
-    "message": "Billing history"
+    "message": "היסטורית חיובים"
   },
   "backToReports": {
-    "message": "Back to reports"
+    "message": "חזרה לדוחות"
   },
   "organizationPicker": {
-    "message": "Organization picker"
+    "message": "בוחר ארגון"
   },
   "currentOrganization": {
-    "message": "Current organization",
+    "message": "ארגון נוכחי",
     "description": "This is used by screen readers to indicate the organization that is currently being shown to the user."
   },
   "accountLoggedInAsName": {
-    "message": "Account: Logged in as $NAME$",
+    "message": "חשבון: מחובר בתור $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6773,20 +6817,20 @@
     }
   },
   "accountSettings": {
-    "message": "Account settings"
+    "message": "הגדרות חשבון"
   },
   "generator": {
-    "message": "Generator",
+    "message": "מחולל",
     "description": "Short for 'credential generator'."
   },
   "generateUsername": {
-    "message": "Generate username"
+    "message": "צור שם משתמש"
   },
   "generateEmail": {
-    "message": "Generate email"
+    "message": "צור דוא\"ל"
   },
   "spinboxBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$.",
+    "message": "הערך חייב להיות בין $MIN$ ל־$MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -6800,7 +6844,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "message": " השתמש ב־$RECOMMENDED$ תווים או יותר כדי ליצור סיסמה חזקה.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -6810,7 +6854,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "message": " השתמש ב־$RECOMMENDED$ מילים או יותר כדי ליצור ביטוי סיסמה חזק.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -6820,59 +6864,59 @@
     }
   },
   "plusAddressedEmail": {
-    "message": "Plus addressed email",
+    "message": "דוא\"ל ממוען בפלוס",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
   },
   "plusAddressedEmailDesc": {
-    "message": "Use your email provider's sub-addressing capabilities."
+    "message": "השתמש ביכולות מיעון משנה של ספק הדוא\"ל שלך."
   },
   "catchallEmail": {
-    "message": "Catch-all email"
+    "message": "דוא\"ל תופס־כל"
   },
   "catchallEmailDesc": {
-    "message": "Use your domain's configured catch-all inbox."
+    "message": "השתמש בתיבת דואר תפוס־כל המוגדרת בדומיין שלך."
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "השתמש בדוא\"ל זה"
   },
   "random": {
-    "message": "Random",
+    "message": "אקראי",
     "description": "Generates domain-based username using random letters"
   },
   "randomWord": {
-    "message": "Random word"
+    "message": "מילה אקראית"
   },
   "usernameGenerator": {
-    "message": "Username generator"
+    "message": "מחולל שם משתמש"
   },
   "useThisPassword": {
-    "message": "Use this password"
+    "message": "השתמש בסיסמה זו"
   },
   "useThisUsername": {
-    "message": "Use this username"
+    "message": "השתמש בשם משתמש זה"
   },
   "securePasswordGenerated": {
-    "message": "Secure password generated! Don't forget to also update your password on the website."
+    "message": "סיסמה מאובטחת נוצרה! אל תשכח גם לעדכן את הסיסמה שלך באתר האינטרנט."
   },
   "useGeneratorHelpTextPartOne": {
-    "message": "Use the generator",
+    "message": "השתמש במחולל",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
-    "message": "to create a strong unique password",
+    "message": "כדי ליצור סיסמה חזקה וייחודית",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "service": {
-    "message": "Service"
+    "message": "שירות"
   },
   "unknownCipher": {
-    "message": "Unknown item, you may need to request permission to access this item."
+    "message": "פריט לא ידוע, ייתכן שאתה צריך לבקש הרשאה כדי לגשת אל פריט זה."
   },
   "cannotSponsorSelf": {
-    "message": "You cannot redeem for the active account. Enter a different email."
+    "message": "אינך יכול לממש עבור החשבון הפעיל. הזן דוא\"ל אחר."
   },
   "revokeWhenExpired": {
-    "message": "Expires $DATE$",
+    "message": "יפוג $DATE$",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -6881,7 +6925,7 @@
     }
   },
   "awaitingSyncSingular": {
-    "message": "Token rotated $DAYS$ day ago. Update the billing sync token in your self-hosted organization settings.",
+    "message": "האסימון סובב לפני $DAYS$ יום. עדכן את אסימון סנכרון החיוב בהגדרות הארגון באירוח עצמי שלך.",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -6890,7 +6934,7 @@
     }
   },
   "awaitingSyncPlural": {
-    "message": "Token rotated $DAYS$ days ago. Update the billing sync token in your self-hosted organization settings.",
+    "message": "האסימון סובב לפני $DAYS$ יום. עדכן את אסימון סנכרון החיוב בהגדרות הארגון באירוח עצמי שלך.",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -6899,14 +6943,14 @@
     }
   },
   "lastSync": {
-    "message": "Last sync",
+    "message": "סנכרון אחרון",
     "description": "Used as a prefix to indicate the last time a sync occurred. Example \"Last sync 1968-11-16 00:00:00\""
   },
   "sponsorshipsSynced": {
-    "message": "Self-hosted sponsorships synced."
+    "message": "חסויות של אירוח עצמי סונכרנו."
   },
   "billingManagedByProvider": {
-    "message": "Managed by $PROVIDER$",
+    "message": "מנוהל על ידי $PROVIDER$",
     "placeholders": {
       "provider": {
         "content": "$1",
@@ -6915,25 +6959,25 @@
     }
   },
   "billingContactProviderForAssistance": {
-    "message": "Please reach out to them for further assistance",
+    "message": "נא ליצור איתם קשר עבור סיוע נוסף",
     "description": "This text is displayed if an organization's billing is managed by a Provider. It tells the user to contact the Provider for assistance."
   },
   "forwardedEmail": {
-    "message": "Forwarded email alias"
+    "message": "כינוי דוא\"ל מועבר"
   },
   "forwardedEmailDesc": {
-    "message": "Generate an email alias with an external forwarding service."
+    "message": "צור כינוי דוא\"ל עם שירות העברה חיצוני."
   },
   "forwarderDomainName": {
-    "message": "Email domain",
+    "message": "דומיין דוא\"ל",
     "description": "Labels the domain name email forwarder service option"
   },
   "forwarderDomainNameHint": {
-    "message": "Choose a domain that is supported by the selected service",
+    "message": "בחר דומיין שנתמך על ידי השירות הנבחר",
     "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
-    "message": "$SERVICENAME$ error: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ שגיאה: $ERRORMESSAGE$",
     "description": "Reports an error returned by a forwarding service to the user.",
     "placeholders": {
       "servicename": {
@@ -6947,11 +6991,11 @@
     }
   },
   "forwarderGeneratedBy": {
-    "message": "Generated by Bitwarden.",
+    "message": "נוצר על ידי Bitwarden.",
     "description": "Displayed with the address on the forwarding service's configuration screen."
   },
   "forwarderGeneratedByWithWebsite": {
-    "message": "Website: $WEBSITE$. Generated by Bitwarden.",
+    "message": "אתר: $WEBSITE$. נוצר על ידי Bitwarden.",
     "description": "Displayed with the address on the forwarding service's configuration screen.",
     "placeholders": {
       "WEBSITE": {
@@ -6961,7 +7005,7 @@
     }
   },
   "forwaderInvalidToken": {
-    "message": "Invalid $SERVICENAME$ API token",
+    "message": "אסימון API של $SERVICENAME$ לא חוקי",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -6971,7 +7015,7 @@
     }
   },
   "forwaderInvalidTokenWithMessage": {
-    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
+    "message": "אסימון API של $SERVICENAME$ לא חוקי: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -6985,7 +7029,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ סירב לבקשה שלך. נא ליצור קשר עם נותן השירות שלך עבור סיוע.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -6995,7 +7039,7 @@
     }
   },
   "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ סירב לבקשה שלך: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -7009,7 +7053,7 @@
     }
   },
   "forwarderNoAccountId": {
-    "message": "Unable to obtain $SERVICENAME$ masked email account ID.",
+    "message": "לא ניתן להשיג מזהה חשבון דוא\"ל מסווה של $SERVICENAME$.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
     "placeholders": {
       "servicename": {
@@ -7019,7 +7063,7 @@
     }
   },
   "forwarderNoDomain": {
-    "message": "Invalid $SERVICENAME$ domain.",
+    "message": "דומיין $SERVICENAME$ לא חוקי.",
     "description": "Displayed when the domain is empty or domain authorization failed at the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -7029,7 +7073,7 @@
     }
   },
   "forwarderNoUrl": {
-    "message": "Invalid $SERVICENAME$ url.",
+    "message": "כתובת url של $SERVICENAME$ לא חוקית.",
     "description": "Displayed when the url of the forwarding service wasn't supplied.",
     "placeholders": {
       "servicename": {
@@ -7039,7 +7083,7 @@
     }
   },
   "forwarderUnknownError": {
-    "message": "Unknown $SERVICENAME$ error occurred.",
+    "message": "התרחשה שגיאת $SERVICENAME$ לא ידועה.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
     "placeholders": {
       "servicename": {
@@ -7049,7 +7093,7 @@
     }
   },
   "forwarderUnknownForwarder": {
-    "message": "Unknown forwarder: '$SERVICENAME$'.",
+    "message": "משלח לא ידוע: '$SERVICENAME$'.",
     "description": "Displayed when the forwarding service is not supported.",
     "placeholders": {
       "servicename": {
@@ -7059,23 +7103,23 @@
     }
   },
   "hostname": {
-    "message": "Hostname",
+    "message": "שם מארח",
     "description": "Part of a URL."
   },
   "deviceVerification": {
-    "message": "Device verification"
+    "message": "אימות מכשיר"
   },
   "enableDeviceVerification": {
-    "message": "Turn on device verification"
+    "message": "הפעל אימות מכשיר"
   },
   "deviceVerificationDesc": {
-    "message": "Verification codes are sent to your email address when logging in from an unrecognized device"
+    "message": "קודי אימות נשלחים לכתובת הדוא\"ל שלך בעת כניסה ממכשיר לא מזוהה"
   },
   "updatedDeviceVerification": {
-    "message": "Updated device verification"
+    "message": "אימות מכשיר מעודכן"
   },
   "areYouSureYouWantToEnableDeviceVerificationTheVerificationCodeEmailsWillArriveAtX": {
-    "message": "Are you sure you want to turn on device verification? The verification code emails will arrive at: $EMAIL$",
+    "message": "האם אתה בטוח שברצונך להפעיל אימות מכשיר? הודעות דוא\"ל עם קוד אימות יגיעו אל: $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -7084,52 +7128,52 @@
     }
   },
   "premiumSubcriptionRequired": {
-    "message": "Premium subscription required"
+    "message": "נדרש מנוי פרימיום"
   },
   "scim": {
-    "message": "SCIM provisioning",
+    "message": "הקצאת SCIM",
     "description": "The text, 'SCIM', is an acronym and should not be translated."
   },
   "scimDescription": {
-    "message": "Automatically provision users and groups with your preferred identity provider via SCIM provisioning",
+    "message": "הקצה באופן אוטומטי משתמשים וקבוצות עם ספקי הזהות המועדפים עליך באמצעות הקצאת SCIM",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimIntegrationDescription": {
-    "message": "Automatically provision users and groups with your preferred identity provider via SCIM provisioning. Find supported integrations",
+    "message": "הקצה באופן אוטומטי משתמשים וקבוצות עם ספקי הזהות המועדפים עליך באמצעות הקצאת SCIM. מצא שילובים נתמכים",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
-    "message": "Enable SCIM",
+    "message": "הפעל SCIM",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDescHelpText": {
-    "message": "Set up your preferred identity provider by configuring the URL and SCIM API Key",
+    "message": "הגדר את ספק הזהות המועדף עליך באמצעות הגדרת כתובת ה־URL ומפתח ה־API של SCIM",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimApiKeyHelperText": {
-    "message": "This API key has access to manage users within your organization. It should be kept secret."
+    "message": "למפתח API זה יש גישה לנהל משתמשים בתוך הארגון שלך. יש לשמור עליו בסוד."
   },
   "copyScimKey": {
-    "message": "Copy the SCIM API key to your clipboard",
+    "message": "העתק את מפתח ה־API של SCIM ללוח ההעתקה שלך",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateScimKey": {
-    "message": "Rotate the SCIM API key",
+    "message": "סובב את מפתח ה־API של SCIM",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateScimKeyWarning": {
-    "message": "Are you sure you want to rotate the SCIM API Key? The current key will no longer work for any existing integrations.",
+    "message": "האם אתה בטוח שברצונך לסובב את מפתח ה־API של SCIM? המפתח הנוכחי לא יעבוד יותר עם שילובים קיימים כלשהם.",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateKey": {
-    "message": "Rotate key"
+    "message": "סובב מפתח"
   },
   "scimApiKey": {
-    "message": "SCIM API key",
+    "message": "מפתח API של SCIM",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "copyScimUrl": {
-    "message": "Copy the SCIM endpoint URL to your clipboard",
+    "message": "העתק את כתובת ה־URL של נקודת קצה SCIM ללוח ההעתקה שלך",
     "description": "the text, 'SCIM' and 'URL', are acronyms and should not be translated."
   },
   "scimUrl": {
@@ -7137,21 +7181,21 @@
     "description": "the text, 'SCIM' and 'URL', are acronyms and should not be translated."
   },
   "scimApiKeyRotated": {
-    "message": "SCIM API key successfully rotated",
+    "message": "מפתח API של SCIM סובב בהצלחה",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "scimSettingsSaved": {
-    "message": "SCIM settings saved",
+    "message": "הגדרות SCIM נשמרו",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "inputRequired": {
-    "message": "Input is required."
+    "message": "נדרש קלט."
   },
   "inputEmail": {
-    "message": "Input is not an email address."
+    "message": "קלט הוא לא כתובת דוא\"ל."
   },
   "inputMinLength": {
-    "message": "Input must be at least $COUNT$ characters long.",
+    "message": "אורך הקלט חייב להיות לפחות $COUNT$ תווים.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7160,7 +7204,7 @@
     }
   },
   "inputMaxLength": {
-    "message": "Input must not exceed $COUNT$ characters in length.",
+    "message": "אורך הקלט לא יעלה על $COUNT$ תווים.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7169,7 +7213,7 @@
     }
   },
   "inputForbiddenCharacters": {
-    "message": "The following characters are not allowed: $CHARACTERS$",
+    "message": "התווים הבאים אינם מותרים: $CHARACTERS$",
     "placeholders": {
       "characters": {
         "content": "$1",
@@ -7178,7 +7222,7 @@
     }
   },
   "inputMinValue": {
-    "message": "Input value must be at least $MIN$.",
+    "message": "ערך הקלט חייב להיות לפחות $MIN$.",
     "placeholders": {
       "min": {
         "content": "$1",
@@ -7187,7 +7231,7 @@
     }
   },
   "inputMaxValue": {
-    "message": "Input value must not exceed $MAX$.",
+    "message": "ערך הקלט לא יעלה על $MAX$.",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -7196,10 +7240,10 @@
     }
   },
   "multipleInputEmails": {
-    "message": "1 or more emails are invalid"
+    "message": "כתובת דוא\"ל 1 או יותר אינה חוקית"
   },
   "tooManyEmails": {
-    "message": "You can only submit up to $COUNT$ emails at a time",
+    "message": "אתה יכול לשלוח רק עד $COUNT$ הודעות דוא\"ל בו זמנית",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7208,7 +7252,7 @@
     }
   },
   "fieldsNeedAttention": {
-    "message": "$COUNT$ field(s) above need your attention.",
+    "message": "$COUNT$ שדות למעלה צריכים את תשומת לבך.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7217,10 +7261,10 @@
     }
   },
   "singleFieldNeedsAttention": {
-    "message": "1 field needs your attention."
+    "message": "שדה 1 צריך את תשומת לבך."
   },
   "multipleFieldsNeedAttention": {
-    "message": "$COUNT$ fields need your attention.",
+    "message": "$COUNT$ שדות צריכים את תשומת לבך.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7229,255 +7273,249 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
+    "message": "שגיאה בהתחברות עם השירות Duo. השתמש בשיטת כניסה דו־שלבית אחרת או פנה אל Duo לסיוע."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
+    "message": "פתח את Duo ועקוב אחר השלבים כדי לסיים להיכנס."
   },
   "duoRequiredByOrgForAccount": {
-    "message": "Duo two-step login is required for your account."
+    "message": "נדרשת כניסה דו־שלבית של Duo עבור החשבון שלך."
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+    "message": "נדרשת כניסה דו־שלבית של Duo עבור החשבון שלך. עקוב אחר השלבים למטה כדי לסיים להיכנס."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Follow the steps below to finish logging in."
+    "message": "עקוב אחר השלבים למטה כדי לסיים להיכנס."
   },
   "launchDuo": {
-    "message": "Launch Duo"
+    "message": "פתח את Duo"
   },
   "turnOn": {
-    "message": "Turn on"
+    "message": "הפעל"
   },
   "on": {
-    "message": "On"
+    "message": "מופעל"
   },
   "off": {
-    "message": "Off"
+    "message": "כבוי"
   },
   "members": {
-    "message": "Members"
+    "message": "חברים"
   },
   "reporting": {
-    "message": "Reporting"
+    "message": "מדווח"
   },
   "numberOfUsers": {
-    "message": "Number of users"
-  },
-  "loggingInAs": {
-    "message": "Logging in as"
-  },
-  "notYou": {
-    "message": "Not you?"
+    "message": "מספר משתמשים"
   },
   "pickAnAvatarColor": {
-    "message": "Pick an avatar color"
+    "message": "בחר צבע יצגן"
   },
   "customizeAvatar": {
-    "message": "Customize avatar"
+    "message": "התאם אישית יצגן"
   },
   "avatarUpdated": {
-    "message": "Avatar updated"
+    "message": "יצגן עודכן"
   },
   "brightBlue": {
-    "message": "Bright Blue"
+    "message": "כחול בהיר"
   },
   "green": {
-    "message": "Green"
+    "message": "ירוק"
   },
   "orange": {
-    "message": "Orange"
+    "message": "כתום"
   },
   "lavender": {
-    "message": "Lavender"
+    "message": "לבנדר"
   },
   "yellow": {
-    "message": "Yellow"
+    "message": "צהוב"
   },
   "indigo": {
-    "message": "Indigo"
+    "message": "אינדיגו"
   },
   "teal": {
-    "message": "Teal"
+    "message": "ירוק כחלחל"
   },
   "salmon": {
-    "message": "Salmon"
+    "message": "סלמון"
   },
   "pink": {
-    "message": "Pink"
+    "message": "ורוד"
   },
   "customColor": {
-    "message": "Custom Color"
+    "message": "צבע מותאם אישית"
   },
   "selectPlaceholder": {
-    "message": "-- Select --"
+    "message": "-- בחר --"
   },
   "multiSelectPlaceholder": {
-    "message": "-- Type to filter --"
+    "message": "-- הקלד כדי לסנן --"
   },
   "multiSelectLoading": {
-    "message": "Retrieving options..."
+    "message": "מאחזר אפשרויות..."
   },
   "multiSelectNotFound": {
-    "message": "No items found"
+    "message": "לא נמצאו פריטים"
   },
   "multiSelectClearAll": {
-    "message": "Clear all"
+    "message": "נקה הכל"
   },
   "toggleCharacterCount": {
-    "message": "Toggle character count",
+    "message": "החלף מצב מונה תווים",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
   "passwordCharacterCount": {
-    "message": "Password character count",
+    "message": "מונה תווי סיסמה",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
   "hide": {
-    "message": "Hide"
+    "message": "הסתר"
   },
   "projects": {
-    "message": "Projects",
+    "message": "פרויקטים",
     "description": "Description for the Projects field."
   },
   "lastEdited": {
-    "message": "Last edited",
+    "message": "נערך לאחרונה",
     "description": "The label for the date and time when a item was last edited."
   },
   "editSecret": {
-    "message": "Edit secret",
+    "message": "ערוך סוד",
     "description": "Action to modify an existing secret."
   },
   "addSecret": {
-    "message": "Add secret",
+    "message": "הוסף סוד",
     "description": "Action to create a new secret."
   },
   "copySecretName": {
-    "message": "Copy secret name",
+    "message": "העתק שם סוד",
     "description": "Action to copy the name of a secret to the system's clipboard."
   },
   "copySecretValue": {
-    "message": "Copy secret value",
+    "message": "העתק ערך סוד",
     "description": "Action to copy the value of a secret to the system's clipboard."
   },
   "deleteSecret": {
-    "message": "Delete secret",
+    "message": "מחק סוד",
     "description": "Action to delete a single secret from the system."
   },
   "deleteSecrets": {
-    "message": "Delete secrets",
+    "message": "מחק סודות",
     "description": "The action to delete multiple secrets from the system."
   },
   "hardDeleteSecret": {
-    "message": "Permanently delete secret"
+    "message": "מחק סוד לצמיתות"
   },
   "hardDeleteSecrets": {
-    "message": "Permanently delete secrets"
+    "message": "מחק סודות לצמיתות"
   },
   "secretProjectAssociationDescription": {
-    "message": "Select projects that the secret will be associated with. Only organization users with access to these projects will be able to see the secret.",
+    "message": "בחר פרויקטים שאליהם הסוד ישויך. רק משתמשי ארגון עם גישה לפרויקטים האלה יוכלו לראות את הסוד.",
     "description": "A prompt explaining how secrets can be associated with projects."
   },
   "selectProjects": {
-    "message": "Select projects",
+    "message": "בחירת פרויקטים",
     "description": "A label for a type-to-filter input field to choose projects."
   },
   "searchProjects": {
-    "message": "Search projects",
+    "message": "חפש פרויקטים",
     "description": "Label for the search bar used to search projects."
   },
   "project": {
-    "message": "Project",
+    "message": "פרויקט",
     "description": "Similar to collections, projects can be used to group secrets."
   },
   "editProject": {
-    "message": "Edit project",
+    "message": "ערוך פרויקט",
     "description": "The action to modify an existing project."
   },
   "viewProject": {
-    "message": "View project",
+    "message": "הצג פרויקט",
     "description": "The action to view details of a project."
   },
   "deleteProject": {
-    "message": "Delete project",
+    "message": "מחק פרויקט",
     "description": "The action to delete a project from the system."
   },
   "deleteProjects": {
-    "message": "Delete projects",
+    "message": "מחק פרויקטים",
     "description": "The action to delete multiple projects from the system."
   },
   "secret": {
-    "message": "Secret",
+    "message": "סוד",
     "description": "Label for a secret (key/value pair)"
   },
   "serviceAccount": {
-    "message": "Service account",
+    "message": "חשבון שירות",
     "description": "A machine user which can be used to automate processes and access secrets in the system."
   },
   "serviceAccounts": {
-    "message": "Service accounts",
+    "message": "חשבונות שירות",
     "description": "The title for the section that deals with service accounts."
   },
   "secrets": {
-    "message": "Secrets",
+    "message": "סודות",
     "description": "The title for the section of the application that deals with secrets."
   },
   "nameValuePair": {
-    "message": "Name/Value pair",
+    "message": "צמד שם/ערך",
     "description": "Title for a name/ value pair. Secrets typically consist of a name and value pair."
   },
   "secretEdited": {
-    "message": "Secret edited",
+    "message": "סוד נערך",
     "description": "Notification for the successful editing of a secret."
   },
   "secretCreated": {
-    "message": "Secret created",
+    "message": "סוד נוצר",
     "description": "Notification for the successful creation of a secret."
   },
   "newSecret": {
-    "message": "New secret",
+    "message": "סוד חדש",
     "description": "Title for creating a new secret."
   },
   "newServiceAccount": {
-    "message": "New service account",
+    "message": "חשבון שירות חדש",
     "description": "Title for creating a new service account."
   },
   "secretsNoItemsTitle": {
-    "message": "No secrets to show",
+    "message": "אין סודות להצגה",
     "description": "Empty state to indicate that there are no secrets to display."
   },
   "secretsNoItemsMessage": {
-    "message": "To get started, add a new secret or import secrets.",
+    "message": "כדי להתחיל, הוסף סוד חדש או יבא סודות.",
     "description": "Message to encourage the user to start adding secrets."
   },
   "secretsTrashNoItemsMessage": {
-    "message": "There are no secrets in the trash."
+    "message": "אין סודות באשפה."
   },
   "serviceAccountsNoItemsMessage": {
-    "message": "Create a new service account to get started automating secret access.",
+    "message": "צור חשבון שירות חדש כדי להתחיל לאטמט סודות גישה.",
     "description": "Message to encourage the user to start creating service accounts."
   },
   "serviceAccountsNoItemsTitle": {
-    "message": "Nothing to show yet",
+    "message": "אין מה להראות עדיין",
     "description": "Title to indicate that there are no service accounts to display."
   },
   "searchSecrets": {
-    "message": "Search secrets",
+    "message": "חפש סודות",
     "description": "Placeholder text for searching secrets."
   },
   "deleteServiceAccounts": {
-    "message": "Delete service accounts",
+    "message": "מחק חשבונות שירות",
     "description": "Title for the action to delete one or multiple service accounts."
   },
   "deleteServiceAccount": {
-    "message": "Delete service account",
+    "message": "מחק חשבון שירות",
     "description": "Title for the action to delete a single service account."
   },
   "viewServiceAccount": {
-    "message": "View service account",
+    "message": "הצג חשבון שירות",
     "description": "Action to view the details of a service account."
   },
   "deleteServiceAccountDialogMessage": {
-    "message": "Deleting service account $SERVICE_ACCOUNT$ is permanent and irreversible.",
+    "message": "מחיקת חשבון שירות $SERVICE_ACCOUNT$ היא לצמיתות ובלתי הפיכה.",
     "placeholders": {
       "service_account": {
         "content": "$1",
@@ -7486,10 +7524,10 @@
     }
   },
   "deleteServiceAccountsDialogMessage": {
-    "message": "Deleting service accounts is permanent and irreversible."
+    "message": "מחיקת חשבונות שירות היא לצמיתות ובלתי הפיכה."
   },
   "deleteServiceAccountsConfirmMessage": {
-    "message": "Delete $COUNT$ service accounts",
+    "message": "מחק $COUNT$ חשבונות שירות",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -8393,9 +8431,6 @@
   "requestAdminApproval": {
     "message": "Request admin approval"
   },
-  "approveWithMasterPassword": {
-    "message": "Approve with master password"
-  },
   "trustedDeviceEncryption": {
     "message": "Trusted device encryption"
   },
@@ -8609,9 +8644,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Your request has been sent to your admin."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "You will be notified once approved."
   },
   "troubleLoggingIn": {
     "message": "Trouble logging in?"
@@ -9337,6 +9369,15 @@
   },
   "deviceManagementDesc": {
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
+  },
+  "deviceIdMissing": {
+    "message": "Device ID is missing"
+  },
+  "deviceTypeMissing": {
+    "message": "Device type is missing"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Device creation date is missing"
   },
   "desktopRequired": {
     "message": "Desktop required"
@@ -10080,13 +10121,13 @@
     "description": "Full description for the password generator special characters checkbox"
   },
   "addAttachment": {
-    "message": "Add attachment"
+    "message": "הוסף צרופה"
   },
   "maxFileSizeSansPunctuation": {
     "message": "Maximum file size is 500 MB"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Are you sure you want to permanently delete this attachment?"
+    "message": "האם אתה בטוח שברצונך למחוק לצמיתות צרופה זו?"
   },
   "manageSubscriptionFromThe": {
     "message": "Manage subscription from the",
@@ -10339,6 +10380,36 @@
   "organizationNameMaxLength": {
     "message": "שם ארגון לא יכול לחרוג מ־50 תווים."
   },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
+  "copySSHPrivateKey": {
+    "message": "Copy private key"
+  },
   "openingExtension": {
     "message": "פותח את הרחבת היישום של Bitwarden"
   },
@@ -10504,5 +10575,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "האירועים האלה הם דוגמאות בלבד ולא משקפים אירועים אמיתיים בתוך ארגון ה־Bitwarden שלך."
+  },
+  "cannotCreateCollection": {
+    "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
   }
 }
