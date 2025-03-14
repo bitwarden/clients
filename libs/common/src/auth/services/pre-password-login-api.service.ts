@@ -3,19 +3,20 @@ import { firstValueFrom } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 
-import { PreloginRequest } from "../models/request/prelogin.request";
-import { PreloginResponse } from "../models/response/prelogin.response";
+import { PrePasswordLoginRequest } from "../models/request/pre-password-login.request";
+import { PrePasswordLoginResponse } from "../models/response/pre-password-login.response";
 
-// TODO: rename to PrePasswordLoginApiService as this is only used for pre-password login
-// or consider a better name for what we are doing here: retrieving user's KDF settings or
-// their opaque configuration (both password authentication mechanisms)
-export class PreLoginApiService {
+/**
+ * An API service which facilitates retrieving key derivation information
+ * required for password-based login before the user has authenticated.
+ */
+export class PrePasswordLoginApiService {
   constructor(
     private apiService: ApiService,
     private environmentService: EnvironmentService,
   ) {}
 
-  async postPrelogin(request: PreloginRequest): Promise<PreloginResponse> {
+  async postPrePasswordLogin(request: PrePasswordLoginRequest): Promise<PrePasswordLoginResponse> {
     const env = await firstValueFrom(this.environmentService.environment$);
     const r = await this.apiService.send(
       "POST",
@@ -25,6 +26,6 @@ export class PreLoginApiService {
       true,
       env.getIdentityUrl(),
     );
-    return new PreloginResponse(r);
+    return new PrePasswordLoginResponse(r);
   }
 }

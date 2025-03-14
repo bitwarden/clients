@@ -20,8 +20,8 @@ import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
-import { PreloginRequest } from "@bitwarden/common/auth/models/request/prelogin.request";
-import { PreLoginApiService } from "@bitwarden/common/auth/services/pre-login-api.service";
+import { PrePasswordLoginRequest } from "@bitwarden/common/auth/models/request/pre-password-login.request";
+import { PrePasswordLoginApiService } from "@bitwarden/common/auth/services/pre-password-login-api.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
@@ -132,7 +132,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     protected vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     protected kdfConfigService: KdfConfigService,
     protected taskSchedulerService: TaskSchedulerService,
-    protected preLoginApiService: PreLoginApiService,
+    protected prePasswordLoginApiService: PrePasswordLoginApiService,
   ) {
     this.currentAuthnTypeState = this.stateProvider.get(CURRENT_LOGIN_STRATEGY_KEY);
     this.loginStrategyCacheState = this.stateProvider.get(CACHE_KEY);
@@ -226,8 +226,9 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
 
     // Password credentials may use the PasswordHashLoginStrategy or the OpaqueLoginStrategy
     if (credentials.type === AuthenticationType.Password) {
-      const preLoginRequest = new PreloginRequest(credentials.email);
-      const preLoginResponse = await this.preLoginApiService.postPrelogin(preLoginRequest);
+      const preLoginRequest = new PrePasswordLoginRequest(credentials.email);
+      const preLoginResponse =
+        await this.prePasswordLoginApiService.postPrePasswordLogin(preLoginRequest);
       ownedCredentials = credentials.toSpecificLoginCredentials(preLoginResponse);
     } else {
       // Shallow copy
@@ -327,8 +328,8 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     email = email.trim().toLowerCase();
     let kdfConfig: KdfConfig | undefined;
     try {
-      const preloginResponse = await this.preLoginApiService.postPrelogin(
-        new PreloginRequest(email),
+      const preloginResponse = await this.prePasswordLoginApiService.postPrePasswordLogin(
+        new PrePasswordLoginRequest(email),
       );
       if (preloginResponse != null) {
         kdfConfig = preloginResponse.toKdfConfig();

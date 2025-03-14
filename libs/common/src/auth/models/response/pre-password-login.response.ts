@@ -3,7 +3,7 @@ import { KdfType, createKdfConfig } from "@bitwarden/key-management";
 import { BaseResponse } from "../../../models/response/base.response";
 import { CipherConfiguration } from "../../opaque/models/cipher-configuration";
 
-export class PreloginResponse extends BaseResponse {
+export class PrePasswordLoginResponse extends BaseResponse {
   kdf: KdfType;
   kdfIterations: number;
   kdfMemory?: number;
