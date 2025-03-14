@@ -497,7 +497,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.action = "view";
     await this.vaultItemsComponent.refresh();
     await this.cipherService.clearCache(this.activeUserId);
-    await this.viewComponent.load();
     this.go();
   }
 
