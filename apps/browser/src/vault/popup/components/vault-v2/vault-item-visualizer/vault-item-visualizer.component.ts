@@ -1,6 +1,16 @@
-import { Component, DestroyRef, ElementRef, OnInit, ViewChild } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import {
+  Component,
+  DestroyRef,
+  effect,
+  ElementRef,
+  OnInit,
+  signal,
+  ViewChild,
+  WritableSignal,
+} from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 
 import {
   TypographyModule,
@@ -14,7 +24,6 @@ import {
 } from "@bitwarden/components";
 
 import { generateWiFiQRCode } from "../../../../../../../../libs/vault/src/utils/visual-vault-items";
-
 import { PopupFooterComponent } from "../../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
@@ -39,43 +48,41 @@ import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-p
   templateUrl: "./vault-item-visualizer.component.html",
 })
 export class VaultItemVisualizerComponent implements OnInit {
-  constructor(private destroyRef: DestroyRef) {}
-
-  @ViewChild("visualizer", { static: true }) canvas: ElementRef<HTMLCanvasElement>;
-
-  ctx: CanvasRenderingContext2D;
-  headerText: string;
-  wiFiQRCode: string;
-
-  dataToShare = new FormGroup({
-    qrCodeType: new FormControl("Wi-Fi"),
-    fieldWithSSID: new FormControl("Username"),
-    fieldWithPassword: new FormControl("Password"),
-  });
-
-  async ngOnInit() {
-    // TODO use IMG or ideally SVG (scalable)
-    this.ctx = this.canvas.nativeElement.getContext("2d");
-
-    await this.renderVisualization();
-
-    this.dataToShare.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((values) => {
-      void this.renderVisualization();
-      console.log(values);
+  constructor(
+    private destroyRef: DestroyRef,
+    private sanitizer: DomSanitizer,
+  ) {
+    effect(async () => {
+      const values = this.dataToShareValues();
+      if (typeof values !== "undefined") {
+        const wiFiQRCode = await generateWiFiQRCode(values.fieldWithPassword, values.fieldWithSSID);
+        this.wiFiQRCode.set(wiFiQRCode);
+      }
     });
   }
 
-  async renderVisualization() {
-    this.ctx.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
-    // TODO: get the value from the cipher instead of using the form value
-    this.wiFiQRCode = await generateWiFiQRCode(
-      this.dataToShare.controls.fieldWithSSID.value,
-      this.dataToShare.controls.fieldWithPassword.value,
-    );
-    const img = new Image();
-    img.onload = () => {
-      this.ctx.drawImage(img, 0, 0);
-    };
-    img.src = this.wiFiQRCode;
+  // TODO strings + translations
+  headerText: string;
+  private wiFiQRCode: WritableSignal<string> = signal("");
+
+  dataToShareForm = new FormGroup({
+    qrCodeType: new FormControl(""),
+    fieldWithSSID: new FormControl(""),
+    fieldWithPassword: new FormControl(""),
+  });
+
+  dataToShareValues = toSignal(this.dataToShareForm.valueChanges);
+
+  sanitizeSVG(): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(this.wiFiQRCode());
+  }
+
+  async ngOnInit() {
+    // Set values in init triggers the QR Code generation effect
+    this.dataToShareForm.setValue({
+      qrCodeType: "Wi-Fi",
+      fieldWithSSID: "Username",
+      fieldWithPassword: "Password",
+    });
   }
 }
