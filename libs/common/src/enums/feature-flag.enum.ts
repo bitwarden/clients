@@ -47,6 +47,7 @@ export enum FeatureFlag {
   RecoveryCodeLogin = "pm-17128-recovery-code-login",
   PM12276_BreadcrumbEventLogs = "pm-12276-breadcrumbing-for-business-features",
   PM18794_ProviderPaymentMethod = "pm-18794-provider-payment-method",
+  PM19148_InnovationArchive = "pm-19148-innovation-archive",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -104,6 +105,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.RecoveryCodeLogin]: FALSE,
   [FeatureFlag.PM12276_BreadcrumbEventLogs]: FALSE,
   [FeatureFlag.PM18794_ProviderPaymentMethod]: FALSE,
+  [FeatureFlag.PM19148_InnovationArchive]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

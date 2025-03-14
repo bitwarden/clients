@@ -8,6 +8,7 @@ const itemTypes = [
   "identity",
   "note",
   "sshKey",
+  "archive",
   "trash",
   All,
 ] as const;

@@ -76,17 +76,28 @@
       class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
     >
       <bit-icon [icon]="noItemIcon" aria-hidden="true"></bit-icon>
-      <p>{{ "noItemsInList" | i18n }}</p>
-      <button
-        type="button"
-        buttonType="primary"
-        bitButton
-        (click)="addCipher()"
-        *ngIf="filter.type !== 'trash'"
+      <ng-container
+        *ngIf="filter.type !== 'archive' || !(archiveItemEnabled$ | async); else noArchiveContent"
       >
-        <i class="bwi bwi-plus-f bwi-fw" aria-hidden="true"></i>
-        {{ "newItem" | i18n }}
-      </button>
+        <p>{{ "noItemsInList" | i18n }}</p>
+        <button
+          type="button"
+          buttonType="primary"
+          bitButton
+          (click)="addCipher()"
+          *ngIf="filter.type !== 'trash'"
+        >
+          <i class="bwi bwi-plus-f bwi-fw" aria-hidden="true"></i>
+          {{ "newItem" | i18n }}
+        </button>
+      </ng-container>
+
+      <ng-template #noArchiveContent>
+        <div bitTypography="h4" class="tw-mt-4">{{ "noItemsInArchive" | i18n }}</div>
+        <p class="tw-text-center tw-max-w-md">
+          {{ "archivedItemsDescription" | i18n }}
+        </p>
+      </ng-template>
     </div>
   </div>
 </div>

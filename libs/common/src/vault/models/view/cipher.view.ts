@@ -46,6 +46,7 @@ export class CipherView implements View, InitializerMetadata {
   revisionDate: Date = null;
   creationDate: Date = null;
   deletedDate: Date = null;
+  archivedDate: Date = null;
   reprompt: CipherRepromptType = CipherRepromptType.None;
 
   /**
@@ -72,6 +73,7 @@ export class CipherView implements View, InitializerMetadata {
     this.revisionDate = c.revisionDate;
     this.creationDate = c.creationDate;
     this.deletedDate = c.deletedDate;
+    this.archivedDate = c.archivedDate;
     // Old locally stored ciphers might have reprompt == null. If so set it to None.
     this.reprompt = c.reprompt ?? CipherRepromptType.None;
   }
@@ -133,6 +135,10 @@ export class CipherView implements View, InitializerMetadata {
 
   get isDeleted(): boolean {
     return this.deletedDate != null;
+  }
+
+  get isArchived(): boolean {
+    return this.archivedDate != null;
   }
 
   get linkedFieldOptions() {
