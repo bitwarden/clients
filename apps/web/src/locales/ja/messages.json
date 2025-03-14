@@ -6,7 +6,7 @@
     "message": "きわめて重要なアプリ"
   },
   "noCriticalAppsAtRisk": {
-    "message": "No critical applications at risk"
+    "message": "危険にさらされた重要なアプリケーションはありません"
   },
   "accessIntelligence": {
     "message": "アクセス インテリジェンス"
@@ -117,7 +117,7 @@
     "message": "リスクがあるメンバー"
   },
   "atRiskMembersWithCount": {
-    "message": "At-risk members ($COUNT$)",
+    "message": "危険な状態のメンバー ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -126,7 +126,7 @@
     }
   },
   "atRiskApplicationsWithCount": {
-    "message": "At-risk applications ($COUNT$)",
+    "message": "危険な状態のアプリ ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -135,13 +135,13 @@
     }
   },
   "atRiskMembersDescription": {
-    "message": "These members are logging into applications with weak, exposed, or reused passwords."
+    "message": "これらのメンバーは、脆弱な、または流出したか再利用されたパスワードでアプリにログインしています。"
   },
   "atRiskApplicationsDescription": {
-    "message": "These applications have weak, exposed, or reused passwords."
+    "message": "これらのアプリで、脆弱な、または流出したか再利用されたパスワードを使用しています。"
   },
   "atRiskMembersDescriptionWithApp": {
-    "message": "These members are logging into $APPNAME$ with weak, exposed, or reused passwords.",
+    "message": "これらのメンバーは、脆弱な、または流出したか再利用されたパスワードで $APPNAME$ にログインしています。",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -159,10 +159,10 @@
     "message": "合計アプリ数"
   },
   "unmarkAsCriticalApp": {
-    "message": "Unmark as critical app"
+    "message": "重要なアプリとしてのマークを解除"
   },
   "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Critical application successfully unmarked"
+    "message": "重要なアプリケーションのマークを解除しました"
   },
   "whatTypeOfItem": {
     "message": "このアイテムのタイプは何ですか？"
@@ -202,7 +202,7 @@
     "message": "メモ"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "非公開メモ"
   },
   "note": {
     "message": "メモ"
@@ -428,6 +428,9 @@
   "dragToSort": {
     "message": "ドラッグして並べ替え"
   },
+  "dragToReorder": {
+    "message": "ドラッグして並べ替え"
+  },
   "cfTypeText": {
     "message": "テキスト"
   },
@@ -470,17 +473,30 @@
   "editFolder": {
     "message": "フォルダーを編集"
   },
+  "editWithName": {
+    "message": "Edit $ITEM$: $NAME$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
-    "message": "New folder"
+    "message": "新しいフォルダー"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "フォルダー名"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "親フォルダーの名前の後に「/」を追加するとフォルダをネストします。例: ソーシャル/フォーラム"
   },
   "deleteFolderPermanently": {
-    "message": "Are you sure you want to permanently delete this folder?"
+    "message": "このフォルダーを完全に削除しますか？"
   },
   "baseDomain": {
     "message": "ベースドメイン",
@@ -1033,7 +1049,7 @@
     "message": "いいえ"
   },
   "location": {
-    "message": "Location"
+    "message": "場所"
   },
   "loginOrCreateNewAccount": {
     "message": "安全なデータ保管庫へアクセスするためにログインまたはアカウントを作成してください。"
@@ -1171,13 +1187,13 @@
     "message": "Bitwarden にログイン"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "メールアドレスに送信されたコードを入力してください"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "認証アプリに表示されているコードを入力してください"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "YubiKey を押して認証してください"
   },
   "authenticationTimeout": {
     "message": "認証のタイムアウト"
@@ -1186,16 +1202,16 @@
     "message": "認証セッションの有効期限が切れました。ログイン操作を最初からやり直してください。"
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "本人確認"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "このデバイスは未確認です。本人確認のため、メールアドレスに送信されたコードを入力してください。"
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "ログインを続ける"
   },
   "whatIsADevice": {
-    "message": "What is a device?"
+    "message": "デバイスとは何ですか？"
   },
   "aDeviceIs": {
     "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
@@ -1204,7 +1220,7 @@
     "message": "ログイン開始"
   },
   "logInRequestSent": {
-    "message": "Request sent"
+    "message": "リクエストが送信されました"
   },
   "submit": {
     "message": "送信"
@@ -1269,12 +1285,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "アカウントのメールアドレスを入力すると、パスワードのヒントが送信されます"
-  },
-  "passwordHint": {
-    "message": "パスワードのヒント"
-  },
-  "enterEmailToGetHint": {
-    "message": "マスターパスワードのヒントを受信するアカウントのメールアドレスを入力してください。"
   },
   "getMasterPasswordHint": {
     "message": "マスターパスワードのヒントを取得する"
@@ -1396,13 +1406,13 @@
     "message": "デバイスに通知を送信しました。"
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the "
+    "message": "デバイスまたは"
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "アカウントにアクセスしようとしていますか？"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "$EMAIL$ によるログインの試行",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1411,19 +1421,19 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "アクセスの確認"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "アクセスを拒否"
   },
   "notificationSentDeviceAnchor": {
-    "message": "web app"
+    "message": "ウェブアプリ"
   },
   "notificationSentDevicePart2": {
-    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+    "message": "上で、Bitwarden をロック解除してください。承認する前に、フィンガープリントフレーズが以下と一致していることを確認してください。"
   },
   "notificationSentDeviceComplete": {
-    "message": "Unlock Bitwarden on your device. Make sure the Fingerprint phrase matches the one below before approving."
+    "message": "デバイス上で Bitwarden のロックを解除してください。フィンガープリントフレーズが下記のものと一致していることを確認してから承認してください。"
   },
   "aNotificationWasSentToYourDevice": {
     "message": "お使いのデバイスに通知が送信されました"
@@ -1462,7 +1472,7 @@
     "message": "情報を保存する"
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "このデバイスで30日間再表示しない"
   },
   "sendVerificationCodeEmailAgain": {
     "message": "確認コードをメールで再送"
@@ -1471,11 +1481,11 @@
     "message": "他の2段階認証方法を使用"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "別の方法を選択",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "リカバリーコードを使用する"
   },
   "insertYubiKey": {
     "message": "YubiKey を USB ポートに挿入し、ボタンをタッチしてください。"
@@ -1496,7 +1506,7 @@
     "message": "2段階認証オプション"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "2段階認証の方法を選択"
   },
   "recoveryCodeDesc": {
     "message": "すべての2段階認証プロパイダにアクセスできなくなったときは、リカバリーコードを使用するとアカウントの2段階認証を無効化できます。"
@@ -1541,7 +1551,7 @@
     "message": "(FIDOから移行)"
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "新しいタブで開く"
   },
   "emailTitle": {
     "message": "メールアドレス"
@@ -1831,10 +1841,10 @@
     "message": "ログインし直してください"
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "現在のセッション"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "保留中のリクエスト"
   },
   "logBackInOthersToo": {
     "message": "ログインし直してください。他のBitwardenのアプリを使用している場合、同様にログインし直してください。"
@@ -1913,7 +1923,7 @@
     "message": "次に進むと現在のセッションからログアウトし二段階認証を含め再度ログインが必要になります。他のデバイスでのセッションは1時間程度維持されます。"
   },
   "newDeviceLoginProtection": {
-    "message": "New device login"
+    "message": "新しいデバイスからのログイン"
   },
   "turnOffNewDeviceLoginProtection": {
     "message": "Turn off new device login protection"
@@ -2241,13 +2251,13 @@
     "message": "Manage collection"
   },
   "viewItems": {
-    "message": "View items"
+    "message": "アイテムを表示"
   },
   "viewItemsHidePass": {
     "message": "View items, hidden passwords"
   },
   "editItems": {
-    "message": "Edit items"
+    "message": "アイテムを編集"
   },
   "editItemsHidePass": {
     "message": "Edit items, hidden passwords"
@@ -2259,7 +2269,7 @@
     "message": "アクセスを取り消す"
   },
   "revoke": {
-    "message": "Revoke"
+    "message": "取り消し"
   },
   "twoStepLoginProviderEnabled": {
     "message": "この二段階認証プロバイダは、あなたのアカウントで有効になっています。"
@@ -3953,19 +3963,19 @@
     "message": "Device Type"
   },
   "ipAddress": {
-    "message": "IP Address"
+    "message": "IP アドレス"
   },
   "confirmLogIn": {
-    "message": "Confirm login"
+    "message": "ログインを確認"
   },
   "denyLogIn": {
-    "message": "Deny login"
+    "message": "ログインを拒否"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
+    "message": "このリクエストは無効になりました。"
   },
   "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "message": "$EMAIL$ に $DEVICE$ でのログインを承認しました",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3978,13 +3988,13 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+    "message": "別のデバイスからのログイン試行を拒否しました。本当にあなたであった場合は、もう一度デバイスでログインしてみてください。"
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "ログインリクエストの有効期限が切れています。"
   },
   "justNow": {
-    "message": "Just now"
+    "message": "たった今"
   },
   "requestedXMinutesAgo": {
     "message": "Requested $MINUTES$ minutes ago",
@@ -4513,7 +4523,7 @@
     "message": "暗号化キーの更新を続行できません"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "$LABEL$ を編集",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4522,11 +4532,45 @@
     }
   },
   "reorderToggleButton": {
-    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "message": "$LABEL$ の順序を変更します。矢印キーを押すとアイテムを上下に移動します。",
     "placeholders": {
       "label": {
         "content": "$1",
         "example": "Custom field"
+      }
+    }
+  },
+  "reorderFieldUp": {
+    "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ moved down, position $INDEX$ of $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
       }
     }
   },
@@ -7241,7 +7285,7 @@
     "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Follow the steps below to finish logging in."
+    "message": "以下の手順に従ってログインを完了してください。"
   },
   "launchDuo": {
     "message": "DUO を起動"
@@ -7263,12 +7307,6 @@
   },
   "numberOfUsers": {
     "message": "ユーザー数"
-  },
-  "loggingInAs": {
-    "message": "ログイン中:"
-  },
-  "notYou": {
-    "message": "あなたではないですか？"
   },
   "pickAnAvatarColor": {
     "message": "アバターの色を選択"
@@ -8393,9 +8431,6 @@
   "requestAdminApproval": {
     "message": "管理者の承認を要求する"
   },
-  "approveWithMasterPassword": {
-    "message": "マスターパスワードで承認する"
-  },
   "trustedDeviceEncryption": {
     "message": "信頼できるデバイスでの暗号化"
   },
@@ -8609,9 +8644,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "要求を管理者に送信しました。"
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "承認されると通知されます。 "
   },
   "troubleLoggingIn": {
     "message": "ログインできない場合"
@@ -9338,6 +9370,15 @@
   "deviceManagementDesc": {
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
+  "deviceIdMissing": {
+    "message": "Device ID is missing"
+  },
+  "deviceTypeMissing": {
+    "message": "Device type is missing"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Device creation date is missing"
+  },
   "desktopRequired": {
     "message": "Desktop required"
   },
@@ -9937,25 +9978,25 @@
     "message": "GB の追加ストレージ"
   },
   "sshKeyAlgorithm": {
-    "message": "Key algorithm"
+    "message": "鍵アルゴリズム"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "秘密鍵"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "公開鍵"
   },
   "sshFingerprint": {
-    "message": "Fingerprint"
+    "message": "フィンガープリント"
   },
   "sshKeyFingerprint": {
-    "message": "Fingerprint"
+    "message": "フィンガープリント"
   },
   "sshKeyPrivateKey": {
-    "message": "Private key"
+    "message": "秘密鍵"
   },
   "sshKeyPublicKey": {
-    "message": "Public key"
+    "message": "公開鍵"
   },
   "sshKeyAlgorithmED25519": {
     "message": "ED25519"
@@ -10037,7 +10078,7 @@
     "message": "編集権限"
   },
   "textHelpText": {
-    "message": "Use text fields for data like security questions"
+    "message": "セキュリティに関する質問などのデータにはテキストフィールドを使用します"
   },
   "hiddenHelpText": {
     "message": "Use hidden fields for sensitive data like a password"
@@ -10096,7 +10137,7 @@
     "message": "To host Bitwarden on your own server, you will need to upload your license file. To support Free Families plans and advanced billing capabilities for your self-hosted organization, you will need to set up automatic sync in your self-hosted organization."
   },
   "selfHostingTitleProper": {
-    "message": "Self-Hosting"
+    "message": "セルフホスティング"
   },
   "claim-domain-single-org-warning": {
     "message": "Claiming a domain will turn on the single organization policy."
@@ -10105,7 +10146,7 @@
     "message": "Non-compliant members will be revoked. Administrators can restore members once they leave all other organizations."
   },
   "deleteOrganizationUser": {
-    "message": "Delete $NAME$",
+    "message": "$NAME$ を削除",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -10129,7 +10170,7 @@
     "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
-    "message": "Deleted $NAME$",
+    "message": "$NAME$ を削除しました",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -10339,6 +10380,36 @@
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
   },
+  "sshKeyWrongPassword": {
+    "message": "入力されたパスワードが間違っています。"
+  },
+  "importSshKey": {
+    "message": "インポート"
+  },
+  "confirmSshKeyPassword": {
+    "message": "パスワードを確認"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "SSH キーのパスワードを入力します。"
+  },
+  "enterSshKeyPassword": {
+    "message": "パスワードを入力"
+  },
+  "invalidSshKey": {
+    "message": "SSH キーが無効です"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "サポートされていない種類の SSH キーです"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "クリップボードからキーをインポート"
+  },
+  "sshKeyImported": {
+    "message": "SSH キーのインポートに成功しました"
+  },
+  "copySSHPrivateKey": {
+    "message": "秘密鍵をコピー"
+  },
   "openingExtension": {
     "message": "Opening the Bitwarden browser extension"
   },
@@ -10479,13 +10550,13 @@
     "message": "Assigned seats exceed available seats."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "危険なパスワードの変更"
   },
   "removeUnlockWithPinPolicyTitle": {
-    "message": "Remove Unlock with PIN"
+    "message": "PINによるロック解除を削除"
   },
   "removeUnlockWithPinPolicyDesc": {
-    "message": "Do not allow members to unlock their account with a PIN."
+    "message": "PINによるアカウントのロック解除をメンバーに許可しません。"
   },
   "limitedEventLogs": {
     "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",
@@ -10504,5 +10575,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
+  },
+  "cannotCreateCollection": {
+    "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
   }
 }

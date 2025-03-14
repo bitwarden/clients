@@ -8,6 +8,8 @@
 apps/desktop/desktop_native @bitwarden/team-platform-dev
 apps/desktop/desktop_native/objc/src/native/autofill @bitwarden/team-autofill-dev
 apps/desktop/desktop_native/core/src/autofill @bitwarden/team-autofill-dev
+## No ownership for Cargo.toml to allow dependency updates
+apps/desktop/desktop_native/Cargo.toml
 
 ## Auth team files ##
 apps/browser/src/auth @bitwarden/team-auth-dev

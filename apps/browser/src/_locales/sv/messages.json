@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "Lösenordsledtråd"
-  },
-  "enterEmailToGetHint": {
-    "message": "Ange din e-postadress för att hämta din huvudlösenordsledtråd."
-  },
   "getMasterPasswordHint": {
     "message": "Hämta huvudlösenordsledtråd"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Redigera mapp"
+  },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Ny mapp"
@@ -1166,10 +1169,6 @@
     "message": "Ljust",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Solarized mörk",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Exportera från"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Egen-hostad miljö"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Ange bas-URL:en för din \"on-premise\"-hostade Bitwarden-installation."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Anpassad miljö"
-  },
-  "customEnvironmentFooter": {
-    "message": "För avancerade användare. Du kan ange bas-URL:en för varje tjänst oberoende av varandra."
   },
   "baseUrl": {
     "message": "Server-URL"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Dra för att sortera"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Text"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Inställningarna har ändrats"
-  },
-  "environmentEditedClick": {
-    "message": "Klicka här"
-  },
-  "environmentEditedReset": {
-    "message": "för att återställa till förkonfigurerade inställningar"
-  },
   "serverVersion": {
     "message": "Serverversion"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Logga in med huvudlösenord"
   },
-  "loggingInAs": {
-    "message": "Loggar in som"
-  },
-  "notYou": {
-    "message": "Är det inte du?"
-  },
   "newAroundHere": {
     "message": "Är du ny här?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Logga in med enhet"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "\"Logga in med enhet\" måste ställas in i inställningarna i Bitwardens app. Behöver du ett annat alternativ?"
   },
   "fingerprintPhraseHeader": {
     "message": "Fingeravtrycksfras"
@@ -3344,9 +3322,6 @@
   },
   "viewAllLogInOptions": {
     "message": "Visa alla inloggningsalternativ"
-  },
-  "viewAllLoginOptionsV1": {
-    "message": "View all log in options"
   },
   "notificationSentDevice": {
     "message": "En avisering har skickats till din enhet."
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Be om godkännande från administratör"
   },
-  "approveWithMasterPassword": {
-    "message": "Godkänn med huvudlösenord"
-  },
   "ssoIdentifierRequired": {
     "message": "Organisationens SSO-identifierare krävs."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Din begäran har skickats till din administratör."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Du kommer att meddelas vid godkännande."
   },
   "troubleLoggingIn": {
     "message": "Problem med att logga in?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Extra wide"
+  },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",

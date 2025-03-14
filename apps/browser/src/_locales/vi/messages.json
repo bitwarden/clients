@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "Gợi ý mật khẩu"
-  },
-  "enterEmailToGetHint": {
-    "message": "Nhập địa chỉ email tài khoản của bạn để nhận gợi ý mật khẩu chính."
-  },
   "getMasterPasswordHint": {
     "message": "Nhận gợi ý mật khẩu chính"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Chỉnh sửa thư mục"
+  },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Thư mục mới"
@@ -1166,10 +1169,6 @@
     "message": "Sáng",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Solarized Dark",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Xuất từ"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Môi trường tự lưu trữ"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Chỉ định liên kết cơ bản của cài đặt bitwarden tại chỗ của bạn."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Nhập địa chỉ cơ sở của bản cài đặt Bitwarden được lưu trữ tại máy chủ của bạn. Ví dụ: https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Môi trường tùy chỉnh"
-  },
-  "customEnvironmentFooter": {
-    "message": "Đối với người dùng nâng cao. Bạn có thể chỉ định URL cơ bản của mỗi dịch vụ một cách độc lập."
   },
   "baseUrl": {
     "message": "URL máy chủ"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Kéo để sắp xếp"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Văn bản"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Cài đặt đã được chỉnh sửa"
-  },
-  "environmentEditedClick": {
-    "message": "Nhấn vào đây"
-  },
-  "environmentEditedReset": {
-    "message": "để đặt lại cài đặt đã thiết đặt từ trước"
-  },
   "serverVersion": {
     "message": "Phiên bản máy chủ"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Đăng nhập bằng mật khẩu chính"
   },
-  "loggingInAs": {
-    "message": "Đang đăng nhập với tên"
-  },
-  "notYou": {
-    "message": "Không phải bạn?"
-  },
   "newAroundHere": {
     "message": "Bạn mới tới đây sao?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Đăng nhập bằng thiết bị"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Đăng nhập bằng thiết bị phải được thiết lập trong cài đặt của ứng dụng Bitwarden. Dùng cách khác?"
   },
   "fingerprintPhraseHeader": {
     "message": "Cụm vân tay"
@@ -3343,9 +3321,6 @@
     "message": "Gửi lại thông báo"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "View all log in options"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Yêu cầu quản trị viên phê duyệt"
   },
-  "approveWithMasterPassword": {
-    "message": "Phê duyệt bằng mật khẩu chính"
-  },
   "ssoIdentifierRequired": {
     "message": "Cần có mã định danh SSO của tổ chức."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Yêu cầu của bạn đã được gửi đến quản trị viên."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Bạn sẽ có thông báo nếu được phê duyệt."
   },
   "troubleLoggingIn": {
     "message": "Không thể đăng nhập?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ đã di chuyển lên vị trí $INDEX$ / $LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Extra wide"
+  },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Bạn không thể xóa các bộ sưu tập với quyền chỉ xem: $COLLECTIONS$",
