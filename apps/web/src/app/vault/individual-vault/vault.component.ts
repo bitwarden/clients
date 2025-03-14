@@ -167,7 +167,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   archiveItemEnabled$: Observable<boolean>;
 
   protected noItemIcon = Icons.Search;
-  protected emptyArchive = Icons.EmptyArchive;
   protected performingInitialLoad = true;
   protected refreshing = false;
   protected processingEvent = false;
