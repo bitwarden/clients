@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Als je het e-mailadres van je account invult, versturen we je je wachtwoordhint"
   },
-  "passwordHint": {
-    "message": "Wachtwoordhint"
-  },
-  "enterEmailToGetHint": {
-    "message": "Voer het e-mailadres van je account in om je hoofdwachtwoordhint te ontvangen."
-  },
   "getMasterPasswordHint": {
     "message": "Hoofdwachtwoordhint opvragen"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Map bewerken"
+  },
+  "editFolderWithName": {
+    "message": "Map bewerken: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Nieuwe map"
@@ -1166,10 +1169,6 @@
     "message": "Licht",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Overbelicht donker",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Exporteren vanuit"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Zelfgehoste omgeving"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Geef de basis-URL van jouw zelfgehoste Bitwarden-installatie."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specificeer de basis-URL van je zelfgehoste Bitwarden-installatie. Bijvoorbeeld: https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Aangepaste omgeving"
-  },
-  "customEnvironmentFooter": {
-    "message": "Voor gevorderde gebruikers. Je kunt de basis-URL van elke dienst afzonderlijk instellen."
   },
   "baseUrl": {
     "message": "Server-URL"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Slepen om te sorteren"
+  },
+  "dragToReorder": {
+    "message": "Sleep om te herschikken"
   },
   "cfTypeText": {
     "message": "Tekst"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Instellingen zijn bijgewerkt"
-  },
-  "environmentEditedClick": {
-    "message": "Klik hier"
-  },
-  "environmentEditedReset": {
-    "message": "om terug te gaan naar vooraf geconfigureerde instellingen"
-  },
   "serverVersion": {
     "message": "Serverversie"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Inloggen met je hoofdwachtwoord"
   },
-  "loggingInAs": {
-    "message": "Inloggen als"
-  },
-  "notYou": {
-    "message": "Ben jij dit niet?"
-  },
   "newAroundHere": {
     "message": "Nieuw hier?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Inloggen met apparaat"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Inloggen met apparaat moet aangezet worden in de instellingen van de Bitwarden app. Nood aan een andere optie?"
   },
   "fingerprintPhraseHeader": {
     "message": "Vingerafdrukzin"
@@ -3344,9 +3322,6 @@
   },
   "viewAllLogInOptions": {
     "message": "Alle inlogopties bekijken"
-  },
-  "viewAllLoginOptionsV1": {
-    "message": "Alle inlogopties weergeven"
   },
   "notificationSentDevice": {
     "message": "Er is een melding naar je apparaat verzonden."
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Goedkeuring van beheerder vragen"
   },
-  "approveWithMasterPassword": {
-    "message": "Goedkeuren met hoofdwachtwoord"
-  },
   "ssoIdentifierRequired": {
     "message": "Organisatie SSO-identificatie vereist."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Je verzoek is naar je beheerder verstuurd."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Je krijgt een melding zodra je bent goedgekeurd."
   },
   "troubleLoggingIn": {
     "message": "Problemen met inloggen?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Website URI herschikken. Gebruik de pijltjestoets om het item omhoog of omlaag te verplaatsen."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ is naar boven verplaatst, positie $INDEX$ van $LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Extra breed"
+  },
+  "sshKeyWrongPassword": {
+    "message": "Het door jou ingevoerde wachtwoord is onjuist."
+  },
+  "importSshKey": {
+    "message": "Importeren"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Wachtwoord bevestigen"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Voer het wachtwoord voor de SSH sleutel in."
+  },
+  "enterSshKeyPassword": {
+    "message": "Wachtwoord invoeren"
+  },
+  "invalidSshKey": {
+    "message": "De SSH-sleutel is ongeldig"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Het type SSH-sleutel is niet ondersteund"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Sleutel van klembord importeren"
+  },
+  "sshKeyImported": {
+    "message": "SSH-sleutel succesvol geïmporteerd"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Je kunt verzamelingen niet verwijderen met alleen rechten voor weergeven: $COLLECTIONS$",
