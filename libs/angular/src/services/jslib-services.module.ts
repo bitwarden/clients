@@ -1253,6 +1253,7 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       OrganizationApiServiceAbstraction,
       SyncService,
+      ConfigService,
     ],
   }),
   safeProvider({

@@ -22,6 +22,7 @@ import { PolicyType, ProviderStatusType } from "@bitwarden/common/admin-console/
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -66,6 +67,7 @@ export class OrganizationLayoutComponent implements OnInit {
 
   showAccountDeprovisioningBanner$: Observable<boolean>;
   protected isBreadcrumbEventLogsEnabled$: Observable<boolean>;
+  protected canShowPoliciesTab$: Observable<boolean>;
 
   constructor(
     private route: ActivatedRoute,
@@ -76,6 +78,7 @@ export class OrganizationLayoutComponent implements OnInit {
     private providerService: ProviderService,
     protected bannerService: AccountDeprovisioningBannerService,
     private accountService: AccountService,
+    private organizationBillingService: OrganizationBillingServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -140,6 +143,18 @@ export class OrganizationLayoutComponent implements OnInit {
     ))
       ? "claimedDomains"
       : "domainVerification";
+
+    this.canShowPoliciesTab$ = this.organization$.pipe(
+      switchMap((organization) =>
+        this.organizationBillingService
+          .isBreadcrumbingPoliciesEnabled$(organization)
+          .pipe(
+            map(
+              (isBreadcrumbingEnabled) => isBreadcrumbingEnabled || organization.canManagePolicies,
+            ),
+          ),
+      ),
+    );
   }
 
   canShowVaultTab(organization: Organization): boolean {
