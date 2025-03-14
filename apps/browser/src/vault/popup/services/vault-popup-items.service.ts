@@ -108,7 +108,7 @@ export class VaultPopupItemsService {
             this.cipherService.failedToDecryptCiphers$(userId),
           ]),
         ),
-        map(([ciphers, failedToDecryptCiphers]) => [...failedToDecryptCiphers, ...ciphers]),
+        map(([ciphers, failedToDecryptCiphers]) => [...(failedToDecryptCiphers || []), ...ciphers]),
       ),
     ),
     shareReplay({ refCount: true, bufferSize: 1 }),
