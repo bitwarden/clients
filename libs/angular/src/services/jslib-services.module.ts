@@ -472,6 +472,7 @@ const safeProviders: SafeProvider[] = [
       VaultTimeoutSettingsService,
       KdfConfigService,
       TaskSchedulerService,
+      PreLoginApiService,
     ],
   }),
   safeProvider({
