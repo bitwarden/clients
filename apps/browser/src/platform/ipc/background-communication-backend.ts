@@ -13,14 +13,14 @@ export class BackgroundCommunicationBackend implements CommunicationBackend {
         return;
       }
 
-      void this.queue.enqueue({ ...message.message, source: { Web: sender.tab.id } });
+      void this.queue.enqueue({ ...message.message, source: { Web: { id: sender.tab.id } } });
     });
   }
 
   async send(message: OutgoingMessage): Promise<void> {
     if (typeof message.destination === "object") {
       await BrowserApi.tabSendMessage(
-        { id: message.destination.Web } as chrome.tabs.Tab,
+        { id: message.destination.Web.id } as chrome.tabs.Tab,
         { type: "bitwarden-ipc-message", message } satisfies IpcMessage,
         { frameId: 0 },
       );
