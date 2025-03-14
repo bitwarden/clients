@@ -25,6 +25,11 @@ export type OptionalInitialValues = {
   username?: string;
   password?: string;
   name?: string;
+  cardholderName?: string;
+  number?: string;
+  expMonth?: string;
+  expYear?: string;
+  code?: string;
 };
 
 /**
