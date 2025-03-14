@@ -30,9 +30,11 @@ import {
   BitwardenCsvOrgExportType,
   BitwardenEncryptedOrgJsonExport,
   BitwardenUnEncryptedOrgJsonExport,
+  ExportedVaultAsString,
 } from "../types";
 
 import { BaseVaultExportService } from "./base-vault-export.service";
+import { ExportHelper } from "./export-helper";
 import { OrganizationVaultExportServiceAbstraction } from "./org-vault-export.service.abstraction";
 import { ExportFormat } from "./vault-export.service.abstraction";
 
@@ -58,21 +60,25 @@ export class OrganizationVaultExportService
     organizationId: string,
     password: string,
     onlyManagedCollections: boolean,
-  ): Promise<string> {
-    const clearText = await this.getOrganizationExport(
+  ): Promise<ExportedVaultAsString> {
+    const exportVault = await this.getOrganizationExport(
       organizationId,
       "json",
       onlyManagedCollections,
     );
 
-    return this.buildPasswordExport(clearText, password);
+    return {
+      type: "text/plain",
+      data: await this.buildPasswordExport(exportVault.data, password),
+      fileName: ExportHelper.getFileName("org", "encrypted_json"),
+    } as ExportedVaultAsString;
   }
 
   async getOrganizationExport(
     organizationId: string,
     format: ExportFormat = "csv",
     onlyManagedCollections: boolean,
-  ): Promise<string> {
+  ): Promise<ExportedVaultAsString> {
     if (Utils.isNullOrWhitespace(organizationId)) {
       throw new Error("OrganizationId must be set");
     }
@@ -82,14 +88,22 @@ export class OrganizationVaultExportService
     }
 
     if (format === "encrypted_json") {
-      return onlyManagedCollections
-        ? this.getEncryptedManagedExport(organizationId)
-        : this.getOrganizationEncryptedExport(organizationId);
+      return {
+        type: "text/plain",
+        data: onlyManagedCollections
+          ? await this.getEncryptedManagedExport(organizationId)
+          : await this.getOrganizationEncryptedExport(organizationId),
+        fileName: ExportHelper.getFileName("org", "json"),
+      } as ExportedVaultAsString;
     }
 
-    return onlyManagedCollections
-      ? this.getDecryptedManagedExport(organizationId, format)
-      : this.getOrganizationDecryptedExport(organizationId, format);
+    return {
+      type: "text/plain",
+      data: onlyManagedCollections
+        ? await this.getDecryptedManagedExport(organizationId, format)
+        : await this.getOrganizationDecryptedExport(organizationId, format),
+      fileName: ExportHelper.getFileName("org", format),
+    } as ExportedVaultAsString;
   }
 
   private async getOrganizationDecryptedExport(

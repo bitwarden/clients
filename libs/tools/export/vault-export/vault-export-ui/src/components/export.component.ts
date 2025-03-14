@@ -60,7 +60,7 @@ import {
 } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { CredentialGeneratorService, GenerateRequest, Generators } from "@bitwarden/generator-core";
-import { VaultExportServiceAbstraction } from "@bitwarden/vault-export-core";
+import { ExportedVault, VaultExportServiceAbstraction } from "@bitwarden/vault-export-core";
 
 import { EncryptedExportType } from "../enums/encrypted-export-type.enum";
 
@@ -326,11 +326,9 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   protected async doExport() {
     try {
       const data = await this.getExportData();
-      if (typeof data === "string") {
-        this.downloadTextFile(data);
-      } else {
-        this.downloadZipFile(data);
-      }
+
+      // Download the export file
+      this.downloadFile(data);
 
       this.toastService.showToast({
         variant: "success",
@@ -416,7 +414,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     return true;
   }
 
-  protected async getExportData(): Promise<string | Blob> {
+  protected async getExportData(): Promise<ExportedVault> {
     return Utils.isNullOrWhitespace(this.organizationId)
       ? this.exportService.getExport(this.format, this.filePassword)
       : this.exportService.getOrganizationExport(
@@ -425,23 +423,6 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
           this.filePassword,
           this.onlyManagedCollections,
         );
-  }
-
-  protected getFileName(prefix?: string) {
-    if (this.organizationId) {
-      prefix = "org";
-    }
-
-    let extension = this.format;
-    if (this.format === "encrypted_json") {
-      if (prefix == null) {
-        prefix = "encrypted";
-      } else {
-        prefix = "encrypted_" + prefix;
-      }
-      extension = "json";
-    }
-    return this.exportService.getFileName(prefix, extension);
   }
 
   protected async collectEvent(): Promise<void> {
@@ -485,21 +466,11 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  private downloadTextFile(csv: string): void {
-    const fileName = this.getFileName();
+  private downloadFile(exportedVault: ExportedVault): void {
     this.fileDownloadService.download({
-      fileName: fileName,
-      blobData: csv,
-      blobOptions: { type: "text/plain" },
-    });
-  }
-
-  private downloadZipFile(blob: Blob): void {
-    const fileName = this.getFileName();
-    this.fileDownloadService.download({
-      fileName: fileName,
-      blobData: blob,
-      blobOptions: { type: "application/zip" },
+      fileName: exportedVault.fileName,
+      blobData: exportedVault.data,
+      blobOptions: { type: exportedVault.type },
     });
   }
 }
