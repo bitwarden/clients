@@ -257,10 +257,6 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
 
       this.onlyManagedCollections = false;
       return;
-    } else {
-      if (await firstValueFrom(this.isExportAttachmentsEnabled$)) {
-        this.formatOptions.push({ name: ".zip (with attachments)", value: "zip" });
-      }
     }
 
     this.organizations$ = combineLatest({
@@ -280,10 +276,20 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       }),
     );
 
-    this.exportForm.controls.vaultSelector.valueChanges
+    combineLatest([
+      this.exportForm.controls.vaultSelector.valueChanges,
+      this.isExportAttachmentsEnabled$,
+    ])
       .pipe(takeUntil(this.destroy$))
-      .subscribe((value) => {
-        this.organizationId = value != "myVault" ? value : undefined;
+      .subscribe(([value, isExportAttachmentsEnabled]) => {
+        this.organizationId = value !== "myVault" ? value : undefined;
+        if (value === "myVault" && isExportAttachmentsEnabled) {
+          if (!this.formatOptions.some((option) => option.value === "zip")) {
+            this.formatOptions.push({ name: ".zip (with attachments)", value: "zip" });
+          }
+        } else {
+          this.formatOptions = this.formatOptions.filter((option) => option.value !== "zip");
+        }
       });
 
     this.exportForm.controls.vaultSelector.setValue("myVault");
