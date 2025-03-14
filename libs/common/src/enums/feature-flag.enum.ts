@@ -35,6 +35,9 @@ export enum FeatureFlag {
   VaultBulkManagementAction = "vault-bulk-management-action",
   SecurityTasks = "security-tasks",
 
+  /* Auth */
+  PM9112_DeviceApprovalPersistence = "pm-9112-device-approval-persistence",
+
   PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
   UnauthenticatedExtensionUIRefresh = "unauth-ui-refresh",
   CipherKeyEncryption = "cipher-key-encryption",
@@ -91,6 +94,9 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.NewDeviceVerificationPermanentDismiss]: FALSE,
   [FeatureFlag.VaultBulkManagementAction]: FALSE,
   [FeatureFlag.SecurityTasks]: FALSE,
+
+  /* Auth */
+  [FeatureFlag.PM9112_DeviceApprovalPersistence]: FALSE,
 
   [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
   [FeatureFlag.UnauthenticatedExtensionUIRefresh]: FALSE,
