@@ -19,6 +19,7 @@ import { VaultFilterModule } from "./vault/individual-vault/vault-filter/vault-f
     AuthModule,
     AccessComponent,
   ],
+  declarations: [],
   exports: [
     SharedModule,
     LooseComponentsModule,
