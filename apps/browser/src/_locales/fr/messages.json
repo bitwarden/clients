@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Saisissez l'adresse courriel de votre compte et votre indice de mot de passe vous sera envoyé"
   },
-  "passwordHint": {
-    "message": "Indice de mot de passe"
-  },
-  "enterEmailToGetHint": {
-    "message": "Saisissez l'adresse électronique de votre compte pour recevoir l'indice de votre mot de passe principal."
-  },
   "getMasterPasswordHint": {
     "message": "Obtenir l'indice du mot de passe principal"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Modifier le dossier"
+  },
+  "editFolderWithName": {
+    "message": "Éditer le dossier : $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Nouveau dossier"
@@ -902,7 +905,7 @@
     "message": "Non"
   },
   "location": {
-    "message": "Location"
+    "message": "Emplacement"
   },
   "unexpectedError": {
     "message": "Une erreur inattendue est survenue."
@@ -1165,10 +1168,6 @@
   "light": {
     "message": "Clair",
     "description": "Light color"
-  },
-  "solarizedDark": {
-    "message": "Solarized Dark",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
     "message": "Exporter à partir de"
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Environnement auto-hébergé"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Spécifiez l'URL de base de votre installation Bitwarden auto-hébergée."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Spécifiez l'URL de base de votre installation autohébergée par Bitwarden. Exemple : https://bitwarden.compagnie.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Environnement personnalisé"
-  },
-  "customEnvironmentFooter": {
-    "message": "Pour utilisateurs avancés. Vous pouvez spécifier une URL de base indépendante pour chaque service."
   },
   "baseUrl": {
     "message": "URL du serveur"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Glissez pour trier"
+  },
+  "dragToReorder": {
+    "message": "Faire glisser pour réorganiser"
   },
   "cfTypeText": {
     "message": "Texte"
@@ -1872,7 +1868,7 @@
     "message": "Clé SSH"
   },
   "newItemHeader": {
-    "message": "Nouveau/nouvelle $TYPE$",
+    "message": "Créer un(e) $TYPE$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Les paramètres ont été modifiés"
-  },
-  "environmentEditedClick": {
-    "message": "Cliquer ici"
-  },
-  "environmentEditedReset": {
-    "message": "pour réinitialiser aux paramètres par défaut"
-  },
   "serverVersion": {
     "message": "Version du serveur"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Se connecter avec le mot de passe principal"
   },
-  "loggingInAs": {
-    "message": "Connexion en tant que"
-  },
-  "notYou": {
-    "message": "Ce n'est pas vous ?"
-  },
   "newAroundHere": {
     "message": "Nouveau par ici ?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Se connecter avec l'appareil"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "La connexion avec l'appareil doit être configurée dans les paramètres de l'application Bitwarden. Besoin d'une autre option ?"
   },
   "fingerprintPhraseHeader": {
     "message": "Phrase d'empreinte"
@@ -3343,9 +3321,6 @@
     "message": "Renvoyer la notification"
   },
   "viewAllLogInOptions": {
-    "message": "Afficher toutes les options de connexion"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Afficher toutes les options de connexion"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Demander l'approbation de l'administrateur"
   },
-  "approveWithMasterPassword": {
-    "message": "Approuver avec le mot de passe principal"
-  },
   "ssoIdentifierRequired": {
     "message": "Identifiant SSO de l'organisation requis."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Demande transmise à votre administrateur."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Vous serez notifié une fois approuvé."
   },
   "troubleLoggingIn": {
     "message": "Problème pour vous connecter ?"
@@ -4379,7 +4348,7 @@
     }
   },
   "new": {
-    "message": "Nouveau"
+    "message": "Créer"
   },
   "removeItem": {
     "message": "Retirer $NAME$",
@@ -4700,6 +4669,9 @@
         "example": "Custom field"
       }
     }
+  },
+  "reorderWebsiteUriButton": {
+    "message": "Réorganiser les URI des sites web. Utiliser la touche fléchée pour déplacer l'élément vers le haut ou vers le bas."
   },
   "reorderFieldUp": {
     "message": "$LABEL$ déplacé vers le haut, position $INDEX$ de $LENGTH$",
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Très large"
+  },
+  "sshKeyWrongPassword": {
+    "message": "Le mot de passe saisi est incorrect."
+  },
+  "importSshKey": {
+    "message": "Importer"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirmer le mot de passe"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Saisir le mot de passe de la clé SSH."
+  },
+  "enterSshKeyPassword": {
+    "message": "Saisir le mot de passe"
+  },
+  "invalidSshKey": {
+    "message": "La clé SSH n'est pas valide"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Le type de clé SSH n'est pas pris en charge"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Importer une clé à partir du presse-papiers"
+  },
+  "sshKeyImported": {
+    "message": "Clé SSH importée avec succès"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Vous ne pouvez pas supprimer des collections avec les autorisations d'affichage uniquement : $COLLECTIONS$",

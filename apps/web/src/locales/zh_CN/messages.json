@@ -9,7 +9,7 @@
     "message": "没有关键应用程序存在风险"
   },
   "accessIntelligence": {
-    "message": "Access Intelligence"
+    "message": "智慧访问"
   },
   "riskInsights": {
     "message": "风险洞察"
@@ -428,6 +428,9 @@
   "dragToSort": {
     "message": "拖动排序"
   },
+  "dragToReorder": {
+    "message": "拖动以重新排序"
+  },
   "cfTypeText": {
     "message": "文本型"
   },
@@ -469,6 +472,19 @@
   },
   "editFolder": {
     "message": "编辑文件夹"
+  },
+  "editWithName": {
+    "message": "编辑 $ITEM$：$NAME$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "新增文件夹"
@@ -1269,12 +1285,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "输入您的账户电子邮箱地址，您的密码提示将发送给您"
-  },
-  "passwordHint": {
-    "message": "密码提示"
-  },
-  "enterEmailToGetHint": {
-    "message": "请输入您的账户电子邮箱地址来接收主密码提示。"
   },
   "getMasterPasswordHint": {
     "message": "获取主密码提示"
@@ -2109,7 +2119,7 @@
     "message": "偏好设置"
   },
   "preferencesDesc": {
-    "message": "自定义您的网页版密码库。"
+    "message": "自定义您的网页密码库。"
   },
   "preferencesUpdated": {
     "message": "偏好设置已保存"
@@ -2154,7 +2164,7 @@
     "message": "新增自定义域名"
   },
   "newCustomDomainDesc": {
-    "message": "输入用逗号分隔的域名列表。只能输入「基础」域名，不要输入子域名。例如，输入「google.com」而不是「www.google.com」。您也可以输入「androidapp://package.name」以将 Android App 与其他网站域名关联。"
+    "message": "输入用逗号分隔的域名列表。只支持「基础」域名，不要输入子域名。例如，输入「google.com」而不是「www.google.com」。您也可以输入「androidapp://package.name」以将 Android App 与其他网站域名关联。"
   },
   "customDomainX": {
     "message": "自定义域名 $INDEX$",
@@ -2337,7 +2347,7 @@
     "message": "由于平台限制，YubiKey 不能在所有 Bitwarden 应用程序上使用。您应该启用另一个两步登录提供程序，以便在无法使用 YubiKey 时可以访问您的账户。支持的平台："
   },
   "twoFactorYubikeySupportUsb": {
-    "message": "具有可使用 YubiKey 的 USB 端口的设备上的网页版密码库、桌面应用程序、CLI 以及浏览器扩展。"
+    "message": "具有可使用 YubiKey 的 USB 端口的设备上的网页密码库、桌面应用程序、CLI 以及浏览器扩展。"
   },
   "twoFactorYubikeySupportMobile": {
     "message": "具有 NFC 功能或可使用 YubiKey 的数据端口的设备上的移动 App。"
@@ -2439,7 +2449,7 @@
     "message": "由于平台限制，FIDO U2F 不能在所有 Bitwarden 应用程序上使用。您应该启用另一个两步登录提供程序，以便在无法使用 FIDO U2F 时可以访问您的账户。支持的平台："
   },
   "twoFactorU2fSupportWeb": {
-    "message": "桌面/笔记本电脑上支持 U2F 的浏览器（开启了 FIDO U2F 的 Chrome、Opera、Vivaldi 或 Firefox）中的网页版密码库和浏览器扩展。"
+    "message": "桌面/笔记本电脑上支持 U2F 的浏览器（开启了 FIDO U2F 的 Chrome、Opera、Vivaldi 或 Firefox）中的网页密码库和浏览器扩展。"
   },
   "twoFactorU2fWaiting": {
     "message": "等待您触摸安全密钥上的按钮"
@@ -3268,7 +3278,7 @@
     }
   },
   "trialConfirmationEmail": {
-    "message": "我们已经发送了一封确认邮件到您的团队的计费电子邮箱 "
+    "message": "我们已经发送了一封确认邮件到您团队的计费电子邮箱 "
   },
   "monthly": {
     "message": "每月"
@@ -4116,7 +4126,7 @@
     "message": "正在生成风险洞察..."
   },
   "updateBrowserDesc": {
-    "message": "您使用的是不受支持的 Web 浏览器。网页密码库可能无法正常运行。"
+    "message": "您使用的是不受支持的网页浏览器。网页密码库可能无法正常运行。"
   },
   "youHaveAPendingLoginRequest": {
     "message": "您有一个来自其他设备的待处理登录请求。"
@@ -4387,7 +4397,7 @@
     "description": "Seat = User Seat"
   },
   "subscriptionDesc": {
-    "message": "调整订阅将导致按比例调整您的计费总金额。如果新邀请的用户超过了您的订阅席位，您将立即收到按比例的额外用户费用。"
+    "message": "调整订阅将导致按比例调整您的计费总金额。如果新邀请的用户超过了您的订阅席位，您将立即收到按比例的附加用户费用。"
   },
   "subscriptionUserSeats": {
     "message": "您的订阅一共允许 $COUNT$ 位成员。",
@@ -4414,10 +4424,10 @@
     "message": "附加选项"
   },
   "additionalOptionsDesc": {
-    "message": "如需更多订阅管理的帮助，请联系客服支持。"
+    "message": "如需更多管理您的订阅的帮助，请联系客服支持。"
   },
   "subscriptionUserSeatsUnlimitedAutoscale": {
-    "message": "调整订阅将导致按比例调整您的计费总金额。如果新邀请的成员超过了您的订阅席位，您将立即收到按比例的额外成员费用。"
+    "message": "调整订阅将导致按比例调整您的计费总金额。如果新邀请的成员超过了您的订阅席位，您将立即收到按比例的附加成员费用。"
   },
   "smStandaloneTrialSeatCountUpdateMessageFragment1": {
     "message": "如果您想要添加额外的"
@@ -4426,7 +4436,7 @@
     "message": "无捆绑优惠的席位，请联系"
   },
   "subscriptionUserSeatsLimitedAutoscale": {
-    "message": "调整订阅将导致按比例调整您的计费总金额。如果新邀请的成员超过了您的订阅席位，您将立即收到按比例的额外成员费用，直到达到您的 $MAX$ 席位限制。",
+    "message": "调整订阅将导致按比例调整您的计费总金额。如果新邀请的成员超过了您的订阅席位，您将立即收到按比例的附加成员费用，直到达到您的 $MAX$ 席位限制。",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -4527,6 +4537,40 @@
       "label": {
         "content": "$1",
         "example": "Custom field"
+      }
+    }
+  },
+  "reorderFieldUp": {
+    "message": "$LABEL$ 已上移，位置 $INDEX$ / $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ 已下移，位置 $INDEX$ / $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
       }
     }
   },
@@ -5394,7 +5438,7 @@
     "message": "组织的所有者和管理员不受此策略的约束。"
   },
   "personalOwnershipSubmitError": {
-    "message": "由于某个企业策略，您不能将项目保存到您的个人密码库。将所有权选项更改为组织，并从可用的集合中选择。"
+    "message": "由于某个企业策略，您不能将项目保存到您的个人密码库。请将所有权选项更改为组织，然后选择可用的集合。"
   },
   "disableSend": {
     "message": "禁用 Send"
@@ -7264,12 +7308,6 @@
   "numberOfUsers": {
     "message": "用户数量"
   },
-  "loggingInAs": {
-    "message": "正登录为"
-  },
-  "notYou": {
-    "message": "不是您吗？"
-  },
   "pickAnAvatarColor": {
     "message": "选择头像颜色"
   },
@@ -8023,7 +8061,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedNoManageBilling": {
-    "message": "团队入门版计划最多拥有 $SEATCOUNT$ 位成员。要升级您的计划及邀请更多成员，请联系您的组织所有者。",
+    "message": "团队入门版计划最多拥有 $SEATCOUNT$ 位成员。要升级您的计划并邀请更多成员，请联系您的组织所有者。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -8032,7 +8070,7 @@
     }
   },
   "freeOrgMaxCollectionReachedManageBilling": {
-    "message": "免费组织最多拥有 $COLLECTIONCOUNT$ 个集合。升级到付费计划以添加更多集合。",
+    "message": "免费组织最多拥有 $COLLECTIONCOUNT$ 个集合。要添加更多集合，请升级到付费计划。",
     "placeholders": {
       "COLLECTIONCOUNT": {
         "content": "$1",
@@ -8346,7 +8384,7 @@
     "message": "忽略"
   },
   "notAvailableForFreeOrganization": {
-    "message": "此功能不适用于免费组织。请联系您的组织所有者寻求升级。"
+    "message": "此功能不适用于免费组织。请联系您的组织所有者升级。"
   },
   "smProjectSecretsNoItemsNoAccess": {
     "message": "请联系您的组织的管理员来管理此工程的机密。",
@@ -8392,9 +8430,6 @@
   },
   "requestAdminApproval": {
     "message": "请求管理员批准"
-  },
-  "approveWithMasterPassword": {
-    "message": "使用主密码批准"
   },
   "trustedDeviceEncryption": {
     "message": "受信任设备加密"
@@ -8609,9 +8644,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "您的请求已发送给您的管理员。"
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "批准后，您将收到通知。"
   },
   "troubleLoggingIn": {
     "message": "登录遇到问题吗？"
@@ -8828,10 +8860,10 @@
     "message": "已达到席位限制"
   },
   "contactYourProvider": {
-    "message": "请联系您的提供商购买更多席位。"
+    "message": "请联系您的提供商购买附加席位。"
   },
   "seatLimitReachedContactYourProvider": {
-    "message": "已达到席位限制。请联系您的提供商购买更多席位。"
+    "message": "已达到席位限制。请联系您的提供商购买附加席位。"
   },
   "collectionAccessRestricted": {
     "message": "集合访问权限受限"
@@ -9337,6 +9369,15 @@
   },
   "deviceManagementDesc": {
     "message": "使用适合您平台的实施指南为 Bitwarden 配置设备管理。"
+  },
+  "deviceIdMissing": {
+    "message": "缺少设备 ID"
+  },
+  "deviceTypeMissing": {
+    "message": "缺少设备类型"
+  },
+  "deviceCreationDateMissing": {
+    "message": "缺少设备创建日期"
   },
   "desktopRequired": {
     "message": "需要桌面端"
@@ -9892,7 +9933,7 @@
     }
   },
   "familiesPlanInvLimitReachedNoManageBilling": {
-    "message": "家庭组织最多拥有 $SEATCOUNT$ 位成员。要升级，请联系您的组织所有者。",
+    "message": "家庭组织最多拥有 $SEATCOUNT$ 位成员。请联系您的组织所有者升级。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -10012,7 +10053,7 @@
     "message": "当前"
   },
   "secretsManagerSubscriptionInfo": {
-    "message": "您的机密管理器订阅将根据选定的计划升级"
+    "message": "您的机密管理器订阅将基于选择的计划升级"
   },
   "bitwardenPasswordManager": {
     "message": "Bitwarden 密码管理器"
@@ -10339,6 +10380,36 @@
   "organizationNameMaxLength": {
     "message": "组织名称不能超过 50 个字符。"
   },
+  "sshKeyWrongPassword": {
+    "message": "您输入的密码不正确。"
+  },
+  "importSshKey": {
+    "message": "导入"
+  },
+  "confirmSshKeyPassword": {
+    "message": "确认密码"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "输入 SSH 密钥的密码。"
+  },
+  "enterSshKeyPassword": {
+    "message": "输入密码"
+  },
+  "invalidSshKey": {
+    "message": "此 SSH 密钥无效"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "不支持此 SSH 密钥类型"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "从剪贴板导入密钥"
+  },
+  "sshKeyImported": {
+    "message": "SSH 密钥导入成功"
+  },
+  "copySSHPrivateKey": {
+    "message": "复制私钥"
+  },
   "openingExtension": {
     "message": "正在打开 Bitwarden 浏览器扩展"
   },
@@ -10504,5 +10575,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "这些事件仅为示例，并不反映您 Bitwarden 组织内的真实事件。"
+  },
+  "cannotCreateCollection": {
+    "message": "免费组织最多拥有 2 个集合。要添加更多集合，请升级到付费计划。"
   }
 }

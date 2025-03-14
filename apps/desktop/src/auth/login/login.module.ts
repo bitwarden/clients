@@ -5,11 +5,9 @@ import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/components
 
 import { SharedModule } from "../../app/shared/shared.module";
 
-import { LoginDecryptionOptionsComponentV1 } from "./login-decryption-options/login-decryption-options-v1.component";
-
 @NgModule({
   imports: [SharedModule, RouterModule],
-  declarations: [EnvironmentSelectorComponent, LoginDecryptionOptionsComponentV1],
+  declarations: [EnvironmentSelectorComponent],
   exports: [],
 })
 export class LoginModule {}

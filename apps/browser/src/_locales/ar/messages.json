@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "أدخل عنوان البريد الإلكتروني لحسابك وسيُرسل تلميح كلمة المرور الخاصة بك إليك"
   },
-  "passwordHint": {
-    "message": "تلميح كلمة المرور"
-  },
-  "enterEmailToGetHint": {
-    "message": "أدخل عنوان البريد الإلكتروني لحسابك للحصول على تلميح كلمة المرور الرئيسية."
-  },
   "getMasterPasswordHint": {
     "message": "احصل على تلميح كلمة المرور الرئيسية"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "تحرير المجلّد"
+  },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "مجلد جديد"
@@ -1166,10 +1169,6 @@
     "message": "فاتح",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "داكن مُشمس",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "التصدير من"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "البيئة المستضافة ذاتيا"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "حدد عنوان URL الأساسي لتثبيت Bitwarden المستضاف محليًا."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "بيئة مخصصة"
-  },
-  "customEnvironmentFooter": {
-    "message": "للمستخدمين المتقدمين. يمكنك تحديد عنوان URL الأساسي لكل خدمة بشكل مستقل."
   },
   "baseUrl": {
     "message": "رابط الخادم"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "اسحب للفرز"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "نص"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "تم تعديل الإعدادات"
-  },
-  "environmentEditedClick": {
-    "message": "انقر هنا"
-  },
-  "environmentEditedReset": {
-    "message": "لإعادة تعيين الإعدادات المُعدة مسبقاً"
-  },
   "serverVersion": {
     "message": "إصدار الخادم"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "تسجيل الدخول باستخدام كلمة المرور الرئيسية"
   },
-  "loggingInAs": {
-    "message": "تسجيل الدخول كـ"
-  },
-  "notYou": {
-    "message": "ليس حسابك؟"
-  },
   "newAroundHere": {
     "message": "New around here?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "تسجيل الدخول بالجهاز"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "يجب إعداد تسجيل الدخول بالجهاز في إعدادات تطبيق Bitwarden. هل تحتاج إلى خِيار آخر؟"
   },
   "fingerprintPhraseHeader": {
     "message": "عبارة بصمة الإصبع"
@@ -3343,9 +3321,6 @@
     "message": "إعادة إرسال الإشعار"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "View all log in options"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "طلب موافقة المدير"
   },
-  "approveWithMasterPassword": {
-    "message": "الموافقة بواسطة كلمة المرور الرئيسية"
-  },
   "ssoIdentifierRequired": {
     "message": "Organization SSO identifier is required."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Your request has been sent to your admin."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "You will be notified once approved."
   },
   "troubleLoggingIn": {
     "message": "Trouble logging in?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Extra wide"
+  },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",

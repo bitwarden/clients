@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "輸入您帳號的電子郵件，您的密碼提示會傳送給您"
   },
-  "passwordHint": {
-    "message": "密碼提示"
-  },
-  "enterEmailToGetHint": {
-    "message": "請輸入您的帳户電子郵件地址以接收主密碼提示。"
-  },
   "getMasterPasswordHint": {
     "message": "取得主密碼提示"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "編輯資料夾"
+  },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "新增資料夾"
@@ -1166,10 +1169,6 @@
     "message": "淺色",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Solarized 深色主題",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "匯出自"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "自我裝載環境"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "指定您內部部署的 Bitwarden 安裝之基礎 URL。"
-  },
   "selfHostedBaseUrlHint": {
     "message": "指定您自建的 Bitwarden 伺服器的網域 URL。例如：https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "自訂環境"
-  },
-  "customEnvironmentFooter": {
-    "message": "適用於進階使用者。您可以單獨指定各個服務的基礎 URL。"
   },
   "baseUrl": {
     "message": "伺服器 URL"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "透過拖曳來排序"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "文字型"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "設定已編輯"
-  },
-  "environmentEditedClick": {
-    "message": "點選此處"
-  },
-  "environmentEditedReset": {
-    "message": "重設為預設設定"
-  },
   "serverVersion": {
     "message": "伺服器版本"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "使用主密碼登入"
   },
-  "loggingInAs": {
-    "message": "正登入為"
-  },
-  "notYou": {
-    "message": "不是您嗎？"
-  },
   "newAroundHere": {
     "message": "第一次使用？"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "使用裝置登入"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "裝置登入必須在 Bitwarden 應用程式的設定中啟用。需要其他選項嗎？"
   },
   "fingerprintPhraseHeader": {
     "message": "指紋短語"
@@ -3343,9 +3321,6 @@
     "message": "重新傳送通知"
   },
   "viewAllLogInOptions": {
-    "message": "檢視所有登入選項"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "檢視所有登入選項"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "要求管理員核准"
   },
-  "approveWithMasterPassword": {
-    "message": "使用主密碼核准"
-  },
   "ssoIdentifierRequired": {
     "message": "需要組織 SSO 識別碼。"
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "您的要求已傳送給您的管理員。"
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "核准後將通知您。"
   },
   "troubleLoggingIn": {
     "message": "登入時遇到困難？"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "往上移動 $LABEL$，位置 $LENGTH$ 之 $INDEX$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "更寬"
+  },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "若您只有檢視權限，無法移除集合 $COLLECTIONS$。",
