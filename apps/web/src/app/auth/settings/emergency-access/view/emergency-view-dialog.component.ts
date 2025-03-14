@@ -22,6 +22,7 @@ import { WebViewPasswordHistoryService } from "../../../../vault/services/web-vi
 export interface EmergencyViewDialogParams {
   /** The cipher being viewed. */
   cipher: CipherView;
+  emergencyAccessId: string;
 }
 
 /** Stubbed class, premium upgrade is not applicable for emergency viewing */
@@ -60,6 +61,10 @@ export class EmergencyViewDialogComponent {
 
   get cipher(): CipherView {
     return this.params.cipher;
+  }
+
+  get emergencyAccessId(): string {
+    return this.params.emergencyAccessId;
   }
 
   cancel = () => {

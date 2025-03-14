@@ -60,6 +60,8 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
 export class CipherViewComponent implements OnChanges, OnDestroy {
   @Input({ required: true }) cipher: CipherView | null = null;
 
+  @Input() emergencyAccessId?: string | null = null;
+
   activeUserId$ = getUserId(this.accountService.activeAccount$);
 
   /**

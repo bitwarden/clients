@@ -36,6 +36,8 @@ export class DownloadAttachmentComponent {
   // When in view mode, we will want to check for the master password reprompt
   @Input() checkPwReprompt?: boolean = false;
 
+  @Input() emergencyAccessId?: string;
+
   /** The organization key if the cipher is associated with one */
   private orgKey: OrgKey | null = null;
 
@@ -68,6 +70,7 @@ export class DownloadAttachmentComponent {
       const attachmentDownloadResponse = await this.apiService.getAttachmentData(
         this.cipher.id,
         this.attachment.id,
+        this.emergencyAccessId,
       );
       url = attachmentDownloadResponse.url;
     } catch (e) {

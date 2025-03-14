@@ -41,6 +41,8 @@ import { DownloadAttachmentComponent } from "../../components/download-attachmen
 export class AttachmentsV2ViewComponent {
   @Input() cipher: CipherView;
 
+  @Input() emergencyAccessId?: string;
+
   canAccessPremium: boolean;
   orgKey: OrgKey;
 

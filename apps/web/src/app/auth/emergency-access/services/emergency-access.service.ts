@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
+import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
@@ -55,6 +56,13 @@ export class EmergencyAccessService
     private logService: LogService,
     private configService: ConfigService,
   ) {}
+
+  private emergencyAccessId = new BehaviorSubject<string | null>(null);
+  emergencyAccessId$ = this.emergencyAccessId.asObservable();
+
+  setEmergencyAccessId(id: string | null) {
+    this.emergencyAccessId.next(id);
+  }
 
   /**
    * Gets an emergency access by id.
