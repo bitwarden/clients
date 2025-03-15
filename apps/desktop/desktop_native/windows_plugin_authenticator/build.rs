@@ -13,6 +13,7 @@ fn windows() {
         .allowlist_type("DWORD")
         .allowlist_type("PBYTE")
         .allowlist_type("EXPERIMENTAL.*")
+        .allowlist_function(".*EXPERIMENTAL.*")
         .allowlist_function("WebAuthNGetApiVersionNumber")
         .generate()
         .expect("Unable to generate bindings.");
