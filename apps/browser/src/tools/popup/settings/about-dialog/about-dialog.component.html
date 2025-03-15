@@ -42,12 +42,12 @@
       </ng-container>
     </div>
   </div>
-  <div bitDialogFooter>
+  <ng-container bitDialogFooter>
     <button bitButton bitDialogClose buttonType="primary" type="button">
       {{ "close" | i18n }}
     </button>
     <button bitButton type="button" (click)="copyVersion()">
       {{ "copy" | i18n }}
     </button>
-  </div>
+  </ng-container>
 </bit-simple-dialog>
