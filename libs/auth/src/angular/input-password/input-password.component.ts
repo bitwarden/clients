@@ -1,7 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
+import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -82,22 +80,22 @@ export class InputPasswordComponent implements OnInit {
   @Output() onPasswordFormSubmit = new EventEmitter<PasswordInputResult>();
   @Output() onSecondaryButtonClick = new EventEmitter<void>();
 
-  @Input({ required: true }) inputPasswordFlow: InputPasswordFlow;
-  @Input({ required: true }) email: string;
+  @Input({ required: true }) inputPasswordFlow!: InputPasswordFlow;
+  @Input({ required: true }) email!: string;
 
   @Input() loading = false;
   @Input() masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
 
   @Input() inlineButtons = false;
-  @Input() primaryButtonText: Translation;
-  @Input() secondaryButtonText: Translation;
+  @Input() primaryButtonText?: Translation;
+  @Input() secondaryButtonText?: Translation;
 
   protected InputPasswordFlow = InputPasswordFlow;
   private minHintLength = 0;
   protected maxHintLength = 50;
   protected minPasswordLength = Utils.minimumPasswordLength;
   protected minPasswordMsg = "";
-  protected passwordStrengthScore: PasswordStrengthScore;
+  protected passwordStrengthScore: PasswordStrengthScore = 0;
   protected showErrorSummary = false;
   protected showPassword = false;
 
@@ -110,8 +108,8 @@ export class InputPasswordComponent implements OnInit {
         "", // must be string (not null) because we check length in validation
         [Validators.minLength(this.minHintLength), Validators.maxLength(this.maxHintLength)],
       ],
-      checkForBreaches: true,
-      rotateAccountEncryptionKey: false,
+      checkForBreaches: [true],
+      rotateAccountEncryptionKey: [false],
     },
     {
       validators: [
@@ -149,12 +147,14 @@ export class InputPasswordComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.inputPasswordFlow === InputPasswordFlow.SetInitialPassword) {
-      this.formGroup.removeControl("currentPassword");
-      this.formGroup.removeControl("rotateAccountEncryptionKey");
+      // https://github.com/angular/angular/issues/48794
+      (this.formGroup as FormGroup<any>).removeControl("currentPassword");
+      (this.formGroup as FormGroup<any>).removeControl("rotateAccountEncryptionKey");
     }
 
     if (this.inputPasswordFlow === InputPasswordFlow.ChangeExistingPassword) {
-      this.formGroup.removeControl("rotateAccountEncryptionKey");
+      // https://github.com/angular/angular/issues/48794
+      (this.formGroup as FormGroup<any>).removeControl("rotateAccountEncryptionKey");
     }
   }
 
