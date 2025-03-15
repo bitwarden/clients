@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { importProvidersFrom } from "@angular/core";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { action } from "@storybook/addon-actions";
@@ -62,7 +60,7 @@ export default {
           provide: PasswordStrengthServiceAbstraction,
           useValue: {
             getPasswordStrength: (password) => {
-              let score = 0;
+              let score: number | null = null;
               if (password.length === 0) {
                 score = null;
               } else if (password.length <= 4) {
