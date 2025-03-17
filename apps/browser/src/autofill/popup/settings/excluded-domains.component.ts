@@ -40,6 +40,7 @@ import { PopOutComponent } from "../../../platform/popup/components/pop-out.comp
 import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
+import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popup-router-cache.service";
 
 @Component({
   selector: "app-excluded-domains",
@@ -90,6 +91,7 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
     private i18nService: I18nService,
     private toastService: ToastService,
     private formBuilder: FormBuilder,
+    private popupRouterCacheService: PopupRouterCacheService,
   ) {
     this.accountSwitcherEnabled = enableAccountSwitching();
   }
@@ -148,6 +150,10 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
     }
 
     await this.fieldChange();
+  }
+
+  async goBack() {
+    await this.popupRouterCacheService.back();
   }
 
   async fieldChange() {
