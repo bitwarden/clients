@@ -4,7 +4,7 @@ import { firstValueFrom } from "rxjs";
 
 @Directive({
   standalone: true,
-  selector: "[vaultAutosizeReadOnlyTextArea]",
+  selector: "textarea[vaultAutosizeReadOnlyTextArea]",
   providers: [TextFieldModule],
   hostDirectives: [CdkTextareaAutosize],
 })
