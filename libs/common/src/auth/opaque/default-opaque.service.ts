@@ -16,6 +16,7 @@ import { RegistrationStartRequest } from "./models/registration-start.request";
 import { OpaqueApiService } from "./opaque-api.service";
 import { OpaqueService } from "./opaque.service";
 
+// TODO: add KeyExchange suffix
 export class DefaultOpaqueService implements OpaqueService {
   constructor(
     private opaqueApiService: OpaqueApiService,
@@ -25,7 +26,7 @@ export class DefaultOpaqueService implements OpaqueService {
   async register(
     masterPassword: string,
     userKey: UserKey,
-    ksfParameters: Argon2IdParameters,
+    ksfParameters: Argon2IdParameters, // TODO: eval if we can use KdfConfig existing type
   ): Promise<OpaqueSessionId> {
     const config = new CipherConfiguration(ksfParameters);
     const cryptoClient = (await firstValueFrom(this.sdkService.client$)).crypto();

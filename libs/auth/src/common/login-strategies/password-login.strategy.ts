@@ -13,6 +13,9 @@ import { IdentityCaptchaResponse } from "@bitwarden/common/auth/models/response/
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
+import { OpaqueService } from "@bitwarden/common/auth/opaque/opaque.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
@@ -33,6 +36,12 @@ export class PasswordLoginStrategyData implements LoginStrategyData {
   userEnteredEmail: string;
   /** If 2fa is required, token is returned to bypass captcha */
   captchaBypassToken?: string;
+
+  // TODO: we need to get a security audit as to whether or not this is safe to do. It is only used in memory
+  // for the duration of the login process, but it is still a security risk - especially in 2FA and new device verification
+  /** The user's master password */
+  masterPassword: string;
+
   /** The local version of the user's master key hash */
   localMasterKeyHash: string;
   /** The user's master key */
@@ -66,6 +75,8 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
     data: PasswordLoginStrategyData,
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private policyService: PolicyService,
+    private configService: ConfigService,
+    private opaqueService: OpaqueService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
     ...sharedDeps: ConstructorParameters<typeof BaseLoginStrategy>
   ) {
@@ -83,6 +94,8 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
     const { email, masterPassword, captchaToken, twoFactor, kdfConfig } = credentials;
 
     const data = new PasswordLoginStrategyData();
+
+    data.masterPassword = masterPassword;
 
     data.masterKey = await this.loginStrategyService.makePrePasswordLoginMasterKey(
       masterPassword,
@@ -144,6 +157,17 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
         authResult.forcePasswordReset = ForceSetPasswordReason.WeakMasterPassword;
       }
     }
+
+    if (identityResponse instanceof IdentityTokenResponse) {
+      const opaqueKeyExchangeFeatureFlagEnabled = await this.configService.getFeatureFlag(
+        FeatureFlag.OpaqueKeyExchange,
+      );
+      if (opaqueKeyExchangeFeatureFlagEnabled) {
+        // Register the user for opaque password authentication
+        await this.registerUserForOpaqueKeyExchange();
+      }
+    }
+
     return authResult;
   }
 
@@ -251,5 +275,19 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
 
     const [authResult] = await this.startLogIn();
     return authResult;
+  }
+
+  /**
+   * Registers password using users with the OPAQUE key exchange protocol which is a more secure password
+   * authN protocol which prevents the server from ever knowing anything about the user's password.
+   */
+  private async registerUserForOpaqueKeyExchange() {
+    // mp comes from this.cache.value.masterPassword
+    // userKey comes from await this.keyService.getInMemoryUserKeyFor$(userId);
+    // Per product, if a user uses argon2 already, then use their argon2 parameters with no change required
+    // If a user uses PBKDF2, then we have to use Argon2 with client side defaults (make new Argon2KdfConfig);
+    // The iterations on the default argon2 config have to be the greater of the defaults or the user's PBKDF2 iterations
+    // this.KdfConfigService.getKdfConfig()
+    // await this.opaqueService.register()
   }
 }

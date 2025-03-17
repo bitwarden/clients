@@ -38,6 +38,7 @@ export class CipherConfiguration {
   }
 }
 
+// TODO: eval if we can just use KdfConfig existing type
 export type Argon2IdParameters = {
   // Memory in KiB
   memory: number;

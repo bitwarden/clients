@@ -19,6 +19,7 @@ import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { PrePasswordLoginRequest } from "@bitwarden/common/auth/models/request/pre-password-login.request";
+import { OpaqueService } from "@bitwarden/common/auth/opaque/opaque.service";
 import { PrePasswordLoginApiService } from "@bitwarden/common/auth/services/pre-password-login-api.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -27,6 +28,7 @@ import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -132,6 +134,8 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     protected kdfConfigService: KdfConfigService,
     protected taskSchedulerService: TaskSchedulerService,
     protected prePasswordLoginApiService: PrePasswordLoginApiService,
+    protected configService: ConfigService,
+    protected opaqueService: OpaqueService,
   ) {
     this.currentAuthnTypeState = this.stateProvider.get(CURRENT_LOGIN_STRATEGY_KEY);
     this.loginStrategyCacheState = this.stateProvider.get(CACHE_KEY);
@@ -227,8 +231,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     if (credentials.type === AuthenticationType.Password) {
       const preLoginRequest = new PrePasswordLoginRequest(credentials.email);
 
-      // TODO: OPAQUE: we have to save off whether or not to enroll the user in OPAQUE based on the
-      // response from the pre-password-login request and execute the enroll in the password login strategy
       const preLoginResponse =
         await this.prePasswordLoginApiService.postPrePasswordLogin(preLoginRequest);
       ownedCredentials = credentials.toSpecificLoginCredentials(preLoginResponse);
@@ -324,6 +326,9 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     }
   }
 
+  // TODO: merge main to get updates to 2FA recover
+  // then can remove optional kdfconfig
+  // and move to the base login strategy
   async makePrePasswordLoginMasterKey(
     masterPassword: string,
     email: string,
@@ -426,6 +431,8 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
           data?.password ?? new PasswordLoginStrategyData(),
           this.passwordStrengthService,
           this.policyService,
+          this.configService,
+          this.opaqueService,
           this,
           ...sharedDeps,
         );
