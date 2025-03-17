@@ -40,20 +40,20 @@ import { PasswordInputResult } from "./password-input-result";
  */
 export enum InputPasswordFlow {
   /**
-   * - Input: New master password
-   * - Input: Confirm new master password
+   * - Input: New password
+   * - Input: Confirm new password
    * - Input: Hint
    * - Checkbox: Check for breaches
    */
   SetInitialPassword,
   /**
    * Everything above, plus:
-   * - Input: Current master password (as the first element in the UI)
+   * - Input: Current password (as the first element in the UI)
    */
   ChangeExistingPassword,
   /**
    * Everything above, plus:
-   * - Checkbox: Rotate user key (as the last element in the UI)
+   * - Checkbox: Rotate account encryption key (as the last element in the UI)
    */
   ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey,
 }
