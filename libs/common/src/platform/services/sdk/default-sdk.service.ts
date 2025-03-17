@@ -33,6 +33,7 @@ import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { SdkService, UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
 import { compareValues } from "../../misc/compare-values";
 import { Rc } from "../../misc/reference-counting/rc";
+import { Utils } from "../../misc/utils";
 import { EncryptedString } from "../../models/domain/enc-string";
 
 // A symbol that represents an overriden client that is explicitly set to undefined,
@@ -208,11 +209,12 @@ export class DefaultSdkService implements SdkService {
     // We initialize the org crypto even if the org_keys are
     // null to make sure any existing org keys are cleared.
     await client.crypto().initialize_org_crypto({
-      organizationKeys: new Map(
-        Object.entries(orgKeys ?? {})
-          .filter(([_, v]) => v.type === "organization")
-          .map(([k, v]) => [k, v.key]),
-      ),
+      organizationKeys:
+        new Map(
+          Object.entries(orgKeys ?? {})
+            .filter(([_, v]) => v.type === "organization")
+            .map(([k, v]) => [k, v.key]),
+        ),
     });
   }
 
