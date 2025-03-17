@@ -29,8 +29,8 @@ async function buildMacOs() {
     "-configuration",
     "Release",
     // Uncomment when signing is fixed
-    // "-xcconfig",
-    // paths.macOsConfig,
+    "-xcconfig",
+    paths.macOsConfig,
   ]);
   stdOutProc(proc);
   await new Promise((resolve, reject) =>
