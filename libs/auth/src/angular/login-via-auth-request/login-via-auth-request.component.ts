@@ -569,11 +569,11 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       }
 
       this.logService.error(error);
+    } finally {
+      // Manually clean out the cache to make sure sensitive
+      // data does not persist longer than it needs to.
+      this.loginViaAuthRequestCacheService.clearCacheLoginView();
     }
-
-    // Manually clean out the cache to make sure sensitive
-    // data does not persist longer than it needs to.
-    this.loginViaAuthRequestCacheService.clearCacheLoginView();
   }
 
   private async handleAuthenticatedFlows(authRequestResponse: AuthRequestResponse) {
