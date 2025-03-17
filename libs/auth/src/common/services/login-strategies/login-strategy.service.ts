@@ -226,6 +226,9 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     // Password credentials may use the PasswordHashLoginStrategy or the OpaqueLoginStrategy
     if (credentials.type === AuthenticationType.Password) {
       const preLoginRequest = new PrePasswordLoginRequest(credentials.email);
+
+      // TODO: OPAQUE: we have to save off whether or not to enroll the user in OPAQUE based on the
+      // response from the pre-password-login request and execute the enroll in the password login strategy
       const preLoginResponse =
         await this.prePasswordLoginApiService.postPrePasswordLogin(preLoginRequest);
       ownedCredentials = credentials.toSpecificLoginCredentials(preLoginResponse);
