@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Hesabınızın e-poçt ünvanını daxil edin və parolunuz üçün ipucu sizə göndəriləcək"
   },
-  "passwordHint": {
-    "message": "Parol ipucu"
-  },
-  "enterEmailToGetHint": {
-    "message": "Ana parol ipucunuzu alacağınız hesabınızın e-poçt ünvanını daxil edin."
-  },
   "getMasterPasswordHint": {
     "message": "Ana parol üçün ipucu alın"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Qovluğa düzəliş et"
+  },
+  "editFolderWithName": {
+    "message": "Qovluğa düzəliş et: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Yeni qovluq"
@@ -1166,10 +1169,6 @@
     "message": "Açıq",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Günəşli tünd",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Buradan xaricə köçür"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Self-hosted mühit"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Öz-özünə sahiblik edən Bitwarden quraşdırmasının təməl URL-sini müəyyənləşdirin."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Öz-özünə sahiblik edən Bitwarden quraşdırmasının təməl URL-sini müəyyənləşdirin. Nümunə: https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Özəl mühit"
-  },
-  "customEnvironmentFooter": {
-    "message": "Qabaqcıl istifadəçilər üçündür. Hər xidmətin baza URL-sini müstəqil olaraq müəyyənləşdirə bilərsiniz."
   },
   "baseUrl": {
     "message": "Server URL-si"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Sıralamaq üçün sürüklə"
+  },
+  "dragToReorder": {
+    "message": "Yenidən sıralamaq üçün sürüklə"
   },
   "cfTypeText": {
     "message": "Mətn"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Ayarlara düzəliş edildi"
-  },
-  "environmentEditedClick": {
-    "message": "Bura klikləyin"
-  },
-  "environmentEditedReset": {
-    "message": "ön konfiqurasiyalı ayarları sıfırlamaq üçün"
-  },
   "serverVersion": {
     "message": "Server versiyası"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Ana parolla giriş et"
   },
-  "loggingInAs": {
-    "message": "Giriş et"
-  },
-  "notYou": {
-    "message": "Siz deyilsiniz?"
-  },
   "newAroundHere": {
     "message": "Burada yenisiniz?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Cihazla giriş et"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Cihazla giriş, Bitwarden tətbiqinin ayarlarında qurulmalıdır. Başqa bir seçimə ehtiyacınız var?"
   },
   "fingerprintPhraseHeader": {
     "message": "Barmaq izi ifadəsi"
@@ -3343,9 +3321,6 @@
     "message": "Bildirişi təkrar göndər"
   },
   "viewAllLogInOptions": {
-    "message": "Bütün giriş seçimlərinə bax"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Bütün giriş seçimlərinə bax"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Admin təsdiqini tələb et"
   },
-  "approveWithMasterPassword": {
-    "message": "Ana parolla təsdiqlə"
-  },
   "ssoIdentifierRequired": {
     "message": "Təşkilat SSO identifikatoru tələb olunur."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Tələbiniz admininizə göndərildi."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Təsdiqləndikdən sonra məlumatlandırılacaqsınız."
   },
   "troubleLoggingIn": {
     "message": "Girişdə problem var?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Veb sayt URI-yını yenidən sırala. Ox düyməsi ilə elementi yuxarı və ya aşağı daşıyın."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ yuxarı daşındı, mövqeyi $INDEX$/$LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Ekstra enli"
+  },
+  "sshKeyWrongPassword": {
+    "message": "Daxil etdiyiniz parol yanlışdır."
+  },
+  "importSshKey": {
+    "message": "Daxilə köçür"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Parolu təsdiqlə"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "SSH açarı üçün parolu daxil edin."
+  },
+  "enterSshKeyPassword": {
+    "message": "Parolu daxil edin"
+  },
+  "invalidSshKey": {
+    "message": "SSH açarı yararsızdır"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "SSH açar növü dəstəklənmir"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Açarı lövhədən daxilə köçür"
+  },
+  "sshKeyImported": {
+    "message": "SSH açarı uğurla daxilə köçürüldü"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "\"Yalnız baxma\" icazələrinə sahib kolleksiyaları silə bilməzsiniz: $COLLECTIONS$",

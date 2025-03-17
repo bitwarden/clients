@@ -3,38 +3,38 @@
 import { matches, mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
-import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import {
+  UserDecryptionOptionsServiceAbstraction,
+  UserDecryptionOptions,
+} from "@bitwarden/auth/common";
 import { KeyService } from "@bitwarden/key-management";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { UserDecryptionOptions } from "../../../../auth/src/common/models/domain/user-decryption-options";
-import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
-import { FakeActiveUserState } from "../../../spec/fake-state";
-import { FakeStateProvider } from "../../../spec/fake-state-provider";
-import { DeviceType } from "../../enums";
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
-import { AppIdService } from "../../platform/abstractions/app-id.service";
-import { ConfigService } from "../../platform/abstractions/config/config.service";
-import { CryptoFunctionService } from "../../platform/abstractions/crypto-function.service";
-import { I18nService } from "../../platform/abstractions/i18n.service";
-import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
-import { LogService } from "../../platform/abstractions/log.service";
-import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
-import { AbstractStorageService } from "../../platform/abstractions/storage.service";
-import { StorageLocation } from "../../platform/enums";
-import { EncryptionType } from "../../platform/enums/encryption-type.enum";
-import { Utils } from "../../platform/misc/utils";
-import { EncString } from "../../platform/models/domain/enc-string";
-import { StorageOptions } from "../../platform/models/domain/storage-options";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
-import { CsprngArray } from "../../types/csprng";
-import { UserId } from "../../types/guid";
-import { DeviceKey, UserKey } from "../../types/key";
-import { DeviceResponse } from "../abstractions/devices/responses/device.response";
-import { DevicesApiServiceAbstraction } from "../abstractions/devices-api.service.abstraction";
-import { UpdateDevicesTrustRequest } from "../models/request/update-devices-trust.request";
-import { ProtectedDeviceResponse } from "../models/response/protected-device.response";
+import { FakeAccountService, mockAccountServiceWith } from "../../../../spec/fake-account-service";
+import { FakeActiveUserState } from "../../../../spec/fake-state";
+import { FakeStateProvider } from "../../../../spec/fake-state-provider";
+import { DeviceResponse } from "../../../auth/abstractions/devices/responses/device.response";
+import { DevicesApiServiceAbstraction } from "../../../auth/abstractions/devices-api.service.abstraction";
+import { UpdateDevicesTrustRequest } from "../../../auth/models/request/update-devices-trust.request";
+import { ProtectedDeviceResponse } from "../../../auth/models/response/protected-device.response";
+import { DeviceType } from "../../../enums";
+import { AppIdService } from "../../../platform/abstractions/app-id.service";
+import { ConfigService } from "../../../platform/abstractions/config/config.service";
+import { CryptoFunctionService } from "../../../platform/abstractions/crypto-function.service";
+import { I18nService } from "../../../platform/abstractions/i18n.service";
+import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
+import { LogService } from "../../../platform/abstractions/log.service";
+import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
+import { AbstractStorageService } from "../../../platform/abstractions/storage.service";
+import { StorageLocation } from "../../../platform/enums";
+import { EncryptionType } from "../../../platform/enums/encryption-type.enum";
+import { Utils } from "../../../platform/misc/utils";
+import { EncString } from "../../../platform/models/domain/enc-string";
+import { StorageOptions } from "../../../platform/models/domain/storage-options";
+import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { CsprngArray } from "../../../types/csprng";
+import { UserId } from "../../../types/guid";
+import { DeviceKey, UserKey } from "../../../types/key";
+import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 
 import {
   SHOULD_TRUST_DEVICE,

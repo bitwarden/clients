@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Введіть адресу е-пошти свого облікового запису і вам буде надіслано підказку для пароля"
   },
-  "passwordHint": {
-    "message": "Підказка для пароля"
-  },
-  "enterEmailToGetHint": {
-    "message": "Введіть свою адресу е-пошти, щоб отримати підказку для головного пароля."
-  },
   "getMasterPasswordHint": {
     "message": "Отримати підказку для головного пароля"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Редагування"
+  },
+  "editFolderWithName": {
+    "message": "Редагувати теку: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Нова тека"
@@ -1166,10 +1169,6 @@
     "message": "Світла",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Solarized темна",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Експортувати з"
   },
@@ -1436,7 +1435,7 @@
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Використати код відновлення"
+    "message": "Скористайтеся своїм кодом відновлення"
   },
   "insertYubiKey": {
     "message": "Вставте свій YubiKey в USB порт комп'ютера, потім торкніться цієї кнопки."
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Середовище власного хостингу"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Вкажіть основну URL-адресу вашого встановлення Bitwarden на власному хостингу."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Вкажіть основну URL-адресу вашого встановлення Bitwarden на власному хостингу. Зразок: https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Власне середовище"
-  },
-  "customEnvironmentFooter": {
-    "message": "Для досвідчених користувачів. Ви можете вказати основну URL-адресу окремо для кожної служби."
   },
   "baseUrl": {
     "message": "URL-адреса сервера"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Перетягніть, щоб відсортувати"
+  },
+  "dragToReorder": {
+    "message": "Потягніть, щоб упорядкувати"
   },
   "cfTypeText": {
     "message": "Текст"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Налаштування змінено"
-  },
-  "environmentEditedClick": {
-    "message": "Натисніть тут,"
-  },
-  "environmentEditedReset": {
-    "message": "щоб скинути налаштування"
-  },
   "serverVersion": {
     "message": "Версія сервера"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Увійти з головним паролем"
   },
-  "loggingInAs": {
-    "message": "Вхід у систему як"
-  },
-  "notYou": {
-    "message": "Не ви?"
-  },
   "newAroundHere": {
     "message": "Виконуєте вхід вперше?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Увійти з пристроєм"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Потрібно увімкнути схвалення запитів на вхід у налаштуваннях програми Bitwarden. Потрібен інший варіант?"
   },
   "fingerprintPhraseHeader": {
     "message": "Фраза відбитка"
@@ -3343,9 +3321,6 @@
     "message": "Надіслати сповіщення ще раз"
   },
   "viewAllLogInOptions": {
-    "message": "Переглянути всі варіанти входу"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Переглянути всі варіанти входу"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Запит підтвердження адміністратора"
   },
-  "approveWithMasterPassword": {
-    "message": "Затвердити з головним паролем"
-  },
   "ssoIdentifierRequired": {
     "message": "Потрібен SSO-ідентифікатор організації."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Ваш запит відправлено адміністратору."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Ви отримаєте сповіщення після затвердження."
   },
   "troubleLoggingIn": {
     "message": "Проблема під час входу?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Змініть порядок URI вебсайтів. Використовуйте стрілки, щоб перемістити елемент вгору чи вниз."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ переміщено вгору, позиція $INDEX$ з $LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Дуже широке"
+  },
+  "sshKeyWrongPassword": {
+    "message": "Ви ввели неправильний пароль."
+  },
+  "importSshKey": {
+    "message": "Імпорт"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Підтвердити пароль"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Введіть пароль для ключа SSH."
+  },
+  "enterSshKeyPassword": {
+    "message": "Введіть пароль"
+  },
+  "invalidSshKey": {
+    "message": "Ключ SSH недійсний"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Тип ключа SSH не підтримується"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Імпортувати ключ із буфера обміну"
+  },
+  "sshKeyImported": {
+    "message": "Ключ SSH успішно імпортовано"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Ви не можете вилучати збірки, маючи дозвіл лише на перегляд: $COLLECTIONS$",

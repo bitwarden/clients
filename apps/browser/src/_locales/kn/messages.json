@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "ಪಾಸ್ವರ್ಡ್ ಸುಳಿವು"
-  },
-  "enterEmailToGetHint": {
-    "message": "ವಿಸ್ತರಣೆಯನ್ನು ಪ್ರಾರಂಭಿಸಲು ಮೆನುವಿನಲ್ಲಿರುವ ಬಿಟ್‌ವಾರ್ಡೆನ್ ಐಕಾನ್ ಟ್ಯಾಪ್ ಮಾಡಿ."
-  },
   "getMasterPasswordHint": {
     "message": "ಮಾಸ್ಟರ್ ಪಾಸ್ವರ್ಡ್ ಸುಳಿವನ್ನು ಪಡೆಯಿರಿ"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "ಫೋಲ್ಡರ್ ಸಂಪಾದಿಸಿ"
+  },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "New folder"
@@ -1166,10 +1169,6 @@
     "message": "ಬೆಳಕು",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "ಡಾರ್ಕ್ ಸೌರ",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Export from"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "ಸ್ವಯಂ ಆತಿಥೇಯ ಪರಿಸರ"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "ನಿಮ್ಮ ಆನ್-ಪ್ರಮೇಯ ಹೋಸ್ಟ್ ಮಾಡಿದ ಬಿಟ್‌ವಾರ್ಡೆನ್ ಸ್ಥಾಪನೆಯ ಮೂಲ URL ಅನ್ನು ನಿರ್ದಿಷ್ಟಪಡಿಸಿ."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "ಕಸ್ಟಮ್ ಪರಿಸರ"
-  },
-  "customEnvironmentFooter": {
-    "message": "ಸುಧಾರಿತ ಬಳಕೆದಾರರಿಗಾಗಿ. ನೀವು ಪ್ರತಿ ಸೇವೆಯ ಮೂಲ URL ಅನ್ನು ಸ್ವತಂತ್ರವಾಗಿ ನಿರ್ದಿಷ್ಟಪಡಿಸಬಹುದು."
   },
   "baseUrl": {
     "message": "ಸರ್ವರ್ URL"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "ವಿಂಗಡಿಸಲು ಎಳೆಯಿರಿ"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "ಪಠ್ಯ"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Settings have been edited"
-  },
-  "environmentEditedClick": {
-    "message": "Click here"
-  },
-  "environmentEditedReset": {
-    "message": "to reset to pre-configured settings"
-  },
   "serverVersion": {
     "message": "Server version"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Log in with master password"
   },
-  "loggingInAs": {
-    "message": "Logging in as"
-  },
-  "notYou": {
-    "message": "Not you?"
-  },
   "newAroundHere": {
     "message": "New around here?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Log in with device"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Log in with device must be set up in the settings of the Bitwarden app. Need another option?"
   },
   "fingerprintPhraseHeader": {
     "message": "Fingerprint phrase"
@@ -3343,9 +3321,6 @@
     "message": "Resend notification"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "View all log in options"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Request admin approval"
   },
-  "approveWithMasterPassword": {
-    "message": "Approve with master password"
-  },
   "ssoIdentifierRequired": {
     "message": "Organization SSO identifier is required."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Your request has been sent to your admin."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "You will be notified once approved."
   },
   "troubleLoggingIn": {
     "message": "Trouble logging in?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Extra wide"
+  },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",

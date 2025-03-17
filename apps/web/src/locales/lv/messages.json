@@ -428,6 +428,9 @@
   "dragToSort": {
     "message": "Vilkt, lai kārtotu"
   },
+  "dragToReorder": {
+    "message": "Vilkt, lai pārkārtotu"
+  },
   "cfTypeText": {
     "message": "Teksts"
   },
@@ -469,6 +472,19 @@
   },
   "editFolder": {
     "message": "Labot mapi"
+  },
+  "editWithName": {
+    "message": "Labot $ITEM$: $NAME$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Jauna mape"
@@ -1269,12 +1285,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Jāievada sava konta e-pasta adrese, un paroles norāde tiks nosūtīta"
-  },
-  "passwordHint": {
-    "message": "Paroles norāde"
-  },
-  "enterEmailToGetHint": {
-    "message": "Norādīt konta e-pasta adresi, lai saņemtu galvenās paroles norādi."
   },
   "getMasterPasswordHint": {
     "message": "Saņemt galvenās paroles norādi"
@@ -4530,6 +4540,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "$LABEL$ pārvietots augšup, $INDEX$. no $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ pārvietots lejup, $INDEX$. no $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "Šifrēšanas atslēgas atjaunināšanas laikā mapes nevarēja atšifrēt. Lai turpinātu atjaunināšanu, mapes ir jāizdzēš. Glabātavas vienumi netiks izdzēsti, ja turpināsi."
   },
@@ -7264,12 +7308,6 @@
   "numberOfUsers": {
     "message": "Lietotāju skaits"
   },
-  "loggingInAs": {
-    "message": "Piesakās kā"
-  },
-  "notYou": {
-    "message": "Tas neesi Tu?"
-  },
   "pickAnAvatarColor": {
     "message": "Izvēlēties iemiesojuma krāsu"
   },
@@ -8393,9 +8431,6 @@
   "requestAdminApproval": {
     "message": "Pieprasīt pārvaldītāja apstiprinājumu"
   },
-  "approveWithMasterPassword": {
-    "message": "Apstiprināt ar galveno paroli"
-  },
   "trustedDeviceEncryption": {
     "message": "Uzticamo ierīču šifrēšana"
   },
@@ -8609,9 +8644,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Pieprasījums tika nosūtīts pārvaldītājam."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Tiks saņemts paziņojums, tiklīdz būs apstiprināts."
   },
   "troubleLoggingIn": {
     "message": "Neizdodas pieteikties?"
@@ -9337,6 +9369,15 @@
   },
   "deviceManagementDesc": {
     "message": "Konfigurēt ierīču pārvaldību Bitwarden, izmantojot operētājsistēmai atbilstošas ieviešanas norādes."
+  },
+  "deviceIdMissing": {
+    "message": "Trūkst ierīces Id"
+  },
+  "deviceTypeMissing": {
+    "message": "Trūkst ierīces veids"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Trūkst ierīces izveidošanas datums"
   },
   "desktopRequired": {
     "message": "Nepieciešams dators"
@@ -10339,6 +10380,36 @@
   "organizationNameMaxLength": {
     "message": "Apvienības nosaukums nevar pārsniegt 50 rakstzīmes."
   },
+  "sshKeyWrongPassword": {
+    "message": "Ievadītā parole ir nepareiza."
+  },
+  "importSshKey": {
+    "message": "Ievietot"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Apstiprināt paroli"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Ievadīt SSH atslēgas paroli."
+  },
+  "enterSshKeyPassword": {
+    "message": "Ievadīt paroli"
+  },
+  "invalidSshKey": {
+    "message": "SSH atslēga ir nederīga"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "SSH atslēgas veids netiek atbalstīts"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Ievietot atslēgu no starpliktuves"
+  },
+  "sshKeyImported": {
+    "message": "SSH atslēga tika sekmīgi ievietota"
+  },
+  "copySSHPrivateKey": {
+    "message": "Ievietot privāto atslēgu starpliktuvē"
+  },
   "openingExtension": {
     "message": "Atver Bitwarden pārlūka paplašinājumu"
   },
@@ -10504,5 +10575,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "Šie notikumu ir tikai piemēri, un tie neatspoguļo īstus notikumus Bitwarden apvienībā."
+  },
+  "cannotCreateCollection": {
+    "message": "Apvienībās, kuras izmanto Bitwarden bez maksas, var būt līdz 2 krājumiem. Jāpāriet uz maksas plānu, lai pievienotu vairāk krājumu."
   }
 }
