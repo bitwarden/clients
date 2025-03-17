@@ -69,6 +69,9 @@ export class DefaultOpaqueService implements OpaqueService {
     return registrationStartResponse.sessionId;
   }
 
+  // TODO: we will likely have to break this apart to return the start / finish requests
+  // so that the opaque login strategy can send both to the identity token endpoint
+  // in separate calls.
   async login(
     email: string,
     masterPassword: string,
