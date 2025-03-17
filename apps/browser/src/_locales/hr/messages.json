@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Unesi svoju adresu e-pošte računa i poslat ćemo ti tvoj podsjetnik"
   },
-  "passwordHint": {
-    "message": "Podsjetnik za lozinku"
-  },
-  "enterEmailToGetHint": {
-    "message": "Unesi adresu e-pošte svog računa za primitak podsjetnika glavne lozinke."
-  },
   "getMasterPasswordHint": {
     "message": "Slanje podsjetnika glavne lozinke"
   },
@@ -385,6 +379,15 @@
   "editFolder": {
     "message": "Uredi mapu"
   },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
     "message": "Nova mapa"
   },
@@ -479,22 +482,6 @@
   "length": {
     "message": "Duljina"
   },
-  "uppercase": {
-    "message": "Velika slova (A - Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Mala slova (a - z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Brojevi (0 - 9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Posebni znakovi (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Uključi",
     "description": "Card header for password generator include block"
@@ -526,10 +513,6 @@
   "specialCharactersDescription": {
     "message": "Uključi posebne znakove",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Broj riječi"
@@ -669,8 +652,8 @@
   "browserNotSupportClipboard": {
     "message": "Web preglednik ne podržava jednostavno kopiranje međuspremnika. Umjesto toga ručno kopirajte."
   },
-  "verifyIdentity": {
-    "message": "Potvrdi identitet"
+  "verifyYourIdentity": {
+    "message": "Verify your identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "Ne prepoznajemo ovaj uređaj. Za potvrdu identiteta unesi kôd poslan e-poštom."
@@ -921,6 +904,9 @@
   "no": {
     "message": "Ne"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "Došlo je do neočekivane pogreške."
   },
@@ -1070,6 +1056,56 @@
   "notificationAddSave": {
     "message": "Spremi"
   },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ saved to Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ updated in Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Save as new login",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Update login",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Save login?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Update existing login?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Login saved",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Login updated",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Error saving",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "description": "Detailed error message shown when saving login details fails."
+  },
   "enableChangedPasswordNotification": {
     "message": "Upitaj za ažuriranje trenutne prijave"
   },
@@ -1132,10 +1168,6 @@
   "light": {
     "message": "Svijetla",
     "description": "Light color"
-  },
-  "solarizedDark": {
-    "message": "Solarized Dark",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
     "message": "Izvezi iz"
@@ -1486,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Vlastito hosting okruženje"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Navedi osnovni URL svoje lokalno smještene Bitwarden instalacije."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Navedi osnovni URL svoje lokalne Bitwarden instalacije, npr.: https://bitwarden.company.com"
   },
@@ -1500,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Prilagođeno okruženje"
-  },
-  "customEnvironmentFooter": {
-    "message": "Za napredne korisnike. Samostalno možeš odrediti osnovni URL svake usluge."
   },
   "baseUrl": {
     "message": "URL poslužitelja"
@@ -1640,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Povuci za sortiranje"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Tekst"
@@ -3243,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Postavke su izmijenjene"
-  },
-  "environmentEditedClick": {
-    "message": "Klikni ovdje"
-  },
-  "environmentEditedReset": {
-    "message": "za ponovno postavljanje zadanih postavki"
-  },
   "serverVersion": {
     "message": "Verzija poslužitelja"
   },
@@ -3282,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Prijava glavnom lozinkom"
   },
-  "loggingInAs": {
-    "message": "Prijava kao"
-  },
-  "notYou": {
-    "message": "Nisi ti?"
-  },
   "newAroundHere": {
     "message": "Novi korisnik?"
   },
@@ -3296,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Prijava uređajem"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Prijava uređajem mora biti namještena u postavka Bitwarden mobilne aplikacije. Trebaš drugu opciju?"
   },
   "fingerprintPhraseHeader": {
     "message": "Jedinstvena fraza"
@@ -3310,9 +3321,6 @@
     "message": "Ponovno pošalji obavijest"
   },
   "viewAllLogInOptions": {
-    "message": "Pogledaj sve mogućnosti prijave"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Pogledaj sve mogućnosti prijave"
   },
   "notificationSentDevice": {
@@ -3456,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Zatraži odobrenje administratora"
   },
-  "approveWithMasterPassword": {
-    "message": "Odobri glavnom lozinkom"
-  },
   "ssoIdentifierRequired": {
     "message": "Potreban je identifikator organizacije."
   },
@@ -3504,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Tvoj zahtjev je poslan administratoru."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Dobiti ćeš obavijest kada bude odobreno."
   },
   "troubleLoggingIn": {
     "message": "Problem s prijavom?"
@@ -4076,6 +4078,9 @@
   },
   "activeAccount": {
     "message": "Aktivni račun"
+  },
+  "bitwardenAccount": {
+    "message": "Bitwarden account"
   },
   "availableAccounts": {
     "message": "Dostupni računi"
@@ -4665,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ pomaknut gore, pozicija $INDEX$ od $LENGTH$",
     "placeholders": {
@@ -5096,6 +5104,33 @@
   "extraWide": {
     "message": "Ekstra široko"
   },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "S dopuštenjima samo za prikaz ne možeš ukloniti zbirke: $COLLECTIONS$",
     "placeholders": {
@@ -5110,5 +5145,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "Za korištenje biometrijskog otključavanja ažuriraj desktop aplikaciju ili nemogući otključavanje otiskom prsta u desktop aplikaciji."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

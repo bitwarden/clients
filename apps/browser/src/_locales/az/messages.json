@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Hesabınızın e-poçt ünvanını daxil edin və parolunuz üçün ipucu sizə göndəriləcək"
   },
-  "passwordHint": {
-    "message": "Parol ipucu"
-  },
-  "enterEmailToGetHint": {
-    "message": "Ana parol ipucunuzu alacağınız hesabınızın e-poçt ünvanını daxil edin."
-  },
   "getMasterPasswordHint": {
     "message": "Ana parol üçün ipucu alın"
   },
@@ -385,6 +379,15 @@
   "editFolder": {
     "message": "Qovluğa düzəliş et"
   },
+  "editFolderWithName": {
+    "message": "Qovluğa düzəliş et: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
     "message": "Yeni qovluq"
   },
@@ -479,22 +482,6 @@
   "length": {
     "message": "Uzunluq"
   },
-  "uppercase": {
-    "message": "Böyük hərf (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Kiçik hərf (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Rəqəmlər (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Xüsusi simvollar (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Daxil et",
     "description": "Card header for password generator include block"
@@ -526,10 +513,6 @@
   "specialCharactersDescription": {
     "message": "Xüsusi xarakterləri daxil et",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Söz sayı"
@@ -669,8 +652,8 @@
   "browserNotSupportClipboard": {
     "message": "Veb brauzeriniz lövhəyə kopyalamağı dəstəkləmir. Əvəzində əllə kopyalayın."
   },
-  "verifyIdentity": {
-    "message": "Kimliyi doğrula"
+  "verifyYourIdentity": {
+    "message": "Kimliyinizi doğrulayın"
   },
   "weDontRecognizeThisDevice": {
     "message": "Bu cihazı tanımırıq. Kimliyinizi doğrulamaq üçün e-poçtunuza göndərilən kodu daxil edin."
@@ -921,6 +904,9 @@
   "no": {
     "message": "Xeyr"
   },
+  "location": {
+    "message": "Yerləşmə"
+  },
   "unexpectedError": {
     "message": "Gözlənilməz bir xəta baş verdi."
   },
@@ -1070,6 +1056,56 @@
   "notificationAddSave": {
     "message": "Saxla"
   },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ Bitwarden-də saxlanıldı.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ Bitwarden-də güncəlləndi.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Yeni giriş kimi saxla",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Giriş məlumatlarını güncəllə",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Giriş məlumatları saxlanılsın?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Mövcud giriş məlumatları güncəllənsin?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Giriş məlumatları saxlanıldı",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Giriş məlumatları güncəlləndi",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Saxlama xətası",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Bunu saxlaya bilmədik. Məlumatları manual daxil etməyə çalışın.",
+    "description": "Detailed error message shown when saving login details fails."
+  },
   "enableChangedPasswordNotification": {
     "message": "Mövcud girişin güncəllənməsini soruş"
   },
@@ -1132,10 +1168,6 @@
   "light": {
     "message": "Açıq",
     "description": "Light color"
-  },
-  "solarizedDark": {
-    "message": "Günəşli tünd",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
     "message": "Buradan xaricə köçür"
@@ -1486,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Self-hosted mühit"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Öz-özünə sahiblik edən Bitwarden quraşdırmasının təməl URL-sini müəyyənləşdirin."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Öz-özünə sahiblik edən Bitwarden quraşdırmasının təməl URL-sini müəyyənləşdirin. Nümunə: https://bitwarden.company.com"
   },
@@ -1500,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Özəl mühit"
-  },
-  "customEnvironmentFooter": {
-    "message": "Qabaqcıl istifadəçilər üçündür. Hər xidmətin baza URL-sini müstəqil olaraq müəyyənləşdirə bilərsiniz."
   },
   "baseUrl": {
     "message": "Server URL-si"
@@ -1640,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Sıralamaq üçün sürüklə"
+  },
+  "dragToReorder": {
+    "message": "Yenidən sıralamaq üçün sürüklə"
   },
   "cfTypeText": {
     "message": "Mətn"
@@ -3243,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Ayarlara düzəliş edildi"
-  },
-  "environmentEditedClick": {
-    "message": "Bura klikləyin"
-  },
-  "environmentEditedReset": {
-    "message": "ön konfiqurasiyalı ayarları sıfırlamaq üçün"
-  },
   "serverVersion": {
     "message": "Server versiyası"
   },
@@ -3282,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Ana parolla giriş et"
   },
-  "loggingInAs": {
-    "message": "Giriş et"
-  },
-  "notYou": {
-    "message": "Siz deyilsiniz?"
-  },
   "newAroundHere": {
     "message": "Burada yenisiniz?"
   },
@@ -3296,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Cihazla giriş et"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Cihazla giriş, Bitwarden tətbiqinin ayarlarında qurulmalıdır. Başqa bir seçimə ehtiyacınız var?"
   },
   "fingerprintPhraseHeader": {
     "message": "Barmaq izi ifadəsi"
@@ -3310,9 +3321,6 @@
     "message": "Bildirişi təkrar göndər"
   },
   "viewAllLogInOptions": {
-    "message": "Bütün giriş seçimlərinə bax"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Bütün giriş seçimlərinə bax"
   },
   "notificationSentDevice": {
@@ -3456,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Admin təsdiqini tələb et"
   },
-  "approveWithMasterPassword": {
-    "message": "Ana parolla təsdiqlə"
-  },
   "ssoIdentifierRequired": {
     "message": "Təşkilat SSO identifikatoru tələb olunur."
   },
@@ -3504,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Tələbiniz admininizə göndərildi."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Təsdiqləndikdən sonra məlumatlandırılacaqsınız."
   },
   "troubleLoggingIn": {
     "message": "Girişdə problem var?"
@@ -4076,6 +4078,9 @@
   },
   "activeAccount": {
     "message": "Aktiv hesab"
+  },
+  "bitwardenAccount": {
+    "message": "Bitwarden hesabı"
   },
   "availableAccounts": {
     "message": "Mövcud hesablar"
@@ -4665,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Veb sayt URI-yını yenidən sırala. Ox düyməsi ilə elementi yuxarı və ya aşağı daşıyın."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ yuxarı daşındı, mövqeyi $INDEX$/$LENGTH$",
     "placeholders": {
@@ -5096,6 +5104,33 @@
   "extraWide": {
     "message": "Ekstra enli"
   },
+  "sshKeyWrongPassword": {
+    "message": "Daxil etdiyiniz parol yanlışdır."
+  },
+  "importSshKey": {
+    "message": "Daxilə köçür"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Parolu təsdiqlə"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "SSH açarı üçün parolu daxil edin."
+  },
+  "enterSshKeyPassword": {
+    "message": "Parolu daxil edin"
+  },
+  "invalidSshKey": {
+    "message": "SSH açarı yararsızdır"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "SSH açar növü dəstəklənmir"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Açarı lövhədən daxilə köçür"
+  },
+  "sshKeyImported": {
+    "message": "SSH açarı uğurla daxilə köçürüldü"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "\"Yalnız baxma\" icazələrinə sahib kolleksiyaları silə bilməzsiniz: $COLLECTIONS$",
     "placeholders": {
@@ -5110,5 +5145,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "Biometrik kilid açmanı istifadə etmək üçün lütfən masaüstü tətbiqinizi güncəlləyin, ya da masaüstü ayarlarında barmaq izi ilə kilid açmanı sıradan çıxardın."
+  },
+  "changeAtRiskPassword": {
+    "message": "Riskli parolları dəyişdir"
   }
 }

@@ -201,6 +201,9 @@
   "notes": {
     "message": "Бележки"
   },
+  "privateNote": {
+    "message": "Лична бележка"
+  },
   "note": {
     "message": "Бележка"
   },
@@ -425,6 +428,9 @@
   "dragToSort": {
     "message": "Подредба чрез влачене"
   },
+  "dragToReorder": {
+    "message": "Плъзнете за пренареждане"
+  },
   "cfTypeText": {
     "message": "Текст"
   },
@@ -466,6 +472,19 @@
   },
   "editFolder": {
     "message": "Редактиране на папка"
+  },
+  "editWithName": {
+    "message": "Редактиране на $ITEM$: $NAME$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Нова папка"
@@ -1029,6 +1048,9 @@
   "no": {
     "message": "Не"
   },
+  "location": {
+    "message": "Местоположение"
+  },
   "loginOrCreateNewAccount": {
     "message": "Впишете се или създайте нов абонамент, за да достъпите защитен трезор."
   },
@@ -1179,7 +1201,7 @@
   "authenticationSessionTimedOut": {
     "message": "Сесията за удостоверяване е изтекла. Моля, започнете отначало процеса по вписване."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Потвърдете самоличността си"
   },
   "weDontRecognizeThisDevice": {
@@ -1263,12 +1285,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Въведете е-пощата на регистрацията си и подсказката за паролата ще Ви бъде изпратена"
-  },
-  "passwordHint": {
-    "message": "Подсказка за паролата"
-  },
-  "enterEmailToGetHint": {
-    "message": "Въведете адреса на електронната си поща, за да получите подсказка за главната парола."
   },
   "getMasterPasswordHint": {
     "message": "Подсказка за главната парола"
@@ -2251,6 +2267,9 @@
   },
   "revokeAccess": {
     "message": "Отнемане на достъпа"
+  },
+  "revoke": {
+    "message": "Отнемане"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Този доставчик на двустепенно удостоверяване е включен за абонамента ви."
@@ -4521,6 +4540,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "Преместено нагоре: $LABEL$. Позиция $INDEX$ от $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "Преместено надолу: $LABEL$. Позиция $INDEX$ от $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "Ако актуализирате шифроващия ключ, папките Ви няма да могат да бъдат дешифрирани. За да продължите с промяната, папките трябва да бъдат изтрити. Елементите в трезора няма да бъдат изтрити, ако продължите."
   },
@@ -5081,11 +5134,39 @@
   "requireSsoExemption": {
     "message": "Тази политика не се прилага към собствениците и администраторите на организацията."
   },
+  "limitSendViews": {
+    "message": "Ограничаване на преглежданията"
+  },
+  "limitSendViewsHint": {
+    "message": "Никой няма да може да преглежда това Изпращане след достигане на ограничението.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "Остават $ACCESSCOUNT$ преглеждания",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Подробности за Изпращането",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Текст за споделяне"
+  },
   "sendTypeFile": {
     "message": "Файл"
   },
   "sendTypeText": {
     "message": "Текст"
+  },
+  "sendPasswordDescV3": {
+    "message": "Добавете незадължителна парола, с която получателите да имат достъп до това Изпращане.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Създаване на изпращане",
@@ -5111,19 +5192,15 @@
     "message": "Изтриване на изпращане",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Сигурни ли сте, че искате да изтриете това изпращане?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Вид на изпратеното",
+  "deleteSendPermanentConfirmation": {
+    "message": "Наистина ли искате да изтриете завинаги това Изпращане?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Дата на изтриване"
   },
-  "deletionDateDesc": {
-    "message": "Изпращането ще бъде окончателно изтрито на зададената дата и време.",
+  "deletionDateDescV2": {
+    "message": "Изпращането ще бъде окончателно изтрито на тази дата.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5135,21 +5212,6 @@
   },
   "maxAccessCount": {
     "message": "Максимален брой достъпвания"
-  },
-  "maxAccessCountDesc": {
-    "message": "При задаване — това изпращане ще се изключи след определен брой достъпвания.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Текущ брой на достъпванията"
-  },
-  "sendPasswordDesc": {
-    "message": "Изискване на парола за достъп до това изпращане.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Скрити бележки за това изпращане.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Изключено"
@@ -5177,13 +5239,6 @@
   "removePasswordConfirmation": {
     "message": "Сигурни ли сте, че искате да премахнете паролата?"
   },
-  "hideEmail": {
-    "message": "Скриване на е-пощата ми от получателите."
-  },
-  "disableThisSend": {
-    "message": "Пълно спиране на това изпращане — никой няма да има достъп.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Всички изпращания"
   },
@@ -5193,6 +5248,9 @@
   },
   "pendingDeletion": {
     "message": "Предстои изтриване"
+  },
+  "hideTextByDefault": {
+    "message": "Скриване на текста по подразбиране"
   },
   "expired": {
     "message": "Изтекъл"
@@ -5415,13 +5473,6 @@
     "message": "Потребителите да не могат да скриват адреса на е-пощата си от получателите, когато създават или редактират изпращания.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "В момента са в сила следните политики на организацията:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Потребителите не могат да скриват адреса на е-пощата си от получателите, когато създават или редактират изпращания.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "Редактирана политика № $ID$.",
     "placeholders": {
@@ -5520,27 +5571,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Изключване на индивидуалното притежание за потребителите в организацията"
-  },
-  "textHiddenByDefault": {
-    "message": "При достъп до изпращането стандартно текстът да се скрива",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Описателно име за това изпращане.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Текст за изпращане."
-  },
-  "sendFileDesc": {
-    "message": "Файл за изпращане."
-  },
-  "copySendLinkOnSave": {
-    "message": "Копиране на връзката към изпращането при запазването му за лесно споделяне."
-  },
-  "sendLinkLabel": {
-    "message": "Изпращане на връзката",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Изпращане",
@@ -5689,6 +5719,9 @@
   },
   "dateParsingError": {
     "message": "Грешка при запазване на датата на валидност и изтриване."
+  },
+  "hideYourEmail": {
+    "message": "Скриване на Вашата е-поща от получателите."
   },
   "webAuthnFallbackMsg": {
     "message": "За да потвърдите двустепенното удостоверяване, натиснете бутона по-долу."
@@ -7275,12 +7308,6 @@
   "numberOfUsers": {
     "message": "Брой потребители"
   },
-  "loggingInAs": {
-    "message": "Вписване като"
-  },
-  "notYou": {
-    "message": "Това не сте Вие?"
-  },
   "pickAnAvatarColor": {
     "message": "Изберете цвят за аватара"
   },
@@ -8404,9 +8431,6 @@
   "requestAdminApproval": {
     "message": "Подаване на заявка за одобрение от администратор"
   },
-  "approveWithMasterPassword": {
-    "message": "Одобряване с главната парола"
-  },
   "trustedDeviceEncryption": {
     "message": "Шифроване чрез доверено устройство"
   },
@@ -8620,9 +8644,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Вашата заявка беше изпратена до администратора Ви."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Ще получите известие, когато тя бъде одобрена."
   },
   "troubleLoggingIn": {
     "message": "Имате проблем с вписването?"
@@ -9349,6 +9370,15 @@
   "deviceManagementDesc": {
     "message": "Настройте управлението на устройства в Битуорден, като използвате ръководството за внедряване за платформата си."
   },
+  "deviceIdMissing": {
+    "message": "Липсва идентификатор на устройството"
+  },
+  "deviceTypeMissing": {
+    "message": "Липсва тип на устройството"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Липсва дата на създаване на устройството"
+  },
   "desktopRequired": {
     "message": "Трябва да сте на компютър"
   },
@@ -9848,8 +9878,14 @@
   "learnMoreAboutApi": {
     "message": "Научете повече относно ППИ на Биуорден"
   },
+  "fileSend": {
+    "message": "Файлово изпращане"
+  },
   "fileSends": {
     "message": "Файлови изпращания"
+  },
+  "textSend": {
+    "message": "Текстово изпращане"
   },
   "textSends": {
     "message": "Текстови изпращания"
@@ -10083,10 +10119,6 @@
   "specialCharactersDescription": {
     "message": "Включване на специални знаци",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Добавяне на прикачен файл"
@@ -10348,6 +10380,36 @@
   "organizationNameMaxLength": {
     "message": "Името на организацията не може да бъде по-дълго от 50 знака."
   },
+  "sshKeyWrongPassword": {
+    "message": "Въведената парола е неправилна."
+  },
+  "importSshKey": {
+    "message": "Внасяне"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Потвърждаване на паролата"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Въведете паролата за SSH-ключа."
+  },
+  "enterSshKeyPassword": {
+    "message": "Въведете паролата"
+  },
+  "invalidSshKey": {
+    "message": "SSH ключът е неправилен"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Типът на SSH ключа не се поддържа"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Внасяне на ключ от буфера за обмен"
+  },
+  "sshKeyImported": {
+    "message": "SSH ключът е внесен успешно"
+  },
+  "copySSHPrivateKey": {
+    "message": "Копиране на частния ключ"
+  },
   "openingExtension": {
     "message": "Отваряне на добавката за браузър на Битуорден"
   },
@@ -10487,6 +10549,9 @@
   "assignedExceedsAvailable": {
     "message": "Назначените места превишават наличния брой."
   },
+  "changeAtRiskPassword": {
+    "message": "Промяна на парола в риск"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Премахване на отключването чрез ПИН"
   },
@@ -10510,5 +10575,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "Тези събития са само за пример и не отразяват истинските събития във Вашата организация."
+  },
+  "cannotCreateCollection": {
+    "message": "Безплатните организации могат да имат не повече от 2 колекции. Надградете до платен план, ако искате да имате повече колекции."
   }
 }

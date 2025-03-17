@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Hesabınızın e-posta adresini girdiğinizde parola ipucunuz size gönderilecektir"
   },
-  "passwordHint": {
-    "message": "Parola ipucu"
-  },
-  "enterEmailToGetHint": {
-    "message": "Ana parola ipucunu almak için hesabınızın e-posta adresini girin."
-  },
   "getMasterPasswordHint": {
     "message": "Ana parola ipucunu al"
   },
@@ -385,6 +379,15 @@
   "editFolder": {
     "message": "Klasörü düzenle"
   },
+  "editFolderWithName": {
+    "message": "Klasörü düzenle: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
     "message": "Yeni klasör"
   },
@@ -479,22 +482,6 @@
   "length": {
     "message": "Uzunluk"
   },
-  "uppercase": {
-    "message": "Büyük harf (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Küçük harf (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Rakamlar (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Özel karakterler (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Dahil et",
     "description": "Card header for password generator include block"
@@ -526,10 +513,6 @@
   "specialCharactersDescription": {
     "message": "Özel karakterleri dahil et",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Kelime sayısı"
@@ -669,8 +652,8 @@
   "browserNotSupportClipboard": {
     "message": "Web tarayıcınız panoya kopyalamayı desteklemiyor. Parolayı elle kopyalayın."
   },
-  "verifyIdentity": {
-    "message": "Kimliği doğrula"
+  "verifyYourIdentity": {
+    "message": "Kimliğinizi doğrulayın"
   },
   "weDontRecognizeThisDevice": {
     "message": "Bu cihazı tanıyamadık. Kimliğinizi doğrulamak için e-postanıza gönderilen kodu girin."
@@ -921,6 +904,9 @@
   "no": {
     "message": "Hayır"
   },
+  "location": {
+    "message": "Konum"
+  },
   "unexpectedError": {
     "message": "Beklenmedik bir hata oluştu."
   },
@@ -1024,7 +1010,7 @@
     "message": "Hesap eklemeyi öner"
   },
   "vaultSaveOptionsTitle": {
-    "message": "Kasa seçeneklerine kaydet"
+    "message": "Kasaya kaydetme seçenekleri"
   },
   "addLoginNotificationDesc": {
     "message": "\"Hesap ekle\" bildirimi, ilk kez kullandığınız hesap bilgilerini kasanıza kaydetmek isteyip istemediğinizi otomatik olarak sorar."
@@ -1051,7 +1037,7 @@
     "message": "Kolay otomatik doldurma için sekme sayfasında kimlikleri listele."
   },
   "clickToAutofillOnVault": {
-    "message": "Kasa görünümünde otomatik doldurmak istediğiniz kayıtlara tıklayın"
+    "message": "Kasa görünümünde kayıtlara tıklayınca otomatik doldur"
   },
   "clickToAutofill": {
     "message": "Otomatik doldurma önerisindeki kayıtlara tıkladığımda doldur"
@@ -1069,6 +1055,56 @@
   },
   "notificationAddSave": {
     "message": "Kaydet"
+  },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ Bitwarden'a kaydedildi.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ Bitwarden'da güncellendi.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Yeni hesap olarak kaydet",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Hesabı güncelle",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Hesap kaydedilsin mi?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Mevcut hesap güncellensin mi?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Hesap kaydedildi",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Hesap güncellendi",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Kaydetme hatası",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Bu hesabı kaydedemedik. Bilgileri elle girmeyi deneyin.",
+    "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
     "message": "Mevcut hesapları güncellemeyi öner"
@@ -1132,10 +1168,6 @@
   "light": {
     "message": "Açık",
     "description": "Light color"
-  },
-  "solarizedDark": {
-    "message": "Solarized koyu",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
     "message": "Dışa aktarılacak konum"
@@ -1486,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Şirket içinde barındırılan ortam"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Kurum içinde barındırılan Bitwarden kurulumunuzun taban URL'sini belirtin."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -1500,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Özel ortam"
-  },
-  "customEnvironmentFooter": {
-    "message": "İleri düzey kullanıcılar için. Her hizmetin taban URL'sini bağımsız olarak belirleyebilirsiniz."
   },
   "baseUrl": {
     "message": "Sunucu URL'si"
@@ -1639,6 +1665,9 @@
     "message": "Yeni özel alan"
   },
   "dragToSort": {
+    "message": "Sıralamak için sürükleyin"
+  },
+  "dragToReorder": {
     "message": "Sıralamak için sürükleyin"
   },
   "cfTypeText": {
@@ -3243,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Ayarlar düzenlendi"
-  },
-  "environmentEditedClick": {
-    "message": "Buraya tıklayarak"
-  },
-  "environmentEditedReset": {
-    "message": "ön tanımlı ayarları sıfırlayabilirsiniz"
-  },
   "serverVersion": {
     "message": "Sunucu sürümü"
   },
@@ -3282,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Ana parola ile giriş yap"
   },
-  "loggingInAs": {
-    "message": "Giriş yapılan kullanıcı:"
-  },
-  "notYou": {
-    "message": "Siz değil misiniz?"
-  },
   "newAroundHere": {
     "message": "Buralarda yeni misiniz?"
   },
@@ -3296,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Cihazla giriş yap"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Cihazla girişi Bitwarden mobil uygulamasının ayarlarından etkinleştirmelisiniz. Başka bir seçeneğe mi ihtiyacınız var?"
   },
   "fingerprintPhraseHeader": {
     "message": "Parmak izi ifadesi"
@@ -3310,9 +3321,6 @@
     "message": "Bildirimi yeniden gönder"
   },
   "viewAllLogInOptions": {
-    "message": "Tüm giriş seçeneklerini gör"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Tüm giriş seçeneklerini gör"
   },
   "notificationSentDevice": {
@@ -3456,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Yönetici onayı iste"
   },
-  "approveWithMasterPassword": {
-    "message": "Ana parola ile onayla"
-  },
   "ssoIdentifierRequired": {
     "message": "Kuruluş SSO tanımlayıcısı gereklidir."
   },
@@ -3504,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "İsteğiniz yöneticinize gönderildi."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Onaylandıktan sonra bilgilendirileceksiniz."
   },
   "troubleLoggingIn": {
     "message": "Giriş yaparken sorun mu yaşıyorsunuz?"
@@ -4076,6 +4078,9 @@
   },
   "activeAccount": {
     "message": "Aktif hesap"
+  },
+  "bitwardenAccount": {
+    "message": "Bitwarden hesabı"
   },
   "availableAccounts": {
     "message": "Mevcut hesaplar"
@@ -4665,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
     "placeholders": {
@@ -5096,6 +5104,33 @@
   "extraWide": {
     "message": "Ekstra geniş"
   },
+  "sshKeyWrongPassword": {
+    "message": "Girdiğiniz parola yanlış."
+  },
+  "importSshKey": {
+    "message": "İçe aktar"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Parolayı onaylayın"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "SSH anahtarının parolasını girin."
+  },
+  "enterSshKeyPassword": {
+    "message": "Parolayı girin"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
     "placeholders": {
@@ -5110,5 +5145,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

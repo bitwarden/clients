@@ -201,6 +201,9 @@
   "notes": {
     "message": "Notlar"
   },
+  "privateNote": {
+    "message": "Şəxsi not"
+  },
   "note": {
     "message": "Not"
   },
@@ -425,6 +428,9 @@
   "dragToSort": {
     "message": "Sıralamaq üçün sürüklə"
   },
+  "dragToReorder": {
+    "message": "Yenidən sıralamaq üçün sürüklə"
+  },
   "cfTypeText": {
     "message": "Mətn"
   },
@@ -466,6 +472,19 @@
   },
   "editFolder": {
     "message": "Qovluğa düzəliş et"
+  },
+  "editWithName": {
+    "message": "$ITEM$ - düzəliş et: $NAME$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Yeni qovluq"
@@ -1029,6 +1048,9 @@
   "no": {
     "message": "Xeyr"
   },
+  "location": {
+    "message": "Yerləşmə"
+  },
   "loginOrCreateNewAccount": {
     "message": "Güvənli seyfinizə müraciət etmək üçün giriş edin və ya yeni bir hesab yaradın."
   },
@@ -1179,7 +1201,7 @@
   "authenticationSessionTimedOut": {
     "message": "Kimlik doğrulama seansının vaxtı bitdi. Lütfən giriş prosesini yenidən başladın."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Kimliyinizi doğrulayın"
   },
   "weDontRecognizeThisDevice": {
@@ -1263,12 +1285,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Hesabınızın e-poçt ünvanını daxil edin və parolunuz üçün ipucu sizə göndəriləcək"
-  },
-  "passwordHint": {
-    "message": "Parol məsləhəti"
-  },
-  "enterEmailToGetHint": {
-    "message": "Ana parol məsləhətini alacağınız hesabınızın e-poçt ünvanını daxil edin."
   },
   "getMasterPasswordHint": {
     "message": "Ana parol üçün məsləhət alın"
@@ -2251,6 +2267,9 @@
   },
   "revokeAccess": {
     "message": "Müraciəti ləğv et"
+  },
+  "revoke": {
+    "message": "Geri al"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Bu iki addımlı giriş provayderi hesabınızda fəallaşdırılıb."
@@ -4521,6 +4540,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "$LABEL$ yuxarı daşındı, mövqeyi $INDEX$/$LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ aşağı daşındı, mövqeyi $INDEX$/$LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "Şifrələmə açarınızı güncəlləyərkən qovluqlarınızın şifrəsi açıla bilmədi. Güncəlləmənin davam etməsi üçün qovluqlarınız silinməlidir. Davam etsəniz, heç bir seyf elementi silinməyəcək."
   },
@@ -5081,11 +5134,39 @@
   "requireSsoExemption": {
     "message": "Təşkilat sahibləri və administratorlar, bu siyasətin tətbiq edilməsindən azaddırlar."
   },
+  "limitSendViews": {
+    "message": "Baxışları limitlə"
+  },
+  "limitSendViewsHint": {
+    "message": "Limitə çatdıqdan sonra bu Send-ə heç kim baxa bilməz.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ baxış qaldı",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send detalları",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Paylaşılacaq mətn"
+  },
   "sendTypeFile": {
     "message": "Fayl"
   },
   "sendTypeText": {
     "message": "Mətn"
+  },
+  "sendPasswordDescV3": {
+    "message": "Alıcıların bu \"Send\"ə müraciət etməsi üçün ixtiyari bir parol əlavə edin.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Yeni \"Send\" yarat",
@@ -5111,19 +5192,15 @@
     "message": "\"Send\"i sil",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Bu \"Send\"i silmək istədiyinizə əminsiniz?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "\"Send\"in növü nədir?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Bu Send-i həmişəlik silmək istədiyinizə əminsiniz?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Silinmə tarixi"
   },
-  "deletionDateDesc": {
-    "message": "\"Send\" göstərilən tarix və saatda birdəfəlik silinəcək.",
+  "deletionDateDescV2": {
+    "message": "Send, bu tarixdə həmişəlik silinəcək.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5135,21 +5212,6 @@
   },
   "maxAccessCount": {
     "message": "Maksimal müraciət sayı"
-  },
-  "maxAccessCountDesc": {
-    "message": "Əgər ayarlanıbsa, istifadəçilər maksimal müraciət sayına çatdıqdan sonra bu \"Send\"ə müraciət edə bilməyəcək.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Hazırkı müraciət sayı"
-  },
-  "sendPasswordDesc": {
-    "message": "İstəyinizə görə istifadəçilərdən bu \"Send\"ə müraciət edərkən parol tələb edə bilərsiniz.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Bu \"Send\" ilə bağlı gizli qeydlər.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Sıradan çıxarıldı"
@@ -5177,13 +5239,6 @@
   "removePasswordConfirmation": {
     "message": "Parolu çıxartmaq istədiyinizə əminsiniz?"
   },
-  "hideEmail": {
-    "message": "E-poçt ünvanımı alıcılardan gizlət."
-  },
-  "disableThisSend": {
-    "message": "Heç kimin müraciət edə bilməməsi üçün bu \"Send\"i sıradan çıxart.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Bütün \"Send\"lər"
   },
@@ -5193,6 +5248,9 @@
   },
   "pendingDeletion": {
     "message": "Silinməsi gözlənilir"
+  },
+  "hideTextByDefault": {
+    "message": "Mətni ilkin olaraq gizlət"
   },
   "expired": {
     "message": "Müddəti bitib"
@@ -5415,13 +5473,6 @@
     "message": "\"Send\" yaradarkən və ya ona düzəliş edərkən istifadəçilərin e-poçt ünvanlarını alıcılardan gizlətməsinə icazə verməyin.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "Aşağıdakı təşkilat siyasətləri hal-hazırda qüvvədədir:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "\"Send\" yaradarkən və ya ona düzəliş edərkən istifadəçilərin e-poçt ünvanlarını alıcılardan gizlətməsinə icazə verilmir.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "$ID$ siyasətinə düzəliş edildi.",
     "placeholders": {
@@ -5520,27 +5571,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Təşkilat istifadəçiləri üçün fərdi sahibliyi sıradan çıxart"
-  },
-  "textHiddenByDefault": {
-    "message": "\"Send\"ə müraciət edəndə ilkin olaraq mətni gizlədin",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Bu \"Send\"i açıqlayan bir ad.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Göndərmək istədiyiniz mətn."
-  },
-  "sendFileDesc": {
-    "message": "Göndərmək istədiyiniz fayl."
-  },
-  "copySendLinkOnSave": {
-    "message": "Saxladıqdan sonra bu \"Send\"in paylaşma keçidini lövhəmə kopyala."
-  },
-  "sendLinkLabel": {
-    "message": "\"Send\" keçidi",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Send",
@@ -5689,6 +5719,9 @@
   },
   "dateParsingError": {
     "message": "Silinmə və son istifadə tarixlərini saxlayarkən xəta baş verdi."
+  },
+  "hideYourEmail": {
+    "message": "E-poçt ünvanınız baxanlardan gizlədilsin."
   },
   "webAuthnFallbackMsg": {
     "message": "2FA-nı doğrulamaq üçün lütfən aşağıdakı düyməyə klikləyin."
@@ -7275,12 +7308,6 @@
   "numberOfUsers": {
     "message": "İstifadəçi sayı"
   },
-  "loggingInAs": {
-    "message": "Giriş et"
-  },
-  "notYou": {
-    "message": "Siz deyilsiniz?"
-  },
   "pickAnAvatarColor": {
     "message": "Bir avatar rəngi götürün"
   },
@@ -8404,9 +8431,6 @@
   "requestAdminApproval": {
     "message": "Admin təsdiqini tələb et"
   },
-  "approveWithMasterPassword": {
-    "message": "Ana parolla təsdiqlə"
-  },
   "trustedDeviceEncryption": {
     "message": "Güvənli cihaz şifrələməsi"
   },
@@ -8620,9 +8644,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Tələbiniz admininizə göndərildi."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Təsdiqləndikdən sonra məlumatlandırılacaqsınız."
   },
   "troubleLoggingIn": {
     "message": "Girişdə problem var?"
@@ -9349,6 +9370,15 @@
   "deviceManagementDesc": {
     "message": "Platformanız üçün icra bələdçisini istifadə edərək Bitwarden üçün cihaz idarəetməsini konfiqurasiya edin."
   },
+  "deviceIdMissing": {
+    "message": "Cihaz kimliyi əskikdir"
+  },
+  "deviceTypeMissing": {
+    "message": "Cihaz növü əskikdir"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Cihaz yaradılma tarixi əskikdir"
+  },
   "desktopRequired": {
     "message": "Masaüstü tələb olunur"
   },
@@ -9848,8 +9878,14 @@
   "learnMoreAboutApi": {
     "message": "Bitwarden-nin API-si haqqında daha ətraflı"
   },
+  "fileSend": {
+    "message": "Fayl \"Send\"i"
+  },
   "fileSends": {
     "message": "Fayl \"Send\"ləri"
+  },
+  "textSend": {
+    "message": "Mətn \"Send\"i"
   },
   "textSends": {
     "message": "Mətn \"Send\"ləri"
@@ -10083,10 +10119,6 @@
   "specialCharactersDescription": {
     "message": "Xüsusi xarakterləri daxil et",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Qoşma əlavə et"
@@ -10348,6 +10380,36 @@
   "organizationNameMaxLength": {
     "message": "Təşkilat adı 50 xarakterdən çox ola bilməz."
   },
+  "sshKeyWrongPassword": {
+    "message": "Daxil etdiyiniz parol yanlışdır."
+  },
+  "importSshKey": {
+    "message": "Daxilə köçür"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Parolu təsdiqlə"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "SSH açarı üçün parolu daxil edin."
+  },
+  "enterSshKeyPassword": {
+    "message": "Parolu daxil edin"
+  },
+  "invalidSshKey": {
+    "message": "SSH açarı yararsızdır"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "SSH açar növü dəstəklənmir"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Açarı lövhədən daxilə köçür"
+  },
+  "sshKeyImported": {
+    "message": "SSH açarı uğurla daxilə köçürüldü"
+  },
+  "copySSHPrivateKey": {
+    "message": "Private açarı kopyala"
+  },
   "openingExtension": {
     "message": "Bitwarden brauzer uzantısı açılır"
   },
@@ -10487,6 +10549,9 @@
   "assignedExceedsAvailable": {
     "message": "Təyin edilmiş yer sayı, boş yer sayından çoxdur."
   },
+  "changeAtRiskPassword": {
+    "message": "Riskli parolları dəyişdir"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Kilidi PIN ilə açmanı ləğv et"
   },
@@ -10510,5 +10575,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "Bu event-lər sadəcə nümunədir və Bitwarden təşkilatınızdakı real event-ləri əks etdirmir."
+  },
+  "cannotCreateCollection": {
+    "message": "Ödənişsiz təşkilatların ən çox 2 kolleksiyası ola bilər. Daha çox kolleksiya əlavə etmək üçün ödənişli bir plana yüksəldin."
   }
 }

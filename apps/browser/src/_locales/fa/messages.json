@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "یادآور کلمه عبور"
-  },
-  "enterEmailToGetHint": {
-    "message": "برای دریافت یادآور کلمه عبور اصلی خود نشانی ایمیل‌تان را وارد کنید."
-  },
   "getMasterPasswordHint": {
     "message": "دریافت یادآور کلمه عبور اصلی"
   },
@@ -385,6 +379,15 @@
   "editFolder": {
     "message": "ويرايش پوشه"
   },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
     "message": "New folder"
   },
@@ -479,22 +482,6 @@
   "length": {
     "message": "طول"
   },
-  "uppercase": {
-    "message": "حروف بزرگ (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "حروف کوچک (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "اعداد (‪0-9‬)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "نویسه‌های ویژه (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Include",
     "description": "Card header for password generator include block"
@@ -526,10 +513,6 @@
   "specialCharactersDescription": {
     "message": "Include special characters",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "تعداد کلمات"
@@ -669,8 +652,8 @@
   "browserNotSupportClipboard": {
     "message": "مرورگر شما از کپی کلیپ بورد آسان پشتیبانی نمی‌کند. به جای آن به صورت دستی کپی کنید."
   },
-  "verifyIdentity": {
-    "message": "تأیید هویت"
+  "verifyYourIdentity": {
+    "message": "Verify your identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
@@ -921,6 +904,9 @@
   "no": {
     "message": "خیر"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "یک خطای غیر منتظره رخ داده است."
   },
@@ -1070,6 +1056,56 @@
   "notificationAddSave": {
     "message": "ذخیره"
   },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ saved to Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ updated in Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Save as new login",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Update login",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Save login?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Update existing login?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Login saved",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Login updated",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Error saving",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "description": "Detailed error message shown when saving login details fails."
+  },
   "enableChangedPasswordNotification": {
     "message": "درخواست برای به‌روزرسانی ورود به سیستم موجود"
   },
@@ -1132,10 +1168,6 @@
   "light": {
     "message": "روشن",
     "description": "Light color"
-  },
-  "solarizedDark": {
-    "message": "تاریک خورشیدی",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
     "message": "صادرات از"
@@ -1486,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "محیط خود میزبان"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "نشانی اینترنتی پایه فرضی نصب Bitwarden میزبانی شده را مشخص کنید."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -1500,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "محیط سفارشی"
-  },
-  "customEnvironmentFooter": {
-    "message": "برای کاربران پیشرفته. شما می‌توانید نشانی پایه هر سرویس را مستقلاً تعیین کنید."
   },
   "baseUrl": {
     "message": "نشانی اینترنتی سرور"
@@ -1640,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "برای مرتب‌سازی بکشید"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "متن"
@@ -3243,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "تنظیمات ویرایش شده اند"
-  },
-  "environmentEditedClick": {
-    "message": "اینجا کلیک کنید"
-  },
-  "environmentEditedReset": {
-    "message": "برای بازنشانی به تنظیمات از پیش پیکربندی شده"
-  },
   "serverVersion": {
     "message": "نسخه سرور"
   },
@@ -3282,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "با کلمه عبور اصلی وارد شوید"
   },
-  "loggingInAs": {
-    "message": "در حال ورود به عنوان"
-  },
-  "notYou": {
-    "message": "شما نیستید؟"
-  },
   "newAroundHere": {
     "message": "اینجا تازه واردی؟"
   },
@@ -3296,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "ورود با دستگاه"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "ورود به سیستم با دستگاه باید در تنظیمات برنامه‌ی Bitwarden تنظیم شود. به گزینه دیگری نیاز دارید؟"
   },
   "fingerprintPhraseHeader": {
     "message": "عبارت اثر انگشت"
@@ -3310,9 +3321,6 @@
     "message": "ارسال مجدد اعلان"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "View all log in options"
   },
   "notificationSentDevice": {
@@ -3456,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "درخواست تأیید مدیر"
   },
-  "approveWithMasterPassword": {
-    "message": "تأیید با کلمه عبور اصلی"
-  },
   "ssoIdentifierRequired": {
     "message": "شناسه سازمان SSO مورد نیاز است."
   },
@@ -3504,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "درخواست شما به مدیرتان فرستاده شد."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "به محض تأیید مطلع خواهید شد."
   },
   "troubleLoggingIn": {
     "message": "در ورود مشکلی دارید؟"
@@ -4076,6 +4078,9 @@
   },
   "activeAccount": {
     "message": "Active account"
+  },
+  "bitwardenAccount": {
+    "message": "Bitwarden account"
   },
   "availableAccounts": {
     "message": "Available accounts"
@@ -4665,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
     "placeholders": {
@@ -5096,6 +5104,33 @@
   "extraWide": {
     "message": "Extra wide"
   },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
     "placeholders": {
@@ -5110,5 +5145,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

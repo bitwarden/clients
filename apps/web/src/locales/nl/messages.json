@@ -201,6 +201,9 @@
   "notes": {
     "message": "Notities"
   },
+  "privateNote": {
+    "message": "Privénotitie"
+  },
   "note": {
     "message": "Notitie"
   },
@@ -425,6 +428,9 @@
   "dragToSort": {
     "message": "Slepen om te sorteren"
   },
+  "dragToReorder": {
+    "message": "Sleep om te herschikken"
+  },
   "cfTypeText": {
     "message": "Tekst"
   },
@@ -466,6 +472,19 @@
   },
   "editFolder": {
     "message": "Map bewerken"
+  },
+  "editWithName": {
+    "message": "$ITEM$: $NAME$ bewerken",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Nieuwe map"
@@ -1029,6 +1048,9 @@
   "no": {
     "message": "Nee"
   },
+  "location": {
+    "message": "Locatie"
+  },
   "loginOrCreateNewAccount": {
     "message": "Log in of maak een nieuw account aan om toegang te krijgen tot je beveiligde kluis."
   },
@@ -1179,8 +1201,8 @@
   "authenticationSessionTimedOut": {
     "message": "De verificatiesessie is verlopen. Start het inlogproces opnieuw op."
   },
-  "verifyIdentity": {
-    "message": "Controleer je identiteit"
+  "verifyYourIdentity": {
+    "message": "Verifieer je identiteit"
   },
   "weDontRecognizeThisDevice": {
     "message": "We herkennen dit apparaat niet. Voer de code in die naar je e-mail is verzonden om je identiteit te verifiëren."
@@ -1263,12 +1285,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Als je het e-mailadres van je account invult, versturen we je je wachtwoordhint"
-  },
-  "passwordHint": {
-    "message": "Wachtwoordhint"
-  },
-  "enterEmailToGetHint": {
-    "message": "Voer het e-mailadres van je account in om je hoofdwachtwoordhint te ontvangen."
   },
   "getMasterPasswordHint": {
     "message": "Hoofdwachtwoordhint opvragen"
@@ -2251,6 +2267,9 @@
   },
   "revokeAccess": {
     "message": "Toegang intrekken"
+  },
+  "revoke": {
+    "message": "Intrekken"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Deze tweestapsaanmeldingsaanbieder is geactiveerd voor je account."
@@ -4521,6 +4540,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "$LABEL$ is naar boven verplaatst, positie $INDEX$ van $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ is naar boven verplaatst, positie $INDEX$ van $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "Bij het bijwerken van je encryptiesleutel konden we je mappen niet decoderen. Om door te gaan met de update, moeten je mappen worden verwijderd. Geen kluisitems worden verwijderd als je doorgaat."
   },
@@ -5081,11 +5134,39 @@
   "requireSsoExemption": {
     "message": "Eigenaren en beheerders van de organisatie zijn vrijgesteld van de handhaving van dit beleid."
   },
+  "limitSendViews": {
+    "message": "Weergaven limiteren"
+  },
+  "limitSendViewsHint": {
+    "message": "Niemand kan deze Send weergeven als de limiet is bereikt.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ weergaven over",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send-details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Te delen tekst"
+  },
   "sendTypeFile": {
     "message": "Bestand"
   },
   "sendTypeText": {
     "message": "Tekst"
+  },
+  "sendPasswordDescV3": {
+    "message": "Voeg een optioneel wachtwoord toe voor ontvangers om toegang te krijgen tot deze Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Nieuwe Send aanmaken",
@@ -5111,19 +5192,15 @@
     "message": "Send verwijderen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Weet je zeker dat je deze Send wilt verwijderen?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Wat voor soort Send is dit?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Weet je zeker dat je deze Send permanent wil verwijderen?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Verwijderingsdatum"
   },
-  "deletionDateDesc": {
-    "message": "Deze Send wordt definitief verwijderd op de aangegeven datum en tijd.",
+  "deletionDateDescV2": {
+    "message": "Op deze datum wordt de Send definitief verwijderd.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5135,21 +5212,6 @@
   },
   "maxAccessCount": {
     "message": "Maximum toegangsaantal"
-  },
-  "maxAccessCountDesc": {
-    "message": "Als dit is ingesteld kunnen gebruikers deze Send niet meer benaderen zodra het maximale aantal toegang is bereikt.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Huidige toegangsaantal"
-  },
-  "sendPasswordDesc": {
-    "message": "Vereis optioneel een wachtwoord voor gebruikers om toegang te krijgen tot deze Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Privénotities over deze Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Uitgeschakeld"
@@ -5177,13 +5239,6 @@
   "removePasswordConfirmation": {
     "message": "Weet je zeker dat je dit wachtwoord wilt verwijderen?"
   },
-  "hideEmail": {
-    "message": "Verberg mijn e-mailadres voor ontvangers."
-  },
-  "disableThisSend": {
-    "message": "Schakel deze Send uit zodat niemand hem kan benaderen.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Alle Sends"
   },
@@ -5193,6 +5248,9 @@
   },
   "pendingDeletion": {
     "message": "Wordt verwijderd"
+  },
+  "hideTextByDefault": {
+    "message": "Tekst standaard verbergen"
   },
   "expired": {
     "message": "Verlopen"
@@ -5415,13 +5473,6 @@
     "message": "Gebruikers mogen hun e-mailadres niet verbergen voor ontvangers bij het aanmaken of bewerken van een Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "Het volgende organisatiebeleid is momenteel van toepassing:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Gebruikers mogen hun e-mailadres niet verbergen voor ontvangers bij het aanmaken of bewerken van een Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "Bewerkt beleid $ID$.",
     "placeholders": {
@@ -5520,27 +5571,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Schakel persoonlijke eigendom uit voor organisatiegebruikers"
-  },
-  "textHiddenByDefault": {
-    "message": "Verberg de tekst standaard bij het gebruiken van de Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Een vriendelijke naam om deze Send te beschrijven.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "De tekst die je wilt versturen."
-  },
-  "sendFileDesc": {
-    "message": "Het bestand dat je wilt versturen."
-  },
-  "copySendLinkOnSave": {
-    "message": "Kopieer de link om deze Send te delen bij opslaan naar mijn klembord."
-  },
-  "sendLinkLabel": {
-    "message": "Send-link",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Send",
@@ -5689,6 +5719,9 @@
   },
   "dateParsingError": {
     "message": "Er is een fout opgetreden bij het opslaan van je verwijder- en vervaldatum."
+  },
+  "hideYourEmail": {
+    "message": "Je e-mailadres voor ontvangers verbergen."
   },
   "webAuthnFallbackMsg": {
     "message": "Klik op onderstaande knop om je 2FA te verifiëren."
@@ -7275,12 +7308,6 @@
   "numberOfUsers": {
     "message": "Aantal gebruikers"
   },
-  "loggingInAs": {
-    "message": "Inloggen als"
-  },
-  "notYou": {
-    "message": "Ben jij dit niet?"
-  },
   "pickAnAvatarColor": {
     "message": "Kies een kleur voor je avatar"
   },
@@ -8404,9 +8431,6 @@
   "requestAdminApproval": {
     "message": "Goedkeuring van beheerder vragen"
   },
-  "approveWithMasterPassword": {
-    "message": "Goedkeuren met hoofdwachtwoord"
-  },
   "trustedDeviceEncryption": {
     "message": "Vertrouwde apparaat encryptie"
   },
@@ -8620,9 +8644,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Je verzoek is naar je beheerder verstuurd."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Je krijgt een melding zodra je bent goedgekeurd."
   },
   "troubleLoggingIn": {
     "message": "Problemen met inloggen?"
@@ -9349,6 +9370,15 @@
   "deviceManagementDesc": {
     "message": "Apparaatbeheer voor Bitwarden configureren met behulp van de implementatiehandleiding voor jouw platform."
   },
+  "deviceIdMissing": {
+    "message": "Apparaat-ID ontbreekt"
+  },
+  "deviceTypeMissing": {
+    "message": "Apparaat-type ontbreekt"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Aanmaakdatum apparaat ontbreekt"
+  },
   "desktopRequired": {
     "message": "Desktop vereist"
   },
@@ -9848,8 +9878,14 @@
   "learnMoreAboutApi": {
     "message": "Lees meer over Bitwarden's API"
   },
+  "fileSend": {
+    "message": "Bestand verzenden"
+  },
   "fileSends": {
     "message": "Bestand-Sends"
+  },
+  "textSend": {
+    "message": "Tekst-Sends"
   },
   "textSends": {
     "message": "Tekst-Sends"
@@ -10083,10 +10119,6 @@
   "specialCharactersDescription": {
     "message": "Speciale tekens toevoegen",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Bijlage toevoegen"
@@ -10348,6 +10380,36 @@
   "organizationNameMaxLength": {
     "message": "Organisatienaam mag niet langer zijn dan 50 tekens."
   },
+  "sshKeyWrongPassword": {
+    "message": "Het door jou ingevoerde wachtwoord is onjuist."
+  },
+  "importSshKey": {
+    "message": "Importeren"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Wachtwoord bevestigen"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Voer het wachtwoord voor de SSH sleutel in."
+  },
+  "enterSshKeyPassword": {
+    "message": "Wachtwoord invoeren"
+  },
+  "invalidSshKey": {
+    "message": "De SSH-sleutel is ongeldig"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Het type SSH-sleutel is niet ondersteund"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Sleutel van klembord importeren"
+  },
+  "sshKeyImported": {
+    "message": "SSH-sleutel succesvol geïmporteerd"
+  },
+  "copySSHPrivateKey": {
+    "message": "Privésleutel kopiëren"
+  },
   "openingExtension": {
     "message": "Bitwarden-browserextensie openen"
   },
@@ -10487,6 +10549,9 @@
   "assignedExceedsAvailable": {
     "message": "Meer toegewezen dan beschikbare plaatsen."
   },
+  "changeAtRiskPassword": {
+    "message": "Risicovol wachtwoord wijzigen"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Ontgrendelen met PIN verwijderen"
   },
@@ -10510,5 +10575,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "Deze events zijn voorbeelden en weerspiegelen geen echte evenementen binnen je Bitwarden-organisatie."
+  },
+  "cannotCreateCollection": {
+    "message": "Gratis organisaties kunnen maximaal twee collecties hebben. Upgrade naar een betaald abonnement voor het toevoegen van meer collecties."
   }
 }

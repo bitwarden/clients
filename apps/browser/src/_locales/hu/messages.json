@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Adjuk meg fiók email címét és elküldésre kerül a jelszóra vonatkozó tipp."
   },
-  "passwordHint": {
-    "message": "Jelszó emlékeztető"
-  },
-  "enterEmailToGetHint": {
-    "message": "Írd be a felhasználóhoz kötött e-mail címed, hogy megkapd a mesterjelszó emlékeztetőt."
-  },
   "getMasterPasswordHint": {
     "message": "Kérj mesterjelszó emlékeztetőt"
   },
@@ -385,6 +379,15 @@
   "editFolder": {
     "message": "Mappa szerkesztése"
   },
+  "editFolderWithName": {
+    "message": "Mappa szerkesztése: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
     "message": "Új mappa"
   },
@@ -479,22 +482,6 @@
   "length": {
     "message": "Hossz"
   },
-  "uppercase": {
-    "message": "Nagybetűs (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Kisbetűs (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Számok (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Speciális karakterek (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Bevonás",
     "description": "Card header for password generator include block"
@@ -526,10 +513,6 @@
   "specialCharactersDescription": {
     "message": "Speciális karakterek bevonása",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Szavak száma"
@@ -669,7 +652,7 @@
   "browserNotSupportClipboard": {
     "message": "A webböngésződ nem támogat könnyű vágólap másolást. Másold manuálisan inkább."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Személyazonosság ellenőrzése"
   },
   "weDontRecognizeThisDevice": {
@@ -921,6 +904,9 @@
   "no": {
     "message": "Nem"
   },
+  "location": {
+    "message": "Hely"
+  },
   "unexpectedError": {
     "message": "Váratlan hiba történt."
   },
@@ -1070,6 +1056,56 @@
   "notificationAddSave": {
     "message": "Mentés"
   },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ mentésre került a Bitwardenben.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ frissítésre került a Bitwardenben.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Mentés új bejelentkezésként",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Bejelentkezés frissítése",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Bejelentkezés mentése?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Létező bejelentkezés frissítése?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "A bejelentkezés mentésre került.",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "A bejelentkezés frissítésre került.",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Hiba történt a bejelentkezés mentésekor.",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "description": "Detailed error message shown when saving login details fails."
+  },
   "enableChangedPasswordNotification": {
     "message": "Létező bejelentkezés frissítés kérése"
   },
@@ -1132,10 +1168,6 @@
   "light": {
     "message": "Világos",
     "description": "Light color"
-  },
-  "solarizedDark": {
-    "message": "Szolarizált sötét",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
     "message": "Exportálás innen:"
@@ -1486,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Saját üzemeltetésű környezet"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "A helyileg működtetett Bitwarden telepítés alap webcímének megadása."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Adjuk meg a helyileg tárolt Bitwarden telepítés alap webcímét. Példa: https://bitwarden.company.com"
   },
@@ -1500,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Egyedi környezet"
-  },
-  "customEnvironmentFooter": {
-    "message": "Haladó felhasználóknak. Minden egyes szolgáltatás alap URL-jét külön megadhatod."
   },
   "baseUrl": {
     "message": "Szerver URL"
@@ -1640,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Húzás a rendezéshez"
+  },
+  "dragToReorder": {
+    "message": "Átrendezés áthúzással"
   },
   "cfTypeText": {
     "message": "Szöveg"
@@ -3243,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "A beállítások szerkesztésre kerültek."
-  },
-  "environmentEditedClick": {
-    "message": "Kattintás ide"
-  },
-  "environmentEditedReset": {
-    "message": "az előre konfigurált beállítások visszaállításához."
-  },
   "serverVersion": {
     "message": "Szerver verzió"
   },
@@ -3282,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Bejelentkezés mesterjelszóval"
   },
-  "loggingInAs": {
-    "message": "Bejelentkezve mint"
-  },
-  "notYou": {
-    "message": "Ez tévedés?"
-  },
   "newAroundHere": {
     "message": "Új felhasználó vagyunk?"
   },
@@ -3296,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Bejelentkezés eszközzel"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Az eszközzel történő bejelentkezést a Biwarden mobilalkalmazás beállításaiban kell beállítani. Másik opcióra van szükség?"
   },
   "fingerprintPhraseHeader": {
     "message": "Ujjlenyomat kifejezés"
@@ -3310,9 +3321,6 @@
     "message": "Értesítés újraküldése"
   },
   "viewAllLogInOptions": {
-    "message": "Összes bejelentkezési opció megtekintése"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Összes bejelentkezési opció megtekintése"
   },
   "notificationSentDevice": {
@@ -3456,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Adminisztrátori jóváhagyás kérés"
   },
-  "approveWithMasterPassword": {
-    "message": "Jóváhagyás mesterjelszóval"
-  },
   "ssoIdentifierRequired": {
     "message": "A szervezeti SSO azonosító megadása szükséges."
   },
@@ -3504,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "A kérés elküldésre került az adminisztrátornak."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "A jóváhagyás után értesítés érkezik."
   },
   "troubleLoggingIn": {
     "message": "Probléma van a bejelentkezéssel?"
@@ -4076,6 +4078,9 @@
   },
   "activeAccount": {
     "message": "Aktív fiók"
+  },
+  "bitwardenAccount": {
+    "message": "Bitwarden fiók"
   },
   "availableAccounts": {
     "message": "Elérhető fiókok"
@@ -4665,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "A webhely URI átrendezése. A nyílbillentyűkkel mozgassuk az elemet felfelé vagy lefelé."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ feljebb került, $INDEX$/$LENGTH$ pozícióba",
     "placeholders": {
@@ -5096,6 +5104,33 @@
   "extraWide": {
     "message": "Extra széles"
   },
+  "sshKeyWrongPassword": {
+    "message": "A megadott jelszó helytelen."
+  },
+  "importSshKey": {
+    "message": "Importálás"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Jelszó megerősítése"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Adjuk meg az SSH kulcs jelszót."
+  },
+  "enterSshKeyPassword": {
+    "message": "Jelszó megadása"
+  },
+  "invalidSshKey": {
+    "message": "Az SSH kulcs érvénytelen."
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Az SSH kulcstípus nem támogatott."
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Kulcs importálása vágólapból"
+  },
+  "sshKeyImported": {
+    "message": "Az SSH kulcs sikeresen importálásra került."
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nem távolíthatók el a csak megtekintési engedéllyel bíró gyűjtemények: $COLLECTIONS$",
     "placeholders": {
@@ -5110,5 +5145,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "A biometrikus feloldás használatához frissítsük az asztali alkalmazást vagy tiltsuk le az ujjlenyomatos feloldást az asztali beállításokban."
+  },
+  "changeAtRiskPassword": {
+    "message": "Kockázatos jelszó megváltoztatása"
   }
 }

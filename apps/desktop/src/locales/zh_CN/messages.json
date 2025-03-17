@@ -459,7 +459,7 @@
     "message": "确定要覆盖当前用户名吗？"
   },
   "noneFolder": {
-    "message": "无文件夹",
+    "message": "默认文件夹",
     "description": "This is the folder for uncategorized items"
   },
   "addFolder": {
@@ -542,10 +542,6 @@
   "specialCharactersDescription": {
     "message": "包含特殊字符",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "单词数"
@@ -752,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "输入您的账户电子邮箱地址，您的密码提示将发送给您"
   },
-  "passwordHint": {
-    "message": "密码提示"
-  },
-  "enterEmailToGetHint": {
-    "message": "请输入您的账户电子邮箱地址来接收主密码提示。"
-  },
   "getMasterPasswordHint": {
     "message": "获取主密码提示"
   },
@@ -916,7 +906,7 @@
     "message": "为您的组织使用 Duo Security 的 Duo 移动 App、短信、电话或 U2F 安全密钥来进行验证。",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "验证您的身份"
   },
   "weDontRecognizeThisDevice": {
@@ -955,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "自托管环境"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "指定您本地托管的 Bitwarden 安装的基础 URL。"
-  },
   "selfHostedBaseUrlHint": {
     "message": "指定您的本地托管 Bitwarden 安装的基础 URL。例如：https://bitwarden.company.com"
   },
@@ -969,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "自定义环境"
-  },
-  "customEnvironmentFooter": {
-    "message": "适用于高级用户。您可以分别指定各个服务的基础 URL。"
   },
   "baseUrl": {
     "message": "服务器 URL"
@@ -1012,6 +996,9 @@
   },
   "no": {
     "message": "否"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "覆盖密码"
@@ -1432,7 +1419,7 @@
     "message": "感谢您支持 Bitwarden。"
   },
   "premiumPrice": {
-    "message": "全部仅需 $PRICE$ /年！",
+    "message": "所有功能仅需 $PRICE$ /年！",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -1619,7 +1606,7 @@
     "message": "退出"
   },
   "showHide": {
-    "message": "显示/隐藏",
+    "message": "显示 / 隐藏",
     "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
   },
   "hideToTray": {
@@ -1798,19 +1785,19 @@
     "message": "解锁您的密码库"
   },
   "autoPromptWindowsHello": {
-    "message": "应用程序启动时要求使用 Windows Hello"
+    "message": "应用程序启动时提示 Windows Hello"
   },
   "autoPromptPolkit": {
-    "message": "启动时请求系统身份验证"
+    "message": "启动时提示系统身份验证"
   },
   "autoPromptTouchId": {
-    "message": "应用程序启动时要求使用触控 ID"
+    "message": "应用程序启动时提示触控 ID"
   },
   "requirePasswordOnStart": {
-    "message": "应用程序启动时要求输入密码或 PIN 码"
+    "message": "应用程序启动时要求密码或 PIN 码"
   },
   "requirePasswordWithoutPinOnStart": {
-    "message": "应用程序启动时需要密码"
+    "message": "应用程序启动时要求密码"
   },
   "recommendedForSecurity": {
     "message": "安全起见，推荐设置。"
@@ -2098,7 +2085,7 @@
     "message": "生物识别未设置"
   },
   "biometricsNotEnabledDesc": {
-    "message": "需要先在桌面应用程序的设置中设置生物识别，才能使用浏览器中的生物识别。"
+    "message": "需要首先在桌面端的设置中设置生物识别，才能使用浏览器的生物识别。"
   },
   "biometricsManualSetupTitle": {
     "message": "自动设置不可用"
@@ -2785,14 +2772,8 @@
   "loginWithMasterPassword": {
     "message": "使用主密码登录"
   },
-  "loggingInAs": {
-    "message": "正登录为"
-  },
   "rememberEmail": {
     "message": "记住电子邮箱"
-  },
-  "notYou": {
-    "message": "不是您吗？"
   },
   "newAroundHere": {
     "message": "初来乍到吗？"
@@ -3033,9 +3014,6 @@
   "requestAdminApproval": {
     "message": "请求管理员批准"
   },
-  "approveWithMasterPassword": {
-    "message": "使用主密码批准"
-  },
   "region": {
     "message": "区域"
   },
@@ -3060,9 +3038,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "您的请求已发送给您的管理员。"
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "批准后，您将收到通知。"
   },
   "troubleLoggingIn": {
     "message": "登录遇到问题吗？"
@@ -3533,9 +3508,6 @@
   "unknownApplication": {
     "message": "某个应用程序"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "尚不支持导入受密码保护的 SSH 密钥"
-  },
   "invalidSshKey": {
     "message": "此 SSH 密钥无效"
   },
@@ -3545,7 +3517,7 @@
   "importSshKeyFromClipboard": {
     "message": "从剪贴板导入密钥"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH 密钥导入成功"
   },
   "fileSavedToDevice": {
@@ -3604,5 +3576,8 @@
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "您正在使用的浏览器扩展已过时。请更新它或在桌面 App 的设置中禁用浏览器集成指纹验证。"
+  },
+  "changeAtRiskPassword": {
+    "message": "更改有风险的密码"
   }
 }

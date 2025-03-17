@@ -543,10 +543,6 @@
     "message": "Включить специальные символы",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Количество слов"
   },
@@ -752,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Введите email вашего аккаунта, и вам будет отправлена подсказка для пароля"
   },
-  "passwordHint": {
-    "message": "Подсказка к паролю"
-  },
-  "enterEmailToGetHint": {
-    "message": "Введите email аккаунта для получения подсказки к мастер-паролю."
-  },
   "getMasterPasswordHint": {
     "message": "Получить подсказку к мастер-паролю"
   },
@@ -916,7 +906,7 @@
     "message": "Подтвердите с помощью Duo Security для вашей организации, используя приложение Duo Mobile, SMS, телефонный звонок или ключ безопасности U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Подтвердите вашу личность"
   },
   "weDontRecognizeThisDevice": {
@@ -955,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Окружение пользовательского хостинга"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Укажите URL Bitwarden на вашем сервере."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Укажите базовый URL вашего локального хостинга Bitwarden. Пример: https://bitwarden.company.com"
   },
@@ -969,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Пользовательское окружение"
-  },
-  "customEnvironmentFooter": {
-    "message": "Для опытных пользователей. Можно указать URL отдельно для каждой службы."
   },
   "baseUrl": {
     "message": "URL сервера"
@@ -1012,6 +996,9 @@
   },
   "no": {
     "message": "Нет"
+  },
+  "location": {
+    "message": "Местоположение"
   },
   "overwritePassword": {
     "message": "Перезаписать пароль"
@@ -2785,14 +2772,8 @@
   "loginWithMasterPassword": {
     "message": "Войти с мастер-паролем"
   },
-  "loggingInAs": {
-    "message": "Войти как"
-  },
   "rememberEmail": {
     "message": "Запомнить email"
-  },
-  "notYou": {
-    "message": "Не вы?"
   },
   "newAroundHere": {
     "message": "Вы здесь впервые?"
@@ -3033,9 +3014,6 @@
   "requestAdminApproval": {
     "message": "Запросить одобрение администратора"
   },
-  "approveWithMasterPassword": {
-    "message": "Одобрить с мастер-паролем"
-  },
   "region": {
     "message": "Регион"
   },
@@ -3060,9 +3038,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Ваш запрос был отправлен администратору."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Вас уведомят об одобрении."
   },
   "troubleLoggingIn": {
     "message": "Не удалось войти?"
@@ -3533,9 +3508,6 @@
   "unknownApplication": {
     "message": "Приложение"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Импорт защищенных паролем ключей SSH пока не поддерживается"
-  },
   "invalidSshKey": {
     "message": "Ключ SSH недействителен"
   },
@@ -3545,7 +3517,7 @@
   "importSshKeyFromClipboard": {
     "message": "Импорт ключа из буфера обмена"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "Ключ SSH успешно импортирован"
   },
   "fileSavedToDevice": {
@@ -3604,5 +3576,8 @@
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Используемое вами расширение браузера устарело. Пожалуйста, обновите его или отключите проверку интеграции браузера с помощью отпечатка пальца в настройках приложения для компьютера."
+  },
+  "changeAtRiskPassword": {
+    "message": "Изменить пароль, находящийся под угрозой"
   }
 }

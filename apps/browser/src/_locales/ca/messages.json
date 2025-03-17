@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Introduïu l'adreça de correu electrònic del compte i se us enviarà la pista de contrasenya"
   },
-  "passwordHint": {
-    "message": "Pista de la contrasenya"
-  },
-  "enterEmailToGetHint": {
-    "message": "Introduïu l'adreça electrònica del vostre compte per rebre la contrasenya mestra."
-  },
   "getMasterPasswordHint": {
     "message": "Obteniu la pista de la contrasenya mestra"
   },
@@ -385,6 +379,15 @@
   "editFolder": {
     "message": "Edita la carpeta"
   },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
     "message": "Carpeta nova"
   },
@@ -479,22 +482,6 @@
   "length": {
     "message": "Longitud"
   },
-  "uppercase": {
-    "message": "Majúscula (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Minúscula (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Números (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Caràcters especials (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Inclou",
     "description": "Card header for password generator include block"
@@ -526,10 +513,6 @@
   "specialCharactersDescription": {
     "message": "Inclou caràcters especials",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Nombre de paraules"
@@ -669,8 +652,8 @@
   "browserNotSupportClipboard": {
     "message": "El vostre navegador web no admet la còpia fàcil del porta-retalls. Copieu-ho manualment."
   },
-  "verifyIdentity": {
-    "message": "Verifica identitat"
+  "verifyYourIdentity": {
+    "message": "Verify your identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "No reconeixem aquest dispositiu. Introduïu el codi que us hem enviat al correu electrònic per verificar la identitat."
@@ -921,6 +904,9 @@
   "no": {
     "message": "No"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "S'ha produït un error inesperat."
   },
@@ -1070,6 +1056,56 @@
   "notificationAddSave": {
     "message": "Guarda"
   },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ saved to Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ updated in Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Save as new login",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Update login",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Save login?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Update existing login?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Login saved",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Login updated",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Error saving",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "description": "Detailed error message shown when saving login details fails."
+  },
   "enableChangedPasswordNotification": {
     "message": "Demana d'actualitzar els inicis de sessió existents"
   },
@@ -1132,10 +1168,6 @@
   "light": {
     "message": "Clar",
     "description": "Light color"
-  },
-  "solarizedDark": {
-    "message": "Solaritzat fosc",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
     "message": "Exporta des de"
@@ -1486,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Entorn d'allotjament propi"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Especifiqueu l'URL base de la vostra instal·lació de Bitwarden allotjada en un entorn propi."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -1500,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Entorn personalitzat"
-  },
-  "customEnvironmentFooter": {
-    "message": "Per a usuaris avançats. Podeu especificar l'URL base de cada servei independentment."
   },
   "baseUrl": {
     "message": "URL del servidor"
@@ -1640,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Arrossega per ordenar"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Text"
@@ -3243,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "La configuració s'ha editat"
-  },
-  "environmentEditedClick": {
-    "message": "Feu clic ací"
-  },
-  "environmentEditedReset": {
-    "message": "per restablir els paràmetres preconfigurats"
-  },
   "serverVersion": {
     "message": "Versió del servidor"
   },
@@ -3282,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Inici de sessió amb contrasenya mestra"
   },
-  "loggingInAs": {
-    "message": "Has iniciat sessió com"
-  },
-  "notYou": {
-    "message": "No sou vosaltres?"
-  },
   "newAroundHere": {
     "message": "Nou per ací?"
   },
@@ -3296,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Inici de sessió amb dispositiu"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "L'inici de sessió amb el dispositiu ha d'estar activat a la configuració de l'aplicació Bitwarden. Necessiteu una altra opció?"
   },
   "fingerprintPhraseHeader": {
     "message": "Frase d'empremta digital"
@@ -3310,9 +3321,6 @@
     "message": "Torna a enviar la notificació"
   },
   "viewAllLogInOptions": {
-    "message": "Veure totes les opcions d'inici de sessió"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Veure totes les opcions d'inici de sessió"
   },
   "notificationSentDevice": {
@@ -3456,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Sol·liciteu l'aprovació de l'administrador"
   },
-  "approveWithMasterPassword": {
-    "message": "Aprova amb contrasenya mestra"
-  },
   "ssoIdentifierRequired": {
     "message": "Es requereix un identificador SSO de l'organització."
   },
@@ -3504,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "La vostra sol·licitud s'ha enviat a l'administrador."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Se us notificarà una vegada aprovat."
   },
   "troubleLoggingIn": {
     "message": "Teniu problemes per iniciar la sessió?"
@@ -4076,6 +4078,9 @@
   },
   "activeAccount": {
     "message": "Activa el compte"
+  },
+  "bitwardenAccount": {
+    "message": "Bitwarden account"
   },
   "availableAccounts": {
     "message": "Comptes disponibles"
@@ -4665,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
     "placeholders": {
@@ -5096,6 +5104,33 @@
   "extraWide": {
     "message": "Extra ample"
   },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
     "placeholders": {
@@ -5110,5 +5145,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

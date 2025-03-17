@@ -201,6 +201,9 @@
   "notes": {
     "message": "Anteckningar"
   },
+  "privateNote": {
+    "message": "Private note"
+  },
   "note": {
     "message": "Anteckning"
   },
@@ -425,6 +428,9 @@
   "dragToSort": {
     "message": "Dra för att sortera"
   },
+  "dragToReorder": {
+    "message": "Drag to reorder"
+  },
   "cfTypeText": {
     "message": "Text"
   },
@@ -466,6 +472,19 @@
   },
   "editFolder": {
     "message": "Redigera mapp"
+  },
+  "editWithName": {
+    "message": "Edit $ITEM$: $NAME$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "New folder"
@@ -1029,6 +1048,9 @@
   "no": {
     "message": "Nej"
   },
+  "location": {
+    "message": "Location"
+  },
   "loginOrCreateNewAccount": {
     "message": "Logga in eller skapa ett nytt konto för att komma åt ditt valv."
   },
@@ -1179,7 +1201,7 @@
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
@@ -1263,12 +1285,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
-  },
-  "passwordHint": {
-    "message": "Lösenordsledtråd"
-  },
-  "enterEmailToGetHint": {
-    "message": "Ange din e-postadress för att få din huvudlösenordsledtråd."
   },
   "getMasterPasswordHint": {
     "message": "Hämta huvudlösenordsledtråd"
@@ -2251,6 +2267,9 @@
   },
   "revokeAccess": {
     "message": "Återkalla åtkomst"
+  },
+  "revoke": {
+    "message": "Revoke"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Denna metod för tvåstegsverifiering är aktiverad på ditt konto."
@@ -4521,6 +4540,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ moved down, position $INDEX$ of $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "When updating your encryption key, your folders could not be decrypted. To continue with the update, your folders must be deleted. No vault items will be deleted if you proceed."
   },
@@ -5081,11 +5134,39 @@
   "requireSsoExemption": {
     "message": "Organisationens ägare och administratörer är undantagna från denna policy."
   },
+  "limitSendViews": {
+    "message": "Limit views"
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
   "sendTypeFile": {
     "message": "Fil"
   },
   "sendTypeText": {
     "message": "Text"
+  },
+  "sendPasswordDescV3": {
+    "message": "Add an optional password for recipients to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Ny Send",
@@ -5111,19 +5192,15 @@
     "message": "Radera Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Är du säker på att du vill radera denna Send?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Vilken typ av Send är detta?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Are you sure you want to permanently delete this Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Raderingsdatum"
   },
-  "deletionDateDesc": {
-    "message": "Denna Send kommer att raderas permanent på angivet datum och klockslag.",
+  "deletionDateDescV2": {
+    "message": "The Send will be permanently deleted on this date.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5135,21 +5212,6 @@
   },
   "maxAccessCount": {
     "message": "Maximalt antal åtkomster"
-  },
-  "maxAccessCountDesc": {
-    "message": "Om angivet kommer användare inte längre kunna komma åt denna Send när det maximala antalet åtkomster har uppnåtts.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Nuvarande antal åtkomster"
-  },
-  "sendPasswordDesc": {
-    "message": "Kräv valfritt ett lösenord för att användare ska komma åt denna Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Privata anteckningar om denna Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Inaktiverad"
@@ -5177,13 +5239,6 @@
   "removePasswordConfirmation": {
     "message": "Är du säker på att du vill ta bort lösenordet?"
   },
-  "hideEmail": {
-    "message": "Dölj min e-postadress för mottagare."
-  },
-  "disableThisSend": {
-    "message": "Inaktivera denna Send så att ingen kan komma åt den.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Alla Sends"
   },
@@ -5193,6 +5248,9 @@
   },
   "pendingDeletion": {
     "message": "Väntar på radering"
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
   },
   "expired": {
     "message": "Utgången"
@@ -5415,13 +5473,6 @@
     "message": "Tillåt inte användare att dölja sin e-postadress från mottagare när de skapar eller redigerar en Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "Följande organisationspolicyer är aktiva just nu:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Användare tillåts inte dölja sin e-postadress för mottagare när de skapar eller redigerar en Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "Ändrade policyn $ID$.",
     "placeholders": {
@@ -5520,27 +5571,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Inaktivera personligt ägarskap för organisationens användare"
-  },
-  "textHiddenByDefault": {
-    "message": "When accessing the Send, hide the text by default",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "A friendly name to describe this Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Texten du vill skicka."
-  },
-  "sendFileDesc": {
-    "message": "Filen du vill skicka."
-  },
-  "copySendLinkOnSave": {
-    "message": "Copy the link to share this Send to my clipboard upon save."
-  },
-  "sendLinkLabel": {
-    "message": "Send-länk",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Send",
@@ -5689,6 +5719,9 @@
   },
   "dateParsingError": {
     "message": "Det gick inte att spara raderings- och utgångsdatum."
+  },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
   },
   "webAuthnFallbackMsg": {
     "message": "Klicka på knappen nedan för att verifiera din 2FA."
@@ -7275,12 +7308,6 @@
   "numberOfUsers": {
     "message": "Antal användare"
   },
-  "loggingInAs": {
-    "message": "Loggar in som"
-  },
-  "notYou": {
-    "message": "Är det inte du?"
-  },
   "pickAnAvatarColor": {
     "message": "Välj en avatarfärg"
   },
@@ -8404,9 +8431,6 @@
   "requestAdminApproval": {
     "message": "Request admin approval"
   },
-  "approveWithMasterPassword": {
-    "message": "Godkänn med huvudlösenord"
-  },
   "trustedDeviceEncryption": {
     "message": "Trusted device encryption"
   },
@@ -8620,9 +8644,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Your request has been sent to your admin."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Du kommer att meddelas vid godkännande."
   },
   "troubleLoggingIn": {
     "message": "Problem med att logga in?"
@@ -9349,6 +9370,15 @@
   "deviceManagementDesc": {
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
+  "deviceIdMissing": {
+    "message": "Device ID is missing"
+  },
+  "deviceTypeMissing": {
+    "message": "Device type is missing"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Device creation date is missing"
+  },
   "desktopRequired": {
     "message": "Desktop required"
   },
@@ -9848,8 +9878,14 @@
   "learnMoreAboutApi": {
     "message": "Läs mer om Bitwardens API"
   },
+  "fileSend": {
+    "message": "File Send"
+  },
   "fileSends": {
     "message": "File Sends"
+  },
+  "textSend": {
+    "message": "Text Send"
   },
   "textSends": {
     "message": "Text Sends"
@@ -10083,10 +10119,6 @@
   "specialCharactersDescription": {
     "message": "Inkludera specialtecken",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Lägg till bilaga"
@@ -10348,6 +10380,36 @@
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
   },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
+  "copySSHPrivateKey": {
+    "message": "Copy private key"
+  },
   "openingExtension": {
     "message": "Opening the Bitwarden browser extension"
   },
@@ -10487,6 +10549,9 @@
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
   },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"
   },
@@ -10510,5 +10575,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
+  },
+  "cannotCreateCollection": {
+    "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
   }
 }

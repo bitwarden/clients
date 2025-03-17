@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Введите email вашего аккаунта, и вам будет отправлена подсказка для пароля"
   },
-  "passwordHint": {
-    "message": "Подсказка к паролю"
-  },
-  "enterEmailToGetHint": {
-    "message": "Введите email аккаунта для получения подсказки к мастер-паролю."
-  },
   "getMasterPasswordHint": {
     "message": "Получить подсказку к мастер-паролю"
   },
@@ -385,6 +379,15 @@
   "editFolder": {
     "message": "Изменить папку"
   },
+  "editFolderWithName": {
+    "message": "Редактировать папку: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
     "message": "Новый папка"
   },
@@ -479,22 +482,6 @@
   "length": {
     "message": "Длина"
   },
-  "uppercase": {
-    "message": "Прописные буквы (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Строчные буквы (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Цифры (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Специальные символы (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Включить",
     "description": "Card header for password generator include block"
@@ -526,10 +513,6 @@
   "specialCharactersDescription": {
     "message": "Включить специальные символы",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Количество слов"
@@ -669,8 +652,8 @@
   "browserNotSupportClipboard": {
     "message": "Ваш браузер не поддерживает копирование данных в буфер обмена. Скопируйте вручную."
   },
-  "verifyIdentity": {
-    "message": "Подтвердить личность"
+  "verifyYourIdentity": {
+    "message": "Подтвердите вашу личность"
   },
   "weDontRecognizeThisDevice": {
     "message": "Мы не распознали это устройство. Введите код, отправленный на ваш email, чтобы подтвердить вашу личность."
@@ -921,6 +904,9 @@
   "no": {
     "message": "Нет"
   },
+  "location": {
+    "message": "Местоположение"
+  },
   "unexpectedError": {
     "message": "Произошла непредвиденная ошибка."
   },
@@ -1070,6 +1056,56 @@
   "notificationAddSave": {
     "message": "Сохранить"
   },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ сохранен в Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ обновлен в Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Сохранить как новый логин",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Обновить логин",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Сохранить логин?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Обновить существующий логин?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Логин сохранен",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Логин обновлен",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Ошибка при сохранении",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "О нет! Мы не смогли сохранить это. Попробуйте ввести данные вручную.",
+    "description": "Detailed error message shown when saving login details fails."
+  },
   "enableChangedPasswordNotification": {
     "message": "Спрашивать при обновлении существующего логина"
   },
@@ -1132,10 +1168,6 @@
   "light": {
     "message": "Светлая",
     "description": "Light color"
-  },
-  "solarizedDark": {
-    "message": "Solarized dark",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
     "message": "Экспорт из"
@@ -1486,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Окружение пользовательского хостинга"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Укажите URL Bitwarden на вашем сервере."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Укажите базовый URL вашего локального хостинга Bitwarden. Пример: https://bitwarden.company.com"
   },
@@ -1500,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Пользовательское окружение"
-  },
-  "customEnvironmentFooter": {
-    "message": "Для опытных пользователей. Можно указать URL отдельно для каждой службы."
   },
   "baseUrl": {
     "message": "URL сервера"
@@ -1640,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Перетащите для сортировки"
+  },
+  "dragToReorder": {
+    "message": "Перетащите для изменения порядка"
   },
   "cfTypeText": {
     "message": "Текстовое"
@@ -3243,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Настройки были изменены"
-  },
-  "environmentEditedClick": {
-    "message": "Нажмите здесь"
-  },
-  "environmentEditedReset": {
-    "message": "для сброса к предварительно настроенным параметрам"
-  },
   "serverVersion": {
     "message": "Версия сервера"
   },
@@ -3282,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Войти с мастер-паролем"
   },
-  "loggingInAs": {
-    "message": "Войти как"
-  },
-  "notYou": {
-    "message": "Не вы?"
-  },
   "newAroundHere": {
     "message": "Вы здесь впервые?"
   },
@@ -3296,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Войти с помощью устройства"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Вход с устройства должен быть настроен в настройках мобильного приложения Bitwarden. Нужен другой вариант?"
   },
   "fingerprintPhraseHeader": {
     "message": "Фраза отпечатка"
@@ -3310,9 +3321,6 @@
     "message": "Отправить уведомление повторно"
   },
   "viewAllLogInOptions": {
-    "message": "Посмотреть все варианты авторизации"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Посмотреть все варианты авторизации"
   },
   "notificationSentDevice": {
@@ -3456,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Запросить одобрение администратора"
   },
-  "approveWithMasterPassword": {
-    "message": "Одобрить с мастер-паролем"
-  },
   "ssoIdentifierRequired": {
     "message": "Требуется идентификатор SSO организации."
   },
@@ -3504,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Ваш запрос был отправлен администратору."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Вас уведомят об одобрении."
   },
   "troubleLoggingIn": {
     "message": "Не удалось войти?"
@@ -4076,6 +4078,9 @@
   },
   "activeAccount": {
     "message": "Активный аккаунт"
+  },
+  "bitwardenAccount": {
+    "message": "Аккаунт Bitwarden"
   },
   "availableAccounts": {
     "message": "Доступные аккаунты"
@@ -4665,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Изменить порядок URI. Используйте клавиши курсора для перемещения элемента вверх или вниз."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ перемещено вверх, позиция $INDEX$ $LENGTH$",
     "placeholders": {
@@ -5096,6 +5104,33 @@
   "extraWide": {
     "message": "Очень широкое"
   },
+  "sshKeyWrongPassword": {
+    "message": "Введенный пароль неверен."
+  },
+  "importSshKey": {
+    "message": "Импорт"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Подтвердите пароль"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Введите пароль для ключа SSH."
+  },
+  "enterSshKeyPassword": {
+    "message": "Введите пароль"
+  },
+  "invalidSshKey": {
+    "message": "Ключ SSH недействителен"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Тип ключа SSH не поддерживается"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Импорт ключа из буфера обмена"
+  },
+  "sshKeyImported": {
+    "message": "Ключ SSH успешно импортирован"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Вы не можете удалить коллекции с правами только на просмотр: $COLLECTIONS$",
     "placeholders": {
@@ -5110,5 +5145,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "Чтобы использовать биометрическую разблокировку, обновите приложение для компьютера или отключите разблокировку по отпечатку пальца в настройках компьютера."
+  },
+  "changeAtRiskPassword": {
+    "message": "Изменить пароль, находящийся под угрозой"
   }
 }

@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Angiv kontoens e-mailadresse og få et adgangskodetip fremsendt"
   },
-  "passwordHint": {
-    "message": "Adgangskodetip"
-  },
-  "enterEmailToGetHint": {
-    "message": "Indtast din kontos e-mailadresse for at modtage dit hovedadgangskodetip."
-  },
   "getMasterPasswordHint": {
     "message": "Få hovedadgangskodetip"
   },
@@ -385,6 +379,15 @@
   "editFolder": {
     "message": "Redigér mappe"
   },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
     "message": "Ny mappe"
   },
@@ -479,22 +482,6 @@
   "length": {
     "message": "Længde"
   },
-  "uppercase": {
-    "message": "Store bogstaver (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Små bogstaver (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Tal (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Specialtegn (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Inkludér",
     "description": "Card header for password generator include block"
@@ -526,10 +513,6 @@
   "specialCharactersDescription": {
     "message": "Inkludér specialtegn",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Antal ord"
@@ -669,8 +652,8 @@
   "browserNotSupportClipboard": {
     "message": "Din webbrowser understøtter ikke udklipsholder kopiering. Kopiér det manuelt i stedet."
   },
-  "verifyIdentity": {
-    "message": "Bekræft identitet"
+  "verifyYourIdentity": {
+    "message": "Verify your identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "Denne enhed er ikke genkendt. Angiv koden i den tilsendte e-mail for at bekræfte identiteten."
@@ -921,6 +904,9 @@
   "no": {
     "message": "Nej"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "Der opstod en uventet fejl."
   },
@@ -1070,6 +1056,56 @@
   "notificationAddSave": {
     "message": "Gem"
   },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ saved to Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ updated in Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Save as new login",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Update login",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Save login?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Update existing login?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Login saved",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Login updated",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Error saving",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "description": "Detailed error message shown when saving login details fails."
+  },
   "enableChangedPasswordNotification": {
     "message": "Bed om at opdatere eksisterende login"
   },
@@ -1132,10 +1168,6 @@
   "light": {
     "message": "Lys",
     "description": "Light color"
-  },
-  "solarizedDark": {
-    "message": "Solariseret mørk",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
     "message": "Eksportér fra"
@@ -1486,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Selv-hosted miljø"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Angiv grund-URL'en i din lokal-hostede Bitwarden-installation."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Angiv basis-URL'en for den lokalt-hosted Bitwarden-installation. Eks.: https://bitwarden.firma.dk"
   },
@@ -1500,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Brugerdefineret miljø"
-  },
-  "customEnvironmentFooter": {
-    "message": "Til avancerede brugere. Du kan angive grund-URL'en for hver service uafhængigt."
   },
   "baseUrl": {
     "message": "Server URL"
@@ -1640,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Træk for at sortere"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Tekst"
@@ -3243,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Indstillinger er blevet redigeret"
-  },
-  "environmentEditedClick": {
-    "message": "Klik her"
-  },
-  "environmentEditedReset": {
-    "message": "for at nulstille til forudkonfigurerede indstillinger"
-  },
   "serverVersion": {
     "message": "Server version"
   },
@@ -3282,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Log ind med hovedadgangskode"
   },
-  "loggingInAs": {
-    "message": "Logger ind som"
-  },
-  "notYou": {
-    "message": "Ikke dig?"
-  },
   "newAroundHere": {
     "message": "Ny her?"
   },
@@ -3296,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Log ind med enhed"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Log ind med enhed skal være opsat i indstillingerne i Bitwarden mobil-appen. Behov for en anden mulighed?"
   },
   "fingerprintPhraseHeader": {
     "message": "Fingeraftrykssætning"
@@ -3310,9 +3321,6 @@
     "message": "Gensend notifikation"
   },
   "viewAllLogInOptions": {
-    "message": "Vis alle indlogningsmuligheder"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Vis alle indlogningsmuligheder"
   },
   "notificationSentDevice": {
@@ -3456,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Anmod om admin-godkendelse"
   },
-  "approveWithMasterPassword": {
-    "message": "Godkend med hovedadgangskode"
-  },
   "ssoIdentifierRequired": {
     "message": "Organisations SSO-identifikator kræves."
   },
@@ -3504,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Anmodningen er sendt til din admin."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Du underrettes, når godkendelse foreligger."
   },
   "troubleLoggingIn": {
     "message": "Problemer med at logge ind?"
@@ -4076,6 +4078,9 @@
   },
   "activeAccount": {
     "message": "Aktiv konto"
+  },
+  "bitwardenAccount": {
+    "message": "Bitwarden account"
   },
   "availableAccounts": {
     "message": "Tilgængelige konti"
@@ -4665,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ flyttet op, position $INDEX$ af $LENGTH$",
     "placeholders": {
@@ -5096,6 +5104,33 @@
   "extraWide": {
     "message": "Ekstra bred"
   },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Samlinger med kun tilladelsen Vis kan ikke fjernes: $COLLECTIONS$",
     "placeholders": {
@@ -5110,5 +5145,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "For brug af biometrisk oplåsning skal computerapplikationen opdateres eller fingeraftryksoplåsning deaktiveres i computerindstillingerne."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

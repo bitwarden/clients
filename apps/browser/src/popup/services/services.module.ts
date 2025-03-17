@@ -47,7 +47,6 @@ import {
   AccountService as AccountServiceAbstraction,
 } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import {
@@ -65,6 +64,7 @@ import {
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   VaultTimeoutService,
   VaultTimeoutStringType,
@@ -84,6 +84,7 @@ import { MessagingService as MessagingServiceAbstraction } from "@bitwarden/comm
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import {
   AbstractStorageService,
@@ -129,7 +130,11 @@ import {
   KeyService,
 } from "@bitwarden/key-management";
 import { LockComponentService } from "@bitwarden/key-management-ui";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import {
+  DefaultSshImportPromptService,
+  PasswordRepromptService,
+  SshImportPromptService,
+} from "@bitwarden/vault";
 
 import { ForegroundLockService } from "../../auth/popup/accounts/foreground-lock.service";
 import { ExtensionAnonLayoutWrapperDataService } from "../../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
@@ -285,7 +290,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: TotpServiceAbstraction,
     useClass: TotpService,
-    deps: [CryptoFunctionService, LogService],
+    deps: [SdkService],
   }),
   safeProvider({
     provide: OffscreenDocumentService,
@@ -557,7 +562,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: TwoFactorAuthWebAuthnComponentService,
     useClass: ExtensionTwoFactorAuthWebAuthnComponentService,
-    deps: [PlatformUtilsService],
+    deps: [],
   }),
   safeProvider({
     provide: TwoFactorAuthDuoComponentService,
@@ -651,6 +656,11 @@ const safeProviders: SafeProvider[] = [
     provide: LoginDecryptionOptionsService,
     useClass: ExtensionLoginDecryptionOptionsService,
     deps: [MessagingServiceAbstraction, Router],
+  }),
+  safeProvider({
+    provide: SshImportPromptService,
+    useClass: DefaultSshImportPromptService,
+    deps: [DialogService, ToastService, PlatformUtilsService, I18nServiceAbstraction],
   }),
 ];
 

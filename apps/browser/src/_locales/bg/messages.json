@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Въведете е-пощата на регистрацията си и подсказката за паролата ще Ви бъде изпратена"
   },
-  "passwordHint": {
-    "message": "Подсказка за паролата"
-  },
-  "enterEmailToGetHint": {
-    "message": "Въведете адреса на имейла си, за да получите подсказка за главната си парола."
-  },
   "getMasterPasswordHint": {
     "message": "Подсказка за главната парола"
   },
@@ -385,6 +379,15 @@
   "editFolder": {
     "message": "Редактиране на папка"
   },
+  "editFolderWithName": {
+    "message": "Редактиране на папка: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
     "message": "Нова папка"
   },
@@ -479,22 +482,6 @@
   "length": {
     "message": "Дължина"
   },
-  "uppercase": {
-    "message": "Главни букви (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Малки букви (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Числа (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Специални знаци (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Включване",
     "description": "Card header for password generator include block"
@@ -526,10 +513,6 @@
   "specialCharactersDescription": {
     "message": "Включване на специални знаци",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Брой думи"
@@ -669,8 +652,8 @@
   "browserNotSupportClipboard": {
     "message": "Браузърът не поддържа копиране в буфера, затова копирайте на ръка."
   },
-  "verifyIdentity": {
-    "message": "Потвърждаване на самоличността"
+  "verifyYourIdentity": {
+    "message": "Потвърдете самоличността си"
   },
   "weDontRecognizeThisDevice": {
     "message": "Това устройство е непознато. Въведете кода изпратен на е-пощата Ви, за да потвърдите самоличността си."
@@ -921,6 +904,9 @@
   "no": {
     "message": "Не"
   },
+  "location": {
+    "message": "Местоположение"
+  },
   "unexpectedError": {
     "message": "Възникна неочаквана грешка."
   },
@@ -1070,6 +1056,56 @@
   "notificationAddSave": {
     "message": "Да, нека се запише сега"
   },
+  "loginSaveSuccessDetails": {
+    "message": "Запазено в Битуорден: $USERNAME$.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "Обновено в Битуорден: $USERNAME$.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Запазване като нов елемент за вписване",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Обновяване на данните за вписване",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Запазване на данните за вписване?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Да се обновят ли текущите данни за вписване?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Данните за вписване са запазени",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Данните за вписване са обновени",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Грешка при запазването",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "О, не! Запазването не беше успешно. Опитайте да въведете данните ръчно.",
+    "description": "Detailed error message shown when saving login details fails."
+  },
   "enableChangedPasswordNotification": {
     "message": "Питане за обновяване на съществуващ запис"
   },
@@ -1132,10 +1168,6 @@
   "light": {
     "message": "Светъл",
     "description": "Light color"
-  },
-  "solarizedDark": {
-    "message": "Преекспонирано тъмен",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
     "message": "Изнасяне от"
@@ -1486,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Собствена среда"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Укажете базовия адрес за собствената ви инсталирана среда на Bitwarden."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Посочете базовия адрес на Вашата собствена инсталация на Битуорден. Пример: https://bitwarden.company.com"
   },
@@ -1500,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Специална среда"
-  },
-  "customEnvironmentFooter": {
-    "message": "За специални случаи. Може да укажете основните адреси на всяка ползвана услуга поотделно."
   },
   "baseUrl": {
     "message": "Адрес на сървъра"
@@ -1640,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Подредба чрез влачене"
+  },
+  "dragToReorder": {
+    "message": "Плъзнете за пренареждане"
   },
   "cfTypeText": {
     "message": "Текст"
@@ -3243,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Настройките баха променени"
-  },
-  "environmentEditedClick": {
-    "message": "Щракнете тук"
-  },
-  "environmentEditedReset": {
-    "message": "за да върнете предварително зададените настройки"
-  },
   "serverVersion": {
     "message": "Версия на сървъра"
   },
@@ -3282,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Вписване с главната парола"
   },
-  "loggingInAs": {
-    "message": "Вписване като"
-  },
-  "notYou": {
-    "message": "Това не сте Вие?"
-  },
   "newAroundHere": {
     "message": "За пръв път ли сте тук?"
   },
@@ -3296,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Вписване с устройство"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Вписването с устройство трябва да е включено в настройките на приложението на Битуорден. Друга настройка ли търсите?"
   },
   "fingerprintPhraseHeader": {
     "message": "Уникална фраза"
@@ -3310,9 +3321,6 @@
     "message": "Повторно изпращане на известието"
   },
   "viewAllLogInOptions": {
-    "message": "Вижте всички възможности за вписване"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Вижте всички възможности за вписване"
   },
   "notificationSentDevice": {
@@ -3456,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Подаване на заявка за одобрение от администратор"
   },
-  "approveWithMasterPassword": {
-    "message": "Одобряване с главната парола"
-  },
   "ssoIdentifierRequired": {
     "message": "Идентификаторът за еднократна идентификация на организация е задължителен."
   },
@@ -3504,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Вашата заявка беше изпратена до администратора Ви."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Ще получите известие, когато тя бъде одобрена."
   },
   "troubleLoggingIn": {
     "message": "Имате проблем с вписването?"
@@ -4076,6 +4078,9 @@
   },
   "activeAccount": {
     "message": "Активиране на регистрацията"
+  },
+  "bitwardenAccount": {
+    "message": "Акаунт в Битуорден"
   },
   "availableAccounts": {
     "message": "Налични регистрации"
@@ -4665,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Преместване на адреса на уеб сайта. Използвайте стрелките, за да преместите елемента нагоре или надолу."
+  },
   "reorderFieldUp": {
     "message": "Преместено нагоре: $LABEL$. Позиция $INDEX$ от $LENGTH$",
     "placeholders": {
@@ -5096,6 +5104,33 @@
   "extraWide": {
     "message": "Много широко"
   },
+  "sshKeyWrongPassword": {
+    "message": "Въведената парола е неправилна."
+  },
+  "importSshKey": {
+    "message": "Внасяне"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Потвърждаване на паролата"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Въведете паролата за SSH-ключа."
+  },
+  "enterSshKeyPassword": {
+    "message": "Въведете паролата"
+  },
+  "invalidSshKey": {
+    "message": "SSH ключът е неправилен"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Типът на SSH ключа не се поддържа"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Внасяне на ключ от буфера за обмен"
+  },
+  "sshKeyImported": {
+    "message": "SSH ключът е внесен успешно"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Не можете да премахвате колекции с права „Само за преглед“: $COLLECTIONS$",
     "placeholders": {
@@ -5110,5 +5145,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "За да използвате отключването чрез биометрични данни, обновете самостоятелното приложение или изключете отключването чрез пръстов отпечатък в настройките му."
+  },
+  "changeAtRiskPassword": {
+    "message": "Промяна на парола в риск"
   }
 }
