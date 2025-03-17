@@ -223,7 +223,11 @@ export class InputPasswordComponent implements OnInit {
       localMasterKeyHash,
     };
 
-    if (this.inputPasswordFlow === InputPasswordFlow.ChangeExistingPassword) {
+    if (
+      this.inputPasswordFlow === InputPasswordFlow.ChangeExistingPassword ||
+      this.inputPasswordFlow ===
+        InputPasswordFlow.ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey
+    ) {
       passwordInputResult.currentPassword = this.formGroup.controls.currentPassword.value;
     }
 
@@ -231,7 +235,6 @@ export class InputPasswordComponent implements OnInit {
       this.inputPasswordFlow ===
       InputPasswordFlow.ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey
     ) {
-      passwordInputResult.currentPassword = this.formGroup.controls.currentPassword.value;
       passwordInputResult.rotateAccountEncryptionKey =
         this.formGroup.controls.rotateAccountEncryptionKey.value;
     }
