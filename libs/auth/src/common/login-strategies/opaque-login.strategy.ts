@@ -14,6 +14,7 @@ import { IdentityCaptchaResponse } from "@bitwarden/common/auth/models/response/
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
+import { CipherConfiguration } from "@bitwarden/common/auth/opaque/models/cipher-configuration";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
@@ -38,6 +39,10 @@ export class OpaqueLoginStrategyData implements LoginStrategyData {
   /** The user's master key */
   masterKey: MasterKey;
 
+  /* The user's OPAQUE cipher configuration which controls
+  the encryption schemes used during key derivation and key exchange */
+  cipherConfiguration: CipherConfiguration;
+
   /**
    * Tracks if the user needs to be forced to update their password
    */
@@ -52,10 +57,12 @@ export class OpaqueLoginStrategyData implements LoginStrategyData {
   }
 }
 
-// TODO: link to RFC and give simple, brief explanation of the protocol
 /**
  *
- * A login strategy that uses the ...
+ * A login strategy that uses the OPAQUE protocol for password authentication.
+ * OPAQUE (Oblivious Pseudorandom Function (OPRF)-based Password Authentication and Key Exchange)
+ * is a protocol that allows a client to authenticate to a server without revealing the password to the server.
+ * RFC: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-03.html
  */
 export class OpaqueLoginStrategy extends BaseLoginStrategy {
   /** The email address of the user attempting to log in. */
@@ -81,19 +88,20 @@ export class OpaqueLoginStrategy extends BaseLoginStrategy {
     this.localMasterKeyHash$ = this.cache.pipe(map((state) => state.localMasterKeyHash));
   }
 
-  // TODO: build OpaqueLoginCredentials
   override async logIn(credentials: OpaqueLoginCredentials) {
-    const { email, masterPassword, twoFactor } = credentials;
+    const { email, masterPassword, kdfConfig, cipherConfiguration, twoFactor } = credentials;
 
     const data = new OpaqueLoginStrategyData();
 
-    // TODO: we will still generate a master key here but we need to extract the prelogin call out of the makePreloginKey
-    // and simply rename it deriveMasterKey or something similar
+    data.userEnteredEmail = email;
+
+    // Even though we are completing OPAQUE authN and not logging in with password hash,
+    // we still need to hash the master password for logged in user verification scenarios.
     data.masterKey = await this.loginStrategyService.makePrePasswordLoginMasterKey(
       masterPassword,
       email,
+      kdfConfig,
     );
-    data.userEnteredEmail = email;
 
     // Hash the password early (before authentication) so we don't persist it in memory in plaintext
     data.localMasterKeyHash = await this.keyService.hashMasterKey(
@@ -102,12 +110,10 @@ export class OpaqueLoginStrategy extends BaseLoginStrategy {
       HashPurpose.LocalAuthorization,
     );
 
-    // const serverMasterKeyHash = await this.keyService.hashMasterKey(masterPassword, data.masterKey);
+    data.cipherConfiguration = cipherConfiguration;
 
-    // TODO: we must figure out how we will handle 2FA at some point.
     data.tokenRequest = new OpaqueTokenRequest(
       email,
-      undefined,
       await this.buildTwoFactor(twoFactor, email),
       await this.buildDeviceRequest(),
     );
@@ -193,6 +199,7 @@ export class OpaqueLoginStrategy extends BaseLoginStrategy {
     // We still need this for local user verification scenarios
     await this.keyService.setMasterKeyEncryptedUserKey(response.key, userId);
 
+    // TODO: why not re-use master key from strategy data cache?
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
     if (masterKey) {
       const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
