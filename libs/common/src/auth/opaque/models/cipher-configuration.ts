@@ -1,5 +1,7 @@
 import { CipherConfiguration as CipherConfigurationSdk } from "@bitwarden/sdk-internal";
 
+// TODO: add js docs to all types / classes here.
+
 export type CipherSuite = OPAQUEKE3_RISTRETTO255_3DH_ARGON2ID13_SUITE;
 export type OPAQUEKE3_RISTRETTO255_3DH_ARGON2ID13_SUITE =
   "OPAQUE_3_RISTRETTO255_OPRF_RISTRETTO255_KEGROUP_3DH_KEX_ARGON2ID13_KSF";
