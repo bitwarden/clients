@@ -11,10 +11,7 @@ import {
 } from "rxjs";
 
 import { LogoutReason } from "@bitwarden/auth/common";
-import { EndUserNotificationService } from "@bitwarden/vault/src";
 
-// eslint-disable-next-line no-restricted-imports
-import { NotificationViewData } from "../../../../../vault/src/notifications/models/notification-view.data";
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
@@ -51,7 +48,6 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
     private environmentService: EnvironmentService,
     private logoutCallback: (logoutReason: LogoutReason, userId: UserId) => Promise<void>,
     private messagingService: MessagingService,
-    private endUserNotificationService: EndUserNotificationService,
     private readonly accountService: AccountService,
     private readonly signalRConnectionService: SignalRConnectionService,
     private readonly authService: AuthService,
@@ -220,12 +216,6 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
         break;
       case NotificationType.SyncOrganizationCollectionSettingChanged:
         await this.syncService.fullSync(true);
-        break;
-      case NotificationType.SyncNotification:
-        await this.endUserNotificationService.upsert(
-          userId,
-          notification.payload as NotificationViewData,
-        );
         break;
       default:
         break;

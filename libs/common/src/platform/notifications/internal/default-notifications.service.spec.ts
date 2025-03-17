@@ -25,7 +25,6 @@ import {
 import { SignalRConnectionService, SignalRNotification } from "./signalr-connection.service";
 import { WebPushConnectionService, WebPushConnector } from "./webpush-connection.service";
 import { WorkerWebPushConnectionService } from "./worker-webpush-connection.service";
-// import { EndUserNotificationService } from "@bitwarden/vault/src";
 
 describe("NotificationsService", () => {
   let syncService: MockProxy<SyncService>;
@@ -37,7 +36,6 @@ describe("NotificationsService", () => {
   let signalRNotificationConnectionService: MockProxy<SignalRConnectionService>;
   let authService: MockProxy<AuthService>;
   let webPushNotificationConnectionService: MockProxy<WebPushConnectionService>;
-  // let endUserNotificationService: MockProxy<EndUserNotificationService>;
 
   let activeAccount: BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>;
 
@@ -64,7 +62,6 @@ describe("NotificationsService", () => {
     signalRNotificationConnectionService = mock<SignalRConnectionService>();
     authService = mock<AuthService>();
     webPushNotificationConnectionService = mock<WorkerWebPushConnectionService>();
-    // endUserNotificationService = mock<EndUserNotificationService>();
 
     activeAccount = new BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>(null);
     accountService.activeAccount$ = activeAccount.asObservable();
@@ -135,7 +132,7 @@ describe("NotificationsService", () => {
     expect(actualNotification.type).toBe(expectedType);
   };
 
-  fit("emits notifications through WebPush when supported", async () => {
+  it("emits notifications through WebPush when supported", async () => {
     const notificationsPromise = firstValueFrom(sut.notifications$.pipe(bufferCount(2)));
 
     emitActiveUser(mockUser1);

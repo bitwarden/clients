@@ -2,7 +2,7 @@ import { Observable } from "rxjs";
 
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { NotificationView, NotificationViewData } from "../models";
+import { NotificationView } from "../models";
 
 /**
  * A service for retrieving and managing notifications for end users.
@@ -33,14 +33,6 @@ export abstract class EndUserNotificationService {
    * @param userId
    */
   abstract markAsDeleted(notificationId: any, userId: UserId): Promise<void>;
-
-  /**
-   * Create/update a notification in the state for the user specified within the notification.
-   * @remarks This method should only be called when a notification payload is received from the web socket.
-   * @param userId
-   * @param notification
-   */
-  abstract upsert(userId: UserId, notification: NotificationViewData): Promise<void>;
 
   /**
    * Clear all notifications from state for the given user.
