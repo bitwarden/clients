@@ -30,6 +30,29 @@
   }
 
   /**
+   * Stripe form control styling
+   */
+  .tw-stripe-form-control {
+    @apply tw-block tw-w-full tw-h-11 tw-rounded-lg tw-bg-background tw-border tw-border-solid tw-border-secondary-500 tw-px-3 tw-py-2 tw-text-main;
+
+    @apply hover:tw-border-primary-600;
+
+    @apply focus:tw-outline-none focus:tw-border-primary-600 focus:tw-border-2 focus:tw-ring-1 focus:tw-ring-inset focus:tw-ring-primary-600;
+
+    &.is-invalid {
+      @apply tw-border-danger-600 hover:tw-border-danger-700;
+    }
+
+    &.is-focused {
+      @apply tw-outline-none tw-border-primary-600 focus:tw-border-primary-600;
+
+      &.is-invalid {
+        @apply tw-border-danger-600;
+      }
+    }
+  }
+
+  /**
    * Loading page
    */
   body.layout_frontend {
