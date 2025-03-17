@@ -44,6 +44,7 @@ export class PasswordLoginCredentials {
       ? new OpaqueLoginCredentials(
           this.email,
           this.masterPassword,
+          preLoginResponse.toKdfConfig(),
           preLoginResponse.opaqueConfiguration,
         )
       : new PasswordHashLoginCredentials(
@@ -158,6 +159,7 @@ export class OpaqueLoginCredentials {
   constructor(
     public email: string,
     public masterPassword: string,
+    public kdfConfig: KdfConfig,
     public cipherConfiguration: CipherConfiguration,
     public twoFactor?: TokenTwoFactorRequest,
   ) {}
