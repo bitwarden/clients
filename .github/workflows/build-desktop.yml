@@ -33,6 +33,10 @@ on:
         description: "Custom SDK branch"
         required: false
         type: string
+      testflight_distribute:
+        description: "Force distribute to TestFlight regardless of branch (useful for QA testing on feature branches)"
+        type: boolean
+        default: true
 
 defaults:
   run:
@@ -1224,23 +1228,27 @@ jobs:
 
       - name: Deploy to TestFlight
         id: testflight-deploy
-        # if: |
-        #   github.event_name != 'pull_request_target'
-        #   && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
+        if: |
+          github.event_name != 'pull_request_target'
+          && (inputs.testflight_distribute || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
+          BRANCH: ${{ github.ref }}
         run: |
           brew install fastlane
 
-          fastlane pilot upload --app_identifier "com.bitwarden.desktop" --changelog "test" --api_key_path $HOME/secrets/appstoreconnect-fastlane.json --pkg "$(find ./dist/mas-universal/Bitwarden*.pkg)"
+          GIT_CHANGE="$(git show -s --format=%s)"
 
-          # xcrun altool \
-          #   --upload-app \
-          #   --type macos \
-          #   --file "$(find ./dist/mas-universal/Bitwarden*.pkg)" \
-          #   --apiKey $APP_STORE_CONNECT_AUTH_KEY \
-          #   --apiIssuer $APP_STORE_CONNECT_TEAM_ISSUER
+          BRANCH=$(echo $BRANCH | sed 's/refs\/heads\///')
+
+          CHANGELOG="$BRANCH: $GIT_CHANGE"
+
+          fastlane pilot upload \
+            --app_identifier "com.bitwarden.desktop" \
+            --changelog "$CHANGELOG" \
+            --api_key_path $HOME/secrets/appstoreconnect-fastlane.json \
+            --pkg "$(find ./dist/mas-universal/Bitwarden*.pkg)"
 
       - name: Post message to a Slack channel
         id: slack-message
