@@ -112,7 +112,7 @@ jobs:
             awk '{print tolower($0)}')" >> $GITHUB_ENV
 
       - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -215,7 +215,7 @@ jobs:
           choco install nasm --no-progress
 
       - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
