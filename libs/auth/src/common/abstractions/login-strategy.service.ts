@@ -70,6 +70,9 @@ export abstract class LoginStrategyServiceAbstraction {
     // TODO: PM-15162 - deprecate captchaResponse
     captchaResponse: string,
   ) => Promise<AuthResult>;
+
+  // TODO: PM-19273 - Refactor makePrePasswordLoginMasterKey to no longer be on the service
+  // once PM-18176 removes the Recover2faComponent dependency.
   /**
    * Creates a master key from the provided master password and email.
    * If a KdfConfig is provided, it will be used to generate the key.
