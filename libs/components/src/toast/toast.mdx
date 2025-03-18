@@ -10,21 +10,45 @@ import { ToastService } from "@bitwarden/components";
 
 # Toast
 
-<Primary />
-<Controls />
-
-## Stories
-
-### Default
+Toasts are ephemeral notifications. They most often communicate the result of a user action. Due to
+their ephemeral nature, long messages and critical alerts should not utilize toasts.
 
 <Canvas of={stories.Default} />
 
-### Long Content
-
-Avoid using long messages in toasts.
-
 <Canvas of={stories.LongContent} />
 
-### Service
+## Displaying a toast
+
+Toasts are triggered via the `ToastService`, which must be called from a frontend Angular context.
+
+```
+toastService.showToast({
+  variant: 'success',
+  message: 'Hi I'm a toast,
+});
+```
+
+The following options are accepted:
+
+| Option    | Description                                   |
+| --------- | --------------------------------------------- |
+| `variant` | `"success" \| "error" \| "info" \| "warning"` |
+| `title`   | Optional title `string`                       |
+| `message` | Main toast content. Required `string`         |
 
 <Canvas of={stories.Service} />
+
+## Toast container
+
+`bit-toast-container` should be added to the app root of consuming clients to ensure toasts are
+properly announced to screenreaders.
+
+```
+<other app file html here>
+<bit-toast-container></bit-toast-container>
+```
+
+## Accessibility
+
+In addition to the accessibility provided by the `bit-toast-container` component, the toast itself
+will apply `aria-alert="true"` if the toast is of type `error`.

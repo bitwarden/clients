@@ -16,8 +16,10 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { ToastService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import {
+  ChangeLoginPasswordService,
+  DefaultChangeLoginPasswordService,
   PasswordRepromptService,
   SecurityTask,
   SecurityTaskType,
@@ -26,6 +28,7 @@ import {
 
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
+import { AtRiskCarouselDialogResult } from "../at-risk-carousel-dialog/at-risk-carousel-dialog.component";
 
 import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
 import { AtRiskPasswordsComponent } from "./at-risk-passwords.component";
@@ -70,6 +73,8 @@ describe("AtRiskPasswordsComponent", () => {
   const setInlineMenuVisibility = jest.fn();
   const mockToastService = mock<ToastService>();
   const mockAtRiskPasswordPageService = mock<AtRiskPasswordPageService>();
+  const mockChangeLoginPasswordService = mock<ChangeLoginPasswordService>();
+  const mockDialogService = mock<DialogService>();
 
   beforeEach(async () => {
     mockTasks$ = new BehaviorSubject<SecurityTask[]>([
@@ -106,6 +111,7 @@ describe("AtRiskPasswordsComponent", () => {
     calloutDismissed$ = new BehaviorSubject<boolean>(false);
     setInlineMenuVisibility.mockClear();
     mockToastService.showToast.mockClear();
+    mockDialogService.open.mockClear();
     mockAtRiskPasswordPageService.isCalloutDismissed.mockReturnValue(calloutDismissed$);
 
     await TestBed.configureTestingModule({
@@ -156,12 +162,18 @@ describe("AtRiskPasswordsComponent", () => {
       .overrideComponent(AtRiskPasswordsComponent, {
         remove: {
           imports: [PopupHeaderComponent, PopupPageComponent],
-          providers: [AtRiskPasswordPageService],
+          providers: [
+            AtRiskPasswordPageService,
+            { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
+            DialogService,
+          ],
         },
         add: {
           imports: [MockPopupHeaderComponent, MockPopupPageComponent],
           providers: [
             { provide: AtRiskPasswordPageService, useValue: mockAtRiskPasswordPageService },
+            { provide: ChangeLoginPasswordService, useValue: mockChangeLoginPasswordService },
+            { provide: DialogService, useValue: mockDialogService },
           ],
         },
       })
@@ -186,8 +198,27 @@ describe("AtRiskPasswordsComponent", () => {
 
   describe("pageDescription$", () => {
     it("should use single org description when tasks belong to one org", async () => {
-      const description = await firstValueFrom(component["pageDescription$"]);
-      expect(description).toBe("atRiskPasswordsDescSingleOrg");
+      // Single task
+      let description = await firstValueFrom(component["pageDescription$"]);
+      expect(description).toBe("atRiskPasswordDescSingleOrg");
+
+      // Multiple tasks
+      mockTasks$.next([
+        {
+          id: "task",
+          organizationId: "org",
+          cipherId: "cipher",
+          type: SecurityTaskType.UpdateAtRiskCredential,
+        } as SecurityTask,
+        {
+          id: "task2",
+          organizationId: "org",
+          cipherId: "cipher2",
+          type: SecurityTaskType.UpdateAtRiskCredential,
+        } as SecurityTask,
+      ]);
+      description = await firstValueFrom(component["pageDescription$"]);
+      expect(description).toBe("atRiskPasswordsDescSingleOrgPlural");
     });
 
     it("should use multiple org description when tasks belong to multiple orgs", async () => {
@@ -206,7 +237,7 @@ describe("AtRiskPasswordsComponent", () => {
         } as SecurityTask,
       ]);
       const description = await firstValueFrom(component["pageDescription$"]);
-      expect(description).toBe("atRiskPasswordsDescMultiOrg");
+      expect(description).toBe("atRiskPasswordsDescMultiOrgPlural");
     });
   });
 
@@ -260,6 +291,33 @@ describe("AtRiskPasswordsComponent", () => {
         );
         expect(mockToastService.showToast).toHaveBeenCalled();
       });
+    });
+  });
+
+  describe("getting started carousel", () => {
+    it("should open the carousel automatically if the user has not dismissed it", async () => {
+      mockAtRiskPasswordPageService.isGettingStartedDismissed.mockReturnValue(of(false));
+      mockDialogService.open.mockReturnValue({ closed: of(undefined) } as any);
+      await component.ngOnInit();
+      expect(mockDialogService.open).toHaveBeenCalled();
+    });
+
+    it("should not open the carousel automatically if the user has already dismissed it", async () => {
+      mockDialogService.open.mockClear(); // Need to clear the mock since the component is already initialized once
+      mockAtRiskPasswordPageService.isGettingStartedDismissed.mockReturnValue(of(true));
+      mockDialogService.open.mockReturnValue({ closed: of(undefined) } as any);
+      await component.ngOnInit();
+      expect(mockDialogService.open).not.toHaveBeenCalled();
+    });
+
+    it("should mark the carousel as dismissed when the user dismisses it", async () => {
+      mockAtRiskPasswordPageService.isGettingStartedDismissed.mockReturnValue(of(false));
+      mockDialogService.open.mockReturnValue({
+        closed: of(AtRiskCarouselDialogResult.Dismissed),
+      } as any);
+      await component.ngOnInit();
+      expect(mockDialogService.open).toHaveBeenCalled();
+      expect(mockAtRiskPasswordPageService.dismissGettingStarted).toHaveBeenCalled();
     });
   });
 });

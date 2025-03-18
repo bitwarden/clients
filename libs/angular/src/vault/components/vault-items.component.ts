@@ -1,8 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { BehaviorSubject, Subject, firstValueFrom, from, map, switchMap, takeUntil } from "rxjs";
+import { BehaviorSubject, Subject, firstValueFrom, from, switchMap, takeUntil } from "rxjs";
 
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -22,14 +21,13 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
 
   loaded = false;
   ciphers: CipherView[] = [];
-  searchPlaceholder: string = null;
   filter: (cipher: CipherView) => boolean = null;
   deleted = false;
   organization: Organization;
-  accessEvents = false;
 
   protected searchPending = false;
 
+  private userId: UserId;
   private destroy$ = new Subject<void>();
   private searchTimeout: any = null;
   private isSearchable: boolean = false;
@@ -45,25 +43,14 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
     protected searchService: SearchService,
     protected cipherService: CipherService,
     protected accountService: AccountService,
-  ) {
-    this.accountService.activeAccount$
-      .pipe(
-        getUserId,
-        switchMap((userId) =>
-          this.cipherService.cipherViews$(userId).pipe(map((ciphers) => ({ userId, ciphers }))),
-        ),
-        takeUntilDestroyed(),
-      )
-      .subscribe(({ userId, ciphers }) => {
-        void this.doSearch(ciphers, userId);
-        this.loaded = true;
-      });
-  }
+  ) {}
 
-  ngOnInit(): void {
+  async ngOnInit() {
+    this.userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
     this._searchText$
       .pipe(
-        switchMap((searchText) => from(this.searchService.isSearchable(searchText))),
+        switchMap((searchText) => from(this.searchService.isSearchable(this.userId, searchText))),
         takeUntil(this.destroy$),
       )
       .subscribe((isSearchable) => {
@@ -149,6 +136,7 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
     }
 
     this.ciphers = await this.searchService.searchCiphers(
+      this.userId,
       this.searchText,
       [this.filter, this.deletedFilter],
       indexedCiphers,

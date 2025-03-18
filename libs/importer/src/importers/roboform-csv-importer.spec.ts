@@ -5,6 +5,11 @@ import { data as dataNoFolder } from "./spec-data/roboform-csv/empty-folders";
 import { data as dataFolder } from "./spec-data/roboform-csv/with-folders";
 
 describe("Roboform CSV Importer", () => {
+  beforeEach(() => {
+    // Importers currently create their own ConsoleLogService. This should be replaced by injecting a test log service.
+    jest.spyOn(console, "warn").mockImplementation();
+  });
+
   it("should parse CSV data", async () => {
     const importer = new RoboFormCsvImporter();
     const result = await importer.parse(dataNoFolder);

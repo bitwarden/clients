@@ -5,10 +5,8 @@
  */
 export enum FeatureFlag {
   /* Admin Console Team */
-  ProviderClientVaultPrivacyBanner = "ac-2833-provider-client-vault-privacy-banner",
   AccountDeprovisioning = "pm-10308-account-deprovisioning",
   VerifiedSsoDomainEndpoint = "pm-12337-refactor-sso-details-endpoint",
-  PM14505AdminConsoleIntegrationPage = "pm-14505-admin-console-integration-page",
   LimitItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission",
 
   /* Autofill */
@@ -19,7 +17,6 @@ export enum FeatureFlag {
   IdpAutoSubmitLogin = "idp-auto-submit-login",
   InlineMenuFieldQualification = "inline-menu-field-qualification",
   InlineMenuPositioningImprovements = "inline-menu-positioning-improvements",
-  InlineMenuTotp = "inline-menu-totp",
   NotificationBarAddLoginImprovements = "notification-bar-add-login-improvements",
   NotificationRefresh = "notification-refresh",
   UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
@@ -28,29 +25,27 @@ export enum FeatureFlag {
   ItemShare = "item-share",
   CriticalApps = "pm-14466-risk-insights-critical-application",
   EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
+  DesktopSendUIRefresh = "desktop-send-ui-refresh",
+  ExportAttachments = "export-attachments",
 
-  AC1795_UpdatedSubscriptionStatusSection = "AC-1795_updated-subscription-status-section",
-  ExtensionRefresh = "extension-refresh",
-  PersistPopupView = "persist-popup-view",
-  PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
-  TwoFactorComponentRefactor = "two-factor-component-refactor",
-  VaultBulkManagementAction = "vault-bulk-management-action",
-  UnauthenticatedExtensionUIRefresh = "unauth-ui-refresh",
-  SSHKeyVaultItem = "ssh-key-vault-item",
-  SSHAgent = "ssh-agent",
-  CipherKeyEncryption = "cipher-key-encryption",
-  PM11901_RefactorSelfHostingLicenseUploader = "PM-11901-refactor-self-hosting-license-uploader",
-  TrialPaymentOptional = "PM-8163-trial-payment",
-  SecurityTasks = "security-tasks",
+  /* Vault */
+  PM9111ExtensionPersistAddEditForm = "pm-9111-extension-persist-add-edit-form",
   NewDeviceVerificationTemporaryDismiss = "new-device-temporary-dismiss",
   NewDeviceVerificationPermanentDismiss = "new-device-permanent-dismiss",
+  VaultBulkManagementAction = "vault-bulk-management-action",
+  SecurityTasks = "security-tasks",
+
+  PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
+  UnauthenticatedExtensionUIRefresh = "unauth-ui-refresh",
+  CipherKeyEncryption = "cipher-key-encryption",
+  TrialPaymentOptional = "PM-8163-trial-payment",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
-  PM9111ExtensionPersistAddEditForm = "pm-9111-extension-persist-add-edit-form",
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   ResellerManagedOrgAlert = "PM-15814-alert-owners-of-reseller-managed-orgs",
   AccountDeprovisioningBanner = "pm-17120-account-deprovisioning-admin-console-banner",
-  NewDeviceVerification = "new-device-verification",
   PM15179_AddExistingOrgsFromProviderPortal = "pm-15179-add-existing-orgs-from-provider-portal",
+  PM12276_BreadcrumbEventLogs = "pm-12276-breadcrumbing-for-business-features",
+  PM18794_ProviderPaymentMethod = "pm-18794-provider-payment-method",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -66,10 +61,8 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.ProviderClientVaultPrivacyBanner]: FALSE,
   [FeatureFlag.AccountDeprovisioning]: FALSE,
   [FeatureFlag.VerifiedSsoDomainEndpoint]: FALSE,
-  [FeatureFlag.PM14505AdminConsoleIntegrationPage]: FALSE,
   [FeatureFlag.LimitItemDeletion]: FALSE,
 
   /* Autofill */
@@ -80,7 +73,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.IdpAutoSubmitLogin]: FALSE,
   [FeatureFlag.InlineMenuFieldQualification]: FALSE,
   [FeatureFlag.InlineMenuPositioningImprovements]: FALSE,
-  [FeatureFlag.InlineMenuTotp]: FALSE,
   [FeatureFlag.NotificationBarAddLoginImprovements]: FALSE,
   [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
@@ -89,29 +81,27 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ItemShare]: FALSE,
   [FeatureFlag.CriticalApps]: FALSE,
   [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
+  [FeatureFlag.DesktopSendUIRefresh]: FALSE,
+  [FeatureFlag.ExportAttachments]: FALSE,
 
-  [FeatureFlag.AC1795_UpdatedSubscriptionStatusSection]: FALSE,
-  [FeatureFlag.ExtensionRefresh]: FALSE,
-  [FeatureFlag.PersistPopupView]: FALSE,
-  [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
-  [FeatureFlag.TwoFactorComponentRefactor]: FALSE,
-  [FeatureFlag.VaultBulkManagementAction]: FALSE,
-  [FeatureFlag.UnauthenticatedExtensionUIRefresh]: FALSE,
-  [FeatureFlag.SSHKeyVaultItem]: FALSE,
-  [FeatureFlag.SSHAgent]: FALSE,
-  [FeatureFlag.CipherKeyEncryption]: FALSE,
-  [FeatureFlag.PM11901_RefactorSelfHostingLicenseUploader]: FALSE,
-  [FeatureFlag.TrialPaymentOptional]: FALSE,
-  [FeatureFlag.SecurityTasks]: FALSE,
+  /* Vault */
+  [FeatureFlag.PM9111ExtensionPersistAddEditForm]: FALSE,
   [FeatureFlag.NewDeviceVerificationTemporaryDismiss]: FALSE,
   [FeatureFlag.NewDeviceVerificationPermanentDismiss]: FALSE,
+  [FeatureFlag.VaultBulkManagementAction]: FALSE,
+  [FeatureFlag.SecurityTasks]: FALSE,
+
+  [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
+  [FeatureFlag.UnauthenticatedExtensionUIRefresh]: FALSE,
+  [FeatureFlag.CipherKeyEncryption]: FALSE,
+  [FeatureFlag.TrialPaymentOptional]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
-  [FeatureFlag.PM9111ExtensionPersistAddEditForm]: FALSE,
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
   [FeatureFlag.ResellerManagedOrgAlert]: FALSE,
   [FeatureFlag.AccountDeprovisioningBanner]: FALSE,
-  [FeatureFlag.NewDeviceVerification]: FALSE,
   [FeatureFlag.PM15179_AddExistingOrgsFromProviderPortal]: FALSE,
+  [FeatureFlag.PM12276_BreadcrumbEventLogs]: FALSE,
+  [FeatureFlag.PM18794_ProviderPaymentMethod]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

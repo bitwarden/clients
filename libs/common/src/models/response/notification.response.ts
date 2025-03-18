@@ -12,7 +12,16 @@ export class NotificationResponse extends BaseResponse {
     this.contextId = this.getResponseProperty("ContextId");
     this.type = this.getResponseProperty("Type");
 
-    const payload = this.getResponseProperty("Payload");
+    let payload = this.getResponseProperty("Payload");
+
+    if (typeof payload === "string") {
+      try {
+        payload = JSON.parse(payload);
+      } catch {
+        // guess it was a string
+      }
+    }
+
     switch (this.type) {
       case NotificationType.SyncCipherCreate:
       case NotificationType.SyncCipherDelete:

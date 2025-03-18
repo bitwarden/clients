@@ -25,7 +25,10 @@ export class WebAuthnIFrame {
     const params = new URLSearchParams({
       data: this.base64Encode(JSON.stringify(data)),
       parent: encodeURIComponent(this.win.document.location.href),
-      btnText: encodeURIComponent(this.i18nService.t("webAuthnAuthenticate")),
+      btnText: encodeURIComponent(this.i18nService.t("readSecurityKey")),
+      btnAwaitingInteractionText: encodeURIComponent(
+        this.i18nService.t("awaitingSecurityKeyInteraction"),
+      ),
       v: "1",
     });
 

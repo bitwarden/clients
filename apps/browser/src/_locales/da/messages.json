@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "Hovedadgangskodetip (valgfrit)"
   },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Bliv medlem af organisation"
   },
@@ -176,6 +185,10 @@
   "copyNotes": {
     "message": "Kopiér notater"
   },
+  "copy": {
+    "message": "Copy",
+    "description": "Copy to clipboard"
+  },
   "fill": {
     "message": "Udfyld",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
@@ -249,12 +262,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Angiv kontoens e-mailadresse og få et adgangskodetip fremsendt"
-  },
-  "passwordHint": {
-    "message": "Adgangskodetip"
-  },
-  "enterEmailToGetHint": {
-    "message": "Indtast din kontos e-mailadresse for at modtage dit hovedadgangskodetip."
   },
   "getMasterPasswordHint": {
     "message": "Få hovedadgangskodetip"
@@ -372,6 +379,15 @@
   "editFolder": {
     "message": "Redigér mappe"
   },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
     "message": "Ny mappe"
   },
@@ -466,22 +482,6 @@
   "length": {
     "message": "Længde"
   },
-  "uppercase": {
-    "message": "Store bogstaver (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Små bogstaver (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Tal (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Specialtegn (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Inkludér",
     "description": "Card header for password generator include block"
@@ -513,10 +513,6 @@
   "specialCharactersDescription": {
     "message": "Inkludér specialtegn",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Antal ord"
@@ -656,8 +652,8 @@
   "browserNotSupportClipboard": {
     "message": "Din webbrowser understøtter ikke udklipsholder kopiering. Kopiér det manuelt i stedet."
   },
-  "verifyIdentity": {
-    "message": "Bekræft identitet"
+  "verifyYourIdentity": {
+    "message": "Verify your identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "Denne enhed er ikke genkendt. Angiv koden i den tilsendte e-mail for at bekræfte identiteten."
@@ -872,6 +868,21 @@
   "logInToBitwarden": {
     "message": "Log ind på Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
+  },
   "restartRegistration": {
     "message": "Genstart registrering"
   },
@@ -892,6 +903,9 @@
   },
   "no": {
     "message": "Nej"
+  },
+  "location": {
+    "message": "Location"
   },
   "unexpectedError": {
     "message": "Der opstod en uventet fejl."
@@ -1025,6 +1039,9 @@
   "clickToAutofillOnVault": {
     "message": "Klik på emner for at autoudfylde i Boks-visning"
   },
+  "clickToAutofill": {
+    "message": "Click items in autofill suggestion to fill"
+  },
   "clearClipboard": {
     "message": "Ryd udklipsholder",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1038,6 +1055,56 @@
   },
   "notificationAddSave": {
     "message": "Gem"
+  },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ saved to Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ updated in Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Save as new login",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Update login",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Save login?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Update existing login?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Login saved",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Login updated",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Error saving",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
     "message": "Bed om at opdatere eksisterende login"
@@ -1101,10 +1168,6 @@
   "light": {
     "message": "Lys",
     "description": "Light color"
-  },
-  "solarizedDark": {
-    "message": "Solariseret mørk",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
     "message": "Eksportér fra"
@@ -1358,11 +1421,21 @@
   "rememberMe": {
     "message": "Husk mig"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Send verifikationskode-email igen"
   },
   "useAnotherTwoStepMethod": {
     "message": "Brug en anden to-trins login metode"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "Indsæt din YubiKey i din computers USB-port, og tryk derefter på dens knap."
@@ -1376,8 +1449,17 @@
   "webAuthnNewTabOpen": {
     "message": "Åbn ny fane"
   },
+  "openInNewTab": {
+    "message": "Open in new tab"
+  },
   "webAuthnAuthenticate": {
     "message": "Godkend WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
   },
   "loginUnavailable": {
     "message": "Login ikke tilgængelig"
@@ -1390,6 +1472,9 @@
   },
   "twoStepOptions": {
     "message": "To-trins-login indstillinger"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "recoveryCodeDesc": {
     "message": "Mistet adgang til alle dine to-faktor-udbydere? Brug din genoprettelseskode til at deaktivere alle to-faktor udbydere på din konto."
@@ -1433,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Selv-hosted miljø"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Angiv grund-URL'en i din lokal-hostede Bitwarden-installation."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Angiv basis-URL'en for den lokalt-hosted Bitwarden-installation. Eks.: https://bitwarden.firma.dk"
   },
@@ -1447,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Brugerdefineret miljø"
-  },
-  "customEnvironmentFooter": {
-    "message": "Til avancerede brugere. Du kan angive grund-URL'en for hver service uafhængigt."
   },
   "baseUrl": {
     "message": "Server URL"
@@ -1587,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Træk for at sortere"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Tekst"
@@ -2081,11 +2163,23 @@
     "message": "til at oprette en stærk, unik adgangskode",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
+  "vaultCustomization": {
+    "message": "Vault customization"
+  },
   "vaultTimeoutAction": {
     "message": "Boks timeout-handling"
   },
   "vaultTimeoutAction1": {
     "message": "Timeouthandling"
+  },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "New customization options"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Customize your vault experience with quick copy actions, compact mode, and more!"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "View all Appearance settings"
   },
   "lock": {
     "message": "Lås",
@@ -2345,6 +2439,9 @@
   "blockedDomains": {
     "message": "Blokerede domæner"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Learn more about blocked domains"
+  },
   "excludedDomains": {
     "message": "Ekskluderede domæner"
   },
@@ -2362,6 +2459,109 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Ændr dette i Indstillinger"
+  },
+  "change": {
+    "message": "Change"
+  },
+  "changeButtonTitle": {
+    "message": "Change password - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "At-risk passwords"
+  },
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
+    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at-risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrgPlural": {
+    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at-risk.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Review and change one at-risk password"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Review and change $COUNT$ at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Change at-risk passwords faster"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Review at-risk logins"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Review at-risk passwords"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAlt": {
+    "message": "Illustration of a list of logins that are at-risk"
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAlt": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  },
+  "updateInBitwarden": {
+    "message": "Update in Bitwarden"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "Bitwarden will then prompt you to update the password in the password manager.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAlt": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+  },
+  "turnOnAutofill": {
+    "message": "Turn on autofill"
+  },
+  "turnedOnAutofill": {
+    "message": "Turned on autofill"
+  },
+  "dismiss": {
+    "message": "Dismiss"
   },
   "websiteItemLabel": {
     "message": "Websted $number$ (URI)",
@@ -2967,6 +3167,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Kan ikke få $SERVICENAME$ maskeret e-mailkonto-ID.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -3048,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Indstillinger er blevet redigeret"
-  },
-  "environmentEditedClick": {
-    "message": "Klik her"
-  },
-  "environmentEditedReset": {
-    "message": "for at nulstille til forudkonfigurerede indstillinger"
-  },
   "serverVersion": {
     "message": "Server version"
   },
@@ -3087,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Log ind med hovedadgangskode"
   },
-  "loggingInAs": {
-    "message": "Logger ind som"
-  },
-  "notYou": {
-    "message": "Ikke dig?"
-  },
   "newAroundHere": {
     "message": "Ny her?"
   },
@@ -3101,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Log ind med enhed"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Log ind med enhed skal være opsat i indstillingerne i Bitwarden mobil-appen. Behov for en anden mulighed?"
   },
   "fingerprintPhraseHeader": {
     "message": "Fingeraftrykssætning"
@@ -3115,9 +3321,6 @@
     "message": "Gensend notifikation"
   },
   "viewAllLogInOptions": {
-    "message": "Vis alle indlogningsmuligheder"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Vis alle indlogningsmuligheder"
   },
   "notificationSentDevice": {
@@ -3261,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Anmod om admin-godkendelse"
   },
-  "approveWithMasterPassword": {
-    "message": "Godkend med hovedadgangskode"
-  },
   "ssoIdentifierRequired": {
     "message": "Organisations SSO-identifikator kræves."
   },
@@ -3309,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Anmodningen er sendt til din admin."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Du underrettes, når godkendelse foreligger."
   },
   "troubleLoggingIn": {
     "message": "Problemer med at logge ind?"
@@ -3882,6 +4079,9 @@
   "activeAccount": {
     "message": "Aktiv konto"
   },
+  "bitwardenAccount": {
+    "message": "Bitwarden account"
+  },
   "availableAccounts": {
     "message": "Tilgængelige konti"
   },
@@ -4077,6 +4277,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "Copy $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
       }
     }
   },
@@ -4455,6 +4669,9 @@
         "example": "Custom field"
       }
     }
+  },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
   },
   "reorderFieldUp": {
     "message": "$LABEL$ flyttet op, position $INDEX$ af $LENGTH$",
@@ -4887,6 +5104,33 @@
   "extraWide": {
     "message": "Ekstra bred"
   },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Samlinger med kun tilladelsen Vis kan ikke fjernes: $COLLECTIONS$",
     "placeholders": {
@@ -4901,5 +5145,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "For brug af biometrisk oplåsning skal computerapplikationen opdateres eller fingeraftryksoplåsning deaktiveres i computerindstillingerne."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }
