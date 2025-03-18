@@ -284,7 +284,6 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
     return authResult;
   }
 
-  // TODO: could/should this be better encapsulated - we likely want to register the user in multiple locations
   /**
    * Registers password using users with the OPAQUE key exchange protocol which is a more secure password
    * authN protocol which prevents the server from ever knowing anything about the user's password.
