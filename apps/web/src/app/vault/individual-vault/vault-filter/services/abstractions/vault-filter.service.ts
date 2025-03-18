@@ -24,8 +24,11 @@ export abstract class VaultFilterService {
   collectionTree$: Observable<TreeNode<CollectionFilter>>;
   cipherTypeTree$: Observable<TreeNode<CipherTypeFilter>>;
   getCollectionNodeFromTree: (id: string) => Promise<TreeNode<CollectionFilter>>;
-  setCollapsedFilterNodes: (collapsedFilterNodes: Set<string>, userId: UserId) => Promise<void>;
-  expandOrgFilter: (userId: UserId) => Promise<void>;
+  abstract setCollapsedFilterNodes: (
+    collapsedFilterNodes: Set<string>,
+    userId: UserId,
+  ) => Promise<void>;
+  abstract expandOrgFilter: (userId: UserId) => Promise<void>;
   getOrganizationFilter: () => Observable<Organization>;
   setOrganizationFilter: (organization: Organization) => void;
   buildTypeTree: (
