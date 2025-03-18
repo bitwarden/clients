@@ -77,9 +77,9 @@ function stdOutProc(proc) {
   proc.stderr.on("data", (data) => console.error(data.toString()));
 }
 
-buildMacOs()
-  .then(() => console.log("macOS build complete"))
-  .catch((err) => {
-    console.error("macOS build failed", err);
-    exit(-1);
-  });
+// buildMacOs()
+//   .then(() => console.log("macOS build complete"))
+//   .catch((err) => {
+//     console.error("macOS build failed", err);
+//     exit(-1);
+//   });
