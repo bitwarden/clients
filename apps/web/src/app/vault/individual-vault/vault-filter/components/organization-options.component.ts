@@ -44,12 +44,12 @@ import { OrganizationFilter } from "../shared/models/vault-filter.type";
   templateUrl: "organization-options.component.html",
 })
 export class OrganizationOptionsComponent implements OnInit, OnDestroy {
-  protected actionPromise: Promise<void | boolean>;
+  protected actionPromise?: Promise<void | boolean>;
   protected resetPasswordPolicy?: Policy | undefined;
   protected loaded = false;
   protected hideMenu = false;
   protected showLeaveOrgOption = false;
-  protected organization: OrganizationFilter;
+  protected organization!: OrganizationFilter;
 
   private destroy$ = new Subject<void>();
 
