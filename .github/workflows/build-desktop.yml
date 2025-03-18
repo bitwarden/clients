@@ -1236,7 +1236,6 @@ jobs:
           APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
           BRANCH: ${{ github.ref }}
         run: |
-          brew install fastlane
 
           GIT_CHANGE="$(git show -s --format=%s)"
 
