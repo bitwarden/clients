@@ -42,11 +42,10 @@ import {
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey, MasterKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
-import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
-import { PasswordLoginCredentials } from "../models";
+import { PasswordHashLoginCredentials } from "../models";
 import { UserDecryptionOptions } from "../models/domain/user-decryption-options";
 
 import { PasswordLoginStrategy, PasswordLoginStrategyData } from "./password-login.strategy";
@@ -102,12 +101,11 @@ export function identityTokenResponseFactory(
 }
 
 // TODO: add tests for latest changes to base class for TDE
-describe("LoginStrategy", () => {
+describe("BaseLoginStrategy", () => {
   let cache: PasswordLoginStrategyData;
   let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
 
-  let loginStrategyService: MockProxy<LoginStrategyServiceAbstraction>;
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let apiService: MockProxy<ApiService>;
@@ -127,13 +125,12 @@ describe("LoginStrategy", () => {
   let environmentService: MockProxy<EnvironmentService>;
 
   let passwordLoginStrategy: PasswordLoginStrategy;
-  let credentials: PasswordLoginCredentials;
+  let credentials: PasswordHashLoginCredentials;
 
   beforeEach(async () => {
     accountService = mockAccountServiceWith(userId);
     masterPasswordService = new FakeMasterPasswordService();
 
-    loginStrategyService = mock<LoginStrategyServiceAbstraction>();
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     apiService = mock<ApiService>();
@@ -161,7 +158,6 @@ describe("LoginStrategy", () => {
       cache,
       passwordStrengthService,
       policyService,
-      loginStrategyService,
       accountService as unknown as AccountService,
       masterPasswordService,
       keyService,
@@ -180,7 +176,7 @@ describe("LoginStrategy", () => {
       kdfConfigService,
       environmentService,
     );
-    credentials = new PasswordLoginCredentials(email, masterPassword);
+    credentials = new PasswordHashLoginCredentials(email, masterPassword, new PBKDF2KdfConfig());
   });
 
   describe("base class", () => {
@@ -508,7 +504,6 @@ describe("LoginStrategy", () => {
         cache,
         passwordStrengthService,
         policyService,
-        loginStrategyService,
         accountService as AccountService,
         masterPasswordService,
         keyService,
@@ -572,7 +567,6 @@ describe("LoginStrategy", () => {
         cache,
         passwordStrengthService,
         policyService,
-        loginStrategyService,
         accountService as AccountService,
         masterPasswordService,
         keyService,

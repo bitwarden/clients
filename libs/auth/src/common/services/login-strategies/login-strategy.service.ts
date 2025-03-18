@@ -38,8 +38,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { TaskSchedulerService, ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
-import { MasterKey } from "@bitwarden/common/types/key";
-import { KeyService, KdfConfig, KdfConfigService } from "@bitwarden/key-management";
+import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 
 import { AuthRequestServiceAbstraction, LoginStrategyServiceAbstraction } from "../../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";
@@ -326,38 +325,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     }
   }
 
-  // TODO: merge main to get updates to 2FA recover
-  // then can remove optional kdfconfig
-  // and move to the base login strategy
-  async makePrePasswordLoginMasterKey(
-    masterPassword: string,
-    email: string,
-    kdfConfig?: KdfConfig,
-  ): Promise<MasterKey> {
-    email = email.trim().toLowerCase();
-
-    if (!kdfConfig) {
-      try {
-        const preloginResponse = await this.prePasswordLoginApiService.postPrePasswordLogin(
-          new PrePasswordLoginRequest(email),
-        );
-        kdfConfig = preloginResponse?.toKdfConfig();
-      } catch (e: any) {
-        if (e == null || e.statusCode !== 404) {
-          throw e;
-        }
-      }
-
-      if (!kdfConfig) {
-        throw new Error("KDF config is required");
-      }
-    }
-
-    kdfConfig.validateKdfConfigForPreLogin();
-
-    return this.keyService.makeMasterKey(masterPassword, email, kdfConfig);
-  }
-
   private async clearCache(): Promise<void> {
     await this.currentAuthnTypeState.update((_) => null);
     await this.loginStrategyCacheState.update((_) => null);
@@ -433,7 +400,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
           this.policyService,
           this.configService,
           this.opaqueKeyExchangeService,
-          this,
           ...sharedDeps,
         );
       case AuthenticationType.Sso:
@@ -467,11 +433,10 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
           data?.opaque ?? new OpaqueLoginStrategyData(),
           this.passwordStrengthService,
           this.policyService,
-          this,
           ...sharedDeps,
         );
       default:
-        return null;
+        throw new Error("No matching strategy found for AuthenticationType " + strategy);
     }
   }
 }

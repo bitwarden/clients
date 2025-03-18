@@ -5,8 +5,6 @@ import { Observable } from "rxjs";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
-import { MasterKey } from "@bitwarden/common/types/key";
-import { KdfConfig } from "@bitwarden/key-management";
 
 import {
   UserApiLoginCredentials,
@@ -70,20 +68,6 @@ export abstract class LoginStrategyServiceAbstraction {
     // TODO: PM-15162 - deprecate captchaResponse
     captchaResponse: string,
   ) => Promise<AuthResult>;
-
-  // TODO: PM-19273 - Refactor makePrePasswordLoginMasterKey to no longer be on the service
-  // once PM-18176 removes the Recover2faComponent dependency.
-  /**
-   * Creates a master key from the provided master password and email.
-   * If a KdfConfig is provided, it will be used to generate the key.
-   * Otherwise, the PrePasswordLogin endpoint will be used to retrieve the user's
-   * KdfConfig.
-   */
-  makePrePasswordLoginMasterKey: (
-    masterPassword: string,
-    email: string,
-    kdfConfig?: KdfConfig,
-  ) => Promise<MasterKey>;
   /**
    * Emits true if the authentication session has expired.
    */

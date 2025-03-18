@@ -36,7 +36,6 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
-import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { PasswordHashLoginCredentials } from "../models/domain/login-credentials";
 
@@ -64,7 +63,6 @@ describe("PasswordLoginStrategy", () => {
   let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
 
-  let loginStrategyService: MockProxy<LoginStrategyServiceAbstraction>;
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let apiService: MockProxy<ApiService>;
@@ -91,7 +89,6 @@ describe("PasswordLoginStrategy", () => {
     accountService = mockAccountServiceWith(userId);
     masterPasswordService = new FakeMasterPasswordService();
 
-    loginStrategyService = mock<LoginStrategyServiceAbstraction>();
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     apiService = mock<ApiService>();
@@ -115,8 +112,9 @@ describe("PasswordLoginStrategy", () => {
       sub: userId,
     });
 
-    loginStrategyService.makePrePasswordLoginMasterKey.mockResolvedValue(masterKey);
-
+    keyService.makeMasterKey
+      .calledWith(masterPassword, email, expect.any(PBKDF2KdfConfig))
+      .mockResolvedValue(masterKey);
     keyService.hashMasterKey
       .calledWith(masterPassword, expect.anything(), undefined)
       .mockResolvedValue(hashedPassword);
@@ -130,7 +128,6 @@ describe("PasswordLoginStrategy", () => {
       cache,
       passwordStrengthService,
       policyService,
-      loginStrategyService,
       accountService,
       masterPasswordService,
       keyService,
