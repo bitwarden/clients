@@ -26,6 +26,7 @@ export * from "./components/carousel";
 
 export * as VaultIcons from "./icons";
 export * from "./tasks";
+export * from "./notifications";
 
 export { DefaultSshImportPromptService } from "./services/default-ssh-import-prompt.service";
 export { SshImportPromptService } from "./services/ssh-import-prompt.service";

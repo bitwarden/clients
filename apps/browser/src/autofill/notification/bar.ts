@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { render } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
@@ -72,10 +70,49 @@ function getI18n() {
     saveFailure: chrome.i18n.getMessage("saveFailure"),
     saveFailureDetails: chrome.i18n.getMessage("saveFailureDetails"),
     saveLoginPrompt: chrome.i18n.getMessage("saveLoginPrompt"),
+    typeLogin: chrome.i18n.getMessage("typeLogin"),
     updateLoginAction: chrome.i18n.getMessage("updateLoginAction"),
     updateLoginPrompt: chrome.i18n.getMessage("updateLoginPrompt"),
     view: chrome.i18n.getMessage("view"),
   };
+}
+
+/**
+ * Attempts to locate an element by ID within a template’s content and casts it to the specified type.
+ *
+ * @param templateElement - The template whose content will be searched for the element.
+ * @param elementId - The ID of the element being searched for.
+ * @returns The typed element if found, otherwise log error.
+ *
+ */
+const findElementById = <ElementType extends HTMLElement>(
+  templateElement: HTMLTemplateElement,
+  elementId: string,
+): ElementType => {
+  const element = templateElement.content.getElementById(elementId);
+  if (!element) {
+    throw new Error(`Element with ID "${elementId}" not found in template.`);
+  }
+  return element as ElementType;
+};
+
+/**
+ * Sets the text content of an element identified by ID within a template's content.
+ *
+ * @param template - The template whose content will be searched for the element.
+ * @param elementId - The ID of the element whose text content is to be set.
+ * @param text - The text content to set for the specified element.
+ * @returns void
+ *
+ * This function attempts to locate an element by its ID within the content of a given HTML template.
+ * If the element is found, it updates the element's text content with the provided text.
+ * If the element is not found, the function does nothing, ensuring that the operation is safe and does not throw errors.
+ */
+function setElementText(template: HTMLTemplateElement, elementId: string, text: string): void {
+  const element = template.content.getElementById(elementId);
+  if (element) {
+    element.textContent = text;
+  }
 }
 
 function initNotificationBar(message: NotificationBarWindowMessage) {
@@ -87,7 +124,7 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
   notificationBarIframeInitData = initData;
   const { isVaultLocked, theme } = notificationBarIframeInitData;
   const i18n = getI18n();
-  const resolvedTheme = getResolvedTheme(theme);
+  const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
 
   if (useComponentBar) {
     document.body.innerHTML = "";
@@ -122,45 +159,47 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
     // i18n for "Add" template
     const addTemplate = document.getElementById("template-add") as HTMLTemplateElement;
 
-    const neverButton = addTemplate.content.getElementById("never-save");
+    const neverButton = findElementById<HTMLButtonElement>(addTemplate, "never-save");
     neverButton.textContent = i18n.never;
 
-    const selectFolder = addTemplate.content.getElementById("select-folder");
+    const selectFolder = findElementById<HTMLSelectElement>(addTemplate, "select-folder");
     selectFolder.hidden = isVaultLocked || removeIndividualVault();
     selectFolder.setAttribute("aria-label", i18n.folder);
 
-    const addButton = addTemplate.content.getElementById("add-save");
+    const addButton = findElementById<HTMLButtonElement>(addTemplate, "add-save");
     addButton.textContent = i18n.notificationAddSave;
 
-    const addEditButton = addTemplate.content.getElementById("add-edit");
+    const addEditButton = findElementById<HTMLButtonElement>(addTemplate, "add-edit");
     // If Remove Individual Vault policy applies, "Add" opens the edit tab, so we hide the Edit button
     addEditButton.hidden = removeIndividualVault();
     addEditButton.textContent = i18n.notificationEdit;
 
-    addTemplate.content.getElementById("add-text").textContent = i18n.notificationAddDesc;
+    setElementText(addTemplate, "add-text", i18n.notificationAddDesc);
 
     // i18n for "Change" (update password) template
     const changeTemplate = document.getElementById("template-change") as HTMLTemplateElement;
 
-    const changeButton = changeTemplate.content.getElementById("change-save");
+    const changeButton = findElementById<HTMLSelectElement>(changeTemplate, "change-save");
     changeButton.textContent = i18n.notificationChangeSave;
 
-    const changeEditButton = changeTemplate.content.getElementById("change-edit");
+    const changeEditButton = findElementById<HTMLButtonElement>(changeTemplate, "change-edit");
     changeEditButton.textContent = i18n.notificationEdit;
 
-    changeTemplate.content.getElementById("change-text").textContent = i18n.notificationChangeDesc;
+    setElementText(changeTemplate, "change-text", i18n.notificationChangeDesc);
 
     // i18n for "Unlock" (unlock extension) template
     const unlockTemplate = document.getElementById("template-unlock") as HTMLTemplateElement;
 
-    const unlockButton = unlockTemplate.content.getElementById("unlock-vault");
+    const unlockButton = findElementById<HTMLButtonElement>(unlockTemplate, "unlock-vault");
     unlockButton.textContent = i18n.notificationUnlock;
 
-    unlockTemplate.content.getElementById("unlock-text").textContent = i18n.notificationUnlockDesc;
+    setElementText(unlockTemplate, "unlock-text", i18n.notificationUnlockDesc);
 
     // i18n for body content
     const closeButton = document.getElementById("close-button");
-    closeButton.title = i18n.close;
+    if (closeButton) {
+      closeButton.title = i18n.close;
+    }
 
     const notificationType = initData.type;
     if (notificationType === "add") {
@@ -171,13 +210,13 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
       handleTypeUnlock();
     }
 
-    closeButton.addEventListener("click", handleCloseNotification);
+    closeButton?.addEventListener("click", handleCloseNotification);
 
     globalThis.addEventListener("resize", adjustHeight);
     adjustHeight();
   }
   function handleEditOrUpdateAction(e: Event) {
-    const notificationType = initData.type;
+    const notificationType = initData?.type;
     e.preventDefault();
     notificationType === "add" ? sendSaveCipherMessage(true) : sendSaveCipherMessage(false);
   }
@@ -202,7 +241,7 @@ function handleTypeAdd() {
   setContent(document.getElementById("template-add") as HTMLTemplateElement);
 
   const addButton = document.getElementById("add-save");
-  addButton.addEventListener("click", (e) => {
+  addButton?.addEventListener("click", (e) => {
     e.preventDefault();
 
     // If Remove Individual Vault policy applies, "Add" opens the edit tab
@@ -215,14 +254,14 @@ function handleTypeAdd() {
   }
 
   const editButton = document.getElementById("add-edit");
-  editButton.addEventListener("click", (e) => {
+  editButton?.addEventListener("click", (e) => {
     e.preventDefault();
 
     sendSaveCipherMessage(true, getSelectedFolder());
   });
 
   const neverButton = document.getElementById("never-save");
-  neverButton.addEventListener("click", (e) => {
+  neverButton?.addEventListener("click", (e) => {
     e.preventDefault();
     sendPlatformMessage({
       command: "bgNeverSave",
@@ -235,14 +274,14 @@ function handleTypeAdd() {
 function handleTypeChange() {
   setContent(document.getElementById("template-change") as HTMLTemplateElement);
   const changeButton = document.getElementById("change-save");
-  changeButton.addEventListener("click", (e) => {
+  changeButton?.addEventListener("click", (e) => {
     e.preventDefault();
 
     sendSaveCipherMessage(false);
   });
 
   const editButton = document.getElementById("change-edit");
-  editButton.addEventListener("click", (e) => {
+  editButton?.addEventListener("click", (e) => {
     e.preventDefault();
 
     sendSaveCipherMessage(true);
@@ -264,7 +303,7 @@ function handleSaveCipherAttemptCompletedMessage(message: NotificationBarWindowM
     addSaveButtonContainers.forEach((element) => {
       element.textContent = chrome.i18n.getMessage("saveCipherAttemptFailed");
       element.classList.add("error-message");
-      notificationBarOuterWrapper.classList.add("error-event");
+      notificationBarOuterWrapper?.classList.add("error-event");
     });
 
     adjustHeight();
@@ -278,7 +317,7 @@ function handleSaveCipherAttemptCompletedMessage(message: NotificationBarWindowM
     element.textContent = chrome.i18n.getMessage(messageName);
     element.prepend(buildSvgDomElement(circleCheckIcon));
     element.classList.add("success-message");
-    notificationBarOuterWrapper.classList.add("success-event");
+    notificationBarOuterWrapper?.classList.add("success-event");
   });
   adjustHeight();
   globalThis.setTimeout(
@@ -299,7 +338,7 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
   const { theme, type } = notificationBarIframeInitData;
   const { error, username, cipherId } = message;
   const i18n = getI18n();
-  const resolvedTheme = getResolvedTheme(theme);
+  const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
 
   globalThis.setTimeout(() => sendPlatformMessage({ command: "bgCloseNotificationBar" }), 5000);
 
@@ -311,8 +350,8 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
       handleCloseNotification,
       i18n,
       error,
-      username,
-      handleOpenVault: (e) => openViewVaultItemPopout(e, cipherId),
+      username: username ?? i18n.typeLogin,
+      handleOpenVault: (e) => cipherId && openViewVaultItemPopout(e, cipherId),
     }),
     document.body,
   );
@@ -322,7 +361,7 @@ function handleTypeUnlock() {
   setContent(document.getElementById("template-unlock") as HTMLTemplateElement);
 
   const unlockButton = document.getElementById("unlock-vault");
-  unlockButton.addEventListener("click", (e) => {
+  unlockButton?.addEventListener("click", (e) => {
     sendPlatformMessage({
       command: "bgReopenUnlockPopout",
     });
@@ -331,12 +370,12 @@ function handleTypeUnlock() {
 
 function setContent(template: HTMLTemplateElement) {
   const content = document.getElementById("content");
-  while (content.firstChild) {
-    content.removeChild(content.firstChild);
+  while (content?.firstChild) {
+    content?.removeChild(content.firstChild);
   }
 
   const newElement = template.content.cloneNode(true) as HTMLElement;
-  content.appendChild(newElement);
+  content?.appendChild(newElement);
 }
 
 function sendPlatformMessage(
@@ -353,13 +392,17 @@ function sendPlatformMessage(
 function loadFolderSelector() {
   const populateFolderData = (folderData: FolderView[]) => {
     const select = document.getElementById("select-folder");
+    if (!select) {
+      return;
+    }
+
     if (!folderData?.length) {
-      select.appendChild(new Option(chrome.i18n.getMessage("noFoldersFound"), null, true));
+      select.appendChild(new Option(chrome.i18n.getMessage("noFoldersFound"), undefined, true));
       select.setAttribute("disabled", "true");
       return;
     }
 
-    select.appendChild(new Option(chrome.i18n.getMessage("selectFolder"), null, true));
+    select.appendChild(new Option(chrome.i18n.getMessage("selectFolder"), undefined, true));
     folderData.forEach((folder: FolderView) => {
       // Select "No Folder" (id=null) folder by default
       select.appendChild(new Option(folder.name, folder.id || "", false));
@@ -374,12 +417,16 @@ function getSelectedFolder(): string {
 }
 
 function removeIndividualVault(): boolean {
-  return notificationBarIframeInitData.removeIndividualVault;
+  return Boolean(notificationBarIframeInitData?.removeIndividualVault);
 }
 
 function adjustHeight() {
+  const body = document.querySelector("body");
+  if (!body) {
+    return;
+  }
   const data: AdjustNotificationBarMessageData = {
-    height: document.querySelector("body").scrollHeight,
+    height: body.scrollHeight,
   };
   sendPlatformMessage({
     command: "bgAdjustNotificationBar",

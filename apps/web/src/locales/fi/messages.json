@@ -117,7 +117,7 @@
     "message": "Riskialttiit jäsenet"
   },
   "atRiskMembersWithCount": {
-    "message": "At-risk members ($COUNT$)",
+    "message": "Vaarantuneet jäsenet ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -126,7 +126,7 @@
     }
   },
   "atRiskApplicationsWithCount": {
-    "message": "At-risk applications ($COUNT$)",
+    "message": "Vaarantuneet sovellukset ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -196,13 +196,13 @@
     "message": "Uusi salasana"
   },
   "passphrase": {
-    "message": "Salauslauseke"
+    "message": "Salauslause"
   },
   "notes": {
     "message": "Merkinnät"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Yksityinen muistiinpano"
   },
   "note": {
     "message": "Muistiinpano"
@@ -428,6 +428,9 @@
   "dragToSort": {
     "message": "Järjestele raahaamalla"
   },
+  "dragToReorder": {
+    "message": "Järjestä vetämällä"
+  },
   "cfTypeText": {
     "message": "Teksti"
   },
@@ -470,17 +473,30 @@
   "editFolder": {
     "message": "Muokkaa kansiota"
   },
+  "editWithName": {
+    "message": "Muokkaa $ITEM$: $NAME$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
-    "message": "New folder"
+    "message": "Uusi kansio"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "Kansion nimi"
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "deleteFolderPermanently": {
-    "message": "Are you sure you want to permanently delete this folder?"
+    "message": "Haluatko varmasti poistaa tämän kansion pysyvästi?"
   },
   "baseDomain": {
     "message": "Pääverkkotunnus",
@@ -1033,7 +1049,7 @@
     "message": "Ei"
   },
   "location": {
-    "message": "Location"
+    "message": "Sijainti"
   },
   "loginOrCreateNewAccount": {
     "message": "Käytä salattua holviasi kirjautumalla sisään tai luo uusi tili."
@@ -1177,7 +1193,7 @@
     "message": "Enter the code from your authenticator app"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Tunnistaudu painamalla YubiKeytäsi"
+    "message": "Tunnistaudu koskettamalla YubiKeytäsi"
   },
   "authenticationTimeout": {
     "message": "Todennuksen aikakatkaisu"
@@ -1186,16 +1202,16 @@
     "message": "Todennusistunto aikakatkaistiin. Ole hyvä ja aloita kirjautumisprosessi uudelleen."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Vahvista henkilöllisyytesi"
   },
   "weDontRecognizeThisDevice": {
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Jatka kirjautumista"
   },
   "whatIsADevice": {
-    "message": "What is a device?"
+    "message": "Mikä on laite?"
   },
   "aDeviceIs": {
     "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
@@ -1204,7 +1220,7 @@
     "message": "Kirjautuminen aloitettu"
   },
   "logInRequestSent": {
-    "message": "Request sent"
+    "message": "Pyyntö lähetetty"
   },
   "submit": {
     "message": "Jatka"
@@ -1269,12 +1285,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Syötä tilisi sähköpostiosoite, niin salasanavihjeesi lähetetään sinulle sähköpostitse"
-  },
-  "passwordHint": {
-    "message": "Salasanavihje"
-  },
-  "enterEmailToGetHint": {
-    "message": "Syötä tilisi sähköpostiosoite saadaksesi pääsalasanan vihjeen."
   },
   "getMasterPasswordHint": {
     "message": "Pyydä pääsalasanan vihjettä"
@@ -1420,10 +1430,10 @@
     "message": "web app"
   },
   "notificationSentDevicePart2": {
-    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+    "message": "Ennen hyväksyntää varmista, että tunnistelause vastaa alla olevaa lausetta."
   },
   "notificationSentDeviceComplete": {
-    "message": "Unlock Bitwarden on your device. Make sure the Fingerprint phrase matches the one below before approving."
+    "message": "Avaa Bitwarden laitteellasi. Ennen hyväksyntää varmista, että tunnistelause vastaa alla olevaa lausetta."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Laitteeseesi lähetettiin ilmoitus"
@@ -1462,7 +1472,7 @@
     "message": "Muista minut"
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "Älä kysy uudelleen tällä laitteella 30 päivään"
   },
   "sendVerificationCodeEmailAgain": {
     "message": "Lähetä todennuskoodi sähköpostitse uudelleen"
@@ -1471,14 +1481,14 @@
     "message": "Käytä vaihtoehtoista todennustapaa"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Valitse vaihtoehtoinen tapa",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "Käytä palautuskoodiasi"
   },
   "insertYubiKey": {
-    "message": "Kytke YubiKey-todennuslaitteesi tietokoneen USB-porttiin ja paina sen painiketta."
+    "message": "Kytke YubiKey-suojausavaimesi tietokoneen USB-porttiin ja kosketa sen painiketta."
   },
   "insertU2f": {
     "message": "Kytke suojausavaimesi tietokoneen USB-porttiin ja jos laitteessa on painike, paina sitä."
@@ -1496,10 +1506,10 @@
     "message": "Kaksivaiheisen kirjautumisen asetukset"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "Valitse todennustapa"
   },
   "recoveryCodeDesc": {
-    "message": "Etkö voi käyttää kaksivaiheisen kirjautumisen todentajiasi? Poista kaikki määritetyt todentajat käytöstä palautuskoodillasi."
+    "message": "Etkö voi käyttää kaksivaiheisen kirjautumisen todentajiasi? Poista kaikki tilillesi määritetyt todentajat käytöstä palautuskoodillasi."
   },
   "recoveryCodeTitle": {
     "message": "Palautuskoodi"
@@ -1515,7 +1525,7 @@
     "message": "Yubico OTP -suojausavain"
   },
   "yubiKeyDesc": {
-    "message": "Vahvista kirjatuminen YubiKey-todennuslaiteella. Toimii YubiKey 4 ja 5 -sarjojen sekä NEO -laitteiden kanssa."
+    "message": "Vahvista kirjatuminen YubiKey-suojausavaimella. Toimii YubiKey 4, 5 ja NEO -laitteiden kanssa."
   },
   "duoDescV2": {
     "message": "Syötä Duo Securityn luoma koodi.",
@@ -1529,7 +1539,7 @@
     "message": "Vahvista kirjautuminen FIDO U2F -suojausavaimella."
   },
   "u2fTitle": {
-    "message": "FIDO U2F ‑todennuslaite"
+    "message": "FIDO U2F ‑suojausavain"
   },
   "webAuthnTitle": {
     "message": "Pääsyavain"
@@ -1541,7 +1551,7 @@
     "message": "(siirretty FIDO:sta)"
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "Avaa uudessa välilehdessä"
   },
   "emailTitle": {
     "message": "Sähköposti"
@@ -1804,7 +1814,7 @@
     "message": "Vaihda sähköpostiosoite"
   },
   "changeEmailTwoFactorWarning": {
-    "message": "Jatkamalla tilisi sähköpostiosoite vaihtuu, muttei kaksivaiheiseen kirjautumiseen käytettävä osoite. Voit vaihtaa sen kaksivaiheisen kirjautumisen asetuksista."
+    "message": "Jos jatkat, tilisi sähköpostiosoite vaihtuu, muttei kaksivaiheiseen kirjautumiseen käytettävä osoite. Tämän osoitteen voit vaihtaa kaksivaiheisen kirjautumisen asetuksista."
   },
   "newEmail": {
     "message": "Uusi sähköpostiosoite"
@@ -1831,7 +1841,7 @@
     "message": "Kirjaudu sisään uudelleen."
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Nykyinen istunto"
   },
   "requestPending": {
     "message": "Request pending"
@@ -1907,10 +1917,10 @@
     "message": "Mitätöi kaikki istunnot"
   },
   "deauthorizeSessionsDesc": {
-    "message": "Oletko huolissasi, että tilisi on kirjautuneena muissa laitteissa? Jatka alla kirjataksesi ulos kaikki aiemmin käyttämäsi tietokoneet ja muut laitteet. Tämä suojaustoimenpide on suositeltava, jos olet aiemmin käyttänyt esimerkiksi julkista tietokonetta tai vahingossa tallentanut salasanasi laitteelle, joka ei ole sinun. Tämä mitätöi myös kaikki aiemmin muistetut kaksivaiheiset kirjautumiset."
+    "message": "Oletko huolissasi, että tilisi on kirjautuneena muila laitteilla? Alta voit kirjata ulos kaikki aiemmin käyttämäsi tietokoneet ja muut laitteet. Tämä suojaustoimenpide on suositeltava, jos olet aiemmin käyttänyt esimerkiksi julkista tietokonetta tai vahingossa tallentanut salasanasi laitteelle, joka ei ole sinun. Tämä mitätöi myös kaikki aiemmin muistetut kaksivaiheiset kirjautumiset."
   },
   "deauthorizeSessionsWarning": {
-    "message": "Jatkaminen uloskirjaa myös nykyisen istunnon pakottaen uudelleenkirjautumisen sekä kaksivaiheinen kirjautumisen, jos se on määritetty. Muiden laitteiden aktiiviset istunnot saattavat toimia vielä tunnin ajan."
+    "message": "Jatkaminen uloskirjaa myös nykyisen istunnon pakottaen uudelleenkirjautumisen sekä kaksivaiheinen kirjautumisen, jos määritetty. Muiden laitteiden aktiiviset istunnot saattavat toimia vielä tunnin ajan."
   },
   "newDeviceLoginProtection": {
     "message": "New device login"
@@ -1928,7 +1938,7 @@
     "message": "Proceed below to have bitwarden send you verification emails when you login from a new device."
   },
   "turnOffNewDeviceLoginProtectionWarning": {
-    "message": "With new device login protection turned off, anyone with your master password can access your account from any device. To protect your account without verification emails, set up two-step login."
+    "message": "Uuden laitteen sisäänkirjautumissuojan ollessa pois käytöstä kuka tahansa pääsalasanasi haltija voi käyttää tiliäsi millä tahansa laitteella. Suojaa tilsi ilman vahvistussähköposteja määrittämällä kaksivaiheinen kirjautuminen."
   },
   "accountNewDeviceLoginProtectionSaved": {
     "message": "New device login protection changes saved"
@@ -2172,7 +2182,7 @@
     "message": "Kaksivaiheinen kirjautuminen"
   },
   "twoStepLoginEnforcement": {
-    "message": "Kaksivaiheisen kirjautumisen pakotus"
+    "message": "Kaksivaiheisen kirjautumisen pakottaminen"
   },
   "twoStepLoginDesc": {
     "message": "Suojaa tilisi vaatimalla sisäänkirjautumiseen toinen todennusvaihe."
@@ -2181,7 +2191,7 @@
     "message": "Ota kaksivaiheinen kirjautuminen käyttöön organisaatiollesi."
   },
   "twoStepLoginEnterpriseDescStart": {
-    "message": "Pakota jäseniä määrittämään Bitwardenin kaksivaiheinen kirjautuminen käytännöllä: ",
+    "message": "Pakota jäsenet määrittämään Bitwardenin kaksivaiheinen kirjautuminen käytännöllä: ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
   "twoStepLoginPolicy": {
@@ -2194,10 +2204,10 @@
     "message": "Jos olet määrittänyt kertakirjautumisen tai aiot määrittää sen, on kaksivaiheinen kirjautuminen saatettu jo pakottaa identiteettitoimittajasi kautta."
   },
   "twoStepLoginRecoveryWarning": {
-    "message": "Kaksivaiheisen kirjautumisen käyttöönotto voi lukita sinut ulos Bitwarden-tililtäsi pysyvästi. Palautuskoodi mahdollistaa pääsyn tilillesi myös silloin, kun et voi käyttää normaaleja kaksivaiheisen kirjautumisen todentajiasi (esim. kadotat todennuslaitteesi tai se varastetaan). Bitwardenin asiakaspalvelukaan ei voi auttaa sinua, jos menetät pääsyn tillesi. Suosittelemme, että kirjoitat palautuskoodin muistiin tai tulostat sen ja säilytät sitä turvallisessa paikassa (esim. kassakaapissa tai pankin tallelokerossa)."
+    "message": "Kaksivaiheisen kirjautumisen käyttöönotto voi lukita sinut ulos Bitwarden-tililtäsi pysyvästi. Palautuskoodi mahdollistaa pääsyn tilillesi myös silloin, kun et voi käyttää normaaleja kaksivaiheisen tunnistautumisen vahvistustapoja (esim. kadotat suojausavaimesi tai se varastetaan). Bitwardenin asiakaspalvelukaan ei voi auttaa sinua, jos menetät pääsyn tillesi. Suosittelemme, että kirjoitat palautuskoodin muistiin tai tulostat sen ja säilytät turvallisessa paikassa (esim. kassakaapissa tai pankin tallelokerossa)."
   },
   "yourSingleUseRecoveryCode": {
-    "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
+    "message": "Kertakäyttöisellä palautuskoodillasi voit poistaa kaksivaiheisen kirjautumisen käytöstä, mikäli et voi käyttää kaksivaiheista todennustapaasi. Bitwarden suosittelee kirjoittamaan palautuskoodin ylös ja säilyttämään sen turvallisessa paikassa."
   },
   "viewRecoveryCode": {
     "message": "Näytä palautuskoodi"
@@ -2241,16 +2251,16 @@
     "message": "Manage collection"
   },
   "viewItems": {
-    "message": "View items"
+    "message": "Näytä kohteet"
   },
   "viewItemsHidePass": {
-    "message": "View items, hidden passwords"
+    "message": "Näytä kohteet, piilotetut salasanat"
   },
   "editItems": {
-    "message": "Edit items"
+    "message": "Muokkaa kohteita"
   },
   "editItemsHidePass": {
-    "message": "Edit items, hidden passwords"
+    "message": "Muokkaa kohteita, piilotettuja salasanoja"
   },
   "disable": {
     "message": "Poista käytöstä"
@@ -2307,7 +2317,7 @@
     "message": "Avain"
   },
   "twoStepAuthenticatorEnterCodeV2": {
-    "message": "Todennuskoodi"
+    "message": "Vahvistuskoodi"
   },
   "twoStepAuthenticatorReaddDesc": {
     "message": "Jos sinun on lisättävä tai siirrettävä todennus toiseen laitteeseen, löydät alta todennussovelluksesi tarvitseman QR-koodin (tai avaimen)."
@@ -2316,31 +2326,31 @@
     "message": "Haluatko varmasti poistaa tämän kaksivaiheisen kirjautumisen todentajan käytöstä?"
   },
   "twoStepDisabled": {
-    "message": "Kaksivaiheisen kirjautumisen todentaja on poistettu käytöstä."
+    "message": "Kaksivaiheisen kirjautumisen todentaja poistettiin käytöstä."
   },
   "twoFactorYubikeyAdd": {
-    "message": "Lisää tilillesi YubiKey-todennuslaite"
+    "message": "Lisää tilillesi uusi YubiKey-suojausavain"
   },
   "twoFactorYubikeyPlugIn": {
-    "message": "Kytke YubiKey-todennuslaitteesi tietokoneesi USB-porttiin."
+    "message": "Kytke YubiKey tietokoneesi USB-porttiin."
   },
   "twoFactorYubikeySelectKey": {
     "message": "Valitse alta ensimmäinen tyhjä YubiKey-syöttökenttä."
   },
   "twoFactorYubikeyTouchButton": {
-    "message": "Paina YubiKey-todennuslaitteen painiketta."
+    "message": "Kosketa YubiKeyn painiketta."
   },
   "twoFactorYubikeySaveForm": {
     "message": "Tallenna lomake."
   },
   "twoFactorYubikeyWarning": {
-    "message": "Alustakohtaisten rajoitusten vuoksi YubiKey-todennuslaiteet eivät ole käytettävissä kaikissa Bitwarden-sovelluksissa. Sinun tulisi määrittää eri kaksivaiheisen kirjautumisen todentaja, jotta pääset tilillesi myös silloin kun YubiKey-laitteen käyttö ei ole mahdollista. Tuetut alustat:"
+    "message": "Alustakohtaisten rajoitusten vuoksi YubiKey-avaimet eivät ole käytettävissä kaikissa Bitwarden-sovelluksissa ja sinun tulisi määrittää vaihtoehtoinen kaksivaiheisen tunnistautumisen vahvistustapa, jotta pääset tilillesi myös silloin kun YubiKey-avaimesi ei ole käytettävissä. Tuetut alustat:"
   },
   "twoFactorYubikeySupportUsb": {
-    "message": "Verkkoholvi, työpöytäsovellus, CLI ja kaikki selainlaajennukset laitteessa, jossa on YubiKey-todennuslaitteen käyttöön soveltuva USB-portti."
+    "message": "Verkkoholvi, työpöytäsovellus, CLI ja kaikki selainlaajennukset laitteessa, jossa on YubiKeyn käyttöön soveltuva USB-portti."
   },
   "twoFactorYubikeySupportMobile": {
-    "message": "Mobiilisovellukset laitteessa, jossa on NFC-ominaisuus tai YubiKey-todennuslaitteen kanssa yhteensopiva tietoliikenneportti."
+    "message": "Mobiilisovellukset laitteessa, jossa on NFC-ominaisuus tai YubiKey-yhteensopiva tiedonsiirtoliitäntä."
   },
   "yubikeyX": {
     "message": "YubiKey $INDEX$",
@@ -2361,7 +2371,7 @@
     }
   },
   "webAuthnkeyX": {
-    "message": "WebAuthn-todennuslaite $INDEX$",
+    "message": "WebAuthn-suojausavain $INDEX$",
     "placeholders": {
       "index": {
         "content": "$1",
@@ -2373,16 +2383,16 @@
     "message": "NFC-tuki"
   },
   "twoFactorYubikeySupportsNfc": {
-    "message": "Jokin laitteeni tukee NFC-tekniikkaa."
+    "message": "Minulla on NFC-tekniikkaa tukeva avain."
   },
   "twoFactorYubikeySupportsNfcDesc": {
-    "message": "Jos jokin YubiKey-todennuslaitteesi tukee NFC-tekniikkaa (kuten YubiKey NEO), näytetään mobiililaitteissa kehote NFC:n ollessa käytettävissä."
+    "message": "Jos jokin YubiKey-avaimesi tukee NFC-tekniikkaa (kuten YubiKey NEO), näytetään mobiililaitteissa kehote NFC:n ollessa käytettävissä."
   },
   "yubikeysUpdated": {
-    "message": "YubiKey-todennuslaitteet päivitettiin"
+    "message": "YubiKeyt päivitettiin"
   },
   "disableAllKeys": {
-    "message": "Poista kaikki todennuslaitteet käytöstä"
+    "message": "Poista kaikki avaimet käytöstä"
   },
   "twoFactorDuoDesc": {
     "message": "Syötä Bitwarden-sovelluksen tiedot Duo Security -tilisi hallintapaneelista."
@@ -2436,7 +2446,7 @@
     "message": "Tallenna lomake."
   },
   "twoFactorU2fWarning": {
-    "message": "Alustakohtaisten rajoitusten vuoksi FIDO U2F -todennuslaiteet eivät ole käytettävissä kaikissa Bitwarden-sovelluksissa. Sinun tulisi määrittää eri kaksivaiheisen kirjautumisen todentaja, jotta pääset tilillesi myös silloin kun FIDO U2F -laitteen käyttö ei ole mahdollista. Tuetut alustat:"
+    "message": "Alustakohtaisten rajoitusten vuoksi FIDO U2F -avaimet eivät ole käytettävissä kaikissa Bitwarden-sovelluksissa ja sinun tulisi määrittää vaihtoehtoinen kaksivaiheisen tunnistautumisen vahvistustapa, jotta pääset tilillesi myös silloin kun FIDO U2F -laitteesi ei ole käytettävissä. Tuetut alustat:"
   },
   "twoFactorU2fSupportWeb": {
     "message": "Verkkoholvi ja selainlaajennukset pöytäkoneissa/kannettavissa, joissa on U2F-tekniikkaa tukeva selain (Chrome, Opera, Vivaldi tai Firefox FIDO U2F käyttöön otettuna)."
@@ -2451,7 +2461,7 @@
     "message": "Suojausavainta luettaessa havaittiin ongelma. Yritä uudelleen."
   },
   "twoFactorWebAuthnWarning1": {
-    "message": "Due to platform limitations, WebAuthn cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when WebAuthn cannot be used."
+    "message": "Alustakohtaisten rajoitusten vuoksi WebAuthn-avaimet eivät ole käytettävissä kaikissa Bitwarden-sovelluksissa ja sinun tulisi määrittää vaihtoehtoinen kaksivaiheisen tunnistautumisen vahvistustapa, jotta pääset tilillesi myös silloin kun WebAuthn-laitteesi ei ole käytettävissä."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Bitwardenin kaksivaiheisen kirjautumisen palautuskoodisi"
@@ -2739,7 +2749,7 @@
     "message": "1 Gt salattua tallennustilaa tiedostoliitteille."
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "Omisteiset kaksivaiheisen kirjautumisen vaihtoehdot, kuten YubiKey ja Duo."
+    "message": "Kaksivaiheisen kirjautumisen erikoisvaihtoehdot, kuten YubiKey ja Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Varmuuskäyttö"
@@ -3526,7 +3536,7 @@
     "message": "Sisäänkirjautumisyritys epäonnistui väärän salasanan vuoksi."
   },
   "failedLogin2fa": {
-    "message": "Kirjautuminen epäonnistui virheellisen toisen vaiheen vahvistuksen vuoksi."
+    "message": "Kirjautuminen epäonnistui virheellisen todennuksen vuoksi."
   },
   "incorrectPassword": {
     "message": "Virheellinen salasana"
@@ -3950,19 +3960,19 @@
     }
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "Laitteen tyyppi"
   },
   "ipAddress": {
-    "message": "IP Address"
+    "message": "IP-osoite"
   },
   "confirmLogIn": {
-    "message": "Confirm login"
+    "message": "Vahvista kirjautuminen"
   },
   "denyLogIn": {
-    "message": "Deny login"
+    "message": "Hylkää kirjautuminen"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
+    "message": "Tämä pyyntö ei ole enää voimassa."
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Login confirmed for $EMAIL$ on $DEVICE$",
@@ -3981,7 +3991,7 @@
     "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "Kirjautumispyyntö on jo erääntynyt."
   },
   "justNow": {
     "message": "Juuri nyt"
@@ -4122,7 +4132,7 @@
     "message": "You have a pending login request from another device."
   },
   "reviewLoginRequest": {
-    "message": "Review login request"
+    "message": "Tarkastele kirjautumispyyntöä"
   },
   "freeTrialEndPromptCount": {
     "message": "Ilmainen kokeilujakso päättyy $COUNT$ päivän kuluttua.",
@@ -4171,7 +4181,7 @@
     "message": "Ilmainen kokeilujaksosi päättyy tänään."
   },
   "clickHereToAddPaymentMethod": {
-    "message": "Click here to add a payment method."
+    "message": "Klikkaa tästä lisätäksesi maksutavan."
   },
   "joinOrganization": {
     "message": "Liity organisaatioon"
@@ -4219,7 +4229,7 @@
     "message": "Jos et pääse tilillesi käyttämilläsi kaksivaiheisen kirjautumisen todentajilla, voit kaksivaiheisen kirjautumisen palautuskoodillasi poistaa kaikki tilillesi määritetyt todentajat käytöstä."
   },
   "logInBelowUsingYourSingleUseRecoveryCode": {
-    "message": "Log in below using your single-use recovery code. This will turn off all two-step providers on your account."
+    "message": "Kirjaudu kertakäyttöisellä palautuskoodillasi alla. Tämä poistaa tilisi kaikki kaksivaiheiset kirjautumistavat käytöstä."
   },
   "recoverAccountTwoStep": {
     "message": "Vapauta tili kaksivaiheisesta kirjautumisesta"
@@ -4530,6 +4540,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ moved down, position $INDEX$ of $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "Kansioidesi salausta ei voitu purkaa salausavaimesi päivityksen aikana. Jatkaaksesi päivitystä kansiosi on poistettava. Holvin kohteita ei poisteta, jos jatkat."
   },
@@ -4731,21 +4775,21 @@
     "message": "Holvissasi on vanhoja tiedostoliitteitä, jotka on korjattava ennen kuin voit uudistaa tilisi salausavaimen."
   },
   "yourAccountsFingerprint": {
-    "message": "Tilisi tunnistelauseke",
+    "message": "Tilisi tunnistelause",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "fingerprintEnsureIntegrityVerify": {
-    "message": "Varmistaaksesi salausavaintesi eheyden, vahvista käyttäjän tunnistelauseke ennen kuin jatkat.",
+    "message": "Varmistaaksesi salausavaintesi eheyden, vahvista käyttäjän tunnistelause ennen kuin jatkat.",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "fingerprintMatchInfo": {
-    "message": "Varmista, että vahvistavan laitteen holvi on avattu ja että se näyttää saman tunnistelausekkeen."
+    "message": "Varmista, että vahvistavan laitteen holvi on avattu ja että se näyttää saman tunnistelauseen."
   },
   "fingerprintPhraseHeader": {
-    "message": "Tunnistelauseke"
+    "message": "Tunnistelause"
   },
   "dontAskFingerprintAgain": {
-    "message": "Älä koskaan kehota vahvistamaan kutsuttujen käyttäjien tunnistelausekkeita (ei suositella)",
+    "message": "Älä koskaan kehota vahvistamaan kutsuttujen käyttäjien tunnistelauseita (ei suositella)",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
@@ -5108,11 +5152,11 @@
     }
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Sendin tiedot",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
-    "message": "Text to share"
+    "message": "Jaettava teksti"
   },
   "sendTypeFile": {
     "message": "Tiedosto"
@@ -5206,7 +5250,7 @@
     "message": "Odottaa poistoa"
   },
   "hideTextByDefault": {
-    "message": "Hide text by default"
+    "message": "Piilota teksti oletuksena"
   },
   "expired": {
     "message": "Erääntynyt"
@@ -5677,7 +5721,7 @@
     "message": "Tapahtui virhe tallennettaessa poisto- ja erääntymisajankohtia."
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "Piilota sähköpostiosoitteeni avaajilta."
   },
   "webAuthnFallbackMsg": {
     "message": "Vahvista kaksivaiheinen kirjautuminen (2FA) alla olevalla painikeella."
@@ -5686,7 +5730,7 @@
     "message": "WebAuthn-todennus"
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "Lue suojausavain"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Awaiting security key interaction..."
@@ -5905,7 +5949,7 @@
     "message": "Virhe"
   },
   "decryptionError": {
-    "message": "Decryption error"
+    "message": "Salauksen purkuvirhe"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden could not decrypt the vault item(s) listed below."
@@ -6810,7 +6854,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Käytä $RECOMMENDED$ tai useampaa sanaa vahvan salalauseen luomiseksi.",
+    "message": " Käytä vahvaan salalauseeseen ainakin $RECOMMENDED$ sanaa.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -6833,7 +6877,7 @@
     "message": "Käytä verkkotunnuksesi catch-all-postilaatikkoa."
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Käytä tätä sähköpostia"
   },
   "random": {
     "message": "Satunnainen",
@@ -7263,12 +7307,6 @@
   },
   "numberOfUsers": {
     "message": "Käyttäjien määrä"
-  },
-  "loggingInAs": {
-    "message": "Kirjaudutaan tunnuksella"
-  },
-  "notYou": {
-    "message": "Etkö se ollut sinä?"
   },
   "pickAnAvatarColor": {
     "message": "Valitse hahmon väri"
@@ -8393,9 +8431,6 @@
   "requestAdminApproval": {
     "message": "Pyydä hyväksyntää ylläpidolta"
   },
-  "approveWithMasterPassword": {
-    "message": "Hyväksy pääsalasanalla"
-  },
   "trustedDeviceEncryption": {
     "message": "Luotettu laitesalaus"
   },
@@ -8481,7 +8516,7 @@
     "message": "Aktivoi Salaisuushallinta"
   },
   "yourOrganizationsFingerprint": {
-    "message": "Organisaatiosi tunnistelauseke",
+    "message": "Organisaatiosi tunnistelause",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their organization's public key with another user, for the purposes of sharing."
   },
   "deviceApprovals": {
@@ -8506,13 +8541,13 @@
     "message": "Hyväksy pyyntö"
   },
   "deviceApproved": {
-    "message": "Device approved"
+    "message": "Laite hyväksyttiin"
   },
   "deviceRemoved": {
-    "message": "Device removed"
+    "message": "Laite poistettiin"
   },
   "removeDevice": {
-    "message": "Remove device"
+    "message": "Poista laite"
   },
   "removeDeviceConfirmation": {
     "message": "Are you sure you want to remove this device?"
@@ -8609,9 +8644,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Pyyntösi on välitetty ylläpidollesi."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Saat ilmoituksen kun se on hyväksytty."
   },
   "troubleLoggingIn": {
     "message": "Ongelmia kirjautumisessa?"
@@ -9338,8 +9370,17 @@
   "deviceManagementDesc": {
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
+  "deviceIdMissing": {
+    "message": "Device ID is missing"
+  },
+  "deviceTypeMissing": {
+    "message": "Device type is missing"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Laitteen luontipäivä puuttuu"
+  },
   "desktopRequired": {
-    "message": "Desktop required"
+    "message": "Työpöytä vaaditaan"
   },
   "reopenLinkOnDesktop": {
     "message": "Reopen this link from your email on a desktop."
@@ -9808,7 +9849,7 @@
     "message": "Lisätietoja holvisi hausta"
   },
   "learnMoreAboutYourAccountFingerprintPhrase": {
-    "message": "Lisätietoja tilisi tunnistelausekkeesta"
+    "message": "Lisätietoja tilisi tunnistelauseesta"
   },
   "impactOfRotatingYourEncryptionKey": {
     "message": "Salausavaimesi kierrätyksen vaikutus"
@@ -9838,13 +9879,13 @@
     "message": "Lisätietoja Bitwardenin API:sta"
   },
   "fileSend": {
-    "message": "File Send"
+    "message": "Tiedosto-Send"
   },
   "fileSends": {
     "message": "Tiedosto-Sendit"
   },
   "textSend": {
-    "message": "Text Send"
+    "message": "Teksti-Send"
   },
   "textSends": {
     "message": "Teksti-Sendit"
@@ -9940,13 +9981,13 @@
     "message": "Avainalgoritmi"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "Yksityinen avain"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "Julkinen avain"
   },
   "sshFingerprint": {
-    "message": "Fingerprint"
+    "message": "Sormenjälki"
   },
   "sshKeyFingerprint": {
     "message": "Sormenjälki"
@@ -10219,7 +10260,7 @@
     "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
   },
   "remindMeLater": {
-    "message": "Remind me later"
+    "message": "Muistuta myöhemmin"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
     "message": "Do you have reliable access to your email, $EMAIL$?",
@@ -10246,7 +10287,7 @@
     "message": "Poista jäsenet"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Laitteet"
   },
   "deviceListDescription": {
     "message": "Your account was logged in to each of the devices below. If you do not recognize a device, remove it now."
@@ -10285,7 +10326,7 @@
     "message": "Claimed"
   },
   "domainStatusUnderVerification": {
-    "message": "Under verification"
+    "message": "Vahvistettavana"
   },
   "claimedDomainsDesc": {
     "message": "Claim a domain to own all member accounts whose email address matches the domain. Members will be able to skip the SSO identifier when logging in. Administrators will also be able to delete member accounts."
@@ -10339,26 +10380,56 @@
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
   },
+  "sshKeyWrongPassword": {
+    "message": "Syöttämäsi salasana on virheellinen."
+  },
+  "importSshKey": {
+    "message": "Tuo"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Vahvista salasana"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Syötä SSH-avaimen salasana."
+  },
+  "enterSshKeyPassword": {
+    "message": "Syötä salasana"
+  },
+  "invalidSshKey": {
+    "message": "SSH-avain on virheellinen"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "SSH-avaintyyppiä ei ole tuettu"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Tuo avain leikepöydältä"
+  },
+  "sshKeyImported": {
+    "message": "SSH-avain on tuotu"
+  },
+  "copySSHPrivateKey": {
+    "message": "Kopioi yksityinen avain"
+  },
   "openingExtension": {
-    "message": "Opening the Bitwarden browser extension"
+    "message": "Avataan Bitwarden-selainlaajennusta"
   },
   "somethingWentWrong": {
-    "message": "Something went wrong..."
+    "message": "Jokin meni pieleen..."
   },
   "openingExtensionError": {
     "message": "We had trouble opening the Bitwarden browser extension. Click the button to open it now."
   },
   "openExtension": {
-    "message": "Open extension"
+    "message": "Avaa laajennus"
   },
   "doNotHaveExtension": {
-    "message": "Don't have the Bitwarden browser extension?"
+    "message": "Eikö sinulla ole Bitwarden-selainlaajennusta?"
   },
   "installExtension": {
-    "message": "Install extension"
+    "message": "Asenna laajennus"
   },
   "openedExtension": {
-    "message": "Opened the browser extension"
+    "message": "Avaa selainlaajennus"
   },
   "openedExtensionViewAtRiskPasswords": {
     "message": "Successfully opened the Bitwarden browser extension. You can now review your at-risk passwords."
@@ -10415,10 +10486,10 @@
     }
   },
   "restartOrganizationSubscription": {
-    "message": "Organization subscription restarted"
+    "message": "Organisaatiotilaus aloitettiin uudelleen"
   },
   "restartSubscription": {
-    "message": "Restart your subscription"
+    "message": "Aloita tilauksesi uudelleen"
   },
   "suspendedManagedOrgMessage": {
     "message": "Contact $PROVIDER$ for assistance.",
@@ -10436,7 +10507,7 @@
     "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
   },
   "deleteManagedUserWarning": {
-    "message": "Delete is a new action!"
+    "message": "Poisto on uusi toiminto!"
   },
   "seatsRemaining": {
     "message": "You have $REMAINING$ seats remaining out of $TOTAL$ seats assigned to this organization. Contact your provider to manage your subscription.",
@@ -10452,7 +10523,7 @@
     }
   },
   "existingOrganization": {
-    "message": "Existing organization"
+    "message": "Olemassa oleva organisaatio"
   },
   "selectOrganizationProviderPortal": {
     "message": "Select an organization to add to your Provider Portal."
@@ -10473,13 +10544,13 @@
     }
   },
   "addedExistingOrganization": {
-    "message": "Added existing organization"
+    "message": "Olemassa oleva organisaatio lisättiin"
   },
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "Vaihda vaarantunut salasana"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"
@@ -10504,5 +10575,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
+  },
+  "cannotCreateCollection": {
+    "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
   }
 }

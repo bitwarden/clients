@@ -111,7 +111,6 @@ import {
 } from "../../../vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 import { VaultFilter } from "../../../vault/individual-vault/vault-filter/shared/models/vault-filter.model";
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
-import { getNestedCollectionTree } from "../../../vault/utils/collection-utils";
 import { GroupApiService, GroupView } from "../core";
 import { openEntityEventsDialog } from "../manage/entity-events.component";
 import {
@@ -125,6 +124,7 @@ import {
   BulkCollectionsDialogResult,
 } from "./bulk-collections-dialog";
 import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
+import { getNestedCollectionTree } from "./utils";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 
