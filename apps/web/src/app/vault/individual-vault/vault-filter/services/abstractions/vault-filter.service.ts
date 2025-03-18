@@ -23,19 +23,19 @@ export abstract class VaultFilterService {
   folderTree$: Observable<TreeNode<FolderFilter>>;
   collectionTree$: Observable<TreeNode<CollectionFilter>>;
   cipherTypeTree$: Observable<TreeNode<CipherTypeFilter>>;
-  getCollectionNodeFromTree: (id: string) => Promise<TreeNode<CollectionFilter>>;
+  abstract getCollectionNodeFromTree: (id: string) => Promise<TreeNode<CollectionFilter>>;
   abstract setCollapsedFilterNodes: (
     collapsedFilterNodes: Set<string>,
     userId: UserId,
   ) => Promise<void>;
   abstract expandOrgFilter: (userId: UserId) => Promise<void>;
-  getOrganizationFilter: () => Observable<Organization>;
-  setOrganizationFilter: (organization: Organization) => void;
-  buildTypeTree: (
+  abstract getOrganizationFilter: () => Observable<Organization>;
+  abstract setOrganizationFilter: (organization: Organization) => void;
+  abstract buildTypeTree: (
     head: CipherTypeFilter,
     array: CipherTypeFilter[],
   ) => Observable<TreeNode<CipherTypeFilter>>;
   // TODO: Remove this from org vault when collection admin service adopts state management
-  reloadCollections?: (collections: CollectionAdminView[]) => void;
-  clearOrganizationFilter: () => void;
+  abstract reloadCollections?: (collections: CollectionAdminView[]) => void;
+  abstract clearOrganizationFilter: () => void;
 }
