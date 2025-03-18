@@ -228,7 +228,7 @@ export class VaultHeaderComponent implements OnInit {
         (org) => org.productTierType === ProductTierType.Free,
       );
 
-      if (this.organizations.length == 1 && !!organization) {
+      if (this.organizations?.length == 1 && !!organization) {
         const collections = await this.collectionAdminService.getAll(organization.id);
         if (collections.length === organization.maxCollections) {
           await this.showFreeOrgUpgradeDialog(organization);
