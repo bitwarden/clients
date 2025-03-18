@@ -1,5 +1,18 @@
 import { Primitive } from "type-fest";
 
+export type EcsEventType =
+  | "access"
+  | "admin"
+  | "allowed"
+  | "creation"
+  | "deletion"
+  | "denied"
+  | "end"
+  | "error"
+  | "info"
+  | "start"
+  | "user";
+
 /** Elastic Common Schema log format - core fields.
  */
 export interface EcsFormat {
@@ -18,18 +31,7 @@ export interface EcsFormat {
   event: {
     kind?: "alert" | "enrichment" | "event" | "metric" | "state";
     category?: "api" | "authentication" | "iam" | "process" | "session";
-    type?:
-      | "access"
-      | "admin"
-      | "allowed"
-      | "creation"
-      | "deletion"
-      | "denied"
-      | "end"
-      | "error"
-      | "info"
-      | "start"
-      | "user";
+    type?: EcsEventType;
     outcome?: "failure" | "success" | "unknown";
   };
 }

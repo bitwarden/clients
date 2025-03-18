@@ -6,7 +6,9 @@ import { firstValueFrom } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { UserEventLogProvider } from "@bitwarden/common/tools/log/logger";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -22,6 +24,7 @@ export class DefaultCipherFormService implements CipherFormService {
   private cipherService: CipherService = inject(CipherService);
   private accountService: AccountService = inject(AccountService);
   private apiService: ApiService = inject(ApiService);
+  private system = inject(UserEventLogProvider);
 
   async decryptCipher(cipher: Cipher): Promise<CipherView> {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -32,6 +35,7 @@ export class DefaultCipherFormService implements CipherFormService {
 
   async saveCipher(cipher: CipherView, config: CipherFormConfig): Promise<CipherView> {
     // Passing the original cipher is important here as it is responsible for appending to password history
+    const activeUser = await firstValueFrom(this.accountService.activeAccount$);
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const encryptedCipher = await this.cipherService.encrypt(
       cipher,
@@ -40,12 +44,22 @@ export class DefaultCipherFormService implements CipherFormService {
       null,
       config.originalCipher ?? null,
     );
+    const event = this.system.create(activeUser);
+    const labels = {
+      "vault-item-type": CipherType[cipher.type],
+      "vault-item-uri-quantity": cipher.type === CipherType.Login ? cipher.login.uris.length : null,
+    };
+    const tags = [
+      cipher.attachments.length > 0 ? "with-attachment" : null,
+      cipher.folderId ? "with-folder" : null,
+    ];
 
     let savedCipher: Cipher;
 
     // Creating a new cipher
     if (cipher.id == null) {
       savedCipher = await this.cipherService.createWithServer(encryptedCipher, config.admin);
+      event.creation({ action: "vault-item-added", labels, tags });
       return await savedCipher.decrypt(
         await this.cipherService.getKeyForCipherKeyDecryption(savedCipher, activeUserId),
       );
@@ -68,10 +82,15 @@ export class DefaultCipherFormService implements CipherFormService {
         cipher.collectionIds,
         activeUserId,
       );
+      event.info({ action: "vault-item-shared-with-organization", labels, tags });
+
       // If the collectionIds are the same, update the cipher normally
     } else if (isSetEqual(originalCollectionIds, newCollectionIds)) {
       savedCipher = await this.cipherService.updateWithServer(encryptedCipher, config.admin);
+      event.info({ action: "vault-item-updated", labels, tags });
     } else {
+      tags.push("collection");
+
       // Updating a cipher with collection changes is not supported with a single request currently
       // First update the cipher with the original collectionIds
       encryptedCipher.collectionIds = config.originalCipher.collectionIds;
@@ -92,12 +111,16 @@ export class DefaultCipherFormService implements CipherFormService {
           activeUserId,
         );
       }
+
+      event.deletion({ action: "vault-item-moved", labels, tags });
     }
 
     // Its possible the cipher was made no longer available due to collection assignment changes
     // e.g. The cipher was moved to a collection that the user no longer has access to
     if (savedCipher == null) {
       return null;
+    } else {
+      event.creation({ action: "vault-item-moved", labels, tags });
     }
 
     return await savedCipher.decrypt(

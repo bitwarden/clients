@@ -1,4 +1,4 @@
-export { EcsFormat } from "./core";
+export { EcsFormat, EcsEventType } from "./core";
 export { ErrorFormat } from "./error";
 export { EventFormat } from "./event";
 export { LogFormat } from "./log";
