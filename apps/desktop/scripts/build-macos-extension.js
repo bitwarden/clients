@@ -45,6 +45,19 @@ async function buildMacOs(context) {
     return;
   }
 
+  const ls = child.spawn("ls", ["-al", "/Users/runner/work/clients/clients/apps/desktop/desktop_native/macos_provider"]);
+  stdOutProc(ls);
+  await new Promise((resolve, reject) =>
+    ls.on("close", (code) => {
+      if (code > 0) {
+        console.error("ls failed with code", code);
+        return reject(new Error(`ls failed with code ${code}`));
+      }
+      console.log("ls success");
+      resolve();
+    }),
+  );
+
   const proc = child.spawn("xcodebuild", [
     "-project",
     paths.macOsProject,
