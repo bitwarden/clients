@@ -33,7 +33,7 @@ export class OptionSelection extends LitElement {
   handleSelectionUpdate?: (args: any) => void;
 
   @state()
-  private showOptions = false;
+  private showMenu = false;
 
   @state()
   private menuTopOffset: number = 0;
@@ -48,7 +48,7 @@ export class OptionSelection extends LitElement {
   private handleButtonClick = (event: Event) => {
     if (!this.disabled) {
       // Menu is about to be shown
-      if (!this.showOptions) {
+      if (!this.showMenu) {
         this.menuTopOffset = this.offsetTop;
 
         // Distance from right edge of button to left edge of the viewport
@@ -70,12 +70,12 @@ export class OptionSelection extends LitElement {
         this.menuIsEndJustified = distanceFromViewportRightEdge < maxDifferenceThreshold;
       }
 
-      this.showOptions = !this.showOptions;
+      this.showMenu = !this.showMenu;
     }
   };
 
   private handleOptionSelection = (selectedOption: Option) => {
-    this.showOptions = false;
+    this.showMenu = false;
     this.selection = selectedOption;
 
     // Any side-effects that should occur from the selection
@@ -94,14 +94,14 @@ export class OptionSelection extends LitElement {
     return html`
       <div class=${optionSelectionStyles({ menuIsEndJustified: this.menuIsEndJustified })}>
         ${OptionSelectionButton({
+          disabled: this.disabled,
           icon: this.selection?.icon,
-          isDisabled: this.disabled,
-          isOpen: this.showOptions,
           text: this.selection?.text,
           theme: this.theme,
+          toggledOn: this.showMenu,
           handleButtonClick: this.handleButtonClick,
         })}
-        ${this.showOptions
+        ${this.showMenu
           ? OptionItems({
               label: this.label,
               options: this.options,

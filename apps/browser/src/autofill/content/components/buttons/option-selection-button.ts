@@ -8,20 +8,20 @@ import { border, spacing, themes, typography } from "../constants/styles";
 import { AngleUp, AngleDown } from "../icons";
 
 export type OptionSelectionButtonProps = {
+  disabled: boolean;
   icon?: Option["icon"];
-  isDisabled: boolean;
-  isOpen: boolean;
   text?: string;
   theme: Theme;
+  toggledOn: boolean;
   handleButtonClick: (e: Event) => void;
 };
 
 export function OptionSelectionButton({
+  disabled,
   icon,
-  isDisabled,
-  isOpen,
   text,
   theme,
+  toggledOn,
   handleButtonClick,
 }: OptionSelectionButtonProps) {
   const selectedOptionIconProps: IconProps = { color: themes[theme].text.muted, theme };
@@ -30,14 +30,14 @@ export function OptionSelectionButton({
 
   return html`
     <button
-      class=${selectionButtonStyles({ isDisabled, isOpen, theme })}
+      class=${selectionButtonStyles({ disabled, toggledOn, theme })}
       title=${text}
       type="button"
       @click=${handleButtonClick}
     >
       ${buttonIcon ?? nothing}
       ${text ? html`<span class=${dropdownButtonTextStyles}>${text}</span>` : nothing}
-      ${isOpen
+      ${toggledOn
         ? AngleUp({ color: themes[theme].text.muted, theme })
         : AngleDown({ color: themes[theme].text.muted, theme })}
     </button>
@@ -47,12 +47,12 @@ export function OptionSelectionButton({
 const iconSize = "15px";
 
 const selectionButtonStyles = ({
-  isDisabled,
-  isOpen,
+  disabled,
+  toggledOn,
   theme,
 }: {
-  isDisabled: boolean;
-  isOpen: boolean;
+  disabled: boolean;
+  toggledOn: boolean;
   theme: Theme;
 }) => css`
   ${typography.body2}
@@ -73,7 +73,7 @@ const selectionButtonStyles = ({
   text-overflow: ellipsis;
   font-weight: 400;
 
-  ${isDisabled
+  ${disabled
     ? `
       border: 1px solid ${themes[theme].secondary["300"]};
       background-color: ${themes[theme].secondary["300"]};
@@ -82,7 +82,7 @@ const selectionButtonStyles = ({
     `
     : `
       border: 1px solid ${themes[theme].text.muted};
-      background-color: ${isOpen ? themes[theme].secondary["100"] : "transparent"};
+      background-color: ${toggledOn ? themes[theme].secondary["100"] : "transparent"};
       cursor: pointer;
       color: ${themes[theme].text.muted};
 
