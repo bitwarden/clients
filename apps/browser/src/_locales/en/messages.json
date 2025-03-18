@@ -544,6 +544,9 @@
   "searchVault": {
     "message": "Search vault"
   },
+  "archive": {
+    "message": "Archive"
+  },
   "edit": {
     "message": "Edit"
   },
