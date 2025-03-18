@@ -21,8 +21,8 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
+import { Argon2KdfConfig, KdfType } from "@bitwarden/key-management";
 
-import { KdfType, Argon2KdfConfig } from "../../../../key-management/src";
 import { PasswordHashLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
 
@@ -163,7 +163,7 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
       FeatureFlag.OpaqueKeyExchange,
     );
     if (opaqueKeyExchangeFeatureFlagEnabled) {
-      // Register the user for opaque password authentication
+      // Register the user for opaque password key exchange
       await this.registerUserForOpaqueKeyExchange(authResult.userId);
     }
 
