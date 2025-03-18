@@ -25,25 +25,31 @@ export class DefaultOpaqueKeyExchangeService implements OpaqueKeyExchangeService
   async register(
     masterPassword: string,
     userKey: UserKey,
-    ksfParameters: Argon2IdParameters, // TODO: eval if we can use KdfConfig existing type
+    keyStretchingFuncArgon2Params: Argon2IdParameters, // TODO: eval if we can use KdfConfig existing type
   ): Promise<OpaqueSessionId> {
-    const config = new CipherConfiguration(ksfParameters);
+    if (!masterPassword || !userKey || !keyStretchingFuncArgon2Params) {
+      throw new Error(
+        `Unable to register user with missing parameters. masterPassword exists: ${!!masterPassword}, userKey exists: ${!!userKey}, keyStretchingFuncArgon2Params exists: ${!!keyStretchingFuncArgon2Params}`,
+      );
+    }
+
+    const cipherConfig = new CipherConfiguration(keyStretchingFuncArgon2Params);
     const cryptoClient = (await firstValueFrom(this.sdkService.client$)).crypto();
 
     const registrationStart = cryptoClient.opaque_register_start(
       masterPassword,
-      config.toSdkConfig(),
+      cipherConfig.toSdkConfig(),
     );
     const registrationStartResponse = await this.opaqueKeyExchangeApiService.registrationStart(
       new RegistrationStartRequest(
         Utils.fromBufferToB64(registrationStart.registration_request),
-        config,
+        cipherConfig,
       ),
     );
 
     const registrationFinish = cryptoClient.opaque_register_finish(
       masterPassword,
-      config.toSdkConfig(),
+      cipherConfig.toSdkConfig(),
       Utils.fromB64ToArray(registrationStartResponse.registrationResponse),
       registrationStart.state,
     );
@@ -75,19 +81,25 @@ export class DefaultOpaqueKeyExchangeService implements OpaqueKeyExchangeService
   async login(
     email: string,
     masterPassword: string,
-    ksfConfig: Argon2IdParameters,
+    keyStretchingFuncArgon2Params: Argon2IdParameters,
   ): Promise<Uint8Array> {
-    const config = new CipherConfiguration(ksfConfig);
+    if (!email || !masterPassword || !keyStretchingFuncArgon2Params) {
+      throw new Error(
+        `Unable to log in user with missing parameters. email exists: ${!!email}; masterPassword exists: ${!!masterPassword}; keyStretchingFuncArgon2Params exists: ${!!keyStretchingFuncArgon2Params}`,
+      );
+    }
+
+    const cipherConfig = new CipherConfiguration(keyStretchingFuncArgon2Params);
     const cryptoClient = (await firstValueFrom(this.sdkService.client$)).crypto();
 
-    const loginStart = cryptoClient.opaque_login_start(masterPassword, config.toSdkConfig());
+    const loginStart = cryptoClient.opaque_login_start(masterPassword, cipherConfig.toSdkConfig());
     const loginStartResponse = await this.opaqueKeyExchangeApiService.loginStart(
       new LoginStartRequest(email, Utils.fromBufferToB64(loginStart.credential_request)),
     );
 
     const loginFinish = cryptoClient.opaque_login_finish(
       masterPassword,
-      config.toSdkConfig(),
+      cipherConfig.toSdkConfig(),
       Utils.fromB64ToArray(loginStartResponse.credentialResponse),
       loginStart.state,
     );
