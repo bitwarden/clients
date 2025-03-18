@@ -22,6 +22,7 @@ import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/pass
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 
+import { KdfType , Argon2KdfConfig } from "../../../../key-management/src";
 import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { PasswordHashLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
@@ -164,7 +165,7 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
       );
       if (opaqueKeyExchangeFeatureFlagEnabled) {
         // Register the user for opaque password authentication
-        await this.registerUserForOpaqueKeyExchange();
+        await this.registerUserForOpaqueKeyExchange(authResult.userId);
       }
     }
 
@@ -277,17 +278,20 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
     return authResult;
   }
 
+  // TODO: could/should this be better encapsulated - we likely want to register the user in multiple locations
   /**
    * Registers password using users with the OPAQUE key exchange protocol which is a more secure password
    * authN protocol which prevents the server from ever knowing anything about the user's password.
    */
-  private async registerUserForOpaqueKeyExchange() {
-    // mp comes from this.cache.value.masterPassword
-    // userKey comes from await this.keyService.getInMemoryUserKeyFor$(userId);
-    // Per product, if a user uses argon2 already, then use their argon2 parameters with no change required
-    // If a user uses PBKDF2, then we have to use Argon2 with client side defaults (make new Argon2KdfConfig);
-    // The iterations on the default argon2 config have to be the greater of the defaults or the user's PBKDF2 iterations
-    // this.KdfConfigService.getKdfConfig()
-    // await this.opaqueKeyExchangeService.register()
+  private async registerUserForOpaqueKeyExchange(userId: UserId) {
+    const cache = await firstValueFrom(this.cache);
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+
+    // PBKDF2 is not recommended for opaque, so force use of Argon2 with default params if the user is using PBKDF2.
+    const userConfiguredKdf = await this.kdfConfigService.getKdfConfig();
+    const opaqueKdf =
+      userConfiguredKdf.kdfType === KdfType.Argon2id ? userConfiguredKdf : new Argon2KdfConfig();
+
+    await this.opaqueKeyExchangeService.register(cache.masterPassword, userKey, opaqueKdf);
   }
 }

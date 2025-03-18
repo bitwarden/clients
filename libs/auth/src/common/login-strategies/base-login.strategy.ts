@@ -96,7 +96,7 @@ export abstract class BaseLoginStrategy {
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
     protected vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-    protected KdfConfigService: KdfConfigService,
+    protected kdfConfigService: KdfConfigService,
     protected environmentService: EnvironmentService,
   ) {}
 
@@ -244,7 +244,7 @@ export abstract class BaseLoginStrategy {
       tokenResponse.refreshToken, // Note: CLI login via API key sends undefined for refresh token.
     );
 
-    await this.KdfConfigService.setKdfConfig(
+    await this.kdfConfigService.setKdfConfig(
       userId as UserId,
       tokenResponse.kdf === KdfType.PBKDF2_SHA256
         ? new PBKDF2KdfConfig(tokenResponse.kdfIterations)
