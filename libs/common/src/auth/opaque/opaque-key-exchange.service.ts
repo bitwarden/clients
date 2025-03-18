@@ -4,7 +4,7 @@ import { UserKey } from "../../types/key";
 
 import { Argon2IdParameters } from "./models/cipher-configuration";
 
-export abstract class OpaqueService {
+export abstract class OpaqueKeyExchangeService {
   /**
    * Register a user to use the Opaque login method.
    */

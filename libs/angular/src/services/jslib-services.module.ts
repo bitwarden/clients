@@ -99,9 +99,9 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-api.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
-import { DefaultOpaqueService } from "@bitwarden/common/auth/opaque/default-opaque.service";
-import { OpaqueApiService } from "@bitwarden/common/auth/opaque/opaque-api.service";
-import { OpaqueService } from "@bitwarden/common/auth/opaque/opaque.service";
+import { DefaultOpaqueKeyExchangeService } from "@bitwarden/common/auth/opaque/default-opaque-key-exchange.service";
+import { OpaqueKeyExchangeApiService } from "@bitwarden/common/auth/opaque/opaque-key-exchange-api.service";
+import { OpaqueKeyExchangeService } from "@bitwarden/common/auth/opaque/opaque-key-exchange.service";
 import { AccountApiServiceImplementation } from "@bitwarden/common/auth/services/account-api.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AnonymousHubService } from "@bitwarden/common/auth/services/anonymous-hub.service";
@@ -1502,13 +1502,13 @@ const safeProviders: SafeProvider[] = [
     deps: [ApiServiceAbstraction, EnvironmentService],
   }),
   safeProvider({
-    provide: OpaqueApiService,
+    provide: OpaqueKeyExchangeApiService,
     deps: [ApiServiceAbstraction, EnvironmentService],
   }),
   safeProvider({
-    provide: OpaqueService,
-    useClass: DefaultOpaqueService,
-    deps: [OpaqueApiService, SdkService],
+    provide: OpaqueKeyExchangeService,
+    useClass: DefaultOpaqueKeyExchangeService,
+    deps: [OpaqueKeyExchangeApiService, SdkService],
   }),
   safeProvider({
     provide: MasterPasswordApiServiceAbstraction,

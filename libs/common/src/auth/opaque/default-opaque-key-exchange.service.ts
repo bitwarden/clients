@@ -13,13 +13,12 @@ import { LoginFinishRequest } from "./models/login-finish.request";
 import { LoginStartRequest } from "./models/login-start.request";
 import { RegistrationFinishRequest } from "./models/registration-finish.request";
 import { RegistrationStartRequest } from "./models/registration-start.request";
-import { OpaqueApiService } from "./opaque-api.service";
-import { OpaqueService } from "./opaque.service";
+import { OpaqueKeyExchangeApiService } from "./opaque-key-exchange-api.service";
+import { OpaqueKeyExchangeService } from "./opaque-key-exchange.service";
 
-// TODO: add KeyExchange suffix
-export class DefaultOpaqueService implements OpaqueService {
+export class DefaultOpaqueKeyExchangeService implements OpaqueKeyExchangeService {
   constructor(
-    private opaqueApiService: OpaqueApiService,
+    private opaqueKeyExchangeApiService: OpaqueKeyExchangeApiService,
     private sdkService: SdkService,
   ) {}
 
@@ -35,7 +34,7 @@ export class DefaultOpaqueService implements OpaqueService {
       masterPassword,
       config.toSdkConfig(),
     );
-    const registrationStartResponse = await this.opaqueApiService.registrationStart(
+    const registrationStartResponse = await this.opaqueKeyExchangeApiService.registrationStart(
       new RegistrationStartRequest(
         Utils.fromBufferToB64(registrationStart.registration_request),
         config,
@@ -59,7 +58,7 @@ export class DefaultOpaqueService implements OpaqueService {
       new EncString(sdkKeyset.private_key),
     );
 
-    await this.opaqueApiService.registrationFinish(
+    await this.opaqueKeyExchangeApiService.registrationFinish(
       new RegistrationFinishRequest(
         registrationStartResponse.sessionId,
         Utils.fromBufferToB64(registrationFinish.registration_upload),
@@ -82,7 +81,7 @@ export class DefaultOpaqueService implements OpaqueService {
     const cryptoClient = (await firstValueFrom(this.sdkService.client$)).crypto();
 
     const loginStart = cryptoClient.opaque_login_start(masterPassword, config.toSdkConfig());
-    const loginStartResponse = await this.opaqueApiService.loginStart(
+    const loginStartResponse = await this.opaqueKeyExchangeApiService.loginStart(
       new LoginStartRequest(email, Utils.fromBufferToB64(loginStart.credential_request)),
     );
 
@@ -93,7 +92,7 @@ export class DefaultOpaqueService implements OpaqueService {
       loginStart.state,
     );
 
-    const success = await this.opaqueApiService.loginFinish(
+    const success = await this.opaqueKeyExchangeApiService.loginFinish(
       new LoginFinishRequest(
         loginStartResponse.sessionId,
         Utils.fromBufferToB64(loginFinish.credential_finalization),

@@ -11,7 +11,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
-import { OpaqueService } from "@bitwarden/common/auth/opaque/opaque.service";
+import { OpaqueKeyExchangeService } from "@bitwarden/common/auth/opaque/opaque-key-exchange.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -60,7 +60,7 @@ export class ChangePasswordComponent
     masterPasswordService: InternalMasterPasswordServiceAbstraction,
     accountService: AccountService,
     toastService: ToastService,
-    private opaqueService: OpaqueService,
+    private opaqueKeyExchangeService: OpaqueKeyExchangeService,
   ) {
     super(
       i18nService,
@@ -222,17 +222,21 @@ export class ChangePasswordComponent
           return this.updateKey();
         });
       } else {
-        const sessionId = await this.opaqueService.register(this.masterPassword, newUserKey[0], {
-          memory: 256 * 1024,
-          iterations: 3,
-          parallelism: 4,
-        });
+        const sessionId = await this.opaqueKeyExchangeService.register(
+          this.masterPassword,
+          newUserKey[0],
+          {
+            memory: 256 * 1024,
+            iterations: 3,
+            parallelism: 4,
+          },
+        );
         request.opaqueSessionId = sessionId;
         this.formPromise = this.masterPasswordApiService.postPassword(request);
       }
 
       // TODO: remove this test code
-      await this.opaqueService.register(this.masterPassword, newUserKey[0], {
+      await this.opaqueKeyExchangeService.register(this.masterPassword, newUserKey[0], {
         algorithm: "argon2id",
         parameters: { memory: 256 * 1024, iterations: 3, parallelism: 4 },
       });

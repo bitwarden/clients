@@ -11,7 +11,7 @@ import { RegistrationFinishResponse } from "./models/registration-finish.respons
 import { RegistrationStartRequest } from "./models/registration-start.request";
 import { RegistrationStartResponse } from "./models/registration-start.response";
 
-export class OpaqueApiService {
+export class OpaqueKeyExchangeApiService {
   constructor(
     private apiService: ApiService,
     private environmentService: EnvironmentService,
