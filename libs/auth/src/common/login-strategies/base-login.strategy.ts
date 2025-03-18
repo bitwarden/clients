@@ -35,12 +35,14 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Account, AccountProfile } from "@bitwarden/common/platform/models/domain/account";
 import { UserId } from "@bitwarden/common/types/guid";
+import { MasterKey } from "@bitwarden/common/types/key";
 import {
   KeyService,
   Argon2KdfConfig,
   PBKDF2KdfConfig,
   KdfConfigService,
   KdfType,
+  KdfConfig,
 } from "@bitwarden/key-management";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
@@ -411,5 +413,24 @@ export abstract class BaseLoginStrategy {
     // Extend cached data with captcha bypass token if it came back.
     this.cache.next({ ...this.cache.value, captchaBypassToken: response.captchaToken ?? null });
     return result;
+  }
+
+  /**
+   * Creates a master key from the provided master password and email, using the provided kdfConfig.
+   */
+  protected async makePrePasswordLoginMasterKey(
+    masterPassword: string,
+    email: string,
+    kdfConfig: KdfConfig,
+  ): Promise<MasterKey> {
+    email = email.trim().toLowerCase();
+
+    if (!kdfConfig) {
+      throw new Error("KDF config is required");
+    }
+
+    kdfConfig.validateKdfConfigForPreLogin();
+
+    return this.keyService.makeMasterKey(masterPassword, email, kdfConfig);
   }
 }

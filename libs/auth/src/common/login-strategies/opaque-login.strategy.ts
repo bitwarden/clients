@@ -21,7 +21,6 @@ import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/pass
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 
-import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { OpaqueLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
 
@@ -77,7 +76,6 @@ export class OpaqueLoginStrategy extends BaseLoginStrategy {
     data: OpaqueLoginStrategyData,
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private policyService: PolicyService,
-    private loginStrategyService: LoginStrategyServiceAbstraction,
     ...sharedDeps: ConstructorParameters<typeof BaseLoginStrategy>
   ) {
     super(...sharedDeps);
@@ -97,11 +95,7 @@ export class OpaqueLoginStrategy extends BaseLoginStrategy {
 
     // Even though we are completing OPAQUE authN and not logging in with password hash,
     // we still need to hash the master password for logged in user verification scenarios.
-    data.masterKey = await this.loginStrategyService.makePrePasswordLoginMasterKey(
-      masterPassword,
-      email,
-      kdfConfig,
-    );
+    data.masterKey = await this.makePrePasswordLoginMasterKey(masterPassword, email, kdfConfig);
 
     // Hash the password early (before authentication) so we don't persist it in memory in plaintext
     data.localMasterKeyHash = await this.keyService.hashMasterKey(

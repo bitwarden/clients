@@ -5,8 +5,6 @@ import { Observable } from "rxjs";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
-import { MasterKey } from "@bitwarden/common/types/key";
-import { KdfConfig } from "@bitwarden/key-management";
 
 import {
   UserApiLoginCredentials,
@@ -70,15 +68,6 @@ export abstract class LoginStrategyServiceAbstraction {
     // TODO: PM-15162 - deprecate captchaResponse
     captchaResponse: string,
   ) => Promise<AuthResult>;
-
-  /**
-   * Creates a master key from the provided master password and email, using the provided kdfConfig.
-   */
-  makePrePasswordLoginMasterKey: (
-    masterPassword: string,
-    email: string,
-    kdfConfig: KdfConfig,
-  ) => Promise<MasterKey>;
   /**
    * Emits true if the authentication session has expired.
    */

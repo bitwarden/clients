@@ -34,11 +34,10 @@ import {
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
-import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
-import { PasswordLoginCredentials } from "../models/domain/login-credentials";
+import { PasswordHashLoginCredentials } from "../models/domain/login-credentials";
 
 import { identityTokenResponseFactory } from "./base-login.strategy.spec";
 import { PasswordLoginStrategy, PasswordLoginStrategyData } from "./password-login.strategy";
@@ -64,7 +63,6 @@ describe("PasswordLoginStrategy", () => {
   let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
 
-  let loginStrategyService: MockProxy<LoginStrategyServiceAbstraction>;
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let apiService: MockProxy<ApiService>;
@@ -84,14 +82,13 @@ describe("PasswordLoginStrategy", () => {
   let environmentService: MockProxy<EnvironmentService>;
 
   let passwordLoginStrategy: PasswordLoginStrategy;
-  let credentials: PasswordLoginCredentials;
+  let credentials: PasswordHashLoginCredentials;
   let tokenResponse: IdentityTokenResponse;
 
   beforeEach(async () => {
     accountService = mockAccountServiceWith(userId);
     masterPasswordService = new FakeMasterPasswordService();
 
-    loginStrategyService = mock<LoginStrategyServiceAbstraction>();
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     apiService = mock<ApiService>();
@@ -115,8 +112,9 @@ describe("PasswordLoginStrategy", () => {
       sub: userId,
     });
 
-    loginStrategyService.makePrePasswordLoginMasterKey.mockResolvedValue(masterKey);
-
+    keyService.makeMasterKey
+      .calledWith(masterPassword, email, expect.any(PBKDF2KdfConfig))
+      .mockResolvedValue(masterKey);
     keyService.hashMasterKey
       .calledWith(masterPassword, expect.anything(), undefined)
       .mockResolvedValue(hashedPassword);
@@ -130,7 +128,6 @@ describe("PasswordLoginStrategy", () => {
       cache,
       passwordStrengthService,
       policyService,
-      loginStrategyService,
       accountService,
       masterPasswordService,
       keyService,
@@ -149,7 +146,7 @@ describe("PasswordLoginStrategy", () => {
       kdfConfigService,
       environmentService,
     );
-    credentials = new PasswordLoginCredentials(email, masterPassword);
+    credentials = new PasswordHashLoginCredentials(email, masterPassword, new PBKDF2KdfConfig());
     tokenResponse = identityTokenResponseFactory(masterPasswordPolicy);
 
     apiService.postIdentityToken.mockResolvedValue(tokenResponse);
