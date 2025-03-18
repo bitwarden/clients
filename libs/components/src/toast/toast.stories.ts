@@ -33,7 +33,7 @@ export default {
 
   decorators: [
     moduleMetadata({
-      imports: [CommonModule, BrowserAnimationsModule, ButtonModule],
+      imports: [CommonModule, BrowserAnimationsModule, ButtonModule, ToastModule],
       declarations: [ToastServiceExampleComponent],
     }),
     applicationConfig({
@@ -47,6 +47,7 @@ export default {
               success: "Success",
               error: "Error",
               warning: "Warning",
+              info: "Info",
             });
           },
         },
@@ -103,7 +104,9 @@ export const Service: Story = {
     props: {
       toastOptions: args,
     },
-    template: `
+    template: /*html*/ `
+      <!-- Toast container is used here to more closely align with how toasts are used in the clients, which allows for more accurate SR testing in storybook -->
+      <bit-toast-container></bit-toast-container>
       <toast-service-example [toastOptions]="toastOptions"></toast-service-example>
     `,
   }),

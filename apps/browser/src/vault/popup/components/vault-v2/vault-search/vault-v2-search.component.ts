@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -20,7 +18,7 @@ const SearchTextDebounceInterval = 200;
   templateUrl: "vault-v2-search.component.html",
 })
 export class VaultV2SearchComponent {
-  searchText: string;
+  searchText: string = "";
 
   private searchText$ = new Subject<string>();
 
@@ -30,11 +28,11 @@ export class VaultV2SearchComponent {
   }
 
   onSearchTextChanged() {
-    this.searchText$.next(this.searchText);
+    this.vaultPopupItemsService.applyFilter(this.searchText);
   }
 
   subscribeToLatestSearchText(): Subscription {
-    return this.vaultPopupItemsService.latestSearchText$
+    return this.vaultPopupItemsService.searchText$
       .pipe(
         takeUntilDestroyed(),
         filter((data) => !!data),

@@ -15,7 +15,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -41,7 +40,7 @@ import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { generate_ssh_key } from "@bitwarden/sdk-internal";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { PasswordRepromptService, SshImportPromptService } from "@bitwarden/vault";
 
 @Directive()
 export class AddEditComponent implements OnInit, OnDestroy {
@@ -131,7 +130,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected configService: ConfigService,
     protected cipherAuthorizationService: CipherAuthorizationService,
     protected toastService: ToastService,
-    private sdkService: SdkService,
+    protected sdkService: SdkService,
+    private sshImportPromptService: SshImportPromptService,
   ) {
     this.typeOptions = [
       { name: i18nService.t("typeLogin"), value: CipherType.Login },
@@ -207,10 +207,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     this.writeableCollections = await this.loadCollections();
     this.canUseReprompt = await this.passwordRepromptService.enabled();
 
-    const sshKeysEnabled = await this.configService.getFeatureFlag(FeatureFlag.SSHKeyVaultItem);
-    if (sshKeysEnabled) {
-      this.typeOptions.push({ name: this.i18nService.t("typeSshKey"), value: CipherType.SshKey });
-    }
+    this.typeOptions.push({ name: this.i18nService.t("typeSshKey"), value: CipherType.SshKey });
   }
 
   ngOnDestroy() {
@@ -824,12 +821,21 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return true;
   }
 
+  async importSshKeyFromClipboard() {
+    const key = await this.sshImportPromptService.importSshKeyFromClipboard();
+    if (key != null) {
+      this.cipher.sshKey.privateKey = key.privateKey;
+      this.cipher.sshKey.publicKey = key.publicKey;
+      this.cipher.sshKey.keyFingerprint = key.keyFingerprint;
+    }
+  }
+
   private async generateSshKey(showNotification: boolean = true) {
     await firstValueFrom(this.sdkService.client$);
     const sshKey = generate_ssh_key("Ed25519");
-    this.cipher.sshKey.privateKey = sshKey.private_key;
-    this.cipher.sshKey.publicKey = sshKey.public_key;
-    this.cipher.sshKey.keyFingerprint = sshKey.key_fingerprint;
+    this.cipher.sshKey.privateKey = sshKey.privateKey;
+    this.cipher.sshKey.publicKey = sshKey.publicKey;
+    this.cipher.sshKey.keyFingerprint = sshKey.fingerprint;
 
     if (showNotification) {
       this.toastService.showToast({

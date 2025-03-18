@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { Component, inject, OnInit, signal } from "@angular/core";
 import { Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, of, shareReplay, startWith, switchMap } from "rxjs";
 
@@ -16,29 +16,36 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
-  BadgeComponent,
+  BadgeModule,
   ButtonModule,
   CalloutModule,
+  DialogModule,
+  DialogService,
   ItemModule,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
 import {
+  ChangeLoginPasswordService,
+  DefaultChangeLoginPasswordService,
   filterOutNullish,
   PasswordRepromptService,
   SecurityTaskType,
   TaskService,
+  VaultCarouselModule,
 } from "@bitwarden/vault";
 
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
+import {
+  AtRiskCarouselDialogComponent,
+  AtRiskCarouselDialogResult,
+} from "../at-risk-carousel-dialog/at-risk-carousel-dialog.component";
 
 import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
 
 @Component({
-  selector: "vault-at-risk-passwords",
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
@@ -46,26 +53,42 @@ import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
     ItemModule,
     CommonModule,
     JslibModule,
-    BadgeComponent,
     TypographyModule,
     CalloutModule,
     ButtonModule,
+    BadgeModule,
+    DialogModule,
+    VaultCarouselModule,
   ],
-  providers: [AtRiskPasswordPageService],
+  providers: [
+    AtRiskPasswordPageService,
+    { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
+  ],
+  selector: "vault-at-risk-passwords",
+  standalone: true,
   templateUrl: "./at-risk-passwords.component.html",
 })
-export class AtRiskPasswordsComponent {
+export class AtRiskPasswordsComponent implements OnInit {
   private taskService = inject(TaskService);
   private organizationService = inject(OrganizationService);
   private cipherService = inject(CipherService);
   private i18nService = inject(I18nService);
   private accountService = inject(AccountService);
-  private platformUtilsService = inject(PlatformUtilsService);
   private passwordRepromptService = inject(PasswordRepromptService);
   private router = inject(Router);
   private autofillSettingsService = inject(AutofillSettingsServiceAbstraction);
   private toastService = inject(ToastService);
   private atRiskPasswordPageService = inject(AtRiskPasswordPageService);
+  private changeLoginPasswordService = inject(ChangeLoginPasswordService);
+  private platformUtilsService = inject(PlatformUtilsService);
+  private dialogService = inject(DialogService);
+
+  /**
+   * The cipher that is currently being launched. Used to show a loading spinner on the badge button.
+   * The UI utilize a bitBadge which does not support async actions (like bitButton does).
+   * @protected
+   */
+  protected launchingCipher = signal<CipherView | null>(null);
 
   private activeUserData$ = this.accountService.activeAccount$.pipe(
     filterOutNullish(),
@@ -92,12 +115,21 @@ export class AtRiskPasswordsComponent {
     startWith(true),
   );
 
-  protected calloutDismissed$ = this.activeUserData$.pipe(
+  private calloutDismissed$ = this.activeUserData$.pipe(
     switchMap(({ userId }) => this.atRiskPasswordPageService.isCalloutDismissed(userId)),
   );
-
-  protected inlineAutofillSettingEnabled$ = this.autofillSettingsService.inlineMenuVisibility$.pipe(
+  private inlineAutofillSettingEnabled$ = this.autofillSettingsService.inlineMenuVisibility$.pipe(
     map((setting) => setting !== AutofillOverlayVisibility.Off),
+  );
+
+  protected showAutofillCallout$ = combineLatest([
+    this.calloutDismissed$,
+    this.inlineAutofillSettingEnabled$,
+  ]).pipe(
+    map(([calloutDismissed, inlineAutofillSettingEnabled]) => {
+      return !calloutDismissed && !inlineAutofillSettingEnabled;
+    }),
+    startWith(false),
   );
 
   protected atRiskItems$ = this.activeUserData$.pipe(
@@ -120,13 +152,36 @@ export class AtRiskPasswordsComponent {
         const [orgId] = orgIds;
         return this.organizationService.organizations$(userId).pipe(
           getOrganizationById(orgId),
-          map((org) => this.i18nService.t("atRiskPasswordsDescSingleOrg", org?.name, tasks.length)),
+          map((org) =>
+            this.i18nService.t(
+              tasks.length === 1
+                ? "atRiskPasswordDescSingleOrg"
+                : "atRiskPasswordsDescSingleOrgPlural",
+              org?.name,
+              tasks.length,
+            ),
+          ),
         );
       }
 
-      return of(this.i18nService.t("atRiskPasswordsDescMultiOrg", tasks.length));
+      return of(this.i18nService.t("atRiskPasswordsDescMultiOrgPlural", tasks.length));
     }),
   );
+
+  async ngOnInit() {
+    const { userId } = await firstValueFrom(this.activeUserData$);
+    const gettingStartedDismissed = await firstValueFrom(
+      this.atRiskPasswordPageService.isGettingStartedDismissed(userId),
+    );
+    if (!gettingStartedDismissed) {
+      const ref = AtRiskCarouselDialogComponent.open(this.dialogService);
+
+      const result = await firstValueFrom(ref.closed);
+      if (result === AtRiskCarouselDialogResult.Dismissed) {
+        await this.atRiskPasswordPageService.dismissGettingStarted(userId);
+      }
+    }
+  }
 
   async viewCipher(cipher: CipherView) {
     const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
@@ -136,12 +191,6 @@ export class AtRiskPasswordsComponent {
     await this.router.navigate(["/view-cipher"], {
       queryParams: { cipherId: cipher.id, type: cipher.type },
     });
-  }
-
-  async launchChangePassword(cipher: CipherView) {
-    if (cipher.login?.uri) {
-      this.platformUtilsService.launchUri(cipher.login.uri);
-    }
   }
 
   async activateInlineAutofillMenuVisibility() {
@@ -159,4 +208,19 @@ export class AtRiskPasswordsComponent {
     const { userId } = await firstValueFrom(this.activeUserData$);
     await this.atRiskPasswordPageService.dismissCallout(userId);
   }
+
+  launchChangePassword = async (cipher: CipherView) => {
+    try {
+      this.launchingCipher.set(cipher);
+      const url = await this.changeLoginPasswordService.getChangePasswordUrl(cipher);
+
+      if (url == null) {
+        return;
+      }
+
+      this.platformUtilsService.launchUri(url);
+    } finally {
+      this.launchingCipher.set(null);
+    }
+  };
 }

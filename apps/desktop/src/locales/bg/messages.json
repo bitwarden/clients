@@ -543,10 +543,6 @@
     "message": "Включване на специални знаци",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Брой думи"
   },
@@ -652,6 +648,15 @@
   "logInToBitwarden": {
     "message": "Впишете се в Битуорден"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Въведете кода изпратен на е-пощата Ви"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Въведете кода от Вашето приложение за удостоверяване"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Натиснете бутона на своя YubiKey за удостоверяване"
+  },
   "logInWithPasskey": {
     "message": "Вписване със секретен ключ"
   },
@@ -704,6 +709,15 @@
   "masterPassHintLabel": {
     "message": "Подсказка за главната парола"
   },
+  "passwordStrengthScore": {
+    "message": "Оценка на сложността на паролата: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Присъединяване към организацията"
   },
@@ -733,12 +747,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Въведете е-пощата на регистрацията си и подсказката за паролата ще Ви бъде изпратена"
-  },
-  "passwordHint": {
-    "message": "Подсказка за паролата"
-  },
-  "enterEmailToGetHint": {
-    "message": "Въведете адреса на е-пощата си, за да получите подсказка за главната парола."
   },
   "getMasterPasswordHint": {
     "message": "Получете подсказване за главната парола"
@@ -816,6 +824,9 @@
   "webauthnCancelOrTimeout": {
     "message": "Удостоверяването беше отменено или отне твърде много време. Моля, опитайте отново."
   },
+  "openInNewTab": {
+    "message": "Отваряне в нов раздел"
+  },
   "invalidVerificationCode": {
     "message": "Грешен код за потвърждаване"
   },
@@ -846,11 +857,21 @@
   "rememberMe": {
     "message": "Запомняне"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Не ме питайте отново на това устройство за 30 дни"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Повторно изпращане на писмото за потвърждение"
   },
   "useAnotherTwoStepMethod": {
     "message": "Използвайте друг начин на двустепенно удостоверяване"
+  },
+  "selectAnotherMethod": {
+    "message": "Изберете друг метод",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Използване на код за възстановяване"
   },
   "insertYubiKey": {
     "message": "Поставете устройството на YubiKey в USB порт на компютъра и натиснете бутона на устройството."
@@ -885,7 +906,7 @@
     "message": "Удостоверяване чрез Duo Security за организацията ви, с ползване на приложението Duo Mobile, SMS, телефонен разговор или устройство U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Потвърдете самоличността си"
   },
   "weDontRecognizeThisDevice": {
@@ -918,11 +939,11 @@
   "twoStepOptions": {
     "message": "Настройки на двустепенното удостоверяване"
   },
+  "selectTwoStepLoginMethod": {
+    "message": "Изберете начин за двустепенно удостоверяване"
+  },
   "selfHostedEnvironment": {
     "message": "Собствена среда"
-  },
-  "selfHostedEnvironmentFooter": {
-    "message": "Укажете базовия адрес за собствената ви инсталирана среда на Bitwarden."
   },
   "selfHostedBaseUrlHint": {
     "message": "Посочете базовия адрес на Вашата собствена инсталация на Битуорден. Пример: https://bitwarden.company.com"
@@ -935,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Специална среда"
-  },
-  "customEnvironmentFooter": {
-    "message": "За специални случаи. Може да укажете основните адреси на всяка ползвана услуга поотделно."
   },
   "baseUrl": {
     "message": "Адрес на сървъра"
@@ -978,6 +996,9 @@
   },
   "no": {
     "message": "Не"
+  },
+  "location": {
+    "message": "Местоположение"
   },
   "overwritePassword": {
     "message": "Обновяване на паролата"
@@ -1775,6 +1796,9 @@
   "requirePasswordOnStart": {
     "message": "Изискване на парола или ПИН при стартиране на приложението"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Изискване на парола при стартиране на приложението"
+  },
   "recommendedForSecurity": {
     "message": "Препоръчително от гледна точка на сигурността."
   },
@@ -2244,6 +2268,12 @@
   "webAuthnAuthenticate": {
     "message": "Идентификация WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "Прочитане на ключа за сигурност"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Изчакване на действие с ключ за сигурност…"
+  },
   "hideEmail": {
     "message": "Скриване на е-пощата ми от получателите."
   },
@@ -2640,6 +2670,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ отказа заявката Ви. Свържете се с доставчика на услугата за съдействие.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ отказа заявката Ви: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Не може да бъде получен идентификатор на маскиран чрез е-поща акаунт от $SERVICENAME$.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -2718,14 +2772,8 @@
   "loginWithMasterPassword": {
     "message": "Вписване с главната парола"
   },
-  "loggingInAs": {
-    "message": "Вписване като"
-  },
   "rememberEmail": {
     "message": "Запомняне на е-пощата"
-  },
-  "notYou": {
-    "message": "Това не сте Вие?"
   },
   "newAroundHere": {
     "message": "За пръв път ли сте тук?"
@@ -2966,9 +3014,6 @@
   "requestAdminApproval": {
     "message": "Подаване на заявка за одобрение от администратор"
   },
-  "approveWithMasterPassword": {
-    "message": "Одобряване с главната парола"
-  },
   "region": {
     "message": "Регион"
   },
@@ -2993,9 +3038,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Вашата заявка беше изпратена до администратора Ви."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Ще получите известие, когато тя бъде одобрена."
   },
   "troubleLoggingIn": {
     "message": "Имате проблем с вписването?"
@@ -3178,6 +3220,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "Вашата регистрация изисква двустепенно удостоверяване чрез Duo."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Вашият акаунт изисква вписване чрез двустепенно удостоверяване с Duo. Следвайте стъпките по-долу, за да завършите вписването."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Следвайте стъпките по-долу, за да завършите вписването."
   },
   "launchDuo": {
     "message": "Стартирайте Duo в браузъра"
@@ -3436,14 +3484,29 @@
   "sshkeyApprovalTitle": {
     "message": "Потвърждаване на употребата на SSH ключа"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Внимание: Пренасочване на агента"
+  },
+  "agentForwardingWarningText": {
+    "message": "Тази заявка идва от отдалечено устройство, в което сте вписан(а)"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "иска достъп до"
   },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "за да"
+  },
+  "sshActionLogin": {
+    "message": "се удостоверите в сървър"
+  },
+  "sshActionSign": {
+    "message": "подпишете съобщение"
+  },
+  "sshActionGitSign": {
+    "message": "подпишете подаване в git"
+  },
   "unknownApplication": {
     "message": "Приложение"
-  },
-  "sshKeyPasswordUnsupported": {
-    "message": "Внасянето на SSH ключ, които са защитени с парола, все още не се поддържа"
   },
   "invalidSshKey": {
     "message": "SSH ключът е неправилен"
@@ -3454,7 +3517,7 @@
   "importSshKeyFromClipboard": {
     "message": "Внасяне на ключ от буфера за обмен"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH ключът е внесен успешно"
   },
   "fileSavedToDevice": {
@@ -3496,19 +3559,25 @@
   "changeAcctEmail": {
     "message": "Промяна на е-пощата"
   },
-  "organizationUpgradeRequired": {
-    "message": "Необходимо е надграждане на организацията"
+  "allowScreenshots": {
+    "message": "Позволяване на заснемането на екрана"
   },
-  "upgradeOrganization": {
-    "message": "Надграждане на организацията"
+  "allowScreenshotsDesc": {
+    "message": "Позволява настолното приложение на Битурден да бъде заснемано при правене на екранни снимки и видимо при достъп до компютъра чрез отдалечен работен плот. Изключването на това ще забрани достапа на някои външни екрани."
   },
-  "upgradeOrganizationDesc": {
-    "message": "Безплатните планове нямат достъп до тази функционалност. Преминете към платен план, за да се възползвате от тази и много други възможности."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Потвърждаване, че прозорецът все още е видим"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Моля, потвърдете, че прозорецът все още е видим."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Необходимо е обновяване на добавката"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Добавката за браузъра, която използвате, е остаряла. Моля, обновете я или изключете интеграцията за проверка на пръстов отпечатък в браузъра от настройките на самостоятелното приложение."
+  },
+  "changeAtRiskPassword": {
+    "message": "Промяна на парола в риск"
   }
 }

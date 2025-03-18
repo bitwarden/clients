@@ -2,7 +2,6 @@ import { CdkVirtualScrollableElement, ScrollingModule } from "@angular/cdk/scrol
 import { CommonModule } from "@angular/common";
 import { AfterViewInit, Component, DestroyRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { RouterLink } from "@angular/router";
 import {
   combineLatest,
   filter,
@@ -12,6 +11,7 @@ import {
   shareReplay,
   switchMap,
   take,
+  startWith,
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -21,19 +21,14 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import {
-  BannerComponent,
-  ButtonModule,
-  DialogService,
-  Icons,
-  NoItemsModule,
-} from "@bitwarden/components";
+import { ButtonModule, DialogService, Icons, NoItemsModule } from "@bitwarden/components";
 import { DecryptionFailureDialogComponent, VaultIcons } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
+import { VaultPopupCopyButtonsService } from "../../services/vault-popup-copy-buttons.service";
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
@@ -44,7 +39,9 @@ import {
   NewItemDropdownV2Component,
   NewItemInitialValues,
 } from "./new-item-dropdown/new-item-dropdown-v2.component";
+import { NewSettingsCalloutComponent } from "./new-settings-callout/new-settings-callout.component";
 import { VaultHeaderV2Component } from "./vault-header/vault-header-v2.component";
+import { VaultPageService } from "./vault-page.service";
 
 import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
 
@@ -70,14 +67,13 @@ enum VaultState {
     AutofillVaultListItemsComponent,
     VaultListItemsContainerComponent,
     ButtonModule,
-    RouterLink,
     NewItemDropdownV2Component,
     ScrollingModule,
     VaultHeaderV2Component,
-    DecryptionFailureDialogComponent,
-    BannerComponent,
     AtRiskPasswordCalloutComponent,
+    NewSettingsCalloutComponent,
   ],
+  providers: [VaultPageService],
 })
 export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(CdkVirtualScrollableElement) virtualScrollElement?: CdkVirtualScrollableElement;
@@ -86,7 +82,18 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
-  protected loading$ = this.vaultPopupItemsService.loading$;
+  protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
+
+  protected loading$ = combineLatest([
+    this.vaultPopupItemsService.loading$,
+    this.allFilters$,
+    // Added as a dependency to avoid flashing the copyActions on slower devices
+    this.vaultCopyButtonsService.showQuickCopyActions$,
+  ]).pipe(
+    map(([itemsLoading, filters]) => itemsLoading || !filters),
+    shareReplay({ bufferSize: 1, refCount: true }),
+    startWith(true),
+  );
 
   protected newItemItemValues$: Observable<NewItemInitialValues> =
     this.vaultPopupListFiltersService.filters$.pipe(
@@ -110,8 +117,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   protected noResultsIcon = Icons.NoResults;
 
   protected VaultStateEnum = VaultState;
-
-  private allFilters$ = this.vaultPopupListFiltersService.allFilters$;
+  protected showNewCustomizationSettingsCallout = false;
 
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
@@ -121,6 +127,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private destroyRef: DestroyRef,
     private cipherService: CipherService,
     private dialogService: DialogService,
+    private vaultCopyButtonsService: VaultPopupCopyButtonsService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
@@ -175,7 +182,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     this.vaultScrollPositionService.stop();
   }
 

@@ -6,7 +6,6 @@ import { InputPasswordComponent } from "@bitwarden/auth/angular";
 import { FormFieldModule } from "@bitwarden/components";
 
 import { OrganizationCreateModule } from "../../admin-console/organizations/create/organization-create.module";
-import { TaxInfoComponent } from "../../billing";
 import { TrialBillingStepComponent } from "../../billing/accounts/trial-initiation/trial-billing-step.component";
 import { SecretsManagerTrialFreeStepperComponent } from "../../billing/trial-initiation/secrets-manager/secrets-manager-trial-free-stepper.component";
 import { SecretsManagerTrialPaidStepperComponent } from "../../billing/trial-initiation/secrets-manager/secrets-manager-trial-paid-stepper.component";
@@ -48,7 +47,6 @@ import { VerticalStepperModule } from "./vertical-stepper/vertical-stepper.modul
     FormFieldModule,
     OrganizationCreateModule,
     EnvironmentSelectorModule,
-    TaxInfoComponent,
     TrialBillingStepComponent,
     InputPasswordComponent,
   ],

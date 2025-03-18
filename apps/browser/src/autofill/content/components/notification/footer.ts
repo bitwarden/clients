@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import { html } from "lit";
+import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
@@ -8,25 +8,27 @@ import {
   NotificationTypes,
 } from "../../../notification/abstractions/notification-bar";
 import { spacing, themes } from "../constants/styles";
-import { ActionRow } from "../rows/action-row";
 import { ButtonRow } from "../rows/button-row";
 
 export function NotificationFooter({
+  handleSaveAction,
   notificationType,
   theme,
+  i18n,
 }: {
+  handleSaveAction: (e: Event) => void;
+  i18n: { [key: string]: string };
   notificationType?: NotificationType;
   theme: Theme;
 }) {
   const isChangeNotification = notificationType === NotificationTypes.Change;
-  // @TODO localize
-  const saveNewItemText = "Save as new login";
+  const buttonText = i18n.saveAction;
 
   return html`
     <div class=${notificationFooterStyles({ theme })}>
-      ${isChangeNotification
-        ? ActionRow({ itemText: saveNewItemText, handleAction: () => {}, theme })
-        : ButtonRow({ theme })}
+      ${!isChangeNotification
+        ? ButtonRow({ theme, buttonAction: handleSaveAction, buttonText })
+        : nothing}
     </div>
   `;
 }
@@ -38,5 +40,6 @@ const notificationFooterStyles = ({ theme }: { theme: Theme }) => css`
 
   :last-child {
     border-radius: 0 0 ${spacing["4"]} ${spacing["4"]};
+    padding-bottom: ${spacing[4]};
   }
 `;
