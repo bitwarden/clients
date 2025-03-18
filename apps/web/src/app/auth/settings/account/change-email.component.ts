@@ -88,7 +88,7 @@ export class ChangeEmailComponent implements OnInit {
       await this.apiService.postEmailToken(request);
       this.activateStep2();
     } else {
-      const token = this.formGroup.value.token ?? null;
+      const token = this.formGroup.value.token;
       if (token == null) {
         throw new Error("Missing token");
       }
