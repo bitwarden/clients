@@ -13,7 +13,7 @@ import { IdentityCaptchaResponse } from "@bitwarden/common/auth/models/response/
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
-import { OpaqueService } from "@bitwarden/common/auth/opaque/opaque.service";
+import { OpaqueKeyExchangeService } from "@bitwarden/common/auth/opaque/opaque-key-exchange.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
@@ -76,7 +76,7 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private policyService: PolicyService,
     private configService: ConfigService,
-    private opaqueService: OpaqueService,
+    private opaqueKeyExchangeService: OpaqueKeyExchangeService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
     ...sharedDeps: ConstructorParameters<typeof BaseLoginStrategy>
   ) {
@@ -288,6 +288,6 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
     // If a user uses PBKDF2, then we have to use Argon2 with client side defaults (make new Argon2KdfConfig);
     // The iterations on the default argon2 config have to be the greater of the defaults or the user's PBKDF2 iterations
     // this.KdfConfigService.getKdfConfig()
-    // await this.opaqueService.register()
+    // await this.opaqueKeyExchangeService.register()
   }
 }

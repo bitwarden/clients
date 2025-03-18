@@ -18,7 +18,7 @@ import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { PrePasswordLoginRequest } from "@bitwarden/common/auth/models/request/pre-password-login.request";
-import { OpaqueService } from "@bitwarden/common/auth/opaque/opaque.service";
+import { OpaqueKeyExchangeService } from "@bitwarden/common/auth/opaque/opaque-key-exchange.service";
 import { PrePasswordLoginApiService } from "@bitwarden/common/auth/services/pre-password-login-api.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -135,7 +135,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     protected taskSchedulerService: TaskSchedulerService,
     protected prePasswordLoginApiService: PrePasswordLoginApiService,
     protected configService: ConfigService,
-    protected opaqueService: OpaqueService,
+    protected opaqueKeyExchangeService: OpaqueKeyExchangeService,
   ) {
     this.currentAuthnTypeState = this.stateProvider.get(CURRENT_LOGIN_STRATEGY_KEY);
     this.loginStrategyCacheState = this.stateProvider.get(CACHE_KEY);
@@ -432,7 +432,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
           this.passwordStrengthService,
           this.policyService,
           this.configService,
-          this.opaqueService,
+          this.opaqueKeyExchangeService,
           this,
           ...sharedDeps,
         );
