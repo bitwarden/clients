@@ -10,10 +10,6 @@ export function createFilterFunction(
   filter: RoutedVaultFilterModel,
   archiveEnabled?: boolean,
 ): FilterFunction {
-  // If archive item flag is disabled, archived items should be visible in regular views
-  // rather than being hidden, to prevent users from losing access to their data
-  const isArchiveEnabled = archiveEnabled ?? false;
-
   return (cipher) => {
     if (filter.type === "favorites" && !cipher.favorite) {
       return false;
@@ -33,9 +29,6 @@ export function createFilterFunction(
     if (filter.type === "sshKey" && cipher.type !== CipherType.SshKey) {
       return false;
     }
-    if (filter.type === "archive") {
-      return isArchiveEnabled && cipher.isArchived;
-    }
     if (filter.type === "trash" && !cipher.isDeleted) {
       return false;
     }
@@ -43,9 +36,14 @@ export function createFilterFunction(
     if (filter.type !== "trash" && cipher.isDeleted) {
       return false;
     }
-    // Only hide archived items when the feature is enabled
-    if (cipher.isArchived && isArchiveEnabled) {
-      return false;
+    // Archive filter logic is only applied if the feature flag is enabled
+    if (archiveEnabled) {
+      if (filter.type === "archive" && !cipher.isArchived) {
+        return false;
+      }
+      if (filter.type !== "archive" && cipher.isArchived) {
+        return false;
+      }
     }
     // No folder
     if (filter.folderId === Unassigned && cipher.folderId !== null) {
