@@ -1,4 +1,4 @@
-FROM bitwarden/server
+FROM ghcr.io/bitwarden/server
 
 LABEL com.bitwarden.product="bitwarden"
 
