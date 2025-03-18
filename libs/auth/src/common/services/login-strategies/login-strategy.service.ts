@@ -327,25 +327,12 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   async makePrePasswordLoginMasterKey(
     masterPassword: string,
     email: string,
-    kdfConfig?: KdfConfig,
+    kdfConfig: KdfConfig,
   ): Promise<MasterKey> {
     email = email.trim().toLowerCase();
 
     if (!kdfConfig) {
-      try {
-        const preloginResponse = await this.prePasswordLoginApiService.postPrePasswordLogin(
-          new PrePasswordLoginRequest(email),
-        );
-        kdfConfig = preloginResponse?.toKdfConfig();
-      } catch (e: any) {
-        if (e == null || e.statusCode !== 404) {
-          throw e;
-        }
-      }
-
-      if (!kdfConfig) {
-        throw new Error("KDF config is required");
-      }
+      throw new Error("KDF config is required");
     }
 
     kdfConfig.validateKdfConfigForPreLogin();

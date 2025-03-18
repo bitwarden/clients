@@ -71,18 +71,13 @@ export abstract class LoginStrategyServiceAbstraction {
     captchaResponse: string,
   ) => Promise<AuthResult>;
 
-  // TODO: PM-19273 - Refactor makePrePasswordLoginMasterKey to no longer be on the service
-  // once PM-18176 removes the Recover2faComponent dependency.
   /**
-   * Creates a master key from the provided master password and email.
-   * If a KdfConfig is provided, it will be used to generate the key.
-   * Otherwise, the PrePasswordLogin endpoint will be used to retrieve the user's
-   * KdfConfig.
+   * Creates a master key from the provided master password and email, using the provided kdfConfig.
    */
   makePrePasswordLoginMasterKey: (
     masterPassword: string,
     email: string,
-    kdfConfig?: KdfConfig,
+    kdfConfig: KdfConfig,
   ) => Promise<MasterKey>;
   /**
    * Emits true if the authentication session has expired.
