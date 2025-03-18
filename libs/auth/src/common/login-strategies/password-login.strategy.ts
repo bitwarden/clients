@@ -94,6 +94,7 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
 
     const data = new PasswordLoginStrategyData();
 
+    data.masterPassword = masterPassword;
     data.masterKey = await this.makePrePasswordLoginMasterKey(masterPassword, email, kdfConfig);
     data.userEnteredEmail = email;
 
@@ -281,14 +282,28 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
    * authN protocol which prevents the server from ever knowing anything about the user's password.
    */
   private async registerUserForOpaqueKeyExchange(userId: UserId) {
-    const cache = await firstValueFrom(this.cache);
+    const masterPassword = this.cache.value?.masterPassword;
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
     // PBKDF2 is not recommended for opaque, so force use of Argon2 with default params if the user is using PBKDF2.
     const userConfiguredKdf = await this.kdfConfigService.getKdfConfig();
+
+    if (!masterPassword || !userKey || !userConfiguredKdf) {
+      this.logService.error(
+        `Unable to register user for OPAQUE key exchange due to missing data. MasterPassword exists: ${!!masterPassword}; UserKey exists ${!!userKey}; KdfConfig exists: ${!!userConfiguredKdf}`,
+      );
+      return;
+    }
+
     const opaqueKdf =
       userConfiguredKdf.kdfType === KdfType.Argon2id ? userConfiguredKdf : new Argon2KdfConfig();
 
-    await this.opaqueKeyExchangeService.register(cache.masterPassword, userKey, opaqueKdf);
+    try {
+      await this.opaqueKeyExchangeService.register(masterPassword, userKey, opaqueKdf);
+    } catch (error) {
+      // If this process fails for any reason, we don't want to stop the login process
+      // so just log the error and continue.
+      this.logService.error(`Failed to register user for OPAQUE key exchange: ${error}`);
+    }
   }
 }
