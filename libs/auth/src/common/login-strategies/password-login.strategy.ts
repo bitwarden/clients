@@ -22,7 +22,7 @@ import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/pass
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 
-import { KdfType , Argon2KdfConfig } from "../../../../key-management/src";
+import { KdfType, Argon2KdfConfig } from "../../../../key-management/src";
 import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { PasswordHashLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
@@ -159,14 +159,20 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
       }
     }
 
-    if (identityResponse instanceof IdentityTokenResponse) {
-      const opaqueKeyExchangeFeatureFlagEnabled = await this.configService.getFeatureFlag(
-        FeatureFlag.OpaqueKeyExchange,
-      );
-      if (opaqueKeyExchangeFeatureFlagEnabled) {
-        // Register the user for opaque password authentication
-        await this.registerUserForOpaqueKeyExchange(authResult.userId);
-      }
+    return authResult;
+  }
+
+  protected override async processTokenResponse(
+    response: IdentityTokenResponse,
+  ): Promise<AuthResult> {
+    const authResult = await super.processTokenResponse(response);
+
+    const opaqueKeyExchangeFeatureFlagEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.OpaqueKeyExchange,
+    );
+    if (opaqueKeyExchangeFeatureFlagEnabled) {
+      // Register the user for opaque password authentication
+      await this.registerUserForOpaqueKeyExchange(authResult.userId);
     }
 
     return authResult;
