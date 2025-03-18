@@ -118,7 +118,6 @@ import {
   WebTwoFactorAuthDuoComponentService,
 } from "../auth";
 import { WebSsoComponentService } from "../auth/core/services/login/web-sso-component.service";
-import { LinkSsoService } from "../auth/core/services/sso/link-sso.service";
 import { AcceptOrganizationInviteService } from "../auth/organization-invite/accept-organization.service";
 import { HtmlStorageService } from "../core/html-storage.service";
 import { I18nService } from "../core/i18n.service";
@@ -275,18 +274,6 @@ const safeProviders: SafeProvider[] = [
     provide: TwoFactorAuthComponentService,
     useClass: WebTwoFactorAuthComponentService,
     deps: [],
-  }),
-  safeProvider({
-    provide: LinkSsoService,
-    useClass: LinkSsoService,
-    deps: [
-      EnvironmentService,
-      SsoComponentService,
-      ApiService,
-      CryptoFunctionService,
-      PasswordGenerationServiceAbstraction,
-      SsoLoginServiceAbstraction,
-    ],
   }),
   safeProvider({
     provide: SetPasswordJitService,
