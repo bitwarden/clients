@@ -239,7 +239,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       ownedCredentials = { ...credentials };
     }
 
-    await this.currentAuthnTypeState.update((_) => credentials.type);
+    await this.currentAuthnTypeState.update((_) => ownedCredentials.type);
 
     const strategy = await firstValueFrom(this.loginStrategy$);
 
