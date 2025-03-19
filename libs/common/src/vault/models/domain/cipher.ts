@@ -53,8 +53,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   passwordHistory: Password[];
   collectionIds: string[];
   creationDate: Date;
-  deletedDate: Date;
-  archivedDate: Date;
+  deletedDate: Date | null;
+  archivedDate: Date | null;
   reprompt: CipherRepromptType;
   key: EncString;
 

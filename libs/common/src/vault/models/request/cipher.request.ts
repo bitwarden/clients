@@ -33,6 +33,7 @@ export class CipherRequest {
   attachments: { [id: string]: string };
   attachments2: { [id: string]: AttachmentRequest };
   lastKnownRevisionDate: Date;
+  archivedDate: Date | null;
   reprompt: CipherRepromptType;
   key: string;
 
@@ -44,6 +45,7 @@ export class CipherRequest {
     this.notes = cipher.notes ? cipher.notes.encryptedString : null;
     this.favorite = cipher.favorite;
     this.lastKnownRevisionDate = cipher.revisionDate;
+    this.archivedDate = cipher.archivedDate;
     this.reprompt = cipher.reprompt;
     this.key = cipher.key?.encryptedString;
 
