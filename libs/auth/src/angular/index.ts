@@ -8,6 +8,9 @@ export * from "./anon-layout/anon-layout-wrapper.component";
 export * from "./anon-layout/anon-layout-wrapper-data.service";
 export * from "./anon-layout/default-anon-layout-wrapper-data.service";
 
+// change existing password
+export * from "./change-existing-password/change-existing-password.component";
+
 // fingerprint dialog
 export * from "./fingerprint-dialog/fingerprint-dialog.component";
 
