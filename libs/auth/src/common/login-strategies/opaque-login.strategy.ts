@@ -14,7 +14,7 @@ import { IdentityCaptchaResponse } from "@bitwarden/common/auth/models/response/
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
-import { CipherConfiguration } from "@bitwarden/common/auth/opaque/models/cipher-configuration";
+import { OpaqueCipherConfiguration } from "@bitwarden/common/src/auth/opaque/models/opaque-cipher-configuration";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
@@ -40,7 +40,7 @@ export class OpaqueLoginStrategyData implements LoginStrategyData {
 
   /* The user's OPAQUE cipher configuration which controls
   the encryption schemes used during key derivation and key exchange */
-  cipherConfiguration: CipherConfiguration;
+  cipherConfiguration: OpaqueCipherConfiguration;
 
   /**
    * Tracks if the user needs to be forced to update their password

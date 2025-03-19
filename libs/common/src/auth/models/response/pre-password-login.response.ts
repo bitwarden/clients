@@ -1,7 +1,7 @@
 import { KdfType, createKdfConfig } from "@bitwarden/key-management";
 
 import { BaseResponse } from "../../../models/response/base.response";
-import { CipherConfiguration } from "../../opaque/models/cipher-configuration";
+import { OpaqueCipherConfiguration } from "../../opaque/models/opaque-cipher-configuration";
 
 export class PrePasswordLoginResponse extends BaseResponse {
   kdf: KdfType;
@@ -9,7 +9,7 @@ export class PrePasswordLoginResponse extends BaseResponse {
   kdfMemory?: number;
   kdfParallelism?: number;
 
-  opaqueConfiguration?: CipherConfiguration;
+  opaqueConfiguration?: OpaqueCipherConfiguration;
 
   constructor(response: any) {
     super(response);

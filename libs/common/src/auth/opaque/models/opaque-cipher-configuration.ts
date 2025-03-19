@@ -7,7 +7,7 @@ export type CipherSuite = OPAQUEKE3_RISTRETTO255_3DH_ARGON2ID13_SUITE;
 export type OPAQUEKE3_RISTRETTO255_3DH_ARGON2ID13_SUITE =
   "OPAQUE_3_RISTRETTO255_OPRF_RISTRETTO255_KEGROUP_3DH_KEX_ARGON2ID13_KSF";
 
-export class CipherConfiguration {
+export class OpaqueCipherConfiguration {
   cipherSuite: CipherSuite;
   argon2Parameters: Argon2IdParameters;
 
@@ -23,8 +23,8 @@ export class CipherConfiguration {
    * @param kdfConfig - Bitwarden KDF config
    * @returns OPAQUE KSF config
    */
-  static fromKdfConfig(kdfConfig: Argon2KdfConfig): CipherConfiguration {
-    return new CipherConfiguration({
+  static fromKdfConfig(kdfConfig: Argon2KdfConfig): OpaqueCipherConfiguration {
+    return new OpaqueCipherConfiguration({
       // convert MiB to KiB
       memory: kdfConfig.memory * 1024,
       iterations: kdfConfig.iterations,

@@ -13,7 +13,7 @@ import { IdentityCaptchaResponse } from "@bitwarden/common/auth/models/response/
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
-import { CipherConfiguration } from "@bitwarden/common/auth/opaque/models/cipher-configuration";
+import { OpaqueCipherConfiguration } from "@bitwarden/common/auth/opaque/models/opaque-cipher-configuration";
 import { OpaqueKeyExchangeService } from "@bitwarden/common/auth/opaque/opaque-key-exchange.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -296,7 +296,7 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
       return;
     }
 
-    const cipherConfig = CipherConfiguration.fromKdfConfig(
+    const cipherConfig = OpaqueCipherConfiguration.fromKdfConfig(
       userConfiguredKdf.kdfType === KdfType.Argon2id
         ? userConfiguredKdf
         : DEFAULT_OPAQUE_KDF_CONFIG,

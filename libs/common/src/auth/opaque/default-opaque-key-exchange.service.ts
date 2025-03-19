@@ -8,9 +8,9 @@ import { OpaqueSessionId } from "@bitwarden/common/types/guid";
 
 import { UserKey } from "../../types/key";
 
-import { CipherConfiguration } from "./models/cipher-configuration";
 import { LoginFinishRequest } from "./models/login-finish.request";
 import { LoginStartRequest } from "./models/login-start.request";
+import { OpaqueCipherConfiguration } from "./models/opaque-cipher-configuration";
 import { RegistrationFinishRequest } from "./models/registration-finish.request";
 import { RegistrationStartRequest } from "./models/registration-start.request";
 import { OpaqueKeyExchangeApiService } from "./opaque-key-exchange-api.service";
@@ -25,7 +25,7 @@ export class DefaultOpaqueKeyExchangeService implements OpaqueKeyExchangeService
   async register(
     masterPassword: string,
     userKey: UserKey,
-    cipherConfig: CipherConfiguration,
+    cipherConfig: OpaqueCipherConfiguration,
   ): Promise<OpaqueSessionId> {
     if (!masterPassword || !userKey || !cipherConfig) {
       throw new Error(
@@ -80,7 +80,7 @@ export class DefaultOpaqueKeyExchangeService implements OpaqueKeyExchangeService
   async login(
     email: string,
     masterPassword: string,
-    cipherConfig: CipherConfiguration,
+    cipherConfig: OpaqueCipherConfiguration,
   ): Promise<Uint8Array> {
     if (!email || !masterPassword || !cipherConfig) {
       throw new Error(

@@ -5,7 +5,7 @@ import { Jsonify } from "type-fest";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { PrePasswordLoginResponse } from "@bitwarden/common/auth/models/response/pre-password-login.response";
-import { CipherConfiguration } from "@bitwarden/common/auth/opaque/models/cipher-configuration";
+import { OpaqueCipherConfiguration } from "@bitwarden/common/auth/opaque/models/opaque-cipher-configuration";
 import { WebAuthnLoginAssertionResponseRequest } from "@bitwarden/common/auth/services/webauthn-login/request/webauthn-login-assertion-response.request";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserKey, MasterKey } from "@bitwarden/common/types/key";
@@ -160,7 +160,7 @@ export class OpaqueLoginCredentials {
     public email: string,
     public masterPassword: string,
     public kdfConfig: KdfConfig,
-    public cipherConfiguration: CipherConfiguration,
+    public cipherConfiguration: OpaqueCipherConfiguration,
     public twoFactor?: TokenTwoFactorRequest,
   ) {}
 }
