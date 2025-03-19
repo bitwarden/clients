@@ -9,17 +9,17 @@ import { Business, Family } from "../../../content/components/icons";
 // @TODO connect data source to icon checks
 // @TODO support other indicator types (attachments, etc)
 export function CipherInfoIndicatorIcons({
-  isBusinessOrg,
-  isFamilyOrg,
+  showBusinessIcon,
+  showFamilyIcon,
   theme,
 }: {
-  isBusinessOrg?: boolean;
-  isFamilyOrg?: boolean;
+  showBusinessIcon?: boolean;
+  showFamilyIcon?: boolean;
   theme: Theme;
 }) {
   const indicatorIcons = [
-    ...(isBusinessOrg ? [Business({ color: themes[theme].text.muted, theme })] : []),
-    ...(isFamilyOrg ? [Family({ color: themes[theme].text.muted, theme })] : []),
+    ...(showBusinessIcon ? [Business({ color: themes[theme].text.muted, theme })] : []),
+    ...(showFamilyIcon ? [Family({ color: themes[theme].text.muted, theme })] : []),
   ];
 
   return indicatorIcons.length
