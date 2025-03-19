@@ -312,6 +312,7 @@ jobs:
           cosign sign --yes ${images}
 
       - name: Scan Docker image
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         id: container-scan
         uses: anchore/scan-action@869c549e657a088dc0441b08ce4fc0ecdac2bb65 # v5.3.0
         with:
@@ -320,6 +321,7 @@ jobs:
           output-format: sarif
 
       - name: Upload Grype results to GitHub
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: github/codeql-action/upload-sarif@d68b2d4edb4189fd2a5366ac14e72027bd4b37dd # v3.28.2
         with:
           sarif_file: ${{ steps.container-scan.outputs.sarif }}
