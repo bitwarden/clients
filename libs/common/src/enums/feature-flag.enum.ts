@@ -29,6 +29,7 @@ export enum FeatureFlag {
   ExportAttachments = "export-attachments",
 
   /* Vault */
+  PM8851_BrowserOnboardingNudge = "pm-8851-browser-onboarding-nudge",
   PM9111ExtensionPersistAddEditForm = "pm-9111-extension-persist-add-edit-form",
   NewDeviceVerificationTemporaryDismiss = "new-device-temporary-dismiss",
   NewDeviceVerificationPermanentDismiss = "new-device-permanent-dismiss",
@@ -85,6 +86,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ExportAttachments]: FALSE,
 
   /* Vault */
+  [FeatureFlag.PM8851_BrowserOnboardingNudge]: FALSE,
   [FeatureFlag.PM9111ExtensionPersistAddEditForm]: FALSE,
   [FeatureFlag.NewDeviceVerificationTemporaryDismiss]: FALSE,
   [FeatureFlag.NewDeviceVerificationPermanentDismiss]: FALSE,
