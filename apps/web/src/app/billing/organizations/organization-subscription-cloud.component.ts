@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
+import { firstValueFrom, lastValueFrom, Subject } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -22,7 +22,6 @@ import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstract
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { BillingSubscriptionItemResponse } from "@bitwarden/common/billing/models/response/subscription.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -60,7 +59,6 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   showSecretsManagerSubscribe = false;
   loading = true;
   locale: string;
-  showUpdatedSubscriptionStatusSection$: Observable<boolean>;
   preSelectedProductTier: ProductTierType = ProductTierType.Free;
   showSubscription = true;
   showSelfHost = false;
@@ -71,8 +69,6 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   protected readonly teamsStarter = ProductTierType.TeamsStarter;
 
   private destroy$ = new Subject<void>();
-
-  private seatsRemainingMessage: string;
 
   constructor(
     private apiService: ApiService,
@@ -95,10 +91,6 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
         OrganizationSubscriptionCloudComponent.ROUTE_PARAM_ORGANIZATION_ID
       ];
     await this.load();
-
-    this.showUpdatedSubscriptionStatusSection$ = this.configService.getFeatureFlag$(
-      FeatureFlag.AC1795_UpdatedSubscriptionStatusSection,
-    );
 
     if (
       this.route.snapshot.queryParams[OrganizationSubscriptionCloudComponent.QUERY_PARAM_UPGRADE]

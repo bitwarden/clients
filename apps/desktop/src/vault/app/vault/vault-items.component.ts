@@ -15,7 +15,6 @@ import { SearchBarService } from "../../../app/layout/search/search-bar.service"
   selector: "app-vault-items",
   templateUrl: "vault-items.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class VaultItemsComponent extends BaseVaultItemsComponent {
   constructor(
     searchService: SearchService,

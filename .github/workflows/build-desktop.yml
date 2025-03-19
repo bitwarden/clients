@@ -146,9 +146,9 @@ jobs:
     # Note, before updating the ubuntu version of the workflow, ensure the snap base image
     # is equal or greater than the new version. Otherwise there might be GLIBC version issues.
     # The snap base for desktop is defined in `apps/desktop/electron-builder.json`
-    # We are currently running on 20.04 until the Ubuntu 24.04 release is available, as moving
-    # to 22.04 now breaks users who are on 20.04 due to mismatched GLIBC versions.
-    runs-on: ubuntu-20.04
+    # We intentionally keep this runner on the oldest supported OS in GitHub Actions
+    # for maximum compatibility across GLIBC versions
+    runs-on: ubuntu-22.04
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}

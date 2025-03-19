@@ -24,6 +24,7 @@ import {
   switchMap,
   takeUntil,
   tap,
+  catchError,
 } from "rxjs/operators";
 
 import {
@@ -76,6 +77,7 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
+import { BillingNotificationService } from "../../../billing/services/billing-notification.service";
 import {
   ResellerWarning,
   ResellerWarningService,
@@ -84,11 +86,6 @@ import { TrialFlowService } from "../../../billing/services/trial-flow.service";
 import { FreeTrial } from "../../../billing/types/free-trial";
 import { SharedModule } from "../../../shared";
 import { AssignCollectionsWebComponent } from "../../../vault/components/assign-collections";
-import {
-  CollectionDialogAction,
-  CollectionDialogTabType,
-  openCollectionDialog,
-} from "../../../vault/components/collection-dialog";
 import {
   VaultItemDialogComponent,
   VaultItemDialogMode,
@@ -114,15 +111,20 @@ import {
 } from "../../../vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 import { VaultFilter } from "../../../vault/individual-vault/vault-filter/shared/models/vault-filter.model";
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
-import { getNestedCollectionTree } from "../../../vault/utils/collection-utils";
 import { GroupApiService, GroupView } from "../core";
 import { openEntityEventsDialog } from "../manage/entity-events.component";
+import {
+  CollectionDialogAction,
+  CollectionDialogTabType,
+  openCollectionDialog,
+} from "../shared/components/collection-dialog";
 
 import {
   BulkCollectionsDialogComponent,
   BulkCollectionsDialogResult,
 } from "./bulk-collections-dialog";
 import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
+import { getNestedCollectionTree } from "./utils";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 
@@ -178,6 +180,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected freeTrial$: Observable<FreeTrial>;
   protected resellerWarning$: Observable<ResellerWarning | null>;
   protected prevCipherId: string | null = null;
+  protected userId: UserId;
   /**
    * A list of collections that the user can assign items to and edit those items within.
    * @protected
@@ -255,9 +258,12 @@ export class VaultComponent implements OnInit, OnDestroy {
     private organizationBillingService: OrganizationBillingServiceAbstraction,
     private resellerWarningService: ResellerWarningService,
     private accountService: AccountService,
+    private billingNotificationService: BillingNotificationService,
   ) {}
 
   async ngOnInit() {
+    this.userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
     this.resellerManagedOrgAlert = await this.configService.getFeatureFlag(
       FeatureFlag.ResellerManagedOrgAlert,
     );
@@ -401,7 +407,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           ciphers = await this.cipherService.getManyFromApiForOrganization(organization.id);
         }
 
-        await this.searchService.indexCiphers(ciphers, organization.id);
+        await this.searchService.indexCiphers(this.userId, ciphers, organization.id);
         return ciphers;
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
@@ -445,7 +451,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           collectionsToReturn = selectedCollection?.children.map((c) => c.node) ?? [];
         }
 
-        if (await this.searchService.isSearchable(searchText)) {
+        if (await this.searchService.isSearchable(this.userId, searchText)) {
           collectionsToReturn = this.searchPipe.transform(
             collectionsToReturn,
             searchText,
@@ -519,8 +525,13 @@ export class VaultComponent implements OnInit, OnDestroy {
 
         const filterFunction = createFilterFunction(filter);
 
-        if (await this.searchService.isSearchable(searchText)) {
-          return await this.searchService.searchCiphers(searchText, [filterFunction], ciphers);
+        if (await this.searchService.isSearchable(this.userId, searchText)) {
+          return await this.searchService.searchCiphers(
+            this.userId,
+            searchText,
+            [filterFunction],
+            ciphers,
+          );
         }
 
         return ciphers.filter(filterFunction);
@@ -628,12 +639,18 @@ export class VaultComponent implements OnInit, OnDestroy {
         combineLatest([
           of(org),
           this.organizationApiService.getSubscription(org.id),
-          this.organizationBillingService.getPaymentSource(org.id),
+          from(this.organizationBillingService.getPaymentSource(org.id)).pipe(
+            catchError((error: unknown) => {
+              this.billingNotificationService.handleError(error);
+              return of(null);
+            }),
+          ),
         ]),
       ),
-      map(([org, sub, paymentSource]) => {
-        return this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(org, sub, paymentSource);
-      }),
+      map(([org, sub, paymentSource]) =>
+        this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(org, sub, paymentSource),
+      ),
+      filter((result) => result !== null),
     );
 
     this.resellerWarning$ = organization$.pipe(
@@ -1169,7 +1186,8 @@ export class VaultComponent implements OnInit, OnDestroy {
       typeI18nKey = "password";
     } else if (field === "totp") {
       aType = "TOTP";
-      value = await this.totpService.getCode(cipher.login.totp);
+      const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
+      value = totpResponse?.code;
       typeI18nKey = "verificationCodeTotp";
     } else {
       this.toastService.showToast({

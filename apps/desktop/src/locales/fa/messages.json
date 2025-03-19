@@ -543,10 +543,6 @@
     "message": "Include special characters",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "تعداد کلمات"
   },
@@ -752,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "یادآور کلمه عبور"
-  },
-  "enterEmailToGetHint": {
-    "message": "برای دریافت یادآور کلمه عبور اصلی خود نشانی ایمیل‌تان را وارد کنید."
-  },
   "getMasterPasswordHint": {
     "message": "دریافت یادآور کلمه عبور اصلی"
   },
@@ -916,7 +906,7 @@
     "message": "از Duo Security با استفاده از برنامه تلفن همراه، پیامک، تماس تلفنی یا کلید امنیتی U2F برای تأیید سازمان خود استفاده کنید.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
@@ -955,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "محیط خود میزبان"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "نشانی اینترنتی پایه فرضی نصب Bitwarden میزبانی شده را مشخص کنید."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -969,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "محیط سفارشی"
-  },
-  "customEnvironmentFooter": {
-    "message": "برای کاربران پیشرفته. شما می‌توانید نشانی پایه هر سرویس را مستقلاً تعیین کنید."
   },
   "baseUrl": {
     "message": "نشانی اینترنتی سرور"
@@ -1012,6 +996,9 @@
   },
   "no": {
     "message": "خیر"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "بازنویسی کلمه عبور"
@@ -2785,14 +2772,8 @@
   "loginWithMasterPassword": {
     "message": "با کلمه عبور اصلی وارد شوید"
   },
-  "loggingInAs": {
-    "message": "در حال ورود به عنوان"
-  },
   "rememberEmail": {
     "message": "ایمیل را به خاطر بسپار"
-  },
-  "notYou": {
-    "message": "شما نیستید؟"
   },
   "newAroundHere": {
     "message": "اینجا تازه واردی؟"
@@ -3033,9 +3014,6 @@
   "requestAdminApproval": {
     "message": "درخواست تأیید مدیر"
   },
-  "approveWithMasterPassword": {
-    "message": "تأیید با کلمه عبور اصلی"
-  },
   "region": {
     "message": "منطقه"
   },
@@ -3060,9 +3038,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "درخواست شما به مدیرتان فرستاده شد."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "به محض تأیید مطلع خواهید شد."
   },
   "troubleLoggingIn": {
     "message": "در ورود مشکلی دارید؟"
@@ -3533,9 +3508,6 @@
   "unknownApplication": {
     "message": "An application"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
   },
@@ -3545,7 +3517,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
@@ -3604,5 +3576,8 @@
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

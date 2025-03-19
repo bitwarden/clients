@@ -18,6 +18,7 @@ export class DefaultSemanticLogger<Context extends object> implements SemanticLo
   constructor(
     private logger: LogService,
     context: Jsonify<Context>,
+    private now = () => Date.now(),
   ) {
     this.context = context && typeof context === "object" ? context : {};
   }
@@ -53,6 +54,7 @@ export class DefaultSemanticLogger<Context extends object> implements SemanticLo
       message,
       content: content ?? undefined,
       level: stringifyLevel(level),
+      "@timestamp": this.now(),
     };
 
     if (typeof content === "string" && !message) {

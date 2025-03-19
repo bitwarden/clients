@@ -208,8 +208,8 @@ export class VaultComponent implements OnInit, OnDestroy {
               tCipher.login.hasTotp &&
               this.userHasPremiumAccess
             ) {
-              const value = await this.totpService.getCode(tCipher.login.totp);
-              this.copyValue(tCipher, value, "verificationCodeTotp", "TOTP");
+              const value = await firstValueFrom(this.totpService.getCode$(tCipher.login.totp));
+              this.copyValue(tCipher, value.code, "verificationCodeTotp", "TOTP");
             }
             break;
           }
@@ -382,8 +382,8 @@ export class VaultComponent implements OnInit, OnDestroy {
           menu.push({
             label: this.i18nService.t("copyVerificationCodeTotp"),
             click: async () => {
-              const value = await this.totpService.getCode(cipher.login.totp);
-              this.copyValue(cipher, value, "verificationCodeTotp", "TOTP");
+              const value = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
+              this.copyValue(cipher, value.code, "verificationCodeTotp", "TOTP");
             },
           });
         }
@@ -493,11 +493,14 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async savedCipher(cipher: CipherView) {
-    this.cipherId = cipher.id;
+    this.cipherId = null;
     this.action = "view";
     await this.vaultItemsComponent.refresh();
+    this.cipherId = cipher.id;
     await this.cipherService.clearCache(this.activeUserId);
+    await this.vaultItemsComponent.load(this.activeFilter.buildFilter());
     this.go();
+    await this.vaultItemsComponent.refresh();
   }
 
   async deletedCipher(cipher: CipherView) {
@@ -571,6 +574,8 @@ export class VaultComponent implements OnInit, OnDestroy {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.viewCipher(cipher);
       await this.vaultItemsComponent.refresh();
+      await this.cipherService.clearCache(this.activeUserId);
+      await this.vaultItemsComponent.load(this.activeFilter.buildFilter());
     });
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.modal.onClosed.subscribe(async () => {

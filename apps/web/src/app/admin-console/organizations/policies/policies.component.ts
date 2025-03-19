@@ -25,7 +25,6 @@ import { PolicyEditComponent, PolicyEditDialogResult } from "./policy-edit.compo
   selector: "app-org-policies",
   templateUrl: "policies.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class PoliciesComponent implements OnInit {
   @ViewChild("editTemplate", { read: ViewContainerRef, static: true })
   editModalRef: ViewContainerRef;

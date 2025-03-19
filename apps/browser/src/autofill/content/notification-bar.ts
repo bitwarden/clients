@@ -845,6 +845,7 @@ async function loadNotificationBar() {
       theme: typeData.theme,
       removeIndividualVault: typeData.removeIndividualVault,
       importType: typeData.importType,
+      launchTimestamp: typeData.launchTimestamp,
     };
     const notificationBarUrl = "notification/bar.html";
 
@@ -873,11 +874,32 @@ async function loadNotificationBar() {
     const barPageUrl: string = chrome.runtime.getURL(barPage);
 
     function getIframeStyle(useComponentBar: boolean): string {
-      return (
-        (useComponentBar
-          ? "height: calc(276px + 25px); width: 450px; right: 0;"
-          : "height: 42px; width: 100%;") + " border: 0; min-height: initial;"
-      );
+      const isNotificationFresh =
+        notificationBarInitData.launchTimestamp &&
+        Date.now() - notificationBarInitData.launchTimestamp < 500;
+
+      const baseStyle = useComponentBar
+        ? isNotificationFresh
+          ? "height: calc(276px + 25px); width: 450px; right: 0; transform:translateX(100%); opacity:0;"
+          : "height: calc(276px + 25px); width: 450px; right: 0; transform:translateX(0%); opacity:1;"
+        : "height: 42px; width: 100%;";
+
+      const transitionStyle =
+        isNotificationFresh && useComponentBar
+          ? "transition: transform 0.15s ease-in, opacity 0.15s ease; transform:translateX(0%); opacity:1; transition-delay: 0.25s;"
+          : "";
+
+      notificationBarIframe.style.cssText = baseStyle + " border: 0; min-height: initial;";
+
+      if (isNotificationFresh && useComponentBar) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            notificationBarIframe.style.cssText += transitionStyle;
+          });
+        });
+      }
+
+      return baseStyle + " border: 0; min-height: initial;";
     }
 
     notificationBarIframe = document.createElement("iframe");
