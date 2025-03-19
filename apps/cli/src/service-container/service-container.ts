@@ -520,6 +520,8 @@ export class ServiceContainer {
       this.stateProvider,
       this.authService,
     );
+    const bulkEncryptService = new FallbackBulkEncryptService(this.encryptService);
+    this.configService.broadcastConfigChangesTo(this.encryptService, bulkEncryptService);
 
     this.domainSettingsService = new DefaultDomainSettingsService(
       this.stateProvider,
@@ -683,7 +685,7 @@ export class ServiceContainer {
       this.stateService,
       this.autofillSettingsService,
       this.encryptService,
-      new FallbackBulkEncryptService(this.encryptService),
+      bulkEncryptService,
       this.cipherFileUploadService,
       this.configService,
       this.stateProvider,

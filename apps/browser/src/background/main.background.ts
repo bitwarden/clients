@@ -1334,6 +1334,8 @@ export default class MainBackground {
     this.syncServiceListener?.listener$().subscribe();
     await this.autoSubmitLoginBackground.init();
 
+    this.configService.broadcastConfigChangesTo(this.encryptService, this.bulkEncryptService);
+
     if (
       BrowserApi.isManifestVersion(2) &&
       (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService))
