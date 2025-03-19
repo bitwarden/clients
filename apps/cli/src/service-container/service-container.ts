@@ -36,6 +36,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { MasterPasswordApiService as MasterPasswordApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import { DefaultOpaqueKeyExchangeService } from "@bitwarden/common/auth/opaque/default-opaque-key-exchange.service";
+import { OpaqueKeyExchangeApiService } from "@bitwarden/common/auth/opaque/opaque-key-exchange-api.service";
 import {
   AccountServiceImplementation,
   getUserId,
@@ -44,6 +46,7 @@ import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/services/master-password/master-password-api.service.implementation";
+import { PrePasswordLoginApiService } from "@bitwarden/common/auth/services/pre-password-login-api.service";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/services/two-factor.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
@@ -640,6 +643,19 @@ export class ServiceContainer {
       this.configService,
     );
 
+    const opaqueKeyExchangeApiService = new OpaqueKeyExchangeApiService(
+      this.apiService,
+      this.environmentService,
+    );
+    const opaqueKeyExchangeService = new DefaultOpaqueKeyExchangeService(
+      opaqueKeyExchangeApiService,
+      this.sdkService,
+    );
+    const prePasswordLoginApiService = new PrePasswordLoginApiService(
+      this.apiService,
+      this.environmentService,
+    );
+
     this.loginStrategyService = new LoginStrategyService(
       this.accountService,
       this.masterPasswordService,
@@ -666,6 +682,9 @@ export class ServiceContainer {
       this.vaultTimeoutSettingsService,
       this.kdfConfigService,
       this.taskSchedulerService,
+      prePasswordLoginApiService,
+      this.configService,
+      opaqueKeyExchangeService,
     );
 
     // FIXME: CLI does not support autofill
