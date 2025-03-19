@@ -1,4 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import * as rxjs from "rxjs";
 
 import { ServerConfig } from "../../../platform/abstractions/config/server-config";
 import { CryptoFunctionService } from "../../../platform/abstractions/crypto-function.service";
@@ -13,7 +14,6 @@ import { BulkEncryptServiceImplementation } from "./bulk-encrypt.service.impleme
 describe("BulkEncryptServiceImplementation", () => {
   const cryptoFunctionService = mock<CryptoFunctionService>();
   const logService = mock<LogService>();
-  const mockKey = mock<SymmetricCryptoKey>();
 
   let sut: BulkEncryptServiceImplementation;
 
@@ -24,16 +24,32 @@ describe("BulkEncryptServiceImplementation", () => {
   });
 
   describe("decryptItems", () => {
-    let key: MockProxy<SymmetricCryptoKey>;
-    let mockWindow: any;
+    const key = mock<SymmetricCryptoKey>();
+    const serverConfig = mock<ServerConfig>();
+    let globalWindow: any;
+
+    // Mock creating a worker.
+    const mockWorker = mock<Worker>();
+    global.Worker = jest.fn().mockImplementation(() => mockWorker);
+    global.URL = jest.fn().mockImplementation(() => "url") as unknown as typeof URL;
+    global.URL.createObjectURL = jest.fn().mockReturnValue("blob:url");
+    global.URL.revokeObjectURL = jest.fn();
+    global.URL.canParse = jest.fn().mockReturnValue(true);
+
+    // Mock the workers returned response.
+    const mockMessageEvent = {
+      id: "mock-guid",
+      data: ["decrypted1", "decrypted2"],
+    };
+    const mockMessageEvent$ = rxjs.from([mockMessageEvent]);
+    jest.spyOn(rxjs, "fromEvent").mockReturnValue(mockMessageEvent$);
 
     beforeEach(() => {
-      key = mock<SymmetricCryptoKey>();
-      mockWindow = global.window;
+      globalWindow = global.window;
     });
 
     afterEach(() => {
-      global.window = mockWindow;
+      global.window = globalWindow;
     });
 
     it("throws error if key is null", async () => {
@@ -42,17 +58,17 @@ describe("BulkEncryptServiceImplementation", () => {
     });
 
     it("returns an empty array when items is null", async () => {
-      const result = await sut.decryptItems(null as any, mockKey);
+      const result = await sut.decryptItems(null as any, key);
       expect(result).toEqual([]);
     });
 
     it("returns an empty array when items is empty", async () => {
-      const result = await sut.decryptItems([], mockKey);
+      const result = await sut.decryptItems([], key);
       expect(result).toEqual([]);
     });
 
     it("decrypts items sequentially when window is undefined", async () => {
-      // Mock window as undefined
+      // Make global window undefined.
       delete (global as any).window;
 
       const mockItems = [createMockDecryptable("item1"), createMockDecryptable("item2")];
@@ -68,7 +84,6 @@ describe("BulkEncryptServiceImplementation", () => {
     });
 
     it("uses workers for decryption when window is available", async () => {
-      // Mock the private method
       const mockDecryptedItems = ["decrypted1", "decrypted2"];
       jest
         .spyOn<any, any>(sut, "getDecryptedItemsFromWorkers")
@@ -80,6 +95,46 @@ describe("BulkEncryptServiceImplementation", () => {
 
       expect(sut["getDecryptedItemsFromWorkers"]).toHaveBeenCalledWith(mockItems, key);
       expect(result).toEqual(mockDecryptedItems);
+    });
+
+    it("creates new worker when none exist", async () => {
+      (sut as any).currentServerConfig = undefined;
+      const mockItems = [createMockDecryptable("item1"), createMockDecryptable("item2")];
+
+      await sut.decryptItems(mockItems, key);
+
+      expect(global.Worker).toHaveBeenCalled();
+      expect(mockWorker.postMessage).toHaveBeenCalledTimes(1);
+      expect(mockWorker.postMessage).not.toHaveBeenCalledWith(
+        buildSetConfigMessage({ newConfig: serverConfig }),
+      );
+    });
+
+    it("sends a SetConfigMessage to the new worker when there is a current server config", async () => {
+      (sut as any).currentServerConfig = serverConfig;
+      const mockItems = [createMockDecryptable("item1"), createMockDecryptable("item2")];
+
+      await sut.decryptItems(mockItems, key);
+
+      expect(global.Worker).toHaveBeenCalled();
+      expect(mockWorker.postMessage).toHaveBeenCalledTimes(2);
+      expect(mockWorker.postMessage).toHaveBeenCalledWith(
+        buildSetConfigMessage({ newConfig: serverConfig }),
+      );
+    });
+
+    it("does not create worker if one exists", async () => {
+      (sut as any).currentServerConfig = serverConfig;
+      (sut as any).workers = [mockWorker];
+      const mockItems = [createMockDecryptable("item1"), createMockDecryptable("item2")];
+
+      await sut.decryptItems(mockItems, key);
+
+      expect(global.Worker).not.toHaveBeenCalled();
+      expect(mockWorker.postMessage).toHaveBeenCalledTimes(1);
+      expect(mockWorker.postMessage).not.toHaveBeenCalledWith(
+        buildSetConfigMessage({ newConfig: serverConfig }),
+      );
     });
   });
 

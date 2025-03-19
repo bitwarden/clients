@@ -8,59 +8,57 @@ import { EncryptService } from "../abstractions/encrypt.service";
 import { FallbackBulkEncryptService } from "./fallback-bulk-encrypt.service";
 
 describe("FallbackBulkEncryptService", () => {
-  const mockEncryptService = mock<EncryptService>();
-  const mockFeatureFlagEncryptService = mock<BulkEncryptService>();
-  const mockServerConfig = mock<ServerConfig>();
+  const encryptService = mock<EncryptService>();
+  const featureFlagEncryptService = mock<BulkEncryptService>();
+  const serverConfig = mock<ServerConfig>();
 
   let sut: FallbackBulkEncryptService;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    sut = new FallbackBulkEncryptService(mockEncryptService);
+    sut = new FallbackBulkEncryptService(encryptService);
   });
 
   describe("decryptItems", () => {
     const mockItems = [{ id: "guid", name: "encryptedValue" }] as any[];
-    const mockKey = mock<SymmetricCryptoKey>();
+    const key = mock<SymmetricCryptoKey>();
     const mockDecryptedItems = [{ id: "guid", name: "decryptedValue" }] as any[];
 
-    it("should call decryptItems on featureFlagEncryptService when it is set", async () => {
-      mockFeatureFlagEncryptService.decryptItems.mockResolvedValue(mockDecryptedItems);
-      await sut.setFeatureFlagEncryptService(mockFeatureFlagEncryptService);
+    it("calls decryptItems on featureFlagEncryptService when it is set", async () => {
+      featureFlagEncryptService.decryptItems.mockResolvedValue(mockDecryptedItems);
+      await sut.setFeatureFlagEncryptService(featureFlagEncryptService);
 
-      const result = await sut.decryptItems(mockItems, mockKey);
+      const result = await sut.decryptItems(mockItems, key);
 
-      expect(mockFeatureFlagEncryptService.decryptItems).toHaveBeenCalledWith(mockItems, mockKey);
-      expect(mockEncryptService.decryptItems).not.toHaveBeenCalled();
+      expect(featureFlagEncryptService.decryptItems).toHaveBeenCalledWith(mockItems, key);
+      expect(encryptService.decryptItems).not.toHaveBeenCalled();
       expect(result).toEqual(mockDecryptedItems);
     });
 
-    it("should call decryptItems on encryptService when featureFlagEncryptService is not set", async () => {
-      mockEncryptService.decryptItems.mockResolvedValue(mockDecryptedItems);
+    it("calls decryptItems on encryptService when featureFlagEncryptService is not set", async () => {
+      encryptService.decryptItems.mockResolvedValue(mockDecryptedItems);
 
-      const result = await sut.decryptItems(mockItems, mockKey);
+      const result = await sut.decryptItems(mockItems, key);
 
-      expect(mockEncryptService.decryptItems).toHaveBeenCalledWith(mockItems, mockKey);
+      expect(encryptService.decryptItems).toHaveBeenCalledWith(mockItems, key);
       expect(result).toEqual(mockDecryptedItems);
     });
   });
 
   describe("onServerConfigChange", () => {
-    it("should call onServerConfigChange on featureFlagEncryptService when it is set", async () => {
-      await sut.setFeatureFlagEncryptService(mockFeatureFlagEncryptService);
+    it("calls onServerConfigChange on featureFlagEncryptService when it is set", async () => {
+      await sut.setFeatureFlagEncryptService(featureFlagEncryptService);
 
-      sut.onServerConfigChange(mockServerConfig);
+      sut.onServerConfigChange(serverConfig);
 
-      expect(mockFeatureFlagEncryptService.onServerConfigChange).toHaveBeenCalledWith(
-        mockServerConfig,
-      );
-      expect(mockEncryptService.onServerConfigChange).not.toHaveBeenCalled();
+      expect(featureFlagEncryptService.onServerConfigChange).toHaveBeenCalledWith(serverConfig);
+      expect(encryptService.onServerConfigChange).not.toHaveBeenCalled();
     });
 
-    it("should call onServerConfigChange on encryptService when featureFlagEncryptService is not set", () => {
-      sut.onServerConfigChange(mockServerConfig);
+    it("calls onServerConfigChange on encryptService when featureFlagEncryptService is not set", () => {
+      sut.onServerConfigChange(serverConfig);
 
-      expect(mockEncryptService.onServerConfigChange).toHaveBeenCalledWith(mockServerConfig);
+      expect(encryptService.onServerConfigChange).toHaveBeenCalledWith(serverConfig);
     });
   });
 });

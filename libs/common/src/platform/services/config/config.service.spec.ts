@@ -368,7 +368,7 @@ describe("ConfigService", () => {
   });
 
   describe("broadcastConfigChangesTo", () => {
-    it("should notify all listeners when server config changes", async () => {
+    it("notifies all listeners when server config changes", () => {
       const sut = new DefaultConfigService(
         configApiService,
         environmentService,
@@ -376,15 +376,15 @@ describe("ConfigService", () => {
         stateProvider,
         authService,
       );
-      const [serverConfigSubject, mockConfig] = setupBroadcastSut(sut);
+      const [serverConfigSubject, initConfig] = setupBroadcastSut(sut);
 
       const listener1 = mock<OnServerConfigChange>();
       const listener2 = mock<OnServerConfigChange>();
 
       const subscription = sut.broadcastConfigChangesTo(listener1, listener2);
 
-      expect(listener1.onServerConfigChange).toHaveBeenCalledWith(mockConfig);
-      expect(listener2.onServerConfigChange).toHaveBeenCalledWith(mockConfig);
+      expect(listener1.onServerConfigChange).toHaveBeenCalledWith(initConfig);
+      expect(listener2.onServerConfigChange).toHaveBeenCalledWith(initConfig);
 
       const newConfig = mock<ServerConfig>();
       serverConfigSubject.next(newConfig);
@@ -395,7 +395,7 @@ describe("ConfigService", () => {
       subscription.unsubscribe();
     });
 
-    it("should return subscription that can be unsubscribed", async () => {
+    it("returns subscription that can be unsubscribed", () => {
       const sut = new DefaultConfigService(
         configApiService,
         environmentService,

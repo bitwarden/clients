@@ -15,47 +15,50 @@ import {
 
 describe("Worker command types", () => {
   describe("buildDecryptMessage", () => {
-    it("should build a message with the correct command", () => {
-      const mockData = createMockData();
-      const result = buildDecryptMessage(mockData);
-      const parsedResult = JSON.parse(result);
+    it("builds a message with the correct command", () => {
+      const commandData = createDecryptCommandData();
 
+      const result = buildDecryptMessage(commandData);
+
+      const parsedResult = JSON.parse(result);
       expect(parsedResult.command).toBe(DECRYPT_COMMAND);
     });
 
-    it("should include the provided data in the message", () => {
+    it("includes the provided data in the message", () => {
       const mockItems = [{ encrypted: "test-encrypted" } as unknown as Decryptable<any>];
-      const mockData = createMockData(mockItems);
+      const commandData = createDecryptCommandData(mockItems);
 
-      const result = buildDecryptMessage(mockData);
+      const result = buildDecryptMessage(commandData);
+
       const parsedResult = JSON.parse(result);
-
+      expect(parsedResult.command).toBe(DECRYPT_COMMAND);
       expect(parsedResult.id).toBe("test-id");
       expect(parsedResult.items).toEqual(mockItems);
-      expect(SymmetricCryptoKey.fromJSON(parsedResult.key)).toEqual(mockData.key);
+      expect(SymmetricCryptoKey.fromJSON(parsedResult.key)).toEqual(commandData.key);
     });
   });
 
   describe("buildSetConfigMessage", () => {
-    it("should build a message with the correct command", () => {
+    it("builds a message with the correct command", () => {
       const result = buildSetConfigMessage({ newConfig: mock<ServerConfig>() });
 
       const parsedResult = JSON.parse(result);
       expect(parsedResult.command).toBe(SET_CONFIG_COMMAND);
     });
 
-    it("should include the provided data in the message", () => {
+    it("includes the provided data in the message", () => {
       const serverConfig = { version: "test-version" } as unknown as ServerConfig;
 
       const result = buildSetConfigMessage({ newConfig: serverConfig });
-      const parsedResult = JSON.parse(result);
 
+      const parsedResult = JSON.parse(result);
+      expect(parsedResult.command).toBe(SET_CONFIG_COMMAND);
       expect(ServerConfig.fromJSON(parsedResult.newConfig).version).toEqual(serverConfig.version);
     });
   });
 });
 
-function createMockData(items?: Decryptable<any>[]): DecryptCommandData {
+function createDecryptCommandData(items?: Decryptable<any>[]): DecryptCommandData {
   return {
     id: "test-id",
     items: items ?? [],
