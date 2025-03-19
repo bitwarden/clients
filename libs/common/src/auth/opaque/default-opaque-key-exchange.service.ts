@@ -8,7 +8,7 @@ import { OpaqueSessionId } from "@bitwarden/common/types/guid";
 
 import { UserKey } from "../../types/key";
 
-import { Argon2IdParameters, CipherConfiguration } from "./models/cipher-configuration";
+import { CipherConfiguration } from "./models/cipher-configuration";
 import { LoginFinishRequest } from "./models/login-finish.request";
 import { LoginStartRequest } from "./models/login-start.request";
 import { RegistrationFinishRequest } from "./models/registration-finish.request";
@@ -25,15 +25,14 @@ export class DefaultOpaqueKeyExchangeService implements OpaqueKeyExchangeService
   async register(
     masterPassword: string,
     userKey: UserKey,
-    keyStretchingFuncArgon2Params: Argon2IdParameters, // TODO: eval if we can use KdfConfig existing type
+    cipherConfig: CipherConfiguration,
   ): Promise<OpaqueSessionId> {
-    if (!masterPassword || !userKey || !keyStretchingFuncArgon2Params) {
+    if (!masterPassword || !userKey || !cipherConfig) {
       throw new Error(
-        `Unable to register user with missing parameters. masterPassword exists: ${!!masterPassword}, userKey exists: ${!!userKey}, keyStretchingFuncArgon2Params exists: ${!!keyStretchingFuncArgon2Params}`,
+        `Unable to register user with missing parameters. masterPassword exists: ${!!masterPassword}, userKey exists: ${!!userKey}, cipherConfig exists: ${!!cipherConfig}`,
       );
     }
 
-    const cipherConfig = new CipherConfiguration(keyStretchingFuncArgon2Params);
     const cryptoClient = (await firstValueFrom(this.sdkService.client$)).crypto();
 
     const registrationStart = cryptoClient.opaque_register_start(
@@ -81,15 +80,14 @@ export class DefaultOpaqueKeyExchangeService implements OpaqueKeyExchangeService
   async login(
     email: string,
     masterPassword: string,
-    keyStretchingFuncArgon2Params: Argon2IdParameters,
+    cipherConfig: CipherConfiguration,
   ): Promise<Uint8Array> {
-    if (!email || !masterPassword || !keyStretchingFuncArgon2Params) {
+    if (!email || !masterPassword || !cipherConfig) {
       throw new Error(
-        `Unable to log in user with missing parameters. email exists: ${!!email}; masterPassword exists: ${!!masterPassword}; keyStretchingFuncArgon2Params exists: ${!!keyStretchingFuncArgon2Params}`,
+        `Unable to log in user with missing parameters. email exists: ${!!email}; masterPassword exists: ${!!masterPassword}; cipherConfig exists: ${!!cipherConfig}`,
       );
     }
 
-    const cipherConfig = new CipherConfiguration(keyStretchingFuncArgon2Params);
     const cryptoClient = (await firstValueFrom(this.sdkService.client$)).crypto();
 
     const loginStart = cryptoClient.opaque_login_start(masterPassword, cipherConfig.toSdkConfig());

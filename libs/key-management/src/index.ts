@@ -16,6 +16,7 @@ export {
   KdfConfig,
   createKdfConfig,
   DEFAULT_KDF_CONFIG,
+  DEFAULT_OPAQUE_KDF_CONFIG,
 } from "./models/kdf-config";
 export { KdfConfigService } from "./abstractions/kdf-config.service";
 export { DefaultKdfConfigService } from "./kdf-config.service";

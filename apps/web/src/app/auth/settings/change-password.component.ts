@@ -11,6 +11,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
+import { CipherConfiguration } from "@bitwarden/common/auth/opaque/models/cipher-configuration";
 import { OpaqueKeyExchangeService } from "@bitwarden/common/auth/opaque/opaque-key-exchange.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -24,7 +25,12 @@ import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { Argon2KdfConfig, KdfConfigService, KdfType, KeyService } from "@bitwarden/key-management";
+import {
+  DEFAULT_OPAQUE_KDF_CONFIG,
+  KdfConfigService,
+  KdfType,
+  KeyService,
+} from "@bitwarden/key-management";
 
 import { UserKeyRotationService } from "../../key-management/key-rotation/user-key-rotation.service";
 
@@ -222,27 +228,21 @@ export class ChangePasswordComponent
           return this.updateKey();
         });
       } else {
-        // PBKDF2 is not recommended for opaque, so force use of Argon2 with default params if the user is using PBKDF2.
         const userConfiguredKdf = await this.kdfConfigService.getKdfConfig();
-        const opaqueKdf =
+        const cipherConfig = CipherConfiguration.fromKdfConfig(
           userConfiguredKdf.kdfType === KdfType.Argon2id
             ? userConfiguredKdf
-            : new Argon2KdfConfig();
+            : DEFAULT_OPAQUE_KDF_CONFIG,
+        );
 
         const sessionId = await this.opaqueKeyExchangeService.register(
           this.masterPassword,
           newUserKey[0],
-          opaqueKdf,
+          cipherConfig,
         );
         request.opaqueSessionId = sessionId;
         this.formPromise = this.masterPasswordApiService.postPassword(request);
       }
-
-      // TODO: remove this test code
-      const userConfiguredKdf = await this.kdfConfigService.getKdfConfig();
-      const opaqueKdf =
-        userConfiguredKdf.kdfType === KdfType.Argon2id ? userConfiguredKdf : new Argon2KdfConfig();
-      await this.opaqueKeyExchangeService.register(this.masterPassword, newUserKey[0], opaqueKdf);
 
       this.toastService.showToast({
         variant: "success",

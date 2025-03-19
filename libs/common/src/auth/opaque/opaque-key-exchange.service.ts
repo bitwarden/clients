@@ -2,7 +2,7 @@ import { OpaqueSessionId } from "@bitwarden/common/types/guid";
 
 import { UserKey } from "../../types/key";
 
-import { Argon2IdParameters } from "./models/cipher-configuration";
+import { CipherConfiguration } from "./models/cipher-configuration";
 
 export abstract class OpaqueKeyExchangeService {
   /**
@@ -11,7 +11,7 @@ export abstract class OpaqueKeyExchangeService {
   abstract register(
     masterPassword: string,
     userKey: UserKey,
-    ksfParameters: Argon2IdParameters,
+    cipherConfiguration: CipherConfiguration,
   ): Promise<OpaqueSessionId>;
 
   /**
@@ -22,6 +22,6 @@ export abstract class OpaqueKeyExchangeService {
   abstract login(
     email: string,
     masterPassword: string,
-    ksfParameters: Argon2IdParameters,
+    cipherConfiguration: CipherConfiguration,
   ): Promise<Uint8Array>;
 }

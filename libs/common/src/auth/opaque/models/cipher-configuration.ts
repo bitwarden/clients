@@ -1,3 +1,4 @@
+import { Argon2KdfConfig } from "@bitwarden/key-management";
 import { CipherConfiguration as CipherConfigurationSdk } from "@bitwarden/sdk-internal";
 
 // TODO: add js docs to all types / classes here.
@@ -14,6 +15,21 @@ export class CipherConfiguration {
   constructor(ksf: Argon2IdParameters) {
     this.cipherSuite = "OPAQUE_3_RISTRETTO255_OPRF_RISTRETTO255_KEGROUP_3DH_KEX_ARGON2ID13_KSF";
     this.argon2Parameters = ksf;
+  }
+
+  /**
+   * Converts from Bitwarden KDF configs to OPAQUE KSF configs.
+   *
+   * @param kdfConfig - Bitwarden KDF config
+   * @returns OPAQUE KSF config
+   */
+  static fromKdfConfig(kdfConfig: Argon2KdfConfig): CipherConfiguration {
+    return new CipherConfiguration({
+      // convert MiB to KiB
+      memory: kdfConfig.memory * 1024,
+      iterations: kdfConfig.iterations,
+      parallelism: kdfConfig.parallelism,
+    });
   }
 
   toSdkConfig(): CipherConfigurationSdk {

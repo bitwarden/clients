@@ -13,6 +13,7 @@ import { IdentityCaptchaResponse } from "@bitwarden/common/auth/models/response/
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
+import { CipherConfiguration } from "@bitwarden/common/auth/opaque/models/cipher-configuration";
 import { OpaqueKeyExchangeService } from "@bitwarden/common/auth/opaque/opaque-key-exchange.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -21,7 +22,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
-import { Argon2KdfConfig, KdfType } from "@bitwarden/key-management";
+import { DEFAULT_OPAQUE_KDF_CONFIG, KdfType } from "@bitwarden/key-management";
 
 import { PasswordHashLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
@@ -295,11 +296,14 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
       return;
     }
 
-    const opaqueKdf =
-      userConfiguredKdf.kdfType === KdfType.Argon2id ? userConfiguredKdf : new Argon2KdfConfig();
+    const cipherConfig = CipherConfiguration.fromKdfConfig(
+      userConfiguredKdf.kdfType === KdfType.Argon2id
+        ? userConfiguredKdf
+        : DEFAULT_OPAQUE_KDF_CONFIG,
+    );
 
     try {
-      await this.opaqueKeyExchangeService.register(masterPassword, userKey, opaqueKdf);
+      await this.opaqueKeyExchangeService.register(masterPassword, userKey, cipherConfig);
     } catch (error) {
       // If this process fails for any reason, we don't want to stop the login process
       // so just log the error and continue.

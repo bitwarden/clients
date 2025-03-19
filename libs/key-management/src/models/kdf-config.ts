@@ -141,3 +141,4 @@ export class Argon2KdfConfig {
 }
 
 export const DEFAULT_KDF_CONFIG = new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue);
+export const DEFAULT_OPAQUE_KDF_CONFIG = new Argon2KdfConfig(1, 256, 1);
