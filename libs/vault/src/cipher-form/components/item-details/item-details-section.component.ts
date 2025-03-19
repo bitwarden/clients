@@ -172,7 +172,7 @@ export class ItemDetailsSectionComponent implements OnInit {
 
   get showOwnership() {
     // Don't show ownership field for archived ciphers
-    if (this.originalCipherView?.archivedDate !== null) {
+    if (this.originalCipherView.isArchived) {
       return false;
     }
 
