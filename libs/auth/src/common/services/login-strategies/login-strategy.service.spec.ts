@@ -48,6 +48,8 @@ import { UserDecryptionOptionsService } from "../user-decryption-options/user-de
 
 import { LoginStrategyService } from "./login-strategy.service";
 import { CACHE_EXPIRATION_KEY } from "./login-strategy.state";
+import { OpaqueKeyExchangeService } from "@bitwarden/common/auth/opaque/opaque-key-exchange.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 // TODO: update tests to pass
 // TODO: test makePrePasswordLoginMasterKey
@@ -79,6 +81,8 @@ describe("LoginStrategyService", () => {
   let kdfConfigService: MockProxy<KdfConfigService>;
   let taskSchedulerService: MockProxy<TaskSchedulerService>;
   let prePasswordLoginApiService: MockProxy<PrePasswordLoginApiService>;
+  let configService: MockProxy<ConfigService>;
+  let opaqueKeyExchangeService: MockProxy<OpaqueKeyExchangeService>;
 
   let stateProvider: FakeGlobalStateProvider;
   let loginStrategyCacheExpirationState: FakeGlobalState<Date | null>;
@@ -112,6 +116,8 @@ describe("LoginStrategyService", () => {
     kdfConfigService = mock<KdfConfigService>();
     taskSchedulerService = mock<TaskSchedulerService>();
     prePasswordLoginApiService = mock<PrePasswordLoginApiService>();
+    configService = mock();
+    opaqueKeyExchangeService = mock();
 
     sut = new LoginStrategyService(
       accountService,
@@ -140,6 +146,8 @@ describe("LoginStrategyService", () => {
       kdfConfigService,
       taskSchedulerService,
       prePasswordLoginApiService,
+      configService,
+      opaqueKeyExchangeService,
     );
 
     loginStrategyCacheExpirationState = stateProvider.getFake(CACHE_EXPIRATION_KEY);
