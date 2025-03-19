@@ -12,6 +12,7 @@ import { LogoutReason } from "@bitwarden/auth/common";
 
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
 import { OrganizationConnectionType } from "../admin-console/enums";
+import { CollectionBulkDeleteRequest } from "../admin-console/models/request/collection-bulk-delete.request";
 import { OrganizationSponsorshipCreateRequest } from "../admin-console/models/request/organization/organization-sponsorship-create.request";
 import { OrganizationSponsorshipRedeemRequest } from "../admin-console/models/request/organization/organization-sponsorship-redeem.request";
 import { OrganizationConnectionRequest } from "../admin-console/models/request/organization-connection.request";
@@ -58,7 +59,6 @@ import { PasswordlessAuthRequest } from "../auth/models/request/passwordless-aut
 import { SecretVerificationRequest } from "../auth/models/request/secret-verification.request";
 import { TwoFactorEmailRequest } from "../auth/models/request/two-factor-email.request";
 import { TwoFactorProviderRequest } from "../auth/models/request/two-factor-provider.request";
-import { TwoFactorRecoveryRequest } from "../auth/models/request/two-factor-recovery.request";
 import { UpdateProfileRequest } from "../auth/models/request/update-profile.request";
 import { UpdateTwoFactorAuthenticatorRequest } from "../auth/models/request/update-two-factor-authenticator.request";
 import { UpdateTwoFactorDuoRequest } from "../auth/models/request/update-two-factor-duo.request";
@@ -101,7 +101,6 @@ import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/mode
 import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
 import { VaultTimeoutSettingsService } from "../key-management/vault-timeout";
 import { VaultTimeoutAction } from "../key-management/vault-timeout/enums/vault-timeout-action.enum";
-import { CollectionBulkDeleteRequest } from "../models/request/collection-bulk-delete.request";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
 import { EventRequest } from "../models/request/event.request";
 import { KdfRequest } from "../models/request/kdf.request";
@@ -159,7 +158,7 @@ export class ApiService implements ApiServiceAbstraction {
    * The message (responseJson.ErrorModel.Message) that comes back from the server when a new device verification is required.
    */
   private static readonly NEW_DEVICE_VERIFICATION_REQUIRED_MESSAGE =
-    "New device verification required.";
+    "new device verification required";
 
   constructor(
     private tokenService: TokenService,
@@ -1062,10 +1061,6 @@ export class ApiService implements ApiServiceAbstraction {
       true,
     );
     return new TwoFactorProviderResponse(r);
-  }
-
-  postTwoFactorRecover(request: TwoFactorRecoveryRequest): Promise<any> {
-    return this.send("POST", "/two-factor/recover", request, false, false);
   }
 
   postTwoFactorEmailSetup(request: TwoFactorEmailRequest): Promise<any> {

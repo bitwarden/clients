@@ -428,6 +428,9 @@
   "dragToSort": {
     "message": "Glissez pour trier"
   },
+  "dragToReorder": {
+    "message": "Faire glisser pour réorganiser"
+  },
   "cfTypeText": {
     "message": "Texte"
   },
@@ -469,6 +472,19 @@
   },
   "editFolder": {
     "message": "Modifier le dossier"
+  },
+  "editWithName": {
+    "message": "Modifier $ITEM$: $NAME$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Nouveau dossier"
@@ -1269,12 +1285,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Entrez l'adresse courriel de votre compte et l'indice de votre mot de passe vous sera envoyé"
-  },
-  "passwordHint": {
-    "message": "Indice de mot de passe"
-  },
-  "enterEmailToGetHint": {
-    "message": "Saisissez l'adresse électronique de votre compte pour recevoir l'indice de votre mot de passe principal."
   },
   "getMasterPasswordHint": {
     "message": "Obtenir l'indice du mot de passe principal"
@@ -4530,6 +4540,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "$LABEL$ déplacé vers le haut, position $INDEX$ de $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ déplacé vers le bas, position $INDEX$ de $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "Lors de la mise à jour de votre clé de chiffrement, vos dossiers n'ont pas pu être déchiffrés. Pour continuer avec la mise à jour, vos dossiers doivent être supprimés. Aucun élément du coffre ne sera supprimé si vous continuez."
   },
@@ -7264,12 +7308,6 @@
   "numberOfUsers": {
     "message": "Nombre d’utilisateurs"
   },
-  "loggingInAs": {
-    "message": "Connexion en tant que"
-  },
-  "notYou": {
-    "message": "Ce n'est pas vous ?"
-  },
   "pickAnAvatarColor": {
     "message": "Choisissez une couleur d'avatar"
   },
@@ -8393,9 +8431,6 @@
   "requestAdminApproval": {
     "message": "Demander l'approbation de l'administrateur"
   },
-  "approveWithMasterPassword": {
-    "message": "Approuver avec le mot de passe principal"
-  },
   "trustedDeviceEncryption": {
     "message": "Chiffrement de l'appareil de confiance"
   },
@@ -8609,9 +8644,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Votre demande a été envoyée à votre administrateur."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Vous serez notifié une fois approuvé."
   },
   "troubleLoggingIn": {
     "message": "Problème pour vous connecter ?"
@@ -9337,6 +9369,15 @@
   },
   "deviceManagementDesc": {
     "message": "Configurez la gestion des appareils pour Bitwarden en utilisant le guide d'implémentation pour votre plateforme."
+  },
+  "deviceIdMissing": {
+    "message": "L'identification de l'appareil est manquante"
+  },
+  "deviceTypeMissing": {
+    "message": "Le type d'appareil est manquant"
+  },
+  "deviceCreationDateMissing": {
+    "message": "La date de création de l'appareil est manquante"
   },
   "desktopRequired": {
     "message": "Ordinateur de bureau requis"
@@ -10339,6 +10380,36 @@
   "organizationNameMaxLength": {
     "message": "Le nom de l'organisation ne doit pas dépasser 50 caractères."
   },
+  "sshKeyWrongPassword": {
+    "message": "Le mot de passe que vous avez entré est incorrect."
+  },
+  "importSshKey": {
+    "message": "Importer"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirmez le mot de passe"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Entrez le mot de passe pour la clé SSH."
+  },
+  "enterSshKeyPassword": {
+    "message": "Entrer le mot de passe"
+  },
+  "invalidSshKey": {
+    "message": "La clé SSH est invalide"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Le type de clé SSH n'est pas pris en charge"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Importer une clé depuis le presse-papiers"
+  },
+  "sshKeyImported": {
+    "message": "Clé SSH importée avec succès"
+  },
+  "copySSHPrivateKey": {
+    "message": "Copier la clé privée"
+  },
   "openingExtension": {
     "message": "Ouverture de l'extension de navigateur Bitwarden"
   },
@@ -10504,5 +10575,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "Ces événements sont des exemples et ne reflètent pas les événements réels au sein de votre organisation Bitwarden."
+  },
+  "cannotCreateCollection": {
+    "message": "Les organisations gratuites peuvent avoir jusqu'à 2 collections. Passez à une offre payante pour ajouter plus de collections."
   }
 }

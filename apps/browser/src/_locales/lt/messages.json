@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "Slaptažodžio užuomina"
-  },
-  "enterEmailToGetHint": {
-    "message": "Įveskite savo paskyros el. pašto adresą, kad gautumėte pagrindinio slaptažodžio užuominą."
-  },
   "getMasterPasswordHint": {
     "message": "Gauti pagrindinio slaptažodžio užuominą"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Redaguoti aplankalą"
+  },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "New folder"
@@ -1166,10 +1169,6 @@
     "message": "Šviesi",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Saulėtas tamsą",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Export from"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Savarankiškai sukurta aplinka"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Nurodykite vietinio priglobto „Bitwarden“ diegimo bazinį URL."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Individualizuota aplinka"
-  },
-  "customEnvironmentFooter": {
-    "message": "Pažengusiems naudotojams. Galite nurodyti kiekvienos paslaugos pagrindinį URL adresą atskirai."
   },
   "baseUrl": {
     "message": "Serverio URL"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Rūšiuok, kad surūšiuotum"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Tekstas"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Nustatymai buvo paredaguoti"
-  },
-  "environmentEditedClick": {
-    "message": "Spauskite čia"
-  },
-  "environmentEditedReset": {
-    "message": "iš naujo nustatyti iš anksto sukonfigūruotus nustatymus"
-  },
   "serverVersion": {
     "message": "Serverio versija"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Prisijungti su pagrindiniu slaptažodžiu"
   },
-  "loggingInAs": {
-    "message": "Prisijungimas kaip"
-  },
-  "notYou": {
-    "message": "Ne jūs?"
-  },
   "newAroundHere": {
     "message": "Ar jūs naujas čia?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Prisijunkite naudodami įrenginį"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Prisijungti su įrenginiu turi būti nustatyta Bitwarden aplikacijos nustatymuose. Reikia kito pasirinkimo?"
   },
   "fingerprintPhraseHeader": {
     "message": "Pirštų atspaudų frazė"
@@ -3343,9 +3321,6 @@
     "message": "Iš naujo siųsti pranešimą"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "View all log in options"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Prašyti administratoriaus patvirtinimo"
   },
-  "approveWithMasterPassword": {
-    "message": "Patvirtinti su pagrindiniu slaptažodžiu"
-  },
   "ssoIdentifierRequired": {
     "message": "Organizacijos SSO identifikatorius yra reikalingas."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Tavo prašymas išsiųstas administratoriui."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Tu būsi praneštas (-a), kai bus patvirtinta."
   },
   "troubleLoggingIn": {
     "message": "Problemos prisijungiant?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Extra wide"
+  },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Negalite pašalinti kolekcijų su Peržiūrėti tik leidimus: $COLLECTIONS$",

@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Masukkan alamat surel akun Anda dan petunjuk kata sandi Anda akan dikirimkan kepada Anda"
   },
-  "passwordHint": {
-    "message": "Petunjuk Kata Sandi"
-  },
-  "enterEmailToGetHint": {
-    "message": "Masukkan email akun Anda untuk menerima pentunjuk sandi utama Anda."
-  },
   "getMasterPasswordHint": {
     "message": "Dapatkan petunjuk sandi utama"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Sunting Folder"
+  },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Folder baru"
@@ -1166,10 +1169,6 @@
     "message": "Terang",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Gelap Solarized",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Ekspor dari"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Lingkungan Penyedia Personal"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Tetapkan URL dasar penyedia personal pemasangan Bitwarden Anda."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Tentukan URL dasar dari pemasangan Bitwarden di server Anda. Contoh: https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Lingkungan Khusus"
-  },
-  "customEnvironmentFooter": {
-    "message": "Untuk pengguna tingkat lanjut. Anda bisa menentukan basis dari URL masing-masing layanan secara independen."
   },
   "baseUrl": {
     "message": "URL Server"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Seret untuk mengurutkan"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Teks"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Pengaturan telah disunting"
-  },
-  "environmentEditedClick": {
-    "message": "Tekan di sini"
-  },
-  "environmentEditedReset": {
-    "message": "untuk mengatur ulang ke pengaturan awal"
-  },
   "serverVersion": {
     "message": "Versi server"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Masuk dengan kata sandi utama"
   },
-  "loggingInAs": {
-    "message": "Masuk sebagai"
-  },
-  "notYou": {
-    "message": "Bukan Anda?"
-  },
   "newAroundHere": {
     "message": "Baru di sini?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Masuk dengan perangkat"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Masuk dengan perangkat harus diatur di pengaturan aplikasi Bitwarden. Perlu pilihan lainnya?"
   },
   "fingerprintPhraseHeader": {
     "message": "Frasa sidik jari"
@@ -3343,9 +3321,6 @@
     "message": "Kirim ulang pemberitahuan"
   },
   "viewAllLogInOptions": {
-    "message": "Lihat semua pilihan masuk"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Lihat semua pilihan masuk"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Minta persetujuan admin"
   },
-  "approveWithMasterPassword": {
-    "message": "Setujui dengan kata sandi utama"
-  },
   "ssoIdentifierRequired": {
     "message": "Pengenal SSO organisasi diperlukan."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Permintaan Anda telah dikirim ke admin Anda."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Anda akan diberitahu setelah disetujui."
   },
   "troubleLoggingIn": {
     "message": "Kesulitan masuk?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Ekstra lebar"
+  },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Anda tidak dapat menghapus koleksi dengan izin hanya lihat: $COLLECTIONS$",

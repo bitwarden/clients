@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "Mungkahi sa Password"
-  },
-  "enterEmailToGetHint": {
-    "message": "Ipasok ang iyong email address ng account para makatanggap ng hint ng iyong master password."
-  },
   "getMasterPasswordHint": {
     "message": "Makuha ang Punong Password na Hint"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "I-edit ang folder"
+  },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "New folder"
@@ -1166,10 +1169,6 @@
     "message": "Mabait",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Solarized dark",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Export from"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Kapaligirang self-hosted"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Tukuyin ang base URL ng iyong Bitwarden installation na naka-host sa on-premises."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Kapaligirang Custom"
-  },
-  "customEnvironmentFooter": {
-    "message": "Para sa mga advanced na gumagamit. Maaari mong tukuyin ang base URL ng bawat serbisyo nang independiyente."
   },
   "baseUrl": {
     "message": "URL ng Server"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "I-drag upang i-sort"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Teksto"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Nabago ang mga setting"
-  },
-  "environmentEditedClick": {
-    "message": "Mag-click dito"
-  },
-  "environmentEditedReset": {
-    "message": "i-reset sa pre-configured na mga setting"
-  },
   "serverVersion": {
     "message": "Bersyon ng server"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Mag-login gamit ang pangunahing password"
   },
-  "loggingInAs": {
-    "message": "Naglolog-in bilang"
-  },
-  "notYou": {
-    "message": "Hindi ikaw?"
-  },
   "newAroundHere": {
     "message": "Mag-login gamit ang pangunahing password?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Mag log in gamit ang device"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Ang pag log in gamit ang device ay dapat na naka set up sa mga setting ng Bitwarden app. Kailangan mo ng ibang opsyon?"
   },
   "fingerprintPhraseHeader": {
     "message": "Hulmabig ng Hilik ng Dako"
@@ -3343,9 +3321,6 @@
     "message": "Muling ipadala ang abiso"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "View all log in options"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Request admin approval"
   },
-  "approveWithMasterPassword": {
-    "message": "Approve with master password"
-  },
   "ssoIdentifierRequired": {
     "message": "Organization SSO identifier is required."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Your request has been sent to your admin."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "You will be notified once approved."
   },
   "troubleLoggingIn": {
     "message": "Trouble logging in?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Extra wide"
+  },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
