@@ -8,7 +8,7 @@ type Args = {
   buttonText: string;
   disabled: boolean;
   theme: Theme;
-  buttonAction: (e: Event) => void;
+  handleClick: (e: Event) => void;
 };
 
 export default {
@@ -17,13 +17,13 @@ export default {
     buttonText: { control: "text" },
     disabled: { control: "boolean" },
     theme: { control: "select", options: [...Object.values(ThemeTypes)] },
-    buttonAction: { control: false },
+    handleClick: { control: false },
   },
   args: {
     buttonText: "Click Me",
     disabled: false,
     theme: ThemeTypes.Light,
-    buttonAction: () => alert("Clicked"),
+    handleClick: () => alert("Clicked"),
   },
   parameters: {
     design: {

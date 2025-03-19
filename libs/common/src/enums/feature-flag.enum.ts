@@ -29,11 +29,15 @@ export enum FeatureFlag {
   ExportAttachments = "export-attachments",
 
   /* Vault */
+  PM8851_BrowserOnboardingNudge = "pm-8851-browser-onboarding-nudge",
   PM9111ExtensionPersistAddEditForm = "pm-9111-extension-persist-add-edit-form",
   NewDeviceVerificationTemporaryDismiss = "new-device-temporary-dismiss",
   NewDeviceVerificationPermanentDismiss = "new-device-permanent-dismiss",
   VaultBulkManagementAction = "vault-bulk-management-action",
   SecurityTasks = "security-tasks",
+
+  /* Auth */
+  PM9112_DeviceApprovalPersistence = "pm-9112-device-approval-persistence",
 
   PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
   UnauthenticatedExtensionUIRefresh = "unauth-ui-refresh",
@@ -86,11 +90,15 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ExportAttachments]: FALSE,
 
   /* Vault */
+  [FeatureFlag.PM8851_BrowserOnboardingNudge]: FALSE,
   [FeatureFlag.PM9111ExtensionPersistAddEditForm]: FALSE,
   [FeatureFlag.NewDeviceVerificationTemporaryDismiss]: FALSE,
   [FeatureFlag.NewDeviceVerificationPermanentDismiss]: FALSE,
   [FeatureFlag.VaultBulkManagementAction]: FALSE,
   [FeatureFlag.SecurityTasks]: FALSE,
+
+  /* Auth */
+  [FeatureFlag.PM9112_DeviceApprovalPersistence]: FALSE,
 
   [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
   [FeatureFlag.UnauthenticatedExtensionUIRefresh]: FALSE,
