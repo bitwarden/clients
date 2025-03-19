@@ -879,9 +879,6 @@
   "filter": {
     "message": "Filtr"
   },
-  "moveSelectedToOrg": {
-    "message": "Přesunout vybrané do organizace"
-  },
   "deleteSelected": {
     "message": "Smazat vybrané"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Vybrané položky přesunuty do $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "Vyberte organizaci, do které chcete tuto položku přesunout. Přesun do organizace převede vlastnictví položky této organizaci. Po přesunutí této položky již nebudete přímým vlastníkem této položky."
   },
-  "moveManyToOrgDesc": {
-    "message": "Vyberte organizaci, do které chcete tyto položky přesunout. Přesun do organizace převede vlastnictví položek této organizaci. Po přesunutí již nebudete přímým vlastníkem těchto položek."
-  },
   "collectionsDesc": {
     "message": "Upravte kolekce, ve kterých je tato položka sdílená. Pouze uživatelé organizace, kteří mají přístup k těmto kolekcím, budou moci tuto položku vidět."
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "Vybrali jste $COUNT$ položek. $MOVEABLE_COUNT$ položek lze přesunout do organizace, $NONMOVEABLE_COUNT$ nelze.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },

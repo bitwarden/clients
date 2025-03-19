@@ -3543,7 +3543,7 @@
     "message": "搜索"
   },
   "inputMinLength": {
-    "message": "至少输入 $COUNT$ 个字符。",
+    "message": "输入长度不能低于 $COUNT$ 个字符。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4732,15 +4732,6 @@
   },
   "nothingSelected": {
     "message": "您尚未选择任何内容。"
-  },
-  "movedItemsToOrg": {
-    "message": "所选项目已移动到 $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
   },
   "itemsMovedToOrg": {
     "message": "项目已移动到 $ORGNAME$",

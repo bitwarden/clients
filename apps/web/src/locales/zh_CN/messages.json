@@ -879,9 +879,6 @@
   "filter": {
     "message": "筛选"
   },
-  "moveSelectedToOrg": {
-    "message": "移动所选到组织"
-  },
   "deleteSelected": {
     "message": "删除所选"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "所选项目已移动到 $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "选择一个您想将此项目移至的组织。移动到组织会将该项目的所有权转让给该组织。移动后，您将不再是此项目的直接所有者。"
   },
-  "moveManyToOrgDesc": {
-    "message": "选择一个您想将这些项目移至的组织。移动到组织会将这些项目的所有权转让给该组织。移动后，您将不再是这些项目的直接所有者。"
-  },
   "collectionsDesc": {
     "message": "编辑与其共享此项目的集合。只有具有这些集合访问权限的组织用户才能看到此项目。"
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "您选择了 $COUNT$ 个项目。$MOVEABLE_COUNT$ 个项目可以移动到组织，$NONMOVEABLE_COUNT$ 不能。",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },
@@ -2723,7 +2691,7 @@
     "description": "Add more credit to your account's balance."
   },
   "amount": {
-    "message": "合计",
+    "message": "金额",
     "description": "Dollar amount, or quantity."
   },
   "creditDelayed": {
@@ -3030,7 +2998,7 @@
     "message": "移除存储空间将会调整计费总金额，这笔调整费用将按比例作为信用额度抵扣您的下一笔账单费用。"
   },
   "adjustedStorage": {
-    "message": "已调整 $AMOUNT$ GB 的存储空间。",
+    "message": "调整了 $AMOUNT$ GB 存储空间。",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -6112,7 +6080,7 @@
     "message": "为允许的应用程序自动登录用户"
   },
   "automaticAppLoginDesc": {
-    "message": "从您配置的身份提供程序启动的 App 的登录表单将自动填写并提交。"
+    "message": "从您配置的身份提供程序启动的 App 的登录表单将自动填充并提交。"
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "身份提供程序主机"
@@ -7195,7 +7163,7 @@
     "message": "输入的不是电子邮箱地址。"
   },
   "inputMinLength": {
-    "message": "至少输入 $COUNT$ 个字符。",
+    "message": "输入长度不能低于 $COUNT$ 个字符。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7863,7 +7831,7 @@
     "message": "自动域名验证"
   },
   "automaticDomainVerificationProcess": {
-    "message": "Bitwarden 将尝试在 72 小时内验证此域名 3 次。如果此域名无法验证，请检查您的主机中的 DNS 记录并手动验证。如果此域名未通过验证，7 天内将从您的组织中移除。"
+    "message": "Bitwarden 将在最初的 72 小时内尝试验证域名 3 次。如果此域名无法验证，请检查您主机中的 DNS 记录并手动验证。如果此域名在 7 天内未验证，它将被从您的组织中移除。"
   },
   "invalidDomainNameMessage": {
     "message": "输入的格式无效。格式：mydomain.com。子域名需要单独的条目进行验证。"
@@ -7953,7 +7921,7 @@
     }
   },
   "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ 无法验证",
+    "message": "$DOMAIN$ 未验证",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -10305,16 +10273,16 @@
     "message": "重新声明域名"
   },
   "claimDomainNameInputHint": {
-    "message": "示例：mydomain.com。子域名需要单独的条目才能声明。"
+    "message": "示例：mydomain.com。子域名需要单独的条目进行声明。"
   },
   "automaticClaimedDomains": {
     "message": "自动声明域名"
   },
   "automaticDomainClaimProcess": {
-    "message": "Bitwarden 将在前 72 小时内尝试声明域名 3 次。如果无法声明此域名，请检查主机中的 DNS 记录并手动声明。如果未声明，该域名将在 7 天内从您的组织中移除。"
+    "message": "Bitwarden 将在最初的 72 小时内尝试声明域名 3 次。如果此域名无法声明，请检查您主机中的 DNS 记录并手动声明。如果此域名在 7 天内未声明，它将被从您的组织中移除。"
   },
   "domainNotClaimed": {
-    "message": "$DOMAIN$ 未声明。请检查 DNS 记录。",
+    "message": "$DOMAIN$ 无法声明。请检查您的 DNS 记录。",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -10332,7 +10300,7 @@
     "message": "声明一个域名，以拥有电子邮箱地址与该域名匹配的所有成员账户。成员登录时将可以跳过 SSO 标识符。管理员也可以删除成员账户。"
   },
   "invalidDomainNameClaimMessage": {
-    "message": "输入的格式无效。格式：mydomain.com。子域名需要单独的条目才能声明。"
+    "message": "输入的格式无效。格式：mydomain.com。子域名需要单独的条目进行声明。"
   },
   "domainClaimedEvent": {
     "message": "$DOMAIN$ 已声明",
