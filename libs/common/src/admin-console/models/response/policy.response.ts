@@ -8,6 +8,7 @@ export class PolicyResponse extends BaseResponse {
   type: PolicyType;
   data: any;
   enabled: boolean;
+  canToggleState: boolean;
 
   constructor(response: any) {
     super(response);
@@ -16,5 +17,6 @@ export class PolicyResponse extends BaseResponse {
     this.type = this.getResponseProperty("Type");
     this.data = this.getResponseProperty("Data");
     this.enabled = this.getResponseProperty("Enabled");
+    this.canToggleState = this.getResponseProperty("CanToggleState") ?? true;
   }
 }

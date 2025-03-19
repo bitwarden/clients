@@ -1,5 +1,5 @@
 <h2 bitTypography="h2">
-  {{ "loginWithPasskey" | i18n }}
+  {{ "logInWithPasskey" | i18n }}
   <ng-container *ngIf="hasData">
     <span
       *ngIf="requireSsoPolicyEnabled"
@@ -89,7 +89,7 @@
     *ngIf="!hasCredentials"
     type="button"
     bitButton
-    [attr.aria-label]="('enable' | i18n) + ' ' + ('loginWithPasskey' | i18n)"
+    [attr.aria-label]="('enable' | i18n) + ' ' + ('logInWithPasskey' | i18n)"
     [disabled]="loading"
     (click)="createCredential()"
   >

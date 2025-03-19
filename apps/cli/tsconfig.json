@@ -3,7 +3,7 @@
     "pretty": true,
     "moduleResolution": "node",
     "target": "ES2016",
-    "module": "es6",
+    "module": "ES2020",
     "noImplicitAny": true,
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
@@ -17,7 +17,7 @@
       "@bitwarden/auth/common": ["../../libs/auth/src/common"],
       "@bitwarden/auth/angular": ["../../libs/auth/src/angular"],
       "@bitwarden/common/*": ["../../libs/common/src/*"],
-      "@bitwarden/importer/core": ["../../libs/importer/src"],
+      "@bitwarden/importer-core": ["../../libs/importer/src"],
       "@bitwarden/generator-core": ["../../libs/tools/generator/core/src"],
       "@bitwarden/generator-legacy": ["../../libs/tools/generator/extensions/legacy/src"],
       "@bitwarden/generator-history": ["../../libs/tools/generator/extensions/history/src"],
@@ -25,8 +25,14 @@
       "@bitwarden/vault-export-core": [
         "../../libs/tools/export/vault-export/vault-export-core/src"
       ],
+      "@bitwarden/key-management": ["../../libs/key-management/src"],
       "@bitwarden/node/*": ["../../libs/node/src/*"]
-    }
+    },
+    "plugins": [
+      {
+        "name": "typescript-strict-plugin"
+      }
+    ]
   },
   "include": ["src", "src/**/*.spec.ts"]
 }

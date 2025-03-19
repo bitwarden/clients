@@ -104,9 +104,10 @@ describe("AutofillInlineMenuIframeService", () => {
         expect(globalThis.setTimeout).not.toHaveBeenCalled();
       });
 
-      it("announces the aria alert if the aria alert element is populated", () => {
+      it("announces the aria alert if the aria alert element is populated", async () => {
         jest.useFakeTimers();
         jest.spyOn(globalThis, "setTimeout");
+        sendExtensionMessageSpy.mockResolvedValue(true);
         autofillInlineMenuIframeService["ariaAlertElement"] = document.createElement("div");
         autofillInlineMenuIframeService["ariaAlertTimeout"] = setTimeout(jest.fn(), 2000);
 
@@ -114,6 +115,7 @@ describe("AutofillInlineMenuIframeService", () => {
 
         expect(globalThis.setTimeout).toHaveBeenCalled();
         jest.advanceTimersByTime(2000);
+        await flushPromises();
 
         expect(shadowAppendSpy).toHaveBeenCalledWith(
           autofillInlineMenuIframeService["ariaAlertElement"],
@@ -300,38 +302,6 @@ describe("AutofillInlineMenuIframeService", () => {
             },
           );
         });
-
-        it("updates the border to match the `nord` theme", () => {
-          const message = {
-            command: "initAutofillInlineMenuList",
-            theme: ThemeType.Nord,
-          };
-
-          sendPortMessage(portSpy, message);
-
-          expect(updateElementStylesSpy).toHaveBeenCalledWith(
-            autofillInlineMenuIframeService["iframe"],
-            {
-              borderColor: "#2E3440",
-            },
-          );
-        });
-
-        it("updates the border to match the `solarizedDark` theme", () => {
-          const message = {
-            command: "initAutofillInlineMenuList",
-            theme: ThemeType.SolarizedDark,
-          };
-
-          sendPortMessage(portSpy, message);
-
-          expect(updateElementStylesSpy).toHaveBeenCalledWith(
-            autofillInlineMenuIframeService["iframe"],
-            {
-              borderColor: "#073642",
-            },
-          );
-        });
       });
 
       describe("updating the iframe's position", () => {
@@ -363,16 +333,18 @@ describe("AutofillInlineMenuIframeService", () => {
           expect(autofillInlineMenuIframeService["iframe"].style.left).toBe(styles.left);
         });
 
-        it("announces the opening of the iframe using an aria alert", () => {
+        it("announces the opening of the iframe using an aria alert", async () => {
           jest.useFakeTimers();
+          sendExtensionMessageSpy.mockResolvedValue(true);
           const styles = { top: "100px", left: "100px" };
 
           sendPortMessage(portSpy, {
             command: "updateAutofillInlineMenuPosition",
             styles,
           });
-
           jest.advanceTimersByTime(2000);
+          await flushPromises();
+
           expect(shadowAppendSpy).toHaveBeenCalledWith(
             autofillInlineMenuIframeService["ariaAlertElement"],
           );
@@ -451,6 +423,19 @@ describe("AutofillInlineMenuIframeService", () => {
 
         jest.advanceTimersByTime(10);
         expect(autofillInlineMenuIframeService["iframe"].style.opacity).toBe("1");
+      });
+
+      it("triggers an aria alert when the password in regenerated", () => {
+        jest.spyOn(autofillInlineMenuIframeService as any, "createAriaAlertElement");
+
+        sendPortMessage(portSpy, {
+          command: "updateAutofillInlineMenuGeneratedPassword",
+          refreshPassword: true,
+        });
+
+        expect(autofillInlineMenuIframeService["createAriaAlertElement"]).toHaveBeenCalledWith(
+          true,
+        );
       });
     });
   });

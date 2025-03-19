@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { TestBed } from "@angular/core/testing";
 import { ActivatedRoute, Router, convertToParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -8,7 +10,12 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { ProductSwitcherService } from "./product-switcher.service";
 
@@ -17,8 +24,11 @@ describe("ProductSwitcherService", () => {
   let router: { url: string; events: Observable<unknown> };
   let organizationService: MockProxy<OrganizationService>;
   let providerService: MockProxy<ProviderService>;
+  let accountService: FakeAccountService;
+  let platformUtilsService: MockProxy<PlatformUtilsService>;
   let activeRouteParams = convertToParamMap({ organizationId: "1234" });
   const getLastSync = jest.fn().mockResolvedValue(new Date("2024-05-14"));
+  const userId = Utils.newGuid() as UserId;
 
   // The service is dependent on the SyncService, which is behind a `setTimeout`
   // Most of the tests don't need to test this aspect so `advanceTimersByTime`
@@ -34,17 +44,22 @@ describe("ProductSwitcherService", () => {
     router = mock<Router>();
     organizationService = mock<OrganizationService>();
     providerService = mock<ProviderService>();
+    accountService = mockAccountServiceWith(userId);
+    platformUtilsService = mock<PlatformUtilsService>();
 
     router.url = "/";
     router.events = of({});
-    organizationService.organizations$ = of([{}] as Organization[]);
+    organizationService.organizations$.mockReturnValue(of([{}] as Organization[]));
     providerService.getAll.mockResolvedValue([] as Provider[]);
+    platformUtilsService.isSelfHost.mockReturnValue(false);
 
     TestBed.configureTestingModule({
       providers: [
         { provide: Router, useValue: router },
         { provide: OrganizationService, useValue: organizationService },
         { provide: ProviderService, useValue: providerService },
+        { provide: AccountService, useValue: accountService },
+        { provide: PlatformUtilsService, useValue: platformUtilsService },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -109,9 +124,15 @@ describe("ProductSwitcherService", () => {
       });
 
       it("is included in bento when there is an organization with SM", async () => {
-        organizationService.organizations$ = of([
-          { id: "1234", canAccessSecretsManager: true, enabled: true },
-        ] as Organization[]);
+        organizationService.organizations$.mockReturnValue(
+          of([
+            {
+              id: "1234",
+              canAccessSecretsManager: true,
+              enabled: true,
+            },
+          ] as Organization[]),
+        );
 
         initiateService();
 
@@ -122,17 +143,39 @@ describe("ProductSwitcherService", () => {
     });
 
     describe("Admin/Organizations", () => {
-      it("includes Organizations in other when there are organizations", async () => {
+      it("includes Organizations with the internal route in other when there are organizations on cloud", async () => {
         initiateService();
 
         const products = await firstValueFrom(service.products$);
+
+        const organizations = products.other.find((p) => p.name === "Organizations");
+        expect(organizations).toBeDefined();
+        expect(organizations.marketingRoute.route).toBe("/create-organization");
+        expect(organizations.marketingRoute.external).toBe(false);
+
+        expect(products.other.find((p) => p.name === "Organizations")).toBeDefined();
+        expect(products.bento.find((p) => p.name === "Admin Console")).toBeUndefined();
+      });
+
+      it("includes Organizations with the external route in other when there are organizations on Self-Host", async () => {
+        platformUtilsService.isSelfHost.mockReturnValue(true);
+        initiateService();
+
+        const products = await firstValueFrom(service.products$);
+
+        const organizations = products.other.find((p) => p.name === "Organizations");
+        expect(organizations).toBeDefined();
+        expect(organizations.marketingRoute.route).toBe("https://bitwarden.com/products/business/");
+        expect(organizations.marketingRoute.external).toBe(true);
 
         expect(products.other.find((p) => p.name === "Organizations")).toBeDefined();
         expect(products.bento.find((p) => p.name === "Admin Console")).toBeUndefined();
       });
 
       it("includes Admin Console in bento when a user has access to it", async () => {
-        organizationService.organizations$ = of([{ id: "1234", isOwner: true }] as Organization[]);
+        organizationService.organizations$.mockReturnValue(
+          of([{ id: "1234", isOwner: true }] as Organization[]),
+        );
 
         initiateService();
 
@@ -188,7 +231,9 @@ describe("ProductSwitcherService", () => {
     });
 
     it("marks Admin Console as active", async () => {
-      organizationService.organizations$ = of([{ id: "1234", isOwner: true }] as Organization[]);
+      organizationService.organizations$.mockReturnValue(
+        of([{ id: "1234", isOwner: true }] as Organization[]),
+      );
       activeRouteParams = convertToParamMap({ organizationId: "1" });
       router.url = "/organizations/";
 
@@ -219,10 +264,22 @@ describe("ProductSwitcherService", () => {
     it("updates secrets manager path when the org id is found in the path", async () => {
       router.url = "/sm/4243";
 
-      organizationService.organizations$ = of([
-        { id: "23443234", canAccessSecretsManager: true, enabled: true, name: "Org 2" },
-        { id: "4243", canAccessSecretsManager: true, enabled: true, name: "Org 32" },
-      ] as Organization[]);
+      organizationService.organizations$.mockReturnValue(
+        of([
+          {
+            id: "23443234",
+            canAccessSecretsManager: true,
+            enabled: true,
+            name: "Org 2",
+          },
+          {
+            id: "4243",
+            canAccessSecretsManager: true,
+            enabled: true,
+            name: "Org 32",
+          },
+        ] as Organization[]),
+      );
 
       initiateService();
 
@@ -237,10 +294,12 @@ describe("ProductSwitcherService", () => {
   it("updates admin console path when the org id is found in the path", async () => {
     router.url = "/organizations/111-22-33";
 
-    organizationService.organizations$ = of([
-      { id: "111-22-33", isOwner: true, name: "Test Org" },
-      { id: "4243", isOwner: true, name: "My Org" },
-    ] as Organization[]);
+    organizationService.organizations$.mockReturnValue(
+      of([
+        { id: "111-22-33", isOwner: true, name: "Test Org" },
+        { id: "4243", isOwner: true, name: "My Org" },
+      ] as Organization[]),
+    );
 
     initiateService();
 

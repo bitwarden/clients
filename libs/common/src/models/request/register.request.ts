@@ -1,5 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { KdfType } from "@bitwarden/key-management";
+
 import { CaptchaProtectedRequest } from "../../auth/models/request/captcha-protected.request";
-import { KdfType } from "../../platform/enums";
 
 import { KeysRequest } from "./keys.request";
 import { ReferenceEventRequest } from "./reference-event.request";

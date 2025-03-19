@@ -4,7 +4,7 @@
   </bit-callout>
   <dl class="tw-grid tw-grid-flow-col tw-grid-rows-2">
     <dt>{{ "billingPlan" | i18n }}</dt>
-    <dd>{{ "providerPlan" | i18n }}</dd>
+    <dd>{{ plan | i18n }}</dd>
     <ng-container *ngIf="data.status && data.date">
       <dt>{{ data.status.label }}</dt>
       <dd>

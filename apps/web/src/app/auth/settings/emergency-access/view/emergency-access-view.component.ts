@@ -1,22 +1,24 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { DialogService } from "@bitwarden/components";
+import { CipherFormConfigService, DefaultCipherFormConfigService } from "@bitwarden/vault";
 
 import { EmergencyAccessService } from "../../../emergency-access";
 import { EmergencyAccessAttachmentsComponent } from "../attachments/emergency-access-attachments.component";
 
-import { EmergencyAddEditCipherComponent } from "./emergency-add-edit-cipher.component";
+import { EmergencyViewDialogComponent } from "./emergency-view-dialog.component";
 
 @Component({
   selector: "emergency-access-view",
   templateUrl: "emergency-access-view.component.html",
+  providers: [{ provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService }],
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class EmergencyAccessViewComponent implements OnInit {
-  @ViewChild("cipherAddEdit", { read: ViewContainerRef, static: true })
-  cipherAddEditModalRef: ViewContainerRef;
   @ViewChild("attachments", { read: ViewContainerRef, static: true })
   attachmentsModalRef: ViewContainerRef;
 
@@ -29,6 +31,7 @@ export class EmergencyAccessViewComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private emergencyAccessService: EmergencyAccessService,
+    private dialogService: DialogService,
   ) {}
 
   ngOnInit() {
@@ -47,17 +50,10 @@ export class EmergencyAccessViewComponent implements OnInit {
   }
 
   async selectCipher(cipher: CipherView) {
-    // eslint-disable-next-line
-    const [_, childComponent] = await this.modalService.openViewRef(
-      EmergencyAddEditCipherComponent,
-      this.cipherAddEditModalRef,
-      (comp) => {
-        comp.cipherId = cipher == null ? null : cipher.id;
-        comp.cipher = cipher;
-      },
-    );
-
-    return childComponent;
+    EmergencyViewDialogComponent.open(this.dialogService, {
+      cipher,
+    });
+    return;
   }
 
   async load() {
@@ -65,6 +61,7 @@ export class EmergencyAccessViewComponent implements OnInit {
     this.loaded = true;
   }
 
+  // FIXME PM-17747: This will also need to be replaced with the new AttachmentViewDialog
   async viewAttachments(cipher: CipherView) {
     await this.modalService.openViewRef(
       EmergencyAccessAttachmentsComponent,

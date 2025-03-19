@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 
@@ -17,7 +19,7 @@ type BulkRemoveDialogParams = {
 
 @Component({
   templateUrl:
-    "../../../../../../../../apps/web/src/app/admin-console/organizations/members/components/bulk/bulk-remove.component.html",
+    "../../../../../../../../apps/web/src/app/admin-console/organizations/members/components/bulk/bulk-remove-dialog.component.html",
 })
 export class BulkRemoveDialogComponent extends BaseBulkRemoveComponent {
   providerId: string;

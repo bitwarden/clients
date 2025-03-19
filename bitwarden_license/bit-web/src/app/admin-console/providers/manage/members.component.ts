@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogRef } from "@angular/cdk/dialog";
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -13,12 +15,13 @@ import { ProviderUserStatusType, ProviderUserType } from "@bitwarden/common/admi
 import { ProviderUserBulkRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-bulk.request";
 import { ProviderUserConfirmRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-confirm.request";
 import { ProviderUserUserDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user.response";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 import { BaseMembersComponent } from "@bitwarden/web-vault/app/admin-console/common/base-members.component";
 import {
   peopleFilter,
@@ -49,8 +52,8 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
   dataSource = new MembersTableDataSource();
   loading = true;
   providerId: string;
-  rowHeight = 62;
-  rowHeightClass = `tw-h-[62px]`;
+  rowHeight = 69;
+  rowHeightClass = `tw-h-[69px]`;
   status: ProviderUserStatusType = null;
 
   userStatusType = ProviderUserStatusType;
@@ -58,7 +61,7 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
 
   constructor(
     apiService: ApiService,
-    cryptoService: CryptoService,
+    keyService: KeyService,
     dialogService: DialogService,
     i18nService: I18nService,
     logService: LogService,
@@ -66,6 +69,7 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
     toastService: ToastService,
     userNamePipe: UserNamePipe,
     validationService: ValidationService,
+    private encryptService: EncryptService,
     private activatedRoute: ActivatedRoute,
     private providerService: ProviderService,
     private router: Router,
@@ -73,7 +77,7 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
     super(
       apiService,
       i18nService,
-      cryptoService,
+      keyService,
       validationService,
       logService,
       userNamePipe,
@@ -183,8 +187,8 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
   }
 
   async confirmUser(user: ProviderUser, publicKey: Uint8Array): Promise<void> {
-    const providerKey = await this.cryptoService.getProviderKey(this.providerId);
-    const key = await this.cryptoService.rsaEncrypt(providerKey.key, publicKey);
+    const providerKey = await this.keyService.getProviderKey(this.providerId);
+    const key = await this.encryptService.rsaEncrypt(providerKey.key, publicKey);
     const request = new ProviderUserConfirmRequest();
     request.key = key.encryptedString;
     await this.apiService.postProviderUserConfirm(this.providerId, user.id, request);

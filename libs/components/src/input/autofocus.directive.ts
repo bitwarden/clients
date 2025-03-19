@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, ElementRef, Input, NgZone, OnInit, Optional } from "@angular/core";
 import { take } from "rxjs/operators";
 

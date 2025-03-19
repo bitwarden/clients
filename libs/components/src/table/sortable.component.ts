@@ -1,17 +1,27 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
+import { NgClass } from "@angular/common";
 import { Component, HostBinding, Input, OnInit } from "@angular/core";
 
-import type { SortFn } from "./table-data-source";
+import type { SortDirection, SortFn } from "./table-data-source";
 import { TableComponent } from "./table.component";
 
 @Component({
   selector: "th[bitSortable]",
   template: `
-    <button [ngClass]="classList" [attr.aria-pressed]="isActive" (click)="setActive()">
+    <button
+      type="button"
+      [ngClass]="classList"
+      [attr.aria-pressed]="isActive"
+      (click)="setActive()"
+    >
       <ng-content></ng-content>
       <i class="bwi tw-ml-2" [ngClass]="icon"></i>
     </button>
   `,
+  standalone: true,
+  imports: [NgClass],
 })
 export class SortableComponent implements OnInit {
   /**
@@ -19,12 +29,16 @@ export class SortableComponent implements OnInit {
    */
   @Input() bitSortable: string;
 
-  private _default: boolean;
+  private _default: SortDirection | boolean = false;
   /**
    * Mark the column as the default sort column
    */
-  @Input() set default(value: boolean | "") {
-    this._default = coerceBooleanProperty(value);
+  @Input() set default(value: SortDirection | boolean | "") {
+    if (value === "desc" || value === "asc") {
+      this._default = value;
+    } else {
+      this._default = coerceBooleanProperty(value) ? "asc" : false;
+    }
   }
 
   /**
@@ -32,6 +46,11 @@ export class SortableComponent implements OnInit {
    *
    * @example
    * fn = (a, b) => a.name.localeCompare(b.name)
+   *
+   * fn = (a, b, direction) => {
+   *  const result = a.name.localeCompare(b.name)
+   *  return direction === 'asc' ? result : -result;
+   * }
    */
   @Input() fn: SortFn;
 
@@ -52,8 +71,18 @@ export class SortableComponent implements OnInit {
 
   protected setActive() {
     if (this.table.dataSource) {
-      const direction = this.isActive && this.direction === "asc" ? "desc" : "asc";
-      this.table.dataSource.sort = { column: this.bitSortable, direction: direction, fn: this.fn };
+      const defaultDirection = this._default === "desc" ? "desc" : "asc";
+      const direction = this.isActive
+        ? this.direction === "asc"
+          ? "desc"
+          : "asc"
+        : defaultDirection;
+
+      this.table.dataSource.sort = {
+        column: this.bitSortable,
+        direction: direction,
+        fn: this.fn,
+      };
     }
   }
 
@@ -78,7 +107,6 @@ export class SortableComponent implements OnInit {
 
   get classList() {
     return [
-      "tw-group",
       "tw-min-w-max",
 
       // Offset to border and padding

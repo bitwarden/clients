@@ -8,6 +8,8 @@ describe("OffscreenDocument", () => {
   const browserClipboardServiceReadSpy = jest.spyOn(BrowserClipboardService, "read");
   const consoleErrorSpy = jest.spyOn(console, "error");
 
+  // FIXME: Remove when updating file. Eslint update
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   require("../offscreen-document/offscreen-document");
 
   describe("init", () => {

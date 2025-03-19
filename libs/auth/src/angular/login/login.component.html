@@ -1,0 +1,107 @@
+<!-- 
+  # Table of Contents
+
+    This file contains a single consolidated template for all visual clients.
+
+  # UI States
+
+    The template has two UI states, defined by the `LoginUiState` enum:
+      EMAIL_ENTRY: displays the email input field + continue button
+      MASTER_PASSWORD_ENTRY: displays the master password input field + login button
+-->
+
+<form [bitSubmit]="submit" [formGroup]="formGroup">
+  <div [ngClass]="{ 'tw-hidden': loginUiState !== LoginUiState.EMAIL_ENTRY }">
+    <!-- Email Address input -->
+    <bit-form-field>
+      <bit-label>{{ "emailAddress" | i18n }}</bit-label>
+      <input
+        type="email"
+        formControlName="email"
+        bitInput
+        appAutofocus
+        (input)="onEmailInput($event)"
+        (keyup.enter)="continuePressed()"
+      />
+    </bit-form-field>
+
+    <!-- Remember Email input -->
+    <bit-form-control>
+      <input type="checkbox" formControlName="rememberEmail" bitCheckbox />
+      <bit-label>{{ "rememberEmail" | i18n }}</bit-label>
+    </bit-form-control>
+
+    <div class="tw-grid tw-gap-3">
+      <!-- Continue button -->
+      <button type="button" bitButton block buttonType="primary" (click)="continuePressed()">
+        {{ "continue" | i18n }}
+      </button>
+
+      <div class="tw-text-center">{{ "or" | i18n }}</div>
+
+      <!-- Link to Login with Passkey page -->
+      <ng-container *ngIf="isLoginWithPasskeySupported()">
+        <a
+          bitButton
+          block
+          linkType="primary"
+          routerLink="/login-with-passkey"
+          (mousedown)="$event.preventDefault()"
+        >
+          <i class="bwi bwi-passkey tw-mr-1"></i>
+          {{ "logInWithPasskey" | i18n }}
+        </a>
+      </ng-container>
+
+      <!-- Button to Login with SSO -->
+      <button type="button" bitButton block buttonType="secondary" (click)="handleSsoClick()">
+        <i class="bwi bwi-provider tw-mr-1"></i>
+        {{ "useSingleSignOn" | i18n }}
+      </button>
+    </div>
+  </div>
+
+  <div [ngClass]="{ 'tw-hidden': loginUiState !== LoginUiState.MASTER_PASSWORD_ENTRY }">
+    <!-- Master Password input -->
+    <bit-form-field class="!tw-mb-1">
+      <bit-label>{{ "masterPass" | i18n }}</bit-label>
+      <input type="password" formControlName="masterPassword" bitInput #masterPasswordInputRef />
+      <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+    </bit-form-field>
+
+    <!-- Link to Password Hint page - doesn't use bit-hint so that it doesn't get hidden on input validation errors -->
+    <a bitLink routerLink="/hint" (click)="goToHint()" class="tw-inline-block tw-mb-4">
+      {{ "getMasterPasswordHint" | i18n }}
+    </a>
+
+    <div class="tw-grid tw-gap-3">
+      <!-- Submit button to Login with Master Password -->
+      <button type="submit" bitButton bitFormButton block buttonType="primary">
+        {{ "loginWithMasterPassword" | i18n }}
+      </button>
+
+      <!-- Button to Login with Device -->
+      <ng-container *ngIf="isKnownDevice">
+        <div class="tw-text-center">{{ "or" | i18n }}</div>
+
+        <button
+          type="button"
+          bitButton
+          block
+          buttonType="secondary"
+          (click)="startAuthRequestLogin()"
+        >
+          <i class="bwi bwi-mobile"></i>
+          {{ "loginWithDevice" | i18n }}
+        </button>
+      </ng-container>
+
+      <!-- Back button -->
+      <ng-container *ngIf="shouldShowBackButton()">
+        <button type="button" bitButton block buttonType="secondary" (click)="backButtonClicked()">
+          {{ "back" | i18n }}
+        </button>
+      </ng-container>
+    </div>
+  </div>
+</form>

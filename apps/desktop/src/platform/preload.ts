@@ -1,7 +1,7 @@
 import { ipcRenderer } from "electron";
 
 import { DeviceType } from "@bitwarden/common/enums";
-import { ThemeType, KeySuffixOptions, LogLevelType } from "@bitwarden/common/platform/enums";
+import { ThemeType, LogLevelType } from "@bitwarden/common/platform/enums";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 
 import {
@@ -10,8 +10,15 @@ import {
   Message,
   UnencryptedMessageResponse,
 } from "../models/native-messaging";
-import { BiometricMessage, BiometricAction } from "../types/biometric-message";
-import { isAppImage, isDev, isFlatpak, isMacAppStore, isSnapStore, isWindowsStore } from "../utils";
+import {
+  allowBrowserintegrationOverride,
+  isAppImage,
+  isDev,
+  isFlatpak,
+  isMacAppStore,
+  isSnapStore,
+  isWindowsStore,
+} from "../utils";
 
 import { ClipboardWriteMessage } from "./types/clipboard";
 
@@ -36,39 +43,29 @@ const passwords = {
     ipcRenderer.invoke("keytar", { action: "deletePassword", key, keySuffix }),
 };
 
-const biometric = {
-  enabled: (userId: string): Promise<boolean> =>
-    ipcRenderer.invoke("biometric", {
-      action: BiometricAction.EnabledForUser,
-      key: `${userId}_user_biometric`,
-      keySuffix: KeySuffixOptions.Biometric,
-      userId: userId,
-    } satisfies BiometricMessage),
-  osSupported: (): Promise<boolean> =>
-    ipcRenderer.invoke("biometric", {
-      action: BiometricAction.OsSupported,
-    } satisfies BiometricMessage),
-  biometricsNeedsSetup: (): Promise<boolean> =>
-    ipcRenderer.invoke("biometric", {
-      action: BiometricAction.NeedsSetup,
-    } satisfies BiometricMessage),
-  biometricsSetup: (): Promise<void> =>
-    ipcRenderer.invoke("biometric", {
-      action: BiometricAction.Setup,
-    } satisfies BiometricMessage),
-  biometricsCanAutoSetup: (): Promise<boolean> =>
-    ipcRenderer.invoke("biometric", {
-      action: BiometricAction.CanAutoSetup,
-    } satisfies BiometricMessage),
-  authenticate: (): Promise<boolean> =>
-    ipcRenderer.invoke("biometric", {
-      action: BiometricAction.Authenticate,
-    } satisfies BiometricMessage),
-};
-
 const clipboard = {
   read: (): Promise<string> => ipcRenderer.invoke("clipboard.read"),
   write: (message: ClipboardWriteMessage) => ipcRenderer.invoke("clipboard.write", message),
+};
+
+const sshAgent = {
+  init: async () => {
+    await ipcRenderer.invoke("sshagent.init");
+  },
+  setKeys: (keys: { name: string; privateKey: string; cipherId: string }[]): Promise<void> =>
+    ipcRenderer.invoke("sshagent.setkeys", keys),
+  signRequestResponse: async (requestId: number, accepted: boolean) => {
+    await ipcRenderer.invoke("sshagent.signrequestresponse", { requestId, accepted });
+  },
+  lock: async () => {
+    return await ipcRenderer.invoke("sshagent.lock");
+  },
+  clearKeys: async () => {
+    return await ipcRenderer.invoke("sshagent.clearkeys");
+  },
+  isLoaded(): Promise<boolean> {
+    return ipcRenderer.invoke("sshagent.isloaded");
+  },
 };
 
 const powermonitor = {
@@ -82,6 +79,7 @@ const nativeMessaging = {
   },
   sendMessage: (message: {
     appId: string;
+    messageId?: number;
     command?: string;
     sharedSecret?: string;
     message?: EncString;
@@ -102,8 +100,8 @@ const nativeMessaging = {
 
 const crypto = {
   argon2: (
-    password: string | Uint8Array,
-    salt: string | Uint8Array,
+    password: Uint8Array,
+    salt: Uint8Array,
     iterations: number,
     memory: number,
     parallelism: number,
@@ -117,17 +115,25 @@ const ephemeralStore = {
   getEphemeralValue: (key: string): Promise<string> => ipcRenderer.invoke("getEphemeralValue", key),
   removeEphemeralValue: (key: string): Promise<void> =>
     ipcRenderer.invoke("deleteEphemeralValue", key),
+  listEphemeralValueKeys: (): Promise<string[]> => ipcRenderer.invoke("listEphemeralValueKeys"),
 };
 
 const localhostCallbackService = {
-  openSsoPrompt: (codeChallenge: string, state: string): Promise<void> => {
-    return ipcRenderer.invoke("openSsoPrompt", { codeChallenge, state });
+  openSsoPrompt: (codeChallenge: string, state: string, email: string): Promise<void> => {
+    return ipcRenderer.invoke("openSsoPrompt", { codeChallenge, state, email });
   },
 };
 
 export default {
   versions: {
     app: (): Promise<string> => ipcRenderer.invoke("appVersion"),
+    registerSdkVersionProvider: (provide: (resolve: (version: string) => void) => void) => {
+      const resolve = (version: string) => ipcRenderer.send("sdkVersion", version);
+
+      ipcRenderer.on("sdkVersion", () => {
+        provide(resolve);
+      });
+    },
   },
   deviceType: deviceType(),
   isDev: isDev(),
@@ -136,7 +142,10 @@ export default {
   isFlatpak: isFlatpak(),
   isSnapStore: isSnapStore(),
   isAppImage: isAppImage(),
+  allowBrowserintegrationOverride: allowBrowserintegrationOverride(),
   reloadProcess: () => ipcRenderer.send("reload-process"),
+  focusWindow: () => ipcRenderer.send("window-focus"),
+  hideWindow: () => ipcRenderer.send("window-hide"),
   log: (level: LogLevelType, message?: any, ...optionalParams: any[]) =>
     ipcRenderer.invoke("ipc.log", { level, message, optionalParams }),
 
@@ -180,8 +189,8 @@ export default {
 
   storage,
   passwords,
-  biometric,
   clipboard,
+  sshAgent,
   powermonitor,
   nativeMessaging,
   crypto,

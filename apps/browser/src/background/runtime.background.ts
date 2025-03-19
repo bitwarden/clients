@@ -1,29 +1,34 @@
-import { firstValueFrom, map, mergeMap, of, switchMap } from "rxjs";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { firstValueFrom, map, mergeMap } from "rxjs";
 
-import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
+import { LockService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
+import { MessageListener, isExternalMessage } from "@bitwarden/common/platform/messaging";
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { BiometricsCommands } from "@bitwarden/key-management";
 
-import { MessageListener, isExternalMessage } from "../../../../libs/common/src/platform/messaging";
 import {
   closeUnlockPopout,
   openSsoAuthResultPopout,
-  openTwoFactorAuthPopout,
+  openTwoFactorAuthWebAuthnPopout,
 } from "../auth/popup/utils/auth-popout-window";
 import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
-import { Fido2Background } from "../autofill/fido2/background/abstractions/fido2.background";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
+import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 
 import MainBackground from "./main.background";
@@ -40,14 +45,16 @@ export default class RuntimeBackground {
     private platformUtilsService: BrowserPlatformUtilsService,
     private notificationsService: NotificationsService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
-    private systemService: SystemService,
+    private processReloadSerivce: ProcessReloadServiceAbstraction,
     private environmentService: BrowserEnvironmentService,
     private messagingService: MessagingService,
     private logService: LogService,
     private configService: ConfigService,
-    private fido2Background: Fido2Background,
     private messageListener: MessageListener,
     private accountService: AccountService,
+    private readonly lockService: LockService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private browserInitialInstallService: BrowserInitialInstallService,
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
@@ -67,10 +74,13 @@ export default class RuntimeBackground {
       sendResponse: (response: any) => void,
     ) => {
       const messagesWithResponse = [
-        "biometricUnlock",
-        "biometricUnlockAvailable",
+        BiometricsCommands.AuthenticateWithBiometrics,
+        BiometricsCommands.GetBiometricsStatus,
+        BiometricsCommands.UnlockWithBiometricsForUser,
+        BiometricsCommands.GetBiometricsStatusForUser,
         "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag",
         "getInlineMenuFieldQualificationFeatureFlag",
+        "getUserPremiumStatus",
       ];
 
       if (messagesWithResponse.includes(msg.command)) {
@@ -179,13 +189,17 @@ export default class RuntimeBackground {
             break;
         }
         break;
-      case "biometricUnlock": {
-        const result = await this.main.biometricsService.authenticateBiometric();
-        return result;
+      case BiometricsCommands.AuthenticateWithBiometrics: {
+        return await this.main.biometricsService.authenticateWithBiometrics();
       }
-      case "biometricUnlockAvailable": {
-        const result = await this.main.biometricsService.isBiometricUnlockAvailable();
-        return result;
+      case BiometricsCommands.GetBiometricsStatus: {
+        return await this.main.biometricsService.getBiometricsStatus();
+      }
+      case BiometricsCommands.UnlockWithBiometricsForUser: {
+        return await this.main.biometricsService.unlockWithBiometricsForUser(msg.userId);
+      }
+      case BiometricsCommands.GetBiometricsStatusForUser: {
+        return await this.main.biometricsService.getBiometricsStatusForUser(msg.userId);
       }
       case "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag": {
         return await this.configService.getFeatureFlag(
@@ -194,6 +208,15 @@ export default class RuntimeBackground {
       }
       case "getInlineMenuFieldQualificationFeatureFlag": {
         return await this.configService.getFeatureFlag(FeatureFlag.InlineMenuFieldQualification);
+      }
+      case "getUserPremiumStatus": {
+        const activeUserId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+        );
+        const result = await firstValueFrom(
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
+        );
+        return result;
       }
     }
   }
@@ -215,8 +238,7 @@ export default class RuntimeBackground {
           await closeUnlockPopout();
         }
 
-        await this.notificationsService.updateConnection(msg.command === "loggedIn");
-        this.systemService.cancelProcessReload();
+        this.processReloadSerivce.cancelProcessReload();
 
         if (item) {
           await BrowserApi.focusWindow(item.commandToRetry.sender.tab.windowId);
@@ -234,9 +256,7 @@ export default class RuntimeBackground {
         await this.main.refreshBadge();
         await this.main.refreshMenu(false);
 
-        if (await this.configService.getFeatureFlag(FeatureFlag.ExtensionRefresh)) {
-          await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
-        }
+        await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
         break;
       }
       case "addToLockedVaultPendingNotifications":
@@ -244,6 +264,12 @@ export default class RuntimeBackground {
         break;
       case "lockVault":
         await this.main.vaultTimeoutService.lock(msg.userId);
+        break;
+      case "lockAll":
+        {
+          await this.lockService.lockAll();
+          this.messagingService.send("lockAllFinished", { requestId: msg.requestId });
+        }
         break;
       case "logout":
         await this.main.logout(msg.expired, msg.userId);
@@ -257,13 +283,11 @@ export default class RuntimeBackground {
           await this.configService.ensureConfigFetched();
           await this.main.updateOverlayCiphers();
 
-          if (await this.configService.getFeatureFlag(FeatureFlag.ExtensionRefresh)) {
-            await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
-          }
+          await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
         }
         break;
       case "openPopup":
-        await this.main.openPopup();
+        await this.openPopup();
         break;
       case "bgUpdateContextMenu":
       case "editedCipher":
@@ -273,22 +297,7 @@ export default class RuntimeBackground {
         await this.main.refreshMenu();
         break;
       case "bgReseedStorage": {
-        const doFillBuffer = await firstValueFrom(
-          this.accountService.activeAccount$.pipe(
-            switchMap((account) => {
-              if (account == null) {
-                return of(false);
-              }
-
-              return this.configService.userCachedFeatureFlag$(
-                FeatureFlag.StorageReseedRefactor,
-                account.id,
-              );
-            }),
-          ),
-        );
-
-        await this.main.reseedStorage(doFillBuffer);
+        await this.main.reseedStorage();
         break;
       }
       case "authResult": {
@@ -321,7 +330,7 @@ export default class RuntimeBackground {
           return;
         }
 
-        await openTwoFactorAuthPopout(msg);
+        await openTwoFactorAuthWebAuthnPopout(msg);
         break;
       }
       case "reloadPopup":
@@ -372,11 +381,13 @@ export default class RuntimeBackground {
 
   private async checkOnInstalled() {
     setTimeout(async () => {
-      void this.fido2Background.injectFido2ContentScriptsInAllTabs();
       void this.autofillService.loadAutofillScriptsOnInstall();
 
       if (this.onInstalledReason != null) {
-        if (this.onInstalledReason === "install") {
+        if (
+          this.onInstalledReason === "install" &&
+          !(await firstValueFrom(this.browserInitialInstallService.extensionInstalled$))
+        ) {
           if (!devFlagEnabled("skipWelcomeOnInstall")) {
             void BrowserApi.createNewTab("https://bitwarden.com/browser-start/");
           }
@@ -388,6 +399,7 @@ export default class RuntimeBackground {
           if (await this.environmentService.hasManagedEnvironment()) {
             await this.environmentService.setUrlsToManagedEnvironment();
           }
+          await this.browserInitialInstallService.setExtensionInstalled(true);
         }
 
         this.onInstalledReason = null;
@@ -395,13 +407,40 @@ export default class RuntimeBackground {
     }, 100);
   }
 
+  /** Returns the browser tabs that have the web vault open */
+  private async getBwTabs() {
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const vaultUrl = env.getWebVaultUrl();
+    const urlObj = new URL(vaultUrl);
+
+    return await BrowserApi.tabsQuery({ url: `${urlObj.href}*` });
+  }
+
+  private async openPopup() {
+    await this.main.openPopup();
+
+    const announcePopupOpen = async () => {
+      const isOpen = await this.platformUtilsService.isViewOpen();
+      const tabs = await this.getBwTabs();
+
+      if (isOpen && tabs.length > 0) {
+        // Send message to all vault tabs that the extension has opened
+        for (const tab of tabs) {
+          await BrowserApi.executeScriptInTab(tab.id, {
+            file: "content/send-popup-open-message.js",
+            runAt: "document_end",
+          });
+        }
+      }
+    };
+
+    // Give the popup a buffer to open
+    setTimeout(announcePopupOpen, 100);
+  }
+
   async sendBwInstalledMessageToVault() {
     try {
-      const env = await firstValueFrom(this.environmentService.environment$);
-      const vaultUrl = env.getWebVaultUrl();
-      const urlObj = new URL(vaultUrl);
-
-      const tabs = await BrowserApi.tabsQuery({ url: `${urlObj.href}*` });
+      const tabs = await this.getBwTabs();
 
       if (!tabs?.length) {
         return;

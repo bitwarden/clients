@@ -1,0 +1,69 @@
+<app-header> </app-header>
+
+<bit-tab-group [(selectedIndex)]="tabIndex" *ngIf="organization$ | async as organization">
+  <bit-tab [label]="'singleSignOn' | i18n" *ngIf="organization.useSso">
+    <section class="tw-mb-9">
+      <h2 bitTypography="h2">{{ "singleSignOn" | i18n }}</h2>
+      <p bitTypography="body1">
+        {{ "ssoDescStart" | i18n }}
+        <a bitLink routerLink="../settings/sso" class="tw-lowercase">{{ "singleSignOn" | i18n }}</a>
+        {{ "ssoDescEnd" | i18n }}
+      </p>
+      <app-integration-grid
+        [integrations]="integrationsList | filterIntegrations: IntegrationType.SSO"
+      ></app-integration-grid>
+    </section>
+  </bit-tab>
+
+  <bit-tab
+    [label]="'userProvisioning' | i18n"
+    *ngIf="organization.useScim || organization.useDirectory"
+  >
+    <section class="tw-mb-9" *ngIf="organization.useScim">
+      <h2 bitTypography="h2">
+        {{ "scimIntegration" | i18n }}
+      </h2>
+      <p bitTypography="body1">
+        {{ "scimIntegrationDescStart" | i18n }}
+        <a bitLink routerLink="../settings/scim">{{ "scimIntegration" | i18n }}</a>
+        {{ "scimIntegrationDescEnd" | i18n }}
+      </p>
+      <app-integration-grid
+        [integrations]="integrationsList | filterIntegrations: IntegrationType.SCIM"
+      ></app-integration-grid>
+    </section>
+    <section class="tw-mb-9" *ngIf="organization.useDirectory">
+      <h2 bitTypography="h2">
+        {{ "bwdc" | i18n }}
+      </h2>
+      <p bitTypography="body1">{{ "bwdcDesc" | i18n }}</p>
+      <app-integration-grid
+        [integrations]="integrationsList | filterIntegrations: IntegrationType.BWDC"
+      ></app-integration-grid>
+    </section>
+  </bit-tab>
+
+  <bit-tab [label]="'eventManagement' | i18n" *ngIf="organization.useEvents">
+    <section class="tw-mb-9">
+      <h2 bitTypography="h2">
+        {{ "eventManagement" | i18n }}
+      </h2>
+      <p bitTypography="body1">{{ "eventManagementDesc" | i18n }}</p>
+      <app-integration-grid
+        [integrations]="integrationsList | filterIntegrations: IntegrationType.EVENT"
+      ></app-integration-grid>
+    </section>
+  </bit-tab>
+
+  <bit-tab [label]="'deviceManagement' | i18n">
+    <section class="tw-mb-9">
+      <h2 bitTypography="h2">
+        {{ "deviceManagement" | i18n }}
+      </h2>
+      <p bitTypography="body1">{{ "deviceManagementDesc" | i18n }}</p>
+      <app-integration-grid
+        [integrations]="integrationsList | filterIntegrations: IntegrationType.DEVICE"
+      ></app-integration-grid>
+    </section>
+  </bit-tab>
+</bit-tab-group>

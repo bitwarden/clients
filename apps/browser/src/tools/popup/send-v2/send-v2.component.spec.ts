@@ -7,6 +7,7 @@ import { of, BehaviorSubject } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
@@ -46,6 +47,7 @@ describe("SendV2Component", () => {
   let sendListFiltersServiceFilters$: BehaviorSubject<{ sendType: SendType | null }>;
   let sendItemsServiceEmptyList$: BehaviorSubject<boolean>;
   let sendItemsServiceNoFilteredResults$: BehaviorSubject<boolean>;
+  let policyService: MockProxy<PolicyService>;
 
   beforeEach(async () => {
     sendListFiltersServiceFilters$ = new BehaviorSubject({ sendType: null });
@@ -57,8 +59,12 @@ describe("SendV2Component", () => {
         { id: "1", name: "Send A" },
         { id: "2", name: "Send B" },
       ] as SendView[]),
+      loading$: of(false),
       latestSearchText$: of(""),
     });
+
+    policyService = mock<PolicyService>();
+    policyService.policyAppliesToActiveUser$.mockReturnValue(of(true)); // Return `true` by default
 
     sendListFiltersService = new SendListFiltersService(mock(), new FormBuilder());
 
@@ -85,7 +91,17 @@ describe("SendV2Component", () => {
         CurrentAccountComponent,
       ],
       providers: [
-        { provide: AccountService, useValue: mock<AccountService>() },
+        {
+          provide: AccountService,
+          useValue: {
+            activeAccount$: of({
+              id: "123",
+              email: "test@email.com",
+              emailVerified: true,
+              name: "Test User",
+            }),
+          },
+        },
         { provide: AuthService, useValue: mock<AuthService>() },
         { provide: AvatarService, useValue: mock<AvatarService>() },
         {
@@ -104,6 +120,7 @@ describe("SendV2Component", () => {
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: SendListFiltersService, useValue: sendListFiltersService },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
+        { provide: PolicyService, useValue: policyService },
       ],
     }).compileComponents();
 

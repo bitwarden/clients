@@ -1,12 +1,13 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Input, OnChanges } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
+import { Unassigned } from "@bitwarden/admin-console/common";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-
-import { Unassigned } from "../vault-filter/shared/models/routed-vault-filter.model";
 
 @Component({
   selector: "app-org-badge",

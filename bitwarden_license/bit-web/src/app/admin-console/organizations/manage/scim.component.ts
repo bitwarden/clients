@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { UntypedFormBuilder, FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
@@ -23,7 +25,6 @@ import { DialogService, ToastService } from "@bitwarden/components";
   selector: "app-org-manage-scim",
   templateUrl: "scim.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class ScimComponent implements OnInit {
   loading = true;
   organizationId: string;
@@ -82,6 +83,11 @@ export class ScimComponent implements OnInit {
 
   copyScimUrl = async () => {
     this.platformUtilsService.copyToClipboard(await this.getScimEndpointUrl());
+    this.toastService.showToast({
+      message: this.i18nService.t("valueCopied", this.i18nService.t("scimUrl")),
+      variant: "success",
+      title: null,
+    });
   };
 
   rotateScimKey = async () => {
@@ -114,6 +120,11 @@ export class ScimComponent implements OnInit {
 
   copyScimKey = async () => {
     this.platformUtilsService.copyToClipboard(this.formData.get("clientSecret").value);
+    this.toastService.showToast({
+      message: this.i18nService.t("valueCopied", this.i18nService.t("scimApiKey")),
+      variant: "success",
+      title: null,
+    });
   };
 
   submit = async () => {

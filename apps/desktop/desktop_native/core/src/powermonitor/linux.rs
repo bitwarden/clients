@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use zbus::{Connection, MatchRule, export::futures_util::TryStreamExt};
+use zbus::{export::futures_util::TryStreamExt, Connection, MatchRule};
 struct ScreenLock {
     interface: Cow<'static, str>,
     path: Cow<'static, str>,
@@ -42,7 +42,15 @@ pub async fn on_lock(tx: tokio::sync::mpsc::Sender<()>) -> Result<(), Box<dyn st
 pub async fn is_lock_monitor_available() -> bool {
     let connection = Connection::session().await.unwrap();
     for monitor in SCREEN_LOCK_MONITORS {
-        let res = connection.call_method(Some(monitor.interface.clone()), monitor.path.clone(), Some(monitor.interface.clone()), "GetActive", &()).await;
+        let res = connection
+            .call_method(
+                Some(monitor.interface.clone()),
+                monitor.path.clone(),
+                Some(monitor.interface.clone()),
+                "GetActive",
+                &(),
+            )
+            .await;
         if res.is_ok() {
             return true;
         }

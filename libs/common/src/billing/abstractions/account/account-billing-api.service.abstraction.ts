@@ -1,12 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   BillingInvoiceResponse,
   BillingTransactionResponse,
-} from "@bitwarden/common/billing/models/response/billing.response";
+} from "../../models/response/billing.response";
 
 export class AccountBillingApiServiceAbstraction {
-  getBillingInvoices: (id: string, startAfter?: string) => Promise<BillingInvoiceResponse[]>;
-  getBillingTransactions: (
-    id: string,
-    startAfter?: string,
-  ) => Promise<BillingTransactionResponse[]>;
+  getBillingInvoices: (status?: string, startAfter?: string) => Promise<BillingInvoiceResponse[]>;
+  getBillingTransactions: (startAfter?: string) => Promise<BillingTransactionResponse[]>;
 }

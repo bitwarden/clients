@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -5,9 +7,8 @@ import { NEVER, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
@@ -17,6 +18,7 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { AsyncActionsModule, IconButtonModule, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 @Component({
   standalone: true,
@@ -44,11 +46,11 @@ export class DownloadAttachmentComponent {
     private toastService: ToastService,
     private encryptService: EncryptService,
     private stateProvider: StateProvider,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
   ) {
     this.stateProvider.activeUserId$
       .pipe(
-        switchMap((userId) => (userId !== null ? this.cryptoService.orgKeys$(userId) : NEVER)),
+        switchMap((userId) => (userId !== null ? this.keyService.orgKeys$(userId) : NEVER)),
         takeUntilDestroyed(),
       )
       .subscribe((data: Record<OrganizationId, OrgKey> | null) => {
@@ -96,6 +98,8 @@ export class DownloadAttachmentComponent {
         fileName: this.attachment.fileName,
         blobData: decBuf,
       });
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.toastService.showToast({
         variant: "error",

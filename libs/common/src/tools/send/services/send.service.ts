@@ -1,8 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable, concatMap, distinctUntilChanged, firstValueFrom, map } from "rxjs";
 
-import { PBKDF2KdfConfig } from "../../../auth/models/domain/kdf-config";
-import { CryptoService } from "../../../platform/abstractions/crypto.service";
-import { EncryptService } from "../../../platform/abstractions/encrypt.service";
+import { PBKDF2KdfConfig, KeyService } from "@bitwarden/key-management";
+
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { Utils } from "../../../platform/misc/utils";
@@ -37,7 +39,7 @@ export class SendService implements InternalSendServiceAbstraction {
   );
 
   constructor(
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private i18nService: I18nService,
     private keyGenerationService: KeyGenerationService,
     private stateProvider: SendStateProvider,
@@ -57,6 +59,8 @@ export class SendService implements InternalSendServiceAbstraction {
     send.disabled = model.disabled;
     send.hideEmail = model.hideEmail;
     send.maxAccessCount = model.maxAccessCount;
+    send.deletionDate = model.deletionDate;
+    send.expirationDate = model.expirationDate;
     if (model.key == null) {
       const key = await this.keyGenerationService.createKeyWithPurpose(
         128,
@@ -75,7 +79,7 @@ export class SendService implements InternalSendServiceAbstraction {
       send.password = passwordKey.keyB64;
     }
     if (key == null) {
-      key = await this.cryptoService.getUserKey();
+      key = await this.keyService.getUserKey();
     }
     send.key = await this.encryptService.encrypt(model.key, key);
     send.name = await this.encryptService.encrypt(model.name, model.cryptoKey);
@@ -195,7 +199,7 @@ export class SendService implements InternalSendServiceAbstraction {
     }
 
     decSends = [];
-    const hasKey = await this.cryptoService.hasUserKey();
+    const hasKey = await this.keyService.hasUserKey();
     if (!hasKey) {
       throw new Error("No user key found.");
     }
@@ -320,7 +324,7 @@ export class SendService implements InternalSendServiceAbstraction {
     key: SymmetricCryptoKey,
   ): Promise<[EncString, EncArrayBuffer]> {
     if (key == null) {
-      key = await this.cryptoService.getUserKey();
+      key = await this.keyService.getUserKey();
     }
     const encFileName = await this.encryptService.encrypt(fileName, key);
     const encFileData = await this.encryptService.encryptToBytes(new Uint8Array(data), key);

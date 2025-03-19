@@ -1,0 +1,26 @@
+<form [bitSubmit]="submit" [formGroup]="approveSshRequestForm">
+  <bit-dialog>
+    <div class="tw-font-semibold" bitDialogTitle>{{ "sshkeyApprovalTitle" | i18n }}</div>
+    <div bitDialogContent>
+      <app-callout
+        type="warning"
+        title="{{ 'agentForwardingWarningTitle' | i18n }}"
+        *ngIf="params.isAgentForwarding"
+      >
+        {{ 'agentForwardingWarningText' | i18n }}
+      </app-callout>
+
+      <b>{{params.applicationName}}</b> {{ "sshkeyApprovalMessageInfix" | i18n }}
+      <b>{{params.cipherName}}</b>
+      {{ "sshkeyApprovalMessageSuffix" | i18n }} {{ params.action | i18n }}
+    </div>
+    <div bitDialogFooter>
+      <button type="submit" bitButton bitFormButton buttonType="primary">
+        <span>{{ "authorize" | i18n }}</span>
+      </button>
+      <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>
+        {{ "deny" | i18n }}
+      </button>
+    </div>
+  </bit-dialog>
+</form>

@@ -1,3 +1,4 @@
+import { Unassigned } from "@bitwarden/admin-console/common";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 
@@ -8,7 +9,6 @@ import {
   isRoutedVaultFilterItemType,
   RoutedVaultFilterItemType,
   RoutedVaultFilterModel,
-  Unassigned,
 } from "./routed-vault-filter.model";
 import { VaultFilter, VaultFilterFunction } from "./vault-filter.model";
 import {

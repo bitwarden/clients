@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { UserId } from "../../types/guid";
@@ -11,6 +13,8 @@ export type AccountInfo = {
   emailVerified: boolean;
   name: string | undefined;
 };
+
+export type Account = { id: UserId } & AccountInfo;
 
 export function accountInfoEqual(a: AccountInfo, b: AccountInfo) {
   if (a == null && b == null) {
@@ -32,16 +36,19 @@ export function accountInfoEqual(a: AccountInfo, b: AccountInfo) {
 
 export abstract class AccountService {
   accounts$: Observable<Record<UserId, AccountInfo>>;
-  activeAccount$: Observable<{ id: UserId | undefined } & AccountInfo>;
+
+  activeAccount$: Observable<Account | null>;
 
   /**
    * Observable of the last activity time for each account.
    */
   accountActivity$: Observable<Record<UserId, Date>>;
+  /** Observable of the new device login verification property for the account. */
+  accountVerifyNewDeviceLogin$: Observable<boolean>;
   /** Account list in order of descending recency */
   sortedUserIds$: Observable<UserId[]>;
   /** Next account that is not the current active account */
-  nextUpAccount$: Observable<{ id: UserId } & AccountInfo>;
+  nextUpAccount$: Observable<Account>;
   /**
    * Updates the `accounts$` observable with the new account data.
    *
@@ -68,6 +75,15 @@ export abstract class AccountService {
    * @param emailVerified
    */
   abstract setAccountEmailVerified(userId: UserId, emailVerified: boolean): Promise<void>;
+  /**
+   * updates the `accounts$` observable with the new VerifyNewDeviceLogin property for the account.
+   * @param userId
+   * @param VerifyNewDeviceLogin
+   */
+  abstract setAccountVerifyNewDeviceLogin(
+    userId: UserId,
+    verifyNewDeviceLogin: boolean,
+  ): Promise<void>;
   /**
    * Updates the `activeAccount$` observable with the new active account.
    * @param userId

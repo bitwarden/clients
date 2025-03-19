@@ -1,8 +1,10 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
-import { combineLatest, map, Observable } from "rxjs";
+import { Component, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { combineLatest, firstValueFrom, map, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   IconButtonModule,
@@ -31,7 +33,7 @@ import { VaultListItemsContainerComponent } from "../vault-list-items-container/
   selector: "app-autofill-vault-list-items",
   templateUrl: "autofill-vault-list-items.component.html",
 })
-export class AutofillVaultListItemsComponent {
+export class AutofillVaultListItemsComponent implements OnInit {
   /**
    * The list of ciphers that can be used to autofill the current page.
    * @protected
@@ -44,6 +46,12 @@ export class AutofillVaultListItemsComponent {
    * @protected
    */
   protected showRefresh: boolean = BrowserPopupUtils.inSidebar(window);
+
+  clickItemsToAutofillVaultView = false;
+
+  protected groupByType = toSignal(
+    this.vaultPopupItemsService.hasFilterApplied$.pipe(map((hasFilter) => !hasFilter)),
+  );
 
   /**
    * Observable that determines whether the empty autofill tip should be shown.
@@ -62,11 +70,24 @@ export class AutofillVaultListItemsComponent {
     ),
   );
 
+  /**
+   * Flag indicating that the current tab location is blocked
+   */
+  currentURIIsBlocked$: Observable<boolean> =
+    this.vaultPopupAutofillService.currentTabIsOnBlocklist$;
+
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
     private vaultPopupAutofillService: VaultPopupAutofillService,
+    private vaultSettingsService: VaultSettingsService,
   ) {
     // TODO: Migrate logic to show Autofill policy toast PM-8144
+  }
+
+  async ngOnInit() {
+    this.clickItemsToAutofillVaultView = await firstValueFrom(
+      this.vaultSettingsService.clickItemsToAutofillVaultView$,
+    );
   }
 
   /**

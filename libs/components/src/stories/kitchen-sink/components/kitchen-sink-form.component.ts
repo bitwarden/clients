@@ -49,11 +49,9 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
       <bit-form-field>
         <bit-label>Your favorite color</bit-label>
         <bit-select formControlName="favColor">
-          <bit-option
-            *ngFor="let color of colors"
-            [value]="color.value"
-            [label]="color.name"
-          ></bit-option>
+          @for (color of colors; track color) {
+            <bit-option [value]="color.value" [label]="color.name"></bit-option>
+          }
         </bit-select>
       </bit-form-field>
 
@@ -76,6 +74,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
             linkType="primary"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
+            type="button"
             slot="end"
           >
             <i class="bwi bwi-question-circle"></i>

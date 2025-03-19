@@ -1,10 +1,24 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
+
+import {
+  CatchallGenerationOptions,
+  CredentialGenerator,
+  GenerateRequest,
+  GeneratedCredential,
+  SubaddressGenerationOptions,
+} from "../types";
 
 import { Randomizer } from "./abstractions";
 import { SUBADDRESS_PARSER } from "./data";
 
 /** Generation algorithms that produce randomized email addresses */
-export class EmailRandomizer {
+export class EmailRandomizer
+  implements
+    CredentialGenerator<CatchallGenerationOptions>,
+    CredentialGenerator<SubaddressGenerationOptions>
+{
   /** Instantiates the email randomizer
    *  @param random data source for random data
    */
@@ -96,4 +110,49 @@ export class EmailRandomizer {
 
     return result;
   }
+
+  generate(
+    request: GenerateRequest,
+    settings: CatchallGenerationOptions,
+  ): Promise<GeneratedCredential>;
+  generate(
+    request: GenerateRequest,
+    settings: SubaddressGenerationOptions,
+  ): Promise<GeneratedCredential>;
+  async generate(
+    request: GenerateRequest,
+    settings: CatchallGenerationOptions | SubaddressGenerationOptions,
+  ) {
+    if (isCatchallGenerationOptions(settings)) {
+      const email = await this.randomAsciiCatchall(settings.catchallDomain);
+
+      return new GeneratedCredential(
+        email,
+        "catchall",
+        Date.now(),
+        request.source,
+        request.website,
+      );
+    } else if (isSubaddressGenerationOptions(settings)) {
+      const email = await this.randomAsciiSubaddress(settings.subaddressEmail);
+
+      return new GeneratedCredential(
+        email,
+        "subaddress",
+        Date.now(),
+        request.source,
+        request.website,
+      );
+    }
+
+    throw new Error("Invalid settings received by generator.");
+  }
+}
+
+function isCatchallGenerationOptions(settings: any): settings is CatchallGenerationOptions {
+  return "catchallDomain" in (settings ?? {});
+}
+
+function isSubaddressGenerationOptions(settings: any): settings is SubaddressGenerationOptions {
+  return "subaddressEmail" in (settings ?? {});
 }

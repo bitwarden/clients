@@ -1,24 +1,44 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Data, NavigationEnd, Router, RouterModule } from "@angular/router";
 import { Subject, filter, switchMap, takeUntil, tap } from "rxjs";
 
 import { AnonLayoutComponent } from "@bitwarden/auth/angular";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { Icon } from "@bitwarden/components";
+import { Icon, Translation } from "@bitwarden/components";
 
 import { AnonLayoutWrapperDataService } from "./anon-layout-wrapper-data.service";
 
 export interface AnonLayoutWrapperData {
-  pageTitle?: string;
-  pageSubtitle?:
-    | string
-    | {
-        subtitle: string;
-        translate: boolean;
-      };
-  pageIcon?: Icon;
+  /**
+   * The optional title of the page.
+   * If a string is provided, it will be presented as is (ex: Organization name)
+   * If a Translation object (supports placeholders) is provided, it will be translated
+   */
+  pageTitle?: string | Translation | null;
+  /**
+   * The optional subtitle of the page.
+   * If a string is provided, it will be presented as is (ex: user's email)
+   * If a Translation object (supports placeholders) is provided, it will be translated
+   */
+  pageSubtitle?: string | Translation | null;
+  /**
+   * The optional icon to display on the page.
+   */
+  pageIcon?: Icon | null;
+  /**
+   * Optional flag to either show the optional environment selector (false) or just a readonly hostname (true).
+   */
   showReadonlyHostname?: boolean;
+  /**
+   * Optional flag to set the max-width of the page. Defaults to 'md' if not provided.
+   */
   maxWidth?: "md" | "3xl";
+  /**
+   * Optional flag to set the max-width of the title area. Defaults to null if not provided.
+   */
+  titleAreaMaxWidth?: "md";
 }
 
 @Component({
@@ -34,12 +54,14 @@ export class AnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected pageIcon: Icon;
   protected showReadonlyHostname: boolean;
   protected maxWidth: "md" | "3xl";
+  protected titleAreaMaxWidth: "md";
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private i18nService: I18nService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
+    private changeDetectorRef: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -70,11 +92,11 @@ export class AnonLayoutWrapperComponent implements OnInit, OnDestroy {
     }
 
     if (firstChildRouteData["pageTitle"] !== undefined) {
-      this.pageTitle = this.i18nService.t(firstChildRouteData["pageTitle"]);
+      this.pageTitle = this.handleStringOrTranslation(firstChildRouteData["pageTitle"]);
     }
 
     if (firstChildRouteData["pageSubtitle"] !== undefined) {
-      this.pageSubtitle = this.i18nService.t(firstChildRouteData["pageSubtitle"]);
+      this.pageSubtitle = this.handleStringOrTranslation(firstChildRouteData["pageSubtitle"]);
     }
 
     if (firstChildRouteData["pageIcon"] !== undefined) {
@@ -83,6 +105,7 @@ export class AnonLayoutWrapperComponent implements OnInit, OnDestroy {
 
     this.showReadonlyHostname = Boolean(firstChildRouteData["showReadonlyHostname"]);
     this.maxWidth = firstChildRouteData["maxWidth"];
+    this.titleAreaMaxWidth = firstChildRouteData["titleAreaMaxWidth"];
   }
 
   private listenForServiceDataChanges() {
@@ -99,29 +122,39 @@ export class AnonLayoutWrapperComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (data.pageTitle) {
-      this.pageTitle = this.i18nService.t(data.pageTitle);
+    // Null emissions are used to reset the page data as all fields are optional.
+
+    if (data.pageTitle !== undefined) {
+      this.pageTitle =
+        data.pageTitle !== null ? this.handleStringOrTranslation(data.pageTitle) : null;
     }
 
-    if (data.pageSubtitle) {
-      // If you pass just a string, we translate it by default
-      if (typeof data.pageSubtitle === "string") {
-        this.pageSubtitle = this.i18nService.t(data.pageSubtitle);
-      } else {
-        // if you pass an object, you can specify if you want to translate it or not
-        this.pageSubtitle = data.pageSubtitle.translate
-          ? this.i18nService.t(data.pageSubtitle.subtitle)
-          : data.pageSubtitle.subtitle;
-      }
+    if (data.pageSubtitle !== undefined) {
+      this.pageSubtitle =
+        data.pageSubtitle !== null ? this.handleStringOrTranslation(data.pageSubtitle) : null;
     }
 
-    if (data.pageIcon) {
-      this.pageIcon = data.pageIcon;
+    if (data.pageIcon !== undefined) {
+      this.pageIcon = data.pageIcon !== null ? data.pageIcon : null;
     }
 
-    if (data.showReadonlyHostname != null) {
+    if (data.showReadonlyHostname !== undefined) {
       this.showReadonlyHostname = data.showReadonlyHostname;
     }
+
+    // Manually fire change detection to avoid ExpressionChangedAfterItHasBeenCheckedError
+    // when setting the page data from a service
+    this.changeDetectorRef.detectChanges();
+  }
+
+  private handleStringOrTranslation(value: string | Translation): string {
+    if (typeof value === "string") {
+      // If it's a string, return it as is
+      return value;
+    }
+
+    // If it's a Translation object, translate it
+    return this.i18nService.t(value.key, ...(value.placeholders ?? []));
   }
 
   private resetPageData() {
@@ -130,6 +163,7 @@ export class AnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.pageIcon = null;
     this.showReadonlyHostname = null;
     this.maxWidth = null;
+    this.titleAreaMaxWidth = null;
   }
 
   ngOnDestroy() {

@@ -2,7 +2,7 @@ import { GlobalState } from "./global-state";
 import { KeyDefinition } from "./key-definition";
 
 /**
- * A provider for geting an implementation of global state scoped to the given key.
+ * A provider for getting an implementation of global state scoped to the given key.
  */
 export abstract class GlobalStateProvider {
   /**

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { Utils } from "../../../platform/misc/utils";
@@ -36,14 +38,18 @@ export class Attachment extends Domain {
     );
   }
 
-  async decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<AttachmentView> {
-    const view = await this.decryptObj(
+  async decrypt(
+    orgId: string,
+    context = "No Cipher Context",
+    encKey?: SymmetricCryptoKey,
+  ): Promise<AttachmentView> {
+    const view = await this.decryptObj<Attachment, AttachmentView>(
+      this,
       new AttachmentView(this),
-      {
-        fileName: null,
-      },
+      ["fileName"],
       orgId,
       encKey,
+      "DomainType: Attachment; " + context,
     );
 
     if (this.key != null) {
@@ -62,16 +68,18 @@ export class Attachment extends Domain {
       const encryptService = Utils.getContainerService().getEncryptService();
       const decValue = await encryptService.decryptToBytes(this.key, encKey);
       return new SymmetricCryptoKey(decValue);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       // TODO: error?
     }
   }
 
   private async getKeyForDecryption(orgId: string) {
-    const cryptoService = Utils.getContainerService().getCryptoService();
+    const keyService = Utils.getContainerService().getKeyService();
     return orgId != null
-      ? await cryptoService.getOrgKey(orgId)
-      : await cryptoService.getUserKeyWithLegacySupport();
+      ? await keyService.getOrgKey(orgId)
+      : await keyService.getUserKeyWithLegacySupport();
   }
 
   toAttachmentData(): AttachmentData {

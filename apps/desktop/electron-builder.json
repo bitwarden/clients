@@ -18,14 +18,9 @@
     "**/*",
     "!**/node_modules/@bitwarden/desktop-napi/**/*",
     "**/node_modules/@bitwarden/desktop-napi/index.js",
-    "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node",
-
-    "!**/node_modules/argon2/**/*",
-    "**/node_modules/argon2/argon2.cjs",
-    "**/node_modules/argon2/package.json",
-    "**/node_modules/argon2/build/Release/argon2.node"
+    "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node"
   ],
-  "electronVersion": "32.0.2",
+  "electronVersion": "34.0.0",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
@@ -73,27 +68,39 @@
       "CFBundleDevelopmentRegion": "en"
     },
     "singleArchFiles": "node_modules/@bitwarden/desktop-napi/desktop_napi.darwin-*.node",
+    "extraFiles": [
+      {
+        "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
+        "to": "MacOS/desktop_proxy"
+      },
+      {
+        "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
+        "to": "MacOS/desktop_proxy.inherit"
+      }
+    ],
+    "signIgnore": ["MacOS/desktop_proxy", "MacOS/desktop_proxy.inherit"],
     "target": ["dmg", "zip"]
   },
   "win": {
     "electronUpdaterCompatibility": ">=0.0.1",
     "target": ["portable", "nsis-web", "appx"],
     "sign": "./sign.js",
-    "extraResources": [
+    "extraFiles": [
       {
-        "from": "../../node_modules/regedit/vbs",
-        "to": "regedit/vbs",
-        "filter": ["**/*"]
-      },
-      {
-        "from": "resources/native-messaging.bat",
-        "to": "native-messaging.bat"
+        "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}.exe",
+        "to": "desktop_proxy.exe"
       }
     ]
   },
   "linux": {
     "category": "Utility",
     "synopsis": "A secure and free password manager for all of your devices.",
+    "extraFiles": [
+      {
+        "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
+        "to": "desktop_proxy"
+      }
+    ],
     "target": ["deb", "freebsd", "rpm", "AppImage", "snap"],
     "desktop": {
       "Name": "Bitwarden",
@@ -126,7 +133,7 @@
     "entitlements": "resources/entitlements.mas.plist",
     "entitlementsInherit": "resources/entitlements.mas.inherit.plist",
     "entitlementsLoginHelper": "resources/entitlements.mas.loginhelper.plist",
-    "hardenedRuntime": false,
+    "hardenedRuntime": true,
     "extendInfo": {
       "LSMinimumSystemVersion": "12",
       "ElectronTeamID": "LTZ2PFU5D6"
@@ -150,7 +157,7 @@
     "applicationId": "bitwardendesktop",
     "identityName": "8bitSolutionsLLC.bitwardendesktop",
     "publisher": "CN=14D52771-DE3C-4886-B8BF-825BA7690418",
-    "publisherDisplayName": "8bit Solutions LLC",
+    "publisherDisplayName": "Bitwarden Inc",
     "languages": [
       "en-US",
       "af",
@@ -217,7 +224,7 @@
   },
   "deb": {
     "artifactName": "${productName}-${version}-${arch}.${ext}",
-    "depends": ["libnotify4", "libxtst6", "libnss3", "libsecret-1-0", "libxss1"]
+    "depends": ["libnotify4", "libxtst6", "libnss3", "libxss1"]
   },
   "appImage": {
     "artifactName": "${productName}-${version}-${arch}.${ext}"
@@ -234,7 +241,17 @@
     "autoStart": true,
     "base": "core22",
     "confinement": "strict",
-    "plugs": ["default", "network", "network-bind", "password-manager-service"],
+    "plugs": [
+      "default",
+      "network-bind",
+      "password-manager-service",
+      {
+        "polkit": {
+          "action-prefix": "com.bitwarden.Bitwarden"
+        }
+      },
+      "u2f-devices"
+    ],
     "stagePackages": ["default"]
   },
   "protocols": [

@@ -178,7 +178,7 @@ Le soluzioni di gestione delle credenziali crittografate end-to-end di Bitwarden
     <value>Gestisci tutte le tue password e i tuoi login da una cassaforte sicura</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
-    <value>Riempi velocemente le tue credenziali di accesso in qualunque sito che visiti</value>
+    <value>Riempi velocemente le tue credenziali di accesso in qualunque sito visitato</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
     <value>La tua cassaforte è facilmente accessibile dal menu contestuale (tasto destro del mouse)</value>

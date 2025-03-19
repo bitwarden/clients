@@ -1,11 +1,12 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, BehaviorSubject } from "rxjs";
 import { Jsonify } from "type-fest";
 
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { UserApiTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/user-api-token.request";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
+import { VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { UserApiLoginCredentials } from "../models/domain/login-credentials";
@@ -29,7 +30,6 @@ export class UserApiLoginStrategy extends LoginStrategy {
 
   constructor(
     data: UserApiLoginStrategyData,
-    private environmentService: EnvironmentService,
     private keyConnectorService: KeyConnectorService,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
@@ -64,13 +64,16 @@ export class UserApiLoginStrategy extends LoginStrategy {
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    await this.cryptoService.setMasterKeyEncryptedUserKey(response.key, userId);
+    await this.keyService.setMasterKeyEncryptedUserKey(response.key, userId);
 
     if (response.apiUseKeyConnector) {
       const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
       if (masterKey) {
-        const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey);
-        await this.cryptoService.setUserKey(userKey, userId);
+        const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
+          masterKey,
+          userId,
+        );
+        await this.keyService.setUserKey(userKey, userId);
       }
     }
   }
@@ -79,7 +82,7 @@ export class UserApiLoginStrategy extends LoginStrategy {
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    await this.cryptoService.setPrivateKey(
+    await this.keyService.setPrivateKey(
       response.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
       userId,
     );

@@ -5,13 +5,13 @@
     </ng-container>
   </popup-header>
 
-  <div class="tw-bg-background-alt tw-p-2">
+  <div class="tw-bg-background-alt">
     <bit-section>
       <bit-section-header>
         <h2 bitTypography="h6">{{ "autofillSuggestionsSectionTitle" | i18n }}</h2>
       </bit-section-header>
       <bit-card>
-        <bit-form-control>
+        <bit-form-control [disableMargin]="!enableInlineMenu && !canOverrideBrowserAutofillSetting">
           <input
             bitCheckbox
             id="show-inline-menu"
@@ -26,19 +26,10 @@
           >
             {{ "showInlineMenuOnFormFieldsDescAlt" | i18n }}
           </bit-hint>
-        </bit-form-control>
-        <bit-form-control *ngIf="enableInlineMenu" class="tw-pl-5">
-          <input
-            bitCheckbox
-            id="show-autofill-suggestions-on-icon"
-            type="checkbox"
-            (change)="updateInlineMenuVisibility()"
-            [(ngModel)]="enableInlineMenuOnIconSelect"
-          />
-          <bit-label for="show-autofill-suggestions-on-icon">
-            {{ "showInlineMenuOnIconSelectionLabel" | i18n }}
-          </bit-label>
-          <bit-hint class="tw-text-sm" *ngIf="!canOverrideBrowserAutofillSetting">
+          <bit-hint
+            *ngIf="!canOverrideBrowserAutofillSetting"
+            [class]="!enableInlineMenu ? 'tw-text-sm tw-mb-6' : 'tw-text-sm'"
+          >
             {{ "turnOffBrowserBuiltInPasswordManagerSettings" | i18n }}
             <a
               bitLink
@@ -51,6 +42,48 @@
               {{ "turnOffBrowserBuiltInPasswordManagerSettingsLink" | i18n }}
             </a>
           </bit-hint>
+        </bit-form-control>
+        <bit-form-control
+          *ngIf="inlineMenuPositioningImprovementsEnabled && enableInlineMenu"
+          class="tw-ml-5"
+        >
+          <input
+            bitCheckbox
+            id="show-inline-menu-identities"
+            type="checkbox"
+            (change)="updateShowInlineMenuIdentities()"
+            [(ngModel)]="showInlineMenuIdentities"
+          />
+          <bit-label for="show-inline-menu-identities">
+            {{ "showInlineMenuIdentitiesLabel" | i18n }}
+          </bit-label>
+        </bit-form-control>
+        <bit-form-control
+          *ngIf="inlineMenuPositioningImprovementsEnabled && enableInlineMenu"
+          class="tw-ml-5"
+        >
+          <input
+            bitCheckbox
+            id="show-inline-menu-cards"
+            type="checkbox"
+            (change)="updateShowInlineMenuCards()"
+            [(ngModel)]="showInlineMenuCards"
+          />
+          <bit-label for="show-inline-menu-cards">
+            {{ "showInlineMenuCardsLabel" | i18n }}
+          </bit-label>
+        </bit-form-control>
+        <bit-form-control *ngIf="enableInlineMenu" class="tw-ml-5">
+          <input
+            bitCheckbox
+            id="show-autofill-suggestions-on-icon"
+            type="checkbox"
+            (change)="updateInlineMenuVisibility()"
+            [(ngModel)]="enableInlineMenuOnIconSelect"
+          />
+          <bit-label for="show-autofill-suggestions-on-icon">
+            {{ "showInlineMenuOnIconSelectionLabel" | i18n }}
+          </bit-label>
         </bit-form-control>
         <bit-form-control *ngIf="canOverrideBrowserAutofillSetting">
           <input
@@ -85,7 +118,7 @@
             (change)="updateShowCardsCurrentTab()"
             [(ngModel)]="showCardsCurrentTab"
           />
-          <bit-label for="showCardsSuggestions">{{ "showCardsInVaultView" | i18n }}</bit-label>
+          <bit-label for="showCardsSuggestions">{{ "showCardsInVaultViewV2" | i18n }}</bit-label>
         </bit-form-control>
         <bit-form-control disableMargin>
           <input
@@ -96,7 +129,7 @@
             [(ngModel)]="showIdentitiesCurrentTab"
           />
           <bit-label for="showIdentitiesSuggestions" class="tw-whitespace-normal">
-            {{ "showIdentitiesInVaultView" | i18n }}
+            {{ "showIdentitiesInVaultViewV2" | i18n }}
           </bit-label>
         </bit-form-control>
       </bit-card>
@@ -107,7 +140,7 @@
       </bit-section-header>
       <bit-item>
         <button bit-item-content type="button" (click)="openURI($event, browserShortcutsURI)">
-          <h3 bitTypography="h5">{{ "autofillKeyboardManagerShortcutsLabel" | i18n }}</h3>
+          <h3 bitTypography="body2">{{ "autofillKeyboardManagerShortcutsLabel" | i18n }}</h3>
           <bit-hint slot="secondary" class="tw-text-sm tw-whitespace-normal">
             {{ autofillKeyboardHelperText }}
           </bit-hint>
@@ -127,7 +160,10 @@
       <bit-card>
         <bit-hint class="tw-mb-6 tw-text-sm">
           {{ "enableAutoFillOnPageLoadDesc" | i18n }}
-          <span [innerHTML]="'autofillOnPageLoadWarning' | i18n: '\<b>' : '\</b>'"></span>
+          <span
+            ><b>{{ "warningCapitalized" | i18n }}</b
+            >: {{ "experimentalFeature" | i18n }}</span
+          >
           <a
             bitLink
             class="tw-no-underline"
@@ -233,6 +269,12 @@
           </bit-hint>
         </bit-form-field>
       </bit-card>
+    </bit-section>
+    <bit-section *ngIf="blockBrowserInjectionsByDomainEnabled">
+      <bit-item>
+        <a bit-item-content routerLink="/blocked-domains">{{ "blockedDomains" | i18n }}</a>
+        <i slot="end" class="bwi bwi-angle-right bwi-lg row-sub-icon" aria-hidden="true"></i>
+      </bit-item>
     </bit-section>
   </div>
 </popup-page>

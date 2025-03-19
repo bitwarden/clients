@@ -6,7 +6,6 @@
     "skipWelcomeOnInstall": true
   },
   "flags": {
-    "showPasswordless": true,
     "accountSwitching": true
   }
 }

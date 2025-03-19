@@ -13,7 +13,7 @@ export const Ascii = Object.freeze({
   /** The full set of characters available to the generator */
   Full: Object.freeze({
     Uppercase: toCharacterSet("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
-    Lowercase: toCharacterSet("abcdefghijkmnopqrstuvwxyz"),
+    Lowercase: toCharacterSet("abcdefghijklmnopqrstuvwxyz"),
     Digit: toCharacterSet("0123456789"),
     Special: SpecialCharacters,
   } as CharacterSets),
@@ -21,7 +21,7 @@ export const Ascii = Object.freeze({
   /** All characters available to the generator that are not ambiguous. */
   Unmistakable: Object.freeze({
     Uppercase: toCharacterSet("ABCDEFGHJKLMNPQRSTUVWXYZ"),
-    Lowercase: toCharacterSet("abcdefghijklmnopqrstuvwxyz"),
+    Lowercase: toCharacterSet("abcdefghijkmnopqrstuvwxyz"),
     Digit: toCharacterSet("23456789"),
     Special: SpecialCharacters,
   } as CharacterSets),

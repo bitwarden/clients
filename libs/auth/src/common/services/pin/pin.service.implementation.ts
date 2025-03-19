@@ -1,11 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
-import { MasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
-import { KdfConfig } from "@bitwarden/common/auth/models/domain/kdf-config";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
@@ -19,6 +19,7 @@ import {
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, PinKey, UserKey } from "@bitwarden/common/types/key";
+import { KdfConfig, KdfConfigService } from "@bitwarden/key-management";
 
 import { PinServiceAbstraction } from "../../abstractions/pin.service.abstraction";
 
@@ -98,7 +99,7 @@ export class PinService implements PinServiceAbstraction {
     private stateService: StateService,
   ) {}
 
-  async getPinKeyEncryptedUserKeyPersistent(userId: UserId): Promise<EncString> {
+  async getPinKeyEncryptedUserKeyPersistent(userId: UserId): Promise<EncString | null> {
     this.validateUserId(userId, "Cannot get pinKeyEncryptedUserKeyPersistent.");
 
     return EncString.fromJSON(
@@ -136,7 +137,7 @@ export class PinService implements PinServiceAbstraction {
     await this.stateProvider.setUserState(PIN_KEY_ENCRYPTED_USER_KEY_PERSISTENT, null, userId);
   }
 
-  async getPinKeyEncryptedUserKeyEphemeral(userId: UserId): Promise<EncString> {
+  async getPinKeyEncryptedUserKeyEphemeral(userId: UserId): Promise<EncString | null> {
     this.validateUserId(userId, "Cannot get pinKeyEncryptedUserKeyEphemeral.");
 
     return EncString.fromJSON(
@@ -209,7 +210,7 @@ export class PinService implements PinServiceAbstraction {
     }
   }
 
-  async getUserKeyEncryptedPin(userId: UserId): Promise<EncString> {
+  async getUserKeyEncryptedPin(userId: UserId): Promise<EncString | null> {
     this.validateUserId(userId, "Cannot get userKeyEncryptedPin.");
 
     return EncString.fromJSON(
@@ -241,7 +242,7 @@ export class PinService implements PinServiceAbstraction {
     return await this.encryptService.encrypt(pin, userKey);
   }
 
-  async getOldPinKeyEncryptedMasterKey(userId: UserId): Promise<EncryptedString> {
+  async getOldPinKeyEncryptedMasterKey(userId: UserId): Promise<EncryptedString | null> {
     this.validateUserId(userId, "Cannot get oldPinKeyEncryptedMasterKey.");
 
     return await firstValueFrom(
@@ -418,6 +419,7 @@ export class PinService implements PinServiceAbstraction {
 
     const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
       masterKey,
+      userId,
       encUserKey ? new EncString(encUserKey) : undefined,
     );
 

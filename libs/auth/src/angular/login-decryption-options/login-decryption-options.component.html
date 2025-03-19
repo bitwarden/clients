@@ -1,0 +1,64 @@
+<ng-container *ngIf="loading">
+  <div class="tw-text-center">
+    <i
+      class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
+      title="{{ 'loading' | i18n }}"
+      aria-hidden="true"
+    ></i>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+  </div>
+</ng-container>
+
+<form *ngIf="!loading" [formGroup]="formGroup">
+  <bit-form-control>
+    <input type="checkbox" bitCheckbox formControlName="rememberDevice" />
+    <bit-label>{{ "rememberThisDevice" | i18n }}</bit-label>
+    <bit-hint bitTypography="body2">{{ "uncheckIfPublicDevice" | i18n }}</bit-hint>
+  </bit-form-control>
+</form>
+
+<ng-container *ngIf="state === State.NewUser">
+  <button type="button" bitButton block buttonType="primary" [bitAction]="createUser">
+    {{ "continue" | i18n }}
+  </button>
+</ng-container>
+
+<ng-container *ngIf="state === State.ExistingUserUntrustedDevice">
+  <div class="tw-grid tw-gap-3">
+    <ng-container *ngIf="canApproveFromOtherDevice">
+      <button type="button" bitButton block buttonType="primary" (click)="approveFromOtherDevice()">
+        {{ "approveFromYourOtherDevice" | i18n }}
+      </button>
+
+      <div *ngIf="canApproveWithMasterPassword || canRequestAdminApproval" class="tw-text-center">
+        {{ "or" | i18n }}
+      </div>
+    </ng-container>
+
+    <button
+      *ngIf="canApproveWithMasterPassword"
+      type="button"
+      bitButton
+      block
+      buttonType="secondary"
+      (click)="approveWithMasterPassword()"
+    >
+      {{ "useMasterPassword" | i18n }}
+    </button>
+
+    <button
+      *ngIf="canRequestAdminApproval"
+      type="button"
+      bitButton
+      block
+      buttonType="secondary"
+      (click)="requestAdminApproval()"
+    >
+      {{ "requestAdminApproval" | i18n }}
+    </button>
+
+    <button type="button" bitButton bitFormButton block (click)="logOut()">
+      {{ "logOut" | i18n }}
+    </button>
+  </div>
+</ng-container>

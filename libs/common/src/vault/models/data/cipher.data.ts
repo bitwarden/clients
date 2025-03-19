@@ -1,7 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
+import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 import { CipherResponse } from "../response/cipher.response";
 
 import { AttachmentData } from "./attachment.data";
@@ -11,6 +14,7 @@ import { IdentityData } from "./identity.data";
 import { LoginData } from "./login.data";
 import { PasswordHistoryData } from "./password-history.data";
 import { SecureNoteData } from "./secure-note.data";
+import { SshKeyData } from "./ssh-key.data";
 
 export class CipherData {
   id: string;
@@ -18,6 +22,7 @@ export class CipherData {
   folderId: string;
   edit: boolean;
   viewPassword: boolean;
+  permissions: CipherPermissionsApi;
   organizationUseTotp: boolean;
   favorite: boolean;
   revisionDate: string;
@@ -28,6 +33,7 @@ export class CipherData {
   secureNote?: SecureNoteData;
   card?: CardData;
   identity?: IdentityData;
+  sshKey?: SshKeyData;
   fields?: FieldData[];
   attachments?: AttachmentData[];
   passwordHistory?: PasswordHistoryData[];
@@ -47,6 +53,7 @@ export class CipherData {
     this.folderId = response.folderId;
     this.edit = response.edit;
     this.viewPassword = response.viewPassword;
+    this.permissions = response.permissions;
     this.organizationUseTotp = response.organizationUseTotp;
     this.favorite = response.favorite;
     this.revisionDate = response.revisionDate;
@@ -72,6 +79,9 @@ export class CipherData {
       case CipherType.Identity:
         this.identity = new IdentityData(response.identity);
         break;
+      case CipherType.SshKey:
+        this.sshKey = new SshKeyData(response.sshKey);
+        break;
       default:
         break;
     }
@@ -88,6 +98,8 @@ export class CipherData {
   }
 
   static fromJSON(obj: Jsonify<CipherData>) {
-    return Object.assign(new CipherData(), obj);
+    const result = Object.assign(new CipherData(), obj);
+    result.permissions = CipherPermissionsApi.fromJSON(obj.permissions);
+    return result;
   }
 }

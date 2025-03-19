@@ -1,10 +1,16 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CalloutModule } from "@bitwarden/components";
 
 @Component({
@@ -40,7 +46,8 @@ export class ExportScopeCalloutComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    if (!(await this.organizationService.hasOrganizations())) {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    if (!(await firstValueFrom(this.organizationService.hasOrganizations(userId)))) {
       return;
     }
 
@@ -49,12 +56,19 @@ export class ExportScopeCalloutComponent implements OnInit {
   }
 
   private async getScopeMessage(organizationId: string) {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.scopeConfig =
       organizationId != null
         ? {
             title: "exportingOrganizationVaultTitle",
             description: "exportingOrganizationVaultDesc",
-            scopeIdentifier: (await this.organizationService.get(organizationId)).name,
+            scopeIdentifier: (
+              await firstValueFrom(
+                this.organizationService
+                  .organizations$(userId)
+                  .pipe(getOrganizationById(organizationId)),
+              )
+            ).name,
           }
         : {
             title: "exportingPersonalVaultTitle",

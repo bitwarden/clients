@@ -28,7 +28,7 @@
 
     <button
       slot="end"
-      *ngIf="cipher.edit"
+      *ngIf="canDeleteCipher$ | async"
       [bitAction]="delete"
       type="button"
       buttonType="danger"

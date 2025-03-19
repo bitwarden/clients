@@ -56,6 +56,8 @@ export enum EventType {
   OrganizationUser_Restored = 1512,
   OrganizationUser_ApprovedAuthRequest = 1513,
   OrganizationUser_RejectedAuthRequest = 1514,
+  OrganizationUser_Deleted = 1515,
+  OrganizationUser_Left = 1516,
 
   Organization_Updated = 1600,
   Organization_PurgedVault = 1601,

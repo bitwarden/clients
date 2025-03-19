@@ -9,6 +9,8 @@ pub enum Error {
 
     #[error("Cryptography Error, {0}")]
     Crypto(#[from] CryptoError),
+    #[error("KDF Parameter Error, {0}")]
+    KdfParam(#[from] KdfParamError),
 }
 
 #[derive(Debug, Error)]
@@ -27,6 +29,12 @@ pub enum CSParseError {
 pub enum CryptoError {
     #[error("Error while decrypting cipher string")]
     KeyDecrypt,
+}
+
+#[derive(Debug, Error)]
+pub enum KdfParamError {
+    #[error("Invalid KDF parameters: {0}")]
+    InvalidParams(String),
 }
 
 // Ensure that the error messages implement Send and Sync

@@ -51,6 +51,20 @@ describe("UriOptionComponent", () => {
     expect(component).toBeTruthy();
   });
 
+  it("should not update the default uri match strategy label when it is null", () => {
+    component.defaultMatchDetection = null;
+    fixture.detectChanges();
+
+    expect(component["uriMatchOptions"][0].label).toBe("default");
+  });
+
+  it("should update the default uri match strategy label when it is domain", () => {
+    component.defaultMatchDetection = UriMatchStrategy.Domain;
+    fixture.detectChanges();
+
+    expect(component["uriMatchOptions"][0].label).toBe("defaultLabel baseDomain");
+  });
+
   it("should update the default uri match strategy label", () => {
     component.defaultMatchDetection = UriMatchStrategy.Exact;
     fixture.detectChanges();
@@ -94,6 +108,17 @@ describe("UriOptionComponent", () => {
     component.setDisabledState(true);
 
     expect(component["uriForm"].enabled).toBe(false);
+  });
+
+  it("should update form when `writeValue` is invoked", () => {
+    expect(component["uriForm"].value).toEqual({ uri: null, matchDetection: null });
+
+    component.writeValue({ uri: "example.com", matchDetection: UriMatchStrategy.Exact });
+
+    expect(component["uriForm"].value).toEqual({
+      uri: "example.com",
+      matchDetection: UriMatchStrategy.Exact,
+    });
   });
 
   describe("match detection", () => {

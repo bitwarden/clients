@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { BehaviorSubject, Observable } from "rxjs";
 
 import {
@@ -105,7 +107,7 @@ export function optionsToRandomAsciiRequest(options: PasswordGenerationOptions) 
       DefaultPasswordGenerationOptions.special,
       DefaultPasswordGenerationOptions.minSpecial,
     ),
-    ambiguous: options.ambiguous ?? DefaultPasswordGenerationOptions.ambiguous,
+    ambiguous: options.ambiguous ?? DefaultPasswordGenerationOptions.ambiguous!,
     all: 0,
   };
 

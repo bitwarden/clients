@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
@@ -18,6 +20,7 @@ import {
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -91,7 +94,6 @@ interface ViewData {
 export class Fido2Component implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private message$ = new BehaviorSubject<BrowserFido2Message>(null);
-  private hasSearched = false;
   protected BrowserFido2MessageTypes = BrowserFido2MessageTypes;
   protected cipher: CipherView;
   protected ciphers?: CipherView[] = [];
@@ -104,6 +106,7 @@ export class Fido2Component implements OnInit, OnDestroy {
   protected noResultsIcon = Icons.NoResults;
   protected passkeyAction: PasskeyActionValue = PasskeyActions.Register;
   protected PasskeyActions = PasskeyActions;
+  protected hasSearched = false;
   protected searchText: string;
   protected searchTypeSearch = false;
   protected senderTabId?: string;
@@ -184,7 +187,10 @@ export class Fido2Component implements OnInit, OnDestroy {
               this.domainSettingsService.getUrlEquivalentDomains(this.url),
             );
 
-            this.ciphers = (await this.cipherService.getAllDecrypted()).filter(
+            const activeUserId = await firstValueFrom(
+              this.accountService.activeAccount$.pipe(getUserId),
+            );
+            this.ciphers = (await this.cipherService.getAllDecrypted(activeUserId)).filter(
               (cipher) => cipher.type === CipherType.Login && !cipher.isDeleted,
             );
 
@@ -209,7 +215,7 @@ export class Fido2Component implements OnInit, OnDestroy {
 
             this.ciphers = await Promise.all(
               message.cipherIds.map(async (cipherId) => {
-                const cipher = await this.cipherService.get(cipherId);
+                const cipher = await this.cipherService.get(cipherId, activeUserId);
                 return cipher.decrypt(
                   await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
                 );
@@ -230,7 +236,7 @@ export class Fido2Component implements OnInit, OnDestroy {
 
             this.ciphers = await Promise.all(
               message.existingCipherIds.map(async (cipherId) => {
-                const cipher = await this.cipherService.get(cipherId);
+                const cipher = await this.cipherService.get(cipherId, activeUserId);
                 return cipher.decrypt(
                   await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
                 );
@@ -287,7 +293,7 @@ export class Fido2Component implements OnInit, OnDestroy {
         const confirmed = await this.dialogService.openSimpleDialog({
           title: { key: "overwritePasskey" },
           content: { key: "overwritePasskeyAlert" },
-          type: "info",
+          type: "warning",
         });
 
         if (!confirmed) {
@@ -370,19 +376,33 @@ export class Fido2Component implements OnInit, OnDestroy {
     return this.equivalentDomains;
   }
 
+  async clearSearch() {
+    this.searchText = "";
+    await this.setDisplayedCiphersToAllDomainMatch();
+  }
+
+  protected async setDisplayedCiphersToAllDomainMatch() {
+    const equivalentDomains = await this.getEquivalentDomains();
+    this.displayedCiphers = this.ciphers.filter((cipher) =>
+      cipher.login.matchesUri(this.url, equivalentDomains),
+    );
+  }
+
   protected async search() {
-    this.hasSearched = await this.searchService.isSearchable(this.searchText);
-    if (this.hasSearched) {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
+    this.hasSearched = true;
+    const isSearchable = await this.searchService.isSearchable(userId, this.searchText);
+
+    if (isSearchable) {
       this.displayedCiphers = await this.searchService.searchCiphers(
+        userId,
         this.searchText,
         null,
         this.ciphers,
       );
     } else {
-      const equivalentDomains = await this.getEquivalentDomains();
-      this.displayedCiphers = this.ciphers.filter((cipher) =>
-        cipher.login.matchesUri(this.url, equivalentDomains),
-      );
+      await this.setDisplayedCiphersToAllDomainMatch();
     }
   }
 

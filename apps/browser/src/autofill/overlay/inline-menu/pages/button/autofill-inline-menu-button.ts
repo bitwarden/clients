@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import "@webcomponents/custom-elements";
 import "lit/polyfill-support.js";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -117,10 +119,34 @@ export class AutofillInlineMenuButton extends AutofillInlineMenuPageElement {
    * to the parent window indicating that the inline menu should be closed.
    */
   private checkButtonFocused() {
-    if (globalThis.document.hasFocus() || this.buttonElement.matches(":hover")) {
+    if (globalThis.document.hasFocus()) {
+      return;
+    }
+
+    if (this.isButtonHovered()) {
+      globalThis.document.addEventListener(EVENTS.MOUSEOUT, this.handleMouseOutEvent);
       return;
     }
 
     this.postMessageToParent({ command: "triggerDelayedAutofillInlineMenuClosure" });
+  }
+
+  /**
+   * Triggers a re-check of the button's focus status when the mouse leaves the button.
+   */
+  private handleMouseOutEvent = () => {
+    globalThis.document.removeEventListener(EVENTS.MOUSEOUT, this.handleMouseOutEvent);
+    this.checkButtonFocused();
+  };
+
+  /**
+   * Identifies whether the button is currently hovered.
+   */
+  private isButtonHovered() {
+    const hoveredElement = this.buttonElement?.querySelector(":hover");
+    return !!(
+      hoveredElement &&
+      (hoveredElement === this.buttonElement || this.buttonElement.contains(hoveredElement))
+    );
   }
 }

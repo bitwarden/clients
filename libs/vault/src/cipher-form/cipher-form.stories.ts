@@ -1,4 +1,6 @@
-import { importProvidersFrom } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { importProvidersFrom, signal } from "@angular/core";
 import { action } from "@storybook/addon-actions";
 import {
   applicationConfig,
@@ -9,15 +11,22 @@ import {
 } from "@storybook/angular";
 import { BehaviorSubject } from "rxjs";
 
+import { CollectionView } from "@bitwarden/admin-console/common";
+import { ViewCacheService } from "@bitwarden/angular/platform/abstractions/view-cache.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
+import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ClientType } from "@bitwarden/common/enums";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { SshKeyData } from "@bitwarden/common/vault/models/data/ssh-key.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { AsyncActionsModule, ButtonModule, ToastService } from "@bitwarden/components";
@@ -27,13 +36,17 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 // FIXME: remove `/apps` import from `/libs`
-// eslint-disable-next-line import/no-restricted-paths
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/src/app/core/tests";
+
+import { SshImportPromptService } from "../services/ssh-import-prompt.service";
 
 import { CipherFormService } from "./abstractions/cipher-form.service";
 import { TotpCaptureService } from "./abstractions/totp-capture.service";
 import { CipherFormModule } from "./cipher-form.module";
 import { CipherFormComponent } from "./components/cipher-form.component";
+import { CipherFormCacheService } from "./services/default-cipher-form-cache.service";
 
 const defaultConfig: CipherFormConfig = {
   mode: "add",
@@ -137,6 +150,12 @@ export default {
           },
         },
         {
+          provide: SshImportPromptService,
+          useValue: {
+            importSshKeyFromClipboard: () => Promise.resolve(new SshKeyData()),
+          },
+        },
+        {
           provide: CipherFormGenerationService,
           useValue: {
             generateInitialPassword: () => Promise.resolve("initial-password"),
@@ -148,6 +167,7 @@ export default {
           provide: TotpCaptureService,
           useValue: {
             captureTotpSecret: () => Promise.resolve("some-value"),
+            canCaptureTotp: () => true,
           },
         },
         {
@@ -166,6 +186,43 @@ export default {
           provide: AutofillSettingsServiceAbstraction,
           useValue: {
             autofillOnPageLoadDefault$: new BehaviorSubject(true),
+          },
+        },
+        {
+          provide: EventCollectionService,
+          useValue: {
+            collect: () => Promise.resolve(),
+          },
+        },
+        {
+          provide: PlatformUtilsService,
+          useValue: {
+            getClientType: () => ClientType.Browser,
+          },
+        },
+        {
+          provide: AccountService,
+          useValue: {
+            activeAccount$: new BehaviorSubject({ email: "test@example.com" }),
+          },
+        },
+        {
+          provide: CipherFormCacheService,
+          useValue: {
+            getCachedCipherView: (): null => null,
+            initializedWithValue: false,
+          },
+        },
+        {
+          provide: ViewCacheService,
+          useValue: {
+            signal: () => signal(null),
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag: () => Promise.resolve(false),
           },
         },
       ],
@@ -210,7 +267,7 @@ export const Edit: Story = {
     config: {
       ...defaultConfig,
       mode: "edit",
-      originalCipher: defaultConfig.originalCipher,
+      originalCipher: defaultConfig.originalCipher!,
     },
   },
 };
@@ -221,7 +278,7 @@ export const PartialEdit: Story = {
     config: {
       ...defaultConfig,
       mode: "partial-edit",
-      originalCipher: defaultConfig.originalCipher,
+      originalCipher: defaultConfig.originalCipher!,
     },
   },
 };
@@ -232,7 +289,7 @@ export const Clone: Story = {
     config: {
       ...defaultConfig,
       mode: "clone",
-      originalCipher: defaultConfig.originalCipher,
+      originalCipher: defaultConfig.originalCipher!,
     },
   },
 };
@@ -245,7 +302,7 @@ export const NoPersonalOwnership: Story = {
       mode: "add",
       allowPersonalOwnership: false,
       originalCipher: defaultConfig.originalCipher,
-      organizations: defaultConfig.organizations,
+      organizations: defaultConfig.organizations!,
     },
   },
 };

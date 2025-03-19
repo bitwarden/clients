@@ -1,0 +1,105 @@
+<form *ngIf="authed" [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog
+    dialogSize="default"
+    [title]="'twoStepLogin' | i18n"
+    [subtitle]="'authenticatorAppTitle' | i18n"
+  >
+    <ng-container bitDialogContent>
+      <ng-container *ngIf="enabled">
+        <bit-callout type="success" title="{{ 'enabled' | i18n }}" icon="bwi-check-circle">
+          <p bitTypography="body1">{{ "twoStepLoginProviderEnabled" | i18n }}</p>
+          {{ "twoStepAuthenticatorReaddDesc" | i18n }}
+        </bit-callout>
+        <p bitTypography="body1">{{ "twoStepAuthenticatorNeedApp" | i18n }}</p>
+      </ng-container>
+      <ng-container *ngIf="!enabled">
+        <p>
+          {{ "twoStepAuthenticatorInstructionPrefix" | i18n }}
+          <a
+            bitLink
+            target="_blank"
+            rel="noreferrer"
+            (click)="launchExternalUrl('https://getaegis.app')"
+            >Aegis</a
+          >
+          {{ "twoStepAuthenticatorInstructionInfix1" | i18n }}
+          <a
+            bitLink
+            target="_blank"
+            rel="noreferrer"
+            (click)="launchExternalUrl('https://2fas.com')"
+            >2FAS</a
+          >
+          {{ "twoStepAuthenticatorInstructionInfix2" | i18n }}
+          <a
+            bitLink
+            target="_blank"
+            rel="noreferrer"
+            (click)="launchBitwardenUrl('https://bitwarden.com/products/authenticator/')"
+            >Bitwarden Authenticator</a
+          >
+          {{ "twoStepAuthenticatorInstructionSuffix" | i18n }}
+        </p>
+
+        <p class="text-center">
+          <a
+            href="https://apps.apple.com/ca/app/bitwarden-authenticator/id6497335175"
+            target="_blank"
+          >
+            <img
+              src="../../../images/download_apple_appstore.svg"
+              alt="Download on App Store"
+              max-width="120"
+              height="40"
+            />
+          </a>
+
+          <!--Margin to ensure compliance with google play badge usage guidelines (https://partnermarketinghub.withgoogle.com/brands/google-play/visual-identity/badge-guidelines/#:~:text=The%20clear%20space%20surrounding%20the%20badge%20must%20be%20equal%20to%20one%2Dquarter%20of%20the%20height%20of%20the%20badge.)-->
+          <a
+            href="https://play.google.com/store/apps/details?id=com.bitwarden.authenticator"
+            target="_blank"
+          >
+            <img
+              src="../../../images/download_google_playstore.svg"
+              alt="Get it on Google Play"
+              max-width="120"
+              height="40"
+              style="margin-left: 10px"
+            />
+          </a>
+        </p>
+        {{ "twoStepAuthenticatorScanCodeV2" | i18n }}
+      </ng-container>
+      <hr *ngIf="enabled" />
+      <p class="tw-text-center tw-mb-0">
+        <ng-container *ngIf="qrScriptError" class="tw-mt-2">
+          <i class="bwi bwi-error tw-text-3xl tw-text-danger" aria-hidden="true"></i>
+          <p>
+            {{ "twoStepAuthenticatorQRCanvasError" | i18n }}
+          </p>
+        </ng-container>
+        <canvas *ngIf="!qrScriptError" id="qr"></canvas>
+        <br />
+        <code appA11yTitle="{{ 'key' | i18n }}">{{ key }}</code>
+      </p>
+      <bit-form-field *ngIf="!enabled" [disableMargin]="true">
+        <bit-label>{{ "twoStepAuthenticatorEnterCodeV2" | i18n }}</bit-label>
+        <input bitInput type="text" formControlName="token" appInputVerbatim />
+      </bit-form-field>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button
+        bitButton
+        bitFormButton
+        type="submit"
+        buttonType="primary"
+        (click)="validateTokenControl()"
+      >
+        {{ (enabled ? "disable" : "enable") | i18n }}
+      </button>
+      <button bitButton bitFormButton type="button" buttonType="secondary" bitDialogClose>
+        {{ "close" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

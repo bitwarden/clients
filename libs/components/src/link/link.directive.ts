@@ -5,44 +5,37 @@ export type LinkType = "primary" | "secondary" | "contrast" | "light";
 const linkStyles: Record<LinkType, string[]> = {
   primary: [
     "!tw-text-primary-600",
-    "hover:!tw-text-primary-600",
-    "focus-visible:before:tw-ring-primary-700",
-    "disabled:!tw-text-primary-600/60",
+    "hover:!tw-text-primary-700",
+    "focus-visible:before:tw-ring-primary-600",
   ],
-  secondary: [
-    "!tw-text-main",
-    "hover:!tw-text-main",
-    "focus-visible:before:tw-ring-primary-700",
-    "disabled:!tw-text-muted/60",
-  ],
+  secondary: ["!tw-text-main", "hover:!tw-text-main", "focus-visible:before:tw-ring-primary-600"],
   contrast: [
     "!tw-text-contrast",
     "hover:!tw-text-contrast",
     "focus-visible:before:tw-ring-text-contrast",
-    "disabled:!tw-text-contrast/60",
   ],
-  light: [
-    "!tw-text-alt2",
-    "hover:!tw-text-alt2",
-    "focus-visible:before:tw-ring-text-alt2",
-    "disabled:!tw-text-alt2/60",
-  ],
+  light: ["!tw-text-alt2", "hover:!tw-text-alt2", "focus-visible:before:tw-ring-text-alt2"],
 };
 
 const commonStyles = [
   "tw-text-unset",
   "tw-leading-none",
-  "tw-p-0",
+  "tw-px-0",
+  "tw-py-0.5",
   "tw-font-semibold",
   "tw-bg-transparent",
   "tw-border-0",
   "tw-border-none",
   "tw-rounded",
   "tw-transition",
+  "tw-no-underline",
   "hover:tw-underline",
   "hover:tw-decoration-1",
   "disabled:tw-no-underline",
   "disabled:tw-cursor-not-allowed",
+  "disabled:!tw-text-secondary-300",
+  "disabled:hover:!tw-text-secondary-300",
+  "disabled:hover:tw-no-underline",
   "focus-visible:tw-outline-none",
   "focus-visible:tw-underline",
   "focus-visible:tw-decoration-1",
@@ -75,6 +68,7 @@ abstract class LinkDirective {
 
 @Directive({
   selector: "a[bitLink]",
+  standalone: true,
 })
 export class AnchorLinkDirective extends LinkDirective {
   @HostBinding("class") get classList() {
@@ -86,6 +80,7 @@ export class AnchorLinkDirective extends LinkDirective {
 
 @Directive({
   selector: "button[bitLink]",
+  standalone: true,
 })
 export class ButtonLinkDirective extends LinkDirective {
   @HostBinding("class") get classList() {

@@ -2,6 +2,9 @@ import { Pipe, PipeTransform } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+/**
+ * @deprecated: Please use the I18nPipe from @bitwarden/ui-common
+ */
 @Pipe({
   name: "i18n",
 })

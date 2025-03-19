@@ -1,5 +1,6 @@
-import { DialogModule, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
+import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -8,18 +9,15 @@ import { ButtonModule } from "../../button";
 import { IconButtonModule } from "../../icon-button";
 import { SharedModule } from "../../shared/shared.module";
 import { I18nMockService } from "../../utils/i18n-mock.service";
+import { DialogModule } from "../dialog.module";
 import { DialogService } from "../dialog.service";
-import { DialogCloseDirective } from "../directives/dialog-close.directive";
-import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
-
-import { SimpleDialogComponent } from "./simple-dialog.component";
 
 interface Animal {
   animal: string;
 }
 
 @Component({
-  template: `<button bitButton (click)="openDialog()">Open Simple Dialog</button>`,
+  template: `<button type="button" bitButton (click)="openDialog()">Open Simple Dialog</button>`,
 })
 class StoryDialogComponent {
   constructor(public dialogService: DialogService) {}
@@ -43,8 +41,10 @@ class StoryDialogComponent {
         Animal: {{ animal }}
       </span>
       <ng-container bitDialogFooter>
-        <button bitButton buttonType="primary" (click)="dialogRef.close()">Save</button>
-        <button bitButton buttonType="secondary" bitDialogClose>Cancel</button>
+        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">
+          Save
+        </button>
+        <button type="button" bitButton buttonType="secondary" bitDialogClose>Cancel</button>
       </ng-container>
     </bit-simple-dialog>
   `,
@@ -65,13 +65,14 @@ export default {
   component: StoryDialogComponent,
   decorators: [
     moduleMetadata({
-      declarations: [
-        StoryDialogContentComponent,
-        DialogCloseDirective,
-        DialogTitleContainerDirective,
-        SimpleDialogComponent,
+      declarations: [StoryDialogContentComponent],
+      imports: [
+        SharedModule,
+        IconButtonModule,
+        ButtonModule,
+        BrowserAnimationsModule,
+        DialogModule,
       ],
-      imports: [SharedModule, IconButtonModule, ButtonModule, DialogModule],
       providers: [
         DialogService,
         {
@@ -88,7 +89,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=21514-19247&t=b5tDKylm5sWm2yKo-4",
     },
   },
 } as Meta;

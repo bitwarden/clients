@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 
 import { BankAccount } from "@bitwarden/common/billing/models/domain";
@@ -32,15 +34,14 @@ export class StripeService {
     const script = window.document.createElement("script");
     script.id = "stripe-script";
     script.src = "https://js.stripe.com/v3?advancedFraudSignals=false";
-    script.onload = () => {
+    script.onload = async () => {
       const window$ = window as any;
       this.stripe = window$.Stripe(process.env.STRIPE_KEY);
       this.elements = this.stripe.elements();
-      const options = this.getElementOptions();
       setTimeout(() => {
-        this.elements.create("cardNumber", options);
-        this.elements.create("cardExpiry", options);
-        this.elements.create("cardCvc", options);
+        this.elements.create("cardNumber", this.getElementOptions("cardNumber"));
+        this.elements.create("cardExpiry", this.getElementOptions("cardExpiry"));
+        this.elements.create("cardCvc", this.getElementOptions("cardCvc"));
         if (autoMount) {
           this.mountElements();
         }
@@ -54,15 +55,21 @@ export class StripeService {
    * Re-mounts previously created Stripe credit card [elements]{@link https://docs.stripe.com/js/elements_object/create} into the HTML elements
    * specified during the {@link loadStripe} call. This is useful for when those HTML elements are removed from the DOM by Angular.
    */
-  mountElements() {
+  mountElements(i: number = 0) {
     setTimeout(() => {
+      if (!document.querySelector(this.elementIds.cardNumber) && i < 10) {
+        this.logService.warning("Stripe container missing, retrying...");
+        this.mountElements(i + 1);
+        return;
+      }
+
       const cardNumber = this.elements.getElement("cardNumber");
       const cardExpiry = this.elements.getElement("cardExpiry");
       const cardCvc = this.elements.getElement("cardCvc");
       cardNumber.mount(this.elementIds.cardNumber);
       cardExpiry.mount(this.elementIds.cardExpiry);
       cardCvc.mount(this.elementIds.cardCvc);
-    });
+    }, 50);
   }
 
   /**
@@ -135,15 +142,15 @@ export class StripeService {
     }, 500);
   }
 
-  private getElementOptions(): any {
+  private getElementOptions(element: "cardNumber" | "cardExpiry" | "cardCvc"): any {
     const options: any = {
       style: {
         base: {
           color: null,
           fontFamily:
-            '"Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif, ' +
+            '"DM Sans", "Helvetica Neue", Helvetica, Arial, sans-serif, ' +
             '"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
-          fontSize: "14px",
+          fontSize: "16px",
           fontSmoothing: "antialiased",
           "::placeholder": {
             color: null,
@@ -159,6 +166,14 @@ export class StripeService {
         invalid: "is-invalid",
       },
     };
+
+    options.style.base.fontWeight = "500";
+    options.classes.base = "v2";
+
+    // Remove the placeholder for number and CVC fields
+    if (["cardNumber", "cardCvc"].includes(element)) {
+      options.placeholder = "";
+    }
 
     const style = getComputedStyle(document.documentElement);
     options.style.base.color = `rgb(${style.getPropertyValue("--color-text-main")})`;

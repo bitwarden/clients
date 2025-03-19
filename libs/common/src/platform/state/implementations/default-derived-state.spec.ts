@@ -9,6 +9,7 @@ import { DeriveDefinition } from "../derive-definition";
 import { StateDefinition } from "../state-definition";
 
 import { DefaultDerivedState } from "./default-derived-state";
+import { DefaultDerivedStateProvider } from "./default-derived-state.provider";
 
 let callCount = 0;
 const cleanupDelayMs = 10;
@@ -180,6 +181,31 @@ describe("DefaultDerivedState", () => {
       await awaitAsync();
 
       expect(await firstValueFrom(observable)).toEqual(new Date(newDate));
+    });
+  });
+
+  describe("account switching", () => {
+    let provider: DefaultDerivedStateProvider;
+
+    beforeEach(() => {
+      provider = new DefaultDerivedStateProvider();
+    });
+
+    it("should provide a dedicated cache for each account", async () => {
+      const user1State$ = new Subject<string>();
+      const user1Derived = provider.get(user1State$, deriveDefinition, deps);
+      const user1Emissions = trackEmissions(user1Derived.state$);
+
+      const user2State$ = new Subject<string>();
+      const user2Derived = provider.get(user2State$, deriveDefinition, deps);
+      const user2Emissions = trackEmissions(user2Derived.state$);
+
+      user1State$.next("2015-12-30");
+      user2State$.next("2020-12-29");
+      await awaitAsync();
+
+      expect(user1Emissions).toEqual([new Date("2015-12-30")]);
+      expect(user2Emissions).toEqual([new Date("2020-12-29")]);
     });
   });
 });

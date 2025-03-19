@@ -1,4 +1,4 @@
-import { Meta, Story, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Story, Primary, Controls, Canvas } from "@storybook/addon-docs";
 
 import * as stories from "./toggle-group.stories";
 
@@ -15,22 +15,36 @@ Toggle groups function as radio buttons and a radio group under the hood.
 A button in a toggle group can have a badge counter added to show the number of items existing
 within that filter.
 
-For focus states, use `focus-visible`.
+## Default
 
-<Primary />
+<Canvas of={stories.Default} />
+
 <Controls />
 
-## Accessibility
+## Full width
 
-- Follow contrast rules for the main button styles.
-- Focus:
-  - Implement as a radio group with button styling and a context label (context label can be screen
-    reader only depending on use case).
-  - Since only 1 button can be selected at a time to filter the toggle group acts similarly to a
-    radio group.
-  - When moving focus to a button group, the focus should always move to the selected button. The
-    screen reader should then announce the button group: example “[context label], [button content]
-    selected, of [# of buttons]”), the number of buttons and the currently selected button. The user
-    may navigate the options then via left/right arrow keys.
+If a toggle group should span the width of its container, pass the `fullWidth` input to the toggle
+group.
 
-See WCAG for more: https://www.w3.org/WAI/ARIA/apg/patterns/radio/
+```
+<bit-toggle-group fullWidth>
+...toggle components here...
+</bit-toggle-group>
+```
+
+<Canvas of={stories.FullWidth} />
+
+## Label wrap
+
+If the labels in a toggle group would overflow the width of the toggle group container, then the
+labels will wrap to 2 lines and truncate with an ellipsis past that. The full label text is
+accessible via the `title` prop (i.e. visible on hover).
+
+<Canvas of={stories.LabelWrap} />
+
+# Accessibility
+
+- Since only 1 button can be selected at a time, the toggle group acts similarly to a radio group.
+- The user may navigate the options via left/right arrow keys.
+- The screen reader will announce the button group: example “[context label], [button content]
+  selected, of [# of buttons]”), the number of buttons and the currently selected button.

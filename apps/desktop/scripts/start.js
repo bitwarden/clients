@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const concurrently = require("concurrently");
 const rimraf = require("rimraf");
 
@@ -25,7 +25,7 @@ concurrently(
     },
     {
       name: "Elec",
-      command: `npx wait-on ./build/main.js && npx electron --inspect=5858 ${args.join(
+      command: `npx wait-on ./build/main.js && npx electron --no-sandbox --inspect=5858 ${args.join(
         " ",
       )} ./build --watch`,
       prefixColor: "green",

@@ -1,5 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { KdfType } from "@bitwarden/key-management";
+
 import { BaseResponse } from "../../../models/response/base.response";
-import { KdfType } from "../../../platform/enums";
 
 import { MasterPasswordPolicyResponse } from "./master-password-policy.response";
 import { UserDecryptionOptionsResponse } from "./user-decryption-options/user-decryption-options.response";

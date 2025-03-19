@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, HostListener, Input, OnDestroy, Optional } from "@angular/core";
 import { BehaviorSubject, finalize, Subject, takeUntil, tap } from "rxjs";
 
@@ -13,22 +15,18 @@ import { FunctionReturningAwaitable, functionToObservable } from "../utils/funct
  */
 @Directive({
   selector: "[bitAction]",
+  standalone: true,
 })
 export class BitActionDirective implements OnDestroy {
   private destroy$ = new Subject<void>();
   private _loading$ = new BehaviorSubject<boolean>(false);
 
-  disabled = false;
-
-  @Input("bitAction") handler: FunctionReturningAwaitable;
-
+  /**
+   * Observable of loading behavior subject
+   *
+   * Used in `form-button.directive.ts`
+   */
   readonly loading$ = this._loading$.asObservable();
-
-  constructor(
-    private buttonComponent: ButtonLikeAbstraction,
-    @Optional() private validationService?: ValidationService,
-    @Optional() private logService?: LogService,
-  ) {}
 
   get loading() {
     return this._loading$.value;
@@ -36,12 +34,22 @@ export class BitActionDirective implements OnDestroy {
 
   set loading(value: boolean) {
     this._loading$.next(value);
-    this.buttonComponent.loading = value;
+    this.buttonComponent.loading.set(value);
   }
+
+  disabled = false;
+
+  @Input("bitAction") handler: FunctionReturningAwaitable;
+
+  constructor(
+    private buttonComponent: ButtonLikeAbstraction,
+    @Optional() private validationService?: ValidationService,
+    @Optional() private logService?: LogService,
+  ) {}
 
   @HostListener("click")
   protected async onClick() {
-    if (!this.handler || this.loading || this.disabled || this.buttonComponent.disabled) {
+    if (!this.handler || this.loading || this.disabled || this.buttonComponent.disabled()) {
       return;
     }
 

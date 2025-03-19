@@ -1,7 +1,7 @@
 {
   "devFlags": {},
   "flags": {
-    "showPasswordless": true,
-    "accountSwitching": false
+    "accountSwitching": false,
+    "sdk": true
   }
 }

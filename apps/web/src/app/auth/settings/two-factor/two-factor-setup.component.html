@@ -1,0 +1,91 @@
+<app-header *ngIf="organizationId != null"></app-header>
+
+<bit-container>
+  <div class="tabbed-header" *ngIf="organizationId == null">
+    <h1 *ngIf="!organizationId || !isEnterpriseOrg">{{ "twoStepLogin" | i18n }}</h1>
+    <h1 *ngIf="organizationId && isEnterpriseOrg">{{ "twoStepLoginEnforcement" | i18n }}</h1>
+  </div>
+
+  <p *ngIf="!organizationId">{{ "twoStepLoginDesc" | i18n }}</p>
+  <ng-container *ngIf="organizationId">
+    <p>
+      <ng-container *ngIf="isEnterpriseOrg; else teamsDescription">
+        {{ "twoStepLoginEnterpriseDescStart" | i18n }}
+        <a bitLink routerLink="../policies">{{ "twoStepLoginPolicy" | i18n }}.</a>
+        <br />
+        {{ "twoStepLoginOrganizationDuoDesc" | i18n }}
+        <br />
+        <br />
+        <p>{{ "twoStepLoginOrganizationSsoDesc" | i18n }}</p>
+      </ng-container>
+      <ng-template #teamsDescription>
+        {{ "twoStepLoginTeamsDesc" | i18n }}
+        <br />
+        {{ "twoStepLoginOrganizationDuoDesc" | i18n }}
+      </ng-template>
+    </p>
+  </ng-container>
+  <bit-callout type="warning" *ngIf="!organizationId">
+    <p>{{ recoveryCodeWarningMessage }}</p>
+    <button type="button" bitButton buttonType="secondary" (click)="recoveryCode()">
+      {{ "viewRecoveryCode" | i18n }}
+    </button>
+  </bit-callout>
+  <h2 [ngClass]="{ 'mt-5': !organizationId }">
+    {{ "providers" | i18n }}
+    <small *ngIf="loading">
+      <i
+        class="bwi bwi-spinner bwi-spin bwi-fw text-muted"
+        title="{{ 'loading' | i18n }}"
+        aria-hidden="true"
+      ></i>
+      <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+    </small>
+  </h2>
+  <bit-callout type="warning" *ngIf="showPolicyWarning">
+    {{ "twoStepLoginPolicyUserWarning" | i18n }}
+  </bit-callout>
+  <ul class="list-group list-group-2fa">
+    <li *ngFor="let p of providers" class="list-group-item d-flex align-items-center">
+      <div class="logo-2fa d-flex justify-content-center">
+        <auth-two-factor-icon [provider]="p.type" [name]="p.name" />
+      </div>
+      <div class="mx-4">
+        <h3 class="mb-0">
+          <div
+            class="font-weight-semibold tw-text-base"
+            [style]="p.enabled || p.premium ? 'display:inline-block' : ''"
+          >
+            {{ p.name }}
+          </div>
+          <ng-container *ngIf="p.enabled">
+            <i
+              class="bwi bwi-check text-success bwi-fw"
+              title="{{ 'enabled' | i18n }}"
+              aria-hidden="true"
+            ></i>
+            <span class="tw-sr-only">{{ "enabled" | i18n }}</span>
+          </ng-container>
+          <app-premium-badge *ngIf="p.premium"></app-premium-badge>
+        </h3>
+        {{ p.description }}
+      </div>
+      <div class="ml-auto">
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          [disabled]="!(canAccessPremium$ | async) && p.premium"
+          (click)="manage(p.type)"
+        >
+          {{ "manage" | i18n }}
+        </button>
+      </div>
+    </li>
+  </ul>
+</bit-container>
+
+<ng-template #duoTemplate></ng-template>
+<ng-template #emailTemplate></ng-template>
+<ng-template #yubikeyTemplate></ng-template>
+<ng-template #webAuthnTemplate></ng-template>

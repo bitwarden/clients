@@ -24,14 +24,12 @@
         <bit-form-field>
           <bit-label>{{ "billingEmail" | i18n }}</bit-label>
           <input type="email" bitInput formControlName="billingEmail" />
-          <bit-hint *ngIf="enableConsolidatedBilling$ | async">{{
-            "providerBillingEmailHint" | i18n
-          }}</bit-hint>
+          <bit-hint>{{ "providerBillingEmailHint" | i18n }}</bit-hint>
         </bit-form-field>
       </div>
     </div>
-    <app-manage-tax-information *ngIf="enableConsolidatedBilling$ | async" />
-    <button bitButton bitFormButton buttonType="primary" type="submit">
+    <app-manage-tax-information />
+    <button class="tw-mt-8" bitButton bitFormButton buttonType="primary" type="submit">
       {{ "submit" | i18n }}
     </button>
   </form>

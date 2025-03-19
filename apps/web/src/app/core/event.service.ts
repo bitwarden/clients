@@ -1,10 +1,14 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DeviceType, EventType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EventResponse } from "@bitwarden/common/models/response/event.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 @Injectable()
@@ -14,6 +18,7 @@ export class EventService {
   constructor(
     private i18nService: I18nService,
     policyService: PolicyService,
+    private configService: ConfigService,
   ) {
     policyService.policies$.subscribe((policies) => {
       this.policies = policies;
@@ -330,6 +335,20 @@ export class EventService {
           this.getShortId(ev.organizationUserId),
         );
         break;
+      case EventType.OrganizationUser_Deleted:
+        msg = this.i18nService.t("deletedUserId", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "deletedUserId",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
+      case EventType.OrganizationUser_Left:
+        msg = this.i18nService.t("userLeftOrganization", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "userLeftOrganization",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
       // Org
       case EventType.Organization_Updated:
         msg = humanReadableMsg = this.i18nService.t("editedOrgSettings");
@@ -435,10 +454,20 @@ export class EventService {
         msg = humanReadableMsg = this.i18nService.t("removedDomain", ev.domainName);
         break;
       case EventType.OrganizationDomain_Verified:
-        msg = humanReadableMsg = this.i18nService.t("domainVerifiedEvent", ev.domainName);
+        msg = humanReadableMsg = this.i18nService.t(
+          (await this.configService.getFeatureFlag(FeatureFlag.AccountDeprovisioning))
+            ? "domainClaimedEvent"
+            : "domainVerifiedEvent",
+          ev.domainName,
+        );
         break;
       case EventType.OrganizationDomain_NotVerified:
-        msg = humanReadableMsg = this.i18nService.t("domainNotVerifiedEvent", ev.domainName);
+        msg = humanReadableMsg = this.i18nService.t(
+          (await this.configService.getFeatureFlag(FeatureFlag.AccountDeprovisioning))
+            ? "domainNotClaimedEvent"
+            : "domainNotVerifiedEvent",
+          ev.domainName,
+        );
         break;
       // Secrets Manager
       case EventType.Secret_Retrieved:

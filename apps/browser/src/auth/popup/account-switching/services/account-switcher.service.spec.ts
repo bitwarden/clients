@@ -1,11 +1,18 @@
 import { matches, mock } from "jest-mock-extended";
 import { BehaviorSubject, ReplaySubject, firstValueFrom, of, timeout } from "rxjs";
 
-import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import {
+  Account,
+  AccountInfo,
+  AccountService,
+} from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import {
+  Environment,
+  EnvironmentService,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -14,8 +21,14 @@ import { AccountSwitcherService } from "./account-switcher.service";
 
 describe("AccountSwitcherService", () => {
   let accountsSubject: BehaviorSubject<Record<UserId, AccountInfo>>;
-  let activeAccountSubject: BehaviorSubject<{ id: UserId } & AccountInfo>;
+  let activeAccountSubject: BehaviorSubject<Account | null>;
   let authStatusSubject: ReplaySubject<Record<UserId, AuthenticationStatus>>;
+
+  let envBSubject: BehaviorSubject<Environment | undefined>;
+  const mockHostName = "mockHostName";
+  const mockEnv: Partial<Environment> = {
+    getHostname: () => mockHostName,
+  };
 
   const accountService = mock<AccountService>();
   const avatarService = mock<AvatarService>();
@@ -29,13 +42,16 @@ describe("AccountSwitcherService", () => {
   beforeEach(() => {
     jest.resetAllMocks();
     accountsSubject = new BehaviorSubject<Record<UserId, AccountInfo>>(null);
-    activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>(null);
+    activeAccountSubject = new BehaviorSubject<Account | null>(null);
     authStatusSubject = new ReplaySubject<Record<UserId, AuthenticationStatus>>(1);
 
     // Use subject to allow for easy updates
     accountService.accounts$ = accountsSubject;
     accountService.activeAccount$ = activeAccountSubject;
     authService.authStatuses$ = authStatusSubject;
+
+    envBSubject = new BehaviorSubject<Environment | undefined>(mockEnv as Environment);
+    environmentService.getEnvironment$.mockReturnValue(envBSubject);
 
     accountSwitcherService = new AccountSwitcherService(
       accountService,
@@ -75,11 +91,16 @@ describe("AccountSwitcherService", () => {
       expect(accounts).toHaveLength(3);
       expect(accounts[0].id).toBe("1");
       expect(accounts[0].isActive).toBeTruthy();
+
+      expect(accounts[0].server).toBe(mockHostName);
+
       expect(accounts[1].id).toBe("2");
       expect(accounts[1].isActive).toBeFalsy();
+      expect(accounts[1].server).toBe(mockHostName);
 
       expect(accounts[2].id).toBe("addAccount");
       expect(accounts[2].isActive).toBeFalsy();
+      expect(accounts[2].server).toBe(undefined);
     });
 
     it.each([5, 6])(

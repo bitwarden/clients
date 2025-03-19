@@ -1,4 +1,7 @@
-import { mockEnc, mockFromJson } from "../../../../spec";
+import { mock, MockProxy } from "jest-mock-extended";
+
+import { makeEncString, makeSymmetricCryptoKey, mockEnc, mockFromJson } from "../../../../spec";
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
 import { FolderData } from "../../models/data/folder.data";
 import { Folder } from "../../models/domain/folder";
@@ -58,6 +61,44 @@ describe("Folder", () => {
       };
 
       expect(actual).toMatchObject(expected);
+    });
+  });
+
+  describe("decryptWithKey", () => {
+    let encryptService: MockProxy<EncryptService>;
+    const key = makeSymmetricCryptoKey(64);
+
+    beforeEach(() => {
+      encryptService = mock<EncryptService>();
+      encryptService.decryptToUtf8.mockImplementation((value) => {
+        return Promise.resolve(value.data);
+      });
+    });
+
+    it("decrypts the name", async () => {
+      const folder = new Folder();
+      folder.name = makeEncString("encName");
+
+      const view = await folder.decryptWithKey(key, encryptService);
+
+      expect(view).toEqual({
+        name: "encName",
+      });
+    });
+
+    it("assigns the folder id and revision date", async () => {
+      const folder = new Folder();
+      folder.id = "id";
+      folder.revisionDate = new Date("2022-01-31T12:00:00.000Z");
+
+      const view = await folder.decryptWithKey(key, encryptService);
+
+      expect(view).toEqual(
+        expect.objectContaining({
+          id: "id",
+          revisionDate: new Date("2022-01-31T12:00:00.000Z"),
+        }),
+      );
     });
   });
 });

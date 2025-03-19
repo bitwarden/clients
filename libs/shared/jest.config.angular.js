@@ -1,5 +1,5 @@
 /* eslint-env node */
-/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { defaultTransformerOptions } = require("jest-preset-angular/presets");
 
 /** @type {import('jest').Config} */

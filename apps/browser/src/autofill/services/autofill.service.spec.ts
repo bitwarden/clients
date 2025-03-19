@@ -1,4 +1,4 @@
-import { mock, mockReset, MockProxy } from "jest-mock-extended";
+import { mock, MockProxy, mockReset } from "jest-mock-extended";
 import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -75,6 +75,8 @@ describe("AutofillService", () => {
   let autofillService: AutofillService;
   const cipherService = mock<CipherService>();
   let inlineMenuVisibilityMock$!: BehaviorSubject<InlineMenuVisibilitySetting>;
+  let showInlineMenuCardsMock$!: BehaviorSubject<boolean>;
+  let showInlineMenuIdentitiesMock$!: BehaviorSubject<boolean>;
   let autofillSettingsService: MockProxy<AutofillSettingsServiceAbstraction>;
   const mockUserId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
@@ -96,14 +98,24 @@ describe("AutofillService", () => {
   let messageListener: MockProxy<MessageListener>;
 
   beforeEach(() => {
-    scriptInjectorService = new BrowserScriptInjectorService(platformUtilsService, logService);
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockImplementation(() => of(false));
+    scriptInjectorService = new BrowserScriptInjectorService(
+      domainSettingsService,
+      platformUtilsService,
+      logService,
+    );
     inlineMenuVisibilityMock$ = new BehaviorSubject(AutofillOverlayVisibility.OnFieldFocus);
+    showInlineMenuCardsMock$ = new BehaviorSubject(false);
+    showInlineMenuIdentitiesMock$ = new BehaviorSubject(false);
     autofillSettingsService = mock<AutofillSettingsServiceAbstraction>();
     autofillSettingsService.inlineMenuVisibility$ = inlineMenuVisibilityMock$;
+    autofillSettingsService.showInlineMenuCards$ = showInlineMenuCardsMock$;
+    autofillSettingsService.showInlineMenuIdentities$ = showInlineMenuIdentitiesMock$;
+    autofillSettingsService.autofillOnPageLoad$ = of(true);
     activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
-    configService = mock<ConfigService>();
     messageListener = mock<MessageListener>();
     enableChangedPasswordPromptMock$ = new BehaviorSubject(true);
     enableAddedLoginPromptMock$ = new BehaviorSubject(true);
@@ -126,7 +138,7 @@ describe("AutofillService", () => {
       userNotificationsSettings,
       messageListener,
     );
-    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);
+    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider, configService);
     domainSettingsService.equivalentDomains$ = of(mockEquivalentDomains);
     jest.spyOn(BrowserApi, "tabSendMessage");
   });
@@ -137,7 +149,7 @@ describe("AutofillService", () => {
   });
 
   describe("collectPageDetailsFromTab$", () => {
-    const tab = mock<chrome.tabs.Tab>({ id: 1 });
+    const tab = mock<chrome.tabs.Tab>({ id: 1, url: "https://www.example.com" });
     const messages = new Subject<CollectPageDetailsResponseMessage>();
 
     function mockCollectPageDetailsResponseMessage(
@@ -159,11 +171,16 @@ describe("AutofillService", () => {
     it("sends a `collectPageDetails` message to the passed tab", () => {
       autofillService.collectPageDetailsFromTab$(tab);
 
-      expect(BrowserApi.tabSendMessage).toHaveBeenCalledWith(tab, {
-        command: AutofillMessageCommand.collectPageDetails,
-        sender: AutofillMessageSender.collectPageDetailsFromTabObservable,
+      expect(BrowserApi.tabSendMessage).toHaveBeenCalledWith(
         tab,
-      });
+        {
+          command: AutofillMessageCommand.collectPageDetails,
+          sender: AutofillMessageSender.collectPageDetailsFromTabObservable,
+          tab,
+        },
+        null,
+        true,
+      );
     });
 
     it("builds an array of page details from received `collectPageDetailsResponse` messages", async () => {
@@ -212,6 +229,41 @@ describe("AutofillService", () => {
 
       expect(tracker.emissions[1]).toBeUndefined();
     });
+
+    it("returns an empty array when the tab.url is empty", async () => {
+      const tracker = subscribeTo(autofillService.collectPageDetailsFromTab$({ ...tab, url: "" }));
+
+      await tracker.pauseUntilReceived(1);
+
+      expect(tracker.emissions[0]).toEqual([]);
+    });
+
+    it("returns an empty array when the `BrowserApi.tabSendMessage` throws an error", async () => {
+      (BrowserApi.tabSendMessage as jest.Mock).mockRejectedValueOnce(undefined);
+
+      const tracker = subscribeTo(autofillService.collectPageDetailsFromTab$(tab));
+
+      await tracker.pauseUntilReceived(1);
+
+      expect(tracker.emissions[0]).toEqual([]);
+    });
+
+    ["moz-extension://", "chrome-extension://", "safari-web-extension://"].forEach(
+      (extensionPrefix) => {
+        it(`returns an empty array when the tab.url starts with ${extensionPrefix}`, async () => {
+          const tracker = subscribeTo(
+            autofillService.collectPageDetailsFromTab$({
+              ...tab,
+              url: `${extensionPrefix}/3e42342/popup/index.html`,
+            }),
+          );
+
+          await tracker.pauseUntilReceived(1);
+
+          expect(tracker.emissions[0]).toEqual([]);
+        });
+      },
+    );
   });
 
   describe("loadAutofillScriptsOnInstall", () => {
@@ -283,41 +335,6 @@ describe("AutofillService", () => {
         expect(BrowserApi.tabSendMessageData).not.toHaveBeenCalled();
       });
 
-      describe("updates the inline menu visibility setting", () => {
-        it("when changing the inline menu from on focus of field to on button click", async () => {
-          inlineMenuVisibilityMock$.next(AutofillOverlayVisibility.OnButtonClick);
-          await flushPromises();
-
-          expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
-            tab1,
-            "updateAutofillInlineMenuVisibility",
-            { inlineMenuVisibility: AutofillOverlayVisibility.OnButtonClick },
-          );
-          expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
-            tab2,
-            "updateAutofillInlineMenuVisibility",
-            { inlineMenuVisibility: AutofillOverlayVisibility.OnButtonClick },
-          );
-        });
-
-        it("when changing the inline menu from button click to field focus", async () => {
-          inlineMenuVisibilityMock$.next(AutofillOverlayVisibility.OnButtonClick);
-          inlineMenuVisibilityMock$.next(AutofillOverlayVisibility.OnFieldFocus);
-          await flushPromises();
-
-          expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
-            tab1,
-            "updateAutofillInlineMenuVisibility",
-            { inlineMenuVisibility: AutofillOverlayVisibility.OnFieldFocus },
-          );
-          expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
-            tab2,
-            "updateAutofillInlineMenuVisibility",
-            { inlineMenuVisibility: AutofillOverlayVisibility.OnFieldFocus },
-          );
-        });
-      });
-
       describe("reloads the autofill scripts", () => {
         it("when changing the inline menu from a disabled setting to an enabled setting", async () => {
           inlineMenuVisibilityMock$.next(AutofillOverlayVisibility.Off);
@@ -374,6 +391,7 @@ describe("AutofillService", () => {
       );
       tabMock = createChromeTabMock();
       sender = { tab: tabMock, frameId: 1 };
+      jest.spyOn(BrowserApi, "getTab").mockImplementation(async () => tabMock);
       jest.spyOn(BrowserApi, "executeScriptInTab").mockImplementation();
       jest
         .spyOn(autofillService, "getInlineMenuVisibility")
@@ -712,7 +730,9 @@ describe("AutofillService", () => {
 
       it("throws an error if an autofill did not occur for any of the passed pages", async () => {
         autofillOptions.tab.url = "https://a-different-url.com";
-        billingAccountProfileStateService.hasPremiumFromAnySource$ = of(true);
+        jest
+          .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+          .mockImplementation(() => of(true));
 
         try {
           await autofillService.doAutoFill(autofillOptions);
@@ -749,7 +769,10 @@ describe("AutofillService", () => {
       );
       expect(autofillService["generateLoginFillScript"]).toHaveBeenCalled();
       expect(logService.info).not.toHaveBeenCalled();
-      expect(cipherService.updateLastUsedDate).toHaveBeenCalledWith(autofillOptions.cipher.id);
+      expect(cipherService.updateLastUsedDate).toHaveBeenCalledWith(
+        autofillOptions.cipher.id,
+        mockUserId,
+      );
       expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(
         autofillOptions.pageDetails[0].tab.id,
         {
@@ -894,26 +917,30 @@ describe("AutofillService", () => {
     it("returns a TOTP value", async () => {
       const totpCode = "123456";
       autofillOptions.cipher.login.totp = "totp";
-      billingAccountProfileStateService.hasPremiumFromAnySource$ = of(true);
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockImplementation(() => of(true));
       jest.spyOn(autofillService, "getShouldAutoCopyTotp").mockResolvedValue(true);
-      jest.spyOn(totpService, "getCode").mockResolvedValue(totpCode);
+      totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
 
       const autofillResult = await autofillService.doAutoFill(autofillOptions);
 
       expect(autofillService.getShouldAutoCopyTotp).toHaveBeenCalled();
-      expect(totpService.getCode).toHaveBeenCalledWith(autofillOptions.cipher.login.totp);
+      expect(totpService.getCode$).toHaveBeenCalledWith(autofillOptions.cipher.login.totp);
       expect(autofillResult).toBe(totpCode);
     });
 
     it("does not return a TOTP value if the user does not have premium features", async () => {
       autofillOptions.cipher.login.totp = "totp";
-      billingAccountProfileStateService.hasPremiumFromAnySource$ = of(false);
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockImplementation(() => of(false));
       jest.spyOn(autofillService, "getShouldAutoCopyTotp").mockResolvedValue(true);
 
       const autofillResult = await autofillService.doAutoFill(autofillOptions);
 
       expect(autofillService.getShouldAutoCopyTotp).not.toHaveBeenCalled();
-      expect(totpService.getCode).not.toHaveBeenCalled();
+      expect(totpService.getCode$).not.toHaveBeenCalled();
       expect(autofillResult).toBeNull();
     });
 
@@ -929,19 +956,21 @@ describe("AutofillService", () => {
     it("returns a null value if the login does not contain a TOTP value", async () => {
       autofillOptions.cipher.login.totp = undefined;
       jest.spyOn(autofillService, "getShouldAutoCopyTotp");
-      jest.spyOn(totpService, "getCode");
+      jest.spyOn(totpService, "getCode$");
 
       const autofillResult = await autofillService.doAutoFill(autofillOptions);
 
       expect(autofillService.getShouldAutoCopyTotp).not.toHaveBeenCalled();
-      expect(totpService.getCode).not.toHaveBeenCalled();
+      expect(totpService.getCode$).not.toHaveBeenCalled();
       expect(autofillResult).toBeNull();
     });
 
     it("returns a null value if the user cannot access premium and the organization does not use TOTP", async () => {
       autofillOptions.cipher.login.totp = "totp";
       autofillOptions.cipher.organizationUseTotp = false;
-      billingAccountProfileStateService.hasPremiumFromAnySource$ = of(false);
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockImplementation(() => of(false));
 
       const autofillResult = await autofillService.doAutoFill(autofillOptions);
 
@@ -951,14 +980,16 @@ describe("AutofillService", () => {
     it("returns a null value if the user has disabled `auto TOTP copy`", async () => {
       autofillOptions.cipher.login.totp = "totp";
       autofillOptions.cipher.organizationUseTotp = true;
-      billingAccountProfileStateService.hasPremiumFromAnySource$ = of(true);
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockImplementation(() => of(true));
       jest.spyOn(autofillService, "getShouldAutoCopyTotp").mockResolvedValue(false);
-      jest.spyOn(totpService, "getCode");
+      jest.spyOn(totpService, "getCode$");
 
       const autofillResult = await autofillService.doAutoFill(autofillOptions);
 
       expect(autofillService.getShouldAutoCopyTotp).toHaveBeenCalled();
-      expect(totpService.getCode).not.toHaveBeenCalled();
+      expect(totpService.getCode$).not.toHaveBeenCalled();
       expect(autofillResult).toBeNull();
     });
   });
@@ -1002,8 +1033,8 @@ describe("AutofillService", () => {
         const result = await autofillService.doAutoFillOnTab(pageDetails, tab, false);
 
         expect(cipherService.getNextCipherForUrl).not.toHaveBeenCalled();
-        expect(cipherService.getLastLaunchedForUrl).toHaveBeenCalledWith(tab.url, true);
-        expect(cipherService.getLastUsedForUrl).toHaveBeenCalledWith(tab.url, true);
+        expect(cipherService.getLastLaunchedForUrl).toHaveBeenCalledWith(tab.url, mockUserId, true);
+        expect(cipherService.getLastUsedForUrl).toHaveBeenCalledWith(tab.url, mockUserId, true);
         expect(autofillService.doAutoFill).not.toHaveBeenCalled();
         expect(result).toBeNull();
       });
@@ -1016,7 +1047,7 @@ describe("AutofillService", () => {
 
         const result = await autofillService.doAutoFillOnTab(pageDetails, tab, true);
 
-        expect(cipherService.getNextCipherForUrl).toHaveBeenCalledWith(tab.url);
+        expect(cipherService.getNextCipherForUrl).toHaveBeenCalledWith(tab.url, mockUserId);
         expect(cipherService.getLastLaunchedForUrl).not.toHaveBeenCalled();
         expect(cipherService.getLastUsedForUrl).not.toHaveBeenCalled();
         expect(autofillService.doAutoFill).not.toHaveBeenCalled();
@@ -1046,7 +1077,7 @@ describe("AutofillService", () => {
 
         const result = await autofillService.doAutoFillOnTab(pageDetails, tab, fromCommand);
 
-        expect(cipherService.getLastLaunchedForUrl).toHaveBeenCalledWith(tab.url, true);
+        expect(cipherService.getLastLaunchedForUrl).toHaveBeenCalledWith(tab.url, mockUserId, true);
         expect(cipherService.getLastUsedForUrl).not.toHaveBeenCalled();
         expect(cipherService.updateLastUsedIndexForUrl).not.toHaveBeenCalled();
         expect(autofillService.doAutoFill).toHaveBeenCalledWith({
@@ -1076,8 +1107,8 @@ describe("AutofillService", () => {
 
         const result = await autofillService.doAutoFillOnTab(pageDetails, tab, fromCommand);
 
-        expect(cipherService.getLastLaunchedForUrl).toHaveBeenCalledWith(tab.url, true);
-        expect(cipherService.getLastUsedForUrl).toHaveBeenCalledWith(tab.url, true);
+        expect(cipherService.getLastLaunchedForUrl).toHaveBeenCalledWith(tab.url, mockUserId, true);
+        expect(cipherService.getLastUsedForUrl).toHaveBeenCalledWith(tab.url, mockUserId, true);
         expect(cipherService.updateLastUsedIndexForUrl).not.toHaveBeenCalled();
         expect(autofillService.doAutoFill).toHaveBeenCalledWith({
           tab: tab,
@@ -1104,7 +1135,7 @@ describe("AutofillService", () => {
 
         const result = await autofillService.doAutoFillOnTab(pageDetails, tab, fromCommand);
 
-        expect(cipherService.getNextCipherForUrl).toHaveBeenCalledWith(tab.url);
+        expect(cipherService.getNextCipherForUrl).toHaveBeenCalledWith(tab.url, mockUserId);
         expect(cipherService.updateLastUsedIndexForUrl).toHaveBeenCalledWith(tab.url);
         expect(autofillService.doAutoFill).toHaveBeenCalledWith({
           tab: tab,
@@ -1135,7 +1166,7 @@ describe("AutofillService", () => {
 
         const result = await autofillService.doAutoFillOnTab(pageDetails, tab, true);
 
-        expect(cipherService.getNextCipherForUrl).toHaveBeenCalledWith(tab.url);
+        expect(cipherService.getNextCipherForUrl).toHaveBeenCalledWith(tab.url, mockUserId);
         expect(userVerificationService.hasMasterPasswordAndMasterKeyHash).toHaveBeenCalled();
         expect(autofillService["openVaultItemPasswordRepromptPopout"]).toHaveBeenCalledWith(tab, {
           cipherId: cipher.id,
@@ -1161,7 +1192,7 @@ describe("AutofillService", () => {
 
         const result = await autofillService.doAutoFillOnTab(pageDetails, tab, true);
 
-        expect(cipherService.getNextCipherForUrl).toHaveBeenCalledWith(tab.url);
+        expect(cipherService.getNextCipherForUrl).toHaveBeenCalledWith(tab.url, mockUserId);
         expect(autofillService["openVaultItemPasswordRepromptPopout"]).not.toHaveBeenCalled();
         expect(autofillService.doAutoFill).not.toHaveBeenCalled();
         expect(result).toBeNull();
@@ -2260,29 +2291,23 @@ describe("AutofillService", () => {
             options,
           );
 
-          expect(AutofillService.fieldIsFuzzyMatch).toHaveBeenCalledTimes(4);
-          expect(AutofillService.fieldIsFuzzyMatch).toHaveBeenNthCalledWith(
-            1,
+          expect(AutofillService.fieldIsFuzzyMatch).toHaveBeenCalledWith(
             usernameField,
             AutoFillConstants.UsernameFieldNames,
           );
-          expect(AutofillService.fieldIsFuzzyMatch).toHaveBeenNthCalledWith(
-            2,
+          expect(AutofillService.fieldIsFuzzyMatch).toHaveBeenCalledWith(
             emailField,
             AutoFillConstants.UsernameFieldNames,
           );
-          expect(AutofillService.fieldIsFuzzyMatch).toHaveBeenNthCalledWith(
-            3,
+          expect(AutofillService.fieldIsFuzzyMatch).toHaveBeenCalledWith(
             telephoneField,
             AutoFillConstants.UsernameFieldNames,
           );
-          expect(AutofillService.fieldIsFuzzyMatch).toHaveBeenNthCalledWith(
-            4,
+          expect(AutofillService.fieldIsFuzzyMatch).toHaveBeenCalledWith(
             totpField,
             AutoFillConstants.UsernameFieldNames,
           );
-          expect(AutofillService.fieldIsFuzzyMatch).not.toHaveBeenNthCalledWith(
-            5,
+          expect(AutofillService.fieldIsFuzzyMatch).not.toHaveBeenCalledWith(
             nonViewableField,
             AutoFillConstants.UsernameFieldNames,
           );
@@ -2328,6 +2353,7 @@ describe("AutofillService", () => {
 
         it("will not attempt to fuzzy match a totp field if totp autofill is not allowed", async () => {
           options.allowTotpAutofill = false;
+          jest.spyOn(autofillService as any, "findMatchingFieldIndex");
 
           await autofillService["generateLoginFillScript"](
             fillScript,
@@ -2336,7 +2362,7 @@ describe("AutofillService", () => {
             options,
           );
 
-          expect(AutofillService.fieldIsFuzzyMatch).not.toHaveBeenCalledWith(
+          expect(autofillService["findMatchingFieldIndex"]).not.toHaveBeenCalledWith(
             expect.anything(),
             AutoFillConstants.TotpFieldNames,
           );
@@ -2386,7 +2412,6 @@ describe("AutofillService", () => {
           false,
           false,
         );
-        expect(AutofillService.fieldIsFuzzyMatch).not.toHaveBeenCalled();
         expect(AutofillService.fillByOpid).toHaveBeenCalledTimes(2);
         expect(AutofillService.fillByOpid).toHaveBeenNthCalledWith(
           1,
@@ -2932,7 +2957,9 @@ describe("AutofillService", () => {
 
     const expectedDateFormats = [
       ["mm/yyyy", "05/2024"],
+      ["mm/YYYY", "05/2024"],
       ["mm/yy", "05/24"],
+      ["MM/YY", "05/24"],
       ["yyyy/mm", "2024/05"],
       ["yy/mm", "24/05"],
       ["mm-yyyy", "05-2024"],
@@ -2941,6 +2968,7 @@ describe("AutofillService", () => {
       ["yy-mm", "24-05"],
       ["yyyymm", "202405"],
       ["yymm", "2405"],
+      ["YYMM", "2405"],
       ["mmyyyy", "052024"],
       ["mmyy", "0524"],
     ];
@@ -3292,10 +3320,6 @@ describe("AutofillService", () => {
             );
 
             expect(AutofillService.forCustomFieldsOnly).toHaveBeenCalledWith(excludedField);
-            expect(AutofillService["isExcludedFieldType"]).toHaveBeenCalledWith(
-              excludedField,
-              AutoFillConstants.ExcludedAutofillTypes,
-            );
             expect(AutofillService["isFieldMatch"]).not.toHaveBeenCalled();
             expect(value.script).toStrictEqual([]);
           });
@@ -3874,7 +3898,7 @@ describe("AutofillService", () => {
     });
 
     describe("given a autofill field value that indicates the field is a `select` input", () => {
-      it("will not add an autofil action to the fill script if the dataValue cannot be found in the select options", () => {
+      it("will not add an autofill action to the fill script if the dataValue cannot be found in the select options", () => {
         const dataValue = "username";
         const selectField = createAutofillFieldMock({
           opid: "username-field",
@@ -4725,8 +4749,6 @@ describe("AutofillService", () => {
 
       const result = AutofillService["fieldIsFuzzyMatch"](field, ["some-value"]);
 
-      expect(AutofillService.hasValue).toHaveBeenCalledTimes(7);
-      expect(AutofillService["fuzzyMatch"]).not.toHaveBeenCalled();
       expect(result).toBe(false);
     });
 

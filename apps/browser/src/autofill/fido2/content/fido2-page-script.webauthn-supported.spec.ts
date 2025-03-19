@@ -55,6 +55,8 @@ describe("Fido2 page script with native WebAuthn support", () => {
   setupMockedWebAuthnSupport();
 
   beforeAll(() => {
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./fido2-page-script");
   });
 
@@ -166,6 +168,8 @@ describe("Fido2 page script with native WebAuthn support", () => {
         contentType: "json/application",
       }));
 
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       require("./fido2-content-script");
 
       expect(Messenger.forDOMCommunication).not.toHaveBeenCalled();
@@ -184,6 +188,8 @@ describe("Fido2 page script with native WebAuthn support", () => {
         },
       }));
 
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       require("./fido2-content-script");
 
       expect(Messenger.forDOMCommunication).not.toHaveBeenCalled();

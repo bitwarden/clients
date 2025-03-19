@@ -4,6 +4,7 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -19,14 +20,17 @@ describe("CardDetailsSectionComponent", () => {
   let registerChildFormSpy: jest.SpyInstance;
   let patchCipherSpy: jest.SpyInstance;
 
+  const getInitialCipherView = jest.fn(() => null);
+
   beforeEach(async () => {
-    cipherFormProvider = mock<CipherFormContainer>();
+    cipherFormProvider = mock<CipherFormContainer>({ getInitialCipherView });
     registerChildFormSpy = jest.spyOn(cipherFormProvider, "registerChildForm");
     patchCipherSpy = jest.spyOn(cipherFormProvider, "patchCipher");
 
     await TestBed.configureTestingModule({
       imports: [CardDetailsSectionComponent, CommonModule, ReactiveFormsModule],
       providers: [
+        { provide: EventCollectionService, useValue: mock<EventCollectionService>() },
         { provide: CipherFormContainer, useValue: cipherFormProvider },
         { provide: I18nService, useValue: { t: (key: string) => key } },
       ],
@@ -92,7 +96,7 @@ describe("CardDetailsSectionComponent", () => {
     expect(component.cardDetailsForm.disabled).toBe(true);
   });
 
-  it("initializes `cardDetailsForm` with current values", () => {
+  it("initializes `cardDetailsForm` from `getInitialCipherValue`", () => {
     const cardholderName = "Ron Burgundy";
     const number = "4242 4242 4242 4242";
     const code = "619";
@@ -103,9 +107,7 @@ describe("CardDetailsSectionComponent", () => {
     cardView.code = code;
     cardView.brand = "Visa";
 
-    component.originalCipherView = {
-      card: cardView,
-    } as CipherView;
+    getInitialCipherView.mockReturnValueOnce({ card: cardView });
 
     component.ngOnInit();
 

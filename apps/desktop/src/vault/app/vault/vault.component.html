@@ -14,6 +14,7 @@
     class="details"
     *ngIf="cipherId && action === 'view'"
     [cipherId]="cipherId"
+    [collectionId]="activeFilter?.selectedCollectionId"
     (onCloneCipher)="cloneCipherWithoutPasswordPrompt($event)"
     (onEditCipher)="editCipherWithoutPasswordPrompt($event)"
     (onViewCipherPasswordHistory)="viewCipherPasswordHistory($event)"
@@ -29,6 +30,7 @@
     [folderId]="action === 'add' && folderId !== 'none' ? folderId : null"
     [organizationId]="action === 'add' ? addOrganizationId : null"
     [collectionIds]="action === 'add' ? addCollectionIds : null"
+    [collectionId]="activeFilter?.selectedCollectionId"
     [type]="action === 'add' ? (addType ? addType : type) : null"
     [cipherId]="action === 'edit' || action === 'clone' ? cipherId : null"
     (onSavedCipher)="savedCipher($event)"
@@ -37,8 +39,8 @@
     (onCancelled)="cancelledAddEdit($event)"
     (onShareCipher)="shareCipher($event)"
     (onEditCollections)="cipherCollections($event)"
-    (onGeneratePassword)="openGenerator(true, true)"
-    (onGenerateUsername)="openGenerator(true, false)"
+    (onGeneratePassword)="openGenerator(true)"
+    (onGenerateUsername)="openGenerator(false)"
   >
   </app-vault-add-edit>
   <div

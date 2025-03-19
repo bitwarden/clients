@@ -22,6 +22,12 @@
       [disabled]="config.mode === 'partial-edit'"
     ></vault-card-details-section>
 
+    <vault-sshkey-section
+      *ngIf="config.cipherType === CipherType.SshKey"
+      [disabled]="config.mode === 'partial-edit'"
+      [originalCipherView]="originalCipherView"
+    ></vault-sshkey-section>
+
     <vault-additional-options-section></vault-additional-options-section>
 
     <!-- Attachments are only available for existing ciphers -->

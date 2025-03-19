@@ -3,13 +3,7 @@
 <div class="tw-flex" *ngIf="!hideMultiSelect">
   <bit-form-field *ngIf="permissionMode == 'edit'" class="tw-mr-3 tw-shrink-0">
     <bit-label>{{ "permission" | i18n }}</bit-label>
-    <!--
-      Built-in select height differs between browsers, this fix makes sure we match bit-multi-select height.
-      We might want to reconsider this fix when/if we implement
-      [CL-78] [Improvement] Completely restyled selects (https://bitwarden.atlassian.net/browse/CL-78)
-    -->
     <select
-      class="tw-h-[35px]"
       bitInput
       [disabled]="disabled"
       [(ngModel)]="initialPermission"

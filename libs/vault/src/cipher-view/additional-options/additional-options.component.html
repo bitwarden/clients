@@ -4,8 +4,8 @@
   </bit-section-header>
   <bit-card class="[&_bit-form-field:last-of-type]:tw-mb-0">
     <bit-form-field disableReadOnlyBorder>
-      <bit-label>{{ "note" | i18n }}</bit-label>
-      <textarea readonly bitInput aria-readonly="true">{{ notes }}</textarea>
+      <bit-label [appTextDrag]="notes">{{ "note" | i18n }}</bit-label>
+      <textarea readonly id="notes" bitInput rows="5" aria-readonly="true">{{ notes }}</textarea>
       <button
         bitSuffix
         bitIconButton="bwi-clone"
@@ -14,7 +14,7 @@
         [appCopyClick]="notes"
         showToast
         [valueLabel]="'note' | i18n"
-        [appA11yTitle]="'copyValue' | i18n"
+        [appA11yTitle]="'copyNotes' | i18n"
       ></button>
     </bit-form-field>
   </bit-card>

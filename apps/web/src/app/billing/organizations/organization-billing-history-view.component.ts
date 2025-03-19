@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { concatMap, Subject, takeUntil } from "rxjs";
@@ -14,7 +16,8 @@ import {
 export class OrgBillingHistoryViewComponent implements OnInit, OnDestroy {
   loading = false;
   firstLoaded = false;
-  invoices: BillingInvoiceResponse[] = [];
+  openInvoices: BillingInvoiceResponse[] = [];
+  paidInvoices: BillingInvoiceResponse[] = [];
   transactions: BillingTransactionResponse[] = [];
   organizationId: string;
   hasAdditionalHistory: boolean = false;
@@ -51,9 +54,16 @@ export class OrgBillingHistoryViewComponent implements OnInit, OnDestroy {
 
     this.loading = true;
 
-    const invoicesPromise = this.organizationBillingApiService.getBillingInvoices(
+    const openInvoicesPromise = this.organizationBillingApiService.getBillingInvoices(
       this.organizationId,
-      this.invoices.length > 0 ? this.invoices[this.invoices.length - 1].id : null,
+      "open",
+      this.openInvoices.length > 0 ? this.openInvoices[this.openInvoices.length - 1].id : null,
+    );
+
+    const paidInvoicesPromise = this.organizationBillingApiService.getBillingInvoices(
+      this.organizationId,
+      "paid",
+      this.paidInvoices.length > 0 ? this.paidInvoices[this.paidInvoices.length - 1].id : null,
     );
 
     const transactionsPromise = this.organizationBillingApiService.getBillingTransactions(
@@ -63,13 +73,21 @@ export class OrgBillingHistoryViewComponent implements OnInit, OnDestroy {
         : null,
     );
 
-    const invoices = await invoicesPromise;
+    const openInvoices = await openInvoicesPromise;
+    const paidInvoices = await paidInvoicesPromise;
     const transactions = await transactionsPromise;
+
     const pageSize = 5;
 
-    this.invoices = [...this.invoices, ...invoices];
+    this.openInvoices = [...this.openInvoices, ...openInvoices];
+    this.paidInvoices = [...this.paidInvoices, ...paidInvoices];
     this.transactions = [...this.transactions, ...transactions];
-    this.hasAdditionalHistory = !(invoices.length < pageSize && transactions.length < pageSize);
+
+    this.hasAdditionalHistory =
+      openInvoices.length <= pageSize ||
+      paidInvoices.length <= pageSize ||
+      transactions.length <= pageSize;
+
     this.loading = false;
   }
 }

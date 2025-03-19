@@ -1,6 +1,10 @@
-import { Meta, Story, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
 
 import * as stories from "./callout.stories";
+
+```ts
+import { CalloutModule } from "@bitwarden/components";
+```
 
 <Meta of={stories} />
 
@@ -24,7 +28,7 @@ Use the success callout to communicate a positive messaging to the user.
 The success callout may also be used for the information related to a premium membership. In this
 case, replace the icon with <i class="bwi bwi-star" title="bwi-star" aria-label="bwi-star"></i>
 
-<Story of={stories.Success} />
+<Canvas of={stories.Success} />
 
 ### Info
 
@@ -35,7 +39,7 @@ information.
 **Example:** in the Domain Claiming modal, an info callout is used to tell the user the domain will
 automatically be checked.
 
-<Story of={stories.Info} />
+<Canvas of={stories.Info} />
 
 ### Warning
 
@@ -45,7 +49,7 @@ irreversible results.
 **Example:** the warning callout is used before the change master password and encryption key form
 to alert the user that they will be logged out.
 
-<Story of={stories.Warning} />
+<Canvas of={stories.Warning} />
 
 ### Danger
 
@@ -55,7 +59,7 @@ not reversible.
 The danger callout can also be used to alert the user of an error or errors, such as a server side
 errors after form submit or failed communication request.
 
-<Story of={stories.Danger} />
+<Canvas of={stories.Danger} />
 
 ## Accessibility
 

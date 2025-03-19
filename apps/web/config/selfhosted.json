@@ -6,7 +6,5 @@
     "proxyNotifications": "http://localhost:61841",
     "port": 8081
   },
-  "flags": {
-    "showPasswordless": true
-  }
+  "flags": {}
 }
