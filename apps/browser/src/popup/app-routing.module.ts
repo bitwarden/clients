@@ -21,11 +21,13 @@ import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
   DevicesIcon,
+  DeviceVerificationIcon,
   LockIcon,
   LoginComponent,
   LoginDecryptionOptionsComponent,
   LoginSecondaryContentComponent,
   LoginViaAuthRequestComponent,
+  NewDeviceVerificationComponent,
   PasswordHintComponent,
   RegistrationFinishComponent,
   RegistrationLockAltIcon,
@@ -35,11 +37,9 @@ import {
   RegistrationUserAddIcon,
   SetPasswordJitComponent,
   SsoComponent,
-  TwoFactorTimeoutIcon,
   TwoFactorAuthComponent,
   TwoFactorAuthGuard,
-  NewDeviceVerificationComponent,
-  DeviceVerificationIcon,
+  TwoFactorTimeoutIcon,
   UserLockIcon,
   VaultIcon,
 } from "@bitwarden/auth/angular";
@@ -90,6 +90,7 @@ import { PasswordHistoryV2Component } from "../vault/popup/components/vault-v2/v
 import { VaultV2Component } from "../vault/popup/components/vault-v2/vault-v2.component";
 import { ViewV2Component } from "../vault/popup/components/vault-v2/view-v2/view-v2.component";
 import { AppearanceV2Component } from "../vault/popup/settings/appearance-v2.component";
+import { ArchiveComponent } from "../vault/popup/settings/archive.component";
 import { FoldersV2Component } from "../vault/popup/settings/folders-v2.component";
 import { TrashComponent } from "../vault/popup/settings/trash.component";
 import { VaultSettingsV2Component } from "../vault/popup/settings/vault-settings-v2.component";
@@ -688,6 +689,12 @@ const routes: Routes = [
   {
     path: "trash",
     component: TrashComponent,
+    canActivate: [authGuard],
+    data: { elevation: 2 } satisfies RouteDataProperties,
+  },
+  {
+    path: "archive",
+    component: ArchiveComponent,
     canActivate: [authGuard],
     data: { elevation: 2 } satisfies RouteDataProperties,
   },
