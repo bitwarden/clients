@@ -19,6 +19,7 @@ import { AuthenticationStatus } from "../../../auth/enums/authentication-status"
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { UserId } from "../../../types/guid";
 import { ConfigApiServiceAbstraction } from "../../abstractions/config/config-api.service.abstraction";
+import { OnServerConfigChange } from "../../abstractions/config/config.service";
 import { ServerConfig } from "../../abstractions/config/server-config";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { LogService } from "../../abstractions/log.service";
@@ -365,6 +366,59 @@ describe("ConfigService", () => {
       expect(configs[1].gitHash).toBe("slow-response");
     });
   });
+
+  describe("broadcastConfigChangesTo", () => {
+    it("should notify all listeners when server config changes", async () => {
+      const sut = new DefaultConfigService(
+        configApiService,
+        environmentService,
+        logService,
+        stateProvider,
+        authService,
+      );
+      const [serverConfigSubject, mockConfig] = setupBroadcastSut(sut);
+
+      const listener1 = mock<OnServerConfigChange>();
+      const listener2 = mock<OnServerConfigChange>();
+
+      const subscription = sut.broadcastConfigChangesTo(listener1, listener2);
+
+      expect(listener1.onServerConfigChange).toHaveBeenCalledWith(mockConfig);
+      expect(listener2.onServerConfigChange).toHaveBeenCalledWith(mockConfig);
+
+      const newConfig = mock<ServerConfig>();
+      serverConfigSubject.next(newConfig);
+
+      expect(listener1.onServerConfigChange).toHaveBeenCalledWith(newConfig);
+      expect(listener2.onServerConfigChange).toHaveBeenCalledWith(newConfig);
+
+      subscription.unsubscribe();
+    });
+
+    it("should return subscription that can be unsubscribed", async () => {
+      const sut = new DefaultConfigService(
+        configApiService,
+        environmentService,
+        logService,
+        stateProvider,
+        authService,
+      );
+      const [serverConfigSubject] = setupBroadcastSut(sut);
+
+      const listener = mock<OnServerConfigChange>();
+      listener.onServerConfigChange.mockClear();
+
+      const subscription = sut.broadcastConfigChangesTo(listener);
+      expect(listener.onServerConfigChange).toHaveBeenCalledTimes(1);
+      listener.onServerConfigChange.mockClear();
+
+      subscription.unsubscribe();
+
+      serverConfigSubject.next(mock<ServerConfig>());
+
+      expect(listener.onServerConfigChange).not.toHaveBeenCalled();
+    });
+  });
 });
 
 function apiUrl(count: number) {
@@ -405,4 +459,16 @@ function environmentFactory(apiUrl: string, isCloud: boolean = true) {
     getApiUrl: () => apiUrl,
     isCloud: () => isCloud,
   } as Environment;
+}
+
+function setupBroadcastSut(
+  sut: DefaultConfigService,
+): [BehaviorSubject<ServerConfig>, ServerConfig] {
+  const mockConfig = mock<ServerConfig>();
+  // Set up the server config subject that we'll use to control emissions
+  const serverConfigSubject = new BehaviorSubject<ServerConfig>(mockConfig);
+
+  // Replace the serverConfig$ with our test subject
+  (sut as any).serverConfig$ = serverConfigSubject;
+  return [serverConfigSubject, mockConfig];
 }
