@@ -121,7 +121,7 @@ export class VaultPopupItemsService {
           const orgMap = Object.fromEntries(organizations.map((org) => [org.id, org]));
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
           return ciphers
-            .filter((c) => !c.isDeleted)
+            .filter((c) => !c.isDeleted && !c.isArchived)
             .map(
               (cipher) =>
                 new PopupCipherView(
@@ -292,6 +292,21 @@ export class VaultPopupItemsService {
         }),
       ),
     ),
+    shareReplay({ refCount: false, bufferSize: 1 }),
+  );
+
+  /**
+   * Observable that contains the list of ciphers that have been archived.
+   */
+  archivedCiphers$: Observable<PopupCipherView[]> = this._allDecryptedCiphers$.pipe(
+    map((ciphers) => {
+      return (
+        ciphers
+          .filter((cipher) => cipher.isArchived && !cipher.isDeleted)
+          // Archived ciphers are individual only and never belong to an organization/collection
+          .map((cipher) => new PopupCipherView(cipher))
+      );
+    }),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
