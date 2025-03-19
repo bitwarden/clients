@@ -9,6 +9,7 @@ import {
   InputPasswordComponent,
   InputPasswordFlow,
 } from "../input-password/input-password.component";
+import { PasswordInputResult } from "../input-password/password-input-result";
 
 @Component({
   standalone: true,
@@ -35,5 +36,9 @@ export class ChangeExistingPasswordComponent implements OnInit {
     this.masterPasswordPolicyOptions = await firstValueFrom(
       this.policyService.masterPasswordPolicyOptions$(),
     );
+  }
+
+  handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
+    // TODO-rr-bw: Full Sync if Rotate User Key is true (see setupSubmitActions)
   }
 }

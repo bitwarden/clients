@@ -1,6 +1,9 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
+import { Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
 import { ChangeExistingPasswordComponent } from "@bitwarden/auth/angular";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { CalloutModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -12,4 +15,20 @@ import { WebauthnLoginSettingsModule } from "../../webauthn-login-settings";
   templateUrl: "password-settings.component.html",
   imports: [CalloutModule, ChangeExistingPasswordComponent, I18nPipe, WebauthnLoginSettingsModule],
 })
-export class PasswordSettingsComponent {}
+export class PasswordSettingsComponent implements OnInit {
+  constructor(
+    private router: Router,
+    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+  ) {}
+
+  async ngOnInit() {
+    const userHasMasterPassword = await firstValueFrom(
+      this.userDecryptionOptionsService.hasMasterPassword$,
+    );
+
+    if (!userHasMasterPassword) {
+      await this.router.navigate(["/settings/security/two-factor"]);
+      return;
+    }
+  }
+}
