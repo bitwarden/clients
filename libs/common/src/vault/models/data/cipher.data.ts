@@ -40,7 +40,7 @@ export class CipherData {
   collectionIds?: string[];
   creationDate: string;
   deletedDate: string;
-  archivedDate: string;
+  archivedDate: string | null;
   reprompt: CipherRepromptType;
   key: string;
 
