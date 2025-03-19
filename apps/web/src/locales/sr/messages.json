@@ -428,6 +428,9 @@
   "dragToSort": {
     "message": "Превуците за сортирање"
   },
+  "dragToReorder": {
+    "message": "Превуците да бисте организовали"
+  },
   "cfTypeText": {
     "message": "Текст"
   },
@@ -469,6 +472,19 @@
   },
   "editFolder": {
     "message": "Уреди фасциклу"
+  },
+  "editWithName": {
+    "message": "Уредити $ITEM$: $NAME$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Нова фасцикла"
@@ -1269,12 +1285,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Унеси адресу Е-поште свог налога и биће ти послат савет за лозинку"
-  },
-  "passwordHint": {
-    "message": "Помоћ за лозинку"
-  },
-  "enterEmailToGetHint": {
-    "message": "Унеси твоју Е-пошту да би добио савет за твоју Главну Лозинку."
   },
   "getMasterPasswordHint": {
     "message": "Добити савет за Главну Лозинку"
@@ -4530,6 +4540,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "$LABEL$ премештено на горе, позиција $INDEX$ од $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ премештено на доле, позиција $INDEX$ од $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "Приликом ажурирања кључа за шифровање, ваше фасцикле нису могле да се дешифрују. Да бисте наставили са ажурирањем, ваше фасцикле морају бити избрисане. Ниједна ставка у сефу неће бити избрисана ако наставите."
   },
@@ -7264,12 +7308,6 @@
   "numberOfUsers": {
     "message": "Број корисника"
   },
-  "loggingInAs": {
-    "message": "Пријављивање као"
-  },
-  "notYou": {
-    "message": "Нисте Ви?"
-  },
   "pickAnAvatarColor": {
     "message": "Изабрати боју аватара"
   },
@@ -8393,9 +8431,6 @@
   "requestAdminApproval": {
     "message": "Затражити одобрење администратора"
   },
-  "approveWithMasterPassword": {
-    "message": "Одобрити са главном лозинком"
-  },
   "trustedDeviceEncryption": {
     "message": "Шифровање поузданог уређаја"
   },
@@ -8609,9 +8644,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Ваш захтев је послат вашем администратору."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Бићете обавештени када буде одобрено."
   },
   "troubleLoggingIn": {
     "message": "Имате проблема са пријављивањем?"
@@ -9337,6 +9369,15 @@
   },
   "deviceManagementDesc": {
     "message": "Конфигуришите управљање уређајима за Bitwarden помоћу водича за имплементацију за своју платформу."
+  },
+  "deviceIdMissing": {
+    "message": "Недостаје ИД уређаја"
+  },
+  "deviceTypeMissing": {
+    "message": "Недостаје тип уређаја"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Недостаје датум креације уређаја"
   },
   "desktopRequired": {
     "message": "Desktop required"
@@ -10339,6 +10380,36 @@
   "organizationNameMaxLength": {
     "message": "Име организације не може прећи 50 знакова."
   },
+  "sshKeyWrongPassword": {
+    "message": "Лозинка коју сте унели није тачна."
+  },
+  "importSshKey": {
+    "message": "Увоз"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Потврда лозинке"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Унети лозинку за SSH кључ."
+  },
+  "enterSshKeyPassword": {
+    "message": "Унесите лозинку"
+  },
+  "invalidSshKey": {
+    "message": "SSH кључ је неважећи"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Тип SSH кључа није подржан"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Увезите кључ из оставе"
+  },
+  "sshKeyImported": {
+    "message": "SSH кључ је успешно увезен"
+  },
+  "copySSHPrivateKey": {
+    "message": "Копирај приватни кључ"
+  },
   "openingExtension": {
     "message": "Отварање Bitwarden додатка прегледача"
   },
@@ -10504,5 +10575,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "Ови догађаји су само примери и не одражавају стварне догађаје у вашем Bitwarden отганизацији."
+  },
+  "cannotCreateCollection": {
+    "message": "Бесплатне организације могу имати до 2 колекције. Надоградите на плаћени план за додавање више колекција."
   }
 }

@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Εισαγάγετε τη διεύθυνση email του λογαριασμού σας και θα σας αποσταλεί η υπόδειξη για τον κωδικό πρόσβασης"
   },
-  "passwordHint": {
-    "message": "Υπόδειξη κωδικού πρόσβασης"
-  },
-  "enterEmailToGetHint": {
-    "message": "Εισαγάγετε τη διεύθυνση email του λογαριασμού σας, για να λάβετε την υπόδειξη του κύριου κωδικού."
-  },
   "getMasterPasswordHint": {
     "message": "Λήψη υπόδειξης κύριου κωδικού"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Επεξεργασία φακέλου"
+  },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Νέος φάκελος"
@@ -1166,10 +1169,6 @@
     "message": "Φωτεινό",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Solarized Σκούρο",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Εξαγωγή από"
   },
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Αυτο-φιλοξενούμενο περιβάλλον"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Καθορίστε τη βασική διεύθυνση URL, της εγκατάστασης του Bitwarden που φιλοξενείται στο χώρο σας."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Καθορίστε το βασικό URL της εγκατάστασης Bitwarden στο χώρο σας. Παράδειγμα: https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Προσαρμοσμένο περιβάλλον"
-  },
-  "customEnvironmentFooter": {
-    "message": "Για προχωρημένους χρήστες. Μπορείτε να ορίσετε ανεξάρτητα τη βασική διεύθυνση URL κάθε υπηρεσίας."
   },
   "baseUrl": {
     "message": "URL Διακομιστή"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Σύρετε για ταξινόμηση"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Κείμενο"
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Οι ρυθμίσεις έχουν επεξεργαστεί"
-  },
-  "environmentEditedClick": {
-    "message": "Κάντε κλικ εδώ"
-  },
-  "environmentEditedReset": {
-    "message": "επαναφορά στις προ-ρυθμισμένες ρυθμίσεις"
-  },
   "serverVersion": {
     "message": "Έκδοση διακομιστή"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Συνδεθείτε με τον κύριο κωδικό πρόσβασης"
   },
-  "loggingInAs": {
-    "message": "Σύνδεση ως"
-  },
-  "notYou": {
-    "message": "Δεν είστε εσείς;"
-  },
   "newAroundHere": {
     "message": "Είστε νέος/α εδώ;"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Σύνδεση με τη χρήση συσκευής"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Η σύνδεση με τη χρήση συσκευής πρέπει να οριστεί στις ρυθμίσεις της εφαρμογής Bitwarden. Χρειάζεστε κάποια άλλη επιλογή;"
   },
   "fingerprintPhraseHeader": {
     "message": "Φράση δακτυλικού αποτυπώματος"
@@ -3343,9 +3321,6 @@
     "message": "Επαναποστολή ειδοποίησης"
   },
   "viewAllLogInOptions": {
-    "message": "Δείτε όλες τις επιλογές σύνδεσης"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Δείτε όλες τις επιλογές σύνδεσης"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Αίτηση έγκρισης διαχειριστή"
   },
-  "approveWithMasterPassword": {
-    "message": "Έγκριση με κύριο κωδικό πρόσβασης"
-  },
   "ssoIdentifierRequired": {
     "message": "Απαιτείται αναγνωριστικό οργανισμού SSO."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Το αίτημά σας εστάλη στον διαχειριστή σας."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Θα ειδοποιηθείτε μόλις εγκριθεί."
   },
   "troubleLoggingIn": {
     "message": "Δεν μπορείτε να συνδεθείτε;"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ μετακινήθηκε πάνω, θέση $INDEX$ από $LENGTH$",
     "placeholders": {
@@ -5131,6 +5103,33 @@
   },
   "extraWide": {
     "message": "Εξαιρετικά φαρδύ"
+  },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Δεν μπορείτε να αφαιρέσετε συλλογές που έχουν μόνο δικαιώματα Προβολής: $COLLECTIONS$",

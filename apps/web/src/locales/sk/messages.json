@@ -202,7 +202,7 @@
     "message": "Poznámky"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Súkromná poznámka"
   },
   "note": {
     "message": "Poznámka"
@@ -428,6 +428,9 @@
   "dragToSort": {
     "message": "Zoradiť presúvaním"
   },
+  "dragToReorder": {
+    "message": "Potiahnutím zmeníte poradie"
+  },
   "cfTypeText": {
     "message": "Text"
   },
@@ -469,6 +472,19 @@
   },
   "editFolder": {
     "message": "Upraviť priečinok"
+  },
+  "editWithName": {
+    "message": "Upraviť $ITEM$: $NAME$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Nový priečinok"
@@ -1033,7 +1049,7 @@
     "message": "Nie"
   },
   "location": {
-    "message": "Location"
+    "message": "Poloha"
   },
   "loginOrCreateNewAccount": {
     "message": "Prihláste sa, alebo vytvorte nový účet pre prístup k vášmu bezpečnému trezoru."
@@ -1186,7 +1202,7 @@
     "message": "Relácia overovania skončila. Znovu spustite proces prihlásenia."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Overte svoju totožnosť"
   },
   "weDontRecognizeThisDevice": {
     "message": "Nespoznávame toto zariadenie. Pre overenie vašej identity zadajte kód ktorý bol zaslaný na váš email."
@@ -1269,12 +1285,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Zadajte e-mailovú adresu účtu a zašleme vám nápoveď k heslu"
-  },
-  "passwordHint": {
-    "message": "Nápoveď k heslu"
-  },
-  "enterEmailToGetHint": {
-    "message": "Zadajte emailovú adresu na zaslanie nápovede pre vaše hlavné heslo."
   },
   "getMasterPasswordHint": {
     "message": "Získať nápoveď k hlavnému heslu"
@@ -4530,6 +4540,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "$LABEL$ presunuté vyššie, pozícia $INDEX$ z $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ presunuté nižšie, pozícia $INDEX$ z $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "Pri aktualizácii šifrovacieho kľúča nebolo možné dešifrovať vaše priečinky. Ak chcete pokračovať v aktualizácii, vaše priečinky sa musia odstrániť. Ak budete pokračovať, nebudú odstránené žiadne položky trezora."
   },
@@ -5091,14 +5135,14 @@
     "message": "Vlastníci a administrátori organizácie sú vyňatí z uplatnenia tohto pravidla."
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "Obmedziť zobrazenia"
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "Po dosiahnutí limitu si tento Send nemôže nikto zobraziť.",
     "description": "Displayed under the limit views field on Send"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "Zostáva $ACCESSCOUNT$ zobrazení",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -5108,11 +5152,11 @@
     }
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Podrobnosti o Sende",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
-    "message": "Text to share"
+    "message": "Text, ktorý chcete zdieľať"
   },
   "sendTypeFile": {
     "message": "Súbor"
@@ -5121,7 +5165,7 @@
     "message": "Text"
   },
   "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
+    "message": "Pridajte voliteľné heslo pre príjemcov na prístup k tomuto Sendu.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
@@ -5149,14 +5193,14 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Are you sure you want to permanently delete this Send?",
+    "message": "Naozaj chcete natrvalo odstrániť tento Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Dátum vymazania"
   },
   "deletionDateDescV2": {
-    "message": "The Send will be permanently deleted on this date.",
+    "message": "Send bude natrvalo odstránený v tento deň.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5206,7 +5250,7 @@
     "message": "Čakajúce odstránenie"
   },
   "hideTextByDefault": {
-    "message": "Hide text by default"
+    "message": "V predvolenom nastavení skryť text"
   },
   "expired": {
     "message": "Expirované"
@@ -5677,7 +5721,7 @@
     "message": "Pri ukladaní dátumov odstránenia a vypršania platnosti sa vyskytla chyba."
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "Skryť moju e-mailovú adresu pri zobrazení."
   },
   "webAuthnFallbackMsg": {
     "message": "Na overenie 2FA, prosím, kliknite na tlačidlo nižšie."
@@ -7264,12 +7308,6 @@
   "numberOfUsers": {
     "message": "Počet používateľov"
   },
-  "loggingInAs": {
-    "message": "Prihlasujete sa ako"
-  },
-  "notYou": {
-    "message": "Nie ste to vy?"
-  },
   "pickAnAvatarColor": {
     "message": "Výber farby avatara"
   },
@@ -8393,9 +8431,6 @@
   "requestAdminApproval": {
     "message": "Žiadosť o schválenie správcom"
   },
-  "approveWithMasterPassword": {
-    "message": "Schváliť pomocou hlavného hesla"
-  },
   "trustedDeviceEncryption": {
     "message": "Šifrovanie dôveryhodného zariadenia"
   },
@@ -8609,9 +8644,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Vaša žiadosť bola odoslaná správcovi."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Po schválení budete informovaný."
   },
   "troubleLoggingIn": {
     "message": "Máte problémy s prihlásením?"
@@ -9338,6 +9370,15 @@
   "deviceManagementDesc": {
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
+  "deviceIdMissing": {
+    "message": "Chýba ID zariadenia"
+  },
+  "deviceTypeMissing": {
+    "message": "Chýba typ zariadenia"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Chýba dátum vytvorenia zaradenia"
+  },
   "desktopRequired": {
     "message": "Vyžaduje sa desktop"
   },
@@ -9838,13 +9879,13 @@
     "message": "Dozvedieť sa viac o Bitwarden API"
   },
   "fileSend": {
-    "message": "File Send"
+    "message": "Send so súborom"
   },
   "fileSends": {
     "message": "Sendy so súborom"
   },
   "textSend": {
-    "message": "Text Send"
+    "message": "Textový Send"
   },
   "textSends": {
     "message": "Textové Sendy"
@@ -10339,6 +10380,36 @@
   "organizationNameMaxLength": {
     "message": "Meno organizácie nemôže mať viac ako 50 znakov."
   },
+  "sshKeyWrongPassword": {
+    "message": "Zadané heslo je nesprávne."
+  },
+  "importSshKey": {
+    "message": "Importovať"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Potvrdiť heslo"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Zadajte heslo pre kľúč SSH."
+  },
+  "enterSshKeyPassword": {
+    "message": "Zadať heslo"
+  },
+  "invalidSshKey": {
+    "message": "Kľúč SSH je neplatný"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Tento typ kľúča SSH nie je podporovaný"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Importovať kľúč zo schránky"
+  },
+  "sshKeyImported": {
+    "message": "Kľúč SSH bol úspešne importovaný"
+  },
+  "copySSHPrivateKey": {
+    "message": "Kopírovať súkromný kľúč"
+  },
   "openingExtension": {
     "message": "Otvára sa rozšírenie Bitwarden pre prehliadač"
   },
@@ -10479,7 +10550,7 @@
     "message": "Počet pridelených sedení presahuje počet dostupných sedení."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "Zmeniť ohrozené heslo"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Odstrániť odomknutie PIN kódom"
@@ -10504,5 +10575,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
+  },
+  "cannotCreateCollection": {
+    "message": "Bezplatné organizácie môžu mat maximálne dve zbierky. Ak chcete pridať viac zbierok povýšte na platené predplatné."
   }
 }

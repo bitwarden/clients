@@ -428,6 +428,9 @@
   "dragToSort": {
     "message": "Arrastar para ordenar"
   },
+  "dragToReorder": {
+    "message": "Drag to reorder"
+  },
   "cfTypeText": {
     "message": "Texto"
   },
@@ -469,6 +472,19 @@
   },
   "editFolder": {
     "message": "Editar Pasta"
+  },
+  "editWithName": {
+    "message": "Edit $ITEM$: $NAME$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "New folder"
@@ -1269,12 +1285,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Digite o endereço de e-mail da sua conta e sua dica da senha será enviada para você"
-  },
-  "passwordHint": {
-    "message": "Dica da senha"
-  },
-  "enterEmailToGetHint": {
-    "message": "Insira o seu endereço de e-mail para receber a dica da sua senha mestra."
   },
   "getMasterPasswordHint": {
     "message": "Obter dica da senha mestra"
@@ -4530,6 +4540,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ moved down, position $INDEX$ of $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "Ao atualizar sua chave de criptografia, suas pastas não puderam ser descriptografadas. Para continuar com a atualização, suas pastas devem ser excluídas. Nenhum item de cofre será excluído se você prosseguir."
   },
@@ -7264,12 +7308,6 @@
   "numberOfUsers": {
     "message": "Número de usuários"
   },
-  "loggingInAs": {
-    "message": "Entrando como"
-  },
-  "notYou": {
-    "message": "Não é você?"
-  },
   "pickAnAvatarColor": {
     "message": "Escolha uma cor de avatar"
   },
@@ -8393,9 +8431,6 @@
   "requestAdminApproval": {
     "message": "Solicitar aprovação do administrador"
   },
-  "approveWithMasterPassword": {
-    "message": "Aprovar com a senha mestre"
-  },
   "trustedDeviceEncryption": {
     "message": "Criptografia de dispositivo confiável"
   },
@@ -8609,9 +8644,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Seu pedido foi enviado para seu administrador."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Será notificado assim que for aprovado."
   },
   "troubleLoggingIn": {
     "message": "Problemas em efetuar login?"
@@ -9337,6 +9369,15 @@
   },
   "deviceManagementDesc": {
     "message": "Configure o gerenciamento de dispositivos para o Bitwarden usando o guia de implementação da sua plataforma."
+  },
+  "deviceIdMissing": {
+    "message": "Device ID is missing"
+  },
+  "deviceTypeMissing": {
+    "message": "Device type is missing"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Device creation date is missing"
   },
   "desktopRequired": {
     "message": "Desktop required"
@@ -10339,6 +10380,36 @@
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
   },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
+  "copySSHPrivateKey": {
+    "message": "Copy private key"
+  },
   "openingExtension": {
     "message": "Opening the Bitwarden browser extension"
   },
@@ -10504,5 +10575,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
+  },
+  "cannotCreateCollection": {
+    "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
   }
 }

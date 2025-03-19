@@ -428,6 +428,9 @@
   "dragToSort": {
     "message": "Slepen om te sorteren"
   },
+  "dragToReorder": {
+    "message": "Sleep om te herschikken"
+  },
   "cfTypeText": {
     "message": "Tekst"
   },
@@ -469,6 +472,19 @@
   },
   "editFolder": {
     "message": "Map bewerken"
+  },
+  "editWithName": {
+    "message": "$ITEM$: $NAME$ bewerken",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Nieuwe map"
@@ -1269,12 +1285,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Als je het e-mailadres van je account invult, versturen we je je wachtwoordhint"
-  },
-  "passwordHint": {
-    "message": "Wachtwoordhint"
-  },
-  "enterEmailToGetHint": {
-    "message": "Voer het e-mailadres van je account in om je hoofdwachtwoordhint te ontvangen."
   },
   "getMasterPasswordHint": {
     "message": "Hoofdwachtwoordhint opvragen"
@@ -4530,6 +4540,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "$LABEL$ is naar boven verplaatst, positie $INDEX$ van $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ is naar boven verplaatst, positie $INDEX$ van $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "Bij het bijwerken van je encryptiesleutel konden we je mappen niet decoderen. Om door te gaan met de update, moeten je mappen worden verwijderd. Geen kluisitems worden verwijderd als je doorgaat."
   },
@@ -7264,12 +7308,6 @@
   "numberOfUsers": {
     "message": "Aantal gebruikers"
   },
-  "loggingInAs": {
-    "message": "Inloggen als"
-  },
-  "notYou": {
-    "message": "Ben jij dit niet?"
-  },
   "pickAnAvatarColor": {
     "message": "Kies een kleur voor je avatar"
   },
@@ -8393,9 +8431,6 @@
   "requestAdminApproval": {
     "message": "Goedkeuring van beheerder vragen"
   },
-  "approveWithMasterPassword": {
-    "message": "Goedkeuren met hoofdwachtwoord"
-  },
   "trustedDeviceEncryption": {
     "message": "Vertrouwde apparaat encryptie"
   },
@@ -8609,9 +8644,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Je verzoek is naar je beheerder verstuurd."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Je krijgt een melding zodra je bent goedgekeurd."
   },
   "troubleLoggingIn": {
     "message": "Problemen met inloggen?"
@@ -9337,6 +9369,15 @@
   },
   "deviceManagementDesc": {
     "message": "Apparaatbeheer voor Bitwarden configureren met behulp van de implementatiehandleiding voor jouw platform."
+  },
+  "deviceIdMissing": {
+    "message": "Apparaat-ID ontbreekt"
+  },
+  "deviceTypeMissing": {
+    "message": "Apparaat-type ontbreekt"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Aanmaakdatum apparaat ontbreekt"
   },
   "desktopRequired": {
     "message": "Desktop vereist"
@@ -10339,6 +10380,36 @@
   "organizationNameMaxLength": {
     "message": "Organisatienaam mag niet langer zijn dan 50 tekens."
   },
+  "sshKeyWrongPassword": {
+    "message": "Het door jou ingevoerde wachtwoord is onjuist."
+  },
+  "importSshKey": {
+    "message": "Importeren"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Wachtwoord bevestigen"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Voer het wachtwoord voor de SSH sleutel in."
+  },
+  "enterSshKeyPassword": {
+    "message": "Wachtwoord invoeren"
+  },
+  "invalidSshKey": {
+    "message": "De SSH-sleutel is ongeldig"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Het type SSH-sleutel is niet ondersteund"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Sleutel van klembord importeren"
+  },
+  "sshKeyImported": {
+    "message": "SSH-sleutel succesvol geïmporteerd"
+  },
+  "copySSHPrivateKey": {
+    "message": "Privésleutel kopiëren"
+  },
   "openingExtension": {
     "message": "Bitwarden-browserextensie openen"
   },
@@ -10504,5 +10575,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "Deze events zijn voorbeelden en weerspiegelen geen echte evenementen binnen je Bitwarden-organisatie."
+  },
+  "cannotCreateCollection": {
+    "message": "Gratis organisaties kunnen maximaal twee collecties hebben. Upgrade naar een betaald abonnement voor het toevoegen van meer collecties."
   }
 }

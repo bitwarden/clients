@@ -3,6 +3,7 @@
 import { BaseResponse } from "../../../models/response/base.response";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CardApi } from "../api/card.api";
+import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 import { FieldApi } from "../api/field.api";
 import { IdentityApi } from "../api/identity.api";
 import { LoginApi } from "../api/login.api";
@@ -28,6 +29,7 @@ export class CipherResponse extends BaseResponse {
   favorite: boolean;
   edit: boolean;
   viewPassword: boolean;
+  permissions: CipherPermissionsApi;
   organizationUseTotp: boolean;
   revisionDate: string;
   attachments: AttachmentResponse[];
@@ -53,6 +55,7 @@ export class CipherResponse extends BaseResponse {
     } else {
       this.viewPassword = this.getResponseProperty("ViewPassword");
     }
+    this.permissions = new CipherPermissionsApi(this.getResponseProperty("Permissions"));
     this.organizationUseTotp = this.getResponseProperty("OrganizationUseTotp");
     this.revisionDate = this.getResponseProperty("RevisionDate");
     this.collectionIds = this.getResponseProperty("CollectionIds");
