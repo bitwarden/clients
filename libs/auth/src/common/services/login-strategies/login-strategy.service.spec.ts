@@ -11,6 +11,7 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { PrePasswordLoginResponse } from "@bitwarden/common/auth/models/response/pre-password-login.response";
+import { OpaqueKeyExchangeService } from "@bitwarden/common/auth/opaque/opaque-key-exchange.service";
 import { PrePasswordLoginApiService } from "@bitwarden/common/auth/services/pre-password-login-api.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -22,6 +23,7 @@ import {
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -48,8 +50,6 @@ import { UserDecryptionOptionsService } from "../user-decryption-options/user-de
 
 import { LoginStrategyService } from "./login-strategy.service";
 import { CACHE_EXPIRATION_KEY } from "./login-strategy.state";
-import { OpaqueKeyExchangeService } from "@bitwarden/common/auth/opaque/opaque-key-exchange.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 // TODO: update tests to pass
 // TODO: test makePrePasswordLoginMasterKey
