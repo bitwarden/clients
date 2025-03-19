@@ -879,9 +879,6 @@
   "filter": {
     "message": "篩選"
   },
-  "moveSelectedToOrg": {
-    "message": "移動所選至組織"
-  },
   "deleteSelected": {
     "message": "刪除所選"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "將已選取項目移動至 $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "選擇您希望將這個項目移動至哪個組織。項目的擁有權將會轉移至該組織。轉移之後，您將不再是此項目的直接擁有者。"
   },
-  "moveManyToOrgDesc": {
-    "message": "選擇您希望將這些項目移動至哪個組織。項目的擁有權將會轉移至該組織。轉移之後，您將不再是這些項目的直接擁有者。"
-  },
   "collectionsDesc": {
     "message": "編輯與此項目共享的集合。只有具有這些集合存取權限的組織使用者才能夠看到此項目。"
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "你選擇了 $COUNT$ 個項目。當中有 $MOVEABLE_COUNT$ 個項目可移動到組織當中，而有 $NONMOVEABLE_COUNT$ 個無法移動。",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },

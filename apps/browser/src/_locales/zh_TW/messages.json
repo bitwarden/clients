@@ -4733,15 +4733,6 @@
   "nothingSelected": {
     "message": "您沒有選擇任何項目。"
   },
-  "movedItemsToOrg": {
-    "message": "將已選取項目移動至 $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
-  },
   "itemsMovedToOrg": {
     "message": "項目已移到 $ORGNAME$",
     "placeholders": {
