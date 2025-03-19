@@ -3,7 +3,6 @@ import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
@@ -17,6 +16,7 @@ import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/id
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { MasterPasswordPolicyResponse } from "@bitwarden/common/auth/models/response/master-password-policy.response";
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
+import { OpaqueKeyExchangeService } from "@bitwarden/common/auth/opaque/opaque-key-exchange.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
@@ -25,6 +25,7 @@ import {
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -42,11 +43,10 @@ import {
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey, MasterKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
-import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
-import { PasswordLoginCredentials } from "../models";
+import { PasswordHashLoginCredentials } from "../models";
 import { UserDecryptionOptions } from "../models/domain/user-decryption-options";
 
 import { PasswordLoginStrategy, PasswordLoginStrategyData } from "./password-login.strategy";
@@ -102,12 +102,11 @@ export function identityTokenResponseFactory(
 }
 
 // TODO: add tests for latest changes to base class for TDE
-describe("LoginStrategy", () => {
+describe("BaseLoginStrategy", () => {
   let cache: PasswordLoginStrategyData;
   let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
 
-  let loginStrategyService: MockProxy<LoginStrategyServiceAbstraction>;
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let apiService: MockProxy<ApiService>;
@@ -125,15 +124,16 @@ describe("LoginStrategy", () => {
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let environmentService: MockProxy<EnvironmentService>;
+  let configService: MockProxy<ConfigService>;
+  let opaqueKeyExchangeService: MockProxy<OpaqueKeyExchangeService>;
 
   let passwordLoginStrategy: PasswordLoginStrategy;
-  let credentials: PasswordLoginCredentials;
+  let credentials: PasswordHashLoginCredentials;
 
   beforeEach(async () => {
     accountService = mockAccountServiceWith(userId);
     masterPasswordService = new FakeMasterPasswordService();
 
-    loginStrategyService = mock<LoginStrategyServiceAbstraction>();
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     apiService = mock<ApiService>();
@@ -150,6 +150,8 @@ describe("LoginStrategy", () => {
     passwordStrengthService = mock<PasswordStrengthService>();
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     environmentService = mock<EnvironmentService>();
+    configService = mock();
+    opaqueKeyExchangeService = mock();
 
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
 
@@ -157,30 +159,8 @@ describe("LoginStrategy", () => {
     tokenService.decodeAccessToken.calledWith(accessToken).mockResolvedValue(decodedToken);
 
     // The base class is abstract so we test it via PasswordLoginStrategy
-    passwordLoginStrategy = new PasswordLoginStrategy(
-      cache,
-      passwordStrengthService,
-      policyService,
-      loginStrategyService,
-      accountService as unknown as AccountService,
-      masterPasswordService,
-      keyService,
-      encryptService,
-      apiService,
-      tokenService,
-      appIdService,
-      platformUtilsService,
-      messagingService,
-      logService,
-      stateService,
-      twoFactorService,
-      userDecryptionOptionsService,
-      billingAccountProfileStateService,
-      vaultTimeoutSettingsService,
-      kdfConfigService,
-      environmentService,
-    );
-    credentials = new PasswordLoginCredentials(email, masterPassword);
+    passwordLoginStrategy = createPasswordLoginStrategy();
+    credentials = new PasswordHashLoginCredentials(email, masterPassword, new PBKDF2KdfConfig());
   });
 
   describe("base class", () => {
@@ -504,29 +484,7 @@ describe("LoginStrategy", () => {
         new TokenTwoFactorRequest(),
       );
 
-      passwordLoginStrategy = new PasswordLoginStrategy(
-        cache,
-        passwordStrengthService,
-        policyService,
-        loginStrategyService,
-        accountService as AccountService,
-        masterPasswordService,
-        keyService,
-        encryptService,
-        apiService,
-        tokenService,
-        appIdService,
-        platformUtilsService,
-        messagingService,
-        logService,
-        stateService,
-        twoFactorService,
-        userDecryptionOptionsService,
-        billingAccountProfileStateService,
-        vaultTimeoutSettingsService,
-        kdfConfigService,
-        environmentService,
-      );
+      passwordLoginStrategy = createPasswordLoginStrategy(cache);
 
       apiService.postIdentityToken.mockResolvedValue(identityTokenResponseFactory());
 
@@ -568,33 +526,38 @@ describe("LoginStrategy", () => {
         new TokenTwoFactorRequest(),
       );
 
-      passwordLoginStrategy = new PasswordLoginStrategy(
-        cache,
-        passwordStrengthService,
-        policyService,
-        loginStrategyService,
-        accountService as AccountService,
-        masterPasswordService,
-        keyService,
-        encryptService,
-        apiService,
-        tokenService,
-        appIdService,
-        platformUtilsService,
-        messagingService,
-        logService,
-        stateService,
-        twoFactorService,
-        userDecryptionOptionsService,
-        billingAccountProfileStateService,
-        vaultTimeoutSettingsService,
-        kdfConfigService,
-        environmentService,
-      );
+      passwordLoginStrategy = createPasswordLoginStrategy(cache);
 
       const result = await passwordLoginStrategy.logIn(credentials);
 
       expect(result.requiresDeviceVerification).toBe(true);
     });
   });
+
+  function createPasswordLoginStrategy(cache?: PasswordLoginStrategyData) {
+    return new PasswordLoginStrategy(
+      cache ?? new PasswordLoginStrategyData(),
+      passwordStrengthService,
+      policyService,
+      configService,
+      opaqueKeyExchangeService,
+      accountService,
+      masterPasswordService,
+      keyService,
+      encryptService,
+      apiService,
+      tokenService,
+      appIdService,
+      platformUtilsService,
+      messagingService,
+      logService,
+      stateService,
+      twoFactorService,
+      userDecryptionOptionsService,
+      billingAccountProfileStateService,
+      vaultTimeoutSettingsService,
+      kdfConfigService,
+      environmentService,
+    );
+  }
 });

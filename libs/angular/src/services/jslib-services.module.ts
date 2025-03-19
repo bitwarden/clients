@@ -99,6 +99,9 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-api.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
+import { DefaultOpaqueKeyExchangeService } from "@bitwarden/common/auth/opaque/default-opaque-key-exchange.service";
+import { OpaqueKeyExchangeApiService } from "@bitwarden/common/auth/opaque/opaque-key-exchange-api.service";
+import { OpaqueKeyExchangeService } from "@bitwarden/common/auth/opaque/opaque-key-exchange.service";
 import { AccountApiServiceImplementation } from "@bitwarden/common/auth/services/account-api.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AnonymousHubService } from "@bitwarden/common/auth/services/anonymous-hub.service";
@@ -108,6 +111,7 @@ import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/de
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/services/master-password/master-password-api.service.implementation";
 import { PasswordResetEnrollmentServiceImplementation } from "@bitwarden/common/auth/services/password-reset-enrollment.service.implementation";
+import { PrePasswordLoginApiService } from "@bitwarden/common/auth/services/pre-password-login-api.service";
 import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login.service";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/services/two-factor.service";
@@ -472,6 +476,9 @@ const safeProviders: SafeProvider[] = [
       VaultTimeoutSettingsService,
       KdfConfigService,
       TaskSchedulerService,
+      PrePasswordLoginApiService,
+      ConfigService,
+      OpaqueKeyExchangeService,
     ],
   }),
   safeProvider({
@@ -1489,6 +1496,19 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       ToastService,
     ],
+  }),
+  safeProvider({
+    provide: PrePasswordLoginApiService,
+    deps: [ApiServiceAbstraction, EnvironmentService],
+  }),
+  safeProvider({
+    provide: OpaqueKeyExchangeApiService,
+    deps: [ApiServiceAbstraction, EnvironmentService],
+  }),
+  safeProvider({
+    provide: OpaqueKeyExchangeService,
+    useClass: DefaultOpaqueKeyExchangeService,
+    deps: [OpaqueKeyExchangeApiService, SdkService],
   }),
   safeProvider({
     provide: MasterPasswordApiServiceAbstraction,

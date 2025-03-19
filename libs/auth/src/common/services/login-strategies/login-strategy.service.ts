@@ -17,15 +17,18 @@ import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
+import { PrePasswordLoginRequest } from "@bitwarden/common/auth/models/request/pre-password-login.request";
+import { OpaqueKeyExchangeService } from "@bitwarden/common/auth/opaque/opaque-key-exchange.service";
+import { PrePasswordLoginApiService } from "@bitwarden/common/auth/services/pre-password-login-api.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
-import { PreloginRequest } from "@bitwarden/common/models/request/prelogin.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -35,15 +38,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { TaskSchedulerService, ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
-import { MasterKey } from "@bitwarden/common/types/key";
-import {
-  KdfType,
-  KeyService,
-  Argon2KdfConfig,
-  KdfConfig,
-  PBKDF2KdfConfig,
-  KdfConfigService,
-} from "@bitwarden/key-management";
+import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 
 import { AuthRequestServiceAbstraction, LoginStrategyServiceAbstraction } from "../../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";
@@ -51,7 +46,11 @@ import {
   AuthRequestLoginStrategy,
   AuthRequestLoginStrategyData,
 } from "../../login-strategies/auth-request-login.strategy";
-import { LoginStrategy } from "../../login-strategies/login.strategy";
+import { BaseLoginStrategy } from "../../login-strategies/base-login.strategy";
+import {
+  OpaqueLoginStrategy,
+  OpaqueLoginStrategyData,
+} from "../../login-strategies/opaque-login.strategy";
 import {
   PasswordLoginStrategy,
   PasswordLoginStrategyData,
@@ -71,6 +70,7 @@ import {
   SsoLoginCredentials,
   AuthRequestLoginCredentials,
   WebAuthnLoginCredentials,
+  LoginCredentials,
 } from "../../models";
 
 import {
@@ -83,6 +83,14 @@ import {
 
 const sessionTimeoutLength = 5 * 60 * 1000; // 5 minutes
 
+type LoginStrategy =
+  | UserApiLoginStrategy
+  | PasswordLoginStrategy
+  | SsoLoginStrategy
+  | AuthRequestLoginStrategy
+  | WebAuthnLoginStrategy
+  | OpaqueLoginStrategy;
+
 export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   private sessionTimeoutSubscription: Subscription | undefined;
   private currentAuthnTypeState: GlobalState<AuthenticationType | null>;
@@ -94,14 +102,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   authenticationSessionTimeout$: Observable<boolean> =
     this.authenticationTimeoutSubject.asObservable();
 
-  private loginStrategy$: Observable<
-    | UserApiLoginStrategy
-    | PasswordLoginStrategy
-    | SsoLoginStrategy
-    | AuthRequestLoginStrategy
-    | WebAuthnLoginStrategy
-    | null
-  >;
+  private loginStrategy$: Observable<LoginStrategy | null>;
 
   currentAuthType$: Observable<AuthenticationType | null>;
 
@@ -131,6 +132,9 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     protected vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     protected kdfConfigService: KdfConfigService,
     protected taskSchedulerService: TaskSchedulerService,
+    protected prePasswordLoginApiService: PrePasswordLoginApiService,
+    protected configService: ConfigService,
+    protected opaqueKeyExchangeService: OpaqueKeyExchangeService,
   ) {
     this.currentAuthnTypeState = this.stateProvider.get(CURRENT_LOGIN_STRATEGY_KEY);
     this.loginStrategyCacheState = this.stateProvider.get(CACHE_KEY);
@@ -154,7 +158,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     this.loginStrategy$ = this.currentAuthnTypeState.state$.pipe(
       distinctUntilChanged(),
       combineLatestWith(this.loginStrategyCacheState.state$),
-      this.initializeLoginStrategy.bind(this),
+      map(([strategy, data]) => this.initializeLoginStrategy(strategy, data)),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
   }
@@ -215,16 +219,28 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     await this.clearCache();
     this.authenticationTimeoutSubject.next(false);
 
-    await this.currentAuthnTypeState.update((_) => credentials.type);
-
-    const strategy = await firstValueFrom(this.loginStrategy$);
-
     // Note: We aren't passing the credentials directly to the strategy since they are
     // created in the popup and can cause DeadObject references on Firefox.
     // This is a shallow copy, but use deep copy in future if objects are added to credentials
     // that were created in popup.
     // If the popup uses its own instance of this service, this can be removed.
-    const ownedCredentials = { ...credentials };
+    let ownedCredentials: LoginCredentials;
+
+    // Password credentials may use the PasswordHashLoginStrategy or the OpaqueLoginStrategy
+    if (credentials.type === AuthenticationType.Password) {
+      const preLoginRequest = new PrePasswordLoginRequest(credentials.email);
+
+      const preLoginResponse =
+        await this.prePasswordLoginApiService.postPrePasswordLogin(preLoginRequest);
+      ownedCredentials = credentials.toSpecificLoginCredentials(preLoginResponse);
+    } else {
+      // Shallow copy
+      ownedCredentials = { ...credentials };
+    }
+
+    await this.currentAuthnTypeState.update((_) => ownedCredentials.type);
+
+    const strategy = await firstValueFrom(this.loginStrategy$);
 
     const result = await strategy?.logIn(ownedCredentials as any);
 
@@ -309,35 +325,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     }
   }
 
-  async makePreloginKey(masterPassword: string, email: string): Promise<MasterKey> {
-    email = email.trim().toLowerCase();
-    let kdfConfig: KdfConfig | undefined;
-    try {
-      const preloginResponse = await this.apiService.postPrelogin(new PreloginRequest(email));
-      if (preloginResponse != null) {
-        kdfConfig =
-          preloginResponse.kdf === KdfType.PBKDF2_SHA256
-            ? new PBKDF2KdfConfig(preloginResponse.kdfIterations)
-            : new Argon2KdfConfig(
-                preloginResponse.kdfIterations,
-                preloginResponse.kdfMemory,
-                preloginResponse.kdfParallelism,
-              );
-      }
-    } catch (e: any) {
-      if (e == null || e.statusCode !== 404) {
-        throw e;
-      }
-    }
-
-    if (!kdfConfig) {
-      throw new Error("KDF config is required");
-    }
-    kdfConfig.validateKdfConfigForPrelogin();
-
-    return await this.keyService.makeMasterKey(masterPassword, email, kdfConfig);
-  }
-
   private async clearCache(): Promise<void> {
     await this.currentAuthnTypeState.update((_) => null);
     await this.loginStrategyCacheState.update((_) => null);
@@ -383,9 +370,10 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   }
 
   private initializeLoginStrategy(
-    source: Observable<[AuthenticationType | null, CacheData | null]>,
-  ) {
-    const sharedDeps: ConstructorParameters<typeof LoginStrategy> = [
+    strategy: AuthenticationType | null,
+    data: CacheData | null,
+  ): LoginStrategy | null {
+    const sharedDeps: ConstructorParameters<typeof BaseLoginStrategy> = [
       this.accountService,
       this.masterPasswordService,
       this.keyService,
@@ -404,49 +392,51 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       this.kdfConfigService,
       this.environmentService,
     ];
-
-    return source.pipe(
-      map(([strategy, data]) => {
-        if (strategy == null) {
-          return null;
-        }
-        switch (strategy) {
-          case AuthenticationType.Password:
-            return new PasswordLoginStrategy(
-              data?.password ?? new PasswordLoginStrategyData(),
-              this.passwordStrengthService,
-              this.policyService,
-              this,
-              ...sharedDeps,
-            );
-          case AuthenticationType.Sso:
-            return new SsoLoginStrategy(
-              data?.sso ?? new SsoLoginStrategyData(),
-              this.keyConnectorService,
-              this.deviceTrustService,
-              this.authRequestService,
-              this.i18nService,
-              ...sharedDeps,
-            );
-          case AuthenticationType.UserApiKey:
-            return new UserApiLoginStrategy(
-              data?.userApiKey ?? new UserApiLoginStrategyData(),
-              this.keyConnectorService,
-              ...sharedDeps,
-            );
-          case AuthenticationType.AuthRequest:
-            return new AuthRequestLoginStrategy(
-              data?.authRequest ?? new AuthRequestLoginStrategyData(),
-              this.deviceTrustService,
-              ...sharedDeps,
-            );
-          case AuthenticationType.WebAuthn:
-            return new WebAuthnLoginStrategy(
-              data?.webAuthn ?? new WebAuthnLoginStrategyData(),
-              ...sharedDeps,
-            );
-        }
-      }),
-    );
+    switch (strategy) {
+      case AuthenticationType.PasswordHash:
+        return new PasswordLoginStrategy(
+          data?.password ?? new PasswordLoginStrategyData(),
+          this.passwordStrengthService,
+          this.policyService,
+          this.configService,
+          this.opaqueKeyExchangeService,
+          ...sharedDeps,
+        );
+      case AuthenticationType.Sso:
+        return new SsoLoginStrategy(
+          data?.sso ?? new SsoLoginStrategyData(),
+          this.keyConnectorService,
+          this.deviceTrustService,
+          this.authRequestService,
+          this.i18nService,
+          ...sharedDeps,
+        );
+      case AuthenticationType.UserApiKey:
+        return new UserApiLoginStrategy(
+          data?.userApiKey ?? new UserApiLoginStrategyData(),
+          this.keyConnectorService,
+          ...sharedDeps,
+        );
+      case AuthenticationType.AuthRequest:
+        return new AuthRequestLoginStrategy(
+          data?.authRequest ?? new AuthRequestLoginStrategyData(),
+          this.deviceTrustService,
+          ...sharedDeps,
+        );
+      case AuthenticationType.WebAuthn:
+        return new WebAuthnLoginStrategy(
+          data?.webAuthn ?? new WebAuthnLoginStrategyData(),
+          ...sharedDeps,
+        );
+      case AuthenticationType.Opaque:
+        return new OpaqueLoginStrategy(
+          data?.opaque ?? new OpaqueLoginStrategyData(),
+          this.passwordStrengthService,
+          this.policyService,
+          ...sharedDeps,
+        );
+      default:
+        throw new Error("No matching strategy found for AuthenticationType " + strategy);
+    }
   }
 }

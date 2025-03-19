@@ -31,7 +31,7 @@ import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { WebAuthnLoginCredentials } from "../models/domain/login-credentials";
 
-import { identityTokenResponseFactory } from "./login.strategy.spec";
+import { identityTokenResponseFactory } from "./base-login.strategy.spec";
 import { WebAuthnLoginStrategy, WebAuthnLoginStrategyData } from "./webauthn-login.strategy";
 
 describe("WebAuthnLoginStrategy", () => {

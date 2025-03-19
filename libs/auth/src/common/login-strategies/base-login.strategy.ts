@@ -8,6 +8,7 @@ import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-p
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { DeviceRequest } from "@bitwarden/common/auth/models/request/identity-token/device.request";
+import { OpaqueTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/opaque-token.request";
 import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/sso-token.request";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
@@ -34,21 +35,24 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Account, AccountProfile } from "@bitwarden/common/platform/models/domain/account";
 import { UserId } from "@bitwarden/common/types/guid";
+import { MasterKey } from "@bitwarden/common/types/key";
 import {
   KeyService,
   Argon2KdfConfig,
   PBKDF2KdfConfig,
   KdfConfigService,
   KdfType,
+  KdfConfig,
 } from "@bitwarden/key-management";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import {
   UserApiLoginCredentials,
-  PasswordLoginCredentials,
   SsoLoginCredentials,
   AuthRequestLoginCredentials,
   WebAuthnLoginCredentials,
+  OpaqueLoginCredentials,
+  PasswordHashLoginCredentials,
 } from "../models/domain/login-credentials";
 import { UserDecryptionOptions } from "../models/domain/user-decryption-options";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
@@ -63,6 +67,7 @@ export abstract class LoginStrategyData {
   tokenRequest:
     | UserApiTokenRequest
     | PasswordTokenRequest
+    | OpaqueTokenRequest
     | SsoTokenRequest
     | WebAuthnLoginTokenRequest
     | undefined;
@@ -72,7 +77,7 @@ export abstract class LoginStrategyData {
   abstract userEnteredEmail?: string;
 }
 
-export abstract class LoginStrategy {
+export abstract class BaseLoginStrategy {
   protected abstract cache: BehaviorSubject<LoginStrategyData>;
   protected sessionTimeoutSubject = new BehaviorSubject<boolean>(false);
   sessionTimeout$: Observable<boolean> = this.sessionTimeoutSubject.asObservable();
@@ -93,7 +98,7 @@ export abstract class LoginStrategy {
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
     protected vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-    protected KdfConfigService: KdfConfigService,
+    protected kdfConfigService: KdfConfigService,
     protected environmentService: EnvironmentService,
   ) {}
 
@@ -102,10 +107,11 @@ export abstract class LoginStrategy {
   abstract logIn(
     credentials:
       | UserApiLoginCredentials
-      | PasswordLoginCredentials
+      | PasswordHashLoginCredentials
       | SsoLoginCredentials
       | AuthRequestLoginCredentials
-      | WebAuthnLoginCredentials,
+      | WebAuthnLoginCredentials
+      | OpaqueLoginCredentials,
   ): Promise<AuthResult>;
 
   async logInTwoFactor(
@@ -240,7 +246,7 @@ export abstract class LoginStrategy {
       tokenResponse.refreshToken, // Note: CLI login via API key sends undefined for refresh token.
     );
 
-    await this.KdfConfigService.setKdfConfig(
+    await this.kdfConfigService.setKdfConfig(
       userId as UserId,
       tokenResponse.kdf === KdfType.PBKDF2_SHA256
         ? new PBKDF2KdfConfig(tokenResponse.kdfIterations)
@@ -407,5 +413,24 @@ export abstract class LoginStrategy {
     // Extend cached data with captcha bypass token if it came back.
     this.cache.next({ ...this.cache.value, captchaBypassToken: response.captchaToken ?? null });
     return result;
+  }
+
+  /**
+   * Creates a master key from the provided master password and email, using the provided kdfConfig.
+   */
+  protected async makePrePasswordLoginMasterKey(
+    masterPassword: string,
+    email: string,
+    kdfConfig: KdfConfig,
+  ): Promise<MasterKey> {
+    email = email.trim().toLowerCase();
+
+    if (!kdfConfig) {
+      throw new Error("KDF config is required");
+    }
+
+    kdfConfig.validateKdfConfigForPreLogin();
+
+    return this.keyService.makeMasterKey(masterPassword, email, kdfConfig);
   }
 }

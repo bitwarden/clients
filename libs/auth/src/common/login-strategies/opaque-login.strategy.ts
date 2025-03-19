@@ -7,6 +7,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
+import { OpaqueTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/opaque-token.request";
 import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { IdentityCaptchaResponse } from "@bitwarden/common/auth/models/response/identity-captcha.response";
@@ -14,47 +15,40 @@ import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/model
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { CipherConfiguration } from "@bitwarden/common/auth/opaque/models/cipher-configuration";
-import { OpaqueKeyExchangeService } from "@bitwarden/common/auth/opaque/opaque-key-exchange.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
-import { DEFAULT_OPAQUE_KDF_CONFIG, KdfType } from "@bitwarden/key-management";
 
-import { PasswordHashLoginCredentials } from "../models/domain/login-credentials";
+import { OpaqueLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
 
 import { BaseLoginStrategy, LoginStrategyData } from "./base-login.strategy";
 
-// TODO: consider renaming LegacyPasswordLoginStrategy?  Or PasswordHashLoginStrategy?
-export class PasswordLoginStrategyData implements LoginStrategyData {
-  tokenRequest: PasswordTokenRequest;
+export class OpaqueLoginStrategyData implements LoginStrategyData {
+  tokenRequest: OpaqueTokenRequest;
 
   /** User's entered email obtained pre-login. Always present in MP login. */
   userEnteredEmail: string;
-  /** If 2fa is required, token is returned to bypass captcha */
-  captchaBypassToken?: string;
-
-  // TODO: we need to get a security audit as to whether or not this is safe to do. It is only used in memory
-  // for the duration of the login process, but it is still a security risk - especially in 2FA and new device verification
-  /** The user's master password */
-  masterPassword: string;
 
   /** The local version of the user's master key hash */
   localMasterKeyHash: string;
+
   /** The user's master key */
   masterKey: MasterKey;
+
+  /* The user's OPAQUE cipher configuration which controls
+  the encryption schemes used during key derivation and key exchange */
+  cipherConfiguration: CipherConfiguration;
+
   /**
-   * Tracks if the user needs to update their password due to
-   * a password that does not meet an organization's master password policy.
+   * Tracks if the user needs to be forced to update their password
    */
   forcePasswordResetReason: ForceSetPasswordReason = ForceSetPasswordReason.None;
 
-  static fromJSON(obj: Jsonify<PasswordLoginStrategyData>): PasswordLoginStrategyData {
-    const data = Object.assign(new PasswordLoginStrategyData(), obj, {
+  static fromJSON(obj: Jsonify<OpaqueLoginStrategyData>): OpaqueLoginStrategyData {
+    const data = Object.assign(new OpaqueLoginStrategyData(), obj, {
       tokenRequest: PasswordTokenRequest.fromJSON(obj.tokenRequest),
       masterKey: SymmetricCryptoKey.fromJSON(obj.masterKey),
     });
@@ -62,42 +56,46 @@ export class PasswordLoginStrategyData implements LoginStrategyData {
   }
 }
 
-export class PasswordLoginStrategy extends BaseLoginStrategy {
+/**
+ *
+ * A login strategy that uses the OPAQUE protocol for password authentication.
+ * OPAQUE (Oblivious Pseudorandom Function (OPRF)-based Password Authentication and Key Exchange)
+ * is a protocol that allows a client to authenticate to a server without revealing the password to the server.
+ * RFC: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-03.html
+ */
+export class OpaqueLoginStrategy extends BaseLoginStrategy {
   /** The email address of the user attempting to log in. */
   email$: Observable<string>;
-  /** The master key hash used for authentication */
-  serverMasterKeyHash$: Observable<string>;
+
   /** The local master key hash we store client side */
   localMasterKeyHash$: Observable<string | null>;
 
-  protected cache: BehaviorSubject<PasswordLoginStrategyData>;
+  protected cache: BehaviorSubject<OpaqueLoginStrategyData>;
 
   constructor(
-    data: PasswordLoginStrategyData,
+    data: OpaqueLoginStrategyData,
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private policyService: PolicyService,
-    private configService: ConfigService,
-    private opaqueKeyExchangeService: OpaqueKeyExchangeService,
     ...sharedDeps: ConstructorParameters<typeof BaseLoginStrategy>
   ) {
     super(...sharedDeps);
 
     this.cache = new BehaviorSubject(data);
     this.email$ = this.cache.pipe(map((state) => state.tokenRequest.email));
-    this.serverMasterKeyHash$ = this.cache.pipe(
-      map((state) => state.tokenRequest.masterPasswordHash),
-    );
+
     this.localMasterKeyHash$ = this.cache.pipe(map((state) => state.localMasterKeyHash));
   }
 
-  override async logIn(credentials: PasswordHashLoginCredentials) {
-    const { email, masterPassword, captchaToken, twoFactor, kdfConfig } = credentials;
+  override async logIn(credentials: OpaqueLoginCredentials) {
+    const { email, masterPassword, kdfConfig, cipherConfiguration, twoFactor } = credentials;
 
-    const data = new PasswordLoginStrategyData();
+    const data = new OpaqueLoginStrategyData();
 
-    data.masterPassword = masterPassword;
-    data.masterKey = await this.makePrePasswordLoginMasterKey(masterPassword, email, kdfConfig);
     data.userEnteredEmail = email;
+
+    // Even though we are completing OPAQUE authN and not logging in with password hash,
+    // we still need to hash the master password for logged in user verification scenarios.
+    data.masterKey = await this.makePrePasswordLoginMasterKey(masterPassword, email, kdfConfig);
 
     // Hash the password early (before authentication) so we don't persist it in memory in plaintext
     data.localMasterKeyHash = await this.keyService.hashMasterKey(
@@ -105,12 +103,11 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
       data.masterKey,
       HashPurpose.LocalAuthorization,
     );
-    const serverMasterKeyHash = await this.keyService.hashMasterKey(masterPassword, data.masterKey);
 
-    data.tokenRequest = new PasswordTokenRequest(
+    data.cipherConfiguration = cipherConfiguration;
+
+    data.tokenRequest = new OpaqueTokenRequest(
       email,
-      serverMasterKeyHash,
-      captchaToken,
       await this.buildTwoFactor(twoFactor, email),
       await this.buildDeviceRequest(),
     );
@@ -152,32 +149,11 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
         authResult.forcePasswordReset = ForceSetPasswordReason.WeakMasterPassword;
       }
     }
-
     return authResult;
   }
 
-  protected override async processTokenResponse(
-    response: IdentityTokenResponse,
-  ): Promise<AuthResult> {
-    const authResult = await super.processTokenResponse(response);
-
-    const opaqueKeyExchangeFeatureFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.OpaqueKeyExchange,
-    );
-    if (opaqueKeyExchangeFeatureFlagEnabled) {
-      // Register the user for opaque password key exchange
-      await this.registerUserForOpaqueKeyExchange(authResult.userId);
-    }
-
-    return authResult;
-  }
-
-  override async logInTwoFactor(
-    twoFactor: TokenTwoFactorRequest,
-    captchaResponse: string,
-  ): Promise<AuthResult> {
+  override async logInTwoFactor(twoFactor: TokenTwoFactorRequest): Promise<AuthResult> {
     const data = this.cache.value;
-    data.tokenRequest.captchaResponse = captchaResponse ?? data.captchaBypassToken;
     this.cache.next(data);
 
     const result = await super.logInTwoFactor(twoFactor);
@@ -213,8 +189,11 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
     if (this.encryptionKeyMigrationRequired(response)) {
       return;
     }
+
+    // We still need this for local user verification scenarios
     await this.keyService.setMasterKeyEncryptedUserKey(response.key, userId);
 
+    // TODO: why not re-use master key from strategy data cache?
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
     if (masterKey) {
       const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
@@ -244,15 +223,19 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
       | IdentityTokenResponse
       | IdentityTwoFactorResponse
       | IdentityDeviceVerificationResponse,
-  ): MasterPasswordPolicyOptions {
-    if (response == null || response instanceof IdentityDeviceVerificationResponse) {
+  ): MasterPasswordPolicyOptions | null {
+    if (
+      response == null ||
+      response instanceof IdentityDeviceVerificationResponse ||
+      response.masterPasswordPolicy == null
+    ) {
       return null;
     }
     return MasterPasswordPolicyOptions.fromResponse(response.masterPasswordPolicy);
   }
 
   private evaluateMasterPassword(
-    { masterPassword, email }: PasswordHashLoginCredentials,
+    { masterPassword, email }: OpaqueLoginCredentials,
     options: MasterPasswordPolicyOptions,
   ): boolean {
     const passwordStrength = this.passwordStrengthService.getPasswordStrength(
@@ -265,7 +248,7 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
 
   exportCache(): CacheData {
     return {
-      password: this.cache.value,
+      opaque: this.cache.value,
     };
   }
 
@@ -276,38 +259,5 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
 
     const [authResult] = await this.startLogIn();
     return authResult;
-  }
-
-  /**
-   * Registers password using users with the OPAQUE key exchange protocol which is a more secure password
-   * authN protocol which prevents the server from ever knowing anything about the user's password.
-   */
-  private async registerUserForOpaqueKeyExchange(userId: UserId) {
-    const masterPassword = this.cache.value?.masterPassword;
-    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-
-    // PBKDF2 is not recommended for opaque, so force use of Argon2 with default params if the user is using PBKDF2.
-    const userConfiguredKdf = await this.kdfConfigService.getKdfConfig();
-
-    if (!masterPassword || !userKey || !userConfiguredKdf) {
-      this.logService.error(
-        `Unable to register user for OPAQUE key exchange due to missing data. MasterPassword exists: ${!!masterPassword}; UserKey exists ${!!userKey}; KdfConfig exists: ${!!userConfiguredKdf}`,
-      );
-      return;
-    }
-
-    const cipherConfig = CipherConfiguration.fromKdfConfig(
-      userConfiguredKdf.kdfType === KdfType.Argon2id
-        ? userConfiguredKdf
-        : DEFAULT_OPAQUE_KDF_CONFIG,
-    );
-
-    try {
-      await this.opaqueKeyExchangeService.register(masterPassword, userKey, cipherConfig);
-    } catch (error) {
-      // If this process fails for any reason, we don't want to stop the login process
-      // so just log the error and continue.
-      this.logService.error(`Failed to register user for OPAQUE key exchange: ${error}`);
-    }
   }
 }
