@@ -1,16 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import * as path from "path";
-import * as url from "url";
 
 import { app, BrowserWindow, Menu, MenuItemConstructorOptions, nativeImage, Tray } from "electron";
 import { firstValueFrom } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { BiometricStateService, BiometricsService } from "@bitwarden/key-management";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { BiometricsService } from "@bitwarden/key-management";
 
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
-import { cleanUserAgent, isDev } from "../utils";
+import { isDev } from "../utils";
 
 import { WindowMain } from "./window.main";
 
@@ -26,7 +26,7 @@ export class TrayMain {
     private windowMain: WindowMain,
     private i18nService: I18nService,
     private desktopSettingsService: DesktopSettingsService,
-    private biometricsStateService: BiometricStateService,
+    private messagingService: MessagingService,
     private biometricService: BiometricsService,
   ) {
     if (process.platform === "win32") {
@@ -216,32 +216,6 @@ export class TrayMain {
    * @returns
    */
   private async fakePopup() {
-    if (this.windowMain.win == null || this.windowMain.win.isDestroyed()) {
-      await this.windowMain.createWindow("modal-app");
-      return;
-    }
-
-    // Restyle existing
-    const existingWin = this.windowMain.win;
-
-    await this.desktopSettingsService.setInModalMode(true);
-    await existingWin.loadURL(
-      url.format({
-        protocol: "file:",
-        //pathname: `${__dirname}/index.html`,
-        pathname: path.join(__dirname, "/index.html"),
-        slashes: true,
-        hash: "/passkeys",
-        query: {
-          redirectUrl: "/passkeys",
-        },
-      }),
-      {
-        userAgent: cleanUserAgent(existingWin.webContents.userAgent),
-      },
-    );
-    existingWin.once("ready-to-show", () => {
-      existingWin.show();
-    });
+    await this.messagingService.send("loadurl", { url: "/passkeys", modal: true });
   }
 }

@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { APP_INITIALIZER, NgModule } from "@angular/core";
+import { Router } from "@angular/router";
 import { Subject, merge } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
@@ -334,9 +335,21 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: Fido2UserInterfaceServiceAbstraction,
+    provide: DesktopFido2UserInterfaceService,
     useClass: DesktopFido2UserInterfaceService,
-    deps: [AuthServiceAbstraction, CipherServiceAbstraction, AccountService, LogService],
+    deps: [
+      AuthServiceAbstraction,
+      CipherServiceAbstraction,
+      AccountService,
+      LogService,
+      MessagingServiceAbstraction,
+      Router,
+      DesktopSettingsService,
+    ],
+  }),
+  safeProvider({
+    provide: Fido2UserInterfaceServiceAbstraction, // We utilize desktop specific methods when wiring OS API's
+    useExisting: DesktopFido2UserInterfaceService,
   }),
   safeProvider({
     provide: Fido2AuthenticatorServiceAbstraction,
