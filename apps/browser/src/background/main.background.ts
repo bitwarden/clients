@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import "core-js/proposals/explicit-resource-management";
+
 import { filter, firstValueFrom, map, merge, Subject, timeout } from "rxjs";
 
 import { CollectionService, DefaultCollectionService } from "@bitwarden/admin-console/common";
@@ -19,7 +21,6 @@ import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstr
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/abstractions/search.service";
-import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService as InternalPolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -31,11 +32,8 @@ import { ProviderService } from "@bitwarden/common/admin-console/services/provid
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
-import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarden/common/auth/abstractions/key-connector.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification-api.service.abstraction";
@@ -45,11 +43,8 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
-import { DeviceTrustService } from "@bitwarden/common/auth/services/device-trust.service.implementation";
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
-import { KeyConnectorService } from "@bitwarden/common/auth/services/key-connector.service";
-import { MasterPasswordService } from "@bitwarden/common/auth/services/master-password/master-password.service";
 import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login.service";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
@@ -81,7 +76,18 @@ import { BulkEncryptServiceImplementation } from "@bitwarden/common/key-manageme
 import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import { FallbackBulkEncryptService } from "@bitwarden/common/key-management/crypto/services/fallback-bulk-encrypt.service";
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/multithread-encrypt.service.implementation";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
+import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
+import {
+  DefaultVaultTimeoutSettingsService,
+  VaultTimeoutSettingsService,
+  VaultTimeoutStringType,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -169,7 +175,6 @@ import { AuditService } from "@bitwarden/common/services/audit.service";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
 import { SearchService } from "@bitwarden/common/services/search.service";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
 import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
@@ -180,7 +185,6 @@ import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-st
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { InternalSendService as InternalSendServiceAbstraction } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
-import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
@@ -252,6 +256,7 @@ import AutofillService from "../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { SafariApp } from "../browser/safariApp";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
+import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { flagEnabled } from "../platform/flags";
 import { UpdateBadge } from "../platform/listeners/update-badge";
@@ -262,6 +267,7 @@ import { OffscreenDocumentService } from "../platform/offscreen-document/abstrac
 import { DefaultOffscreenDocumentService } from "../platform/offscreen-document/offscreen-document.service";
 import { BrowserTaskSchedulerService } from "../platform/services/abstractions/browser-task-scheduler.service";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
+import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
 import BrowserLocalStorageService from "../platform/services/browser-local-storage.service";
 import BrowserMemoryStorageService from "../platform/services/browser-memory-storage.service";
 import { BrowserScriptInjectorService } from "../platform/services/browser-script-injector.service";
@@ -277,7 +283,6 @@ import { BrowserStorageServiceProvider } from "../platform/storage/browser-stora
 import { OffscreenStorageService } from "../platform/storage/offscreen-storage.service";
 import { SyncServiceListener } from "../platform/sync/sync-service.listener";
 import { fromChromeRuntimeMessaging } from "../platform/utils/from-chrome-runtime-messaging";
-import VaultTimeoutService from "../services/vault-timeout/vault-timeout.service";
 import { VaultFilterService } from "../vault/services/vault-filter.service";
 
 import CommandsBackground from "./commands.background";
@@ -308,7 +313,7 @@ export default class MainBackground {
   userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction;
   collectionService: CollectionService;
   vaultTimeoutService?: VaultTimeoutService;
-  vaultTimeoutSettingsService: VaultTimeoutSettingsServiceAbstraction;
+  vaultTimeoutSettingsService: VaultTimeoutSettingsService;
   passwordGenerationService: PasswordGenerationServiceAbstraction;
   syncService: SyncService;
   passwordStrengthService: PasswordStrengthServiceAbstraction;
@@ -386,6 +391,7 @@ export default class MainBackground {
   kdfConfigService: KdfConfigService;
   offscreenDocumentService: OffscreenDocumentService;
   syncServiceListener: SyncServiceListener;
+  browserInitialInstallService: BrowserInitialInstallService;
 
   webPushConnectionService: WorkerWebPushConnectionService | UnsupportedWebPushConnectionService;
   themeStateService: DefaultThemeStateService;
@@ -682,7 +688,7 @@ export default class MainBackground {
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
     this.policyService = new PolicyService(this.stateProvider, this.organizationService);
 
-    this.vaultTimeoutSettingsService = new VaultTimeoutSettingsService(
+    this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
       this.pinService,
       this.userDecryptionOptionsService,
@@ -830,10 +836,7 @@ export default class MainBackground {
       this.configService,
     );
 
-    this.themeStateService = new DefaultThemeStateService(
-      this.globalStateProvider,
-      this.configService,
-    );
+    this.themeStateService = new DefaultThemeStateService(this.globalStateProvider);
 
     this.bulkEncryptService = new FallbackBulkEncryptService(this.encryptService);
 
@@ -974,7 +977,7 @@ export default class MainBackground {
       this.authService,
       this.accountService,
     );
-    this.totpService = new TotpService(this.cryptoFunctionService, this.logService);
+    this.totpService = new TotpService(this.sdkService);
 
     this.scriptInjectorService = new BrowserScriptInjectorService(
       this.domainSettingsService,
@@ -1011,6 +1014,7 @@ export default class MainBackground {
       this.encryptService,
       this.pinService,
       this.accountService,
+      this.sdkService,
     );
 
     this.individualVaultExportService = new IndividualVaultExportService(
@@ -1040,6 +1044,8 @@ export default class MainBackground {
       this.individualVaultExportService,
       this.organizationVaultExportService,
     );
+
+    this.browserInitialInstallService = new BrowserInitialInstallService(this.stateProvider);
 
     if (BrowserApi.isManifestVersion(3)) {
       const registration = (self as unknown as { registration: ServiceWorkerRegistration })
@@ -1144,6 +1150,7 @@ export default class MainBackground {
       this.accountService,
       lockService,
       this.billingAccountProfileStateService,
+      this.browserInitialInstallService,
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.keyService,
@@ -1279,6 +1286,7 @@ export default class MainBackground {
       this.collectionService,
       this.organizationService,
       this.accountService,
+      this.configService,
     );
 
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
@@ -1290,7 +1298,7 @@ export default class MainBackground {
     }
     this.containerService.attachToGlobal(self);
 
-    await this.sdkLoadService.load();
+    await this.sdkLoadService.loadAndInit();
     // Only the "true" background should run migrations
     await this.stateService.init({ runMigrations: true });
 

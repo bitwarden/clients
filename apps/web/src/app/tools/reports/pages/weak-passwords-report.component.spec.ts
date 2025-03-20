@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-restricted-imports
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
@@ -85,6 +84,8 @@ describe("WeakPasswordsReportComponent", () => {
         },
       ],
       schemas: [],
+      // FIXME(PM-18598): Replace unknownElements and unknownProperties with actual imports
+      errorOnUnknownElements: false,
     }).compileComponents();
   });
 

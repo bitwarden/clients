@@ -13,11 +13,11 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
 
-// eslint-disable-next-line no-restricted-imports
 import { RoutedVaultFilterBridgeService } from "../../../../vault/individual-vault/vault-filter/services/routed-vault-filter-bridge.service";
 import { RoutedVaultFilterService } from "../../../../vault/individual-vault/vault-filter/services/routed-vault-filter.service";
 import { AdminConsoleCipherFormConfigService } from "../../../../vault/org-vault/services/admin-console-cipher-form-config.service";
@@ -36,11 +36,13 @@ import { UnsecuredWebsitesReportComponent as BaseUnsecuredWebsitesReportComponen
     RoutedVaultFilterBridgeService,
   ],
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class UnsecuredWebsitesReportComponent
   extends BaseUnsecuredWebsitesReportComponent
   implements OnInit
 {
+  // Contains a list of ciphers, the user running the report, can manage
+  private manageableCiphers: Cipher[];
+
   constructor(
     cipherService: CipherService,
     dialogService: DialogService,
@@ -80,11 +82,19 @@ export class UnsecuredWebsitesReportComponent
           .organizations$(userId)
           .pipe(getOrganizationById(params.organizationId)),
       );
+      this.manageableCiphers = await this.cipherService.getAll(userId);
       await super.ngOnInit();
     });
   }
 
   getAllCiphers(): Promise<CipherView[]> {
     return this.cipherService.getAllFromApiForOrganization(this.organization.id);
+  }
+
+  protected canManageCipher(c: CipherView): boolean {
+    if (c.collectionIds.length === 0) {
+      return true;
+    }
+    return this.manageableCiphers.some((x) => x.id === c.id);
   }
 }

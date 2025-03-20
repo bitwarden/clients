@@ -37,6 +37,7 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request";
+import { CollectionResponse } from "../admin-console/models/response/collection.response";
 import { OrganizationCollectionResponse } from "../admin-console/models/response/organization-collection.response";
 import { OrganizationResponse } from "../admin-console/models/response/organization.response";
 import { SelectionReadOnly } from "../admin-console/models/selection-read-only";
@@ -46,7 +47,6 @@ import { TemplateResponse } from "../models/response/template.response";
 import { SendResponse } from "../tools/send/models/send.response";
 import { CliUtils } from "../utils";
 import { CipherResponse } from "../vault/models/cipher.response";
-import { CollectionResponse } from "../vault/models/collection.response";
 import { FolderResponse } from "../vault/models/folder.response";
 
 import { DownloadCommand } from "./download.command";
@@ -254,8 +254,8 @@ export class GetCommand extends DownloadCommand {
       return Response.error("No TOTP available for this login.");
     }
 
-    const totp = await this.totpService.getCode(cipher.login.totp);
-    if (totp == null) {
+    const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
+    if (!totpResponse.code) {
       return Response.error("Couldn't generate TOTP code.");
     }
 
@@ -276,7 +276,7 @@ export class GetCommand extends DownloadCommand {
       }
     }
 
-    const res = new StringResponse(totp);
+    const res = new StringResponse(totpResponse.code);
     return Response.success(res);
   }
 
@@ -571,7 +571,7 @@ export class GetCommand extends DownloadCommand {
         const pubKey = Utils.fromB64ToArray(response.publicKey);
         fingerprint = await this.keyService.getFingerprint(id, pubKey);
       } catch {
-        // eslint-disable-next-line
+        // empty - handled by the null check below
       }
     }
 

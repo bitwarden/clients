@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-// eslint-disable-next-line no-restricted-imports
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -66,6 +65,9 @@ describe("BreachReportComponent", () => {
           useValue: mock<I18nService>(),
         },
       ],
+      // FIXME(PM-18598): Replace unknownElements and unknownProperties with actual imports
+      errorOnUnknownElements: false,
+      errorOnUnknownProperties: false,
     }).compileComponents();
   });
 
