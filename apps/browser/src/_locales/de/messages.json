@@ -380,7 +380,7 @@
     "message": "Ordner bearbeiten"
   },
   "editFolderWithName": {
-    "message": "Edit folder: $FOLDERNAME$",
+    "message": "Ordner bearbeiten: $FOLDERNAME$",
     "placeholders": {
       "foldername": {
         "content": "$1",
@@ -1668,7 +1668,7 @@
     "message": "Zum Sortieren ziehen"
   },
   "dragToReorder": {
-    "message": "Drag to reorder"
+    "message": "Ziehen zum umsortieren"
   },
   "cfTypeText": {
     "message": "Text"
@@ -4671,7 +4671,7 @@
     }
   },
   "reorderWebsiteUriButton": {
-    "message": "Reorder website URI. Use arrow key to move item up or down."
+    "message": "Website-URI umsortieren. Verwende die Pfeiltasten, um den Eintrag nach oben oder unten zu bewegen."
   },
   "reorderFieldUp": {
     "message": "$LABEL$ nach oben verschoben, Position $INDEX$ von $LENGTH$",
@@ -4732,15 +4732,6 @@
   },
   "nothingSelected": {
     "message": "Du hast nichts ausgewählt."
-  },
-  "movedItemsToOrg": {
-    "message": "Ausgewählte Einträge in $ORGNAME$ verschoben",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
   },
   "itemsMovedToOrg": {
     "message": "Einträge verschoben nach $ORGNAME$",
@@ -5105,31 +5096,31 @@
     "message": "Extra breit"
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "Dein eingegebenes Passwort ist falsch."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "Importieren"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "Passwort bestätigen"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Enter the password for the SSH key."
+    "message": "Gib das Passwort für den SSH-Schlüssel ein."
   },
   "enterSshKeyPassword": {
-    "message": "Enter password"
+    "message": "Passwort eingeben"
   },
   "invalidSshKey": {
-    "message": "The SSH key is invalid"
+    "message": "Der SSH-Schlüssel ist ungültig"
   },
   "sshKeyTypeUnsupported": {
-    "message": "The SSH key type is not supported"
+    "message": "Der SSH-Schlüsseltyp wird nicht unterstützt"
   },
   "importSshKeyFromClipboard": {
-    "message": "Import key from clipboard"
+    "message": "Schlüssel aus Zwischenablage importieren"
   },
   "sshKeyImported": {
-    "message": "SSH key imported successfully"
+    "message": "SSH-Schlüssel erfolgreich importiert"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Du kannst Sammlungen mit Leseberechtigung nicht entfernen: $COLLECTIONS$",
