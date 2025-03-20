@@ -45,6 +45,7 @@ export enum FeatureFlag {
   PM15179_AddExistingOrgsFromProviderPortal = "pm-15179-add-existing-orgs-from-provider-portal",
   RecoveryCodeLogin = "pm-17128-recovery-code-login",
   PM12276_BreadcrumbEventLogs = "pm-12276-breadcrumbing-for-business-features",
+  PhishingDetection = "phishing-detection",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -100,6 +101,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM15179_AddExistingOrgsFromProviderPortal]: FALSE,
   [FeatureFlag.RecoveryCodeLogin]: FALSE,
   [FeatureFlag.PM12276_BreadcrumbEventLogs]: FALSE,
+  [FeatureFlag.PhishingDetection]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

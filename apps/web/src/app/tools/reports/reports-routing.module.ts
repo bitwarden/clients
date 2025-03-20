@@ -2,6 +2,8 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { authGuard } from "@bitwarden/angular/auth/guards";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { hasPremiumGuard } from "../../billing/guards/has-premium.guard";
 
@@ -66,7 +68,7 @@ const routes: Routes = [
         path: "phishing-website-report",
         component: PhishingWebsiteReport,
         data: { titleId: "phishingWebsiteReport" },
-        canActivate: [hasPremiumGuard()],
+        canActivate: [canAccessFeature(FeatureFlag.PhishingDetection)],
       },
     ],
   },
