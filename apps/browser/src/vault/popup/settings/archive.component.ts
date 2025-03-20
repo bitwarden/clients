@@ -118,7 +118,14 @@ export class ArchiveComponent {
     if (!(await this.canInteract(cipher))) {
       return;
     }
-    // TODO: Implement once endpoint is available
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    await this.cipherService.unarchiveWithServer(cipher.id as CipherId, activeUserId);
+
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("itemRemovedFromArchive"),
+    });
   }
 
   async clone(cipher: CipherView) {
