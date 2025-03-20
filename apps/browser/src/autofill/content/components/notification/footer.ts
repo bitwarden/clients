@@ -7,27 +7,43 @@ import {
   NotificationType,
   NotificationTypes,
 } from "../../../notification/abstractions/notification-bar";
+import { OrgView, FolderView } from "../common-types";
 import { spacing, themes } from "../constants/styles";
-import { ButtonRow } from "../rows/button-row";
 
-export function NotificationFooter({
-  handleSaveAction,
-  notificationType,
-  theme,
-  i18n,
-}: {
-  handleSaveAction: (e: Event) => void;
+import { NotificationButtonRow } from "./button-row";
+
+export type NotificationFooterProps = {
+  folders?: FolderView[];
   i18n: { [key: string]: string };
   notificationType?: NotificationType;
+  organizations?: OrgView[];
   theme: Theme;
-}) {
+  handleSaveAction: (e: Event) => void;
+};
+
+export function NotificationFooter({
+  folders,
+  i18n,
+  notificationType,
+  organizations,
+  theme,
+  handleSaveAction,
+}: NotificationFooterProps) {
   const isChangeNotification = notificationType === NotificationTypes.Change;
-  const buttonText = i18n.saveAction;
+  const primaryButtonText = i18n.saveAction;
 
   return html`
     <div class=${notificationFooterStyles({ theme })}>
       ${!isChangeNotification
-        ? ButtonRow({ theme, buttonAction: handleSaveAction, buttonText })
+        ? NotificationButtonRow({
+            folders,
+            organizations,
+            primaryButton: {
+              handlePrimaryButtonClick: handleSaveAction,
+              text: primaryButtonText,
+            },
+            theme,
+          })
         : nothing}
     </div>
   `;

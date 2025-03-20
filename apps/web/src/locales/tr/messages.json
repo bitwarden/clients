@@ -879,9 +879,6 @@
   "filter": {
     "message": "Filtre"
   },
-  "moveSelectedToOrg": {
-    "message": "Seçilenleri kuruluşa taşı"
-  },
   "deleteSelected": {
     "message": "Seçilenleri sil"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Seçilen kayıtlar $ORGNAME$ kuruluşuna taşındı",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "Bu kaydı taşımak istediğiniz kuruluşu seçin. Taşıdığınız kaydın sahipliği seçtiğiniz kuruluşa aktarılacak. Artık bu kaydın doğrudan sahibi olmayacaksınız."
   },
-  "moveManyToOrgDesc": {
-    "message": "Bu kayıtları taşımak istediğiniz kuruluşu seçin. Taşıdığınız kayıtların sahipliği seçtiğiniz kuruluşa aktarılacak. Artık bu kayıtların doğrudan sahibi olmayacaksınız."
-  },
   "collectionsDesc": {
     "message": "Bu kaydın şu anda paylaşıldığı koleksiyonları düzenler. Kuruluştaki kullanıcılardan yalnızca bu koleksiyonlara erişimi olanlar bu kaydı görebilir."
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "$COUNT$ kayıt seçtiniz. $MOVEABLE_COUNT$ kayıt bir kuruluşa taşınabilir, $NONMOVEABLE_COUNT$ kayıt taşınamaz.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },

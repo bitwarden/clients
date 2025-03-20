@@ -3222,7 +3222,7 @@
     "message": "Для вашего аккаунта требуется двухэтапная аутентификация Duo."
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+    "message": "Для вашего аккаунта требуется двухэтапная аутентификация Duo. Выполните следующие действия, чтобы завершить авторизацию."
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Следуйте указаниям ниже, чтобы завершить авторизацию."
@@ -3488,7 +3488,7 @@
     "message": "Предупреждение: Переадресация агента"
   },
   "agentForwardingWarningText": {
-    "message": "Этот запрос поступает с удаленного устройства, на которое вы вошли"
+    "message": "Этот запрос поступает с удаленного устройства, на котором вы авторизовались"
   },
   "sshkeyApprovalMessageInfix": {
     "message": "запрашивает доступ к"
@@ -3500,10 +3500,10 @@
     "message": "авторизоваться на сервере"
   },
   "sshActionSign": {
-    "message": "sign a message"
+    "message": "подписать сообщение"
   },
   "sshActionGitSign": {
-    "message": "sign a git commit"
+    "message": "подписать git коммит"
   },
   "unknownApplication": {
     "message": "Приложение"
@@ -3569,7 +3569,7 @@
     "message": "Окно подтверждения остается видимым"
   },
   "confirmWindowStillVisibleContent": {
-    "message": "Убедитесь, что окно по-прежнему видно."
+    "message": "Пожалуйста, подтвердите, что окно все еще видно."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Необходимо обновить расширение"
@@ -3578,6 +3578,6 @@
     "message": "Используемое вами расширение браузера устарело. Пожалуйста, обновите его или отключите проверку интеграции браузера с помощью отпечатка пальца в настройках приложения для компьютера."
   },
   "changeAtRiskPassword": {
-    "message": "Изменить пароль, находящийся под угрозой"
+    "message": "Изменить пароль, подверженный риску"
   }
 }
