@@ -4733,15 +4733,6 @@
   "nothingSelected": {
     "message": "何も選択されていません。"
   },
-  "movedItemsToOrg": {
-    "message": "選択したアイテムを $ORGNAME$ に移動しました",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
-  },
   "itemsMovedToOrg": {
     "message": "アイテムを $ORGNAME$ に移動しました",
     "placeholders": {

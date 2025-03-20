@@ -429,7 +429,7 @@
     "message": "Zum Sortieren ziehen"
   },
   "dragToReorder": {
-    "message": "Drag to reorder"
+    "message": "Ziehen zum umsortieren"
   },
   "cfTypeText": {
     "message": "Text"
@@ -474,7 +474,7 @@
     "message": "Ordner bearbeiten"
   },
   "editWithName": {
-    "message": "Edit $ITEM$: $NAME$",
+    "message": "$ITEM$: $NAME$ bearbeiten",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -879,9 +879,6 @@
   "filter": {
     "message": "Filter"
   },
-  "moveSelectedToOrg": {
-    "message": "Auswahl in Organisation verschieben"
-  },
   "deleteSelected": {
     "message": "Auswahl löschen"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Ausgewählte Einträge in $ORGNAME$ verschoben",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "Wähle eine Organisation aus, in die du diesen Eintrag verschieben möchtest. Das Verschieben in eine Organisation überträgt das Eigentum an diese Organisation. Du bist nicht mehr der direkte Eigentümer dieses Eintrags, sobald er verschoben wurde."
   },
-  "moveManyToOrgDesc": {
-    "message": "Wähle eine Organisation aus, in die du diese Einträge verschieben möchtest. Das Verschieben in eine Organisation überträgt das Eigentum der Einträge an diese Organisation. Du bist nicht mehr der direkte Eigentümer dieser Einträge, sobald sie verschoben wurden."
-  },
   "collectionsDesc": {
     "message": "Bearbeite die Sammlungen, mit denen dieser Eintrag geteilt wird. Nur Organisationsmitglieder mit Zugriff auf diese Sammlungen werden diesen Eintrag sehen können."
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "Du hast $COUNT$ Eintrag/Einträge ausgewählt. $MOVEABLE_COUNT$ Eintrag/Einträge kann/können in eine Organisation verschoben werden, $NONMOVEABLE_COUNT$ nicht.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },
@@ -4541,7 +4509,7 @@
     }
   },
   "reorderFieldUp": {
-    "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
+    "message": "$LABEL$ nach oben verschoben, Position $INDEX$ von $LENGTH$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4558,7 +4526,7 @@
     }
   },
   "reorderFieldDown": {
-    "message": "$LABEL$ moved down, position $INDEX$ of $LENGTH$",
+    "message": "$LABEL$ nach unten verschoben, Position $INDEX$ von $LENGTH$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -9371,13 +9339,13 @@
     "message": "Konfiguriere die Geräteverwaltung für Bitwarden mithilfe der Implementierungsanleitung für deine Plattform."
   },
   "deviceIdMissing": {
-    "message": "Device ID is missing"
+    "message": "Geräte-ID fehlt"
   },
   "deviceTypeMissing": {
-    "message": "Device type is missing"
+    "message": "Gerätetyp fehlt"
   },
   "deviceCreationDateMissing": {
-    "message": "Device creation date is missing"
+    "message": "Geräteerstellungsdatum fehlt"
   },
   "desktopRequired": {
     "message": "Desktop-Rechner erforderlich"
@@ -10381,34 +10349,34 @@
     "message": "Der Name der Organisation darf 50 Zeichen nicht überschreiten."
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "Dein eingegebenes Passwort ist falsch."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "Importieren"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "Passwort bestätigen"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Enter the password for the SSH key."
+    "message": "Gib das Passwort für den SSH-Schlüssel ein."
   },
   "enterSshKeyPassword": {
-    "message": "Enter password"
+    "message": "Passwort eingeben"
   },
   "invalidSshKey": {
-    "message": "The SSH key is invalid"
+    "message": "Der SSH-Schlüssel ist ungültig"
   },
   "sshKeyTypeUnsupported": {
-    "message": "The SSH key type is not supported"
+    "message": "Der SSH-Schlüsseltyp wird nicht unterstützt"
   },
   "importSshKeyFromClipboard": {
-    "message": "Import key from clipboard"
+    "message": "Schlüssel aus Zwischenablage importieren"
   },
   "sshKeyImported": {
-    "message": "SSH key imported successfully"
+    "message": "SSH-Schlüssel erfolgreich importiert"
   },
   "copySSHPrivateKey": {
-    "message": "Copy private key"
+    "message": "Privaten Schlüssel kopieren"
   },
   "openingExtension": {
     "message": "Bitwarden-Browser-Erweiterung wird geöffnet"
@@ -10577,6 +10545,6 @@
     "message": "Diese Ereignisse sind nur Beispiele und spiegeln keine realen Ereignisse in deiner Bitwarden-Organisation wider."
   },
   "cannotCreateCollection": {
-    "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
+    "message": "Kostenlose Organisationen können bis zu 2 Sammlungen haben. Upgrade auf ein kostenpflichtiges Abo, um mehr Sammlungen hinzuzufügen."
   }
 }

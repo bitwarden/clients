@@ -4733,15 +4733,6 @@
   "nothingSelected": {
     "message": "Et ole valinnut mitään."
   },
-  "movedItemsToOrg": {
-    "message": "Valitut kohteet siirrettiin organisaatiolle $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
-  },
   "itemsMovedToOrg": {
     "message": "Kohteet siirrettiin organisaatiolle $ORGNAME$",
     "placeholders": {
