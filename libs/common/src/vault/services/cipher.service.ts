@@ -536,10 +536,18 @@ export class CipherService implements CipherServiceAbstraction {
     );
     defaultMatch ??= await firstValueFrom(this.domainSettingsService.defaultUriMatchStrategy$);
 
+    const archiveFeatureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM19148_InnovationArchive,
+    );
+
     return ciphers.filter((cipher) => {
       const cipherIsLogin = cipher.type === CipherType.Login && cipher.login !== null;
 
       if (cipher.deletedDate !== null) {
+        return false;
+      }
+
+      if (archiveFeatureEnabled && cipher.isArchived) {
         return false;
       }
 
@@ -564,8 +572,16 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
   ): Promise<CipherView[]> {
     const ciphers = await this.getAllDecrypted(userId);
+    const archiveFeatureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM19148_InnovationArchive,
+    );
     return ciphers
-      .filter((cipher) => cipher.deletedDate == null && type.includes(cipher.type))
+      .filter(
+        (cipher) =>
+          cipher.deletedDate == null &&
+          (!archiveFeatureEnabled || !cipher.isArchived) &&
+          type.includes(cipher.type),
+      )
       .sort((a, b) => this.sortCiphersByLastUsedThenName(a, b));
   }
 
