@@ -3,10 +3,10 @@ import { BrowserApi } from "../browser/browser-api";
 import BrowserClipboardService from "../services/browser-clipboard.service";
 
 describe("OffscreenDocument", () => {
-  let browserClipboardServiceCopySpy: any;
-  let browserClipboardServiceReadSpy: any;
-  let browserApiMessageListenerSpy: any;
-  let consoleErrorSpy: any;
+  let browserClipboardServiceCopySpy: jest.SpyInstance;
+  let browserClipboardServiceReadSpy: jest.SpyInstance;
+  let browserApiMessageListenerSpy: jest.SpyInstance;
+  let consoleErrorSpy: jest.SpyInstance;
 
   beforeEach(async () => {
     browserApiMessageListenerSpy = jest.spyOn(BrowserApi, "messageListener");
@@ -52,7 +52,7 @@ describe("OffscreenDocument", () => {
       it("copies the message text", async () => {
         const text = "test";
 
-        browserClipboardServiceCopySpy.mockResolvedValueOnce();
+        browserClipboardServiceCopySpy.mockResolvedValueOnce(undefined);
         sendMockExtensionMessage({ command: "offscreenCopyToClipboard", text });
         await flushPromises();
 
