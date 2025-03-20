@@ -10,6 +10,7 @@ import { RegistrationFinishRequest } from "./models/registration-finish.request"
 import { RegistrationFinishResponse } from "./models/registration-finish.response";
 import { RegistrationStartRequest } from "./models/registration-start.request";
 import { RegistrationStartResponse } from "./models/registration-start.response";
+import { SetRegistrationActiveRequest } from "./models/set-registration-active.request";
 
 export class OpaqueKeyExchangeApiService {
   constructor(
@@ -43,6 +44,18 @@ export class OpaqueKeyExchangeApiService {
       env.getApiUrl(),
     );
     return new RegistrationFinishResponse(response);
+  }
+
+  async setRegistrationActive(request: SetRegistrationActiveRequest): Promise<void> {
+    const env = await firstValueFrom(this.environmentService.environment$);
+    await this.apiService.send(
+      "POST",
+      `/opaque/set-registration-active`,
+      request,
+      true,
+      true,
+      env.getApiUrl(),
+    );
   }
 
   async loginStart(request: LoginStartRequest): Promise<LoginStartResponse> {

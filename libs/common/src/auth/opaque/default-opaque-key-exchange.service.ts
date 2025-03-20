@@ -13,6 +13,7 @@ import { LoginStartRequest } from "./models/login-start.request";
 import { OpaqueCipherConfiguration } from "./models/opaque-cipher-configuration";
 import { RegistrationFinishRequest } from "./models/registration-finish.request";
 import { RegistrationStartRequest } from "./models/registration-start.request";
+import { SetRegistrationActiveRequest } from "./models/set-registration-active.request";
 import { OpaqueKeyExchangeApiService } from "./opaque-key-exchange-api.service";
 import { OpaqueKeyExchangeService } from "./opaque-key-exchange.service";
 
@@ -72,6 +73,12 @@ export class DefaultOpaqueKeyExchangeService implements OpaqueKeyExchangeService
     );
 
     return registrationStartResponse.sessionId;
+  }
+
+  async setRegistrationActive(sessionId: OpaqueSessionId): Promise<void> {
+    await this.opaqueKeyExchangeApiService.setRegistrationActive(
+      new SetRegistrationActiveRequest(sessionId),
+    );
   }
 
   // TODO: we will likely have to break this apart to return the start / finish requests

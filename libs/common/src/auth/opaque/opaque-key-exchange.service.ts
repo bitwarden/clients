@@ -15,6 +15,11 @@ export abstract class OpaqueKeyExchangeService {
   ): Promise<OpaqueSessionId>;
 
   /**
+   * Set the registration as the active authentication method for the user.
+   */
+  abstract setRegistrationActive(sessionId: OpaqueSessionId): Promise<void>;
+
+  /**
    * Authenticate using the Opaque login method. Returns the export key, which must be used
    * in combination with the rotateable keyset returned from the token endpoint.
    * @returns The ExportKey obtained during the Opaque login flow.

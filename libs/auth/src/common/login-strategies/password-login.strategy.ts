@@ -303,7 +303,12 @@ export class PasswordLoginStrategy extends BaseLoginStrategy {
     );
 
     try {
-      await this.opaqueKeyExchangeService.register(masterPassword, userKey, cipherConfig);
+      const sessionId = await this.opaqueKeyExchangeService.register(
+        masterPassword,
+        userKey,
+        cipherConfig,
+      );
+      await this.opaqueKeyExchangeService.setRegistrationActive(sessionId);
     } catch (error) {
       // If this process fails for any reason, we don't want to stop the login process
       // so just log the error and continue.
