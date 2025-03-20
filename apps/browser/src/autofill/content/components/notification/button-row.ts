@@ -80,7 +80,7 @@ export function NotificationButtonRow({
       theme,
       primaryButton,
       selectButtons: [
-        ...(organizationOptions.length
+        ...(organizationOptions.length > 1
           ? [
               {
                 id: "organization",
