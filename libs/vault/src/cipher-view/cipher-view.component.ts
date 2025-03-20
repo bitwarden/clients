@@ -159,7 +159,7 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
     const allCiphers = await firstValueFrom(this.cipherService.ciphers$(userId));
     const cipherServiceCipher = allCiphers[this.cipher?.id as CipherId];
 
-    if (cipherServiceCipher.edit && cipherServiceCipher.viewPassword) {
+    if (cipherServiceCipher?.edit && cipherServiceCipher?.viewPassword) {
       await this.checkPendingChangePasswordTasks(userId);
     }
 
