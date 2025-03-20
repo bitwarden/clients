@@ -840,7 +840,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    const clonedNode = formFieldElement.cloneNode() as FillableFormFieldElement;
+    const clonedNode = formFieldElement.cloneNode(true) as FillableFormFieldElement;
     const identityLoginFields: AutofillFieldQualifierType[] = [
       AutofillFieldQualifier.identityUsername,
       AutofillFieldQualifier.identityEmail,
