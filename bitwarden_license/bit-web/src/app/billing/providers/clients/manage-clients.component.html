@@ -38,7 +38,7 @@
 
 <ng-container *ngIf="loading">
   <i
-    class="bwi bwi-spinner bwi-spin text-muted"
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
     title="{{ 'loading' | i18n }}"
     aria-hidden="true"
   ></i>
@@ -46,7 +46,7 @@
 </ng-container>
 
 <ng-container *ngIf="!loading">
-  <bit-table-scroll [dataSource]="dataSource" [rowSize]="53" class="table table-hover table-list">
+  <bit-table-scroll [dataSource]="dataSource" [rowSize]="53" class="tw-overflow-hidden">
     <ng-container header>
       <th colspan="2" bitCell bitSortable="organizationName" default>{{ "client" | i18n }}</th>
       <th bitCell bitSortable="seats">{{ "assigned" | i18n }}</th>
