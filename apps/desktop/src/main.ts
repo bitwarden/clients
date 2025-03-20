@@ -30,6 +30,7 @@ import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@
 import { DefaultBiometricStateService } from "@bitwarden/key-management";
 /* eslint-enable import/no-restricted-paths */
 
+import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
 import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
@@ -45,7 +46,6 @@ import { NativeAutofillMain } from "./platform/main/autofill/native-autofill.mai
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { MainCryptoFunctionService } from "./platform/main/main-crypto-function.service";
-import { MainSshAgentService } from "./platform/main/main-ssh-agent.service";
 import { VersionMain } from "./platform/main/version.main";
 import { DesktopSettingsService } from "./platform/services/desktop-settings.service";
 import { ElectronLogMainService } from "./platform/services/electron-log.main.service";
@@ -284,6 +284,8 @@ export class Main {
     this.migrationRunner.run().then(
       async () => {
         await this.toggleHardwareAcceleration();
+        // Reset modal mode to make sure main window is displayed correctly
+        await this.desktopSettingsService.resetInModalMode();
         await this.windowMain.init();
         await this.i18nService.init();
         await this.messagingMain.init();

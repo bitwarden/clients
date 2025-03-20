@@ -1,5 +1,7 @@
+import { VendorId } from "@bitwarden/common/tools/extension";
+
 import { AlgorithmsByType } from "./data";
-import { CoreProfileMetadata, ExtensionProfileMetadata, ProfileMetadata } from "./profile-metadata";
+import { CoreProfileMetadata, ForwarderProfileMetadata, ProfileMetadata } from "./profile-metadata";
 import {
   CredentialAlgorithm,
   EmailAlgorithm,
@@ -29,6 +31,17 @@ export function isForwarderExtensionId(
   return algorithm && typeof algorithm === "object" && "forwarder" in algorithm;
 }
 
+/** Extract a `VendorId` from a `CredentialAlgorithm`.
+ *  @param algorithm the algorithm containing the vendor id
+ *  @returns the vendor id if the algorithm identifies a forwarder extension.
+ *   Otherwise, undefined.
+ */
+export function toVendorId(algorithm: CredentialAlgorithm): VendorId | undefined {
+  if (isForwarderExtensionId(algorithm)) {
+    return algorithm.forwarder as VendorId;
+  }
+}
+
 /** Returns true when the input algorithm is an email algorithm. */
 export function isEmailAlgorithm(algorithm: CredentialAlgorithm): algorithm is EmailAlgorithm {
   return AlgorithmsByType.email.includes(algorithm as any) || isForwarderExtensionId(algorithm);
@@ -55,6 +68,6 @@ export function isCoreProfile<Options>(
 /** Returns true when the input describes a forwarder extension profile. */
 export function isForwarderProfile<Options>(
   value: ProfileMetadata<Options>,
-): value is ExtensionProfileMetadata<Options, "forwarder"> {
+): value is ForwarderProfileMetadata<Options> {
   return value.type === "extension" && value.site === "forwarder";
 }
