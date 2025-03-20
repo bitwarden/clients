@@ -15,13 +15,16 @@ describe("FallbackBulkEncryptService", () => {
   let sut: FallbackBulkEncryptService;
 
   beforeEach(() => {
-    jest.clearAllMocks();
     sut = new FallbackBulkEncryptService(encryptService);
   });
 
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
   describe("decryptItems", () => {
-    const mockItems = [{ id: "guid", name: "encryptedValue" }] as any[];
     const key = mock<SymmetricCryptoKey>();
+    const mockItems = [{ id: "guid", name: "encryptedValue" }] as any[];
     const mockDecryptedItems = [{ id: "guid", name: "decryptedValue" }] as any[];
 
     it("calls decryptItems on featureFlagEncryptService when it is set", async () => {

@@ -18,34 +18,36 @@ describe("BulkEncryptServiceImplementation", () => {
   let sut: BulkEncryptServiceImplementation;
 
   beforeEach(() => {
-    jest.clearAllMocks();
-
     sut = new BulkEncryptServiceImplementation(cryptoFunctionService, logService);
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
   });
 
   describe("decryptItems", () => {
     const key = mock<SymmetricCryptoKey>();
     const serverConfig = mock<ServerConfig>();
-    let globalWindow: any;
-
-    // Mock creating a worker.
     const mockWorker = mock<Worker>();
-    global.Worker = jest.fn().mockImplementation(() => mockWorker);
-    global.URL = jest.fn().mockImplementation(() => "url") as unknown as typeof URL;
-    global.URL.createObjectURL = jest.fn().mockReturnValue("blob:url");
-    global.URL.revokeObjectURL = jest.fn();
-    global.URL.canParse = jest.fn().mockReturnValue(true);
-
-    // Mock the workers returned response.
-    const mockMessageEvent = {
-      id: "mock-guid",
-      data: ["decrypted1", "decrypted2"],
-    };
-    const mockMessageEvent$ = rxjs.from([mockMessageEvent]);
-    jest.spyOn(rxjs, "fromEvent").mockReturnValue(mockMessageEvent$);
+    let globalWindow: any;
 
     beforeEach(() => {
       globalWindow = global.window;
+
+      // Mock creating a worker.
+      global.Worker = jest.fn().mockImplementation(() => mockWorker);
+      global.URL = jest.fn().mockImplementation(() => "url") as unknown as typeof URL;
+      global.URL.createObjectURL = jest.fn().mockReturnValue("blob:url");
+      global.URL.revokeObjectURL = jest.fn();
+      global.URL.canParse = jest.fn().mockReturnValue(true);
+
+      // Mock the workers returned response.
+      const mockMessageEvent = {
+        id: "mock-guid",
+        data: ["decrypted1", "decrypted2"],
+      };
+      const mockMessageEvent$ = rxjs.from([mockMessageEvent]);
+      jest.spyOn(rxjs, "fromEvent").mockReturnValue(mockMessageEvent$);
     });
 
     afterEach(() => {

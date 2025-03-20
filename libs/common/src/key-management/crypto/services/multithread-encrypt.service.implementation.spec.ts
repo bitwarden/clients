@@ -19,29 +19,33 @@ describe("MultithreadEncryptServiceImplementation", () => {
   let sut: MultithreadEncryptServiceImplementation;
 
   beforeEach(() => {
-    jest.clearAllMocks();
-
     sut = new MultithreadEncryptServiceImplementation(cryptoFunctionService, logService, true);
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
   });
 
   describe("decryptItems", () => {
     const key = mock<SymmetricCryptoKey>();
-
-    // Mock creating a worker.
     const mockWorker = mock<Worker>();
-    global.Worker = jest.fn().mockImplementation(() => mockWorker);
-    global.URL = jest.fn().mockImplementation(() => "url") as unknown as typeof URL;
-    global.URL.createObjectURL = jest.fn().mockReturnValue("blob:url");
-    global.URL.revokeObjectURL = jest.fn();
-    global.URL.canParse = jest.fn().mockReturnValue(true);
 
-    // Mock the workers returned response.
-    const mockMessageEvent = {
-      id: "mock-guid",
-      data: ["decrypted1", "decrypted2"],
-    };
-    const mockMessageEvent$ = rxjs.from([mockMessageEvent]);
-    jest.spyOn(rxjs, "fromEvent").mockReturnValue(mockMessageEvent$);
+    beforeEach(() => {
+      // Mock creating a worker.
+      global.Worker = jest.fn().mockImplementation(() => mockWorker);
+      global.URL = jest.fn().mockImplementation(() => "url") as unknown as typeof URL;
+      global.URL.createObjectURL = jest.fn().mockReturnValue("blob:url");
+      global.URL.revokeObjectURL = jest.fn();
+      global.URL.canParse = jest.fn().mockReturnValue(true);
+
+      // Mock the workers returned response.
+      const mockMessageEvent = {
+        id: "mock-guid",
+        data: ["decrypted1", "decrypted2"],
+      };
+      const mockMessageEvent$ = rxjs.from([mockMessageEvent]);
+      jest.spyOn(rxjs, "fromEvent").mockReturnValue(mockMessageEvent$);
+    });
 
     it("returns empty array if items is null", async () => {
       const items = null as unknown as Decryptable<any>[];
@@ -58,7 +62,7 @@ describe("MultithreadEncryptServiceImplementation", () => {
       // Make sure currentServerConfig is undefined so a SetConfigMessage is not sent.
       (sut as any).currentServerConfig = undefined;
 
-      await sut.decryptItems(createMockItems(), key);
+      await sut.decryptItems([mock<Decryptable<any>>(), mock<Decryptable<any>>()], key);
 
       expect(global.Worker).toHaveBeenCalled();
       expect(mockWorker.postMessage).toHaveBeenCalledTimes(1);
@@ -71,7 +75,7 @@ describe("MultithreadEncryptServiceImplementation", () => {
       // Populate currentServerConfig so a SetConfigMessage is sent.
       (sut as any).currentServerConfig = serverConfig;
 
-      await sut.decryptItems(createMockItems(), key);
+      await sut.decryptItems([mock<Decryptable<any>>(), mock<Decryptable<any>>()], key);
 
       expect(global.Worker).toHaveBeenCalled();
       expect(mockWorker.postMessage).toHaveBeenCalledTimes(2);
@@ -84,7 +88,7 @@ describe("MultithreadEncryptServiceImplementation", () => {
       (sut as any).currentServerConfig = serverConfig;
       (sut as any).worker = mockWorker;
 
-      await sut.decryptItems(createMockItems(), key);
+      await sut.decryptItems([mock<Decryptable<any>>(), mock<Decryptable<any>>()], key);
 
       expect(global.Worker).not.toHaveBeenCalled();
       expect(mockWorker.postMessage).toHaveBeenCalledTimes(1);
@@ -117,7 +121,3 @@ describe("MultithreadEncryptServiceImplementation", () => {
     });
   });
 });
-
-function createMockItems() {
-  return [mock<Decryptable<any>>(), mock<Decryptable<any>>()];
-}
