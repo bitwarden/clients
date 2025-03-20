@@ -36,11 +36,14 @@ import { generateQRCodePath } from "@bitwarden/vault";
 
 type FieldTuple = [string, string, string];
 
+type MappingFunction = (option: { name: string; label: string }, index?: number) => boolean;
+
 type FieldMappingControl = {
   label: string;
   name: string;
-  value: string;
-  options: Array<{ label: string; name: string; value: string }>;
+  mappings?: Array<string | MappingFunction>;
+  /* Deprecate me */
+  options?: Array<{ name: string; label: string; value: string }>;
 };
 @Component({
   imports: [
@@ -92,18 +95,19 @@ export class VaultItemVisualizerComponent implements OnInit {
     }, []),
   );
 
-  availableCipherFieldsMap: Signal<{ [key: string]: { name: string; label: string } }> = computed(
-    () =>
-      this.cipherFieldTuples().reduce((prev, [name, label, value]) => {
-        return {
-          ...prev,
-          [name]: {
-            name,
-            label,
-            value,
-          },
-        };
-      }, {}),
+  availableCipherFieldsMap: Signal<{
+    [key: string]: { name: string; label: string; value: string };
+  }> = computed(() =>
+    this.cipherFieldTuples().reduce((prev, [name, label, value]) => {
+      return {
+        ...prev,
+        [name]: {
+          name,
+          label,
+          value,
+        },
+      };
+    }, {}),
   );
 
   fieldMappingsControlMeta: {
@@ -115,17 +119,13 @@ export class VaultItemVisualizerComponent implements OnInit {
         {
           label: "SSID",
           name: "ssid",
-          value: "",
-          options: [
-            { label: "Username", name: "ssid.username", value: "username" },
-            { label: "Custom: SSID", name: "ssid.custom", value: "custom" },
-          ],
+          // @TODO needs i18n for mapping and rendering (Custom field:)
+          mappings: ["username", (option) => option.label === "Custom field: SSID"],
         },
         {
           label: "Password",
           name: "password",
-          value: "",
-          options: [{ label: "Password", name: "password.match", value: "match" }],
+          mappings: ["password"],
         },
         // {
         //   label: "Additional Options",
@@ -141,8 +141,10 @@ export class VaultItemVisualizerComponent implements OnInit {
         {
           label: "Link",
           name: "link",
-          value: "",
-          options: [{ label: "Notes", name: "link.notes", value: "notes" }],
+          mappings: [
+            "notes",
+            (option) => option.label.indexOf(this.i18nService.t("websiteUriCount")) >= 0,
+          ],
         },
       ],
     },
@@ -152,8 +154,7 @@ export class VaultItemVisualizerComponent implements OnInit {
         {
           label: "Content",
           name: "content",
-          value: "",
-          options: [{ label: "Notes", name: "plaintext.notes", value: "notes" }],
+          mappings: ["notes"],
         },
       ],
     },
@@ -163,7 +164,6 @@ export class VaultItemVisualizerComponent implements OnInit {
         {
           label: "Email",
           name: "email",
-          value: "",
           options: [
             { label: "Username", name: "email.username", value: "username" },
             { label: "Email", name: "email.match", value: "match" },
@@ -177,7 +177,6 @@ export class VaultItemVisualizerComponent implements OnInit {
         {
           label: "Phone",
           name: "phone",
-          value: "",
           options: [{ label: "Phone", name: "phone.match", value: "match" }],
         },
       ],
@@ -188,25 +187,21 @@ export class VaultItemVisualizerComponent implements OnInit {
         {
           label: "Last Name",
           name: "lastname",
-          value: "",
           options: [{ label: "Last Name", name: "meCard.lastname", value: "lastname" }],
         },
         {
           label: "First Name",
           name: "firstname",
-          value: "",
           options: [{ label: "First Name", name: "meCard.firstname", value: "firstname" }],
         },
         {
           label: "Phone",
           name: "phone",
-          value: "",
           options: [{ label: "Phone", name: "meCard.phone", value: "phone" }],
         },
         {
           label: "Email",
           name: "email",
-          value: "",
           options: [
             { label: "Username", name: "meCard.username", value: "username" },
             { label: "Email", name: "meCard.email", value: "email" },
@@ -220,25 +215,21 @@ export class VaultItemVisualizerComponent implements OnInit {
         {
           label: "Last Name",
           name: "lastname",
-          value: "",
           options: [{ label: "Last Name", name: "vCard.lastname", value: "lastname" }],
         },
         {
           label: "First Name",
           name: "firstname",
-          value: "",
           options: [{ label: "First Name", name: "vCard.firstname", value: "firstname" }],
         },
         {
           label: "Phone",
           name: "phone",
-          value: "",
           options: [{ label: "Phone", name: "vCard.phone", value: "phone" }],
         },
         {
           label: "Email",
           name: "email",
-          value: "",
           options: [
             { label: "Username", name: "vCard.username", value: "username" },
             { label: "Email", name: "vCard.email", value: "email" },
@@ -247,13 +238,11 @@ export class VaultItemVisualizerComponent implements OnInit {
         {
           label: "Address",
           name: "address",
-          value: "",
           options: [{ label: "Address", name: "vCard.address", value: "address" }],
         },
         {
           label: "URL",
           name: "url",
-          value: "",
           options: [
             { label: "Notes", name: "vCard.url.notes", value: "notes" },
             { label: "Custom: URL", name: "vCard.url.custom", value: "custom" },
@@ -262,13 +251,11 @@ export class VaultItemVisualizerComponent implements OnInit {
         {
           label: "Company",
           name: "company",
-          value: "",
           options: [{ label: "Company", name: "vCard.company", value: "company" }],
         },
         {
           label: "Job Title",
           name: "job",
-          value: "",
           options: [
             { label: "Notes", name: "vCard.job.notes", value: "notes" },
             { label: "Custom: Job Title", name: "vCard.job.custom", value: "custom" },
@@ -334,16 +321,30 @@ export class VaultItemVisualizerComponent implements OnInit {
           // }
           this.visualizeForm.controls.fieldMappings.removeControl(controlName);
         }
-        this.updateControls();
         this.updateAvailableCipherFields();
+        this.updateControls();
       });
   }
 
   updateControls() {
     const fields = this.fieldMappingsControls;
-    for (const { name, value } of fields) {
-      this.visualizeForm.controls.fieldMappings.addControl(name, this.fb.control(value));
-      // @TODO handle cipher fields and map defaults
+    for (const { name, mappings = [] } of fields) {
+      const cipherFields = this.availableCipherFields();
+      const cipherFieldMap = this.availableCipherFieldsMap();
+
+      this.visualizeForm.controls.fieldMappings.addControl(name, this.fb.control(""));
+      const isFirstValue = (_: any, i: number) => i === 0;
+      const res = [...mappings, isFirstValue]
+        .map((mapping) => {
+          const f: MappingFunction =
+            typeof mapping === "string" ? (option) => option.name === mapping : mapping;
+          return cipherFields.find(f);
+        })
+        .find((mapping) => {
+          return mapping?.name && cipherFieldMap[mapping.name].value !== null;
+        });
+
+      this.visualizeForm.controls.fieldMappings.controls[name].setValue(res.name);
     }
   }
 
@@ -351,28 +352,24 @@ export class VaultItemVisualizerComponent implements OnInit {
     /* Set default QR Code Type and field fieldMappings after inference (TODO) */
     this.visualizeForm.controls.qrCodeType.setValue("wifi", { emitEvent: false });
     /* Ensure form updated, allow subscribers */
-    this.updateControls();
     this.updateAvailableCipherFields();
+    this.updateControls();
   }
 
   updateAvailableCipherFields() {
     const fields: Array<FieldTuple> = [];
 
+    if (this.cipher.type === CipherType.Identity) {
+      const username: FieldTuple = [
+        "username",
+        this.i18nService.t("username"),
+        this.cipher.identity.username,
+      ];
+      const email: FieldTuple = ["email", this.i18nService.t("email"), this.cipher.identity.email];
+
+      fields.push(username, email);
+    }
     if (this.cipher.type === CipherType.Login) {
-      const custom = this.cipher.fields.map(
-        (field, i): FieldTuple => [`field.${i}`, `Custom field: ${field.name}`, field.value],
-      );
-      fields.push(...custom);
-
-      const uris = this.cipher.login.uris.map(
-        ({ _uri }, i): FieldTuple => [
-          `uri.${i}`,
-          this.i18nService.t("websiteUriCount", i + 1),
-          _uri,
-        ],
-      );
-      fields.push(...uris);
-
       const username: FieldTuple = [
         "username",
         this.i18nService.t("username"),
@@ -385,17 +382,20 @@ export class VaultItemVisualizerComponent implements OnInit {
       ];
 
       fields.push(username, password);
-    }
 
-    if (this.cipher.type === CipherType.Identity) {
-      const username: FieldTuple = [
-        "username",
-        this.i18nService.t("username"),
-        this.cipher.identity.username,
-      ];
-      const email: FieldTuple = ["email", this.i18nService.t("email"), this.cipher.identity.email];
+      const uris = this.cipher.login.uris.map(
+        ({ _uri }, i): FieldTuple => [
+          `uri.${i}`,
+          this.i18nService.t("websiteUriCount", i + 1),
+          _uri,
+        ],
+      );
+      fields.push(...uris);
 
-      fields.push(username, email);
+      const custom = this.cipher.fields.map(
+        (field, i): FieldTuple => [`field.${i}`, `Custom field: ${field.name}`, field.value],
+      );
+      fields.push(...custom);
     }
 
     const notes: FieldTuple = ["notes", this.i18nService.t("notes"), this.cipher.notes];
