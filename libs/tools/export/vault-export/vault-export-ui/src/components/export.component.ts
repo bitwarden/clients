@@ -22,6 +22,7 @@ import {
   Subject,
   switchMap,
   takeUntil,
+  tap,
 } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -209,20 +210,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe(([disablePersonalVaultExport, personalOwnership]: [boolean, boolean]) => {
         this._disabledByPolicy = disablePersonalVaultExport || personalOwnership;
-        if (this.disabledByPolicy) {
-          this.exportForm.disable();
-        }
       });
-
-    // this.policyService
-    //   .policyAppliesToActiveUser$(PolicyType.DisablePersonalVaultExport)
-    //   .pipe(takeUntil(this.destroy$))
-    //   .subscribe((policyAppliesToActiveUser) => {
-    //     this._disabledByPolicy = policyAppliesToActiveUser;
-    //     if (this.disabledByPolicy) {
-    //       this.exportForm.disable();
-    //     }
-    //   });
 
     merge(
       this.exportForm.get("format").valueChanges,
@@ -280,6 +268,11 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
         // Sort the filtered organizations based on the name
         return filteredOrgs.sort(Utils.getSortFunction(this.i18nService, "name"));
       }),
+      tap((organizations) => {
+        if (organizations.length && this.disabledByPolicy) {
+          this.exportForm.controls.vaultSelector.setValue(organizations[0]?.id);
+        }
+      }),
     );
 
     this.exportForm.controls.vaultSelector.valueChanges
@@ -288,7 +281,10 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
         this.organizationId = value != "myVault" ? value : undefined;
       });
 
-    this.exportForm.controls.vaultSelector.setValue("myVault");
+    // implies that users can export "My Vault" - no policy hindrance here
+    if (!this.disabledByPolicy) {
+      this.exportForm.controls.vaultSelector.setValue("myVault");
+    }
   }
 
   ngAfterViewInit(): void {
@@ -353,15 +349,6 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.exportForm.markAllAsTouched();
     if (this.exportForm.invalid) {
-      return;
-    }
-
-    if (this.disabledByPolicy) {
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("personalVaultExportPolicyInEffect"),
-      });
       return;
     }
 
