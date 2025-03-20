@@ -543,10 +543,6 @@
     "message": "Include special characters",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Колькасць слоў"
   },
@@ -752,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "Падказка да пароля"
-  },
-  "enterEmailToGetHint": {
-    "message": "Увядзіце адрас электроннай пошты ўліковага запісу для атрымання падказкі да асноўнага пароля."
-  },
   "getMasterPasswordHint": {
     "message": "Атрымаць падказку да асноўнага пароля"
   },
@@ -916,7 +906,7 @@
     "message": "Праверка з дапамогай Duo Security для вашай арганізацыі, выкарыстоўваючы праграму Duo Mobile, SMS, тэлефонны выклік або ключ бяспекі U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
@@ -955,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Асяроддзе ўласнага хостынгу"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Увядзіце асноўны URL-адрас вашага лакальнага размяшчэння ўсталяванага Bitwarden."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -969,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Карыстальніцкае асяроддзе"
-  },
-  "customEnvironmentFooter": {
-    "message": "Для дасведчаных карыстальнікаў. Можна ўвесці URL-адрасы асобна для кожнай службы."
   },
   "baseUrl": {
     "message": "URL-адрас сервера"
@@ -1012,6 +996,9 @@
   },
   "no": {
     "message": "Не"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Перазапісаць пароль"
@@ -2785,14 +2772,8 @@
   "loginWithMasterPassword": {
     "message": "Увайсці з асноўным паролем"
   },
-  "loggingInAs": {
-    "message": "Увайсці як"
-  },
   "rememberEmail": {
     "message": "Запомніць электронную пошту"
-  },
-  "notYou": {
-    "message": "Не вы?"
   },
   "newAroundHere": {
     "message": "Упершыню тут?"
@@ -3033,9 +3014,6 @@
   "requestAdminApproval": {
     "message": "Запытаць ухваленне адміністратара"
   },
-  "approveWithMasterPassword": {
-    "message": "Ухваліць з дапамогай асноўнага пароля"
-  },
   "region": {
     "message": "Рэгіён"
   },
@@ -3060,9 +3038,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Ваш запыт адпраўлены адміністратару."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Вы атрымаеце апавяшчэння пасля яго ўхвалення."
   },
   "troubleLoggingIn": {
     "message": "Праблемы з уваходам?"
@@ -3533,9 +3508,6 @@
   "unknownApplication": {
     "message": "An application"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
   },
@@ -3545,7 +3517,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
@@ -3604,5 +3576,8 @@
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

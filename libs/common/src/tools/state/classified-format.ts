@@ -21,5 +21,12 @@ export type ClassifiedFormat<Id, Disclosed> = {
 export function isClassifiedFormat<Id, Disclosed>(
   value: any,
 ): value is ClassifiedFormat<Id, Disclosed> {
-  return "id" in value && "secret" in value && "disclosed" in value;
+  return (
+    !!value &&
+    "id" in value &&
+    "secret" in value &&
+    "disclosed" in value &&
+    typeof value.secret === "string" &&
+    typeof value.disclosed === "object"
+  );
 }

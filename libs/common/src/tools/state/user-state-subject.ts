@@ -81,7 +81,7 @@ const DEFAULT_FRAME_SIZE = 32;
 export class UserStateSubject<
     State extends object,
     Secret = State,
-    Disclosed = never,
+    Disclosed = Record<string, never>,
     Dependencies = null,
   >
   extends Observable<State>
@@ -243,7 +243,7 @@ export class UserStateSubject<
         // `init$` becomes the accumulator for `scan`
         init$.pipe(
           first(),
-          map((init) => [init, null] as const),
+          map((init) => [init, null] as [State, Dependencies]),
         ),
         input$.pipe(
           map((constrained) => constrained.state),
@@ -256,7 +256,7 @@ export class UserStateSubject<
           if (shouldUpdate) {
             // actual update
             const next = this.context.nextValue?.(prev, pending, dependencies) ?? pending;
-            return [next, dependencies];
+            return [next, dependencies] as const;
           } else {
             // false update
             this.log.debug("shouldUpdate prevented write");
@@ -523,6 +523,7 @@ export class UserStateSubject<
 
   private onError(value: any) {
     if (!this.isDisposed) {
+      this.log.debug(value, "forwarding error to subscribers");
       this.output.error(value);
     }
 

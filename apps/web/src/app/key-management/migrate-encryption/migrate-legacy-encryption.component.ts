@@ -4,6 +4,7 @@ import { firstValueFrom } from "rxjs";
 
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -76,7 +77,7 @@ export class MigrateFromLegacyEncryptionComponent {
     } catch (e) {
       // If the error is due to missing folders, we can delete all folders and try again
       if (
-        e instanceof Error &&
+        e instanceof ErrorResponse &&
         e.message === "All existing folders must be included in the rotation."
       ) {
         const deleteFolders = await this.dialogService.openSimpleDialog({
