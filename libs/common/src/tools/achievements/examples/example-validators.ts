@@ -7,6 +7,7 @@ const CredentialGeneratedProgress = "credential-generated" as MetricId;
 
 const TotallyAttachedAchievement = "totally-attached" as AchievementId;
 const ItemCreatedMetric = "item-created-metric" as AchievementId;
+const UnboundItemCreatedMetric = "unbound-item-created-metric" as AchievementId;
 const ItemCreatedAchievement = "item-created" as AchievementId;
 const ThreeItemsCreatedAchievement = "three-vault-items-created" as AchievementId;
 const FiveItemsCreatedAchievement = "five-vault-items-created" as AchievementId;
@@ -39,6 +40,22 @@ const ItemCreatedTracker = {
   description: `Measures ${ItemCreatedProgress}`,
   validator: Type.Threshold,
   active: { metric: ItemCreatedProgress, high: 1 },
+  hidden: true,
+  trigger(item) {
+    return item.action === "vault-item-added";
+  },
+  measure(item, progress) {
+    const value = 1 + (progress.get(ItemCreatedProgress) ?? 0);
+    return [progressEvent(ItemCreatedProgress, value)];
+  },
+} satisfies AchievementValidator;
+
+const UnboundItemCreatedTracker = {
+  achievement: UnboundItemCreatedMetric,
+  name: `[TRACKER] ${ItemCreatedProgress}`,
+  description: `Measures ${ItemCreatedProgress}`,
+  validator: Type.Threshold,
+  active: { metric: ItemCreatedProgress, low: 1 },
   hidden: true,
   trigger(item) {
     return item.action === "vault-item-added";
@@ -92,7 +109,7 @@ const FiveItemsCreatedValidator = {
   name: "fiiivvve GoOoOoOolllllllD RIIIIIINGS!!!!!!",
   description: "Add five items to your vault",
   validator: Type.Threshold,
-  active: { metric: ItemCreatedProgress, low: 4, high: 5 },
+  active: { metric: ItemCreatedProgress, low: 3, high: 5 },
   hidden: false,
   trigger(item) {
     return item.action === "vault-item-added";
@@ -112,6 +129,8 @@ export {
   TotallyAttachedValidator,
   ItemCreatedMetric,
   ItemCreatedTracker,
+  UnboundItemCreatedMetric,
+  UnboundItemCreatedTracker,
   ItemCreatedProgress,
   ItemCreatedAchievement,
   ItemCreatedValidator,

@@ -13,6 +13,20 @@
           <auth-account [account]="availableAccount" (loading)="loading = $event"></auth-account>
         </div>
 
+        <ng-container *ngIf="isFirst">
+          <bit-section>
+            <bit-section-header>
+              <h2 bitTypography="h6" class="tw-font-semibold">Achievements</h2>
+            </bit-section-header>
+
+            <bit-item>
+              <a bit-item-content routerLink="/achievements">
+                See all achievements
+                <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+              </a>
+            </bit-item>
+          </bit-section>
+        </ng-container>
         <ng-container *ngIf="enableAccountSwitching">
           <bit-section-header *ngIf="isFirst">
             <h2 bitTypography="h6">{{ "availableAccounts" | i18n }}</h2>

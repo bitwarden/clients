@@ -1,0 +1,13 @@
+<popup-page>
+  <popup-header slot="header" pageTitle="{{ 'achievements' | i18n }}" showBackButton>
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+  <achievements-list></achievements-list>
+  <popup-footer slot="footer">
+    <button bitButton type="button" bitFormButton buttonType="primary" (click)="testAchievement()">
+      Test achievements
+    </button>
+  </popup-footer>
+</popup-page>

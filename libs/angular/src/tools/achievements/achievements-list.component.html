@@ -1,0 +1,20 @@
+<bit-section *ngIf="allAchievementCards?.length > 0">
+  <bit-section-header>
+    <h2 class="tw-font-bold" bitTypography="h6">
+      {{ "achievements" | i18n }}
+    </h2>
+    <span bitTypography="body1" slot="end">{{ allAchievementCards.length }}</span>
+  </bit-section-header>
+
+  @for (achievement of allAchievementCards; track achievement.name) {
+    <div class="tw-mb-3">
+      <achievement-card
+        [title]="achievement.name"
+        [description]="achievement.description"
+        [earned]="achievement.earned"
+        [date]="achievement.date"
+        [progress]="achievement.progress"
+      ></achievement-card>
+    </div>
+  }
+</bit-section>

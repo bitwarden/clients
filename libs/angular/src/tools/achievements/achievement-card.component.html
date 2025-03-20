@@ -1,0 +1,10 @@
+<bit-card class="{{ cardClass }}">
+  <div class="tw-flex tw-items-center tw-justify-center">
+    <bit-icon [icon]="icon"></bit-icon>
+  </div>
+  <h2 bitTypography="h6" class="tw-text-center">{{ title() }}</h2>
+  <h3 bitTypography="body2" class="tw-text-center">{{ description() }}</h3>
+  @if (earned()) {
+    <h3 bitTypography="body2" class="tw-text-center">{{ date() }}</h3>
+  }
+</bit-card>

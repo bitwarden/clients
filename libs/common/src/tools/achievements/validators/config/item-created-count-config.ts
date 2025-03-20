@@ -65,22 +65,16 @@ export class ItemCreatedCountConfig implements Achievement {
     1,
     CipherType.Card,
   );
-  static readonly CardItemCreated10 = new ItemCreatedCountConfig(
-    "card-item-created-ten",
-    "10 card items added",
-    10,
+  static readonly CardItemCreated3 = new ItemCreatedCountConfig(
+    "card-item-created-3",
+    "3rd card items added",
+    3,
     CipherType.Card,
   );
-  static readonly CardItemCreated50 = new ItemCreatedCountConfig(
-    "card-item-created-fifty",
-    "50 card items added",
-    50,
-    CipherType.Card,
-  );
-  static readonly CardItemCreated100 = new ItemCreatedCountConfig(
-    "card-item-created-one-hundred",
-    "100 card items added",
-    100,
+  static readonly CardItemCreated5 = new ItemCreatedCountConfig(
+    "card-item-created-5",
+    "5th card item added",
+    5,
     CipherType.Card,
   );
 
@@ -108,6 +102,13 @@ export class ItemCreatedCountConfig implements Achievement {
     "100 card items added",
     100,
     CipherType.SecureNote,
+  );
+
+  // SSH Key - Achievements indicate only one so just set threshold at 1
+  static readonly SSHKeyItemCreated = new ItemCreatedCountConfig(
+    "ssh-key-item-created",
+    "1st SSH Key added",
+    1,
   );
 
   base: Achievement;

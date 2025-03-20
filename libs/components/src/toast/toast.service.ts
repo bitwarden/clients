@@ -11,7 +11,7 @@ export type ToastOptions = {
    * The duration the toast will persist in milliseconds
    **/
   timeout?: number;
-} & Pick<ToastComponent, "message" | "variant" | "title">;
+} & Pick<ToastComponent, "message" | "variant" | "title" | "icon">;
 
 /**
  * Presents toast notifications
@@ -26,6 +26,7 @@ export class ToastService {
         message: options.message,
         variant: options.variant,
         title: options.title,
+        icon: options?.icon,
       },
       timeOut:
         options.timeout != null && options.timeout > 0

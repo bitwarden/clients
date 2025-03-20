@@ -1,6 +1,6 @@
 import { CommonModule, Location } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { Router } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 import { Subject, firstValueFrom, map, of, startWith, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -50,6 +50,7 @@ import { AccountSwitcherService } from "./services/account-switcher.service";
     SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
+    RouterLink,
   ],
 })
 export class AccountSwitcherComponent implements OnInit, OnDestroy {

@@ -25,7 +25,7 @@ function active(
 
         // monitor disabled if outside of threshold
         const progress = (m.active.metric && metrics.get(m.active.metric)) || 0;
-        if (progress > (m.active.high ?? Number.POSITIVE_INFINITY)) {
+        if (progress >= (m.active.high ?? Number.POSITIVE_INFINITY)) {
           return false;
         } else if (progress < (m.active.low ?? 0)) {
           return false;
