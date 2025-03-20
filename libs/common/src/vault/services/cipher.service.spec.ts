@@ -305,51 +305,86 @@ describe("Cipher Service", () => {
     });
 
     describe("cipher.key", () => {
-      it("is null when feature flag is false", async () => {
-        configService.getFeatureFlag.mockResolvedValue(false);
-
+      beforeEach(() => {
         keyService.getOrgKey.mockReturnValue(
           Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
         );
+      });
+
+      it("is null when feature flag is false", async () => {
+        configService.getFeatureFlag.mockResolvedValue(false);
         const cipher = await cipherService.encrypt(cipherView, userId);
 
         expect(cipher.key).toBeNull();
       });
 
-      it("is defined when feature flag flag is true", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
+      describe("when feature flag is true", () => {
+        beforeEach(() => {
+          configService.getFeatureFlag.mockResolvedValue(true);
+        });
 
-        const cipher = await cipherService.encrypt(cipherView, userId);
+        it("is null when the cipher is not viewPassword", async () => {
+          cipherView.viewPassword = false;
 
-        expect(cipher.key).toBeDefined();
+          const cipher = await cipherService.encrypt(cipherView, userId);
+
+          expect(cipher.key).toBeNull();
+        });
+
+        it("is defined when the cipher is viewPassword", async () => {
+          cipherView.viewPassword = true;
+
+          const cipher = await cipherService.encrypt(cipherView, userId);
+
+          expect(cipher.key).toBeDefined();
+        });
       });
     });
 
     describe("encryptWithCipherKey", () => {
       beforeEach(() => {
         jest.spyOn<any, string>(cipherService, "encryptCipherWithCipherKey");
+        keyService.getOrgKey.mockReturnValue(
+          Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
+        );
       });
 
       it("is not called when feature flag is false", async () => {
         configService.getFeatureFlag.mockResolvedValue(false);
-        keyService.getOrgKey.mockReturnValue(
-          Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
-        );
 
         await cipherService.encrypt(cipherView, userId);
 
         expect(cipherService["encryptCipherWithCipherKey"]).not.toHaveBeenCalled();
       });
 
-      it("is called when feature flag is true", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
-        keyService.getOrgKey.mockReturnValue(
-          Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
-        );
+      describe("when feature flag is true", () => {
+        beforeEach(() => {
+          configService.getFeatureFlag.mockResolvedValue(true);
+        });
 
-        await cipherService.encrypt(cipherView, userId);
+        it("is called when cipher viewPassword is true", async () => {
+          cipherView.viewPassword = true;
 
-        expect(cipherService["encryptCipherWithCipherKey"]).toHaveBeenCalled();
+          await cipherService.encrypt(cipherView, userId);
+
+          expect(cipherService["encryptCipherWithCipherKey"]).toHaveBeenCalled();
+        });
+
+        it("is not called when cipher viewPassword is false and original cipher has no key", async () => {
+          cipherView.viewPassword = false;
+
+          await cipherService.encrypt(cipherView, userId, undefined, undefined, new Cipher());
+
+          expect(cipherService["encryptCipherWithCipherKey"]).not.toHaveBeenCalled();
+        });
+
+        it("is called when cipher viewPassword is false and original cipher has a key", async () => {
+          cipherView.viewPassword = false;
+
+          await cipherService.encrypt(cipherView, userId, undefined, undefined, cipherObj);
+
+          expect(cipherService["encryptCipherWithCipherKey"]).toHaveBeenCalled();
+        });
       });
     });
   });
