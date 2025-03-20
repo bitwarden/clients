@@ -197,6 +197,8 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   ): Promise<any>;
   abstract restoreWithServer(id: string, userId: UserId, asAdmin?: boolean): Promise<any>;
   abstract restoreManyWithServer(ids: string[], orgId?: string): Promise<void>;
+  abstract archiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void>;
+  abstract unarchiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void>;
   abstract getKeyForCipherKeyDecryption(cipher: Cipher, userId: UserId): Promise<any>;
   abstract setAddEditCipherInfo(value: AddEditCipherInfo, userId: UserId): Promise<void>;
   /**

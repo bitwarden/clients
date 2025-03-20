@@ -14,6 +14,10 @@ import {
 } from "rxjs";
 import { SemVer } from "semver";
 
+import {
+  CipherBulkArchiveRequest,
+  CipherBulkUnarchiveRequest,
+} from "@bitwarden/common/vault/models/request/cipher-bulk-archive.request";
 import { KeyService } from "@bitwarden/key-management";
 
 import { ApiService } from "../../abstractions/api.service";
@@ -1311,6 +1315,46 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     await this.restore({ id: id, revisionDate: response.revisionDate }, userId);
+  }
+
+  async archiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void> {
+    const request = new CipherBulkArchiveRequest(Array.isArray(ids) ? ids : [ids]);
+    const r = await this.apiService.send("PUT", "/ciphers/archive", request, true, true);
+    const response = new ListResponse(r, CipherResponse);
+
+    await this.updateEncryptedCipherState((ciphers) => {
+      for (const cipher of response.data) {
+        const localCipher = ciphers[cipher.id as CipherId];
+
+        if (localCipher == null) {
+          continue;
+        }
+
+        localCipher.archivedDate = cipher.archivedDate;
+        localCipher.revisionDate = cipher.revisionDate;
+      }
+      return ciphers;
+    }, userId);
+  }
+
+  async unarchiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void> {
+    const request = new CipherBulkUnarchiveRequest(Array.isArray(ids) ? ids : [ids]);
+    const r = await this.apiService.send("PUT", "/ciphers/unarchive", request, true, true);
+    const response = new ListResponse(r, CipherResponse);
+
+    await this.updateEncryptedCipherState((ciphers) => {
+      for (const cipher of response.data) {
+        const localCipher = ciphers[cipher.id as CipherId];
+
+        if (localCipher == null) {
+          continue;
+        }
+
+        localCipher.archivedDate = cipher.archivedDate;
+        localCipher.revisionDate = cipher.revisionDate;
+      }
+      return ciphers;
+    }, userId);
   }
 
   /**
