@@ -14,7 +14,9 @@ import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.
 import { OpaqueCipherConfiguration } from "@bitwarden/common/auth/opaque/models/opaque-cipher-configuration";
 import { OpaqueKeyExchangeService } from "@bitwarden/common/auth/opaque/opaque-key-exchange.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -67,6 +69,7 @@ export class ChangePasswordComponent
     accountService: AccountService,
     toastService: ToastService,
     private opaqueKeyExchangeService: OpaqueKeyExchangeService,
+    private configService: ConfigService,
   ) {
     super(
       i18nService,
@@ -228,20 +231,25 @@ export class ChangePasswordComponent
           return this.updateKey();
         });
       } else {
-        const userConfiguredKdf = await this.kdfConfigService.getKdfConfig();
-        const cipherConfig = OpaqueCipherConfiguration.fromKdfConfig(
-          userConfiguredKdf.kdfType === KdfType.Argon2id
-            ? userConfiguredKdf
-            : DEFAULT_OPAQUE_KDF_CONFIG,
+        const opaqueKeyExchangeFeatureFlag = await this.configService.getFeatureFlag(
+          FeatureFlag.OpaqueKeyExchange,
         );
+        if (opaqueKeyExchangeFeatureFlag) {
+          const userConfiguredKdf = await this.kdfConfigService.getKdfConfig();
+          const cipherConfig = OpaqueCipherConfiguration.fromKdfConfig(
+            userConfiguredKdf.kdfType === KdfType.Argon2id
+              ? userConfiguredKdf
+              : DEFAULT_OPAQUE_KDF_CONFIG,
+          );
 
-        // TODO: try catch this just in case server feature flag is disabled and clients still has it enabled.
-        const sessionId = await this.opaqueKeyExchangeService.register(
-          this.masterPassword,
-          newUserKey[0],
-          cipherConfig,
-        );
-        request.opaqueSessionId = sessionId;
+          // TODO: try catch this just in case server feature flag is disabled and clients still has it enabled.
+          const sessionId = await this.opaqueKeyExchangeService.register(
+            this.masterPassword,
+            newUserKey[0],
+            cipherConfig,
+          );
+          request.opaqueSessionId = sessionId;
+        }
         this.formPromise = this.masterPasswordApiService.postPassword(request);
       }
 
