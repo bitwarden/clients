@@ -8,7 +8,6 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { OpaqueTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/opaque-token.request";
-import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { IdentityCaptchaResponse } from "@bitwarden/common/auth/models/response/identity-captcha.response";
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
@@ -50,7 +49,7 @@ export class OpaqueLoginStrategyData implements LoginStrategyData {
 
   static fromJSON(obj: Jsonify<OpaqueLoginStrategyData>): OpaqueLoginStrategyData {
     const data = Object.assign(new OpaqueLoginStrategyData(), obj, {
-      tokenRequest: PasswordTokenRequest.fromJSON(obj.tokenRequest),
+      tokenRequest: OpaqueTokenRequest.fromJSON(obj.tokenRequest),
       masterKey: SymmetricCryptoKey.fromJSON(obj.masterKey),
     });
     return data;
