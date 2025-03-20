@@ -56,6 +56,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     includeOtherTypes?: CipherType[],
     defaultMatch?: UriMatchStrategySetting,
   ): Promise<CipherView[]>;
+  getAllDecryptedForIds: (userId: UserId, ids: string[]) => Promise<CipherView[]>;
   abstract filterCiphersForUrl(
     ciphers: CipherView[],
     url: string,
