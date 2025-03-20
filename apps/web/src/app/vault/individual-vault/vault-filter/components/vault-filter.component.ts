@@ -6,6 +6,9 @@ import { firstValueFrom, merge, Subject, switchMap, takeUntil } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -101,6 +104,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     protected billingApiService: BillingApiServiceAbstraction,
     protected dialogService: DialogService,
     protected configService: ConfigService,
+    protected accountService: AccountService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -110,10 +114,18 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     this.isLoaded = true;
 
     // Without refactoring the entire component, we need to manually update the organization filter whenever the policies update
-    merge(
-      this.policyService.get$(PolicyType.SingleOrg),
-      this.policyService.get$(PolicyType.PersonalOwnership),
-    )
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          merge(
+            this.policyService.policiesByType$(PolicyType.SingleOrg, userId).pipe(getFirstPolicy),
+            this.policyService
+              .policiesByType$(PolicyType.PersonalOwnership, userId)
+              .pipe(getFirstPolicy),
+          ),
+        ),
+      )
       .pipe(
         switchMap(() => this.addOrganizationFilter()),
         takeUntil(this.destroy$),
@@ -190,9 +202,22 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   }
 
   protected async addOrganizationFilter(): Promise<VaultFilterSection> {
-    const singleOrgPolicy = await this.policyService.policyAppliesToUser(PolicyType.SingleOrg);
-    const personalVaultPolicy = await this.policyService.policyAppliesToUser(
-      PolicyType.PersonalOwnership,
+    const singleOrgPolicy = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
+        ),
+      ),
+    );
+
+    const personalVaultPolicy = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+        ),
+      ),
     );
 
     const addAction = !singleOrgPolicy

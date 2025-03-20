@@ -3,11 +3,13 @@
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { Subject, takeUntil } from "rxjs";
+import { Subject, switchMap, takeUntil } from "rxjs";
 
 import { PasswordStrengthV2Component } from "@bitwarden/angular/tools/password-strength/password-strength-v2.component";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -81,12 +83,16 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private formBuilder: FormBuilder,
     private dialogRef: DialogRef<ResetPasswordDialogResult>,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
-    this.policyService
-      .masterPasswordPolicyOptions$()
-      .pipe(takeUntil(this.destroy$))
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) => this.policyService.masterPasswordPolicyOptions$(userId)),
+        takeUntil(this.destroy$),
+      )
       .subscribe(
         (enforcedPasswordPolicyOptions) =>
           (this.enforcedPolicyOptions = enforcedPasswordPolicyOptions),

@@ -8,6 +8,9 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { ScriptInjectorService } from "../../platform/services/abstractions/script-injector.service";
@@ -35,10 +38,12 @@ describe("AutoSubmitLoginBackground", () => {
   let configService: MockProxy<ConfigService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let policyDetails: MockProxy<Policy>;
-  let automaticAppLogInPolicy$: BehaviorSubject<Policy>;
-  let policyAppliesToActiveUser$: BehaviorSubject<boolean>;
+  let automaticAppLogInPolicy$: BehaviorSubject<Policy[]>;
+  let policyAppliesToUser$: BehaviorSubject<boolean>;
   let policyService: MockProxy<PolicyService>;
   let autoSubmitLoginBackground: AutoSubmitLoginBackground;
+  let accountService: FakeAccountService;
+  const mockUserId = Utils.newGuid() as UserId;
   const validIpdUrl1 = "https://example.com";
   const validIpdUrl2 = "https://subdomain.example3.com";
   const validAutoSubmitHost = "some-valid-url.com";
@@ -61,12 +66,13 @@ describe("AutoSubmitLoginBackground", () => {
         idpHost: `${validIpdUrl1} , https://example2.com/some/sub-route ,${validIpdUrl2}, [invalidValue] ,,`,
       },
     });
-    automaticAppLogInPolicy$ = new BehaviorSubject<Policy>(policyDetails);
-    policyAppliesToActiveUser$ = new BehaviorSubject<boolean>(true);
+    automaticAppLogInPolicy$ = new BehaviorSubject<Policy[]>([policyDetails]);
+    policyAppliesToUser$ = new BehaviorSubject<boolean>(true);
     policyService = mock<PolicyService>({
-      get$: jest.fn().mockReturnValue(automaticAppLogInPolicy$),
-      policyAppliesToActiveUser$: jest.fn().mockReturnValue(policyAppliesToActiveUser$),
+      policiesByType$: jest.fn().mockReturnValue(automaticAppLogInPolicy$),
+      policyAppliesToUser$: jest.fn().mockReturnValue(policyAppliesToUser$),
     });
+    accountService = mockAccountServiceWith(mockUserId);
     autoSubmitLoginBackground = new AutoSubmitLoginBackground(
       logService,
       autofillService,
@@ -75,6 +81,7 @@ describe("AutoSubmitLoginBackground", () => {
       configService,
       platformUtilsService,
       policyService,
+      accountService,
     );
   });
 
@@ -84,7 +91,7 @@ describe("AutoSubmitLoginBackground", () => {
 
   describe("when the AutoSubmitLoginBackground feature is disabled", () => {
     it("destroys all event listeners when the AutomaticAppLogIn policy is not enabled", async () => {
-      automaticAppLogInPolicy$.next(mock<Policy>({ ...policyDetails, enabled: false }));
+      automaticAppLogInPolicy$.next([mock<Policy>({ ...policyDetails, enabled: false })]);
 
       await autoSubmitLoginBackground.init();
 
@@ -92,7 +99,7 @@ describe("AutoSubmitLoginBackground", () => {
     });
 
     it("destroys all event listeners when the AutomaticAppLogIn policy does not apply to the current user", async () => {
-      policyAppliesToActiveUser$.next(false);
+      policyAppliesToUser$.next(false);
 
       await autoSubmitLoginBackground.init();
 
@@ -100,7 +107,7 @@ describe("AutoSubmitLoginBackground", () => {
     });
 
     it("destroys all event listeners when the idpHost is not specified in the AutomaticAppLogIn policy", async () => {
-      automaticAppLogInPolicy$.next(mock<Policy>({ ...policyDetails, data: { idpHost: "" } }));
+      automaticAppLogInPolicy$.next([mock<Policy>({ ...policyDetails, data: { idpHost: "" } })]);
 
       await autoSubmitLoginBackground.init();
 
@@ -264,6 +271,7 @@ describe("AutoSubmitLoginBackground", () => {
           configService,
           platformUtilsService,
           policyService,
+          accountService,
         );
         jest.spyOn(BrowserApi, "getTabFromCurrentWindow").mockResolvedValue(tab);
       });

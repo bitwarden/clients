@@ -329,7 +329,12 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private async handlePolicies() {
     combineLatest([
-      this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+        ),
+      ),
       this.organizations$,
     ])
       .pipe(takeUntil(this.destroy$))

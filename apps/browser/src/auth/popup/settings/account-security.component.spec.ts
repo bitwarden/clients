@@ -99,7 +99,7 @@ describe("AccountSecurityComponent", () => {
 
   it("pin enabled when RemoveUnlockWithPin policy is not set", async () => {
     // @ts-strict-ignore
-    policyService.get$.mockReturnValue(of(null));
+    policyService.policiesByType$.mockReturnValue(of([null]));
 
     await component.ngOnInit();
 
@@ -111,7 +111,7 @@ describe("AccountSecurityComponent", () => {
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = false;
 
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
 
@@ -129,7 +129,7 @@ describe("AccountSecurityComponent", () => {
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
 
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
 
@@ -143,7 +143,7 @@ describe("AccountSecurityComponent", () => {
 
   it("pin visible when RemoveUnlockWithPin policy is not set", async () => {
     // @ts-strict-ignore
-    policyService.get$.mockReturnValue(of(null));
+    policyService.policiesByType$.mockReturnValue(of([null]));
 
     await component.ngOnInit();
     fixture.detectChanges();
@@ -158,7 +158,7 @@ describe("AccountSecurityComponent", () => {
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = false;
 
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
     fixture.detectChanges();
@@ -173,7 +173,7 @@ describe("AccountSecurityComponent", () => {
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
 
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     pinServiceAbstraction.isPinSet.mockResolvedValue(true);
 
@@ -190,7 +190,7 @@ describe("AccountSecurityComponent", () => {
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
 
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
     fixture.detectChanges();

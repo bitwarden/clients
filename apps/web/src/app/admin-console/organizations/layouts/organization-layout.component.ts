@@ -118,7 +118,10 @@ export class OrganizationLayoutComponent implements OnInit {
       ),
     );
 
-    this.hideNewOrgButton$ = this.policyService.policyAppliesToActiveUser$(PolicyType.SingleOrg);
+    this.hideNewOrgButton$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId)),
+    );
 
     const provider$ = this.organization$.pipe(
       switchMap((organization) => this.providerService.get$(organization.providerId)),

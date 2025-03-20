@@ -12,6 +12,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -30,6 +31,7 @@ export class WebRegistrationFinishService
     private policyApiService: PolicyApiServiceAbstraction,
     private logService: LogService,
     private policyService: PolicyService,
+    private accountService: AccountService,
   ) {
     super(keyService, accountApiService);
   }
@@ -68,7 +70,7 @@ export class WebRegistrationFinishService
     }
 
     const masterPasswordPolicyOpts: MasterPasswordPolicyOptions = await firstValueFrom(
-      this.policyService.masterPasswordPolicyOptions$(policies),
+      this.policyService.masterPasswordPolicyOptions$(null, policies),
     );
 
     return masterPasswordPolicyOpts;

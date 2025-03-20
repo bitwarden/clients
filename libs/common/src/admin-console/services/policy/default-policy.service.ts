@@ -3,7 +3,7 @@ import { combineLatest, map, Observable, of } from "rxjs";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
-import { vNextPolicyService } from "../../abstractions/policy/vnext-policy.service";
+import { PolicyService } from "../../abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType, PolicyType } from "../../enums";
 import { PolicyData } from "../../models/data/policy.data";
 import { MasterPasswordPolicyOptions } from "../../models/domain/master-password-policy-options";
@@ -11,7 +11,7 @@ import { Organization } from "../../models/domain/organization";
 import { Policy } from "../../models/domain/policy";
 import { ResetPasswordPolicyOptions } from "../../models/domain/reset-password-policy-options";
 
-import { POLICIES } from "./vnext-policy-state";
+import { POLICIES } from "./policy-state";
 
 export function policyRecordToArray(policiesMap: { [id: string]: PolicyData }) {
   return Object.values(policiesMap || {}).map((f) => new Policy(f));
@@ -21,7 +21,7 @@ export const getFirstPolicy = map<Policy[], Policy | undefined>((policies) => {
   return policies.at(0) ?? undefined;
 });
 
-export class DefaultvNextPolicyService implements vNextPolicyService {
+export class DefaultPolicyService implements PolicyService {
   constructor(
     private stateProvider: StateProvider,
     private organizationService: OrganizationService,
@@ -89,7 +89,7 @@ export class DefaultvNextPolicyService implements vNextPolicyService {
     const policies$ = policies ? of(policies) : this.policies$(userId);
     return policies$.pipe(
       map((obsPolicies) => {
-        const enforcedOptions: MasterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
+        let enforcedOptions: MasterPasswordPolicyOptions | undefined = undefined;
         const filteredPolicies =
           obsPolicies.filter((p) => p.type === PolicyType.MasterPassword) ?? [];
 
@@ -100,6 +100,10 @@ export class DefaultvNextPolicyService implements vNextPolicyService {
         filteredPolicies.forEach((currentPolicy) => {
           if (!currentPolicy.enabled || !currentPolicy.data) {
             return;
+          }
+
+          if (!enforcedOptions) {
+            enforcedOptions = new MasterPasswordPolicyOptions();
           }
 
           if (

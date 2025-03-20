@@ -5,7 +5,7 @@ import * as http from "http";
 import { OptionValues } from "commander";
 import * as inquirer from "inquirer";
 import Separator from "inquirer/lib/objects/separator";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import {
   LoginStrategyServiceAbstraction,
@@ -29,6 +29,7 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -555,7 +556,10 @@ export class LoginCommand {
     );
 
     const enforcedPolicyOptions = await firstValueFrom(
-      this.policyService.masterPasswordPolicyOptions$(),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.policyService.masterPasswordPolicyOptions$(userId)),
+      ),
     );
 
     // Verify master password meets policy requirements

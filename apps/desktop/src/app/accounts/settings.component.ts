@@ -17,8 +17,10 @@ import {
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { DeviceType } from "@bitwarden/common/enums";
@@ -235,7 +237,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
     );
 
     // Load timeout policy
-    this.vaultTimeoutPolicyCallout = this.policyService.get$(PolicyType.MaximumVaultTimeout).pipe(
+    this.vaultTimeoutPolicyCallout = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policiesByType$(PolicyType.MaximumVaultTimeout, userId),
+      ),
+      getFirstPolicy,
       filter((policy) => policy != null),
       map((policy) => {
         let timeout;
@@ -259,7 +266,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // Load initial values
     this.userHasPinSet = await this.pinService.isPinSet(activeAccount.id);
 
-    this.pinEnabled$ = this.policyService.get$(PolicyType.RemoveUnlockWithPin).pipe(
+    this.pinEnabled$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policiesByType$(PolicyType.RemoveUnlockWithPin, userId),
+      ),
+      getFirstPolicy,
       map((policy) => {
         return policy == null || !policy.enabled;
       }),

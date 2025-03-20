@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { DatePipe } from "@angular/common";
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { concatMap, firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
+import { concatMap, firstValueFrom, map, Observable, Subject, switchMap, takeUntil } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
@@ -193,9 +193,12 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.policyService
-      .policyAppliesToActiveUser$(PolicyType.PersonalOwnership)
+    this.accountService.activeAccount$
       .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+        ),
         concatMap(async (policyAppliesToActiveUser) => {
           this.personalOwnershipPolicyAppliesToActiveUser = policyAppliesToActiveUser;
           await this.init();

@@ -64,7 +64,7 @@ describe("SendV2Component", () => {
     });
 
     policyService = mock<PolicyService>();
-    policyService.policyAppliesToActiveUser$.mockReturnValue(of(true)); // Return `true` by default
+    policyService.policyAppliesToUser$.mockReturnValue(of(true)); // Return `true` by default
 
     sendListFiltersService = new SendListFiltersService(mock(), new FormBuilder());
 
