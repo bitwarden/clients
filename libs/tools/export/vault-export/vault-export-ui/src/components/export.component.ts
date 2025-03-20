@@ -148,11 +148,16 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   protected showFilePassword: boolean;
 
   private _disabledByPolicy = false;
+  private _disableByPolicy_RemovePersonalOwnership = false;
 
   organizations$: Observable<Organization[]>;
 
   protected get disabledByPolicy(): boolean {
     return this._disabledByPolicy;
+  }
+
+  protected get disableByPolicy_RemovePersonalOwnership(): boolean {
+    return this._disableByPolicy_RemovePersonalOwnership;
   }
 
   exportForm = this.formBuilder.group({
@@ -209,7 +214,8 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     ])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([disablePersonalVaultExport, personalOwnership]: [boolean, boolean]) => {
-        this._disabledByPolicy = disablePersonalVaultExport || personalOwnership;
+        this._disabledByPolicy = disablePersonalVaultExport;
+        this._disableByPolicy_RemovePersonalOwnership = personalOwnership;
       });
 
     merge(
@@ -269,8 +275,19 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
         return filteredOrgs.sort(Utils.getSortFunction(this.i18nService, "name"));
       }),
       tap((organizations) => {
-        if (organizations.length && this.disabledByPolicy) {
-          this.exportForm.controls.vaultSelector.setValue(organizations[0]?.id);
+        // Policy-RemovePersonalOwnership is on then MyVault is not an option and organizations exist
+        if (this.disableByPolicy_RemovePersonalOwnership && organizations.length > 0) {
+          this.exportForm.enable();
+          this.exportForm.controls.vaultSelector.setValue(organizations[0].id);
+        }
+        // Policy-RemovePersonalOwnership is on then MyVault is not an option and no organizations exist
+        if (this.disableByPolicy_RemovePersonalOwnership && organizations.length == 0) {
+          this.exportForm.disable();
+        }
+
+        // When the DisablePersonalVaultExport policy is active
+        if (this.disabledByPolicy) {
+          this.exportForm.disable();
         }
       }),
     );
@@ -282,7 +299,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       });
 
     // implies that users can export "My Vault" - no policy hindrance here
-    if (!this.disabledByPolicy) {
+    if (!this.disabledByPolicy && !this.disableByPolicy_RemovePersonalOwnership) {
       this.exportForm.controls.vaultSelector.setValue("myVault");
     }
   }
@@ -349,6 +366,15 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.exportForm.markAllAsTouched();
     if (this.exportForm.invalid) {
+      return;
+    }
+
+    if (this.disabledByPolicy) {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("personalVaultExportPolicyInEffect"),
+      });
       return;
     }
 
