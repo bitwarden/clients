@@ -433,6 +433,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
           data?.opaque ?? new OpaqueLoginStrategyData(),
           this.passwordStrengthService,
           this.policyService,
+          this.opaqueKeyExchangeService,
           ...sharedDeps,
         );
       default:

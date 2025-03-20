@@ -17,6 +17,16 @@ export class OpaqueCipherConfiguration {
     this.argon2Parameters = ksf;
   }
 
+  static fromAny(config: any): OpaqueCipherConfiguration {
+    if (
+      config.cipherSuite !==
+      "OPAQUE_3_RISTRETTO255_OPRF_RISTRETTO255_KEGROUP_3DH_KEX_ARGON2ID13_KSF"
+    ) {
+      throw new Error("Unsupported cipher suite");
+    }
+    return new OpaqueCipherConfiguration(config.argon2Parameters);
+  }
+
   /**
    * Converts from Bitwarden KDF configs to OPAQUE KSF configs.
    *

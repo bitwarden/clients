@@ -81,7 +81,7 @@ export class DefaultOpaqueKeyExchangeService implements OpaqueKeyExchangeService
     email: string,
     masterPassword: string,
     cipherConfig: OpaqueCipherConfiguration,
-  ): Promise<Uint8Array> {
+  ): Promise<{ sessionId: string; exportKey: Uint8Array }> {
     if (!email || !masterPassword || !cipherConfig) {
       throw new Error(
         `Unable to log in user with missing parameters. email exists: ${!!email}; masterPassword exists: ${!!masterPassword}; cipherConfig exists: ${!!cipherConfig}`,
@@ -112,6 +112,6 @@ export class DefaultOpaqueKeyExchangeService implements OpaqueKeyExchangeService
       throw new Error("Login failed");
     }
 
-    return loginFinish.export_key;
+    return { sessionId: loginStartResponse.sessionId, exportKey: loginFinish.export_key };
   }
 }

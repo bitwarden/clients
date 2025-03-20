@@ -23,5 +23,8 @@ export abstract class OpaqueKeyExchangeService {
     email: string,
     masterPassword: string,
     cipherConfiguration: OpaqueCipherConfiguration,
-  ): Promise<Uint8Array>;
+  ): Promise<{
+    sessionId: string;
+    exportKey: Uint8Array;
+  }>;
 }

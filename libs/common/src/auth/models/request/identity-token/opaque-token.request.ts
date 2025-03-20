@@ -11,6 +11,7 @@ export class OpaqueTokenRequest extends TokenRequest {
   constructor(
     public email: string,
     protected twoFactor: TokenTwoFactorRequest,
+    public sessionId: string,
     device?: DeviceRequest,
     public newDeviceOtp?: string,
   ) {
@@ -21,8 +22,9 @@ export class OpaqueTokenRequest extends TokenRequest {
     const obj = super.toIdentityToken(clientId);
 
     // TODO: what grant type for OPAQUE?
-    obj.grant_type = "password";
+    obj.grant_type = "opaque-ke";
     obj.username = this.email;
+    obj.sessionId = this.sessionId;
 
     if (this.newDeviceOtp) {
       obj.newDeviceOtp = this.newDeviceOtp;

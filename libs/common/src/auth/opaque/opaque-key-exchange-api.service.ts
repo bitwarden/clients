@@ -51,7 +51,7 @@ export class OpaqueKeyExchangeApiService {
       "POST",
       `/opaque/start-login`,
       request,
-      true,
+      false,
       true,
       env.getApiUrl(),
     );
@@ -64,10 +64,10 @@ export class OpaqueKeyExchangeApiService {
       "POST",
       `/opaque/finish-login`,
       request,
-      true,
+      false,
       true,
       env.getApiUrl(),
     );
-    return response.success;
+    return response == true;
   }
 }

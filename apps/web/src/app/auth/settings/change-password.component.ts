@@ -11,7 +11,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
-import { CipherConfiguration } from "@bitwarden/common/auth/opaque/models/cipher-configuration";
+import { OpaqueCipherConfiguration } from "@bitwarden/common/auth/opaque/models/opaque-cipher-configuration";
 import { OpaqueKeyExchangeService } from "@bitwarden/common/auth/opaque/opaque-key-exchange.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -229,7 +229,7 @@ export class ChangePasswordComponent
         });
       } else {
         const userConfiguredKdf = await this.kdfConfigService.getKdfConfig();
-        const cipherConfig = CipherConfiguration.fromKdfConfig(
+        const cipherConfig = OpaqueCipherConfiguration.fromKdfConfig(
           userConfiguredKdf.kdfType === KdfType.Argon2id
             ? userConfiguredKdf
             : DEFAULT_OPAQUE_KDF_CONFIG,
