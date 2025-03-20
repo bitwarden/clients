@@ -879,9 +879,6 @@
   "filter": {
     "message": "Filtriraj"
   },
-  "moveSelectedToOrg": {
-    "message": "Premjesti odabrano u Organizaciju"
-  },
   "deleteSelected": {
     "message": "Obriši odabrano"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Odabrane stavke premještene u $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "Odaberi organizaciju u koju želiš premjestiti ovu stavku. Premještanje prenosi vlasništvo stavke na organizaciju. Nakon premještanja više nećeš biti izravni vlasnik ove stavke."
   },
-  "moveManyToOrgDesc": {
-    "message": "Odaberi organizaciju u koju želiš premjestiti ovu stavku. Premještanje prenosi vlasništvo stavke na organizaciju. Nakon premještanja više nećeš biti izravni vlasnik ove stavke."
-  },
   "collectionsDesc": {
     "message": "Uredi zbirke s kojima se ova stavka koristi. Samo korisnici organizacije s pristupom ovim zbirkama će ih moći vidjeti."
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "$MOVEABLE_COUNT$ od $COUNT$ odabranih stavki može biti premješteno u Organiziaciju; $NONMOVEABLE_COUNT$ nije moguće premjestiti.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },

@@ -879,9 +879,6 @@
   "filter": {
     "message": "フィルター"
   },
-  "moveSelectedToOrg": {
-    "message": "選択したものを組織に移動"
-  },
   "deleteSelected": {
     "message": "選択したものを削除"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "選択したアイテムを $ORGNAME$ に移動しました",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "このアイテムを移動する組織を選択してください。組織に移動すると、アイテムの所有権はその組織に移ります。移動した後、あなたはこのアイテムの直接の所有者ではなくなります。"
   },
-  "moveManyToOrgDesc": {
-    "message": "このアイテムを移動する組織を選択してください。組織に移動すると、アイテムの所有権がその組織に移行します。 このアイテムが移動された後、あなたはこのアイテムの直接の所有者にはなりません。"
-  },
   "collectionsDesc": {
     "message": "このアイテムを共有するコレクションを編集します。共有したアイテムは、当該コレクションにアクセスできる組織ユーザーにのみ表示されます。"
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "$COUNT$ アイテムを選択しました。 $MOVEABLE_COUNT$ アイテムは組織に移動できます。 $NONMOVEABLE_COUNT$ アイテムはできません。",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },

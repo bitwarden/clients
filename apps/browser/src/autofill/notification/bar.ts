@@ -5,6 +5,8 @@ import { ConsoleLogService } from "@bitwarden/common/platform/services/console-l
 import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
+import { NotificationCipherData } from "../content/components/cipher/types";
+import { OrgView } from "../content/components/common-types";
 import { NotificationConfirmationContainer } from "../content/components/notification/confirmation-container";
 import { NotificationContainer } from "../content/components/notification/container";
 import { buildSvgDomElement } from "../utils";
@@ -115,7 +117,7 @@ function setElementText(template: HTMLTemplateElement, elementId: string, text: 
   }
 }
 
-function initNotificationBar(message: NotificationBarWindowMessage) {
+async function initNotificationBar(message: NotificationBarWindowMessage) {
   const { initData } = message;
   if (!initData) {
     return;
@@ -131,7 +133,23 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
     // Current implementations utilize a require for scss files which creates the need to remove the node.
     document.head.querySelectorAll('link[rel="stylesheet"]').forEach((node) => node.remove());
 
-    sendPlatformMessage({ command: "bgGetDecryptedCiphers" }, (cipherData) => {
+    await Promise.all([
+      new Promise<OrgView[]>((resolve) =>
+        sendPlatformMessage({ command: "bgGetOrgData" }, resolve),
+      ),
+      new Promise<FolderView[]>((resolve) =>
+        sendPlatformMessage({ command: "bgGetFolderData" }, resolve),
+      ),
+      new Promise<NotificationCipherData[]>((resolve) =>
+        sendPlatformMessage({ command: "bgGetDecryptedCiphers" }, resolve),
+      ),
+    ]).then(([organizations, folders, ciphers]) => {
+      notificationBarIframeInitData = {
+        ...notificationBarIframeInitData,
+        folders,
+        ciphers,
+        organizations,
+      };
       // @TODO use context to avoid prop drilling
       return render(
         NotificationContainer({
@@ -142,7 +160,6 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
           handleSaveAction,
           handleEditOrUpdateAction,
           i18n,
-          ciphers: cipherData,
         }),
         document.body,
       );

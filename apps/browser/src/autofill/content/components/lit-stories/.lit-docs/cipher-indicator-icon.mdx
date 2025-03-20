@@ -15,11 +15,11 @@ dynamically based on the provided theme.
 
 ## Props
 
-| **Prop**        | **Type**  | **Required** | **Description**                                                         |
-| --------------- | --------- | ------------ | ----------------------------------------------------------------------- |
-| `isBusinessOrg` | `boolean` | No           | Displays the business organization icon when set to `true`.             |
-| `isFamilyOrg`   | `boolean` | No           | Displays the family organization icon when set to `true`.               |
-| `theme`         | `Theme`   | Yes          | Defines the theme used to style the icons. Must match the `Theme` enum. |
+| **Prop**           | **Type**  | **Required** | **Description**                                                         |
+| ------------------ | --------- | ------------ | ----------------------------------------------------------------------- |
+| `showBusinessIcon` | `boolean` | No           | Displays the business organization icon when set to `true`.             |
+| `showFamilyIcon`   | `boolean` | No           | Displays the family organization icon when set to `true`.               |
+| `theme`            | `Theme`   | Yes          | Defines the theme used to style the icons. Must match the `Theme` enum. |
 
 ## Installation and Setup
 
@@ -29,8 +29,8 @@ dynamically based on the provided theme.
    - `@emotion/css`: Used for styling.
 
 2. Pass the required props when using the component:
-   - `isBusinessOrg`: A boolean that, when `true`, displays the business icon.
-   - `isFamilyOrg`: A boolean that, when `true`, displays the family icon.
+   - `showBusinessIcon`: A boolean that, when `true`, displays the business icon.
+   - `showFamilyIcon`: A boolean that, when `true`, displays the family icon.
    - `theme`: Specifies the theme for styling the icons.
 
 ## Accessibility (WCAG) Compliance
@@ -57,8 +57,8 @@ import { CipherInfoIndicatorIcons } from "./cipher-info-indicator-icons";
 import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
 <CipherInfoIndicatorIcons
-  isBusinessOrg={true}
-  isFamilyOrg={false}
+  showBusinessIcon={true}
+  showFamilyIcon={false}
   theme={ThemeTypes.Dark}
 />;
 ```
@@ -77,5 +77,5 @@ family organization icon.
 
 ### Notes
 
-- If neither isBusinessOrg nor isFamilyOrg is set to true, the component renders nothing. This
+- If neither showBusinessIcon nor showFamilyIcon is set to true, the component renders nothing. This
   behavior should be handled by the parent component.

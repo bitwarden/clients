@@ -879,9 +879,6 @@
   "filter": {
     "message": "Szűrő"
   },
-  "moveSelectedToOrg": {
-    "message": "A kiválasztott áthelyezése szervezetbe"
-  },
   "deleteSelected": {
     "message": "Kiválasztott törlése"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "A kiválasztott elemek átkerültek $ORGNAME$ szervezethez",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "Válasszunk egy szervezetet, ahová áthelyezni szeretnénk ezt az elemet. A szervezetbe áthelyezés átruházza az elem tulajdonjogát az adott szervezetre. Az áthelyezés után többé nem leszünk az elem közvetlen tulajdonosa."
   },
-  "moveManyToOrgDesc": {
-    "message": "Válasszunk egy szervezetet, ahová áthelyezni szeretnénk ezeket az elemeket. A szervezetbe áthelyezés átruházza az elemek tulajdonjogát az adott szervezetre. Az áthelyezés után többé nem leszünk az elemek közvetlen tulajdonosa."
-  },
   "collectionsDesc": {
     "message": "A megosztásra kerülő elem gyűjteményének szerkesztése. Csak az ezeket a gyűjteményeket elérő szervezeti felhasználók látják ezt az elemet."
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "$COUNT$ elem került kiválasztásra. $MOVEABLE_COUNT$ elem áthelyezhető szervezethezi, $NONMOVEABLE_COUNT$ nem.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },
