@@ -143,6 +143,14 @@
       <i class="bwi bwi-fw bwi-files" aria-hidden="true"></i>
       {{ "clone" | i18n }}
     </button>
+    <button bitMenuItem *ngIf="showArchive" type="button" (click)="archive()">
+      <i class="bwi bwi-fw bwi-archive" aria-hidden="true"></i>
+      {{ "archive" | i18n }}
+    </button>
+    <button bitMenuItem *ngIf="showUnarchive" type="button" (click)="unarchive()">
+      <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
+      {{ "unarchive" | i18n }}
+    </button>
     <button
       bitMenuItem
       *ngIf="showAssignToCollections"

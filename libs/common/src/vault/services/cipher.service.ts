@@ -58,10 +58,12 @@ import { Password } from "../models/domain/password";
 import { SecureNote } from "../models/domain/secure-note";
 import { SortedCiphersCache } from "../models/domain/sorted-ciphers-cache";
 import { SshKey } from "../models/domain/ssh-key";
+import { CipherBulkArchiveRequest } from "../models/request/cipher-bulk-archive.request";
 import { CipherBulkDeleteRequest } from "../models/request/cipher-bulk-delete.request";
 import { CipherBulkMoveRequest } from "../models/request/cipher-bulk-move.request";
 import { CipherBulkRestoreRequest } from "../models/request/cipher-bulk-restore.request";
 import { CipherBulkShareRequest } from "../models/request/cipher-bulk-share.request";
+import { CipherBulkUnarchiveRequest } from "../models/request/cipher-bulk-unarchive.request";
 import { CipherBulkUpdateCollectionsRequest } from "../models/request/cipher-bulk-update-collections.request";
 import { CipherCollectionsRequest } from "../models/request/cipher-collections.request";
 import { CipherCreateRequest } from "../models/request/cipher-create.request";
@@ -1080,6 +1082,40 @@ export class CipherService implements CipherServiceAbstraction {
     await this.encryptedCiphersState(userId).update(() => ciphers);
   }
 
+  async archive(id: string | string[], userId: UserId): Promise<any> {
+    const ciphers = await firstValueFrom(this.ciphers$(userId));
+    if (ciphers == null) {
+      return;
+    }
+
+    const idsToArchive = Array.isArray(id) ? id : [id];
+    idsToArchive.forEach((cipherId) => {
+      if (cipherId in ciphers) {
+        ciphers[cipherId as keyof typeof ciphers].archivedDate = new Date().toISOString();
+      }
+    });
+
+    await this.clearCache();
+    await this.encryptedCiphersState(userId).update(() => ciphers);
+  }
+
+  async unarchive(id: string | string[], userId: UserId): Promise<any> {
+    const ciphers = await firstValueFrom(this.ciphers$(userId));
+    if (ciphers == null) {
+      return;
+    }
+
+    const idsToArchive = Array.isArray(id) ? id : [id];
+    idsToArchive.forEach((cipherId) => {
+      if (cipherId in ciphers) {
+        ciphers[cipherId as keyof typeof ciphers].archivedDate = null;
+      }
+    });
+
+    await this.clearCache();
+    await this.encryptedCiphersState(userId).update(() => ciphers);
+  }
+
   async deleteWithServer(id: string, userId: UserId, asAdmin = false): Promise<any> {
     if (asAdmin) {
       await this.apiService.deleteCipherAdmin(id);
@@ -1088,6 +1124,30 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     await this.delete(id, userId);
+  }
+
+  async archiveWithServer(id: string, userId: UserId): Promise<any> {
+    await this.apiService.archiveCipher(id);
+    await this.archive(id, userId);
+  }
+
+  async unarchiveWithServer(id: string, userId: UserId): Promise<any> {
+    await this.apiService.unarchiveCipher(id);
+    await this.unarchive(id, userId);
+  }
+
+  async archiveManyWithServer(ids: string[], userId: UserId): Promise<any> {
+    const request = new CipherBulkArchiveRequest(ids);
+
+    await this.apiService.archiveManyCiphers(request);
+    await this.archive(ids, userId);
+  }
+
+  async unarchiveManyWithServer(ids: string[], userId: UserId): Promise<any> {
+    const request = new CipherBulkUnarchiveRequest(ids);
+
+    await this.apiService.unarchiveManyCiphers(request);
+    await this.unarchive(ids, userId);
   }
 
   async deleteManyWithServer(ids: string[], userId: UserId, asAdmin = false): Promise<any> {

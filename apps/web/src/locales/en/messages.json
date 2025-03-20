@@ -10577,10 +10577,37 @@
   "archive": {
     "message": "Archive"
   },
+  "unarchive": {
+    "message": "Unarchive"
+  },
   "noItemsInArchive": {
     "message": "No items in archive"
   },
   "archivedItemsDescription": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "archivedItem": {
+    "message": "Item sent to archive"
+  },
+  "archivedItems": {
+    "message": "Items sent to archive"
+  },
+  "unarchivedItem": {
+    "message": "Item removed from archive"
+  },
+  "unarchivedItems": {
+    "message": "Items removed from archive"
+  },
+  "archiveItemConfirmation": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "archiveItem": {
+    "message": "Archive Item"
+  },
+  "archiveItems": {
+    "message": "Archive Items"
+  },
+  "archiveItemsConfirmation": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive these items?"
   }
 }

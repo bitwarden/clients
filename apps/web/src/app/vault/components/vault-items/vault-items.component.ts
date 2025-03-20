@@ -53,6 +53,8 @@ export class VaultItemsComponent {
   @Input() allGroups: GroupView[] = [];
   @Input() showBulkEditCollectionAccess = false;
   @Input() showBulkAddToCollections = false;
+  @Input() showBulkUnarchive = false;
+  @Input() showBulkArchive = false;
   @Input() showPermissionsColumn = false;
   @Input() viewingOrgVault: boolean;
   @Input() addAccessStatus: number;
@@ -161,6 +163,25 @@ export class VaultItemsComponent {
     );
   }
 
+  get bulkArchiveAllowed() {
+    const AllowArchiveFlagOn = true; //TODO implement feature flag
+    return (
+      AllowArchiveFlagOn &&
+      this.selection.selected.filter((item) => item.collection || item.cipher.organizationId)
+        .length === 0 &&
+      this.selection.selected.filter((item) => item.cipher.archivedDate == null).length
+    );
+  }
+  get bulkUnarchiveAllowed() {
+    const AllowArchiveFlagOn = true; //TODO implement feature flag
+    return (
+      AllowArchiveFlagOn &&
+      this.selection.selected.filter((item) => item.collection || item.cipher.organizationId)
+        .length === 0 &&
+      this.selection.selected.filter((item) => item.cipher.archivedDate !== null).length
+    );
+  }
+
   //@TODO: remove this function when removing the limitItemDeletion$ feature flag.
   get showDelete(): boolean {
     if (this.selection.selected.length === 0) {
@@ -195,7 +216,9 @@ export class VaultItemsComponent {
       !this.bulkMoveAllowed &&
       !this.showAssignToCollections() &&
       !this.showDelete &&
-      !this.showBulkEditCollectionAccess
+      !this.showBulkEditCollectionAccess &&
+      !this.showBulkArchive &&
+      !this.showBulkUnarchive
     );
   }
 
@@ -249,6 +272,23 @@ export class VaultItemsComponent {
     });
   }
 
+  protected bulkArchive() {
+    this.event({
+      type: "bulkArchive",
+      items: this.selection.selected
+        .filter((item) => item.cipher !== undefined)
+        .map((item) => item.cipher),
+    });
+  }
+
+  protected bulkUnarchive() {
+    this.event({
+      type: "bulkUnarchive",
+      items: this.selection.selected
+        .filter((item) => item.cipher !== undefined)
+        .map((item) => item.cipher),
+    });
+  }
   protected bulkRestore() {
     this.event({
       type: "restore",
@@ -288,6 +328,22 @@ export class VaultItemsComponent {
     }
 
     return false;
+  }
+
+  protected canArchive(vaultItem: VaultItem) {
+    //TODO implement feature flag
+    const canArchiveFeatureFlag = true;
+    return (
+      vaultItem.cipher.organizationId == null &&
+      vaultItem.cipher.archivedDate == null &&
+      canArchiveFeatureFlag
+    );
+  }
+
+  protected canUnarchive(vaultItem: VaultItem) {
+    //TODO implement feature flag
+    const canArchiveFeatureFlag = true;
+    return vaultItem.cipher.archivedDate != null && canArchiveFeatureFlag;
   }
 
   protected canEditCipher(cipher: CipherView) {

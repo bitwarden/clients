@@ -10,6 +10,10 @@ export type VaultItemEvent =
   | { type: "viewEvents"; item: CipherView }
   | { type: "editCollection"; item: CollectionView; readonly: boolean }
   | { type: "clone"; item: CipherView }
+  | { type: "archive"; item: CipherView }
+  | { type: "bulkArchive"; items: CipherView[] }
+  | { type: "bulkUnarchive"; items: CipherView[] }
+  | { type: "unarchive"; item: CipherView }
   | { type: "restore"; items: CipherView[] }
   | { type: "delete"; items: VaultItem[] }
   | { type: "copyField"; item: CipherView; field: "username" | "password" | "totp" }

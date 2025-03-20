@@ -66,6 +66,19 @@
               <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
               {{ "addToFolder" | i18n }}
             </button>
+            <button *ngIf="bulkArchiveAllowed" type="button" bitMenuItem (click)="bulkArchive()">
+              <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
+              {{ "archive" | i18n }}
+            </button>
+            <button
+              *ngIf="bulkUnarchiveAllowed"
+              type="button"
+              bitMenuItem
+              (click)="bulkUnarchive()"
+            >
+              <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
+              {{ "unarchive" | i18n }}
+            </button>
             <button
               *ngIf="showAdminActions && showBulkEditCollectionAccess"
               type="button"
@@ -152,6 +165,8 @@
           [useEvents]="useEvents"
           [viewingOrgVault]="viewingOrgVault"
           [cloneable]="canClone(item)"
+          [archivable]="canArchive(item)"
+          [unarchivable]="canUnarchive(item)"
           [organizations]="allOrganizations"
           [collections]="allCollections"
           [checked]="selection.isSelected(item)"

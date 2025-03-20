@@ -128,10 +128,12 @@ import { Utils } from "../platform/misc/utils";
 import { SyncResponse } from "../platform/sync";
 import { UserId } from "../types/guid";
 import { AttachmentRequest } from "../vault/models/request/attachment.request";
+import { CipherBulkArchiveRequest } from "../vault/models/request/cipher-bulk-archive.request";
 import { CipherBulkDeleteRequest } from "../vault/models/request/cipher-bulk-delete.request";
 import { CipherBulkMoveRequest } from "../vault/models/request/cipher-bulk-move.request";
 import { CipherBulkRestoreRequest } from "../vault/models/request/cipher-bulk-restore.request";
 import { CipherBulkShareRequest } from "../vault/models/request/cipher-bulk-share.request";
+import { CipherBulkUnarchiveRequest } from "../vault/models/request/cipher-bulk-unarchive.request";
 import { CipherCollectionsRequest } from "../vault/models/request/cipher-collections.request";
 import { CipherCreateRequest } from "../vault/models/request/cipher-create.request";
 import { CipherPartialRequest } from "../vault/models/request/cipher-partial.request";
@@ -537,6 +539,21 @@ export class ApiService implements ApiServiceAbstraction {
 
   deleteManyCiphersAdmin(request: CipherBulkDeleteRequest): Promise<any> {
     return this.send("DELETE", "/ciphers/admin", request, true, false);
+  }
+
+  archiveCipher(id: string): Promise<any> {
+    return this.send("PUT", "/ciphers/" + id + "/archive", null, true, false);
+  }
+
+  unarchiveCipher(id: string): Promise<any> {
+    return this.send("PUT", "/ciphers/" + id + "/unarchive", null, true, false);
+  }
+
+  archiveManyCiphers(request: CipherBulkArchiveRequest): Promise<any> {
+    return this.send("PUT", "/ciphers/archive", request, true, false);
+  }
+  unarchiveManyCiphers(request: CipherBulkUnarchiveRequest): Promise<any> {
+    return this.send("PUT", "/ciphers/unarchive", request, true, false);
   }
 
   putMoveCiphers(request: CipherBulkMoveRequest): Promise<any> {

@@ -32,6 +32,8 @@ export class VaultCipherRowComponent implements OnInit {
   @Input() showPremiumFeatures: boolean;
   @Input() useEvents: boolean;
   @Input() cloneable: boolean;
+  @Input() archivable: boolean;
+  @Input() unarchivable: boolean;
   @Input() organizations: Organization[];
   @Input() collections: CollectionView[];
   @Input() viewingOrgVault: boolean;
@@ -108,6 +110,24 @@ export class VaultCipherRowComponent implements OnInit {
     return this.cloneable && !this.cipher.isDeleted;
   }
 
+  protected get showArchive() {
+    return (
+      this.archivable &&
+      this.cipher.organizationId == null &&
+      !this.cipher.isDeleted &&
+      !this.cipher.isArchived
+    );
+  }
+
+  protected get showUnarchive() {
+    return (
+      this.unarchivable &&
+      this.cipher.organizationId == null &&
+      this.cipher.isArchived &&
+      !this.cipher.isDeleted
+    );
+  }
+
   protected get showEventLogs() {
     return this.useEvents && this.cipher.organizationId;
   }
@@ -181,6 +201,14 @@ export class VaultCipherRowComponent implements OnInit {
 
   protected clone() {
     this.onEvent.emit({ type: "clone", item: this.cipher });
+  }
+
+  protected archive() {
+    this.onEvent.emit({ type: "archive", item: this.cipher });
+  }
+
+  protected unarchive() {
+    this.onEvent.emit({ type: "unarchive", item: this.cipher });
   }
 
   protected events() {

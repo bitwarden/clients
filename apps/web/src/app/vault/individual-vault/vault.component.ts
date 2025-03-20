@@ -564,6 +564,18 @@ export class VaultComponent implements OnInit, OnDestroy {
         case "viewAttachments":
           await this.editCipherAttachments(event.item);
           break;
+        case "archive":
+          await this.archiveCipher(event.item);
+          break;
+        case "unarchive":
+          await this.unarchiveCipher(event.item);
+          break;
+        case "bulkArchive":
+          await this.bulkArchiveCipher(event.items);
+          break;
+        case "bulkUnarchive":
+          await this.bulkUnarchiveCipher(event.items);
+          break;
         case "clone":
           await this.cloneCipher(event.item);
           break;
@@ -1049,6 +1061,152 @@ export class VaultComponent implements OnInit, OnDestroy {
       );
       await this.bulkDelete(ciphers, collections, orgs);
     }
+  }
+
+  async archiveCipher(c: CipherView): Promise<boolean> {
+    if (!(await this.repromptCipher([c]))) {
+      return;
+    }
+
+    if (!c.edit) {
+      this.showMissingPermissionsError();
+      return;
+    }
+
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "archiveItem" },
+      content: { key: "archiveItemConfirmation" },
+      type: "info",
+    });
+
+    if (!confirmed) {
+      return false;
+    }
+
+    try {
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.archiveCipherWithServer(c.id, activeUserId);
+
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("archivedItem"),
+      });
+      this.refresh();
+    } catch (e) {
+      this.logService.error(e);
+    }
+  }
+
+  async unarchiveCipher(c: CipherView): Promise<boolean> {
+    if (!(await this.repromptCipher([c]))) {
+      return;
+    }
+
+    if (!c.edit) {
+      this.showMissingPermissionsError();
+      return;
+    }
+
+    try {
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.unarchiveCipherWithServer(c.id, activeUserId);
+
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("unarchivedItem"),
+      });
+      this.refresh();
+    } catch (e) {
+      this.logService.error(e);
+    }
+  }
+
+  async bulkArchiveCipher(ciphers: CipherView[]): Promise<boolean> {
+    if (!(await this.repromptCipher(ciphers))) {
+      return;
+    }
+
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "archiveItems" },
+      content: { key: "archiveItemsConfirmation" },
+      type: "info",
+    });
+
+    if (!confirmed) {
+      return false;
+    }
+
+    const canEditAll = ciphers.every((cipher) => cipher.edit);
+
+    if (!canEditAll) {
+      this.showMissingPermissionsError();
+      return false;
+    }
+
+    try {
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+      const cipherIds = ciphers.map((cipher) => cipher.id);
+      await this.bulkArchiveCipherWithServer(cipherIds, activeUserId);
+
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("archivedItem"),
+      });
+      this.refresh();
+    } catch (e) {
+      this.logService.error(e);
+    }
+  }
+
+  async bulkUnarchiveCipher(ciphers: CipherView[]): Promise<boolean> {
+    if (!(await this.repromptCipher(ciphers))) {
+      //TODO should we do this here?
+      return;
+    }
+
+    const canEditAll = ciphers.every((cipher) => cipher.edit);
+
+    if (!canEditAll) {
+      this.showMissingPermissionsError();
+      return false;
+    }
+
+    try {
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+      const cipherIds = ciphers.map((cipher) => cipher.id);
+
+      await this.bulkUnarchiveCipherWithServer(cipherIds, activeUserId);
+
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("unarchivedItems"),
+      });
+      this.refresh();
+    } catch (e) {
+      this.logService.error(e);
+    }
+  }
+
+  protected archiveCipherWithServer(id: string, userId: UserId) {
+    return this.cipherService.archiveWithServer(id, userId);
+  }
+
+  protected unarchiveCipherWithServer(id: string, userId: UserId) {
+    return this.cipherService.unarchiveWithServer(id, userId);
+  }
+
+  protected bulkArchiveCipherWithServer(ids: string[], userId: UserId) {
+    return this.cipherService.archiveManyWithServer(ids, userId);
+  }
+
+  protected bulkUnarchiveCipherWithServer(ids: string[], userId: UserId) {
+    return this.cipherService.unarchiveManyWithServer(ids, userId);
   }
 
   async deleteCipher(c: CipherView): Promise<boolean> {

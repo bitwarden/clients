@@ -173,6 +173,11 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract moveManyWithServer(ids: string[], folderId: string, userId: UserId): Promise<any>;
   abstract delete(id: string | string[], userId: UserId): Promise<any>;
   abstract deleteWithServer(id: string, userId: UserId, asAdmin?: boolean): Promise<any>;
+  abstract archiveWithServer(id: string, userId: UserId): Promise<any>;
+  abstract unarchiveWithServer(id: string, userId: UserId): Promise<any>;
+  abstract archiveManyWithServer(ids: string[], userId: UserId): Promise<any>;
+  abstract unarchiveManyWithServer(ids: string[], userId: UserId): Promise<any>;
+
   abstract deleteManyWithServer(ids: string[], userId: UserId, asAdmin?: boolean): Promise<any>;
   abstract deleteAttachment(
     id: string,
