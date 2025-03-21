@@ -49,6 +49,7 @@ export enum FeatureFlag {
   AccountDeprovisioningBanner = "pm-17120-account-deprovisioning-admin-console-banner",
   PM15179_AddExistingOrgsFromProviderPortal = "pm-15179-add-existing-orgs-from-provider-portal",
   PM12276_BreadcrumbEventLogs = "pm-12276-breadcrumbing-for-business-features",
+  PM9115_TwoFactorFormPersistence = "pm-9115-two-factor-form-persistence",
   PM18794_ProviderPaymentMethod = "pm-18794-provider-payment-method",
 }
 
@@ -109,6 +110,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AccountDeprovisioningBanner]: FALSE,
   [FeatureFlag.PM15179_AddExistingOrgsFromProviderPortal]: FALSE,
   [FeatureFlag.PM12276_BreadcrumbEventLogs]: FALSE,
+  [FeatureFlag.PM9115_TwoFactorFormPersistence]: FALSE,
   [FeatureFlag.PM18794_ProviderPaymentMethod]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
