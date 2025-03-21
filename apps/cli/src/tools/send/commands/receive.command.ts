@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { OptionValues } from "commander";
 import * as inquirer from "inquirer";
-import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -33,12 +32,12 @@ export class SendReceiveCommand extends DownloadCommand {
     private keyService: KeyService,
     encryptService: EncryptService,
     private cryptoFunctionService: CryptoFunctionService,
-    private platformUtilsService: PlatformUtilsService,
-    private environmentService: EnvironmentService,
+    protected platformUtilsService: PlatformUtilsService,
+    protected environmentService: EnvironmentService,
     private sendApiService: SendApiService,
     apiService: ApiService,
   ) {
-    super(encryptService, apiService);
+    super(encryptService, apiService, environmentService, platformUtilsService);
   }
 
   async run(url: string, options: OptionValues): Promise<Response> {
@@ -107,25 +106,6 @@ export class SendReceiveCommand extends DownloadCommand {
       }
       default:
         return Response.success(new SendAccessResponse(response));
-    }
-  }
-
-  private getIdAndKey(url: URL): [string, string] {
-    const result = url.hash.slice(1).split("/").slice(-2);
-    return [result[0], result[1]];
-  }
-
-  private async getApiUrl(url: URL) {
-    const env = await firstValueFrom(this.environmentService.environment$);
-    const urls = env.getUrls();
-    if (url.origin === "https://send.bitwarden.com") {
-      return "https://api.bitwarden.com";
-    } else if (url.origin === urls.api) {
-      return url.origin;
-    } else if (this.platformUtilsService.isDev() && url.origin === urls.webVault) {
-      return urls.api;
-    } else {
-      return url.origin + "/api";
     }
   }
 

@@ -24,6 +24,8 @@ import { LoginUriExport } from "@bitwarden/common/models/export/login-uri.export
 import { LoginExport } from "@bitwarden/common/models/export/login.export";
 import { SecureNoteExport } from "@bitwarden/common/models/export/secure-note.export";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
@@ -66,8 +68,10 @@ export class GetCommand extends DownloadCommand {
     private eventCollectionService: EventCollectionService,
     private accountProfileService: BillingAccountProfileStateService,
     private accountService: AccountService,
+    protected environmentService: EnvironmentService,
+    protected platformUtilsService: PlatformUtilsService,
   ) {
-    super(encryptService, apiService);
+    super(encryptService, apiService, environmentService, platformUtilsService);
   }
 
   async run(object: string, id: string, cmdOptions: Record<string, any>): Promise<Response> {

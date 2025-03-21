@@ -1,7 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { firstValueFrom } from "rxjs";
+
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 
@@ -20,6 +24,8 @@ export abstract class DownloadCommand {
   constructor(
     protected encryptService: EncryptService,
     protected apiService: ApiService,
+    protected environmentService: EnvironmentService,
+    protected platformUtilsService: PlatformUtilsService,
   ) {}
 
   /**
@@ -60,6 +66,25 @@ export abstract class DownloadCommand {
       } else {
         return Response.error("An error occurred while saving the attachment.");
       }
+    }
+  }
+
+  protected getIdAndKey(url: URL): [string, string] {
+    const result = url.hash.slice(1).split("/").slice(-2);
+    return [result[0], result[1]];
+  }
+
+  protected async getApiUrl(url: URL) {
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const urls = env.getUrls();
+    if (url.origin === "https://send.bitwarden.com") {
+      return "https://api.bitwarden.com";
+    } else if (url.origin === urls.api) {
+      return url.origin;
+    } else if (this.platformUtilsService.isDev() && url.origin === urls.webVault) {
+      return urls.api;
+    } else {
+      return url.origin + "/api";
     }
   }
 }
