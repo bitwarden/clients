@@ -501,6 +501,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.exportService,
           this.serviceContainer.policyService,
           this.serviceContainer.eventCollectionService,
+          this.serviceContainer.configService,
         );
         const response = await command.run(options);
         this.processResponse(response);
