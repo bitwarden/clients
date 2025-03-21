@@ -1,7 +1,6 @@
 // @TODO Refactor
 export const QRCodeOptions = {
   WiFi: "wifi",
-  Contact: "contact",
   URL: "url",
   PlainText: "plaintext",
 } as const;
