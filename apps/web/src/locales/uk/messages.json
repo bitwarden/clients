@@ -879,9 +879,6 @@
   "filter": {
     "message": "Фільтр"
   },
-  "moveSelectedToOrg": {
-    "message": "Перемістити вибране до організації"
-  },
   "deleteSelected": {
     "message": "Видалити вибране"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Вибрані записи переміщено до $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "Виберіть організацію, до якої ви бажаєте перемістити цей запис. Переміщуючи до організації, власність запису передається тій організації. Ви більше не будете єдиним власником цього запису після переміщення."
   },
-  "moveManyToOrgDesc": {
-    "message": "Виберіть організацію, до якої ви бажаєте перемістити ці записи. Переміщуючи до організації, власність записів передається тій організації. Ви більше не будете єдиним власником цих записів після переміщення."
-  },
   "collectionsDesc": {
     "message": "Редагуйте збірки, з якими цей запис знаходиться в спільному доступі. Лише учасники організацій з доступом до цих збірок матимуть можливість бачити цей запис."
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "Ви вибрали $COUNT$ запис(ів). $MOVEABLE_COUNT$ запис(ів) можна перемістити до організації, $NONMOVEABLE_COUNT$ не можна.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },
@@ -10435,11 +10403,11 @@
     "message": "Розширення браузера Bitwarden успішно відкрито. Тепер ви можете переглянути свої ризиковані паролі."
   },
   "openExtensionManuallyPart1": {
-    "message": "We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon",
+    "message": "Виникли проблеми з відкриттям розширення браузера Bitwarden. Відкрийте піктограму Bitwarden",
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "openExtensionManuallyPart2": {
-    "message": "from the toolbar.",
+    "message": "з панелі інструментів.",
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "resellerRenewalWarningMsg": {
@@ -10501,16 +10469,16 @@
     }
   },
   "accountDeprovisioningNotification": {
-    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
+    "message": "Адміністратори тепер мають можливість видаляти облікові записи учасників, що належать до заявленого домену."
   },
   "deleteManagedUserWarningDesc": {
-    "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
+    "message": "Ця дія видалить обліковий запис учасника, включно з усіма записами в сховищі. Ця функція замінює попередню дію вилучення."
   },
   "deleteManagedUserWarning": {
-    "message": "Delete is a new action!"
+    "message": "Видалення – нова дія!"
   },
   "seatsRemaining": {
-    "message": "You have $REMAINING$ seats remaining out of $TOTAL$ seats assigned to this organization. Contact your provider to manage your subscription.",
+    "message": "У вас залишилося $REMAINING$ місць із загальної кількості ($TOTAL$) місць, призначених цій організації. Зверніться до свого провайдера, щоб керувати передплатою.",
     "placeholders": {
       "remaining": {
         "content": "$1",
@@ -10523,19 +10491,19 @@
     }
   },
   "existingOrganization": {
-    "message": "Existing organization"
+    "message": "Наявна організація"
   },
   "selectOrganizationProviderPortal": {
-    "message": "Select an organization to add to your Provider Portal."
+    "message": "Виберіть організацію, щоб додати до вашого порталу провайдера."
   },
   "noOrganizations": {
-    "message": "There are no organizations to list"
+    "message": "Немає організацій для показу"
   },
   "yourProviderSubscriptionCredit": {
-    "message": "Your provider subscription will receive a credit for any remaining time in the organization's subscription."
+    "message": "Ваш провайдер отримає кредит за будь-який час, що залишився у передплаті організації."
   },
   "doYouWantToAddThisOrg": {
-    "message": "Do you want to add this organization to $PROVIDER$?",
+    "message": "Ви хочете додати цю організацію до $PROVIDER$?",
     "placeholders": {
       "provider": {
         "content": "$1",
@@ -10544,22 +10512,22 @@
     }
   },
   "addedExistingOrganization": {
-    "message": "Added existing organization"
+    "message": "Додано наявну організацію"
   },
   "assignedExceedsAvailable": {
-    "message": "Assigned seats exceed available seats."
+    "message": "Призначені місця перевищують доступні місця."
   },
   "changeAtRiskPassword": {
     "message": "Змінити ризикований пароль"
   },
   "removeUnlockWithPinPolicyTitle": {
-    "message": "Remove Unlock with PIN"
+    "message": "Вилучити розблокування з PIN-кодом"
   },
   "removeUnlockWithPinPolicyDesc": {
-    "message": "Do not allow members to unlock their account with a PIN."
+    "message": "Не дозволяти учасникам розблокувати свій обліковий запис за допомогою PIN-коду."
   },
   "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",
+    "message": "Тарифні плани $PRODUCT_TYPE$ не мають доступу до реальних журналів подій",
     "placeholders": {
       "product_type": {
         "content": "$1",
@@ -10568,15 +10536,15 @@
     }
   },
   "upgradeForFullEvents": {
-    "message": "Get full access to organization event logs by upgrading to a Teams or Enterprise plan."
+    "message": "Отримайте повний доступ до журналу подій організації, передплативши тарифний план Teams або Enterprise."
   },
   "upgradeEventLogTitle": {
-    "message": "Upgrade for real event log data"
+    "message": "Оновіть тарифний план, щоб переглядати реальні дані журналу подій"
   },
   "upgradeEventLogMessage": {
-    "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
+    "message": "Ці події є лише зразками. Вони не відображають реальних подій у вашій організації Bitwarden."
   },
   "cannotCreateCollection": {
-    "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
+    "message": "Безплатні організації можуть мати до 2 збірок. Передплатіть тарифний план, щоб додати більше збірок."
   }
 }

@@ -4733,15 +4733,6 @@
   "nothingSelected": {
     "message": "Не сте избрали нищо."
   },
-  "movedItemsToOrg": {
-    "message": "Избраните записи бяха преместени в $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
-  },
   "itemsMovedToOrg": {
     "message": "Елементите са преместени в $ORGNAME$",
     "placeholders": {
