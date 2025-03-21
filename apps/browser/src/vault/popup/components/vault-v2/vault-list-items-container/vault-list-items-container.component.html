@@ -99,7 +99,9 @@
             type="button"
             (click)="primaryActionOnSelect(cipher)"
             (dblclick)="launchCipher(cipher)"
-            [appA11yTitle]="cipherItemTitleKey | async | i18n: cipher.name"
+            [appA11yTitle]="
+              cipherItemTitleKey(cipher) | async | i18n: cipher.name : cipher.login.username
+            "
             class="{{ itemHeightClass }}"
           >
             <div slot="start" class="tw-justify-start tw-w-7 tw-flex">
