@@ -649,13 +649,13 @@
     "message": "Prijavi se u Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Unesi kôd poslan e-poštom"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Unesi kôd iz svoje aplikacije za autentifikaciju"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Za autentifikaciju dodirni svoj YubiKey"
   },
   "logInWithPasskey": {
     "message": "Prijava pristupnim ključem"
@@ -710,7 +710,7 @@
     "message": "Podsjetnik glavne lozinke"
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "Ocjena jačine lozinke: $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -825,7 +825,7 @@
     "message": "Autentifikacija je otkazana ili je trajala predugo. Molimo pokušaj ponovno."
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "Otvori u novoj kartici"
   },
   "invalidVerificationCode": {
     "message": "Nevažeći kôd za provjeru"
@@ -858,7 +858,7 @@
     "message": "Zapamti me"
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "Ne pitaj na ovom uređaju idućih 30 dana"
   },
   "sendVerificationCodeEmailAgain": {
     "message": "Ponovno slanje kontrolnog koda e-poštom"
@@ -867,11 +867,11 @@
     "message": "Koristiti drugi način prijave dvostrukom autentifikacijom"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Odaberi drugi način",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "Koristi kôd za oporavak"
   },
   "insertYubiKey": {
     "message": "Umetni svoj YubiKey u USB priključak računala, a zatim dodirni njegovu tipku."
@@ -907,7 +907,7 @@
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Potvrdi svoj identitet"
   },
   "weDontRecognizeThisDevice": {
     "message": "Ne prepoznajemo ovaj uređaj. Za potvrdu identiteta unesi kôd poslan e-poštom."
@@ -940,7 +940,7 @@
     "message": "Mogućnosti prijave dvostrukom autentifikacijom"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "Odaberi način prijave dvostrukom autentifikacijom"
   },
   "selfHostedEnvironment": {
     "message": "Vlastito hosting okruženje"
@@ -998,7 +998,7 @@
     "message": "Ne"
   },
   "location": {
-    "message": "Location"
+    "message": "Lokacija"
   },
   "overwritePassword": {
     "message": "Prebriši lozinku"
@@ -1797,7 +1797,7 @@
     "message": "Zahtijevaj lozinku ili PIN pri pokretanju"
   },
   "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
+    "message": "Zahtijevaj lozinku pri pokretanju"
   },
   "recommendedForSecurity": {
     "message": "Preporučeno za sigurnost."
@@ -2269,10 +2269,10 @@
     "message": "Ovjeri WebAuthn"
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "Pročitaj sigurnosni ključ"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Awaiting security key interaction..."
+    "message": "Čekanje na interakciju sa sigurnosnim ključem..."
   },
   "hideEmail": {
     "message": "Sakrij moju adresu e-pošte od primatelja."
@@ -2671,7 +2671,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ je odbio tvoj zahtjev. Obrati se svom pružatelju usluga za pomoć.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -2681,7 +2681,7 @@
     }
   },
   "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ je odbio tvoj zahtjev: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3222,10 +3222,10 @@
     "message": "Za tvoj račun je potrebna Duo dvostruka autentifikacija."
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+    "message": "Za tvoj je račun potrebna Duo prijava u dva koraka. Za dovršetak prijave, slijedi daljnje korake."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Follow the steps below to finish logging in."
+    "message": "Prati korake za dovršetak prijave."
   },
   "launchDuo": {
     "message": "Pokreni Duo u pregledniku"
@@ -3485,25 +3485,25 @@
     "message": "Potvrdi korištenje SSH ključa"
   },
   "agentForwardingWarningTitle": {
-    "message": "Warning: Agent Forwarding"
+    "message": "Upozorenje: Agent proslijeđivanje"
   },
   "agentForwardingWarningText": {
-    "message": "This request comes from a remote device that you are logged into"
+    "message": "Ovaj je zahtjev došao s prijavljenog udaljenog uređaja"
   },
   "sshkeyApprovalMessageInfix": {
     "message": "traži pristup za"
   },
   "sshkeyApprovalMessageSuffix": {
-    "message": "in order to"
+    "message": "za"
   },
   "sshActionLogin": {
-    "message": "authenticate to a server"
+    "message": "autentifikaciju poslužitelju"
   },
   "sshActionSign": {
-    "message": "sign a message"
+    "message": "potpis poruke"
   },
   "sshActionGitSign": {
-    "message": "sign a git commit"
+    "message": "potpis git commita"
   },
   "unknownApplication": {
     "message": "Aplikacija"
@@ -3518,7 +3518,7 @@
     "message": "Uvezi ključ iz međuspremnika"
   },
   "sshKeyImported": {
-    "message": "SSH key imported successfully"
+    "message": "SSH ključ uspješno uvezen"
   },
   "fileSavedToDevice": {
     "message": "Datoteka spremljena na uređaj. Upravljaj u preuzimanjima svog uređaja."
@@ -3578,6 +3578,6 @@
     "message": "Proširenje preglednika koje koristitš zastarjelo. Ažuriraj ga ili onemogući provjeru otiska prsta u pregledniku u postavkama aplikacije za stolno računalo."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "Promijeni rizičnu lozinku"
   }
 }
