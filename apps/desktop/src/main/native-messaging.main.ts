@@ -172,7 +172,7 @@ export class NativeMessagingMain {
             const p = path.join(value, "NativeMessagingHosts", "com.8bit.bitwarden.json");
 
             let manifest: any = chromeJson;
-            if (key === "Firefox") {
+            if (key === "Firefox" || key === "Zen") {
               manifest = firefoxJson;
             }
 
@@ -313,6 +313,7 @@ export class NativeMessagingMain {
       "Microsoft Edge Dev": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Dev/`,
       "Microsoft Edge Canary": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Canary/`,
       Vivaldi: `${this.homedir()}/Library/Application\ Support/Vivaldi/`,
+      Zen: `${this.homedir()}/Library/Application\ Support/Zen/`,
     };
     /* eslint-enable no-useless-escape */
   }
