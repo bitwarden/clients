@@ -36,18 +36,24 @@ export function inferQRTypeValuesByCipher(cipher: CipherView): { type: QROptions
   return { type: "plaintext" };
 }
 
-export function encodeCipherForQRType(type: QROptions, mapping: any, cipher: CipherView): string {
+export function encodeCipherForQRType(
+  type: QROptions,
+  mapping: any,
+  cipherFieldMap: {
+    [key: string]: { name: string; label: string; value: string };
+  },
+): string {
   let encodable: string = "";
   switch (type) {
     case "wifi":
-      encodable = `WIFI:S:${mapping.ssid};T:<WPA|WEP|>;P:${mapping.password};;`;
+      encodable = `WIFI:S:${cipherFieldMap[mapping.ssid].value};T:<WPA|WEP|>;P:${cipherFieldMap[mapping.password].value};;`;
       break;
     case "url":
-      encodable = mapping.link;
+      encodable = cipherFieldMap[mapping.link].value;
       break;
     case "plaintext":
     default:
-      encodable = mapping.content;
+      encodable = cipherFieldMap[mapping.content].value;
       break;
   }
 
@@ -63,9 +69,11 @@ export function encodeCipherForQRType(type: QROptions, mapping: any, cipher: Cip
 export async function generateQRCodePath(
   type: QROptions,
   mapping: any,
-  cipher: CipherView,
+  cipherFieldMap: {
+    [key: string]: { name: string; label: string; value: string };
+  },
 ): Promise<string> {
-  const encodable = encodeCipherForQRType(type, mapping, cipher);
+  const encodable = encodeCipherForQRType(type, mapping, cipherFieldMap);
 
   const svg = await QRCode.toString(encodable, { type: "svg" });
 

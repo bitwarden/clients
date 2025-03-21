@@ -319,7 +319,11 @@ export class VaultItemVisualizerComponent implements OnInit {
 
       if (typeof values !== "undefined" && values.qrCodeType !== null) {
         /* @TODO pass the fieldMappings select values with cipher data, let bkgd fn handle? */
-        const qrCodePath = await generateQRCodePath("wifi", values.fieldMappings, this.cipher);
+        const qrCodePath = await generateQRCodePath(
+          "wifi",
+          values.fieldMappings,
+          this.availableCipherFieldsMap(),
+        );
         this.qrCodePath.set(qrCodePath);
       }
     });
