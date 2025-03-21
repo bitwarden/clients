@@ -62,10 +62,10 @@ const matchOptions: IsActiveMatchOptions = {
   providers: [{ provide: LoginViaAuthRequestCacheService }],
 })
 export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
-  private authRequest: AuthRequest | undefined = undefined;
   private authRequestKeyPair:
     | { publicKey: Uint8Array | undefined; privateKey: Uint8Array | undefined }
     | undefined = undefined;
+  private accessCode: string | undefined = undefined;
   private authStatus: AuthenticationStatus | undefined = undefined;
   private showResendNotificationTimeoutSeconds = 12;
 
@@ -110,7 +110,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     this.authRequestService.authRequestPushNotification$
       .pipe(takeUntilDestroyed())
       .subscribe((requestId) => {
-        this.verifyAndHandleApprovedAuthReq(requestId).catch((e: Error) => {
+        this.processAuthRequestResponse(requestId).catch((e: Error) => {
           this.toastService.showToast({
             variant: "error",
             title: this.i18nService.t("error"),
@@ -194,7 +194,23 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.startStandardAuthRequestLogin();
+    // [Standard Flow State Management] Check cached auth request
+    const cachedAuthRequest: LoginViaAuthRequestView | null =
+      this.loginViaAuthRequestCacheService.getCachedLoginViaAuthRequestView();
+
+    if (cachedAuthRequest) {
+      if (!cachedAuthRequest.id) {
+        this.logService.error(
+          "No id on the cached auth request when in the standard auth request flow.",
+        );
+        return;
+      }
+
+      await this.reloadCachedStandardAuthRequest(cachedAuthRequest);
+      await this.processAuthRequestResponse(cachedAuthRequest.id);
+    } else {
+      await this.startStandardAuthRequestLogin();
+    }
   }
 
   private async handleMissingEmail(): Promise<void> {
@@ -214,9 +230,17 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
 
   private async startAdminAuthRequestLogin(): Promise<void> {
     try {
-      await this.buildAuthRequest(AuthRequestType.AdminApproval);
+      if (!this.email) {
+        this.logService.error("No email when starting admin auth request login.");
+        return;
+      }
 
-      if (!this.authRequest) {
+      // Scope this auth request to just this process. We don't want it to carry
+      // on outside of this scope because it should either be regenerated with
+      // what is in the cache or created initially like it is doing here.
+      const authRequest = await this.buildAuthRequest(this.email, AuthRequestType.AdminApproval);
+
+      if (!authRequest) {
         this.logService.error("Auth request failed to build.");
         return;
       }
@@ -226,9 +250,9 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
         return;
       }
 
-      const authRequestResponse = await this.authRequestApiService.postAdminAuthRequest(
-        this.authRequest as AuthRequest,
-      );
+      const authRequestResponse =
+        await this.authRequestApiService.postAdminAuthRequest(authRequest);
+
       const adminAuthReqStorable = new AdminAuthRequestStorable({
         id: authRequestResponse.id,
         privateKey: this.authRequestKeyPair.privateKey,
@@ -253,104 +277,110 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected async startStandardAuthRequestLogin(
-    clearCachedRequest: boolean = false,
+  /**
+   * Loads the cached auth request into the component state.
+   * @param cachedAuthRequest The request to load into the component state
+   * @returns Promise to await for completion
+   */
+  protected async reloadCachedStandardAuthRequest(
+    cachedAuthRequest: LoginViaAuthRequestView,
   ): Promise<void> {
+    if (cachedAuthRequest) {
+      // Grab the cached information and store it back in component state.
+      // We don't need the public key for handling the authentication request because
+      // the verifyAndHandleApprovedAuthReq function will receive the public key back
+      // from the looked up auth request and all we need is to make sure that
+      // we can use the cached private key that is associated with it.
+
+      if (!this.email) {
+        this.logService.error("Email not defined when handling an existing auth request.");
+        return;
+      }
+
+      if (!cachedAuthRequest.privateKey) {
+        this.logService.error("No private key on the cached auth request.");
+        return;
+      }
+
+      const privateKey = Utils.fromB64ToArray(cachedAuthRequest.privateKey);
+
+      // Re-derive the user's fingerprint phrase
+      // It is important to not use the server's public key here as it could have been compromised via MITM
+      const derivedPublicKeyArrayBuffer =
+        await this.cryptoFunctionService.rsaExtractPublicKey(privateKey);
+
+      this.fingerprintPhrase = await this.authRequestService.getFingerprintPhrase(
+        this.email,
+        derivedPublicKeyArrayBuffer,
+      );
+
+      // Request still pending response from admin set keypair and create hub connection
+      // so that any approvals will be received via push notification
+      this.authRequestKeyPair = {
+        privateKey: privateKey,
+        publicKey: undefined,
+      };
+    }
+  }
+
+  protected async startStandardAuthRequestLogin(): Promise<void> {
     this.showResendNotification = false;
 
-    if (await this.configService.getFeatureFlag(FeatureFlag.PM9112_DeviceApprovalPersistence)) {
-      // Used for manually refreshing the auth request when clicking the resend auth request
-      // on the ui.
-      if (clearCachedRequest) {
-        this.loginViaAuthRequestCacheService.clearCacheLoginView();
+    try {
+      if (!this.email) {
+        this.logService.error("Email not defined when starting standard auth request login.");
+        return;
       }
 
-      try {
-        const loginAuthRequestView: LoginViaAuthRequestView | null =
-          this.loginViaAuthRequestCacheService.getCachedLoginViaAuthRequestView();
+      const authRequest = await this.buildAuthRequest(
+        this.email,
+        AuthRequestType.AuthenticateAndUnlock,
+      );
 
-        if (!loginAuthRequestView) {
-          await this.buildAuthRequest(AuthRequestType.AuthenticateAndUnlock);
-
-          // I tried several ways to get the IDE/linter to play nice with checking for null values
-          // in less code / more efficiently, but it struggles to identify code paths that
-          // are more complicated than this.
-          if (!this.authRequest) {
-            this.logService.error("AuthRequest failed to initialize from buildAuthRequest.");
-            return;
-          }
-
-          if (!this.fingerprintPhrase) {
-            this.logService.error("FingerprintPhrase failed to initialize from buildAuthRequest.");
-            return;
-          }
-
-          if (!this.authRequestKeyPair) {
-            this.logService.error("KeyPair failed to initialize from buildAuthRequest.");
-            return;
-          }
-
-          const authRequestResponse: AuthRequestResponse =
-            await this.authRequestApiService.postAuthRequest(this.authRequest);
-
-          this.loginViaAuthRequestCacheService.cacheLoginView(
-            this.authRequest,
-            authRequestResponse,
-            this.fingerprintPhrase,
-            this.authRequestKeyPair,
-          );
-
-          if (authRequestResponse.id) {
-            await this.anonymousHubService.createHubConnection(authRequestResponse.id);
-          }
-        } else {
-          // Grab the cached information and store it back in component state.
-          // We don't need the public key for handling the authentication request because
-          // the verifyAndHandleApprovedAuthReq function will receive the public key back
-          // from the looked up auth request and all we need is to make sure that
-          // we can use the cached private key that is associated with it.
-          this.authRequest = loginAuthRequestView.authRequest;
-          this.fingerprintPhrase = loginAuthRequestView.fingerprintPhrase;
-          this.authRequestKeyPair = {
-            privateKey: loginAuthRequestView.privateKey
-              ? Utils.fromB64ToArray(loginAuthRequestView.privateKey)
-              : undefined,
-            publicKey: undefined,
-          };
-
-          if (!loginAuthRequestView.authRequestResponse) {
-            this.logService.error("No cached auth request response.");
-            return;
-          }
-
-          if (loginAuthRequestView.authRequestResponse.id) {
-            await this.anonymousHubService.createHubConnection(
-              loginAuthRequestView.authRequestResponse.id,
-            );
-          }
-        }
-      } catch (e) {
-        this.logService.error(e);
+      // I tried several ways to get the IDE/linter to play nice with checking for null values
+      // in less code / more efficiently, but it struggles to identify code paths that
+      // are more complicated than this.
+      if (!authRequest) {
+        this.logService.error("AuthRequest failed to initialize from buildAuthRequest.");
+        return;
       }
-    } else {
-      try {
-        await this.buildAuthRequest(AuthRequestType.AuthenticateAndUnlock);
 
-        if (!this.authRequest) {
-          this.logService.error("No auth request found.");
+      if (!this.fingerprintPhrase) {
+        this.logService.error("FingerprintPhrase failed to initialize from buildAuthRequest.");
+        return;
+      }
+
+      if (!this.authRequestKeyPair) {
+        this.logService.error("KeyPair failed to initialize from buildAuthRequest.");
+        return;
+      }
+
+      const authRequestResponse: AuthRequestResponse =
+        await this.authRequestApiService.postAuthRequest(authRequest);
+
+      if (await this.configService.getFeatureFlag(FeatureFlag.PM9112_DeviceApprovalPersistence)) {
+        if (!this.authRequestKeyPair.privateKey) {
+          this.logService.error("No private key when trying to cache the login view.");
           return;
         }
 
-        const authRequestResponse = await this.authRequestApiService.postAuthRequest(
-          this.authRequest,
-        );
-
-        if (authRequestResponse.id) {
-          await this.anonymousHubService.createHubConnection(authRequestResponse.id);
+        if (!this.accessCode) {
+          this.logService.error("No access code when trying to cache the login view.");
+          return;
         }
-      } catch (e) {
-        this.logService.error(e);
+
+        this.loginViaAuthRequestCacheService.cacheLoginView(
+          authRequestResponse.id,
+          this.authRequestKeyPair.privateKey,
+          this.accessCode,
+        );
       }
+
+      if (authRequestResponse.id) {
+        await this.anonymousHubService.createHubConnection(authRequestResponse.id);
+      }
+    } catch (e) {
+      this.logService.error(e);
     }
 
     setTimeout(() => {
@@ -358,7 +388,10 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     }, this.showResendNotificationTimeoutSeconds * 1000);
   }
 
-  private async buildAuthRequest(authRequestType: AuthRequestType): Promise<void> {
+  private async buildAuthRequest(
+    email: string,
+    authRequestType: AuthRequestType,
+  ): Promise<AuthRequest> {
     const authRequestKeyPairArray = await this.cryptoFunctionService.rsaGenerateKeyPair(2048);
 
     this.authRequestKeyPair = {
@@ -369,33 +402,24 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     const deviceIdentifier = await this.appIdService.getAppId();
 
     if (!this.authRequestKeyPair.publicKey) {
-      this.logService.error("AuthRequest public key not set to value in building auth request.");
-      return;
+      const errorMessage = "No public key when building an auth request.";
+      this.logService.error(errorMessage);
+      throw new Error(errorMessage);
     }
 
-    const publicKey = Utils.fromBufferToB64(this.authRequestKeyPair.publicKey);
-    const accessCode = await this.passwordGenerationService.generatePassword({
+    this.fingerprintPhrase = await this.authRequestService.getFingerprintPhrase(
+      email,
+      this.authRequestKeyPair.publicKey,
+    );
+
+    this.accessCode = await this.passwordGenerationService.generatePassword({
       type: "password",
       length: 25,
     });
 
-    if (!this.email) {
-      this.logService.error("Email not defined when building auth request.");
-      return;
-    }
+    const b64PublicKey = Utils.fromBufferToB64(this.authRequestKeyPair.publicKey);
 
-    this.fingerprintPhrase = await this.authRequestService.getFingerprintPhrase(
-      this.email,
-      this.authRequestKeyPair.publicKey,
-    );
-
-    this.authRequest = new AuthRequest(
-      this.email,
-      deviceIdentifier,
-      publicKey,
-      authRequestType,
-      accessCode,
-    );
+    return new AuthRequest(email, deviceIdentifier, b64PublicKey, authRequestType, this.accessCode);
   }
 
   private async handleExistingAdminAuthRequest(
@@ -414,7 +438,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       );
     } catch (error) {
       if (error instanceof ErrorResponse && error.statusCode === HttpStatusCode.NotFound) {
-        return await this.handleExistingAdminAuthReqDeletedOrDenied(userId);
+        return await this.clearExistingAdminAuthRequestAndStartNewRequest(userId);
       }
       this.logService.error(error);
       return;
@@ -422,28 +446,12 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
 
     // Request doesn't exist anymore
     if (!adminAuthRequestResponse) {
-      return await this.handleExistingAdminAuthReqDeletedOrDenied(userId);
+      return await this.clearExistingAdminAuthRequestAndStartNewRequest(userId);
     }
-
-    // Re-derive the user's fingerprint phrase
-    // It is important to not use the server's public key here as it could have been compromised via MITM
-    const derivedPublicKeyArrayBuffer = await this.cryptoFunctionService.rsaExtractPublicKey(
-      adminAuthRequestStorable.privateKey,
-    );
-
-    if (!this.email) {
-      this.logService.error("Email not defined when handling an existing an admin auth request.");
-      return;
-    }
-
-    this.fingerprintPhrase = await this.authRequestService.getFingerprintPhrase(
-      this.email,
-      derivedPublicKeyArrayBuffer,
-    );
 
     // Request denied
     if (adminAuthRequestResponse.isAnswered && !adminAuthRequestResponse.requestApproved) {
-      return await this.handleExistingAdminAuthReqDeletedOrDenied(userId);
+      return await this.clearExistingAdminAuthRequestAndStartNewRequest(userId);
     }
 
     // Request approved
@@ -455,6 +463,22 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       );
     }
 
+    if (!this.email) {
+      this.logService.error("Email not defined when handling an existing an admin auth request.");
+      return;
+    }
+
+    // Re-derive the user's fingerprint phrase
+    // It is important to not use the server's public key here as it could have been compromised via MITM
+    const derivedPublicKeyArrayBuffer = await this.cryptoFunctionService.rsaExtractPublicKey(
+      adminAuthRequestStorable.privateKey,
+    );
+
+    this.fingerprintPhrase = await this.authRequestService.getFingerprintPhrase(
+      this.email,
+      derivedPublicKeyArrayBuffer,
+    );
+
     // Request still pending response from admin set keypair and create hub connection
     // so that any approvals will be received via push notification
     this.authRequestKeyPair = {
@@ -464,117 +488,92 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     await this.anonymousHubService.createHubConnection(adminAuthRequestStorable.id);
   }
 
-  private async verifyAndHandleApprovedAuthReq(requestId: string): Promise<void> {
-    /**
-     * ***********************************
-     *     Standard Auth Request Flows
-     * ***********************************
-     *
-     * Flow 1: Unauthed user requests approval from device; Approving device has a masterKey in memory.
-     *
-     *         Unauthed user clicks "Login with device" > navigates to /login-with-device which creates a StandardAuthRequest
-     *           > receives approval from a device with authRequestPublicKey(masterKey) > decrypts masterKey > decrypts userKey > proceed to vault
-     *
-     * Flow 2: Unauthed user requests approval from device; Approving device does NOT have a masterKey in memory.
-     *
-     *         Unauthed user clicks "Login with device" > navigates to /login-with-device which creates a StandardAuthRequest
-     *           > receives approval from a device with authRequestPublicKey(userKey) > decrypts userKey > proceeds to vault
-     *
-     *         Note: this flow is an uncommon scenario and relates to TDE off-boarding. The following describes how a user could get into this flow:
-     *           1) An SSO TD user logs into a device via an Admin auth request approval, therefore this device does NOT have a masterKey in memory.
-     *           2) The org admin...
-     *              (2a) Changes the member decryption options from "Trusted devices" to "Master password" AND
-     *              (2b) Turns off the "Require single sign-on authentication" policy
-     *           3) On another device, the user clicks "Login with device", which they can do because the org no longer requires SSO.
-     *           4) The user approves from the device they had previously logged into with SSO TD, which does NOT have a masterKey in memory (see step 1 above).
-     *
-     * Flow 3: Authed SSO TD user requests approval from device; Approving device has a masterKey in memory.
-     *
-     *         SSO TD user authenticates via SSO > navigates to /login-initiated > clicks "Approve from your other device"
-     *           > navigates to /login-with-device which creates a StandardAuthRequest > receives approval from device with authRequestPublicKey(masterKey)
-     *             > decrypts masterKey > decrypts userKey > establishes trust (if required) > proceeds to vault
-     *
-     * Flow 4: Authed SSO TD user requests approval from device; Approving device does NOT have a masterKey in memory.
-     *
-     *         SSO TD user authenticates via SSO > navigates to /login-initiated > clicks "Approve from your other device"
-     *           > navigates to /login-with-device which creates a StandardAuthRequest > receives approval from device with authRequestPublicKey(userKey)
-     *             > decrypts userKey > establishes trust (if required) > proceeds to vault
-     *
-     * ***********************************
-     *     Admin Auth Request Flow
-     * ***********************************
-     *
-     * Flow: Authed SSO TD user requests admin approval.
-     *
-     *         SSO TD user authenticates via SSO > navigates to /login-initiated > clicks "Request admin approval"
-     *           > navigates to /admin-approval-requested which creates an AdminAuthRequest > receives approval from device with authRequestPublicKey(userKey)
-     *             > decrypts userKey > establishes trust (if required) > proceeds to vault
-     *
-     *        Note: TDE users are required to be enrolled in admin password reset, which gives the admin access to the user's userKey.
-     *              This is how admins are able to send over the authRequestPublicKey(userKey) to the user to allow them to unlock.
-     *
-     *
-     *   Summary Table
-     * |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-     * |      Flow       | Auth Status |           Clicks Button [active route]              |       Navigates to        | Approving device has masterKey in memory (see note 1) |
-     * |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-     * | Standard Flow 1 | unauthed    | "Login with device"              [/login]           | /login-with-device        | yes                                                   |
-     * | Standard Flow 2 | unauthed    | "Login with device"              [/login]           | /login-with-device        | no                                                    |
-     * | Standard Flow 3 | authed      | "Approve from your other device" [/login-initiated] | /login-with-device        | yes                                                   |
-     * | Standard Flow 4 | authed      | "Approve from your other device" [/login-initiated] | /login-with-device        | no                                                    |
-     * | Admin Flow      | authed      | "Request admin approval"         [/login-initiated] | /admin-approval-requested | NA - admin requests always send encrypted userKey     |
-     * |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-     *    * Note 1: The phrase "in memory" here is important. It is possible for a user to have a master password for their account, but not have a masterKey IN MEMORY for
-     *              a specific device. For example, if a user registers an account with a master password, then joins an SSO TD org, then logs in to a device via SSO and
-     *              admin auth request, they are now logged into that device but that device does not have masterKey IN MEMORY.
-     */
-
+  /**
+   * This is used for trying to get the auth request back out of state.
+   * @param requestId
+   * @private
+   */
+  private async retrieveAuthRequest(requestId: string): Promise<AuthRequestResponse> {
+    let authRequestResponse: AuthRequestResponse | undefined = undefined;
     try {
+      // There are two cases here, the first being
       const userHasAuthenticatedViaSSO = this.authStatus === AuthenticationStatus.Locked;
 
+      // Get the response based on whether we've authenticated or not.  We need to call a different API method
+      // based on whether we have a token or need to use the accessCode.
       if (userHasAuthenticatedViaSSO) {
-        // Get the auth request from the server
-        // User is authenticated, therefore the endpoint does not require an access code.
-        const authRequestResponse = await this.authRequestApiService.getAuthRequest(requestId);
-
-        if (authRequestResponse.requestApproved) {
-          // Handles Standard Flows 3-4 and Admin Flow
-          await this.handleAuthenticatedFlows(authRequestResponse);
-        }
+        authRequestResponse = await this.authRequestApiService.getAuthRequest(requestId);
       } else {
-        if (!this.authRequest) {
-          this.logService.error("No auth request defined when handling approved auth request.");
-          return;
+        if (!this.accessCode) {
+          const errorMessage = "No access code available when handling approved auth request.";
+          this.logService.error(errorMessage);
+          throw new Error(errorMessage);
         }
-
-        // Get the auth request from the server
-        // User is unauthenticated, therefore the endpoint requires an access code for user verification.
-        const authRequestResponse = await this.authRequestApiService.getAuthResponse(
+        authRequestResponse = await this.authRequestApiService.getAuthResponse(
           requestId,
-          this.authRequest.accessCode,
+          this.accessCode,
         );
+      }
+    } catch (error) {
+      // If the request no longer exists, we treat it as if it's been answered (and denied).
+      if (error instanceof ErrorResponse && error.statusCode === HttpStatusCode.NotFound) {
+        this.logService.error(error.message);
+        throw new Error(error.message);
+      }
+    }
 
-        if (authRequestResponse.requestApproved) {
-          // Handles Standard Flows 1-2
-          await this.handleUnauthenticatedFlows(authRequestResponse, requestId);
+    if (authRequestResponse === undefined) {
+      throw new Error("Auth reqeust response not generated");
+    }
+
+    return authRequestResponse;
+  }
+
+  /**
+   * Determines if the Auth Request has been approved, deleted or denied, and handles
+   * the response accordingly.
+   * @param requestId The ID of the Auth Request to process
+   * @returns A boolean indicating whether the Auth Request was successfully processed
+   */
+  private async processAuthRequestResponse(requestId: string): Promise<void> {
+    try {
+      const authRequestResponse = await this.retrieveAuthRequest(requestId);
+
+      // Request doesn't exist anymore, so we'll clear the cache and start a new request.
+      if (!authRequestResponse) {
+        return await this.clearExistingStandardAuthRequestAndStartNewRequest();
+      }
+
+      // Request denied, so we'll clear the cache and start a new request.
+      if (authRequestResponse.isAnswered && !authRequestResponse.requestApproved) {
+        return await this.clearExistingStandardAuthRequestAndStartNewRequest();
+      }
+
+      // Request approved, so we'll log the user in.
+      if (authRequestResponse.requestApproved) {
+        const userHasAuthenticatedViaSSO = this.authStatus === AuthenticationStatus.Locked;
+        if (userHasAuthenticatedViaSSO) {
+          // [Standard Flow 3-4] Handle authenticated SSO TD user flows
+          return await this.handleAuthenticatedFlows(authRequestResponse);
+        } else {
+          // [Standard Flow 1-2] Handle unauthenticated user flows
+          return await this.handleUnauthenticatedFlows(authRequestResponse, requestId);
         }
       }
+
+      // At this point, we know that the request is still pending, so we'll start a hub connection to listen for a response.
+      await this.anonymousHubService.createHubConnection(requestId);
     } catch (error) {
       if (error instanceof ErrorResponse) {
         await this.router.navigate([this.backToRoute]);
         this.validationService.showError(error);
-        return;
       }
-
       this.logService.error(error);
-    } finally {
-      // Manually clean out the cache to make sure sensitive
-      // data does not persist longer than it needs to.
-      this.loginViaAuthRequestCacheService.clearCacheLoginView();
     }
   }
 
   private async handleAuthenticatedFlows(authRequestResponse: AuthRequestResponse) {
+    // [Standard Flow 3-4] Handle authenticated SSO TD user flows
     const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
     if (!userId) {
       this.logService.error(
@@ -599,6 +598,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     authRequestResponse: AuthRequestResponse,
     requestId: string,
   ) {
+    // [Standard Flow 1-2] Handle unauthenticated user flows
     const authRequestLoginCredentials = await this.buildAuthRequestLoginCredentials(
       requestId,
       authRequestResponse,
@@ -621,21 +621,20 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     userId: UserId,
   ): Promise<void> {
     /**
-     * See verifyAndHandleApprovedAuthReq() for flow details.
-     *
+     * [Flow Type Detection]
      * We determine the type of `key` based on the presence or absence of `masterPasswordHash`:
-     *  - If `masterPasswordHash` has a value, we receive the `key` as an authRequestPublicKey(masterKey) [plus we have authRequestPublicKey(masterPasswordHash)]
-     *  - If `masterPasswordHash` does not have a value, we receive the `key` as an authRequestPublicKey(userKey)
+     *  - If `masterPasswordHash` exists: Standard Flow 1 or 3 (device has masterKey)
+     *  - If no `masterPasswordHash`: Standard Flow 2, 4, or Admin Flow (device sends userKey)
      */
     if (authRequestResponse.masterPasswordHash) {
-      // ...in Standard Auth Request Flow 3
+      // [Standard Flow 1 or 3] Device has masterKey
       await this.authRequestService.setKeysAfterDecryptingSharedMasterKeyAndHash(
         authRequestResponse,
         privateKey,
         userId,
       );
     } else {
-      // ...in Standard Auth Request Flow 4 or Admin Auth Request Flow
+      // [Standard Flow 2, 4, or Admin Flow] Device sends userKey
       await this.authRequestService.setUserKeyAfterDecryptingSharedUserKey(
         authRequestResponse,
         privateKey,
@@ -643,6 +642,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       );
     }
 
+    // [Admin Flow Cleanup] Clear one-time use admin auth request
     // clear the admin auth request from state so it cannot be used again (it's a one time use)
     // TODO: this should eventually be enforced via deleting this on the server once it is used
     await this.authRequestService.clearAdminAuthRequest(userId);
@@ -652,6 +652,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       message: this.i18nService.t("loginApproved"),
     });
 
+    // [Device Trust] Establish trust if required
     // Now that we have a decrypted user key in memory, we can check if we
     // need to establish trust on the current device
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
@@ -686,9 +687,9 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.authRequest) {
+    if (!this.accessCode) {
       this.logService.error(
-        "AuthRequest not defined when building auth request login credentials.",
+        "Access code not defined when building auth request login credentials.",
       );
       return;
     }
@@ -711,7 +712,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
 
       return new AuthRequestLoginCredentials(
         this.email,
-        this.authRequest.accessCode,
+        this.accessCode,
         requestId,
         null, // no userKey
         masterKey,
@@ -725,7 +726,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       );
       return new AuthRequestLoginCredentials(
         this.email,
-        this.authRequest.accessCode,
+        this.accessCode,
         requestId,
         userKey,
         null, // no masterKey
@@ -734,12 +735,20 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async handleExistingAdminAuthReqDeletedOrDenied(userId: UserId) {
+  private async clearExistingAdminAuthRequestAndStartNewRequest(userId: UserId) {
     // clear the admin auth request from state
     await this.authRequestService.clearAdminAuthRequest(userId);
 
     // start new auth request
     await this.startAdminAuthRequestLogin();
+  }
+
+  private async clearExistingStandardAuthRequestAndStartNewRequest(): Promise<void> {
+    // clear the auth request from state
+    this.loginViaAuthRequestCacheService.clearCacheLoginView();
+
+    // start new auth request
+    await this.startStandardAuthRequestLogin();
   }
 
   private async handlePostLoginNavigation(loginResponse: AuthResult) {

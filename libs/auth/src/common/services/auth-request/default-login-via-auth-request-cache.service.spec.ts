@@ -2,11 +2,9 @@ import { signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 
 import { ViewCacheService } from "@bitwarden/angular/platform/abstractions/view-cache.service";
-import { AuthRequestType } from "@bitwarden/common/auth/enums/auth-request-type";
-import { AuthRequest } from "@bitwarden/common/auth/models/request/auth.request";
-import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { LoginViaAuthRequestView } from "@bitwarden/common/auth/models/view/login-via-auth-request.view";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { LoginViaAuthRequestCacheService } from "./default-login-via-auth-request-cache.service";
 
@@ -39,12 +37,12 @@ describe("LoginViaAuthRequestCache", () => {
     });
 
     it("`getCachedLoginViaAuthRequestView` returns the cached data", async () => {
-      cacheSignal.set({ ...buildAuthenticMockAuthView() });
+      cacheSignal.set({ ...buildMockState() });
       service = testBed.inject(LoginViaAuthRequestCacheService);
       await service.init();
 
       expect(service.getCachedLoginViaAuthRequestView()).toEqual({
-        ...buildAuthenticMockAuthView(),
+        ...buildMockState(),
       });
     });
 
@@ -54,20 +52,19 @@ describe("LoginViaAuthRequestCache", () => {
 
       const parameters = buildAuthenticMockAuthView();
 
-      service.cacheLoginView(
-        parameters.authRequest,
-        parameters.authRequestResponse,
-        parameters.fingerprintPhrase,
-        { publicKey: new Uint8Array(), privateKey: new Uint8Array() },
-      );
+      service.cacheLoginView(parameters.id, parameters.privateKey, parameters.accessCode);
 
-      expect(cacheSignal.set).toHaveBeenCalledWith(parameters);
+      expect(cacheSignal.set).toHaveBeenCalledWith({
+        id: parameters.id,
+        privateKey: Utils.fromBufferToB64(parameters.privateKey),
+        accessCode: parameters.accessCode,
+      });
     });
   });
 
   describe("feature disabled", () => {
     beforeEach(async () => {
-      cacheSignal.set({ ...buildAuthenticMockAuthView() } as LoginViaAuthRequestView);
+      cacheSignal.set({ ...buildMockState() } as LoginViaAuthRequestView);
       getFeatureFlag.mockResolvedValue(false);
       cacheSetMock.mockClear();
 
@@ -82,12 +79,7 @@ describe("LoginViaAuthRequestCache", () => {
     it("does not update the signal value", () => {
       const params = buildAuthenticMockAuthView();
 
-      service.cacheLoginView(
-        params.authRequest,
-        params.authRequestResponse,
-        params.fingerprintPhrase,
-        { publicKey: new Uint8Array(), privateKey: new Uint8Array() },
-      );
+      service.cacheLoginView(params.id, params.privateKey, params.accessCode);
 
       expect(cacheSignal.set).not.toHaveBeenCalled();
     });
@@ -95,17 +87,17 @@ describe("LoginViaAuthRequestCache", () => {
 
   const buildAuthenticMockAuthView = () => {
     return {
-      fingerprintPhrase: "",
-      privateKey: "",
-      publicKey: "",
-      authRequest: new AuthRequest(
-        "test@gmail.com",
-        "deviceIdentifier",
-        "publicKey",
-        AuthRequestType.Unlock,
-        "accessCode",
-      ),
-      authRequestResponse: new AuthRequestResponse({}),
+      id: "testId",
+      privateKey: new Uint8Array(),
+      accessCode: "testAccessCode",
+    };
+  };
+
+  const buildMockState = () => {
+    return {
+      id: "testId",
+      privateKey: Utils.fromBufferToB64(new Uint8Array()),
+      accessCode: "testAccessCode",
     };
   };
 });
