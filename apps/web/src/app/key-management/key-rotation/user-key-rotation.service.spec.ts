@@ -6,21 +6,25 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { WebauthnRotateCredentialRequest } from "@bitwarden/common/auth/models/request/webauthn-rotate-credential.request";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SendWithIdRequest } from "@bitwarden/common/tools/send/models/request/send-with-id.request";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
-import { UserKey, UserPrivateKey } from "@bitwarden/common/types/key";
+import { UserKey, UserPrivateKey, UserPublicKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherWithIdRequest } from "@bitwarden/common/vault/models/request/cipher-with-id.request";
 import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
-import { KeyService } from "@bitwarden/key-management";
+import { ToastService } from "@bitwarden/components";
+import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
 
 import { OrganizationUserResetPasswordService } from "../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { WebauthnLoginAdminService } from "../../auth/core";
@@ -47,6 +51,9 @@ describe("KeyRotationService", () => {
   let mockSyncService: MockProxy<SyncService>;
   let mockWebauthnLoginAdminService: MockProxy<WebauthnLoginAdminService>;
   let mockLogService: MockProxy<LogService>;
+  let mockVaultTimeoutService: MockProxy<VaultTimeoutService>;
+  let mockToastService: MockProxy<ToastService>;
+  let mockI18nService: MockProxy<I18nService>;
 
   const mockUser = {
     id: "mockUserId" as UserId,
@@ -70,6 +77,9 @@ describe("KeyRotationService", () => {
     mockSyncService = mock<SyncService>();
     mockWebauthnLoginAdminService = mock<WebauthnLoginAdminService>();
     mockLogService = mock<LogService>();
+    mockVaultTimeoutService = mock<VaultTimeoutService>();
+    mockToastService = mock<ToastService>();
+    mockI18nService = mock<I18nService>();
 
     keyRotationService = new UserKeyRotationService(
       mockUserVerificationService,
@@ -85,6 +95,9 @@ describe("KeyRotationService", () => {
       mockSyncService,
       mockWebauthnLoginAdminService,
       mockLogService,
+      mockVaultTimeoutService,
+      mockToastService,
+      mockI18nService,
     );
   });
 
@@ -94,6 +107,7 @@ describe("KeyRotationService", () => {
 
   describe("rotateUserKeyAndEncryptedData", () => {
     let privateKey: BehaviorSubject<UserPrivateKey | null>;
+    let keyPair: BehaviorSubject<{ privateKey: UserPrivateKey; publicKey: UserPublicKey }>;
 
     beforeEach(() => {
       mockKeyService.makeUserKey.mockResolvedValue([
@@ -112,6 +126,8 @@ describe("KeyRotationService", () => {
       // Mock user verification
       mockUserVerificationService.verifyUserByMasterPassword.mockResolvedValue({
         masterKey: "mockMasterKey" as any,
+        kdfConfig: DEFAULT_KDF_CONFIG,
+        email: "mockEmail",
         policyOptions: null,
       });
 
@@ -121,6 +137,12 @@ describe("KeyRotationService", () => {
       // Mock private key
       privateKey = new BehaviorSubject("mockPrivateKey" as any);
       mockKeyService.userPrivateKeyWithLegacySupport$.mockReturnValue(privateKey);
+
+      keyPair = new BehaviorSubject({
+        privateKey: "mockPrivateKey",
+        publicKey: "mockPublicKey",
+      } as any);
+      mockKeyService.userEncryptionKeyPair$.mockReturnValue(keyPair);
 
       // Mock ciphers
       const mockCiphers = [createMockCipher("1", "Cipher 1"), createMockCipher("2", "Cipher 2")];
@@ -147,8 +169,8 @@ describe("KeyRotationService", () => {
       mockWebauthnLoginAdminService.getRotatedData.mockResolvedValue(webauthn);
     });
 
-    it("rotates the user key and encrypted data", async () => {
-      await keyRotationService.rotateUserKeyAndEncryptedData("mockMasterPassword", mockUser);
+    it("rotates the user key and encrypted data legacy", async () => {
+      await keyRotationService.rotateUserKeyAndEncryptedDataLegacy("mockMasterPassword", mockUser);
 
       expect(mockApiService.postUserKeyUpdate).toHaveBeenCalled();
       const arg = mockApiService.postUserKeyUpdate.mock.calls[0][0];
@@ -162,9 +184,47 @@ describe("KeyRotationService", () => {
       expect(arg.webauthnKeys.length).toBe(2);
     });
 
+    it("rotates the user key and encrypted data", async () => {
+      await keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData(
+        "mockMasterPassword",
+        "mockNewMasterPassword",
+        mockUser,
+      );
+
+      expect(mockApiService.postUserKeyUpdateV2).toHaveBeenCalled();
+      const arg = mockApiService.postUserKeyUpdateV2.mock.calls[0][0];
+      expect(arg.oldMasterKeyAuthenticationHash).toBe("mockMasterPasswordHash");
+      expect(arg.accountUnlockData.masterPasswordUnlockData.email).toBe("mockEmail");
+      expect(arg.accountUnlockData.masterPasswordUnlockData.kdfType).toBe(
+        DEFAULT_KDF_CONFIG.kdfType,
+      );
+      expect(arg.accountUnlockData.masterPasswordUnlockData.kdfIterations).toBe(
+        DEFAULT_KDF_CONFIG.iterations,
+      );
+      expect(arg.accountKeys.accountPublicKey).toBe(Utils.fromUtf8ToB64("mockPublicKey"));
+      expect(arg.accountKeys.userKeyEncryptedAccountPrivateKey).toBe("mockEncryptedData");
+      expect(arg.accountData.ciphers.length).toBe(2);
+      expect(arg.accountData.folders.length).toBe(2);
+      expect(arg.accountData.sends.length).toBe(2);
+    });
+
+    it("legacy throws if master password provided is falsey", async () => {
+      await expect(
+        keyRotationService.rotateUserKeyAndEncryptedDataLegacy("", mockUser),
+      ).rejects.toThrow();
+    });
+
     it("throws if master password provided is falsey", async () => {
       await expect(
-        keyRotationService.rotateUserKeyAndEncryptedData("", mockUser),
+        keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData("", "", mockUser),
+      ).rejects.toThrow();
+    });
+
+    it("legacy throws if user key creation fails", async () => {
+      mockKeyService.makeUserKey.mockResolvedValueOnce([null, null]);
+
+      await expect(
+        keyRotationService.rotateUserKeyAndEncryptedDataLegacy("mockMasterPassword", mockUser),
       ).rejects.toThrow();
     });
 
@@ -175,15 +235,41 @@ describe("KeyRotationService", () => {
       ]);
 
       await expect(
-        keyRotationService.rotateUserKeyAndEncryptedData("mockMasterPassword", mockUser),
+        keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData(
+          "mockMasterPassword",
+          "mockMasterPassword1",
+          mockUser,
+        ),
+      ).rejects.toThrow();
+    });
+
+    it("legacy throws if no private key is found", async () => {
+      privateKey.next(null);
+
+      await expect(
+        keyRotationService.rotateUserKeyAndEncryptedDataLegacy("mockMasterPassword", mockUser),
       ).rejects.toThrow();
     });
 
     it("throws if no private key is found", async () => {
-      privateKey.next(null);
+      keyPair.next(null);
 
       await expect(
-        keyRotationService.rotateUserKeyAndEncryptedData("mockMasterPassword", mockUser),
+        keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData(
+          "mockMasterPassword",
+          "mockMasterPassword1",
+          mockUser,
+        ),
+      ).rejects.toThrow();
+    });
+
+    it("legacy throws if master password is incorrect", async () => {
+      mockUserVerificationService.verifyUserByMasterPassword.mockRejectedValueOnce(
+        new Error("Invalid master password"),
+      );
+
+      await expect(
+        keyRotationService.rotateUserKeyAndEncryptedDataLegacy("mockMasterPassword", mockUser),
       ).rejects.toThrow();
     });
 
@@ -193,15 +279,31 @@ describe("KeyRotationService", () => {
       );
 
       await expect(
-        keyRotationService.rotateUserKeyAndEncryptedData("mockMasterPassword", mockUser),
+        keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData(
+          "mockMasterPassword",
+          "mockMasterPassword1",
+          mockUser,
+        ),
+      ).rejects.toThrow();
+    });
+
+    it("legacy throws if server rotation fails", async () => {
+      mockApiService.postUserKeyUpdate.mockRejectedValueOnce(new Error("mockError"));
+
+      await expect(
+        keyRotationService.rotateUserKeyAndEncryptedDataLegacy("mockMasterPassword", mockUser),
       ).rejects.toThrow();
     });
 
     it("throws if server rotation fails", async () => {
-      mockApiService.postUserKeyUpdate.mockRejectedValueOnce(new Error("mockError"));
+      mockApiService.postUserKeyUpdateV2.mockRejectedValueOnce(new Error("mockError"));
 
       await expect(
-        keyRotationService.rotateUserKeyAndEncryptedData("mockMasterPassword", mockUser),
+        keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData(
+          "mockMasterPassword",
+          "mockMasterPassword1",
+          mockUser,
+        ),
       ).rejects.toThrow();
     });
   });
