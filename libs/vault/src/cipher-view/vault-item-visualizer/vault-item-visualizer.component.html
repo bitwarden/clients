@@ -2,12 +2,10 @@
   <bit-section-header>
     <h2 bitTypography="h6">{{ this.cipher?.name || "unknown" }}</h2>
   </bit-section-header>
-  <bit-card>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" shape-rendering="crispEdges">
-      <path fill="#ffffff" d="M0 0h37v37H0z"></path>
-      <path stroke="#000000" [attr.d]="qrCodePath()"></path>
-    </svg>
-  </bit-card>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" shape-rendering="crispEdges">
+    <path fill="#ffffff" d="M0 0h37v37H0z"></path>
+    <path stroke="#000000" [attr.d]="qrCodePath()"></path>
+  </svg>
 </bit-section>
 <bit-section>
   <bit-section-header>
