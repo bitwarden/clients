@@ -34,32 +34,19 @@ const meta: Meta<SpotlightComponent> = {
   },
 };
 
-const defaultContent = `
-  <div class="tw-w-80">
-    <bit-spotlight
-      [title]="title"
-      [subtitle]="subtitle"
-      [buttonText]="buttonText"
-      (onDismiss)="handleDismiss()"
-    ></bit-spotlight>
-  <div class="tw-w-40">
-`;
-
 export default meta;
 type Story = StoryObj<SpotlightComponent>;
 
-export const Default: Story = {
-  render: (args) => ({
-    props: args,
-    template: `
-    ${defaultContent}`,
-  }),
-};
+export const Default: Story = {};
 
 export const WithoutButton: Story = {
   args: {
-    title: "Primary",
-    subtitle: "Callout Text",
     buttonText: undefined,
+  },
+};
+
+export const Indismissable: Story = {
+  args: {
+    indismissable: true,
   },
 };

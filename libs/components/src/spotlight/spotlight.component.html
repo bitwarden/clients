@@ -4,12 +4,16 @@
   <div class="tw-flex tw-justify-between tw-items-start">
     <div>
       <h2 bitTypography="h4" class="tw-font-semibold !tw-mb-1">{{ title }}</h2>
-      <p class="tw-mb-2 tw-text-main" bitTypography="body2">{{ subtitle }}</p>
+      <p class="tw-mb-2 tw-text-main" [ngClass]="{ '!tw-mb-0': !buttonText }" bitTypography="body2">
+        {{ subtitle }}
+      </p>
     </div>
     <button
       type="button"
+      class="tw-pr-1 tw-pt-1"
       bitIconButton="bwi-close"
       size="default"
+      *ngIf="!indismissable"
       (click)="handleDismiss()"
       [attr.title]="'close' | i18n"
       [attr.aria-label]="'close' | i18n"
