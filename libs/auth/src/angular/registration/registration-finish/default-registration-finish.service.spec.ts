@@ -64,7 +64,7 @@ describe("DefaultRegistrationFinishService", () => {
         localMasterKeyHash: "localMasterKeyHash",
         kdfConfig: DEFAULT_KDF_CONFIG,
         hint: "hint",
-        password: "password",
+        newPassword: "password",
       };
 
       userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
