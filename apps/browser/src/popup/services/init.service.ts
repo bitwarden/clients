@@ -2,6 +2,7 @@ import { DOCUMENT } from "@angular/common";
 import { inject, Inject, Injectable } from "@angular/core";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
+import { AchievementNotifierService } from "@bitwarden/angular/tools/achievements/achievement-notifier.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
@@ -26,6 +27,7 @@ export class InitService {
     private logService: LogServiceAbstraction,
     private themingService: AbstractThemingService,
     private sdkLoadService: SdkLoadService,
+    private achievementNotifierService: AchievementNotifierService,
     private viewCacheService: PopupViewCacheService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
@@ -38,6 +40,7 @@ export class InitService {
       this.twoFactorService.init();
       await this.viewCacheService.init();
       await this.sizeService.init();
+      await this.achievementNotifierService.init();
 
       const htmlEl = window.document.documentElement;
       this.themingService.applyThemeChangesTo(this.document);

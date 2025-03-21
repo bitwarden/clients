@@ -1,0 +1,14 @@
+<bit-item class="{{ bgColorClass }}">
+  <button bit-item-content type="button">
+    <div slot="start" class="tw-justify-start tw-flex">
+      <bit-icon [icon]="icon()" class="{{ iconStyle }}"></bit-icon>
+    </div>
+    <span>{{ title() }}</span>
+    <span slot="secondary">{{ description() }}</span>
+    @if (earned()) {
+      <p slot="secondary">Earned: {{ date() | date: "medium" }}</p>
+    } @else if (progress() > 0) {
+      <p slot="secondary">Progress: {{ progress() }}</p>
+    }
+  </button>
+</bit-item>

@@ -81,6 +81,7 @@ import { RequestSMAccessComponent } from "./secrets-manager/secrets-manager-land
 import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm-landing.component";
 import { DomainRulesComponent } from "./settings/domain-rules.component";
 import { PreferencesComponent } from "./settings/preferences.component";
+import { AchievementsComponent } from "./tools/achievements/achievements.component";
 import { CredentialGeneratorComponent } from "./tools/credential-generator/credential-generator.component";
 import { ReportsModule } from "./tools/reports";
 import { AccessComponent, SendAccessExplainerComponent } from "./tools/send/send-access";
@@ -746,6 +747,11 @@ const routes: Routes = [
             path: "generator",
             component: CredentialGeneratorComponent,
             data: { titleId: "generator" } satisfies RouteDataProperties,
+          },
+          {
+            path: "achievements",
+            component: AchievementsComponent,
+            data: { titleId: "achievements" } satisfies RouteDataProperties,
           },
         ],
       },

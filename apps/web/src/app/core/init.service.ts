@@ -4,6 +4,7 @@ import { firstValueFrom } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
+import { AchievementNotifierService } from "@bitwarden/angular/tools/achievements/achievement-notifier.abstraction";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@bitwarden/common/auth/abstractions/two-factor.service";
@@ -37,6 +38,7 @@ export class InitService {
     private accountService: AccountService,
     private versionService: VersionService,
     private sdkLoadService: SdkLoadService,
+    private achievementNotifierService: AchievementNotifierService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
@@ -64,6 +66,8 @@ export class InitService {
 
       const containerService = new ContainerService(this.keyService, this.encryptService);
       containerService.attachToGlobal(this.win);
+
+      await this.achievementNotifierService.init();
     };
   }
 }

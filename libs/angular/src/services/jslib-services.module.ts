@@ -247,6 +247,10 @@ import { AuditService } from "@bitwarden/common/services/audit.service";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
 import { SearchService } from "@bitwarden/common/services/search.service";
+import { AchievementService } from "@bitwarden/common/tools/achievements/achievement.service.abstraction";
+import { DefaultAchievementService } from "@bitwarden/common/tools/achievements/default-achievement.service";
+import { DefaultUserEventCollector } from "@bitwarden/common/tools/log/default-user-event-collector";
+import { UserEventCollector } from "@bitwarden/common/tools/log/user-event-collector";
 import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
@@ -331,6 +335,8 @@ import { NoopViewCacheService } from "../platform/services/noop-view-cache.servi
 import { AngularThemingService } from "../platform/services/theming/angular-theming.service";
 import { AbstractThemingService } from "../platform/services/theming/theming.service.abstraction";
 import { safeProvider, SafeProvider } from "../platform/utils/safe-provider";
+import { AchievementNotifierService as AchievementNotifierServiceAbstraction } from "../tools/achievements/achievement-notifier.abstraction";
+import { AchievementNotifierService } from "../tools/achievements/achievement-notifier.service";
 
 import {
   LOCALES_DIRECTORY,
@@ -1486,6 +1492,27 @@ const safeProviders: SafeProvider[] = [
     deps: [
       AuthRequestServiceAbstraction,
       DeviceTrustServiceAbstraction,
+      I18nServiceAbstraction,
+      ToastService,
+    ],
+  }),
+  safeProvider({
+    provide: UserEventCollector,
+    useClass: DefaultUserEventCollector,
+    deps: [AppIdServiceAbstraction, PlatformUtilsServiceAbstraction],
+  }),
+  safeProvider({
+    provide: AchievementService,
+    useClass: DefaultAchievementService,
+    deps: [UserEventCollector],
+  }),
+  safeProvider({
+    provide: AchievementNotifierServiceAbstraction,
+    useClass: AchievementNotifierService,
+    deps: [
+      AccountServiceAbstraction,
+      AchievementService,
+      PlatformUtilsServiceAbstraction,
       I18nServiceAbstraction,
       ToastService,
     ],

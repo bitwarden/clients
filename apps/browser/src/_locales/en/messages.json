@@ -5139,5 +5139,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "achievements": {
+    "message": "Achievements"
   }
 }
