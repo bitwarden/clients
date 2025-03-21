@@ -19,7 +19,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
         }
 */
 
-type QROptions = "wifi" | "data" | "url";
+type QROptions = "wifi" | "plaintext" | "url";
 
 export function inferQRTypeValuesByCipher(cipher: CipherView): { type: QROptions } {
   switch (cipher.type) {
@@ -33,7 +33,7 @@ export function inferQRTypeValuesByCipher(cipher: CipherView): { type: QROptions
       break;
   }
 
-  return { type: "data" };
+  return { type: "plaintext" };
 }
 
 export function encodeCipherForQRType(type: QROptions, mapping: any, cipher: CipherView): string {
@@ -43,10 +43,11 @@ export function encodeCipherForQRType(type: QROptions, mapping: any, cipher: Cip
       encodable = `WIFI:S:${mapping.ssid};T:<WPA|WEP|>;P:${mapping.password};;`;
       break;
     case "url":
+      encodable = mapping.link;
       break;
-    case "data":
+    case "plaintext":
     default:
-      encodable = mapping.data;
+      encodable = mapping.content;
       break;
   }
 
@@ -70,9 +71,7 @@ export async function generateQRCodePath(
 
   const doc = new DOMParser().parseFromString(svg, "image/svg+xml");
 
-  const {
-    firstChild: { lastChild: path },
-  } = doc;
+  const path = doc.firstChild!.lastChild as SVGPathElement;
 
-  return path.attributes.d.value;
+  return path.attributes.getNamedItem("d")!.value;
 }

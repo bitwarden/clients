@@ -34,13 +34,28 @@ import {
 } from "@bitwarden/components";
 import { generateQRCodePath } from "@bitwarden/vault";
 
+interface FieldMappingsGroup {
+  ssid?: FormControl<string>;
+  password?: FormControl<string>;
+  link?: FormControl<string>;
+  content?: FormControl<string>;
+  firstname?: FormControl<string>;
+  lastname?: FormControl<string>;
+  job?: FormControl<string>;
+  address?: FormControl<string>;
+  phone?: FormControl<string>;
+  email?: FormControl<string>;
+  url?: FormControl<string>;
+  company?: FormControl<string>;
+}
+
 type FieldTuple = [string, string, string];
 
 type MappingFunction = (option: { name: string; label: string }, index?: number) => boolean;
 
 type FieldMappingControl = {
   label: string;
-  name: string;
+  name: keyof FieldMappingsGroup;
   mappings?: Array<string | MappingFunction>;
   /* Deprecate me */
   options?: Array<{ name: string; label: string; value: string }>;
@@ -64,17 +79,18 @@ type FieldMappingControl = {
   templateUrl: "./vault-item-visualizer.component.html",
 })
 export class VaultItemVisualizerComponent implements OnInit {
-  // TODO strings + translations
-  // headerText: string;
-
   @Input() cipher?: CipherView;
+
+  // @TODO strings + translations
+  // headerText: string;
+  dataToShareTitle: string = "Data to share";
 
   qrCodeOptions: { name: string; value: string }[];
 
   visualizeForm = new FormGroup({
     qrCodeType: new FormControl<QRCodeOption>(null),
     /* TODO: enumerate possible types for fieldMappings? */
-    fieldMappings: new FormGroup({}),
+    fieldMappings: new FormGroup<FieldMappingsGroup>({}),
   });
 
   dataToShareValues = toSignal(this.visualizeForm.valueChanges);
@@ -84,15 +100,18 @@ export class VaultItemVisualizerComponent implements OnInit {
   cipherFieldTuples: WritableSignal<Array<FieldTuple>> = signal([]);
 
   availableCipherFields: Signal<Array<{ name: string; label: string }>> = computed(() =>
-    this.cipherFieldTuples().reduce((prev, [name, label]) => {
-      return [
-        ...prev,
-        {
-          name,
-          label,
-        },
-      ];
-    }, []),
+    this.cipherFieldTuples().reduce(
+      (prev: Array<{ name: string; label: string }>, [name, label]) => {
+        return [
+          ...prev,
+          {
+            name,
+            label,
+          },
+        ];
+      },
+      [],
+    ),
   );
 
   availableCipherFieldsMap: Signal<{
@@ -164,6 +183,7 @@ export class VaultItemVisualizerComponent implements OnInit {
         {
           label: "Email",
           name: "email",
+          /* Deprecate all options props */
           options: [
             { label: "Username", name: "email.username", value: "username" },
             { label: "Email", name: "email.match", value: "match" },
@@ -299,14 +319,7 @@ export class VaultItemVisualizerComponent implements OnInit {
 
       if (typeof values !== "undefined" && values.qrCodeType !== null) {
         /* @TODO pass the fieldMappings select values with cipher data, let bkgd fn handle? */
-        const qrCodePath = await generateQRCodePath(
-          "wifi",
-          {
-            ssid: values.fieldMappings.ssid,
-            password: values.fieldMappings.password,
-          },
-          this.cipher,
-        );
+        const qrCodePath = await generateQRCodePath("wifi", values.fieldMappings, this.cipher);
         this.qrCodePath.set(qrCodePath);
       }
     });
@@ -316,10 +329,9 @@ export class VaultItemVisualizerComponent implements OnInit {
       .subscribe((value) => {
         const controlNames = this.fieldMappingsControls.map(({ name }) => name);
         for (const controlName of controlNames) {
-          // if (controlName === "qrCodeType") {
-          //   continue;
-          // }
-          this.visualizeForm.controls.fieldMappings.removeControl(controlName);
+          this.visualizeForm.controls.fieldMappings.removeControl(
+            controlName as keyof FieldMappingsGroup,
+          );
         }
         this.updateAvailableCipherFields();
         this.updateControls();
@@ -334,7 +346,7 @@ export class VaultItemVisualizerComponent implements OnInit {
 
       this.visualizeForm.controls.fieldMappings.addControl(name, this.fb.control(""));
       const isFirstValue = (_: any, i: number) => i === 0;
-      const res = [...mappings, isFirstValue]
+      const mapped = [...mappings, isFirstValue]
         .map((mapping) => {
           const f: MappingFunction =
             typeof mapping === "string" ? (option) => option.name === mapping : mapping;
@@ -344,7 +356,7 @@ export class VaultItemVisualizerComponent implements OnInit {
           return mapping?.name && cipherFieldMap[mapping.name].value !== null;
         });
 
-      this.visualizeForm.controls.fieldMappings.controls[name].setValue(res.name);
+      this.visualizeForm.controls.fieldMappings.controls[name].setValue(mapped.name);
     }
   }
 
@@ -384,12 +396,9 @@ export class VaultItemVisualizerComponent implements OnInit {
       fields.push(username, password);
 
       const uris = this.cipher.login.uris.map(
-        ({ _uri }, i): FieldTuple => [
-          `uri.${i}`,
-          this.i18nService.t("websiteUriCount", i + 1),
-          _uri,
-        ],
+        ({ uri }, i): FieldTuple => [`uri.${i}`, this.i18nService.t("websiteUriCount", i + 1), uri],
       );
+
       fields.push(...uris);
 
       const custom = this.cipher.fields.map(

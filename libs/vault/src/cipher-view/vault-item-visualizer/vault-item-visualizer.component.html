@@ -1,19 +1,20 @@
 <bit-section>
   <bit-section-header>
-    <h2 bitTypography="h6">Wi-Fi Login</h2>
+    <h2 bitTypography="h6">{{ this.cipher?.name || "unknown" }}</h2>
   </bit-section-header>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" shape-rendering="crispEdges">
-    <path fill="#ffffff" d="M0 0h37v37H0z"></path>
-    <path stroke="#000000" [attr.d]="qrCodePath()"></path>
-  </svg>
+  <bit-card>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" shape-rendering="crispEdges">
+      <path fill="#ffffff" d="M0 0h37v37H0z"></path>
+      <path stroke="#000000" [attr.d]="qrCodePath()"></path>
+    </svg>
+  </bit-card>
 </bit-section>
 <bit-section>
   <bit-section-header>
-    <h2 bitTypography="h6">Data to Share</h2>
+    <h2 bitTypography="h6">{{ dataToShareTitle }}</h2>
   </bit-section-header>
   <bit-card>
     <form [formGroup]="visualizeForm">
-      Cipher name is: {{ this.cipher?.name || "unknown" }}
       <bit-form-field>
         <bit-label>QR Code Type</bit-label>
         <bit-select formControlName="qrCodeType" id="qrCodeType">
@@ -28,7 +29,7 @@
     <form [formGroup]="fieldMappingsGroup">
       <div *ngFor="let fieldMapping of fieldMappingsControls">
         <bit-form-field>
-          <bit-label [for]="fieldMapping.name">Field for {{ fieldMapping.label }}</bit-label>
+          <bit-label>Field for {{ fieldMapping.label }}</bit-label>
           <bit-select [id]="fieldMapping.name" formControlName="{{ fieldMapping.name }}">
             <bit-option
               *ngFor="let option of availableCipherFields()"
