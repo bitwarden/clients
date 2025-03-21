@@ -1,0 +1,29 @@
+<div
+  class="tw-rounded-2xl tw-bg-primary-100 tw-border-primary-600 tw-border-solid tw-border tw-flex-col tw-p-4 tw-pt-3"
+>
+  <div class="tw-flex tw-justify-between tw-items-start">
+    <div>
+      <h2 bitTypography="h4" class="tw-font-semibold !tw-mb-1">{{ title }}</h2>
+      <p class="tw-mb-2 tw-text-main" bitTypography="body2">{{ subtitle }}</p>
+    </div>
+    <button
+      type="button"
+      bitIconButton="bwi-close"
+      size="default"
+      (click)="handleDismiss()"
+      [attr.title]="'close' | i18n"
+      [attr.aria-label]="'close' | i18n"
+    ></button>
+  </div>
+
+  <button
+    class="tw-w-full"
+    bitButton
+    type="button"
+    buttonType="primary"
+    *ngIf="buttonText"
+    (click)="handleDismiss()"
+  >
+    {{ buttonText }}
+  </button>
+</div>
