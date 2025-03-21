@@ -224,6 +224,7 @@ export class CipherService implements CipherServiceAbstraction {
     cipher.type = model.type;
     cipher.collectionIds = model.collectionIds;
     cipher.revisionDate = model.revisionDate;
+    cipher.archivedDate = model.archivedDate;
     cipher.reprompt = model.reprompt;
     cipher.edit = model.edit;
 
