@@ -148,7 +148,6 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   protected showFilePassword: boolean;
 
   private _disabledByPolicy = false;
-  private _disableByPolicy_RemovePersonalOwnership = false;
 
   organizations$: Observable<Organization[]>;
 
@@ -156,9 +155,8 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     return this._disabledByPolicy;
   }
 
-  protected get disableByPolicy_RemovePersonalOwnership(): boolean {
-    return this._disableByPolicy_RemovePersonalOwnership;
-  }
+  disablePersonalVaultExportPolicy$: Observable<boolean>;
+  disablePersonalOwnershipPolicy$: Observable<boolean>;
 
   exportForm = this.formBuilder.group({
     vaultSelector: [
@@ -207,16 +205,13 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       this.formDisabled.emit(c === "DISABLED");
     });
 
-    // Do not allow export if either the DisablePersonalVaultExport or PersonalOwnership policies are active
-    combineLatest([
-      this.policyService.policyAppliesToActiveUser$(PolicyType.DisablePersonalVaultExport),
-      this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
-    ])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(([disablePersonalVaultExport, personalOwnership]: [boolean, boolean]) => {
-        this._disabledByPolicy = disablePersonalVaultExport;
-        this._disableByPolicy_RemovePersonalOwnership = personalOwnership;
-      });
+    // policies
+    this.disablePersonalVaultExportPolicy$ = this.policyService.policyAppliesToActiveUser$(
+      PolicyType.DisablePersonalVaultExport,
+    );
+    this.disablePersonalOwnershipPolicy$ = this.policyService.policyAppliesToActiveUser$(
+      PolicyType.PersonalOwnership,
+    );
 
     merge(
       this.exportForm.get("format").valueChanges,
@@ -274,34 +269,47 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
         // Sort the filtered organizations based on the name
         return filteredOrgs.sort(Utils.getSortFunction(this.i18nService, "name"));
       }),
-      tap((organizations) => {
-        // Policy-RemovePersonalOwnership is on then MyVault is not an option and organizations exist
-        if (this.disableByPolicy_RemovePersonalOwnership && organizations.length > 0) {
-          this.exportForm.enable();
-          this.exportForm.controls.vaultSelector.setValue(organizations[0].id);
-        }
-        // Policy-RemovePersonalOwnership is on then MyVault is not an option and no organizations exist
-        if (this.disableByPolicy_RemovePersonalOwnership && organizations.length == 0) {
-          this.exportForm.disable();
-        }
-
-        // When the DisablePersonalVaultExport policy is active
-        if (this.disabledByPolicy) {
-          this.exportForm.disable();
-        }
-      }),
     );
+
+    combineLatest([
+      this.disablePersonalVaultExportPolicy$,
+      this.disablePersonalOwnershipPolicy$,
+      this.organizations$,
+    ])
+      .pipe(
+        tap(([disablePersonalVaultExport, disablePersonalOwnership, organizations]) => {
+          this._disabledByPolicy = disablePersonalVaultExport;
+
+          // When personalOwnership is disabled and we have orgs, set the first org as the selected vault
+          if (disablePersonalOwnership && organizations.length > 0) {
+            this.exportForm.enable();
+            this.exportForm.controls.vaultSelector.setValue(organizations[0].id);
+          }
+
+          // When personalOwnership is disabled and we have no orgs, disable the form
+          if (disablePersonalOwnership && organizations.length === 0) {
+            this.exportForm.disable();
+          }
+
+          // When personalVaultExport is disabled, disable the form
+          if (disablePersonalVaultExport) {
+            this.exportForm.disable();
+          }
+
+          // When neither policy is enabled, enable the form and set the default vault to "myVault"
+          if (!disablePersonalVaultExport && !disablePersonalOwnership) {
+            this.exportForm.controls.vaultSelector.setValue("myVault");
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
 
     this.exportForm.controls.vaultSelector.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
         this.organizationId = value != "myVault" ? value : undefined;
       });
-
-    // implies that users can export "My Vault" - no policy hindrance here
-    if (!this.disabledByPolicy && !this.disableByPolicy_RemovePersonalOwnership) {
-      this.exportForm.controls.vaultSelector.setValue("myVault");
-    }
   }
 
   ngAfterViewInit(): void {
@@ -312,6 +320,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy(): void {
     this.destroy$.next();
+    this.destroy$.complete();
   }
 
   get encryptedFormat() {

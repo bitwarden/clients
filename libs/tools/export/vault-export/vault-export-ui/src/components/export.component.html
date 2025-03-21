@@ -1,4 +1,8 @@
-<bit-callout type="danger" title="{{ 'vaultExportDisabled' | i18n }}" *ngIf="disabledByPolicy">
+<bit-callout
+  type="danger"
+  title="{{ 'vaultExportDisabled' | i18n }}"
+  *ngIf="disablePersonalVaultExportPolicy$ | async"
+>
   {{ "personalVaultExportPolicyInEffect" | i18n }}
 </bit-callout>
 <tools-export-scope-callout [organizationId]="organizationId"></tools-export-scope-callout>
@@ -12,7 +16,7 @@
           [label]="'myVault' | i18n"
           value="myVault"
           icon="bwi-user"
-          *ngIf="!disableByPolicy_RemovePersonalOwnership"
+          *ngIf="!(disablePersonalOwnershipPolicy$ | async)"
         />
         <bit-option
           *ngFor="let o of organizations$ | async"
