@@ -50,10 +50,10 @@
           {{ "unlinkSso" | i18n }}
         </button>
         <ng-template #linkSso>
-          <a href="#" bitMenuItem app-link-sso [organization]="organization">
+          <button type="button" bitMenuItem (click)="handleLinkSso(organization)">
             <i class="bwi bwi-fw bwi-link" aria-hidden="true"></i>
             {{ "linkSso" | i18n }}
-          </a>
+          </button>
         </ng-template>
       </ng-container>
       <button *ngIf="showLeaveOrgOption" type="button" bitMenuItem (click)="leave(organization)">
