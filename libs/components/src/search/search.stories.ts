@@ -40,3 +40,23 @@ export const Default: Story = {
   }),
   args: {},
 };
+
+export const WithHistory: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-search [(ngModel)]="searchText" [placeholder]="placeholder" [disabled]="disabled" [history]="['1 something very long something very long something very long something very long something very long something very long something very long something very long something very long something very long something very long something very long something very long something very long something very long something very long something very long something very long something very long something very long ','2','3','4','5','6','7','8','9','10']"></bit-search>
+    `,
+  }),
+  args: {},
+};
+
+export const WithSavedFilters: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-search [(ngModel)]="searchText" [placeholder]="placeholder" [disabled]="disabled" [savedFilters]="{'test': 'test', 'or': 'test OR toast', 'and': 'test AND toast'}"></bit-search>
+    `,
+  }),
+  args: {},
+};

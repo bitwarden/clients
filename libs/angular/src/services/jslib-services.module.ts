@@ -269,6 +269,17 @@ import {
 } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
+import { BasicVaultFilterHandler } from "@bitwarden/common/vault/filtering/basic-vault-filter.handler";
+import { VaultFilterMetadataService } from "@bitwarden/common/vault/filtering/vault-filter-metadata.service";
+import { DefaultFilterService, FilterService } from "@bitwarden/common/vault/search/filter.service";
+import {
+  SavedFiltersService,
+  DefaultSavedFiltersService,
+} from "@bitwarden/common/vault/search/saved-filters.service";
+import {
+  SearchHistoryService,
+  DefaultSearchHistoryService,
+} from "@bitwarden/common/vault/search/search-history.service";
 import {
   CipherAuthorizationService,
   DefaultCipherAuthorizationService,
@@ -351,6 +362,7 @@ import {
   CLIENT_TYPE,
   REFRESH_ACCESS_TOKEN_ERROR_CALLBACK,
   ENV_ADDITIONAL_REGIONS,
+  IS_DEV,
 } from "./injection-tokens";
 import { ModalService } from "./modal.service";
 
@@ -491,42 +503,12 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: CipherServiceAbstraction,
-    useFactory: (
-      keyService: KeyService,
-      domainSettingsService: DomainSettingsService,
-      apiService: ApiServiceAbstraction,
-      i18nService: I18nServiceAbstraction,
-      searchService: SearchServiceAbstraction,
-      stateService: StateServiceAbstraction,
-      autofillSettingsService: AutofillSettingsServiceAbstraction,
-      encryptService: EncryptService,
-      bulkEncryptService: BulkEncryptService,
-      fileUploadService: CipherFileUploadServiceAbstraction,
-      configService: ConfigService,
-      stateProvider: StateProvider,
-      accountService: AccountServiceAbstraction,
-    ) =>
-      new CipherService(
-        keyService,
-        domainSettingsService,
-        apiService,
-        i18nService,
-        searchService,
-        stateService,
-        autofillSettingsService,
-        encryptService,
-        bulkEncryptService,
-        fileUploadService,
-        configService,
-        stateProvider,
-        accountService,
-      ),
+    useClass: CipherService,
     deps: [
       KeyService,
       DomainSettingsService,
       ApiServiceAbstraction,
       I18nServiceAbstraction,
-      SearchServiceAbstraction,
       StateServiceAbstraction,
       AutofillSettingsServiceAbstraction,
       EncryptService,
@@ -582,7 +564,11 @@ const safeProviders: SafeProvider[] = [
     useClass: AvatarService,
     deps: [ApiServiceAbstraction, StateProvider],
   }),
-  safeProvider({ provide: LogService, useFactory: () => new ConsoleLogService(false), deps: [] }),
+  safeProvider({
+    provide: IS_DEV,
+    useValue: process.env.NODE_ENV === "development",
+  }),
+  safeProvider({ provide: LogService, useClass: ConsoleLogService, deps: [IS_DEV] }),
   safeProvider({
     provide: CollectionService,
     useClass: DefaultCollectionService,
@@ -1494,6 +1480,31 @@ const safeProviders: SafeProvider[] = [
     provide: MasterPasswordApiServiceAbstraction,
     useClass: MasterPasswordApiService,
     deps: [ApiServiceAbstraction, LogService],
+  }),
+  safeProvider({
+    provide: FilterService,
+    useClass: DefaultFilterService,
+    deps: [LogService],
+  }),
+  safeProvider({
+    provide: SearchHistoryService,
+    useClass: DefaultSearchHistoryService,
+    deps: [SingleUserStateProvider, EncryptService, KeyService],
+  }),
+  safeProvider({
+    provide: SavedFiltersService,
+    useClass: DefaultSavedFiltersService,
+    deps: [SingleUserStateProvider, EncryptService, KeyService],
+  }),
+  safeProvider({
+    provide: VaultFilterMetadataService,
+    useClass: VaultFilterMetadataService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: BasicVaultFilterHandler,
+    useClass: BasicVaultFilterHandler,
+    deps: [LogService],
   }),
 ];
 

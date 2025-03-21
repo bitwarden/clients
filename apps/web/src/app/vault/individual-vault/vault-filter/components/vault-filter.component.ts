@@ -2,7 +2,16 @@
 // @ts-strict-ignore
 import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, merge, Subject, switchMap, takeUntil } from "rxjs";
+import {
+  debounceTime,
+  firstValueFrom,
+  merge,
+  mergeMap,
+  Observable,
+  Subject,
+  switchMap,
+  takeUntil,
+} from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -10,8 +19,19 @@ import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstract
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+import {
+  FilterName,
+  FilterString,
+  SavedFiltersService,
+} from "@bitwarden/common/vault/search/saved-filters.service";
+import {
+  SearchHistory,
+  SearchHistoryService,
+} from "@bitwarden/common/vault/search/search-history.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { TrialFlowService } from "../../../../billing/services/trial-flow.service";
@@ -43,6 +63,8 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
 
   @Input() searchText = "";
   @Output() searchTextChanged = new EventEmitter<string>();
+  @Input({ required: true }) userId!: UserId;
+  @Input() organizationId: OrganizationId | undefined;
 
   isLoaded = false;
 
@@ -91,6 +113,8 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   }
 
   private trialFlowService = inject(TrialFlowService);
+  protected searchHistory: SearchHistory;
+  protected savedFilters$: Observable<Record<FilterName, FilterString>>;
 
   constructor(
     protected vaultFilterService: VaultFilterService,
@@ -101,6 +125,8 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     protected billingApiService: BillingApiServiceAbstraction,
     protected dialogService: DialogService,
     protected configService: ConfigService,
+    protected searchHistoryService: SearchHistoryService,
+    protected savedFiltersService: SavedFiltersService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -121,6 +147,22 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       .subscribe((orgFilters) => {
         this.filters.organizationFilter = orgFilters;
       });
+
+    this.searchHistory = this.searchHistoryService.searchHistory(this.userId, this.organizationId);
+    this.savedFilters$ = this.savedFiltersService.filtersFor$(this.userId);
+    this.searchTextChanged
+      .asObservable()
+      .pipe(
+        debounceTime(1000),
+        mergeMap(async (searchText) => {
+          if (Utils.isNullOrEmpty(searchText)) {
+            return;
+          }
+          await this.searchHistory.push(searchText);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
   }
 
   ngOnDestroy() {
@@ -174,6 +216,18 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   editFolder = async (folder: FolderFilter): Promise<void> => {
     this.onEditFolder.emit(folder);
   };
+
+  async onFilterSaved({ name, filter }: { name: string; filter: string }) {
+    await this.savedFiltersService.saveFilter(
+      this.userId,
+      name as FilterName,
+      filter as FilterString,
+    );
+  }
+
+  async onFilterDeleted({ name }: { name: string }) {
+    await this.savedFiltersService.deleteFilter(this.userId, name as FilterName);
+  }
 
   async getDefaultFilter(): Promise<TreeNode<VaultFilterType>> {
     return await firstValueFrom(this.filters?.typeFilter.data$);

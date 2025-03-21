@@ -1,23 +1,97 @@
 <label class="tw-sr-only" [for]="id">{{ "search" | i18n }}</label>
-<div class="tw-relative tw-flex tw-items-center">
-  <label
-    [for]="id"
-    aria-hidden="true"
-    class="tw-absolute tw-left-2 tw-z-20 !tw-mb-0 tw-cursor-text"
-  >
-    <i class="bwi bwi-search bwi-fw tw-text-muted"></i>
-  </label>
-  <input
-    #input
-    bitInput
-    [type]="inputType"
-    [id]="id"
-    [placeholder]="placeholder ?? ('search' | i18n)"
-    class="tw-pl-9"
-    [ngModel]="searchText"
-    (ngModelChange)="onChange($event)"
-    (blur)="onTouch()"
-    [disabled]="disabled"
-    [attr.autocomplete]="autocomplete"
-  />
+<div class="tw-relative tw-w-1/2">
+  <div class="tw-w-full tw-flex">
+    <div class="tw-flex tw-max-w-xl tw-flex-grow tw-items-center">
+      <label
+        [for]="id"
+        aria-hidden="true"
+        class="tw-absolute tw-left-2 tw-z-20 !tw-mb-0 tw-cursor-text"
+      >
+        <i class="bwi bwi-search bwi-fw tw-text-muted"></i>
+      </label>
+      <input
+        #input
+        bitInput
+        [type]="inputType"
+        [id]="id"
+        [placeholder]="placeholder ?? ('search' | i18n)"
+        [class]="savedFilterData?.length > 0 ? 'tw-px-9' : 'tw-pl-9'"
+        [ngModel]="searchText"
+        (ngModelChange)="onChange($event)"
+        (focus)="onFocus()"
+        (blur)="onTouch()"
+        [disabled]="disabled"
+        [attr.autocomplete]="autocomplete"
+      />
+      <button
+        bitSuffix
+        type="button"
+        [bitIconButton]="showSavedFilters ? 'bwi-caret-up' : 'bwi-caret-down'"
+        (click)="toggleSavedFilters()"
+        *ngIf="savedFilterData?.length > 0"
+      ></button>
+      <button
+        bitSuffix
+        type="button"
+        bitIconButton="bwi-sliders"
+        (click)="filterToggled()"
+        [buttonType]=""
+      ></button>
+    </div>
+    <!-- <ng-container *ngIf="(textUpdated$ | async)?.length > 0">
+      <button
+        type="button"
+        bitLink
+        class="tw-ml-2 tw-text-sm tw-text-nowrap"
+        (click)="saveFilter()"
+      >
+        Save filter
+      </button>
+    </ng-container> -->
+  </div>
+  <ng-container *ngIf="showSavedFilters">
+    <div class="tw-size-full">
+      <ul
+        class="tw-absolute tw-w-full tw-z-[1000] tw-float-left tw-m-0 tw-pl-0 tw-list-none tw-bg-background tw-overflow-hidden tw-rounded-xl tw-border tw-border-solid tw-border-secondary-300"
+        aria-labelledby="dropdownMenuButton1"
+        data-twe-dropdown-menu-ref
+      >
+        <li
+          *ngFor="let data of savedFilterData"
+          (click)="writeValue(data.filter); onChange(data.filter); onTouch()"
+          class="tw-pl-9 tw-pr-2 tw-block tw-text-ellipsis tw-text-nowrap tw-overflow-hidden hover:tw-bg-background-alt"
+        >
+          <div class="tw-flex tw-items-center">
+            <span class="tw-flex-grow">
+              {{ data.name }}
+            </span>
+            <div class="hover:tw-border-b tw-flex tw-items-center" (click)="deleteFilter(data)">
+              <i class="bwi bwi-close" aria-hidden="true"></i>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="showHistory">
+    <div class="tw-size-full">
+      <ul
+        class="tw-absolute tw-w-full tw-z-[1000] tw-float-left tw-m-0 tw-pl-0 tw-list-none tw-bg-background tw-overflow-hidden tw-rounded-xl tw-border tw-border-solid tw-border-secondary-300"
+        aria-labelledby="dropdownMenuButton1"
+        data-twe-dropdown-menu-ref
+      >
+        <li
+          *ngFor="let search of filteredHistory$ | async"
+          (click)="writeValue(search); onChange(search); onTouch()"
+          class="tw-pl-9 tw-pr-2 tw-block tw-text-ellipsis tw-text-nowrap tw-overflow-hidden hover:tw-bg-background-alt"
+        >
+          {{ search }}
+        </li>
+      </ul>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="selectedContent$ | async as content">
+    <ng-content [select]="content"></ng-content>
+  </ng-container>
 </div>

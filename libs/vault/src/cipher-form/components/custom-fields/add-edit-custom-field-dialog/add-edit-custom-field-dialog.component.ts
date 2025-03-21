@@ -2,12 +2,19 @@
 // @ts-strict-ignore
 import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { Component, Inject } from "@angular/core";
+import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { Observable, Subject, map, of, switchMap, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherType, FieldType, LinkedIdType } from "@bitwarden/common/vault/enums";
+import {
+  CustomFieldMetadata,
+  VaultFilterMetadataService,
+} from "@bitwarden/common/vault/filtering/vault-filter-metadata.service";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -15,6 +22,7 @@ import {
   FormFieldModule,
   IconButtonModule,
   SelectModule,
+  ToggleGroupModule,
 } from "@bitwarden/components";
 
 export type AddEditCustomFieldDialogData = {
@@ -41,12 +49,14 @@ export type AddEditCustomFieldDialogData = {
     ReactiveFormsModule,
     IconButtonModule,
     AsyncActionsModule,
+    ToggleGroupModule,
   ],
 })
-export class AddEditCustomFieldDialogComponent {
+export class AddEditCustomFieldDialogComponent implements OnInit, OnDestroy {
   variant: "add" | "edit";
 
   customFieldForm = this.formBuilder.group({
+    selectedExistingField: null as CustomFieldMetadata,
     type: FieldType.Text,
     label: ["", Validators.required],
   });
@@ -60,10 +70,19 @@ export class AddEditCustomFieldDialogComponent {
 
   FieldType = FieldType;
 
+  protected selectExistingField = false;
+  protected existingFields$: Observable<
+    { name: string; type: FieldType; linkedType: LinkedIdType; count: number }[]
+  >;
+  private destroy$ = new Subject<void>();
+
   constructor(
     @Inject(DIALOG_DATA) private data: AddEditCustomFieldDialogData,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
+    private AccountService: AccountService,
+    private cipherService: CipherService,
+    private vaultFilterMetadataService: VaultFilterMetadataService,
   ) {
     this.variant = data.editLabelConfig ? "edit" : "add";
 
@@ -80,6 +99,44 @@ export class AddEditCustomFieldDialogComponent {
       this.customFieldForm.controls.label.setValue(data.editLabelConfig.label);
       this.customFieldForm.controls.type.disable();
     }
+
+    this.existingFields$ = this.AccountService.activeAccount$.pipe(
+      switchMap((account) => {
+        if (!account) {
+          return of([]);
+        }
+        return this.cipherService.cipherViews$(account.id);
+      }),
+      this.vaultFilterMetadataService.collectMetadata(),
+      map((metadata) => metadata.customFields),
+      map((customFields) => {
+        return Array.from(customFields.entries()).map(([key, count]) => {
+          const { name, type, linkedType } = key;
+          return {
+            name,
+            type,
+            linkedType,
+            count,
+          };
+        });
+      }),
+    );
+  }
+
+  ngOnInit(): void {
+    this.customFieldForm.controls.selectedExistingField.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((selectedExistingField) => {
+        if (selectedExistingField) {
+          this.customFieldForm.controls.label.setValue(selectedExistingField.name);
+          this.customFieldForm.controls.type.setValue(selectedExistingField.type);
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   getTypeHint(): string {
@@ -129,5 +186,18 @@ export class AddEditCustomFieldDialogComponent {
   /** Invoke the `removeField` callback */
   removeField() {
     this.data.removeField(this.data.editLabelConfig.index);
+  }
+
+  setSelectExistingField(existingField: boolean) {
+    this.selectExistingField = existingField;
+  }
+
+  setFormValuesFromExistingField() {
+    this.customFieldForm.controls.type.setValue(
+      this.customFieldForm.controls.selectedExistingField.value.type,
+    );
+    this.customFieldForm.controls.label.setValue(
+      this.customFieldForm.controls.selectedExistingField.value.name,
+    );
   }
 }

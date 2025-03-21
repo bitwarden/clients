@@ -181,6 +181,8 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected resellerWarning$: Observable<ResellerWarning | null>;
   protected prevCipherId: string | null = null;
   protected userId: UserId;
+  protected organizationId$: Observable<OrganizationId>;
+  protected userId$: Observable<UserId>;
   /**
    * A list of collections that the user can assign items to and edit those items within.
    * @protected
@@ -262,7 +264,8 @@ export class VaultComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.userId$ = getUserId(this.accountService.activeAccount$);
+    this.userId = await firstValueFrom(this.userId$);
 
     this.resellerManagedOrgAlert = await this.configService.getFeatureFlag(
       FeatureFlag.ResellerManagedOrgAlert,
@@ -275,8 +278,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     );
 
     const filter$ = this.routedVaultFilterService.filter$;
-    const organizationId$ = filter$.pipe(
-      map((filter) => filter.organizationId),
+    this.organizationId$ = filter$.pipe(
+      map((filter) => filter.organizationId as OrganizationId),
       filter((filter) => filter !== undefined),
       distinctUntilChanged(),
     );
@@ -284,7 +287,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     const organization$ = this.accountService.activeAccount$.pipe(
       map((account) => account?.id),
       switchMap((id) =>
-        organizationId$.pipe(
+        this.organizationId$.pipe(
           switchMap((organizationId) =>
             this.organizationService
               .organizations$(id)
@@ -349,7 +352,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.currentSearchText$ = this.route.queryParams.pipe(map((queryParams) => queryParams.search));
 
     this.allCollectionsWithoutUnassigned$ = this.refresh$.pipe(
-      switchMap(() => organizationId$),
+      switchMap(() => this.organizationId$),
       switchMap((orgId) => this.collectionAdminService.getAll(orgId)),
       shareReplay({ refCount: false, bufferSize: 1 }),
     );
@@ -367,7 +370,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     );
 
     const allCollections$ = combineLatest([
-      organizationId$,
+      this.organizationId$,
       this.allCollectionsWithoutUnassigned$,
     ]).pipe(
       map(([organizationId, allCollections]) => {
@@ -379,7 +382,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       }),
     );
 
-    const allGroups$ = organizationId$.pipe(
+    const allGroups$ = this.organizationId$.pipe(
       switchMap((organizationId) => this.groupService.getAll(organizationId)),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );

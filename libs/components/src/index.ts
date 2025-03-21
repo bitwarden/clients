@@ -11,6 +11,7 @@ export * from "./callout";
 export * from "./card";
 export * from "./checkbox";
 export * from "./chip-select";
+export * from "./chip-multi-select";
 export * from "./color-password";
 export * from "./container";
 export * from "./copy-click";

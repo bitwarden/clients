@@ -43,6 +43,8 @@ export const LOG_MAC_FAILURES = new SafeInjectionToken<boolean>("LOG_MAC_FAILURE
 export const SYSTEM_THEME_OBSERVABLE = new SafeInjectionToken<Observable<Theme>>(
   "SYSTEM_THEME_OBSERVABLE",
 );
+export const IS_DEV = new SafeInjectionToken<boolean>("IS_DEV");
+
 export const DEFAULT_VAULT_TIMEOUT = new SafeInjectionToken<VaultTimeout>("DEFAULT_VAULT_TIMEOUT");
 export const INTRAPROCESS_MESSAGING_SUBJECT = new SafeInjectionToken<
   Subject<Message<Record<string, unknown>>>

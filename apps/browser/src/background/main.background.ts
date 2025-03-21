@@ -845,7 +845,6 @@ export default class MainBackground {
       this.domainSettingsService,
       this.apiService,
       this.i18nService,
-      this.searchService,
       this.stateService,
       this.autofillSettingsService,
       this.encryptService,

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -16,6 +14,11 @@ export class I18nMockService implements I18nService {
 
   t(id: string, p1?: string, p2?: string, p3?: string) {
     let value = this.lookupTable[id];
+
+    if (value === undefined) {
+      throw new Error(`Nothing in lookup table for id '${id}'`);
+    }
+
     if (typeof value == "string") {
       if (value !== "") {
         if (p1 != null) {
@@ -31,6 +34,7 @@ export class I18nMockService implements I18nService {
 
       return value;
     }
+
     return value(p1, p2, p3);
   }
 

@@ -1,10 +1,38 @@
 <form [formGroup]="customFieldForm" [bitSubmit]="submit">
-  <bit-dialog>
+  <bit-dialog *ngIf="variant === 'add'">
     <span bitDialogTitle>
-      {{ (variant === "add" ? "addField" : "editField") | i18n }}
+      {{ "addField" | i18n }}
     </span>
     <div bitDialogContent>
-      <bit-form-field *ngIf="variant === 'add'">
+      <div class="tw-flex tw-mb-2 tw-justify-center">
+        <bit-toggle-group class="tw-flex-grow tw-flex" selected="basic">
+          <bit-toggle
+            class="tw-flex-grow tw-max-w-lg"
+            value="basic"
+            (click)="setSelectExistingField(false)"
+            >New</bit-toggle
+          >
+          <bit-toggle
+            class="tw-flex-grow tw-max-w-lg"
+            value="advanced"
+            (click)="setSelectExistingField(true)"
+            >Existing</bit-toggle
+          >
+        </bit-toggle-group>
+      </div>
+
+      <bit-form-field *ngIf="selectExistingField">
+        <bit-select id="fieldName" formControlName="selectedExistingField">
+          <bit-option
+            *ngFor="let field of existingFields$ | async"
+            [value]="field"
+            [label]="field.name + ' (' + FieldType[field.type] + ', ' + field.count + ')'"
+          >
+          </bit-option>
+        </bit-select>
+      </bit-form-field>
+
+      <bit-form-field [hidden]="selectExistingField">
         <bit-label>{{ "fieldType" | i18n }}</bit-label>
         <bit-select id="fieldType" formControlName="type">
           <bit-option
@@ -18,6 +46,28 @@
         </bit-hint>
       </bit-form-field>
 
+      <bit-form-field [hidden]="selectExistingField" disableMargin>
+        <bit-label>{{ "fieldLabel" | i18n }}</bit-label>
+        <input bitInput id="fieldLabel" formControlName="label" type="text" />
+        <bit-hint *ngIf="customFieldForm.value.type === FieldType.Linked">
+          {{ "linkedLabelHelpText" | i18n }}
+        </bit-hint>
+      </bit-form-field>
+    </div>
+    <div bitDialogFooter class="tw-flex tw-gap-2 tw-w-full">
+      <button bitButton buttonType="primary" type="submit" [disabled]="customFieldForm.invalid">
+        {{ "add" | i18n }}
+      </button>
+      <button bitButton bitDialogClose buttonType="secondary" type="button">
+        {{ "cancel" | i18n }}
+      </button>
+    </div>
+  </bit-dialog>
+  <bit-dialog *ngIf="variant === 'edit'">
+    <span bitDialogTitle>
+      {{ "editField" | i18n }}
+    </span>
+    <div bitDialogContent>
       <bit-form-field disableMargin>
         <bit-label>{{ "fieldLabel" | i18n }}</bit-label>
         <input bitInput id="fieldLabel" formControlName="label" type="text" />
@@ -28,14 +78,13 @@
     </div>
     <div bitDialogFooter class="tw-flex tw-gap-2 tw-w-full">
       <button bitButton buttonType="primary" type="submit" [disabled]="customFieldForm.invalid">
-        {{ (variant === "add" ? "add" : "save") | i18n }}
+        {{ "save" | i18n }}
       </button>
       <button bitButton bitDialogClose buttonType="secondary" type="button">
         {{ "cancel" | i18n }}
       </button>
 
       <button
-        *ngIf="variant === 'edit'"
         type="button"
         buttonType="danger"
         class="tw-ml-auto"
