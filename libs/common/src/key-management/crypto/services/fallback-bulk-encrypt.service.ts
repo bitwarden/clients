@@ -5,6 +5,7 @@ import { Decryptable } from "@bitwarden/common/platform/interfaces/decryptable.i
 import { InitializerMetadata } from "@bitwarden/common/platform/interfaces/initializer-metadata.interface";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 
+import { ServerConfig } from "../../../platform/abstractions/config/server-config";
 import { EncryptService } from "../abstractions/encrypt.service";
 
 /**
@@ -32,5 +33,9 @@ export class FallbackBulkEncryptService implements BulkEncryptService {
 
   async setFeatureFlagEncryptService(featureFlagEncryptService: BulkEncryptService) {
     this.featureFlagEncryptService = featureFlagEncryptService;
+  }
+
+  onServerConfigChange(newConfig: ServerConfig): void {
+    (this.featureFlagEncryptService ?? this.encryptService).onServerConfigChange(newConfig);
   }
 }

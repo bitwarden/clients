@@ -15,6 +15,7 @@ import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { EncryptedObject } from "@bitwarden/common/platform/models/domain/encrypted-object";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 
+import { ServerConfig } from "../../../platform/abstractions/config/server-config";
 import { EncryptService } from "../abstractions/encrypt.service";
 
 export class EncryptServiceImplementation implements EncryptService {
@@ -23,6 +24,11 @@ export class EncryptServiceImplementation implements EncryptService {
     protected logService: LogService,
     protected logMacFailures: boolean,
   ) {}
+
+  // Handle updating private properties to turn on/off feature flags.
+  onServerConfigChange(newConfig: ServerConfig): void {
+    return;
+  }
 
   async encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString> {
     if (key == null) {
