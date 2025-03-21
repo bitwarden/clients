@@ -1,7 +1,17 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { BehaviorSubject, Subject, firstValueFrom, from, switchMap, takeUntil } from "rxjs";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import {
+  BehaviorSubject,
+  Subject,
+  combineLatest,
+  filter,
+  firstValueFrom,
+  from,
+  switchMap,
+  takeUntil,
+} from "rxjs";
 
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -21,17 +31,18 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
 
   loaded = false;
   ciphers: CipherView[] = [];
-  filter: (cipher: CipherView) => boolean = null;
   deleted = false;
   organization: Organization;
 
   protected searchPending = false;
 
+  /** Construct filters as an observable so it can be appended to the cipher stream. */
+  private _filter$ = new BehaviorSubject<(cipher: CipherView) => boolean | null>(null);
   private userId: UserId;
   private destroy$ = new Subject<void>();
-  private searchTimeout: any = null;
   private isSearchable: boolean = false;
   private _searchText$ = new BehaviorSubject<string>("");
+
   get searchText() {
     return this._searchText$.value;
   }
@@ -39,11 +50,21 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
     this._searchText$.next(value);
   }
 
+  get filter() {
+    return this._filter$.value;
+  }
+
+  set filter(value: (cipher: CipherView) => boolean | null) {
+    this._filter$.next(value);
+  }
+
   constructor(
     protected searchService: SearchService,
     protected cipherService: CipherService,
     protected accountService: AccountService,
-  ) {}
+  ) {
+    this.subscribeToCiphers();
+  }
 
   async ngOnInit() {
     this.userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
@@ -80,23 +101,6 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
 
   async applyFilter(filter: (cipher: CipherView) => boolean = null) {
     this.filter = filter;
-    await this.search(null);
-  }
-
-  async search(timeout: number = null, indexedCiphers?: CipherView[]) {
-    this.searchPending = false;
-    if (this.searchTimeout != null) {
-      clearTimeout(this.searchTimeout);
-    }
-    if (timeout == null) {
-      await this.doSearch(indexedCiphers);
-      return;
-    }
-    this.searchPending = true;
-    this.searchTimeout = setTimeout(async () => {
-      await this.doSearch(indexedCiphers);
-      this.searchPending = false;
-    }, timeout);
   }
 
   selectCipher(cipher: CipherView) {
@@ -121,25 +125,43 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
 
   protected deletedFilter: (cipher: CipherView) => boolean = (c) => c.isDeleted === this.deleted;
 
-  protected async doSearch(indexedCiphers?: CipherView[], userId?: UserId) {
-    // Get userId from activeAccount if not provided from parent stream
-    if (!userId) {
-      userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    }
+  /**
+   * Creates stream of dependencies that results in the list of ciphers to display
+   * within the vault list.
+   *
+   * Note: This previously used promises but race conditions with how the ciphers were
+   * stored in electron. Using observables is more reliable as fresh values will always
+   * cascade through the components.
+   */
+  private subscribeToCiphers() {
+    getUserId(this.accountService.activeAccount$)
+      .pipe(
+        switchMap((userId) =>
+          combineLatest([
+            this.cipherService.cipherViews$(userId).pipe(filter((ciphers) => ciphers != null)),
+            this.cipherService.failedToDecryptCiphers$(userId),
+            this._searchText$,
+            this._filter$,
+          ]),
+        ),
+        switchMap(([indexedCiphers, failedCiphers, searchText, filter]) => {
+          let allCiphers = indexedCiphers ?? [];
+          const _failedCiphers = failedCiphers ?? [];
 
-    indexedCiphers =
-      indexedCiphers ?? (await firstValueFrom(this.cipherService.cipherViews$(userId)));
+          allCiphers = [..._failedCiphers, ...allCiphers];
 
-    const failedCiphers = await firstValueFrom(this.cipherService.failedToDecryptCiphers$(userId));
-    if (failedCiphers != null && failedCiphers.length > 0) {
-      indexedCiphers = [...failedCiphers, ...indexedCiphers];
-    }
-
-    this.ciphers = await this.searchService.searchCiphers(
-      this.userId,
-      this.searchText,
-      [this.filter, this.deletedFilter],
-      indexedCiphers,
-    );
+          return this.searchService.searchCiphers(
+            this.userId,
+            searchText,
+            [filter, this.deletedFilter],
+            allCiphers,
+          );
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe((ciphers) => {
+        this.ciphers = ciphers;
+        this.loaded = true;
+      });
   }
 }

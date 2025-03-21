@@ -986,7 +986,7 @@ export class CipherService implements CipherServiceAbstraction {
     });
     // Some state storage providers (e.g. Electron) don't update the state immediately, wait for next tick
     // Otherwise, subscribers to cipherViews$ can get stale data
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 1));
     return res;
   }
 
@@ -1013,7 +1013,7 @@ export class CipherService implements CipherServiceAbstraction {
       });
     // Some state storage providers (e.g. Electron) don't update the state immediately, wait for next tick
     // Otherwise, subscribers to cipherViews$ can get stale data
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 1));
     return updatedCiphers;
   }
 
