@@ -20,11 +20,13 @@ describe("username - eff words generator metadata", () => {
   });
 
   describe("profiles[account]", () => {
-    let accountProfile: CoreProfileMetadata<EffUsernameGenerationOptions> = null;
+    let accountProfile: CoreProfileMetadata<EffUsernameGenerationOptions> = null!;
     beforeEach(() => {
       const profile = effWordList.profiles[Profile.account];
-      if (isCoreProfile(profile)) {
+      if (isCoreProfile(profile!)) {
         accountProfile = profile;
+      } else {
+        throw new Error("this branch should never run");
       }
     });
 
