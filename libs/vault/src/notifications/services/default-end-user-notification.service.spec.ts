@@ -1,7 +1,8 @@
 import { TestBed } from "@angular/core/testing";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { NotificationId, UserId } from "@bitwarden/common/types/guid";
 import { DefaultEndUserNotificationService } from "@bitwarden/vault";
@@ -34,6 +35,12 @@ describe("End User Notification Center Service", () => {
           provide: ApiService,
           useValue: {
             send: mockApiSend,
+          },
+        },
+        {
+          provide: NotificationsService,
+          useValue: {
+            notifications$: of(null),
           },
         },
       ],

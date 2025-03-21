@@ -1,9 +1,14 @@
-import { Subscription } from "rxjs";
+import { Observable, Subject, Subscription } from "rxjs";
+
+import { NotificationResponse } from "@bitwarden/common/models/response/notification.response";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { LogService } from "../../abstractions/log.service";
 import { NotificationsService } from "../notifications.service";
 
 export class NoopNotificationsService implements NotificationsService {
+  notifications$: Observable<readonly [NotificationResponse, UserId]> = new Subject();
+
   constructor(private logService: LogService) {}
 
   startListening(): Subscription {
