@@ -1,5 +1,7 @@
 import { NgModule } from "@angular/core";
 
+import { ItemModule } from "@bitwarden/components";
+
 import { LooseComponentsModule, SharedModule } from "../../../shared";
 import { AccountFingerprintComponent } from "../../../shared/components/account-fingerprint/account-fingerprint.component";
 import { PoliciesModule } from "../../organizations/policies";
@@ -15,6 +17,7 @@ import { TwoFactorSetupComponent } from "./two-factor-setup.component";
     PoliciesModule,
     OrganizationSettingsRoutingModule,
     AccountFingerprintComponent,
+    ItemModule,
   ],
   declarations: [AccountComponent, TwoFactorSetupComponent],
 })
