@@ -10264,7 +10264,7 @@
     "message": "您的账户在以下设备上登录过。"
   },
   "claimedDomains": {
-    "message": "已声明的域名"
+    "message": "声明域名"
   },
   "claimDomain": {
     "message": "声明域名"
