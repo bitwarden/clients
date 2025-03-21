@@ -14,7 +14,7 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { AuthRequestServiceAbstraction } from "../abstractions";
+import { AuthRequestApiService, AuthRequestServiceAbstraction } from "../abstractions";
 import { SsoLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
 
@@ -72,6 +72,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     private deviceTrustService: DeviceTrustServiceAbstraction,
     private authRequestService: AuthRequestServiceAbstraction,
     private i18nService: I18nService,
+    private authRequestApiService: AuthRequestApiService,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
     super(...sharedDeps);
@@ -230,7 +231,9 @@ export class SsoLoginStrategy extends LoginStrategy {
     let adminAuthReqResponse: AuthRequestResponse;
 
     try {
-      adminAuthReqResponse = await this.apiService.getAuthRequest(adminAuthReqStorable.id);
+      adminAuthReqResponse = await this.authRequestApiService.getAuthRequest(
+        adminAuthReqStorable.id,
+      );
     } catch (error) {
       if (error instanceof ErrorResponse && error.statusCode === HttpStatusCode.NotFound) {
         // if we get a 404, it means the auth request has been deleted so clear it from storage

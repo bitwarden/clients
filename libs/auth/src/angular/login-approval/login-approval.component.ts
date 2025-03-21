@@ -7,10 +7,10 @@ import { Subject, firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
+  AuthRequestApiService,
   AuthRequestServiceAbstraction,
   LoginApprovalComponentServiceAbstraction as LoginApprovalComponentService,
 } from "@bitwarden/auth/common";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
@@ -59,7 +59,7 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
     protected accountService: AccountService,
     protected platformUtilsService: PlatformUtilsService,
     protected i18nService: I18nService,
-    protected apiService: ApiService,
+    protected apiService: AuthRequestApiService,
     protected appIdService: AppIdService,
     protected keyService: KeyService,
     private dialogRef: DialogRef,

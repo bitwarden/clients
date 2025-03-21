@@ -20,6 +20,8 @@ import {
   PinServiceAbstraction,
   UserDecryptionOptionsService,
   SsoUrlService,
+  DefaultAuthRequestApiService,
+  AuthRequestApiService,
 } from "@bitwarden/auth/common";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
@@ -283,6 +285,7 @@ export class ServiceContainer {
   cipherAuthorizationService: CipherAuthorizationService;
   ssoUrlService: SsoUrlService;
   masterPasswordApiService: MasterPasswordApiServiceAbstraction;
+  authRequestApiService: AuthRequestApiService;
 
   constructor() {
     let p = null;
@@ -605,13 +608,15 @@ export class ServiceContainer {
       this.stateProvider,
     );
 
+    this.authRequestApiService = new DefaultAuthRequestApiService(this.apiService, this.logService);
+
     this.authRequestService = new AuthRequestService(
       this.appIdService,
       this.accountService,
       this.masterPasswordService,
       this.keyService,
       this.encryptService,
-      this.apiService,
+      this.authRequestApiService,
       this.stateProvider,
     );
 
@@ -666,6 +671,7 @@ export class ServiceContainer {
       this.vaultTimeoutSettingsService,
       this.kdfConfigService,
       this.taskSchedulerService,
+      this.authRequestApiService,
     );
 
     // FIXME: CLI does not support autofill

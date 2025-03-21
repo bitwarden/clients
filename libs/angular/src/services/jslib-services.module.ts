@@ -472,6 +472,7 @@ const safeProviders: SafeProvider[] = [
       VaultTimeoutSettingsService,
       KdfConfigService,
       TaskSchedulerService,
+      AuthRequestApiService,
     ],
   }),
   safeProvider({
@@ -1157,7 +1158,7 @@ const safeProviders: SafeProvider[] = [
       InternalMasterPasswordServiceAbstraction,
       KeyService,
       EncryptService,
-      ApiServiceAbstraction,
+      AuthRequestApiService,
       StateProvider,
     ],
   }),

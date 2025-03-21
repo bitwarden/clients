@@ -34,6 +34,7 @@ import { DeviceKey, UserKey, MasterKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import {
+  AuthRequestApiService,
   AuthRequestServiceAbstraction,
   InternalUserDecryptionOptionsServiceAbstraction,
 } from "../abstractions";
@@ -65,6 +66,7 @@ describe("SsoLoginStrategy", () => {
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let environmentService: MockProxy<EnvironmentService>;
+  let authRequestApiService: MockProxy<AuthRequestApiService>;
 
   let ssoLoginStrategy: SsoLoginStrategy;
   let credentials: SsoLoginCredentials;
@@ -101,6 +103,7 @@ describe("SsoLoginStrategy", () => {
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     kdfConfigService = mock<KdfConfigService>();
     environmentService = mock<EnvironmentService>();
+    authRequestApiService = mock<AuthRequestApiService>();
 
     tokenService.getTwoFactorToken.mockResolvedValue(null);
     appIdService.getAppId.mockResolvedValue(deviceId);
@@ -129,6 +132,7 @@ describe("SsoLoginStrategy", () => {
       deviceTrustService,
       authRequestService,
       i18nService,
+      authRequestApiService,
       accountService,
       masterPasswordService,
       keyService,
@@ -375,7 +379,9 @@ describe("SsoLoginStrategy", () => {
           masterPasswordHash: "HASH" as any,
           requestApproved: true,
         };
-        apiService.getAuthRequest.mockResolvedValue(adminAuthResponse as AuthRequestResponse);
+        authRequestApiService.getAuthRequest.mockResolvedValue(
+          adminAuthResponse as AuthRequestResponse,
+        );
 
         await ssoLoginStrategy.logIn(credentials);
 
@@ -392,7 +398,9 @@ describe("SsoLoginStrategy", () => {
           key: "KEY" as any,
           requestApproved: true,
         };
-        apiService.getAuthRequest.mockResolvedValue(adminAuthResponse as AuthRequestResponse);
+        authRequestApiService.getAuthRequest.mockResolvedValue(
+          adminAuthResponse as AuthRequestResponse,
+        );
 
         await ssoLoginStrategy.logIn(credentials);
 
@@ -409,7 +417,9 @@ describe("SsoLoginStrategy", () => {
           key: "KEY" as any,
           requestApproved: true,
         };
-        apiService.getAuthRequest.mockResolvedValue(adminAuthResponse as AuthRequestResponse);
+        authRequestApiService.getAuthRequest.mockResolvedValue(
+          adminAuthResponse as AuthRequestResponse,
+        );
 
         await ssoLoginStrategy.logIn(credentials);
 
@@ -419,7 +429,7 @@ describe("SsoLoginStrategy", () => {
 
       it("clears the admin auth request if server returns a 404, meaning it was deleted", async () => {
         apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-        apiService.getAuthRequest.mockRejectedValue(new ErrorResponse(null, 404));
+        authRequestApiService.getAuthRequest.mockRejectedValue(new ErrorResponse(null, 404));
 
         await ssoLoginStrategy.logIn(credentials);
 
@@ -439,7 +449,9 @@ describe("SsoLoginStrategy", () => {
           key: "KEY" as any,
           requestApproved: true,
         };
-        apiService.getAuthRequest.mockResolvedValue(adminAuthResponse as AuthRequestResponse);
+        authRequestApiService.getAuthRequest.mockResolvedValue(
+          adminAuthResponse as AuthRequestResponse,
+        );
         keyService.hasUserKey.mockResolvedValue(false);
         deviceTrustService.getDeviceKey.mockResolvedValue("DEVICE_KEY" as any);
 

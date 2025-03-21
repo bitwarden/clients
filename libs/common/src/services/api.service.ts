@@ -55,7 +55,6 @@ import { TokenTwoFactorRequest } from "../auth/models/request/identity-token/tok
 import { UserApiTokenRequest } from "../auth/models/request/identity-token/user-api-token.request";
 import { WebAuthnLoginTokenRequest } from "../auth/models/request/identity-token/webauthn-login-token.request";
 import { PasswordHintRequest } from "../auth/models/request/password-hint.request";
-import { PasswordlessAuthRequest } from "../auth/models/request/passwordless-auth.request";
 import { SecretVerificationRequest } from "../auth/models/request/secret-verification.request";
 import { TwoFactorEmailRequest } from "../auth/models/request/two-factor-email.request";
 import { TwoFactorProviderRequest } from "../auth/models/request/two-factor-provider.request";
@@ -67,7 +66,6 @@ import { UpdateTwoFactorWebAuthnDeleteRequest } from "../auth/models/request/upd
 import { UpdateTwoFactorWebAuthnRequest } from "../auth/models/request/update-two-factor-web-authn.request";
 import { UpdateTwoFactorYubikeyOtpRequest } from "../auth/models/request/update-two-factor-yubikey-otp.request";
 import { ApiKeyResponse } from "../auth/models/response/api-key.response";
-import { AuthRequestResponse } from "../auth/models/response/auth-request.response";
 import { DeviceVerificationResponse } from "../auth/models/response/device-verification.response";
 import { IdentityCaptchaResponse } from "../auth/models/response/identity-captcha.response";
 import { IdentityDeviceVerificationResponse } from "../auth/models/response/identity-device-verification.response";
@@ -270,34 +268,6 @@ export class ApiService implements ApiServiceAbstraction {
       this.logService.error("Error refreshing access token: ", e);
       throw e;
     }
-  }
-
-  // TODO: PM-3519: Create and move to AuthRequest Api service
-  async getAuthRequest(id: string): Promise<AuthRequestResponse> {
-    const path = `/auth-requests/${id}`;
-    const r = await this.send("GET", path, null, true, true);
-    return new AuthRequestResponse(r);
-  }
-
-  async putAuthRequest(id: string, request: PasswordlessAuthRequest): Promise<AuthRequestResponse> {
-    const path = `/auth-requests/${id}`;
-    const r = await this.send("PUT", path, request, true, true);
-    return new AuthRequestResponse(r);
-  }
-
-  async getAuthRequests(): Promise<ListResponse<AuthRequestResponse>> {
-    const path = `/auth-requests/`;
-    const r = await this.send("GET", path, null, true, true);
-    return new ListResponse(r, AuthRequestResponse);
-  }
-
-  async getLastAuthRequest(): Promise<AuthRequestResponse> {
-    const requests = await this.getAuthRequests();
-    const activeRequests = requests.data.filter((m) => !m.isAnswered && !m.isExpired);
-    const lastRequest = activeRequests.sort((a: AuthRequestResponse, b: AuthRequestResponse) =>
-      a.creationDate.localeCompare(b.creationDate),
-    )[activeRequests.length - 1];
-    return lastRequest;
   }
 
   // Account APIs

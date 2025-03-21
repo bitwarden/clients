@@ -47,7 +47,6 @@ import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token
 import { UserApiTokenRequest } from "../auth/models/request/identity-token/user-api-token.request";
 import { WebAuthnLoginTokenRequest } from "../auth/models/request/identity-token/webauthn-login-token.request";
 import { PasswordHintRequest } from "../auth/models/request/password-hint.request";
-import { PasswordlessAuthRequest } from "../auth/models/request/passwordless-auth.request";
 import { SecretVerificationRequest } from "../auth/models/request/secret-verification.request";
 import { TwoFactorEmailRequest } from "../auth/models/request/two-factor-email.request";
 import { TwoFactorProviderRequest } from "../auth/models/request/two-factor-provider.request";
@@ -59,7 +58,6 @@ import { UpdateTwoFactorWebAuthnDeleteRequest } from "../auth/models/request/upd
 import { UpdateTwoFactorWebAuthnRequest } from "../auth/models/request/update-two-factor-web-authn.request";
 import { UpdateTwoFactorYubikeyOtpRequest } from "../auth/models/request/update-two-factor-yubikey-otp.request";
 import { ApiKeyResponse } from "../auth/models/response/api-key.response";
-import { AuthRequestResponse } from "../auth/models/response/auth-request.response";
 import { DeviceVerificationResponse } from "../auth/models/response/device-verification.response";
 import { IdentityCaptchaResponse } from "../auth/models/response/identity-captcha.response";
 import { IdentityDeviceVerificationResponse } from "../auth/models/response/identity-device-verification.response";
@@ -182,11 +180,6 @@ export abstract class ApiService {
   postUserApiKey: (id: string, request: SecretVerificationRequest) => Promise<ApiKeyResponse>;
   postUserRotateApiKey: (id: string, request: SecretVerificationRequest) => Promise<ApiKeyResponse>;
   postConvertToKeyConnector: () => Promise<void>;
-  //passwordless
-  getAuthRequest: (id: string) => Promise<AuthRequestResponse>;
-  putAuthRequest: (id: string, request: PasswordlessAuthRequest) => Promise<AuthRequestResponse>;
-  getAuthRequests: () => Promise<ListResponse<AuthRequestResponse>>;
-  getLastAuthRequest: () => Promise<AuthRequestResponse>;
 
   getUserBillingHistory: () => Promise<BillingHistoryResponse>;
   getUserBillingPayment: () => Promise<BillingPaymentResponse>;
