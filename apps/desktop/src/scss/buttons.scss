@@ -1,7 +1,7 @@
 @import "variables.scss";
 
 .btn,
-.vault .footer button,
+.vault .footer button:not([bitButton]):not([bitIconButton]),
 .modal-footer button {
   border-radius: $border-radius;
   padding: 7px 15px;
