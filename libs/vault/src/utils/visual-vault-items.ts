@@ -46,7 +46,10 @@ export function encodeCipherForQRType(
   let encodable: string = "";
   switch (type) {
     case "wifi":
-      encodable = `WIFI:S:${cipherFieldMap[mapping.ssid].value};T:<WPA|WEP|>;P:${cipherFieldMap[mapping.password].value};;`;
+      // Format: “WIFI:” [type “;”] [trdisable “;”] ssid “;” [hidden “;”] [id “;”] [password “;”] [publickey “;”] “;”
+      // "WIFI:T:<WPA|WEP|>;S:<ssid>;P:<password>;;"
+      // e.g. "WIFI:T:WPA;S:TroyAndAbedInTheModem;P:MyPassword;;"
+      encodable = `WIFI:T:WPA;S:${cipherFieldMap[mapping.ssid].value};P:${cipherFieldMap[mapping.password].value};;`;
       break;
     case "url":
       encodable = cipherFieldMap[mapping.link].value;
@@ -72,14 +75,17 @@ export async function generateQRCodePath(
   cipherFieldMap: {
     [key: string]: { name: string; label: string; value: string };
   },
-): Promise<string> {
+): Promise<{ path: string; viewBox: string }> {
   const encodable = encodeCipherForQRType(type, mapping, cipherFieldMap);
 
   const svg = await QRCode.toString(encodable, { type: "svg" });
 
   const doc = new DOMParser().parseFromString(svg, "image/svg+xml");
+  const root = doc.firstChild! as SVGElement;
+  const path = root.lastChild as SVGPathElement;
 
-  const path = doc.firstChild!.lastChild as SVGPathElement;
-
-  return path.attributes.getNamedItem("d")!.value;
+  return {
+    path: path.attributes.getNamedItem("d")!.value,
+    viewBox: root.attributes.getNamedItem("viewBox")!.value,
+  };
 }

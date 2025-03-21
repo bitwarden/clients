@@ -95,6 +95,7 @@ export class VaultItemVisualizerComponent implements OnInit {
 
   dataToShareValues = toSignal(this.visualizeForm.valueChanges);
 
+  qrCodeViewBox: WritableSignal<string> = signal("0 0 0 0");
   qrCodePath: WritableSignal<string> = signal("");
 
   cipherFieldTuples: WritableSignal<Array<FieldTuple>> = signal([]);
@@ -319,12 +320,13 @@ export class VaultItemVisualizerComponent implements OnInit {
 
       if (typeof values !== "undefined" && values.qrCodeType !== null) {
         /* @TODO pass the fieldMappings select values with cipher data, let bkgd fn handle? */
-        const qrCodePath = await generateQRCodePath(
+        const { path, viewBox } = await generateQRCodePath(
           values.qrCodeType,
           values.fieldMappings,
           this.availableCipherFieldsMap(),
         );
-        this.qrCodePath.set(qrCodePath);
+        this.qrCodeViewBox.set(viewBox);
+        this.qrCodePath.set(path);
       }
     });
 
@@ -405,7 +407,7 @@ export class VaultItemVisualizerComponent implements OnInit {
 
       fields.push(...uris);
 
-      const custom = this.cipher.fields.map(
+      const custom = (this.cipher.fields ?? []).map(
         (field, i): FieldTuple => [`field.${i}`, `Custom field: ${field.name}`, field.value],
       );
       fields.push(...custom);
