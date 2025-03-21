@@ -289,6 +289,9 @@ export default class RuntimeBackground {
       case "openPopup":
         await this.openPopup();
         break;
+      case "closeSafariPopup":
+        await this.main.closeSafariPopup();
+        break;
       case "bgUpdateContextMenu":
       case "editedCipher":
       case "addedCipher":

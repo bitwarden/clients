@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		025FE0402D5FE56300B982BE /* SafariExtensionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025FE03F2D5FE55F00B982BE /* SafariExtensionViewController.swift */; };
 		03100CAF291891F4008E14EF /* encrypt-worker.js in Resources */ = {isa = PBXBuildFile; fileRef = 03100CAE291891F4008E14EF /* encrypt-worker.js */; };
 		55BC93932CB4268A008CA4C6 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 55BC93922CB4268A008CA4C6 /* assets */; };
 		55E0374D2577FA6B00979016 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55E0374C2577FA6B00979016 /* AppDelegate.swift */; };
@@ -53,6 +54,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		025FE03F2D5FE55F00B982BE /* SafariExtensionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariExtensionViewController.swift; sourceTree = "<group>"; };
 		03100CAE291891F4008E14EF /* encrypt-worker.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = "encrypt-worker.js"; path = "../../../build/encrypt-worker.js"; sourceTree = "<group>"; };
 		5508DD7926051B5900A85C58 /* libswiftAppKit.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libswiftAppKit.tbd; path = usr/lib/swift/libswiftAppKit.tbd; sourceTree = SDKROOT; };
 		55BC93922CB4268A008CA4C6 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = ../../../build/assets; sourceTree = "<group>"; };
@@ -143,6 +145,7 @@
 		55E037612577FA6F00979016 /* safari */ = {
 			isa = PBXGroup;
 			children = (
+				025FE03F2D5FE55F00B982BE /* SafariExtensionViewController.swift */,
 				55E0376F2577FA6F00979016 /* Resources */,
 				55E037622577FA6F00979016 /* SafariWebExtensionHandler.swift */,
 				55E037642577FA6F00979016 /* Info.plist */,
@@ -297,6 +300,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				025FE0402D5FE56300B982BE /* SafariExtensionViewController.swift in Sources */,
 				55E037632577FA6F00979016 /* SafariWebExtensionHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
