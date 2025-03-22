@@ -879,9 +879,6 @@
   "filter": {
     "message": "Filter"
   },
-  "moveSelectedToOrg": {
-    "message": "Selectie naar organisatie verplaatsen"
-  },
   "deleteSelected": {
     "message": "Selectie verwijderen"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Geselecteerde items verplaatst naar $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "Kies een organisatie waarnaar je dit item wilt verplaatsen. Door het verplaatsen krijgt de organisatie de eigendomsrechten van het item. Je bent niet langer de directe eigenaar meer van het item als het is verplaatst."
   },
-  "moveManyToOrgDesc": {
-    "message": "Kies een organisatie waarnaar je deze items wilt verplaatsen. Door het verplaatsen krijgt de organisatie de eigendomsrechten van deze items. Je bent niet langer de directe eigenaar meer van deze items als ze zijn verplaatst."
-  },
   "collectionsDesc": {
     "message": "Wijzig de verzamelingen waarmee dit item gedeeld is. Alleen organisatiegebruikers met toegang tot deze verzamelingen kunnen dit item inzien."
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "Je hebt $COUNT$ item(s) geselecteerd. Je kunt $MOVEABLE_COUNT$ verplaatsen naar een organisatie, $NONMOVEABLE_COUNT$ niet.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },

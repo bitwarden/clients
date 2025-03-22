@@ -1,6 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/services/policy/policy.service";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -59,6 +60,7 @@ describe("NotificationBackground", () => {
   const themeStateService = mock<ThemeStateService>();
   const configService = mock<ConfigService>();
   const accountService = mock<AccountService>();
+  const organizationService = mock<OrganizationService>();
 
   const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>({
     id: "testId" as UserId,
@@ -73,18 +75,19 @@ describe("NotificationBackground", () => {
     authService.activeAccountStatus$ = activeAccountStatusMock$;
     accountService.activeAccount$ = activeAccountSubject;
     notificationBackground = new NotificationBackground(
+      accountService,
+      authService,
       autofillService,
       cipherService,
-      authService,
-      policyService,
-      folderService,
-      userNotificationSettingsService,
+      configService,
       domainSettingsService,
       environmentService,
+      folderService,
       logService,
+      organizationService,
+      policyService,
       themeStateService,
-      configService,
-      accountService,
+      userNotificationSettingsService,
     );
   });
 

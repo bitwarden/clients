@@ -879,9 +879,6 @@
   "filter": {
     "message": "Suodattimet"
   },
-  "moveSelectedToOrg": {
-    "message": "Siirrä valitut organisaatiolle"
-  },
   "deleteSelected": {
     "message": "Poista valitut"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Valitut kohteet siirrettiin organisaatiolle $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "Valitse organisaatio, jolle haluat siirtää kohteen. Tämä siirtää kohteen organisaation omistukseen, etkä tämän jälkeen ole enää sen suora omistaja."
   },
-  "moveManyToOrgDesc": {
-    "message": "Valitse organisaatio, jolle haluat siirtää kohteet. Tämä siirtää kohteet organisaation omistukseen, etkä tämän jälkeen ole enää niiden suora omistaja."
-  },
   "collectionsDesc": {
     "message": "Muokkaa kokoelmia, joihin tämä kohde on jaettu. Kohteen näkevät vain ne organisaation käyttäjät, joilla on käyttöoikeudet näihin kokoelmiin."
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "Olet valinnut $COUNT$ kohdetta. $MOVEABLE_COUNT$ kohdetta voidaan siirtää organisaatioon, $NONMOVEABLE_COUNT$ ei.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },

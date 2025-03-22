@@ -187,7 +187,7 @@
                   class="tw-mr-3"
                 ></bit-avatar>
                 <div class="tw-flex tw-flex-col">
-                  <div>
+                  <div class="tw-flex tw-flex-row tw-gap-2">
                     <button type="button" bitLink>
                       {{ u.name ?? u.email }}
                     </button>
@@ -196,22 +196,25 @@
                       class="tw-text-xs"
                       variant="secondary"
                       *ngIf="u.status === userStatusType.Invited"
-                      >{{ "invited" | i18n }}</span
                     >
+                      {{ "invited" | i18n }}
+                    </span>
                     <span
                       bitBadge
                       class="tw-text-xs"
                       variant="warning"
                       *ngIf="u.status === userStatusType.Accepted"
-                      >{{ "needsConfirmation" | i18n }}</span
                     >
+                      {{ "needsConfirmation" | i18n }}
+                    </span>
                     <span
                       bitBadge
                       class="tw-text-xs"
                       variant="secondary"
                       *ngIf="u.status === userStatusType.Revoked"
-                      >{{ "revoked" | i18n }}</span
                     >
+                      {{ "revoked" | i18n }}
+                    </span>
                   </div>
                   <div class="tw-text-sm tw-text-muted" *ngIf="u.name">
                     {{ u.email }}

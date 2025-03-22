@@ -879,9 +879,6 @@
   "filter": {
     "message": "ფილტრი"
   },
-  "moveSelectedToOrg": {
-    "message": "გადაყვანა შერჩეულის ორგანიზაციაში"
-  },
   "deleteSelected": {
     "message": "წაშლა შერჩეულის"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "მონიშნული საგანები გადაყვანილია $ORGNAME$-ში",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "Choose an organization that you wish to move this item to. Moving to an organization transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved."
   },
-  "moveManyToOrgDesc": {
-    "message": "Choose an organization that you wish to move these items to. Moving to an organization transfers ownership of the items to that organization. You will no longer be the direct owner of these items once they have been moved."
-  },
   "collectionsDesc": {
     "message": "Edit the collections that this item is being shared with. Only organization users with access to these collections will be able to see this item."
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "თქვენ მონიშნეთ $COUNT$ საგანი(ები). $MOVEABLE_COUNT$ საგან(ები)-ს გადატანა შესაძლებელია ორგანიზაციაში, $NONMOVEABLE_COUNT$ ვერა",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },
