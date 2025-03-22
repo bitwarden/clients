@@ -183,7 +183,7 @@ export class InputPasswordComponent implements OnInit {
 
     const newPassword = this.formGroup.controls.newPassword.value;
 
-    const passwordEvaluatedSuccessfully = await this.evaluatePassword(
+    const passwordEvaluatedSuccessfully = await this.evaluateNewPassword(
       newPassword,
       this.passwordStrengthScore,
       this.formGroup.controls.checkForBreaches.value,
@@ -206,7 +206,11 @@ export class InputPasswordComponent implements OnInit {
       kdfConfig,
     );
 
-    const masterKeyHash = await this.keyService.hashMasterKey(newPassword, masterKey);
+    const serverMasterKeyHash = await this.keyService.hashMasterKey(
+      newPassword,
+      masterKey,
+      HashPurpose.ServerAuthorization,
+    );
 
     const localMasterKeyHash = await this.keyService.hashMasterKey(
       newPassword,
@@ -219,7 +223,7 @@ export class InputPasswordComponent implements OnInit {
       hint: this.formGroup.controls.hint.value,
       kdfConfig,
       masterKey,
-      masterKeyHash,
+      serverMasterKeyHash,
       localMasterKeyHash,
     };
 
@@ -243,14 +247,14 @@ export class InputPasswordComponent implements OnInit {
   };
 
   // Returns true if the password passes all checks, false otherwise
-  private async evaluatePassword(
-    password: string,
+  private async evaluateNewPassword(
+    newPassword: string,
     passwordStrengthScore: PasswordStrengthScore,
     checkForBreaches: boolean,
   ) {
     // Check if the password is breached, weak, or both
     const passwordIsBreached =
-      checkForBreaches && (await this.auditService.passwordLeaked(password));
+      checkForBreaches && (await this.auditService.passwordLeaked(newPassword));
 
     const passwordWeak = passwordStrengthScore != null && passwordStrengthScore < 3;
 
@@ -291,7 +295,7 @@ export class InputPasswordComponent implements OnInit {
       this.masterPasswordPolicyOptions != null &&
       !this.policyService.evaluateMasterPassword(
         this.passwordStrengthScore,
-        password,
+        newPassword,
         this.masterPasswordPolicyOptions,
       )
     ) {

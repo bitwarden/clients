@@ -112,7 +112,7 @@ describe("DefaultSetPasswordJitService", () => {
 
       passwordInputResult = {
         masterKey: masterKey,
-        masterKeyHash: "masterKeyHash",
+        serverMasterKeyHash: "serverMasterKeyHash",
         localMasterKeyHash: "localMasterKeyHash",
         hint: "hint",
         kdfConfig: DEFAULT_KDF_CONFIG,
@@ -131,7 +131,7 @@ describe("DefaultSetPasswordJitService", () => {
       userDecryptionOptionsService.userDecryptionOptions$ = userDecryptionOptionsSubject;
 
       setPasswordRequest = new SetPasswordRequest(
-        passwordInputResult.masterKeyHash,
+        passwordInputResult.serverMasterKeyHash,
         protectedUserKey[1].encryptedString,
         passwordInputResult.hint,
         orgSsoIdentifier,

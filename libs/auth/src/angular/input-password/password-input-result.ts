@@ -6,7 +6,7 @@ export interface PasswordInputResult {
   hint: string;
   kdfConfig: PBKDF2KdfConfig;
   masterKey: MasterKey;
-  masterKeyHash: string;
+  serverMasterKeyHash: string;
   localMasterKeyHash: string;
   currentPassword?: string;
   rotateAccountEncryptionKey?: boolean;
