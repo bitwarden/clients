@@ -1,10 +1,10 @@
 import { MasterKey } from "@bitwarden/common/types/key";
-import { PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { KdfConfig } from "@bitwarden/key-management";
 
 export interface PasswordInputResult {
   newPassword: string;
   hint: string;
-  kdfConfig: PBKDF2KdfConfig;
+  kdfConfig: KdfConfig;
   masterKey: MasterKey;
   serverMasterKeyHash: string;
   localMasterKeyHash: string;

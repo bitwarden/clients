@@ -75,7 +75,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
       hint,
       orgSsoIdentifier,
       keysRequest,
-      kdfConfig.kdfType, // kdfConfig is always DEFAULT_KDF_CONFIG (see InputPasswordComponent)
+      kdfConfig.kdfType,
       kdfConfig.iterations,
     );
 
