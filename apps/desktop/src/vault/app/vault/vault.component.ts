@@ -302,7 +302,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     this.cipherId = cipher.id;
     this.action = "view";
-    this.go();
+    await this.go();
   }
 
   viewCipherMenu(cipher: CipherView) {
@@ -434,7 +434,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     this.cipherId = cipher.id;
     this.action = "edit";
-    this.go();
+    await this.go();
   }
 
   async cloneCipher(cipher: CipherView) {
@@ -454,7 +454,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     this.cipherId = cipher.id;
     this.action = "clone";
-    this.go();
+    await this.go();
   }
 
   async addCipher(type: CipherType = null) {
@@ -466,7 +466,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.action = "add";
     this.cipherId = null;
     this.prefillNewCipherFromFilter();
-    this.go();
+    await this.go();
   }
 
   addCipherOptions() {
@@ -499,21 +499,21 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.cipherId = cipher.id;
     await this.cipherService.clearCache(this.activeUserId);
     await this.vaultItemsComponent.load(this.activeFilter.buildFilter());
-    this.go();
+    await this.go();
     await this.vaultItemsComponent.refresh();
   }
 
   async deletedCipher(cipher: CipherView) {
     this.cipherId = null;
     this.action = null;
-    this.go();
+    await this.go();
     await this.vaultItemsComponent.refresh();
   }
 
   async restoredCipher(cipher: CipherView) {
     this.cipherId = null;
     this.action = null;
-    this.go();
+    await this.go();
     await this.vaultItemsComponent.refresh();
   }
 
@@ -625,10 +625,10 @@ export class VaultComponent implements OnInit, OnDestroy {
     });
   }
 
-  cancelledAddEdit(cipher: CipherView) {
+  async cancelledAddEdit(cipher: CipherView) {
     this.cipherId = cipher.id;
     this.action = this.cipherId != null ? "view" : null;
-    this.go();
+    await this.go();
   }
 
   async applyVaultFilter(vaultFilter: VaultFilter) {
@@ -640,7 +640,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.activeFilter.buildFilter(),
       vaultFilter.status === "trash",
     );
-    this.go();
+    await this.go();
   }
 
   private calculateSearchBarLocalizationString(vaultFilter: VaultFilter): string {
@@ -735,7 +735,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     return !confirmed;
   }
 
-  private go(queryParams: any = null) {
+  private async go(queryParams: any = null) {
     if (queryParams == null) {
       queryParams = {
         action: this.action,
@@ -750,9 +750,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       };
     }
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.router.navigate([], {
+    await this.router.navigate([], {
       relativeTo: this.route,
       queryParams: queryParams,
       replaceUrl: true,
