@@ -127,8 +127,7 @@ export class IndividualVaultExportService
           ? attachment.key
           : await this.keyService.getOrgKey(cipher.organizationId);
       return await this.encryptService.decryptToBytes(encBuf, key);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) {
+    } catch {
       throw new Error("Error decrypting attachment");
     }
   }
