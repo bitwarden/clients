@@ -48,7 +48,37 @@ describe("FallbackBulkEncryptService", () => {
     });
   });
 
+  describe("setFeatureFlagEncryptService", () => {
+    it("sets the featureFlagEncryptService property", async () => {
+      await sut.setFeatureFlagEncryptService(featureFlagEncryptService);
+
+      expect((sut as any).featureFlagEncryptService).toBe(featureFlagEncryptService);
+    });
+
+    it("does not call onServerConfigChange when currentServerConfig is undefined", async () => {
+      await sut.setFeatureFlagEncryptService(featureFlagEncryptService);
+
+      expect(featureFlagEncryptService.onServerConfigChange).not.toHaveBeenCalled();
+      expect((sut as any).featureFlagEncryptService).toBe(featureFlagEncryptService);
+    });
+
+    it("calls onServerConfigChange with currentServerConfig when it is defined", async () => {
+      sut.onServerConfigChange(serverConfig);
+
+      await sut.setFeatureFlagEncryptService(featureFlagEncryptService);
+
+      expect(featureFlagEncryptService.onServerConfigChange).toHaveBeenCalledWith(serverConfig);
+      expect((sut as any).featureFlagEncryptService).toBe(featureFlagEncryptService);
+    });
+  });
+
   describe("onServerConfigChange", () => {
+    it("updates internal currentServerConfig to new config", async () => {
+      sut.onServerConfigChange(serverConfig);
+
+      expect((sut as any).currentServerConfig).toBe(serverConfig);
+    });
+
     it("calls onServerConfigChange on featureFlagEncryptService when it is set", async () => {
       await sut.setFeatureFlagEncryptService(featureFlagEncryptService);
 

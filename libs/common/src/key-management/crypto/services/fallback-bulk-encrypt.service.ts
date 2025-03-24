@@ -13,6 +13,7 @@ import { EncryptService } from "../abstractions/encrypt.service";
  */
 export class FallbackBulkEncryptService implements BulkEncryptService {
   private featureFlagEncryptService: BulkEncryptService;
+  private currentServerConfig: ServerConfig | undefined = undefined;
 
   constructor(protected encryptService: EncryptService) {}
 
@@ -32,10 +33,14 @@ export class FallbackBulkEncryptService implements BulkEncryptService {
   }
 
   async setFeatureFlagEncryptService(featureFlagEncryptService: BulkEncryptService) {
+    if (this.currentServerConfig !== undefined) {
+      featureFlagEncryptService.onServerConfigChange(this.currentServerConfig);
+    }
     this.featureFlagEncryptService = featureFlagEncryptService;
   }
 
   onServerConfigChange(newConfig: ServerConfig): void {
+    this.currentServerConfig = newConfig;
     (this.featureFlagEncryptService ?? this.encryptService).onServerConfigChange(newConfig);
   }
 }
