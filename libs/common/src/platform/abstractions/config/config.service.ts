@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Observable, Subscription } from "rxjs";
+import { Observable } from "rxjs";
 import { SemVer } from "semver";
 
 import { FeatureFlag, FeatureFlagValueType } from "../../../enums/feature-flag.enum";
@@ -54,8 +54,6 @@ export abstract class ConfigService {
    * Triggers a check that the config for the currently active user is up-to-date. If it is not, it will be fetched from the server and stored.
    */
   abstract ensureConfigFetched(): Promise<void>;
-
-  abstract broadcastConfigChangesTo(...listeners: OnServerConfigChange[]): Subscription;
 }
 
 export interface OnServerConfigChange {

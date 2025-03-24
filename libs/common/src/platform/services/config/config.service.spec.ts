@@ -19,7 +19,6 @@ import { AuthenticationStatus } from "../../../auth/enums/authentication-status"
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { UserId } from "../../../types/guid";
 import { ConfigApiServiceAbstraction } from "../../abstractions/config/config-api.service.abstraction";
-import { OnServerConfigChange } from "../../abstractions/config/config.service";
 import { ServerConfig } from "../../abstractions/config/server-config";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { LogService } from "../../abstractions/log.service";
@@ -364,60 +363,6 @@ describe("ConfigService", () => {
 
       expect(configs[0].gitHash).toBe("existing-data");
       expect(configs[1].gitHash).toBe("slow-response");
-    });
-  });
-
-  describe("broadcastConfigChangesTo", () => {
-    let sut: DefaultConfigService;
-    const mockConfig = mock<ServerConfig>();
-    let serverConfigSubject: BehaviorSubject<ServerConfig>;
-
-    beforeEach(() => {
-      sut = new DefaultConfigService(
-        configApiService,
-        environmentService,
-        logService,
-        stateProvider,
-        authService,
-      );
-
-      // Set up the server config subject that we'll use to control emissions
-      serverConfigSubject = new BehaviorSubject<ServerConfig>(mockConfig);
-
-      // Replace the serverConfig$ with our test subject
-      (sut as any).serverConfig$ = serverConfigSubject;
-    });
-
-    it("notifies all listeners when server config changes", () => {
-      const listener1 = mock<OnServerConfigChange>();
-      const listener2 = mock<OnServerConfigChange>();
-
-      const subscription = sut.broadcastConfigChangesTo(listener1, listener2);
-
-      expect(listener1.onServerConfigChange).toHaveBeenCalledWith(mockConfig);
-      expect(listener2.onServerConfigChange).toHaveBeenCalledWith(mockConfig);
-
-      const newConfig = mock<ServerConfig>();
-      serverConfigSubject.next(newConfig);
-
-      expect(listener1.onServerConfigChange).toHaveBeenCalledWith(newConfig);
-      expect(listener2.onServerConfigChange).toHaveBeenCalledWith(newConfig);
-
-      subscription.unsubscribe();
-    });
-
-    it("returns subscription that can be unsubscribed", () => {
-      const listener = mock<OnServerConfigChange>();
-
-      const subscription = sut.broadcastConfigChangesTo(listener);
-
-      expect(listener.onServerConfigChange).toHaveBeenCalledTimes(1);
-      listener.onServerConfigChange.mockClear();
-
-      subscription.unsubscribe();
-      serverConfigSubject.next(mock<ServerConfig>());
-
-      expect(listener.onServerConfigChange).not.toHaveBeenCalled();
     });
   });
 });

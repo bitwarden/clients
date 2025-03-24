@@ -10,7 +10,6 @@ import {
   of,
   shareReplay,
   Subject,
-  Subscription,
   switchMap,
   tap,
 } from "rxjs";
@@ -21,7 +20,7 @@ import { AuthenticationStatus } from "../../../auth/enums/authentication-status"
 import { FeatureFlag, getFeatureFlagValue } from "../../../enums/feature-flag.enum";
 import { UserId } from "../../../types/guid";
 import { ConfigApiServiceAbstraction } from "../../abstractions/config/config-api.service.abstraction";
-import { ConfigService, OnServerConfigChange } from "../../abstractions/config/config.service";
+import { ConfigService } from "../../abstractions/config/config.service";
 import { ServerConfig } from "../../abstractions/config/server-config";
 import { Environment, EnvironmentService, Region } from "../../abstractions/environment.service";
 import { LogService } from "../../abstractions/log.service";
@@ -148,12 +147,6 @@ export class DefaultConfigService implements ConfigService {
   async ensureConfigFetched() {
     // Triggering a retrieval for the given user ensures that the config is less than RETRIEVAL_INTERVAL old
     await firstValueFrom(this.serverConfig$);
-  }
-
-  broadcastConfigChangesTo(...listeners: OnServerConfigChange[]): Subscription {
-    return this.serverConfig$.subscribe((config) =>
-      listeners.forEach((listener) => listener.onServerConfigChange(config)),
-    );
   }
 
   private olderThanRetrievalInterval(date: Date) {
