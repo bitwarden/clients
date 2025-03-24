@@ -543,10 +543,6 @@
     "message": "Include special characters",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Jumlah kata"
   },
@@ -752,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "Petunjuk Sandi"
-  },
-  "enterEmailToGetHint": {
-    "message": "Masukkan email akun Anda untuk menerima pentunjuk sandi utama Anda."
-  },
   "getMasterPasswordHint": {
     "message": "Dapatkan petunjuk sandi utama"
   },
@@ -916,7 +906,7 @@
     "message": "Verifikasi dengan Duo Security untuk organisasi anda dengan menggunakan Aplikasi Duo Mobile, SMS, panggilan telepon atau kunci keamanan U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
@@ -955,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Lingkungan Hos-mandiri"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Specify the base URL of your on-premise hosted bitwarden installation."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -969,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Lingkungan Kustom"
-  },
-  "customEnvironmentFooter": {
-    "message": "Untuk pengguna lanjutan. Anda dapat menentukan basis dari URL untuk setiap layanan mandiri."
   },
   "baseUrl": {
     "message": "URL Server"
@@ -1012,6 +996,9 @@
   },
   "no": {
     "message": "Tidak"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Timpa Sandi"
@@ -2785,14 +2772,8 @@
   "loginWithMasterPassword": {
     "message": "Log in with master password"
   },
-  "loggingInAs": {
-    "message": "Logging in as"
-  },
   "rememberEmail": {
     "message": "Remember email"
-  },
-  "notYou": {
-    "message": "Bukan Anda?"
   },
   "newAroundHere": {
     "message": "Pengguna baru?"
@@ -3033,9 +3014,6 @@
   "requestAdminApproval": {
     "message": "Request admin approval"
   },
-  "approveWithMasterPassword": {
-    "message": "Approve with master password"
-  },
   "region": {
     "message": "Region"
   },
@@ -3060,9 +3038,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Your request has been sent to your admin."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "You will be notified once approved."
   },
   "troubleLoggingIn": {
     "message": "Trouble logging in?"
@@ -3533,9 +3508,6 @@
   "unknownApplication": {
     "message": "An application"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
   },
@@ -3545,7 +3517,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
@@ -3604,5 +3576,8 @@
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

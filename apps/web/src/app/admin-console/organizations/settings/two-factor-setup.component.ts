@@ -31,7 +31,6 @@ import { TwoFactorVerifyComponent } from "../../../auth/settings/two-factor/two-
   selector: "app-two-factor-setup",
   templateUrl: "../../../auth/settings/two-factor/two-factor-setup.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent implements OnInit {
   tabbedHeader = false;
   constructor(
