@@ -244,7 +244,7 @@ jobs:
           zip -r web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip build
 
       - name: Upload ${{ matrix.artifact_name }} artifact
-        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip
           path: apps/web/web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip
