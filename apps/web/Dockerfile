@@ -1,7 +1,7 @@
 ###############################################
 #                Build stage 1                #
 ###############################################
-ARG NODE_VERSION=18
+ARG NODE_VERSION=20
 FROM --platform=$BUILDPLATFORM node:${NODE_VERSION} AS node-build
 
 ARG NPM_COMMAND=dist:bit:selfhost
@@ -17,7 +17,7 @@ RUN npm run ${NPM_COMMAND}
 ###############################################
 #                Build stage 2                #
 ###############################################
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 # Docker buildx supplies the value for this arg
 ARG TARGETPLATFORM
@@ -36,7 +36,8 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
 # Copy csproj files as distinct layers
 WORKDIR /source
 COPY server/util/Server/*.csproj ./util/Server/
-COPY server/Directory.Build.props .
+COPY Directory.Build.props .
+COPY .editorconfig .
 
 # Restore Server project dependencies and tools
 WORKDIR /source/util/Server
@@ -56,7 +57,7 @@ WORKDIR /app
 ###############################################
 #                  App stage                  #
 ###############################################
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 
 ARG TARGETPLATFORM
 LABEL com.bitwarden.product="bitwarden"
