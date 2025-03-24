@@ -34,6 +34,7 @@ import {
 } from "@bitwarden/key-management";
 
 import { BuildTestObject, GetUniqueString } from "../../../../../../common/spec";
+import { BitwardenJsonExport } from "../types";
 
 import { IndividualVaultExportService } from "./individual-vault-export.service";
 
@@ -264,20 +265,28 @@ describe("VaultExportService", () => {
     });
 
     it("filters out ciphers that are assigned to an org", async () => {
+      // Create a cipher that is not assigned to an org
       const cipherData = new CipherData();
       cipherData.id = "mock-id";
-      cipherData.organizationId = "mock-org-id";
       const cipherView = new CipherView(new Cipher(cipherData));
-      const attachmentView = new AttachmentView(new Attachment(new AttachmentData()));
-      attachmentView.fileName = "mock-file-name";
-      cipherView.attachments = [attachmentView];
-      cipherService.getAllDecrypted.mockResolvedValue([cipherView]);
+
+      // Create a cipher that is assigned to an org
+      const orgCipher = new CipherData();
+      orgCipher.id = "mock-from-org-id";
+      orgCipher.organizationId = "mock-org-id";
+      const orgCipherView = new CipherView(new Cipher(orgCipher));
+
+      // Mock the cipher service to return both ciphers
+      cipherService.getAllDecrypted.mockResolvedValue([cipherView, orgCipherView]);
       folderService.getAllDecryptedFromState.mockResolvedValue([]);
 
-      await exportService.getExport("zip");
+      const zip = await JSZip.loadAsync(exportService.getExport("zip"));
 
-      expect(cipherService.getAllDecrypted).toHaveBeenCalled();
-      expect(apiService.getAttachmentData).not.toHaveBeenCalled();
+      const data = await zip.file("data.json")?.async("string");
+      const exportData: BitwardenJsonExport = JSON.parse(data);
+      expect(exportData.items.length).toBe(1);
+      expect(exportData.items[0].id).toBe("mock-id");
+      expect(exportData.items[0].organizationId).toBe(null);
     });
 
     it.each([[400], [401], [404], [500]])(
