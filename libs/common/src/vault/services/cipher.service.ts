@@ -466,7 +466,7 @@ export class CipherService implements CipherServiceAbstraction {
       .flat()
       .sort(this.getLocaleSortingFunction());
     this.logService.info(
-      `[CipherService] Decrypted ${allCipherViews.length} ciphers in ${new Date().getTime() - decryptStartTime}ms`,
+      `[CipherService] Decrypting ${allCipherViews.length} ciphers took ${new Date().getTime() - decryptStartTime}ms`,
     );
 
     // Split ciphers into two arrays, one for successfully decrypted ciphers and one for ciphers that failed to decrypt

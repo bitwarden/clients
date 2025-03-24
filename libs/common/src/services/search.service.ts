@@ -189,7 +189,7 @@ export class SearchService implements SearchServiceAbstraction {
 
     await this.setIsIndexing(userId, false);
     this.logService.info(
-      `[SearchService] Finished search indexing of ${ciphers.length} ciphers in ${
+      `[SearchService] Building search index of ${ciphers.length} ciphers took ${
         new Date().getTime() - indexingStartTime
       }ms`,
     );
