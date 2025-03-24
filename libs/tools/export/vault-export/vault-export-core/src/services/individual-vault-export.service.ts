@@ -27,9 +27,13 @@ import {
   BitwardenCsvIndividualExportType,
   BitwardenEncryptedIndividualJsonExport,
   BitwardenUnEncryptedIndividualJsonExport,
+  ExportedVault,
+  ExportedVaultAsBlob,
+  ExportedVaultAsString,
 } from "../types";
 
 import { BaseVaultExportService } from "./base-vault-export.service";
+import { ExportHelper } from "./export-helper";
 import { IndividualVaultExportServiceAbstraction } from "./individual-vault-export.service.abstraction";
 import { ExportFormat } from "./vault-export.service.abstraction";
 
@@ -51,7 +55,10 @@ export class IndividualVaultExportService
     super(pinService, encryptService, cryptoFunctionService, kdfConfigService);
   }
 
-  async getExport(format: ExportFormat = "csv"): Promise<string | Blob> {
+  /** Creates an export of an individual vault (My Vault). Based on the provided format it will either be unencrypted, encrypted or password protected and in case zip is selected will include attachments
+   * @param format The format of the export
+   */
+  async getExport(format: ExportFormat = "csv"): Promise<ExportedVault> {
     if (format === "encrypted_json") {
       return this.getEncryptedExport();
     } else if (format === "zip") {
@@ -60,17 +67,33 @@ export class IndividualVaultExportService
     return this.getDecryptedExport(format);
   }
 
-  async getPasswordProtectedExport(password: string): Promise<string> {
-    const clearText = (await this.getExport("json")) as string;
-    return this.buildPasswordExport(clearText, password);
+  /** Creates a password protected export of an individiual vault (My Vault) as a JSON file
+   * @param password The password to encrypt the export with
+   * @returns A password-protected encrypted individual vault export
+   */
+  async getPasswordProtectedExport(password: string): Promise<ExportedVaultAsString> {
+    const exportVault = await this.getExport("json");
+
+    if (exportVault.type !== "text/plain") {
+      throw new Error("Unexpected export type");
+    }
+
+    return {
+      type: "text/plain",
+      data: await this.buildPasswordExport(exportVault.data, password),
+      fileName: ExportHelper.getFileName("json"),
+    } as ExportedVaultAsString;
   }
 
-  async getDecryptedExportZip(): Promise<Blob> {
+  /** Creates a unencrypted export of an individual vault including attachments
+   * @returns A unencrypted export including attachments
+   */
+  async getDecryptedExportZip(): Promise<ExportedVaultAsBlob> {
     const zip = new JSZip();
 
     // ciphers
-    const dataJson = await this.getDecryptedExport("json");
-    zip.file("data.json", dataJson);
+    const exportedVault = await this.getDecryptedExport("json");
+    zip.file("data.json", exportedVault.data);
 
     const attachmentsFolder = zip.folder("attachments");
     if (attachmentsFolder == null) {
@@ -98,7 +121,13 @@ export class IndividualVaultExportService
       }
     }
 
-    return zip.generateAsync({ type: "blob" });
+    const blobData = await zip.generateAsync({ type: "blob" });
+
+    return {
+      type: "application/zip",
+      data: blobData,
+      fileName: ExportHelper.getFileName("json"),
+    } as ExportedVaultAsBlob;
   }
 
   private async downloadAttachment(cipherId: string, attachmentId: string): Promise<Response> {
@@ -132,7 +161,7 @@ export class IndividualVaultExportService
     }
   }
 
-  private async getDecryptedExport(format: "json" | "csv"): Promise<string> {
+  private async getDecryptedExport(format: "json" | "csv"): Promise<ExportedVaultAsString> {
     let decFolders: FolderView[] = [];
     let decCiphers: CipherView[] = [];
     const promises = [];
@@ -153,13 +182,21 @@ export class IndividualVaultExportService
     await Promise.all(promises);
 
     if (format === "csv") {
-      return this.buildCsvExport(decFolders, decCiphers);
+      return {
+        type: "text/plain",
+        data: this.buildCsvExport(decFolders, decCiphers),
+        fileName: ExportHelper.getFileName("csv"),
+      } as ExportedVaultAsString;
     }
 
-    return this.buildJsonExport(decFolders, decCiphers);
+    return {
+      type: "text/plain",
+      data: this.buildJsonExport(decFolders, decCiphers),
+      fileName: ExportHelper.getFileName("json"),
+    } as ExportedVaultAsString;
   }
 
-  private async getEncryptedExport(): Promise<string> {
+  private async getEncryptedExport(): Promise<ExportedVaultAsString> {
     let folders: Folder[] = [];
     let ciphers: Cipher[] = [];
     const promises = [];
@@ -210,7 +247,11 @@ export class IndividualVaultExportService
       jsonDoc.items.push(cipher);
     });
 
-    return JSON.stringify(jsonDoc, null, "  ");
+    return {
+      type: "text/plain",
+      data: JSON.stringify(jsonDoc, null, "  "),
+      fileName: ExportHelper.getFileName("json"),
+    } as ExportedVaultAsString;
   }
 
   private buildCsvExport(decFolders: FolderView[], decCiphers: CipherView[]): string {
