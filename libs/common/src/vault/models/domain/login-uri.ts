@@ -38,11 +38,10 @@ export class LoginUri extends Domain {
     context: string = "No Cipher Context",
     encKey?: SymmetricCryptoKey,
   ): Promise<LoginUriView> {
-    return this.decryptObj(
+    return this.decryptObj<LoginUri, LoginUriView>(
+      this,
       new LoginUriView(this),
-      {
-        uri: null,
-      },
+      ["uri"],
       orgId,
       encKey,
       context,

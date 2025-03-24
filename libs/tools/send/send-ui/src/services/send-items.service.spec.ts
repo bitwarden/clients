@@ -3,8 +3,12 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject, first, Subject } from "rxjs";
 
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { UserId } from "@bitwarden/common/types/guid";
+
+import { mockAccountServiceWith } from "../../../../../common/spec";
 
 import { SendItemsService } from "./send-items.service";
 import { SendListFiltersService } from "./send-list-filters.service";
@@ -30,6 +34,7 @@ describe("SendItemsService", () => {
         { provide: SendService, useValue: sendServiceMock },
         { provide: SendListFiltersService, useValue: sendListFiltersServiceMock },
         { provide: SearchService, useValue: searchServiceMock },
+        { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
         SendItemsService,
       ],
     });

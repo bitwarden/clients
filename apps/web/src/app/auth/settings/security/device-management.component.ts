@@ -180,8 +180,20 @@ export class DeviceManagementComponent {
   private updateDeviceTable(devices: Array<DeviceView>): void {
     this.dataSource.data = devices
       .map((device: DeviceView): DeviceTableData | null => {
-        if (!device.id || !device.type || !device.creationDate) {
-          this.validationService.showError(new Error("Invalid device data"));
+        if (!device.id) {
+          this.validationService.showError(new Error(this.i18nService.t("deviceIdMissing")));
+          return null;
+        }
+
+        if (device.type == undefined) {
+          this.validationService.showError(new Error(this.i18nService.t("deviceTypeMissing")));
+          return null;
+        }
+
+        if (!device.creationDate) {
+          this.validationService.showError(
+            new Error(this.i18nService.t("deviceCreationDateMissing")),
+          );
           return null;
         }
 
