@@ -112,7 +112,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed())
       .subscribe((requestId) => {
         this.loading = true;
-        this.handleExistingAuthRequestLogin(requestId).catch((e: Error) => {
+        this.handleExistingStandardAuthRequestLogin(requestId).catch((e: Error) => {
           this.toastService.showToast({
             variant: "error",
             title: this.i18nService.t("error"),
@@ -199,7 +199,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       }
 
       await this.reloadCachedStandardAuthRequest(cachedAuthRequest);
-      await this.handleExistingAuthRequestLogin(cachedAuthRequest.id);
+      await this.handleExistingStandardAuthRequestLogin(cachedAuthRequest.id);
     } else {
       await this.handleNewStandardAuthRequestLogin();
     }
@@ -345,7 +345,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       );
 
       // We don't need the public key for handling the authentication request because
-      // the handleExistingAuthRequestLogin function will receive the public key back
+      // the handleExistingStandardAuthRequestLogin function will receive the public key back
       // from the looked up auth request, and all we need is to make sure that
       // we can use the cached private key that is associated with it.
       this.authRequestKeyPair = {
@@ -570,7 +570,9 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
    * @param requestId The ID of the Auth Request to process
    * @returns A boolean indicating whether the Auth Request was successfully processed
    */
-  private async handleExistingAuthRequestLogin(requestId: string): Promise<void> {
+  private async handleExistingStandardAuthRequestLogin(requestId: string): Promise<void> {
+    this.showResendNotification = false;
+
     try {
       const authRequestResponse = await this.retrieveAuthRequest(requestId);
 
@@ -605,6 +607,10 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       }
       this.logService.error(error);
     }
+
+    setTimeout(() => {
+      this.showResendNotification = true;
+    }, this.showResendNotificationTimeoutSeconds * 1000);
   }
 
   private async handleAuthenticatedFlows(authRequestResponse: AuthRequestResponse) {
