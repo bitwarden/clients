@@ -1072,33 +1072,13 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: DefaultConfigService,
-    useFactory: (
-      configApiServiceAbstraction: ConfigApiServiceAbstraction,
-      environmentService: EnvironmentService,
-      logService: LogService,
-      stateProvider: StateProvider,
-      authServiceAbstraction: AuthServiceAbstraction,
-      encryptService: EncryptService,
-      bulkEncryptService: BulkEncryptService,
-    ) => {
-      const defaultConfigService = new DefaultConfigService(
-        configApiServiceAbstraction,
-        environmentService,
-        logService,
-        stateProvider,
-        authServiceAbstraction,
-      );
-      defaultConfigService.broadcastConfigChangesTo(encryptService, bulkEncryptService);
-      return defaultConfigService;
-    },
+    useClass: DefaultConfigService,
     deps: [
       ConfigApiServiceAbstraction,
       EnvironmentService,
       LogService,
       StateProvider,
       AuthServiceAbstraction,
-      EncryptService,
-      BulkEncryptService,
     ],
   }),
   safeProvider({

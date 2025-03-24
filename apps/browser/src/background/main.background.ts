@@ -1302,6 +1302,13 @@ export default class MainBackground {
     // Only the "true" background should run migrations
     await this.stateService.init({ runMigrations: true });
 
+    this.configService.serverConfig$.subscribe((newConfig) => {
+      if (newConfig != null) {
+        this.encryptService.onServerConfigChange(newConfig);
+        this.bulkEncryptService.onServerConfigChange(newConfig);
+      }
+    });
+
     // This is here instead of in in the InitService b/c we don't plan for
     // side effects to run in the Browser InitService.
     const accounts = await firstValueFrom(this.accountService.accounts$);
@@ -1333,8 +1340,6 @@ export default class MainBackground {
     this.webRequestBackground?.startListening();
     this.syncServiceListener?.listener$().subscribe();
     await this.autoSubmitLoginBackground.init();
-
-    this.configService.broadcastConfigChangesTo(this.encryptService, this.bulkEncryptService);
 
     if (
       BrowserApi.isManifestVersion(2) &&
