@@ -36,8 +36,8 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
 # Copy csproj files as distinct layers
 WORKDIR /source
 COPY server/util/Server/*.csproj ./util/Server/
-COPY Directory.Build.props .
-COPY .editorconfig .
+COPY server/Directory.Build.props .
+COPY server/.editorconfig .
 
 # Restore Server project dependencies and tools
 WORKDIR /source/util/Server
