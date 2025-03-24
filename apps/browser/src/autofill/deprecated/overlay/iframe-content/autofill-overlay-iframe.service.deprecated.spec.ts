@@ -277,32 +277,6 @@ describe("AutofillOverlayIframeService", () => {
             borderColor: "#4c525f",
           });
         });
-
-        it("updates the border to match the `nord` theme", () => {
-          const message = {
-            command: "initAutofillOverlayList",
-            theme: ThemeType.Nord,
-          };
-
-          sendPortMessage(portSpy, message);
-
-          expect(updateElementStylesSpy).toBeCalledWith(autofillOverlayIframeService["iframe"], {
-            borderColor: "#2E3440",
-          });
-        });
-
-        it("updates the border to match the `solarizedDark` theme", () => {
-          const message = {
-            command: "initAutofillOverlayList",
-            theme: ThemeType.SolarizedDark,
-          };
-
-          sendPortMessage(portSpy, message);
-
-          expect(updateElementStylesSpy).toBeCalledWith(autofillOverlayIframeService["iframe"], {
-            borderColor: "#073642",
-          });
-        });
       });
 
       describe("updating the iframe's position", () => {

@@ -543,10 +543,6 @@
     "message": "Include special characters",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Žodžių skaičius"
   },
@@ -752,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "Slaptažodžio užuomina"
-  },
-  "enterEmailToGetHint": {
-    "message": "Įveskite savo paskyros el. pašto adresą, kad gautumėte pagrindinio slaptažodžio užuominą."
-  },
   "getMasterPasswordHint": {
     "message": "Gauti pagrindinio slaptažodžio užuominą"
   },
@@ -916,7 +906,7 @@
     "message": "Patikrinkite su Duo Security savo organizacijai naudodami Duo Mobile programą, SMS žinutę, telefono skambutį arba U2F saugumo raktą.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
@@ -955,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Savarankiškai sukurta aplinka"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Nurodykite pagrindinį URL adresą savo patalpose esančio Bitwarden įdiegimo."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -969,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Individualizuota aplinka"
-  },
-  "customEnvironmentFooter": {
-    "message": "Pažengusiems naudotojams. Galite nurodyti kiekvienos paslaugos pagrindinį URL adresą atskirai."
   },
   "baseUrl": {
     "message": "Serverio nuoroda"
@@ -1012,6 +996,9 @@
   },
   "no": {
     "message": "Ne"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Perrašyti slaptažodį"
@@ -2785,14 +2772,8 @@
   "loginWithMasterPassword": {
     "message": "Prisijungti su pagrindiniu slaptažodžiu"
   },
-  "loggingInAs": {
-    "message": "Prisijungimas kaip"
-  },
   "rememberEmail": {
     "message": "Prisiminti el. paštą"
-  },
-  "notYou": {
-    "message": "Ne jūs?"
   },
   "newAroundHere": {
     "message": "Ar jūs naujas čia?"
@@ -3033,9 +3014,6 @@
   "requestAdminApproval": {
     "message": "Prašyti administratoriaus patvirtinimo"
   },
-  "approveWithMasterPassword": {
-    "message": "Patvirtinti su pagrindiniu slaptažodžiu"
-  },
   "region": {
     "message": "Regionas"
   },
@@ -3060,9 +3038,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Jūsų prašymas išsiųstas administratoriui."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Jums bus pranešta, kai bus patvirtinta."
   },
   "troubleLoggingIn": {
     "message": "Nepavyksta prisijungti?"
@@ -3533,9 +3508,6 @@
   "unknownApplication": {
     "message": "An application"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
   },
@@ -3545,7 +3517,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
@@ -3604,5 +3576,8 @@
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

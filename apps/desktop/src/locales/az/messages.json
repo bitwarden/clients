@@ -543,10 +543,6 @@
     "message": "Xüsusi xarakterləri daxil et",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Söz sayı"
   },
@@ -752,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Hesabınızın e-poçt ünvanını daxil edin və parolunuz üçün ipucu sizə göndəriləcək"
   },
-  "passwordHint": {
-    "message": "Parol məsləhəti"
-  },
-  "enterEmailToGetHint": {
-    "message": "Ana parol məsləhətini alacağınız hesabınızın e-poçt ünvanını daxil edin."
-  },
   "getMasterPasswordHint": {
     "message": "Ana parol üçün məsləhət alın"
   },
@@ -916,7 +906,7 @@
     "message": "Təşkilatınızını Duo Security ilə doğrulamaq üçün Duo Mobile tətbiqi, SMS, telefon zəngi və ya U2F güvənlik açarını istifadə edin.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Kimliyinizi doğrulayın"
   },
   "weDontRecognizeThisDevice": {
@@ -955,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Self-hosted mühit"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Öz-özünə sahiblik edən Bitwarden quraşdırmasının təməl URL-sini müəyyənləşdirin."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Öz-özünə sahiblik edən Bitwarden quraşdırmasının təməl URL-sini müəyyənləşdirin. Nümunə: https://bitwarden.company.com"
   },
@@ -969,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Özəl mühit"
-  },
-  "customEnvironmentFooter": {
-    "message": "Qabaqcıl istifadəçilər üçündür. Hər xidmətin baza URL-sini müstəqil olaraq müəyyənləşdirə bilərsiniz."
   },
   "baseUrl": {
     "message": "Server URL-si"
@@ -1012,6 +996,9 @@
   },
   "no": {
     "message": "Xeyr"
+  },
+  "location": {
+    "message": "Yerləşmə"
   },
   "overwritePassword": {
     "message": "Parolun üzərinə yaz"
@@ -2785,14 +2772,8 @@
   "loginWithMasterPassword": {
     "message": "Ana parolla giriş et"
   },
-  "loggingInAs": {
-    "message": "Giriş et"
-  },
   "rememberEmail": {
     "message": "E-poçtu xatırla"
-  },
-  "notYou": {
-    "message": "Siz deyilsiniz?"
   },
   "newAroundHere": {
     "message": "Burada yenisiniz?"
@@ -3033,9 +3014,6 @@
   "requestAdminApproval": {
     "message": "Admin təsdiqini tələb et"
   },
-  "approveWithMasterPassword": {
-    "message": "Ana parolla təsdiqlə"
-  },
   "region": {
     "message": "Bölgə"
   },
@@ -3060,9 +3038,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Tələbiniz admininizə göndərildi."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Təsdiqləndikdən sonra məlumatlandırılacaqsınız."
   },
   "troubleLoggingIn": {
     "message": "Girişdə problem var?"
@@ -3519,22 +3494,19 @@
     "message": "bura müraciət tələb edir:"
   },
   "sshkeyApprovalMessageSuffix": {
-    "message": "in order to"
+    "message": "məqsəd"
   },
   "sshActionLogin": {
-    "message": "authenticate to a server"
+    "message": "serverdə kimlik doğrulaması et"
   },
   "sshActionSign": {
-    "message": "sign a message"
+    "message": "bir mesajı imzala"
   },
   "sshActionGitSign": {
-    "message": "sign a git commit"
+    "message": "git commit-ini imzala"
   },
   "unknownApplication": {
     "message": "Bir tətbiq"
-  },
-  "sshKeyPasswordUnsupported": {
-    "message": "Parolla qorunan SSH açarlarının daxilə köçürülməsi hələ dəstəklənmir"
   },
   "invalidSshKey": {
     "message": "SSH açarı yararsızdır"
@@ -3545,7 +3517,7 @@
   "importSshKeyFromClipboard": {
     "message": "Açarı lövhədən daxilə köçür"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH açarı uğurla daxilə köçürüldü"
   },
   "fileSavedToDevice": {
@@ -3604,5 +3576,8 @@
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "İstifadə etdiyiniz brauzer uzantısı köhnəlib. Lütfən onu güncəlləyin, ya da masaüstü tətbiq ayarlarında brauzer inteqrasiyası üzrə barmaq izi ilə doğrulamanı sıradan çıxardın."
+  },
+  "changeAtRiskPassword": {
+    "message": "Riskli parolları dəyişdir"
   }
 }
