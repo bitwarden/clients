@@ -201,7 +201,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
           }
         }),
         filter(() => this.organizationSelected.errors?.cannotCreateCollections),
-        switchMap((value) => this.getOrgExceedingCollectionLimit(value)),
+        switchMap((value) => this.findOrganizationById(value)),
         takeUntil(this.destroy$),
       )
       .subscribe((org) => {
@@ -211,7 +211,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       });
   }
 
-  async getOrgExceedingCollectionLimit(orgId: string): Promise<Organization | undefined> {
+  async findOrganizationById(orgId: string): Promise<Organization | undefined> {
     const organizations = await firstValueFrom(this.organizations$);
     return organizations.find((org) => org.id === orgId);
   }
