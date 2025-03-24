@@ -238,7 +238,7 @@ jobs:
         working-directory: apps/web
         run: |
           mkdir build
-          docker run --rm --platform linux/amd64 --volume $(pwd)/build:/temp --entrypoint bash \
+          docker run --rm --volume $(pwd)/build:/temp --entrypoint bash \
             ${{ steps.image-name.outputs.name }} -c "cp -r ./ /temp"
 
           zip -r web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip build
