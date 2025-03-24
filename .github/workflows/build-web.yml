@@ -227,7 +227,6 @@ jobs:
           cache-to: type=registry,ref=${{ steps.image-name.outputs.name }},mode=max
           context: .
           file: apps/web/Dockerfile
-          load: true
           platforms: |
             linux/amd64,
             linux/arm/v7,
