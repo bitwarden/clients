@@ -9847,13 +9847,13 @@
     "message": "Lees meer over Bitwarden's API"
   },
   "fileSend": {
-    "message": "Bestand verzenden"
+    "message": "Bestand Send"
   },
   "fileSends": {
     "message": "Bestand-Sends"
   },
   "textSend": {
-    "message": "Tekst-Sends"
+    "message": "Tekst Send"
   },
   "textSends": {
     "message": "Tekst-Sends"
@@ -10382,7 +10382,7 @@
     "message": "Bitwarden-browserextensie openen"
   },
   "somethingWentWrong": {
-    "message": "Er is iets fout gegaan..."
+    "message": "Er is iets fout gegaan…"
   },
   "openingExtensionError": {
     "message": "We konden de Bitwarden-browserextensie niet openen. Klik op de knop om deze nu te openen."
@@ -10407,7 +10407,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "openExtensionManuallyPart2": {
-    "message": "vanaf de werkbank.",
+    "message": "vanaf de werkbalk.",
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "resellerRenewalWarningMsg": {
@@ -10542,7 +10542,7 @@
     "message": "Upgrade voor echte event log gegevens"
   },
   "upgradeEventLogMessage": {
-    "message": "Deze events zijn voorbeelden en weerspiegelen geen echte evenementen binnen je Bitwarden-organisatie."
+    "message": "Deze evenementen zijn alleen voorbeelden en weerspiegelen geen echte evenementen binnen je Bitwarden organisatie."
   },
   "cannotCreateCollection": {
     "message": "Gratis organisaties kunnen maximaal twee collecties hebben. Upgrade naar een betaald abonnement voor het toevoegen van meer collecties."
