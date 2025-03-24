@@ -204,21 +204,6 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       this.formDisabled.emit(c === "DISABLED");
     });
 
-    this.accountService.activeAccount$
-      .pipe(
-        getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.DisablePersonalVaultExport, userId),
-        ),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((policyAppliesToActiveUser) => {
-        this._disabledByPolicy = policyAppliesToActiveUser;
-        if (this.disabledByPolicy) {
-          this.exportForm.disable();
-        }
-      });
-
     this.disablePersonalVaultExportPolicy$ = this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
