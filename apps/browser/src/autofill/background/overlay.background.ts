@@ -2100,14 +2100,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.closeInlineMenu(sender);
+
     await this.openViewVaultItemPopout(sender.tab, {
       cipherId: cipher.id,
       action: SHOW_AUTOFILL_BUTTON,
     });
-
-    if (await this.autofillService.isPasswordRepromptRequired(cipher, sender.tab)) {
-      return;
-    }
   }
 
   /**
