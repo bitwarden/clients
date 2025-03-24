@@ -40,6 +40,7 @@ import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypt
 import { StateProvider } from "../../platform/state";
 import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid";
 import { OrgKey, UserKey } from "../../types/key";
+import { perUserCache$ } from "../../vault/utils/observable-utilities";
 import { CipherService as CipherServiceAbstraction } from "../abstractions/cipher.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
 import { FieldType } from "../enums";
@@ -131,13 +132,12 @@ export class CipherService implements CipherServiceAbstraction {
    * A `null` value indicates that the latest encrypted ciphers have not been decrypted yet and that
    * decryption is in progress. The latest decrypted ciphers will be emitted once decryption is complete.
    */
-  cipherViews$(userId: UserId): Observable<CipherView[] | null> {
+  cipherViews$ = perUserCache$((userId: UserId): Observable<CipherView[] | null> => {
     return combineLatest([this.encryptedCiphersState(userId).state$, this.localData$(userId)]).pipe(
       filter(([ciphers]) => ciphers != null), // Skip if ciphers haven't been loaded yor synced yet
       switchMap(() => merge(this.forceCipherViews$, this.getAllDecrypted(userId))),
-      shareReplay({ bufferSize: 1, refCount: true }),
     );
-  }
+  });
 
   addEditCipherInfo$(userId: UserId): Observable<AddEditCipherInfo> {
     return this.addEditCipherInfoState(userId).state$;
