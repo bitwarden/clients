@@ -1,19 +1,10 @@
 import { css } from "@emotion/css";
 import { html } from "lit";
 
-import { Theme } from "@bitwarden/common/platform/enums";
-
+import { IconProps } from "../common-types";
 import { buildIconColorRule, ruleNames, themes } from "../constants/styles";
 
-export function Family({
-  color,
-  disabled,
-  theme,
-}: {
-  color?: string;
-  disabled?: boolean;
-  theme: Theme;
-}) {
+export function Family({ color, disabled, theme }: IconProps) {
   const shapeColor = disabled ? themes[theme].secondary["300"] : color || themes[theme].text.main;
 
   return html`

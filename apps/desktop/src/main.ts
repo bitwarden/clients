@@ -284,6 +284,8 @@ export class Main {
     this.migrationRunner.run().then(
       async () => {
         await this.toggleHardwareAcceleration();
+        // Reset modal mode to make sure main window is displayed correctly
+        await this.desktopSettingsService.resetInModalMode();
         await this.windowMain.init();
         await this.i18nService.init();
         await this.messagingMain.init();

@@ -24,8 +24,6 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
@@ -58,23 +56,13 @@ export class SshAgentService implements OnDestroy {
     private toastService: ToastService,
     private i18nService: I18nService,
     private desktopSettingsService: DesktopSettingsService,
-    private configService: ConfigService,
     private accountService: AccountService,
   ) {}
 
   async init() {
-    this.configService
-      .getFeatureFlag$(FeatureFlag.SSHAgent)
-      .pipe(
-        concatMap(async (enabled) => {
-          this.isFeatureFlagEnabled = enabled;
-          if (!(await ipc.platform.sshAgent.isLoaded()) && enabled) {
-            await ipc.platform.sshAgent.init();
-          }
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
+    if (!(await ipc.platform.sshAgent.isLoaded())) {
+      await ipc.platform.sshAgent.init();
+    }
 
     await this.initListeners();
   }

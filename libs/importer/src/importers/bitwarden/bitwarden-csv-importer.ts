@@ -43,6 +43,17 @@ export class BitwardenCsvImporter extends BaseImporter implements Importer {
           }
 
           result.collectionRelationships.push([result.ciphers.length, collectionIndex]);
+
+          // if the collection name is a/b/c/d, we need to create a/b/c and a/b and a
+          const parts = col.split("/");
+          for (let i = parts.length - 1; i > 0; i--) {
+            const parentCollectionName = parts.slice(0, i).join("/") as string;
+            if (result.collections.find((c) => c.name === parentCollectionName) == null) {
+              const parentCollection = new CollectionView();
+              parentCollection.name = parentCollectionName;
+              result.collections.push(parentCollection);
+            }
+          }
         });
       } else if (!this.organization) {
         this.processFolder(result, value.folder);
