@@ -1,11 +1,9 @@
 ﻿@import "variables.scss";
 
-#login-page,
 #lock-page,
 #sso-page,
 #set-password-page,
-#remove-password-page,
-#login-decryption-options-page {
+#remove-password-page {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -48,13 +46,11 @@
 }
 
 #accessibility-cookie-page,
-#login-page,
 #register-page,
 #hint-page,
 #two-factor-page,
 #lock-page,
-#update-temp-password-page,
-#login-decryption-options-page {
+#update-temp-password-page {
   .content {
     width: 325px;
     transition: width 0.25s linear;
@@ -189,37 +185,6 @@
   }
 }
 
-#login-page,
-#login-decryption-options-page {
-  flex-direction: column;
-  justify-content: unset;
-  padding-top: 20px;
-
-  .login-header {
-    align-self: flex-start;
-    padding: 1em;
-    font-size: 1.2em;
-    .environment-urls-settings-icon {
-      @include themify($themes) {
-        color: themed("mutedColor");
-      }
-
-      span {
-        visibility: hidden;
-      }
-
-      &:hover,
-      &:focus {
-        text-decoration: none;
-
-        @include themify($themes) {
-          color: themed("primaryColor");
-        }
-      }
-    }
-  }
-}
-
 #login-approval-page {
   .section-title {
     padding: 20px;
@@ -237,16 +202,5 @@
         font-weight: bold;
       }
     }
-  }
-}
-
-#login-decryption-options-page {
-  .standard-bottom-margin {
-    margin-bottom: 20px;
-  }
-
-  #rememberThisDeviceHintText {
-    font-size: $font-size-small;
-    color: $text-muted;
   }
 }
