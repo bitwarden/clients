@@ -17,10 +17,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
-import {
-  AutofillOverlayVisibility,
-  SHOW_AUTOFILL_BUTTON,
-} from "@bitwarden/common/autofill/constants";
+import { AutofillOverlayVisibility, VIEW_ITEM } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
@@ -2103,7 +2100,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     await this.openViewVaultItemPopout(sender.tab, {
       cipherId: cipher.id,
-      action: SHOW_AUTOFILL_BUTTON,
+      action: VIEW_ITEM,
     });
   }
 
