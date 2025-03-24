@@ -24,6 +24,7 @@ import {
   switchMap,
   takeUntil,
   tap,
+  catchError,
 } from "rxjs/operators";
 
 import {
@@ -76,6 +77,7 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
+import { BillingNotificationService } from "../../../billing/services/billing-notification.service";
 import {
   ResellerWarning,
   ResellerWarningService,
@@ -109,7 +111,6 @@ import {
 } from "../../../vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 import { VaultFilter } from "../../../vault/individual-vault/vault-filter/shared/models/vault-filter.model";
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
-import { getNestedCollectionTree } from "../../../vault/utils/collection-utils";
 import { GroupApiService, GroupView } from "../core";
 import { openEntityEventsDialog } from "../manage/entity-events.component";
 import {
@@ -123,6 +124,7 @@ import {
   BulkCollectionsDialogResult,
 } from "./bulk-collections-dialog";
 import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
+import { getNestedCollectionTree } from "./utils";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 
@@ -256,6 +258,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private organizationBillingService: OrganizationBillingServiceAbstraction,
     private resellerWarningService: ResellerWarningService,
     private accountService: AccountService,
+    private billingNotificationService: BillingNotificationService,
   ) {}
 
   async ngOnInit() {
@@ -636,12 +639,18 @@ export class VaultComponent implements OnInit, OnDestroy {
         combineLatest([
           of(org),
           this.organizationApiService.getSubscription(org.id),
-          this.organizationBillingService.getPaymentSource(org.id),
+          from(this.organizationBillingService.getPaymentSource(org.id)).pipe(
+            catchError((error: unknown) => {
+              this.billingNotificationService.handleError(error);
+              return of(null);
+            }),
+          ),
         ]),
       ),
-      map(([org, sub, paymentSource]) => {
-        return this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(org, sub, paymentSource);
-      }),
+      map(([org, sub, paymentSource]) =>
+        this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(org, sub, paymentSource),
+      ),
+      filter((result) => result !== null),
     );
 
     this.resellerWarning$ = organization$.pipe(

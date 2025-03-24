@@ -20,7 +20,7 @@ import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abs
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
@@ -30,6 +30,7 @@ import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
 import { ClientType } from "@bitwarden/common/enums";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -58,6 +59,7 @@ export class LoginCommand {
     protected loginStrategyService: LoginStrategyServiceAbstraction,
     protected authService: AuthService,
     protected apiService: ApiService,
+    protected masterPasswordApiService: MasterPasswordApiService,
     protected cryptoFunctionService: CryptoFunctionService,
     protected environmentService: EnvironmentService,
     protected passwordGenerationService: PasswordGenerationServiceAbstraction,
@@ -321,7 +323,7 @@ export class LoginCommand {
           })({
             type: "input",
             name: "token",
-            message: "New device login code:",
+            message: "New device verification required. Enter OTP sent to login email:",
           });
           newDeviceToken = answer.token;
         }
@@ -454,7 +456,7 @@ export class LoginCommand {
       request.newMasterPasswordHash = newPasswordHash;
       request.key = newUserKey[1].encryptedString;
 
-      await this.apiService.postPassword(request);
+      await this.masterPasswordApiService.postPassword(request);
 
       return await this.handleUpdatePasswordSuccessResponse();
     } catch (e) {
@@ -491,7 +493,7 @@ export class LoginCommand {
       request.newMasterPasswordHash = newPasswordHash;
       request.masterPasswordHint = hint;
 
-      await this.apiService.putUpdateTempPassword(request);
+      await this.masterPasswordApiService.putUpdateTempPassword(request);
 
       return await this.handleUpdatePasswordSuccessResponse();
     } catch (e) {

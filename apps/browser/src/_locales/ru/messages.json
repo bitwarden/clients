@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Введите email вашего аккаунта, и вам будет отправлена подсказка для пароля"
   },
-  "passwordHint": {
-    "message": "Подсказка к паролю"
-  },
-  "enterEmailToGetHint": {
-    "message": "Введите email аккаунта для получения подсказки к мастер-паролю."
-  },
   "getMasterPasswordHint": {
     "message": "Получить подсказку к мастер-паролю"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Изменить папку"
+  },
+  "editFolderWithName": {
+    "message": "Редактировать папку: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Новый папка"
@@ -875,7 +878,7 @@
     "message": "Нажмите на YubiKey для аутентификации"
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+    "message": "Для вашего аккаунта требуется двухэтапная аутентификация Duo. Выполните следующие действия, чтобы завершить авторизацию."
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Следуйте указаниям ниже, чтобы завершить авторизацию."
@@ -1037,7 +1040,7 @@
     "message": "Кликните элементы для автозаполнения в режиме просмотра хранилища"
   },
   "clickToAutofill": {
-    "message": "Click items in autofill suggestion to fill"
+    "message": "Выберите элементы в предложении автозаполнения для вставки"
   },
   "clearClipboard": {
     "message": "Очистить буфер обмена",
@@ -1165,10 +1168,6 @@
   "light": {
     "message": "Светлая",
     "description": "Light color"
-  },
-  "solarizedDark": {
-    "message": "Solarized dark",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
     "message": "Экспорт из"
@@ -1519,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Окружение пользовательского хостинга"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Укажите URL Bitwarden на вашем сервере."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Укажите базовый URL вашего локального хостинга Bitwarden. Пример: https://bitwarden.company.com"
   },
@@ -1533,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Пользовательское окружение"
-  },
-  "customEnvironmentFooter": {
-    "message": "Для опытных пользователей. Можно указать URL отдельно для каждой службы."
   },
   "baseUrl": {
     "message": "URL сервера"
@@ -1673,6 +1666,9 @@
   },
   "dragToSort": {
     "message": "Перетащите для сортировки"
+  },
+  "dragToReorder": {
+    "message": "Перетащите для изменения порядка"
   },
   "cfTypeText": {
     "message": "Текстовое"
@@ -2168,7 +2164,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultCustomization": {
-    "message": "Vault customization"
+    "message": "Настройка хранилища"
   },
   "vaultTimeoutAction": {
     "message": "Действие по тайм-ауту хранилища"
@@ -2480,7 +2476,7 @@
     "message": "Пароли, подверженные риску"
   },
   "atRiskPasswordDescSingleOrg": {
-    "message": "$ORGANIZATION$ запрашивает смену одного пароля, так как он находится под угрозой.",
+    "message": "$ORGANIZATION$ запрашивает смену одного пароля, так как он подвержен риску.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2489,7 +2485,7 @@
     }
   },
   "atRiskPasswordsDescSingleOrgPlural": {
-    "message": "$ORGANIZATION$ запрашивает смену $COUNT$ паролей, так как они находятся под угрозой.",
+    "message": "$ORGANIZATION$ запрашивает смену $COUNT$ паролей, так как они подвержены риску.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2502,7 +2498,7 @@
     }
   },
   "atRiskPasswordsDescMultiOrgPlural": {
-    "message": "Ваша организация запрашивает смену $COUNT$ паролей, так как они находятся под угрозой.",
+    "message": "Ваша организация запрашивает смену $COUNT$ паролей, так как они подвержены риску.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2511,10 +2507,10 @@
     }
   },
   "reviewAndChangeAtRiskPassword": {
-    "message": "Review and change one at-risk password"
+    "message": "Проверить и изменить один пароль, подверженный риску"
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
-    "message": "Review and change $COUNT$ at-risk passwords",
+    "message": "Проверить и изменить $COUNT$ паролей, подверженных риску",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2523,26 +2519,26 @@
     }
   },
   "changeAtRiskPasswordsFaster": {
-    "message": "Change at-risk passwords faster"
+    "message": "Меняйте пароли, подверженные риску, быстрее"
   },
   "changeAtRiskPasswordsFasterDesc": {
-    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+    "message": "Обновите настройки, чтобы можно было быстро автоматически заполнять пароли и генерировать новые"
   },
   "reviewAtRiskLogins": {
-    "message": "Обзор логинов, находящихся под угрозой"
+    "message": "Обзор логинов, подверженных риску"
   },
   "reviewAtRiskPasswords": {
-    "message": "Обзор паролей, находящихся под угрозой"
+    "message": "Обзор паролей, подверженных риску"
   },
   "reviewAtRiskLoginsSlideDesc": {
-    "message": "Пароли вашей организации находятся под угрозой, потому что они слабые, повторно используются и/или раскрыты.",
+    "message": "Пароли вашей организации подвержены риску, потому что они слабые, повторно используются и/или раскрыты.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
   "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Иллюстрация списка логинов, которые находятся под угрозой"
+    "message": "Иллюстрация списка логинов, которые подвержены риску"
   },
   "generatePasswordSlideDesc": {
-    "message": "Быстро сгенерируйте надежный уникальный пароль с помощью меню автозаполнения Bitwarden на сайте, находящемся под угрозой.",
+    "message": "Быстро сгенерируйте надежный уникальный пароль с помощью меню автозаполнения Bitwarden на сайте, подверженном риску.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
   "generatePasswordSlideImgAlt": {
@@ -2559,13 +2555,13 @@
     "message": "Иллюстрация уведомления Bitwarden, предлагающего пользователю обновить логин"
   },
   "turnOnAutofill": {
-    "message": "Turn on autofill"
+    "message": "Включить автозаполнение"
   },
   "turnedOnAutofill": {
-    "message": "Turned on autofill"
+    "message": "Автозаполнение включено"
   },
   "dismiss": {
-    "message": "Dismiss"
+    "message": "Отклонить"
   },
   "websiteItemLabel": {
     "message": "Сайт $number$ (URI)",
@@ -3276,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Настройки были изменены"
-  },
-  "environmentEditedClick": {
-    "message": "Нажмите здесь"
-  },
-  "environmentEditedReset": {
-    "message": "для сброса к предварительно настроенным параметрам"
-  },
   "serverVersion": {
     "message": "Версия сервера"
   },
@@ -3315,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Войти с мастер-паролем"
   },
-  "loggingInAs": {
-    "message": "Войти как"
-  },
-  "notYou": {
-    "message": "Не вы?"
-  },
   "newAroundHere": {
     "message": "Вы здесь впервые?"
   },
@@ -3329,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Войти с помощью устройства"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Вход с устройства должен быть настроен в настройках мобильного приложения Bitwarden. Нужен другой вариант?"
   },
   "fingerprintPhraseHeader": {
     "message": "Фраза отпечатка"
@@ -3343,9 +3321,6 @@
     "message": "Отправить уведомление повторно"
   },
   "viewAllLogInOptions": {
-    "message": "Посмотреть все варианты авторизации"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Посмотреть все варианты авторизации"
   },
   "notificationSentDevice": {
@@ -3489,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Запросить одобрение администратора"
   },
-  "approveWithMasterPassword": {
-    "message": "Одобрить с мастер-паролем"
-  },
   "ssoIdentifierRequired": {
     "message": "Требуется идентификатор SSO организации."
   },
@@ -3537,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Ваш запрос был отправлен администратору."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Вас уведомят об одобрении."
   },
   "troubleLoggingIn": {
     "message": "Не удалось войти?"
@@ -4701,6 +4670,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Изменить порядок URI. Используйте клавиши курсора для перемещения элемента вверх или вниз."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ перемещено вверх, позиция $INDEX$ $LENGTH$",
     "placeholders": {
@@ -4760,15 +4732,6 @@
   },
   "nothingSelected": {
     "message": "Вы ничего не выбрали."
-  },
-  "movedItemsToOrg": {
-    "message": "Выбранные элементы перемещены в $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
   },
   "itemsMovedToOrg": {
     "message": "Элементы перемещены в $ORGNAME$",
@@ -5132,6 +5095,33 @@
   "extraWide": {
     "message": "Очень широкое"
   },
+  "sshKeyWrongPassword": {
+    "message": "Введенный пароль неверен."
+  },
+  "importSshKey": {
+    "message": "Импорт"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Подтвердите пароль"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Введите пароль для ключа SSH."
+  },
+  "enterSshKeyPassword": {
+    "message": "Введите пароль"
+  },
+  "invalidSshKey": {
+    "message": "Ключ SSH недействителен"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Тип ключа SSH не поддерживается"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Импорт ключа из буфера обмена"
+  },
+  "sshKeyImported": {
+    "message": "Ключ SSH успешно импортирован"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Вы не можете удалить коллекции с правами только на просмотр: $COLLECTIONS$",
     "placeholders": {
@@ -5148,6 +5138,6 @@
     "message": "Чтобы использовать биометрическую разблокировку, обновите приложение для компьютера или отключите разблокировку по отпечатку пальца в настройках компьютера."
   },
   "changeAtRiskPassword": {
-    "message": "Изменить пароль, находящийся под угрозой"
+    "message": "Изменить пароль, подверженный риску"
   }
 }

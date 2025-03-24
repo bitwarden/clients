@@ -2,16 +2,18 @@
   <ng-container *ngIf="data$ | async as data">
     <img
       [src]="data.image"
-      [appFallbackSrc]="data.fallbackImage"
       *ngIf="data.imageEnabled && data.image"
       class="tw-size-6 tw-rounded-md"
       alt=""
       decoding="async"
       loading="lazy"
+      [ngClass]="{ 'tw-invisible tw-absolute': !imageLoaded() }"
+      (load)="imageLoaded.set(true)"
+      (error)="imageLoaded.set(false)"
     />
     <i
       class="tw-w-6 tw-text-muted bwi bwi-lg {{ data.icon }}"
-      *ngIf="!data.imageEnabled || !data.image"
+      *ngIf="!data.imageEnabled || !data.image || !imageLoaded()"
     ></i>
   </ng-container>
 </div>

@@ -1,6 +1,6 @@
 {
   "allApplications": {
-    "message": "All applications"
+    "message": "Semua aplikasi"
   },
   "criticalApplications": {
     "message": "Critical applications"
@@ -15,7 +15,7 @@
     "message": "Risk Insights"
   },
   "passwordRisk": {
-    "message": "Password Risk"
+    "message": "Petunjuk Sandi"
   },
   "reviewAtRiskPasswords": {
     "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
@@ -33,16 +33,16 @@
     "message": "Notified members"
   },
   "revokeMembers": {
-    "message": "Revoke members"
+    "message": "Cabut Pengguna"
   },
   "restoreMembers": {
-    "message": "Restore members"
+    "message": "Pulihkan pengguna"
   },
   "cannotRestoreAccessError": {
     "message": "Cannot restore organization access"
   },
   "allApplicationsWithCount": {
-    "message": "All applications ($COUNT$)",
+    "message": "Semua aplikasi ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -54,7 +54,7 @@
     "message": "Create new login item"
   },
   "criticalApplicationsWithCount": {
-    "message": "Critical applications ($COUNT$)",
+    "message": "Semua aplikasi ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -72,7 +72,7 @@
     }
   },
   "noAppsInOrgTitle": {
-    "message": "No applications found in $ORG NAME$",
+    "message": "Tidak menemukan aplikasi di $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -99,19 +99,19 @@
     "message": "Apps marked as critical"
   },
   "application": {
-    "message": "Application"
+    "message": "Aplikasi"
   },
   "atRiskPasswords": {
     "message": "At-risk passwords"
   },
   "requestPasswordChange": {
-    "message": "Request password change"
+    "message": "Minta petunjuk kata sandi"
   },
   "totalPasswords": {
-    "message": "Total passwords"
+    "message": "Jumlah Kata Sandi"
   },
   "searchApps": {
-    "message": "Search applications"
+    "message": "Cari aplikasi"
   },
   "atRiskMembers": {
     "message": "At-risk members"
@@ -126,7 +126,7 @@
     }
   },
   "atRiskApplicationsWithCount": {
-    "message": "At-risk applications ($COUNT$)",
+    "message": "Semua aplikasi ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -150,13 +150,13 @@
     }
   },
   "totalMembers": {
-    "message": "Total members"
+    "message": "Jumlah Anggota"
   },
   "atRiskApplications": {
     "message": "At-risk applications"
   },
   "totalApplications": {
-    "message": "Total applications"
+    "message": "Semua aplikasi"
   },
   "unmarkAsCriticalApp": {
     "message": "Unmark as critical app"
@@ -202,10 +202,10 @@
     "message": "Catatan"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Catatan pribadi"
   },
   "note": {
-    "message": "Note"
+    "message": "Catatan"
   },
   "customFields": {
     "message": "Kolom Ubahsuai"
@@ -217,19 +217,19 @@
     "message": "Login credentials"
   },
   "personalDetails": {
-    "message": "Personal details"
+    "message": "Rincian pribadi"
   },
   "identification": {
-    "message": "Identification"
+    "message": "Identifikasi"
   },
   "contactInfo": {
-    "message": "Contact info"
+    "message": "Info kontak"
   },
   "cardDetails": {
-    "message": "Card details"
+    "message": "Rincian kartu"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$ details",
+    "message": "Rincian $BRAND$",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -238,19 +238,19 @@
     }
   },
   "itemHistory": {
-    "message": "Item history"
+    "message": "Riwayat benda"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "Kunci Autentikator"
   },
   "autofillOptions": {
-    "message": "Autofill options"
+    "message": "Pilihan isi otomatis"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Situs web (URI)"
   },
   "websiteUriCount": {
-    "message": "Website (URI) $COUNT$",
+    "message": "$COUNT$ Situs web (URI)",
     "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -428,6 +428,9 @@
   "dragToSort": {
     "message": "Tarik untuk mengurutkan"
   },
+  "dragToReorder": {
+    "message": "Drag to reorder"
+  },
   "cfTypeText": {
     "message": "Teks"
   },
@@ -470,6 +473,19 @@
   "editFolder": {
     "message": "Edit Folder"
   },
+  "editWithName": {
+    "message": "Edit $ITEM$: $NAME$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
     "message": "New folder"
   },
@@ -480,7 +496,7 @@
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "deleteFolderPermanently": {
-    "message": "Are you sure you want to permanently delete this folder?"
+    "message": "Apakah Anda yakin akan menghapus keranjang ini selamanya?"
   },
   "baseDomain": {
     "message": "Domain dasar",
@@ -526,7 +542,7 @@
     "message": "Buat Kata Sandi"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "Buat frasa sandi"
   },
   "checkPassword": {
     "message": "Periksa apakah kata sandi telah terekspos."
@@ -581,11 +597,11 @@
     "description": "Search Login type"
   },
   "searchCard": {
-    "message": "Search cards",
+    "message": "Cari kode",
     "description": "Search Card type"
   },
   "searchIdentity": {
-    "message": "Search identities",
+    "message": "Cari identitas",
     "description": "Search Identity type"
   },
   "searchSecureNote": {
@@ -596,10 +612,10 @@
     "message": "Cari Brankas"
   },
   "searchMyVault": {
-    "message": "Search my vault"
+    "message": "Cari brankas"
   },
   "searchOrganization": {
-    "message": "Search organization"
+    "message": "Cari organisasi"
   },
   "searchMembers": {
     "message": "Search members"
@@ -816,31 +832,31 @@
     "message": "Copy website"
   },
   "copyNotes": {
-    "message": "Copy notes"
+    "message": "Salin catatan"
   },
   "copyAddress": {
     "message": "Copy address"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Salin nomor telepon"
   },
   "copyEmail": {
-    "message": "Copy email"
+    "message": "Salin alamat surat elektronik"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "Salin perusahaan"
   },
   "copySSN": {
-    "message": "Copy Social Security number"
+    "message": "Salin nomor Keamanan Sosial"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "Salin nomor paspor"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "Salin nomor lisensi"
   },
   "copyName": {
-    "message": "Copy name"
+    "message": "Salin nama"
   },
   "me": {
     "message": "Saya"
@@ -862,9 +878,6 @@
   },
   "filter": {
     "message": "Filter"
-  },
-  "moveSelectedToOrg": {
-    "message": "Pindahkan terpilih ke Organisasi"
   },
   "deleteSelected": {
     "message": "Hapus yang Dipilih"
@@ -917,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Item terpilih dipindah ke $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -988,34 +992,34 @@
     "message": "Edit info"
   },
   "access": {
-    "message": "Access"
+    "message": "Akses"
   },
   "accessLevel": {
-    "message": "Access level"
+    "message": "Tingkat akses"
   },
   "accessing": {
-    "message": "Accessing"
+    "message": "Sedang mengakses"
   },
   "loggedOut": {
     "message": "Keluar"
   },
   "loggedOutDesc": {
-    "message": "You have been logged out of your account."
+    "message": "Anda telah keluar dari akun Anda."
   },
   "loginExpired": {
     "message": "Sesi masuk Anda telah berakhir."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Mulai ulang pendaftaran"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Tautan telah kadaluwarsa"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Mohon mulai ulang pendaftaran atau coba masuk."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Anda mungkin telah memiliki sebuah akun"
   },
   "logOutConfirmation": {
     "message": "Anda yakin ingin keluar?"
@@ -1033,7 +1037,7 @@
     "message": "Tidak"
   },
   "location": {
-    "message": "Location"
+    "message": "Lokasi"
   },
   "loginOrCreateNewAccount": {
     "message": "Masuk atau buat akun baru untuk mengakses brankas Anda."
@@ -1042,10 +1046,10 @@
     "message": "Masuk dengan perangkat"
   },
   "loginWithDeviceEnabledNote": {
-    "message": "Log in with device must be set up in the settings of the Bitwarden app. Need another option?"
+    "message": "Masuk dengan perangkat harus diatur di pengaturan aplikasi ini. Perlu pilihan lainnya?"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "Perlu pilihan lainnya?"
   },
   "loginWithMasterPassword": {
     "message": "Masuk dengan kata sandi utama"
@@ -1060,13 +1064,13 @@
     "message": "Use a different log in method"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Masuk dengan kunci sandi"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Gunakan masuk tunggal"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Selamat datang kembali"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Invalid Passkey. Please try again."
@@ -1093,10 +1097,10 @@
     "message": "Error creating passkey"
   },
   "errorCreatingPasskeyInfo": {
-    "message": "There was a problem creating your passkey."
+    "message": "Terdapat masalah mengimpor kuncimu."
   },
   "passkeySuccessfullyCreated": {
-    "message": "Passkey successfully created!"
+    "message": "Akun berhasil dibuat!"
   },
   "customPasskeyNameInfo": {
     "message": "Name your passkey to help you identify it."
@@ -1269,12 +1273,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
-  },
-  "passwordHint": {
-    "message": "Petunjuk Kata Sandi"
-  },
-  "enterEmailToGetHint": {
-    "message": "Masukkan email akun Anda untuk menerima pentunjuk sandi utama Anda."
   },
   "getMasterPasswordHint": {
     "message": "Dapatkan petunjuk sandi utama"
@@ -1561,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "Pilihlah sebuah organisasi yang Anda ingin memindahkan item ini. Memindahkan berarti memberikan kepemilikan kepada organisasi tersebut. Anda tidak akan lagi menjadi pemilik item ini."
   },
-  "moveManyToOrgDesc": {
-    "message": "Pilihlah sebuah organisasi yang Anda ingin memindahkan item ini. Memindahkan berarti memberikan kepemilikan kepada organisasi tersebut. Anda tidak akan lagi menjadi pemilik item ini."
-  },
   "collectionsDesc": {
     "message": "Edit koleksi tempat item ini dibagikan. Hanya pengguna organisasi dengan akses ke koleksi ini yang dapat melihat item ini."
   },
@@ -1594,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "Anda telah memilih $COUNT$ item. $MOVEABLE_COUNT$ item bisa dipindahkan ke sebuah organisasi, $NONMOVEABLE_COUNT$ tidak bisa.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },
@@ -4530,6 +4508,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ moved down, position $INDEX$ of $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "When updating your encryption key, your folders could not be decrypted. To continue with the update, your folders must be deleted. No vault items will be deleted if you proceed."
   },
@@ -7264,12 +7276,6 @@
   "numberOfUsers": {
     "message": "Jumplah pengguna"
   },
-  "loggingInAs": {
-    "message": "Logging in as"
-  },
-  "notYou": {
-    "message": "Bukan Anda?"
-  },
   "pickAnAvatarColor": {
     "message": "Pick an avatar color"
   },
@@ -8393,9 +8399,6 @@
   "requestAdminApproval": {
     "message": "Request admin approval"
   },
-  "approveWithMasterPassword": {
-    "message": "Approve with master password"
-  },
   "trustedDeviceEncryption": {
     "message": "Trusted device encryption"
   },
@@ -8609,9 +8612,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Your request has been sent to your admin."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "You will be notified once approved."
   },
   "troubleLoggingIn": {
     "message": "Trouble logging in?"
@@ -9337,6 +9337,15 @@
   },
   "deviceManagementDesc": {
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
+  },
+  "deviceIdMissing": {
+    "message": "Device ID is missing"
+  },
+  "deviceTypeMissing": {
+    "message": "Device type is missing"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Device creation date is missing"
   },
   "desktopRequired": {
     "message": "Desktop required"
@@ -10339,6 +10348,36 @@
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
   },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
+  "copySSHPrivateKey": {
+    "message": "Copy private key"
+  },
   "openingExtension": {
     "message": "Opening the Bitwarden browser extension"
   },
@@ -10504,5 +10543,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
+  },
+  "cannotCreateCollection": {
+    "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
   }
 }

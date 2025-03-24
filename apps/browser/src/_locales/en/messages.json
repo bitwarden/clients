@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "Password hint"
-  },
-  "enterEmailToGetHint": {
-    "message": "Enter your account email address to receive your master password hint."
-  },
   "getMasterPasswordHint": {
     "message": "Get master password hint"
   },
@@ -1524,9 +1518,6 @@
   "selfHostedEnvironment": {
     "message": "Self-hosted environment"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Specify the base URL of your on-premises hosted Bitwarden installation."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -1538,9 +1529,6 @@
   },
   "customEnvironment": {
     "message": "Custom environment"
-  },
-  "customEnvironmentFooter": {
-    "message": "For advanced users. You can specify the base URL of each service independently."
   },
   "baseUrl": {
     "message": "Server URL"
@@ -3284,15 +3272,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Settings have been edited"
-  },
-  "environmentEditedClick": {
-    "message": "Click here"
-  },
-  "environmentEditedReset": {
-    "message": "to reset to pre-configured settings"
-  },
   "serverVersion": {
     "message": "Server version"
   },
@@ -3323,12 +3302,6 @@
   "loginWithMasterPassword": {
     "message": "Log in with master password"
   },
-  "loggingInAs": {
-    "message": "Logging in as"
-  },
-  "notYou": {
-    "message": "Not you?"
-  },
   "newAroundHere": {
     "message": "New around here?"
   },
@@ -3337,9 +3310,6 @@
   },
   "loginWithDevice": {
     "message": "Log in with device"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Log in with device must be set up in the settings of the Bitwarden app. Need another option?"
   },
   "fingerprintPhraseHeader": {
     "message": "Fingerprint phrase"
@@ -3351,9 +3321,6 @@
     "message": "Resend notification"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "View all log in options"
   },
   "notificationSentDevice": {
@@ -3497,9 +3464,6 @@
   "requestAdminApproval": {
     "message": "Request admin approval"
   },
-  "approveWithMasterPassword": {
-    "message": "Approve with master password"
-  },
   "ssoIdentifierRequired": {
     "message": "Organization SSO identifier is required."
   },
@@ -3545,9 +3509,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Your request has been sent to your admin."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "You will be notified once approved."
   },
   "troubleLoggingIn": {
     "message": "Trouble logging in?"
@@ -4771,15 +4732,6 @@
   },
   "nothingSelected": {
     "message": "You have not selected anything."
-  },
-  "movedItemsToOrg": {
-    "message": "Selected items moved to $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
   },
   "itemsMovedToOrg": {
     "message": "Items moved to $ORGNAME$",
