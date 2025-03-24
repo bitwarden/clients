@@ -155,6 +155,7 @@ export class Program extends BaseProgram {
             this.serviceContainer.loginStrategyService,
             this.serviceContainer.authService,
             this.serviceContainer.apiService,
+            this.serviceContainer.masterPasswordApiService,
             this.serviceContainer.cryptoFunctionService,
             this.serviceContainer.environmentService,
             this.serviceContainer.passwordGenerationService,

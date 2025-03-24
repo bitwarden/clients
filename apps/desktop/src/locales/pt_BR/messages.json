@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Digite o endereço de e-mail da sua conta e sua dica da senha será enviada para você"
   },
-  "passwordHint": {
-    "message": "Dica da Senha"
-  },
-  "enterEmailToGetHint": {
-    "message": "Insira o seu endereço de e-mail para receber a dica da sua senha mestra."
-  },
   "getMasterPasswordHint": {
     "message": "Obter dica da senha mestra"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Ambiente auto-hospedado"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Especifique a URL de base da sua instalação local do Bitwarden."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Especifique a URL de base da sua instalação local do Bitwarden. Exemplo: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Ambiente Personalizado"
-  },
-  "customEnvironmentFooter": {
-    "message": "Para usuários avançados. Você pode especificar a URL de base de cada serviço independentemente."
   },
   "baseUrl": {
     "message": "URL do Servidor"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Não"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Substituir Senha"
@@ -2781,14 +2772,8 @@
   "loginWithMasterPassword": {
     "message": "‘Login’ com senha ‘master’"
   },
-  "loggingInAs": {
-    "message": "Logar como"
-  },
   "rememberEmail": {
     "message": "Lembrar e-mail"
-  },
-  "notYou": {
-    "message": "Não é você?"
   },
   "newAroundHere": {
     "message": "Novo por aqui?"
@@ -3029,9 +3014,6 @@
   "requestAdminApproval": {
     "message": "Solicitar aprovação do administrador"
   },
-  "approveWithMasterPassword": {
-    "message": "Aprovar com senha mestra"
-  },
   "region": {
     "message": "Região"
   },
@@ -3056,9 +3038,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Seu pedido foi enviado para seu administrador."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Será notificado assim que for aprovado."
   },
   "troubleLoggingIn": {
     "message": "Problemas em efetuar login?"
@@ -3529,9 +3508,6 @@
   "unknownApplication": {
     "message": "Uma aplicação"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importar chaves SSH protegidas por senha ainda não é suportado"
-  },
   "invalidSshKey": {
     "message": "A chave SSH é inválida"
   },
@@ -3541,8 +3517,8 @@
   "importSshKeyFromClipboard": {
     "message": "Importar chave da área de transferência"
   },
-  "sshKeyPasted": {
-    "message": "Chave SSH importada com sucesso"
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
     "message": "Arquivo salvo no dispositivo. Gerencie a partir das transferências do seu dispositivo."

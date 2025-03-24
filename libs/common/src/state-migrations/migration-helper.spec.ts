@@ -1,6 +1,5 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
-// eslint-disable-next-line import/no-restricted-paths -- Needed to print log messages
 import { FakeStorageService } from "../../spec/fake-storage.service";
 // eslint-disable-next-line import/no-restricted-paths -- Needed client type enum
 import { ClientType } from "../enums";

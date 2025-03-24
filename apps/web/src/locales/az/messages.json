@@ -202,7 +202,7 @@
     "message": "Notlar"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Şəxsi not"
   },
   "note": {
     "message": "Not"
@@ -428,6 +428,9 @@
   "dragToSort": {
     "message": "Sıralamaq üçün sürüklə"
   },
+  "dragToReorder": {
+    "message": "Yenidən sıralamaq üçün sürüklə"
+  },
   "cfTypeText": {
     "message": "Mətn"
   },
@@ -469,6 +472,19 @@
   },
   "editFolder": {
     "message": "Qovluğa düzəliş et"
+  },
+  "editWithName": {
+    "message": "$ITEM$ - düzəliş et: $NAME$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Yeni qovluq"
@@ -863,9 +879,6 @@
   "filter": {
     "message": "Filtr"
   },
-  "moveSelectedToOrg": {
-    "message": "Seçiləni təşkilata daşı"
-  },
   "deleteSelected": {
     "message": "Seçiləni sil"
   },
@@ -917,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Seçilən elementlər $ORGNAME$ təşkilatına daşınıldı",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1031,6 +1035,9 @@
   },
   "no": {
     "message": "Xeyr"
+  },
+  "location": {
+    "message": "Yerləşmə"
   },
   "loginOrCreateNewAccount": {
     "message": "Güvənli seyfinizə müraciət etmək üçün giriş edin və ya yeni bir hesab yaradın."
@@ -1183,7 +1190,7 @@
     "message": "Kimlik doğrulama seansının vaxtı bitdi. Lütfən giriş prosesini yenidən başladın."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Kimliyinizi doğrulayın"
   },
   "weDontRecognizeThisDevice": {
     "message": "Bu cihazı tanımırıq. Kimliyinizi doğrulamaq üçün e-poçtunuza göndərilən kodu daxil edin."
@@ -1266,12 +1273,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Hesabınızın e-poçt ünvanını daxil edin və parolunuz üçün ipucu sizə göndəriləcək"
-  },
-  "passwordHint": {
-    "message": "Parol məsləhəti"
-  },
-  "enterEmailToGetHint": {
-    "message": "Ana parol məsləhətini alacağınız hesabınızın e-poçt ünvanını daxil edin."
   },
   "getMasterPasswordHint": {
     "message": "Ana parol üçün məsləhət alın"
@@ -1558,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "Bu elementi daşımaq istədiyiniz təşkilatı seçin. Bir təşkilata daşımaq, elementin sahibliyini də həmin təşkilata daşıyacaq. Daşıdıqdan sonra bu elementə birbaşa sahibliyiniz olmayacaq."
   },
-  "moveManyToOrgDesc": {
-    "message": "Bu elementləri daşımaq istədiyiniz təşkilatı seçin. Bir təşkilata daşımaq, elementin sahibliyini də həmin təşkilata daşıyacaq. Daşıdıqdan sonra bu elementlərə birbaşa sahibliyiniz olmayacaq."
-  },
   "collectionsDesc": {
     "message": "Bu elementin paylaşıldığı kolleksiyalara düzəliş edin. Yalnız bu kolleksiyalara müraciəti olan təşkilat istifadəçiləri bu elementi görə bilər."
   },
@@ -1591,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "$COUNT$ element seçdiniz. $MOVEABLE_COUNT$ element bir təşkilata daşınıla bilər, $NONMOVEABLE_COUNT$ ədədi isə daşınıla bilməz.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },
@@ -4527,6 +4508,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "$LABEL$ yuxarı daşındı, mövqeyi $INDEX$/$LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ aşağı daşındı, mövqeyi $INDEX$/$LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "Şifrələmə açarınızı güncəlləyərkən qovluqlarınızın şifrəsi açıla bilmədi. Güncəlləmənin davam etməsi üçün qovluqlarınız silinməlidir. Davam etsəniz, heç bir seyf elementi silinməyəcək."
   },
@@ -5088,14 +5103,14 @@
     "message": "Təşkilat sahibləri və administratorlar, bu siyasətin tətbiq edilməsindən azaddırlar."
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "Baxışları limitlə"
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "Limitə çatdıqdan sonra bu Send-ə heç kim baxa bilməz.",
     "description": "Displayed under the limit views field on Send"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "$ACCESSCOUNT$ baxış qaldı",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -5105,11 +5120,11 @@
     }
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Send detalları",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
-    "message": "Text to share"
+    "message": "Paylaşılacaq mətn"
   },
   "sendTypeFile": {
     "message": "Fayl"
@@ -5118,7 +5133,7 @@
     "message": "Mətn"
   },
   "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
+    "message": "Alıcıların bu \"Send\"ə müraciət etməsi üçün ixtiyari bir parol əlavə edin.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
@@ -5146,14 +5161,14 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Are you sure you want to permanently delete this Send?",
+    "message": "Bu Send-i həmişəlik silmək istədiyinizə əminsiniz?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Silinmə tarixi"
   },
   "deletionDateDescV2": {
-    "message": "The Send will be permanently deleted on this date.",
+    "message": "Send, bu tarixdə həmişəlik silinəcək.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5203,7 +5218,7 @@
     "message": "Silinməsi gözlənilir"
   },
   "hideTextByDefault": {
-    "message": "Hide text by default"
+    "message": "Mətni ilkin olaraq gizlət"
   },
   "expired": {
     "message": "Müddəti bitib"
@@ -5674,7 +5689,7 @@
     "message": "Silinmə və son istifadə tarixlərini saxlayarkən xəta baş verdi."
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "E-poçt ünvanınız baxanlardan gizlədilsin."
   },
   "webAuthnFallbackMsg": {
     "message": "2FA-nı doğrulamaq üçün lütfən aşağıdakı düyməyə klikləyin."
@@ -7261,12 +7276,6 @@
   "numberOfUsers": {
     "message": "İstifadəçi sayı"
   },
-  "loggingInAs": {
-    "message": "Giriş et"
-  },
-  "notYou": {
-    "message": "Siz deyilsiniz?"
-  },
   "pickAnAvatarColor": {
     "message": "Bir avatar rəngi götürün"
   },
@@ -8390,9 +8399,6 @@
   "requestAdminApproval": {
     "message": "Admin təsdiqini tələb et"
   },
-  "approveWithMasterPassword": {
-    "message": "Ana parolla təsdiqlə"
-  },
   "trustedDeviceEncryption": {
     "message": "Güvənli cihaz şifrələməsi"
   },
@@ -8606,9 +8612,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Tələbiniz admininizə göndərildi."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Təsdiqləndikdən sonra məlumatlandırılacaqsınız."
   },
   "troubleLoggingIn": {
     "message": "Girişdə problem var?"
@@ -9335,6 +9338,15 @@
   "deviceManagementDesc": {
     "message": "Platformanız üçün icra bələdçisini istifadə edərək Bitwarden üçün cihaz idarəetməsini konfiqurasiya edin."
   },
+  "deviceIdMissing": {
+    "message": "Cihaz kimliyi əskikdir"
+  },
+  "deviceTypeMissing": {
+    "message": "Cihaz növü əskikdir"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Cihaz yaradılma tarixi əskikdir"
+  },
   "desktopRequired": {
     "message": "Masaüstü tələb olunur"
   },
@@ -9835,13 +9847,13 @@
     "message": "Bitwarden-nin API-si haqqında daha ətraflı"
   },
   "fileSend": {
-    "message": "File Send"
+    "message": "Fayl \"Send\"i"
   },
   "fileSends": {
     "message": "Fayl \"Send\"ləri"
   },
   "textSend": {
-    "message": "Text Send"
+    "message": "Mətn \"Send\"i"
   },
   "textSends": {
     "message": "Mətn \"Send\"ləri"
@@ -10336,6 +10348,36 @@
   "organizationNameMaxLength": {
     "message": "Təşkilat adı 50 xarakterdən çox ola bilməz."
   },
+  "sshKeyWrongPassword": {
+    "message": "Daxil etdiyiniz parol yanlışdır."
+  },
+  "importSshKey": {
+    "message": "Daxilə köçür"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Parolu təsdiqlə"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "SSH açarı üçün parolu daxil edin."
+  },
+  "enterSshKeyPassword": {
+    "message": "Parolu daxil edin"
+  },
+  "invalidSshKey": {
+    "message": "SSH açarı yararsızdır"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "SSH açar növü dəstəklənmir"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Açarı lövhədən daxilə köçür"
+  },
+  "sshKeyImported": {
+    "message": "SSH açarı uğurla daxilə köçürüldü"
+  },
+  "copySSHPrivateKey": {
+    "message": "Private açarı kopyala"
+  },
   "openingExtension": {
     "message": "Bitwarden brauzer uzantısı açılır"
   },
@@ -10476,7 +10518,7 @@
     "message": "Təyin edilmiş yer sayı, boş yer sayından çoxdur."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "Riskli parolları dəyişdir"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Kilidi PIN ilə açmanı ləğv et"
@@ -10501,5 +10543,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "Bu event-lər sadəcə nümunədir və Bitwarden təşkilatınızdakı real event-ləri əks etdirmir."
+  },
+  "cannotCreateCollection": {
+    "message": "Ödənişsiz təşkilatların ən çox 2 kolleksiyası ola bilər. Daha çox kolleksiya əlavə etmək üçün ödənişli bir plana yüksəldin."
   }
 }
