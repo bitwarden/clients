@@ -14,6 +14,7 @@ import {
 } from "rxjs";
 import { SemVer } from "semver";
 
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { KeyService } from "@bitwarden/key-management";
 
 import { ApiService } from "../../abstractions/api.service";
@@ -111,6 +112,7 @@ export class CipherService implements CipherServiceAbstraction {
     private configService: ConfigService,
     private stateProvider: StateProvider,
     private accountService: AccountService,
+    private logService: LogService,
   ) {}
 
   localData$(userId: UserId): Observable<Record<CipherId, LocalData>> {
@@ -443,6 +445,7 @@ export class CipherService implements CipherServiceAbstraction {
       {} as Record<string, Cipher[]>,
     );
 
+    const decryptStartTime = new Date().getTime();
     const allCipherViews = (
       await Promise.all(
         Object.entries(grouped).map(async ([orgId, groupedCiphers]) => {
@@ -462,6 +465,9 @@ export class CipherService implements CipherServiceAbstraction {
     )
       .flat()
       .sort(this.getLocaleSortingFunction());
+    this.logService.info(
+      `[CipherService] Decrypted ${allCipherViews.length} ciphers in ${new Date().getTime() - decryptStartTime}ms`,
+    );
 
     // Split ciphers into two arrays, one for successfully decrypted ciphers and one for ciphers that failed to decrypt
     return allCipherViews.reduce(

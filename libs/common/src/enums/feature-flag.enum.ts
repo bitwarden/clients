@@ -104,7 +104,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.CipherKeyEncryption]: FALSE,
   [FeatureFlag.TrialPaymentOptional]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
-  [FeatureFlag.PrivateKeyRegeneration]: FALSE,
+  [FeatureFlag.PrivateKeyRegeneration]: true,
   [FeatureFlag.ResellerManagedOrgAlert]: FALSE,
   [FeatureFlag.AccountDeprovisioningBanner]: FALSE,
   [FeatureFlag.PM15179_AddExistingOrgsFromProviderPortal]: FALSE,

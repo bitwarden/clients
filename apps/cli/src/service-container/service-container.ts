@@ -688,6 +688,7 @@ export class ServiceContainer {
       this.configService,
       this.stateProvider,
       this.accountService,
+      this.logService,
     );
 
     this.folderService = new FolderService(
