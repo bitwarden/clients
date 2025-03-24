@@ -280,30 +280,32 @@ describe("VaultExportService", () => {
       expect(apiService.getAttachmentData).not.toHaveBeenCalled();
     });
 
-    it("throws error if attachment can't be downloaded (status !== 200)", async () => {
-      const cipherData = new CipherData();
-      cipherData.id = "mock-id";
-      const cipherView = new CipherView(new Cipher(cipherData));
-      const attachmentView = new AttachmentView(new Attachment(new AttachmentData()));
-      attachmentView.fileName = "mock-file-name";
-      cipherView.attachments = [attachmentView];
+    it.each([[400], [401], [404], [500]])(
+      "throws error if the http request fails (status === %n)",
+      async (status) => {
+        const cipherData = new CipherData();
+        cipherData.id = "mock-id";
+        const cipherView = new CipherView(new Cipher(cipherData));
+        const attachmentView = new AttachmentView(new Attachment(new AttachmentData()));
+        attachmentView.fileName = "mock-file-name";
+        cipherView.attachments = [attachmentView];
 
-      cipherService.getAllDecrypted.mockResolvedValue([cipherView]);
-      folderService.getAllDecryptedFromState.mockResolvedValue([]);
-      encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(255));
+        cipherService.getAllDecrypted.mockResolvedValue([cipherView]);
+        folderService.getAllDecryptedFromState.mockResolvedValue([]);
+        encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(255));
 
-      global.fetch = jest.fn(() =>
-        Promise.resolve({
-          status: 404,
-        }),
-      ) as any;
-      global.Request = jest.fn(() => {}) as any;
+        global.fetch = jest.fn(() =>
+          Promise.resolve({
+            status,
+          }),
+        ) as any;
+        global.Request = jest.fn(() => {}) as any;
 
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      expect(async () => {
-        await exportService.getExport("zip");
-      }).rejects.toThrow("Error downloading attachment");
-    });
+        await expect(async () => {
+          await exportService.getExport("zip");
+        }).rejects.toThrow("Error downloading attachment");
+      },
+    );
 
     it("throws error if decrypting attachment fails", async () => {
       const cipherData = new CipherData();
