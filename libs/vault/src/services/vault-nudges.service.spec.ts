@@ -76,7 +76,7 @@ describe("End User Notification Center Service", () => {
   });
 
   describe("VaultNudgesService", () => {
-    it("should return true for custom nudge service VaultOnboardingNudgesServices.shouldShowNudge$", async () => {
+    it("should return true, the proper value from the custom nudge service shouldShowNudge$", async () => {
       TestBed.overrideProvider(VaultOnboardingNudgesService, {
         useValue: { shouldShowNudge$: () => of(true) },
       });
@@ -89,7 +89,7 @@ describe("End User Notification Center Service", () => {
       expect(result).toBe(true);
     });
 
-    it("should return false for custom nudge service VaultOnboardingNudgesServices.shouldShowNudge$", async () => {
+    it("should return false, the proper value for the custom nudge service shouldShowNudge$", async () => {
       TestBed.overrideProvider(VaultOnboardingNudgesService, {
         useValue: { shouldShowNudge$: () => of(false) },
       });

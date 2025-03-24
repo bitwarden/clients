@@ -14,7 +14,9 @@ import { VaultOnboardingNudgesService } from "./custom-nudges-services/vault-onb
  * Enum to list the various nudge types, to be used by components/badges to show/hide the nudge
  */
 export enum VaultNudgeType {
-  /** Nudge to show when user has no items in their vault */
+  /** Nudge to show when user has no items in their vault
+   * Add future nudges here
+   */
   HasVaultItems = "has-vault-items",
   IntroCarouselDismissal = "intro-carousel-dismissal",
 }
@@ -37,7 +39,7 @@ export interface SingleNudgeService {
 }
 
 /**
- * The basic implementation of a nudge service. Simply stores the dismissed state in the user's state.
+ * Default implementation for nudges. Set and Show Nudge dismissed state
  */
 @Injectable({
   providedIn: "root",
