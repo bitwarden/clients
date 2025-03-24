@@ -165,6 +165,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // [Admin Request Flow State Management] Check cached auth request
     const existingAdminAuthRequest = await this.reloadCachedAdminAuthRequest(userId);
 
     if (existingAdminAuthRequest) {
