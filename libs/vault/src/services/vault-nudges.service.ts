@@ -2,9 +2,9 @@ import { inject, Injectable } from "@angular/core";
 import { map, Observable } from "rxjs";
 
 import {
-  BANNERS_DISMISSED_DISK,
   StateProvider,
   UserKeyDefinition,
+  VAULT_NUDGES_DISK,
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
@@ -22,7 +22,7 @@ export enum VaultNudgeType {
 }
 
 export const VAULT_NUDGE_DISMISSED_DISK_KEY = new UserKeyDefinition<VaultNudgeType[]>(
-  BANNERS_DISMISSED_DISK,
+  VAULT_NUDGES_DISK,
   "vaultNudgeDismissed",
   {
     deserializer: (nudgeDismissed) => nudgeDismissed,
