@@ -3471,16 +3471,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "windows"
-version = "0.59.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f919aee0a93304be7f62e8e5027811bbba96bcb1de84d6618be56e43f8a32a1"
-dependencies = [
- "windows-core 0.59.0",
- "windows-targets 0.53.0",
-]
-
-[[package]]
 name = "windows-core"
 version = "0.57.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3803,7 +3793,7 @@ dependencies = [
  "bindgen",
  "ciborium",
  "hex",
- "windows 0.59.0",
+ "windows 0.58.0",
  "windows-core 0.59.0",
 ]
 
