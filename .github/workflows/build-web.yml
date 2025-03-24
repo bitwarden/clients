@@ -234,6 +234,22 @@ jobs:
           push: true
           tags: ${{ steps.image-name.outputs.name }}
 
+      - name: Zip project
+        working-directory: apps/web
+        run: |
+          mkdir build
+          docker run --rm --platform linux/amd64 --volume $(pwd)/build:/temp --entrypoint bash \
+            ${{ steps.image-name.outputs.name }} -c "cp -r ./ /temp"
+
+          zip -r web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip build
+
+      - name: Upload ${{ matrix.artifact_name }} artifact
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+        with:
+          name: web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip
+          path: apps/web/web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip
+          if-no-files-found: error
+
       - name: Install Cosign
         if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
         uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
