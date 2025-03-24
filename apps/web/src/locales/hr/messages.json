@@ -6,7 +6,7 @@
     "message": "Kritične aplikacije"
   },
   "noCriticalAppsAtRisk": {
-    "message": "No critical applications at risk"
+    "message": "Nema kritičnih aplikacija u opasnosti"
   },
   "accessIntelligence": {
     "message": "Pristup inteligenciji"
@@ -202,7 +202,7 @@
     "message": "Bilješke"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Privatna bilješka"
   },
   "note": {
     "message": "Bilješka"
@@ -429,7 +429,7 @@
     "message": "Povuci za sortiranje"
   },
   "dragToReorder": {
-    "message": "Drag to reorder"
+    "message": "Povuci za premještanje"
   },
   "cfTypeText": {
     "message": "Tekst"
@@ -474,7 +474,7 @@
     "message": "Uredi mapu"
   },
   "editWithName": {
-    "message": "Edit $ITEM$: $NAME$",
+    "message": "Uredi $ITEM$: $NAME$",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -1037,7 +1037,7 @@
     "message": "Ne"
   },
   "location": {
-    "message": "Location"
+    "message": "Lokacija"
   },
   "loginOrCreateNewAccount": {
     "message": "Prijavi se ili stvori novi račun za pristup svojem sigurnom trezoru."
@@ -1175,13 +1175,13 @@
     "message": "Prijavi se u Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Unesi kôd poslan e-poštom"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Unesi kôd iz svoje aplikacije za autentifikaciju"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Za autentifikaciju dodirni svoj YubiKey"
   },
   "authenticationTimeout": {
     "message": "Istek vremena za autentifikaciju"
@@ -1190,7 +1190,7 @@
     "message": "Sesija za autentifikaciju je istekla. Ponovi proces prijave."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Potvrdi svoj identitet"
   },
   "weDontRecognizeThisDevice": {
     "message": "Ne prepoznajemo ovaj uređaj. Za potvrdu identiteta unesi kôd poslan e-poštom."
@@ -1460,7 +1460,7 @@
     "message": "Zapamti me"
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "Ne pitaj na ovom uređaju idućih 30 dana"
   },
   "sendVerificationCodeEmailAgain": {
     "message": "Ponovno slanje kontrolnog koda e-poštom"
@@ -1469,11 +1469,11 @@
     "message": "Koristiti drugi način prijave dvostrukom autentifikacijom"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Odaberi drugi način",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "Koristi kôd za oporavak"
   },
   "insertYubiKey": {
     "message": "Umetni svoj YubiKey u USB priključak računala, a zatim dodirni njegovu tipku."
@@ -1494,7 +1494,7 @@
     "message": "Mogućnosti prijave dvostrukom autentifikacijom"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "Odaberi način prijave dvostrukom autentifikacijom"
   },
   "recoveryCodeDesc": {
     "message": "Izgubljen je pristup uređaju za prijavu dvostrukom autentifikacijom? Koristi svoj kôd za oporavak za onemogućavanje svih pružatelja usluga prijave dvostrukom autentifikacijom na svom računu."
@@ -1539,7 +1539,7 @@
     "message": "(migrirano s FIDO)"
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "Otvori u novoj kartici"
   },
   "emailTitle": {
     "message": "E-pošta"
@@ -2237,7 +2237,7 @@
     "message": "Opozovi pristup"
   },
   "revoke": {
-    "message": "Revoke"
+    "message": "Opozovi"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Ovaj pružatelj prijave dvostrukom autentifikacijom je omogućen na tvojem računu."
@@ -4097,10 +4097,10 @@
     "message": "Koristiš nepodržani preglednik. Web trezor možda neće ispravno raditi."
   },
   "youHaveAPendingLoginRequest": {
-    "message": "You have a pending login request from another device."
+    "message": "Na čekanju je zahtjev za prijavu s drugog uređaja."
   },
   "reviewLoginRequest": {
-    "message": "Review login request"
+    "message": "Pregledaj zahtjev za prijavu"
   },
   "freeTrialEndPromptCount": {
     "message": "Besplatno probno razdoblje završava za $COUNT$ dan/a.",
@@ -4491,7 +4491,7 @@
     "message": "Ažuriranje ključa za šifriranje ne može se nastaviti"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Uredi $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4500,7 +4500,7 @@
     }
   },
   "reorderToggleButton": {
-    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "message": "Ponovno poredaj $LABEL$. Koristi tipke sa strelicom za pomicanje stavke gore ili dolje.",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4509,7 +4509,7 @@
     }
   },
   "reorderFieldUp": {
-    "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
+    "message": "$LABEL$ pomaknuto gore, pozicija $INDEX$ od $LENGTH$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4526,7 +4526,7 @@
     }
   },
   "reorderFieldDown": {
-    "message": "$LABEL$ moved down, position $INDEX$ of $LENGTH$",
+    "message": "$LABEL$ pomaknuto dolje, pozicija $INDEX$ od$LENGTH$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4814,7 +4814,7 @@
     "message": "Postavi pravila sigurnosti koja mora zadovoljiti glavna lozinka."
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "Ocjena jačine lozinke: $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -5103,14 +5103,14 @@
     "message": "Pravilo neće biti primjenjeno na Vlasnike i Administratore."
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "Ograniči broj pogleda"
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "Nakon dosegnutog broja, nitko neće moći pogledati Send.",
     "description": "Displayed under the limit views field on Send"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "Preostalo pogleda: $ACCESSCOUNT$",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -5120,11 +5120,11 @@
     }
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Detalji Senda",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
-    "message": "Text to share"
+    "message": "Tekst za dijeljenje"
   },
   "sendTypeFile": {
     "message": "Datoteka"
@@ -5133,7 +5133,7 @@
     "message": "Tekst"
   },
   "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
+    "message": "Dodaj neobaveznu lozinku za pristup ovom Sendu.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
@@ -5161,14 +5161,14 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Are you sure you want to permanently delete this Send?",
+    "message": "Sigurno želiš trajno izbrisati ovaj Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Datum brisanja"
   },
   "deletionDateDescV2": {
-    "message": "The Send will be permanently deleted on this date.",
+    "message": "Send će na ovaj datum biti trajno izbrisan.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5218,7 +5218,7 @@
     "message": "Čeka brisanje"
   },
   "hideTextByDefault": {
-    "message": "Hide text by default"
+    "message": "Zadano sakrij tekst"
   },
   "expired": {
     "message": "Isteklo"
@@ -5689,7 +5689,7 @@
     "message": "Došlo je do greške kod spremanja vaših datuma isteka i brisanja."
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "Sakriti adresu e-pošte od primatelja."
   },
   "webAuthnFallbackMsg": {
     "message": "Za ovjeru tvoje 2FA, odaberi donju tipku."
@@ -5698,10 +5698,10 @@
     "message": "Ovjeri WebAuthn"
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "Pročitaj sigurnosni ključ"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Awaiting security key interaction..."
+    "message": "Čekanje na interakciju sa sigurnosnim ključem..."
   },
   "webAuthnNotSupported": {
     "message": "WebAuthn nije podržan u ovom pregledniku."
@@ -6997,7 +6997,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ je odbio tvoj zahtjev. Obrati se svom pružatelju usluga za pomoć.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -7007,7 +7007,7 @@
     }
   },
   "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ je odbio tvoj zahtjev: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -7250,10 +7250,10 @@
     "message": "Za tvoj račun je potrebna Duo dvostruka autentifikacija."
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+    "message": "Za tvoj je račun potrebna Duo prijava u dva koraka. Za dovršetak prijave, slijedi daljnje korake."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Follow the steps below to finish logging in."
+    "message": "Prati korake za dovršetak prijave."
   },
   "launchDuo": {
     "message": "Pokreni Duo"
@@ -9339,13 +9339,13 @@
     "message": "Konfiguriraj upravljanje uređajima za Bitwarden pomoću vodiča za implementaciju za svoju platformu."
   },
   "deviceIdMissing": {
-    "message": "Device ID is missing"
+    "message": "Nedostaje ID uređaja"
   },
   "deviceTypeMissing": {
-    "message": "Device type is missing"
+    "message": "Nedostaje vrsta uređaja"
   },
   "deviceCreationDateMissing": {
-    "message": "Device creation date is missing"
+    "message": "Nedostaje datum stvaranja uređaja"
   },
   "desktopRequired": {
     "message": "Potrebno stolno računalo"
@@ -9847,13 +9847,13 @@
     "message": "Saznaj više o Bitwarden API"
   },
   "fileSend": {
-    "message": "File Send"
+    "message": "Send datoteke"
   },
   "fileSends": {
     "message": "Send datoteke"
   },
   "textSend": {
-    "message": "Text Send"
+    "message": "Send teksta"
   },
   "textSends": {
     "message": "Send tekstovi"
@@ -10349,34 +10349,34 @@
     "message": "Naziv organizacije ne može biti duži od 50 znakova."
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "Unesena lozinka nije ispravna."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "Uvoz"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "Potvrdi lozinku"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Enter the password for the SSH key."
+    "message": "Unesi lozinku za SSH ključ."
   },
   "enterSshKeyPassword": {
-    "message": "Enter password"
+    "message": "Unesi lozinku"
   },
   "invalidSshKey": {
-    "message": "The SSH key is invalid"
+    "message": "SSH ključ nije valjan"
   },
   "sshKeyTypeUnsupported": {
-    "message": "The SSH key type is not supported"
+    "message": "Tip SSH ključa nije podržan"
   },
   "importSshKeyFromClipboard": {
-    "message": "Import key from clipboard"
+    "message": "Uvezi ključ iz međuspremnika"
   },
   "sshKeyImported": {
-    "message": "SSH key imported successfully"
+    "message": "SSH ključ uspješno uvezen"
   },
   "copySSHPrivateKey": {
-    "message": "Copy private key"
+    "message": "Kopiraj privatni ključ"
   },
   "openingExtension": {
     "message": "Otvaranje Bitwarden proširenja preglednika"
@@ -10518,16 +10518,16 @@
     "message": "Dodijeljene licence premašuju dostupne licence."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "Promijeni rizičnu lozinku"
   },
   "removeUnlockWithPinPolicyTitle": {
-    "message": "Remove Unlock with PIN"
+    "message": "Ukloni otključavanje PIN-om"
   },
   "removeUnlockWithPinPolicyDesc": {
-    "message": "Do not allow members to unlock their account with a PIN."
+    "message": "Ne dozvoli članovima otključavanje računa PIN-om."
   },
   "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",
+    "message": "$PRODUCT_TYPE$ planovi nemaju pristup stvarnim zapisima događaja",
     "placeholders": {
       "product_type": {
         "content": "$1",
@@ -10536,15 +10536,15 @@
     }
   },
   "upgradeForFullEvents": {
-    "message": "Get full access to organization event logs by upgrading to a Teams or Enterprise plan."
+    "message": "Omogući puni pristup zapisnicima događaja organizacije nadogradnjom na plan Teams ili Enterprise."
   },
   "upgradeEventLogTitle": {
-    "message": "Upgrade for real event log data"
+    "message": "Nadogradi za stvarne podatke dnevnika događaja"
   },
   "upgradeEventLogMessage": {
-    "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
+    "message": "Ovi događaji su samo primjeri i ne odražavaju stvarne događaje unutar tvoje Bitwarden organizacije."
   },
   "cannotCreateCollection": {
-    "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
+    "message": "Besplatne organizacije mogu imati do 2 zbirke. Nadogradi na plaćeni plan za dodavanje više zbirki."
   }
 }
