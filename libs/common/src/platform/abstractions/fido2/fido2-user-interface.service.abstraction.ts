@@ -82,7 +82,7 @@ export abstract class Fido2UserInterfaceSession {
    *
    * @param params The parameters to use when asking the user to pick a credential.
    * @param abortController An abort controller that can be used to cancel/close the session.
-   * @returns The ID of the cipher that contains the credentials the user picked.
+   * @returns The ID of the cipher that contains the credentials the user picked. If not cipher was picked, return cipherId = undefined to to let the authenticator throw the error.
    */
   pickCredential: (
     params: PickCredentialParams,
