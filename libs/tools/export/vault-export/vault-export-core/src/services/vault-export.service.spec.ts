@@ -283,23 +283,23 @@ describe("VaultExportService", () => {
 
       it("has a mac property", async () => {
         encryptService.encrypt.mockResolvedValue(mac);
+
         exportedVault = await exportService.getPasswordProtectedExport(password);
 
         expect(typeof exportedVault.data).toBe("string");
         exportString = (exportedVault as ExportedVaultAsString).data;
         exportObject = JSON.parse(exportString);
-
         expect(exportObject.encKeyValidation_DO_NOT_EDIT).toEqual(mac.encryptedString);
       });
 
       it("has data property", async () => {
         encryptService.encrypt.mockResolvedValue(data);
+
         exportedVault = await exportService.getPasswordProtectedExport(password);
 
         expect(typeof exportedVault.data).toBe("string");
         exportString = (exportedVault as ExportedVaultAsString).data;
         exportObject = JSON.parse(exportString);
-
         expect(exportObject.data).toEqual(data.encryptedString);
       });
 
@@ -315,7 +315,9 @@ describe("VaultExportService", () => {
 
   it("exported unencrypted object contains folders", async () => {
     cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews.slice(0, 1));
+
     const actual = await exportService.getExport("json");
+
     expect(typeof actual.data).toBe("string");
     const exportedData = actual as ExportedVaultAsString;
     expectEqualFolderViews(UserFolderViews, exportedData.data);
@@ -323,7 +325,9 @@ describe("VaultExportService", () => {
 
   it("exported encrypted json contains folders", async () => {
     cipherService.getAll.mockResolvedValue(UserCipherDomains.slice(0, 1));
+
     const actual = await exportService.getExport("encrypted_json");
+
     expect(typeof actual.data).toBe("string");
     const exportedData = actual as ExportedVaultAsString;
     expectEqualFolders(UserFolders, exportedData.data);

@@ -4733,15 +4733,6 @@
   "nothingSelected": {
     "message": "Hiçbir şey seçmediniz."
   },
-  "movedItemsToOrg": {
-    "message": "Selected items moved to $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
-  },
   "itemsMovedToOrg": {
     "message": "Kayıtlar $ORGNAME$ kuruluşuna taşındı",
     "placeholders": {

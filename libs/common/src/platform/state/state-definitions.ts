@@ -131,6 +131,10 @@ export const THEMING_DISK = new StateDefinition("theming", "disk", { web: "disk-
 export const TRANSLATION_DISK = new StateDefinition("translation", "disk", { web: "disk-local" });
 export const ANIMATION_DISK = new StateDefinition("animation", "disk");
 export const TASK_SCHEDULER_DISK = new StateDefinition("taskScheduler", "disk");
+export const EXTENSION_INITIAL_INSTALL_DISK = new StateDefinition(
+  "extensionInitialInstall",
+  "disk",
+);
 
 // Design System
 

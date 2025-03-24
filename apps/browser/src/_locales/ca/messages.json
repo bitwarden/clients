@@ -4733,15 +4733,6 @@
   "nothingSelected": {
     "message": "No heu seleccionat res."
   },
-  "movedItemsToOrg": {
-    "message": "Els elements seleccionats s'han desplaçat a $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
-  },
   "itemsMovedToOrg": {
     "message": "S'han desplaçat elements a $ORGNAME$",
     "placeholders": {

@@ -4733,15 +4733,6 @@
   "nothingSelected": {
     "message": "Nekas nav atlasīts."
   },
-  "movedItemsToOrg": {
-    "message": "Atzīmētie vienumi pārvietoti uz $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
-  },
   "itemsMovedToOrg": {
     "message": "Vienumi pārvietoti uz $ORGNAME$",
     "placeholders": {
