@@ -274,6 +274,7 @@
         "webpack-node-externals",
         "widestring",
         "windows",
+        "windows-future",
         "windows-registry",
         "zbus",
         "zbus_polkit",
