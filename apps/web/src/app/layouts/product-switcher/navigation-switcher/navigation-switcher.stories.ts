@@ -10,6 +10,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { LayoutComponent, NavigationModule } from "@bitwarden/components";
@@ -68,6 +69,12 @@ class MockAccountService implements Partial<AccountService> {
   });
 }
 
+class MockPlatformUtilsService implements Partial<PlatformUtilsService> {
+  isSelfHost() {
+    return false;
+  }
+}
+
 @Component({
   selector: "story-layout",
   template: `<ng-content></ng-content>`,
@@ -105,6 +112,7 @@ export default {
         { provide: AccountService, useClass: MockAccountService },
         { provide: ProviderService, useClass: MockProviderService },
         { provide: SyncService, useClass: MockSyncService },
+        { provide: PlatformUtilsService, useClass: MockPlatformUtilsService },
         ProductSwitcherService,
         {
           provide: I18nPipe,

@@ -29,6 +29,8 @@ import { TwoFactorProviders } from "@bitwarden/common/auth/services/two-factor.s
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { DialogService } from "@bitwarden/components";
 
@@ -52,6 +54,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
   organization: Organization;
   providers: any[] = [];
   canAccessPremium$: Observable<boolean>;
+  recoveryCodeWarningMessage: string;
   showPolicyWarning = false;
   loading = true;
   modal: ModalRef;
@@ -70,6 +73,8 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
     protected policyService: PolicyService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
     protected accountService: AccountService,
+    protected configService: ConfigService,
+    protected i18nService: I18nService,
   ) {
     this.canAccessPremium$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
@@ -79,6 +84,8 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
+    this.recoveryCodeWarningMessage = this.i18nService.t("yourSingleUseRecoveryCode");
+
     for (const key in TwoFactorProviders) {
       // eslint-disable-next-line
       if (!TwoFactorProviders.hasOwnProperty(key)) {

@@ -2,23 +2,25 @@
 // @ts-strict-ignore
 import { DOCUMENT } from "@angular/common";
 import { Component, Inject, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
 import * as jq from "jquery";
 import { Subject, filter, firstValueFrom, map, takeUntil, timeout } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
+import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -45,6 +47,7 @@ import {
   SendOptionsPolicy,
   SingleOrgPolicy,
   TwoFactorAuthenticationPolicy,
+  RemoveUnlockWithPinPolicy,
 } from "./admin-console/organizations/policies";
 
 const BroadcasterSubscriptionId = "AppComponent";
@@ -94,7 +97,10 @@ export class AppComponent implements OnDestroy, OnInit {
     private apiService: ApiService,
     private appIdService: AppIdService,
     private processReloadService: ProcessReloadServiceAbstraction,
-  ) {}
+    private deviceTrustToastService: DeviceTrustToastService,
+  ) {
+    this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
+  }
 
   ngOnInit() {
     this.i18nService.locale$.pipe(takeUntil(this.destroy$)).subscribe((locale) => {
@@ -172,8 +178,6 @@ export class AppComponent implements OnDestroy, OnInit {
               type: "success",
             });
             if (premiumConfirmed) {
-              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               await this.router.navigate(["settings/subscription/premium"]);
             }
             break;
@@ -255,6 +259,7 @@ export class AppComponent implements OnDestroy, OnInit {
     this.policyListService.addPolicies([
       new TwoFactorAuthenticationPolicy(),
       new MasterPasswordPolicy(),
+      new RemoveUnlockWithPinPolicy(),
       new ResetPasswordPolicy(),
       new PasswordGeneratorPolicy(),
       new SingleOrgPolicy(),
@@ -307,7 +312,7 @@ export class AppComponent implements OnDestroy, OnInit {
 
     await this.stateEventRunnerService.handleEvent("logout", userId);
 
-    await this.searchService.clearIndex();
+    await this.searchService.clearIndex(userId);
     this.authService.logOut(async () => {
       await this.stateService.clean({ userId: userId });
       await this.accountService.clean(userId);
@@ -357,12 +362,8 @@ export class AppComponent implements OnDestroy, OnInit {
 
   private idleStateChanged() {
     if (this.isIdle) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.notificationsService.disconnectFromInactivity();
     } else {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.notificationsService.reconnectFromActivity();
     }
   }

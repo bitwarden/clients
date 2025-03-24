@@ -71,7 +71,7 @@ describe("vault filter service", () => {
     policyService.policyAppliesToActiveUser$
       .calledWith(PolicyType.SingleOrg)
       .mockReturnValue(singleOrgPolicy);
-    cipherService.cipherViews$ = cipherViews;
+    cipherService.cipherViews$.mockReturnValue(cipherViews);
 
     vaultFilterService = new VaultFilterService(
       organizationService,

@@ -22,6 +22,8 @@ import { Router } from "@angular/router";
 import { firstValueFrom, Observable, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherId } from "@bitwarden/common/types/guid";
@@ -244,6 +246,12 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
   disableSectionMargin: boolean = false;
 
   /**
+   * Remove the description margin
+   */
+  @Input({ transform: booleanAttribute })
+  disableDescriptionMargin: boolean = false;
+
+  /**
    * The tooltip text for the organization icon for ciphers that belong to an organization.
    * @param cipher
    */
@@ -265,6 +273,7 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
     private router: Router,
     private platformUtilsService: PlatformUtilsService,
     private dialogService: DialogService,
+    private accountService: AccountService,
   ) {}
 
   ngOnInit(): void {
@@ -311,7 +320,8 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
       this.viewCipherTimeout = null;
     }
 
-    await this.cipherService.updateLastLaunchedDate(cipher.id);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.cipherService.updateLastLaunchedDate(cipher.id, activeUserId);
 
     await BrowserApi.createNewTab(cipher.login.launchUri);
 

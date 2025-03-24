@@ -27,7 +27,7 @@
       #reinstateBtn
       (click)="reinstate()"
       [appApiAction]="reinstatePromise"
-      [disabled]="$any(reinstateBtn).loading"
+      [disabled]="$any(reinstateBtn).loading()"
     >
       {{ "reinstateSubscription" | i18n }}
     </button>
@@ -109,7 +109,7 @@
         class="tw-ml-auto"
         (click)="cancelSubscription()"
         [appApiAction]="cancelPromise"
-        [disabled]="$any(cancelBtn).loading"
+        [disabled]="$any(cancelBtn).loading()"
         *ngIf="subscription && !subscription.cancelled && !subscriptionMarkedForCancel"
       >
         {{ "cancelSubscription" | i18n }}

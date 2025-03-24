@@ -19,6 +19,7 @@ import {
   PinService,
   PinServiceAbstraction,
   UserDecryptionOptionsService,
+  SsoUrlService,
 } from "@bitwarden/auth/common";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
@@ -33,19 +34,16 @@ import { ProviderApiService } from "@bitwarden/common/admin-console/services/pro
 import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import { MasterPasswordApiService as MasterPasswordApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import {
   AccountServiceImplementation,
   getUserId,
 } from "@bitwarden/common/auth/services/account.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
-import { DeviceTrustService } from "@bitwarden/common/auth/services/device-trust.service.implementation";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
-import { KeyConnectorService } from "@bitwarden/common/auth/services/key-connector.service";
-import { MasterPasswordService } from "@bitwarden/common/auth/services/master-password/master-password.service";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/services/master-password/master-password-api.service.implementation";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/services/two-factor.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
@@ -63,6 +61,18 @@ import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/bill
 import { ClientType } from "@bitwarden/common/enums";
 import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import { FallbackBulkEncryptService } from "@bitwarden/common/key-management/crypto/services/fallback-bulk-encrypt.service";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
+import {
+  DefaultVaultTimeoutService,
+  DefaultVaultTimeoutSettingsService,
+  VaultTimeoutService,
+  VaultTimeoutSettingsService,
+  VaultTimeoutStringType,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
@@ -121,8 +131,6 @@ import { AuditService } from "@bitwarden/common/services/audit.service";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
 import { SearchService } from "@bitwarden/common/services/search.service";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
-import { VaultTimeoutService } from "@bitwarden/common/services/vault-timeout/vault-timeout.service";
 import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
@@ -131,7 +139,6 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import {
   CipherAuthorizationService,
@@ -274,6 +281,8 @@ export class ServiceContainer {
   sdkService: SdkService;
   sdkLoadService: SdkLoadService;
   cipherAuthorizationService: CipherAuthorizationService;
+  ssoUrlService: SsoUrlService;
+  masterPasswordApiService: MasterPasswordApiServiceAbstraction;
 
   constructor() {
     let p = null;
@@ -455,11 +464,12 @@ export class ServiceContainer {
 
     this.biometricStateService = new DefaultBiometricStateService(this.stateProvider);
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(this.stateProvider);
+    this.ssoUrlService = new SsoUrlService();
 
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
     this.policyService = new PolicyService(this.stateProvider, this.organizationService);
 
-    this.vaultTimeoutSettingsService = new VaultTimeoutSettingsService(
+    this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
       this.pinService,
       this.userDecryptionOptionsService,
@@ -707,7 +717,7 @@ export class ServiceContainer {
 
     const biometricService = new CliBiometricsService();
 
-    this.vaultTimeoutService = new VaultTimeoutService(
+    this.vaultTimeoutService = new DefaultVaultTimeoutService(
       this.accountService,
       this.masterPasswordService,
       this.cipherService,
@@ -757,7 +767,7 @@ export class ServiceContainer {
       this.stateProvider,
     );
 
-    this.totpService = new TotpService(this.cryptoFunctionService, this.logService);
+    this.totpService = new TotpService(this.sdkService);
 
     this.importApiService = new ImportApiService(this.apiService);
 
@@ -771,6 +781,7 @@ export class ServiceContainer {
       this.encryptService,
       this.pinService,
       this.accountService,
+      this.sdkService,
     );
 
     this.individualExportService = new IndividualVaultExportService(
@@ -832,7 +843,10 @@ export class ServiceContainer {
       this.collectionService,
       this.organizationService,
       this.accountService,
+      this.configService,
     );
+
+    this.masterPasswordApiService = new MasterPasswordApiService(this.apiService, this.logService);
   }
 
   async logout() {
@@ -862,7 +876,7 @@ export class ServiceContainer {
       return;
     }
 
-    await this.sdkLoadService.load();
+    await this.sdkLoadService.loadAndInit();
     await this.storageService.init();
     await this.stateService.init();
     this.containerService.attachToGlobal(global);

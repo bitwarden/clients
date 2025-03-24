@@ -7,6 +7,8 @@ import { Component, Inject } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ButtonModule, DialogService } from "@bitwarden/components";
+import { AlgorithmInfo } from "@bitwarden/generator-core";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
 import { PopupFooterComponent } from "../../../../../platform/popup/layout/popup-footer.component";
@@ -15,6 +17,7 @@ import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-p
 
 export interface GeneratorDialogParams {
   type: "password" | "username";
+  uri?: string;
 }
 
 export interface GeneratorDialogResult {
@@ -38,13 +41,12 @@ export enum GeneratorDialogAction {
     CommonModule,
     CipherFormGeneratorComponent,
     ButtonModule,
+    I18nPipe,
   ],
 })
 export class VaultGeneratorDialogComponent {
-  protected title = this.i18nService.t(this.isPassword ? "passwordGenerator" : "usernameGenerator");
-  protected selectButtonText = this.i18nService.t(
-    this.isPassword ? "useThisPassword" : "useThisUsername",
-  );
+  protected selectButtonText: string | undefined;
+  protected titleKey = this.isPassword ? "passwordGenerator" : "usernameGenerator";
 
   /**
    * Whether the dialog is generating a password/passphrase. If false, it is generating a username.
@@ -60,11 +62,15 @@ export class VaultGeneratorDialogComponent {
    */
   protected generatedValue: string = "";
 
+  protected uri: string;
+
   constructor(
     @Inject(DIALOG_DATA) protected params: GeneratorDialogParams,
     private dialogRef: DialogRef<GeneratorDialogResult>,
     private i18nService: I18nService,
-  ) {}
+  ) {
+    this.uri = params.uri;
+  }
 
   /**
    * Close the dialog without selecting a value.
@@ -86,6 +92,16 @@ export class VaultGeneratorDialogComponent {
   onValueGenerated(value: string) {
     this.generatedValue = value;
   }
+
+  onAlgorithmSelected = (selected?: AlgorithmInfo) => {
+    if (selected) {
+      this.selectButtonText = selected.useGeneratedValue;
+    } else {
+      // default to email
+      this.selectButtonText = this.i18nService.t("useThisEmail");
+    }
+    this.generatedValue = undefined;
+  };
 
   /**
    * Opens the vault generator dialog in a full screen dialog.

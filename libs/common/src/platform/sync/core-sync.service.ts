@@ -129,12 +129,18 @@ export abstract class CoreSyncService implements SyncService {
     return this.syncCompleted(false);
   }
 
-  async syncUpsertCipher(notification: SyncCipherNotification, isEdit: boolean): Promise<boolean> {
+  async syncUpsertCipher(
+    notification: SyncCipherNotification,
+    isEdit: boolean,
+    userId: UserId,
+  ): Promise<boolean> {
     this.syncStarted();
-    if (await this.stateService.getIsAuthenticated()) {
+
+    const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
+    if (authStatus >= AuthenticationStatus.Locked) {
       try {
         let shouldUpdate = true;
-        const localCipher = await this.cipherService.get(notification.id);
+        const localCipher = await this.cipherService.get(notification.id, userId);
         if (localCipher != null && localCipher.revisionDate >= notification.revisionDate) {
           shouldUpdate = false;
         }
@@ -182,7 +188,7 @@ export abstract class CoreSyncService implements SyncService {
         }
       } catch (e) {
         if (e != null && e.statusCode === 404 && isEdit) {
-          await this.cipherService.delete(notification.id);
+          await this.cipherService.delete(notification.id, userId);
           this.messageSender.send("syncedDeletedCipher", { cipherId: notification.id });
           return this.syncCompleted(true);
         }
@@ -191,10 +197,12 @@ export abstract class CoreSyncService implements SyncService {
     return this.syncCompleted(false);
   }
 
-  async syncDeleteCipher(notification: SyncCipherNotification): Promise<boolean> {
+  async syncDeleteCipher(notification: SyncCipherNotification, userId: UserId): Promise<boolean> {
     this.syncStarted();
-    if (await this.stateService.getIsAuthenticated()) {
-      await this.cipherService.delete(notification.id);
+
+    const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
+    if (authStatus >= AuthenticationStatus.Locked) {
+      await this.cipherService.delete(notification.id, userId);
       this.messageSender.send("syncedDeletedCipher", { cipherId: notification.id });
       return this.syncCompleted(true);
     }

@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-import { firstValueFrom, Subject, take, takeUntil, tap } from "rxjs";
+import { firstValueFrom, Subject, take, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -12,17 +12,16 @@ import {
   PasswordLoginCredentials,
 } from "@bitwarden/auth/common";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -30,6 +29,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import { UserId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -43,7 +43,7 @@ import {
 import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
 import { VaultIcon, WaveIcon } from "../icons";
 
-import { LoginComponentService } from "./login-component.service";
+import { LoginComponentService, PasswordPolicies } from "./login-component.service";
 
 const BroadcasterSubscriptionId = "LoginComponent";
 
@@ -72,7 +72,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   @ViewChild("masterPasswordInputRef") masterPasswordInputRef: ElementRef | undefined;
 
   private destroy$ = new Subject<void>();
-  private enforcedMasterPasswordOptions: MasterPasswordPolicyOptions | undefined = undefined;
   readonly Icons = { WaveIcon, VaultIcon };
 
   clientType: ClientType;
@@ -97,11 +96,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     return this.formGroup.controls.email;
   }
 
-  // Web properties
-  enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions | undefined;
-  policies: Policy[] | undefined;
-  showResetPasswordAutoEnrollWarning = false;
-
   // Desktop properties
   deferFocus: boolean | null = null;
 
@@ -125,7 +119,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private logService: LogService,
     private validationService: ValidationService,
-    private configService: ConfigService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
@@ -134,9 +127,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     // Add popstate listener to listen for browser back button clicks
     window.addEventListener("popstate", this.handlePopState);
-
-    // TODO: remove this when the UnauthenticatedExtensionUIRefresh feature flag is removed.
-    this.listenForUnauthUiRefreshFlagChanges();
 
     await this.defaultOnInit();
 
@@ -156,29 +146,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  private listenForUnauthUiRefreshFlagChanges() {
-    this.configService
-      .getFeatureFlag$(FeatureFlag.UnauthenticatedExtensionUIRefresh)
-      .pipe(
-        tap(async (flag) => {
-          // If the flag is turned OFF, we must force a reload to ensure the correct UI is shown
-          if (!flag) {
-            const uniqueQueryParams = {
-              ...this.activatedRoute.queryParams,
-              // adding a unique timestamp to the query params to force a reload
-              t: new Date().getTime().toString(), // Adding a unique timestamp as a query parameter
-            };
-
-            await this.router.navigate(["/"], {
-              queryParams: uniqueQueryParams,
-            });
-          }
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
   }
 
   submit = async (): Promise<void> => {
@@ -281,18 +248,39 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // User logged in successfully so execute side effects
     await this.loginSuccessHandlerService.run(authResult.userId);
+    this.loginEmailService.clearValues();
 
+    // Determine where to send the user next
     if (authResult.forcePasswordReset != ForceSetPasswordReason.None) {
-      this.loginEmailService.clearValues();
       await this.router.navigate(["update-temp-password"]);
       return;
     }
 
-    // If none of the above cases are true, proceed with login...
-    await this.evaluatePassword();
+    // TODO: PM-18269 - evaluate if we can combine this with the
+    // password evaluation done in the password login strategy.
+    // If there's an existing org invite, use it to get the org's password policies
+    // so we can evaluate the MP against the org policies
+    if (this.loginComponentService.getOrgPoliciesFromOrgInvite) {
+      const orgPolicies: PasswordPolicies | null =
+        await this.loginComponentService.getOrgPoliciesFromOrgInvite();
 
-    this.loginEmailService.clearValues();
+      if (orgPolicies) {
+        // Since we have retrieved the policies, we can go ahead and set them into state for future use
+        // e.g., the update-password page currently only references state for policy data and
+        // doesn't fallback to pulling them from the server like it should if they are null.
+        await this.setPoliciesIntoState(authResult.userId, orgPolicies.policies);
+
+        const isPasswordChangeRequired = await this.isPasswordChangeRequiredByOrgPolicy(
+          orgPolicies.enforcedPasswordPolicyOptions,
+        );
+        if (isPasswordChangeRequired) {
+          await this.router.navigate(["update-password"]);
+          return;
+        }
+      }
+    }
 
     if (this.clientType === ClientType.Browser) {
       await this.router.navigate(["/tabs/vault"]);
@@ -301,63 +289,51 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected async launchSsoBrowserWindow(clientId: "browser" | "desktop"): Promise<void> {
-    const email = this.emailFormControl.value;
-    if (!email) {
-      this.logService.error("Email is required for SSO login");
-      return;
-    }
-    await this.loginComponentService.launchSsoBrowserWindow(email, clientId);
-  }
-
-  protected async evaluatePassword(): Promise<void> {
+  /**
+   * Checks if the master password meets the enforced policy requirements
+   * and if the user is required to change their password.
+   */
+  private async isPasswordChangeRequiredByOrgPolicy(
+    enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions,
+  ): Promise<boolean> {
     try {
-      // If we do not have any saved policies, attempt to load them from the service
-      if (this.enforcedMasterPasswordOptions == undefined) {
-        this.enforcedMasterPasswordOptions = await firstValueFrom(
-          this.policyService.masterPasswordPolicyOptions$(),
-        );
+      if (enforcedPasswordPolicyOptions == undefined) {
+        return false;
       }
 
-      if (this.requirePasswordChange()) {
-        await this.router.navigate(["update-password"]);
-        return;
+      // Note: we deliberately do not check enforcedPasswordPolicyOptions.enforceOnLogin
+      // as existing users who are logging in after getting an org invite should
+      // always be forced to set a password that meets the org's policy.
+      // Org Invite -> Registration also works this way for new BW users as well.
+
+      const masterPassword = this.formGroup.controls.masterPassword.value;
+
+      // Return false if masterPassword is null/undefined since this is only evaluated after successful login
+      if (!masterPassword) {
+        return false;
       }
+
+      const passwordStrength = this.passwordStrengthService.getPasswordStrength(
+        masterPassword,
+        this.formGroup.value.email ?? undefined,
+      )?.score;
+
+      return !this.policyService.evaluateMasterPassword(
+        passwordStrength,
+        masterPassword,
+        enforcedPasswordPolicyOptions,
+      );
     } catch (e) {
       // Do not prevent unlock if there is an error evaluating policies
       this.logService.error(e);
+      return false;
     }
   }
 
-  /**
-   * Checks if the master password meets the enforced policy requirements
-   * If not, returns false
-   */
-  private requirePasswordChange(): boolean {
-    if (
-      this.enforcedMasterPasswordOptions == undefined ||
-      !this.enforcedMasterPasswordOptions.enforceOnLogin
-    ) {
-      return false;
-    }
-
-    const masterPassword = this.formGroup.controls.masterPassword.value;
-
-    // Return false if masterPassword is null/undefined since this is only evaluated after successful login
-    if (!masterPassword) {
-      return false;
-    }
-
-    const passwordStrength = this.passwordStrengthService.getPasswordStrength(
-      masterPassword,
-      this.formGroup.value.email ?? undefined,
-    )?.score;
-
-    return !this.policyService.evaluateMasterPassword(
-      passwordStrength,
-      masterPassword,
-      this.enforcedMasterPasswordOptions,
-    );
+  private async setPoliciesIntoState(userId: UserId, policies: Policy[]): Promise<void> {
+    const policiesData: { [id: string]: PolicyData } = {};
+    policies.map((p) => (policiesData[p.id] = PolicyData.fromPolicy(p)));
+    await this.policyService.replace(policiesData, userId);
   }
 
   protected async startAuthRequestLogin(): Promise<void> {
@@ -528,12 +504,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private async defaultOnInit(): Promise<void> {
-    // If there's an existing org invite, use it to get the password policies
-    const orgPolicies = await this.loginComponentService.getOrgPolicies();
-
-    this.policies = orgPolicies?.policies;
-    this.showResetPasswordAutoEnrollWarning = orgPolicies?.isPolicyAndAutoEnrollEnabled ?? false;
-
     let paramEmailIsSet = false;
 
     const params = await firstValueFrom(this.activatedRoute.queryParams);
@@ -628,26 +598,26 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   /**
    * Handle the SSO button click.
-   * @param event - The event object.
    */
   async handleSsoClick() {
-    const isEmailValid = await this.validateEmail();
+    const email = this.formGroup.value.email;
 
+    // Make sure the email is valid
+    const isEmailValid = await this.validateEmail();
     if (!isEmailValid) {
       return;
     }
 
-    await this.saveEmailSettings();
-
-    if (this.clientType === ClientType.Web) {
-      await this.router.navigate(["/sso"], {
-        queryParams: { email: this.formGroup.value.email },
-      });
+    // Make sure the email is not empty, for type safety
+    if (!email) {
+      this.logService.error("Email is required for SSO");
       return;
     }
 
-    await this.launchSsoBrowserWindow(
-      this.clientType === ClientType.Browser ? "browser" : "desktop",
-    );
+    // Save the email configuration for the login component
+    await this.saveEmailSettings();
+
+    // Send the user to SSO, either through routing or through redirecting to the web app
+    await this.loginComponentService.redirectToSsoLogin(email);
   }
 }

@@ -82,7 +82,7 @@ export class PinService implements PinServiceAbstraction {
     private stateProvider: StateProvider,
   ) {}
 
-  async getPinKeyEncryptedUserKeyPersistent(userId: UserId): Promise<EncString> {
+  async getPinKeyEncryptedUserKeyPersistent(userId: UserId): Promise<EncString | null> {
     this.validateUserId(userId, "Cannot get pinKeyEncryptedUserKeyPersistent.");
 
     return EncString.fromJSON(
@@ -120,7 +120,7 @@ export class PinService implements PinServiceAbstraction {
     await this.stateProvider.setUserState(PIN_KEY_ENCRYPTED_USER_KEY_PERSISTENT, null, userId);
   }
 
-  async getPinKeyEncryptedUserKeyEphemeral(userId: UserId): Promise<EncString> {
+  async getPinKeyEncryptedUserKeyEphemeral(userId: UserId): Promise<EncString | null> {
     this.validateUserId(userId, "Cannot get pinKeyEncryptedUserKeyEphemeral.");
 
     return EncString.fromJSON(
@@ -191,7 +191,7 @@ export class PinService implements PinServiceAbstraction {
     }
   }
 
-  async getUserKeyEncryptedPin(userId: UserId): Promise<EncString> {
+  async getUserKeyEncryptedPin(userId: UserId): Promise<EncString | null> {
     this.validateUserId(userId, "Cannot get userKeyEncryptedPin.");
 
     return EncString.fromJSON(

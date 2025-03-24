@@ -75,6 +75,18 @@ const MINIMIZE_ON_COPY = new UserKeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "
   clearOn: [], // User setting, no need to clear
 });
 
+const IN_MODAL_MODE = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "inModalMode", {
+  deserializer: (b) => b,
+});
+
+const PREVENT_SCREENSHOTS = new KeyDefinition<boolean>(
+  DESKTOP_SETTINGS_DISK,
+  "preventScreenshots",
+  {
+    deserializer: (b) => b,
+  },
+);
+
 /**
  * Various settings for controlling application behavior specific to the desktop client.
  */
@@ -147,6 +159,13 @@ export class DesktopSettingsService {
 
   sshAgentEnabled$ = this.sshAgentEnabledState.state$.pipe(map(Boolean));
 
+  private readonly preventScreenshotState = this.stateProvider.getGlobal(PREVENT_SCREENSHOTS);
+
+  /**
+   * The application setting for whether or not to allow screenshots of the app.
+   */
+  preventScreenshots$ = this.preventScreenshotState.state$.pipe(map(Boolean));
+
   private readonly minimizeOnCopyState = this.stateProvider.getActive(MINIMIZE_ON_COPY);
 
   /**
@@ -155,12 +174,24 @@ export class DesktopSettingsService {
    */
   minimizeOnCopy$ = this.minimizeOnCopyState.state$.pipe(map(Boolean));
 
+  private readonly inModalModeState = this.stateProvider.getGlobal(IN_MODAL_MODE);
+
+  inModalMode$ = this.inModalModeState.state$.pipe(map(Boolean));
+
   constructor(private stateProvider: StateProvider) {
     this.window$ = this.windowState.state$.pipe(
       map((window) =>
         window != null && Object.keys(window).length > 0 ? window : new WindowState(),
       ),
     );
+  }
+
+  /**
+   * This is used to clear the setting on application start to make sure we don't end up
+   * stuck in modal mode if the application is force-closed in modal mode.
+   */
+  async resetInModalMode() {
+    await this.inModalModeState.update(() => false);
   }
 
   async setHardwareAcceleration(enabled: boolean) {
@@ -269,5 +300,21 @@ export class DesktopSettingsService {
    */
   async setMinimizeOnCopy(value: boolean, userId: UserId) {
     await this.stateProvider.getUser(userId, MINIMIZE_ON_COPY).update(() => value);
+  }
+
+  /**
+   * Sets the modal mode of the application. Setting this changes the windows-size and other properties.
+   * @param value `true` if the application is in modal mode, `false` if it is not.
+   */
+  async setInModalMode(value: boolean) {
+    await this.inModalModeState.update(() => value);
+  }
+
+  /**
+   * Sets the setting for whether or not the screenshot protection is enabled.
+   * @param value `true` if the screenshot protection is enabled, `false` if it is not.
+   */
+  async setPreventScreenshots(value: boolean) {
+    await this.preventScreenshotState.update(() => value);
   }
 }

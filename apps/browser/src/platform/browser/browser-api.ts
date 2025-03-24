@@ -504,7 +504,9 @@ export class BrowserApi {
    *
    * @param permissions - The permissions to check.
    */
-  static async permissionsGranted(permissions: string[]): Promise<boolean> {
+  static async permissionsGranted(
+    permissions: chrome.runtime.ManifestPermissions[],
+  ): Promise<boolean> {
     return new Promise((resolve) =>
       chrome.permissions.contains({ permissions }, (result) => resolve(result)),
     );
@@ -530,10 +532,15 @@ export class BrowserApi {
     win: Window & typeof globalThis,
   ): OperaSidebarAction | FirefoxSidebarAction | null {
     const deviceType = BrowserPlatformUtilsService.getDevice(win);
-    if (deviceType !== DeviceType.FirefoxExtension && deviceType !== DeviceType.OperaExtension) {
-      return null;
+    if (deviceType === DeviceType.FirefoxExtension) {
+      return browser.sidebarAction;
     }
-    return win.opr?.sidebarAction || browser.sidebarAction;
+
+    if (deviceType === DeviceType.OperaExtension) {
+      return win.opr?.sidebarAction;
+    }
+
+    return null;
   }
 
   static captureVisibleTab(): Promise<string> {
@@ -589,7 +596,7 @@ export class BrowserApi {
    * Identifies if the browser autofill settings are overridden by the extension.
    */
   static async browserAutofillSettingsOverridden(): Promise<boolean> {
-    const checkOverrideStatus = (details: chrome.types.ChromeSettingGetResultDetails) =>
+    const checkOverrideStatus = (details: chrome.types.ChromeSettingGetResult<boolean>) =>
       details.levelOfControl === "controlled_by_this_extension" && !details.value;
 
     const autofillAddressOverridden: boolean = await new Promise((resolve) =>
@@ -618,10 +625,10 @@ export class BrowserApi {
    *
    * @param value - Determines whether to enable or disable the autofill settings.
    */
-  static updateDefaultBrowserAutofillSettings(value: boolean) {
-    chrome.privacy.services.autofillAddressEnabled.set({ value });
-    chrome.privacy.services.autofillCreditCardEnabled.set({ value });
-    chrome.privacy.services.passwordSavingEnabled.set({ value });
+  static async updateDefaultBrowserAutofillSettings(value: boolean) {
+    await chrome.privacy.services.autofillAddressEnabled.set({ value });
+    await chrome.privacy.services.autofillCreditCardEnabled.set({ value });
+    await chrome.privacy.services.passwordSavingEnabled.set({ value });
   }
 
   /**

@@ -4,7 +4,7 @@ import { Router } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AsyncActionsModule, ButtonModule, DialogModule } from "@bitwarden/components";
-import { ImportComponent } from "@bitwarden/importer/ui";
+import { ImportComponent } from "@bitwarden/importer-ui";
 
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-footer.component";

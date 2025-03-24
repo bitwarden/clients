@@ -2,9 +2,8 @@ import { TestBed } from "@angular/core/testing";
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from "@angular/router";
 import { BehaviorSubject } from "rxjs";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -36,29 +35,40 @@ describe("NewDeviceVerificationNoticeGuard", () => {
   });
   const isSelfHost = jest.fn().mockReturnValue(false);
   const getProfileTwoFactorEnabled = jest.fn().mockResolvedValue(false);
-  const policyAppliesToActiveUser$ = jest.fn().mockReturnValue(new BehaviorSubject<boolean>(false));
   const noticeState$ = jest.fn().mockReturnValue(new BehaviorSubject(null));
+  const skipState$ = jest.fn().mockReturnValue(new BehaviorSubject(null));
   const getProfileCreationDate = jest.fn().mockResolvedValue(eightDaysAgo);
+  const hasMasterPasswordAndMasterKeyHash = jest.fn().mockResolvedValue(true);
+  const getUserSSOBound = jest.fn().mockResolvedValue(false);
+  const getUserSSOBoundAdminOwner = jest.fn().mockResolvedValue(false);
 
   beforeEach(() => {
     getFeatureFlag.mockClear();
     isSelfHost.mockClear();
     getProfileCreationDate.mockClear();
     getProfileTwoFactorEnabled.mockClear();
-    policyAppliesToActiveUser$.mockClear();
     createUrlTree.mockClear();
+    hasMasterPasswordAndMasterKeyHash.mockClear();
+    getUserSSOBound.mockClear();
+    getUserSSOBoundAdminOwner.mockClear();
+    skipState$.mockClear();
 
     TestBed.configureTestingModule({
       providers: [
         { provide: Router, useValue: { createUrlTree } },
         { provide: ConfigService, useValue: { getFeatureFlag } },
-        { provide: NewDeviceVerificationNoticeService, useValue: { noticeState$ } },
+        { provide: NewDeviceVerificationNoticeService, useValue: { noticeState$, skipState$ } },
         { provide: AccountService, useValue: { activeAccount$ } },
         { provide: PlatformUtilsService, useValue: { isSelfHost } },
-        { provide: PolicyService, useValue: { policyAppliesToActiveUser$ } },
+        { provide: UserVerificationService, useValue: { hasMasterPasswordAndMasterKeyHash } },
         {
           provide: VaultProfileService,
-          useValue: { getProfileCreationDate, getProfileTwoFactorEnabled },
+          useValue: {
+            getProfileCreationDate,
+            getProfileTwoFactorEnabled,
+            getUserSSOBound,
+            getUserSSOBoundAdminOwner,
+          },
         },
       ],
     });
@@ -90,7 +100,7 @@ describe("NewDeviceVerificationNoticeGuard", () => {
       expect(isSelfHost).not.toHaveBeenCalled();
       expect(getProfileTwoFactorEnabled).not.toHaveBeenCalled();
       expect(getProfileCreationDate).not.toHaveBeenCalled();
-      expect(policyAppliesToActiveUser$).not.toHaveBeenCalled();
+      expect(hasMasterPasswordAndMasterKeyHash).not.toHaveBeenCalled();
     });
   });
 
@@ -121,13 +131,6 @@ describe("NewDeviceVerificationNoticeGuard", () => {
     expect(await newDeviceGuard()).toBe(true);
   });
 
-  it("returns `true` SSO is required", async () => {
-    policyAppliesToActiveUser$.mockReturnValueOnce(new BehaviorSubject(true));
-
-    expect(await newDeviceGuard()).toBe(true);
-    expect(policyAppliesToActiveUser$).toHaveBeenCalledWith(PolicyType.RequireSso);
-  });
-
   it("returns `true` when the profile was created less than a week ago", async () => {
     const sixDaysAgo = new Date();
     sixDaysAgo.setDate(sixDaysAgo.getDate() - 6);
@@ -141,6 +144,65 @@ describe("NewDeviceVerificationNoticeGuard", () => {
     getProfileCreationDate.mockRejectedValueOnce(new Error("test"));
 
     expect(await newDeviceGuard()).toBe(true);
+  });
+
+  it("returns `true` when the skip state value is set to true", async () => {
+    skipState$.mockReturnValueOnce(new BehaviorSubject(true));
+
+    expect(await newDeviceGuard()).toBe(true);
+    expect(skipState$.mock.calls[0][0]).toBe("account-id");
+    expect(skipState$.mock.calls.length).toBe(1);
+  });
+
+  describe("SSO bound", () => {
+    beforeEach(() => {
+      getFeatureFlag.mockImplementation((key) => {
+        if (key === FeatureFlag.NewDeviceVerificationPermanentDismiss) {
+          return Promise.resolve(true);
+        }
+
+        return Promise.resolve(false);
+      });
+    });
+
+    afterAll(() => {
+      getFeatureFlag.mockReturnValue(false);
+    });
+
+    it('returns "true" when the user is SSO bound and not an admin or owner', async () => {
+      getUserSSOBound.mockResolvedValueOnce(true);
+      getUserSSOBoundAdminOwner.mockResolvedValueOnce(false);
+
+      expect(await newDeviceGuard()).toBe(true);
+    });
+
+    it('returns "true" when the user is an admin or owner of an SSO bound organization and has not logged in with their master password', async () => {
+      getUserSSOBound.mockResolvedValueOnce(true);
+      getUserSSOBoundAdminOwner.mockResolvedValueOnce(true);
+      hasMasterPasswordAndMasterKeyHash.mockResolvedValueOnce(false);
+
+      expect(await newDeviceGuard()).toBe(true);
+    });
+
+    it("shows notice when the user is an admin or owner of an SSO bound organization and logged in with their master password", async () => {
+      getUserSSOBound.mockResolvedValueOnce(true);
+      getUserSSOBoundAdminOwner.mockResolvedValueOnce(true);
+      hasMasterPasswordAndMasterKeyHash.mockResolvedValueOnce(true);
+
+      await newDeviceGuard();
+
+      expect(createUrlTree).toHaveBeenCalledWith(["/new-device-notice"]);
+    });
+
+    it("shows notice when the user that is not in an SSO bound organization", async () => {
+      getUserSSOBound.mockResolvedValueOnce(false);
+      getUserSSOBoundAdminOwner.mockResolvedValueOnce(false);
+      hasMasterPasswordAndMasterKeyHash.mockResolvedValueOnce(true);
+
+      await newDeviceGuard();
+
+      expect(createUrlTree).toHaveBeenCalledWith(["/new-device-notice"]);
+    });
   });
 
   describe("temp flag", () => {

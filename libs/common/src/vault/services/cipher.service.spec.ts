@@ -27,6 +27,7 @@ import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file
 import { FieldType } from "../enums";
 import { CipherRepromptType } from "../enums/cipher-reprompt-type";
 import { CipherType } from "../enums/cipher-type";
+import { CipherPermissionsApi } from "../models/api/cipher-permissions.api";
 import { CipherData } from "../models/data/cipher.data";
 import { Cipher } from "../models/domain/cipher";
 import { CipherCreateRequest } from "../models/request/cipher-create.request";
@@ -57,6 +58,7 @@ const cipherData: CipherData = {
   notes: "EncryptedString",
   creationDate: "2022-01-01T12:00:00.000Z",
   deletedDate: null,
+  permissions: new CipherPermissionsApi(),
   key: "EncKey",
   reprompt: CipherRepromptType.None,
   login: {
@@ -363,7 +365,8 @@ describe("Cipher Service", () => {
       configService.getFeatureFlag.mockResolvedValue(true);
       configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(true));
 
-      searchService.indexedEntityId$ = of(null);
+      searchService.indexedEntityId$.mockReturnValue(of(null));
+
       stateService.getUserId.mockResolvedValue(mockUserId);
 
       const keys = {
@@ -382,8 +385,16 @@ describe("Cipher Service", () => {
         Cipher1: cipher1,
         Cipher2: cipher2,
       });
-      cipherService.cipherViews$ = decryptedCiphers.pipe(map((ciphers) => Object.values(ciphers)));
-      cipherService.failedToDecryptCiphers$ = failedCiphers = new BehaviorSubject<CipherView[]>([]);
+      jest
+        .spyOn(cipherService, "cipherViews$")
+        .mockImplementation((userId: UserId) =>
+          decryptedCiphers.pipe(map((ciphers) => Object.values(ciphers))),
+        );
+
+      failedCiphers = new BehaviorSubject<CipherView[]>([]);
+      jest
+        .spyOn(cipherService, "failedToDecryptCiphers$")
+        .mockImplementation((userId: UserId) => failedCiphers);
 
       encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(32));
       encryptedKey = new EncString("Re-encrypted Cipher Key");

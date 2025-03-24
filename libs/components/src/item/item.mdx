@@ -1,4 +1,4 @@
-import { Meta, Story, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
 
 import * as stories from "./item.stories";
 
@@ -15,14 +15,14 @@ import { ItemModule } from "@bitwarden/components";
 It is a generic container that can be used for either standalone content, an alternative to tables,
 or to list nav links.
 
-<Story of={stories.Default} />
+<Canvas of={stories.Default} />
 
 <br />
 
 Items used within a parent `bit-layout` component will not have a border radius, since the
 `bit-layout` background is white.
 
-<Story of={stories.WithoutBorderRadius} />
+<Canvas of={stories.WithoutBorderRadius} />
 
 <br />
 <br />
@@ -49,7 +49,7 @@ The content can be a button, anchor, or static container.
 </bit-item>
 ```
 
-<Story of={stories.ContentTypes} />
+<Canvas of={stories.ContentTypes} />
 
 ### Content Slots
 
@@ -82,7 +82,7 @@ The content can be a button, anchor, or static container.
 </bit-item>
 ```
 
-<Story of={stories.ContentSlots} />
+<Canvas of={stories.ContentSlots} />
 
 ## Secondary Actions
 
@@ -129,19 +129,19 @@ This can be changed by passing `[truncate]="false"` to the `bit-item-content`.
 
 ### Truncation (Default)
 
-<Story of={stories.TextOverflowTruncate} />
+<Canvas of={stories.TextOverflowTruncate} />
 
 ### Wrap
 
-<Story of={stories.TextOverflowWrap} />
+<Canvas of={stories.TextOverflowWrap} />
 
 ## Item Groups
 
 Groups of items can be associated by wrapping them in the `<bit-item-group>`.
 
-<Story of={stories.MultipleActionList} />
+<Canvas of={stories.MultipleActionList} />
 
-<Story of={stories.SingleActionList} />
+<Canvas of={stories.SingleActionList} />
 
 ### A11y
 
@@ -162,4 +162,4 @@ Use `aria-label` or `aria-labelledby` to give groups an accessible name.
 
 ### Virtual Scrolling
 
-<Story of={stories.VirtualScrolling} />
+<Canvas of={stories.VirtualScrolling} />
