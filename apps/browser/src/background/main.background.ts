@@ -854,6 +854,7 @@ export default class MainBackground {
       this.configService,
       this.stateProvider,
       this.accountService,
+      this.logService,
     );
     this.folderService = new FolderService(
       this.keyService,
