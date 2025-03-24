@@ -879,9 +879,6 @@
   "filter": {
     "message": "Filtre"
   },
-  "moveSelectedToOrg": {
-    "message": "Desplaça la selecció a l'organització"
-  },
   "deleteSelected": {
     "message": "Suprimeix selecció"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Els elements seleccionats s'han desplaçat a $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "Trieu una organització a la qual vulgueu desplaçar aquest element. El trasllat a una organització transfereix la propietat de l'element a aquesta organització. Ja no sereu el propietari directe d'aquest element una vegada s'haja mogut."
   },
-  "moveManyToOrgDesc": {
-    "message": "Trieu una organització a la qual vulgueu desplaçar aquests elements. El trasllat a una organització transfereix la propietat dels elements a aquesta organització. Ja no sereu el propietari directe d'aquests elements una vegada s'hagen mogut."
-  },
   "collectionsDesc": {
     "message": "Editeu les col·leccions amb les què es comparteix aquest element. Només els usuaris de l'organització que tinguen accés a aquestes col·leccions podran veure'l."
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "Heu seleccionat $COUNT$ elements. $MOVEABLE_COUNT$ elements es poden desplaçar a una organització, $NONMOVEABLE_COUNT$ no.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },

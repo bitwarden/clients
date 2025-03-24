@@ -15,7 +15,8 @@ import { isCardExpired } from "@bitwarden/common/autofill/utils";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { CollectionId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, UserId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -87,6 +88,7 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
     private platformUtilsService: PlatformUtilsService,
     private changeLoginPasswordService: ChangeLoginPasswordService,
     private configService: ConfigService,
+    private cipherService: CipherService,
   ) {}
 
   async ngOnChanges() {
@@ -152,7 +154,12 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
 
     const userId = await firstValueFrom(this.activeUserId$);
 
-    if (this.cipher.edit && this.cipher.viewPassword) {
+    // Show Tasks for Manage and Edit permissions
+    // Using cipherService to see if user has access to cipher in a non-AC context to address with Edit Except Password permissions
+    const allCiphers = await firstValueFrom(this.cipherService.ciphers$(userId));
+    const cipherServiceCipher = allCiphers[this.cipher?.id as CipherId];
+
+    if (cipherServiceCipher?.edit && cipherServiceCipher?.viewPassword) {
       await this.checkPendingChangePasswordTasks(userId);
     }
 

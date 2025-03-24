@@ -879,9 +879,6 @@
   "filter": {
     "message": "فیلتر"
   },
-  "moveSelectedToOrg": {
-    "message": "انتقال مورد انتخاب شده به سازمان"
-  },
   "deleteSelected": {
     "message": "حذف موارد انتخاب شده"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "موارد انتخاب شده به $ORGNAME$ منتقل شدند",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "سازمانی را انتخاب کنید که می‌خواهید این مورد را به آن منتقل کنید. انتقال به یک سازمان، مالکیت مورد را به آن سازمان منتقل می‌کند. پس از انتقال این مورد، دیگر مالک مستقیم آن نخواهید بود."
   },
-  "moveManyToOrgDesc": {
-    "message": "سازمانی را انتخاب کنید که می‌خواهید این موارد را به آن منتقل کنید. انتقال به یک سازمان، مالکیت موارد را به آن سازمان منتقل می‌کند. پس از انتقال این موارد، دیگر مالک مستقیم آن‌ها نخواهید بود."
-  },
   "collectionsDesc": {
     "message": "مجموعه‌هایی را ویرایش کنید که این مورد با آن‌ها به اشتراک گذاشته می‌شود. فقط کاربران سازمانی که به این مجموعه‌ها دسترسی دارند می‌توانند این مورد را ببینند."
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "شما $COUNT$ مورد را انتخاب کرده اید. $MOVEABLE_COUNT$ مورد را می‌توان به یک سازمان منتقل کرد، $NONMOVEABLE_COUNT$ تا را نمی‌تواند.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },
