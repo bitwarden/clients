@@ -327,8 +327,7 @@ describe("VaultExportService", () => {
       ) as any;
       global.Request = jest.fn(() => {}) as any;
 
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      expect(async () => {
+      await expect(async () => {
         await exportService.getExport("zip");
       }).rejects.toThrow("Error decrypting attachment");
     });
