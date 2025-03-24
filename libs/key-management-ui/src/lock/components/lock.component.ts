@@ -612,7 +612,7 @@ export class LockComponent implements OnInit, OnDestroy {
     // TODO: This should probably not be blocking
     await this.userAsymmetricKeysRegenerationService.regenerateIfNeeded(this.activeAccount.id);
     this.logService.info(
-      `[LockComponent] Regeneration took ${new Date().getTime() - startRegeneration}ms`,
+      `[LockComponent] Private key regeneration took ${new Date().getTime() - startRegeneration}ms`,
     );
 
     if (this.clientType === "browser") {
