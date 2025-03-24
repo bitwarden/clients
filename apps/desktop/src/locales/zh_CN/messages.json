@@ -2470,7 +2470,7 @@
     "message": "切换账户"
   },
   "alreadyHaveAccount": {
-    "message": "已经拥有账户了吗？"
+    "message": "已经有账户了吗？"
   },
   "options": {
     "message": "选项"
