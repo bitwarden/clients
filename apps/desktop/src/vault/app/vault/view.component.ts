@@ -17,8 +17,8 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -158,11 +158,5 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
     if (!this.canAccessPremium) {
       this.messagingService.send("premiumRequired");
     }
-  }
-
-  upgradeOrganization() {
-    this.messagingService.send("upgradeOrganization", {
-      organizationId: this.cipher.organizationId,
-    });
   }
 }

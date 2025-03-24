@@ -3,12 +3,13 @@
   @fadeIn
 >
   <div class="tw-flex tw-flex-col tw-items-center tw-gap-2 tw-px-4 tw-pt-4 tw-text-center">
-    <ng-container *ngIf="hasIcon; else elseBlock">
-      <ng-content select="[bitDialogIcon]"></ng-content>
-    </ng-container>
-    <ng-template #elseBlock>
-      <i class="bwi bwi-exclamation-triangle tw-text-3xl tw-text-warning" aria-hidden="true"></i>
-    </ng-template>
+    @if (!hideIcon()) {
+      @if (hasIcon) {
+        <ng-content select="[bitDialogIcon]"></ng-content>
+      } @else {
+        <i class="bwi bwi-exclamation-triangle tw-text-3xl tw-text-warning" aria-hidden="true"></i>
+      }
+    }
     <h1
       bitDialogTitleContainer
       bitTypography="h3"

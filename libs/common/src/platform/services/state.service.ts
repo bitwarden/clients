@@ -134,7 +134,6 @@ export class StateService<
   }
 
   async addAccount(account: TAccount) {
-    await this.environmentService.seedUserEnvironment(account.profile.userId as UserId);
     await this.updateState(async (state) => {
       state.accounts[account.profile.userId] = account;
       return state;
@@ -170,7 +169,7 @@ export class StateService<
   /**
    * user key when using the "never" option of vault timeout
    */
-  async setUserKeyAutoUnlock(value: string, options?: StorageOptions): Promise<void> {
+  async setUserKeyAutoUnlock(value: string | null, options?: StorageOptions): Promise<void> {
     options = this.reconcileOptions(
       this.reconcileOptions(options, { keySuffix: "auto" }),
       await this.defaultSecureStorageOptions(),
@@ -226,7 +225,7 @@ export class StateService<
   /**
    * @deprecated Use UserKeyAuto instead
    */
-  async setCryptoMasterKeyAuto(value: string, options?: StorageOptions): Promise<void> {
+  async setCryptoMasterKeyAuto(value: string | null, options?: StorageOptions): Promise<void> {
     options = this.reconcileOptions(
       this.reconcileOptions(options, { keySuffix: "auto" }),
       await this.defaultSecureStorageOptions(),
@@ -663,7 +662,7 @@ export class StateService<
 
   protected async saveSecureStorageKey<T extends JsonValue>(
     key: string,
-    value: T,
+    value: T | null,
     options?: StorageOptions,
   ) {
     return value == null

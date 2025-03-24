@@ -1,7 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { firstValueFrom } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -25,11 +24,6 @@ import { RowHeightClass } from "./vault-items.component";
 export class VaultCipherRowComponent implements OnInit {
   protected RowHeightClass = RowHeightClass;
 
-  /**
-   * Flag to determine if the extension refresh feature flag is enabled.
-   */
-  protected extensionRefreshEnabled = false;
-
   @Input() disabled: boolean;
   @Input() cipher: CipherView;
   @Input() showOwner: boolean;
@@ -42,37 +36,43 @@ export class VaultCipherRowComponent implements OnInit {
   @Input() collections: CollectionView[];
   @Input() viewingOrgVault: boolean;
   @Input() canEditCipher: boolean;
+  @Input() canAssignCollections: boolean;
   @Input() canManageCollection: boolean;
+  /**
+   * uses new permission delete logic from PM-15493
+   */
+  @Input() canDeleteCipher: boolean;
+  /**
+   * uses new permission restore logic from PM-15493
+   */
+  @Input() canRestoreCipher: boolean;
 
   @Output() onEvent = new EventEmitter<VaultItemEvent>();
 
   @Input() checked: boolean;
   @Output() checkedToggled = new EventEmitter<void>();
 
+  protected limitItemDeletion$ = this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion);
   protected CipherType = CipherType;
   private permissionList = getPermissionList();
   private permissionPriority = [
-    "canManage",
-    "canEdit",
-    "canEditExceptPass",
-    "canView",
-    "canViewExceptPass",
+    "manageCollection",
+    "editItems",
+    "editItemsHidePass",
+    "viewItems",
+    "viewItemsHidePass",
   ];
   protected organization?: Organization;
 
   constructor(
-    private configService: ConfigService,
     private i18nService: I18nService,
+    private configService: ConfigService,
   ) {}
 
   /**
    * Lifecycle hook for component initialization.
-   * Checks if the extension refresh feature flag is enabled to provide to template.
    */
   async ngOnInit(): Promise<void> {
-    this.extensionRefreshEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.ExtensionRefresh),
-    );
     if (this.cipher.organizationId != null) {
       this.organization = this.organizations.find((o) => o.id === this.cipher.organizationId);
     }
@@ -82,7 +82,7 @@ export class VaultCipherRowComponent implements OnInit {
     if (this.cipher.decryptionFailure) {
       return "showFailedToDecrypt";
     }
-    return this.extensionRefreshEnabled ? "view" : null;
+    return "view";
   }
 
   protected get showTotpCopyButton() {
@@ -101,7 +101,7 @@ export class VaultCipherRowComponent implements OnInit {
   }
 
   protected get showAssignToCollections() {
-    return this.organizations?.length && this.canEditCipher && !this.cipher.isDeleted;
+    return this.organizations?.length && this.canAssignCollections && !this.cipher.isDeleted;
   }
 
   protected get showClone() {
@@ -118,7 +118,7 @@ export class VaultCipherRowComponent implements OnInit {
 
   protected get permissionText() {
     if (!this.cipher.organizationId || this.cipher.collectionIds.length === 0) {
-      return this.i18nService.t("canManage");
+      return this.i18nService.t("manageCollection");
     }
 
     const filteredCollections = this.collections.filter((collection) => {
@@ -208,6 +208,6 @@ export class VaultCipherRowComponent implements OnInit {
       return true; // Always show checkbox in individual vault or for non-org items
     }
 
-    return this.organization.canEditAllCiphers || this.cipher.edit;
+    return this.organization.canEditAllCiphers || (this.cipher.edit && this.cipher.viewPassword);
   }
 }

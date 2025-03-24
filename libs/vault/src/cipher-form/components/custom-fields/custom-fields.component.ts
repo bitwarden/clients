@@ -127,8 +127,9 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
     this.destroyed$ = inject(DestroyRef);
     this.cipherFormContainer.registerChildForm("customFields", this.customFieldsForm);
 
-    this.customFieldsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((values) => {
-      this.updateCipher(values.fields);
+    this.customFieldsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      // getRawValue ensures disabled fields are included
+      this.updateCipher(this.fields.getRawValue());
     });
   }
 
@@ -151,27 +152,30 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
     const prefillCipher = this.cipherFormContainer.getInitialCipherView();
 
     // When available, populate the form with the existing fields
-    prefillCipher.fields?.forEach((field) => {
+    prefillCipher?.fields?.forEach((field) => {
       let value: string | boolean = field.value;
 
       if (field.type === FieldType.Boolean) {
         value = field.value === "true" ? true : false;
       }
 
-      this.fields.push(
-        this.formBuilder.group<CustomField>({
-          type: field.type,
-          name: field.name,
-          value: value,
-          linkedId: field.linkedId,
-          newField: false,
-        }),
-      );
-    });
+      const customField = this.formBuilder.group<CustomField>({
+        type: field.type,
+        name: field.name,
+        value: value,
+        linkedId: field.linkedId,
+        newField: false,
+      });
 
-    if (!this.cipherFormContainer.originalCipherView?.viewPassword) {
-      this.customFieldsForm.disable();
-    }
+      if (
+        field.type === FieldType.Hidden &&
+        !this.cipherFormContainer.originalCipherView?.viewPassword
+      ) {
+        customField.controls.value.disable();
+      }
+
+      this.fields.push(customField);
+    });
 
     // Disable the form if in partial-edit mode
     // Must happen after the initial fields are populated

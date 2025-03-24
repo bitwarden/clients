@@ -17,6 +17,29 @@ import { CipherFormContainer } from "../../cipher-form-container";
 
 import { ItemDetailsSectionComponent } from "./item-details-section.component";
 
+const createMockCollection = (
+  id: string,
+  name: string,
+  organizationId: string,
+  readOnly = false,
+  canEdit = true,
+) => {
+  return {
+    id,
+    name,
+    organizationId,
+    externalId: "",
+    readOnly,
+    hidePasswords: false,
+    manage: true,
+    assigned: true,
+    canEditItems: jest.fn().mockReturnValue(canEdit),
+    canEdit: jest.fn(),
+    canDelete: jest.fn(),
+    canViewCollectionInfo: jest.fn(),
+  };
+};
+
 describe("ItemDetailsSectionComponent", () => {
   let component: ItemDetailsSectionComponent;
   let fixture: ComponentFixture<ItemDetailsSectionComponent>;
@@ -36,6 +59,9 @@ describe("ItemDetailsSectionComponent", () => {
       initializedWithCachedCipher,
     });
     i18nService = mock<I18nService>();
+    i18nService.collator = {
+      compare: (a: string, b: string) => a.localeCompare(b),
+    } as Intl.Collator;
 
     await TestBed.configureTestingModule({
       imports: [ItemDetailsSectionComponent, CommonModule, ReactiveFormsModule],
@@ -94,13 +120,7 @@ describe("ItemDetailsSectionComponent", () => {
       component.config.allowPersonalOwnership = true;
       component.config.organizations = [{ id: "org1" } as Organization];
       component.config.collections = [
-        {
-          id: "col1",
-          name: "Collection 1",
-          organizationId: "org1",
-          assigned: true,
-          readOnly: false,
-        } as CollectionView,
+        createMockCollection("col1", "Collection 1", "org1") as CollectionView,
       ];
 
       getInitialCipherView.mockReturnValueOnce({
@@ -167,16 +187,18 @@ describe("ItemDetailsSectionComponent", () => {
 
     it("should allow ownership change if personal ownership is allowed and there is at least one organization", () => {
       component.config.allowPersonalOwnership = true;
-      component.config.organizations = [{ id: "org1" } as Organization];
+      component.config.organizations = [{ id: "org1", name: "org1" } as Organization];
+      fixture.detectChanges();
       expect(component.allowOwnershipChange).toBe(true);
     });
 
     it("should allow ownership change if personal ownership is not allowed but there is more than one organization", () => {
       component.config.allowPersonalOwnership = false;
       component.config.organizations = [
-        { id: "org1" } as Organization,
-        { id: "org2" } as Organization,
+        { id: "org1", name: "org1" } as Organization,
+        { id: "org2", name: "org2" } as Organization,
       ];
+      fixture.detectChanges();
       expect(component.allowOwnershipChange).toBe(true);
     });
   });
@@ -189,7 +211,8 @@ describe("ItemDetailsSectionComponent", () => {
 
     it("should return the first organization id if personal ownership is not allowed", () => {
       component.config.allowPersonalOwnership = false;
-      component.config.organizations = [{ id: "org1" } as Organization];
+      component.config.organizations = [{ id: "org1", name: "Organization 1" } as Organization];
+      fixture.detectChanges();
       expect(component.defaultOwner).toBe("org1");
     });
   });
@@ -227,16 +250,19 @@ describe("ItemDetailsSectionComponent", () => {
 
   describe("showOwnership", () => {
     it("should return true if ownership change is allowed or in edit mode with at least one organization", () => {
+      component.config.allowPersonalOwnership = true;
       jest.spyOn(component, "allowOwnershipChange", "get").mockReturnValue(true);
       expect(component.showOwnership).toBe(true);
 
       jest.spyOn(component, "allowOwnershipChange", "get").mockReturnValue(false);
       component.config.mode = "edit";
       component.config.organizations = [{ id: "org1" } as Organization];
+      fixture.detectChanges();
       expect(component.showOwnership).toBe(true);
     });
 
     it("should hide the ownership control if showOwnership is false", async () => {
+      component.config.allowPersonalOwnership = true;
       jest.spyOn(component, "showOwnership", "get").mockReturnValue(false);
       fixture.detectChanges();
       await fixture.whenStable();
@@ -247,6 +273,7 @@ describe("ItemDetailsSectionComponent", () => {
     });
 
     it("should show the ownership control if showOwnership is true", async () => {
+      component.config.allowPersonalOwnership = true;
       jest.spyOn(component, "allowOwnershipChange", "get").mockReturnValue(true);
       fixture.detectChanges();
       await fixture.whenStable();
@@ -305,8 +332,8 @@ describe("ItemDetailsSectionComponent", () => {
     it("should select the first organization if personal ownership is not allowed", async () => {
       component.config.allowPersonalOwnership = false;
       component.config.organizations = [
-        { id: "org1" } as Organization,
-        { id: "org2" } as Organization,
+        { id: "org1", name: "org1" } as Organization,
+        { id: "org2", name: "org2" } as Organization,
       ];
       component.originalCipherView = {
         name: "cipher1",
@@ -343,8 +370,8 @@ describe("ItemDetailsSectionComponent", () => {
       component.config.allowPersonalOwnership = true;
       component.config.organizations = [{ id: "org1" } as Organization];
       component.config.collections = [
-        { id: "col1", name: "Collection 1", organizationId: "org1" } as CollectionView,
-        { id: "col2", name: "Collection 2", organizationId: "org1" } as CollectionView,
+        createMockCollection("col1", "Collection 1", "org1") as CollectionView,
+        createMockCollection("col2", "Collection 2", "org1") as CollectionView,
       ];
 
       fixture.detectChanges();
@@ -374,27 +401,9 @@ describe("ItemDetailsSectionComponent", () => {
       });
       component.config.organizations = [{ id: "org1" } as Organization];
       component.config.collections = [
-        {
-          id: "col1",
-          name: "Collection 1",
-          organizationId: "org1",
-          assigned: true,
-          readOnly: false,
-        } as CollectionView,
-        {
-          id: "col2",
-          name: "Collection 2",
-          organizationId: "org1",
-          assigned: true,
-          readOnly: false,
-        } as CollectionView,
-        {
-          id: "col3",
-          name: "Collection 3",
-          organizationId: "org1",
-          assigned: true,
-          readOnly: false,
-        } as CollectionView,
+        createMockCollection("col1", "Collection 1", "org1") as CollectionView,
+        createMockCollection("col2", "Collection 2", "org1") as CollectionView,
+        createMockCollection("col3", "Collection 3", "org1") as CollectionView,
       ];
 
       fixture.detectChanges();
@@ -412,13 +421,7 @@ describe("ItemDetailsSectionComponent", () => {
       component.config.allowPersonalOwnership = true;
       component.config.organizations = [{ id: "org1" } as Organization];
       component.config.collections = [
-        {
-          id: "col1",
-          name: "Collection 1",
-          organizationId: "org1",
-          assigned: true,
-          readOnly: false,
-        } as CollectionView,
+        createMockCollection("col1", "Collection 1", "org1") as CollectionView,
       ];
 
       fixture.detectChanges();
@@ -452,27 +455,9 @@ describe("ItemDetailsSectionComponent", () => {
       } as CipherView;
       component.config.organizations = [{ id: "org1" } as Organization];
       component.config.collections = [
-        {
-          id: "col1",
-          name: "Collection 1",
-          organizationId: "org1",
-          assigned: true,
-          readOnly: false,
-        } as CollectionView,
-        {
-          id: "col2",
-          name: "Collection 2",
-          organizationId: "org1",
-          assigned: true,
-          readOnly: false,
-        } as CollectionView,
-        {
-          id: "col3",
-          name: "Collection 3",
-          organizationId: "org1",
-          readOnly: true,
-          assigned: true,
-        } as CollectionView,
+        createMockCollection("col1", "Collection 1", "org1", true, false) as CollectionView,
+        createMockCollection("col2", "Collection 2", "org1", true, false) as CollectionView,
+        createMockCollection("col3", "Collection 3", "org1", true) as CollectionView,
       ];
 
       await component.ngOnInit();
@@ -490,27 +475,9 @@ describe("ItemDetailsSectionComponent", () => {
       component.config.allowPersonalOwnership = true;
       component.config.organizations = [{ id: "org1" } as Organization];
       component.config.collections = [
-        {
-          id: "col1",
-          name: "Collection 1",
-          organizationId: "org1",
-          readOnly: true,
-          assigned: false,
-        } as CollectionView,
-        {
-          id: "col2",
-          name: "Collection 2",
-          organizationId: "org1",
-          readOnly: true,
-          assigned: false,
-        } as CollectionView,
-        {
-          id: "col3",
-          name: "Collection 3",
-          organizationId: "org1",
-          readOnly: false,
-          assigned: true,
-        } as CollectionView,
+        createMockCollection("col1", "Collection 1", "org1", true, false) as CollectionView,
+        createMockCollection("col2", "Collection 2", "org1", true, false) as CollectionView,
+        createMockCollection("col3", "Collection 3", "org1", false, false) as CollectionView,
       ];
 
       fixture.detectChanges();
@@ -527,26 +494,9 @@ describe("ItemDetailsSectionComponent", () => {
       component.config.mode = "edit";
       component.config.admin = true;
       component.config.collections = [
-        {
-          id: "col1",
-          name: "Collection 1",
-          organizationId: "org1",
-          readOnly: true,
-          assigned: false,
-        } as CollectionView,
-        {
-          id: "col2",
-          name: "Collection 2",
-          organizationId: "org1",
-          assigned: false,
-        } as CollectionView,
-        {
-          id: "col3",
-          name: "Collection 3",
-          organizationId: "org1",
-          readOnly: true,
-          assigned: false,
-        } as CollectionView,
+        createMockCollection("col1", "Collection 1", "org1", true, false) as CollectionView,
+        createMockCollection("col2", "Collection 2", "org1", false, true) as CollectionView,
+        createMockCollection("col3", "Collection 3", "org1", true, false) as CollectionView,
       ];
       component.originalCipherView = {
         name: "cipher1",
@@ -562,6 +512,7 @@ describe("ItemDetailsSectionComponent", () => {
     });
 
     it("should not show collections as readonly when `config.admin` is true", async () => {
+      component.config.isAdminConsole = true;
       await component.ngOnInit();
       fixture.detectChanges();
 
@@ -573,8 +524,26 @@ describe("ItemDetailsSectionComponent", () => {
 
       await component.ngOnInit();
       fixture.detectChanges();
+      expect(component["readOnlyCollectionsNames"]).toEqual(["Collection 1", "Collection 3"]);
+    });
+  });
 
-      expect(component["readOnlyCollections"]).toEqual(["Collection 1", "Collection 3"]);
+  describe("organizationOptions", () => {
+    it("should sort the organizations by name", async () => {
+      component.config.mode = "edit";
+      component.config.organizations = [
+        { id: "org2", name: "org2" } as Organization,
+        { id: "org1", name: "org1" } as Organization,
+      ];
+      component.originalCipherView = {} as CipherView;
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      const select = fixture.debugElement.query(By.directive(SelectComponent));
+      const { label } = select.componentInstance.items[0];
+
+      expect(label).toBe("org1");
     });
   });
 });

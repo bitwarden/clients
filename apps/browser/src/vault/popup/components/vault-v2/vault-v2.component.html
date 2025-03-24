@@ -28,10 +28,10 @@
   ></blocked-injection-banner>
 
   <!-- Show search & filters outside of the scroll area of the page -->
-  <ng-container
-    slot="above-scroll-area"
-    *ngIf="vaultState !== VaultStateEnum.Empty && !(loading$ | async)"
-  >
+  <ng-container slot="above-scroll-area" *ngIf="vaultState !== VaultStateEnum.Empty">
+    <vault-at-risk-password-callout
+      *appIfFeature="FeatureFlag.SecurityTasks"
+    ></vault-at-risk-password-callout>
     <app-vault-header-v2></app-vault-header-v2>
   </ng-container>
 
@@ -69,17 +69,18 @@
       <app-autofill-vault-list-items></app-autofill-vault-list-items>
       <app-vault-list-items-container
         [title]="'favorites' | i18n"
-        [ciphers]="favoriteCiphers$ | async"
+        [ciphers]="(favoriteCiphers$ | async) || []"
         id="favorites"
         collapsibleKey="favorites"
       ></app-vault-list-items-container>
       <app-vault-list-items-container
         [title]="'allItems' | i18n"
-        [ciphers]="remainingCiphers$ | async"
+        [ciphers]="(remainingCiphers$ | async) || []"
         id="allItems"
         disableSectionMargin
         collapsibleKey="allItems"
       ></app-vault-list-items-container>
     </div>
   </ng-container>
+  <new-settings-callout></new-settings-callout>
 </popup-page>

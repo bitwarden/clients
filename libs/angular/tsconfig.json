@@ -14,6 +14,7 @@
       "@bitwarden/generator-legacy": ["../tools/generator/extensions/legacy/src"],
       "@bitwarden/generator-navigation": ["../tools/generator/extensions/navigation/src"],
       "@bitwarden/importer/core": ["../importer/src"],
+      "@bitwarden/importer-ui": ["../importer/src/components"],
       "@bitwarden/key-management": ["../key-management/src"],
       "@bitwarden/platform": ["../platform/src"],
       "@bitwarden/ui-common": ["../ui/common/src"],

@@ -190,7 +190,9 @@ describe("OverlayBackground", () => {
     inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
     themeStateService = mock<ThemeStateService>();
     themeStateService.selectedTheme$ = selectedThemeMock$;
-    totpService = mock<TotpService>();
+    totpService = mock<TotpService>({
+      getCode$: jest.fn().mockReturnValue(of(undefined)),
+    });
     overlayBackground = new OverlayBackground(
       logService,
       cipherService,
@@ -206,6 +208,7 @@ describe("OverlayBackground", () => {
       inlineMenuFieldQualificationService,
       themeStateService,
       totpService,
+      accountService,
       generatedPasswordCallbackMock,
       addPasswordCallbackMock,
     );
@@ -849,7 +852,7 @@ describe("OverlayBackground", () => {
       await flushPromises();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, [
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId, [
         CipherType.Card,
         CipherType.Identity,
       ]);
@@ -872,7 +875,7 @@ describe("OverlayBackground", () => {
       await flushPromises();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url);
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId);
       expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
         new Map([
@@ -891,7 +894,7 @@ describe("OverlayBackground", () => {
       await flushPromises();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, [
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId, [
         CipherType.Card,
         CipherType.Identity,
       ]);
@@ -966,7 +969,7 @@ describe("OverlayBackground", () => {
             icon: {
               fallbackImage: "",
               icon: "bwi-credit-card",
-              image: undefined,
+              image: null,
               imageEnabled: true,
             },
             id: "inline-menu-cipher-0",
@@ -1004,7 +1007,7 @@ describe("OverlayBackground", () => {
               icon: {
                 fallbackImage: "",
                 icon: "bwi-id-card",
-                image: undefined,
+                image: null,
                 imageEnabled: true,
               },
               id: "inline-menu-cipher-1",
@@ -1045,7 +1048,7 @@ describe("OverlayBackground", () => {
               icon: {
                 fallbackImage: "",
                 icon: "bwi-id-card",
-                image: undefined,
+                image: null,
                 imageEnabled: true,
               },
               id: "inline-menu-cipher-0",
@@ -1117,7 +1120,7 @@ describe("OverlayBackground", () => {
               icon: {
                 fallbackImage: "",
                 icon: "bwi-id-card",
-                image: undefined,
+                image: null,
                 imageEnabled: true,
               },
               id: "inline-menu-cipher-1",

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 
 import { DefaultLoginApprovalComponentService } from "@bitwarden/auth/angular";
@@ -15,12 +13,12 @@ export class DesktopLoginApprovalComponentService
     super();
   }
 
-  async showLoginRequestedAlertIfWindowNotVisible(email: string): Promise<void> {
+  async showLoginRequestedAlertIfWindowNotVisible(email?: string): Promise<void> {
     const isVisible = await ipc.platform.isWindowVisible();
     if (!isVisible) {
       await ipc.auth.loginRequest(
-        this.i18nService.t("logInRequested"),
-        this.i18nService.t("confirmLoginAtemptForMail", email),
+        this.i18nService.t("accountAccessRequested"),
+        this.i18nService.t("confirmAccessAttempt", email),
         this.i18nService.t("close"),
       );
     }

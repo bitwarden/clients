@@ -10,7 +10,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -29,7 +28,6 @@ export class SponsoringOrgRowComponent implements OnInit {
   statusMessage = "loading";
   statusClass: "tw-text-success" | "tw-text-danger" = "tw-text-success";
   isFreeFamilyPolicyEnabled$: Observable<boolean>;
-  isFreeFamilyFlagEnabled: boolean;
   private locale = "";
 
   constructor(
@@ -52,25 +50,20 @@ export class SponsoringOrgRowComponent implements OnInit {
       this.sponsoringOrg.familySponsorshipValidUntil,
       this.sponsoringOrg.familySponsorshipLastSyncDate,
     );
-    this.isFreeFamilyFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.DisableFreeFamiliesSponsorship,
-    );
 
-    if (this.isFreeFamilyFlagEnabled) {
-      this.isFreeFamilyPolicyEnabled$ = this.accountService.activeAccount$.pipe(
-        getUserId,
-        switchMap((userId) =>
-          this.policyService.getAll$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
-        ),
-        map(
-          (policies) =>
-            Array.isArray(policies) &&
-            policies.some(
-              (policy) => policy.organizationId === this.sponsoringOrg.id && policy.enabled,
-            ),
-        ),
-      );
-    }
+    this.isFreeFamilyPolicyEnabled$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.getAll$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
+      ),
+      map(
+        (policies) =>
+          Array.isArray(policies) &&
+          policies.some(
+            (policy) => policy.organizationId === this.sponsoringOrg.id && policy.enabled,
+          ),
+      ),
+    );
   }
 
   async revokeSponsorship() {

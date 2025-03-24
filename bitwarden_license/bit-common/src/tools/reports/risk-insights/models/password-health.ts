@@ -85,6 +85,7 @@ export type WeakPasswordScore = {
  * How many times a password has been exposed
  */
 export type ExposedPasswordDetail = {
+  cipherId: string;
   exposedXTimes: number;
 } | null;
 

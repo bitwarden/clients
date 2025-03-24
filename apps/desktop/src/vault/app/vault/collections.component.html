@@ -21,6 +21,7 @@
                 type="checkbox"
                 [(ngModel)]="$any(c).checked"
                 name="Collection[{{ i }}].Checked"
+                [disabled]="!cipher.canAssignToCollections"
               />
             </div>
           </div>

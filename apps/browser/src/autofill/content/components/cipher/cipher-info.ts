@@ -6,10 +6,10 @@ import { Theme } from "@bitwarden/common/platform/enums";
 import { themes, typography } from "../../../content/components/constants/styles";
 
 import { CipherInfoIndicatorIcons } from "./cipher-indicator-icons";
-import { CipherData } from "./types";
+import { NotificationCipherData } from "./types";
 
 // @TODO support other cipher types (card, identity, notes, etc)
-export function CipherInfo({ cipher, theme }: { cipher: CipherData; theme: Theme }) {
+export function CipherInfo({ cipher, theme }: { cipher: NotificationCipherData; theme: Theme }) {
   const { name, login } = cipher;
 
   return html`

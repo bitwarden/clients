@@ -58,6 +58,7 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
+import { BillingNotificationService } from "../services/billing-notification.service";
 import { BillingSharedModule } from "../shared/billing-shared.module";
 import { PaymentComponent } from "../shared/payment/payment.component";
 
@@ -184,6 +185,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   paymentSource?: PaymentSourceResponse;
   plans: ListResponse<PlanResponse>;
   isSubscriptionCanceled: boolean = false;
+  secretsManagerTotal: number;
 
   private destroy$ = new Subject<void>();
 
@@ -207,6 +209,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private taxService: TaxServiceAbstraction,
     private accountService: AccountService,
     private organizationBillingService: OrganizationBillingService,
+    private billingNotificationService: BillingNotificationService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -227,10 +230,14 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
           .organizations$(userId)
           .pipe(getOrganizationById(this.organizationId)),
       );
-      const { accountCredit, paymentSource } =
-        await this.billingApiService.getOrganizationPaymentMethod(this.organizationId);
-      this.accountCredit = accountCredit;
-      this.paymentSource = paymentSource;
+      try {
+        const { accountCredit, paymentSource } =
+          await this.billingApiService.getOrganizationPaymentMethod(this.organizationId);
+        this.accountCredit = accountCredit;
+        this.paymentSource = paymentSource;
+      } catch (error) {
+        this.billingNotificationService.handleError(error);
+      }
     }
 
     if (!this.selfHosted) {
@@ -289,7 +296,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     const taxInfo = await this.organizationApiService.getTaxInfo(this.organizationId);
     this.taxInformation = TaxInformation.from(taxInfo);
 
-    this.refreshSalesTax();
+    if (!this.isSubscriptionCanceled) {
+      this.refreshSalesTax();
+    }
   }
 
   resolveHeaderName(subscription: OrganizationSubscriptionResponse): string {
@@ -468,7 +477,11 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get selectedSecretsManagerPlan() {
-    return this.secretsManagerPlans.find((plan) => plan.type === this.selectedPlan.type);
+    let planResponse: PlanResponse;
+    if (this.secretsManagerPlans) {
+      return this.secretsManagerPlans.find((plan) => plan.type === this.selectedPlan.type);
+    }
+    return planResponse;
   }
 
   get selectedPlanInterval() {
@@ -609,18 +622,19 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     return subTotal - this.discount;
   }
 
-  get secretsManagerSubtotal() {
+  secretsManagerSubtotal() {
+    this.secretsManagerTotal = 0;
     const plan = this.selectedSecretsManagerPlan;
 
     if (!this.organization.useSecretsManager) {
-      return 0;
+      return this.secretsManagerTotal;
     }
 
-    return (
+    this.secretsManagerTotal =
       plan.SecretsManager.basePrice +
       this.secretsManagerSeatTotal(plan, this.sub?.smSeats) +
-      this.additionalServiceAccountTotal(plan)
-    );
+      this.additionalServiceAccountTotal(plan);
+    return this.secretsManagerTotal;
   }
 
   get passwordManagerSeats() {
@@ -631,11 +645,11 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get total() {
-    if (this.organization.useSecretsManager) {
+    if (this.organization && this.organization.useSecretsManager) {
       return (
         this.passwordManagerSubtotal +
         this.additionalStorageTotal(this.selectedPlan) +
-        this.secretsManagerSubtotal +
+        this.secretsManagerSubtotal() +
         this.estimatedTax
       );
     }
@@ -1035,7 +1049,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     if (this.organization.useSecretsManager) {
       request.secretsManager = {
         seats: this.sub.smSeats,
-        additionalMachineAccounts: this.sub.smServiceAccounts,
+        additionalMachineAccounts:
+          this.sub.smServiceAccounts - this.sub.plan.SecretsManager.baseServiceAccount,
       };
     }
 
@@ -1045,10 +1060,12 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         this.estimatedTax = invoice.taxAmount;
       })
       .catch((error) => {
+        const translatedMessage = this.i18nService.t(error.message);
         this.toastService.showToast({
           title: "",
           variant: "error",
-          message: this.i18nService.t(error.message),
+          message:
+            !translatedMessage || translatedMessage === "" ? error.message : translatedMessage,
         });
       });
   }

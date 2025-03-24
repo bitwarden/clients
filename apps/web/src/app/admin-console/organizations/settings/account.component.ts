@@ -106,7 +106,7 @@ export class AccountComponent implements OnInit, OnDestroy {
     this.selfHosted = this.platformUtilsService.isSelfHost();
 
     this.configService
-      .getFeatureFlag$(FeatureFlag.limitItemDeletion)
+      .getFeatureFlag$(FeatureFlag.LimitItemDeletion)
       .pipe(takeUntil(this.destroy$))
       .subscribe((isAble) => (this.limitItemDeletionFeatureFlagIsEnabled = isAble));
 

@@ -2,11 +2,19 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { BehaviorSubject, Observable, Subject, firstValueFrom } from "rxjs";
-import { concatMap, debounceTime, filter, map, switchMap, takeUntil, tap } from "rxjs/operators";
+import { BehaviorSubject, Observable, Subject, firstValueFrom, of } from "rxjs";
+import {
+  concatMap,
+  debounceTime,
+  filter,
+  map,
+  switchMap,
+  takeUntil,
+  tap,
+  timeout,
+} from "rxjs/operators";
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -14,23 +22,23 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { DeviceType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
+import {
+  VaultTimeout,
+  VaultTimeoutAction,
+  VaultTimeoutOption,
+  VaultTimeoutSettingsService,
+  VaultTimeoutStringType,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { ThemeType } from "@bitwarden/common/platform/enums/theme-type.enum";
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import {
-  VaultTimeout,
-  VaultTimeoutOption,
-  VaultTimeoutStringType,
-} from "@bitwarden/common/types/vault-timeout.type";
 import { DialogService } from "@bitwarden/components";
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
 
@@ -44,7 +52,6 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
   selector: "app-settings",
   templateUrl: "settings.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class SettingsComponent implements OnInit, OnDestroy {
   // For use in template
   protected readonly VaultTimeoutAction = VaultTimeoutAction;
@@ -59,7 +66,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   showAlwaysShowDock = false;
   requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
-  showSshAgentOption = false;
   showOpenAtLoginOption = false;
   isWindows: boolean;
   isLinux: boolean;
@@ -90,6 +96,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   userHasMasterPassword: boolean;
   userHasPinSet: boolean;
 
+  pinEnabled$: Observable<boolean> = of(true);
+
   form = this.formBuilder.group({
     // Security
     vaultTimeout: [null as VaultTimeout | null],
@@ -116,8 +124,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }),
     enableHardwareAcceleration: true,
     enableSshAgent: false,
+    allowScreenshots: false,
     enableDuckDuckGoBrowserIntegration: false,
-    theme: [null as ThemeType | null],
+    theme: [null as Theme | null],
     locale: [null as string | null],
   });
 
@@ -187,10 +196,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.localeOptions = localeOptions;
 
     this.themeOptions = [
-      { name: this.i18nService.t("default"), value: ThemeType.System },
-      { name: this.i18nService.t("light"), value: ThemeType.Light },
-      { name: this.i18nService.t("dark"), value: ThemeType.Dark },
-      { name: "Nord", value: ThemeType.Nord },
+      { name: this.i18nService.t("default"), value: ThemeTypes.System },
+      { name: this.i18nService.t("light"), value: ThemeTypes.Light },
+      { name: this.i18nService.t("dark"), value: ThemeTypes.Dark },
     ];
 
     this.clearClipboardOptions = [
@@ -213,7 +221,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.showSshAgentOption = await this.configService.getFeatureFlag(FeatureFlag.SSHAgent);
     this.userHasMasterPassword = await this.userVerificationService.hasMasterPassword();
 
     this.isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
@@ -252,6 +259,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // Load initial values
     this.userHasPinSet = await this.pinService.isPinSet(activeAccount.id);
 
+    this.pinEnabled$ = this.policyService.get$(PolicyType.RemoveUnlockWithPin).pipe(
+      map((policy) => {
+        return policy == null || !policy.enabled;
+      }),
+    );
+
     const initialValues = {
       vaultTimeout: await firstValueFrom(
         this.vaultTimeoutSettingsService.getVaultTimeoutByUserId$(activeAccount.id),
@@ -287,6 +300,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.desktopSettingsService.hardwareAcceleration$,
       ),
       enableSshAgent: await firstValueFrom(this.desktopSettingsService.sshAgentEnabled$),
+      allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
@@ -767,6 +781,33 @@ export class SettingsComponent implements OnInit, OnDestroy {
   async saveSshAgent() {
     this.logService.debug("Saving Ssh Agent settings", this.form.value.enableSshAgent);
     await this.desktopSettingsService.setSshAgentEnabled(this.form.value.enableSshAgent);
+  }
+
+  async savePreventScreenshots() {
+    await this.desktopSettingsService.setPreventScreenshots(!this.form.value.allowScreenshots);
+
+    if (!this.form.value.allowScreenshots) {
+      const dialogRef = this.dialogService.openSimpleDialogRef({
+        title: { key: "confirmWindowStillVisibleTitle" },
+        content: { key: "confirmWindowStillVisibleContent" },
+        acceptButtonText: { key: "ok" },
+        cancelButtonText: null,
+        type: "info",
+      });
+      let enabled = true;
+      try {
+        enabled = await firstValueFrom(dialogRef.closed.pipe(timeout(10000)));
+      } catch {
+        enabled = false;
+      } finally {
+        dialogRef.close();
+      }
+
+      if (!enabled) {
+        await this.desktopSettingsService.setPreventScreenshots(false);
+        this.form.controls.allowScreenshots.setValue(true, { emitEvent: false });
+      }
+    }
   }
 
   private async generateVaultTimeoutOptions(): Promise<VaultTimeoutOption[]> {

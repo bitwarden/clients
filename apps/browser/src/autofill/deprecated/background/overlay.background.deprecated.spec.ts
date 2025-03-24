@@ -110,6 +110,7 @@ describe("OverlayBackground", () => {
       i18nService,
       platformUtilsService,
       themeStateService,
+      accountService,
     );
 
     jest
@@ -205,7 +206,7 @@ describe("OverlayBackground", () => {
       await overlayBackground.updateOverlayCiphers();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url);
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId);
       expect(overlayBackground["cipherService"].sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["overlayLoginCiphers"]).toStrictEqual(
         new Map([
@@ -354,7 +355,7 @@ describe("OverlayBackground", () => {
           icon: {
             fallbackImage: "",
             icon: "bwi-credit-card",
-            image: undefined,
+            image: null,
             imageEnabled: true,
           },
           id: "overlay-cipher-2",
@@ -369,7 +370,7 @@ describe("OverlayBackground", () => {
           icon: {
             fallbackImage: "",
             icon: "bwi-credit-card",
-            image: undefined,
+            image: null,
             imageEnabled: true,
           },
           id: "overlay-cipher-3",
@@ -478,7 +479,6 @@ describe("OverlayBackground", () => {
     it("will set up onMessage and onConnect listeners", () => {
       overlayBackground["setupExtensionMessageListeners"]();
 
-      // eslint-disable-next-line
       expect(chrome.runtime.onMessage.addListener).toHaveBeenCalled();
       expect(chrome.runtime.onConnect.addListener).toHaveBeenCalled();
     });

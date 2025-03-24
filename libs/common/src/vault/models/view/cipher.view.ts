@@ -6,6 +6,7 @@ import { InitializerKey } from "../../../platform/services/cryptography/initiali
 import { DeepJsonify } from "../../../types/deep-jsonify";
 import { CipherType, LinkedIdType } from "../../enums";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
+import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 import { LocalData } from "../data/local.data";
 import { Cipher } from "../domain/cipher";
 
@@ -29,6 +30,7 @@ export class CipherView implements View, InitializerMetadata {
   type: CipherType = null;
   favorite = false;
   organizationUseTotp = false;
+  permissions: CipherPermissionsApi = new CipherPermissionsApi();
   edit = false;
   viewPassword = true;
   localData: LocalData;
@@ -63,6 +65,7 @@ export class CipherView implements View, InitializerMetadata {
     this.organizationUseTotp = c.organizationUseTotp;
     this.edit = c.edit;
     this.viewPassword = c.viewPassword;
+    this.permissions = c.permissions;
     this.type = c.type;
     this.localData = c.localData;
     this.collectionIds = c.collectionIds;
@@ -142,6 +145,13 @@ export class CipherView implements View, InitializerMetadata {
     );
   }
 
+  get canAssignToCollections(): boolean {
+    if (this.organizationId == null) {
+      return true;
+    }
+
+    return this.edit && this.viewPassword;
+  }
   /**
    * Determines if the cipher can be launched in a new browser tab.
    */

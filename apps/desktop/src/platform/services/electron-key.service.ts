@@ -1,10 +1,8 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -59,8 +57,6 @@ export class ElectronKeyService extends DefaultKeyService {
   }
 
   override async clearStoredUserKey(keySuffix: KeySuffixOptions, userId?: UserId): Promise<void> {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     await super.clearStoredUserKey(keySuffix, userId);
   }
 
@@ -75,14 +71,11 @@ export class ElectronKeyService extends DefaultKeyService {
   protected override async getKeyFromStorage(
     keySuffix: KeySuffixOptions,
     userId?: UserId,
-  ): Promise<UserKey> {
+  ): Promise<UserKey | null> {
     return await super.getKeyFromStorage(keySuffix, userId);
   }
 
-  protected async storeBiometricsProtectedUserKey(
-    userKey: UserKey,
-    userId?: UserId,
-  ): Promise<void> {
+  private async storeBiometricsProtectedUserKey(userKey: UserKey, userId: UserId): Promise<void> {
     // May resolve to null, in which case no client key have is required
     // TODO: Move to windows implementation
     const clientEncKeyHalf = await this.getBiometricEncryptionClientKeyHalf(userKey, userId);
@@ -90,11 +83,11 @@ export class ElectronKeyService extends DefaultKeyService {
     await this.biometricService.setBiometricProtectedUnlockKeyForUser(userId, userKey.keyB64);
   }
 
-  protected async shouldStoreKey(keySuffix: KeySuffixOptions, userId?: UserId): Promise<boolean> {
+  protected async shouldStoreKey(keySuffix: KeySuffixOptions, userId: UserId): Promise<boolean> {
     return await super.shouldStoreKey(keySuffix, userId);
   }
 
-  protected override async clearAllStoredUserKeys(userId?: UserId): Promise<void> {
+  protected override async clearAllStoredUserKeys(userId: UserId): Promise<void> {
     await this.biometricService.deleteBiometricUnlockKeyForUser(userId);
     await super.clearAllStoredUserKeys(userId);
   }

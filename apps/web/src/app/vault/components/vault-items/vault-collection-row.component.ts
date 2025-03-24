@@ -74,7 +74,7 @@ export class VaultCollectionRowComponent {
 
   get permissionText() {
     if (this.collection.id == Unassigned && this.organization?.canEditUnassignedCiphers) {
-      return this.i18nService.t("canEdit");
+      return this.i18nService.t("editItems");
     }
     if ((this.collection as CollectionAdminView).assigned) {
       const permissionList = getPermissionList();

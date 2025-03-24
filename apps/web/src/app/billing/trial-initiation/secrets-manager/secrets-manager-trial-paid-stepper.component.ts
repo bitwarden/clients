@@ -19,7 +19,16 @@ import {
 } from "../../../billing/accounts/trial-initiation/trial-billing-step.component";
 import { VerticalStepperComponent } from "../../trial-initiation/vertical-stepper/vertical-stepper.component";
 import { SecretsManagerTrialFreeStepperComponent } from "../secrets-manager/secrets-manager-trial-free-stepper.component";
-import { ValidOrgParams } from "../trial-initiation.component";
+
+export enum ValidOrgParams {
+  families = "families",
+  enterprise = "enterprise",
+  teams = "teams",
+  teamsStarter = "teamsStarter",
+  individual = "individual",
+  premium = "premium",
+  free = "free",
+}
 
 const trialFlowOrgs = [
   ValidOrgParams.teams,
