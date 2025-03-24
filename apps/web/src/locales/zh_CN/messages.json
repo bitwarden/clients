@@ -2500,7 +2500,7 @@
     }
   },
   "noInactive2fa": {
-    "message": "没有在您的密码库发现未配置两步登录的网站。"
+    "message": "在您的密码库中没有发现未配置两步登录的网站。"
   },
   "instructions": {
     "message": "说明"
@@ -2596,7 +2596,7 @@
     }
   },
   "noReusedPasswords": {
-    "message": "您密码库中没有密码重复使用的项目。"
+    "message": "您密码库中没有密码重复使用的登录项目。"
   },
   "timesReused": {
     "message": "重复使用次数"
@@ -7921,7 +7921,7 @@
     }
   },
   "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ 未验证",
+    "message": "$DOMAIN$ 无法验证",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -8779,7 +8779,7 @@
     "description": "Label for field requesting a self-hosted integration service URL"
   },
   "alreadyHaveAccount": {
-    "message": "已经拥有账户了吗？"
+    "message": "已经有账户了吗？"
   },
   "toggleSideNavigation": {
     "message": "切换侧边导航"
@@ -10294,7 +10294,7 @@
     "message": "已声明"
   },
   "domainStatusUnderVerification": {
-    "message": "正在验证"
+    "message": "验证中"
   },
   "claimedDomainsDesc": {
     "message": "声明一个域名，以拥有电子邮箱地址与该域名匹配的所有成员账户。成员登录时将可以跳过 SSO 标识符。管理员也可以删除成员账户。"
