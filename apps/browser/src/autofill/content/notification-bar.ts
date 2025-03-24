@@ -880,7 +880,7 @@ async function loadNotificationBar() {
 
       const baseStyle = useComponentBar
         ? isNotificationFresh
-          ? "height: calc(276px + 25px); width: 450px; right: 0; transform:translateX(100%); opacity:0;"
+          ? "height: calc(276px + 50px); width: 450px; right: 0; transform:translateX(100%); opacity:0;"
           : "height: calc(276px + 25px); width: 450px; right: 0; transform:translateX(0%); opacity:1;"
         : "height: 42px; width: 100%;";
 
@@ -910,7 +910,7 @@ async function loadNotificationBar() {
     function getFrameStyle(useComponentBar: boolean): string {
       return (
         (useComponentBar
-          ? "height: calc(276px + 25px); width: 450px; right: 0;"
+          ? "height: calc(276px + 50px); width: 450px; right: 0;"
           : "height: 42px; width: 100%; left: 0;") +
         " top: 0; padding: 0; position: fixed;" +
         " z-index: 2147483647; visibility: visible;"

@@ -879,9 +879,6 @@
   "filter": {
     "message": "Filter"
   },
-  "moveSelectedToOrg": {
-    "message": "Mutați cele selectate în organizație"
-  },
   "deleteSelected": {
     "message": "Ștergere selecție"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Articolele selectate au fost mutate în $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "Alegeți o organizație la care doriți să mutați acest articol. Mutarea într-o organizație, transferă proprietatea asupra articolului către organizația respectivă. Nu veți mai fi proprietarul direct al acestui articol odată ce a fost mutat."
   },
-  "moveManyToOrgDesc": {
-    "message": "Alegeți o organizație la care doriți să mutați aceste articole. Mutarea într-o organizație, transferă proprietatea asupra articolelor către organizația respectivă. Nu veți mai fi proprietarul direct al acestor articole odată ce au fost mutate."
-  },
   "collectionsDesc": {
     "message": "Editați colecțiile cu care este partajat acest articol. Numai utilizatorii organizației cu acces la aceste colecții vor putea vedea acest articol."
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "Ați selectat $COUNT$ articol(e). $MOVEABLE_COUNT$ articol(e) poate/pot fi mutat(e) într-o organizație, $NONMOVEABLE_COUNT$ nu.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },

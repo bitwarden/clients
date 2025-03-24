@@ -4733,15 +4733,6 @@
   "nothingSelected": {
     "message": "Ingenting er valgt."
   },
-  "movedItemsToOrg": {
-    "message": "Valgte emner flyttet til $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
-  },
   "itemsMovedToOrg": {
     "message": "Emner flyttet til $ORGNAME$",
     "placeholders": {

@@ -159,10 +159,10 @@
     "message": "Всего приложений"
   },
   "unmarkAsCriticalApp": {
-    "message": "Снять пометку критического приложения"
+    "message": "Снять отметку критического приложения"
   },
   "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Критическое приложение успешно снято"
+    "message": "Отметка критического приложения успешно снята"
   },
   "whatTypeOfItem": {
     "message": "Выберите тип элемента"
@@ -879,9 +879,6 @@
   "filter": {
     "message": "Фильтр"
   },
-  "moveSelectedToOrg": {
-    "message": "Переместить выбранное в организацию"
-  },
   "deleteSelected": {
     "message": "Удалить выбранное"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Выбранные элементы перемещены в $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "Выберите организацию, в которую вы хотите переместить этот элемент. При перемещении в организацию право собственности на элемент переходит к этой организации. Вы больше не будете прямым владельцем этого элемента после его перемещения."
   },
-  "moveManyToOrgDesc": {
-    "message": "Выберите организацию, в которую вы хотите переместить эти элементы. При перемещении в организацию право собственности на элементы переходит к этой организации. Вы больше не будете прямым владельцем этих элементов после их перемещения."
-  },
   "collectionsDesc": {
     "message": "Отредактируйте коллекции, с которыми совместно используется этот элемент. Данный элемент смогут видеть только пользователи организации, имеющие доступ к этим коллекциям."
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "Вы выбрали $COUNT$ элемента(-ов). $MOVEABLE_COUNT$ элемента(-ов) могут быть перемещены в организацию, $NONMOVEABLE_COUNT$ не могут.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },
@@ -3936,7 +3904,7 @@
     "message": "Устройство"
   },
   "loginStatus": {
-    "message": "Статус входа"
+    "message": "Статус авторизации"
   },
   "firstLogin": {
     "message": "Первый вход"
@@ -7282,7 +7250,7 @@
     "message": "Для вашего аккаунта требуется двухэтапная аутентификация Duo."
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+    "message": "Для вашего аккаунта требуется двухэтапная аутентификация Duo. Выполните следующие действия, чтобы завершить авторизацию."
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Следуйте указаниям ниже, чтобы завершить авторизацию."
@@ -8438,7 +8406,7 @@
     "message": "Доверенные устройства"
   },
   "memberDecryptionOptionTdeDescPart1": {
-    "message": "Пользователям не понадобится мастер-пароль при входе в систему с SSO. Мастер-пароль заменяется ключом шифрования, хранящимся на устройстве, который делает его надёжным. Первое устройство, в которое участник создаёт свой аккаунт и входит в первый раз, будет доверенным. Новые устройства должны быть утверждены существующим доверенным устройством или администратором.",
+    "message": "Пользователям не нужен мастер-пароль при авторизации с помощью SSO. Мастер-пароль будет заменен ключом шифрования, хранящимся на устройстве, что сделает это устройство доверенным. Первое устройство, на котором участник создает аккаунт и авторизуется, будет доверенным. Новые устройства должны быть одобрены существующим доверенным устройством или администратором.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink1": {
@@ -8458,11 +8426,11 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink3": {
-    "message": "account recovery administration",
+    "message": "политика администрирования восстановления аккаунтов",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart4": {
-    "message": "policy will turn on when this option is used.",
+    "message": "будет включена при использовании этой опции.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
@@ -8759,7 +8727,7 @@
     "message": "Ограничить удаление коллекций владельцам и администраторам"
   },
   "limitItemDeletionDesc": {
-    "message": "Ограничить удаление элементов для пользователей с разрешением «Может управлять»"
+    "message": "Ограничить удаление элементов для пользователей с разрешением 'Может управлять'"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Владельцы и администраторы могут управлять всеми коллекциями и элементами"
@@ -10501,7 +10469,7 @@
     }
   },
   "accountDeprovisioningNotification": {
-    "message": "Администраторы теперь могут удалять аккаунты пользователей, принадлежащие заявленному домену."
+    "message": "Администраторы теперь могут удалять аккаунты пользователей, принадлежащие зарегистрированному домену."
   },
   "deleteManagedUserWarningDesc": {
     "message": "Это действие удалит аккаунт пользователя, включая все элементы в его хранилище. Это действие заменяет предыдущее действие Удалить."
@@ -10532,7 +10500,7 @@
     "message": "Нет организаций для отображения"
   },
   "yourProviderSubscriptionCredit": {
-    "message": "Your provider subscription will receive a credit for any remaining time in the organization's subscription."
+    "message": "Ваш провайдер получит кредит на любое время, оставшееся в подписке организации."
   },
   "doYouWantToAddThisOrg": {
     "message": "Вы хотите добавить эту организацию в $PROVIDER$?",
@@ -10547,10 +10515,10 @@
     "message": "Добавлена ​​существующая организация"
   },
   "assignedExceedsAvailable": {
-    "message": "Assigned seats exceed available seats."
+    "message": "Количество назначенных мест превышает количество доступных."
   },
   "changeAtRiskPassword": {
-    "message": "Изменить пароль, находящийся под угрозой"
+    "message": "Изменить пароль, подверженный риску"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Отключить разблокировку PIN-кодом"
@@ -10559,7 +10527,7 @@
     "message": "Не разрешать пользователям разблокировать свои аккаунты с помощью PIN-кода."
   },
   "limitedEventLogs": {
-    "message": "Планы $PRODUCT_TYPE$ не имеют доступа к реальным журналам событий",
+    "message": "Планы $PRODUCT_TYPE$ не имеют доступа к журналам текущих событий",
     "placeholders": {
       "product_type": {
         "content": "$1",
@@ -10571,10 +10539,10 @@
     "message": "Получите полный доступ к журналам событий организации, перейдя на план Teams или Enterprise."
   },
   "upgradeEventLogTitle": {
-    "message": "Upgrade for real event log data"
+    "message": "Переудите на более высокий тариф для просмотра журнала реальных событий"
   },
   "upgradeEventLogMessage": {
-    "message": "Эти события являются лишь примерами и не отражают реальных событий в вашей организации Bitwarden."
+    "message": "Эти события являются лишь примерами и не отражают текущих событий вашей организации Bitwarden."
   },
   "cannotCreateCollection": {
     "message": "В бесплатных организациях может быть до 2 коллекций. Перейдите на платный план, чтобы добавить больше коллекций."

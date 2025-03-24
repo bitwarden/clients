@@ -219,23 +219,24 @@ export class VaultHeaderComponent implements OnInit {
   }
 
   async addCollection(): Promise<void> {
-    const organization = this.organizations?.find(
-      (org) => org.productTierType === ProductTierType.Free,
-    );
     const isBreadcrumbEventLogsEnabled = await firstValueFrom(
       this.configService.getFeatureFlag$(FeatureFlag.PM12276_BreadcrumbEventLogs),
     );
-    if (
-      this.organizations.length == 1 &&
-      organization.productTierType === ProductTierType.Free &&
-      isBreadcrumbEventLogsEnabled
-    ) {
-      const collections = await this.collectionAdminService.getAll(organization.id);
-      if (collections.length === organization.maxCollections) {
-        await this.showFreeOrgUpgradeDialog(organization);
-        return;
+
+    if (isBreadcrumbEventLogsEnabled) {
+      const organization = this.organizations?.find(
+        (org) => org.productTierType === ProductTierType.Free,
+      );
+
+      if (this.organizations?.length == 1 && !!organization) {
+        const collections = await this.collectionAdminService.getAll(organization.id);
+        if (collections.length === organization.maxCollections) {
+          await this.showFreeOrgUpgradeDialog(organization);
+          return;
+        }
       }
     }
+
     this.onAddCollection.emit();
   }
 
