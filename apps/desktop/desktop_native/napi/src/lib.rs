@@ -518,6 +518,14 @@ pub mod autofill {
     #[napi(object)]
     #[derive(Debug, Serialize, Deserialize)]
     #[serde(rename_all = "camelCase")]
+    pub struct Position {
+        pub x: i32,
+        pub y: i32,
+    }
+
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
     pub struct PasskeyRegistrationRequest {
         pub rp_id: String,
         pub user_name: String,
@@ -525,6 +533,7 @@ pub mod autofill {
         pub client_data_hash: Vec<u8>,
         pub user_verification: UserVerification,
         pub supported_algorithms: Vec<i32>,
+        pub window_xy: Position,
     }
 
     #[napi(object)]
@@ -542,12 +551,25 @@ pub mod autofill {
     #[serde(rename_all = "camelCase")]
     pub struct PasskeyAssertionRequest {
         pub rp_id: String,
+        pub client_data_hash: Vec<u8>,
+        pub user_verification: UserVerification,
+        pub allowed_credentials: Vec<Vec<u8>>,
+        pub window_xy: Position,
+        //extension_input: Vec<u8>, TODO: Implement support for extensions
+    }
+
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PasskeyAssertionWithoutUserInterfaceRequest {
+        pub rp_id: String,
         pub credential_id: Vec<u8>,
         pub user_name: String,
         pub user_handle: Vec<u8>,
         pub record_identifier: Option<String>,
         pub client_data_hash: Vec<u8>,
         pub user_verification: UserVerification,
+        pub window_xy: Position,
     }
 
     #[napi(object)]
@@ -592,6 +614,13 @@ pub mod autofill {
                 (u32, u32, PasskeyAssertionRequest),
                 ErrorStrategy::CalleeHandled,
             >,
+            #[napi(
+                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void"
+            )]
+            assertion_without_user_interface_callback: ThreadsafeFunction<
+                (u32, u32, PasskeyAssertionWithoutUserInterfaceRequest),
+                ErrorStrategy::CalleeHandled,
+            >,
         ) -> napi::Result<Self> {
             let (send, mut recv) = tokio::sync::mpsc::channel::<Message>(32);
             tokio::spawn(async move {
@@ -620,6 +649,25 @@ pub mod autofill {
                                         .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
 
                                     assertion_callback
+                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
+                                    continue;
+                                }
+                                Err(e) => {
+                                    println!("[ERROR] Error deserializing message1: {e}");
+                                }
+                            }
+
+                            match serde_json::from_str::<
+                                PasskeyMessage<PasskeyAssertionWithoutUserInterfaceRequest>,
+                            >(&message)
+                            {
+                                Ok(msg) => {
+                                    let value = msg
+                                        .value
+                                        .map(|value| (client_id, msg.sequence_number, value))
+                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
+
+                                    assertion_without_user_interface_callback
                                         .call(value, ThreadsafeFunctionCallMode::NonBlocking);
                                     continue;
                                 }

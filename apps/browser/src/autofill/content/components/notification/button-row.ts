@@ -60,23 +60,18 @@ export function NotificationButtonRow({
       )
     : ([] as Option[]);
 
-  const noFolderOption: Option = {
-    default: true,
-    icon: Folder,
-    text: "No folder", // @TODO localize
-    value: "0",
-  };
   const folderOptions: Option[] = folders?.length
-    ? folders.reduce(
+    ? folders.reduce<Option[]>(
         (options, { id, name }: FolderView) => [
           ...options,
           {
             icon: Folder,
             text: name,
-            value: id,
+            value: id === null ? "0" : id,
+            default: id === null,
           },
         ],
-        [noFolderOption],
+        [],
       )
     : [];
 
