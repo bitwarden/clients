@@ -84,7 +84,6 @@ export class OverlayNotificationsContentService
       theme: typeData.theme,
       removeIndividualVault: typeData.removeIndividualVault,
       importType: typeData.importType,
-      applyRedesign: true,
       launchTimestamp: typeData.launchTimestamp,
     };
 
