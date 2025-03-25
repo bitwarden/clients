@@ -10,9 +10,12 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
+import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
 
@@ -30,6 +33,8 @@ describe("WebRegistrationFinishService", () => {
   let policyApiService: MockProxy<PolicyApiServiceAbstraction>;
   let logService: MockProxy<LogService>;
   let policyService: MockProxy<PolicyService>;
+  const mockUserId = Utils.newGuid() as UserId;
+  let accountService: FakeAccountService;
 
   beforeEach(() => {
     keyService = mock<KeyService>();
@@ -38,6 +43,7 @@ describe("WebRegistrationFinishService", () => {
     policyApiService = mock<PolicyApiServiceAbstraction>();
     logService = mock<LogService>();
     policyService = mock<PolicyService>();
+    accountService = mockAccountServiceWith(mockUserId);
 
     service = new WebRegistrationFinishService(
       keyService,
@@ -46,6 +52,7 @@ describe("WebRegistrationFinishService", () => {
       policyApiService,
       logService,
       policyService,
+      accountService,
     );
   });
 

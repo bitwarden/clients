@@ -186,7 +186,7 @@
     "message": "Salin catatan"
   },
   "copy": {
-    "message": "Copy",
+    "message": "Salin",
     "description": "Copy to clipboard"
   },
   "fill": {
@@ -380,7 +380,7 @@
     "message": "Sunting Folder"
   },
   "editFolderWithName": {
-    "message": "Edit folder: $FOLDERNAME$",
+    "message": "Sunting folder: $FOLDERNAME$",
     "placeholders": {
       "foldername": {
         "content": "$1",
@@ -462,16 +462,16 @@
     "message": "Buat frasa sandi"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "Kata sandi dibuat"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Frasa sandi dibuat"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "Nama pengguna dibuat"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "Surel dibuat"
   },
   "regeneratePassword": {
     "message": "Buat Ulang Kata Sandi"
@@ -653,7 +653,7 @@
     "message": "Peramban Anda tidak mendukung menyalin clipboard dengan mudah. Salin secara manual."
   },
   "verifyYourIdentity": {
-    "message": "Verify your identity"
+    "message": "Verifikasikan identitas Anda"
   },
   "weDontRecognizeThisDevice": {
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
@@ -905,7 +905,7 @@
     "message": "Tidak"
   },
   "location": {
-    "message": "Location"
+    "message": "Lokasi"
   },
   "unexpectedError": {
     "message": "Terjadi kesalahan yang tak diduga."
@@ -2461,7 +2461,7 @@
     "message": "Change this in settings"
   },
   "change": {
-    "message": "Change"
+    "message": "Ubah"
   },
   "changeButtonTitle": {
     "message": "Change password - $ITEMNAME$",
@@ -4784,7 +4784,7 @@
     "message": "Text Sends"
   },
   "accountActions": {
-    "message": "Account actions"
+    "message": "Tindakan akun"
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Show number of login autofill suggestions on extension icon"
@@ -4793,22 +4793,22 @@
     "message": "Show quick copy actions on Vault"
   },
   "systemDefault": {
-    "message": "System default"
+    "message": "Baku sistem"
   },
   "enterprisePolicyRequirementsApplied": {
-    "message": "Enterprise policy requirements have been applied to this setting"
+    "message": "Persyaratan kebijakan perusahaan telah diterapkan ke pengaturan ini"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "Kunci privat"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "Kunci publik"
   },
   "sshFingerprint": {
-    "message": "Fingerprint"
+    "message": "Sidik jari"
   },
   "sshKeyAlgorithm": {
-    "message": "Key type"
+    "message": "Tipe kunci"
   },
   "sshKeyAlgorithmED25519": {
     "message": "ED25519"
@@ -4823,7 +4823,7 @@
     "message": "RSA 4096-Bit"
   },
   "retry": {
-    "message": "Retry"
+    "message": "Coba lagi"
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Minimum custom timeout is 1 minute."
@@ -5075,16 +5075,16 @@
     }
   },
   "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
+    "message": "Tidak"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
+    "message": "Ya, saya dapat mengakses surel saya secara handla"
   },
   "turnOnTwoStepLogin": {
     "message": "Turn on two-step login"
   },
   "changeAcctEmail": {
-    "message": "Change account email"
+    "message": "Ubah surel akun"
   },
   "extensionWidth": {
     "message": "Lebar ekstensi"
@@ -5096,31 +5096,31 @@
     "message": "Ekstra lebar"
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "Kata sandi yang Anda masukkan tidak benar."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "Impor"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "Konfirmasi kata sandi"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Enter the password for the SSH key."
+    "message": "Masukkan kata sandi untuk kunci SSH."
   },
   "enterSshKeyPassword": {
-    "message": "Enter password"
+    "message": "Masukkan kata sandi"
   },
   "invalidSshKey": {
-    "message": "The SSH key is invalid"
+    "message": "Kunci SSH tidak valid"
   },
   "sshKeyTypeUnsupported": {
-    "message": "The SSH key type is not supported"
+    "message": "Tipe kunci SSH tidak didukung"
   },
   "importSshKeyFromClipboard": {
-    "message": "Import key from clipboard"
+    "message": "Impor kunci dari papan klip"
   },
   "sshKeyImported": {
-    "message": "SSH key imported successfully"
+    "message": "Kunci SSH sukses diimpor"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Anda tidak dapat menghapus koleksi dengan izin hanya lihat: $COLLECTIONS$",
@@ -5132,12 +5132,12 @@
     }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Please update your desktop application"
+    "message": "Harap perbarui aplikasi desktop Anda"
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
+    "message": "Untuk memakai pembuka kunci biometrik, harap perbarui aplikasi desktop Anda, atau matikan buka kunci sidik jari dalam pengaturan desktop."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "Ubah kata sandi yang berrisiko"
   }
 }
