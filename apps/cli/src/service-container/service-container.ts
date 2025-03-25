@@ -795,6 +795,7 @@ export class ServiceContainer {
       this.cryptoFunctionService,
       this.kdfConfigService,
       this.accountService,
+      this.apiService,
     );
 
     this.organizationExportService = new OrganizationVaultExportService(
