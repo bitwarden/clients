@@ -7,12 +7,14 @@ import {
   OrganizationUserResetPasswordEnrollmentRequest,
 } from "@bitwarden/admin-console/common";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationWithSecret } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -39,6 +41,7 @@ export class EnrollMasterPasswordReset {
     toastService: ToastService,
     keyService: KeyService,
     accountService: AccountService,
+    organizationApiService: OrganizationApiServiceAbstraction,
   ) {
     const result = await UserVerificationDialogComponent.open(dialogService, {
       title: "enrollAccountRecovery",
@@ -50,17 +53,20 @@ export class EnrollMasterPasswordReset {
         type: "custom",
         verificationFn: async (secret: VerificationWithSecret) => {
           const activeUserId = (await firstValueFrom(accountService.activeAccount$)).id;
+
+          const publicKey = Utils.fromB64ToArray(
+            (await organizationApiService.getKeys(data.organization.id)).publicKey,
+          );
+
           const request =
             await userVerificationService.buildRequest<OrganizationUserResetPasswordEnrollmentRequest>(
               secret,
             );
-          const orgs = await resetPasswordService.getPublicKeys(activeUserId);
-          const organization = orgs.filter((d) => d.orgId === data.organization.id)[0];
           const dialogRef = OrganizationTrustComponent.open(dialogService, {
             data: {
-              name: organization.orgName,
-              orgId: organization.orgId,
-              publicKey: organization.publicKey,
+              name: data.organization.name,
+              orgId: data.organization.id,
+              publicKey,
             },
           });
           const result = await lastValueFrom(dialogRef.closed);
@@ -68,7 +74,7 @@ export class EnrollMasterPasswordReset {
             throw new Error("Organization not trusted, aborting user key rotation");
           }
 
-          const trustedOrgPublicKeys = [organization.publicKey];
+          const trustedOrgPublicKeys = [publicKey];
           const userKey = await firstValueFrom(keyService.userKey$(activeUserId));
 
           request.resetPasswordKey = await resetPasswordService.buildRecoveryKey(

@@ -211,6 +211,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
         this.toastService,
         this.keyService,
         this.accountService,
+        this.organizationApiService,
       );
     } else {
       // Remove reset password

@@ -54,7 +54,7 @@ export class OrganizationTrustComponent implements OnInit {
     this.loading = false;
   }
 
-  async submit() {
+  submit = async () => {
     if (this.loading) {
       return;
     }
@@ -64,7 +64,7 @@ export class OrganizationTrustComponent implements OnInit {
     } catch (e) {
       this.logService.error(e);
     }
-  }
+  };
 
   /**
    * Strongly typed helper to open a OrganizationTrustComponent

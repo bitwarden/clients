@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
@@ -242,11 +241,11 @@ export class UserKeyRotationService {
     const trustedOrgPublicKeys = orgs.map((d) => d.publicKey);
     // Note: Reset password keys request model has user verification
     // properties, but the rotation endpoint uses its own MP hash.
-    const organizationAccountRecoveryUnlockData = await this.resetPasswordService.getRotatedData(
+    const organizationAccountRecoveryUnlockData = (await this.resetPasswordService.getRotatedData(
       newUnencryptedUserKey,
       trustedOrgPublicKeys,
       user.id,
-    );
+    ))!;
     const passkeyUnlockData = await this.webauthnLoginAdminService.getRotatedData(
       originalUserKey,
       newUnencryptedUserKey,
