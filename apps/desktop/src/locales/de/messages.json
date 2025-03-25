@@ -3518,7 +3518,7 @@
     "message": "Schlüssel aus Zwischenablage importieren"
   },
   "sshKeyImported": {
-    "message": "SSH key imported successfully"
+    "message": "SSH-Schlüssel erfolgreich importiert"
   },
   "fileSavedToDevice": {
     "message": "Datei auf Gerät gespeichert. Greife darauf über die Downloads deines Geräts zu."

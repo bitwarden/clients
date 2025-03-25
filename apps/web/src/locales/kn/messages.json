@@ -879,9 +879,6 @@
   "filter": {
     "message": "Filter"
   },
-  "moveSelectedToOrg": {
-    "message": "ಆಯ್ದ ಸಂಸ್ಥೆಗೆ ಸರಿಸಿ"
-  },
   "deleteSelected": {
     "message": "ಆಯ್ಕೆಮಾಡಿದ ಅಳಿಸಿ"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "ಆಯ್ದ ವಸ್ತುಗಳನ್ನು $ORGNAME$ ಗೆ ಸರಿಸಲಾಗಿದೆ",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "ಈ ಐಟಂ ಅನ್ನು ಸರಿಸಲು ನೀವು ಬಯಸುವ ಸಂಸ್ಥೆಯನ್ನು ಆರಿಸಿ. ಸಂಸ್ಥೆಗೆ ಹೋಗುವುದರಿಂದ ವಸ್ತುವಿನ ಮಾಲೀಕತ್ವವನ್ನು ಆ ಸಂಸ್ಥೆಗೆ ವರ್ಗಾಯಿಸುತ್ತದೆ. ಈ ಐಟಂ ಅನ್ನು ಸರಿಸಿದ ನಂತರ ನೀವು ಇನ್ನು ಮುಂದೆ ಅದರ ನೇರ ಮಾಲೀಕರಾಗಿರುವುದಿಲ್ಲ."
   },
-  "moveManyToOrgDesc": {
-    "message": "ಈ ವಸ್ತುಗಳನ್ನು ಸರಿಸಲು ನೀವು ಬಯಸುವ ಸಂಸ್ಥೆಯನ್ನು ಆರಿಸಿ. ಸಂಸ್ಥೆಗೆ ಹೋಗುವುದರಿಂದ ವಸ್ತುಗಳ ಮಾಲೀಕತ್ವವನ್ನು ಆ ಸಂಸ್ಥೆಗೆ ವರ್ಗಾಯಿಸುತ್ತದೆ. ಈ ವಸ್ತುಗಳನ್ನು ಸರಿಸಿದ ನಂತರ ನೀವು ಇನ್ನು ಮುಂದೆ ಅವರ ನೇರ ಮಾಲೀಕರಾಗಿರುವುದಿಲ್ಲ."
-  },
   "collectionsDesc": {
     "message": "ಈ ಐಟಂ ಹಂಚಿಕೊಳ್ಳುತ್ತಿರುವ ಸಂಗ್ರಹಗಳನ್ನು ಸಂಪಾದಿಸಿ. ಈ ಸಂಗ್ರಹಣೆಗಳಿಗೆ ಪ್ರವೇಶ ಹೊಂದಿರುವ ಸಂಸ್ಥೆಯ ಬಳಕೆದಾರರಿಗೆ ಮಾತ್ರ ಈ ಐಟಂ ಅನ್ನು ನೋಡಲು ಸಾಧ್ಯವಾಗುತ್ತದೆ."
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "ನೀವು $COUNT$ ಐಟಂ (ಗಳನ್ನು) ಆಯ್ಕೆ ಮಾಡಿದ್ದೀರಿ. $MOVEABLE_COUNT$ ಐಟಂ (ಗಳನ್ನು) ಸಂಸ್ಥೆಗೆ ಸರಿಸಬಹುದು, $NONMOVEABLE_COUNT$ ಸಾಧ್ಯವಿಲ್ಲ.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },

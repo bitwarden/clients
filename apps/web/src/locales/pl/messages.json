@@ -879,9 +879,6 @@
   "filter": {
     "message": "Filtr"
   },
-  "moveSelectedToOrg": {
-    "message": "Przenieś zaznaczone do organizacji"
-  },
   "deleteSelected": {
     "message": "Usuń zaznaczone"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Zaznaczone elementy zostały przeniesione do organizacji $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "Wybierz organizację, do której chcesz przenieść ten element. Ta czynność spowoduje utratę własności elementu i przenosi te uprawnienia do organizacji."
   },
-  "moveManyToOrgDesc": {
-    "message": "Wybierz organizację, do której chcesz przenieść te elementy. Ta czynność spowoduje utratę własności elementów i przenosi te uprawnienia do organizacji."
-  },
   "collectionsDesc": {
     "message": "Edytuj kolekcje zawierające ten element. Tylko użytkownicy organizacji posiadający dostęp do tych kolekcji będą mogli zobaczyć ten element."
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "Zaznaczone elementy: $COUNT$\nElementy możliwe do przeniesienia: $MOVEABLE_COUNT$\nElementy niemożliwe do przeniesienia: $NONMOVEABLE_COUNT$",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },

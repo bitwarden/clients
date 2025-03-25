@@ -4733,15 +4733,6 @@
   "nothingSelected": {
     "message": "Δεν έχετε επιλέξει τίποτα."
   },
-  "movedItemsToOrg": {
-    "message": "Τα επιλεγμένα αντικείμενα μετακινήθηκαν στο $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
-  },
   "itemsMovedToOrg": {
     "message": "Τα αντικείμενα μεταφέρθηκαν στο $ORGNAME$",
     "placeholders": {
