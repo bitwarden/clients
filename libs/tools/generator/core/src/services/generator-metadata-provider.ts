@@ -145,12 +145,14 @@ export class GeneratorMetadataProvider {
 
     const available$ = id$.pipe(
       switchMap((id) => {
-        const policies$ = this.application.policy.getAll$(PolicyType.PasswordGenerator, id).pipe(
-          map((p) => availableAlgorithms_vNext(p).filter((a) => this._metadata.has(a))),
-          map((p) => new Set(p)),
-          // complete policy emissions otherwise `switchMap` holds `available$` open indefinitely
-          takeUntil(anyComplete(id$)),
-        );
+        const policies$ = this.application.policy
+          .policiesByType$(PolicyType.PasswordGenerator, id)
+          .pipe(
+            map((p) => availableAlgorithms_vNext(p).filter((a) => this._metadata.has(a))),
+            map((p) => new Set(p)),
+            // complete policy emissions otherwise `switchMap` holds `available$` open indefinitely
+            takeUntil(anyComplete(id$)),
+          );
         return policies$;
       }),
       map(
