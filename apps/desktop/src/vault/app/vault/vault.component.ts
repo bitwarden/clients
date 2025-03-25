@@ -758,8 +758,9 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     this.config = await this.formConfigService.buildConfig(
-      queryParams.action === "clone" ? "edit" : queryParams.action,
+      queryParams.action,
       this.cipherId as CipherId,
+      queryParams.type,
     );
 
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.

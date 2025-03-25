@@ -9,7 +9,7 @@
     (onAddCipherOptions)="addCipherOptions()"
   >
   </app-vault-items>
-  <div class="details">
+  <div *ngIf="cipher" class="details">
     <app-vault-item-footer
       *ngIf="cipher"
       id="footer"
@@ -24,14 +24,10 @@
     <div class="content">
       <div class="inner-content">
         <div class="box">
-          <app-cipher-view
-            *ngIf="action === 'view' || action === 'clone'"
-            [cipher]="cipher"
-            [collections]="collections"
-          >
+          <app-cipher-view *ngIf="action === 'view'" [cipher]="cipher" [collections]="collections">
           </app-cipher-view>
           <vault-cipher-form
-            *ngIf="action === 'add' || action === 'edit'"
+            *ngIf="action === 'add' || action === 'edit' || action === 'clone'"
             formId="cipherForm"
             [config]="config"
             (cipherSaved)="savedCipher($event)"
