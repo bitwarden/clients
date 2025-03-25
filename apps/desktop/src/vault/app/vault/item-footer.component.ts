@@ -78,6 +78,10 @@ export class ItemFooterComponent implements OnInit {
     return false;
   }
 
+  protected edit() {
+    this.onEdit.emit(this.cipher);
+  }
+
   async share() {
     if (await this.promptPassword()) {
       this.onShare.emit(this.cipher);
