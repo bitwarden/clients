@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Observable } from "rxjs";
 
+import { DeviceKeysUpdateRequest } from "@bitwarden/common/auth/models/request/update-devices-trust.request";
+
 import { DeviceResponse } from "../../../auth/abstractions/devices/responses/device.response";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { UserId } from "../../../types/guid";
