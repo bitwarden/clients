@@ -429,20 +429,14 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async shouldReprompt(cipher: CipherView, action: "edit" | "clone"): Promise<boolean> {
-    return !(
-      (await this.canNavigateAway(action, cipher)) || !(await this.passwordReprompt(cipher))
-    );
+    return !(await this.canNavigateAway(action, cipher)) || !(await this.passwordReprompt(cipher));
   }
 
   async editCipher(cipher: CipherView) {
-    if (!(await this.shouldReprompt(cipher, "edit"))) {
+    if (await this.shouldReprompt(cipher, "edit")) {
       return;
     }
 
-    await this.editCipherWithoutPasswordPrompt(cipher);
-  }
-
-  async editCipherWithoutPasswordPrompt(cipher: CipherView) {
     this.cipherId = cipher.id;
     this.cipher = cipher;
     this.action = "edit";
@@ -450,15 +444,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async cloneCipher(cipher: CipherView) {
-    if (!(await this.shouldReprompt(cipher, "clone"))) {
-      return;
-    }
-
-    await this.cloneCipherWithoutPasswordPrompt(cipher);
-  }
-
-  async cloneCipherWithoutPasswordPrompt(cipher: CipherView) {
-    if (!(await this.canNavigateAway("edit", cipher))) {
+    if (await this.shouldReprompt(cipher, "clone")) {
       return;
     }
 

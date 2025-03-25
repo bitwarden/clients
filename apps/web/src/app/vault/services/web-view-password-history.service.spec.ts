@@ -3,12 +3,11 @@ import { TestBed } from "@angular/core/testing";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
-
-import { openPasswordHistoryDialog } from "../individual-vault/password-history.component";
+import { openPasswordHistoryDialog } from "@bitwarden/vault";
 
 import { WebViewPasswordHistoryService } from "./web-view-password-history.service";
 
-jest.mock("../individual-vault/password-history.component", () => ({
+jest.mock("@bitwarden/vault", () => ({
   openPasswordHistoryDialog: jest.fn(),
 }));
 

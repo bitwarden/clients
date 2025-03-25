@@ -1,18 +1,22 @@
-import { inject } from "@angular/core";
-import { Router } from "@angular/router";
+import { Injectable } from "@angular/core";
 
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { DialogService } from "@bitwarden/components";
+import { openPasswordHistoryDialog } from "@bitwarden/vault";
 
+/**
+ * This service is used to display the password history dialog in the web vault.
+ */
+@Injectable()
 export class DesktopViewPasswordHistoryService implements ViewPasswordHistoryService {
-  private router = inject(Router);
+  constructor(private dialogService: DialogService) {}
 
   /**
-   * Navigates to the password history screen.
+   * Opens the password history dialog for the given cipher ID.
+   * @param cipherId The ID of the cipher to view the password history for.
    */
   async viewPasswordHistory(cipher: CipherView) {
-    await this.router.navigate(["/cipher-password-history"], {
-      queryParams: { cipherId: cipher.id },
-    });
+    openPasswordHistoryDialog(this.dialogService, { data: { cipher } });
   }
 }
