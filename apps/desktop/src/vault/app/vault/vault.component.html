@@ -24,10 +24,14 @@
     <div class="content">
       <div class="inner-content">
         <div class="box">
-          <app-cipher-view *ngIf="action === 'view'" [cipher]="cipher" [collections]="collections">
+          <app-cipher-view
+            *ngIf="action === 'view' || action === 'clone'"
+            [cipher]="cipher"
+            [collections]="collections"
+          >
           </app-cipher-view>
           <vault-cipher-form
-            *ngIf="action === 'add' || action === 'edit' || action === 'clone'"
+            *ngIf="action === 'add' || action === 'edit'"
             formId="cipherForm"
             [config]="config"
             (cipherSaved)="savedCipher($event)"
