@@ -84,42 +84,54 @@ export class SignalRConnectionService {
       let reconnectSubscription: Subscription | null = null;
 
       // Create schedule reconnect function
-      const scheduleReconnect = (): Subscription => {
+      const scheduleReconnect = () => {
         if (
           connection == null ||
           connection.state !== HubConnectionState.Disconnected ||
           (reconnectSubscription != null && !reconnectSubscription.closed)
         ) {
-          return Subscription.EMPTY;
+          // Skip scheduling a new reconnect, either the connection isn't disconnected
+          // or an active reconnect is already scheduled.
+          return;
+        }
+
+        // If we've somehow gotten here while the subscriber is closed,
+        // we do not want to reconnect. So leave.
+        if (subsciber.closed) {
+          return;
         }
 
         const randomTime = this.randomReconnectTime();
         const timeoutHandler = this.timeoutManager.setTimeout(() => {
           connection
             .start()
-            .then(() => (reconnectSubscription = null))
+            .then(() => {
+              reconnectSubscription = null;
+            })
             .catch(() => {
-              reconnectSubscription = scheduleReconnect();
+              scheduleReconnect();
             });
         }, randomTime);
 
-        return new Subscription(() => this.timeoutManager.clearTimeout(timeoutHandler));
+        reconnectSubscription = new Subscription(() =>
+          this.timeoutManager.clearTimeout(timeoutHandler),
+        );
       };
 
       connection.onclose((error) => {
-        reconnectSubscription = scheduleReconnect();
+        scheduleReconnect();
       });
 
       // Start connection
       connection.start().catch(() => {
-        reconnectSubscription = scheduleReconnect();
+        scheduleReconnect();
       });
 
       return () => {
+        // Cancel any possible scheduled reconnects
+        reconnectSubscription?.unsubscribe();
         connection?.stop().catch((error) => {
           this.logService.error("Error while stopping SignalR connection", error);
-          // TODO: Does calling stop call `onclose`?
-          reconnectSubscription?.unsubscribe();
         });
       };
     });
