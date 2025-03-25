@@ -30,9 +30,11 @@ import {
   BitwardenCsvOrgExportType,
   BitwardenEncryptedOrgJsonExport,
   BitwardenUnEncryptedOrgJsonExport,
+  ExportedVaultAsString,
 } from "../types";
 
 import { BaseVaultExportService } from "./base-vault-export.service";
+import { ExportHelper } from "./export-helper";
 import { OrganizationVaultExportServiceAbstraction } from "./org-vault-export.service.abstraction";
 import { ExportFormat } from "./vault-export.service.abstraction";
 
@@ -54,38 +56,70 @@ export class OrganizationVaultExportService
     super(pinService, encryptService, cryptoFunctionService, kdfConfigService);
   }
 
+  /** Creates a password protected export of an organizational vault.
+   * @param organizationId The organization id
+   * @param password The password to protect the export
+   * @param onlyManagedCollections If true only managed collections will be exported
+   * @returns The exported vault
+   */
   async getPasswordProtectedExport(
     organizationId: string,
     password: string,
     onlyManagedCollections: boolean,
-  ): Promise<string> {
-    const clearText = await this.getOrganizationExport(
+  ): Promise<ExportedVaultAsString> {
+    const exportVault = await this.getOrganizationExport(
       organizationId,
       "json",
       onlyManagedCollections,
     );
 
-    return this.buildPasswordExport(clearText, password);
+    return {
+      type: "text/plain",
+      data: await this.buildPasswordExport(exportVault.data, password),
+      fileName: ExportHelper.getFileName("org", "encrypted_json"),
+    } as ExportedVaultAsString;
   }
 
+  /** Creates an export of an organizational vault. Based on the provided format it will either be unencrypted, encrypted
+   * @param organizationId The organization id
+   * @param format The format of the export
+   * @param onlyManagedCollections If true only managed collections will be exported
+   * @returns The exported vault
+   * @throws Error if the format is zip
+   * @throws Error if the organization id is not set
+   * @throws Error if the format is not supported
+   * @throws Error if the organization policies prevent the export
+   */
   async getOrganizationExport(
     organizationId: string,
     format: ExportFormat = "csv",
     onlyManagedCollections: boolean,
-  ): Promise<string> {
+  ): Promise<ExportedVaultAsString> {
     if (Utils.isNullOrWhitespace(organizationId)) {
       throw new Error("OrganizationId must be set");
     }
 
-    if (format === "encrypted_json") {
-      return onlyManagedCollections
-        ? this.getEncryptedManagedExport(organizationId)
-        : this.getOrganizationEncryptedExport(organizationId);
+    if (format === "zip") {
+      throw new Error("Zip export not supported for organization");
     }
 
-    return onlyManagedCollections
-      ? this.getDecryptedManagedExport(organizationId, format)
-      : this.getOrganizationDecryptedExport(organizationId, format);
+    if (format === "encrypted_json") {
+      return {
+        type: "text/plain",
+        data: onlyManagedCollections
+          ? await this.getEncryptedManagedExport(organizationId)
+          : await this.getOrganizationEncryptedExport(organizationId),
+        fileName: ExportHelper.getFileName("org", "json"),
+      } as ExportedVaultAsString;
+    }
+
+    return {
+      type: "text/plain",
+      data: onlyManagedCollections
+        ? await this.getDecryptedManagedExport(organizationId, format)
+        : await this.getOrganizationDecryptedExport(organizationId, format),
+      fileName: ExportHelper.getFileName("org", format),
+    } as ExportedVaultAsString;
   }
 
   private async getOrganizationDecryptedExport(
