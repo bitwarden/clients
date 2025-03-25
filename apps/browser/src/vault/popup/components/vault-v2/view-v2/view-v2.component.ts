@@ -19,7 +19,6 @@ import {
   COPY_USERNAME_ID,
   COPY_VERIFICATION_CODE_ID,
   SHOW_AUTOFILL_BUTTON,
-  VIEW_ITEM,
 } from "@bitwarden/common/autofill/constants";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -73,8 +72,7 @@ type LoadAction =
   | typeof SHOW_AUTOFILL_BUTTON
   | typeof COPY_USERNAME_ID
   | typeof COPY_PASSWORD_ID
-  | typeof COPY_VERIFICATION_CODE_ID
-  | typeof VIEW_ITEM;
+  | typeof COPY_VERIFICATION_CODE_ID;
 
 @Component({
   selector: "app-view-v2",

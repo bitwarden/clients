@@ -42,7 +42,6 @@ export const ClearClipboardDelay = {
 export const AUTOFILL_CARD_ID = "autofill-card";
 export const AUTOFILL_ID = "autofill";
 export const SHOW_AUTOFILL_BUTTON = "show-autofill-button";
-export const VIEW_ITEM = "view-item";
 export const AUTOFILL_IDENTITY_ID = "autofill-identity";
 export const COPY_IDENTIFIER_ID = "copy-identifier";
 export const COPY_PASSWORD_ID = "copy-password";
