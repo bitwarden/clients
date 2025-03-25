@@ -5,14 +5,11 @@ import { firstValueFrom, of } from "rxjs";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { FakeStateProvider, mockAccountServiceWith } from "../../../common/spec";
+import { FakeStateProvider, mockAccountServiceWith } from "../../../../common/spec";
 
 import { VaultOnboardingNudgesService } from "./custom-nudges-services/vault-onboarding-nudges.service";
-import {
-  DefaultSingleNudgeService,
-  VaultNudgesService,
-  VaultNudgeType,
-} from "./vault-nudges.service";
+import { DefaultSingleNudgeService } from "./default-single-nudge.service";
+import { VaultNudgesService, VaultNudgeType } from "./vault-nudges.service";
 
 describe("End User Notification Center Service", () => {
   let fakeStateProvider: FakeStateProvider;
