@@ -7,11 +7,15 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { EventType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   ExportFormat,
   EXPORT_FORMATS,
   VaultExportServiceAbstraction,
+  ExportedVault,
+  ExportedVaultAsBlob,
 } from "@bitwarden/vault-export-core";
 
 import { Response } from "../models/response";
@@ -22,6 +26,7 @@ export class ExportCommand {
     private exportService: VaultExportServiceAbstraction,
     private policyService: PolicyService,
     private eventCollectionService: EventCollectionService,
+    private configService: ConfigService,
   ) {}
 
   async run(options: OptionValues): Promise<Response> {
@@ -42,6 +47,13 @@ export class ExportCommand {
     const format =
       password && options.format == "json" ? "encrypted_json" : (options.format ?? "csv");
 
+    if (
+      format == "zip" &&
+      !(await this.configService.getFeatureFlag(FeatureFlag.ExportAttachments))
+    ) {
+      return Response.badRequest("Exporting attachments is not supported in this environment.");
+    }
+
     if (!this.isSupportedExportFormat(format)) {
       return Response.badRequest(
         `'${format}' is not a supported export format. Supported formats: ${EXPORT_FORMATS.join(
@@ -54,7 +66,7 @@ export class ExportCommand {
       return Response.error("`" + options.organizationid + "` is not a GUID.");
     }
 
-    let exportContent: string = null;
+    let exportContent: ExportedVault = null;
     try {
       if (format === "encrypted_json") {
         password = await this.promptPassword(password);
@@ -78,32 +90,26 @@ export class ExportCommand {
     } catch (e) {
       return Response.error(e);
     }
-    return await this.saveFile(exportContent, options, format);
+    return await this.saveFile(exportContent, options);
   }
 
-  private async saveFile(
-    exportContent: string,
-    options: OptionValues,
-    format: ExportFormat,
-  ): Promise<Response> {
+  private async saveFile(exportContent: ExportedVault, options: OptionValues): Promise<Response> {
     try {
-      const fileName = this.getFileName(format, options.organizationid != null ? "org" : null);
-      return await CliUtils.saveResultToFile(exportContent, options.output, fileName);
+      if (exportContent.type === "application/zip") {
+        exportContent = exportContent as ExportedVaultAsBlob;
+        const arrayBuffer = await exportContent.data.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        return await CliUtils.saveResultToFile(buffer, options.output, exportContent.fileName);
+      }
+
+      return await CliUtils.saveResultToFile(
+        exportContent.data,
+        options.output,
+        exportContent.fileName,
+      );
     } catch (e) {
       return Response.error(e.toString());
     }
-  }
-
-  private getFileName(format: ExportFormat, prefix?: string) {
-    if (format === "encrypted_json") {
-      if (prefix == null) {
-        prefix = "encrypted";
-      } else {
-        prefix = "encrypted_" + prefix;
-      }
-      format = "json";
-    }
-    return this.exportService.getFileName(prefix, format);
   }
 
   private async promptPassword(password: string | boolean) {
