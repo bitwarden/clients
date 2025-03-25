@@ -13,6 +13,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, Subject, takeUntil, switchMap } from "rxjs";
 import { filter, first, map, take } from "rxjs/operators";
 
+import { CollectionView } from "@bitwarden/admin-console/common";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
@@ -23,7 +24,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -36,7 +36,12 @@ import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-repromp
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { DecryptionFailureDialogComponent, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  CipherFormConfig,
+  CipherFormConfigService,
+  DecryptionFailureDialogComponent,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
 import { invokeMenu, RendererMenuItem } from "../../../utils";
@@ -46,6 +51,7 @@ import { AttachmentsComponent } from "./attachments.component";
 import { CollectionsComponent } from "./collections.component";
 import { CredentialGeneratorDialogComponent } from "./credential-generator-dialog.component";
 import { FolderAddEditComponent } from "./folder-add-edit.component";
+import { ItemFooterComponent } from "./item-footer.component";
 import { PasswordHistoryComponent } from "./password-history.component";
 import { ShareComponent } from "./share.component";
 import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
@@ -70,10 +76,11 @@ export class VaultComponent implements OnInit, OnDestroy {
   @ViewChild("passwordHistory", { read: ViewContainerRef, static: true })
   passwordHistoryModalRef: ViewContainerRef;
   @ViewChild("share", { read: ViewContainerRef, static: true }) shareModalRef: ViewContainerRef;
-  @ViewChild("collections", { read: ViewContainerRef, static: true })
+  @ViewChild("collectionsModal", { read: ViewContainerRef, static: true })
   collectionsModalRef: ViewContainerRef;
   @ViewChild("folderAddEdit", { read: ViewContainerRef, static: true })
   folderAddEditModalRef: ViewContainerRef;
+  @ViewChild("footer") footer: ItemFooterComponent;
 
   action: string;
   cipherId: string = null;
@@ -91,6 +98,9 @@ export class VaultComponent implements OnInit, OnDestroy {
   userHasPremiumAccess = false;
   activeFilter: VaultFilter = new VaultFilter();
   activeUserId: UserId;
+  cipher: CipherView;
+  collections: CollectionView[] = [];
+  config: CipherFormConfig;
 
   private modal: ModalRef = null;
   private componentIsDestroyed$ = new Subject<boolean>();
@@ -114,9 +124,9 @@ export class VaultComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private toastService: ToastService,
-    private configService: ConfigService,
     private accountService: AccountService,
     private cipherService: CipherService,
+    private formConfigService: CipherFormConfigService,
   ) {}
 
   async ngOnInit() {
@@ -301,8 +311,9 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     this.cipherId = cipher.id;
+    this.cipher = cipher;
     this.action = "view";
-    this.go();
+    await this.go();
   }
 
   viewCipherMenu(cipher: CipherView) {
@@ -417,10 +428,14 @@ export class VaultComponent implements OnInit, OnDestroy {
     invokeMenu(menu);
   }
 
+  async shouldReprompt(cipher: CipherView, action: "edit" | "clone"): Promise<boolean> {
+    return !(
+      (await this.canNavigateAway(action, cipher)) || !(await this.passwordReprompt(cipher))
+    );
+  }
+
   async editCipher(cipher: CipherView) {
-    if (!(await this.canNavigateAway("edit", cipher))) {
-      return;
-    } else if (!(await this.passwordReprompt(cipher))) {
+    if (!(await this.shouldReprompt(cipher, "edit"))) {
       return;
     }
 
@@ -428,19 +443,14 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async editCipherWithoutPasswordPrompt(cipher: CipherView) {
-    if (!(await this.canNavigateAway("edit", cipher))) {
-      return;
-    }
-
     this.cipherId = cipher.id;
+    this.cipher = cipher;
     this.action = "edit";
-    this.go();
+    await this.go();
   }
 
   async cloneCipher(cipher: CipherView) {
-    if (!(await this.canNavigateAway("clone", cipher))) {
-      return;
-    } else if (!(await this.passwordReprompt(cipher))) {
+    if (!(await this.shouldReprompt(cipher, "clone"))) {
       return;
     }
 
@@ -453,8 +463,9 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     this.cipherId = cipher.id;
+    this.cipher = cipher;
     this.action = "clone";
-    this.go();
+    await this.go();
   }
 
   async addCipher(type: CipherType = null) {
@@ -466,7 +477,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.action = "add";
     this.cipherId = null;
     this.prefillNewCipherFromFilter();
-    this.go();
+    await this.go();
   }
 
   addCipherOptions() {
@@ -497,23 +508,25 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.action = "view";
     await this.vaultItemsComponent.refresh();
     this.cipherId = cipher.id;
+    this.cipher = cipher;
     await this.cipherService.clearCache(this.activeUserId);
     await this.vaultItemsComponent.load(this.activeFilter.buildFilter());
-    this.go();
+    await this.go();
     await this.vaultItemsComponent.refresh();
   }
 
-  async deletedCipher(cipher: CipherView) {
+  async deleteCipher() {
     this.cipherId = null;
+    this.cipher = null;
     this.action = null;
-    this.go();
+    await this.go();
     await this.vaultItemsComponent.refresh();
   }
 
-  async restoredCipher(cipher: CipherView) {
+  async restoreCipher() {
     this.cipherId = null;
     this.action = null;
-    this.go();
+    await this.go();
     await this.vaultItemsComponent.refresh();
   }
 
@@ -625,12 +638,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     });
   }
 
-  cancelledAddEdit(cipher: CipherView) {
-    this.cipherId = cipher.id;
-    this.action = this.cipherId != null ? "view" : null;
-    this.go();
-  }
-
   async applyVaultFilter(vaultFilter: VaultFilter) {
     this.searchBarService.setPlaceholderText(
       this.i18nService.t(this.calculateSearchBarLocalizationString(vaultFilter)),
@@ -640,7 +647,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.activeFilter.buildFilter(),
       vaultFilter.status === "trash",
     );
-    this.go();
+    await this.go();
   }
 
   private calculateSearchBarLocalizationString(vaultFilter: VaultFilter): string {
@@ -735,7 +742,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     return !confirmed;
   }
 
-  private go(queryParams: any = null) {
+  private async go(queryParams: any = null) {
     if (queryParams == null) {
       queryParams = {
         action: this.action,
@@ -749,6 +756,11 @@ export class VaultComponent implements OnInit, OnDestroy {
         myVaultOnly: this.myVaultOnly,
       };
     }
+
+    this.config = await this.formConfigService.buildConfig(
+      queryParams.action === "clone" ? "edit" : queryParams.action,
+      this.cipherId as CipherId,
+    );
 
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -794,11 +806,12 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   private prefillNewCipherFromFilter() {
     if (this.activeFilter.selectedCollectionId != null) {
-      const collection = this.vaultFilterComponent.collections.fullList.filter(
+      const collections = this.vaultFilterComponent.collections.fullList.filter(
         (c) => c.id === this.activeFilter.selectedCollectionId,
       );
-      if (collection.length > 0) {
-        this.addOrganizationId = collection[0].organizationId;
+      this.collections = collections;
+      if (collections.length > 0) {
+        this.addOrganizationId = collections[0].organizationId;
         this.addCollectionIds = [this.activeFilter.selectedCollectionId];
       }
     } else if (this.activeFilter.selectedOrganizationId) {

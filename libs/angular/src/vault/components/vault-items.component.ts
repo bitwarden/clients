@@ -136,7 +136,7 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
     }
 
     this.ciphers = await this.searchService.searchCiphers(
-      this.userId,
+      userId,
       this.searchText,
       [this.filter, this.deletedFilter],
       indexedCiphers,

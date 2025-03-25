@@ -67,6 +67,7 @@ app-root {
     flex: 1;
     min-width: 0;
     order: 3;
+    flex-direction: column-reverse;
 
     @include themify($themes) {
       background-color: themed("backgroundColorAlt2");

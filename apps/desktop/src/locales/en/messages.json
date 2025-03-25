@@ -3529,6 +3529,24 @@
   "setupTwoStepLogin": {
     "message": "Set up two-step login"
   },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "Last edited"
+  },
   "newDeviceVerificationNoticeContentPage1": {
     "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
   },

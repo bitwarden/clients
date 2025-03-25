@@ -28,11 +28,8 @@ import { CollectionsComponent } from "../vault/app/vault/collections.component";
 import { FolderAddEditComponent } from "../vault/app/vault/folder-add-edit.component";
 import { PasswordHistoryComponent } from "../vault/app/vault/password-history.component";
 import { ShareComponent } from "../vault/app/vault/share.component";
-import { VaultFilterModule } from "../vault/app/vault/vault-filter/vault-filter.module";
-import { VaultItemsComponent } from "../vault/app/vault/vault-items.component";
-import { VaultComponent } from "../vault/app/vault/vault.component";
+import { VaultModule } from "../vault/app/vault/vault.module";
 import { ViewCustomFieldsComponent } from "../vault/app/vault/view-custom-fields.component";
-import { ViewComponent } from "../vault/app/vault/view.component";
 
 import { SettingsComponent } from "./accounts/settings.component";
 import { VaultTimeoutInputComponent } from "./accounts/vault-timeout-input.component";
@@ -49,7 +46,6 @@ import { SharedModule } from "./shared/shared.module";
   imports: [
     SharedModule,
     AppRoutingModule,
-    VaultFilterModule,
     LoginModule,
     DialogModule,
     CalloutModule,
@@ -57,6 +53,7 @@ import { SharedModule } from "./shared/shared.module";
     UserVerificationComponent,
     DecryptionFailureDialogComponent,
     NavComponent,
+    VaultModule,
   ],
   declarations: [
     AccessibilityCookieComponent,
@@ -65,7 +62,6 @@ import { SharedModule } from "./shared/shared.module";
     AddEditCustomFieldsComponent,
     AppComponent,
     AttachmentsComponent,
-    VaultItemsComponent,
     CollectionsComponent,
     ColorPasswordPipe,
     ColorPasswordCountPipe,
@@ -82,11 +78,10 @@ import { SharedModule } from "./shared/shared.module";
     SsoComponentV1,
     TwoFactorOptionsComponentV1,
     UpdateTempPasswordComponent,
-    VaultComponent,
     VaultTimeoutInputComponent,
-    ViewComponent,
     ViewCustomFieldsComponent,
   ],
+  exports: [VaultModule],
   providers: [SshAgentService],
   bootstrap: [AppComponent],
 })
