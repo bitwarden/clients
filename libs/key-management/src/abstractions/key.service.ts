@@ -327,6 +327,17 @@ export abstract class KeyService {
   abstract userPrivateKeyWithLegacySupport$(userId: UserId): Observable<UserPrivateKey | null>;
 
   /**
+   * Gets an observable stream of the given users decrypted private key and public key, guaranteed to be consistent.
+   * Will emit null if the user doesn't have a userkey to decrypt the encrypted private key, or null if the user doesn't have a private key
+   * at all.
+   *
+   * @param userId The user id of the user to get the data for.
+   */
+  abstract userEncryptionKeyPair$(
+    userId: UserId,
+  ): Observable<{ privateKey: UserPrivateKey; publicKey: UserPublicKey } | null>;
+
+  /**
    * Generates a fingerprint phrase for the user based on their public key
    *
    * @throws Error when publicKey is null and there is no active user, or the active user does not have a public key

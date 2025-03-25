@@ -47,6 +47,8 @@ export class AdjustPaymentDialogComponent implements OnInit {
   protected productTier?: ProductTierType;
   protected providerId?: string;
 
+  protected loading = true;
+
   protected taxInformation: TaxInformation;
 
   constructor(
@@ -72,16 +74,26 @@ export class AdjustPaymentDialogComponent implements OnInit {
         .getTaxInfo(this.organizationId)
         .then((response: TaxInfoResponse) => {
           this.taxInformation = TaxInformation.from(response);
+          this.toggleBankAccount();
         })
         .catch(() => {
           this.taxInformation = new TaxInformation();
+        })
+        .finally(() => {
+          this.loading = false;
         });
     } else if (this.providerId) {
       this.billingApiService
         .getProviderTaxInformation(this.providerId)
-        .then((response) => (this.taxInformation = TaxInformation.from(response)))
+        .then((response) => {
+          this.taxInformation = TaxInformation.from(response);
+          this.toggleBankAccount();
+        })
         .catch(() => {
           this.taxInformation = new TaxInformation();
+        })
+        .finally(() => {
+          this.loading = false;
         });
     } else {
       this.apiService
@@ -91,21 +103,28 @@ export class AdjustPaymentDialogComponent implements OnInit {
         })
         .catch(() => {
           this.taxInformation = new TaxInformation();
+        })
+        .finally(() => {
+          this.loading = false;
         });
     }
   }
 
   taxInformationChanged(event: TaxInformation) {
     this.taxInformation = event;
-    if (event.country === "US") {
-      this.paymentComponent.showBankAccount = !!this.organizationId;
+    this.toggleBankAccount();
+  }
+
+  toggleBankAccount = () => {
+    if (this.taxInformation.country === "US") {
+      this.paymentComponent.showBankAccount = !!this.organizationId || !!this.providerId;
     } else {
       this.paymentComponent.showBankAccount = false;
       if (this.paymentComponent.selected === PaymentMethodType.BankAccount) {
         this.paymentComponent.select(PaymentMethodType.Card);
       }
     }
-  }
+  };
 
   submit = async (): Promise<void> => {
     if (!this.taxInfoComponent.validate()) {
