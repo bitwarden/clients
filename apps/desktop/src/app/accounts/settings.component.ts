@@ -22,7 +22,6 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { DeviceType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   VaultTimeout,
   VaultTimeoutAction,
@@ -36,7 +35,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { ThemeType } from "@bitwarden/common/platform/enums/theme-type.enum";
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -53,7 +52,6 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
   selector: "app-settings",
   templateUrl: "settings.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class SettingsComponent implements OnInit, OnDestroy {
   // For use in template
   protected readonly VaultTimeoutAction = VaultTimeoutAction;
@@ -68,7 +66,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   showAlwaysShowDock = false;
   requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
-  showSshAgentOption = false;
   showOpenAtLoginOption = false;
   isWindows: boolean;
   isLinux: boolean;
@@ -129,7 +126,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     enableSshAgent: false,
     allowScreenshots: false,
     enableDuckDuckGoBrowserIntegration: false,
-    theme: [null as ThemeType | null],
+    theme: [null as Theme | null],
     locale: [null as string | null],
   });
 
@@ -199,10 +196,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.localeOptions = localeOptions;
 
     this.themeOptions = [
-      { name: this.i18nService.t("default"), value: ThemeType.System },
-      { name: this.i18nService.t("light"), value: ThemeType.Light },
-      { name: this.i18nService.t("dark"), value: ThemeType.Dark },
-      { name: "Nord", value: ThemeType.Nord },
+      { name: this.i18nService.t("default"), value: ThemeTypes.System },
+      { name: this.i18nService.t("light"), value: ThemeTypes.Light },
+      { name: this.i18nService.t("dark"), value: ThemeTypes.Dark },
     ];
 
     this.clearClipboardOptions = [
@@ -225,7 +221,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.showSshAgentOption = await this.configService.getFeatureFlag(FeatureFlag.SSHAgent);
     this.userHasMasterPassword = await this.userVerificationService.hasMasterPassword();
 
     this.isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;

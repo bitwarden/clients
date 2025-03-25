@@ -543,10 +543,6 @@
     "message": "Συμπερίληψη ειδικών χαρακτήρων",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Αριθμός λέξεων"
   },
@@ -752,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Εισάγετε τη διεύθυνση ηλ. ταχυδρομείου του λογαριασμού σας και θα σας αποσταλεί η υπόδειξη κωδικού πρόσβασης"
   },
-  "passwordHint": {
-    "message": "Υπόδειξη κωδικού πρόσβασης"
-  },
-  "enterEmailToGetHint": {
-    "message": "Εισάγετε τη διεύθυνση ηλ. ταχυδρομείου του λογαριασμού σας για να λάβετε την υπόδειξη του κύριου κωδικού πρόσβασης."
-  },
   "getMasterPasswordHint": {
     "message": "Λήψη υπόδειξης κύριου κωδικού"
   },
@@ -916,8 +906,8 @@
     "message": "Επαληθεύστε με το Duo Security για τον οργανισμό σας χρησιμοποιώντας την εφαρμογή Duo Mobile, μήνυμα SMS, τηλεφωνική κλήση ή κλειδί ασφαλείας U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
-    "message": "Επαληθεύστε την ταυτότητά σας"
+  "verifyYourIdentity": {
+    "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "Δεν αναγνωρίζουμε αυτή τη συσκευή. Εισάγετε τον κωδικό που στάλθηκε στο email σας για να επαληθεύσετε την ταυτότητά σας."
@@ -955,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Αυτο-φιλοξενούμενο περιβάλλον"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Καθορίστε τη βασική διεύθυνση URL, της εγκατάστασης του Bitwarden που φιλοξενείται στο χώρο σας."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Καθορίστε το βασικό URL της εγκατάστασης Bitwarden που φιλοξενείται στο χώρο σας. Παράδειγμα: https://bitwarden.company.com"
   },
@@ -969,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Προσαρμοσμένο περιβάλλον"
-  },
-  "customEnvironmentFooter": {
-    "message": "Για προχωρημένους χρήστες. Μπορείτε να ορίσετε ανεξάρτητα τη βασική διεύθυνση URL κάθε υπηρεσίας."
   },
   "baseUrl": {
     "message": "URL Διακομιστή"
@@ -1012,6 +996,9 @@
   },
   "no": {
     "message": "Όχι"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Αντικατάσταση κωδικού πρόσβασης"
@@ -2785,14 +2772,8 @@
   "loginWithMasterPassword": {
     "message": "Συνδεθείτε με τον κύριο κωδικό πρόσβασης"
   },
-  "loggingInAs": {
-    "message": "Σύνδεση ως"
-  },
   "rememberEmail": {
     "message": "Απομνημόνευση διεύθυνσης ηλ. ταχυδρομείου"
-  },
-  "notYou": {
-    "message": "Δεν είστε εσείς;"
   },
   "newAroundHere": {
     "message": "Είστε νέος/α εδώ;"
@@ -3033,9 +3014,6 @@
   "requestAdminApproval": {
     "message": "Αίτηση έγκρισης διαχειριστή"
   },
-  "approveWithMasterPassword": {
-    "message": "Έγκριση με τον κύριο κωδικό πρόσβασης"
-  },
   "region": {
     "message": "Περιοχή"
   },
@@ -3060,9 +3038,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Το αίτημά σας εστάλη στον διαχειριστή σας."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Θα ειδοποιηθείτε μόλις εγκριθεί."
   },
   "troubleLoggingIn": {
     "message": "Πρόβλημα σύνδεσης;"
@@ -3533,9 +3508,6 @@
   "unknownApplication": {
     "message": "Μια εφαρμογή"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Η εισαγωγή κλειδιών SSH που προστατεύονται με κωδικό πρόσβασης δεν υποστηρίζεται ακόμη"
-  },
   "invalidSshKey": {
     "message": "Το SSH κλειδί δεν είναι έγκυρο"
   },
@@ -3545,8 +3517,8 @@
   "importSshKeyFromClipboard": {
     "message": "Εισαγωγή κλειδιού από το πρόχειρο"
   },
-  "sshKeyPasted": {
-    "message": "Το SSH κλειδί εισήχθη με επιτυχία"
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
     "message": "Το αρχείο αποθηκεύτηκε στη συσκευή. Διαχείριση από τις λήψεις της συσκευής σας."
@@ -3604,5 +3576,8 @@
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Η επέκταση περιηγητή που χρησιμοποιείτε είναι ξεπερασμένη. Παρακαλούμε ενημερώστε την ή απενεργοποιήστε την επικύρωση δακτυλικών αποτυπωμάτων του προγράμματος περιήγησης στις ρυθμίσεις της εφαρμογής για την επιφάνεια εργασίας."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

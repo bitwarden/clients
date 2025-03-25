@@ -2,18 +2,19 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
-import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -53,6 +54,7 @@ describe("AuthRequestLoginStrategy", () => {
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
+  let environmentService: MockProxy<EnvironmentService>;
 
   const mockUserId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
@@ -88,6 +90,7 @@ describe("AuthRequestLoginStrategy", () => {
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     kdfConfigService = mock<KdfConfigService>();
+    environmentService = mock<EnvironmentService>();
 
     accountService = mockAccountServiceWith(mockUserId);
     masterPasswordService = new FakeMasterPasswordService();
@@ -117,6 +120,7 @@ describe("AuthRequestLoginStrategy", () => {
       billingAccountProfileStateService,
       vaultTimeoutSettingsService,
       kdfConfigService,
+      environmentService,
     );
 
     tokenResponse = identityTokenResponseFactory();

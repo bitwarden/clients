@@ -131,6 +131,10 @@ export const THEMING_DISK = new StateDefinition("theming", "disk", { web: "disk-
 export const TRANSLATION_DISK = new StateDefinition("translation", "disk", { web: "disk-local" });
 export const ANIMATION_DISK = new StateDefinition("animation", "disk");
 export const TASK_SCHEDULER_DISK = new StateDefinition("taskScheduler", "disk");
+export const EXTENSION_INITIAL_INSTALL_DISK = new StateDefinition(
+  "extensionInitialInstall",
+  "disk",
+);
 
 // Design System
 
@@ -144,6 +148,7 @@ export const SM_ONBOARDING_DISK = new StateDefinition("smOnboarding", "disk", {
 
 // Tools
 
+export const EXTENSION_DISK = new StateDefinition("extension", "disk");
 export const GENERATOR_DISK = new StateDefinition("generator", "disk");
 export const GENERATOR_MEMORY = new StateDefinition("generator", "memory");
 export const BROWSER_SEND_MEMORY = new StateDefinition("sendBrowser", "memory");
@@ -200,3 +205,4 @@ export const NEW_DEVICE_VERIFICATION_NOTICE = new StateDefinition(
 export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk");
 export const SECURITY_TASKS_DISK = new StateDefinition("securityTasks", "disk");
 export const AT_RISK_PASSWORDS_PAGE_DISK = new StateDefinition("atRiskPasswordsPage", "disk");
+export const NOTIFICATION_DISK = new StateDefinition("notifications", "disk");

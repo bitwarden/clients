@@ -6,22 +6,22 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.e
 import { CipherInfoIndicatorIcons } from "../../cipher/cipher-indicator-icons";
 
 type Args = {
-  isBusinessOrg?: boolean;
-  isFamilyOrg?: boolean;
+  showBusinessIcon?: boolean;
+  showFamilyIcon?: boolean;
   theme: Theme;
 };
 
 export default {
   title: "Components/Ciphers/Cipher Indicator Icon",
   argTypes: {
-    isBusinessOrg: { control: "boolean" },
-    isFamilyOrg: { control: "boolean" },
+    showBusinessIcon: { control: "boolean" },
+    showFamilyIcon: { control: "boolean" },
     theme: { control: "select", options: [...Object.values(ThemeTypes)] },
   },
   args: {
     theme: ThemeTypes.Light,
-    isBusinessOrg: true,
-    isFamilyOrg: false,
+    showBusinessIcon: true,
+    showFamilyIcon: false,
   },
 } as Meta<Args>;
 

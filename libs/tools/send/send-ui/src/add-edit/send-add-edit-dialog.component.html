@@ -1,0 +1,35 @@
+<bit-dialog #dialog dialogSize="large" background="alt">
+  <span bitDialogTitle>
+    {{ headerText }}
+  </span>
+  <span bitDialogContent>
+    <tools-send-form
+      formId="sendForm"
+      [config]="config"
+      (onSendCreated)="onSendCreated($event)"
+      (onSendUpdated)="onSendUpdated($event)"
+      [submitBtn]="submitBtn"
+    >
+    </tools-send-form>
+  </span>
+
+  <ng-container bitDialogFooter>
+    <button bitButton type="submit" form="sendForm" buttonType="primary" #submitBtn>
+      {{ "save" | i18n }}
+    </button>
+    <button bitButton type="button" buttonType="secondary" bitDialogClose>
+      {{ "cancel" | i18n }}
+    </button>
+    <div class="tw-ml-auto">
+      <button
+        *ngIf="config?.mode !== 'add'"
+        type="button"
+        buttonType="danger"
+        slot="end"
+        bitIconButton="bwi-trash"
+        [bitAction]="deleteSend"
+        appA11yTitle="{{ 'delete' | i18n }}"
+      ></button>
+    </div>
+  </ng-container>
+</bit-dialog>

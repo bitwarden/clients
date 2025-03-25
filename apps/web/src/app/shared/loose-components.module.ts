@@ -12,7 +12,6 @@ import { EventsComponent as OrgEventsComponent } from "../admin-console/organiza
 import { UserConfirmComponent as OrgUserConfirmComponent } from "../admin-console/organizations/manage/user-confirm.component";
 import { VerifyRecoverDeleteOrgComponent } from "../admin-console/organizations/manage/verify-recover-delete-org.component";
 import { AcceptFamilySponsorshipComponent } from "../admin-console/organizations/sponsorships/accept-family-sponsorship.component";
-import { HintComponent } from "../auth/hint.component";
 import { RecoverDeleteComponent } from "../auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "../auth/recover-two-factor.component";
 import { RemovePasswordComponent } from "../auth/remove-password.component";
@@ -67,7 +66,6 @@ import { ReusedPasswordsReportComponent as OrgReusedPasswordsReportComponent } f
 import { UnsecuredWebsitesReportComponent as OrgUnsecuredWebsitesReportComponent } from "../tools/reports/pages/organizations/unsecured-websites-report.component";
 import { WeakPasswordsReportComponent as OrgWeakPasswordsReportComponent } from "../tools/reports/pages/organizations/weak-passwords-report.component";
 /* eslint no-restricted-imports: "error" */
-import { AddEditComponent as SendAddEditComponent } from "../tools/send/add-edit.component";
 import { PremiumBadgeComponent } from "../vault/components/premium-badge.component";
 import { AddEditCustomFieldsComponent } from "../vault/individual-vault/add-edit-custom-fields.component";
 import { AddEditComponent } from "../vault/individual-vault/add-edit.component";
@@ -127,7 +125,6 @@ import { SharedModule } from "./shared.module";
     EmergencyAccessViewComponent,
     FolderAddEditComponent,
     FrontendLayoutComponent,
-    HintComponent,
     OrgAddEditComponent,
     OrgAttachmentsComponent,
     OrgEventsComponent,
@@ -148,7 +145,6 @@ import { SharedModule } from "./shared.module";
     SecurityComponent,
     SecurityKeysComponent,
     SelectableAvatarComponent,
-    SendAddEditComponent,
     SetPasswordComponent,
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
@@ -190,7 +186,6 @@ import { SharedModule } from "./shared.module";
     EmergencyAccessViewComponent,
     FolderAddEditComponent,
     FrontendLayoutComponent,
-    HintComponent,
     OrgAddEditComponent,
     OrganizationLayoutComponent,
     OrgAttachmentsComponent,
@@ -212,7 +207,6 @@ import { SharedModule } from "./shared.module";
     SecurityComponent,
     SecurityKeysComponent,
     SelectableAvatarComponent,
-    SendAddEditComponent,
     SetPasswordComponent,
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
