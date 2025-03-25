@@ -81,7 +81,7 @@
     "message": "Hoofdwachtwoordhint (optioneel)"
   },
   "passwordStrengthScore": {
-    "message": "Score wachtwoordsterkte $SCORE$",
+    "message": "Wachtwoordsterkte score $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -878,10 +878,10 @@
     "message": "Druk op je YubiKey om te verifiëren"
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Jouw account vereist Duo-tweestapsaanmelding. Volg de onderstaande stappen om het inloggen te voltooien."
+    "message": "Jouw account vereist Duo tweestapslogin. Volg de onderstaande stappen om het inloggen te voltooien."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Volg de onderstaande stappen om in te loggen."
+    "message": "Volg de onderstaande stappen om het inloggen af te ronden."
   },
   "restartRegistration": {
     "message": "Registratie herstarten"
@@ -1040,7 +1040,7 @@
     "message": "Klik op items om automatisch in te vullen op de kluisweergave"
   },
   "clickToAutofill": {
-    "message": "Klik op gesuggereerde items om deze automatisch invullen"
+    "message": "Klik items in de automatisch invullen suggestie om in te vullen"
   },
   "clearClipboard": {
     "message": "Klembord wissen",
@@ -1075,7 +1075,7 @@
     "description": "Shown to user after login is updated."
   },
   "saveAsNewLoginAction": {
-    "message": "Als nieuwe login opslaan",
+    "message": "Opslaan als nieuwe login",
     "description": "Button text for saving login details as a new entry."
   },
   "updateLoginAction": {
@@ -1422,7 +1422,7 @@
     "message": "Mijn gegevens onthouden"
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "30 dagen niet meer vragen op dit apparaat"
+    "message": "30 dagen niet opnieuw vragen op dit apparaat"
   },
   "sendVerificationCodeEmailAgain": {
     "message": "E-mail met verificatiecode opnieuw versturen"
@@ -1459,7 +1459,7 @@
     "message": "Beveiligingssleutel lezen"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Wacht op interactie met beveiligingssleutel..."
+    "message": "Wacht op interactie met beveiligingssleutel…"
   },
   "loginUnavailable": {
     "message": "Login niet beschikbaar"
@@ -1474,7 +1474,7 @@
     "message": "Opties voor tweestapsaanmelding"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Kies methode voor tweestapsaanmelding"
+    "message": "Kies methode voor tweestapslogin"
   },
   "recoveryCodeDesc": {
     "message": "Ben je de toegang tot al je tweestapsaanbieders verloren? Gebruik dan je herstelcode om alle tweestapsaanbieders op je account uit te schakelen."
@@ -2164,7 +2164,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultCustomization": {
-    "message": "Kluis-aanpassingen"
+    "message": "Kluis aanpassingen"
   },
   "vaultTimeoutAction": {
     "message": "Actie bij time-out"
@@ -2176,10 +2176,10 @@
     "message": "Nieuwe aanpassingsopties"
   },
   "newCustomizationOptionsCalloutContent": {
-    "message": "Personaliseer je kluiservaring met snelle kopieeracties, compacte modus en meer!"
+    "message": "Pas je kluis ervaring aan met snelle kopieeracties, compacte modus en meer!"
   },
   "newCustomizationOptionsCalloutLink": {
-    "message": "Alle personalisatie-instellingen bekijken"
+    "message": "Alle weergave-instellingen bekijken"
   },
   "lock": {
     "message": "Vergrendelen",
@@ -2498,7 +2498,7 @@
     }
   },
   "atRiskPasswordsDescMultiOrgPlural": {
-    "message": "Je organisatie(s) vragen je de $COUNT$ wachtwoorden te wijzigen omdat ze een risico vormen.",
+    "message": "Je organisaties vragen je de $COUNT$ wachtwoorden te wijzigen omdat ze een risico vormen.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2531,14 +2531,14 @@
     "message": "Risicovolle wachtwoorden bekijken"
   },
   "reviewAtRiskLoginsSlideDesc": {
-    "message": "De wachtwoorden van je organisatie zijn in gevaar omdat ze zwak, hergebruikt en/of blootgelegd zijn.",
+    "message": "De wachtwoorden van je organisatie zijn in gevaar omdat ze zwak, hergebruikt en/of gelekt zijn.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
   "reviewAtRiskLoginSlideImgAlt": {
     "message": "Voorbeeld van een lijst van risicovolle logins"
   },
   "generatePasswordSlideDesc": {
-    "message": "Genereer snel een sterk, uniek wachtwoord met het automatisch invulmenu van Bitwaren op de risicovolle website.",
+    "message": "Genereer snel een sterk, uniek wachtwoord met het automatisch invulmenu van Bitwarden op de risicovolle website.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
   "generatePasswordSlideImgAlt": {
@@ -2552,7 +2552,7 @@
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
   "updateInBitwardenSlideImgAlt": {
-    "message": "Voorbeeld van een Bitwarden-melding die de gebruiker aanspoort tot het bijwerken van de login"
+    "message": "Voorbeeld van een Bitwarden melding die de gebruiker aanspoort tot het bijwerken van de login"
   },
   "turnOnAutofill": {
     "message": "Automatisch invullen inschakelen"
@@ -4080,7 +4080,7 @@
     "message": "Actief account"
   },
   "bitwardenAccount": {
-    "message": "Bitwarden-account"
+    "message": "Bitwarden account"
   },
   "availableAccounts": {
     "message": "Beschikbare accounts"
@@ -5096,7 +5096,7 @@
     "message": "Extra breed"
   },
   "sshKeyWrongPassword": {
-    "message": "Het door jou ingevoerde wachtwoord is onjuist."
+    "message": "Het wachtwoord dat je hebt ingevoerd is onjuist."
   },
   "importSshKey": {
     "message": "Importeren"
@@ -5117,7 +5117,7 @@
     "message": "Het type SSH-sleutel is niet ondersteund"
   },
   "importSshKeyFromClipboard": {
-    "message": "Sleutel van klembord importeren"
+    "message": "Sleutel importeren van klembord"
   },
   "sshKeyImported": {
     "message": "SSH-sleutel succesvol geïmporteerd"
