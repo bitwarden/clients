@@ -26,8 +26,8 @@ import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abs
 import { InternalPolicyService as InternalPolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
+import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
-import { PolicyService } from "@bitwarden/common/admin-console/services/policy/policy.service";
 import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -115,7 +115,6 @@ import { Message, MessageListener, MessageSender } from "@bitwarden/common/platf
 // eslint-disable-next-line no-restricted-imports -- Used for dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
 import { Lazy } from "@bitwarden/common/platform/misc/lazy";
-import { clearCaches } from "@bitwarden/common/platform/misc/sequentialize";
 import { Account } from "@bitwarden/common/platform/models/domain/account";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -686,7 +685,7 @@ export default class MainBackground {
 
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(this.stateProvider);
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
-    this.policyService = new PolicyService(this.stateProvider, this.organizationService);
+    this.policyService = new DefaultPolicyService(this.stateProvider, this.organizationService);
 
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
@@ -729,9 +728,14 @@ export default class MainBackground {
     this.autofillSettingsService = new AutofillSettingsService(
       this.stateProvider,
       this.policyService,
+      this.accountService,
     );
     this.badgeSettingsService = new BadgeSettingsService(this.stateProvider);
-    this.policyApiService = new PolicyApiService(this.policyService, this.apiService);
+    this.policyApiService = new PolicyApiService(
+      this.policyService,
+      this.apiService,
+      this.accountService,
+    );
     this.keyConnectorService = new KeyConnectorService(
       this.accountService,
       this.masterPasswordService,
@@ -1026,6 +1030,7 @@ export default class MainBackground {
       this.cryptoFunctionService,
       this.kdfConfigService,
       this.accountService,
+      this.apiService,
     );
 
     this.organizationVaultExportService = new OrganizationVaultExportService(
@@ -1202,6 +1207,7 @@ export default class MainBackground {
       this.configService,
       this.platformUtilsService,
       this.policyService,
+      this.accountService,
     );
 
     const contextMenuClickedHandler = new ContextMenuClickedHandler(
@@ -1441,8 +1447,6 @@ export default class MainBackground {
       await this.popupViewCacheBackgroundService.clearState();
       await this.accountService.switchAccount(userId);
       await switchPromise;
-      // Clear sequentialized caches
-      clearCaches();
 
       if (userId == null) {
         await this.refreshBadge();
