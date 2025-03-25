@@ -55,8 +55,14 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
 
   organizationTree$: Observable<TreeNode<OrganizationFilter>> = combineLatest([
     this.memberOrganizations$,
-    this.policyService.policyAppliesToActiveUser$(PolicyType.SingleOrg),
-    this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
+    this.activeUserId$.pipe(
+      switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId)),
+    ),
+    this.activeUserId$.pipe(
+      switchMap((userId) =>
+        this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+      ),
+    ),
   ]).pipe(
     switchMap(([orgs, singleOrgPolicy, personalOwnershipPolicy]) =>
       this.buildOrganizationTree(orgs, singleOrgPolicy, personalOwnershipPolicy),

@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -15,11 +15,6 @@ import { ApiKeyComponent } from "./api-key.component";
   templateUrl: "security-keys.component.html",
 })
 export class SecurityKeysComponent implements OnInit {
-  @ViewChild("viewUserApiKeyTemplate", { read: ViewContainerRef, static: true })
-  viewUserApiKeyModalRef: ViewContainerRef;
-  @ViewChild("rotateUserApiKeyTemplate", { read: ViewContainerRef, static: true })
-  rotateUserApiKeyModalRef: ViewContainerRef;
-
   showChangeKdf = true;
 
   constructor(
