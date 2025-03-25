@@ -43,11 +43,10 @@ export class Attachment extends Domain {
     context = "No Cipher Context",
     encKey?: SymmetricCryptoKey,
   ): Promise<AttachmentView> {
-    const view = await this.decryptObj(
+    const view = await this.decryptObj<Attachment, AttachmentView>(
+      this,
       new AttachmentView(this),
-      {
-        fileName: null,
-      },
+      ["fileName"],
       orgId,
       encKey,
       "DomainType: Attachment; " + context,

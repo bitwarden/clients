@@ -24,6 +24,7 @@ import {
   take,
   takeUntil,
   tap,
+  catchError,
 } from "rxjs/operators";
 
 import {
@@ -75,11 +76,13 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
+import { getNestedCollectionTree } from "../../admin-console/organizations/collections";
 import {
   CollectionDialogAction,
   CollectionDialogTabType,
   openCollectionDialog,
 } from "../../admin-console/organizations/shared/components/collection-dialog";
+import { BillingNotificationService } from "../../billing/services/billing-notification.service";
 import { TrialFlowService } from "../../billing/services/trial-flow.service";
 import { FreeTrial } from "../../billing/types/free-trial";
 import { SharedModule } from "../../shared/shared.module";
@@ -92,7 +95,6 @@ import {
 import { VaultItem } from "../components/vault-items/vault-item";
 import { VaultItemEvent } from "../components/vault-items/vault-item-event";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
-import { getNestedCollectionTree } from "../utils/collection-utils";
 
 import {
   AttachmentDialogCloseResult,
@@ -213,20 +215,25 @@ export class VaultComponent implements OnInit, OnDestroy {
         ownerOrgs.map((org) =>
           combineLatest([
             this.organizationApiService.getSubscription(org.id),
-            this.organizationBillingService.getPaymentSource(org.id),
+            from(this.organizationBillingService.getPaymentSource(org.id)).pipe(
+              catchError((error: unknown) => {
+                this.billingNotificationService.handleError(error);
+                return of(null);
+              }),
+            ),
           ]).pipe(
-            map(([subscription, paymentSource]) => {
-              return this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
+            map(([subscription, paymentSource]) =>
+              this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
                 org,
                 subscription,
                 paymentSource,
-              );
-            }),
+              ),
+            ),
           ),
         ),
       );
     }),
-    map((results) => results.filter((result) => result.shownBanner)),
+    map((results) => results.filter((result) => result !== null && result.shownBanner)),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
@@ -262,6 +269,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     protected billingApiService: BillingApiServiceAbstraction,
     private trialFlowService: TrialFlowService,
     private organizationBillingService: OrganizationBillingServiceAbstraction,
+    private billingNotificationService: BillingNotificationService,
   ) {}
 
   async ngOnInit() {

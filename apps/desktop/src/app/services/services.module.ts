@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { APP_INITIALIZER, NgModule } from "@angular/core";
+import { Router } from "@angular/router";
 import { Subject, merge } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
@@ -46,12 +47,13 @@ import {
   AuthService,
   AuthService as AuthServiceAbstraction,
 } from "@bitwarden/common/auth/abstractions/auth.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
 import {
   VaultTimeoutSettingsService,
@@ -102,6 +104,7 @@ import {
   BiometricsService,
 } from "@bitwarden/key-management";
 import { LockComponentService } from "@bitwarden/key-management-ui";
+import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
 
 import { DesktopLoginApprovalComponentService } from "../../auth/login/desktop-login-approval-component.service";
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
@@ -332,9 +335,21 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: Fido2UserInterfaceServiceAbstraction,
+    provide: DesktopFido2UserInterfaceService,
     useClass: DesktopFido2UserInterfaceService,
-    deps: [AuthServiceAbstraction, CipherServiceAbstraction, AccountService, LogService],
+    deps: [
+      AuthServiceAbstraction,
+      CipherServiceAbstraction,
+      AccountService,
+      LogService,
+      MessagingServiceAbstraction,
+      Router,
+      DesktopSettingsService,
+    ],
+  }),
+  safeProvider({
+    provide: Fido2UserInterfaceServiceAbstraction, // We utilize desktop specific methods when wiring OS API's
+    useExisting: DesktopFido2UserInterfaceService,
   }),
   safeProvider({
     provide: Fido2AuthenticatorServiceAbstraction,
@@ -366,6 +381,7 @@ const safeProviders: SafeProvider[] = [
     useClass: DesktopSetPasswordJitService,
     deps: [
       ApiService,
+      MasterPasswordApiService,
       KeyService,
       EncryptService,
       I18nServiceAbstraction,
@@ -429,6 +445,11 @@ const safeProviders: SafeProvider[] = [
     provide: LoginApprovalComponentServiceAbstraction,
     useClass: DesktopLoginApprovalComponentService,
     deps: [I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: SshImportPromptService,
+    useClass: DefaultSshImportPromptService,
+    deps: [DialogService, ToastService, PlatformUtilsServiceAbstraction, I18nServiceAbstraction],
   }),
 ];
 

@@ -24,6 +24,7 @@ import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { SshKeyData } from "@bitwarden/common/vault/models/data/ssh-key.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -38,6 +39,8 @@ import {
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/src/app/core/tests";
+
+import { SshImportPromptService } from "../services/ssh-import-prompt.service";
 
 import { CipherFormService } from "./abstractions/cipher-form.service";
 import { TotpCaptureService } from "./abstractions/totp-capture.service";
@@ -144,6 +147,12 @@ export default {
           provide: PasswordRepromptService,
           useValue: {
             enabled$: new BehaviorSubject(true),
+          },
+        },
+        {
+          provide: SshImportPromptService,
+          useValue: {
+            importSshKeyFromClipboard: () => Promise.resolve(new SshKeyData()),
           },
         },
         {

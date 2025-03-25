@@ -15,7 +15,6 @@ import { isCardExpired } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -30,7 +29,7 @@ import { Launchable } from "@bitwarden/common/vault/interfaces/launchable";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { PasswordRepromptService, SshImportPromptService } from "@bitwarden/vault";
 
 @Component({
   selector: "app-vault-add-edit",
@@ -76,6 +75,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     cipherAuthorizationService: CipherAuthorizationService,
     toastService: ToastService,
     sdkService: SdkService,
+    sshImportPromptService: SshImportPromptService,
   ) {
     super(
       cipherService,
@@ -98,23 +98,13 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       cipherAuthorizationService,
       toastService,
       sdkService,
+      sshImportPromptService,
     );
   }
 
   async ngOnInit() {
     await super.ngOnInit();
     await this.load();
-
-    // https://bitwarden.atlassian.net/browse/PM-10413
-    // cannot generate ssh keys so block creation
-    if (
-      this.type === CipherType.SshKey &&
-      this.cipherId == null &&
-      !(await this.configService.getFeatureFlag(FeatureFlag.SSHKeyVaultItem))
-    ) {
-      this.type = CipherType.Login;
-      this.cipher.type = CipherType.Login;
-    }
 
     this.viewOnly = !this.cipher.edit && this.editMode;
     // remove when all the title for all clients are updated to New Item
