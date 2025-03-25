@@ -281,8 +281,6 @@ export class ViewV2Component {
     switch (loadAction) {
       case "show-autofill-button":
         // This action simply shows the cipher view, no need to do anything.
-        return;
-      case "view-item":
         if (
           this.cipher.reprompt !== CipherRepromptType.None &&
           !(await this.passwordRepromptService.showPasswordPrompt())
