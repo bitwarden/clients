@@ -41,6 +41,9 @@ export enum FeatureFlag {
   /* Auth */
   PM9112_DeviceApprovalPersistence = "pm-9112-device-approval-persistence",
 
+  /* Key Management */
+  PM17987_BlockType0 = "pm-17987-block-type-0",
+
   UserKeyRotationV2 = "userkey-rotation-v2",
   PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
   UnauthenticatedExtensionUIRefresh = "unauth-ui-refresh",
@@ -101,6 +104,9 @@ export const DefaultFeatureFlagValue = {
 
   /* Auth */
   [FeatureFlag.PM9112_DeviceApprovalPersistence]: FALSE,
+
+  /* Key Management */
+  [FeatureFlag.PM17987_BlockType0]: FALSE,
 
   [FeatureFlag.UserKeyRotationV2]: FALSE,
   [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
