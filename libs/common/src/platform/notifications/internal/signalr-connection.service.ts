@@ -23,6 +23,11 @@ export type ReceiveMessage = { type: "ReceiveMessage"; message: NotificationResp
 
 export type SignalRNotification = Heartbeat | ReceiveMessage;
 
+export type TimeoutManager = {
+  setTimeout: (handler: TimerHandler, timeout: number) => number;
+  clearTimeout: (timeoutId: number) => void;
+};
+
 class SignalRLogger implements ILogger {
   constructor(private readonly logService: LogService) {}
 
@@ -51,11 +56,14 @@ export class SignalRConnectionService {
   constructor(
     private readonly apiService: ApiService,
     private readonly logService: LogService,
+    private readonly hubConnectionBuilderFactory: () => HubConnectionBuilder = () =>
+      new HubConnectionBuilder(),
+    private readonly timeoutManager: TimeoutManager = globalThis,
   ) {}
 
   connect$(userId: UserId, notificationsUrl: string) {
     return new Observable<SignalRNotification>((subsciber) => {
-      const connection = new HubConnectionBuilder()
+      const connection = this.hubConnectionBuilderFactory()
         .withUrl(notificationsUrl + "/hub", {
           accessTokenFactory: () => this.apiService.getActiveBearerToken(),
           skipNegotiation: true,
@@ -85,8 +93,8 @@ export class SignalRConnectionService {
           return Subscription.EMPTY;
         }
 
-        const randomTime = this.random();
-        const timeoutHandler = setTimeout(() => {
+        const randomTime = this.randomReconnectTime();
+        const timeoutHandler = this.timeoutManager.setTimeout(() => {
           connection
             .start()
             .then(() => (reconnectSubscription = null))
@@ -95,7 +103,7 @@ export class SignalRConnectionService {
             });
         }, randomTime);
 
-        return new Subscription(() => clearTimeout(timeoutHandler));
+        return new Subscription(() => this.timeoutManager.clearTimeout(timeoutHandler));
       };
 
       connection.onclose((error) => {
@@ -117,7 +125,7 @@ export class SignalRConnectionService {
     });
   }
 
-  private random() {
+  private randomReconnectTime() {
     return (
       Math.floor(Math.random() * (MAX_RECONNECT_TIME - MIN_RECONNECT_TIME + 1)) + MIN_RECONNECT_TIME
     );
