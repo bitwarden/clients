@@ -73,7 +73,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     this.ssoEmailState = this.stateProvider.getGlobal(SSO_EMAIL);
   }
 
-  getCodeVerifier(): Promise<string> {
+  getCodeVerifier(): Promise<string | null> {
     return firstValueFrom(this.codeVerifierState.state$);
   }
 
@@ -81,7 +81,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     await this.codeVerifierState.update((_) => codeVerifier);
   }
 
-  getSsoState(): Promise<string> {
+  getSsoState(): Promise<string | null> {
     return firstValueFrom(this.ssoState.state$);
   }
 
@@ -89,7 +89,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     await this.ssoState.update((_) => ssoState);
   }
 
-  getOrganizationSsoIdentifier(): Promise<string> {
+  getOrganizationSsoIdentifier(): Promise<string | null> {
     return firstValueFrom(this.orgSsoIdentifierState.state$);
   }
 
@@ -97,7 +97,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     await this.orgSsoIdentifierState.update((_) => organizationIdentifier);
   }
 
-  getSsoEmail(): Promise<string> {
+  getSsoEmail(): Promise<string | null> {
     return firstValueFrom(this.ssoEmailState.state$);
   }
 

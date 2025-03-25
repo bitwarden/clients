@@ -1,15 +1,14 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { MasterPasswordVerification } from "@bitwarden/common/auth/types/verification";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
@@ -137,18 +136,28 @@ export class UserKeyRotationService {
       kdfConfig,
       email,
       newMasterKeyAuthenticationHash,
-      newMasterKeyEncryptedUserKey.encryptedString,
+      newMasterKeyEncryptedUserKey.encryptedString!,
       newMasterPasswordHint,
     );
-    const { privateKey, publicKey } = await firstValueFrom(
-      this.keyService.userEncryptionKeyPair$(user.id),
-    );
+
+    const keyPair = await firstValueFrom(this.keyService.userEncryptionKeyPair$(user.id));
+    if (keyPair == null) {
+      this.logService.info("[Userkey rotation] Key pair is null. Aborting!");
+      throw new Error("Key pair is null");
+    }
+    const { privateKey, publicKey } = keyPair;
+
     const accountKeysRequest = new AccountKeysRequest(
-      (await this.encryptService.encrypt(privateKey, newUnencryptedUserKey)).encryptedString,
+      (await this.encryptService.encrypt(privateKey, newUnencryptedUserKey)).encryptedString!,
       Utils.fromBufferToB64(publicKey),
     );
 
     const originalUserKey = await firstValueFrom(this.keyService.userKey$(user.id));
+    if (originalUserKey == null) {
+      this.logService.info("[Userkey rotation] Userkey is null. Aborting!");
+      throw new Error("Userkey key is null");
+    }
+
     const rotatedCiphers = await this.cipherService.getRotatedData(
       originalUserKey,
       newUnencryptedUserKey,
@@ -317,20 +326,16 @@ export class UserKeyRotationService {
 
     const [newUserKey, newEncUserKey] = await this.keyService.makeUserKey(masterKey);
 
-    if (!newUserKey || !newEncUserKey) {
+    if (newUserKey == null || newEncUserKey == null || newEncUserKey.encryptedString == null) {
       this.logService.info("[Userkey rotation] User key could not be created. Aborting!");
       throw new Error("User key could not be created");
     }
 
-    // Create new request
-    const request = new UpdateKeyRequest();
-
-    // Add new user key
-    request.key = newEncUserKey.encryptedString;
+    // New user key
+    const key = newEncUserKey.encryptedString;
 
     // Add master key hash
     const masterPasswordHash = await this.keyService.hashMasterKey(masterPassword, masterKey);
-    request.masterPasswordHash = masterPasswordHash;
 
     // Get original user key
     // Note: We distribute the legacy key, but not all domains actually use it. If any of those
@@ -341,7 +346,14 @@ export class UserKeyRotationService {
     this.logService.info("[Userkey rotation] Is legacy user: " + isMasterKey);
 
     // Add re-encrypted data
-    request.privateKey = await this.encryptPrivateKey(newUserKey, user.id);
+    const privateKey = await this.encryptPrivateKey(newUserKey, user.id);
+    if (privateKey == null) {
+      this.logService.info("[Userkey rotation] Private key could not be encrypted. Aborting!");
+      throw new Error("Private key could not be encrypted");
+    }
+
+    // Create new request
+    const request = new UpdateKeyRequest(masterPasswordHash, key, privateKey);
 
     const rotatedCiphers = await this.cipherService.getRotatedData(
       originalUserKey,
@@ -415,11 +427,11 @@ export class UserKeyRotationService {
   private async encryptPrivateKey(
     newUserKey: UserKey,
     userId: UserId,
-  ): Promise<EncryptedString | null> {
+  ): Promise<EncryptedString | undefined> {
     const privateKey = await firstValueFrom(
       this.keyService.userPrivateKeyWithLegacySupport$(userId),
     );
-    if (!privateKey) {
+    if (privateKey == null) {
       throw new Error("No private key found for user key rotation");
     }
     return (await this.encryptService.encrypt(privateKey, newUserKey)).encryptedString;

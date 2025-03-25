@@ -11,6 +11,7 @@ import {
   LoginStrategyServiceAbstraction,
   PasswordLoginCredentials,
   SsoLoginCredentials,
+  SsoUrlService,
   UserApiLoginCredentials,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -19,7 +20,7 @@ import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abs
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
@@ -28,6 +29,8 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
+import { ClientType } from "@bitwarden/common/enums";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -56,6 +59,7 @@ export class LoginCommand {
     protected loginStrategyService: LoginStrategyServiceAbstraction,
     protected authService: AuthService,
     protected apiService: ApiService,
+    protected masterPasswordApiService: MasterPasswordApiService,
     protected cryptoFunctionService: CryptoFunctionService,
     protected environmentService: EnvironmentService,
     protected passwordGenerationService: PasswordGenerationServiceAbstraction,
@@ -71,6 +75,7 @@ export class LoginCommand {
     protected orgService: OrganizationService,
     protected logoutCallback: () => Promise<void>,
     protected kdfConfigService: KdfConfigService,
+    protected ssoUrlService: SsoUrlService,
   ) {}
 
   async run(email: string, password: string, options: OptionValues) {
@@ -308,6 +313,26 @@ export class LoginCommand {
         );
       }
 
+      // Opting for not checking feature flag since the server will not respond with
+      // requiresDeviceVerification if the feature flag is not enabled.
+      if (response.requiresDeviceVerification) {
+        let newDeviceToken: string = null;
+        if (this.canInteract) {
+          const answer: inquirer.Answers = await inquirer.createPromptModule({
+            output: process.stderr,
+          })({
+            type: "input",
+            name: "token",
+            message: "New device verification required. Enter OTP sent to login email:",
+          });
+          newDeviceToken = answer.token;
+        }
+        if (newDeviceToken == null || newDeviceToken === "") {
+          return Response.badRequest("Code is required.");
+        }
+        response = await this.loginStrategyService.logInNewDeviceVerification(newDeviceToken);
+      }
+
       if (response.captchaSiteKey) {
         const twoFactorRequest = new TokenTwoFactorRequest(selectedProvider.type, twoFactorToken);
         const handledResponse = await this.handleCaptchaRequired(twoFactorRequest);
@@ -431,7 +456,7 @@ export class LoginCommand {
       request.newMasterPasswordHash = newPasswordHash;
       request.key = newUserKey[1].encryptedString;
 
-      await this.apiService.postPassword(request);
+      await this.masterPasswordApiService.postPassword(request);
 
       return await this.handleUpdatePasswordSuccessResponse();
     } catch (e) {
@@ -468,7 +493,7 @@ export class LoginCommand {
       request.newMasterPasswordHash = newPasswordHash;
       request.masterPasswordHint = hint;
 
-      await this.apiService.putUpdateTempPassword(request);
+      await this.masterPasswordApiService.putUpdateTempPassword(request);
 
       return await this.handleUpdatePasswordSuccessResponse();
     } catch (e) {
@@ -738,17 +763,14 @@ export class LoginCommand {
         try {
           this.ssoRedirectUri = "http://localhost:" + port;
           callbackServer.listen(port, () => {
-            this.platformUtilsService.launchUri(
-              webUrl +
-                "/#/sso?clientId=" +
-                "cli" +
-                "&redirectUri=" +
-                encodeURIComponent(this.ssoRedirectUri) +
-                "&state=" +
-                state +
-                "&codeChallenge=" +
-                codeChallenge,
+            const webAppSsoUrl = this.ssoUrlService.buildSsoUrl(
+              webUrl,
+              ClientType.Cli,
+              this.ssoRedirectUri,
+              state,
+              codeChallenge,
             );
+            this.platformUtilsService.launchUri(webAppSsoUrl);
           });
           foundPort = true;
           break;

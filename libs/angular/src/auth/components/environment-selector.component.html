@@ -3,7 +3,7 @@
     selectedRegion: selectedRegion$ | async,
   } as data"
 >
-  <div class="environment-selector-btn">
+  <div class="tw-text-sm tw-text-muted tw-leading-7 tw-font-normal tw-pl-4">
     {{ "accessing" | i18n }}:
     <button
       type="button"
@@ -13,7 +13,7 @@
       aria-haspopup="dialog"
       aria-controls="cdk-overlay-container"
     >
-      <span class="text-primary">
+      <span class="tw-text-primary-600 tw-text-sm tw-font-semibold">
         <ng-container *ngIf="data.selectedRegion; else fallback">
           {{ data.selectedRegion.domain }}
         </ng-container>
@@ -35,9 +35,9 @@
     (backdropClick)="isOpen = false"
     (detach)="close()"
   >
-    <div class="box-content">
+    <div class="tw-box-content">
       <div
-        class="environment-selector-dialog"
+        class="tw-bg-background tw-w-full tw-shadow-md tw-p-2 tw-rounded-md"
         data-testid="environment-selector-dialog"
         [@transformPanel]="'open'"
         cdkTrapFocus
@@ -48,7 +48,7 @@
         <ng-container *ngFor="let region of availableRegions; let i = index">
           <button
             type="button"
-            class="environment-selector-dialog-item"
+            class="tw-text-main tw-w-full tw-text-left tw-py-0 tw-border tw-border-transparent tw-transition-all tw-duration-200 tw-ease-in-out tw-pr-2 tw-rounded-md"
             (click)="toggle(region.key)"
             [attr.aria-pressed]="data.selectedRegion === region ? 'true' : 'false'"
             [attr.data-testid]="'environment-selector-dialog-item-' + i"
@@ -65,7 +65,7 @@
         </ng-container>
         <button
           type="button"
-          class="environment-selector-dialog-item"
+          class="tw-text-main tw-w-full tw-text-left tw-py-0 tw-pr-2 tw-border tw-border-transparent tw-transition-all tw-duration-200 tw-ease-in-out tw-rounded-md"
           (click)="toggle(ServerEnvironmentType.SelfHosted)"
           [attr.aria-pressed]="data.selectedRegion ? 'false' : 'true'"
           data-testid="environment-selector-dialog-item-self-hosted"

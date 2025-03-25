@@ -120,7 +120,7 @@ export interface Value {
 
 export interface Email {
   email_address: string;
-  provider: string;
+  provider: string | null;
 }
 
 export interface Address {

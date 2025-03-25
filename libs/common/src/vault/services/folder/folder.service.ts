@@ -190,7 +190,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
     });
 
     // Items in a deleted folder are re-assigned to "No Folder"
-    const ciphers = await this.cipherService.getAll();
+    const ciphers = await this.cipherService.getAll(userId);
     if (ciphers != null) {
       const updates: Cipher[] = [];
       for (const cId in ciphers) {

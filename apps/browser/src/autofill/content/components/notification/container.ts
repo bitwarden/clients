@@ -9,6 +9,7 @@ import {
   NotificationType,
 } from "../../../notification/abstractions/notification-bar";
 import { NotificationCipherData } from "../cipher/types";
+import { FolderView, OrgView } from "../common-types";
 import { themes, spacing } from "../constants/styles";
 
 import { NotificationBody, componentClassPrefix as notificationBodyClassPrefix } from "./body";
@@ -20,14 +21,24 @@ import {
 
 export function NotificationContainer({
   handleCloseNotification,
+  handleEditOrUpdateAction,
+  handleSaveAction,
+  ciphers,
+  folders,
   i18n,
+  organizations,
   theme = ThemeTypes.Light,
   type,
-  ciphers,
-}: NotificationBarIframeInitData & { handleCloseNotification: (e: Event) => void } & {
+}: NotificationBarIframeInitData & {
+  handleCloseNotification: (e: Event) => void;
+  handleSaveAction: (e: Event) => void;
+  handleEditOrUpdateAction: (e: Event) => void;
+} & {
+  ciphers?: NotificationCipherData[];
+  folders?: FolderView[];
   i18n: { [key: string]: string };
+  organizations?: OrgView[];
   type: NotificationType; // @TODO typing override for generic `NotificationBarIframeInitData.type`
-  ciphers: NotificationCipherData[];
 }) {
   const headerMessage = getHeaderMessage(i18n, type);
   const showBody = true;
@@ -36,20 +47,25 @@ export function NotificationContainer({
     <div class=${notificationContainerStyles(theme)}>
       ${NotificationHeader({
         handleCloseNotification,
-        standalone: showBody,
         message: headerMessage,
+        standalone: showBody,
         theme,
       })}
       ${showBody
         ? NotificationBody({
+            handleEditOrUpdateAction,
             ciphers,
             notificationType: type,
             theme,
           })
         : null}
       ${NotificationFooter({
-        theme,
+        handleSaveAction,
+        folders,
+        i18n,
         notificationType: type,
+        organizations,
+        theme,
       })}
     </div>
   `;

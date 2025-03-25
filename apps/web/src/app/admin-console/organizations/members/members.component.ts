@@ -594,7 +594,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
       if (
         !warningAcknowledged &&
-        this.organization.isOwner &&
+        this.organization.canManageUsers &&
         this.organization.productTierType === ProductTierType.Enterprise
       ) {
         const acknowledged = await this.deleteManagedMemberWarningService.showWarning();
@@ -663,9 +663,6 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         this.organization.id,
         filteredUsers.map((user) => user.id),
       );
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-
       // Bulk Status component open
       const dialogRef = BulkStatusComponent.open(this.dialogService, {
         data: {
@@ -800,7 +797,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
       if (
         !warningAcknowledged &&
-        this.organization.isOwner &&
+        this.organization.canManageUsers &&
         this.organization.productTierType === ProductTierType.Enterprise
       ) {
         const acknowledged = await this.deleteManagedMemberWarningService.showWarning();

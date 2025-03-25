@@ -26,5 +26,5 @@ export type MasterPasswordVerificationResponse = {
   masterKey: MasterKey;
   kdfConfig: KdfConfig;
   email: string;
-  policyOptions: MasterPasswordPolicyResponse;
+  policyOptions: MasterPasswordPolicyResponse | null;
 };
