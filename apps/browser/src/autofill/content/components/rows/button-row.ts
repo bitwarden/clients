@@ -1,52 +1,51 @@
 import { css } from "@emotion/css";
-import { html, TemplateResult } from "lit";
+import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { ActionButton } from "../../../content/components/buttons/action-button";
-import { spacing, themes } from "../../../content/components/constants/styles";
-import { Folder, User } from "../../../content/components/icons";
-import { DropdownMenu } from "../dropdown-menu";
+import { spacing } from "../../../content/components/constants/styles";
+import { Option } from "../common-types";
+import { optionSelectionTagName } from "../option-selection/option-selection";
 
-export function ButtonRow({
-  theme,
-  buttonAction,
-  buttonText,
-}: {
+export type ButtonRowProps = {
   theme: Theme;
-  buttonAction: (e: Event) => void;
-  buttonText: string;
-}) {
+  primaryButton: {
+    text: string;
+    handlePrimaryButtonClick: (args: any) => void;
+  };
+  selectButtons?: {
+    id: string;
+    label?: string;
+    options: Option[];
+    handleSelectionUpdate?: (args: any) => void;
+  }[];
+};
+
+export function ButtonRow({ theme, primaryButton, selectButtons }: ButtonRowProps) {
   return html`
     <div class=${buttonRowStyles}>
-      ${[
-        ActionButton({
-          buttonAction: buttonAction,
-          buttonText,
-          theme,
-        }),
-        DropdownContainer({
-          children: [
-            DropdownMenu({
-              buttonText: "You",
-              icon: User({ color: themes[theme].text.muted, theme }),
-              theme,
-            }),
-            DropdownMenu({
-              buttonText: "Folder",
-              icon: Folder({ color: themes[theme].text.muted, theme }),
-              disabled: true,
-              theme,
-            }),
-          ],
-        }),
-      ]}
+      ${ActionButton({
+        handleClick: primaryButton.handlePrimaryButtonClick,
+        buttonText: primaryButton.text,
+        theme,
+      })}
+      <div class=${optionSelectionsStyles}>
+        ${selectButtons?.map(
+          ({ id, label, options, handleSelectionUpdate }) =>
+            html`
+              <option-selection
+                key=${id}
+                theme=${theme}
+                .label=${label}
+                .options=${options}
+                .handleSelectionUpdate=${handleSelectionUpdate}
+              ></option-selection>
+            ` || nothing,
+        )}
+      </div>
     </div>
   `;
-}
-
-function DropdownContainer({ children }: { children: TemplateResult[] }) {
-  return html` <div class=${dropdownContainerStyles}>${children}</div> `;
 }
 
 const buttonRowStyles = css`
@@ -69,14 +68,16 @@ const buttonRowStyles = css`
   }
 `;
 
-const dropdownContainerStyles = css`
-  gap: 8px;
+const optionSelectionsStyles = css`
+  gap: ${spacing["2"]};
   display: flex;
   align-items: center;
   justify-content: flex-end;
   overflow: hidden;
 
-  > div {
-    min-width: calc(50% - ${spacing["1.5"]});
+  > ${optionSelectionTagName} {
+    /* assumes two option selections */
+    max-width: calc(50% - ${spacing["1.5"]});
+    min-width: 120px;
   }
 `;

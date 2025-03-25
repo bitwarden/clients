@@ -879,9 +879,6 @@
   "filter": {
     "message": "Filter"
   },
-  "moveSelectedToOrg": {
-    "message": "Skuif seleksie na organisasie"
-  },
   "deleteSelected": {
     "message": "Skrap seleksie"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Gekose items is na $ORGNAME$ geskuif",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "Kies ’n organisasie waarheen u hierdie item wil skuif. Deur te skuif kry die organisasie die einaarskap van die item. U is dan nie meer die direkte eienaar van die item wanneer dit geskuif is nie."
   },
-  "moveManyToOrgDesc": {
-    "message": "Kies ’n organisasie waarheen u hierdie items wil skuif. Deur te skuif kry die organisasie die einaarskap van die items. U is dan nie meer die direkte eienaar van die items wanneer dit geskuif is nie."
-  },
   "collectionsDesc": {
     "message": "Edit the collections that this item is being shared with. Only organization users with access to these collections will be able to see this item."
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "U het $COUNT$ item(s) gekies. $MOVEABLE_COUNT$ item(s) kan na ’n organisasie geskuif word, $NONMOVEABLE_COUNT$ kan nie.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },

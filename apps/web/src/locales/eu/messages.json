@@ -879,9 +879,6 @@
   "filter": {
     "message": "Filter"
   },
-  "moveSelectedToOrg": {
-    "message": "Mugitu hautatutako antolakundera"
-  },
   "deleteSelected": {
     "message": "Ezabatu hautatutakoa"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Hautatutako elementuak $ORGNAME$-ra mugituak",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "Aukeratu elementu hau zein erakundetara eraman nahi duzun. Erakunde batera pasatzeak elementuaren jabetza erakunde horretara transferitzen du. Zu ez zara elementu honen jabe zuzena izango mugitzen duzunean."
   },
-  "moveManyToOrgDesc": {
-    "message": "Aukeratu elementu hauek zein erakundetara eraman nahi dituzun. Erakunde batera pasatzeak elementuen jabetzak erakunde horretara transferitzen ditu. Zu ez zara elementu horien jabe zuzena izango mugitzen dituzunean."
-  },
   "collectionsDesc": {
     "message": "Aukeratu elementu hau zein bildumarekin partekatzen den. Bilduma horietarako sarbidea duten erakundeko erabiltzaileek bakarrik ikus dezakete elementu hau."
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "$COUNT$ artikulu hautatu d(it)uzu. $MOVEABLE_COUNT$ artikulu erakunde batera alda daite(z)ke, $NONMOVEABLE_COUNT$ ezin d(ir)a.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },

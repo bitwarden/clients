@@ -879,9 +879,6 @@
   "filter": {
     "message": "Atlase"
   },
-  "moveSelectedToOrg": {
-    "message": "Pārvietot atzīmēto uz apvienību"
-  },
   "deleteSelected": {
     "message": "Izdzēst atlasītos"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Atzīmētie vienumi pārvietoti uz $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "Jāizvēlas apvienība, uz kuru pārvietot šo vienumu. Pārvietošana nodod šī vienuma piederību apvienībai. Pēc šī vienuma pārvietošanas Tu vairs nebūsi tā tiešais īpašnieks."
   },
-  "moveManyToOrgDesc": {
-    "message": "Jāizvēlas apvienība, uz kuru pārvietot šos vienumus. Pārvietošana nodod šo vienumu piederību apvienībai. Pēc šo vienumu pārvietošanas Tu vairs nebūsi to tiešais īpašnieks."
-  },
   "collectionsDesc": {
     "message": "Labot krājumus, ar kuriem šis vienums ir kopīgots. Tikai apvienības lietotāji, kam ir piekļuve šiem krājumiem, redzēs šo vienumu."
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "Ir atzīmēts(i) $COUNT$ vienums(i). $MOVEABLE_COUNT$ vienums(i) var tikt pārvietoti uz apvienību, bet $NONMOVEABLE_COUNT$ nē.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },

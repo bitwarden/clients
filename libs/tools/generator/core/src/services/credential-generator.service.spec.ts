@@ -207,7 +207,7 @@ const providers = {
 describe("CredentialGeneratorService", () => {
   beforeEach(async () => {
     await accountService.switchAccount(SomeUser);
-    policyService.getAll$.mockImplementation(() => new BehaviorSubject([]).asObservable());
+    policyService.policiesByType$.mockImplementation(() => new BehaviorSubject([]).asObservable());
     i18nService.t.mockImplementation((key: string) => key);
     apiService.fetch.mockImplementation(() => Promise.resolve(mock<Response>()));
     jest.clearAllMocks();
@@ -567,7 +567,7 @@ describe("CredentialGeneratorService", () => {
     // awareness; they exercise the logic without being comprehensive
     it("enforces the active user's policy", async () => {
       const policy$ = new BehaviorSubject([passwordOverridePolicy]);
-      policyService.getAll$.mockReturnValue(policy$);
+      policyService.policiesByType$.mockReturnValue(policy$);
       const generator = new CredentialGeneratorService(
         randomizer,
         policyService,
@@ -578,15 +578,22 @@ describe("CredentialGeneratorService", () => {
 
       const result = await firstValueFrom(generator.algorithms$(["password"], { account$ }));
 
-      expect(policyService.getAll$).toHaveBeenCalledWith(PolicyType.PasswordGenerator, SomeUser);
+      expect(policyService.policiesByType$).toHaveBeenCalledWith(
+        PolicyType.PasswordGenerator,
+        SomeUser,
+      );
       expect(result.some((a) => a.id === Generators.password.id)).toBeTruthy();
       expect(result.some((a) => a.id === Generators.passphrase.id)).toBeFalsy();
     });
 
     it("follows changes to the active user", async () => {
       const account$ = new BehaviorSubject(accounts[SomeUser]);
-      policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passwordOverridePolicy]));
-      policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passphraseOverridePolicy]));
+      policyService.policiesByType$.mockReturnValueOnce(
+        new BehaviorSubject([passwordOverridePolicy]),
+      );
+      policyService.policiesByType$.mockReturnValueOnce(
+        new BehaviorSubject([passphraseOverridePolicy]),
+      );
       const generator = new CredentialGeneratorService(
         randomizer,
         policyService,
@@ -603,7 +610,7 @@ describe("CredentialGeneratorService", () => {
 
       const [someResult, anotherResult] = results;
 
-      expect(policyService.getAll$).toHaveBeenNthCalledWith(
+      expect(policyService.policiesByType$).toHaveBeenNthCalledWith(
         1,
         PolicyType.PasswordGenerator,
         SomeUser,
@@ -611,7 +618,7 @@ describe("CredentialGeneratorService", () => {
       expect(someResult.some((a: any) => a.id === Generators.password.id)).toBeTruthy();
       expect(someResult.some((a: any) => a.id === Generators.passphrase.id)).toBeFalsy();
 
-      expect(policyService.getAll$).toHaveBeenNthCalledWith(
+      expect(policyService.policiesByType$).toHaveBeenNthCalledWith(
         2,
         PolicyType.PasswordGenerator,
         AnotherUser,
@@ -621,7 +628,9 @@ describe("CredentialGeneratorService", () => {
     });
 
     it("reads an arbitrary user's settings", async () => {
-      policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passwordOverridePolicy]));
+      policyService.policiesByType$.mockReturnValueOnce(
+        new BehaviorSubject([passwordOverridePolicy]),
+      );
       const generator = new CredentialGeneratorService(
         randomizer,
         policyService,
@@ -633,14 +642,21 @@ describe("CredentialGeneratorService", () => {
 
       const result = await firstValueFrom(generator.algorithms$("password", { account$ }));
 
-      expect(policyService.getAll$).toHaveBeenCalledWith(PolicyType.PasswordGenerator, AnotherUser);
+      expect(policyService.policiesByType$).toHaveBeenCalledWith(
+        PolicyType.PasswordGenerator,
+        AnotherUser,
+      );
       expect(result.some((a: any) => a.id === Generators.password.id)).toBeTruthy();
       expect(result.some((a: any) => a.id === Generators.passphrase.id)).toBeFalsy();
     });
 
     it("follows changes to the arbitrary user", async () => {
-      policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passwordOverridePolicy]));
-      policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passphraseOverridePolicy]));
+      policyService.policiesByType$.mockReturnValueOnce(
+        new BehaviorSubject([passwordOverridePolicy]),
+      );
+      policyService.policiesByType$.mockReturnValueOnce(
+        new BehaviorSubject([passphraseOverridePolicy]),
+      );
       const generator = new CredentialGeneratorService(
         randomizer,
         policyService,
@@ -658,17 +674,25 @@ describe("CredentialGeneratorService", () => {
       sub.unsubscribe();
 
       const [someResult, anotherResult] = results;
-      expect(policyService.getAll$).toHaveBeenCalledWith(PolicyType.PasswordGenerator, SomeUser);
+      expect(policyService.policiesByType$).toHaveBeenCalledWith(
+        PolicyType.PasswordGenerator,
+        SomeUser,
+      );
       expect(someResult.some((a: any) => a.id === Generators.password.id)).toBeTruthy();
       expect(someResult.some((a: any) => a.id === Generators.passphrase.id)).toBeFalsy();
 
-      expect(policyService.getAll$).toHaveBeenCalledWith(PolicyType.PasswordGenerator, AnotherUser);
+      expect(policyService.policiesByType$).toHaveBeenCalledWith(
+        PolicyType.PasswordGenerator,
+        AnotherUser,
+      );
       expect(anotherResult.some((a: any) => a.id === Generators.passphrase.id)).toBeTruthy();
       expect(anotherResult.some((a: any) => a.id === Generators.password.id)).toBeFalsy();
     });
 
     it("errors when the arbitrary user's stream errors", async () => {
-      policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passwordOverridePolicy]));
+      policyService.policiesByType$.mockReturnValueOnce(
+        new BehaviorSubject([passwordOverridePolicy]),
+      );
       const generator = new CredentialGeneratorService(
         randomizer,
         policyService,
@@ -692,7 +716,9 @@ describe("CredentialGeneratorService", () => {
     });
 
     it("completes when the arbitrary user's stream completes", async () => {
-      policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passwordOverridePolicy]));
+      policyService.policiesByType$.mockReturnValueOnce(
+        new BehaviorSubject([passwordOverridePolicy]),
+      );
       const generator = new CredentialGeneratorService(
         randomizer,
         policyService,
@@ -716,7 +742,9 @@ describe("CredentialGeneratorService", () => {
     });
 
     it("ignores repeated arbitrary user emissions", async () => {
-      policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passwordOverridePolicy]));
+      policyService.policiesByType$.mockReturnValueOnce(
+        new BehaviorSubject([passwordOverridePolicy]),
+      );
       const generator = new CredentialGeneratorService(
         randomizer,
         policyService,
@@ -780,7 +808,7 @@ describe("CredentialGeneratorService", () => {
       const settings = { foo: "value" };
       await stateProvider.setUserState(SettingsKey, settings, SomeUser);
       const policy$ = new BehaviorSubject([somePolicy]);
-      policyService.getAll$.mockReturnValue(policy$);
+      policyService.policiesByType$.mockReturnValue(policy$);
       const generator = new CredentialGeneratorService(
         randomizer,
         policyService,
@@ -908,7 +936,7 @@ describe("CredentialGeneratorService", () => {
       );
       const account$ = new BehaviorSubject(accounts[SomeUser]).asObservable();
       const policy$ = new BehaviorSubject([somePolicy]);
-      policyService.getAll$.mockReturnValue(policy$);
+      policyService.policiesByType$.mockReturnValue(policy$);
 
       const result = await firstValueFrom(generator.policy$(SomeConfiguration, { account$ }));
 
@@ -926,7 +954,7 @@ describe("CredentialGeneratorService", () => {
       const account = new BehaviorSubject(accounts[SomeUser]);
       const account$ = account.asObservable();
       const somePolicySubject = new BehaviorSubject([somePolicy]);
-      policyService.getAll$.mockReturnValueOnce(somePolicySubject.asObservable());
+      policyService.policiesByType$.mockReturnValueOnce(somePolicySubject.asObservable());
       const emissions: GeneratorConstraints<SomeSettings>[] = [];
       const sub = generator
         .policy$(SomeConfiguration, { account$ })
@@ -954,7 +982,9 @@ describe("CredentialGeneratorService", () => {
       const account$ = account.asObservable();
       const somePolicy$ = new BehaviorSubject([somePolicy]).asObservable();
       const anotherPolicy$ = new BehaviorSubject([]).asObservable();
-      policyService.getAll$.mockReturnValueOnce(somePolicy$).mockReturnValueOnce(anotherPolicy$);
+      policyService.policiesByType$
+        .mockReturnValueOnce(somePolicy$)
+        .mockReturnValueOnce(anotherPolicy$);
       const emissions: GeneratorConstraints<SomeSettings>[] = [];
       const sub = generator
         .policy$(SomeConfiguration, { account$ })

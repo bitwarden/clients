@@ -4733,15 +4733,6 @@
   "nothingSelected": {
     "message": "Du har ikke valgt noe."
   },
-  "movedItemsToOrg": {
-    "message": "De valgte gjenstandene ble flyttet til $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
-  },
   "itemsMovedToOrg": {
     "message": "Gjenstandene ble flyttet til $ORGNAME$",
     "placeholders": {
