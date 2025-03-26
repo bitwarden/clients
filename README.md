@@ -20,8 +20,8 @@ Please refer to the [Clients section](https://contributing.bitwarden.com/getting
 ## Related projects:
 
 - [bitwarden/server](https://github.com/bitwarden/server): The core infrastructure backend (API, database, Docker, etc).
-- [bitwarden/ios](https://github.com/bitwarden/ios): Bitwarden Password Manager & Authenticator apps for iOS.
-- [bitwarden/android](https://github.com/bitwarden/android): Bitwarden Password Manager & Authenticator apps for Android.
+- [bitwarden/ios](https://github.com/bitwarden/ios): Bitwarden iOS Password Manager & Authenticator apps.
+- [bitwarden/android](https://github.com/bitwarden/android): Bitwarden Android Password Manager & Authenticator apps.
 - [bitwarden/directory-connector](https://github.com/bitwarden/directory-connector): A tool for syncing a directory (AD, LDAP, Azure, G Suite, Okta) to an organization.
 
 # We're Hiring!
