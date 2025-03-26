@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import {
   combineLatest,
@@ -37,6 +35,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 
 import { OrganizationUserResetPasswordService } from "../../../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { EnrollMasterPasswordReset } from "../../../../admin-console/organizations/users/enroll-master-password-reset.component";
+import { LinkSsoService } from "../../../../auth/core/services";
 import { OptionsInput } from "../shared/components/vault-filter-section.component";
 import { OrganizationFilter } from "../shared/models/vault-filter.type";
 
@@ -45,12 +44,12 @@ import { OrganizationFilter } from "../shared/models/vault-filter.type";
   templateUrl: "organization-options.component.html",
 })
 export class OrganizationOptionsComponent implements OnInit, OnDestroy {
-  protected actionPromise: Promise<void | boolean>;
+  protected actionPromise?: Promise<void | boolean>;
   protected resetPasswordPolicy?: Policy | undefined;
   protected loaded = false;
   protected hideMenu = false;
   protected showLeaveOrgOption = false;
-  protected organization: OrganizationFilter;
+  protected organization!: OrganizationFilter;
 
   private destroy$ = new Subject<void>();
 
@@ -72,6 +71,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     private organizationService: OrganizationService,
     private accountService: AccountService,
+    private linkSsoService: LinkSsoService,
   ) {}
 
   async ngOnInit() {
@@ -147,6 +147,23 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     return org?.useSso && org?.identifier;
   }
 
+  /**
+   * Links SSO to an organization.
+   * @param organization The organization to link SSO to.
+   */
+  async handleLinkSso(organization: Organization) {
+    try {
+      await this.linkSsoService.linkSso(organization.identifier);
+    } catch (e) {
+      this.logService.error(e);
+      this.toastService.showToast({
+        variant: "error",
+        title: "",
+        message: this.i18nService.t("errorOccurred"),
+      });
+    }
+  }
+
   async unlinkSso(org: Organization) {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: org.name,
@@ -165,7 +182,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
       await this.actionPromise;
       this.toastService.showToast({
         variant: "success",
-        title: null,
+        title: "",
         message: this.i18nService.t("unlinkedSso"),
       });
     } catch (e) {
@@ -189,7 +206,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
       await this.actionPromise;
       this.toastService.showToast({
         variant: "success",
-        title: null,
+        title: "",
         message: this.i18nService.t("leftOrganization"),
       });
     } catch (e) {
@@ -215,7 +232,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
       // Remove reset password
       const request = new OrganizationUserResetPasswordEnrollmentRequest();
       request.masterPasswordHash = "ignored";
-      request.resetPasswordKey = null;
+      request.resetPasswordKey = "";
       this.actionPromise =
         this.organizationUserApiService.putOrganizationUserResetPasswordEnrollment(
           this.organization.id,
@@ -226,7 +243,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
         await this.actionPromise;
         this.toastService.showToast({
           variant: "success",
-          title: null,
+          title: "",
           message: this.i18nService.t("withdrawPasswordResetSuccess"),
         });
         await this.syncService.fullSync(true);
