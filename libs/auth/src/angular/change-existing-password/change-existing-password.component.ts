@@ -4,10 +4,11 @@ import { firstValueFrom, map } from "rxjs";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
-import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
-import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { KeyService } from "@bitwarden/key-management";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SyncService } from "@bitwarden/common/platform/sync";
+import { ToastService } from "@bitwarden/components";
 
 import {
   InputPasswordComponent,
@@ -22,47 +23,68 @@ import { PasswordInputResult } from "../input-password/password-input-result";
   imports: [InputPasswordComponent],
 })
 export class ChangeExistingPasswordComponent implements OnInit {
-  protected InputPasswordFlow = InputPasswordFlow;
+  InputPasswordFlow = InputPasswordFlow;
 
-  protected email?: string;
-  protected masterPasswordPolicyOptions?: MasterPasswordPolicyOptions;
+  email?: string;
+  masterPasswordPolicyOptions?: MasterPasswordPolicyOptions;
+  userkeyRotationV2 = false;
 
   constructor(
     private accountService: AccountService,
-    private keyService: KeyService,
-    private masterPasswordApiService: MasterPasswordApiService,
-    private masterPasswordService: MasterPasswordServiceAbstraction,
+    private configService: ConfigService,
+    private i18nService: I18nService,
     private policyService: PolicyService,
+    private toastService: ToastService,
+    private syncService: SyncService,
   ) {}
 
   async ngOnInit() {
+    this.userkeyRotationV2 = await this.configService.getFeatureFlag(FeatureFlag.UserKeyRotationV2);
+
     this.email = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.email)),
     );
 
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+
     this.masterPasswordPolicyOptions = await firstValueFrom(
-      this.policyService.masterPasswordPolicyOptions$(),
+      this.policyService.masterPasswordPolicyOptions$(userId),
     );
   }
 
   async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
-    // TODO-rr-bw: Full Sync if Rotate User Key is true (see setupSubmitActions)
-    // const request = new PasswordRequest();
-    // // request.masterPasswordHash = await this.keyService.hashMasterKey(passwordInputResult.currentPassword)
-    // request.masterPasswordHash = passwordInputResult.hint;
-    // request.newMasterPasswordHash = passwordInputResult.masterKeyHash;
-    // // request.key =
-    // await this.masterPasswordApiService.postPassword(request);
-    // if (passwordInputResult.rotateAccountEncryptionKey) {
-    //   // We need to save this for local masterkey verification during rotation
-    //   await this.masterPasswordService.setMasterKeyHash(newLocalKeyHash, userId as UserId);
-    //   await this.masterPasswordService.setMasterKey(newMasterKey, userId as UserId);
-    //   return this.updateKey();
-    // }
+    if (this.userkeyRotationV2) {
+      await this.submitNew(passwordInputResult);
+    } else {
+      await this.submitOld(passwordInputResult);
+    }
   }
 
-  // private async updateKey() {
-  //   const user = await firstValueFrom(this.accountService.activeAccount$);
-  //   await this.userKeyRotationService.rotateUserKeyAndEncryptedData(this.masterPassword, user);
-  // }
+  async submitNew(passwordInputResult: PasswordInputResult) {
+    try {
+      if (passwordInputResult.rotateAccountEncryptionKey) {
+        await this.syncService.fullSync(true);
+        // const user = await firstValueFrom(this.accountService.activeAccount$);
+        // // TODO-rr-bw: make a ChangeExistingPasswordService with Default & Web implementations
+        // // await this.changeExistingPasswordService.rotateUserKeyMasterPasswordAndEncryptedData(
+        // //   passwordInputResult.currentPassword,
+        // //   passwordInputResult.newPassword,
+        // //   user,
+        // //   passwordInputResult.hint,
+        // // );
+      } else {
+        await this.updatePassword(passwordInputResult.newPassword);
+      }
+    } catch (e) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: e.message,
+      });
+    }
+  }
+
+  async submitOld(passwordInputResult: PasswordInputResult) {}
+
+  async updatePassword(password: string) {}
 }

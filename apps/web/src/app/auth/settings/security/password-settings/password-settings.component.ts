@@ -25,7 +25,6 @@ export class PasswordSettingsComponent implements OnInit {
     const userHasMasterPassword = await firstValueFrom(
       this.userDecryptionOptionsService.hasMasterPassword$,
     );
-
     if (!userHasMasterPassword) {
       await this.router.navigate(["/settings/security/two-factor"]);
       return;
