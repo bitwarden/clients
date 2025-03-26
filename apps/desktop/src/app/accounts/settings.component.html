@@ -440,7 +440,7 @@
                   "enableSshAgentDesc" | i18n
                 }}</small>
               </div>
-              <div class="form-group" *ngIf="enableSshAgent">
+              <div class="form-group" *ngIf="this.form.value.enableSshAgent">
                 <div class="checkbox">
                   <label for="rememberSshAuthorizations">
                     <input

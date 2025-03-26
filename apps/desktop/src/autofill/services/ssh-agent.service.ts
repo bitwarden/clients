@@ -169,7 +169,7 @@ export class SshAgentService implements OnDestroy {
           const cipher = ciphers.find((cipher) => cipher.id == cipherId);
 
           let authorized = cipherId in this.authorizedSshKeys;
-          if (!authorized || !this.canRememberAuthorization(isAgentForwarding, namespace)) {
+          if (!authorized || !(await this.canRememberAuthorization(isAgentForwarding, namespace))) {
             ipc.platform.focusWindow();
             const dialogRef = ApproveSshRequestComponent.open(
               this.dialogService,
@@ -180,7 +180,10 @@ export class SshAgentService implements OnDestroy {
             );
 
             const result = await firstValueFrom(dialogRef.closed);
-            if (result === true && this.canRememberAuthorization(isAgentForwarding, namespace)) {
+            if (
+              result === true &&
+              (await this.canRememberAuthorization(isAgentForwarding, namespace))
+            ) {
               this.authorizedSshKeys[cipherId] = new Date();
             }
             authorized = result;
@@ -281,7 +284,11 @@ export class SshAgentService implements OnDestroy {
     this.destroy$.complete();
   }
 
-  canRememberAuthorization(isForward: boolean, namespace: string): boolean {
-    return !isForward && Utils.isNullOrWhitespace(namespace);
+  async canRememberAuthorization(isForward: boolean, namespace: string): Promise<boolean> {
+    return (
+      !isForward &&
+      Utils.isNullOrWhitespace(namespace) &&
+      (await firstValueFrom(this.desktopSettingsService.rememberSshAuthorizations$))
+    );
   }
 }
