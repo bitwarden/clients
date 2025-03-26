@@ -153,7 +153,7 @@ describe("SettingsComponent", () => {
 
   it("pin enabled when RemoveUnlockWithPin policy is not set", async () => {
     // @ts-strict-ignore
-    policyService.get$.mockReturnValue(of(null));
+    policyService.policiesByType$.mockReturnValue(of([null]));
 
     await component.ngOnInit();
 
@@ -164,7 +164,7 @@ describe("SettingsComponent", () => {
     const policy = new Policy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = false;
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
 
@@ -175,7 +175,7 @@ describe("SettingsComponent", () => {
     const policy = new Policy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
 
@@ -184,7 +184,7 @@ describe("SettingsComponent", () => {
 
   it("pin visible when RemoveUnlockWithPin policy is not set", async () => {
     // @ts-strict-ignore
-    policyService.get$.mockReturnValue(of(null));
+    policyService.policiesByType$.mockReturnValue(of([null]));
 
     await component.ngOnInit();
     fixture.detectChanges();
@@ -201,7 +201,7 @@ describe("SettingsComponent", () => {
     const policy = new Policy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = false;
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
     fixture.detectChanges();
@@ -218,7 +218,7 @@ describe("SettingsComponent", () => {
     const policy = new Policy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
     pinServiceAbstraction.isPinSet.mockResolvedValue(true);
 
     await component.ngOnInit();
@@ -236,7 +236,7 @@ describe("SettingsComponent", () => {
     const policy = new Policy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
     fixture.detectChanges();
@@ -255,7 +255,7 @@ describe("SettingsComponent", () => {
       const policy = new Policy();
       policy.type = PolicyType.RemoveUnlockWithPin;
       policy.enabled = false;
-      policyService.get$.mockReturnValue(of(policy));
+      policyService.policiesByType$.mockReturnValue(of([policy]));
       platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
       i18nService.t.mockImplementation((id: string) => {
         if (id === "requirePasswordOnStart") {
@@ -290,7 +290,7 @@ describe("SettingsComponent", () => {
       const policy = new Policy();
       policy.type = PolicyType.RemoveUnlockWithPin;
       policy.enabled = true;
-      policyService.get$.mockReturnValue(of(policy));
+      policyService.policiesByType$.mockReturnValue(of([policy]));
       platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
       i18nService.t.mockImplementation((id: string) => {
         if (id === "requirePasswordOnStart") {
