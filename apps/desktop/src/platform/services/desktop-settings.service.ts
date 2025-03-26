@@ -70,6 +70,14 @@ const SSH_AGENT_ENABLED = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "ssh
   deserializer: (b) => b,
 });
 
+const SSH_AGENT_REMEMBER_AUTHORIZATIONS = new KeyDefinition<boolean>(
+  DESKTOP_SETTINGS_DISK,
+  "sshAgentRememberAuthorizations",
+  {
+    deserializer: (b) => b,
+  },
+);
+
 const MINIMIZE_ON_COPY = new UserKeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "minimizeOnCopy", {
   deserializer: (b) => b,
   clearOn: [], // User setting, no need to clear
@@ -158,6 +166,11 @@ export class DesktopSettingsService {
   private readonly sshAgentEnabledState = this.stateProvider.getGlobal(SSH_AGENT_ENABLED);
 
   sshAgentEnabled$ = this.sshAgentEnabledState.state$.pipe(map(Boolean));
+
+  private readonly rememberSshAuthorizations = this.stateProvider.getGlobal(
+    SSH_AGENT_REMEMBER_AUTHORIZATIONS,
+  );
+  rememberSshAuthorizations$ = this.rememberSshAuthorizations.state$.pipe(map(Boolean));
 
   private readonly preventScreenshotState = this.stateProvider.getGlobal(PREVENT_SCREENSHOTS);
 
@@ -290,6 +303,10 @@ export class DesktopSettingsService {
    */
   async setSshAgentEnabled(value: boolean) {
     await this.sshAgentEnabledState.update(() => value);
+  }
+
+  async setRememberSshAuthorizations(value: boolean) {
+    await this.rememberSshAuthorizations.update(() => value);
   }
 
   /**

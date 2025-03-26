@@ -27,6 +27,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -42,6 +43,8 @@ export class SshAgentService implements OnDestroy {
   SSH_REFRESH_INTERVAL = 1000;
   SSH_VAULT_UNLOCK_REQUEST_TIMEOUT = 60_000;
   SSH_REQUEST_UNLOCK_POLLING_INTERVAL = 100;
+
+  private authorizedSshKeys: Record<string, Date> = {};
 
   private isFeatureFlagEnabled = false;
 
@@ -165,17 +168,25 @@ export class SshAgentService implements OnDestroy {
 
           const cipher = ciphers.find((cipher) => cipher.id == cipherId);
 
-          ipc.platform.focusWindow();
-          const dialogRef = ApproveSshRequestComponent.open(
-            this.dialogService,
-            cipher.name,
-            application,
-            isAgentForwarding,
-            namespace,
-          );
+          let authorized = cipherId in this.authorizedSshKeys;
+          if (!authorized || !this.canRememberAuthorization(isAgentForwarding, namespace)) {
+            ipc.platform.focusWindow();
+            const dialogRef = ApproveSshRequestComponent.open(
+              this.dialogService,
+              cipher.name,
+              application,
+              isAgentForwarding,
+              namespace,
+            );
 
-          const result = await firstValueFrom(dialogRef.closed);
-          return ipc.platform.sshAgent.signRequestResponse(requestId, result);
+            const result = await firstValueFrom(dialogRef.closed);
+            if (result === true && this.canRememberAuthorization(isAgentForwarding, namespace)) {
+              this.authorizedSshKeys[cipherId] = new Date();
+            }
+            authorized = result;
+          }
+
+          return ipc.platform.sshAgent.signRequestResponse(requestId, authorized);
         }),
         takeUntil(this.destroy$),
       )
@@ -187,6 +198,7 @@ export class SshAgentService implements OnDestroy {
           return;
         }
 
+        this.authorizedSshKeys = {};
         this.logService.info("Active account changed, clearing SSH keys");
         ipc.platform.sshAgent
           .clearKeys()
@@ -208,6 +220,7 @@ export class SshAgentService implements OnDestroy {
         }
 
         this.logService.info("Active account observable completed, clearing SSH keys");
+        this.authorizedSshKeys = {};
         ipc.platform.sshAgent
           .clearKeys()
           .catch((e) => this.logService.error("Failed to clear SSH keys", e));
@@ -266,5 +279,9 @@ export class SshAgentService implements OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  canRememberAuthorization(isForward: boolean, namespace: string): boolean {
+    return !isForward && Utils.isNullOrWhitespace(namespace);
   }
 }

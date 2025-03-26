@@ -237,6 +237,15 @@
   "enableSshAgentHelp": {
     "message": "The SSH agent is a service targeted at developers that allows you to sign SSH requests directly from your Bitwarden vault."
   },
+  "rememberSshAuthorizations": {
+    "message": "Remember SSH authorizations"
+  },
+  "rememberSshAuthorizationsDesc": {
+    "message": "Remember SSH authorizations until the vault locks."
+  },
+  "rememberSshAuthorizationsHelp": {
+    "message": "Remember SSH authorizations until the vault locks"
+  },
   "premiumRequired": {
     "message": "Premium required"
   },
