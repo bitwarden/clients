@@ -26,9 +26,10 @@ export class SshKeyExport {
   }
 
   static toDomain(req: SshKeyExport, domain = new SshKeyDomain()) {
-    domain.privateKey = new EncString(req.privateKey);
-    domain.publicKey = new EncString(req.publicKey);
-    domain.keyFingerprint = new EncString(req.keyFingerprint);
+    const parsedKey = import_ssh_key(req.privateKey);
+    domain.privateKey = new EncString(parsedKey.privateKey);
+    domain.publicKey = new EncString(parsedKey.publicKey);
+    domain.keyFingerprint = new EncString(parsedKey.fingerprint);
     return domain;
   }
 
