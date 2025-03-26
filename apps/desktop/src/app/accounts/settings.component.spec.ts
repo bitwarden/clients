@@ -139,6 +139,7 @@ describe("SettingsComponent", () => {
     desktopSettingsService.browserIntegrationFingerprintEnabled$ = of(false);
     desktopSettingsService.hardwareAcceleration$ = of(false);
     desktopSettingsService.sshAgentEnabled$ = of(false);
+    desktopSettingsService.rememberSshAuthorizations$ = of(false);
     desktopSettingsService.preventScreenshots$ = of(false);
     domainSettingsService.showFavicons$ = of(false);
     desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$ = of(false);
