@@ -43,7 +43,6 @@ export class SetPinComponent implements OnInit {
     ).value;
 
     if (Utils.isNullOrWhitespace(pinFormControl.value) || pinFormControl.invalid) {
-      this.dialogRef.close(false);
       return;
     }
 
