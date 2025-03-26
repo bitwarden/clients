@@ -4,11 +4,16 @@ import { firstValueFrom, map } from "rxjs";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ToastService } from "@bitwarden/components";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import {
   InputPasswordComponent,
@@ -33,6 +38,11 @@ export class ChangeExistingPasswordComponent implements OnInit {
     private accountService: AccountService,
     private configService: ConfigService,
     private i18nService: I18nService,
+    private kdfConfigService: KdfConfigService,
+    private keyService: KeyService,
+    private masterPasswordApiService: MasterPasswordApiService,
+    private masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    private messagingService: MessagingService,
     private policyService: PolicyService,
     private toastService: ToastService,
     private syncService: SyncService,
@@ -73,7 +83,11 @@ export class ChangeExistingPasswordComponent implements OnInit {
         // //   passwordInputResult.hint,
         // // );
       } else {
-        await this.updatePassword(passwordInputResult.newPassword);
+        await this.updatePassword(
+          passwordInputResult.currentPassword,
+          passwordInputResult.newPassword,
+          passwordInputResult.hint,
+        );
       }
     } catch (e) {
       this.toastService.showToast({
@@ -86,5 +100,57 @@ export class ChangeExistingPasswordComponent implements OnInit {
 
   async submitOld(passwordInputResult: PasswordInputResult) {}
 
-  async updatePassword(password: string) {}
+  async updatePassword(currentPassword: string, newPassword: string, hint: string) {
+    const { userId, email } = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => ({ userId: a?.id, email: a?.email }))),
+    );
+    const kdfConfig = await firstValueFrom(this.kdfConfigService.getKdfConfig$(userId));
+
+    const currentMasterKey = await this.keyService.makeMasterKey(currentPassword, email, kdfConfig);
+    const decryptedUserKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
+      currentMasterKey,
+      userId,
+    );
+    if (decryptedUserKey == null) {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("invalidMasterPassword"),
+      });
+      return;
+    }
+
+    const newMasterKey = await this.keyService.makeMasterKey(newPassword, email, kdfConfig);
+    const newMasterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
+      newMasterKey,
+      decryptedUserKey,
+    );
+
+    const request = new PasswordRequest();
+    request.masterPasswordHash = await this.keyService.hashMasterKey(
+      currentPassword,
+      currentMasterKey,
+    );
+    request.masterPasswordHint = hint;
+    request.newMasterPasswordHash = await this.keyService.hashMasterKey(newPassword, newMasterKey);
+    request.key = newMasterKeyEncryptedUserKey[1].encryptedString;
+
+    try {
+      await this.masterPasswordApiService.postPassword(request);
+
+      this.toastService.showToast({
+        variant: "success",
+        title: this.i18nService.t("masterPasswordChanged"),
+        message: this.i18nService.t("masterPasswordChangedDesc"),
+      });
+
+      this.messagingService.send("logout");
+    } catch {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("errorOccurred"),
+      });
+    }
+  }
 }
