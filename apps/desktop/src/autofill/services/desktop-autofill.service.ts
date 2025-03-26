@@ -60,10 +60,6 @@ export class DesktopAutofillService implements OnDestroy {
       .pipe(
         distinctUntilChanged(),
         switchMap((enabled) => {
-          // if (!enabled) {
-          //   return EMPTY;
-          // }
-
           return this.accountService.activeAccount$.pipe(
             map((account) => account?.id),
             filter((userId): userId is UserId => userId != null),

@@ -97,7 +97,7 @@ export class Fido2PlaceholderComponent implements OnInit, OnDestroy {
       //   userVerification: true,
       // });
 
-      this.session.notifyConfirmNewCredential(true);
+      this.session.notifyConfirmCreateCredential(true);
 
       // Not sure this clean up should happen here or in session.
       // The session currently toggles modal on and send us here
@@ -113,7 +113,7 @@ export class Fido2PlaceholderComponent implements OnInit, OnDestroy {
     await this.router.navigate(["/"]);
     await this.desktopSettingsService.setModalMode(false);
 
-    this.session.notifyConfirmNewCredential(false);
+    this.session.notifyConfirmCreateCredential(false);
     // little bit hacky:
     this.session.confirmChosenCipher(null);
   }
