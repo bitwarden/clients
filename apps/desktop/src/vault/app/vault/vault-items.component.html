@@ -52,41 +52,21 @@
     <div class="no-items" *ngIf="!ciphers.length">
       <img class="no-items-image" aria-hidden="true" />
       <p>{{ "noItemsInList" | i18n }}</p>
-      <ng-container *ngTemplateOutlet="addCipherButton"></ng-container>
+      <button type="button" (click)="addCipher()" class="btn block primary link">
+        {{ "addItem" | i18n }}
+      </button>
     </div>
     <div class="footer">
-      <ng-container *ngTemplateOutlet="addCipherButton"></ng-container>
+      <button
+        type="button"
+        (click)="addCipher()"
+        (contextmenu)="addCipherOptions()"
+        class="block primary"
+        appA11yTitle="{{ 'addItem' | i18n }}"
+        [disabled]="deleted"
+      >
+        <i class="bwi bwi-plus bwi-lg" aria-hidden="true"></i>
+      </button>
     </div>
   </div>
 </ng-container>
-
-<ng-template #addCipherButton>
-  <button
-    type="button"
-    class="block primary"
-    bitButton
-    appA11yTitle="{{ 'addItem' | i18n }}"
-    [disabled]="deleted"
-    [bitMenuTriggerFor]="addCipherMenu"
-  >
-    <i class="bwi bwi-plus bwi-lg" aria-hidden="true"></i>
-  </button>
-  <bit-menu #addCipherMenu>
-    <button type="button" bitMenuItem (click)="addCipher(CipherType.Login)">
-      <i class="bwi bwi-globe tw-mr-1" aria-hidden="true"></i>
-      {{ "typeLogin" | i18n }}
-    </button>
-    <button type="button" bitMenuItem (click)="addCipher(CipherType.Card)">
-      <i class="bwi bwi-credit-card tw-mr-1" aria-hidden="true"></i>
-      {{ "typeCard" | i18n }}
-    </button>
-    <button type="button" bitMenuItem (click)="addCipher(CipherType.Identity)">
-      <i class="bwi bwi-id-card tw-mr-1" aria-hidden="true"></i>
-      {{ "typeIdentity" | i18n }}
-    </button>
-    <button type="button" bitMenuItem (click)="addCipher(CipherType.SecureNote)">
-      <i class="bwi bwi-sticky-note tw-mr-1" aria-hidden="true"></i>
-      {{ "typeSecureNote" | i18n }}
-    </button>
-  </bit-menu>
-</ng-template>
