@@ -227,6 +227,7 @@ jobs:
           cache-to: type=registry,ref=${{ steps.image-name.outputs.name }},mode=max
           context: .
           file: apps/web/Dockerfile
+          load: true
           platforms: |
             linux/amd64,
             linux/arm/v7,
@@ -237,7 +238,6 @@ jobs:
       - name: Zip project
         working-directory: apps/web
         run: |
-          sleep 30
           mkdir build
           docker run --rm --volume $(pwd)/build:/temp --entrypoint bash \
             ${{ steps.image-name.outputs.name }} -c "cp -r ./ /temp"
