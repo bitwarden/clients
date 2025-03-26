@@ -16,12 +16,12 @@ const { css } = createEmotion({
 });
 
 export function NotificationBody({
-  ciphers,
+  ciphers = [],
   notificationType,
   theme = ThemeTypes.Light,
   handleEditOrUpdateAction,
 }: {
-  ciphers: NotificationCipherData[];
+  ciphers?: NotificationCipherData[];
   customClasses?: string[];
   notificationType?: NotificationType;
   theme: Theme;

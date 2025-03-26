@@ -13,6 +13,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -65,6 +66,7 @@ describe("EmergencyViewDialogComponent", () => {
               useValue: ChangeLoginPasswordService,
             },
             { provide: ConfigService, useValue: ConfigService },
+            { provide: CipherService, useValue: mock<CipherService>() },
           ],
         },
         add: {
@@ -79,6 +81,7 @@ describe("EmergencyViewDialogComponent", () => {
               useValue: mock<ChangeLoginPasswordService>(),
             },
             { provide: ConfigService, useValue: mock<ConfigService>() },
+            { provide: CipherService, useValue: mock<CipherService>() },
           ],
         },
       })

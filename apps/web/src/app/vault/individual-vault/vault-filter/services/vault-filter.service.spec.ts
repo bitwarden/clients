@@ -65,11 +65,11 @@ describe("vault filter service", () => {
     organizationService.memberOrganizations$.mockReturnValue(organizations);
     folderService.folderViews$.mockReturnValue(folderViews);
     collectionService.decryptedCollections$ = collectionViews;
-    policyService.policyAppliesToActiveUser$
-      .calledWith(PolicyType.PersonalOwnership)
+    policyService.policyAppliesToUser$
+      .calledWith(PolicyType.PersonalOwnership, mockUserId)
       .mockReturnValue(personalOwnershipPolicy);
-    policyService.policyAppliesToActiveUser$
-      .calledWith(PolicyType.SingleOrg)
+    policyService.policyAppliesToUser$
+      .calledWith(PolicyType.SingleOrg, mockUserId)
       .mockReturnValue(singleOrgPolicy);
     cipherService.cipherViews$.mockReturnValue(cipherViews);
 
