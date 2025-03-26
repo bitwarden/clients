@@ -1,10 +1,10 @@
 import { mock } from "jest-mock-extended";
-import { bufferCount, firstValueFrom, lastValueFrom, of, take, tap } from "rxjs";
+import { BehaviorSubject, bufferCount, firstValueFrom, lastValueFrom, of, take, tap } from "rxjs";
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
-import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
@@ -801,5 +801,52 @@ describe("keyService", () => {
         expect(actualDidMatch).toBe(expectedToMatch);
       },
     );
+  });
+
+  describe("userPrivateKey$", () => {
+    type SetupKeysParams = {
+      makeMasterKey: boolean;
+      makeUserKey: boolean;
+    };
+
+    function setupKeys({ makeMasterKey, makeUserKey }: SetupKeysParams): [UserKey, MasterKey] {
+      const userKeyState = stateProvider.singleUser.getFake(mockUserId, USER_KEY);
+      const fakeMasterKey = makeMasterKey ? makeSymmetricCryptoKey<MasterKey>(64) : null;
+      masterPasswordService.masterKeySubject.next(fakeMasterKey);
+      userKeyState.nextState(null);
+      const fakeUserKey = makeUserKey ? makeSymmetricCryptoKey<UserKey>(64) : null;
+      userKeyState.nextState(fakeUserKey);
+      return [fakeUserKey, fakeMasterKey];
+    }
+
+    it("returns null when private key is null", async () => {
+      setupKeys({ makeMasterKey: false, makeUserKey: false });
+
+      keyService.userPrivateKey$ = jest.fn().mockReturnValue(new BehaviorSubject(null));
+      const key = await firstValueFrom(keyService.userEncryptionKeyPair$(mockUserId));
+      expect(key).toEqual(null);
+    });
+
+    it("returns null when private key is undefined", async () => {
+      setupKeys({ makeUserKey: true, makeMasterKey: false });
+
+      keyService.userPrivateKey$ = jest.fn().mockReturnValue(new BehaviorSubject(undefined));
+      const key = await firstValueFrom(keyService.userEncryptionKeyPair$(mockUserId));
+      expect(key).toEqual(null);
+    });
+
+    it("returns keys when private key is defined", async () => {
+      setupKeys({ makeUserKey: false, makeMasterKey: true });
+
+      keyService.userPrivateKey$ = jest.fn().mockReturnValue(new BehaviorSubject("private key"));
+      cryptoFunctionService.rsaExtractPublicKey.mockResolvedValue(
+        Utils.fromUtf8ToArray("public key"),
+      );
+      const key = await firstValueFrom(keyService.userEncryptionKeyPair$(mockUserId));
+      expect(key).toEqual({
+        privateKey: "private key",
+        publicKey: Utils.fromUtf8ToArray("public key"),
+      });
+    });
   });
 });
