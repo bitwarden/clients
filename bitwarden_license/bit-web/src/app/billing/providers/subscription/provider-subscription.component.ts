@@ -2,17 +2,26 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { Subject, concatMap, takeUntil } from "rxjs";
+import { concatMap, lastValueFrom, Subject, takeUntil } from "rxjs";
 
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { PaymentMethodType } from "@bitwarden/common/billing/enums";
 import { TaxInformation } from "@bitwarden/common/billing/models/domain";
 import { ExpandedTaxInfoUpdateRequest } from "@bitwarden/common/billing/models/request/expanded-tax-info-update.request";
+import { VerifyBankAccountRequest } from "@bitwarden/common/billing/models/request/verify-bank-account.request";
 import {
   ProviderPlanResponse,
   ProviderSubscriptionResponse,
 } from "@bitwarden/common/billing/models/response/provider-subscription-response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
+import {
+  AdjustPaymentDialogComponent,
+  AdjustPaymentDialogResultType,
+} from "@bitwarden/web-vault/app/billing/shared/adjust-payment-dialog/adjust-payment-dialog.component";
 
 @Component({
   selector: "app-provider-subscription",
@@ -29,11 +38,18 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
 
   protected readonly TaxInformation = TaxInformation;
 
+  protected readonly allowProviderPaymentMethod$ = this.configService.getFeatureFlag$(
+    FeatureFlag.PM18794_ProviderPaymentMethod,
+  );
+
   constructor(
     private billingApiService: BillingApiServiceAbstraction,
     private i18nService: I18nService,
     private route: ActivatedRoute,
     private billingNotificationService: BillingNotificationService,
+    private dialogService: DialogService,
+    private toastService: ToastService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -66,6 +82,21 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
     }
   }
 
+  protected updatePaymentMethod = async (): Promise<void> => {
+    const dialogRef = AdjustPaymentDialogComponent.open(this.dialogService, {
+      data: {
+        initialPaymentMethod: this.subscription.paymentSource?.type,
+        providerId: this.providerId,
+      },
+    });
+
+    const result = await lastValueFrom(dialogRef.closed);
+
+    if (result === AdjustPaymentDialogResultType.Submitted) {
+      await this.load();
+    }
+  };
+
   protected updateTaxInformation = async (taxInformation: TaxInformation) => {
     try {
       const request = ExpandedTaxInfoUpdateRequest.From(taxInformation);
@@ -74,6 +105,15 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
     } catch (error) {
       this.billingNotificationService.handleError(error);
     }
+  };
+
+  protected verifyBankAccount = async (request: VerifyBankAccountRequest): Promise<void> => {
+    await this.billingApiService.verifyProviderBankAccount(this.providerId, request);
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("verifiedBankAccount"),
+    });
   };
 
   protected getFormattedCost(
@@ -132,5 +172,29 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
       default:
         return "month";
     }
+  }
+
+  protected get paymentSourceClasses() {
+    if (this.subscription.paymentSource == null) {
+      return [];
+    }
+    switch (this.subscription.paymentSource.type) {
+      case PaymentMethodType.Card:
+        return ["bwi-credit-card"];
+      case PaymentMethodType.BankAccount:
+        return ["bwi-bank"];
+      case PaymentMethodType.Check:
+        return ["bwi-money"];
+      case PaymentMethodType.PayPal:
+        return ["bwi-paypal text-primary"];
+      default:
+        return [];
+    }
+  }
+
+  protected get updatePaymentSourceButtonText(): string {
+    const key =
+      this.subscription.paymentSource == null ? "addPaymentMethod" : "changePaymentMethod";
+    return this.i18nService.t(key);
   }
 }

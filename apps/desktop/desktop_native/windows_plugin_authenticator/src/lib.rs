@@ -134,18 +134,21 @@ fn add_authenticator() -> std::result::Result<(), String> {
     let mut add_response_ptr: *mut EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE =
         &mut add_response;
 
-    match unsafe {
-        if let Some(api) = delay_load::<EXPERIMENTAL_WebAuthNPluginAddAuthenticatorFnDeclaration>(
+    let result = unsafe {
+        delay_load::<EXPERIMENTAL_WebAuthNPluginAddAuthenticatorFnDeclaration>(
             s!("webauthn.dll"),
             s!("EXPERIMENTAL_WebAuthNPluginAddAuthenticator"),
-        ) {
-            Ok(api(&add_authenticator_options, &mut add_response_ptr))
-        } else {
+        )
+    };
+
+    match result {
+        Some(api) => {
+            let _ = unsafe { api(&add_authenticator_options, &mut add_response_ptr) };
+            Ok(())
+        },
+        None => {
             Err(String::from("Error: Can't complete add_authenticator(), as the function EXPERIMENTAL_WebAuthNPluginAddAuthenticator can't be found."))
         }
-    } {
-        Ok(_) => Ok(()),
-        Err(e) => Err(e),
     }
 }
 

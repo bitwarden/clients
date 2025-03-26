@@ -3,6 +3,7 @@ import {
   GENERATOR_MEMORY,
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
+import { VendorId } from "@bitwarden/common/tools/extension";
 import { IntegrationContext, IntegrationId } from "@bitwarden/common/tools/integration";
 import { ApiSettings, IntegrationRequest } from "@bitwarden/common/tools/integration/rpc";
 import { PrivateClassifier } from "@bitwarden/common/tools/private-classifier";
@@ -97,7 +98,7 @@ const forwarder = Object.freeze({
 
 // integration-wide configuration
 export const FirefoxRelay = Object.freeze({
-  id: "firefoxrelay" as IntegrationId,
+  id: "firefoxrelay" as IntegrationId & VendorId,
   name: "Firefox Relay",
   baseUrl: "https://relay.firefox.com/api",
   selfHost: "never",

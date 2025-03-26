@@ -4733,15 +4733,6 @@
   "nothingSelected": {
     "message": "Nevybrali jste žádné položky."
   },
-  "movedItemsToOrg": {
-    "message": "Vybrané položky přesunuty do $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
-  },
   "itemsMovedToOrg": {
     "message": "Položky přesunuty do $ORGNAME$",
     "placeholders": {

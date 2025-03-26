@@ -532,7 +532,7 @@
     "description": "Label for the password generator lowercase character checkbox"
   },
   "numbersDescription": {
-    "message": "העתק מספרים",
+    "message": "כלול מספרים",
     "description": "Full description for the password generator numbers checkbox"
   },
   "numbersLabel": {
@@ -825,7 +825,7 @@
     "message": "האימות בוטל או לקח זמן רב מדי. נא לנסות שוב."
   },
   "openInNewTab": {
-    "message": "פתח בכרטיסייה חדשה"
+    "message": "פתח בכרטיסיה חדשה"
   },
   "invalidVerificationCode": {
     "message": "קוד אימות שגוי"
@@ -2305,7 +2305,7 @@
     "message": "עדכון סיסמה ראשית"
   },
   "updateMasterPasswordWarning": {
-    "message": "הסיסמה הראשית שלך שונתה לאחרונה על ידי מנהל הארגון שלך. כדי לגשת לכספת, עליך לעדכן אותה כעת. המשך התהליך יוציא אותך מההפעלה הנוכחית שלך ותידרש להיכנס חזרה. הפעלות פעילות במכשירים אחרים עלולות להישאר פעילות למשך עד שעה אחת."
+    "message": "הסיסמה הראשית שלך שונתה לאחרונה על ידי מנהל הארגון שלך. כדי לגשת לכספת, עליך לעדכן אותה כעת. המשך התהליך יוציא אותך מההפעלה הנוכחית שלך, מה שידרוש ממך להיכנס חזרה. הפעלות פעילות במכשירים אחרים עלולות להישאר פעילות למשך עד שעה אחת."
   },
   "updateWeakMasterPasswordWarning": {
     "message": "הסיסמה הראשית שלך אינה עומדת באחת או יותר מפוליסות הארגון שלך. כדי לגשת לכספת, אתה מוכרח לעדכן את הסיסמה הראשית שלך עכשיו. בהמשך תנותק מההפעלה הנוכחית שלך, מה שידרוש ממך להיכנס חזרה. הפעלות פעילות במכשירים אחרים עלולות להישאר פעילות למשך עד שעה אחת."
@@ -3155,7 +3155,7 @@
     "message": "תפריט משנה"
   },
   "toggleSideNavigation": {
-    "message": "פתח או סגור ניווט צדדי"
+    "message": "החלף מצב ניווט צדדי"
   },
   "skipToContent": {
     "message": "דלג לתוכן"
@@ -3249,7 +3249,7 @@
     "message": "למד על אפשרויות הייבוא שלך"
   },
   "selectImportFolder": {
-    "message": "בחר תיקיה"
+    "message": "בחר תיקייה"
   },
   "selectImportCollection": {
     "message": "בחר אוסף"
@@ -3302,7 +3302,7 @@
     "message": "אשר סיסמת קובץ"
   },
   "exportSuccess": {
-    "message": "נתוני כספת יוצאו"
+    "message": "נתוני הכספת יוצאו"
   },
   "multifactorAuthenticationCancelled": {
     "message": "אימות רב־גורמי בוטל"
@@ -3521,7 +3521,7 @@
     "message": "מפתח SSH יובא בהצלחה"
   },
   "fileSavedToDevice": {
-    "message": "קובץ נשמר למכשיר. נהל מהורדות המכשיר שלך."
+    "message": "הקובץ נשמר למכשיר. נהל מהורדות המכשיר שלך."
   },
   "importantNotice": {
     "message": "הודעה חשובה"
