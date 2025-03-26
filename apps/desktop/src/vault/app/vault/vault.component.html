@@ -9,35 +9,40 @@
     (onAddCipherOptions)="addCipherOptions()"
   >
   </app-vault-items>
-  <div *ngIf="cipher" class="details">
-    <app-vault-item-footer
-      *ngIf="cipher"
-      id="footer"
-      #footer
-      [cipher]="cipher"
-      [action]="action"
-      (onEdit)="editCipher($event)"
-      (onRestore)="restoreCipher()"
-      (onClone)="cloneCipher($event)"
-      (onDelete)="deleteCipher()"
-    ></app-vault-item-footer>
-    <div class="content">
-      <div class="inner-content">
-        <div class="box">
-          <app-cipher-view *ngIf="action === 'view'" [cipher]="cipher" [collections]="collections">
-          </app-cipher-view>
-          <vault-cipher-form
-            *ngIf="action === 'add' || action === 'edit' || action === 'clone'"
-            formId="cipherForm"
-            [config]="config"
-            (cipherSaved)="savedCipher($event)"
-            [submitBtn]="footer?.submitBtn"
-          >
-          </vault-cipher-form>
-        </div>
-      </div>
-    </div>
-  </div>
+  <app-vault-view
+    id="details"
+    class="details"
+    *ngIf="cipherId && action === 'view'"
+    [cipherId]="cipherId"
+    [collectionId]="activeFilter?.selectedCollectionId"
+    (onCloneCipher)="cloneCipherWithoutPasswordPrompt($event)"
+    (onEditCipher)="editCipherWithoutPasswordPrompt($event)"
+    (onViewCipherPasswordHistory)="viewCipherPasswordHistory($event)"
+    (onRestoredCipher)="restoredCipher($event)"
+    (onDeletedCipher)="deletedCipher($event)"
+  >
+  </app-vault-view>
+  <app-vault-add-edit
+    id="addEdit"
+    class="details"
+    *ngIf="action === 'add' || action === 'edit' || action === 'clone'"
+    [cloneMode]="action === 'clone'"
+    [folderId]="action === 'add' && folderId !== 'none' ? folderId : null"
+    [organizationId]="action === 'add' ? addOrganizationId : null"
+    [collectionIds]="action === 'add' ? addCollectionIds : null"
+    [collectionId]="activeFilter?.selectedCollectionId"
+    [type]="action === 'add' ? (addType ? addType : type) : null"
+    [cipherId]="action === 'edit' || action === 'clone' ? cipherId : null"
+    (onSavedCipher)="savedCipher($event)"
+    (onDeletedCipher)="deletedCipher($event)"
+    (onEditAttachments)="editCipherAttachments($event)"
+    (onCancelled)="cancelledAddEdit($event)"
+    (onShareCipher)="shareCipher($event)"
+    (onEditCollections)="cipherCollections($event)"
+    (onGeneratePassword)="openGenerator(true)"
+    (onGenerateUsername)="openGenerator(false)"
+  >
+  </app-vault-add-edit>
   <div
     id="logo"
     class="logo"
@@ -62,7 +67,7 @@
 </div>
 <ng-template #generator></ng-template>
 <ng-template #attachments></ng-template>
-<ng-template #collectionsModal></ng-template>
+<ng-template #collections></ng-template>
 <ng-template #share></ng-template>
 <ng-template #folderAddEdit></ng-template>
 <ng-template #passwordHistory></ng-template>

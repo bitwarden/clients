@@ -1,0 +1,68 @@
+<div id="vault" class="vault vault-v2" attr.aria-hidden="{{ showingModal }}">
+  <app-vault-items
+    id="items"
+    class="items"
+    [activeCipherId]="cipherId"
+    (onCipherClicked)="viewCipher($event)"
+    (onCipherRightClicked)="viewCipherMenu($event)"
+    (onAddCipher)="addCipher($event)"
+    (onAddCipherOptions)="addCipherOptions()"
+  >
+  </app-vault-items>
+  <div *ngIf="cipher" class="details">
+    <app-vault-item-footer
+      *ngIf="cipher"
+      id="footer"
+      #footer
+      [cipher]="cipher"
+      [action]="action"
+      (onEdit)="editCipher($event)"
+      (onRestore)="restoreCipher()"
+      (onClone)="cloneCipher($event)"
+      (onDelete)="deleteCipher()"
+    ></app-vault-item-footer>
+    <div class="content">
+      <div class="inner-content">
+        <div class="box">
+          <app-cipher-view *ngIf="action === 'view'" [cipher]="cipher" [collections]="collections">
+          </app-cipher-view>
+          <vault-cipher-form
+            *ngIf="action === 'add' || action === 'edit' || action === 'clone'"
+            formId="cipherForm"
+            [config]="config"
+            (cipherSaved)="savedCipher($event)"
+            [submitBtn]="footer?.submitBtn"
+          >
+          </vault-cipher-form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    id="logo"
+    class="logo"
+    *ngIf="action !== 'add' && action !== 'edit' && action !== 'view' && action !== 'clone'"
+  >
+    <div class="content">
+      <div class="inner-content">
+        <img class="logo-image" alt="Bitwarden" aria-hidden="true" />
+      </div>
+    </div>
+  </div>
+  <div class="left-nav">
+    <app-vault-filter
+      class="vault-filters"
+      [activeFilter]="activeFilter"
+      (onFilterChange)="applyVaultFilter($event)"
+      (onAddFolder)="addFolder()"
+      (onEditFolder)="editFolder($event.id)"
+    ></app-vault-filter>
+    <app-nav class="nav"></app-nav>
+  </div>
+</div>
+<ng-template #generator></ng-template>
+<ng-template #attachments></ng-template>
+<ng-template #collectionsModal></ng-template>
+<ng-template #share></ng-template>
+<ng-template #folderAddEdit></ng-template>
+<ng-template #passwordHistory></ng-template>

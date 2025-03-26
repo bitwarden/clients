@@ -67,7 +67,6 @@ app-root {
     flex: 1;
     min-width: 0;
     order: 3;
-    flex-direction: column-reverse;
 
     @include themify($themes) {
       background-color: themed("backgroundColorAlt2");
@@ -162,4 +161,8 @@ app-root {
       display: flex;
     }
   }
+}
+
+.vault-v2 > .details {
+  flex-direction: column-reverse;
 }

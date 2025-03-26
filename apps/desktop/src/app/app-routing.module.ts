@@ -1,4 +1,4 @@
-import { NgModule } from "@angular/core";
+import { NgModule, inject } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
@@ -15,6 +15,7 @@ import {
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
+import { componentRouteSwap } from "@bitwarden/angular/utils/component-route-swap";
 import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
 import {
   AnonLayoutWrapperComponent,
@@ -42,6 +43,8 @@ import {
   NewDeviceVerificationComponent,
   DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LockComponent } from "@bitwarden/key-management-ui";
 import {
   NewDeviceVerificationNoticePageOneComponent,
@@ -55,6 +58,7 @@ import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
 import { TwoFactorComponentV1 } from "../auth/two-factor-v1.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
+import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 import { VaultComponent } from "../vault/app/vault/vault.component";
 
 import { Fido2PlaceholderComponent } from "./components/fido2placeholder.component";
@@ -156,11 +160,18 @@ const routes: Routes = [
       },
     ],
   },
-  {
-    path: "vault",
-    component: VaultComponent,
-    canActivate: [authGuard, NewDeviceVerificationNoticeGuard],
-  },
+  ...componentRouteSwap(
+    VaultComponent,
+    VaultV2Component,
+    () => {
+      const configService = inject(ConfigService);
+      return configService.getFeatureFlag(FeatureFlag.PM18520_UpdateDesktopCipherForm);
+    },
+    {
+      path: "vault",
+      canActivate: [authGuard, NewDeviceVerificationNoticeGuard],
+    },
+  ),
   { path: "accessibility-cookie", component: AccessibilityCookieComponent },
   { path: "set-password", component: SetPasswordComponent },
   {
