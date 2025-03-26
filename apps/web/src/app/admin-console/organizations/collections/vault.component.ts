@@ -925,8 +925,6 @@ export class VaultComponent implements OnInit, OnDestroy {
         type: "info",
       });
 
-      cipher.login.fido2Credentials = null;
-
       if (!confirmed) {
         return false;
       }
