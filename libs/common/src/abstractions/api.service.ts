@@ -51,7 +51,6 @@ import { PasswordlessAuthRequest } from "../auth/models/request/passwordless-aut
 import { SecretVerificationRequest } from "../auth/models/request/secret-verification.request";
 import { TwoFactorEmailRequest } from "../auth/models/request/two-factor-email.request";
 import { TwoFactorProviderRequest } from "../auth/models/request/two-factor-provider.request";
-import { TwoFactorRecoveryRequest } from "../auth/models/request/two-factor-recovery.request";
 import { UpdateProfileRequest } from "../auth/models/request/update-profile.request";
 import { UpdateTwoFactorAuthenticatorRequest } from "../auth/models/request/update-two-factor-authenticator.request";
 import { UpdateTwoFactorDuoRequest } from "../auth/models/request/update-two-factor-duo.request";
@@ -344,7 +343,6 @@ export abstract class ApiService {
     organizationId: string,
     request: TwoFactorProviderRequest,
   ) => Promise<TwoFactorProviderResponse>;
-  postTwoFactorRecover: (request: TwoFactorRecoveryRequest) => Promise<any>;
   postTwoFactorEmailSetup: (request: TwoFactorEmailRequest) => Promise<any>;
   postTwoFactorEmail: (request: TwoFactorEmailRequest) => Promise<any>;
   getDeviceVerificationSettings: () => Promise<DeviceVerificationResponse>;

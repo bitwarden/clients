@@ -879,9 +879,6 @@
   "filter": {
     "message": "Filtro"
   },
-  "moveSelectedToOrg": {
-    "message": "Mover Selecionados para a Organização"
-  },
   "deleteSelected": {
     "message": "Excluir Selecionados"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Itens selecionados movidos para $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "Escolha uma organização para a qual deseja mover este item. Mudar para uma organização transfere a propriedade do item para essa organização. Você não será mais o proprietário direto deste item depois que ele for movido."
   },
-  "moveManyToOrgDesc": {
-    "message": "Escolha uma organização para a qual deseja mover esses itens. Mudar para uma organização transfere a propriedade dos itens para essa organização. Você não será mais o proprietário direto desses itens depois que eles forem movidos."
-  },
   "collectionsDesc": {
     "message": "Edite as coleções com as quais este item está sendo compartilhado. Somente usuários da organização com acesso a estas coleções poderão ver esse item."
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "Você selecionou $COUNT$ item(ns). $MOVEABLE_COUNT$ item(ns) podem ser movidos para uma organização, mas, $NONMOVEABLE_COUNT$ não pode.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },

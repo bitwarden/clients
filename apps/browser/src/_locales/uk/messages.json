@@ -4733,15 +4733,6 @@
   "nothingSelected": {
     "message": "Ви нічого не вибрали."
   },
-  "movedItemsToOrg": {
-    "message": "Вибрані записи переміщено до $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
-  },
   "itemsMovedToOrg": {
     "message": "Записи переміщено до $ORGNAME$",
     "placeholders": {

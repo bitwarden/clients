@@ -879,9 +879,6 @@
   "filter": {
     "message": "Filter"
   },
-  "moveSelectedToOrg": {
-    "message": "Flytta valda till organisation"
-  },
   "deleteSelected": {
     "message": "Radera markerade"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "De valda objekten flyttades till $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "Välj en organisation som du vill flytta detta objektet till. Flytt till en organisation överför ägandet av objektet till den organisationen. Du kommer inte längre att vara direkt ägare till detta objekt när det har flyttats."
   },
-  "moveManyToOrgDesc": {
-    "message": "Välj en organisation som du vill flytta dessa objekt till. Flytt till en organisation överför ägandet av objekten till den organisationen. Du kommer inte längre att vara direkt ägare till dessa objekt när de har flyttats."
-  },
   "collectionsDesc": {
     "message": "Redigera de samlingar som detta objekt delas med. Endast organisationsanvändare med tillgång till dessa samlingar kommer att kunna se detta objekt."
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "Du har valt $COUNT$ objekt. $MOVEABLE_COUNT$ objekt kan flyttas till en organisation, $NONMOVEABLE_COUNT$ kan det inte.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },

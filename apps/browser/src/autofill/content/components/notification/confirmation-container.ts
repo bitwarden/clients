@@ -28,7 +28,7 @@ export function NotificationConfirmationContainer({
   handleCloseNotification: (e: Event) => void;
   handleOpenVault: (e: Event) => void;
 } & {
-  error: string;
+  error?: string;
   i18n: { [key: string]: string };
   type: NotificationType;
   username: string;

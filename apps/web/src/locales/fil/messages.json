@@ -879,9 +879,6 @@
   "filter": {
     "message": "Mga pansala"
   },
-  "moveSelectedToOrg": {
-    "message": "Ilipat sa napiling organisasyon"
-  },
   "deleteSelected": {
     "message": "Burahin ang napili"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Inilipat ang mga napiling item sa $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "Piliin kung saang organisasyon mo ililipat ang item na ito. Magiging pag-aari ng organisasyon ang anumang item na ililipat mo rito. Hindi ka na ang direktang may-ari ng item na ito pagkalipat."
   },
-  "moveManyToOrgDesc": {
-    "message": "Piliin kung saang organisasyon mo ililipat ang mga item na ito. Magiging pag-aari ng organisasyon ang mga item na ililipat mo rito. Hindi ka na ang direktang may-ari ng mga item na ito pagkalipat."
-  },
   "collectionsDesc": {
     "message": "Baguhin kung saang mga koleksyon ibinabahagi ang item na ito. Ang mga user sa organisasyon na may access sa koleksyon na ito lang ang makakakita sa item."
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "$COUNT$ item ang napili mo. Pwedeng mailipat sa isang organisasyon ang $MOVEABLE_COUNT$ item, habang $NONMOVEABLE_COUNT$ item ang hindi pwedeng mailipat.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },
