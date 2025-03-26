@@ -43,23 +43,34 @@ export class MSecureCsvImporter extends BaseImporter implements Importer {
         ).split("/");
         cipher.card.expMonth = month.trim();
         cipher.card.expYear = year.trim();
-        cipher.card.code = this.getValueOrDefault(this.splitValueRetainingLastPart(value[6]));
-        cipher.card.cardholderName = this.getValueOrDefault(
-          this.splitValueRetainingLastPart(value[7]),
+        const securityCodeRegex = RegExp("^Security Code\\|\\d*\\|");
+        const securityCodeEntry = value.find((entry: string) => securityCodeRegex.test(entry));
+        cipher.card.code = this.getValueOrDefault(
+          this.splitValueRetainingLastPart(securityCodeEntry),
         );
-        cipher.card.brand = this.getValueOrDefault(this.splitValueRetainingLastPart(value[9]));
-        cipher.notes =
-          this.getValueOrDefault(value[8].split("|")[0]) +
-          ": " +
-          this.getValueOrDefault(this.splitValueRetainingLastPart(value[8]), "") +
-          "\n" +
-          this.getValueOrDefault(value[10].split("|")[0]) +
-          ": " +
-          this.getValueOrDefault(this.splitValueRetainingLastPart(value[10]), "") +
-          "\n" +
-          this.getValueOrDefault(value[11].split("|")[0]) +
-          ": " +
-          this.getValueOrDefault(this.splitValueRetainingLastPart(value[11]), "");
+
+        const cardNameRegex = RegExp("^Name on Card\\|\\d*\\|");
+        const nameOnCardEntry = value.find((entry: string) => entry.match(cardNameRegex));
+        cipher.card.cardholderName = this.getValueOrDefault(
+          this.splitValueRetainingLastPart(nameOnCardEntry),
+        );
+
+        cipher.card.brand = this.getValueOrDefault(this.splitValueRetainingLastPart(value[9]), "");
+
+        const noteRegex = RegExp("\\|\\d*\\|");
+        const rawNotes = value
+          .slice(2)
+          .filter((entry: string) => !this.isNullOrWhitespace(entry) && !noteRegex.test(entry));
+        const noteIndexes = [8, 10, 11];
+        const indexedNotes = noteIndexes
+          .filter((idx) => value[idx] && noteRegex.test(value[idx]))
+          .map((idx) => value[idx])
+          .map((val) => {
+            const key = val.split("|")[0];
+            const value = this.getValueOrDefault(this.splitValueRetainingLastPart(val), "");
+            return `${key}: ${value}`;
+          });
+        cipher.notes = [...rawNotes, ...indexedNotes].join("\n");
       } else if (value.length > 3) {
         cipher.type = CipherType.SecureNote;
         cipher.secureNote = new SecureNoteView();
@@ -95,6 +106,6 @@ export class MSecureCsvImporter extends BaseImporter implements Importer {
   // like "Password|8|myPassword", we want to keep the "myPassword" but also ensure that if
   // the value contains any "|" it works fine
   private splitValueRetainingLastPart(value: string) {
-    return value.split("|").slice(0, 2).concat(value.split("|").slice(2).join("|")).pop();
+    return value && value.split("|").slice(0, 2).concat(value.split("|").slice(2).join("|")).pop();
   }
 }

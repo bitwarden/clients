@@ -20,25 +20,10 @@ describe("SymmetricCryptoKey", () => {
       expect(cryptoKey).toEqual({
         encKey: key,
         encKeyB64: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
-        encType: 0,
+        encType: EncryptionType.AesCbc256_B64,
         key: key,
         keyB64: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
         macKey: null,
-      });
-    });
-
-    it("AesCbc128_HmacSha256_B64", () => {
-      const key = makeStaticByteArray(32);
-      const cryptoKey = new SymmetricCryptoKey(key, EncryptionType.AesCbc128_HmacSha256_B64);
-
-      expect(cryptoKey).toEqual({
-        encKey: key.slice(0, 16),
-        encKeyB64: "AAECAwQFBgcICQoLDA0ODw==",
-        encType: 1,
-        key: key,
-        keyB64: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
-        macKey: key.slice(16, 32),
-        macKeyB64: "EBESExQVFhcYGRobHB0eHw==",
       });
     });
 
@@ -49,7 +34,7 @@ describe("SymmetricCryptoKey", () => {
       expect(cryptoKey).toEqual({
         encKey: key.slice(0, 32),
         encKeyB64: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
-        encType: 2,
+        encType: EncryptionType.AesCbc256_HmacSha256_B64,
         key: key,
         keyB64:
           "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+Pw==",
@@ -82,5 +67,22 @@ describe("SymmetricCryptoKey", () => {
 
     expect(actual).toEqual(expected);
     expect(actual).toBeInstanceOf(SymmetricCryptoKey);
+  });
+
+  describe("fromString", () => {
+    it("null string returns null", () => {
+      const actual = SymmetricCryptoKey.fromString(null);
+
+      expect(actual).toBeNull();
+    });
+
+    it("base64 string creates object", () => {
+      const key = makeStaticByteArray(64);
+      const expected = new SymmetricCryptoKey(key);
+      const actual = SymmetricCryptoKey.fromString(expected.keyB64);
+
+      expect(actual).toEqual(expected);
+      expect(actual).toBeInstanceOf(SymmetricCryptoKey);
+    });
   });
 });

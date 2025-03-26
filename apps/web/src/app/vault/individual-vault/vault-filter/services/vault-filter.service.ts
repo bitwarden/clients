@@ -5,6 +5,7 @@ import {
   BehaviorSubject,
   combineLatest,
   combineLatestWith,
+  filter,
   firstValueFrom,
   map,
   Observable,
@@ -54,8 +55,14 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
 
   organizationTree$: Observable<TreeNode<OrganizationFilter>> = combineLatest([
     this.memberOrganizations$,
-    this.policyService.policyAppliesToActiveUser$(PolicyType.SingleOrg),
-    this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
+    this.activeUserId$.pipe(
+      switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId)),
+    ),
+    this.activeUserId$.pipe(
+      switchMap((userId) =>
+        this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+      ),
+    ),
   ]).pipe(
     switchMap(([orgs, singleOrgPolicy, personalOwnershipPolicy]) =>
       this.buildOrganizationTree(orgs, singleOrgPolicy, personalOwnershipPolicy),
@@ -72,10 +79,12 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
         this._organizationFilter,
       ]),
     ),
+    filter(([folders, ciphers, org]) => !!ciphers), // ciphers may be null, meaning decryption is in progress. Ignore this emission
     switchMap(([folders, ciphers, org]) => {
       return this.filterFolders(folders, ciphers, org);
     }),
   );
+
   folderTree$: Observable<TreeNode<FolderFilter>> = this.filteredFolders$.pipe(
     map((folders) => this.buildFolderTree(folders)),
   );

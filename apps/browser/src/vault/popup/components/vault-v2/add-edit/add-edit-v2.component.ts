@@ -212,7 +212,7 @@ export class AddEditV2Component implements OnInit {
   /**
    * Handle back button
    */
-  async handleBackButton() {
+  handleBackButton = async () => {
     if (this.inFido2PopoutWindow) {
       this.popupCloseWarningService.disable();
       BrowserFido2UserInterfaceSession.abortPopout(this.fido2PopoutSessionData.sessionId);
@@ -225,7 +225,7 @@ export class AddEditV2Component implements OnInit {
     }
 
     await this.popupRouterCacheService.back();
-  }
+  };
 
   async onCipherSaved(cipher: CipherView) {
     if (BrowserPopupUtils.inPopout(window)) {
@@ -438,6 +438,32 @@ const mapAddEditCipherInfoToInitialValues = (
 
   if (cipher.name != null) {
     initialValues.name = cipher.name;
+  }
+
+  if (cipher.type === CipherType.Card) {
+    const card = cipher.card;
+
+    if (card != null) {
+      if (card.cardholderName != null) {
+        initialValues.cardholderName = card.cardholderName;
+      }
+
+      if (card.number != null) {
+        initialValues.number = card.number;
+      }
+
+      if (card.expMonth != null) {
+        initialValues.expMonth = card.expMonth;
+      }
+
+      if (card.expYear != null) {
+        initialValues.expYear = card.expYear;
+      }
+
+      if (card.code != null) {
+        initialValues.code = card.code;
+      }
+    }
   }
 
   if (cipher.type === CipherType.Login) {

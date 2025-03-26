@@ -31,7 +31,6 @@ import { View } from "../../models/view/view";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { StateService } from "../../platform/abstractions/state.service";
-import { sequentialize } from "../../platform/misc/sequentialize";
 import { Utils } from "../../platform/misc/utils";
 import Domain from "../../platform/models/domain/domain-base";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
@@ -165,9 +164,9 @@ export class CipherService implements CipherServiceAbstraction {
     }
     if (this.searchService != null) {
       if (value == null) {
-        await this.searchService.clearIndex();
+        await this.searchService.clearIndex(userId);
       } else {
-        await this.searchService.indexCiphers(value);
+        await this.searchService.indexCiphers(userId, value);
       }
     }
   }
@@ -390,7 +389,6 @@ export class CipherService implements CipherServiceAbstraction {
    * cached, the cached ciphers are returned.
    * @deprecated Use `cipherViews$` observable instead
    */
-  @sequentialize(() => "getAllDecrypted")
   async getAllDecrypted(userId: UserId): Promise<CipherView[]> {
     const decCiphers = await this.getDecryptedCiphers(userId);
     if (decCiphers != null && decCiphers.length !== 0) {
@@ -430,7 +428,7 @@ export class CipherService implements CipherServiceAbstraction {
 
     if (keys == null || (keys.userKey == null && Object.keys(keys.orgKeys).length === 0)) {
       // return early if there are no keys to decrypt with
-      return;
+      return [[], []];
     }
 
     // Group ciphers by orgId or under 'null' for the user's ciphers
@@ -480,9 +478,9 @@ export class CipherService implements CipherServiceAbstraction {
   private async reindexCiphers(userId: UserId) {
     const reindexRequired =
       this.searchService != null &&
-      ((await firstValueFrom(this.searchService.indexedEntityId$)) ?? userId) !== userId;
+      ((await firstValueFrom(this.searchService.indexedEntityId$(userId))) ?? userId) !== userId;
     if (reindexRequired) {
-      await this.searchService.indexCiphers(await this.getDecryptedCiphers(userId), userId);
+      await this.searchService.indexCiphers(userId, await this.getDecryptedCiphers(userId), userId);
     }
   }
 
@@ -980,10 +978,14 @@ export class CipherService implements CipherServiceAbstraction {
 
   async upsert(cipher: CipherData | CipherData[]): Promise<Record<CipherId, CipherData>> {
     const ciphers = cipher instanceof CipherData ? [cipher] : cipher;
-    return await this.updateEncryptedCipherState((current) => {
+    const res = await this.updateEncryptedCipherState((current) => {
       ciphers.forEach((c) => (current[c.id as CipherId] = c));
       return current;
     });
+    // Some state storage providers (e.g. Electron) don't update the state immediately, wait for next tick
+    // Otherwise, subscribers to cipherViews$ can get stale data
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    return res;
   }
 
   async replace(ciphers: { [id: string]: CipherData }, userId: UserId): Promise<any> {
@@ -1000,13 +1002,16 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId = null,
   ): Promise<Record<CipherId, CipherData>> {
     userId ||= await firstValueFrom(this.stateProvider.activeUserId$);
-    await this.clearDecryptedCiphersState(userId);
+    await this.clearCache(userId);
     const updatedCiphers = await this.stateProvider
       .getUser(userId, ENCRYPTED_CIPHERS)
       .update((current) => {
         const result = update(current ?? {});
         return result;
       });
+    // Some state storage providers (e.g. Electron) don't update the state immediately, wait for next tick
+    // Otherwise, subscribers to cipherViews$ can get stale data
+    await new Promise((resolve) => setTimeout(resolve, 0));
     return updatedCiphers;
   }
 

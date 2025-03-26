@@ -2,12 +2,14 @@
 // @ts-strict-ignore
 import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, Subject } from "rxjs";
+import { firstValueFrom, merge, Subject, switchMap, takeUntil } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -102,6 +104,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     protected billingApiService: BillingApiServiceAbstraction,
     protected dialogService: DialogService,
     protected configService: ConfigService,
+    protected accountService: AccountService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -109,6 +112,27 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     this.activeFilter.selectedCipherTypeNode =
       (await this.getDefaultFilter()) as TreeNode<CipherTypeFilter>;
     this.isLoaded = true;
+
+    // Without refactoring the entire component, we need to manually update the organization filter whenever the policies update
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          merge(
+            this.policyService.policiesByType$(PolicyType.SingleOrg, userId).pipe(getFirstPolicy),
+            this.policyService
+              .policiesByType$(PolicyType.PersonalOwnership, userId)
+              .pipe(getFirstPolicy),
+          ),
+        ),
+      )
+      .pipe(
+        switchMap(() => this.addOrganizationFilter()),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((orgFilters) => {
+        this.filters.organizationFilter = orgFilters;
+      });
   }
 
   ngOnDestroy() {
@@ -178,9 +202,22 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   }
 
   protected async addOrganizationFilter(): Promise<VaultFilterSection> {
-    const singleOrgPolicy = await this.policyService.policyAppliesToUser(PolicyType.SingleOrg);
-    const personalVaultPolicy = await this.policyService.policyAppliesToUser(
-      PolicyType.PersonalOwnership,
+    const singleOrgPolicy = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
+        ),
+      ),
+    );
+
+    const personalVaultPolicy = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+        ),
+      ),
     );
 
     const addAction = !singleOrgPolicy
@@ -230,20 +267,17 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       },
       {
         id: "note",
-        name: this.i18nService.t("typeSecureNote"),
+        name: this.i18nService.t("note"),
         type: CipherType.SecureNote,
         icon: "bwi-sticky-note",
       },
-    ];
-
-    if (await this.configService.getFeatureFlag(FeatureFlag.SSHKeyVaultItem)) {
-      allTypeFilters.push({
+      {
         id: "sshKey",
         name: this.i18nService.t("typeSshKey"),
         type: CipherType.SshKey,
         icon: "bwi-key",
-      });
-    }
+      },
+    ];
 
     const typeFilterSection: VaultFilterSection = {
       data$: this.vaultFilterService.buildTypeTree(
@@ -268,7 +302,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       },
       action: this.applyFolderFilter,
       edit: {
-        text: "editFolder",
+        filterName: this.i18nService.t("folder"),
         action: this.editFolder,
       },
     };

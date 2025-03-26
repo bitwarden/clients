@@ -1,10 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import "core-js/proposals/explicit-resource-management";
+
 import * as path from "path";
 
 import { app } from "electron";
 import { Subject, firstValueFrom } from "rxjs";
 
+import { SsoUrlService } from "@bitwarden/auth/common";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -27,6 +30,7 @@ import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@
 import { DefaultBiometricStateService } from "@bitwarden/key-management";
 /* eslint-enable import/no-restricted-paths */
 
+import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
 import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
@@ -42,7 +46,6 @@ import { NativeAutofillMain } from "./platform/main/autofill/native-autofill.mai
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { MainCryptoFunctionService } from "./platform/main/main-crypto-function.service";
-import { MainSshAgentService } from "./platform/main/main-ssh-agent.service";
 import { VersionMain } from "./platform/main/version.main";
 import { DesktopSettingsService } from "./platform/services/desktop-settings.service";
 import { ElectronLogMainService } from "./platform/services/electron-log.main.service";
@@ -66,6 +69,7 @@ export class Main {
   desktopSettingsService: DesktopSettingsService;
   mainCryptoFunctionService: MainCryptoFunctionService;
   migrationRunner: MigrationRunner;
+  ssoUrlService: SsoUrlService;
 
   windowMain: WindowMain;
   messagingMain: MessagingMain;
@@ -205,6 +209,14 @@ export class Main {
       new ElectronMainMessagingService(this.windowMain),
     );
 
+    this.trayMain = new TrayMain(
+      this.windowMain,
+      this.i18nService,
+      this.desktopSettingsService,
+      this.messagingService,
+      this.biometricsService,
+    );
+
     messageSubject.asObservable().subscribe((message) => {
       void this.messagingMain.onMessage(message).catch((err) => {
         this.logService.error(
@@ -232,7 +244,7 @@ export class Main {
       this.windowMain,
       this.i18nService,
       this.desktopSettingsService,
-      biometricStateService,
+      this.messagingService,
       this.biometricsService,
     );
 
@@ -261,7 +273,13 @@ export class Main {
     this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
 
     new EphemeralValueStorageService();
-    new SSOLocalhostCallbackService(this.environmentService, this.messagingService);
+
+    this.ssoUrlService = new SsoUrlService();
+    new SSOLocalhostCallbackService(
+      this.environmentService,
+      this.messagingService,
+      this.ssoUrlService,
+    );
 
     this.nativeAutofillMain = new NativeAutofillMain(this.logService, this.windowMain);
     void this.nativeAutofillMain.init();
@@ -274,6 +292,8 @@ export class Main {
     this.migrationRunner.run().then(
       async () => {
         await this.toggleHardwareAcceleration();
+        // Reset modal mode to make sure main window is displayed correctly
+        await this.desktopSettingsService.resetModalMode();
         await this.windowMain.init();
         await this.i18nService.init();
         await this.messagingMain.init();

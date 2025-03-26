@@ -182,70 +182,18 @@ pub mod sshagent {
         pub key_fingerprint: String,
     }
 
-    impl From<desktop_core::ssh_agent::importer::SshKey> for SshKey {
-        fn from(key: desktop_core::ssh_agent::importer::SshKey) -> Self {
-            SshKey {
-                private_key: key.private_key,
-                public_key: key.public_key,
-                key_fingerprint: key.key_fingerprint,
-            }
-        }
-    }
-
-    #[napi]
-    pub enum SshKeyImportStatus {
-        /// ssh key was parsed correctly and will be returned in the result
-        Success,
-        /// ssh key was parsed correctly but is encrypted and requires a password
-        PasswordRequired,
-        /// ssh key was parsed correctly, and a password was provided when calling the import, but it was incorrect
-        WrongPassword,
-        /// ssh key could not be parsed, either due to an incorrect / unsupported format (pkcs#8) or key type (ecdsa), or because the input is not an ssh key
-        ParsingError,
-        /// ssh key type is not supported (e.g. ecdsa)
-        UnsupportedKeyType,
-    }
-
-    impl From<desktop_core::ssh_agent::importer::SshKeyImportStatus> for SshKeyImportStatus {
-        fn from(status: desktop_core::ssh_agent::importer::SshKeyImportStatus) -> Self {
-            match status {
-                desktop_core::ssh_agent::importer::SshKeyImportStatus::Success => {
-                    SshKeyImportStatus::Success
-                }
-                desktop_core::ssh_agent::importer::SshKeyImportStatus::PasswordRequired => {
-                    SshKeyImportStatus::PasswordRequired
-                }
-                desktop_core::ssh_agent::importer::SshKeyImportStatus::WrongPassword => {
-                    SshKeyImportStatus::WrongPassword
-                }
-                desktop_core::ssh_agent::importer::SshKeyImportStatus::ParsingError => {
-                    SshKeyImportStatus::ParsingError
-                }
-                desktop_core::ssh_agent::importer::SshKeyImportStatus::UnsupportedKeyType => {
-                    SshKeyImportStatus::UnsupportedKeyType
-                }
-            }
-        }
-    }
-
     #[napi(object)]
-    pub struct SshKeyImportResult {
-        pub status: SshKeyImportStatus,
-        pub ssh_key: Option<SshKey>,
-    }
-
-    impl From<desktop_core::ssh_agent::importer::SshKeyImportResult> for SshKeyImportResult {
-        fn from(result: desktop_core::ssh_agent::importer::SshKeyImportResult) -> Self {
-            SshKeyImportResult {
-                status: result.status.into(),
-                ssh_key: result.ssh_key.map(|k| k.into()),
-            }
-        }
+    pub struct SshUIRequest {
+        pub cipher_id: Option<String>,
+        pub is_list: bool,
+        pub process_name: String,
+        pub is_forwarding: bool,
+        pub namespace: Option<String>,
     }
 
     #[napi]
     pub async fn serve(
-        callback: ThreadsafeFunction<(Option<String>, bool, String), CalleeHandled>,
+        callback: ThreadsafeFunction<SshUIRequest, CalleeHandled>,
     ) -> napi::Result<SshAgentState> {
         let (auth_request_tx, mut auth_request_rx) =
             tokio::sync::mpsc::channel::<desktop_core::ssh_agent::SshAgentUIRequest>(32);
@@ -262,11 +210,13 @@ pub mod sshagent {
                     let auth_response_tx_arc = cloned_response_tx_arc;
                     let callback = cloned_callback;
                     let promise_result: Result<Promise<bool>, napi::Error> = callback
-                        .call_async(Ok((
-                            request.cipher_id,
-                            request.is_list,
-                            request.process_name,
-                        )))
+                        .call_async(Ok(SshUIRequest {
+                            cipher_id: request.cipher_id,
+                            is_list: request.is_list,
+                            process_name: request.process_name,
+                            is_forwarding: request.is_forwarding,
+                            namespace: request.namespace,
+                        }))
                         .await;
                     match promise_result {
                         Ok(promise_result) => match promise_result.await {
@@ -346,13 +296,6 @@ pub mod sshagent {
         bitwarden_agent_state
             .lock()
             .map_err(|e| napi::Error::from_reason(e.to_string()))
-    }
-
-    #[napi]
-    pub fn import_key(encoded_key: String, password: String) -> napi::Result<SshKeyImportResult> {
-        let result = desktop_core::ssh_agent::importer::import_key(encoded_key, password)
-            .map_err(|e| napi::Error::from_reason(e.to_string()))?;
-        Ok(result.into())
     }
 
     #[napi]
@@ -575,6 +518,14 @@ pub mod autofill {
     #[napi(object)]
     #[derive(Debug, Serialize, Deserialize)]
     #[serde(rename_all = "camelCase")]
+    pub struct Position {
+        pub x: i32,
+        pub y: i32,
+    }
+
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
     pub struct PasskeyRegistrationRequest {
         pub rp_id: String,
         pub user_name: String,
@@ -582,6 +533,7 @@ pub mod autofill {
         pub client_data_hash: Vec<u8>,
         pub user_verification: UserVerification,
         pub supported_algorithms: Vec<i32>,
+        pub window_xy: Position,
     }
 
     #[napi(object)]
@@ -599,12 +551,25 @@ pub mod autofill {
     #[serde(rename_all = "camelCase")]
     pub struct PasskeyAssertionRequest {
         pub rp_id: String,
+        pub client_data_hash: Vec<u8>,
+        pub user_verification: UserVerification,
+        pub allowed_credentials: Vec<Vec<u8>>,
+        pub window_xy: Position,
+        //extension_input: Vec<u8>, TODO: Implement support for extensions
+    }
+
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PasskeyAssertionWithoutUserInterfaceRequest {
+        pub rp_id: String,
         pub credential_id: Vec<u8>,
         pub user_name: String,
         pub user_handle: Vec<u8>,
         pub record_identifier: Option<String>,
         pub client_data_hash: Vec<u8>,
         pub user_verification: UserVerification,
+        pub window_xy: Position,
     }
 
     #[napi(object)]
@@ -649,6 +614,13 @@ pub mod autofill {
                 (u32, u32, PasskeyAssertionRequest),
                 ErrorStrategy::CalleeHandled,
             >,
+            #[napi(
+                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void"
+            )]
+            assertion_without_user_interface_callback: ThreadsafeFunction<
+                (u32, u32, PasskeyAssertionWithoutUserInterfaceRequest),
+                ErrorStrategy::CalleeHandled,
+            >,
         ) -> napi::Result<Self> {
             let (send, mut recv) = tokio::sync::mpsc::channel::<Message>(32);
             tokio::spawn(async move {
@@ -677,6 +649,25 @@ pub mod autofill {
                                         .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
 
                                     assertion_callback
+                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
+                                    continue;
+                                }
+                                Err(e) => {
+                                    println!("[ERROR] Error deserializing message1: {e}");
+                                }
+                            }
+
+                            match serde_json::from_str::<
+                                PasskeyMessage<PasskeyAssertionWithoutUserInterfaceRequest>,
+                            >(&message)
+                            {
+                                Ok(msg) => {
+                                    let value = msg
+                                        .value
+                                        .map(|value| (client_id, msg.sequence_number, value))
+                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
+
+                                    assertion_without_user_interface_callback
                                         .call(value, ThreadsafeFunctionCallMode::NonBlocking);
                                     continue;
                                 }
