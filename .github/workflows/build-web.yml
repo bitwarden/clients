@@ -237,6 +237,7 @@ jobs:
       - name: Zip project
         working-directory: apps/web
         run: |
+          sleep 30
           mkdir build
           docker run --rm --volume $(pwd)/build:/temp --entrypoint bash \
             ${{ steps.image-name.outputs.name }} -c "cp -r ./ /temp"
