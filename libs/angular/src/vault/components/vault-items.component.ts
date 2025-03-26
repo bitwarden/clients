@@ -9,6 +9,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 @Directive()
@@ -16,7 +17,7 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
   @Input() activeCipherId: string = null;
   @Output() onCipherClicked = new EventEmitter<CipherView>();
   @Output() onCipherRightClicked = new EventEmitter<CipherView>();
-  @Output() onAddCipher = new EventEmitter();
+  @Output() onAddCipher = new EventEmitter<CipherType | undefined>();
   @Output() onAddCipherOptions = new EventEmitter();
 
   loaded = false;
@@ -24,6 +25,7 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
   filter: (cipher: CipherView) => boolean = null;
   deleted = false;
   organization: Organization;
+  CipherType = CipherType;
 
   protected searchPending = false;
 
@@ -107,8 +109,8 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
     this.onCipherRightClicked.emit(cipher);
   }
 
-  addCipher() {
-    this.onAddCipher.emit();
+  addCipher(type?: CipherType) {
+    this.onAddCipher.emit(type);
   }
 
   addCipherOptions() {

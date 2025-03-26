@@ -10,12 +10,13 @@ import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-
 import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
-import { CalloutModule, DialogModule } from "@bitwarden/components";
+import { CalloutModule, DialogModule, MenuModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   ChangeLoginPasswordService,
   CipherFormComponent,
   CipherFormConfigService,
+  CipherFormModule,
   CipherViewComponent,
   DecryptionFailureDialogComponent,
   DefaultChangeLoginPasswordService,
@@ -44,6 +45,7 @@ import { ItemFooterComponent } from "../vault/app/vault/item-footer.component";
 import { PasswordHistoryComponent } from "../vault/app/vault/password-history.component";
 import { ShareComponent } from "../vault/app/vault/share.component";
 import { VaultFilterModule } from "../vault/app/vault/vault-filter/vault-filter.module";
+import { VaultItemsV2Component } from "../vault/app/vault/vault-items-v2.component";
 import { VaultItemsComponent } from "../vault/app/vault/vault-items.component";
 import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 import { VaultComponent } from "../vault/app/vault/vault.component";
@@ -63,10 +65,12 @@ import { SharedModule } from "./shared/shared.module";
 
 @NgModule({
   imports: [
+    CipherFormModule,
     CommonModule,
     SharedModule,
     AppRoutingModule,
     VaultFilterModule,
+    MenuModule,
     LoginModule,
     DialogModule,
     CalloutModule,
@@ -108,6 +112,7 @@ import { SharedModule } from "./shared/shared.module";
     VaultTimeoutInputComponent,
     ViewComponent,
     ViewCustomFieldsComponent,
+    VaultItemsV2Component,
     VaultV2Component,
   ],
   providers: [

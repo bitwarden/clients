@@ -6,7 +6,9 @@ import {
   NgZone,
   OnDestroy,
   OnInit,
+  QueryList,
   ViewChild,
+  ViewChildren,
   ViewContainerRef,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -55,7 +57,7 @@ import { ItemFooterComponent } from "./item-footer.component";
 import { PasswordHistoryComponent } from "./password-history.component";
 import { ShareComponent } from "./share.component";
 import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
-import { VaultItemsComponent } from "./vault-items.component";
+import { VaultItemsV2Component } from "./vault-items-v2.component";
 import { ViewComponent } from "./view.component";
 
 const BroadcasterSubscriptionId = "VaultComponent";
@@ -65,9 +67,11 @@ const BroadcasterSubscriptionId = "VaultComponent";
   templateUrl: "vault-v2.component.html",
 })
 export class VaultV2Component implements OnInit, OnDestroy {
+  showForm = false;
+
   @ViewChild(ViewComponent) viewComponent: ViewComponent;
   @ViewChild(AddEditComponent) addEditComponent: AddEditComponent;
-  @ViewChild(VaultItemsComponent, { static: true }) vaultItemsComponent: VaultItemsComponent;
+  @ViewChild(VaultItemsV2Component, { static: true }) vaultItemsComponent: VaultItemsV2Component;
   @ViewChild("generator", { read: ViewContainerRef, static: true })
   generatorModalRef: ViewContainerRef;
   @ViewChild(VaultFilterComponent, { static: true }) vaultFilterComponent: VaultFilterComponent;
@@ -81,6 +85,13 @@ export class VaultV2Component implements OnInit, OnDestroy {
   @ViewChild("folderAddEdit", { read: ViewContainerRef, static: true })
   folderAddEditModalRef: ViewContainerRef;
   @ViewChild("footer") footer: ItemFooterComponent;
+  @ViewChild("vaultForm", { static: false }) set vaultFormInstance(instance: any) {
+    if (instance) {
+      this.showForm = true;
+      this.changeDetectorRef.detectChanges();
+    }
+  }
+  @ViewChildren("vaultForm") vaultForms!: QueryList<any>;
 
   action: string;
   cipherId: string = null;
@@ -98,9 +109,9 @@ export class VaultV2Component implements OnInit, OnDestroy {
   userHasPremiumAccess = false;
   activeFilter: VaultFilter = new VaultFilter();
   activeUserId: UserId;
-  cipher: CipherView;
+  cipher: CipherView = new CipherView();
   collections: CollectionView[] = [];
-  config: CipherFormConfig;
+  config: CipherFormConfig = null;
 
   private modal: ModalRef = null;
   private componentIsDestroyed$ = new Subject<boolean>();
@@ -455,14 +466,11 @@ export class VaultV2Component implements OnInit, OnDestroy {
   }
 
   async addCipher(type: CipherType = null) {
-    if (!(await this.canNavigateAway("add", null))) {
-      return;
-    }
-
     this.addType = type || this.activeFilter.cipherType;
     this.action = "add";
     this.cipherId = null;
     this.prefillNewCipherFromFilter();
+
     await this.go();
   }
 
@@ -746,8 +754,16 @@ export class VaultV2Component implements OnInit, OnDestroy {
     this.config = await this.formConfigService.buildConfig(
       queryParams.action,
       this.cipherId as CipherId,
-      queryParams.type,
+      this.addType || queryParams.type,
     );
+
+    // Set showForm to false to remove any existing form context
+    this.showForm = false;
+
+    setTimeout(() => {
+      this.showForm = true;
+      this.changeDetectorRef.detectChanges();
+    }, 0);
 
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises

@@ -1,5 +1,5 @@
 <div id="vault" class="vault vault-v2" attr.aria-hidden="{{ showingModal }}">
-  <app-vault-items
+  <app-vault-items-v2
     id="items"
     class="items"
     [activeCipherId]="cipherId"
@@ -8,10 +8,10 @@
     (onAddCipher)="addCipher($event)"
     (onAddCipherOptions)="addCipherOptions()"
   >
-  </app-vault-items>
-  <div *ngIf="cipher" class="details">
+  </app-vault-items-v2>
+  <div class="details" *ngIf="!!action">
     <app-vault-item-footer
-      *ngIf="cipher"
+      *ngIf="(action === 'add' || action === 'edit' || action === 'clone') && showForm"
       id="footer"
       #footer
       [cipher]="cipher"
@@ -27,7 +27,8 @@
           <app-cipher-view *ngIf="action === 'view'" [cipher]="cipher" [collections]="collections">
           </app-cipher-view>
           <vault-cipher-form
-            *ngIf="action === 'add' || action === 'edit' || action === 'clone'"
+            #vaultForm
+            *ngIf="(action === 'add' || action === 'edit' || action === 'clone') && showForm"
             formId="cipherForm"
             [config]="config"
             (cipherSaved)="savedCipher($event)"
