@@ -143,7 +143,15 @@ fn add_authenticator() -> std::result::Result<(), String> {
 
     match result {
         Some(api) => {
-            let _ = unsafe { api(&add_authenticator_options, &mut add_response_ptr) };
+            let result = unsafe { api(&add_authenticator_options, &mut add_response_ptr) };
+
+            if result.is_err() {
+                return Err(format!(
+                    "Error: Error response from EXPERIMENTAL_WebAuthNPluginAddAuthenticator()\n{}",
+                    result.message()
+                ));
+            }
+
             Ok(())
         },
         None => {
