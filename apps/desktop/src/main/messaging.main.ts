@@ -37,6 +37,10 @@ export class MessagingMain {
 
   async onMessage(message: any) {
     switch (message.command) {
+      case "loadurl":
+        // TODO: Remove this once fakepopup is removed from tray (just used for dev)
+        await this.main.windowMain.loadUrl(message.url, message.modal);
+        break;
       case "scheduleNextSync":
         this.scheduleNextSync();
         break;

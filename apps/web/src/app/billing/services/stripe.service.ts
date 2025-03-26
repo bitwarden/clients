@@ -161,6 +161,7 @@ export class StripeService {
         },
       },
       classes: {
+        base: "tw-stripe-form-control",
         focus: "is-focused",
         empty: "is-empty",
         invalid: "is-invalid",
@@ -168,7 +169,6 @@ export class StripeService {
     };
 
     options.style.base.fontWeight = "500";
-    options.classes.base = "v2";
 
     // Remove the placeholder for number and CVC fields
     if (["cardNumber", "cardCvc"].includes(element)) {

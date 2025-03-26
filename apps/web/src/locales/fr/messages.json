@@ -879,9 +879,6 @@
   "filter": {
     "message": "Filtre"
   },
-  "moveSelectedToOrg": {
-    "message": "Déplacer la sélection vers l'organisation"
-  },
   "deleteSelected": {
     "message": "Supprimer la sélection"
   },
@@ -933,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Les éléments sélectionnés ont été déplacés vers $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1571,9 +1559,6 @@
   "moveToOrgDesc": {
     "message": "Choisissez une organisation vers laquelle vous souhaitez déplacer cet élément. Déplacer un élément vers une organisation transfère la propriété de l'élément à cette organisation. Vous ne serez plus le propriétaire direct de cet élément une fois qu'il aura été déplacé."
   },
-  "moveManyToOrgDesc": {
-    "message": "Choisissez une organisation vers laquelle vous souhaitez déplacer ces éléments. Déplacer des éléments vers une organisation transfère la propriété des éléments à cette organisation. Vous ne serez plus le propriétaire direct de ces éléments une fois qu'ils auront été déplacés."
-  },
   "collectionsDesc": {
     "message": "Modifier les collections avec lesquelles cet élément est partagé. Seuls les utilisateurs de l'organisation avec un accès à ces collections pourront voir cet élément."
   },
@@ -1604,23 +1589,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "Vous avez sélectionné $COUNT$ élément(s). $MOVEABLE_COUNT$ élément(s) peuvent être déplacés vers une organisation, $NONMOVEABLE_COUNT$ ne le peuvent pas.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },
