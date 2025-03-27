@@ -199,6 +199,9 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     if (!oldUserKey) {
       throw new Error("Old user key is required. Cannot get rotated data.");
     }
+    if (!newUserKey) {
+      throw new Error("New user key is required. Cannot get rotated data.");
+    }
 
     const devices = await this.devicesApiService.getDevices();
     return await Promise.all(
