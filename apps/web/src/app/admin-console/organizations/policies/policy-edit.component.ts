@@ -42,6 +42,7 @@ export type PolicyEditDialogData = {
 
 export enum PolicyEditDialogResult {
   Saved = "saved",
+  Changed = "changed",
 }
 @Component({
   selector: "app-policy-edit",
@@ -147,7 +148,7 @@ export class PolicyEditComponent implements AfterViewInit {
   protected async changePlan(organization: Organization) {
     const reference = openChangePlanDialog(this.dialogService, {
       data: {
-        organizationId: this.data.organizationId,
+        organizationId: organization.id,
         subscription: null,
         productTierType: organization.productTierType,
       },
@@ -156,7 +157,7 @@ export class PolicyEditComponent implements AfterViewInit {
     const dialogResult = await lastValueFrom(reference.closed);
 
     if (dialogResult === ChangePlanDialogResultType.Submitted) {
-      this.dialogRef.close(PolicyEditDialogResult.Saved);
+      this.dialogRef.close(PolicyEditDialogResult.Changed);
     } else {
       this.dialogRef.close();
     }

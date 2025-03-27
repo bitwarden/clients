@@ -115,7 +115,7 @@ export class PoliciesComponent implements OnInit {
     });
 
     const result = await lastValueFrom(dialogRef.closed);
-    if (result === PolicyEditDialogResult.Saved) {
+    if (result === PolicyEditDialogResult.Saved || result === PolicyEditDialogResult.Changed) {
       await this.load();
     }
   }
@@ -126,7 +126,7 @@ export class PoliciesComponent implements OnInit {
   protected async changePlan(organization: Organization) {
     const reference = openChangePlanDialog(this.dialogService, {
       data: {
-        organizationId: this.organizationId,
+        organizationId: organization.id,
         subscription: null,
         productTierType: organization.productTierType,
       },
