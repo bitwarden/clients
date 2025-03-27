@@ -222,7 +222,11 @@ export class CipherService implements CipherServiceAbstraction {
     cipher.reprompt = model.reprompt;
     cipher.edit = model.edit;
 
-    if (await this.getCipherKeyEncryptionEnabled()) {
+    if (
+      // prevent unprivileged users from migrating to cipher key encryption
+      (model.viewPassword || originalCipher?.key) &&
+      (await this.getCipherKeyEncryptionEnabled())
+    ) {
       cipher.key = originalCipher?.key ?? null;
       const userOrOrgKey = await this.getKeyForCipherKeyDecryption(cipher, userId);
       // The keyForEncryption is only used for encrypting the cipher key, not the cipher itself, since cipher key encryption is enabled.
