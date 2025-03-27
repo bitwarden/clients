@@ -91,7 +91,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   userHasPremiumAccess = false;
   activeFilter: VaultFilter = new VaultFilter();
   activeUserId: UserId;
-  cipherIdRepromptList: string[] = [];
+  cipherRepromptId: string | null = null;
 
   private modal: ModalRef = null;
   private componentIsDestroyed$ = new Subject<boolean>();
@@ -769,9 +769,8 @@ export class VaultComponent implements OnInit, OnDestroy {
   private copyValue(cipher: CipherView, value: string, labelI18nKey: string, aType: string) {
     this.functionWithChangeDetection(async () => {
       if (
-        cipher.reprompt !== CipherRepromptType.None &&
         this.passwordRepromptService.protectedFields().includes(aType) &&
-        !(await this.passwordRepromptService.showPasswordPrompt())
+        !(await this.passwordReprompt(cipher))
       ) {
         return;
       }
@@ -824,7 +823,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   private async passwordReprompt(cipher: CipherView) {
-    if (this.cipherIdRepromptList.includes(cipher.id)) {
+    if (this.cipherRepromptId === cipher.id) {
       return true;
     }
     if (cipher.reprompt === CipherRepromptType.None) {
@@ -832,7 +831,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
     const repromptResult = await this.passwordRepromptService.showPasswordPrompt();
     if (repromptResult) {
-      this.cipherIdRepromptList.push(cipher.id);
+      this.cipherRepromptId = cipher.id;
     }
     return repromptResult;
   }
