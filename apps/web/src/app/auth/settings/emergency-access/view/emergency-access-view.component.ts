@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
+import { EmergencyAccessId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 import { CipherFormConfigService, DefaultCipherFormConfigService } from "@bitwarden/vault";
@@ -17,9 +18,7 @@ import { EmergencyViewDialogComponent } from "./emergency-view-dialog.component"
 })
 export class EmergencyAccessViewComponent implements OnInit {
   @ViewChild("attachments", { read: ViewContainerRef, static: true })
-  attachmentsModalRef: ViewContainerRef | null = null;
-
-  id: string | null = null;
+  id: EmergencyAccessId | null = null;
   ciphers: CipherView[] = [];
   loaded = false;
 

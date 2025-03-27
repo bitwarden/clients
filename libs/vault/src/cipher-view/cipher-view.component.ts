@@ -15,7 +15,7 @@ import { isCardExpired } from "@bitwarden/common/autofill/utils";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { CollectionId, UserId } from "@bitwarden/common/types/guid";
+import { CollectionId, EmergencyAccessId, UserId } from "@bitwarden/common/types/guid";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -60,7 +60,8 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
 export class CipherViewComponent implements OnChanges, OnDestroy {
   @Input({ required: true }) cipher: CipherView | null = null;
 
-  @Input() emergencyAccessId?: string | null = null;
+  // Required for fetching attachment data when viewed from cipher via emergency access
+  @Input() emergencyAccessId?: EmergencyAccessId;
 
   activeUserId$ = getUserId(this.accountService.activeAccount$);
 
