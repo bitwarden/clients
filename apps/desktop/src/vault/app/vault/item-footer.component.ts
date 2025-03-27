@@ -32,6 +32,7 @@ export class ItemFooterComponent implements OnInit {
   @Output() onShare = new EventEmitter<CipherView>();
   @Output() onDelete = new EventEmitter<CipherView>();
   @Output() onRestore = new EventEmitter<CipherView>();
+  @Output() onCancel = new EventEmitter<CipherView>();
   @ViewChild("submitBtn", { static: false }) submitBtn: ButtonComponent | null = null;
 
   canDeleteCipher$: Observable<boolean> = new Observable();
@@ -80,6 +81,10 @@ export class ItemFooterComponent implements OnInit {
 
   protected edit() {
     this.onEdit.emit(this.cipher);
+  }
+
+  cancel() {
+    this.onCancel.emit(this.cipher);
   }
 
   async share() {

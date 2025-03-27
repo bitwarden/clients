@@ -10,8 +10,7 @@ import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-
 import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
-import { CalloutModule, DialogModule, MenuModule } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
+import { CalloutModule, DialogModule, ItemModule, MenuModule } from "@bitwarden/components";
 import {
   ChangeLoginPasswordService,
   CipherFormComponent,
@@ -76,7 +75,7 @@ import { SharedModule } from "./shared/shared.module";
     CalloutModule,
     CipherViewComponent,
     CipherFormComponent,
-    I18nPipe,
+    ItemModule,
     ItemFooterComponent,
     DeleteAccountComponent,
     UserVerificationComponent,

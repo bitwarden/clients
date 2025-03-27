@@ -38,6 +38,9 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import {
+  AttachmentDialogCloseResult,
+  AttachmentDialogResult,
+  AttachmentsV2Component,
   ChangeLoginPasswordService,
   CipherAttachmentsComponent,
   CipherFormComponent,
@@ -52,11 +55,6 @@ import {
 } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared/shared.module";
-import {
-  AttachmentDialogCloseResult,
-  AttachmentDialogResult,
-  AttachmentsV2Component,
-} from "../../individual-vault/attachments-v2.component";
 import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/services/routed-vault-filter.service";
 import { RoutedVaultFilterModel } from "../../individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 import { WebCipherFormGenerationService } from "../../services/web-cipher-form-generation.service";

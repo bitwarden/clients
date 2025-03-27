@@ -11,7 +11,6 @@
   </app-vault-items-v2>
   <div class="details" *ngIf="!!action">
     <app-vault-item-footer
-      *ngIf="(action === 'add' || action === 'edit' || action === 'clone') && showForm"
       id="footer"
       #footer
       [cipher]="cipher"
@@ -20,6 +19,7 @@
       (onRestore)="restoreCipher()"
       (onClone)="cloneCipher($event)"
       (onDelete)="deleteCipher()"
+      (onCancel)="cancelCipher($event)"
     ></app-vault-item-footer>
     <div class="content">
       <div class="inner-content">
@@ -34,6 +34,22 @@
             (cipherSaved)="savedCipher($event)"
             [submitBtn]="footer?.submitBtn"
           >
+            <bit-item slot="attachment-button">
+              <button bit-item-content type="button" (click)="openAttachmentsDialog()">
+                <p class="tw-m-0">
+                  {{ "attachments" | i18n }}
+                  <span
+                    *ngIf="!(canAccessAttachments$ | async)"
+                    bitBadge
+                    variant="success"
+                    class="tw-ml-2"
+                  >
+                    {{ "premium" | i18n }}
+                  </span>
+                </p>
+                <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+              </button>
+            </bit-item>
           </vault-cipher-form>
         </div>
       </div>

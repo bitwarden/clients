@@ -39,6 +39,8 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
+  AttachmentDialogResult,
+  AttachmentsV2Component,
   CipherFormConfig,
   CipherFormConfigService,
   DecryptionFailureDialogComponent,
@@ -112,6 +114,16 @@ export class VaultV2Component implements OnInit, OnDestroy {
   cipher: CipherView = new CipherView();
   collections: CollectionView[] = [];
   config: CipherFormConfig = null;
+
+  /**
+   * Flag to indicate if the user has access to attachments via a premium subscription.
+   * @protected
+   */
+  protected canAccessAttachments$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) =>
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+    ),
+  );
 
   private modal: ModalRef = null;
   private componentIsDestroyed$ = new Subject<boolean>();
@@ -327,6 +339,24 @@ export class VaultV2Component implements OnInit, OnDestroy {
     await this.go();
   }
 
+  /**
+   * Opens the attachments dialog.
+   */
+  async openAttachmentsDialog() {
+    const dialogRef = AttachmentsV2Component.open(this.dialogService, {
+      cipherId: this.cipherId as CipherId,
+    });
+
+    const result = await firstValueFrom(dialogRef.closed);
+
+    if (
+      result.action === AttachmentDialogResult.Removed ||
+      result.action === AttachmentDialogResult.Uploaded
+    ) {
+      await this.vaultItemsComponent.refresh();
+    }
+  }
+
   viewCipherMenu(cipher: CipherView) {
     const menu: RendererMenuItem[] = [
       {
@@ -522,6 +552,13 @@ export class VaultV2Component implements OnInit, OnDestroy {
     this.action = null;
     await this.go();
     await this.vaultItemsComponent.refresh();
+  }
+
+  async cancelCipher(cipher: CipherView) {
+    this.cipherId = cipher.id;
+    this.cipher = cipher;
+    this.action = this.cipherId != null ? "view" : null;
+    await this.go();
   }
 
   async editCipherAttachments(cipher: CipherView) {
