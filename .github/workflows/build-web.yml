@@ -154,6 +154,16 @@ jobs:
           mv package.json.tmp package.json
       
       ########## Set up Docker ##########
+      - name: Set up Docker Engine
+        uses: docker/setup-docker-action@b60f85385d03ac8acfca6d9996982511d8620a19 # v4.3.0
+        with:
+          daemon-config: |
+            {
+              "features": {
+                "containerd-snapshotter": true
+              }
+            }
+
       - name: Set up QEMU emulators
         uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
 
