@@ -6,7 +6,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SecurityTaskId, UserId } from "@bitwarden/common/types/guid";
 
-import { FakeStateProvider, mockAccountServiceWith } from "../../../../common/spec";
+import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { SecurityTaskStatus } from "../enums";
 import { SecurityTaskData, SecurityTaskResponse } from "../models";
 import { SECURITY_TASKS } from "../state/security-task.state";
