@@ -233,8 +233,8 @@ jobs:
           build-args: |
             NODE_VERSION=${{ env._NODE_VERSION }}
             NPM_COMMAND=${{ matrix.npm_command }}
-          cache-from: type=registry,ref=${{ steps.image-name.outputs.name }}
-          cache-to: type=registry,ref=${{ steps.image-name.outputs.name }},mode=max
+          # cache-from: type=registry,ref=${{ steps.image-name.outputs.name }}
+          # cache-to: type=registry,ref=${{ steps.image-name.outputs.name }},mode=max
           context: .
           file: apps/web/Dockerfile
           platforms: |
