@@ -7,8 +7,11 @@ import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
+import {
+  filterOutNullish,
+  perUserCache$,
+} from "@bitwarden/common/vault/utils/observable-utilities";
 
-import { filterOutNullish, perUserCache$ } from "../../utils/observable-utilities";
 import { EndUserNotificationService } from "../abstractions/end-user-notification.service";
 import { NotificationView, NotificationViewData, NotificationViewResponse } from "../models";
 import { NOTIFICATIONS } from "../state/end-user-notification.state";

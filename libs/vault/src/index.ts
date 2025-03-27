@@ -6,8 +6,6 @@ export { OrgIconDirective } from "./components/org-icon.directive";
 export { CanDeleteCipherDirective } from "./components/can-delete-cipher.directive";
 export { DarkImageSourceDirective } from "./components/dark-image-source.directive";
 
-export * from "./utils/observable-utilities";
-
 export * from "./cipher-view";
 export * from "./cipher-form";
 export {
