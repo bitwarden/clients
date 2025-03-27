@@ -112,7 +112,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed())
       .subscribe((requestId) => {
         this.loading = true;
-        this.handleExistingStandardAuthRequestLogin(requestId).catch((e: Error) => {
+        this.handleExistingAuthRequestLogin(requestId).catch((e: Error) => {
           this.toastService.showToast({
             variant: "error",
             title: this.i18nService.t("error"),
@@ -199,7 +199,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       }
 
       await this.reloadCachedStandardAuthRequest(cachedAuthRequest);
-      await this.handleExistingStandardAuthRequestLogin(cachedAuthRequest.id);
+      await this.handleExistingAuthRequestLogin(cachedAuthRequest.id);
     } else {
       await this.handleNewStandardAuthRequestLogin();
     }
@@ -345,7 +345,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       );
 
       // We don't need the public key for handling the authentication request because
-      // the handleExistingStandardAuthRequestLogin function will receive the public key back
+      // the handleExistingAuthRequestLogin function will receive the public key back
       // from the looked up auth request, and all we need is to make sure that
       // we can use the cached private key that is associated with it.
       this.authRequestKeyPair = {
@@ -570,7 +570,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
    * @param requestId The ID of the Auth Request to process
    * @returns A boolean indicating whether the Auth Request was successfully processed
    */
-  private async handleExistingStandardAuthRequestLogin(requestId: string): Promise<void> {
+  private async handleExistingAuthRequestLogin(requestId: string): Promise<void> {
     this.showResendNotification = false;
 
     try {

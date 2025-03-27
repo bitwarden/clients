@@ -7,7 +7,10 @@ export class LoginViaAuthRequestView implements View {
   accessCode: string | undefined = undefined;
   privateKey: string | undefined = undefined;
 
-  static fromJSON(obj: Partial<Jsonify<LoginViaAuthRequestView>>): LoginViaAuthRequestView {
+  static fromJSON(obj: Partial<Jsonify<LoginViaAuthRequestView>>): LoginViaAuthRequestView | null {
+    if (obj == null) {
+      return null;
+    }
     return Object.assign(new LoginViaAuthRequestView(), obj);
   }
 }
