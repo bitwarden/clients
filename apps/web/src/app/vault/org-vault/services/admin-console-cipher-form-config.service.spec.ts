@@ -38,7 +38,7 @@ describe("AdminConsoleCipherFormConfigService", () => {
     status: OrganizationUserStatusType.Confirmed,
     userId: "UserId",
   };
-  const policyAppliesToActiveUser$ = new BehaviorSubject<boolean>(true);
+  const policyAppliesToUser$ = new BehaviorSubject<boolean>(true);
   const collection = {
     id: "12345-5555",
     organizationId: "234534-34334",
@@ -75,7 +75,7 @@ describe("AdminConsoleCipherFormConfigService", () => {
         },
         {
           provide: PolicyService,
-          useValue: { policyAppliesToActiveUser$: () => policyAppliesToActiveUser$ },
+          useValue: { policyAppliesToUser$: () => policyAppliesToUser$ },
         },
         {
           provide: RoutedVaultFilterService,
@@ -129,13 +129,13 @@ describe("AdminConsoleCipherFormConfigService", () => {
     });
 
     it("sets `allowPersonalOwnership`", async () => {
-      policyAppliesToActiveUser$.next(true);
+      policyAppliesToUser$.next(true);
 
       let result = await adminConsoleConfigService.buildConfig("clone", cipherId);
 
       expect(result.allowPersonalOwnership).toBe(false);
 
-      policyAppliesToActiveUser$.next(false);
+      policyAppliesToUser$.next(false);
 
       result = await adminConsoleConfigService.buildConfig("clone", cipherId);
 
@@ -143,7 +143,7 @@ describe("AdminConsoleCipherFormConfigService", () => {
     });
 
     it("disables personal ownership when not cloning", async () => {
-      policyAppliesToActiveUser$.next(false);
+      policyAppliesToUser$.next(false);
 
       let result = await adminConsoleConfigService.buildConfig("add", cipherId);
 

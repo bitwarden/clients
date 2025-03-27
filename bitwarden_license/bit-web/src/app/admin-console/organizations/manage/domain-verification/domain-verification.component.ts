@@ -8,6 +8,7 @@ import {
   map,
   Observable,
   Subject,
+  switchMap,
   take,
   takeUntil,
   withLatestFrom,
@@ -18,6 +19,8 @@ import { OrgDomainServiceAbstraction } from "@bitwarden/common/admin-console/abs
 import { OrganizationDomainResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain.response";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { HttpStatusCode } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -55,6 +58,7 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private configService: ConfigService,
     private policyService: PolicyService,
+    private accountService: AccountService,
   ) {
     this.accountDeprovisioningEnabled$ = this.configService.getFeatureFlag$(
       FeatureFlag.AccountDeprovisioning,
@@ -83,7 +87,9 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
 
     if (await this.configService.getFeatureFlag(FeatureFlag.AccountDeprovisioning)) {
       const singleOrgPolicy = await firstValueFrom(
-        this.policyService.policies$.pipe(
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) => this.policyService.policies$(userId)),
           map((policies) =>
             policies.find(
               (p) => p.type === PolicyType.SingleOrg && p.organizationId === this.organizationId,
