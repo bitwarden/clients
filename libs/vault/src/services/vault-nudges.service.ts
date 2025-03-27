@@ -3,7 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { UserKeyDefinition, VAULT_NUDGES_DISK } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { VaultOnboardingNudgesService } from "./custom-nudges-services/vault-onboarding-nudges.service";
+import { HasItemsNudgeService } from "./custom-nudges-services/has-items-nudge.service";
 import { DefaultSingleNudgeService, SingleNudgeService } from "./default-single-nudge.service";
 
 /**
@@ -36,7 +36,7 @@ export class VaultNudgesService {
    * @private
    */
   private customNudgeServices: any = {
-    [VaultNudgeType.HasVaultItems]: inject(VaultOnboardingNudgesService),
+    [VaultNudgeType.HasVaultItems]: inject(HasItemsNudgeService),
   };
 
   /**

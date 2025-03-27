@@ -13,7 +13,7 @@ import { VaultNudgeType } from "../vault-nudges.service";
 @Injectable({
   providedIn: "root",
 })
-export class VaultOnboardingNudgesService extends DefaultSingleNudgeService {
+export class HasItemsNudgeService extends DefaultSingleNudgeService {
   cipherService = inject(CipherService);
 
   shouldShowNudge$(nudgeType: VaultNudgeType, userId: UserId): Observable<boolean> {
