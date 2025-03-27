@@ -7,6 +7,6 @@
   [description]="(showEmptyAutofillTip$ | async) ? ('autofillSuggestionsTip' | i18n) : null"
   showAutofillButton
   [disableDescriptionMargin]="showEmptyAutofillTip$ | async"
-  [primaryActionAutofill]="clickItemsToAutofillVaultView"
+  [primaryActionAutofill]="clickItemsToAutofillVaultView$ | async"
   [groupByType]="groupByType()"
 ></app-vault-list-items-container>

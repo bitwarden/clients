@@ -7,11 +7,11 @@ import { UserId } from "@bitwarden/common/types/guid";
 
 import { FakeStateProvider, mockAccountServiceWith } from "../../../common/spec";
 
-import { VaultOnboardingNudgesService } from "./custom-nudges-services/vault-onboarding-nudges.service";
+import { HasItemsNudgeService } from "./custom-nudges-services/has-items-nudge.service";
 import { DefaultSingleNudgeService } from "./default-single-nudge.service";
 import { VaultNudgesService, VaultNudgeType } from "./vault-nudges.service";
 
-describe("End User Notification Center Service", () => {
+describe("Vault Nudges Service", () => {
   let fakeStateProvider: FakeStateProvider;
 
   let testBed: TestBed;
@@ -33,8 +33,8 @@ describe("End User Notification Center Service", () => {
           useValue: fakeStateProvider,
         },
         {
-          provide: VaultOnboardingNudgesService,
-          useValue: mock<VaultOnboardingNudgesService>(),
+          provide: HasItemsNudgeService,
+          useValue: mock<HasItemsNudgeService>(),
         },
       ],
     });
@@ -74,7 +74,7 @@ describe("End User Notification Center Service", () => {
 
   describe("VaultNudgesService", () => {
     it("should return true, the proper value from the custom nudge service shouldShowNudge$", async () => {
-      TestBed.overrideProvider(VaultOnboardingNudgesService, {
+      TestBed.overrideProvider(HasItemsNudgeService, {
         useValue: { shouldShowNudge$: () => of(true) },
       });
       const service = testBed.inject(VaultNudgesService);
@@ -87,7 +87,7 @@ describe("End User Notification Center Service", () => {
     });
 
     it("should return false, the proper value for the custom nudge service shouldShowNudge$", async () => {
-      TestBed.overrideProvider(VaultOnboardingNudgesService, {
+      TestBed.overrideProvider(HasItemsNudgeService, {
         useValue: { shouldShowNudge$: () => of(false) },
       });
       const service = testBed.inject(VaultNudgesService);

@@ -1,1 +1,1 @@
-export * from "./vault-onboarding-nudges.service";
+export * from "./has-items-nudge.service";
