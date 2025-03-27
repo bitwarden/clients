@@ -28,6 +28,7 @@ export class Organization {
   use2fa: boolean;
   useApi: boolean;
   useSso: boolean;
+  useOrganizationDomains: boolean;
   useKeyConnector: boolean;
   useScim: boolean;
   useCustomPermissions: boolean;
@@ -109,6 +110,7 @@ export class Organization {
     this.use2fa = obj.use2fa;
     this.useApi = obj.useApi;
     this.useSso = obj.useSso;
+    this.useOrganizationDomains = obj.useOrganizationDomains;
     this.useKeyConnector = obj.useKeyConnector;
     this.useScim = obj.useScim;
     this.useCustomPermissions = obj.useCustomPermissions;
@@ -277,7 +279,7 @@ export class Organization {
   }
 
   get canManageDomainVerification() {
-    return (this.isAdmin || this.permissions.manageSso) && this.useSso;
+    return (this.isAdmin || this.permissions.manageSso) && this.useOrganizationDomains;
   }
 
   get canManageScim() {
