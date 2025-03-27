@@ -11,6 +11,7 @@ import {
   ElementRef,
   EventEmitter,
   inject,
+  Input,
   OnInit,
   Output,
   QueryList,
@@ -93,6 +94,8 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
   @Output() numberOfFieldsChange = new EventEmitter<number>();
 
   @ViewChildren("customFieldRow") customFieldRows: QueryList<ElementRef<HTMLDivElement>>;
+
+  @Input() disableSectionMargin: boolean;
 
   customFieldsForm = this.formBuilder.group({
     fields: new FormArray([]),

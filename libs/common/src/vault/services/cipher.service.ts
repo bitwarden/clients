@@ -31,7 +31,6 @@ import { View } from "../../models/view/view";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { StateService } from "../../platform/abstractions/state.service";
-import { sequentialize } from "../../platform/misc/sequentialize";
 import { Utils } from "../../platform/misc/utils";
 import Domain from "../../platform/models/domain/domain-base";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
@@ -165,9 +164,9 @@ export class CipherService implements CipherServiceAbstraction {
     }
     if (this.searchService != null) {
       if (value == null) {
-        await this.searchService.clearIndex();
+        await this.searchService.clearIndex(userId);
       } else {
-        await this.searchService.indexCiphers(value);
+        await this.searchService.indexCiphers(userId, value);
       }
     }
   }
@@ -390,7 +389,6 @@ export class CipherService implements CipherServiceAbstraction {
    * cached, the cached ciphers are returned.
    * @deprecated Use `cipherViews$` observable instead
    */
-  @sequentialize(() => "getAllDecrypted")
   async getAllDecrypted(userId: UserId): Promise<CipherView[]> {
     const decCiphers = await this.getDecryptedCiphers(userId);
     if (decCiphers != null && decCiphers.length !== 0) {
@@ -480,9 +478,9 @@ export class CipherService implements CipherServiceAbstraction {
   private async reindexCiphers(userId: UserId) {
     const reindexRequired =
       this.searchService != null &&
-      ((await firstValueFrom(this.searchService.indexedEntityId$)) ?? userId) !== userId;
+      ((await firstValueFrom(this.searchService.indexedEntityId$(userId))) ?? userId) !== userId;
     if (reindexRequired) {
-      await this.searchService.indexCiphers(await this.getDecryptedCiphers(userId), userId);
+      await this.searchService.indexCiphers(userId, await this.getDecryptedCiphers(userId), userId);
     }
   }
 
