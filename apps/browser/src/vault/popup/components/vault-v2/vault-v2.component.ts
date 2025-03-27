@@ -18,16 +18,11 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { ButtonModule, DialogService, Icons, NoItemsModule } from "@bitwarden/components";
-import {
-  DecryptionFailureDialogComponent,
-  VaultIcons,
-  VaultNudgeType,
-  VaultNudgesService,
-} from "@bitwarden/vault";
+import { DecryptionFailureDialogComponent, VaultIcons } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
@@ -40,7 +35,6 @@ import { VaultPopupScrollPositionService } from "../../services/vault-popup-scro
 import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-password-callout.component";
 
 import { BlockedInjectionBanner } from "./blocked-injection-banner/blocked-injection-banner.component";
-import { IntroCarouselComponent } from "./intro-carousel/intro-carousel.component";
 import {
   NewItemDropdownV2Component,
   NewItemInitialValues,
@@ -78,7 +72,6 @@ enum VaultState {
     VaultHeaderV2Component,
     AtRiskPasswordCalloutComponent,
     NewSettingsCalloutComponent,
-    IntroCarouselComponent,
   ],
   providers: [VaultPageService],
 })
@@ -126,8 +119,6 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   protected VaultStateEnum = VaultState;
   protected showNewCustomizationSettingsCallout = false;
 
-  protected shouldShowIntroCarousel$: Observable<boolean> | undefined;
-
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
     private vaultPopupListFiltersService: VaultPopupListFiltersService,
@@ -137,7 +128,6 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private cipherService: CipherService,
     private dialogService: DialogService,
     private vaultCopyButtonsService: VaultPopupCopyButtonsService,
-    private vaultNudgesService: VaultNudgesService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
@@ -161,7 +151,6 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
             this.vaultState = null;
         }
       });
-    this.checkIntroCarousel();
   }
 
   ngAfterViewInit(): void {
@@ -195,18 +184,6 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.vaultScrollPositionService.stop();
-  }
-
-  checkIntroCarousel() {
-    this.accountService.activeAccount$
-      .pipe(getUserId)
-      .pipe(takeUntilDestroyed())
-      .subscribe((activeUserId: UserId) => {
-        this.shouldShowIntroCarousel$ = this.vaultNudgesService.showNudge$(
-          VaultNudgeType.IntroCarouselDismissal,
-          activeUserId,
-        );
-      });
   }
 
   protected readonly FeatureFlag = FeatureFlag;

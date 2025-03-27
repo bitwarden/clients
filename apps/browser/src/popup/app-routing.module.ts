@@ -16,7 +16,10 @@ import {
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
-import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
+import {
+  IntroCarouselGuard,
+  NewDeviceVerificationNoticeGuard,
+} from "@bitwarden/angular/vault/guards";
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
@@ -97,6 +100,7 @@ import { VaultSettingsV2Component } from "../vault/popup/settings/vault-settings
 import { RouteElevation } from "./app-routing.animations";
 import { debounceNavigationGuard } from "./services/debounce-navigation.service";
 import { TabsV2Component } from "./tabs-v2.component";
+import { IntroCarouselComponent } from "../vault/popup/components/vault-v2/intro-carousel/intro-carousel.component";
 
 /**
  * Data properties acceptable for use in extension route objects
@@ -607,6 +611,21 @@ const routes: Routes = [
     data: { elevation: 2 } satisfies RouteDataProperties,
   },
   {
+    path: "intro-carousel",
+    component: ExtensionAnonLayoutWrapperComponent,
+    canActivate: [],
+    children: [
+      {
+        path: "",
+        component: IntroCarouselComponent,
+        data: {
+          showLogo: false,
+          pageIcon: undefined,
+        },
+      },
+    ],
+  },
+  {
     path: "new-device-notice",
     component: ExtensionAnonLayoutWrapperComponent,
     canActivate: [],
@@ -651,7 +670,7 @@ const routes: Routes = [
       {
         path: "vault",
         component: VaultV2Component,
-        canActivate: [authGuard, NewDeviceVerificationNoticeGuard],
+        canActivate: [authGuard, NewDeviceVerificationNoticeGuard, IntroCarouselGuard],
         canDeactivate: [clearVaultStateGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
