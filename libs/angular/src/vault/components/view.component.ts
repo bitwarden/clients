@@ -203,12 +203,7 @@ export class ViewComponent implements OnDestroy, OnInit {
   }
 
   async edit() {
-    if (await this.promptPassword()) {
-      this.onEditCipher.emit(this.cipher);
-      return true;
-    }
-
-    return false;
+    this.onEditCipher.emit(this.cipher);
   }
 
   async clone() {

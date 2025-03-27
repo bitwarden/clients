@@ -91,6 +91,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   userHasPremiumAccess = false;
   activeFilter: VaultFilter = new VaultFilter();
   activeUserId: UserId;
+  cipherIdRepromptList: string[] = [];
 
   private modal: ModalRef = null;
   private componentIsDestroyed$ = new Subject<boolean>();
@@ -297,6 +298,8 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   async viewCipher(cipher: CipherView) {
     if (!(await this.canNavigateAway("view", cipher))) {
+      return;
+    } else if (!(await this.passwordReprompt(cipher))) {
       return;
     }
 
@@ -821,9 +824,16 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   private async passwordReprompt(cipher: CipherView) {
-    return (
-      cipher.reprompt === CipherRepromptType.None ||
-      (await this.passwordRepromptService.showPasswordPrompt())
-    );
+    if (this.cipherIdRepromptList.includes(cipher.id)) {
+      return true;
+    }
+    if (cipher.reprompt === CipherRepromptType.None) {
+      return;
+    }
+    const repromptResult = await this.passwordRepromptService.showPasswordPrompt();
+    if (repromptResult) {
+      this.cipherIdRepromptList.push(cipher.id);
+    }
+    return repromptResult;
   }
 }
