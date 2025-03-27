@@ -7,7 +7,7 @@ import {
   Router,
   RouterStateSnapshot,
 } from "@angular/router";
-import { firstValueFrom, switchMap } from "rxjs";
+import { firstValueFrom, Observable, switchMap } from "rxjs";
 
 import {
   canAccessOrgAdmin,
@@ -50,7 +50,7 @@ export function organizationPermissionsGuard(
   permissionsCallback?: (
     organization: Organization,
     services: InjectedOrganizationPermissionServices,
-  ) => boolean | Promise<boolean>,
+  ) => boolean | Promise<boolean> | Observable<boolean>,
 ): CanActivateFn {
   return async (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
     const router = inject(Router);
@@ -94,7 +94,14 @@ export function organizationPermissionsGuard(
     const hasPermissions =
       permissionsCallback == null || permissionsCallback(org, callbackServices);
 
-    if (!(hasPermissions instanceof Promise ? await hasPermissions : hasPermissions)) {
+    const permissionResult =
+      hasPermissions instanceof Promise
+        ? await hasPermissions
+        : hasPermissions instanceof Observable
+          ? await new Promise<boolean>((resolve) => hasPermissions.subscribe(resolve))
+          : hasPermissions;
+
+    if (!permissionResult) {
       // Handle linkable ciphers for organizations the user only has view access to
       // https://bitwarden.atlassian.net/browse/EC-203
       const cipherId =

@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { map } from "rxjs";
 
 import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -47,11 +47,12 @@ const routes: Routes = [
         component: PoliciesComponent,
         canActivate: [
           organizationPermissionsGuard(
-            async (o: Organization, services: InjectedOrganizationPermissionServices) => {
-              const isBreadcrumbingEnabled = await firstValueFrom(
-                services.organizationBillingService.isBreadcrumbingPoliciesEnabled$(o),
+            (o: Organization, services: InjectedOrganizationPermissionServices) => {
+              return services.organizationBillingService.isBreadcrumbingPoliciesEnabled$(o).pipe(
+                map((isBreadcrumbingEnabled) => {
+                  return o.canManagePolicies || isBreadcrumbingEnabled;
+                }),
               );
-              return o.canManagePolicies || isBreadcrumbingEnabled;
             },
           ),
         ],
