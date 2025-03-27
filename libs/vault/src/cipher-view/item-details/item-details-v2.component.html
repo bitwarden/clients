@@ -1,6 +1,13 @@
 <bit-section>
   <bit-section-header>
     <h2 bitTypography="h6">{{ "itemDetails" | i18n }}</h2>
+    <button
+      bitIconButton="bwi-filter"
+      type="button"
+      size="small"
+      slot="end"
+      (click)="showVisualization()"
+    ></button>
   </bit-section-header>
   <bit-card>
     <bit-form-field
