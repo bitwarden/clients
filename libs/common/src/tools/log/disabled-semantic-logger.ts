@@ -12,7 +12,11 @@ export class DisabledSemanticLogger implements SemanticLogger {
 
   error<T>(_content: Jsonify<T>, _message?: string): void {}
 
-  panic<T>(_content: Jsonify<T>, message?: string): never {
-    throw new Error(message);
+  panic<T>(content: Jsonify<T>, message?: string): never {
+    if (typeof content === "string" && !message) {
+      throw new Error(content);
+    } else {
+      throw new Error(message);
+    }
   }
 }

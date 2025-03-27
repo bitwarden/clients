@@ -878,7 +878,7 @@
     "message": "Нажмите на YubiKey для аутентификации"
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+    "message": "Для вашего аккаунта требуется двухэтапная аутентификация Duo. Выполните следующие действия, чтобы завершить авторизацию."
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Следуйте указаниям ниже, чтобы завершить авторизацию."
@@ -1040,7 +1040,7 @@
     "message": "Кликните элементы для автозаполнения в режиме просмотра хранилища"
   },
   "clickToAutofill": {
-    "message": "Click items in autofill suggestion to fill"
+    "message": "Выберите элементы в предложении автозаполнения для вставки"
   },
   "clearClipboard": {
     "message": "Очистить буфер обмена",
@@ -2164,7 +2164,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultCustomization": {
-    "message": "Vault customization"
+    "message": "Настройка хранилища"
   },
   "vaultTimeoutAction": {
     "message": "Действие по тайм-ауту хранилища"
@@ -2476,7 +2476,7 @@
     "message": "Пароли, подверженные риску"
   },
   "atRiskPasswordDescSingleOrg": {
-    "message": "$ORGANIZATION$ запрашивает смену одного пароля, так как он находится под угрозой.",
+    "message": "$ORGANIZATION$ запрашивает смену одного пароля, так как он подвержен риску.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2485,7 +2485,7 @@
     }
   },
   "atRiskPasswordsDescSingleOrgPlural": {
-    "message": "$ORGANIZATION$ запрашивает смену $COUNT$ паролей, так как они находятся под угрозой.",
+    "message": "$ORGANIZATION$ запрашивает смену $COUNT$ паролей, так как они подвержены риску.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2498,7 +2498,7 @@
     }
   },
   "atRiskPasswordsDescMultiOrgPlural": {
-    "message": "Ваша организация запрашивает смену $COUNT$ паролей, так как они находятся под угрозой.",
+    "message": "Ваша организация запрашивает смену $COUNT$ паролей, так как они подвержены риску.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2507,10 +2507,10 @@
     }
   },
   "reviewAndChangeAtRiskPassword": {
-    "message": "Review and change one at-risk password"
+    "message": "Проверить и изменить один пароль, подверженный риску"
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
-    "message": "Review and change $COUNT$ at-risk passwords",
+    "message": "Проверить и изменить $COUNT$ паролей, подверженных риску",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2519,26 +2519,26 @@
     }
   },
   "changeAtRiskPasswordsFaster": {
-    "message": "Change at-risk passwords faster"
+    "message": "Меняйте пароли, подверженные риску, быстрее"
   },
   "changeAtRiskPasswordsFasterDesc": {
-    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+    "message": "Обновите настройки, чтобы можно было быстро автоматически заполнять пароли и генерировать новые"
   },
   "reviewAtRiskLogins": {
-    "message": "Обзор логинов, находящихся под угрозой"
+    "message": "Обзор логинов, подверженных риску"
   },
   "reviewAtRiskPasswords": {
-    "message": "Обзор паролей, находящихся под угрозой"
+    "message": "Обзор паролей, подверженных риску"
   },
   "reviewAtRiskLoginsSlideDesc": {
-    "message": "Пароли вашей организации находятся под угрозой, потому что они слабые, повторно используются и/или раскрыты.",
+    "message": "Пароли вашей организации подвержены риску, потому что они слабые, повторно используются и/или раскрыты.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
   "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Иллюстрация списка логинов, которые находятся под угрозой"
+    "message": "Иллюстрация списка логинов, которые подвержены риску"
   },
   "generatePasswordSlideDesc": {
-    "message": "Быстро сгенерируйте надежный уникальный пароль с помощью меню автозаполнения Bitwarden на сайте, находящемся под угрозой.",
+    "message": "Быстро сгенерируйте надежный уникальный пароль с помощью меню автозаполнения Bitwarden на сайте, подверженном риску.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
   "generatePasswordSlideImgAlt": {
@@ -2555,13 +2555,13 @@
     "message": "Иллюстрация уведомления Bitwarden, предлагающего пользователю обновить логин"
   },
   "turnOnAutofill": {
-    "message": "Turn on autofill"
+    "message": "Включить автозаполнение"
   },
   "turnedOnAutofill": {
-    "message": "Turned on autofill"
+    "message": "Автозаполнение включено"
   },
   "dismiss": {
-    "message": "Dismiss"
+    "message": "Отклонить"
   },
   "websiteItemLabel": {
     "message": "Сайт $number$ (URI)",
@@ -4733,15 +4733,6 @@
   "nothingSelected": {
     "message": "Вы ничего не выбрали."
   },
-  "movedItemsToOrg": {
-    "message": "Выбранные элементы перемещены в $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
-  },
   "itemsMovedToOrg": {
     "message": "Элементы перемещены в $ORGNAME$",
     "placeholders": {
@@ -5147,6 +5138,6 @@
     "message": "Чтобы использовать биометрическую разблокировку, обновите приложение для компьютера или отключите разблокировку по отпечатку пальца в настройках компьютера."
   },
   "changeAtRiskPassword": {
-    "message": "Изменить пароль, находящийся под угрозой"
+    "message": "Изменить пароль, подверженный риску"
   }
 }

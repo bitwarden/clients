@@ -35,13 +35,6 @@ export abstract class EndUserNotificationService {
   abstract markAsDeleted(notificationId: any, userId: UserId): Promise<void>;
 
   /**
-   * Create/update a notification in the state for the user specified within the notification.
-   * @remarks This method should only be called when a notification payload is received from the web socket.
-   * @param notification
-   */
-  abstract upsert(notification: Notification): Promise<void>;
-
-  /**
    * Clear all notifications from state for the given user.
    * @param userId
    */

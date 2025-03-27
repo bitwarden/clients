@@ -4733,15 +4733,6 @@
   "nothingSelected": {
     "message": "Bạn chưa chọn gì."
   },
-  "movedItemsToOrg": {
-    "message": "Đã chuyển các mục được chọn đến $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
-  },
   "itemsMovedToOrg": {
     "message": "Các mục đã được chuyển tới $ORGNAME$",
     "placeholders": {
