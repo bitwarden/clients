@@ -1,4 +1,3 @@
-import { OnServerConfigChange } from "../../../platform/abstractions/config/config.service";
 import { ServerConfig } from "../../../platform/abstractions/config/server-config";
 import { Decryptable } from "../../../platform/interfaces/decryptable.interface";
 import { Encrypted } from "../../../platform/interfaces/encrypted";
@@ -7,7 +6,7 @@ import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 
-export abstract class EncryptService implements OnServerConfigChange {
+export abstract class EncryptService {
   abstract encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString>;
   abstract encryptToBytes(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncArrayBuffer>;
   /**

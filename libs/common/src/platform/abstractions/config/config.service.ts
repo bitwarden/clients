@@ -55,7 +55,3 @@ export abstract class ConfigService {
    */
   abstract ensureConfigFetched(): Promise<void>;
 }
-
-export interface OnServerConfigChange {
-  onServerConfigChange(newConfig: ServerConfig): void;
-}
