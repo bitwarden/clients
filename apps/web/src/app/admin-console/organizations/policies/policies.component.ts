@@ -20,11 +20,11 @@ import {
   ChangePlanDialogResultType,
   openChangePlanDialog,
 } from "@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.component";
-import { CollectionDialogTabType } from "@bitwarden/web-vault/app/vault/components/collection-dialog";
 import { All } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 
 import { PolicyListService } from "../../core/policy-list.service";
 import { BasePolicy } from "../policies";
+import { CollectionDialogTabType } from "../shared/components/collection-dialog";
 
 import { PolicyEditComponent, PolicyEditDialogResult } from "./policy-edit.component";
 
