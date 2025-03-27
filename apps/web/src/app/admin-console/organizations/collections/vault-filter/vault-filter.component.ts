@@ -89,8 +89,8 @@ export class VaultFilterComponent
     const collapsedNodes = await firstValueFrom(this.vaultFilterService.collapsedFilterNodes$);
 
     collapsedNodes.delete("AllCollections");
-
-    await this.vaultFilterService.setCollapsedFilterNodes(collapsedNodes);
+    const userId = await firstValueFrom(this.activeUserId$);
+    await this.vaultFilterService.setCollapsedFilterNodes(collapsedNodes, userId);
   }
 
   protected async addCollectionFilter(): Promise<VaultFilterSection> {
