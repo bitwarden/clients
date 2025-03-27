@@ -3,7 +3,15 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import { combineLatest, filter, map, Observable, switchMap, withLatestFrom } from "rxjs";
+import {
+  combineLatest,
+  filter,
+  map,
+  Observable,
+  switchMap,
+  withLatestFrom,
+  firstValueFrom,
+} from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -66,6 +74,7 @@ export class OrganizationLayoutComponent implements OnInit {
 
   showAccountDeprovisioningBanner$: Observable<boolean>;
   protected isBreadcrumbEventLogsEnabled$: Observable<boolean>;
+  protected showSponsoredFamiliesDropdown$: Observable<boolean>;
 
   constructor(
     private route: ActivatedRoute,
@@ -91,6 +100,33 @@ export class OrganizationLayoutComponent implements OnInit {
         this.organizationService.organizations$(userId).pipe(getById(orgId)),
       ),
       filter((org) => org != null),
+    );
+
+    this.enterpriseOrganization$ = this.organization$.pipe(
+      map((org) => org.productTierType === ProductTierType.Enterprise),
+    );
+
+    this.showSponsoredFamiliesDropdown$ = combineLatest([
+      this.enterpriseOrganization$,
+      this.configService.getFeatureFlag$(FeatureFlag.PM17772_AdminInitiatedSponsorships),
+      this.organization$,
+      this.policyService.policiesByType$(
+        PolicyType.FreeFamiliesSponsorshipPolicy,
+        await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
+      ),
+    ]).pipe(
+      map(([isEnterprise, featureFlagEnabled, organization, policies]) => {
+        const familiesFeatureDisabled = policies.some(
+          (policy) => policy.organizationId === organization.id && policy.enabled,
+        );
+
+        return (
+          isEnterprise &&
+          featureFlagEnabled &&
+          !familiesFeatureDisabled &&
+          (organization.isAdmin || organization.isOwner || organization.canManageUsers)
+        );
+      }),
     );
 
     this.showAccountDeprovisioningBanner$ = combineLatest([
