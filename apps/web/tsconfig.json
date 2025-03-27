@@ -43,7 +43,6 @@
     "src/connectors/*.ts",
     "src/**/*.stories.ts",
     "src/**/*.spec.ts",
-    "../../libs/common/src/key-management/crypto/services/encrypt.worker.ts",
-    "../../libs/vault/src/cipher-view/attachments/attachments-v2.component.spec.ts"
+    "../../libs/common/src/key-management/crypto/services/encrypt.worker.ts"
   ]
 }
