@@ -4,6 +4,7 @@ import { Component, Inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { EmergencyAccessId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -22,7 +23,7 @@ import { WebViewPasswordHistoryService } from "../../../../vault/services/web-vi
 export interface EmergencyViewDialogParams {
   /** The cipher being viewed. */
   cipher: CipherView;
-  emergencyAccessId: string;
+  emergencyAccessId: EmergencyAccessId;
 }
 
 /** Stubbed class, premium upgrade is not applicable for emergency viewing */
@@ -63,7 +64,7 @@ export class EmergencyViewDialogComponent {
     return this.params.cipher;
   }
 
-  get emergencyAccessId(): string {
+  get emergencyAccessId(): EmergencyAccessId {
     return this.params.emergencyAccessId;
   }
 
