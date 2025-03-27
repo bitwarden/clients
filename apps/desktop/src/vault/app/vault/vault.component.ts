@@ -823,11 +823,12 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   private async passwordReprompt(cipher: CipherView) {
-    if (this.cipherRepromptId === cipher.id) {
+    if (cipher.reprompt === CipherRepromptType.None) {
+      this.cipherRepromptId = null;
       return true;
     }
-    if (cipher.reprompt === CipherRepromptType.None) {
-      return;
+    if (this.cipherRepromptId === cipher.id) {
+      return true;
     }
     const repromptResult = await this.passwordRepromptService.showPasswordPrompt();
     if (repromptResult) {
