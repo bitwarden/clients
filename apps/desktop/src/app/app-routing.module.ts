@@ -75,22 +75,6 @@ const routes: Routes = [
     canActivate: [redirectGuard({ loggedIn: "/vault", loggedOut: "/login", locked: "/lock" })],
   },
   {
-    path: "2fa",
-    component: AnonLayoutWrapperComponent,
-    canActivate: [unauthGuardFn(), TwoFactorAuthGuard],
-    children: [
-      {
-        path: "",
-        component: TwoFactorAuthComponent,
-      },
-    ],
-    data: {
-      pageTitle: {
-        key: "verifyYourIdentity",
-      },
-    } satisfies RouteDataProperties & AnonLayoutWrapperData,
-  },
-  {
     path: "authentication-timeout",
     component: AnonLayoutWrapperComponent,
     children: [
@@ -351,6 +335,21 @@ const routes: Routes = [
             key: "finishJoiningThisOrganizationBySettingAMasterPassword",
           },
         } satisfies AnonLayoutWrapperData,
+      },
+      {
+        path: "2fa",
+        canActivate: [unauthGuardFn(), TwoFactorAuthGuard],
+        children: [
+          {
+            path: "",
+            component: TwoFactorAuthComponent,
+          },
+        ],
+        data: {
+          pageTitle: {
+            key: "verifyYourIdentity",
+          },
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
     ],
   },

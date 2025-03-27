@@ -140,24 +140,6 @@ const routes: Routes = [
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
-    path: "2fa",
-    component: ExtensionAnonLayoutWrapperComponent,
-    canActivate: [unauthGuardFn(unauthRouteOverrides), TwoFactorAuthGuard],
-    children: [
-      {
-        path: "",
-        component: TwoFactorAuthComponent,
-      },
-    ],
-    data: {
-      elevation: 1,
-      pageTitle: {
-        key: "verifyYourIdentity",
-      },
-      showBackButton: true,
-    } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
-  },
-  {
     path: "",
     component: ExtensionAnonLayoutWrapperComponent,
     children: [
@@ -354,7 +336,6 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
-
   {
     path: "",
     component: ExtensionAnonLayoutWrapperComponent,
@@ -549,6 +530,23 @@ const routes: Routes = [
             component: LockComponent,
           },
         ],
+      },
+      {
+        path: "2fa",
+        canActivate: [unauthGuardFn(unauthRouteOverrides), TwoFactorAuthGuard],
+        children: [
+          {
+            path: "",
+            component: TwoFactorAuthComponent,
+          },
+        ],
+        data: {
+          elevation: 1,
+          pageTitle: {
+            key: "verifyYourIdentity",
+          },
+          showBackButton: true,
+        } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
       },
     ],
   },
