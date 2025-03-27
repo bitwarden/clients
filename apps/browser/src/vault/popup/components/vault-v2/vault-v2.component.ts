@@ -170,7 +170,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     this.cipherService
       .failedToDecryptCiphers$(activeUserId)
       .pipe(
-        map((ciphers) => ciphers.filter((c) => !c.isDeleted)),
+        map((ciphers) => (ciphers ? ciphers.filter((c) => !c.isDeleted) : [])),
         filter((ciphers) => ciphers.length > 0),
         take(1),
         takeUntilDestroyed(this.destroyRef),
