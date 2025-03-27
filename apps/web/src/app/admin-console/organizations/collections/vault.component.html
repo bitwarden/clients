@@ -54,7 +54,7 @@
       (searchTextChanged)="filterSearchText($event)"
     ></app-organization-vault-filter>
   </div>
-  <div [class]="hideVaultFilters ? 'tw-w-4/5' : 'tw-w-3/4'">
+  <div [class]="hideVaultFilters ? 'tw-w-full' : 'tw-w-3/4'">
     <bit-toggle-group
       *ngIf="showAddAccessToggle && activeFilter.selectedCollectionNode"
       [selected]="addAccessStatus$ | async"

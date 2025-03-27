@@ -8,6 +8,7 @@ export enum FeatureFlag {
   AccountDeprovisioning = "pm-10308-account-deprovisioning",
   VerifiedSsoDomainEndpoint = "pm-12337-refactor-sso-details-endpoint",
   LimitItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission",
+  SsoExternalIdVisibility = "pm-18630-sso-external-id-visibility",
 
   /* Autofill */
   BlockBrowserInjectionsByDomain = "block-browser-injections-by-domain",
@@ -39,13 +40,13 @@ export enum FeatureFlag {
   /* Auth */
   PM9112_DeviceApprovalPersistence = "pm-9112-device-approval-persistence",
 
+  UserKeyRotationV2 = "userkey-rotation-v2",
   PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
   UnauthenticatedExtensionUIRefresh = "unauth-ui-refresh",
   CipherKeyEncryption = "cipher-key-encryption",
   TrialPaymentOptional = "PM-8163-trial-payment",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
-  ResellerManagedOrgAlert = "PM-15814-alert-owners-of-reseller-managed-orgs",
   AccountDeprovisioningBanner = "pm-17120-account-deprovisioning-admin-console-banner",
   PM15179_AddExistingOrgsFromProviderPortal = "pm-15179-add-existing-orgs-from-provider-portal",
   PM12276_BreadcrumbEventLogs = "pm-12276-breadcrumbing-for-business-features",
@@ -68,6 +69,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AccountDeprovisioning]: FALSE,
   [FeatureFlag.VerifiedSsoDomainEndpoint]: FALSE,
   [FeatureFlag.LimitItemDeletion]: FALSE,
+  [FeatureFlag.SsoExternalIdVisibility]: FALSE,
 
   /* Autofill */
   [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,
@@ -99,13 +101,13 @@ export const DefaultFeatureFlagValue = {
   /* Auth */
   [FeatureFlag.PM9112_DeviceApprovalPersistence]: FALSE,
 
+  [FeatureFlag.UserKeyRotationV2]: FALSE,
   [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
   [FeatureFlag.UnauthenticatedExtensionUIRefresh]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
   [FeatureFlag.TrialPaymentOptional]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
-  [FeatureFlag.ResellerManagedOrgAlert]: FALSE,
   [FeatureFlag.AccountDeprovisioningBanner]: FALSE,
   [FeatureFlag.PM15179_AddExistingOrgsFromProviderPortal]: FALSE,
   [FeatureFlag.PM12276_BreadcrumbEventLogs]: FALSE,

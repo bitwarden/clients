@@ -42,12 +42,14 @@
         {{ "learnMoreAboutApi" | i18n }}
       </a>
     </p>
-    <button type="button" bitButton buttonType="secondary" (click)="viewApiKey()">
-      {{ "viewApiKey" | i18n }}
-    </button>
-    <button type="button" bitButton buttonType="secondary" (click)="rotateApiKey()">
-      {{ "rotateApiKey" | i18n }}
-    </button>
+    <div class="tw-flex tw-gap-2">
+      <button type="button" bitButton buttonType="secondary" (click)="viewApiKey()">
+        {{ "viewApiKey" | i18n }}
+      </button>
+      <button type="button" bitButton buttonType="secondary" (click)="rotateApiKey()">
+        {{ "rotateApiKey" | i18n }}
+      </button>
+    </div>
   </ng-container>
   <form
     *ngIf="org && !loading"

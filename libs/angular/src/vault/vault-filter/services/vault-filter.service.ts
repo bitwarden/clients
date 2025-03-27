@@ -112,13 +112,23 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
 
   async checkForSingleOrganizationPolicy(): Promise<boolean> {
     return await firstValueFrom(
-      this.policyService.policyAppliesToActiveUser$(PolicyType.SingleOrg),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
+        ),
+      ),
     );
   }
 
   async checkForPersonalOwnershipPolicy(): Promise<boolean> {
     return await firstValueFrom(
-      this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+        ),
+      ),
     );
   }
 
