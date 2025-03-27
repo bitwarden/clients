@@ -206,7 +206,7 @@
         </bit-card>
       </form>
     </bit-section>
-    <bit-section>
+    <bit-section [disableMargin]="!blockBrowserInjectionsByDomainEnabled">
       <form [formGroup]="additionalOptionsForm">
         <bit-section-header>
           <h2 bitTypography="h6">{{ "additionalOptions" | i18n }}</h2>
