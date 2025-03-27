@@ -124,6 +124,7 @@ export class OrganizationLayoutComponent implements OnInit {
           isEnterprise &&
           featureFlagEnabled &&
           !familiesFeatureDisabled &&
+          organization.useAdminSponsoredFamilies &&
           (organization.isAdmin || organization.isOwner || organization.canManageUsers)
         );
       }),
