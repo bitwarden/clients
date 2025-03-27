@@ -233,15 +233,12 @@ jobs:
           build-args: |
             NODE_VERSION=${{ env._NODE_VERSION }}
             NPM_COMMAND=${{ matrix.npm_command }}
-          # cache-from: type=registry,ref=${{ steps.image-name.outputs.name }}
-          # cache-to: type=registry,ref=${{ steps.image-name.outputs.name }},mode=max
           context: .
           file: apps/web/Dockerfile
           platforms: |
             linux/amd64,
             linux/arm/v7,
             linux/arm64
-          load: true
           push: true
           tags: ${{ steps.image-name.outputs.name }}
 
@@ -251,7 +248,6 @@ jobs:
           IMAGE_NAME: ${{ steps.image-name.outputs.name }}
         run: |
           mkdir build
-          # docker pull $IMAGE_NAME
           docker run --rm --volume $(pwd)/build:/temp --entrypoint bash \
             $IMAGE_NAME -c "cp -r ./ /temp"
 
