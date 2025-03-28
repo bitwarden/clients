@@ -276,6 +276,7 @@ import { BackgroundPlatformUtilsService } from "../platform/services/platform-ut
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 import { PopupViewCacheBackgroundService } from "../platform/services/popup-view-cache-background.service";
 import { BrowserSdkLoadService } from "../platform/services/sdk/browser-sdk-load.service";
+import { startRemoteIpcSdkListener } from "../platform/services/sdk/remote-ipc-sdk-proxy";
 import { BackgroundTaskSchedulerService } from "../platform/services/task-scheduler/background-task-scheduler.service";
 import { BackgroundMemoryStorageService } from "../platform/storage/background-memory-storage.service";
 import { BrowserStorageServiceProvider } from "../platform/storage/browser-storage-service.provider";
@@ -761,6 +762,7 @@ export default class MainBackground {
       this.kdfConfigService,
       this.keyService,
     );
+    startRemoteIpcSdkListener(this.sdkService, this.logService);
 
     this.passwordStrengthService = new PasswordStrengthService();
 
