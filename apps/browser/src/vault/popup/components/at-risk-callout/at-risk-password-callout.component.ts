@@ -4,9 +4,10 @@ import { RouterModule } from "@angular/router";
 import { map, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { AnchorLinkDirective, CalloutModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { filterOutNullish, SecurityTaskType, TaskService } from "@bitwarden/vault";
 
 // TODO: This component will need to be reworked to use the new EndUserNotificationService in PM-10609
 

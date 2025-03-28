@@ -33,19 +33,17 @@ import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cip
 import {
   AsyncActionsModule,
   ButtonModule,
+  CalloutModule,
   DialogService,
   IconButtonModule,
   SearchModule,
   ToastService,
-  CalloutModule,
 } from "@bitwarden/components";
 import {
   ChangeLoginPasswordService,
   CipherViewComponent,
   CopyCipherFieldService,
   DefaultChangeLoginPasswordService,
-  DefaultTaskService,
-  TaskService,
 } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
@@ -95,7 +93,6 @@ type LoadAction =
   providers: [
     { provide: ViewPasswordHistoryService, useClass: BrowserViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
-    { provide: TaskService, useClass: DefaultTaskService },
     { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
   ],
 })

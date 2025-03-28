@@ -1,18 +1,17 @@
-import { TestBed } from "@angular/core/testing";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { StateProvider } from "@bitwarden/common/platform/state";
 import { SecurityTaskId, UserId } from "@bitwarden/common/types/guid";
-import { DefaultTaskService, SecurityTaskStatus } from "@bitwarden/vault";
 
-import { FakeStateProvider, mockAccountServiceWith } from "../../../../common/spec";
-import { SecurityTaskData } from "../models/security-task.data";
-import { SecurityTaskResponse } from "../models/security-task.response";
+import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
+import { SecurityTaskStatus } from "../enums";
+import { SecurityTaskData, SecurityTaskResponse } from "../models";
 import { SECURITY_TASKS } from "../state/security-task.state";
+
+import { DefaultTaskService } from "./default-task.service";
 
 describe("Default task service", () => {
   let fakeStateProvider: FakeStateProvider;
@@ -21,7 +20,7 @@ describe("Default task service", () => {
   const mockGetAllOrgs$ = jest.fn();
   const mockGetFeatureFlag$ = jest.fn();
 
-  let testBed: TestBed;
+  let service: DefaultTaskService;
 
   beforeEach(async () => {
     mockApiSend.mockClear();
@@ -29,34 +28,12 @@ describe("Default task service", () => {
     mockGetFeatureFlag$.mockClear();
 
     fakeStateProvider = new FakeStateProvider(mockAccountServiceWith("user-id" as UserId));
-    testBed = TestBed.configureTestingModule({
-      imports: [],
-      providers: [
-        DefaultTaskService,
-        {
-          provide: ConfigService,
-          useValue: {
-            getFeatureFlag$: mockGetFeatureFlag$,
-          },
-        },
-        {
-          provide: StateProvider,
-          useValue: fakeStateProvider,
-        },
-        {
-          provide: ApiService,
-          useValue: {
-            send: mockApiSend,
-          },
-        },
-        {
-          provide: OrganizationService,
-          useValue: {
-            organizations$: mockGetAllOrgs$,
-          },
-        },
-      ],
-    });
+    service = new DefaultTaskService(
+      fakeStateProvider,
+      { send: mockApiSend } as unknown as ApiService,
+      { organizations$: mockGetAllOrgs$ } as unknown as OrganizationService,
+      { getFeatureFlag$: mockGetFeatureFlag$ } as unknown as ConfigService,
+    );
   });
 
   describe("tasksEnabled$", () => {
@@ -73,7 +50,7 @@ describe("Default task service", () => {
         ] as Organization[]),
       );
 
-      const { tasksEnabled$ } = testBed.inject(DefaultTaskService);
+      const { tasksEnabled$ } = service;
 
       const result = await firstValueFrom(tasksEnabled$("user-id" as UserId));
 
@@ -93,7 +70,7 @@ describe("Default task service", () => {
         ] as Organization[]),
       );
 
-      const { tasksEnabled$ } = testBed.inject(DefaultTaskService);
+      const { tasksEnabled$ } = service;
 
       const result = await firstValueFrom(tasksEnabled$("user-id" as UserId));
 
@@ -110,7 +87,7 @@ describe("Default task service", () => {
         ] as Organization[]),
       );
 
-      const { tasksEnabled$ } = testBed.inject(DefaultTaskService);
+      const { tasksEnabled$ } = service;
 
       const result = await firstValueFrom(tasksEnabled$("user-id" as UserId));
 
@@ -130,7 +107,7 @@ describe("Default task service", () => {
 
       fakeStateProvider.singleUser.mockFor("user-id" as UserId, SECURITY_TASKS, null as any);
 
-      const { tasks$ } = testBed.inject(DefaultTaskService);
+      const { tasks$ } = service;
 
       const result = await firstValueFrom(tasks$("user-id" as UserId));
 
@@ -145,7 +122,7 @@ describe("Default task service", () => {
         } as SecurityTaskData,
       ]);
 
-      const { tasks$ } = testBed.inject(DefaultTaskService);
+      const { tasks$ } = service;
 
       const result = await firstValueFrom(tasks$("user-id" as UserId));
 
@@ -154,7 +131,7 @@ describe("Default task service", () => {
     });
 
     it("should share the same observable for the same user", async () => {
-      const { tasks$ } = testBed.inject(DefaultTaskService);
+      const { tasks$ } = service;
 
       const first = tasks$("user-id" as UserId);
       const second = tasks$("user-id" as UserId);
@@ -176,7 +153,7 @@ describe("Default task service", () => {
         },
       ] as SecurityTaskData[]);
 
-      const { pendingTasks$ } = testBed.inject(DefaultTaskService);
+      const { pendingTasks$ } = service;
 
       const result = await firstValueFrom(pendingTasks$("user-id" as UserId));
 
@@ -194,8 +171,6 @@ describe("Default task service", () => {
           },
         ] as SecurityTaskResponse[],
       });
-
-      const service = testBed.inject(DefaultTaskService);
 
       await service.refreshTasks("user-id" as UserId);
 
@@ -217,8 +192,6 @@ describe("Default task service", () => {
         null as any,
       );
 
-      const service = testBed.inject(DefaultTaskService);
-
       await service.refreshTasks("user-id" as UserId);
 
       expect(mock.nextMock).toHaveBeenCalledWith([
@@ -237,8 +210,6 @@ describe("Default task service", () => {
         } as SecurityTaskData,
       ]);
 
-      const service = testBed.inject(DefaultTaskService);
-
       await service.clear("user-id" as UserId);
 
       expect(mock.nextMock).toHaveBeenCalledWith([]);
@@ -247,8 +218,6 @@ describe("Default task service", () => {
 
   describe("markAsComplete()", () => {
     it("should send an API request to mark the task as complete", async () => {
-      const service = testBed.inject(DefaultTaskService);
-
       await service.markAsComplete("task-id" as SecurityTaskId, "user-id" as UserId);
 
       expect(mockApiSend).toHaveBeenCalledWith(
@@ -277,8 +246,6 @@ describe("Default task service", () => {
           id: "old-task-id" as SecurityTaskId,
         } as SecurityTaskData,
       ]);
-
-      const service = testBed.inject(DefaultTaskService);
 
       await service.markAsComplete("task-id" as SecurityTaskId, "user-id" as UserId);
 

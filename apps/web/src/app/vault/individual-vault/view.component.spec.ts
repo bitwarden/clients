@@ -20,9 +20,10 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-import { ChangeLoginPasswordService, DefaultTaskService, TaskService } from "@bitwarden/vault";
+import { ChangeLoginPasswordService } from "@bitwarden/vault";
 
 import { ViewCipherDialogParams, ViewCipherDialogResult, ViewComponent } from "./view.component";
 
@@ -83,12 +84,12 @@ describe("ViewComponent", () => {
             canDeleteCipher$: jest.fn().mockReturnValue(true),
           },
         },
+        { provide: TaskService, useValue: mock<TaskService>() },
       ],
     })
       .overrideComponent(ViewComponent, {
         remove: {
           providers: [
-            { provide: TaskService, useClass: DefaultTaskService },
             { provide: PlatformUtilsService, useValue: PlatformUtilsService },
             {
               provide: ChangeLoginPasswordService,
@@ -98,10 +99,6 @@ describe("ViewComponent", () => {
         },
         add: {
           providers: [
-            {
-              provide: TaskService,
-              useValue: mock<TaskService>(),
-            },
             { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
             {
               provide: ChangeLoginPasswordService,
