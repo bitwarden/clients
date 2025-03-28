@@ -88,7 +88,9 @@ export class InputPasswordComponent implements OnInit {
 
   @Input() inlineButtons = false;
   @Input() primaryButtonText?: Translation;
+  protected primaryButtonTextStr: string = "";
   @Input() secondaryButtonText?: Translation;
+  protected secondaryButtonTextStr: string = "";
 
   protected InputPasswordFlow = InputPasswordFlow;
   private minHintLength = 0;
@@ -155,6 +157,20 @@ export class InputPasswordComponent implements OnInit {
     if (this.inputPasswordFlow === InputPasswordFlow.ChangePassword) {
       // https://github.com/angular/angular/issues/48794
       (this.formGroup as FormGroup<any>).removeControl("rotateUserKey");
+    }
+
+    if (this.primaryButtonText) {
+      this.primaryButtonTextStr = this.i18nService.t(
+        this.primaryButtonText.key,
+        ...(this.primaryButtonText?.placeholders ?? []),
+      );
+    }
+
+    if (this.secondaryButtonText) {
+      this.secondaryButtonTextStr = this.i18nService.t(
+        this.secondaryButtonText.key,
+        ...(this.secondaryButtonText?.placeholders ?? []),
+      );
     }
   }
 

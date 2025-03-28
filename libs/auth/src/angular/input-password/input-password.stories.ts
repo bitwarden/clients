@@ -162,6 +162,19 @@ export const SecondaryButton: Story = {
   }),
 };
 
+export const SecondaryButtonWithPlaceHolderText: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <auth-input-password
+        [inputPasswordFlow]="InputPasswordFlow.SetInitialPassword"
+        [secondaryButtonText]="{ key: 'backTo', placeholders: ['homepage'] }"
+        (onSecondaryButtonClick)="onSecondaryButtonClick()"
+      ></auth-input-password>
+    `,
+  }),
+};
+
 export const InlineButton: Story = {
   render: (args) => ({
     props: args,
