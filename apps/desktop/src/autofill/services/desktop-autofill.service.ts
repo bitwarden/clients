@@ -9,7 +9,6 @@ import {
   mergeMap,
   switchMap,
   takeUntil,
-  EMPTY,
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -61,9 +60,9 @@ export class DesktopAutofillService implements OnDestroy {
       .pipe(
         distinctUntilChanged(),
         switchMap((enabled) => {
-          if (!enabled) {
-            return EMPTY;
-          }
+          // if (!enabled) {
+          //   return EMPTY;
+          // }
 
           return this.accountService.activeAccount$.pipe(
             map((account) => account?.id),
