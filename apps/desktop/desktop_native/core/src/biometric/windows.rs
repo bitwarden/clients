@@ -10,7 +10,6 @@ use rand::RngCore;
 use sha2::{Digest, Sha256};
 use windows::{
     core::{factory, h, HSTRING},
-    Foundation::IAsyncOperation,
     Security::{
         Credentials::{
             KeyCredentialCreationOption, KeyCredentialManager, KeyCredentialStatus, UI::*,
@@ -19,6 +18,7 @@ use windows::{
     },
     Win32::{Foundation::HWND, System::WinRT::IUserConsentVerifierInterop},
 };
+use windows_future::IAsyncOperation;
 
 use crate::{
     biometric::{KeyMaterial, OsDerivedKey},

@@ -23,7 +23,7 @@ pub async fn get_password(service: &str, account: &str) -> Result<String> {
         CredReadW(
             PCWSTR(target_name.as_ptr()),
             CRED_TYPE_GENERIC,
-            CRED_FLAGS_NONE,
+            None,
             credential_ptr,
         )
     };
@@ -79,13 +79,7 @@ pub async fn set_password(service: &str, account: &str, password: &str) -> Resul
 pub async fn delete_password(service: &str, account: &str) -> Result<()> {
     let target_name = U16CString::from_str(target_name(service, account))?;
 
-    unsafe {
-        CredDeleteW(
-            PCWSTR(target_name.as_ptr()),
-            CRED_TYPE_GENERIC,
-            CRED_FLAGS_NONE,
-        )?
-    };
+    unsafe { CredDeleteW(PCWSTR(target_name.as_ptr()), CRED_TYPE_GENERIC, None)? };
 
     Ok(())
 }
