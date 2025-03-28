@@ -322,7 +322,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
   async confirmUser(user: OrganizationUserView, publicKey: Uint8Array): Promise<void> {
     const orgKey = await this.keyService.getOrgKey(this.organization.id);
-    const key = await this.encryptService.rsaEncrypt(orgKey.key, publicKey);
+    const key = await this.encryptService.encapsulateKeyUnsigned(orgKey, publicKey);
     const request = new OrganizationUserConfirmRequest();
     request.key = key.encryptedString;
     await this.organizationUserApiService.postOrganizationUserConfirm(

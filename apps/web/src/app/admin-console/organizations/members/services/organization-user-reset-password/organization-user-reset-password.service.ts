@@ -14,7 +14,6 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import {
@@ -60,7 +59,7 @@ export class OrganizationUserResetPasswordService
     if (userKey == null) {
       throw new Error("No user key found");
     }
-    const encryptedKey = await this.encryptService.rsaEncrypt(userKey.key, publicKey);
+    const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(userKey, publicKey);
 
     return encryptedKey.encryptedString;
   }
@@ -99,11 +98,11 @@ export class OrganizationUserResetPasswordService
     );
 
     // Decrypt User's Reset Password Key to get UserKey
-    const decValue = await this.encryptService.rsaDecrypt(
+    const userKey = await this.encryptService.decapsulateKeyUnsigned(
       new EncString(response.resetPasswordKey),
       decPrivateKey,
     );
-    const existingUserKey = new SymmetricCryptoKey(decValue) as UserKey;
+    const existingUserKey = userKey as UserKey;
 
     // determine Kdf Algorithm
     const kdfConfig: KdfConfig =

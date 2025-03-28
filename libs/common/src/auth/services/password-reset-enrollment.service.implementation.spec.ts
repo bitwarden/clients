@@ -100,7 +100,7 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
       activeAccountSubject.next(Object.assign(user1AccountInfo, { id: "userId" as UserId }));
 
       keyService.getUserKey.mockResolvedValue({ key: "key" } as any);
-      encryptService.rsaEncrypt.mockResolvedValue(encryptedKey as any);
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(encryptedKey as any);
 
       await service.enroll("orgId");
 
@@ -122,7 +122,7 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
       };
       const encryptedKey = { encryptedString: "encryptedString" };
       organizationApiService.getKeys.mockResolvedValue(orgKeyResponse as any);
-      encryptService.rsaEncrypt.mockResolvedValue(encryptedKey as any);
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(encryptedKey as any);
 
       await service.enroll("orgId", "userId", { key: "key" } as any);
 
