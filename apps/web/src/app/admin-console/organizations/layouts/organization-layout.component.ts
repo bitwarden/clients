@@ -29,7 +29,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { getById } from "@bitwarden/common/platform/misc";
 import { BannerModule, IconModule } from "@bitwarden/components";
 
-import { SponsoredFamiliesVisibilityService } from "../../../billing/services/sponsored-families-visibility.service";
+import { FreeFamiliesPolicyService } from "../../../billing/services/free-families-policy.service";
 import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher.component";
 import { WebLayoutModule } from "../../../layouts/web-layout.module";
 import { AdminConsoleLogo } from "../../icons/admin-console-logo";
@@ -78,7 +78,7 @@ export class OrganizationLayoutComponent implements OnInit {
     private providerService: ProviderService,
     protected bannerService: AccountDeprovisioningBannerService,
     private accountService: AccountService,
-    private sponsoredFamiliesVisibilityService: SponsoredFamiliesVisibilityService,
+    private freeFamiliesPolicyService: FreeFamiliesPolicyService,
   ) {}
 
   async ngOnInit() {
@@ -96,7 +96,7 @@ export class OrganizationLayoutComponent implements OnInit {
       filter((org) => org != null),
     );
     this.showSponsoredFamiliesDropdown$ =
-      this.sponsoredFamiliesVisibilityService.showSponsoredFamiliesDropdown$(this.organization$);
+      this.freeFamiliesPolicyService.showSponsoredFamiliesDropdown$(this.organization$);
 
     this.showAccountDeprovisioningBanner$ = combineLatest([
       this.bannerService.showBanner$,
