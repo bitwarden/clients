@@ -168,28 +168,13 @@ export default class NotificationBackground {
       this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
 
-    let tasks: SecurityTask[] = [];
-
-    if (activeUserId) {
-      tasks = await firstValueFrom(
-        this.taskService
-          .pendingTasks$(activeUserId)
-          .pipe(
-            map((tasks) =>
-              tasks.filter(({ type }) => type === SecurityTaskType.UpdateAtRiskCredential),
-            ),
-          ),
-      );
-    }
-
     const decryptedCiphers = await this.cipherService.getAllDecryptedForUrl(
-      currentTab.url,
+      currentTab?.url,
       activeUserId,
     );
 
     return decryptedCiphers.map((view) => {
       const { id, name, reprompt, favorite, login } = view;
-      const cipherTask = tasks.find(({ cipherId }) => cipherId === id);
 
       return {
         id,
@@ -201,7 +186,6 @@ export default class NotificationBackground {
         login: login && {
           username: login.username,
         },
-        task: cipherTask,
       };
     });
   }
@@ -666,10 +650,27 @@ export default class NotificationBackground {
     }
     const cipher = await this.cipherService.encrypt(cipherView, userId);
     try {
+      const tasks = await this.getSecurityTasks(userId);
+      const updatedCipherTask = tasks.find((task) => task.cipherId === cipherView?.id);
+      const taskCompleted = !!updatedCipherTask?.id;
+
+      let taskOrgName;
+      if (updatedCipherTask?.organizationId) {
+        const userOrgs = await this.getOrgData();
+        taskOrgName = userOrgs.find(({ id }) => id === updatedCipherTask.organizationId)?.name;
+      }
+
       await this.cipherService.updateWithServer(cipher);
+
       await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
         username: String(cipherView?.login?.username),
         cipherId: String(cipherView?.id),
+        task: {
+          cipherName: cipherView?.name,
+          taskCompleted,
+          remainingTasksCount: tasks.length - (taskCompleted ? 1 : 0),
+          orgName: taskOrgName,
+        },
       });
     } catch (error) {
       await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
@@ -724,6 +725,32 @@ export default class NotificationBackground {
       );
     }
     return null;
+  }
+
+  private async getSecurityTasks(userId: UserId) {
+    let tasks: SecurityTask[] = [];
+
+    if (userId) {
+      tasks = await firstValueFrom(
+        this.taskService.tasksEnabled$(userId).pipe(
+          switchMap((tasksEnabled) => {
+            if (!tasksEnabled) {
+              return [];
+            }
+
+            return this.taskService
+              .pendingTasks$(userId)
+              .pipe(
+                map((tasks) =>
+                  tasks.filter(({ type }) => type === SecurityTaskType.UpdateAtRiskCredential),
+                ),
+              );
+          }),
+        ),
+      );
+    }
+
+    return tasks;
   }
 
   /**

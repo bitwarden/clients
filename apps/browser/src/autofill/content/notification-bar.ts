@@ -195,6 +195,7 @@ async function loadNotificationBar() {
           error: msg.data?.error,
           username: msg.data?.username,
           cipherId: msg.data?.cipherId,
+          task: msg.data?.task,
         },
         "*",
       );
