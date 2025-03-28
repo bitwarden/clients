@@ -672,6 +672,11 @@ export default class NotificationBackground {
           orgName: taskOrgName,
         },
       });
+
+      // If the cipher had a security task, mark it as complete
+      if (taskCompleted) {
+        await this.taskService.markAsComplete(updatedCipherTask.id, userId);
+      }
     } catch (error) {
       await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
         error: String(error?.message),
