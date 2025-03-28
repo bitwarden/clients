@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate napi_derive;
 
+mod passkey_authenticator_internal;
 mod registry;
 
 #[napi]
@@ -794,5 +795,15 @@ pub mod crypto {
             .map_err(|e| napi::Error::from_reason(e.to_string()))
             .map(|v| v.to_vec())
             .map(Buffer::from)
+    }
+}
+
+#[napi]
+pub mod passkey_authenticator {
+    #[napi]
+    pub fn register() -> napi::Result<()> {
+        crate::passkey_authenticator_internal::register().map_err(|e| {
+            napi::Error::from_reason(format!("Passkey registration failed - Error: {e} - {e:?}"))
+        })
     }
 }
