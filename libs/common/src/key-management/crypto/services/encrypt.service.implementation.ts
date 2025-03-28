@@ -15,10 +15,17 @@ import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { EncryptedObject } from "@bitwarden/common/platform/models/domain/encrypted-object";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 
+import {
+  DefaultFeatureFlagValue,
+  FeatureFlag,
+  getFeatureFlagValue,
+} from "../../../enums/feature-flag.enum";
 import { ServerConfig } from "../../../platform/abstractions/config/server-config";
 import { EncryptService } from "../abstractions/encrypt.service";
 
 export class EncryptServiceImplementation implements EncryptService {
+  private blockType0: boolean = DefaultFeatureFlagValue[FeatureFlag.PM17987_BlockType0];
+
   constructor(
     protected cryptoFunctionService: CryptoFunctionService,
     protected logService: LogService,
@@ -27,12 +34,18 @@ export class EncryptServiceImplementation implements EncryptService {
 
   // Handle updating private properties to turn on/off feature flags.
   onServerConfigChange(newConfig: ServerConfig): void {
-    return;
+    this.blockType0 = getFeatureFlagValue(newConfig, FeatureFlag.PM17987_BlockType0);
   }
 
   async encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString> {
     if (key == null) {
       throw new Error("No encryption key provided.");
+    }
+
+    if (this.blockType0) {
+      if (key.encType === EncryptionType.AesCbc256_B64 || key.key.length < 64) {
+        throw new Error("Type 0 encryption is not supported.");
+      }
     }
 
     if (plainValue == null) {
@@ -56,6 +69,12 @@ export class EncryptServiceImplementation implements EncryptService {
   async encryptToBytes(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncArrayBuffer> {
     if (key == null) {
       throw new Error("No encryption key provided.");
+    }
+
+    if (this.blockType0) {
+      if (key.encType === EncryptionType.AesCbc256_B64 || key.key.length < 64) {
+        throw new Error("Type 0 encryption is not supported.");
+      }
     }
 
     const encValue = await this.aesEncrypt(plainValue, key);
