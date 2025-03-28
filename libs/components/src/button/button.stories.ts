@@ -120,3 +120,15 @@ export const Block: Story = {
     block: true,
   },
 };
+
+export const VanillaButton: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <button class="bit-btn {{ buttonType }}">Button</button>
+    `,
+  }),
+  args: {
+    buttonType: "primary",
+  },
+};
