@@ -1,17 +1,16 @@
 import { Jsonify } from "type-fest";
 
-import { AuthRequest } from "@bitwarden/common/auth/models/request/auth.request";
-import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { View } from "@bitwarden/common/models/view/view";
 
 export class LoginViaAuthRequestView implements View {
-  authRequest: AuthRequest | undefined = undefined;
-  authRequestResponse: AuthRequestResponse | undefined = undefined;
-  fingerprintPhrase: string | undefined = undefined;
+  id: string | undefined = undefined;
+  accessCode: string | undefined = undefined;
   privateKey: string | undefined = undefined;
-  publicKey: string | undefined = undefined;
 
-  static fromJSON(obj: Partial<Jsonify<LoginViaAuthRequestView>>): LoginViaAuthRequestView {
+  static fromJSON(obj: Partial<Jsonify<LoginViaAuthRequestView>>): LoginViaAuthRequestView | null {
+    if (obj == null) {
+      return null;
+    }
     return Object.assign(new LoginViaAuthRequestView(), obj);
   }
 }
