@@ -95,11 +95,6 @@ export class OrganizationLayoutComponent implements OnInit {
       ),
       filter((org) => org != null),
     );
-
-    this.enterpriseOrganization$ = this.organization$.pipe(
-      map((org) => org.productTierType === ProductTierType.Enterprise),
-    );
-
     this.showSponsoredFamiliesDropdown$ =
       this.sponsoredFamiliesVisibilityService.showSponsoredFamiliesDropdown$(this.organization$);
 
