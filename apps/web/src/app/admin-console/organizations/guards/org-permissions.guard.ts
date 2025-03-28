@@ -18,7 +18,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
 
@@ -82,21 +81,24 @@ export function organizationPermissionsGuard(
       return router.createUrlTree(["/"]);
     }
 
-    const hasPermissions =
-      permissionsCallback == null ||
-      runInInjectionContext(environmentInjector, () => permissionsCallback(org));
+    if (permissionsCallback == null) {
+      // No additional permission checks required, allow navigation
+      return true;
+    }
 
-    const permissionResult = Utils.isPromise(hasPermissions)
-      ? await hasPermissions
-      : isObservable(hasPermissions)
-        ? await firstValueFrom(hasPermissions)
-        : hasPermissions;
+    const callbackResult = runInInjectionContext(environmentInjector, () =>
+      permissionsCallback(org),
+    );
 
-    if (permissionResult !== true && permissionResult !== false) {
+    const hasPermissions = isObservable(callbackResult)
+      ? await firstValueFrom(callbackResult) // handles observables
+      : await Promise.resolve(callbackResult); // handles promises and boolean values
+
+    if (hasPermissions !== true && hasPermissions !== false) {
       throw new Error("Permission callback did not resolve to a boolean.");
     }
 
-    if (!permissionResult) {
+    if (!hasPermissions) {
       // Handle linkable ciphers for organizations the user only has view access to
       // https://bitwarden.atlassian.net/browse/EC-203
       const cipherId =
