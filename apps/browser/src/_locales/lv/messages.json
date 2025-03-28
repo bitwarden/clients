@@ -3007,6 +3007,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Tiks izdoti tikai atsevišķi glabātavas vienumi, tajā skaitā pielikumi, kas ir saistīti ar $EMAIL$. Apvienības glabātavas vienumi netiks iekļauti",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Izgūst apvienības glabātavu"
   },
@@ -4270,6 +4279,20 @@
       }
     }
   },
+  "viewItemTitleWithField": {
+    "message": "Apskatīt vienumu - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "autofillTitle": {
     "message": "Automātiski aizpildīt - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
@@ -4277,6 +4300,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "autofillTitleWithField": {
+    "message": "Automātiskā aizpilde - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
       }
     }
   },

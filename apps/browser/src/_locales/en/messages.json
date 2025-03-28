@@ -2534,15 +2534,15 @@
     "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Illustration of a list of logins that are at-risk"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
   },
   "generatePasswordSlideDesc": {
     "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
   },
   "updateInBitwarden": {
     "message": "Update in Bitwarden"
@@ -2551,8 +2551,8 @@
     "message": "Bitwarden will then prompt you to update the password in the password manager.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
   },
   "turnOnAutofill": {
     "message": "Turn on autofill"
