@@ -46,12 +46,10 @@
           bitMenuItem
           (click)="unlinkSso(organization)"
         >
-          <i class="bwi bwi-fw bwi-chain-broken" aria-hidden="true"></i>
           {{ "unlinkSso" | i18n }}
         </button>
         <ng-template #linkSso>
           <button type="button" bitMenuItem (click)="handleLinkSso(organization)">
-            <i class="bwi bwi-fw bwi-link" aria-hidden="true"></i>
             {{ "linkSso" | i18n }}
           </button>
         </ng-template>

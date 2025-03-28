@@ -499,45 +499,45 @@ export class EventService {
 
     switch (ev.deviceType) {
       case DeviceType.Android:
-        return ["bwi-android", this.i18nService.t("mobile") + " - Android"];
+        return ["bwi-mobile", this.i18nService.t("mobile") + " - Android"];
       case DeviceType.iOS:
-        return ["bwi-apple", this.i18nService.t("mobile") + " - iOS"];
+        return ["bwi-mobile", this.i18nService.t("mobile") + " - iOS"];
       case DeviceType.UWP:
-        return ["bwi-windows", this.i18nService.t("mobile") + " - Windows"];
+        return ["bwi-mobile", this.i18nService.t("mobile") + " - Windows"];
       case DeviceType.ChromeExtension:
-        return ["bwi-chrome", this.i18nService.t("extension") + " - Chrome"];
+        return ["bwi-puzzle", this.i18nService.t("extension") + " - Chrome"];
       case DeviceType.FirefoxExtension:
-        return ["bwi-firefox", this.i18nService.t("extension") + " - Firefox"];
+        return ["bwi-puzzle", this.i18nService.t("extension") + " - Firefox"];
       case DeviceType.OperaExtension:
-        return ["bwi-opera", this.i18nService.t("extension") + " - Opera"];
+        return ["bwi-puzzle", this.i18nService.t("extension") + " - Opera"];
       case DeviceType.EdgeExtension:
-        return ["bwi-edge", this.i18nService.t("extension") + " - Edge"];
+        return ["bwi-puzzle", this.i18nService.t("extension") + " - Edge"];
       case DeviceType.VivaldiExtension:
         return ["bwi-puzzle", this.i18nService.t("extension") + " - Vivaldi"];
       case DeviceType.SafariExtension:
-        return ["bwi-safari", this.i18nService.t("extension") + " - Safari"];
+        return ["bwi-puzzle", this.i18nService.t("extension") + " - Safari"];
       case DeviceType.WindowsDesktop:
-        return ["bwi-windows", this.i18nService.t("desktop") + " - Windows"];
+        return ["bwi-desktop", this.i18nService.t("desktop") + " - Windows"];
       case DeviceType.MacOsDesktop:
-        return ["bwi-apple", this.i18nService.t("desktop") + " - macOS"];
+        return ["bwi-desktop", this.i18nService.t("desktop") + " - macOS"];
       case DeviceType.LinuxDesktop:
-        return ["bwi-linux", this.i18nService.t("desktop") + " - Linux"];
+        return ["bwi-desktop", this.i18nService.t("desktop") + " - Linux"];
       case DeviceType.ChromeBrowser:
-        return ["bwi-globe", this.i18nService.t("webVault") + " - Chrome"];
+        return ["bwi-browser", this.i18nService.t("webVault") + " - Chrome"];
       case DeviceType.FirefoxBrowser:
-        return ["bwi-globe", this.i18nService.t("webVault") + " - Firefox"];
+        return ["bwi-browser", this.i18nService.t("webVault") + " - Firefox"];
       case DeviceType.OperaBrowser:
-        return ["bwi-globe", this.i18nService.t("webVault") + " - Opera"];
+        return ["bwi-browser", this.i18nService.t("webVault") + " - Opera"];
       case DeviceType.SafariBrowser:
-        return ["bwi-globe", this.i18nService.t("webVault") + " - Safari"];
+        return ["bwi-browser", this.i18nService.t("webVault") + " - Safari"];
       case DeviceType.VivaldiBrowser:
-        return ["bwi-globe", this.i18nService.t("webVault") + " - Vivaldi"];
+        return ["bwi-browser", this.i18nService.t("webVault") + " - Vivaldi"];
       case DeviceType.EdgeBrowser:
-        return ["bwi-globe", this.i18nService.t("webVault") + " - Edge"];
+        return ["bwi-browser", this.i18nService.t("webVault") + " - Edge"];
       case DeviceType.IEBrowser:
-        return ["bwi-globe", this.i18nService.t("webVault") + " - IE"];
+        return ["bwi-browser", this.i18nService.t("webVault") + " - IE"];
       case DeviceType.Server:
-        return ["bwi-server", this.i18nService.t("server")];
+        return ["bwi-user-monitor", this.i18nService.t("server")];
       case DeviceType.WindowsCLI:
         return ["bwi-cli", this.i18nService.t("cli") + " - Windows"];
       case DeviceType.MacOsCLI:
@@ -546,7 +546,7 @@ export class EventService {
         return ["bwi-cli", this.i18nService.t("cli") + " - Linux"];
       case DeviceType.UnknownBrowser:
         return [
-          "bwi-globe",
+          "bwi-browser",
           this.i18nService.t("webVault") + " - " + this.i18nService.t("unknown"),
         ];
       default:
