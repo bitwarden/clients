@@ -8,6 +8,7 @@ import {
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
+import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { ModalModeState, WindowState } from "../models/domain/window-state";
 
 export const HARDWARE_ACCELERATION = new KeyDefinition<boolean>(
@@ -70,11 +71,12 @@ const SSH_AGENT_ENABLED = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "ssh
   deserializer: (b) => b,
 });
 
-const SSH_AGENT_REMEMBER_AUTHORIZATIONS = new KeyDefinition<boolean>(
+const SSH_AGENT_PROMPT_BEHAVIOR = new UserKeyDefinition<SshAgentPromptType>(
   DESKTOP_SETTINGS_DISK,
   "sshAgentRememberAuthorizations",
   {
     deserializer: (b) => b,
+    clearOn: [],
   },
 );
 
@@ -167,10 +169,8 @@ export class DesktopSettingsService {
 
   sshAgentEnabled$ = this.sshAgentEnabledState.state$.pipe(map(Boolean));
 
-  private readonly rememberSshAuthorizations = this.stateProvider.getGlobal(
-    SSH_AGENT_REMEMBER_AUTHORIZATIONS,
-  );
-  rememberSshAuthorizations$ = this.rememberSshAuthorizations.state$.pipe(map(Boolean));
+  private readonly sshAgentPromptBehavior = this.stateProvider.getActive(SSH_AGENT_PROMPT_BEHAVIOR);
+  sshAgentPromptBehavior$ = this.sshAgentPromptBehavior.state$;
 
   private readonly preventScreenshotState = this.stateProvider.getGlobal(PREVENT_SCREENSHOTS);
 
@@ -305,8 +305,8 @@ export class DesktopSettingsService {
     await this.sshAgentEnabledState.update(() => value);
   }
 
-  async setRememberSshAuthorizations(value: boolean) {
-    await this.rememberSshAuthorizations.update(() => value);
+  async setSshAgentPromptBehavior(value: SshAgentPromptType) {
+    await this.sshAgentPromptBehavior.update(() => value);
   }
 
   /**

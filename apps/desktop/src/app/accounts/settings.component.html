@@ -441,20 +441,19 @@
                 }}</small>
               </div>
               <div class="form-group" *ngIf="this.form.value.enableSshAgent">
-                <div class="checkbox">
-                  <label for="rememberSshAuthorizations">
-                    <input
-                      id="rememberSshAuthorizations"
-                      type="checkbox"
-                      aria-describedby="rememberSshAuthorizationsHelp"
-                      formControlName="rememberSshAuthorizations"
-                      (change)="saveRememberSshAuthorizations()"
-                    />
-                    {{ "rememberSshAuthorizations" | i18n }}
-                  </label>
-                </div>
-                <small id="rememberSshAuthorizationsHelp" class="help-block">{{
-                  "rememberSshAuthorizationsDesc" | i18n
+                <label for="sshAgentPromptBehavior">{{ "sshAgentPromptBehavior" | i18n }}</label>
+                <select
+                  id="sshAgentPromptBehavior"
+                  aria-describedby="sshAgentPromptBehaviorHelp"
+                  formControlName="sshAgentPromptBehavior"
+                  (change)="saveSshAgentPromptBehavior()"
+                >
+                  <option *ngFor="let o of sshAgentPromptBehaviorOptions" [ngValue]="o.value">
+                    {{ o.name }}
+                  </option>
+                </select>
+                <small id="sshAgentPromptBehaviorHelp" class="help-block">{{
+                  "sshAgentPromptBehaviorDesc" | i18n
                 }}</small>
               </div>
               <div class="form-group" *ngIf="!isLinux">

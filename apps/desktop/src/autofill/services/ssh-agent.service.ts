@@ -27,7 +27,6 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -35,6 +34,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 
 import { ApproveSshRequestComponent } from "../../platform/components/approve-ssh-request";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
+import { SshAgentPromptType } from "../models/ssh-agent-setting";
 
 @Injectable({
   providedIn: "root",
@@ -166,11 +166,9 @@ export class SshAgentService implements OnDestroy {
               .catch((e) => this.logService.error("Failed to respond to SSH request", e));
           }
 
-          const cipher = ciphers.find((cipher) => cipher.id == cipherId);
-
-          let authorized = cipherId in this.authorizedSshKeys;
-          if (!authorized || !(await this.canRememberAuthorization(isAgentForwarding, namespace))) {
+          if (await this.needsAuthorization(cipherId, isAgentForwarding)) {
             ipc.platform.focusWindow();
+            const cipher = ciphers.find((cipher) => cipher.id == cipherId);
             const dialogRef = ApproveSshRequestComponent.open(
               this.dialogService,
               cipher.name,
@@ -179,17 +177,15 @@ export class SshAgentService implements OnDestroy {
               namespace,
             );
 
-            const result = await firstValueFrom(dialogRef.closed);
-            if (
-              result === true &&
-              (await this.canRememberAuthorization(isAgentForwarding, namespace))
-            ) {
-              this.authorizedSshKeys[cipherId] = new Date();
+            if (await firstValueFrom(dialogRef.closed)) {
+              await this.rememberAuthorization(cipherId);
+              return ipc.platform.sshAgent.signRequestResponse(requestId, true);
+            } else {
+              return ipc.platform.sshAgent.signRequestResponse(requestId, false);
             }
-            authorized = result;
+          } else {
+            return ipc.platform.sshAgent.signRequestResponse(requestId, true);
           }
-
-          return ipc.platform.sshAgent.signRequestResponse(requestId, authorized);
         }),
         takeUntil(this.destroy$),
       )
@@ -233,9 +229,10 @@ export class SshAgentService implements OnDestroy {
     combineLatest([
       timer(0, this.SSH_REFRESH_INTERVAL),
       this.desktopSettingsService.sshAgentEnabled$,
+      this.desktopSettingsService.sshAgentPromptBehavior$,
     ])
       .pipe(
-        concatMap(async ([, enabled]) => {
+        concatMap(async ([, enabled, promptBehavior]) => {
           if (!this.isFeatureFlagEnabled) {
             return;
           }
@@ -284,11 +281,24 @@ export class SshAgentService implements OnDestroy {
     this.destroy$.complete();
   }
 
-  async canRememberAuthorization(isForward: boolean, namespace: string): Promise<boolean> {
-    return (
-      !isForward &&
-      Utils.isNullOrWhitespace(namespace) &&
-      (await firstValueFrom(this.desktopSettingsService.rememberSshAuthorizations$))
-    );
+  private async rememberAuthorization(cipherId: string): Promise<void> {
+    this.authorizedSshKeys[cipherId] = new Date();
+  }
+
+  private async needsAuthorization(cipherId: string, isForward: boolean): Promise<boolean> {
+    // Agent forwarding ALWAYS needs authorization because it is a remote machine
+    if (isForward) {
+      return true;
+    }
+
+    const promptType = await firstValueFrom(this.desktopSettingsService.sshAgentPromptBehavior$);
+    switch (promptType) {
+      case SshAgentPromptType.Never:
+        return false;
+      case SshAgentPromptType.Always:
+        return true;
+      case SshAgentPromptType.RememberUntilLock:
+        return !(cipherId in this.authorizedSshKeys);
+    }
   }
 }
