@@ -55,7 +55,6 @@ import {
   ExtensionAnonLayoutWrapperComponent,
   ExtensionAnonLayoutWrapperData,
 } from "../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
-import { RemovePasswordComponent } from "../auth/popup/remove-password.component";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
@@ -65,6 +64,7 @@ import { BlockedDomainsComponent } from "../autofill/popup/settings/blocked-doma
 import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
+import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import BrowserPopupUtils from "../platform/popup/browser-popup-utils";
 import { popupRouterCacheGuard } from "../platform/popup/view-cache/popup-router-cache.service";
 import { CredentialGeneratorHistoryComponent } from "../tools/popup/generator/credential-generator-history.component";
