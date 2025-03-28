@@ -17,7 +17,7 @@ import {
   componentClassPrefix as notificationHeaderClassPrefix,
 } from "./header";
 
-export function NotificationConfirmationContainer({
+export function NotificationTaskConfirmationContainer({
   error,
   handleCloseNotification,
   handleOpenVault,
@@ -37,7 +37,7 @@ export function NotificationConfirmationContainer({
   username: string;
 }) {
   const headerMessage = getHeaderMessage(i18n, type, error);
-  const confirmationMessage = getConfirmationMessage(i18n, username, task, type, error);
+  const confirmationMessage = getConfirmationMessage(i18n, username, type, error);
   const buttonText = error ? i18n.newItem : i18n.view;
 
   return html`
@@ -78,7 +78,6 @@ const notificationContainerStyles = (theme: Theme) => css`
 function getConfirmationMessage(
   i18n: { [key: string]: string },
   username: string,
-  task?: NotificationTaskInfo,
   type?: NotificationType,
   error?: string,
 ) {
@@ -90,11 +89,7 @@ function getConfirmationMessage(
   if (error) {
     return i18n.saveFailureDetails;
   }
-  return type === "add"
-    ? loginSaveSuccessDetails
-    : task?.taskCompleted
-      ? `${task?.cipherName} updated in ${task?.orgName || "your organization"}`
-      : loginUpdatedSuccessDetails;
+  return type === "add" ? loginSaveSuccessDetails : loginUpdatedSuccessDetails;
 }
 
 function getHeaderMessage(

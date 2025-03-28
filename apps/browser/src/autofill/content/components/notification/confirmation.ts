@@ -1,9 +1,10 @@
 import createEmotion from "@emotion/css/create-instance";
-import { html } from "lit";
+import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { themes } from "../constants/styles";
+import { NotificationTaskInfo } from "../../../notification/abstractions/notification-bar";
+import { themes, typography } from "../constants/styles";
 import { PartyHorn, Warning } from "../icons";
 
 import { NotificationConfirmationMessage } from "./confirmation-message";
@@ -18,12 +19,14 @@ export function NotificationConfirmationBody({
   buttonText,
   error,
   confirmationMessage,
+  task,
   theme,
   handleOpenVault,
 }: {
   error?: string;
   buttonText: string;
   confirmationMessage: string;
+  task?: NotificationTaskInfo;
   theme: Theme;
   handleOpenVault: (e: Event) => void;
 }) {
@@ -34,11 +37,17 @@ export function NotificationConfirmationBody({
       ${confirmationMessage && buttonText
         ? NotificationConfirmationMessage({
             handleClick: handleOpenVault,
+            children: task?.taskCompleted
+              ? html`<div class=${AdditionalMessageStyles({ theme })}>
+                  Thank you for making ${task.orgName || "your organization"} more secure. You have
+                  ${task.remainingTasksCount} more passwords to update.
+                </div>`
+              : nothing,
             confirmationMessage,
             theme,
             buttonText,
           })
-        : null}
+        : nothing}
     </div>
   `;
 }
@@ -56,4 +65,11 @@ const notificationConfirmationBodyStyles = ({ theme }: { theme: Theme }) => css`
   justify-content: flex-start;
   background-color: ${themes[theme].background.alt};
   padding: 12px;
+`;
+
+const AdditionalMessageStyles = ({ theme }: { theme: Theme }) => css`
+  ${typography.body2}
+
+  font-size: 14px;
+  color: ${themes[theme].text.muted};
 `;

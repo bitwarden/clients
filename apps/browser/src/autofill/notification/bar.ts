@@ -357,7 +357,7 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
 
-  globalThis.setTimeout(() => sendPlatformMessage({ command: "bgCloseNotificationBar" }), 5000);
+  globalThis.setTimeout(() => sendPlatformMessage({ command: "bgCloseNotificationBar" }), 500000);
 
   return render(
     NotificationConfirmationContainer({

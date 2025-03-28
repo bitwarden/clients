@@ -7,25 +7,30 @@ import { themes } from "../constants/styles";
 
 export function NotificationConfirmationMessage({
   buttonText,
+  children,
   confirmationMessage,
   handleClick,
   theme,
 }: {
   buttonText: string;
+  children?: any;
   confirmationMessage: string;
   handleClick: (e: Event) => void;
   theme: Theme;
 }) {
   return html`
-    <span title=${confirmationMessage} class=${notificationConfirmationMessageStyles(theme)}
-      >${confirmationMessage}
-      <a
-        title=${buttonText}
-        class=${notificationConfirmationButtonTextStyles(theme)}
-        @click=${handleClick}
-        >${buttonText}</a
-      ></span
-    >
+    <div>
+      <span title=${confirmationMessage} class=${notificationConfirmationMessageStyles(theme)}
+        >${confirmationMessage}
+        <a
+          title=${buttonText}
+          class=${notificationConfirmationButtonTextStyles(theme)}
+          @click=${handleClick}
+          >${buttonText}</a
+        ></span
+      >
+      ${children}
+    </div>
   `;
 }
 
