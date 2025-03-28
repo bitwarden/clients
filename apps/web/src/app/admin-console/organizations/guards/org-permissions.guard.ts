@@ -7,7 +7,7 @@ import {
   Router,
   RouterStateSnapshot,
 } from "@angular/router";
-import { firstValueFrom, Observable, switchMap } from "rxjs";
+import { firstValueFrom, isObservable, Observable, switchMap } from "rxjs";
 
 import {
   canAccessOrgAdmin,
@@ -18,6 +18,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
 
@@ -85,12 +86,15 @@ export function organizationPermissionsGuard(
       permissionsCallback == null ||
       runInInjectionContext(environmentInjector, () => permissionsCallback(org));
 
-    const permissionResult =
-      hasPermissions instanceof Promise
-        ? await hasPermissions
-        : hasPermissions instanceof Observable
-          ? await new Promise<boolean>((resolve) => hasPermissions.subscribe(resolve))
-          : hasPermissions;
+    const permissionResult = Utils.isPromise(hasPermissions)
+      ? await hasPermissions
+      : isObservable(hasPermissions)
+        ? await firstValueFrom(hasPermissions)
+        : hasPermissions;
+
+    if (permissionResult !== true && permissionResult !== false) {
+      throw new Error("Permission callback did not resolve to a boolean.");
+    }
 
     if (!permissionResult) {
       // Handle linkable ciphers for organizations the user only has view access to
