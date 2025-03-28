@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { inject } from "@angular/core";
+import { EnvironmentInjector, inject, runInInjectionContext } from "@angular/core";
 import {
   ActivatedRouteSnapshot,
   CanActivateFn,
@@ -60,6 +60,7 @@ export function organizationPermissionsGuard(
     const syncService = inject(SyncService);
     const accountService = inject(AccountService);
     const organizationBillingService = inject(OrganizationBillingServiceAbstraction);
+    const environmentInjector = inject(EnvironmentInjector);
 
     // TODO: We need to fix issue once and for all.
     if ((await syncService.getLastSync()) == null) {
@@ -92,7 +93,8 @@ export function organizationPermissionsGuard(
     };
 
     const hasPermissions =
-      permissionsCallback == null || permissionsCallback(org, callbackServices);
+      permissionsCallback == null ||
+      runInInjectionContext(environmentInjector, () => permissionsCallback(org, callbackServices));
 
     const permissionResult =
       hasPermissions instanceof Promise
