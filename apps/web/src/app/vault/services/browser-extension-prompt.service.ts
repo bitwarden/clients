@@ -54,8 +54,18 @@ export class BrowserExtensionPromptService {
   }
 
   /** Post a message to the extension to open */
-  openExtension() {
+  openExtension(setManualErrorTimeout = false) {
     window.postMessage({ command: VaultMessages.OpenPopup });
+
+    // Optionally, configure timeout to show the manual open error state if
+    // the extension does not open within one second.
+    if (setManualErrorTimeout) {
+      this.clearExtensionCheckTimeout();
+
+      this.extensionCheckTimeout = window.setTimeout(() => {
+        this.setErrorState(BrowserPromptState.ManualOpen);
+      }, 750);
+    }
   }
 
   /** Send message checking for the browser extension */
