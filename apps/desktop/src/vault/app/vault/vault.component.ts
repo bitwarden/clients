@@ -10,7 +10,7 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Subject, takeUntil, switchMap } from "rxjs";
+import { firstValueFrom, Subject, takeUntil, switchMap, lastValueFrom } from "rxjs";
 import { filter, first, map, take } from "rxjs/operators";
 
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
@@ -36,7 +36,12 @@ import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-repromp
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { DecryptionFailureDialogComponent, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  AddEditFolderDialogComponent,
+  AddEditFolderDialogResult,
+  DecryptionFailureDialogComponent,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
 import { invokeMenu, RendererMenuItem } from "../../../utils";
@@ -45,7 +50,6 @@ import { AddEditComponent } from "./add-edit.component";
 import { AttachmentsComponent } from "./attachments.component";
 import { CollectionsComponent } from "./collections.component";
 import { CredentialGeneratorDialogComponent } from "./credential-generator-dialog.component";
-import { FolderAddEditComponent } from "./folder-add-edit.component";
 import { PasswordHistoryComponent } from "./password-history.component";
 import { ShareComponent } from "./share.component";
 import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
@@ -72,8 +76,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   @ViewChild("share", { read: ViewContainerRef, static: true }) shareModalRef: ViewContainerRef;
   @ViewChild("collections", { read: ViewContainerRef, static: true })
   collectionsModalRef: ViewContainerRef;
-  @ViewChild("folderAddEdit", { read: ViewContainerRef, static: true })
-  folderAddEditModalRef: ViewContainerRef;
 
   action: string;
   cipherId: string = null;
@@ -690,33 +692,24 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.messagingService.send("newFolder");
   }
 
-  async editFolder(folderId: string) {
-    if (this.modal != null) {
-      this.modal.close();
+  async editFolder(folder: FolderView) {
+    const dialogRef = AddEditFolderDialogComponent.open(this.dialogService, {
+      editFolderConfig: {
+        folder: {
+          ...folder,
+          name: folder.fullName ?? folder.name,
+        },
+      },
+    });
+
+    const result = await lastValueFrom(dialogRef.closed);
+
+    if (
+      result === AddEditFolderDialogResult.Deleted ||
+      result === AddEditFolderDialogResult.Created
+    ) {
+      await this.vaultFilterComponent.reloadCollectionsAndFolders(this.activeFilter);
     }
-
-    const [modal, childComponent] = await this.modalService.openViewRef(
-      FolderAddEditComponent,
-      this.folderAddEditModalRef,
-      (comp) => (comp.folderId = folderId),
-    );
-    this.modal = modal;
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    childComponent.onSavedFolder.subscribe(async (folder: FolderView) => {
-      this.modal.close();
-      await this.vaultFilterComponent.reloadCollectionsAndFolders(this.activeFilter);
-    });
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    childComponent.onDeletedFolder.subscribe(async (folder: FolderView) => {
-      this.modal.close();
-      await this.vaultFilterComponent.reloadCollectionsAndFolders(this.activeFilter);
-    });
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    this.modal.onClosed.subscribe(() => {
-      this.modal = null;
-    });
   }
 
   private dirtyInput(): boolean {

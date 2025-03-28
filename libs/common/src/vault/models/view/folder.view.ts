@@ -11,6 +11,7 @@ export class FolderView implements View, ITreeNodeObject {
   id: string = null;
   name: string = null;
   revisionDate: Date = null;
+  fullName: string = null;
 
   constructor(f?: Folder | DecryptedObject<Folder, "name">) {
     if (!f) {
