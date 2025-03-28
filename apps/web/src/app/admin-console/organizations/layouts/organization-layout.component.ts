@@ -3,15 +3,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import {
-  combineLatest,
-  filter,
-  map,
-  Observable,
-  switchMap,
-  withLatestFrom,
-  firstValueFrom,
-} from "rxjs";
+import { combineLatest, filter, map, Observable, switchMap, withLatestFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -37,6 +29,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { getById } from "@bitwarden/common/platform/misc";
 import { BannerModule, IconModule } from "@bitwarden/components";
 
+import { SponsoredFamiliesVisibilityService } from "../../../billing/services/sponsored-families-visibility.service";
 import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher.component";
 import { WebLayoutModule } from "../../../layouts/web-layout.module";
 import { AdminConsoleLogo } from "../../icons/admin-console-logo";
@@ -85,6 +78,7 @@ export class OrganizationLayoutComponent implements OnInit {
     private providerService: ProviderService,
     protected bannerService: AccountDeprovisioningBannerService,
     private accountService: AccountService,
+    private sponsoredFamiliesVisibilityService: SponsoredFamiliesVisibilityService,
   ) {}
 
   async ngOnInit() {
@@ -106,29 +100,8 @@ export class OrganizationLayoutComponent implements OnInit {
       map((org) => org.productTierType === ProductTierType.Enterprise),
     );
 
-    this.showSponsoredFamiliesDropdown$ = combineLatest([
-      this.enterpriseOrganization$,
-      this.configService.getFeatureFlag$(FeatureFlag.PM17772_AdminInitiatedSponsorships),
-      this.organization$,
-      this.policyService.policiesByType$(
-        PolicyType.FreeFamiliesSponsorshipPolicy,
-        await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
-      ),
-    ]).pipe(
-      map(([isEnterprise, featureFlagEnabled, organization, policies]) => {
-        const familiesFeatureDisabled = policies.some(
-          (policy) => policy.organizationId === organization.id && policy.enabled,
-        );
-
-        return (
-          isEnterprise &&
-          featureFlagEnabled &&
-          !familiesFeatureDisabled &&
-          organization.useAdminSponsoredFamilies &&
-          (organization.isAdmin || organization.isOwner || organization.canManageUsers)
-        );
-      }),
-    );
+    this.showSponsoredFamiliesDropdown$ =
+      this.sponsoredFamiliesVisibilityService.showSponsoredFamiliesDropdown$(this.organization$);
 
     this.showAccountDeprovisioningBanner$ = combineLatest([
       this.bannerService.showBanner$,
