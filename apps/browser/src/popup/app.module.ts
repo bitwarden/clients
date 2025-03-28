@@ -24,7 +24,6 @@ import { RemovePasswordComponent } from "../auth/popup/remove-password.component
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { VaultTimeoutInputComponent } from "../auth/popup/settings/vault-timeout-input.component";
-import { SsoComponentV1 } from "../auth/popup/sso-v1.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
@@ -89,7 +88,6 @@ import "../platform/popup/locales";
     ColorPasswordPipe,
     ColorPasswordCountPipe,
     SetPasswordComponent,
-    SsoComponentV1,
     TabsV2Component,
     UpdateTempPasswordComponent,
     UserVerificationComponent,

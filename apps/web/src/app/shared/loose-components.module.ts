@@ -42,7 +42,6 @@ import { TwoFactorSetupYubiKeyComponent } from "../auth/settings/two-factor/two-
 import { TwoFactorSetupComponent } from "../auth/settings/two-factor/two-factor-setup.component";
 import { TwoFactorVerifyComponent } from "../auth/settings/two-factor/two-factor-verify.component";
 import { UserVerificationModule } from "../auth/shared/components/user-verification";
-import { SsoComponentV1 } from "../auth/sso-v1.component";
 import { UpdatePasswordComponent } from "../auth/update-password.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { VerifyEmailTokenComponent } from "../auth/verify-email-token.component";
@@ -146,7 +145,6 @@ import { SharedModule } from "./shared.module";
     SetPasswordComponent,
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
-    SsoComponentV1,
     TwoFactorSetupAuthenticatorComponent,
     TwoFactorSetupDuoComponent,
     TwoFactorSetupEmailComponent,
@@ -206,7 +204,6 @@ import { SharedModule } from "./shared.module";
     SetPasswordComponent,
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
-    SsoComponentV1,
     TwoFactorSetupAuthenticatorComponent,
     TwoFactorSetupDuoComponent,
     TwoFactorSetupEmailComponent,
