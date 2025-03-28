@@ -353,7 +353,7 @@ function openViewVaultItemPopout(e: Event, cipherId: string) {
 
 function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
   const { theme, type } = notificationBarIframeInitData;
-  const { error, username, cipherId } = message;
+  const { error, username, cipherId, task } = message;
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
 
@@ -368,6 +368,7 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
       i18n,
       error,
       username: username ?? i18n.typeLogin,
+      task,
       handleOpenVault: (e) => cipherId && openViewVaultItemPopout(e, cipherId),
     }),
     document.body,
