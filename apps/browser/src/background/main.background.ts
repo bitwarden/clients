@@ -1184,6 +1184,7 @@ export default class MainBackground {
       this.authService,
       () => this.generatePasswordToClipboard(),
     );
+
     this.notificationBackground = new NotificationBackground(
       this.accountService,
       this.authService,
@@ -1198,6 +1199,7 @@ export default class MainBackground {
       this.policyService,
       this.themeStateService,
       this.userNotificationSettingsService,
+      this.taskService,
     );
 
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(
