@@ -1,6 +1,8 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AuthRequestUpdateRequest } from "@bitwarden/common/auth/models/request/auth-request-update.request";
 import { AuthRequest } from "@bitwarden/common/auth/models/request/auth.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { AuthRequestApiService } from "../../abstractions/auth-request-api.service";
@@ -74,5 +76,20 @@ export class DefaultAuthRequestApiService implements AuthRequestApiService {
       this.logService.error(e);
       throw e;
     }
+  }
+
+  async putAuthRequest(
+    id: string,
+    request: AuthRequestUpdateRequest,
+  ): Promise<AuthRequestResponse> {
+    const path = `/auth-requests/${id}`;
+    const r = await this.apiService.send("PUT", path, request, true, true);
+    return new AuthRequestResponse(r);
+  }
+
+  async getAuthRequests(): Promise<ListResponse<AuthRequestResponse>> {
+    const path = `/auth-requests/`;
+    const r = await this.apiService.send("GET", path, null, true, true);
+    return new ListResponse(r, AuthRequestResponse);
   }
 }

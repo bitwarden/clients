@@ -39,6 +39,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KdfType, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import {
+  AuthRequestApiService,
   AuthRequestServiceAbstraction,
   InternalUserDecryptionOptionsServiceAbstraction,
 } from "../../abstractions";
@@ -75,6 +76,7 @@ describe("LoginStrategyService", () => {
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let taskSchedulerService: MockProxy<TaskSchedulerService>;
+  let authRequestApiService: MockProxy<AuthRequestApiService>;
 
   let stateProvider: FakeGlobalStateProvider;
   let loginStrategyCacheExpirationState: FakeGlobalState<Date | null>;
@@ -107,6 +109,7 @@ describe("LoginStrategyService", () => {
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     kdfConfigService = mock<KdfConfigService>();
     taskSchedulerService = mock<TaskSchedulerService>();
+    authRequestApiService = mock<AuthRequestApiService>();
 
     sut = new LoginStrategyService(
       accountService,
@@ -134,6 +137,7 @@ describe("LoginStrategyService", () => {
       vaultTimeoutSettingsService,
       kdfConfigService,
       taskSchedulerService,
+      authRequestApiService,
     );
 
     loginStrategyCacheExpirationState = stateProvider.getFake(CACHE_EXPIRATION_KEY);

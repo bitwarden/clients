@@ -4,10 +4,10 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import {
+  AuthRequestApiService,
   AuthRequestServiceAbstraction,
   LoginApprovalComponentServiceAbstraction,
 } from "@bitwarden/auth/common";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
@@ -26,7 +26,7 @@ describe("LoginApprovalComponent", () => {
 
   let authRequestService: MockProxy<AuthRequestServiceAbstraction>;
   let accountService: MockProxy<AccountService>;
-  let apiService: MockProxy<ApiService>;
+  let apiService: MockProxy<AuthRequestApiService>;
   let i18nService: MockProxy<I18nService>;
   let dialogRef: MockProxy<DialogRef>;
   let toastService: MockProxy<ToastService>;
@@ -39,7 +39,7 @@ describe("LoginApprovalComponent", () => {
   beforeEach(async () => {
     authRequestService = mock<AuthRequestServiceAbstraction>();
     accountService = mock<AccountService>();
-    apiService = mock<ApiService>();
+    apiService = mock<AuthRequestApiService>();
     i18nService = mock<I18nService>();
     dialogRef = mock<DialogRef>();
     toastService = mock<ToastService>();
@@ -60,7 +60,7 @@ describe("LoginApprovalComponent", () => {
         { provide: AccountService, useValue: accountService },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: I18nService, useValue: i18nService },
-        { provide: ApiService, useValue: apiService },
+        { provide: AuthRequestApiService, useValue: apiService },
         { provide: AppIdService, useValue: mock<AppIdService>() },
         { provide: KeyService, useValue: mock<KeyService>() },
         { provide: DialogRef, useValue: dialogRef },

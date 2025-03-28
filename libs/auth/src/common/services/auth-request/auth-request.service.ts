@@ -3,10 +3,9 @@
 import { Observable, Subject, firstValueFrom } from "rxjs";
 import { Jsonify } from "type-fest";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/admin-auth-req-storable";
-import { PasswordlessAuthRequest } from "@bitwarden/common/auth/models/request/passwordless-auth.request";
+import { AuthRequestUpdateRequest } from "@bitwarden/common/auth/models/request/auth-request-update.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -24,6 +23,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
+import { AuthRequestApiService } from "../../abstractions";
 import { AuthRequestServiceAbstraction } from "../../abstractions/auth-request.service.abstraction";
 
 /**
@@ -53,7 +53,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private keyService: KeyService,
     private encryptService: EncryptService,
-    private apiService: ApiService,
+    private apiService: AuthRequestApiService,
     private stateProvider: StateProvider,
   ) {
     this.authRequestPushNotification$ = this.authRequestPushNotificationSubject.asObservable();
@@ -124,7 +124,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
 
     const encryptedKey = await this.encryptService.rsaEncrypt(keyToEncrypt, pubKey);
 
-    const response = new PasswordlessAuthRequest(
+    const response = new AuthRequestUpdateRequest(
       encryptedKey.encryptedString,
       encryptedMasterKeyHash?.encryptedString,
       await this.appIdService.getAppId(),
@@ -201,6 +201,17 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
       masterKey,
       masterKeyHash,
     };
+  }
+
+  async getLastAuthRequest(): Promise<AuthRequestResponse> {
+    const requests = await this.apiService.getAuthRequests();
+    const activeRequests = requests.data.filter(
+      (m: AuthRequestResponse) => !m.isAnswered && !m.isExpired,
+    );
+    const lastRequest = activeRequests.sort((a: AuthRequestResponse, b: AuthRequestResponse) =>
+      a.creationDate.localeCompare(b.creationDate),
+    )[activeRequests.length - 1];
+    return lastRequest;
   }
 
   sendAuthRequestPushNotification(notification: AuthRequestPushNotification): void {

@@ -45,7 +45,11 @@ import {
   KdfConfigService,
 } from "@bitwarden/key-management";
 
-import { AuthRequestServiceAbstraction, LoginStrategyServiceAbstraction } from "../../abstractions";
+import {
+  AuthRequestApiService,
+  AuthRequestServiceAbstraction,
+  LoginStrategyServiceAbstraction,
+} from "../../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";
 import {
   AuthRequestLoginStrategy,
@@ -131,6 +135,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     protected vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     protected kdfConfigService: KdfConfigService,
     protected taskSchedulerService: TaskSchedulerService,
+    protected authRequestApiService: AuthRequestApiService,
   ) {
     this.currentAuthnTypeState = this.stateProvider.get(CURRENT_LOGIN_STRATEGY_KEY);
     this.loginStrategyCacheState = this.stateProvider.get(CACHE_KEY);
@@ -426,6 +431,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               this.deviceTrustService,
               this.authRequestService,
               this.i18nService,
+              this.authRequestApiService,
               ...sharedDeps,
             );
           case AuthenticationType.UserApiKey:

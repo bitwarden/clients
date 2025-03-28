@@ -16,7 +16,7 @@ import { filter, first, map, take } from "rxjs/operators";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AuthRequestService } from "@bitwarden/auth/common";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -110,7 +110,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private totpService: TotpService,
     private passwordRepromptService: PasswordRepromptService,
     private searchBarService: SearchBarService,
-    private apiService: ApiService,
+    private authRequestService: AuthRequestService,
     private dialogService: DialogService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private toastService: ToastService,
@@ -231,7 +231,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.searchBarService.setEnabled(true);
     this.searchBarService.setPlaceholderText(this.i18nService.t("searchVault"));
 
-    const authRequest = await this.apiService.getLastAuthRequest();
+    const authRequest = await this.authRequestService.getLastAuthRequest();
     if (authRequest != null) {
       this.messagingService.send("openLoginApproval", {
         notificationId: authRequest.id,
