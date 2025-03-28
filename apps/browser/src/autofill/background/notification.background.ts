@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, switchMap } from "rxjs";
+import { firstValueFrom, switchMap, map } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -33,6 +33,13 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
+/* eslint-disable-next-line no-restricted-imports */
+import { TaskService } from "../../../../../libs/vault/src/tasks/abstractions/task.service";
+/* eslint-disable-next-line no-restricted-imports */
+import { SecurityTaskType } from "../../../../../libs/vault/src/tasks/enums";
+/* eslint-disable-next-line no-restricted-imports */
+import { SecurityTask } from "../../../../../libs/vault/src/tasks/models/security-task";
+// import { DefaultTaskService, SecurityTaskType } from "../../../../../libs/vault/src/tasks/services/default-task.service";
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { openAddEditVaultItemPopout } from "../../vault/popup/utils/vault-popout-window";
@@ -106,6 +113,7 @@ export default class NotificationBackground {
     private policyService: PolicyService,
     private themeStateService: ThemeStateService,
     private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
+    private taskService: TaskService,
   ) {}
 
   init() {
@@ -154,10 +162,26 @@ export default class NotificationBackground {
       firstValueFrom(this.domainSettingsService.showFavicons$),
       firstValueFrom(this.environmentService.environment$),
     ]);
+
     const iconsServerUrl = env.getIconsUrl();
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
+
+    let tasks: SecurityTask[] = [];
+
+    if (activeUserId) {
+      tasks = await firstValueFrom(
+        this.taskService
+          .pendingTasks$(activeUserId)
+          .pipe(
+            map((tasks) =>
+              tasks.filter(({ type }) => type === SecurityTaskType.UpdateAtRiskCredential),
+            ),
+          ),
+      );
+    }
+
     const decryptedCiphers = await this.cipherService.getAllDecryptedForUrl(
       currentTab.url,
       activeUserId,
@@ -165,6 +189,8 @@ export default class NotificationBackground {
 
     return decryptedCiphers.map((view) => {
       const { id, name, reprompt, favorite, login } = view;
+      const cipherTask = tasks.find(({ cipherId }) => cipherId === id);
+
       return {
         id,
         name,
@@ -175,6 +201,7 @@ export default class NotificationBackground {
         login: login && {
           username: login.username,
         },
+        task: cipherTask,
       };
     });
   }
