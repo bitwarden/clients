@@ -147,7 +147,6 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     await this.masterPasswordService.clearMasterKey(lockingUserId);
 
     await this.stateService.setUserKeyAutoUnlock(null, { userId: lockingUserId });
-    await this.stateService.setCryptoMasterKeyAuto(null, { userId: lockingUserId });
 
     await this.cipherService.clearCache(lockingUserId);
 

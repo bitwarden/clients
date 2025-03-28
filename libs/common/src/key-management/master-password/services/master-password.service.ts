@@ -163,19 +163,6 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
       throw new Error("No master key found.");
     }
 
-    // Try one more way to get the user key if it still wasn't found.
-    if (userKey == null) {
-      const deprecatedKey = await this.stateService.getEncryptedCryptoSymmetricKey({
-        userId: userId,
-      });
-
-      if (deprecatedKey == null) {
-        throw new Error("No encrypted user key found.");
-      }
-
-      userKey = new EncString(deprecatedKey);
-    }
-
     let decUserKey: Uint8Array;
 
     if (userKey.encryptionType === EncryptionType.AesCbc256_B64) {
