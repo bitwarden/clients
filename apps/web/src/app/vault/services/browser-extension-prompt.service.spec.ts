@@ -68,7 +68,9 @@ describe("BrowserExtensionPromptService", () => {
       );
 
       expect(window.postMessage).toHaveBeenCalledTimes(2);
-      expect(window.postMessage).toHaveBeenCalledWith({ command: VaultMessages.OpenPopup });
+      expect(window.postMessage).toHaveBeenCalledWith({
+        command: VaultMessages.OpenAtRiskPasswords,
+      });
     });
   });
 

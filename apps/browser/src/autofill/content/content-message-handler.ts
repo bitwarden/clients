@@ -17,7 +17,7 @@ const windowMessageHandlers: ContentMessageWindowEventHandlers = {
   [VaultMessages.checkBwInstalled]: () => handleExtensionInstallCheck(),
   duoResult: ({ data, referrer }: { data: any; referrer: string }) =>
     handleDuoResultMessage(data, referrer),
-  [VaultMessages.OpenPopup]: () => handleOpenPopupMessage(),
+  [VaultMessages.OpenAtRiskPasswords]: () => handleOpenAtRiskPasswordsMessage(),
 };
 
 /**
@@ -73,8 +73,8 @@ function handleWebAuthnResultMessage(data: ContentMessageWindowData, referrer: s
   sendExtensionRuntimeMessage({ command, data: data.data, remember, referrer });
 }
 
-function handleOpenPopupMessage() {
-  sendExtensionRuntimeMessage({ command: VaultMessages.OpenPopup });
+function handleOpenAtRiskPasswordsMessage() {
+  sendExtensionRuntimeMessage({ command: VaultMessages.OpenAtRiskPasswords });
 }
 
 /**
