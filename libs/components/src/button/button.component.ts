@@ -4,6 +4,7 @@ import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass } from "@angular/common";
 import { Input, HostBinding, Component, model, computed } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { cva } from "class-variance-authority";
 import { debounce, interval } from "rxjs";
 
 import { ButtonLikeAbstraction, ButtonType } from "../shared/button-like.abstraction";
@@ -14,36 +15,71 @@ const focusRing = [
   "focus-visible:tw-ring-primary-600",
   "focus-visible:tw-z-10",
 ];
-
-const buttonStyles: Record<ButtonType, string[]> = {
-  primary: [
-    "tw-border-primary-600",
-    "tw-bg-primary-600",
-    "!tw-text-contrast",
-    "hover:tw-bg-primary-700",
-    "hover:tw-border-primary-700",
-    ...focusRing,
+const button = cva(
+  [
+    "tw-font-semibold",
+    "tw-py-1.5",
+    "tw-px-3",
+    "tw-rounded-full",
+    "tw-transition",
+    "tw-border-2",
+    "tw-border-solid",
+    "tw-text-center",
+    "tw-no-underline",
+    "hover:tw-no-underline",
+    "focus:tw-outline-none",
   ],
-  secondary: [
-    "tw-bg-transparent",
-    "tw-border-primary-600",
-    "!tw-text-primary-600",
-    "hover:tw-bg-primary-600",
-    "hover:tw-border-primary-600",
-    "hover:!tw-text-contrast",
-    ...focusRing,
-  ],
-  danger: [
-    "tw-bg-transparent",
-    "tw-border-danger-600",
-    "!tw-text-danger",
-    "hover:tw-bg-danger-600",
-    "hover:tw-border-danger-600",
-    "hover:!tw-text-contrast",
-    ...focusRing,
-  ],
-  unstyled: [],
-};
+  {
+    variants: {
+      variant: {
+        primary: [
+          "tw-border-primary-600",
+          "tw-bg-primary-600",
+          "!tw-text-contrast",
+          "hover:tw-bg-primary-700",
+          "hover:tw-border-primary-700",
+          ...focusRing,
+        ],
+        secondary: [
+          "tw-bg-transparent",
+          "tw-border-primary-600",
+          "!tw-text-primary-600",
+          "hover:tw-bg-primary-600",
+          "hover:tw-border-primary-600",
+          "hover:!tw-text-contrast",
+          ...focusRing,
+        ],
+        danger: [
+          "tw-bg-transparent",
+          "tw-border-danger-600",
+          "!tw-text-danger",
+          "hover:tw-bg-danger-600",
+          "hover:tw-border-danger-600",
+          "hover:!tw-text-contrast",
+          ...focusRing,
+        ],
+        unstyled: [],
+      },
+      disabled: {
+        true: [
+          "disabled:tw-bg-secondary-300",
+          "disabled:hover:tw-bg-secondary-300",
+          "disabled:tw-border-secondary-300",
+          "disabled:hover:tw-border-secondary-300",
+          "disabled:!tw-text-muted",
+          "disabled:hover:!tw-text-muted",
+          "disabled:tw-cursor-not-allowed",
+          "disabled:hover:tw-no-underline",
+        ],
+        false: null,
+      },
+      block: {
+        true: ["tw-w-full", "tw-block"],
+        false: ["tw-inline-block"],
+      },
+    },
+  },
+);
 
 @Component({
   selector: "button[bitButton], a[bitButton]",
@@ -57,35 +93,11 @@ const buttonStyles: Record<ButtonType, string[]> = {
 })
 export class ButtonComponent implements ButtonLikeAbstraction {
   @HostBinding("class") get classList() {
-    return [
-      "tw-font-semibold",
-      "tw-py-1.5",
-      "tw-px-3",
-      "tw-rounded-full",
-      "tw-transition",
-      "tw-border-2",
-      "tw-border-solid",
-      "tw-text-center",
-      "tw-no-underline",
-      "hover:tw-no-underline",
-      "focus:tw-outline-none",
-    ]
-      .concat(this.block ? ["tw-w-full", "tw-block"] : ["tw-inline-block"])
-      .concat(buttonStyles[this.buttonType ?? "secondary"])
-      .concat(
-        this.showDisabledStyles() || this.disabled()
-          ? [
-              "disabled:tw-bg-secondary-300",
-              "disabled:hover:tw-bg-secondary-300",
-              "disabled:tw-border-secondary-300",
-              "disabled:hover:tw-border-secondary-300",
-              "disabled:!tw-text-muted",
-              "disabled:hover:!tw-text-muted",
-              "disabled:tw-cursor-not-allowed",
-              "disabled:hover:tw-no-underline",
-            ]
-          : [],
-      );
+    return button({
+      variant: this.buttonType ?? "secondary",
+      block: this.block,
+      disabled: this.showDisabledStyles() || this.disabled(),
+    });
   }
 
   protected disabledAttr = computed(() => {
