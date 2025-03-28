@@ -1126,7 +1126,20 @@ jobs:
           $package = Get-Content -Raw -Path electron-builder.json | ConvertFrom-Json
           $package | Add-Member -MemberType NoteProperty -Name buildVersion -Value "$env:BUILD_NUMBER"
           $package | ConvertTo-Json -Depth 32 | Set-Content -Path electron-builder.json
+
+          $buildInfo = @{
+            buildNumber = $env:BUILD_NUMBER
+          }
+          $buildInfo | ConvertTo-Json | Set-Content -Path apps/desktop/dist/macos-build-number.json
+
           Write-Output "### MacOS App Store build number: $env:BUILD_NUMBER"
+          
+      - name: Upload MacOS App Store build number artifact
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: macos-build-number.json
+          path: apps/desktop/dist/macos-build-number.json
+          if-no-files-found: error
 
       - name: Install Node dependencies
         run: npm ci
