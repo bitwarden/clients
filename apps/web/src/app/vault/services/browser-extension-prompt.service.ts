@@ -55,7 +55,7 @@ export class BrowserExtensionPromptService {
 
   /** Post a message to the extension to open */
   openExtension() {
-    window.postMessage({ command: VaultMessages.OpenPopup });
+    window.postMessage({ command: VaultMessages.OpenAtRiskPasswords });
   }
 
   /** Send message checking for the browser extension */
