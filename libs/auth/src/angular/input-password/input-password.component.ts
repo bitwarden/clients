@@ -50,12 +50,12 @@ export enum InputPasswordFlow {
    * Everything above, plus:
    * - Input: Current password (as the first element in the UI)
    */
-  ChangeExistingPassword,
+  ChangePassword,
   /**
    * Everything above, plus:
    * - Checkbox: Rotate account encryption key (as the last element in the UI)
    */
-  ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey,
+  ChangePasswordWithOptionalUserKeyRotation,
 }
 
 @Component({
@@ -152,7 +152,7 @@ export class InputPasswordComponent implements OnInit {
       (this.formGroup as FormGroup<any>).removeControl("rotateAccountEncryptionKey");
     }
 
-    if (this.inputPasswordFlow === InputPasswordFlow.ChangeExistingPassword) {
+    if (this.inputPasswordFlow === InputPasswordFlow.ChangePassword) {
       // https://github.com/angular/angular/issues/48794
       (this.formGroup as FormGroup<any>).removeControl("rotateAccountEncryptionKey");
     }
@@ -228,17 +228,13 @@ export class InputPasswordComponent implements OnInit {
     };
 
     if (
-      this.inputPasswordFlow === InputPasswordFlow.ChangeExistingPassword ||
-      this.inputPasswordFlow ===
-        InputPasswordFlow.ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey
+      this.inputPasswordFlow === InputPasswordFlow.ChangePassword ||
+      this.inputPasswordFlow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
     ) {
       passwordInputResult.currentPassword = this.formGroup.controls.currentPassword.value;
     }
 
-    if (
-      this.inputPasswordFlow ===
-      InputPasswordFlow.ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey
-    ) {
+    if (this.inputPasswordFlow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation) {
       passwordInputResult.rotateAccountEncryptionKey =
         this.formGroup.controls.rotateAccountEncryptionKey.value;
     }
