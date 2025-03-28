@@ -44,14 +44,7 @@ export class PopupRouterCacheService {
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),
-        tap((event: NavigationEnd) => {
-          // Add ability to navigate back to the vault if the initial route query param is set
-          // Without this logic, if the initial route tries to navigate back without a history,
-          // location.back won't navigate at all.
-          if (event.url.includes("initialRoute=true")) {
-            return;
-          }
-
+        tap(() => {
           // `Location.back()` can now be called successfully
           this.hasNavigated = true;
         }),
