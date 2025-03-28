@@ -224,7 +224,6 @@ export class InputPasswordComponent implements OnInit {
       }
     }
 
-    // 2. Evaluate new password
     const newPasswordEvaluatedSuccessfully = await this.evaluateNewPassword(
       this.newPassword,
       this.passwordStrengthScore,
@@ -247,7 +246,11 @@ export class InputPasswordComponent implements OnInit {
       kdfConfig,
     );
 
-    const masterKeyHash = await this.keyService.hashMasterKey(this.newPassword, masterKey);
+    const serverMasterKeyHash = await this.keyService.hashMasterKey(
+      this.newPassword,
+      masterKey,
+      HashPurpose.ServerAuthorization,
+    );
 
     const localMasterKeyHash = await this.keyService.hashMasterKey(
       this.newPassword,
@@ -261,7 +264,7 @@ export class InputPasswordComponent implements OnInit {
       hint: this.hint,
       kdfConfig,
       masterKey,
-      masterKeyHash,
+      serverMasterKeyHash,
       localMasterKeyHash,
     };
 

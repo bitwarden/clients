@@ -6,7 +6,7 @@ export interface PasswordInputResult {
   hint: string;
   kdfConfig: KdfConfig;
   masterKey: MasterKey;
-  masterKeyHash: string;
+  serverMasterKeyHash: string;
   localMasterKeyHash: string;
   currentPassword?: string;
   rotateAccountEncryptionKey?: boolean;
