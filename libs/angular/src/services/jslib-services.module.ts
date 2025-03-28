@@ -309,7 +309,6 @@ import {
   DefaultTaskService,
   DefaultEndUserNotificationService,
   EndUserNotificationService,
-  NewDeviceVerificationNoticeService,
   PasswordRepromptService,
   TaskService,
 } from "@bitwarden/vault";
@@ -1448,7 +1447,6 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultLoginDecryptionOptionsService,
     deps: [MessagingServiceAbstraction],
   }),
-  safeProvider(NewDeviceVerificationNoticeService),
   safeProvider({
     provide: UserAsymmetricKeysRegenerationApiService,
     useClass: DefaultUserAsymmetricKeysRegenerationApiService,
