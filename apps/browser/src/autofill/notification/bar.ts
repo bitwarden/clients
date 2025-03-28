@@ -9,6 +9,7 @@ import { NotificationCipherData } from "../content/components/cipher/types";
 import { OrgView } from "../content/components/common-types";
 import { NotificationConfirmationContainer } from "../content/components/notification/confirmation-container";
 import { NotificationContainer } from "../content/components/notification/container";
+import { OptionSelection } from "../content/components/option-selection/option-selection";
 import { buildSvgDomElement } from "../utils";
 import { circleCheckIcon } from "../utils/svg-icons";
 
@@ -41,6 +42,7 @@ function load() {
     applyNotificationBarStyle();
   });
 }
+
 function applyNotificationBarStyle() {
   if (!useComponentBar) {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -247,10 +249,22 @@ function handleCloseNotification(e: Event) {
 
 function handleSaveAction(e: Event) {
   e.preventDefault();
+  const folderId = getFolderId();
 
-  sendSaveCipherMessage(removeIndividualVault());
+  sendSaveCipherMessage(removeIndividualVault(), folderId);
   if (removeIndividualVault()) {
     return;
+  }
+}
+
+function getFolderId(): string {
+  const optionSelectionElement = document.querySelector("option-selection") as OptionSelection;
+  if (!optionSelectionElement) {
+    return "0";
+  }
+
+  if (optionSelectionElement["selection"] && optionSelectionElement["selection"].value) {
+    return optionSelectionElement["selection"].value;
   }
 }
 
