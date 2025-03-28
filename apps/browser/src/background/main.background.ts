@@ -1621,6 +1621,12 @@ export default class MainBackground {
     await browserAction.setPopup({ popup: "popup/index.html#/at-risk-passwords" });
 
     await this.openPopup();
+
+    // Reset the popup route to the default route so any subsequent
+    // popup openings will not open to the at-risk-passwords page.
+    await browserAction.setPopup({
+      popup: "popup/index.html#/",
+    });
   }
 
   async reseedStorage() {
