@@ -48,11 +48,12 @@ export class MenuTriggerForDirective implements OnDestroy {
           overlayX: "start",
           overlayY: "top",
         },
+        // Fallback position: show above the trigger
         {
-          originX: "end",
-          originY: "bottom",
-          overlayX: "end",
-          overlayY: "top",
+          originX: "start",
+          originY: "top",
+          overlayX: "start",
+          overlayY: "bottom",
         },
       ])
       .withLockedPosition(true)
