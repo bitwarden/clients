@@ -9,7 +9,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { StateProvider } from "@bitwarden/common/platform/state";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { EmergencyAccessId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -40,6 +40,9 @@ import { DownloadAttachmentComponent } from "../../components/download-attachmen
 })
 export class AttachmentsV2ViewComponent {
   @Input() cipher: CipherView;
+
+  // Required for fetching attachment data when viewed from cipher via emergency access
+  @Input() emergencyAccessId?: EmergencyAccessId;
 
   canAccessPremium: boolean;
   orgKey: OrgKey;
