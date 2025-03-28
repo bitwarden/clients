@@ -5,11 +5,11 @@ import { BaseResponse } from "./base.response";
 export class MessageResponse implements BaseResponse {
   object: string;
   title: string;
-  message: string;
+  message: string | null;
   raw: string;
   noColor = false;
 
-  constructor(title: string, message: string) {
+  constructor(title: string, message: string | null) {
     this.object = "message";
     this.title = title;
     this.message = message;

@@ -2,7 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { MockProxy, mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { EmptyComponent } from "@bitwarden/angular/platform/guard/feature-flag.guard.spec";
 import {
@@ -30,9 +30,7 @@ describe("AuthGuard", () => {
     authService.getAuthStatus.mockResolvedValue(authStatus);
     const messagingService: MockProxy<MessagingService> = mock<MessagingService>();
     const keyConnectorService: MockProxy<KeyConnectorService> = mock<KeyConnectorService>();
-    keyConnectorService.getConvertAccountRequired.mockResolvedValue(
-      keyConnectorServiceRequiresAccountConversion,
-    );
+    keyConnectorService.convertAccountRequired$ = of(keyConnectorServiceRequiresAccountConversion);
     const accountService: MockProxy<AccountService> = mock<AccountService>();
     const activeAccountSubject = new BehaviorSubject<Account | null>(null);
     accountService.activeAccount$ = activeAccountSubject;
