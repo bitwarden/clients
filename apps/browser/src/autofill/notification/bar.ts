@@ -9,7 +9,7 @@ import { NotificationCipherData } from "../content/components/cipher/types";
 import { OrgView } from "../content/components/common-types";
 import { NotificationConfirmationContainer } from "../content/components/notification/confirmation-container";
 import { NotificationContainer } from "../content/components/notification/container";
-import { OptionSelection } from "../content/components/option-selection/option-selection";
+import { selectedFolder as selectedFolderSignal } from "../content/components/signals/selected-folder";
 import { buildSvgDomElement } from "../utils";
 import { circleCheckIcon } from "../utils/svg-icons";
 
@@ -249,22 +249,12 @@ function handleCloseNotification(e: Event) {
 
 function handleSaveAction(e: Event) {
   e.preventDefault();
-  const folderId = getFolderId();
 
-  sendSaveCipherMessage(removeIndividualVault(), folderId);
+  const selectedFolder = selectedFolderSignal.get();
+
+  sendSaveCipherMessage(removeIndividualVault(), selectedFolder);
   if (removeIndividualVault()) {
     return;
-  }
-}
-
-function getFolderId(): string {
-  const optionSelectionElement = document.querySelector("option-selection") as OptionSelection;
-  if (!optionSelectionElement) {
-    return "0";
-  }
-
-  if (optionSelectionElement["selection"] && optionSelectionElement["selection"].value) {
-    return optionSelectionElement["selection"].value;
   }
 }
 
