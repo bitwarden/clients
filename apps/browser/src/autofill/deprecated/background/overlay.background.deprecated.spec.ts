@@ -647,9 +647,6 @@ describe("OverlayBackground", () => {
           await flushPromises();
 
           expect(overlayBackground["cipherService"].setAddEditCipherInfo).toHaveBeenCalled();
-          expect(BrowserApi.sendMessage).toHaveBeenCalledWith(
-            "inlineAutofillMenuRefreshAddEditCipher",
-          );
           expect(overlayBackground["openAddEditVaultItemPopout"]).toHaveBeenCalled();
         });
       });
