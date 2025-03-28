@@ -1,5 +1,7 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
+import { Icon, isIcon } from "../icon";
+import { IconModule } from "../icon/icon.module";
 import { IconButtonModule } from "../icon-button";
 import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
@@ -29,9 +31,10 @@ const variants: Record<ToastVariant, { icon: string; bgColor: string }> = {
   selector: "bit-toast",
   templateUrl: "toast.component.html",
   standalone: true,
-  imports: [SharedModule, IconButtonModule, TypographyModule],
+  imports: [SharedModule, IconButtonModule, TypographyModule, IconModule],
 })
 export class ToastComponent {
+  /** The variant of the toast */
   @Input() variant: ToastVariant = "info";
 
   /**
@@ -50,10 +53,25 @@ export class ToastComponent {
    **/
   @Input() progressWidth = 0;
 
+  /** An optional icon that overrides the existing variant definition
+   * string if you want to a use a font icon, or an Icon object if you want to use an SVG icon.
+   */
+  @Input() icon?: string | Icon;
+
   /** Emits when the user presses the close button */
   @Output() onClose = new EventEmitter<void>();
 
+  /**
+   * Checks if the provided icon is type of Icon and when that is true returns an Icon
+   */
+  protected isIcon(icon: unknown): icon is Icon {
+    return isIcon(icon);
+  }
+
   protected get iconClass(): string {
+    if (typeof this.icon === "string" && this.icon !== "") {
+      return this.icon;
+    }
     return variants[this.variant].icon;
   }
 
