@@ -5,14 +5,14 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 import { openPasswordHistoryDialog } from "@bitwarden/vault";
 
-import { WebViewPasswordHistoryService } from "./web-view-password-history.service";
+import { DesktopViewPasswordHistoryService } from "./desktop-view-password-history.service";
 
 jest.mock("@bitwarden/vault", () => ({
   openPasswordHistoryDialog: jest.fn(),
 }));
 
-describe("WebViewPasswordHistoryService", () => {
-  let service: WebViewPasswordHistoryService;
+describe("DesktopViewPasswordHistoryService", () => {
+  let service: DesktopViewPasswordHistoryService;
   let dialogService: DialogService;
 
   beforeEach(async () => {
@@ -22,13 +22,13 @@ describe("WebViewPasswordHistoryService", () => {
 
     await TestBed.configureTestingModule({
       providers: [
-        WebViewPasswordHistoryService,
+        DesktopViewPasswordHistoryService,
         { provide: DialogService, useValue: mockDialogService },
         Overlay,
       ],
     }).compileComponents();
 
-    service = TestBed.inject(WebViewPasswordHistoryService);
+    service = TestBed.inject(DesktopViewPasswordHistoryService);
     dialogService = TestBed.inject(DialogService);
   });
 

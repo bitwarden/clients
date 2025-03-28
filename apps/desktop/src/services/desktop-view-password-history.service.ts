@@ -9,7 +9,7 @@ import { openPasswordHistoryDialog } from "@bitwarden/vault";
  * This service is used to display the password history dialog in the web vault.
  */
 @Injectable()
-export class WebViewPasswordHistoryService implements ViewPasswordHistoryService {
+export class DesktopViewPasswordHistoryService implements ViewPasswordHistoryService {
   constructor(private dialogService: DialogService) {}
 
   /**

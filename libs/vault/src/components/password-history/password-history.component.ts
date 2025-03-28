@@ -5,10 +5,14 @@ import { CommonModule } from "@angular/common";
 import { Inject, Component } from "@angular/core";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { AsyncActionsModule, DialogModule, DialogService } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  DialogModule,
+  DialogService,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { PasswordHistoryViewComponent } from "@bitwarden/vault";
-
-import { SharedModule } from "../../shared/shared.module";
 
 /**
  * The parameters for the password history dialog.
@@ -25,10 +29,11 @@ export interface ViewPasswordHistoryDialogParams {
   templateUrl: "password-history.component.html",
   standalone: true,
   imports: [
+    ButtonModule,
     CommonModule,
     AsyncActionsModule,
+    I18nPipe,
     DialogModule,
-    SharedModule,
     PasswordHistoryViewComponent,
   ],
 })
