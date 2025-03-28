@@ -682,7 +682,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   private refreshSalesTax(): void {
-    if (this.formGroup.controls.plan.value == PlanType.Free) {
+    if (this.formGroup.controls.plan.value == PlanType.Free || this.acceptingSponsorship === true) {
       this.estimatedTax = 0;
       return;
     }
