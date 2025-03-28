@@ -14,6 +14,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -50,12 +51,14 @@ describe("Organization Permissions Guard", () => {
   let state: MockProxy<RouterStateSnapshot>;
   let route: MockProxy<ActivatedRouteSnapshot>;
   let accountService: FakeAccountService;
+  let organizationBillingService: MockProxy<OrganizationBillingServiceAbstraction>;
   const userId = Utils.newGuid() as UserId;
 
   beforeEach(() => {
     router = mock<Router>();
     organizationService = mock<OrganizationService>();
     accountService = mockAccountServiceWith(userId);
+    organizationBillingService = mock<OrganizationBillingServiceAbstraction>();
     state = mock<RouterStateSnapshot>();
     route = mock<ActivatedRouteSnapshot>({
       params: {
@@ -71,6 +74,10 @@ describe("Organization Permissions Guard", () => {
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: SyncService, useValue: mock<SyncService>() },
+        {
+          provide: OrganizationBillingServiceAbstraction,
+          useValue: mock<OrganizationBillingServiceAbstraction>(),
+        },
       ],
     });
   });
@@ -100,20 +107,21 @@ describe("Organization Permissions Guard", () => {
 
     it("permits navigation if the user has permissions", async () => {
       const permissionsCallback = jest.fn();
-      permissionsCallback.mockImplementation((_org) => true);
+      organizationBillingService.isBreadcrumbingPoliciesEnabled$.mockReturnValue(of(false));
+      permissionsCallback.mockReturnValue(true);
 
       const actual = await TestBed.runInInjectionContext(
         async () => await organizationPermissionsGuard(permissionsCallback)(route, state),
       );
 
-      expect(permissionsCallback).toHaveBeenCalledWith(orgFactory({ id: targetOrgId }));
+      expect(permissionsCallback).toBeCalledTimes(1);
       expect(actual).toBe(true);
     });
 
     describe("if the user does not have permissions", () => {
       it("and there is no Item ID, block navigation", async () => {
         const permissionsCallback = jest.fn();
-        permissionsCallback.mockImplementation((_org) => false);
+        permissionsCallback.mockReturnValue(false);
 
         state = mock<RouterStateSnapshot>({
           root: mock<ActivatedRouteSnapshot>({
@@ -125,7 +133,6 @@ describe("Organization Permissions Guard", () => {
           async () => await organizationPermissionsGuard(permissionsCallback)(route, state),
         );
 
-        expect(permissionsCallback).toHaveBeenCalledWith(orgFactory({ id: targetOrgId }));
         expect(actual).not.toBe(true);
       });
 

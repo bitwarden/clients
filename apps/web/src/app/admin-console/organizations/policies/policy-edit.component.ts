@@ -10,14 +10,26 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { Observable, map } from "rxjs";
+import { lastValueFrom, map, Observable, switchMap } from "rxjs";
 
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  ChangePlanDialogResultType,
+  openChangePlanDialog,
+} from "@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.component";
 
 import { BasePolicy, BasePolicyComponent } from "../policies";
 
@@ -30,6 +42,7 @@ export type PolicyEditDialogData = {
 
 export enum PolicyEditDialogResult {
   Saved = "saved",
+  Changed = "changed",
 }
 @Component({
   selector: "app-policy-edit",
@@ -43,22 +56,29 @@ export class PolicyEditComponent implements AfterViewInit {
   loading = true;
   enabled = false;
   saveDisabled$: Observable<boolean>;
-  defaultTypes: any[];
   policyComponent: BasePolicyComponent;
 
   private policyResponse: PolicyResponse;
   formGroup = this.formBuilder.group({
     enabled: [this.enabled],
   });
+  protected organization$: Observable<Organization>;
+  protected isBreadcrumbingEnabled$: Observable<boolean>;
+
   constructor(
     @Inject(DIALOG_DATA) protected data: PolicyEditDialogData,
+    private accountService: AccountService,
     private policyApiService: PolicyApiServiceAbstraction,
+    private organizationService: OrganizationService,
     private i18nService: I18nService,
     private cdr: ChangeDetectorRef,
     private formBuilder: FormBuilder,
     private dialogRef: DialogRef<PolicyEditDialogResult>,
     private toastService: ToastService,
+    private organizationBillingService: OrganizationBillingServiceAbstraction,
+    private dialogService: DialogService,
   ) {}
+
   get policy(): BasePolicy {
     return this.data.policy;
   }
@@ -92,6 +112,16 @@ export class PolicyEditComponent implements AfterViewInit {
         throw e;
       }
     }
+    this.organization$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.organizationService.organizations$(userId)),
+      getOrganizationById(this.data.organizationId),
+    );
+    this.isBreadcrumbingEnabled$ = this.organization$.pipe(
+      switchMap((organization) =>
+        this.organizationBillingService.isBreadcrumbingPoliciesEnabled$(organization),
+      ),
+    );
   }
 
   submit = async () => {
@@ -114,4 +144,22 @@ export class PolicyEditComponent implements AfterViewInit {
   static open = (dialogService: DialogService, config: DialogConfig<PolicyEditDialogData>) => {
     return dialogService.open<PolicyEditDialogResult>(PolicyEditComponent, config);
   };
+
+  protected async changePlan(organization: Organization) {
+    const reference = openChangePlanDialog(this.dialogService, {
+      data: {
+        organizationId: organization.id,
+        subscription: null,
+        productTierType: organization.productTierType,
+      },
+    });
+
+    const dialogResult = await lastValueFrom(reference.closed);
+
+    if (dialogResult === ChangePlanDialogResultType.Submitted) {
+      this.dialogRef.close(PolicyEditDialogResult.Changed);
+    } else {
+      this.dialogRef.close();
+    }
+  }
 }
