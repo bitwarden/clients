@@ -206,11 +206,14 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
   /**
    * Resolved i18n key to use for suggested cipher items
    */
-  cipherItemTitleKey = this.currentURIIsBlocked$.pipe(
-    map((uriIsBlocked) =>
-      this.primaryActionAutofill && !uriIsBlocked ? "autofillTitle" : "viewItemTitle",
-    ),
-  );
+  cipherItemTitleKey = (cipher: CipherView) =>
+    this.currentURIIsBlocked$.pipe(
+      map((uriIsBlocked) => {
+        const hasUsername = cipher.login?.username != null;
+        const key = this.primaryActionAutofill && !uriIsBlocked ? "autofillTitle" : "viewItemTitle";
+        return hasUsername ? `${key}WithField` : key;
+      }),
+    );
 
   /**
    * Option to show the autofill button for each item.

@@ -6741,6 +6741,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultDesc": {
     "message": "فقط گاوصدوق سازمان مرتبط با $ORGANIZATION$ برون ریزی خواهد شد. موارد موجود در گاوصندوق‌های فردی یا سایر سازمان‌ها شامل نمی‌شوند.",
     "placeholders": {

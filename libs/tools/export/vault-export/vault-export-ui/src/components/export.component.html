@@ -5,7 +5,10 @@
 >
   {{ "personalVaultExportPolicyInEffect" | i18n }}
 </bit-callout>
-<tools-export-scope-callout [organizationId]="organizationId"></tools-export-scope-callout>
+<tools-export-scope-callout
+  [organizationId]="organizationId"
+  [exportFormat]="format"
+></tools-export-scope-callout>
 
 <form [formGroup]="exportForm" [bitSubmit]="submit" id="export_form_exportForm">
   <ng-container *ngIf="organizations$ | async as organizations">
