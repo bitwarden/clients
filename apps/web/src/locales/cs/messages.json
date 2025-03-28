@@ -6741,6 +6741,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Budou exportovány jen osobní položky trezoru včetně příloh spojené s účtem $EMAIL$. Nebudou zahrnuty položky trezoru v organizaci.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultDesc": {
     "message": "Exportován bude jen trezor organizace přidružený k položce $ORGANIZATION$. Osobní položky trezoru a položky z jiných organizací nebudou zahrnuty.",
     "placeholders": {

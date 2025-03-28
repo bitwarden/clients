@@ -19,7 +19,7 @@ function mockPolicyService(config?: { state?: BehaviorSubject<Policy[]> }) {
   const service = mock<PolicyService>();
 
   const stateValue = config?.state ?? new BehaviorSubject<Policy[]>([null]);
-  service.getAll$.mockReturnValue(stateValue);
+  service.policiesByType$.mockReturnValue(stateValue);
 
   return service;
 }
@@ -103,7 +103,7 @@ describe("Password generator service", () => {
 
       await firstValueFrom(service.evaluator$(SomeUser));
 
-      expect(policy.getAll$).toHaveBeenCalledWith(PolicyType.PasswordGenerator, SomeUser);
+      expect(policy.policiesByType$).toHaveBeenCalledWith(PolicyType.PasswordGenerator, SomeUser);
     });
 
     it("should map the policy using the generation strategy", async () => {
@@ -150,7 +150,7 @@ describe("Password generator service", () => {
       await firstValueFrom(service.evaluator$(SomeUser));
       await firstValueFrom(service.evaluator$(SomeUser));
 
-      expect(policy.getAll$).toHaveBeenCalledTimes(1);
+      expect(policy.policiesByType$).toHaveBeenCalledTimes(1);
     });
 
     it("should cache the password generator policy for each user", async () => {
@@ -161,8 +161,16 @@ describe("Password generator service", () => {
       await firstValueFrom(service.evaluator$(SomeUser));
       await firstValueFrom(service.evaluator$(AnotherUser));
 
-      expect(policy.getAll$).toHaveBeenNthCalledWith(1, PolicyType.PasswordGenerator, SomeUser);
-      expect(policy.getAll$).toHaveBeenNthCalledWith(2, PolicyType.PasswordGenerator, AnotherUser);
+      expect(policy.policiesByType$).toHaveBeenNthCalledWith(
+        1,
+        PolicyType.PasswordGenerator,
+        SomeUser,
+      );
+      expect(policy.policiesByType$).toHaveBeenNthCalledWith(
+        2,
+        PolicyType.PasswordGenerator,
+        AnotherUser,
+      );
     });
   });
 

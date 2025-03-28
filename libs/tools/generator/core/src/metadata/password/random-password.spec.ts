@@ -22,11 +22,13 @@ describe("password - characters generator metadata", () => {
   });
 
   describe("profiles[account]", () => {
-    let accountProfile: CoreProfileMetadata<PasswordGenerationOptions> = null;
+    let accountProfile: CoreProfileMetadata<PasswordGenerationOptions> = null!;
     beforeEach(() => {
       const profile = password.profiles[Profile.account];
-      if (isCoreProfile(profile)) {
+      if (isCoreProfile(profile!)) {
         accountProfile = profile;
+      } else {
+        throw new Error("this branch should never run");
       }
     });
 
@@ -69,7 +71,7 @@ describe("password - characters generator metadata", () => {
 
         const constraints = accountProfile.constraints.create(policies, context);
 
-        expect(constraints.constraints.length.min).toEqual(10);
+        expect(constraints.constraints.length?.min).toEqual(10);
       });
 
       it("combines multiple policies in the constraints", () => {
@@ -97,8 +99,8 @@ describe("password - characters generator metadata", () => {
 
         const constraints = accountProfile.constraints.create(policies, context);
 
-        expect(constraints.constraints.length.min).toEqual(14);
-        expect(constraints.constraints.special.requiredValue).toEqual(true);
+        expect(constraints.constraints.length?.min).toEqual(14);
+        expect(constraints.constraints.special?.requiredValue).toEqual(true);
       });
     });
   });
