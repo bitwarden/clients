@@ -1618,7 +1618,9 @@ export default class MainBackground {
     // Set route of the popup before attempting to open it.
     // If the vault is locked, this won't have an effect as the auth guards will
     // redirect the user to the login page.
-    await browserAction.setPopup({ popup: "popup/index.html#/at-risk-passwords" });
+    await browserAction.setPopup({
+      popup: "popup/index.html#/at-risk-passwords?initialRoute=true",
+    });
 
     await this.openPopup();
 

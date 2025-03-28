@@ -120,4 +120,14 @@ describe("Popup router cache guard", () => {
 
     expect(await firstValueFrom(service.history$())).toEqual(["/a"]);
   });
+
+  it("does not set `hasNavigated` flag when the `initialRoute` query param is set", async () => {
+    expect(service["hasNavigated"]).toBe(false);
+
+    await router.navigate(["a"], { queryParams: { initialRoute: true } });
+
+    await flushPromises();
+
+    expect(service["hasNavigated"]).toBe(false);
+  });
 });
