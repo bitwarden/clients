@@ -109,7 +109,7 @@ export class InputPasswordComponent implements OnInit {
         [Validators.minLength(this.minHintLength), Validators.maxLength(this.maxHintLength)],
       ],
       checkForBreaches: [true],
-      rotateAccountEncryptionKey: [false],
+      rotateUserKey: [false],
     },
     {
       validators: [
@@ -149,12 +149,12 @@ export class InputPasswordComponent implements OnInit {
     if (this.inputPasswordFlow === InputPasswordFlow.SetInitialPassword) {
       // https://github.com/angular/angular/issues/48794
       (this.formGroup as FormGroup<any>).removeControl("currentPassword");
-      (this.formGroup as FormGroup<any>).removeControl("rotateAccountEncryptionKey");
+      (this.formGroup as FormGroup<any>).removeControl("rotateUserKey");
     }
 
     if (this.inputPasswordFlow === InputPasswordFlow.ChangePassword) {
       // https://github.com/angular/angular/issues/48794
-      (this.formGroup as FormGroup<any>).removeControl("rotateAccountEncryptionKey");
+      (this.formGroup as FormGroup<any>).removeControl("rotateUserKey");
     }
   }
 
@@ -235,8 +235,7 @@ export class InputPasswordComponent implements OnInit {
     }
 
     if (this.inputPasswordFlow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation) {
-      passwordInputResult.rotateAccountEncryptionKey =
-        this.formGroup.controls.rotateAccountEncryptionKey.value;
+      passwordInputResult.rotateUserKey = this.formGroup.controls.rotateUserKey.value;
     }
 
     this.onPasswordFormSubmit.emit(passwordInputResult);
