@@ -32,6 +32,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationUserResetPasswordService } from "../../../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { EnrollMasterPasswordReset } from "../../../../admin-console/organizations/users/enroll-master-password-reset.component";
@@ -70,6 +71,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private configService: ConfigService,
     private organizationService: OrganizationService,
+    private keyService: KeyService,
     private accountService: AccountService,
     private linkSsoService: LinkSsoService,
   ) {}
@@ -221,12 +223,14 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
         { organization: org },
         this.resetPasswordService,
         this.organizationUserApiService,
-        this.platformUtilsService,
         this.i18nService,
         this.syncService,
         this.logService,
         this.userVerificationService,
         this.toastService,
+        this.keyService,
+        this.accountService,
+        this.organizationApiService,
       );
     } else {
       // Remove reset password
