@@ -16,15 +16,10 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
-
-export type InjectedOrganizationPermissionServices = {
-  organizationBillingService: OrganizationBillingServiceAbstraction;
-};
 
 /**
  * `CanActivateFn` that asserts the logged in user has permission to access
@@ -49,7 +44,6 @@ export type InjectedOrganizationPermissionServices = {
 export function organizationPermissionsGuard(
   permissionsCallback?: (
     organization: Organization,
-    services: InjectedOrganizationPermissionServices,
   ) => boolean | Promise<boolean> | Observable<boolean>,
 ): CanActivateFn {
   return async (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
@@ -59,7 +53,6 @@ export function organizationPermissionsGuard(
     const i18nService = inject(I18nService);
     const syncService = inject(SyncService);
     const accountService = inject(AccountService);
-    const organizationBillingService = inject(OrganizationBillingServiceAbstraction);
     const environmentInjector = inject(EnvironmentInjector);
 
     // TODO: We need to fix issue once and for all.
@@ -88,13 +81,9 @@ export function organizationPermissionsGuard(
       return router.createUrlTree(["/"]);
     }
 
-    const callbackServices = {
-      organizationBillingService: organizationBillingService,
-    };
-
     const hasPermissions =
       permissionsCallback == null ||
-      runInInjectionContext(environmentInjector, () => permissionsCallback(org, callbackServices));
+      runInInjectionContext(environmentInjector, () => permissionsCallback(org));
 
     const permissionResult =
       hasPermissions instanceof Promise
