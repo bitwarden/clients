@@ -1369,7 +1369,7 @@ export default class MainBackground {
       setTimeout(async () => {
         await this.refreshBadge();
         await this.fullSync(false);
-        await this.backgroundSyncService.init();
+        this.backgroundSyncService.init();
         this.notificationsService.startListening();
         resolve();
       }, 500);

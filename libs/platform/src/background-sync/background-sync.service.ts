@@ -37,7 +37,7 @@ export class BackgroundSyncService {
    *
    * @param intervalMs - The interval in milliseconds between sync operations (defaults to 300000ms/5 minutes)
    */
-  async init(intervalMs: number = DEFAULT_SYNC_INTERVAL_MS) {
+  init(intervalMs: number = DEFAULT_SYNC_INTERVAL_MS) {
     intervalMs = intervalMs < 1 ? DEFAULT_SYNC_INTERVAL_MS : intervalMs;
     this.taskSchedulerService.setInterval(ScheduledTaskNames.scheduleNextSyncInterval, intervalMs);
   }

@@ -14,7 +14,7 @@ describe("BackgroundSyncService", () => {
   });
 
   describe("register", () => {
-    it("registers a task handler with the correct task name", async () => {
+    it("registers a task handler with the correct task name", () => {
       // Arrange
       const syncCallback = jest.fn().mockResolvedValue(undefined);
 
@@ -31,9 +31,9 @@ describe("BackgroundSyncService", () => {
   });
 
   describe("init", () => {
-    it("schedules the sync interval task with default interval", async () => {
+    it("schedules the sync interval task with default interval", () => {
       // Act
-      await backgroundSyncService.init();
+      backgroundSyncService.init();
 
       // Assert
       expect(taskSchedulerService.setInterval).toHaveBeenCalledTimes(1);
@@ -43,12 +43,12 @@ describe("BackgroundSyncService", () => {
       );
     });
 
-    it("schedules the sync interval task with custom interval", async () => {
+    it("schedules the sync interval task with custom interval", () => {
       // Arrange
       const customInterval = 60000; // 1 minute
 
       // Act
-      await backgroundSyncService.init(customInterval);
+      backgroundSyncService.init(customInterval);
 
       // Assert
       expect(taskSchedulerService.setInterval).toHaveBeenCalledTimes(1);
@@ -58,9 +58,9 @@ describe("BackgroundSyncService", () => {
       );
     });
 
-    it("correctly handles zero interval by using default", async () => {
+    it("correctly handles zero interval by using default", () => {
       // Act
-      await backgroundSyncService.init(0);
+      backgroundSyncService.init(0);
 
       // Assert
       expect(taskSchedulerService.setInterval).toHaveBeenCalledTimes(1);
@@ -70,9 +70,9 @@ describe("BackgroundSyncService", () => {
       );
     });
 
-    it("correctly handles negative interval by using default", async () => {
+    it("correctly handles negative interval by using default", () => {
       // Act
-      await backgroundSyncService.init(-1000);
+      backgroundSyncService.init(-1000);
 
       // Assert
       expect(taskSchedulerService.setInterval).toHaveBeenCalledTimes(1);
@@ -84,14 +84,14 @@ describe("BackgroundSyncService", () => {
   });
 
   describe("full integration", () => {
-    it("registers and initializes correctly in sequence", async () => {
+    it("registers and initializes correctly in sequence", () => {
       // Arrange
       const syncCallback = jest.fn().mockResolvedValue(undefined);
       const customInterval = 45000; // 45 seconds
 
       // Act
       backgroundSyncService.register(syncCallback);
-      await backgroundSyncService.init(customInterval);
+      backgroundSyncService.init(customInterval);
 
       // Assert
       expect(taskSchedulerService.registerTaskHandler).toHaveBeenCalledWith(
