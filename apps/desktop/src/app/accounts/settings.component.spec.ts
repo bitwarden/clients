@@ -248,6 +248,7 @@ describe("SettingsComponent", () => {
   describe("biometrics enabled", () => {
     beforeEach(() => {
       desktopBiometricsService.getBiometricsStatus.mockResolvedValue(BiometricsStatus.Available);
+      desktopBiometricsService.canEnableBiometricUnlock.mockResolvedValue(true);
       vaultTimeoutSettingsService.isBiometricLockSet.mockResolvedValue(true);
     });
 

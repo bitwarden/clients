@@ -674,14 +674,6 @@ export default class MainBackground {
       this.kdfConfigService,
     );
 
-    this.biometricsService = new BackgroundBrowserBiometricsService(
-      runtimeNativeMessagingBackground,
-      this.logService,
-      this.keyService,
-      this.biometricStateService,
-      this.messagingService,
-    );
-
     this.appIdService = new AppIdService(this.storageService, this.logService);
 
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(this.stateProvider);
@@ -699,6 +691,15 @@ export default class MainBackground {
       this.stateProvider,
       this.logService,
       VaultTimeoutStringType.OnRestart, // default vault timeout
+    );
+
+    this.biometricsService = new BackgroundBrowserBiometricsService(
+      runtimeNativeMessagingBackground,
+      this.logService,
+      this.keyService,
+      this.biometricStateService,
+      this.messagingService,
+      this.vaultTimeoutSettingsService,
     );
 
     this.apiService = new ApiService(
