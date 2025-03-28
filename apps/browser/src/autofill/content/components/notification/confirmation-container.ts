@@ -5,8 +5,9 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import {
   NotificationBarIframeInitData,
-  NotificationTypes,
+  NotificationTaskInfo,
   NotificationType,
+  NotificationTypes,
 } from "../../../notification/abstractions/notification-bar";
 import { themes, spacing } from "../constants/styles";
 
@@ -21,6 +22,7 @@ export function NotificationConfirmationContainer({
   handleCloseNotification,
   handleOpenVault,
   i18n,
+  task,
   theme = ThemeTypes.Light,
   type,
   username,
@@ -30,6 +32,7 @@ export function NotificationConfirmationContainer({
 } & {
   error?: string;
   i18n: { [key: string]: string };
+  task?: NotificationTaskInfo;
   type: NotificationType;
   username: string;
 }) {
