@@ -507,10 +507,6 @@ function setNotificationBarTheme() {
   const theme = getTheme(globalThis, notificationBarIframeInitData.theme);
 
   document.documentElement.classList.add(`theme_${theme}`);
-
-  if (notificationBarIframeInitData.applyRedesign) {
-    document.body.classList.add("notification-bar-redesign");
-  }
 }
 
 function postMessageToParent(message: NotificationBarWindowMessage) {

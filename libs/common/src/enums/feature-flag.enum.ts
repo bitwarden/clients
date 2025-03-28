@@ -18,7 +18,6 @@ export enum FeatureFlag {
   IdpAutoSubmitLogin = "idp-auto-submit-login",
   InlineMenuFieldQualification = "inline-menu-field-qualification",
   InlineMenuPositioningImprovements = "inline-menu-positioning-improvements",
-  NotificationBarAddLoginImprovements = "notification-bar-add-login-improvements",
   NotificationRefresh = "notification-refresh",
   UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
 
@@ -79,7 +78,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.IdpAutoSubmitLogin]: FALSE,
   [FeatureFlag.InlineMenuFieldQualification]: FALSE,
   [FeatureFlag.InlineMenuPositioningImprovements]: FALSE,
-  [FeatureFlag.NotificationBarAddLoginImprovements]: FALSE,
   [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
 

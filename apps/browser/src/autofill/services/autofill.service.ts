@@ -236,13 +236,8 @@ export default class AutofillService implements AutofillServiceInterface {
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     const accountIsUnlocked = authStatus === AuthenticationStatus.Unlocked;
     let autoFillOnPageLoadIsEnabled = false;
-    const addLoginImprovementsFlagActive = await this.configService.getFeatureFlag(
-      FeatureFlag.NotificationBarAddLoginImprovements,
-    );
 
-    const injectedScripts = [
-      await this.getBootstrapAutofillContentScript(activeAccount, addLoginImprovementsFlagActive),
-    ];
+    const injectedScripts = [await this.getBootstrapAutofillContentScript(activeAccount)];
 
     if (activeAccount && accountIsUnlocked) {
       autoFillOnPageLoadIsEnabled = await this.getAutofillOnPageLoad();
@@ -257,10 +252,6 @@ export default class AutofillService implements AutofillServiceInterface {
         tabId: tab.id,
         injectDetails: { file: "content/content-message-handler.js", runAt: "document_start" },
       });
-    }
-
-    if (!addLoginImprovementsFlagActive) {
-      injectedScripts.push("notificationBar.js");
     }
 
     injectedScripts.push("contextMenuHandler.js");
@@ -283,11 +274,9 @@ export default class AutofillService implements AutofillServiceInterface {
    * enabled.
    *
    * @param activeAccount - The active account
-   * @param addLoginImprovementsFlagActive - Whether the add login improvements feature flag is active
    */
   private async getBootstrapAutofillContentScript(
     activeAccount: { id: UserId | undefined } & AccountInfo,
-    addLoginImprovementsFlagActive = false,
   ): Promise<string> {
     let inlineMenuVisibility: InlineMenuVisibilitySetting = AutofillOverlayVisibility.Off;
 
@@ -310,8 +299,7 @@ export default class AutofillService implements AutofillServiceInterface {
     const enableAddedLoginPrompt = await firstValueFrom(
       this.userNotificationSettingsService.enableAddedLoginPrompt$,
     );
-    const isNotificationBarEnabled =
-      addLoginImprovementsFlagActive && (enableChangedPasswordPrompt || enableAddedLoginPrompt);
+    const isNotificationBarEnabled = enableChangedPasswordPrompt || enableAddedLoginPrompt;
 
     if (!inlineMenuVisibility && !isNotificationBarEnabled) {
       return "bootstrap-autofill.js";
