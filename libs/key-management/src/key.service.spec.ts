@@ -565,8 +565,8 @@ describe("keyService", () => {
         return Promise.resolve(fakePrivateKeyDecryption(encryptedPrivateKey, userKey));
       });
 
-      encryptService.rsaDecrypt.mockImplementation((data, privateKey) => {
-        return Promise.resolve(fakeOrgKeyDecryption(data, privateKey));
+      encryptService.decapsulateKeyUnsigned.mockImplementation((data, privateKey) => {
+        return Promise.resolve(new SymmetricCryptoKey(fakeOrgKeyDecryption(data, privateKey)));
       });
     }
 
