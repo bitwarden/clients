@@ -465,59 +465,61 @@ describe("CustomFieldsComponent", () => {
       expect(announce).toHaveBeenCalledWith("reorderFieldDown boolean label 4 4", "assertive");
     });
 
-    it.only("hides reorder buttons when in partial edit mode", () => {
+    it("hides reorder buttons when in partial edit mode", () => {
       originalCipherView.fields = mockFieldViews;
       config.mode = "partial-edit";
 
       component.ngOnInit();
       fixture.detectChanges();
 
+      toggleItems = fixture.debugElement.queryAll(
+        By.css('button[data-testid="reorder-toggle-button"]'),
+      );
+
       expect(toggleItems).toHaveLength(0);
-    });
-
-    it("shows all reorders button when in edit mode and viewPassword is true", () => {
-      originalCipherView.fields = mockFieldViews;
-      originalCipherView.viewPassword = true;
-      config.mode = "edit";
-
-      component.ngOnInit();
-      fixture.detectChanges();
-
-      expect(toggleItems).toHaveLength(4);
-    });
-
-    it("shows all reorder buttons except for hidden fields when in edit mode and viewPassword is false", () => {
-      originalCipherView.fields = mockFieldViews;
-      originalCipherView.viewPassword = false;
-      config.mode = "edit";
-
-      component.ngOnInit();
-      fixture.detectChanges();
-
-      expect(toggleItems).toHaveLength(3);
     });
   });
 
+  it("shows all reorders button when in edit mode and viewPassword is true", () => {
+    originalCipherView.fields = mockFieldViews;
+    originalCipherView.viewPassword = true;
+    config.mode = "edit";
+
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    const toggleItems = fixture.debugElement.queryAll(
+      By.css('button[data-testid="reorder-toggle-button"]'),
+    );
+    expect(toggleItems).toHaveLength(4);
+  });
+
+  it("shows all reorder buttons except for hidden fields when in edit mode and viewPassword is false", () => {
+    originalCipherView.fields = mockFieldViews;
+    originalCipherView.viewPassword = false;
+    config.mode = "edit";
+
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    const toggleItems = fixture.debugElement.queryAll(
+      By.css('button[data-testid="reorder-toggle-button"]'),
+    );
+
+    expect(toggleItems).toHaveLength(3);
+  });
+
   describe("edit button", () => {
-    let editButtons: DebugElement[];
-    beforeEach(() => {
-      originalCipherView.fields = mockFieldViews;
-
-      component.ngOnInit();
-
-      fixture.detectChanges();
-
-      editButtons = fixture.debugElement.queryAll(
-        By.css('button[data-testid="edit-custom-field-button"]'),
-      );
-    });
-
     it("hides the edit button when in partial-edit mode", () => {
       originalCipherView.fields = mockFieldViews;
       config.mode = "partial-edit";
 
       component.ngOnInit();
       fixture.detectChanges();
+
+      const editButtons = fixture.debugElement.queryAll(
+        By.css('button[data-testid="edit-custom-field-button"]'),
+      );
       expect(editButtons).toHaveLength(0);
     });
 
@@ -529,6 +531,9 @@ describe("CustomFieldsComponent", () => {
       component.ngOnInit();
       fixture.detectChanges();
 
+      const editButtons = fixture.debugElement.queryAll(
+        By.css('button[data-testid="edit-custom-field-button"]'),
+      );
       expect(editButtons).toHaveLength(4);
     });
 
@@ -540,6 +545,9 @@ describe("CustomFieldsComponent", () => {
       component.ngOnInit();
       fixture.detectChanges();
 
+      const editButtons = fixture.debugElement.queryAll(
+        By.css('button[data-testid="edit-custom-field-button"]'),
+      );
       expect(editButtons).toHaveLength(3);
     });
   });
