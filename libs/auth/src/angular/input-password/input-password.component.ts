@@ -239,6 +239,7 @@ export class InputPasswordComponent implements OnInit {
       }
     }
 
+    // 2. Evaluate new password
     const newPasswordEvaluatedSuccessfully = await this.evaluateNewPassword(
       this.newPassword,
       this.passwordStrengthScore,

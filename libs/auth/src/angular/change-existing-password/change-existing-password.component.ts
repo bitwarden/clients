@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, Input, OnInit } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -28,7 +28,7 @@ import { PasswordInputResult } from "../input-password/password-input-result";
   imports: [InputPasswordComponent],
 })
 export class ChangeExistingPasswordComponent implements OnInit {
-  InputPasswordFlow = InputPasswordFlow;
+  @Input() inputPasswordFlow: InputPasswordFlow = InputPasswordFlow.ChangePassword;
 
   email?: string;
   masterPasswordPolicyOptions?: MasterPasswordPolicyOptions;
@@ -72,7 +72,7 @@ export class ChangeExistingPasswordComponent implements OnInit {
 
   async submitNew(passwordInputResult: PasswordInputResult) {
     try {
-      if (passwordInputResult.rotateAccountEncryptionKey) {
+      if (passwordInputResult.rotateUserKey) {
         await this.syncService.fullSync(true);
         // const user = await firstValueFrom(this.accountService.activeAccount$);
         // // TODO-rr-bw: make a ChangeExistingPasswordService with Default & Web implementations
