@@ -1,6 +1,6 @@
 import { DialogModule } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, Output, EventEmitter } from "@angular/core";
 import { ReactiveFormsModule, FormsModule, FormControl } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -22,6 +22,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { TwoFactorFormCacheService } from "../../abstractions/two-factor-form-cache.service.abstraction";
+
 import { TwoFactorAuthEmailComponentService } from "./two-factor-auth-email-component.service";
 
 @Component({
@@ -40,14 +42,13 @@ import { TwoFactorAuthEmailComponentService } from "./two-factor-auth-email-comp
     AsyncActionsModule,
     FormsModule,
   ],
-  providers: [],
 })
 export class TwoFactorAuthEmailComponent implements OnInit {
   @Input({ required: true }) tokenFormControl: FormControl | undefined = undefined;
+  @Output() tokenChange = new EventEmitter<{ token: string }>();
 
   twoFactorEmail: string | undefined = undefined;
-  emailPromise: Promise<any> | undefined = undefined;
-  tokenValue: string = "";
+  emailPromise: Promise<any> | undefined;
 
   constructor(
     protected i18nService: I18nService,
@@ -59,6 +60,7 @@ export class TwoFactorAuthEmailComponent implements OnInit {
     protected appIdService: AppIdService,
     private toastService: ToastService,
     private twoFactorAuthEmailComponentService: TwoFactorAuthEmailComponentService,
+    private twoFactorFormCacheService: TwoFactorFormCacheService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -78,9 +80,25 @@ export class TwoFactorAuthEmailComponent implements OnInit {
 
     this.twoFactorEmail = email2faProviderData.Email;
 
-    if (providers.size > 1) {
+    // Check if email has already been sent according to the cache
+    let emailAlreadySent = false;
+    if (this.twoFactorFormCacheService) {
+      try {
+        const cachedData = await this.twoFactorFormCacheService.getFormData();
+        emailAlreadySent = cachedData?.emailSent === true;
+      } catch (e) {
+        this.logService.error(e);
+      }
+    }
+
+    if (!emailAlreadySent) {
       await this.sendEmail(false);
     }
+  }
+
+  onTokenChange(event: Event) {
+    const tokenValue = (event.target as HTMLInputElement).value || "";
+    this.tokenChange.emit({ token: tokenValue });
   }
 
   async sendEmail(doToast: boolean) {
@@ -113,6 +131,21 @@ export class TwoFactorAuthEmailComponent implements OnInit {
       request.authRequestId = (await this.loginStrategyService.getAuthRequestId()) ?? "";
       this.emailPromise = this.apiService.postTwoFactorEmail(request);
       await this.emailPromise;
+
+      // Update cache to indicate email was sent
+      if (this.twoFactorFormCacheService) {
+        try {
+          const cachedData = (await this.twoFactorFormCacheService.getFormData()) || {};
+          await this.twoFactorFormCacheService.saveFormData({
+            ...cachedData,
+            emailSent: true,
+            token: undefined,
+          });
+        } catch (e) {
+          this.logService.error(e);
+        }
+      }
+
       if (doToast) {
         this.toastService.showToast({
           variant: "success",
