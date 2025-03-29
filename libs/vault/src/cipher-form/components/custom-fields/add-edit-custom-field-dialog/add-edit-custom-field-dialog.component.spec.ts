@@ -83,4 +83,24 @@ describe("AddEditCustomFieldDialogComponent", () => {
       expect.objectContaining({ value: FieldType.Linked }),
     );
   });
+
+  it("does not filter out 'Hidden' field type when 'disableHiddenField' is false", () => {
+    dialogData.disableHiddenField = false;
+    fixture = TestBed.createComponent(AddEditCustomFieldDialogComponent);
+    component = fixture.componentInstance;
+
+    expect(component.fieldTypeOptions).toContainEqual(
+      expect.objectContaining({ value: FieldType.Hidden }),
+    );
+  });
+
+  it("filers out 'Hidden' field type when 'disableHiddenField' is true", () => {
+    dialogData.disableHiddenField = true;
+    fixture = TestBed.createComponent(AddEditCustomFieldDialogComponent);
+    component = fixture.componentInstance;
+
+    expect(component.fieldTypeOptions).not.toContainEqual(
+      expect.objectContaining({ value: FieldType.Hidden }),
+    );
+  });
 });

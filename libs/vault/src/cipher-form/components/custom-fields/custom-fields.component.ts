@@ -141,6 +141,13 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
     return this.customFieldsForm.controls.fields as FormArray;
   }
 
+  canEdit(type: FieldType): boolean {
+    return (
+      !this.isPartialEdit &&
+      (type !== FieldType.Hidden || this.cipherFormContainer.originalCipherView?.viewPassword)
+    );
+  }
+
   ngOnInit() {
     const linkedFieldsOptionsForCipher = this.getLinkedFieldsOptionsForCipher();
     const optionsArray = Array.from(linkedFieldsOptionsForCipher?.entries() ?? []);
@@ -219,6 +226,7 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
           removeField: this.removeField.bind(this),
           cipherType: this.cipherFormContainer.config.cipherType,
           editLabelConfig,
+          disableHiddenField: !this.cipherFormContainer.originalCipherView?.viewPassword,
         },
       },
     );
