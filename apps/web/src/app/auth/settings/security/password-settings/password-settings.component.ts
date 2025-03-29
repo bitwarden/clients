@@ -2,7 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { ChangeExistingPasswordComponent } from "@bitwarden/auth/angular";
+import { ChangeExistingPasswordComponent, InputPasswordFlow } from "@bitwarden/auth/angular";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { CalloutModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -16,6 +16,8 @@ import { WebauthnLoginSettingsModule } from "../../webauthn-login-settings";
   imports: [CalloutModule, ChangeExistingPasswordComponent, I18nPipe, WebauthnLoginSettingsModule],
 })
 export class PasswordSettingsComponent implements OnInit {
+  InputPasswordFlow = InputPasswordFlow;
+
   constructor(
     private router: Router,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
