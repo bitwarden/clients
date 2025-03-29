@@ -54,12 +54,12 @@ export enum InputPasswordFlow {
    * Everything above, plus:
    * - Input: Current password (as the first element in the UI)
    */
-  ChangeExistingPassword,
+  ChangePassword,
   /**
    * Everything above, plus:
    * - Checkbox: Rotate account encryption key (as the last element in the UI)
    */
-  ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey,
+  ChangePasswordWithOptionalUserKeyRotation,
 }
 
 @Component({
@@ -92,7 +92,9 @@ export class InputPasswordComponent implements OnInit {
 
   @Input() inlineButtons = false;
   @Input() primaryButtonText?: Translation;
+  protected primaryButtonTextStr: string = "";
   @Input() secondaryButtonText?: Translation;
+  protected secondaryButtonTextStr: string = "";
 
   protected InputPasswordFlow = InputPasswordFlow;
   private minHintLength = 0;
@@ -113,7 +115,7 @@ export class InputPasswordComponent implements OnInit {
         [Validators.minLength(this.minHintLength), Validators.maxLength(this.maxHintLength)],
       ],
       checkForBreaches: [true],
-      rotateAccountEncryptionKey: [false],
+      rotateUserKey: [false],
     },
     {
       validators: [
@@ -159,8 +161,8 @@ export class InputPasswordComponent implements OnInit {
     return this.formGroup.controls.checkForBreaches.value;
   }
 
-  get rotateAccountEncryptionKey() {
-    return this.formGroup.controls.rotateAccountEncryptionKey.value;
+  get rotateUserKey() {
+    return this.formGroup.controls.rotateUserKey.value;
   }
 
   constructor(
@@ -180,12 +182,26 @@ export class InputPasswordComponent implements OnInit {
     if (this.inputPasswordFlow === InputPasswordFlow.SetInitialPassword) {
       // https://github.com/angular/angular/issues/48794
       (this.formGroup as FormGroup<any>).removeControl("currentPassword");
-      (this.formGroup as FormGroup<any>).removeControl("rotateAccountEncryptionKey");
+      (this.formGroup as FormGroup<any>).removeControl("rotateUserKey");
     }
 
-    if (this.inputPasswordFlow === InputPasswordFlow.ChangeExistingPassword) {
+    if (this.inputPasswordFlow === InputPasswordFlow.ChangePassword) {
       // https://github.com/angular/angular/issues/48794
-      (this.formGroup as FormGroup<any>).removeControl("rotateAccountEncryptionKey");
+      (this.formGroup as FormGroup<any>).removeControl("rotateUserKey");
+    }
+
+    if (this.primaryButtonText) {
+      this.primaryButtonTextStr = this.i18nService.t(
+        this.primaryButtonText.key,
+        ...(this.primaryButtonText?.placeholders ?? []),
+      );
+    }
+
+    if (this.secondaryButtonText) {
+      this.secondaryButtonTextStr = this.i18nService.t(
+        this.secondaryButtonText.key,
+        ...(this.secondaryButtonText?.placeholders ?? []),
+      );
     }
   }
 
@@ -214,9 +230,8 @@ export class InputPasswordComponent implements OnInit {
 
     // 1. Evaluate current password
     if (
-      this.inputPasswordFlow === InputPasswordFlow.ChangeExistingPassword ||
-      this.inputPasswordFlow ===
-        InputPasswordFlow.ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey
+      this.inputPasswordFlow === InputPasswordFlow.ChangePassword ||
+      this.inputPasswordFlow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
     ) {
       const currentPasswordEvaluatedSuccessfully = await this.evaluateCurrentPassword();
       if (!currentPasswordEvaluatedSuccessfully) {
@@ -269,18 +284,14 @@ export class InputPasswordComponent implements OnInit {
     };
 
     if (
-      this.inputPasswordFlow === InputPasswordFlow.ChangeExistingPassword ||
-      this.inputPasswordFlow ===
-        InputPasswordFlow.ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey
+      this.inputPasswordFlow === InputPasswordFlow.ChangePassword ||
+      this.inputPasswordFlow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
     ) {
       passwordInputResult.currentPassword = this.currentPassword;
     }
 
-    if (
-      this.inputPasswordFlow ===
-      InputPasswordFlow.ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey
-    ) {
-      passwordInputResult.rotateAccountEncryptionKey = this.rotateAccountEncryptionKey;
+    if (this.inputPasswordFlow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation) {
+      passwordInputResult.rotateUserKey = this.formGroup.controls.rotateUserKey.value;
     }
 
     this.onPasswordFormSubmit.emit(passwordInputResult);

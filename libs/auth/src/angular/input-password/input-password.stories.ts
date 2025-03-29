@@ -88,9 +88,9 @@ export default {
   args: {
     InputPasswordFlow: {
       SetInitialPassword: InputPasswordFlow.SetInitialPassword,
-      ChangeExistingPassword: InputPasswordFlow.ChangeExistingPassword,
-      ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey:
-        InputPasswordFlow.ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey,
+      ChangePassword: InputPasswordFlow.ChangePassword,
+      ChangePasswordWithOptionalUserKeyRotation:
+        InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation,
     },
     masterPasswordPolicyOptions: {
       minComplexity: 4,
@@ -117,21 +117,21 @@ export const SetInitialPassword: Story = {
   }),
 };
 
-export const ChangeExistingPassword: Story = {
+export const ChangePassword: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <auth-input-password [inputPasswordFlow]="InputPasswordFlow.ChangeExistingPassword"></auth-input-password>
+      <auth-input-password [inputPasswordFlow]="InputPasswordFlow.ChangePassword"></auth-input-password>
     `,
   }),
 };
 
-export const ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey: Story = {
+export const ChangePasswordWithOptionalUserKeyRotation: Story = {
   render: (args) => ({
     props: args,
     template: `
       <auth-input-password
-        [inputPasswordFlow]="InputPasswordFlow.ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey"
+        [inputPasswordFlow]="InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation"
       ></auth-input-password>
     `,
   }),
@@ -156,6 +156,19 @@ export const SecondaryButton: Story = {
       <auth-input-password
         [inputPasswordFlow]="InputPasswordFlow.SetInitialPassword"
         [secondaryButtonText]="{ key: 'cancel' }"
+        (onSecondaryButtonClick)="onSecondaryButtonClick()"
+      ></auth-input-password>
+    `,
+  }),
+};
+
+export const SecondaryButtonWithPlaceHolderText: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <auth-input-password
+        [inputPasswordFlow]="InputPasswordFlow.SetInitialPassword"
+        [secondaryButtonText]="{ key: 'backTo', placeholders: ['homepage'] }"
         (onSecondaryButtonClick)="onSecondaryButtonClick()"
       ></auth-input-password>
     `,

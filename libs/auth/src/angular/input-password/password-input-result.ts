@@ -9,5 +9,5 @@ export interface PasswordInputResult {
   serverMasterKeyHash: string;
   localMasterKeyHash: string;
   currentPassword?: string;
-  rotateAccountEncryptionKey?: boolean;
+  rotateUserKey?: boolean;
 }
