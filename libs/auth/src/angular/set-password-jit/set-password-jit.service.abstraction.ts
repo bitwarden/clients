@@ -6,7 +6,7 @@ import { PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 export interface SetPasswordCredentials {
   masterKey: MasterKey;
-  masterKeyHash: string;
+  serverMasterKeyHash: string;
   localMasterKeyHash: string;
   kdfConfig: PBKDF2KdfConfig;
   hint: string;

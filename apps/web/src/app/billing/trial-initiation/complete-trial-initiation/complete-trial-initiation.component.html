@@ -1,19 +1,21 @@
 <div *ngIf="!useTrialStepper">
   <auth-input-password
+    [inputPasswordFlow]="InputPasswordFlow.SetInitialPassword"
     [email]="email"
     [masterPasswordPolicyOptions]="enforcedPolicyOptions"
     (onPasswordFormSubmit)="handlePasswordSubmit($event)"
-    [buttonText]="'createAccount' | i18n"
+    [primaryButtonText]="{ key: 'createAccount' }"
   ></auth-input-password>
 </div>
 <div *ngIf="useTrialStepper">
   <app-vertical-stepper #stepper linear (selectionChange)="verticalStepChange($event)">
     <app-vertical-step label="Create Account" [editable]="false" [subLabel]="email">
       <auth-input-password
+        [inputPasswordFlow]="InputPasswordFlow.SetInitialPassword"
         [email]="email"
         [masterPasswordPolicyOptions]="enforcedPolicyOptions"
         (onPasswordFormSubmit)="handlePasswordSubmit($event)"
-        [buttonText]="'createAccount' | i18n"
+        [primaryButtonText]="{ key: 'createAccount' }"
       ></auth-input-password>
     </app-vertical-step>
     <app-vertical-step label="Organization Information" [subLabel]="orgInfoSubLabel">
