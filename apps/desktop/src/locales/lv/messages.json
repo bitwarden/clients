@@ -1706,7 +1706,7 @@
     "message": "Apstiprināt glabātavas satura izgūšanu"
   },
   "exportWarningDesc": {
-    "message": "Šī izguve satur glabātavas datus nešifrētā veidā. Izdoto datni nevajadzētu glabāt vai sūtīt nedrošos veidos (piemēram, e-pastā). Tā ir jāizdzēš uzreiz pēc izmantošanas."
+    "message": "Šī izguve satur glabātavas datus nešifrētā veidā. Izgūto datni nevajadzētu glabāt vai sūtīt nedrošos veidos (piemēram, e-pastā). Tā ir jāizdzēš uzreiz pēc izmantošanas."
   },
   "encExportKeyWarningDesc": {
     "message": "Šī izguve šifrē datus ar konta šifrēšanas atslēgu. Ja tā jebkad tiks mainīta, izvadi vajadzētu veikt vēlreiz, jo vairs nebūs iespējams atšifrēt šo datni."
@@ -2483,6 +2483,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "Tiks izgūti tikai atsevišķi glabātavas vienumi, kas ir saistīti ar $EMAIL$. Apvienības glabātavas vienumi netiks iekļauti. Tiks izgūta tikai glabātavas vienumu informācija, un saistītie pielikumi netiks iekļauti.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Tiks izdoti tikai atsevišķi glabātavas vienumi, tajā skaitā pielikumi, kas ir saistīti ar $EMAIL$. Apvienības glabātavas vienumi netiks iekļauti",
     "placeholders": {
       "email": {
         "content": "$1",
