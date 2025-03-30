@@ -7,12 +7,15 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
@@ -34,6 +37,7 @@ export class ChangeExistingPasswordComponent implements OnInit {
   email?: string;
   masterPasswordPolicyOptions?: MasterPasswordPolicyOptions;
   userkeyRotationV2 = false;
+  formPromise: Promise<any>;
 
   constructor(
     private accountService: AccountService,
@@ -100,8 +104,77 @@ export class ChangeExistingPasswordComponent implements OnInit {
     }
   }
 
-  async submitOld(passwordInputResult: PasswordInputResult) {}
+  async submitOld(passwordInputResult: PasswordInputResult) {
+    if (passwordInputResult.rotateUserKey) {
+      await this.syncService.fullSync(true);
+    }
 
+    const masterKey = await this.keyService.makeMasterKey(
+      passwordInputResult.currentPassword,
+      await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.email))),
+      await this.kdfConfigService.getKdfConfig(),
+    );
+
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const newLocalKeyHash = await this.keyService.hashMasterKey(
+      passwordInputResult.newPassword,
+      passwordInputResult.masterKey,
+      HashPurpose.LocalAuthorization,
+    );
+
+    const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey, userId);
+    if (userKey == null) {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("invalidMasterPassword"),
+      });
+      return;
+    }
+
+    const request = new PasswordRequest();
+    request.masterPasswordHash = await this.keyService.hashMasterKey(
+      passwordInputResult.currentPassword,
+      masterKey,
+    );
+    request.masterPasswordHint = passwordInputResult.hint;
+    request.newMasterPasswordHash = passwordInputResult.serverMasterKeyHash;
+    // request.key = newUserKey[1].encryptedString;
+
+    try {
+      if (passwordInputResult.rotateUserKey) {
+        this.formPromise = this.masterPasswordApiService.postPassword(request).then(async () => {
+          // we need to save this for local masterkey verification during rotation
+          await this.masterPasswordService.setMasterKeyHash(newLocalKeyHash, userId as UserId);
+          await this.masterPasswordService.setMasterKey(
+            passwordInputResult.masterKey,
+            userId as UserId,
+          );
+          return this.updateKey(passwordInputResult.newPassword);
+        });
+      } else {
+        this.formPromise = this.masterPasswordApiService.postPassword(request);
+      }
+
+      await this.formPromise;
+
+      this.toastService.showToast({
+        variant: "success",
+        title: this.i18nService.t("masterPasswordChanged"),
+        message: this.i18nService.t("logBackIn"),
+      });
+      this.messagingService.send("logout");
+    } catch {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("errorOccurred"),
+      });
+    }
+  }
+
+  // todo: move this to a service
+  // https://bitwarden.atlassian.net/browse/PM-17108
   async updatePassword(currentPassword: string, newPassword: string, hint: string) {
     const { userId, email } = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => ({ userId: a?.id, email: a?.email }))),
@@ -154,5 +227,10 @@ export class ChangeExistingPasswordComponent implements OnInit {
         message: this.i18nService.t("errorOccurred"),
       });
     }
+  }
+
+  private async updateKey(newPassword: string) {
+    const user = await firstValueFrom(this.accountService.activeAccount$);
+    await this.changePasswordService.rotateUserKeyAndEncryptedDataLegacy(newPassword, user);
   }
 }
