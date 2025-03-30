@@ -3,7 +3,7 @@
  *
  * Flags MUST be short lived and SHALL be removed once enabled.
  *
- * Flags are grouped by team for ease of cleanup.
+ * Flags should be grouped by team to have visibility of ownership and cleanup.
  */
 export enum FeatureFlag {
   /* Admin Console Team */
@@ -68,6 +68,8 @@ const FALSE = false as boolean;
  *
  * DO NOT enable previously disabled flags, REMOVE them instead.
  * We support true as a value as we prefer flags to "enable" not "disable".
+ *
+ * Flags should be grouped by team to have visibility of ownership and cleanup.
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
