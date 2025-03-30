@@ -170,6 +170,7 @@ import { BrowserScriptInjectorService } from "../../platform/services/browser-sc
 import I18nService from "../../platform/services/i18n.service";
 import { ForegroundPlatformUtilsService } from "../../platform/services/platform-utils/foreground-platform-utils.service";
 import { BrowserSdkLoadService } from "../../platform/services/sdk/browser-sdk-load.service";
+import { PopupSdkService } from "../../platform/services/sdk/popup-sdk.service";
 import { ForegroundTaskSchedulerService } from "../../platform/services/task-scheduler/foreground-task-scheduler.service";
 import { BrowserStorageServiceProvider } from "../../platform/storage/browser-storage-service.provider";
 import { ForegroundMemoryStorageService } from "../../platform/storage/foreground-memory-storage.service";
@@ -661,6 +662,18 @@ const safeProviders: SafeProvider[] = [
     provide: SshImportPromptService,
     useClass: DefaultSshImportPromptService,
     deps: [DialogService, ToastService, PlatformUtilsService, I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: SdkService,
+    useClass: PopupSdkService,
+    deps: [
+      SdkClientFactory,
+      EnvironmentService,
+      PlatformUtilsService,
+      AccountServiceAbstraction,
+      KdfConfigService,
+      KeyService,
+    ],
   }),
 ];
 

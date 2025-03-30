@@ -33,8 +33,8 @@ function setupVerificationResponse(
 
   sdkService.client$ = of({
     crypto: () => ({
-      verify_asymmetric_keys: jest.fn().mockReturnValue(mockVerificationResponse),
-      make_key_pair: jest.fn().mockReturnValue(mockKeyPairResponse),
+      verify_asymmetric_keys: jest.fn().mockResolvedValue(mockVerificationResponse),
+      make_key_pair: jest.fn().mockResolvedValue(mockKeyPairResponse),
     }),
     free: jest.fn(),
     echo: jest.fn(),

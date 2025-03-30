@@ -16,12 +16,12 @@ describe("TotpService", () => {
   beforeEach(() => {
     generateTotpMock = jest
       .fn()
-      .mockReturnValueOnce({
+      .mockResolvedValueOnce({
         code: "123456",
         period: 30,
       })
-      .mockReturnValueOnce({ code: "654321", period: 30 })
-      .mockReturnValueOnce({ code: "567892", period: 30 });
+      .mockResolvedValueOnce({ code: "654321", period: 30 })
+      .mockResolvedValueOnce({ code: "567892", period: 30 });
 
     const mockBitwardenClient = {
       vault: () => ({
@@ -59,7 +59,7 @@ describe("TotpService", () => {
       jest.advanceTimersByTime(1000);
     });
 
-    it("should emit TOTP response every second", () => {
+    it("should emit TOTP response every second", async () => {
       const responses: TotpResponse[] = [];
 
       totpService
@@ -69,8 +69,7 @@ describe("TotpService", () => {
           responses.push(result);
         });
 
-      jest.advanceTimersByTime(2000);
-
+      await jest.advanceTimersByTimeAsync(2000);
       expect(responses).toEqual([
         { code: "123456", period: 30 },
         { code: "654321", period: 30 },
@@ -78,16 +77,16 @@ describe("TotpService", () => {
       ]);
     });
 
-    it("should stop emitting TOTP response after unsubscribing", () => {
+    it("should stop emitting TOTP response after unsubscribing", async () => {
       const responses: TotpResponse[] = [];
 
       const subscription = totpService.getCode$("WQIQ25BRKZYCJVYP").subscribe((result) => {
         responses.push(result);
       });
 
-      jest.advanceTimersByTime(1000);
+      await jest.advanceTimersByTimeAsync(1900);
       subscription.unsubscribe();
-      jest.advanceTimersByTime(1000);
+      await jest.advanceTimersByTimeAsync(2000);
 
       expect(responses).toHaveLength(2);
     });

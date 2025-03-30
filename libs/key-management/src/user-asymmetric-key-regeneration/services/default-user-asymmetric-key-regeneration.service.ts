@@ -1,4 +1,4 @@
-import { combineLatest, firstValueFrom, map } from "rxjs";
+import { combineLatest, firstValueFrom, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -76,7 +76,7 @@ export class DefaultUserAsymmetricKeysRegenerationService
 
     const verificationResponse = await firstValueFrom(
       this.sdkService.client$.pipe(
-        map((sdk) => {
+        switchMap((sdk) => {
           if (sdk === undefined) {
             throw new Error("SDK is undefined");
           }
@@ -124,7 +124,7 @@ export class DefaultUserAsymmetricKeysRegenerationService
     }
     const makeKeyPairResponse = await firstValueFrom(
       this.sdkService.client$.pipe(
-        map((sdk) => {
+        switchMap((sdk) => {
           if (sdk === undefined) {
             throw new Error("SDK is undefined");
           }
