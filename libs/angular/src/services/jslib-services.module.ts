@@ -46,6 +46,8 @@ import {
   DefaultLoginSuccessHandlerService,
   LoginSuccessHandlerService,
   LoginApprovalComponentServiceAbstraction,
+  ChangePasswordService,
+  DefaultChangePasswordService,
 } from "@bitwarden/auth/common";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
@@ -1496,6 +1498,11 @@ const safeProviders: SafeProvider[] = [
     provide: MasterPasswordApiServiceAbstraction,
     useClass: MasterPasswordApiService,
     deps: [ApiServiceAbstraction, LogService],
+  }),
+  safeProvider({
+    provide: ChangePasswordService,
+    useClass: DefaultChangePasswordService,
+    deps: [],
   }),
 ];
 
