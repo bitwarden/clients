@@ -75,6 +75,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.VerifiedSsoDomainEndpoint]: FALSE,
   [FeatureFlag.LimitItemDeletion]: FALSE,
   [FeatureFlag.SsoExternalIdVisibility]: FALSE,
+  [FeatureFlag.AccountDeprovisioningBanner]: FALSE,
 
   /* Autofill */
   [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,
@@ -87,6 +88,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.NotificationBarAddLoginImprovements]: FALSE,
   [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
+  [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
 
   /* Tools */
   [FeatureFlag.ItemShare]: FALSE,
@@ -102,21 +104,22 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.NewDeviceVerificationPermanentDismiss]: FALSE,
   [FeatureFlag.VaultBulkManagementAction]: FALSE,
   [FeatureFlag.SecurityTasks]: FALSE,
+  [FeatureFlag.CipherKeyEncryption]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM9112_DeviceApprovalPersistence]: FALSE,
-
-  [FeatureFlag.UserKeyRotationV2]: FALSE,
-  [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
   [FeatureFlag.UnauthenticatedExtensionUIRefresh]: FALSE,
-  [FeatureFlag.CipherKeyEncryption]: FALSE,
+
+  /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
-  [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
-  [FeatureFlag.PrivateKeyRegeneration]: FALSE,
-  [FeatureFlag.AccountDeprovisioningBanner]: FALSE,
   [FeatureFlag.PM15179_AddExistingOrgsFromProviderPortal]: FALSE,
   [FeatureFlag.PM12276_BreadcrumbEventLogs]: FALSE,
   [FeatureFlag.PM18794_ProviderPaymentMethod]: FALSE,
+
+  /* Key Management */
+  [FeatureFlag.PrivateKeyRegeneration]: FALSE,
+  [FeatureFlag.UserKeyRotationV2]: FALSE,
+  [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
