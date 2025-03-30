@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
+import { ChangePasswordService } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -36,6 +37,7 @@ export class ChangeExistingPasswordComponent implements OnInit {
 
   constructor(
     private accountService: AccountService,
+    private changePasswordService: ChangePasswordService,
     private configService: ConfigService,
     private i18nService: I18nService,
     private kdfConfigService: KdfConfigService,
@@ -74,14 +76,14 @@ export class ChangeExistingPasswordComponent implements OnInit {
     try {
       if (passwordInputResult.rotateUserKey) {
         await this.syncService.fullSync(true);
-        // const user = await firstValueFrom(this.accountService.activeAccount$);
-        // // TODO-rr-bw: make a ChangeExistingPasswordService with Default & Web implementations
-        // // await this.changeExistingPasswordService.rotateUserKeyMasterPasswordAndEncryptedData(
-        // //   passwordInputResult.currentPassword,
-        // //   passwordInputResult.newPassword,
-        // //   user,
-        // //   passwordInputResult.hint,
-        // // );
+        const user = await firstValueFrom(this.accountService.activeAccount$);
+
+        await this.changePasswordService.rotateUserKeyMasterPasswordAndEncryptedData(
+          passwordInputResult.currentPassword,
+          passwordInputResult.newPassword,
+          user,
+          passwordInputResult.hint,
+        );
       } else {
         await this.updatePassword(
           passwordInputResult.currentPassword,
