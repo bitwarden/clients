@@ -7,4 +7,9 @@ export abstract class ChangePasswordService {
     user: Account,
     hint: string,
   ): Promise<void | null>;
+
+  abstract rotateUserKeyAndEncryptedDataLegacy(
+    newPassword: string,
+    user: Account,
+  ): Promise<void | null>;
 }

@@ -11,4 +11,11 @@ export class DefaultChangePasswordService implements ChangePasswordService {
   ): Promise<void | null> {
     return null;
   }
+
+  async rotateUserKeyAndEncryptedDataLegacy(
+    newPassword: string,
+    user: Account,
+  ): Promise<void | null> {
+    return null;
+  }
 }

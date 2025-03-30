@@ -14,8 +14,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -158,12 +160,14 @@ export class InputPasswordComponent implements OnInit {
   constructor(
     private accountService: AccountService,
     private auditService: AuditService,
+    private cipherService: CipherService,
     private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
     private kdfConfigService: KdfConfigService,
     private keyService: KeyService,
     private masterPasswordService: MasterPasswordServiceAbstraction,
+    private platformUtilsService: PlatformUtilsService,
     private policyService: PolicyService,
     private toastService: ToastService,
   ) {}
@@ -384,5 +388,56 @@ export class InputPasswordComponent implements OnInit {
     }
 
     return true;
+  }
+
+  async rotateUserKeyClicked() {
+    if (this.rotateUserKey) {
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+      const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
+      let hasOldAttachments = false;
+      if (ciphers != null) {
+        for (let i = 0; i < ciphers.length; i++) {
+          if (ciphers[i].organizationId == null && ciphers[i].hasOldAttachments) {
+            hasOldAttachments = true;
+            break;
+          }
+        }
+      }
+
+      if (hasOldAttachments) {
+        const learnMore = await this.dialogService.openSimpleDialog({
+          title: { key: "warning" },
+          content: { key: "oldAttachmentsNeedFixDesc" },
+          acceptButtonText: { key: "learnMore" },
+          cancelButtonText: { key: "close" },
+          type: "warning",
+        });
+
+        if (learnMore) {
+          this.platformUtilsService.launchUri(
+            "https://bitwarden.com/help/attachments/#add-storage-space",
+          );
+        }
+
+        this.formGroup.controls.rotateUserKey.setValue(false);
+        return;
+      }
+
+      const result = await this.dialogService.openSimpleDialog({
+        title: { key: "rotateEncKeyTitle" },
+        content:
+          this.i18nService.t("updateEncryptionKeyWarning") +
+          " " +
+          this.i18nService.t("updateEncryptionKeyExportWarning") +
+          " " +
+          this.i18nService.t("rotateEncKeyConfirmation"),
+        type: "warning",
+      });
+
+      if (!result) {
+        this.formGroup.controls.rotateUserKey.setValue(false);
+      }
+    }
   }
 }
