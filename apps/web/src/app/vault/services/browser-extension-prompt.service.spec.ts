@@ -15,7 +15,6 @@ describe("BrowserExtensionPromptService", () => {
   const setAnonLayoutWrapperData = jest.fn();
   const isFirefox = jest.fn().mockReturnValue(false);
   const postMessage = jest.fn();
-  // const originalPostMessage = window.postMessage;
   window.postMessage = postMessage;
 
   beforeEach(() => {
