@@ -4,13 +4,13 @@ import { ChangePasswordService, DefaultChangePasswordService } from "@bitwarden/
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserKeyRotationService } from "@bitwarden/web-vault/app/key-management/key-rotation/user-key-rotation.service";
 
-export class WebChangePasswordComponent
+export class WebChangePasswordService
   extends DefaultChangePasswordService
   implements ChangePasswordService
 {
   userKeyRotationService = inject(UserKeyRotationService);
 
-  async rotateUserKeyMasterPasswordAndEncryptedData(
+  override async rotateUserKeyMasterPasswordAndEncryptedData(
     currentPassword: string,
     newPassword: string,
     user: Account,

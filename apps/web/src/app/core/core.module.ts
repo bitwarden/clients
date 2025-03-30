@@ -37,6 +37,7 @@ import {
   TwoFactorAuthDuoComponentService,
 } from "@bitwarden/auth/angular";
 import {
+  ChangePasswordService,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
 } from "@bitwarden/auth/common";
@@ -111,6 +112,7 @@ import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarde
 import { flagEnabled } from "../../utils/flags";
 import { PolicyListService } from "../admin-console/core/policy-list.service";
 import {
+  WebChangePasswordService,
   WebSetPasswordJitService,
   WebRegistrationFinishService,
   WebLoginComponentService,
@@ -379,6 +381,11 @@ const safeProviders: SafeProvider[] = [
     provide: SshImportPromptService,
     useClass: DefaultSshImportPromptService,
     deps: [DialogService, ToastService, PlatformUtilsService, I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: ChangePasswordService,
+    useClass: WebChangePasswordService,
+    deps: [],
   }),
 ];
 
