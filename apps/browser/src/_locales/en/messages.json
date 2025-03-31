@@ -1391,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "A Premium membership is required to use this feature."
   },
-  "enterVerificationCodeApp": {
-    "message": "Enter the 6 digit verification code from your authenticator app."
-  },
   "authenticationTimeout": {
     "message": "Authentication timeout"
   },
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Enter the 6 digit verification code that was emailed to $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Verification email sent to $EMAIL$.",
@@ -1418,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Remember me"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Send verification code email again"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Use another two-step login method"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -1437,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
   },
-  "insertYubiKey": {
-    "message": "Insert your YubiKey into your computer's USB port, then touch its button."
-  },
   "insertU2f": {
     "message": "Insert your security key into your computer's USB port. If it has a button, touch it."
-  },
-  "webAuthnNewTab": {
-    "message": "To start the WebAuthn 2FA verification. Click the button below to open a new tab and follow the instructions provided in the new tab."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Open new tab"
   },
   "openInNewTab": {
     "message": "Open in new tab"
@@ -3848,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
-  },
   "duoRequiredForAccount": {
     "message": "Duo two-step login is required for your account."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Popout the extension to complete login."
   },
   "popoutExtension": {
     "message": "Popout extension"

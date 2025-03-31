@@ -26,6 +26,7 @@ export interface ExtensionAnonLayoutWrapperData extends AnonLayoutWrapperData {
   showBackButton?: boolean;
   showLogo?: boolean;
   hideFooter?: boolean;
+  hideIcon?: boolean;
 }
 
 @Component({
@@ -48,6 +49,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected showAcctSwitcher: boolean;
   protected showBackButton: boolean;
   protected showLogo: boolean = true;
+  protected hideIcon: boolean = false;
 
   protected pageTitle: string;
   protected pageSubtitle: string;
@@ -129,6 +131,10 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     if (firstChildRouteData["showLogo"] !== undefined) {
       this.showLogo = Boolean(firstChildRouteData["showLogo"]);
     }
+
+    if (firstChildRouteData["hideIcon"] !== undefined) {
+      this.hideIcon = Boolean(firstChildRouteData["hideIcon"]);
+    }
   }
 
   private listenForServiceDataChanges() {
@@ -179,6 +185,10 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
 
     if (data.showLogo !== undefined) {
       this.showLogo = data.showLogo;
+    }
+
+    if (data.hideIcon !== undefined) {
+      this.hideIcon = data.hideIcon;
     }
   }
 

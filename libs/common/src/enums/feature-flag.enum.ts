@@ -2,6 +2,8 @@
  * Feature flags.
  *
  * Flags MUST be short lived and SHALL be removed once enabled.
+ *
+ * Flags should be grouped by team to have visibility of ownership and cleanup.
  */
 export enum FeatureFlag {
   /* Admin Console Team */
@@ -9,6 +11,11 @@ export enum FeatureFlag {
   VerifiedSsoDomainEndpoint = "pm-12337-refactor-sso-details-endpoint",
   LimitItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission",
   SsoExternalIdVisibility = "pm-18630-sso-external-id-visibility",
+  AccountDeprovisioningBanner = "pm-17120-account-deprovisioning-admin-console-banner",
+
+  /* Auth */
+  PM9112_DeviceApprovalPersistence = "pm-9112-device-approval-persistence",
+  UnauthenticatedExtensionUIRefresh = "unauth-ui-refresh",
 
   /* Autofill */
   BlockBrowserInjectionsByDomain = "block-browser-injections-by-domain",
@@ -21,6 +28,19 @@ export enum FeatureFlag {
   NotificationBarAddLoginImprovements = "notification-bar-add-login-improvements",
   NotificationRefresh = "notification-refresh",
   UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
+  MacOsNativeCredentialSync = "macos-native-credential-sync",
+
+  /* Billing */
+  TrialPaymentOptional = "PM-8163-trial-payment",
+  PM15179_AddExistingOrgsFromProviderPortal = "pm-15179-add-existing-orgs-from-provider-portal",
+  PM12276_BreadcrumbEventLogs = "pm-12276-breadcrumbing-for-business-features",
+  PM18794_ProviderPaymentMethod = "pm-18794-provider-payment-method",
+  PM17772_AdminInitiatedSponsorships = "pm-17772-admin-initiated-sponsorships",
+
+  /* Key Management */
+  PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
+  UserKeyRotationV2 = "userkey-rotation-v2",
+  PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
 
   /* Tools */
   ItemShare = "item-share",
@@ -36,22 +56,7 @@ export enum FeatureFlag {
   NewDeviceVerificationPermanentDismiss = "new-device-permanent-dismiss",
   VaultBulkManagementAction = "vault-bulk-management-action",
   SecurityTasks = "security-tasks",
-
-  /* Auth */
-  PM9112_DeviceApprovalPersistence = "pm-9112-device-approval-persistence",
-
-  UserKeyRotationV2 = "userkey-rotation-v2",
-  PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
-  UnauthenticatedExtensionUIRefresh = "unauth-ui-refresh",
   CipherKeyEncryption = "cipher-key-encryption",
-  TrialPaymentOptional = "PM-8163-trial-payment",
-  MacOsNativeCredentialSync = "macos-native-credential-sync",
-  PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
-  AccountDeprovisioningBanner = "pm-17120-account-deprovisioning-admin-console-banner",
-  PM15179_AddExistingOrgsFromProviderPortal = "pm-15179-add-existing-orgs-from-provider-portal",
-  PM12276_BreadcrumbEventLogs = "pm-12276-breadcrumbing-for-business-features",
-  PM18794_ProviderPaymentMethod = "pm-18794-provider-payment-method",
-  PM17772_AdminInitiatedSponsorships = "pm-17772-admin-initiated-sponsorships",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -64,6 +69,8 @@ const FALSE = false as boolean;
  *
  * DO NOT enable previously disabled flags, REMOVE them instead.
  * We support true as a value as we prefer flags to "enable" not "disable".
+ *
+ * Flags should be grouped by team to have visibility of ownership and cleanup.
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
@@ -71,6 +78,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.VerifiedSsoDomainEndpoint]: FALSE,
   [FeatureFlag.LimitItemDeletion]: FALSE,
   [FeatureFlag.SsoExternalIdVisibility]: FALSE,
+  [FeatureFlag.AccountDeprovisioningBanner]: FALSE,
 
   /* Autofill */
   [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,
@@ -83,6 +91,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.NotificationBarAddLoginImprovements]: FALSE,
   [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
+  [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
 
   /* Tools */
   [FeatureFlag.ItemShare]: FALSE,
@@ -98,22 +107,23 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.NewDeviceVerificationPermanentDismiss]: FALSE,
   [FeatureFlag.VaultBulkManagementAction]: FALSE,
   [FeatureFlag.SecurityTasks]: FALSE,
+  [FeatureFlag.CipherKeyEncryption]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM9112_DeviceApprovalPersistence]: FALSE,
-
-  [FeatureFlag.UserKeyRotationV2]: FALSE,
-  [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
   [FeatureFlag.UnauthenticatedExtensionUIRefresh]: FALSE,
-  [FeatureFlag.CipherKeyEncryption]: FALSE,
+
+  /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
-  [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
-  [FeatureFlag.PrivateKeyRegeneration]: FALSE,
-  [FeatureFlag.AccountDeprovisioningBanner]: FALSE,
   [FeatureFlag.PM15179_AddExistingOrgsFromProviderPortal]: FALSE,
   [FeatureFlag.PM12276_BreadcrumbEventLogs]: FALSE,
   [FeatureFlag.PM18794_ProviderPaymentMethod]: FALSE,
   [FeatureFlag.PM17772_AdminInitiatedSponsorships]: FALSE,
+
+  /* Key Management */
+  [FeatureFlag.PrivateKeyRegeneration]: FALSE,
+  [FeatureFlag.UserKeyRotationV2]: FALSE,
+  [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
