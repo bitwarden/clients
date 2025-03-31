@@ -126,7 +126,7 @@ export class IndividualVaultExportService
     return {
       type: "application/zip",
       data: blobData,
-      fileName: ExportHelper.getFileName("", "json"),
+      fileName: ExportHelper.getFileName("", "zip"),
     } as ExportedVaultAsBlob;
   }
 
