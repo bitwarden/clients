@@ -12,14 +12,10 @@ import { DecryptionFailureDialogComponent } from "@bitwarden/vault";
 
 import { AccessibilityCookieComponent } from "../auth/accessibility-cookie.component";
 import { DeleteAccountComponent } from "../auth/delete-account.component";
-import { EnvironmentComponent } from "../auth/environment.component";
-import { HintComponent } from "../auth/hint.component";
 import { LoginModule } from "../auth/login/login.module";
 import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
 import { SsoComponentV1 } from "../auth/sso-v1.component";
-import { TwoFactorOptionsComponentV1 } from "../auth/two-factor-options-v1.component";
-import { TwoFactorComponentV1 } from "../auth/two-factor-v1.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { SshAgentService } from "../autofill/services/ssh-agent.service";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
@@ -71,10 +67,8 @@ import { SharedModule } from "./shared/shared.module";
     CollectionsComponent,
     ColorPasswordPipe,
     ColorPasswordCountPipe,
-    EnvironmentComponent,
     FolderAddEditComponent,
     HeaderComponent,
-    HintComponent,
     PasswordHistoryComponent,
     PremiumComponent,
     RemovePasswordComponent,
@@ -82,9 +76,7 @@ import { SharedModule } from "./shared/shared.module";
     SetPasswordComponent,
     SettingsComponent,
     ShareComponent,
-    TwoFactorComponentV1,
     SsoComponentV1,
-    TwoFactorOptionsComponentV1,
     UpdateTempPasswordComponent,
     VaultComponent,
     VaultTimeoutInputComponent,

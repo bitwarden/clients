@@ -2,10 +2,14 @@
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Observable, combineLatest, map, of, startWith, switchMap } from "rxjs";
 
 import { CollectionView, Unassigned, CollectionAdminView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { SortDirection, TableDataSource } from "@bitwarden/components";
 
 import { GroupView } from "../../../admin-console/organizations/core";
@@ -75,9 +79,67 @@ export class VaultItemsComponent {
 
   @Output() onEvent = new EventEmitter<VaultItemEvent>();
 
+  protected limitItemDeletion$ = this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion);
   protected editableItems: VaultItem[] = [];
   protected dataSource = new TableDataSource<VaultItem>();
   protected selection = new SelectionModel<VaultItem>(true, [], true);
+  protected canDeleteSelected$: Observable<boolean>;
+  protected canRestoreSelected$: Observable<boolean>;
+
+  constructor(
+    protected cipherAuthorizationService: CipherAuthorizationService,
+    private configService: ConfigService,
+  ) {
+    this.canDeleteSelected$ = this.selection.changed.pipe(
+      startWith(null),
+      switchMap(() => {
+        const ciphers = this.selection.selected
+          .filter((item) => item.cipher)
+          .map((item) => item.cipher);
+
+        if (this.selection.selected.length === 0) {
+          return of(true);
+        }
+
+        const canDeleteCiphers$ = ciphers.map((c) =>
+          cipherAuthorizationService.canDeleteCipher$(c, [], this.showAdminActions),
+        );
+
+        const canDeleteCollections = this.selection.selected
+          .filter((item) => item.collection)
+          .every((item) => item.collection && this.canDeleteCollection(item.collection));
+
+        const canDelete$ = combineLatest(canDeleteCiphers$).pipe(
+          map((results) => results.every((item) => item) && canDeleteCollections),
+        );
+
+        return canDelete$;
+      }),
+    );
+
+    this.canRestoreSelected$ = this.selection.changed.pipe(
+      startWith(null),
+      switchMap(() => {
+        const ciphers = this.selection.selected
+          .filter((item) => item.cipher)
+          .map((item) => item.cipher);
+
+        if (this.selection.selected.length === 0) {
+          return of(true);
+        }
+
+        const canRestoreCiphers$ = ciphers.map((c) =>
+          cipherAuthorizationService.canRestoreCipher$(c, this.showAdminActions),
+        );
+
+        const canRestore$ = combineLatest(canRestoreCiphers$).pipe(
+          map((results) => results.every((item) => item)),
+        );
+
+        return canRestore$;
+      }),
+    );
+  }
 
   get showExtraColumn() {
     return this.showCollections || this.showGroups || this.showOwner;
@@ -99,6 +161,7 @@ export class VaultItemsComponent {
     );
   }
 
+  //@TODO: remove this function when removing the limitItemDeletion$ feature flag.
   get showDelete(): boolean {
     if (this.selection.selected.length === 0) {
       return true;

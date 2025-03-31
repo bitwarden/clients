@@ -51,11 +51,11 @@ import { AccountApiService as AccountApiServiceAbstraction } from "@bitwarden/co
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   VaultTimeout,
   VaultTimeoutStringType,
@@ -116,6 +116,7 @@ import {
   WebLoginDecryptionOptionsService,
   WebTwoFactorAuthComponentService,
   WebTwoFactorAuthDuoComponentService,
+  LinkSsoService,
 } from "../auth";
 import { WebSsoComponentService } from "../auth/core/services/login/web-sso-component.service";
 import { AcceptOrganizationInviteService } from "../auth/organization-invite/accept-organization.service";
@@ -256,6 +257,7 @@ const safeProviders: SafeProvider[] = [
       PolicyApiServiceAbstraction,
       LogService,
       PolicyService,
+      AccountService,
     ],
   }),
   safeProvider({
@@ -311,6 +313,7 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsService,
       SsoLoginServiceAbstraction,
       Router,
+      AccountService,
     ],
   }),
   safeProvider({
@@ -342,6 +345,18 @@ const safeProviders: SafeProvider[] = [
     provide: SsoComponentService,
     useClass: WebSsoComponentService,
     deps: [I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: LinkSsoService,
+    useClass: LinkSsoService,
+    deps: [
+      SsoLoginServiceAbstraction,
+      ApiService,
+      CryptoFunctionService,
+      EnvironmentService,
+      PasswordGenerationServiceAbstraction,
+      PlatformUtilsService,
+    ],
   }),
   safeProvider({
     provide: TwoFactorAuthDuoComponentService,

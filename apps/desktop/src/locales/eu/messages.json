@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "Pasahitza gogoratzeko pista"
-  },
-  "enterEmailToGetHint": {
-    "message": "Sartu zure kontuko emaila pasahitz nagusiaren pista jasotzeko."
-  },
   "getMasterPasswordHint": {
     "message": "Jaso pasahitz nagusiaren pista"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Ostatze ingurune propioa"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Bitwarden instalatzeko, zehaztu ostatatze propioaren oinarrizko URL-a."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Ingurune pertsonalizatua"
-  },
-  "customEnvironmentFooter": {
-    "message": "Erabiltzaile aurreratuentzat. Zerbitzu bakoitzarentzako oinarrizko URL-a zehaztu dezakezu independienteki."
   },
   "baseUrl": {
     "message": "Zerbitzariaren URL-a"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Ez"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Berridatzi pasahitza"
@@ -2499,6 +2490,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Exporting organization vault"
   },
@@ -2781,14 +2781,8 @@
   "loginWithMasterPassword": {
     "message": "Hasi saioa pasahitz nagusiarekin"
   },
-  "loggingInAs": {
-    "message": "gisa saioa hasi"
-  },
   "rememberEmail": {
     "message": "Emaila gogoratu"
-  },
-  "notYou": {
-    "message": "Zu ez?"
   },
   "newAroundHere": {
     "message": "Berria hemendik?"
@@ -3029,9 +3023,6 @@
   "requestAdminApproval": {
     "message": "Request admin approval"
   },
-  "approveWithMasterPassword": {
-    "message": "Approve with master password"
-  },
   "region": {
     "message": "Region"
   },
@@ -3056,9 +3047,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Your request has been sent to your admin."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "You will be notified once approved."
   },
   "troubleLoggingIn": {
     "message": "Trouble logging in?"
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "An application"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
