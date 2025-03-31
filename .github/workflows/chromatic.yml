@@ -8,6 +8,13 @@ on:
       - "hotfix-rc"
   pull_request_target:
     types: [opened, synchronize]
+    paths:
+      - "apps/**"
+      - "!apps/cli/**"
+      - "bitwarden_license/bit-web/src/app/**"
+      - "libs/**"
+      - "node_modules/**"
+      - ".storybook/**"
 
 jobs:
   check-run:
