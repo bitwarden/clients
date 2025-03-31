@@ -2490,6 +2490,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Exportované budú iba položky osobného trezora spojené s $EMAIL$. Položky trezora organizácie nebudú zahrnuté v exporte",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Exportovanie trezora organizácie"
   },

@@ -6741,6 +6741,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Yalnız $EMAIL$ ilə əlaqələndirilmiş qoşmalar daxil olmaqla fərdi anbar elementləri xaricə köçürüləcək. Təşkilat anbar elementləri daxil edilməyəcək",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultDesc": {
     "message": "Yalnız $ORGANIZATION$ ilə əlaqələndirilmiş təşkilat seyfi xaricə köçürüləcək. Fərdi seyfdə və digər təşkilatlardakı elementlər daxil edilməyəcək.",
     "placeholders": {
