@@ -10,7 +10,7 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { lastValueFrom, map, Observable, switchMap } from "rxjs";
+import { map, Observable, switchMap } from "rxjs";
 
 import {
   getOrganizationById,
@@ -26,10 +26,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import {
-  ChangePlanDialogResultType,
-  openChangePlanDialog,
-} from "@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.component";
 
 import { BasePolicy, BasePolicyComponent } from "../policies";
 
@@ -42,7 +38,7 @@ export type PolicyEditDialogData = {
 
 export enum PolicyEditDialogResult {
   Saved = "saved",
-  UpgradedPlan = "upgraded-plan",
+  UpgradePlan = "upgrade-plan",
 }
 @Component({
   selector: "app-policy-edit",
@@ -76,7 +72,6 @@ export class PolicyEditComponent implements AfterViewInit {
     private dialogRef: DialogRef<PolicyEditDialogResult>,
     private toastService: ToastService,
     private organizationBillingService: OrganizationBillingServiceAbstraction,
-    private dialogService: DialogService,
   ) {}
 
   get policy(): BasePolicy {
@@ -145,21 +140,7 @@ export class PolicyEditComponent implements AfterViewInit {
     return dialogService.open<PolicyEditDialogResult>(PolicyEditComponent, config);
   };
 
-  protected async changePlan(organization: Organization) {
-    const reference = openChangePlanDialog(this.dialogService, {
-      data: {
-        organizationId: organization.id,
-        subscription: null,
-        productTierType: organization.productTierType,
-      },
-    });
-
-    const dialogResult = await lastValueFrom(reference.closed);
-
-    if (dialogResult === ChangePlanDialogResultType.Submitted) {
-      this.dialogRef.close(PolicyEditDialogResult.UpgradedPlan);
-    } else {
-      this.dialogRef.close();
-    }
+  protected upgradePlan(): void {
+    this.dialogRef.close(PolicyEditDialogResult.UpgradePlan);
   }
 }

@@ -5,7 +5,7 @@
       <span
         bitBadge
         class="tw-cursor-pointer"
-        (click)="changePlan(organization)"
+        (click)="upgradePlan()"
         *ngIf="isBreadcrumbingEnabled$ | async"
         variant="primary"
       >
@@ -44,7 +44,7 @@
           buttonType="primary"
           bitFormButton
           type="button"
-          (click)="changePlan(organization)"
+          (click)="upgradePlan()"
         >
           {{ "upgrade" | i18n }}
         </button>
