@@ -8,14 +8,25 @@ import {
   NotificationTaskInfo,
   NotificationType,
   NotificationTypes,
-} from "../../../notification/abstractions/notification-bar";
-import { themes, spacing } from "../constants/styles";
-
-import { NotificationConfirmationBody } from "./confirmation";
+} from "../../../../notification/abstractions/notification-bar";
+import { themes, spacing } from "../../constants/styles";
 import {
   NotificationHeader,
   componentClassPrefix as notificationHeaderClassPrefix,
-} from "./header";
+} from "../header";
+
+import { NotificationConfirmationBody } from "./body";
+
+export type NotificationConfirmationContainerProps = NotificationBarIframeInitData & {
+  handleCloseNotification: (e: Event) => void;
+  handleOpenVault: (e: Event) => void;
+} & {
+  error?: string;
+  i18n: { [key: string]: string };
+  task?: NotificationTaskInfo;
+  type: NotificationType;
+  username: string;
+};
 
 export function NotificationConfirmationContainer({
   error,
@@ -26,18 +37,9 @@ export function NotificationConfirmationContainer({
   theme = ThemeTypes.Light,
   type,
   username,
-}: NotificationBarIframeInitData & {
-  handleCloseNotification: (e: Event) => void;
-  handleOpenVault: (e: Event) => void;
-} & {
-  error?: string;
-  i18n: { [key: string]: string };
-  task?: NotificationTaskInfo;
-  type: NotificationType;
-  username: string;
-}) {
+}: NotificationConfirmationContainerProps) {
   const headerMessage = getHeaderMessage(i18n, type, error);
-  const confirmationMessage = getConfirmationMessage(i18n, username, type, error);
+  const confirmationMessage = getConfirmationMessage(i18n, username, task, type, error);
   const buttonText = error ? i18n.newItem : i18n.view;
 
   return html`
@@ -52,6 +54,7 @@ export function NotificationConfirmationContainer({
         confirmationMessage,
         error: error,
         handleOpenVault,
+        task,
         theme,
       })}
     </div>
@@ -77,6 +80,7 @@ const notificationContainerStyles = (theme: Theme) => css`
 function getConfirmationMessage(
   i18n: { [key: string]: string },
   username: string,
+  task?: NotificationTaskInfo,
   type?: NotificationType,
   error?: string,
 ) {
