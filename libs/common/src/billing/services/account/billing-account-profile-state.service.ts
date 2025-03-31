@@ -79,8 +79,7 @@ export class DefaultBillingAccountProfileStateService implements BillingAccountP
           billing = await this.apiService.getUserBillingHistory();
         }
 
-        const cloudAndBillingHistory = isCloud && !billing?.hasNoHistory;
-        return cloudAndBillingHistory;
+        return isCloud && !billing?.hasNoHistory;
       }),
     );
   }
