@@ -330,12 +330,10 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe(([value, isExportAttachmentsEnabled]) => {
         this.organizationId = value !== "myVault" ? value : undefined;
+
+        this.formatOptions = this.formatOptions.filter((option) => option.value !== "zip");
         if (value === "myVault" && isExportAttachmentsEnabled) {
-          if (!this.formatOptions.some((option) => option.value === "zip")) {
-            this.formatOptions.push({ name: ".zip (with attachments)", value: "zip" });
-          }
-        } else {
-          this.formatOptions = this.formatOptions.filter((option) => option.value !== "zip");
+          this.formatOptions.push({ name: ".zip (with attachments)", value: "zip" });
         }
       });
   }
