@@ -2,7 +2,7 @@
   @let organization = organization$ | async;
   <span
     bitBadge
-    class="tw-cursor-pointer"
+    class="tw-cursor-pointer !tw-align-middle"
     (click)="changePlan(organization)"
     *ngIf="isBreadcrumbingEnabled$ | async"
     slot="title-suffix"
