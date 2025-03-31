@@ -58,7 +58,7 @@ export class FreeFamiliesPolicyService {
 
     return this.accountService.activeAccount$.pipe(
       getUserId,
-      map((userId) => {
+      switchMap((userId) => {
         const policies$ = this.policyService.policiesByType$(
           PolicyType.FreeFamiliesSponsorshipPolicy,
           userId,
@@ -85,7 +85,6 @@ export class FreeFamiliesPolicyService {
           }),
         );
       }),
-      switchMap((observable) => observable),
     );
   }
 
