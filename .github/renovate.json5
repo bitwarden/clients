@@ -175,6 +175,7 @@
         "del",
         "ed25519",
         "lit",
+        "@lit-labs/signals",
         "patch-package",
         "pkcs8",
         "prettier",
