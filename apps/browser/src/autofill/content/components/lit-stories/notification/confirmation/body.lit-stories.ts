@@ -1,19 +1,14 @@
 import { Meta, StoryObj } from "@storybook/web-components";
 
-import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
+import { ThemeTypes } from "@bitwarden/common/platform/enums";
 
-import { NotificationConfirmationBody } from "../../notification/confirmation";
-
-type Args = {
-  buttonText: string;
-  confirmationMessage: string;
-  handleOpenVault: () => void;
-  theme: Theme;
-  error: string;
-};
+import {
+  NotificationConfirmationBody,
+  NotificationConfirmationBodyProps,
+} from "../../../notification/confirmation/body";
 
 export default {
-  title: "Components/Notifications/Notification Confirmation Body",
+  title: "Components/Notifications/Confirmation/Body",
   argTypes: {
     error: { control: "text" },
     buttonText: { control: "text" },
@@ -24,6 +19,12 @@ export default {
     error: "",
     buttonText: "View",
     confirmationMessage: "[item name] updated in Bitwarden.",
+    task: {
+      cipherName: "user@org.org",
+      orgName: "Acme, Inc.",
+      remainingTasksCount: 0,
+      taskCompleted: true,
+    },
     theme: ThemeTypes.Light,
   },
   parameters: {
@@ -32,10 +33,11 @@ export default {
       url: "https://www.figma.com/design/LEhqLAcBPY8uDKRfU99n9W/Autofill-notification-redesign?node-id=485-20160&m=dev",
     },
   },
-} as Meta<Args>;
+} as Meta<NotificationConfirmationBodyProps>;
 
-const Template = (args: Args) => NotificationConfirmationBody({ ...args });
+const Template = (args: NotificationConfirmationBodyProps) =>
+  NotificationConfirmationBody({ ...args });
 
-export const Default: StoryObj<Args> = {
+export const Default: StoryObj<NotificationConfirmationBodyProps> = {
   render: Template,
 };

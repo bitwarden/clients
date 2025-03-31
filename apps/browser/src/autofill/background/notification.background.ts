@@ -654,7 +654,7 @@ export default class NotificationBackground {
       const updatedCipherTask = tasks.find((task) => task.cipherId === cipherView?.id);
       const taskCompleted = !!updatedCipherTask?.id;
 
-      let taskOrgName;
+      let taskOrgName: string;
       if (updatedCipherTask?.organizationId) {
         const userOrgs = await this.getOrgData();
         taskOrgName = userOrgs.find(({ id }) => id === updatedCipherTask.organizationId)?.name;

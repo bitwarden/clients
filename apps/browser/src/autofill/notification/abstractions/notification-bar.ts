@@ -13,7 +13,7 @@ type NotificationType = (typeof NotificationTypes)[keyof typeof NotificationType
 
 type NotificationTaskInfo = {
   cipherName: string;
-  orgName?: string;
+  orgName: string;
   remainingTasksCount: number;
   taskCompleted: boolean;
 };

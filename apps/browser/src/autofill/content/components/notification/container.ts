@@ -19,6 +19,18 @@ import {
   componentClassPrefix as notificationHeaderClassPrefix,
 } from "./header";
 
+export type NotificationContainerProps = NotificationBarIframeInitData & {
+  handleCloseNotification: (e: Event) => void;
+  handleSaveAction: (e: Event) => void;
+  handleEditOrUpdateAction: (e: Event) => void;
+} & {
+  ciphers?: NotificationCipherData[];
+  folders?: FolderView[];
+  i18n: { [key: string]: string };
+  organizations?: OrgView[];
+  type: NotificationType; // @TODO typing override for generic `NotificationBarIframeInitData.type`
+};
+
 export function NotificationContainer({
   handleCloseNotification,
   handleEditOrUpdateAction,
@@ -29,17 +41,7 @@ export function NotificationContainer({
   organizations,
   theme = ThemeTypes.Light,
   type,
-}: NotificationBarIframeInitData & {
-  handleCloseNotification: (e: Event) => void;
-  handleSaveAction: (e: Event) => void;
-  handleEditOrUpdateAction: (e: Event) => void;
-} & {
-  ciphers?: NotificationCipherData[];
-  folders?: FolderView[];
-  i18n: { [key: string]: string };
-  organizations?: OrgView[];
-  type: NotificationType; // @TODO typing override for generic `NotificationBarIframeInitData.type`
-}) {
+}: NotificationContainerProps) {
   const headerMessage = getHeaderMessage(i18n, type);
   const showBody = true;
 
