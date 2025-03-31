@@ -129,7 +129,7 @@ jobs:
           ref: ${{ needs.setup.outputs.branch_name }}
 
       - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -219,7 +219,7 @@ jobs:
           ref: ${{ needs.setup.outputs.branch_name }}
 
       - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -408,7 +408,7 @@ jobs:
           ref: ${{ needs.setup.outputs.branch_name }}
 
       - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -542,7 +542,7 @@ jobs:
           ref: ${{ needs.setup.outputs.branch_name }}
 
       - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -755,7 +755,7 @@ jobs:
           ref: ${{ needs.setup.outputs.branch_name }}
 
       - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
