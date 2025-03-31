@@ -109,7 +109,7 @@ export class OrganizationVaultExportService
         data: onlyManagedCollections
           ? await this.getEncryptedManagedExport(organizationId)
           : await this.getOrganizationEncryptedExport(organizationId),
-        fileName: ExportHelper.getFileName("org", "json"),
+        fileName: ExportHelper.getFileName("org", "encrypted_json"),
       } as ExportedVaultAsString;
     }
 
