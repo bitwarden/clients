@@ -27,6 +27,7 @@
     </ng-container>
     <ng-container bitDialogFooter>
       <button
+        *ngIf="!(isBreadcrumbingEnabled$ | async); else breadcrumbing"
         bitButton
         buttonType="primary"
         [disabled]="saveDisabled$ | async"
@@ -35,6 +36,18 @@
       >
         {{ "save" | i18n }}
       </button>
+      <ng-template #breadcrumbing>
+        <button
+          *ngIf="isBreadcrumbingEnabled$ | async; else breadcrumbing"
+          bitButton
+          buttonType="primary"
+          bitFormButton
+          type="button"
+          (click)="changePlan(organization)"
+        >
+          {{ "upgrade" | i18n }}
+        </button>
+      </ng-template>
       <button bitButton buttonType="secondary" bitDialogClose type="button">
         {{ "cancel" | i18n }}
       </button>
