@@ -27,13 +27,13 @@ import { PolicyResponse } from "../../admin-console/models/response/policy.respo
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AvatarService } from "../../auth/abstractions/avatar.service";
-import { KeyConnectorService } from "../../auth/abstractions/key-connector.service";
-import { InternalMasterPasswordServiceAbstraction } from "../../auth/abstractions/master-password.service.abstraction";
 import { TokenService } from "../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "../../auth/models/domain/force-set-password-reason";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
+import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
+import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
 import { SendData } from "../../tools/send/models/data/send.data";
@@ -51,7 +51,6 @@ import { FolderResponse } from "../../vault/models/response/folder.response";
 import { LogService } from "../abstractions/log.service";
 import { StateService } from "../abstractions/state.service";
 import { MessageSender } from "../messaging";
-import { sequentialize } from "../misc/sequentialize";
 import { StateProvider } from "../state";
 
 import { CoreSyncService } from "./core-sync.service";
@@ -103,7 +102,6 @@ export class DefaultSyncService extends CoreSyncService {
     );
   }
 
-  @sequentialize(() => "fullSync")
   override async fullSync(forceSync: boolean, allowThrowOnError = false): Promise<boolean> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     this.syncStarted();

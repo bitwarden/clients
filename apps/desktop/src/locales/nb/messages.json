@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "Passordhint"
-  },
-  "enterEmailToGetHint": {
-    "message": "Skriv inn din kontos E-postadresse for å motta hintet til ditt superpassord."
-  },
   "getMasterPasswordHint": {
     "message": "Få et hint om superpassordet"
   },
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Selvbetjent miljø"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Spesifiser grunn-nettadressen til din selvbetjente Bitwarden-installasjon."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Tilpasset miljø"
-  },
-  "customEnvironmentFooter": {
-    "message": "For avanserte brukere. Du kan bestemme grunn-nettadressen til hver tjeneste separat."
   },
   "baseUrl": {
     "message": "Tjener-nettadresse"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Nei"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Overskriv passordet"
@@ -2499,6 +2490,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Exporting organization vault"
   },
@@ -2781,14 +2781,8 @@
   "loginWithMasterPassword": {
     "message": "Logg inn med hovedpassord"
   },
-  "loggingInAs": {
-    "message": "Logger inn som"
-  },
   "rememberEmail": {
     "message": "Husk på E-postadressen"
-  },
-  "notYou": {
-    "message": "Ikke du?"
   },
   "newAroundHere": {
     "message": "Ny rundt her?"
@@ -3029,9 +3023,6 @@
   "requestAdminApproval": {
     "message": "Be om administratorgodkjennelse"
   },
-  "approveWithMasterPassword": {
-    "message": "Godkjenn med hovedpassord"
-  },
   "region": {
     "message": "Region"
   },
@@ -3056,9 +3047,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Forespørselen din har blitt sendt til administratoren din."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Du vil bli varslet når det er godkjent."
   },
   "troubleLoggingIn": {
     "message": "Problemer med å logge inn?"
@@ -3529,9 +3517,6 @@
   "unknownApplication": {
     "message": "Et program"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "SSH-nøkkelen er ugyldig"
   },
@@ -3541,7 +3526,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {

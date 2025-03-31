@@ -1,9 +1,11 @@
 import { html } from "lit";
 
-import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
+import { ThemeTypes } from "@bitwarden/common/platform/enums";
+
+import { IconProps } from "../common-types";
 
 // This icon has static multi-colors for each theme
-export function PartyHorn({ theme }: { theme: Theme }) {
+export function PartyHorn({ theme }: IconProps) {
   if (theme === ThemeTypes.Dark) {
     return html`
       <svg

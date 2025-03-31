@@ -7,25 +7,27 @@
     <span bitDialogTitle>
       <span *ngIf="!data.orgDomain">{{ "newDomain" | i18n }}</span>
       <span *ngIf="data.orgDomain">
+        {{ ((accountDeprovisioningEnabled$ | async) ? "claimDomain" : "verifyDomain") | i18n }}
+      </span>
+
+      <span *ngIf="data.orgDomain" class="tw-text-xs tw-text-muted">
+        {{ data.orgDomain.domainName }}
+      </span>
+
+      <span *ngIf="data?.orgDomain && !data.orgDomain?.verifiedDate" bitBadge variant="warning">
         {{
-          ((accountDeprovisioningEnabled$ | async) ? "claimDomain" : "verifyDomain") | i18n
-        }}</span
-      >
-
-      <span *ngIf="data.orgDomain" class="tw-text-xs tw-text-muted">{{
-        data.orgDomain.domainName
-      }}</span>
-
-      <span *ngIf="data?.orgDomain && !data.orgDomain?.verifiedDate" bitBadge variant="warning">{{
-        ((accountDeprovisioningEnabled$ | async)
-          ? "domainStatusUnderVerification"
-          : "domainStatusUnverified"
-        ) | i18n
-      }}</span>
-      <span *ngIf="data?.orgDomain && data?.orgDomain?.verifiedDate" bitBadge variant="success">{{
-        ((accountDeprovisioningEnabled$ | async) ? "domainStatusClaimed" : "domainStatusVerified")
-          | i18n
-      }}</span>
+          ((accountDeprovisioningEnabled$ | async)
+            ? "domainStatusUnderVerification"
+            : "domainStatusUnverified"
+          ) | i18n
+        }}
+      </span>
+      <span *ngIf="data?.orgDomain && data?.orgDomain?.verifiedDate" bitBadge variant="success">
+        {{
+          ((accountDeprovisioningEnabled$ | async) ? "domainStatusClaimed" : "domainStatusVerified")
+            | i18n
+        }}
+      </span>
     </span>
     <div bitDialogContent>
       <bit-form-field>

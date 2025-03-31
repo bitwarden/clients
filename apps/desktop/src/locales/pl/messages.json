@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Wprowadź adres e-mail swojego konta, a podpowiedź hasła zostanie wysłana do Ciebie"
   },
-  "passwordHint": {
-    "message": "Podpowiedź do hasła"
-  },
-  "enterEmailToGetHint": {
-    "message": "Wpisz adres e-mail powiązany z kontem, aby otrzymać podpowiedź do hasła głównego."
-  },
   "getMasterPasswordHint": {
     "message": "Uzyskaj podpowiedź do hasła głównego"
   },
@@ -913,7 +907,7 @@
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Potwierdź swoją tożsamość"
   },
   "weDontRecognizeThisDevice": {
     "message": "Nie rozpoznajemy tego urządzenia. Wpisz kod wysłany na Twój e-mail, aby zweryfikować tożsamość."
@@ -951,9 +945,6 @@
   "selfHostedEnvironment": {
     "message": "Samodzielnie hostowane środowisko"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Wpisz podstawowy adres URL hostowanej instalacji Bitwarden."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Określ bazowy adres URL swojej instalacji Bitwarden. Przykład: https://bitwarden.company.com"
   },
@@ -965,9 +956,6 @@
   },
   "customEnvironment": {
     "message": "Niestandardowe środowisko"
-  },
-  "customEnvironmentFooter": {
-    "message": "Dla zaawansowanych użytkowników. Możesz wpisać podstawowy adres URL niezależnie dla każdej usługi."
   },
   "baseUrl": {
     "message": "Adres URL serwera"
@@ -1008,6 +996,9 @@
   },
   "no": {
     "message": "Nie"
+  },
+  "location": {
+    "message": "Lokalizacja"
   },
   "overwritePassword": {
     "message": "Zastąp hasło"
@@ -2499,6 +2490,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Eksportowanie sejfu organizacji"
   },
@@ -2781,14 +2781,8 @@
   "loginWithMasterPassword": {
     "message": "Logowanie hasłem głównym"
   },
-  "loggingInAs": {
-    "message": "Logowanie jako"
-  },
   "rememberEmail": {
     "message": "Zapamiętaj adres e-mail"
-  },
-  "notYou": {
-    "message": "To nie Ty?"
   },
   "newAroundHere": {
     "message": "Nowy użytkownik?"
@@ -3029,9 +3023,6 @@
   "requestAdminApproval": {
     "message": "Poproś administratora o zatwierdzenie"
   },
-  "approveWithMasterPassword": {
-    "message": "Zatwierdź przy użyciu hasła głównego"
-  },
   "region": {
     "message": "Region"
   },
@@ -3056,9 +3047,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Twoja prośba została wysłana do Twojego administratora."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Zostaniesz powiadomiony po zatwierdzeniu."
   },
   "troubleLoggingIn": {
     "message": "Problem z zalogowaniem?"
@@ -3509,28 +3497,25 @@
     "message": "Warning: Agent Forwarding"
   },
   "agentForwardingWarningText": {
-    "message": "This request comes from a remote device that you are logged into"
+    "message": "To żądanie pochodzi ze zdalnego urządzenia, do którego jesteś zalogowany"
   },
   "sshkeyApprovalMessageInfix": {
     "message": "wnioskuje o dostęp do"
   },
   "sshkeyApprovalMessageSuffix": {
-    "message": "in order to"
+    "message": "w celu"
   },
   "sshActionLogin": {
-    "message": "authenticate to a server"
+    "message": "autoryzacji na serwerze"
   },
   "sshActionSign": {
-    "message": "sign a message"
+    "message": "podpisania wiadomości"
   },
   "sshActionGitSign": {
-    "message": "sign a git commit"
+    "message": "podpisania commita w giciem"
   },
   "unknownApplication": {
     "message": "Aplikacja"
-  },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importowanie kluczy SSH chronionych hasłem nie jest jeszcze obsługiwane"
   },
   "invalidSshKey": {
     "message": "Klucz SSH jest nieprawidłowy"
@@ -3541,8 +3526,8 @@
   "importSshKeyFromClipboard": {
     "message": "Importuj klucz ze schowka"
   },
-  "sshKeyPasted": {
-    "message": "Pomyślnie zaimportowano klucz SSH"
+  "sshKeyImported": {
+    "message": "Klucz SSH zaimportowano pomyślnie"
   },
   "fileSavedToDevice": {
     "message": "Plik zapisany na urządzeniu. Zarządzaj plikiem na swoim urządzeniu."
@@ -3602,6 +3587,6 @@
     "message": "Rozszerzenie przeglądarki, którego używasz, jest nieaktualne. Zaktualizuj je lub wyłącz weryfikację odcisku palca integracji przeglądarki w ustawieniach aplikacji desktopowej."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "Zmień zagrożone hasło"
   }
 }
