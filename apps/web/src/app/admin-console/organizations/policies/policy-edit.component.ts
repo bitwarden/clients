@@ -42,7 +42,7 @@ export type PolicyEditDialogData = {
 
 export enum PolicyEditDialogResult {
   Saved = "saved",
-  Changed = "changed",
+  UpgradedPlan = "upgraded-plan",
 }
 @Component({
   selector: "app-policy-edit",
@@ -157,7 +157,7 @@ export class PolicyEditComponent implements AfterViewInit {
     const dialogResult = await lastValueFrom(reference.closed);
 
     if (dialogResult === ChangePlanDialogResultType.Submitted) {
-      this.dialogRef.close(PolicyEditDialogResult.Changed);
+      this.dialogRef.close(PolicyEditDialogResult.UpgradedPlan);
     } else {
       this.dialogRef.close();
     }

@@ -115,7 +115,7 @@ export class PoliciesComponent implements OnInit {
     });
 
     const result = await lastValueFrom(dialogRef.closed);
-    if (result === PolicyEditDialogResult.Saved || result === PolicyEditDialogResult.Changed) {
+    if (result === PolicyEditDialogResult.Saved || result === PolicyEditDialogResult.UpgradedPlan) {
       await this.load();
     }
   }
