@@ -6,6 +6,7 @@ import { Theme } from "@bitwarden/common/platform/enums";
 import { Option, OrgView, FolderView } from "../common-types";
 import { Business, Family, Folder, User } from "../icons";
 import { ButtonRow } from "../rows/button-row";
+import { selectedFolder as selectedFolderSignal } from "../signals/selected-folder";
 
 function getVaultIconByProductTier(productTierType?: ProductTierType): Option["icon"] {
   switch (productTierType) {
@@ -95,6 +96,7 @@ export function NotificationButtonRow({
                 id: "folder",
                 label: "Folder", // @TODO localize
                 options: folderOptions,
+                selectedSignal: selectedFolderSignal,
               },
             ]
           : []),
