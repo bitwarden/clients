@@ -27,7 +27,7 @@ export class IntroCarouselComponent implements OnInit {
 
   constructor(private router: Router) {}
 
-  ngOnInit() {}
+  async ngOnInit() {}
 
   protected onSlideChange(slideIndex: number) {
     if (slideIndex === 4) {
