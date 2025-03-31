@@ -4,8 +4,6 @@
  * Flags MUST be short lived and SHALL be removed once enabled.
  *
  * Flags should be grouped by team to have visibility of ownership and cleanup.
- *
- * Flags should be grouped by team to have visibility of ownership and cleanup.
  */
 export enum FeatureFlag {
   /* Admin Console Team */
