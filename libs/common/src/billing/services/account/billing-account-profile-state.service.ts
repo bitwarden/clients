@@ -68,6 +68,10 @@ export class DefaultBillingAccountProfileStateService implements BillingAccountP
       this.hasPremiumFromAnyOrganization$(userId),
     ]).pipe(
       concatMap(async ([hasPremiumPersonally, hasPremiumFromOrg]) => {
+        if (hasPremiumPersonally === true || !hasPremiumFromOrg === true) {
+          return true;
+        }
+
         const isCloud = !this.platformUtilsService.isSelfHost();
 
         let billing = null;
@@ -76,7 +80,7 @@ export class DefaultBillingAccountProfileStateService implements BillingAccountP
         }
 
         const cloudAndBillingHistory = isCloud && !billing?.hasNoHistory;
-        return hasPremiumPersonally || !hasPremiumFromOrg || cloudAndBillingHistory;
+        return cloudAndBillingHistory;
       }),
     );
   }
