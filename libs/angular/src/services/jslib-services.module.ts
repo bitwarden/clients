@@ -1472,7 +1472,14 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: TaskService,
     useClass: DefaultTaskService,
-    deps: [StateProvider, ApiServiceAbstraction, OrganizationServiceAbstraction, ConfigService],
+    deps: [
+      StateProvider,
+      ApiServiceAbstraction,
+      OrganizationServiceAbstraction,
+      ConfigService,
+      AuthServiceAbstraction,
+      NotificationsService,
+    ],
   }),
   safeProvider({
     provide: EndUserNotificationService,

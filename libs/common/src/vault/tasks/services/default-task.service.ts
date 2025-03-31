@@ -1,10 +1,14 @@
-import { combineLatest, map, switchMap } from "rxjs";
+import { combineLatest, filter, map, Subscription, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { NotificationType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { SecurityTaskId, UserId } from "@bitwarden/common/types/guid";
 
@@ -14,12 +18,20 @@ import { SecurityTaskStatus } from "../enums";
 import { SecurityTask, SecurityTaskData, SecurityTaskResponse } from "../models";
 import { SECURITY_TASKS } from "../state/security-task.state";
 
+const getUnlockedUserIds = map<Record<UserId, AuthenticationStatus>, UserId[]>((authStatuses) =>
+  Object.entries(authStatuses ?? {})
+    .filter(([, status]) => status >= AuthenticationStatus.Unlocked)
+    .map(([userId]) => userId as UserId),
+);
+
 export class DefaultTaskService implements TaskService {
   constructor(
     private stateProvider: StateProvider,
     private apiService: ApiService,
     private organizationService: OrganizationService,
     private configService: ConfigService,
+    private authService: AuthService,
+    private notificationService: NotificationsService,
   ) {}
 
   tasksEnabled$ = perUserCache$((userId) => {
@@ -61,6 +73,36 @@ export class DefaultTaskService implements TaskService {
   async markAsComplete(taskId: SecurityTaskId, userId: UserId): Promise<void> {
     await this.apiService.send("PATCH", `/tasks/${taskId}/complete`, null, true, false);
     await this.refreshTasks(userId);
+  }
+
+  listenForTaskNotifications(): Subscription {
+    return this.authService.authStatuses$
+      .pipe(
+        getUnlockedUserIds,
+        // Filter out users who don't have tasks enabled
+        switchMap((unlockedUserIds) =>
+          combineLatest(
+            unlockedUserIds.map((userId) =>
+              this.tasksEnabled$(userId).pipe(map((enabled) => [userId, enabled] as const)),
+            ),
+          ).pipe(
+            map((userIds) => userIds.filter(([, enabled]) => enabled).map(([userId]) => userId)),
+          ),
+        ),
+        // Listen for notifications for unlocked/task enabled users
+        switchMap((unlockedUserIds) =>
+          this.notificationService.notifications$.pipe(
+            filter(
+              ([notification, userId]) =>
+                notification.type === NotificationType.PendingSecurityTasks &&
+                unlockedUserIds.includes(userId),
+            ),
+          ),
+        ),
+        // Refresh tasks for the user who received the notification
+        switchMap(([, userId]) => this.refreshTasks(userId)),
+      )
+      .subscribe();
   }
 
   /**
