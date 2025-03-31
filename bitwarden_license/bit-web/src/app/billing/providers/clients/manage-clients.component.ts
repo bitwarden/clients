@@ -11,7 +11,6 @@ import { Provider } from "@bitwarden/common/admin-console/models/domain/provider
 import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -69,9 +68,6 @@ export class ManageClientsComponent {
 
   protected searchControl = new FormControl("", { nonNullable: true });
   protected plans: PlanResponse[] = [];
-  protected addExistingOrgsFromProviderPortal$ = this.configService.getFeatureFlag$(
-    FeatureFlag.PM15179_AddExistingOrgsFromProviderPortal,
-  );
 
   constructor(
     private billingApiService: BillingApiServiceAbstraction,
