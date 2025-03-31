@@ -5,7 +5,7 @@ import { RouterModule } from "@angular/router";
 
 import { TableModule } from "@bitwarden/components";
 
-import { CollectionBadgeModule } from "../../../admin-console/organizations/collections/collection-badge/collection-badge.module";
+import { CollectionNameBadgeComponent } from "../../../admin-console/organizations/collections";
 import { GroupBadgeModule } from "../../../admin-console/organizations/collections/group-badge/group-badge.module";
 import { SharedModule } from "../../../shared/shared.module";
 import { OrganizationBadgeModule } from "../../individual-vault/organization-badge/organization-badge.module";
@@ -23,7 +23,7 @@ import { VaultItemsComponent } from "./vault-items.component";
     SharedModule,
     TableModule,
     OrganizationBadgeModule,
-    CollectionBadgeModule,
+    CollectionNameBadgeComponent,
     GroupBadgeModule,
     PipesModule,
   ],

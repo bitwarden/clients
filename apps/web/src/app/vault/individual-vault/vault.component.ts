@@ -76,6 +76,7 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
+import { getNestedCollectionTree } from "../../admin-console/organizations/collections";
 import {
   CollectionDialogAction,
   CollectionDialogTabType,
@@ -94,7 +95,6 @@ import {
 import { VaultItem } from "../components/vault-items/vault-item";
 import { VaultItemEvent } from "../components/vault-items/vault-item-event";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
-import { getNestedCollectionTree } from "../utils/collection-utils";
 
 import {
   AttachmentDialogCloseResult,
