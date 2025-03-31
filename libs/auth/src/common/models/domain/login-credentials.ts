@@ -53,9 +53,9 @@ export class AuthRequestLoginCredentials {
     public email: string,
     public accessCode: string,
     public authRequestId: string,
-    public decryptedUserKey: UserKey,
-    public decryptedMasterKey: MasterKey,
-    public decryptedMasterKeyHash: string,
+    public decryptedUserKey: UserKey | null,
+    public decryptedMasterKey: MasterKey | null,
+    public decryptedMasterKeyHash: string | null,
     public twoFactor?: TokenTwoFactorRequest,
   ) {}
 

@@ -12,14 +12,10 @@ import { DecryptionFailureDialogComponent } from "@bitwarden/vault";
 
 import { AccessibilityCookieComponent } from "../auth/accessibility-cookie.component";
 import { DeleteAccountComponent } from "../auth/delete-account.component";
-import { EnvironmentComponent } from "../auth/environment.component";
-import { HintComponent } from "../auth/hint.component";
 import { LoginModule } from "../auth/login/login.module";
 import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
 import { SsoComponentV1 } from "../auth/sso-v1.component";
-import { TwoFactorOptionsComponentV1 } from "../auth/two-factor-options-v1.component";
-import { TwoFactorComponentV1 } from "../auth/two-factor-v1.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { SshAgentService } from "../autofill/services/ssh-agent.service";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
@@ -46,8 +42,6 @@ import { HeaderComponent } from "./layout/header.component";
 import { NavComponent } from "./layout/nav.component";
 import { SearchComponent } from "./layout/search/search.component";
 import { SharedModule } from "./shared/shared.module";
-import { AddEditComponent as SendAddEditComponent } from "./tools/send/add-edit.component";
-import { SendComponent } from "./tools/send/send.component";
 
 @NgModule({
   imports: [
@@ -60,6 +54,7 @@ import { SendComponent } from "./tools/send/send.component";
     DeleteAccountComponent,
     UserVerificationComponent,
     DecryptionFailureDialogComponent,
+    NavComponent,
   ],
   declarations: [
     AccessibilityCookieComponent,
@@ -72,23 +67,16 @@ import { SendComponent } from "./tools/send/send.component";
     CollectionsComponent,
     ColorPasswordPipe,
     ColorPasswordCountPipe,
-    EnvironmentComponent,
     FolderAddEditComponent,
     HeaderComponent,
-    HintComponent,
-    NavComponent,
     PasswordHistoryComponent,
     PremiumComponent,
     RemovePasswordComponent,
     SearchComponent,
-    SendAddEditComponent,
-    SendComponent,
     SetPasswordComponent,
     SettingsComponent,
     ShareComponent,
-    TwoFactorComponentV1,
     SsoComponentV1,
-    TwoFactorOptionsComponentV1,
     UpdateTempPasswordComponent,
     VaultComponent,
     VaultTimeoutInputComponent,

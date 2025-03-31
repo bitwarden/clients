@@ -13,7 +13,7 @@ import {
 } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { Subject, firstValueFrom, map, takeUntil } from "rxjs";
+import { Subject, firstValueFrom, map, switchMap, takeUntil } from "rxjs";
 
 import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -28,6 +28,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/models/request/organization-upgrade.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   BillingApiServiceAbstraction,
   BillingInformation,
@@ -58,6 +59,7 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
+import { BillingNotificationService } from "../services/billing-notification.service";
 import { BillingSharedModule } from "../shared/billing-shared.module";
 import { PaymentComponent } from "../shared/payment/payment.component";
 
@@ -208,6 +210,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private taxService: TaxServiceAbstraction,
     private accountService: AccountService,
     private organizationBillingService: OrganizationBillingService,
+    private billingNotificationService: BillingNotificationService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -228,10 +231,14 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
           .organizations$(userId)
           .pipe(getOrganizationById(this.organizationId)),
       );
-      const { accountCredit, paymentSource } =
-        await this.billingApiService.getOrganizationPaymentMethod(this.organizationId);
-      this.accountCredit = accountCredit;
-      this.paymentSource = paymentSource;
+      try {
+        const { accountCredit, paymentSource } =
+          await this.billingApiService.getOrganizationPaymentMethod(this.organizationId);
+        this.accountCredit = accountCredit;
+        this.paymentSource = paymentSource;
+      } catch (error) {
+        this.billingNotificationService.handleError(error);
+      }
     }
 
     if (!this.selfHosted) {
@@ -259,9 +266,14 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     }
     this.upgradeFlowPrefillForm();
 
-    this.policyService
-      .policyAppliesToActiveUser$(PolicyType.SingleOrg)
-      .pipe(takeUntil(this.destroy$))
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
+        ),
+        takeUntil(this.destroy$),
+      )
       .subscribe((policyAppliesToActiveUser) => {
         this.singleOrgPolicyAppliesToActiveUser = policyAppliesToActiveUser;
       });

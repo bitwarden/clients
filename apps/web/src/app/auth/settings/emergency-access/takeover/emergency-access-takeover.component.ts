@@ -3,12 +3,13 @@
 import { DialogConfig, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, OnDestroy, OnInit, Inject, Input } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { takeUntil } from "rxjs";
+import { switchMap, takeUntil } from "rxjs";
 
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/components/change-password.component";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -33,7 +34,6 @@ type EmergencyAccessTakeoverDialogData = {
   selector: "emergency-access-takeover",
   templateUrl: "emergency-access-takeover.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class EmergencyAccessTakeoverComponent
   extends ChangePasswordComponent
   implements OnInit, OnDestroy
@@ -80,13 +80,15 @@ export class EmergencyAccessTakeoverComponent
     const policies = await this.emergencyAccessService.getGrantorPolicies(
       this.params.emergencyAccessId,
     );
-    this.policyService
-      .masterPasswordPolicyOptions$(policies)
-      .pipe(takeUntil(this.destroy$))
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) => this.policyService.masterPasswordPolicyOptions$(userId, policies)),
+        takeUntil(this.destroy$),
+      )
       .subscribe((enforcedPolicyOptions) => (this.enforcedPolicyOptions = enforcedPolicyOptions));
   }
 
-  // eslint-disable-next-line rxjs-angular/prefer-takeuntil
   ngOnDestroy(): void {
     super.ngOnDestroy();
   }

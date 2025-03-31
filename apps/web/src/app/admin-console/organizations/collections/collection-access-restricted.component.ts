@@ -3,7 +3,7 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { ButtonModule, NoItemsModule, svgIcon } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared";
-import { CollectionDialogTabType } from "../../../vault/components/collection-dialog";
+import { CollectionDialogTabType } from "../shared/components/collection-dialog";
 
 const icon = svgIcon`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="10 -10 120 140" fill="none">
   <rect class="tw-stroke-secondary-600" width="134" height="86" x="3" y="31.485" stroke-width="6" rx="11"/>

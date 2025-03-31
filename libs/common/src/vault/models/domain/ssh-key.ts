@@ -36,13 +36,10 @@ export class SshKey extends Domain {
     context = "No Cipher Context",
     encKey?: SymmetricCryptoKey,
   ): Promise<SshKeyView> {
-    return this.decryptObj(
+    return this.decryptObj<SshKey, SshKeyView>(
+      this,
       new SshKeyView(),
-      {
-        privateKey: null,
-        publicKey: null,
-        keyFingerprint: null,
-      },
+      ["privateKey", "publicKey", "keyFingerprint"],
       orgId,
       encKey,
       "DomainType: SshKey; " + context,

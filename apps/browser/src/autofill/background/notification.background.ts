@@ -1,13 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
+import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   ExtensionCommand,
   ExtensionCommandType,
@@ -63,46 +64,48 @@ export default class NotificationBackground {
     ExtensionCommand.AutofillIdentity,
   ]);
   private readonly extensionMessageHandlers: NotificationBackgroundExtensionMessageHandlers = {
-    unlockCompleted: ({ message, sender }) => this.handleUnlockCompleted(message, sender),
-    bgGetFolderData: () => this.getFolderData(),
-    bgCloseNotificationBar: ({ message, sender }) =>
-      this.handleCloseNotificationBarMessage(message, sender),
+    bgAddLogin: ({ message, sender }) => this.addLogin(message, sender),
     bgAdjustNotificationBar: ({ message, sender }) =>
       this.handleAdjustNotificationBarMessage(message, sender),
-    bgAddLogin: ({ message, sender }) => this.addLogin(message, sender),
     bgChangedPassword: ({ message, sender }) => this.changedPassword(message, sender),
-    bgRemoveTabFromNotificationQueue: ({ sender }) =>
-      this.removeTabFromNotificationQueue(sender.tab),
-    bgSaveCipher: ({ message, sender }) => this.handleSaveCipherMessage(message, sender),
-    bgNeverSave: ({ sender }) => this.saveNever(sender.tab),
-    collectPageDetailsResponse: ({ message }) =>
-      this.handleCollectPageDetailsResponseMessage(message),
-    bgUnlockPopoutOpened: ({ message, sender }) => this.unlockVault(message, sender.tab),
-    checkNotificationQueue: ({ sender }) => this.checkNotificationQueue(sender.tab),
-    bgReopenUnlockPopout: ({ sender }) => this.openUnlockPopout(sender.tab),
+    bgCloseNotificationBar: ({ message, sender }) =>
+      this.handleCloseNotificationBarMessage(message, sender),
+    bgGetActiveUserServerConfig: () => this.getActiveUserServerConfig(),
+    bgGetDecryptedCiphers: () => this.getNotificationCipherData(),
     bgGetEnableChangedPasswordPrompt: () => this.getEnableChangedPasswordPrompt(),
     bgGetEnableAddedLoginPrompt: () => this.getEnableAddedLoginPrompt(),
     bgGetExcludedDomains: () => this.getExcludedDomains(),
-    bgGetActiveUserServerConfig: () => this.getActiveUserServerConfig(),
+    bgGetFolderData: () => this.getFolderData(),
+    bgGetOrgData: () => this.getOrgData(),
+    bgNeverSave: ({ sender }) => this.saveNever(sender.tab),
+    bgOpenVault: ({ message, sender }) => this.openVault(message, sender.tab),
+    bgRemoveTabFromNotificationQueue: ({ sender }) =>
+      this.removeTabFromNotificationQueue(sender.tab),
+    bgReopenUnlockPopout: ({ sender }) => this.openUnlockPopout(sender.tab),
+    bgSaveCipher: ({ message, sender }) => this.handleSaveCipherMessage(message, sender),
+    bgUnlockPopoutOpened: ({ message, sender }) => this.unlockVault(message, sender.tab),
+    checkNotificationQueue: ({ sender }) => this.checkNotificationQueue(sender.tab),
+    collectPageDetailsResponse: ({ message }) =>
+      this.handleCollectPageDetailsResponseMessage(message),
     getWebVaultUrlForNotification: () => this.getWebVaultUrl(),
     notificationRefreshFlagValue: () => this.getNotificationFlag(),
-    bgGetDecryptedCiphers: () => this.getNotificationCipherData(),
-    bgOpenVault: ({ message, sender }) => this.openVault(message, sender.tab),
+    unlockCompleted: ({ message, sender }) => this.handleUnlockCompleted(message, sender),
   };
 
   constructor(
+    private accountService: AccountService,
+    private authService: AuthService,
     private autofillService: AutofillService,
     private cipherService: CipherService,
-    private authService: AuthService,
-    private policyService: PolicyService,
-    private folderService: FolderService,
-    private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
+    private configService: ConfigService,
     private domainSettingsService: DomainSettingsService,
     private environmentService: EnvironmentService,
+    private folderService: FolderService,
     private logService: LogService,
+    private organizationService: OrganizationService,
+    private policyService: PolicyService,
     private themeStateService: ThemeStateService,
-    private configService: ConfigService,
-    private accountService: AccountService,
+    private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
   ) {}
 
   init() {
@@ -740,8 +743,33 @@ export default class NotificationBackground {
 
   private async removeIndividualVault(): Promise<boolean> {
     return await firstValueFrom(
-      this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+        ),
+      ),
     );
+  }
+
+  /**
+   * Returns the first value found from the organization service organizations$ observable.
+   */
+  private async getOrgData() {
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    const organizations = await firstValueFrom(
+      this.organizationService.organizations$(activeUserId),
+    );
+    return organizations.map((org) => {
+      const { id, name, productTierType } = org;
+      return {
+        id,
+        name,
+        productTierType,
+      };
+    });
   }
 
   /**
