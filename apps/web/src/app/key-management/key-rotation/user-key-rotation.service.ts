@@ -7,7 +7,11 @@ import { VerificationType } from "@bitwarden/common/auth/enums/verification-type
 import { MasterPasswordVerification } from "@bitwarden/common/auth/types/verification";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { HashPurpose } from "@bitwarden/common/platform/enums";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -15,13 +19,19 @@ import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationUserResetPasswordService } from "../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { WebauthnLoginAdminService } from "../../auth/core";
 import { EmergencyAccessService } from "../../auth/emergency-access";
 
+import { AccountKeysRequest } from "./request/account-keys.request";
+import { MasterPasswordUnlockDataRequest } from "./request/master-password-unlock-data.request";
+import { RotateUserAccountKeysRequest } from "./request/rotate-user-account-keys.request";
+import { UnlockDataRequest } from "./request/unlock-data.request";
 import { UpdateKeyRequest } from "./request/update-key.request";
+import { UserDataRequest } from "./request/userdata.request";
 import { UserKeyRotationApiService } from "./user-key-rotation-api.service";
 
 @Injectable()
@@ -40,14 +50,180 @@ export class UserKeyRotationService {
     private syncService: SyncService,
     private webauthnLoginAdminService: WebauthnLoginAdminService,
     private logService: LogService,
+    private vaultTimeoutService: VaultTimeoutService,
+    private toastService: ToastService,
+    private i18nService: I18nService,
   ) {}
 
   /**
    * Creates a new user key and re-encrypts all required data with the it.
-   * @param masterPassword current master password (used for validation)
+   * @param oldMasterPassword: The current master password
+   * @param newMasterPassword: The new master password
+   * @param user: The user account
+   * @param newMasterPasswordHint: The hint for the new master password
    */
-  async rotateUserKeyAndEncryptedData(masterPassword: string, user: Account): Promise<void> {
+  async rotateUserKeyMasterPasswordAndEncryptedData(
+    oldMasterPassword: string,
+    newMasterPassword: string,
+    user: Account,
+    newMasterPasswordHint?: string,
+  ): Promise<void> {
     this.logService.info("[Userkey rotation] Starting user key rotation...");
+    if (!newMasterPassword) {
+      this.logService.info("[Userkey rotation] Invalid master password provided. Aborting!");
+      throw new Error("Invalid master password");
+    }
+
+    if ((await this.syncService.getLastSync()) === null) {
+      this.logService.info("[Userkey rotation] Client was never synced. Aborting!");
+      throw new Error(
+        "The local vault is de-synced and the keys cannot be rotated. Please log out and log back in to resolve this issue.",
+      );
+    }
+
+    const {
+      masterKey: oldMasterKey,
+      email,
+      kdfConfig,
+    } = await this.userVerificationService.verifyUserByMasterPassword(
+      {
+        type: VerificationType.MasterPassword,
+        secret: oldMasterPassword,
+      },
+      user.id,
+      user.email,
+    );
+
+    const newMasterKey = await this.keyService.makeMasterKey(newMasterPassword, email, kdfConfig);
+
+    const [newUnencryptedUserKey, newMasterKeyEncryptedUserKey] =
+      await this.keyService.makeUserKey(newMasterKey);
+
+    if (!newUnencryptedUserKey || !newMasterKeyEncryptedUserKey) {
+      this.logService.info("[Userkey rotation] User key could not be created. Aborting!");
+      throw new Error("User key could not be created");
+    }
+
+    const newMasterKeyAuthenticationHash = await this.keyService.hashMasterKey(
+      newMasterPassword,
+      newMasterKey,
+      HashPurpose.ServerAuthorization,
+    );
+    const masterPasswordUnlockData = new MasterPasswordUnlockDataRequest(
+      kdfConfig,
+      email,
+      newMasterKeyAuthenticationHash,
+      newMasterKeyEncryptedUserKey.encryptedString!,
+      newMasterPasswordHint,
+    );
+
+    const keyPair = await firstValueFrom(this.keyService.userEncryptionKeyPair$(user.id));
+    if (keyPair == null) {
+      this.logService.info("[Userkey rotation] Key pair is null. Aborting!");
+      throw new Error("Key pair is null");
+    }
+    const { privateKey, publicKey } = keyPair;
+
+    const accountKeysRequest = new AccountKeysRequest(
+      (await this.encryptService.encrypt(privateKey, newUnencryptedUserKey)).encryptedString!,
+      Utils.fromBufferToB64(publicKey),
+    );
+
+    const originalUserKey = await firstValueFrom(this.keyService.userKey$(user.id));
+    if (originalUserKey == null) {
+      this.logService.info("[Userkey rotation] Userkey is null. Aborting!");
+      throw new Error("Userkey key is null");
+    }
+
+    const rotatedCiphers = await this.cipherService.getRotatedData(
+      originalUserKey,
+      newUnencryptedUserKey,
+      user.id,
+    );
+    const rotatedFolders = await this.folderService.getRotatedData(
+      originalUserKey,
+      newUnencryptedUserKey,
+      user.id,
+    );
+    const rotatedSends = await this.sendService.getRotatedData(
+      originalUserKey,
+      newUnencryptedUserKey,
+      user.id,
+    );
+    if (rotatedCiphers == null || rotatedFolders == null || rotatedSends == null) {
+      this.logService.info("[Userkey rotation] ciphers, folders, or sends are null. Aborting!");
+      throw new Error("ciphers, folders, or sends are null");
+    }
+    const accountDataRequest = new UserDataRequest(rotatedCiphers, rotatedFolders, rotatedSends);
+
+    const emergencyAccessUnlockData = await this.emergencyAccessService.getRotatedData(
+      originalUserKey,
+      newUnencryptedUserKey,
+      user.id,
+    );
+    // Note: Reset password keys request model has user verification
+    // properties, but the rotation endpoint uses its own MP hash.
+    const organizationAccountRecoveryUnlockData = await this.resetPasswordService.getRotatedData(
+      originalUserKey,
+      newUnencryptedUserKey,
+      user.id,
+    );
+    if (organizationAccountRecoveryUnlockData == null) {
+      this.logService.info(
+        "[Userkey rotation] Organization account recovery data is null. Aborting!",
+      );
+      throw new Error("Organization account recovery data is null");
+    }
+
+    const passkeyUnlockData = await this.webauthnLoginAdminService.getRotatedData(
+      originalUserKey,
+      newUnencryptedUserKey,
+      user.id,
+    );
+    const unlockDataRequest = new UnlockDataRequest(
+      masterPasswordUnlockData,
+      emergencyAccessUnlockData,
+      organizationAccountRecoveryUnlockData,
+      passkeyUnlockData,
+    );
+
+    const request = new RotateUserAccountKeysRequest(
+      unlockDataRequest,
+      accountKeysRequest,
+      accountDataRequest,
+      await this.keyService.hashMasterKey(oldMasterPassword, oldMasterKey),
+    );
+
+    this.logService.info("[Userkey rotation] Posting user key rotation request to server");
+    await this.apiService.postUserKeyUpdateV2(request);
+    this.logService.info("[Userkey rotation] Userkey rotation request posted to server");
+
+    // TODO PM-2199: Add device trust rotation support to the user key rotation endpoint
+    this.logService.info("[Userkey rotation] Rotating device trust...");
+    await this.deviceTrustService.rotateDevicesTrust(
+      user.id,
+      newUnencryptedUserKey,
+      newMasterKeyAuthenticationHash,
+    );
+    this.logService.info("[Userkey rotation] Device trust rotation completed");
+    this.toastService.showToast({
+      variant: "success",
+      title: this.i18nService.t("rotationCompletedTitle"),
+      message: this.i18nService.t("rotationCompletedDesc"),
+      timeout: 15000,
+    });
+
+    // temporary until userkey can be better verified
+    await this.vaultTimeoutService.logOut();
+  }
+
+  /**
+   * Creates a new user key and re-encrypts all required data with the it.
+   * @param masterPassword current master password (used for validation)
+   * @deprecated
+   */
+  async rotateUserKeyAndEncryptedDataLegacy(masterPassword: string, user: Account): Promise<void> {
+    this.logService.info("[Userkey rotation] Starting legacy user key rotation...");
     if (!masterPassword) {
       this.logService.info("[Userkey rotation] Invalid master password provided. Aborting!");
       throw new Error("Invalid master password");
@@ -168,6 +344,7 @@ export class UserKeyRotationService {
     this.logService.info("[Userkey rotation] Rotating device trust...");
     await this.deviceTrustService.rotateDevicesTrust(user.id, newUserKey, masterPasswordHash);
     this.logService.info("[Userkey rotation] Device trust rotation completed");
+    await this.vaultTimeoutService.logOut();
   }
 
   private async encryptPrivateKey(
