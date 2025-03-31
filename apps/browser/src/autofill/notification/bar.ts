@@ -7,7 +7,7 @@ import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view
 import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
 import { NotificationCipherData } from "../content/components/cipher/types";
 import { OrgView } from "../content/components/common-types";
-import { NotificationConfirmationContainer } from "../content/components/notification/confirmation-container";
+import { NotificationConfirmationContainer } from "../content/components/notification/confirmation/container";
 import { NotificationContainer } from "../content/components/notification/container";
 import { buildSvgDomElement } from "../utils";
 import { circleCheckIcon } from "../utils/svg-icons";
