@@ -63,6 +63,7 @@ export class DefaultBillingAccountProfileStateService implements BillingAccountP
       },
       {
         shouldUpdate: (state) =>
+          state == null ||
           state.hasPremiumFromAnyOrganization !== hasPremiumFromAnyOrganization ||
           state.hasPremiumPersonally !== hasPremiumPersonally,
       },
