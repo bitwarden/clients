@@ -31,6 +31,8 @@ import { WebLayoutModule } from "./web-layout.module";
 })
 export class UserLayoutComponent implements OnInit {
   protected readonly logo = PasswordManagerLogo;
+  protected hasFamilySponsorshipAvailable$: Observable<boolean>;
+  protected showSponsoredFamilies$: Observable<boolean>;
   protected showSubscription$: Observable<boolean>;
 
   constructor(
