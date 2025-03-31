@@ -2,10 +2,11 @@
   @let organization = organization$ | async;
   <span
     bitBadge
-    variant="primary"
-    slot="title-suffix"
-    *ngIf="isBreadcrumbingEnabled$ | async"
+    class="tw-cursor-pointer"
     (click)="changePlan(organization)"
+    *ngIf="isBreadcrumbingEnabled$ | async"
+    slot="title-suffix"
+    variant="primary"
   >
     {{ "upgrade" | i18n }}
   </span>
