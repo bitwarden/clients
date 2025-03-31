@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, ElementRef, OnDestroy, OnInit } from "@angular/core";
 import { NgControl } from "@angular/forms";
 import { Subscription } from "rxjs";

@@ -1,0 +1,48 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit" *ngIf="authed" autocomplete="off">
+  <bit-dialog [title]="'twoStepLogin' | i18n" [subtitle]="'Duo'">
+    <ng-container bitDialogContent>
+      <ng-container *ngIf="enabled">
+        <app-callout type="success" title="{{ 'enabled' | i18n }}" icon="bwi bwi-check-circle">
+          {{ "twoStepLoginProviderEnabled" | i18n }}
+        </app-callout>
+        <img class="tw-float-right tw-ml-3 mfaType2" alt="Duo logo" />
+        <strong>{{ "twoFactorDuoClientId" | i18n }}:</strong> {{ clientId }}
+        <br />
+        <strong>{{ "twoFactorDuoClientSecret" | i18n }}:</strong> {{ clientSecret }}
+        <br />
+        <strong>{{ "twoFactorDuoApiHostname" | i18n }}:</strong> {{ host }}
+      </ng-container>
+      <ng-container *ngIf="!enabled">
+        <img class="tw-float-right tw-ml-3 mfaType2" alt="Duo logo" />
+        <p bitTypography="body1">{{ "twoFactorDuoDesc" | i18n }}</p>
+        <bit-form-field>
+          <bit-label>{{ "twoFactorDuoClientId" | i18n }}</bit-label>
+          <input bitInput type="text" formControlName="clientId" appInputVerbatim />
+        </bit-form-field>
+        <bit-form-field>
+          <bit-label>{{ "twoFactorDuoClientSecret" | i18n }}</bit-label>
+          <input bitInput type="password" formControlName="clientSecret" appInputVerbatim />
+        </bit-form-field>
+        <bit-form-field>
+          <bit-label>{{ "twoFactorDuoApiHostname" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            formControlName="host"
+            placeholder="{{ 'ex' | i18n }} api-xxxxxxxx.duosecurity.com"
+            appInputVerbatim
+          />
+        </bit-form-field>
+      </ng-container>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button bitButton bitFormButton type="submit" buttonType="primary">
+        <span *ngIf="!enabled">{{ "enable" | i18n }}</span>
+        <span *ngIf="enabled">{{ "disable" | i18n }}</span>
+      </button>
+      <button bitButton bitFormButton type="button" buttonType="secondary" bitDialogClose>
+        {{ "close" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

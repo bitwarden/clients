@@ -6,6 +6,7 @@ import {
   SHOW_CARDS_CURRENT_TAB,
   SHOW_IDENTITIES_CURRENT_TAB,
   USER_ENABLE_PASSKEYS,
+  CLICK_ITEMS_AUTOFILL_VAULT_VIEW,
 } from "../key-state/vault-settings.state";
 
 /**
@@ -39,6 +40,14 @@ export class VaultSettingsService implements VaultSettingsServiceAbstraction {
   readonly showIdentitiesCurrentTab$: Observable<boolean> =
     this.showIdentitiesCurrentTabState.state$.pipe(map((x) => x ?? true));
 
+  private clickItemsToAutofillVaultViewState: ActiveUserState<boolean> =
+    this.stateProvider.getActive(CLICK_ITEMS_AUTOFILL_VAULT_VIEW);
+  /**
+   * {@link VaultSettingsServiceAbstraction.clickItemsToAutofillVaultView$$}
+   */
+  readonly clickItemsToAutofillVaultView$: Observable<boolean> =
+    this.clickItemsToAutofillVaultViewState.state$.pipe(map((x) => x ?? false));
+
   constructor(private stateProvider: StateProvider) {}
 
   /**
@@ -53,6 +62,13 @@ export class VaultSettingsService implements VaultSettingsServiceAbstraction {
    */
   async setShowIdentitiesCurrentTab(value: boolean): Promise<void> {
     await this.showIdentitiesCurrentTabState.update(() => value);
+  }
+
+  /**
+   * {@link VaultSettingsServiceAbstraction.setClickItemsToAutofillVaultView}
+   */
+  async setClickItemsToAutofillVaultView(value: boolean): Promise<void> {
+    await this.clickItemsToAutofillVaultViewState.update(() => value);
   }
 
   /**

@@ -26,14 +26,8 @@
     >
       {{ "logIn" | i18n }}
     </a>
-    <a
-      bitButton
-      buttonType="primary"
-      [routerLink]="registerRoute$ | async"
-      [queryParams]="{ email: email }"
-      [block]="true"
-    >
+    <button type="button" bitButton buttonType="primary" (click)="register()" [block]="true">
       {{ "createAccount" | i18n }}
-    </a>
+    </button>
   </div>
 </div>

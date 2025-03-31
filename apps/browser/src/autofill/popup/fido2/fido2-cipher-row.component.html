@@ -15,7 +15,9 @@
         class="bwi bwi-collection text-muted"
       ></i>
     </span>
-    <span class="detail" *ngIf="getSubName(cipher)">{{ getSubName(cipher) }}</span>
-    <span *ngIf="cipher.subTitle" slot="secondary">{{ cipher.subTitle }}</span>
+    <ng-container slot="secondary">
+      <div *ngIf="getSubName(cipher)">{{ getSubName(cipher) }}</div>
+      <div *ngIf="cipher.subTitle">{{ cipher.subTitle }}</div>
+    </ng-container>
   </button>
 </bit-item>

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, ElementRef, Input, OnChanges } from "@angular/core";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";

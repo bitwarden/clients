@@ -1,6 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import { GeneratorCategory } from "./options";
+import { CredentialAlgorithm } from "@bitwarden/generator-core";
 
 /** A credential generation result */
 export class GeneratedCredential {
@@ -14,7 +14,7 @@ export class GeneratedCredential {
    */
   constructor(
     readonly credential: string,
-    readonly category: GeneratorCategory,
+    readonly category: CredentialAlgorithm,
     generationDate: Date | number,
   ) {
     if (typeof generationDate === "number") {

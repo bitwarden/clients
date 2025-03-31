@@ -208,4 +208,40 @@ describe("EmailRandomizer", () => {
       expect(randomizer.pickWord).toHaveBeenCalledWith(expectedWordList, { titleCase: false });
     });
   });
+
+  describe("generate", () => {
+    it("processes catchall generation options", async () => {
+      const email = new EmailRandomizer(randomizer);
+
+      const result = await email.generate(
+        {},
+        {
+          catchallDomain: "example.com",
+        },
+      );
+
+      expect(result.category).toEqual("catchall");
+    });
+
+    it("processes subaddress generation options", async () => {
+      const email = new EmailRandomizer(randomizer);
+
+      const result = await email.generate(
+        {},
+        {
+          subaddressEmail: "foo@example.com",
+        },
+      );
+
+      expect(result.category).toEqual("subaddress");
+    });
+
+    it("throws when it cannot recognize the options type", async () => {
+      const email = new EmailRandomizer(randomizer);
+
+      const result = email.generate({}, {});
+
+      await expect(result).rejects.toBeInstanceOf(Error);
+    });
+  });
 });

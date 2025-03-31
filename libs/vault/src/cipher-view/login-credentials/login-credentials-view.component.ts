@@ -1,18 +1,24 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule, DatePipe } from "@angular/common";
-import { Component, inject, Input } from "@angular/core";
-import { Router } from "@angular/router";
-import { Observable, shareReplay } from "rxjs";
+import { Component, EventEmitter, inject, Input, Output } from "@angular/core";
+import { Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { UserId } from "@bitwarden/common/types/guid";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
-  CardComponent,
   FormFieldModule,
   SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
+  LinkModule,
   IconButtonModule,
   BadgeModule,
   ColorPasswordModule,
@@ -33,7 +39,6 @@ type TotpCodeValues = {
   imports: [
     CommonModule,
     JslibModule,
-    CardComponent,
     SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
@@ -43,24 +48,32 @@ type TotpCodeValues = {
     ColorPasswordModule,
     BitTotpCountdownComponent,
     ReadOnlyCipherCardComponent,
+    LinkModule,
   ],
 })
 export class LoginCredentialsViewComponent {
   @Input() cipher: CipherView;
+  @Input() activeUserId: UserId;
+  @Input() hadPendingChangePasswordTask: boolean;
+  @Output() handleChangePassword = new EventEmitter<void>();
 
-  isPremium$: Observable<boolean> =
-    this.billingAccountProfileStateService.hasPremiumFromAnySource$.pipe(
-      shareReplay({ refCount: true, bufferSize: 1 }),
-    );
+  isPremium$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+    switchMap((account) =>
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+    ),
+  );
   showPasswordCount: boolean = false;
   passwordRevealed: boolean = false;
   totpCodeCopyObj: TotpCodeValues;
+
   private datePipe = inject(DatePipe);
 
   constructor(
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private router: Router,
     private i18nService: I18nService,
+    private premiumUpgradeService: PremiumUpgradePromptService,
+    private eventCollectionService: EventCollectionService,
+    private accountService: AccountService,
   ) {}
 
   get fido2CredentialCreationDateValue(): string {
@@ -72,12 +85,21 @@ export class LoginCredentialsViewComponent {
     return `${dateCreated} ${creationDate}`;
   }
 
-  async getPremium() {
-    await this.router.navigate(["/premium"]);
+  async getPremium(organizationId?: string) {
+    await this.premiumUpgradeService.promptForPremium(organizationId);
   }
 
-  pwToggleValue(evt: boolean) {
-    this.passwordRevealed = evt;
+  async pwToggleValue(passwordVisible: boolean) {
+    this.passwordRevealed = passwordVisible;
+
+    if (passwordVisible) {
+      await this.eventCollectionService.collect(
+        EventType.Cipher_ClientToggledPasswordVisible,
+        this.cipher.id,
+        false,
+        this.cipher.organizationId,
+      );
+    }
   }
 
   togglePasswordCount() {
@@ -86,5 +108,18 @@ export class LoginCredentialsViewComponent {
 
   setTotpCopyCode(e: TotpCodeValues) {
     this.totpCodeCopyObj = e;
+  }
+
+  async logCopyEvent() {
+    await this.eventCollectionService.collect(
+      EventType.Cipher_ClientCopiedPassword,
+      this.cipher.id,
+      false,
+      this.cipher.organizationId,
+    );
+  }
+
+  launchChangePasswordEvent(): void {
+    this.handleChangePassword.emit();
   }
 }

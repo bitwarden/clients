@@ -20,7 +20,7 @@
 <bit-table *ngIf="projects?.length >= 1" [dataSource]="dataSource">
   <ng-container header>
     <tr>
-      <th bitCell class="tw-w-0">
+      <th bitCell class="tw-w-0" *ngIf="showMenus">
         <label class="!tw-mb-0 tw-flex tw-w-fit tw-gap-2 !tw-font-bold !tw-text-muted">
           <input
             type="checkbox"
@@ -32,7 +32,7 @@
         </label>
       </th>
       <th bitCell bitSortable="name" default>{{ "name" | i18n }}</th>
-      <th bitCell bitSortable="revisionDate">{{ "lastEdited" | i18n }}</th>
+      <th bitCell bitSortable="revisionDate" *ngIf="showMenus">{{ "lastEdited" | i18n }}</th>
       <th
         bitCell
         class="tw-w-0"
@@ -45,13 +45,14 @@
           [bitMenuTriggerFor]="tableMenu"
           [title]="'options' | i18n"
           [attr.aria-label]="'options' | i18n"
+          *ngIf="showMenus"
         ></button>
       </th>
     </tr>
   </ng-container>
   <ng-template body let-rows$>
     <tr bitRow *ngFor="let project of rows$ | async">
-      <td bitCell>
+      <td bitCell *ngIf="showMenus">
         <input
           type="checkbox"
           (change)="$event ? selection.toggle(project.id) : null"
@@ -61,12 +62,32 @@
       <td bitCell>
         <div class="tw-flex tw-items-center tw-gap-4 tw-break-all">
           <i class="bwi bwi-collection tw-text-muted" aria-hidden="true"></i>
-          <a bitLink [routerLink]="['/sm', project.organizationId, 'projects', project.id]">{{
-            project.name
-          }}</a>
+          <div>
+            <a
+              *ngIf="project.linkable"
+              bitLink
+              [routerLink]="['/sm', project.organizationId, 'projects', project.id]"
+              >{{ project.name }}</a
+            >
+            <span *ngIf="!project.linkable">{{ project.name }}</span>
+            <div class="tw-text-sm tw-text-muted tw-block">
+              {{ project.id }}
+              <button
+                type="button"
+                bitIconButton="bwi-clone"
+                buttonType="main"
+                size="small"
+                [title]="'copyUuid' | i18n"
+                [attr.aria-label]="'copyUuid' | i18n"
+                (click)="copyProjectUuidToClipboard(project.id)"
+              ></button>
+            </div>
+          </div>
         </div>
       </td>
-      <td bitCell class="tw-whitespace-nowrap">{{ project.revisionDate | date: "medium" }}</td>
+      <td bitCell class="tw-whitespace-nowrap" *ngIf="showMenus">
+        {{ project.revisionDate | date: "medium" }}
+      </td>
       <td bitCell>
         <button
           type="button"
@@ -75,6 +96,7 @@
           [bitMenuTriggerFor]="projectMenu"
           [title]="'options' | i18n"
           [attr.aria-label]="'options' | i18n"
+          *ngIf="showMenus"
         ></button>
       </td>
       <bit-menu #projectMenu>

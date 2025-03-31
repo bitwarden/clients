@@ -1,3 +1,6 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { FieldRect } from "../background/abstractions/overlay.background";
 import { AutofillPort } from "../enums/autofill-port.enum";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
 
@@ -34,7 +37,9 @@ export function requestIdleCallbackPolyfill(
     return globalThis.requestIdleCallback(() => callback(), options);
   }
 
-  return globalThis.setTimeout(() => callback(), 1);
+  const timeoutDelay = options?.timeout || 1;
+
+  return globalThis.setTimeout(() => callback(), timeoutDelay);
 }
 
 /**
@@ -311,6 +316,22 @@ export function nodeIsFormElement(node: Node): node is HTMLFormElement {
   return nodeIsElement(node) && elementIsFormElement(node);
 }
 
+export function nodeIsTypeSubmitElement(node: Node): node is HTMLElement {
+  return nodeIsElement(node) && getPropertyOrAttribute(node as HTMLElement, "type") === "submit";
+}
+
+export function nodeIsButtonElement(node: Node): node is HTMLButtonElement {
+  return (
+    nodeIsElement(node) &&
+    (elementIsInstanceOf<HTMLButtonElement>(node, "button") ||
+      getPropertyOrAttribute(node as HTMLElement, "type") === "button")
+  );
+}
+
+export function nodeIsAnchorElement(node: Node): node is HTMLAnchorElement {
+  return nodeIsElement(node) && elementIsInstanceOf<HTMLAnchorElement>(node, "a");
+}
+
 /**
  * Returns a boolean representing the attribute value of an element.
  *
@@ -362,6 +383,34 @@ export function throttle(callback: (_args: any) => any, limit: number) {
 }
 
 /**
+ * Debounces a callback function to run after a delay of `delay` milliseconds.
+ *
+ * @param callback - The callback function to debounce.
+ * @param delay - The time in milliseconds to debounce the callback.
+ * @param immediate - Determines whether the callback should run immediately.
+ */
+export function debounce(callback: (_args: any) => any, delay: number, immediate?: boolean) {
+  let timeout: NodeJS.Timeout;
+  return function (...args: unknown[]) {
+    const callImmediately = !!immediate && !timeout;
+
+    if (timeout) {
+      globalThis.clearTimeout(timeout);
+    }
+    timeout = globalThis.setTimeout(() => {
+      timeout = null;
+      if (!callImmediately) {
+        callback.apply(this, args);
+      }
+    }, delay);
+
+    if (callImmediately) {
+      callback.apply(this, args);
+    }
+  };
+}
+
+/**
  * Gathers and normalizes keywords from a potential submit button element. Used
  * to verify if the element submits a login or change password form.
  *
@@ -399,4 +448,130 @@ export function getSubmitButtonKeywordsSet(element: HTMLElement): Set<string> {
   }
 
   return keywordsSet;
+}
+
+/**
+ * Generates the origin and subdomain match patterns for the URL.
+ *
+ * @param url - The URL of the tab
+ */
+export function generateDomainMatchPatterns(url: string): string[] {
+  try {
+    const extensionUrlPattern =
+      /^(chrome|chrome-extension|moz-extension|safari-web-extension):\/\/\/?/;
+    if (extensionUrlPattern.test(url)) {
+      return [];
+    }
+
+    // Add protocol to URL if it is missing to allow for parsing the hostname correctly
+    const urlPattern = /^(https?|file):\/\/\/?/;
+    if (!urlPattern.test(url)) {
+      url = `https://${url}`;
+    }
+
+    let protocolGlob = "*://";
+    if (url.startsWith("file:///")) {
+      protocolGlob = "*:///"; // File URLs require three slashes to be a valid match pattern
+    }
+
+    const parsedUrl = new URL(url);
+    const originMatchPattern = `${protocolGlob}${parsedUrl.hostname}/*`;
+
+    const splitHost = parsedUrl.hostname.split(".");
+    const domain = splitHost.slice(-2).join(".");
+    const subDomainMatchPattern = `${protocolGlob}*.${domain}/*`;
+
+    return [originMatchPattern, subDomainMatchPattern];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Determines if the status code of the web response is invalid. An invalid status code is
+ * any status code that is not in the 200-299 range.
+ *
+ * @param statusCode - The status code of the web response
+ */
+export function isInvalidResponseStatusCode(statusCode: number) {
+  return statusCode < 200 || statusCode >= 300;
+}
+
+/**
+ * Determines if the current context is within a sandboxed iframe.
+ */
+export function currentlyInSandboxedIframe(): boolean {
+  return (
+    String(self.origin).toLowerCase() === "null" ||
+    globalThis.frameElement?.hasAttribute("sandbox") ||
+    globalThis.location.hostname === ""
+  );
+}
+
+/**
+ * This object allows us to map a special character to a key name. The key name is used
+ * in gathering the i18n translation of the written version of the special character.
+ */
+export const specialCharacterToKeyMap: Record<string, string> = {
+  " ": "spaceCharacterDescriptor",
+  "~": "tildeCharacterDescriptor",
+  "`": "backtickCharacterDescriptor",
+  "!": "exclamationCharacterDescriptor",
+  "@": "atSignCharacterDescriptor",
+  "#": "hashSignCharacterDescriptor",
+  $: "dollarSignCharacterDescriptor",
+  "%": "percentSignCharacterDescriptor",
+  "^": "caretCharacterDescriptor",
+  "&": "ampersandCharacterDescriptor",
+  "*": "asteriskCharacterDescriptor",
+  "(": "parenLeftCharacterDescriptor",
+  ")": "parenRightCharacterDescriptor",
+  "-": "hyphenCharacterDescriptor",
+  _: "underscoreCharacterDescriptor",
+  "+": "plusCharacterDescriptor",
+  "=": "equalsCharacterDescriptor",
+  "{": "braceLeftCharacterDescriptor",
+  "}": "braceRightCharacterDescriptor",
+  "[": "bracketLeftCharacterDescriptor",
+  "]": "bracketRightCharacterDescriptor",
+  "|": "pipeCharacterDescriptor",
+  "\\": "backSlashCharacterDescriptor",
+  ":": "colonCharacterDescriptor",
+  ";": "semicolonCharacterDescriptor",
+  '"': "doubleQuoteCharacterDescriptor",
+  "'": "singleQuoteCharacterDescriptor",
+  "<": "lessThanCharacterDescriptor",
+  ">": "greaterThanCharacterDescriptor",
+  ",": "commaCharacterDescriptor",
+  ".": "periodCharacterDescriptor",
+  "?": "questionCharacterDescriptor",
+  "/": "forwardSlashCharacterDescriptor",
+};
+
+/**
+ * Determines if the current rect values are not all 0.
+ */
+export function rectHasSize(rect: FieldRect): boolean {
+  if (rect.right > 0 && rect.left > 0 && rect.top > 0 && rect.bottom > 0) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Checks if all the values corresponding to the specified keys in an object are null.
+ * If no keys are specified, checks all keys in the object.
+ *
+ * @param obj - The object to check.
+ * @param keys - An optional array of keys to check in the object. Defaults to all keys.
+ * @returns Returns true if all values for the specified keys (or all keys if none are provided) are null; otherwise, false.
+ */
+export function areKeyValuesNull<T extends Record<string, any>>(
+  obj: T,
+  keys?: Array<keyof T>,
+): boolean {
+  const keysToCheck = keys && keys.length > 0 ? keys : (Object.keys(obj) as Array<keyof T>);
+
+  return keysToCheck.every((key) => obj[key] == null);
 }

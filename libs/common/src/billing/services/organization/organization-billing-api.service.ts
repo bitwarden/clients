@@ -8,11 +8,26 @@ import {
 export class OrganizationBillingApiService implements OrganizationBillingApiServiceAbstraction {
   constructor(private apiService: ApiService) {}
 
-  async getBillingInvoices(id: string, startAfter?: string): Promise<BillingInvoiceResponse[]> {
-    const queryParams = startAfter ? `?startAfter=${startAfter}` : "";
+  async getBillingInvoices(
+    id: string,
+    status?: string,
+    startAfter?: string,
+  ): Promise<BillingInvoiceResponse[]> {
+    const params = new URLSearchParams();
+
+    if (status) {
+      params.append("status", status);
+    }
+
+    if (startAfter) {
+      params.append("startAfter", startAfter);
+    }
+
+    const queryString = `?${params.toString()}`;
+
     const r = await this.apiService.send(
       "GET",
-      `/organizations/${id}/billing/invoices${queryParams}`,
+      `/organizations/${id}/billing/invoices${queryString}`,
       null,
       true,
       true,

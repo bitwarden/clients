@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig",
+  "files": [
+    "../../apps/web/src/polyfills.ts",
+    "../../apps/web/src/main.ts",
+    "../../apps/web/src/theme.ts",
+
+    "../../bitwarden_license/bit-web/src/main.ts"
+  ],
+  "include": [
+    "../../apps/web/src/connectors/*.ts",
+    "../../libs/common/src/key-management/crypto/services/encrypt.worker.ts"
+  ]
+}

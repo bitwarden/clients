@@ -1,15 +1,15 @@
-<popup-page>
+<popup-page [disablePadding]="true">
   <popup-header
     slot="header"
     [background]="'alt'"
     [showBackButton]="showBackButton"
     [pageTitle]="''"
   >
-    <bit-icon *ngIf="showLogo" [icon]="logo"></bit-icon>
+    <bit-icon *ngIf="showLogo" class="tw-inline-flex" [icon]="logo"></bit-icon>
 
     <ng-container slot="end">
       <app-pop-out></app-pop-out>
-      <app-current-account *ngIf="showAcctSwitcher"></app-current-account>
+      <app-current-account *ngIf="showAcctSwitcher && hasLoggedInAccount"></app-current-account>
     </ng-container>
   </popup-header>
 
@@ -19,8 +19,8 @@
     [icon]="pageIcon"
     [showReadonlyHostname]="showReadonlyHostname"
     [hideLogo]="true"
-    [decreaseTopPadding]="true"
     [maxWidth]="maxWidth"
+    [hideFooter]="hideFooter"
   >
     <router-outlet></router-outlet>
     <router-outlet slot="secondary" name="secondary"></router-outlet>

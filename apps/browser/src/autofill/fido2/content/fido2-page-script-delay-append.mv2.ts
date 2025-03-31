@@ -9,7 +9,7 @@
 
   const script = globalContext.document.createElement("script");
   script.src = chrome.runtime.getURL("content/fido2-page-script.js");
-  script.addEventListener("load", removeScriptOnLoad);
+  script.async = false;
 
   // We are ensuring that the script injection is delayed in the event that we are loading
   // within an iframe element. This prevents an issue with web mail clients that load content
@@ -28,9 +28,5 @@
     const scriptInsertionPoint =
       globalContext.document.head || globalContext.document.documentElement;
     scriptInsertionPoint.prepend(script);
-  }
-
-  function removeScriptOnLoad() {
-    globalThis.setTimeout(() => script?.remove(), 5000);
   }
 })(globalThis);

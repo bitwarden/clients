@@ -1,7 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 
-import { RegisterRouteService } from "@bitwarden/auth/common";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -18,6 +19,8 @@ import { EmergencyAccessService } from "../services/emergency-access.service";
 })
 export class AcceptEmergencyComponent extends BaseAcceptComponent {
   name: string;
+  emergencyAccessId: string;
+  acceptEmergencyAccessInviteToken: string;
 
   protected requiredParameters: string[] = ["id", "name", "email", "token"];
   protected failedShortMessage = "emergencyInviteAcceptFailedShort";
@@ -29,10 +32,9 @@ export class AcceptEmergencyComponent extends BaseAcceptComponent {
     i18nService: I18nService,
     route: ActivatedRoute,
     authService: AuthService,
-    registerRouteService: RegisterRouteService,
     private emergencyAccessService: EmergencyAccessService,
   ) {
-    super(router, platformUtilsService, i18nService, route, authService, registerRouteService);
+    super(router, platformUtilsService, i18nService, route, authService);
   }
 
   async authedHandler(qParams: Params): Promise<void> {
@@ -55,5 +57,25 @@ export class AcceptEmergencyComponent extends BaseAcceptComponent {
       // Fix URL encoding of space issue with Angular
       this.name = this.name.replace(/\+/g, " ");
     }
+
+    if (qParams.id) {
+      this.emergencyAccessId = qParams.id;
+    }
+
+    if (qParams.token) {
+      this.acceptEmergencyAccessInviteToken = qParams.token;
+    }
+  }
+
+  async register() {
+    // We don't need users to complete email verification if they are coming directly from an emailed invite.
+    // Therefore, we skip /signup and navigate directly to /finish-signup.
+    await this.router.navigate(["/finish-signup"], {
+      queryParams: {
+        email: this.email,
+        acceptEmergencyAccessInviteToken: this.acceptEmergencyAccessInviteToken,
+        emergencyAccessId: this.emergencyAccessId,
+      },
+    });
   }
 }

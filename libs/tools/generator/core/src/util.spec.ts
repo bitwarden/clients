@@ -350,14 +350,14 @@ describe("optionsToRandomAsciiRequest", () => {
 describe("optionsToEffWordListRequest", () => {
   it("should map options", async () => {
     const result = optionsToEffWordListRequest({
-      numWords: 4,
+      numWords: 6,
       capitalize: true,
       includeNumber: true,
       wordSeparator: "!",
     });
 
     expect(result).toEqual({
-      numberOfWords: 4,
+      numberOfWords: 6,
       capitalize: true,
       number: true,
       separator: "!",
@@ -381,13 +381,13 @@ describe("optionsToEffWordListRequest", () => {
 
   it("should default capitalize", async () => {
     const result = optionsToEffWordListRequest({
-      numWords: 4,
+      numWords: 6,
       includeNumber: true,
       wordSeparator: "!",
     });
 
     expect(result).toEqual({
-      numberOfWords: 4,
+      numberOfWords: 6,
       capitalize: DefaultPassphraseGenerationOptions.capitalize,
       number: true,
       separator: "!",
@@ -396,13 +396,13 @@ describe("optionsToEffWordListRequest", () => {
 
   it("should default includeNumber", async () => {
     const result = optionsToEffWordListRequest({
-      numWords: 4,
+      numWords: 6,
       capitalize: true,
       wordSeparator: "!",
     });
 
     expect(result).toEqual({
-      numberOfWords: 4,
+      numberOfWords: 6,
       capitalize: true,
       number: DefaultPassphraseGenerationOptions.includeNumber,
       separator: "!",
@@ -411,13 +411,13 @@ describe("optionsToEffWordListRequest", () => {
 
   it("should default wordSeparator", async () => {
     const result = optionsToEffWordListRequest({
-      numWords: 4,
+      numWords: 6,
       capitalize: true,
       includeNumber: true,
     });
 
     expect(result).toEqual({
-      numberOfWords: 4,
+      numberOfWords: 6,
       capitalize: true,
       number: true,
       separator: DefaultPassphraseGenerationOptions.wordSeparator,

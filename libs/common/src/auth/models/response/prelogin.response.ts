@@ -1,5 +1,6 @@
+import { KdfType } from "@bitwarden/key-management";
+
 import { BaseResponse } from "../../../models/response/base.response";
-import { KdfType } from "../../../platform/enums";
 
 export class PreloginResponse extends BaseResponse {
   kdf: KdfType;

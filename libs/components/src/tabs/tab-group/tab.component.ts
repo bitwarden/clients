@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { TemplatePortal } from "@angular/cdk/portal";
 import {
   Component,
@@ -17,6 +19,7 @@ import { TabLabelDirective } from "./tab-label.directive";
   host: {
     role: "tabpanel",
   },
+  standalone: true,
 })
 export class TabComponent implements OnInit {
   @Input() disabled = false;

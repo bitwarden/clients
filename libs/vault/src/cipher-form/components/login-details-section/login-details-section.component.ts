@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DatePipe, NgIf } from "@angular/common";
 import { Component, inject, OnInit, Optional } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -6,6 +8,8 @@ import { map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
+import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
@@ -48,6 +52,7 @@ import { AutofillOptionsComponent } from "../autofill-options/autofill-options.c
   ],
 })
 export class LoginDetailsSectionComponent implements OnInit {
+  EventType = EventType;
   loginDetailsForm = this.formBuilder.group({
     username: [""],
     password: [""],
@@ -60,10 +65,14 @@ export class LoginDetailsSectionComponent implements OnInit {
   newPasswordGenerated: boolean;
 
   /**
-   * Whether the TOTP field can be captured from the current tab. Only available in the browser extension.
+   * Whether the TOTP field can be captured from the current tab. Only available in the browser extension and
+   * when not in a popout window.
    */
   get canCaptureTotp() {
-    return this.totpCaptureService != null && this.loginDetailsForm.controls.totp.enabled;
+    return (
+      !!this.totpCaptureService?.canCaptureTotp(window) &&
+      this.loginDetailsForm.controls.totp.enabled
+    );
   }
 
   private datePipe = inject(DatePipe);
@@ -106,6 +115,7 @@ export class LoginDetailsSectionComponent implements OnInit {
     private generationService: CipherFormGenerationService,
     private auditService: AuditService,
     private toastService: ToastService,
+    private eventCollectionService: EventCollectionService,
     @Optional() private totpCaptureService?: TotpCaptureService,
   ) {
     this.cipherFormContainer.registerChildForm("loginDetails", this.loginDetailsForm);
@@ -121,7 +131,7 @@ export class LoginDetailsSectionComponent implements OnInit {
           Object.assign(cipher.login, {
             username: value.username,
             password: value.password,
-            totp: value.totp,
+            totp: value.totp?.trim(),
           } as LoginView);
 
           return cipher;
@@ -129,11 +139,13 @@ export class LoginDetailsSectionComponent implements OnInit {
       });
   }
 
-  async ngOnInit() {
-    if (this.cipherFormContainer.originalCipherView?.login) {
-      this.initFromExistingCipher(this.cipherFormContainer.originalCipherView.login);
+  ngOnInit() {
+    const prefillCipher = this.cipherFormContainer.getInitialCipherView();
+
+    if (prefillCipher) {
+      this.initFromExistingCipher(prefillCipher.login);
     } else {
-      await this.initNewCipher();
+      this.initNewCipher();
     }
 
     if (this.cipherFormContainer.config.mode === "partial-edit") {
@@ -156,12 +168,30 @@ export class LoginDetailsSectionComponent implements OnInit {
     }
   }
 
-  private async initNewCipher() {
+  private initNewCipher() {
     this.loginDetailsForm.patchValue({
       username: this.initialValues?.username || "",
       password: this.initialValues?.password || "",
     });
   }
+
+  /** Logs the givin event when in edit mode */
+  logVisibleEvent = async (passwordVisible: boolean, event: EventType) => {
+    const { mode, originalCipher } = this.cipherFormContainer.config;
+
+    const isEdit = ["edit", "partial-edit"].includes(mode);
+
+    if (!passwordVisible || !isEdit || !originalCipher) {
+      return;
+    }
+
+    await this.eventCollectionService.collect(
+      event,
+      originalCipher.id,
+      false,
+      originalCipher.organizationId,
+    );
+  };
 
   captureTotp = async () => {
     if (!this.canCaptureTotp) {
@@ -213,7 +243,9 @@ export class LoginDetailsSectionComponent implements OnInit {
    * TODO: Browser extension needs a means to cache the current form so values are not lost upon navigating to the generator.
    */
   generateUsername = async () => {
-    const newUsername = await this.generationService.generateUsername();
+    const newUsername = await this.generationService.generateUsername(
+      this.cipherFormContainer.website,
+    );
     if (newUsername) {
       this.loginDetailsForm.controls.username.patchValue(newUsername);
     }

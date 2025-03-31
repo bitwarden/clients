@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { BiometricKey } from "../../auth/types/biometric-key";
 import { Account } from "../models/domain/account";
 import { StorageOptions } from "../models/domain/storage-options";
@@ -28,7 +30,7 @@ export abstract class StateService<T extends Account = Account> {
   /**
    * Sets the user's auto key
    */
-  setUserKeyAutoUnlock: (value: string, options?: StorageOptions) => Promise<void>;
+  setUserKeyAutoUnlock: (value: string | null, options?: StorageOptions) => Promise<void>;
   /**
    * Gets the user's biometric key
    */
@@ -55,9 +57,17 @@ export abstract class StateService<T extends Account = Account> {
   /**
    * @deprecated For migration purposes only, use setUserKeyAuto instead
    */
-  setCryptoMasterKeyAuto: (value: string, options?: StorageOptions) => Promise<void>;
+  setCryptoMasterKeyAuto: (value: string | null, options?: StorageOptions) => Promise<void>;
   getDuckDuckGoSharedKey: (options?: StorageOptions) => Promise<string>;
   setDuckDuckGoSharedKey: (value: string, options?: StorageOptions) => Promise<void>;
+
+  /**
+   * @deprecated Use `TokenService.hasAccessToken$()` or `AuthService.authStatusFor$` instead.
+   */
   getIsAuthenticated: (options?: StorageOptions) => Promise<boolean>;
+
+  /**
+   * @deprecated Use `AccountService.activeAccount$` instead.
+   */
   getUserId: (options?: StorageOptions) => Promise<string>;
 }

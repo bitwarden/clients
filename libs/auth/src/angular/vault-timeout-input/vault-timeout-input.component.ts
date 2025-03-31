@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import {
@@ -12,16 +14,22 @@ import {
   ValidationErrors,
   Validator,
 } from "@angular/forms";
-import { filter, map, Observable, Subject, takeUntil } from "rxjs";
+import { filter, map, Observable, Subject, switchMap, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
+import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import {
+  VaultTimeout,
+  VaultTimeoutAction,
+  VaultTimeoutOption,
+  VaultTimeoutSettingsService,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { VaultTimeout, VaultTimeoutOption } from "@bitwarden/common/types/vault-timeout.type";
 import { FormFieldModule, SelectModule } from "@bitwarden/components";
 
 type VaultTimeoutForm = FormGroup<{
@@ -55,14 +63,39 @@ type VaultTimeoutFormValue = VaultTimeoutForm["value"];
 export class VaultTimeoutInputComponent
   implements ControlValueAccessor, Validator, OnInit, OnDestroy, OnChanges
 {
+  protected readonly VaultTimeoutAction = VaultTimeoutAction;
+
   get showCustom() {
     return this.form.get("vaultTimeout").value === VaultTimeoutInputComponent.CUSTOM_VALUE;
   }
 
-  get exceedsMinimumTimout(): boolean {
+  get exceedsMinimumTimeout(): boolean {
     return (
       !this.showCustom || this.customTimeInMinutes() > VaultTimeoutInputComponent.MIN_CUSTOM_MINUTES
     );
+  }
+
+  get exceedsMaximumTimeout(): boolean {
+    return (
+      this.showCustom &&
+      this.customTimeInMinutes() >
+        this.vaultTimeoutPolicyMinutes + 60 * this.vaultTimeoutPolicyHours
+    );
+  }
+
+  get filteredVaultTimeoutOptions(): VaultTimeoutOption[] {
+    // by policy max value
+    if (this.vaultTimeoutPolicy == null || this.vaultTimeoutPolicy.data == null) {
+      return this.vaultTimeoutOptions;
+    }
+
+    return this.vaultTimeoutOptions.filter((option) => {
+      if (typeof option.value === "number") {
+        return option.value <= this.vaultTimeoutPolicy.data.minutes;
+      }
+
+      return false;
+    });
   }
 
   static CUSTOM_VALUE = -100;
@@ -77,6 +110,7 @@ export class VaultTimeoutInputComponent
   });
 
   @Input() vaultTimeoutOptions: VaultTimeoutOption[];
+
   vaultTimeoutPolicy: Policy;
   vaultTimeoutPolicyHours: number;
   vaultTimeoutPolicyMinutes: number;
@@ -92,12 +126,17 @@ export class VaultTimeoutInputComponent
     private policyService: PolicyService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private i18nService: I18nService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
-    this.policyService
-      .get$(PolicyType.MaximumVaultTimeout)
+    this.accountService.activeAccount$
       .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policiesByType$(PolicyType.MaximumVaultTimeout, userId),
+        ),
+        getFirstPolicy,
         filter((policy) => policy != null),
         takeUntil(this.destroy$),
       )
@@ -105,7 +144,6 @@ export class VaultTimeoutInputComponent
         this.vaultTimeoutPolicy = policy;
         this.applyVaultTimeoutPolicy();
       });
-
     this.form.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe((value: VaultTimeoutFormValue) => {
@@ -207,7 +245,7 @@ export class VaultTimeoutInputComponent
       return { policyError: true };
     }
 
-    if (!this.exceedsMinimumTimout) {
+    if (!this.exceedsMinimumTimeout) {
       return { minTimeoutError: true };
     }
 

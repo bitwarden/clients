@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, EventEmitter, Input, Output } from "@angular/core";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";

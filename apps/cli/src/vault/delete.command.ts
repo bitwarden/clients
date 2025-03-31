@@ -1,11 +1,14 @@
 import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 
 import { Response } from "../models/response";
 import { CliUtils } from "../utils";
@@ -17,6 +20,8 @@ export class DeleteCommand {
     private apiService: ApiService,
     private folderApiService: FolderApiServiceAbstraction,
     private accountProfileService: BillingAccountProfileStateService,
+    private cipherAuthorizationService: CipherAuthorizationService,
+    private accountService: AccountService,
   ) {}
 
   async run(object: string, id: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -40,16 +45,26 @@ export class DeleteCommand {
   }
 
   private async deleteCipher(id: string, options: Options) {
-    const cipher = await this.cipherService.get(id);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    const cipher = await this.cipherService.get(id, activeUserId);
     if (cipher == null) {
       return Response.notFound();
     }
 
+    const canDeleteCipher = await firstValueFrom(
+      this.cipherAuthorizationService.canDeleteCipher$(cipher),
+    );
+
+    if (!canDeleteCipher) {
+      return Response.error("You do not have permission to delete this item.");
+    }
+
     try {
       if (options.permanent) {
-        await this.cipherService.deleteWithServer(id);
+        await this.cipherService.deleteWithServer(id, activeUserId);
       } else {
-        await this.cipherService.softDeleteWithServer(id);
+        await this.cipherService.softDeleteWithServer(id, activeUserId);
       }
       return Response.success();
     } catch (e) {
@@ -62,8 +77,10 @@ export class DeleteCommand {
       return Response.badRequest("`itemid` option is required.");
     }
 
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
     const itemId = options.itemId.toLowerCase();
-    const cipher = await this.cipherService.get(itemId);
+    const cipher = await this.cipherService.get(itemId, activeUserId);
     if (cipher == null) {
       return Response.notFound();
     }
@@ -78,14 +95,18 @@ export class DeleteCommand {
     }
 
     const canAccessPremium = await firstValueFrom(
-      this.accountProfileService.hasPremiumFromAnySource$,
+      this.accountProfileService.hasPremiumFromAnySource$(activeUserId),
     );
     if (cipher.organizationId == null && !canAccessPremium) {
       return Response.error("Premium status is required to use this feature.");
     }
 
     try {
-      await this.cipherService.deleteAttachmentWithServer(cipher.id, attachments[0].id);
+      await this.cipherService.deleteAttachmentWithServer(
+        cipher.id,
+        attachments[0].id,
+        activeUserId,
+      );
       return Response.success();
     } catch (e) {
       return Response.error(e);
@@ -93,13 +114,14 @@ export class DeleteCommand {
   }
 
   private async deleteFolder(id: string) {
-    const folder = await this.folderService.getFromState(id);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const folder = await this.folderService.getFromState(id, activeUserId);
     if (folder == null) {
       return Response.notFound();
     }
 
     try {
-      await this.folderApiService.delete(id);
+      await this.folderApiService.delete(id, activeUserId);
       return Response.success();
     } catch (e) {
       return Response.error(e);

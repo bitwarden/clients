@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   InlineMenuElementPosition,
   InlineMenuPosition,
@@ -30,7 +32,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private buttonElement: HTMLElement;
   private listElement: HTMLElement;
   private inlineMenuElementsMutationObserver: MutationObserver;
-  private bodyElementMutationObserver: MutationObserver;
+  private containerElementMutationObserver: MutationObserver;
   private mutationObserverIterations = 0;
   private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout;
   private handlePersistentLastChildOverrideTimeout: number | NodeJS.Timeout;
@@ -88,7 +90,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
 
   /**
    * Removes the autofill inline menu from the page. This will initially
-   * unobserve the body element to ensure the mutation observer no
+   * unobserve the menu container to ensure the mutation observer no
    * longer triggers.
    */
   private closeInlineMenu = (message?: AutofillExtensionMessage) => {
@@ -102,7 +104,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       return;
     }
 
-    this.unobserveBodyElement();
+    this.unobserveContainerElement();
     this.closeInlineMenuButton();
     this.closeInlineMenuList();
   };
@@ -153,7 +155,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     }
 
     if (!(await this.isInlineMenuButtonVisible())) {
-      this.appendInlineMenuElementToBody(this.buttonElement);
+      this.appendInlineMenuElementToDom(this.buttonElement);
       this.updateInlineMenuElementIsVisibleStatus(AutofillOverlayElement.Button, true);
     }
   }
@@ -168,7 +170,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     }
 
     if (!(await this.isInlineMenuListVisible())) {
-      this.appendInlineMenuElementToBody(this.listElement);
+      this.appendInlineMenuElementToDom(this.listElement);
       this.updateInlineMenuElementIsVisibleStatus(AutofillOverlayElement.List, true);
     }
   }
@@ -190,14 +192,21 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   }
 
   /**
-   * Appends the inline menu element to the body element. This method will also
-   * observe the body element to ensure that the inline menu element is not
+   * Appends the inline menu element to the menu container. This method will also
+   * observe the menu container to ensure that the inline menu element is not
    * interfered with by any DOM changes.
    *
-   * @param element - The inline menu element to append to the body element.
+   * @param element - The inline menu element to append to the menu container.
    */
-  private appendInlineMenuElementToBody(element: HTMLElement) {
-    this.observeBodyElement();
+  private appendInlineMenuElementToDom(element: HTMLElement) {
+    const parentDialogElement = globalThis.document.activeElement?.closest("dialog");
+    if (parentDialogElement?.open && parentDialogElement.matches(":modal")) {
+      this.observeContainerElement(parentDialogElement);
+      parentDialogElement.appendChild(element);
+      return;
+    }
+
+    this.observeContainerElement(globalThis.document.body);
     globalThis.document.body.appendChild(element);
   }
 
@@ -266,18 +275,18 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   }
 
   /**
-   * Sets up mutation observers for the inline menu elements, the body element, and
+   * Sets up mutation observers for the inline menu elements, the menu container, and
    * the document element. The mutation observers are used to remove any styles that
    * are added to the inline menu elements by the website. They are also used to ensure
-   * that the inline menu elements are always present at the bottom of the body element.
+   * that the inline menu elements are always present at the bottom of the menu container.
    */
   private setupMutationObserver = () => {
     this.inlineMenuElementsMutationObserver = new MutationObserver(
       this.handleInlineMenuElementMutationObserverUpdate,
     );
 
-    this.bodyElementMutationObserver = new MutationObserver(
-      this.handleBodyElementMutationObserverUpdate,
+    this.containerElementMutationObserver = new MutationObserver(
+      this.handleContainerElementMutationObserverUpdate,
     );
   };
 
@@ -306,19 +315,17 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   }
 
   /**
-   * Sets up a mutation observer for the body element. The mutation observer is used
-   * to ensure that the inline menu elements are always present at the bottom of the
-   * body element.
+   * Sets up a mutation observer for the element which contains the inline menu.
    */
-  private observeBodyElement() {
-    this.bodyElementMutationObserver?.observe(globalThis.document.body, { childList: true });
+  private observeContainerElement(element: HTMLElement) {
+    this.containerElementMutationObserver?.observe(element, { childList: true });
   }
 
   /**
-   * Disconnects the mutation observer for the body element.
+   * Disconnects the mutation observer for the element which contains the inline menu.
    */
-  private unobserveBodyElement() {
-    this.bodyElementMutationObserver?.disconnect();
+  private unobserveContainerElement() {
+    this.containerElementMutationObserver?.disconnect();
   }
 
   /**
@@ -370,11 +377,11 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   }
 
   /**
-   * Handles the mutation observer update for the body element. This method will
-   * ensure that the inline menu elements are always present at the bottom of the
-   * body element.
+   * Handles the mutation observer update for the element that contains the inline menu.
+   * This method will ensure that the inline menu elements are always present at the
+   * bottom of the container.
    */
-  private handleBodyElementMutationObserverUpdate = () => {
+  private handleContainerElementMutationObserverUpdate = (mutations: MutationRecord[]) => {
     if (
       (!this.buttonElement && !this.listElement) ||
       this.isTriggeringExcessiveMutationObserverIterations()
@@ -382,15 +389,18 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       return;
     }
 
-    requestIdleCallbackPolyfill(this.processBodyElementMutation, { timeout: 500 });
+    const containerElement = mutations[0].target as HTMLElement;
+    requestIdleCallbackPolyfill(() => this.processContainerElementMutation(containerElement), {
+      timeout: 500,
+    });
   };
 
   /**
-   * Processes the mutation of the body element. Will trigger when an
+   * Processes the mutation of the element that contains the inline menu. Will trigger when an
    * idle moment in the execution of the main thread is detected.
    */
-  private processBodyElementMutation = async () => {
-    const lastChild = globalThis.document.body.lastElementChild;
+  private processContainerElementMutation = async (containerElement: HTMLElement) => {
+    const lastChild = containerElement.lastElementChild;
     const secondToLastChild = lastChild?.previousElementSibling;
     const lastChildIsInlineMenuList = lastChild === this.listElement;
     const lastChildIsInlineMenuButton = lastChild === this.buttonElement;
@@ -424,19 +434,19 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       (lastChildIsInlineMenuList && !secondToLastChildIsInlineMenuButton) ||
       (lastChildIsInlineMenuButton && isInlineMenuListVisible)
     ) {
-      globalThis.document.body.insertBefore(this.buttonElement, this.listElement);
+      containerElement.insertBefore(this.buttonElement, this.listElement);
       return;
     }
 
-    globalThis.document.body.insertBefore(lastChild, this.buttonElement);
+    containerElement.insertBefore(lastChild, this.buttonElement);
   };
 
   /**
    * Handles the behavior of a persistent child element that is forcing itself to
-   * the bottom of the body element. This method will ensure that the inline menu
+   * the bottom of the menu container. This method will ensure that the inline menu
    * elements are not obscured by the persistent child element.
    *
-   * @param lastChild - The last child of the body element.
+   * @param lastChild - The last child of the menu container.
    */
   private handlePersistentLastChildOverride(lastChild: Element) {
     const lastChildZIndex = parseInt((lastChild as HTMLElement).style.zIndex);
@@ -452,11 +462,11 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   }
 
   /**
-   * Verifies if the last child of the body element is overlaying the inline menu elements.
-   * This is triggered when the last child of the body is being forced by some script to
-   * be an element other than the inline menu elements.
+   * Verifies if the last child of the menu container is overlaying the inline menu elements.
+   * This is triggered when the last child of the menu container is being forced by some
+   * script to be an element other than the inline menu elements.
    *
-   * @param lastChild - The last child of the body element.
+   * @param lastChild - The last child of the menu container.
    */
   private verifyInlineMenuIsNotObscured = async (lastChild: Element) => {
     const inlineMenuPosition: InlineMenuPosition = await this.sendExtensionMessage(
@@ -487,7 +497,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   }
 
   /**
-   * Clears the timeout that is used to verify that the last child of the body element
+   * Clears the timeout that is used to verify that the last child of the menu container
    * is not overlaying the inline menu elements.
    */
   private clearPersistentLastChildOverrideTimeout() {

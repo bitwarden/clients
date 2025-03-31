@@ -1,9 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { _isNumberValue } from "@angular/cdk/coercion";
 import { DataSource } from "@angular/cdk/collections";
 import { BehaviorSubject, combineLatest, map, Observable, Subscription } from "rxjs";
 
 export type SortDirection = "asc" | "desc";
-export type SortFn = (a: any, b: any) => number;
+export type SortFn = (a: any, b: any, direction?: SortDirection) => number;
 export type Sort = {
   column?: string;
   direction: SortDirection;
@@ -74,7 +76,7 @@ export class TableDataSource<T> extends DataSource<T> {
     }
   }
 
-  connect(): Observable<readonly T[]> {
+  connect(): Observable<T[]> {
     if (!this._renderChangesSubscription) {
       this.updateChangeSubscription();
     }
@@ -166,7 +168,7 @@ export class TableDataSource<T> extends DataSource<T> {
     return data.sort((a, b) => {
       // If a custom sort function is provided, use it instead of the default.
       if (sort.fn) {
-        return sort.fn(a, b) * directionModifier;
+        return sort.fn(a, b, sort.direction) * directionModifier;
       }
 
       let valueA = this.sortingDataAccessor(a, column);

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { inject } from "@angular/core";
 import {
   ActivatedRouteSnapshot,
@@ -10,10 +12,10 @@ import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
-import { MasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
 export const authGuard: CanActivateFn = async (
@@ -38,6 +40,8 @@ export const authGuard: CanActivateFn = async (
     if (routerState != null) {
       messagingService.send("lockedUrl", { url: routerState.url });
     }
+    // TODO PM-9674: when extension refresh is finished, remove promptBiometric
+    // as it has been integrated into the component as a default feature.
     return router.createUrlTree(["lock"], { queryParams: { promptBiometric: true } });
   }
 

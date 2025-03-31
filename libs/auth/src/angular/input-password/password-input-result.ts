@@ -1,5 +1,5 @@
-import { PBKDF2KdfConfig } from "@bitwarden/common/auth/models/domain/kdf-config";
 import { MasterKey } from "@bitwarden/common/types/key";
+import { PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 export interface PasswordInputResult {
   masterKey: MasterKey;

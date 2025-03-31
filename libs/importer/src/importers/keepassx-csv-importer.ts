@@ -30,6 +30,8 @@ export class KeePassXCsvImporter extends BaseImporter implements Importer {
       cipher.login.username = this.getValueOrDefault(value.Username);
       cipher.login.password = this.getValueOrDefault(value.Password);
       cipher.login.uris = this.makeUriArray(value.URL);
+      cipher.login.totp = this.getValueOrDefault(value.TOTP);
+
       this.cleanupCipher(cipher);
       result.ciphers.push(cipher);
     });

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
@@ -37,7 +39,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     // const personalVaults = account.vaults[0].filter((v) => v.attrs.type === VaultAttributeTypeEnum.Personal);
     account.vaults.forEach((vault: VaultsEntity) => {
       vault.items.forEach((item: Item) => {
-        if (item.trashed === true) {
+        if (item.state === "archived") {
           return;
         }
 

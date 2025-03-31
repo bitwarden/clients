@@ -12,14 +12,12 @@ export class WebFileDownloadService implements FileDownloadService {
   download(request: FileDownloadRequest): void {
     const builder = new FileDownloadBuilder(request);
     const a = window.document.createElement("a");
-    if (builder.downloadMethod === "save") {
-      a.download = request.fileName;
-    } else if (!this.platformUtilsService.isSafari()) {
+    if (!this.platformUtilsService.isSafari()) {
       a.rel = "noreferrer";
       a.target = "_blank";
     }
     a.href = URL.createObjectURL(builder.blob);
-    a.style.position = "fixed";
+    a.download = request.fileName;
     window.document.body.appendChild(a);
     a.click();
     window.document.body.removeChild(a);

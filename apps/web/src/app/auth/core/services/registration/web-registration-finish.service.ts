@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
 import {
@@ -10,10 +12,11 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { KeyService } from "@bitwarden/key-management";
 
 import { AcceptOrganizationInviteService } from "../../../organization-invite/accept-organization.service";
 
@@ -22,14 +25,24 @@ export class WebRegistrationFinishService
   implements RegistrationFinishService
 {
   constructor(
-    protected cryptoService: CryptoService,
+    protected keyService: KeyService,
     protected accountApiService: AccountApiService,
     private acceptOrgInviteService: AcceptOrganizationInviteService,
     private policyApiService: PolicyApiServiceAbstraction,
     private logService: LogService,
     private policyService: PolicyService,
+    private accountService: AccountService,
   ) {
-    super(cryptoService, accountApiService);
+    super(keyService, accountApiService);
+  }
+
+  override async getOrgNameFromOrgInvite(): Promise<string | null> {
+    const orgInvite = await this.acceptOrgInviteService.getOrganizationInvite();
+    if (orgInvite == null) {
+      return null;
+    }
+
+    return orgInvite.organizationName;
   }
 
   override async getMasterPasswordPolicyOptsFromOrgInvite(): Promise<MasterPasswordPolicyOptions | null> {
@@ -57,7 +70,7 @@ export class WebRegistrationFinishService
     }
 
     const masterPasswordPolicyOpts: MasterPasswordPolicyOptions = await firstValueFrom(
-      this.policyService.masterPasswordPolicyOptions$(policies),
+      this.policyService.masterPasswordPolicyOptions$(null, policies),
     );
 
     return masterPasswordPolicyOpts;
@@ -66,17 +79,22 @@ export class WebRegistrationFinishService
   // Note: the org invite token and email verification are mutually exclusive. Only one will be present.
   override async buildRegisterRequest(
     email: string,
-    emailVerificationToken: string,
     passwordInputResult: PasswordInputResult,
     encryptedUserKey: EncryptedString,
     userAsymmetricKeys: [string, EncString],
+    emailVerificationToken?: string,
+    orgSponsoredFreeFamilyPlanToken?: string,
+    acceptEmergencyAccessInviteToken?: string,
+    emergencyAccessId?: string,
+    providerInviteToken?: string,
+    providerUserId?: string,
   ): Promise<RegisterFinishRequest> {
     const registerRequest = await super.buildRegisterRequest(
       email,
-      emailVerificationToken,
       passwordInputResult,
       encryptedUserKey,
       userAsymmetricKeys,
+      emailVerificationToken,
     );
 
     // web specific logic
@@ -88,6 +106,20 @@ export class WebRegistrationFinishService
       registerRequest.orgInviteToken = orgInvite.token;
     }
     // Invite is accepted after login (on deep link redirect).
+
+    if (orgSponsoredFreeFamilyPlanToken) {
+      registerRequest.orgSponsoredFreeFamilyPlanToken = orgSponsoredFreeFamilyPlanToken;
+    }
+
+    if (acceptEmergencyAccessInviteToken && emergencyAccessId) {
+      registerRequest.acceptEmergencyAccessInviteToken = acceptEmergencyAccessInviteToken;
+      registerRequest.acceptEmergencyAccessId = emergencyAccessId;
+    }
+
+    if (providerInviteToken && providerUserId) {
+      registerRequest.providerInviteToken = providerInviteToken;
+      registerRequest.providerUserId = providerUserId;
+    }
 
     return registerRequest;
   }

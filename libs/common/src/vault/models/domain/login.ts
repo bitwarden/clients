@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import Domain from "../../../platform/models/domain/domain-base";
@@ -53,17 +55,16 @@ export class Login extends Domain {
   async decrypt(
     orgId: string,
     bypassValidation: boolean,
+    context: string = "No Cipher Context",
     encKey?: SymmetricCryptoKey,
   ): Promise<LoginView> {
-    const view = await this.decryptObj(
+    const view = await this.decryptObj<Login, LoginView>(
+      this,
       new LoginView(this),
-      {
-        username: null,
-        password: null,
-        totp: null,
-      },
+      ["username", "password", "totp"],
       orgId,
       encKey,
+      `DomainType: Login; ${context}`,
     );
 
     if (this.uris != null) {
@@ -74,7 +75,7 @@ export class Login extends Domain {
           continue;
         }
 
-        const uri = await this.uris[i].decrypt(orgId, encKey);
+        const uri = await this.uris[i].decrypt(orgId, context, encKey);
         // URIs are shared remotely after decryption
         // we need to validate that the string hasn't been changed by a compromised server
         // This validation is tied to the existence of cypher.key for backwards compatibility

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
 import { I18nService } from "../../platform/abstractions/i18n.service";
@@ -204,7 +206,7 @@ export class TwoFactorService implements TwoFactorServiceAbstraction {
     await this.providersState.update(() => null);
   }
 
-  getProviders(): Promise<Map<TwoFactorProviderType, { [key: string]: string }>> {
+  getProviders(): Promise<Map<TwoFactorProviderType, { [key: string]: string }> | null> {
     return firstValueFrom(this.providers$);
   }
 }

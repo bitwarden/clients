@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as chalk from "chalk";
 import { firstValueFrom, map } from "rxjs";
 
@@ -171,7 +173,7 @@ export abstract class BaseProgram {
       const command = new UnlockCommand(
         this.serviceContainer.accountService,
         this.serviceContainer.masterPasswordService,
-        this.serviceContainer.cryptoService,
+        this.serviceContainer.keyService,
         this.serviceContainer.userVerificationService,
         this.serviceContainer.cryptoFunctionService,
         this.serviceContainer.logService,

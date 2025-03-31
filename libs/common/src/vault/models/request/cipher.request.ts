@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { CardApi } from "../api/card.api";
@@ -7,6 +9,7 @@ import { IdentityApi } from "../api/identity.api";
 import { LoginUriApi } from "../api/login-uri.api";
 import { LoginApi } from "../api/login.api";
 import { SecureNoteApi } from "../api/secure-note.api";
+import { SshKeyApi } from "../api/ssh-key.api";
 import { Cipher } from "../domain/cipher";
 
 import { AttachmentRequest } from "./attachment.request";
@@ -23,6 +26,7 @@ export class CipherRequest {
   secureNote: SecureNoteApi;
   card: CardApi;
   identity: IdentityApi;
+  sshKey: SshKeyApi;
   fields: FieldApi[];
   passwordHistory: PasswordHistoryRequest[];
   // Deprecated, remove at some point and rename attachments2 to attachments
@@ -92,6 +96,17 @@ export class CipherRequest {
       case CipherType.SecureNote:
         this.secureNote = new SecureNoteApi();
         this.secureNote.type = cipher.secureNote.type;
+        break;
+      case CipherType.SshKey:
+        this.sshKey = new SshKeyApi();
+        this.sshKey.privateKey =
+          cipher.sshKey.privateKey != null ? cipher.sshKey.privateKey.encryptedString : null;
+        this.sshKey.publicKey =
+          cipher.sshKey.publicKey != null ? cipher.sshKey.publicKey.encryptedString : null;
+        this.sshKey.keyFingerprint =
+          cipher.sshKey.keyFingerprint != null
+            ? cipher.sshKey.keyFingerprint.encryptedString
+            : null;
         break;
       case CipherType.Card:
         this.card = new CardApi();

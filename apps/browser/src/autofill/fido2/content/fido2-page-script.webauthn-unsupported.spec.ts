@@ -50,6 +50,8 @@ describe("Fido2 page script without native WebAuthn support", () => {
   const mockCreateCredentialsResult = createCreateCredentialResultMock();
   const mockCredentialRequestOptions = createCredentialRequestOptionsMock();
   const mockCredentialAssertResult = createAssertCredentialResultMock();
+  // FIXME: Remove when updating file. Eslint update
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   require("./fido2-page-script");
 
   afterEach(() => {

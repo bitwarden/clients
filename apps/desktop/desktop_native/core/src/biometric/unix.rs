@@ -5,13 +5,13 @@ use base64::Engine;
 use rand::RngCore;
 use sha2::{Digest, Sha256};
 
-use crate::biometric::{KeyMaterial, OsDerivedKey, base64_engine};
+use crate::biometric::{base64_engine, KeyMaterial, OsDerivedKey};
 use zbus::Connection;
 use zbus_polkit::policykit1::*;
 
 use super::{decrypt, encrypt};
-use anyhow::anyhow;
 use crate::crypto::CipherString;
+use anyhow::anyhow;
 
 /// The Unix implementation of the biometric trait.
 pub struct Biometric {}
@@ -22,21 +22,21 @@ impl super::BiometricTrait for Biometric {
         let proxy = AuthorityProxy::new(&connection).await?;
         let subject = Subject::new_for_owner(std::process::id(), None, None)?;
         let details = std::collections::HashMap::new();
-        let result = proxy.check_authorization(
-            &subject,
-            "com.bitwarden.Bitwarden.unlock",
-            &details,
-            CheckAuthorizationFlags::AllowUserInteraction.into(),
-            "",
-        ).await;
+        let result = proxy
+            .check_authorization(
+                &subject,
+                "com.bitwarden.Bitwarden.unlock",
+                &details,
+                CheckAuthorizationFlags::AllowUserInteraction.into(),
+                "",
+            )
+            .await;
 
         match result {
-            Ok(result) => {
-                return Ok(result.is_authorized);
-            }
+            Ok(result) => Ok(result.is_authorized),
             Err(e) => {
                 println!("polkit biometric error: {:?}", e);
-                return Ok(false);
+                Ok(false)
             }
         }
     }
@@ -50,7 +50,7 @@ impl super::BiometricTrait for Biometric {
                 return Ok(true);
             }
         }
-        return Ok(false);
+        Ok(false)
     }
 
     fn derive_key_material(challenge_str: Option<&str>) -> Result<OsDerivedKey> {
@@ -66,12 +66,12 @@ impl super::BiometricTrait for Biometric {
         // so we use a a key derived from the iv. this key is not intended to add any security
         // but only a place-holder
         let key = Sha256::digest(challenge);
-        let key_b64 = base64_engine.encode(&key);
-        let iv_b64 = base64_engine.encode(&challenge);
+        let key_b64 = base64_engine.encode(key);
+        let iv_b64 = base64_engine.encode(challenge);
         Ok(OsDerivedKey { key_b64, iv_b64 })
     }
 
-    fn set_biometric_secret(
+    async fn set_biometric_secret(
         service: &str,
         account: &str,
         secret: &str,
@@ -83,11 +83,11 @@ impl super::BiometricTrait for Biometric {
         ))?;
 
         let encrypted_secret = encrypt(secret, &key_material, iv_b64)?;
-        crate::password::set_password(service, account, &encrypted_secret)?;
+        crate::password::set_password(service, account, &encrypted_secret).await?;
         Ok(encrypted_secret)
     }
 
-    fn get_biometric_secret(
+    async fn get_biometric_secret(
         service: &str,
         account: &str,
         key_material: Option<KeyMaterial>,
@@ -96,9 +96,9 @@ impl super::BiometricTrait for Biometric {
             "Key material is required for polkit protected keys"
         ))?;
 
-        let encrypted_secret = crate::password::get_password(service, account)?;
+        let encrypted_secret = crate::password::get_password(service, account).await?;
         let secret = CipherString::from_str(&encrypted_secret)?;
-        return Ok(decrypt(&secret, &key_material)?);
+        decrypt(&secret, &key_material)
     }
 }
 

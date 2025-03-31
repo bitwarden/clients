@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -10,7 +12,9 @@ import InsertAutofillContentService from "../services/insert-autofill-content.se
 import {
   elementIsInputElement,
   getSubmitButtonKeywordsSet,
+  nodeIsButtonElement,
   nodeIsFormElement,
+  nodeIsTypeSubmitElement,
   sendExtensionMessage,
 } from "../utils";
 
@@ -189,13 +193,21 @@ import {
     element: HTMLElement,
     lastFieldIsPasswordInput = false,
   ): boolean {
-    const genericSubmitElement = querySubmitButtonElement(element, "[type='submit']");
+    const genericSubmitElement = querySubmitButtonElement(
+      element,
+      "[type='submit']",
+      (node: Node) => nodeIsTypeSubmitElement(node),
+    );
     if (genericSubmitElement) {
       clickSubmitElement(genericSubmitElement, lastFieldIsPasswordInput);
       return true;
     }
 
-    const buttonElement = querySubmitButtonElement(element, "button, [type='button']");
+    const buttonElement = querySubmitButtonElement(
+      element,
+      "button, [type='button']",
+      (node: Node) => nodeIsButtonElement(node),
+    );
     if (buttonElement) {
       clickSubmitElement(buttonElement, lastFieldIsPasswordInput);
       return true;
@@ -210,11 +222,17 @@ import {
    *
    * @param element - The element to query for submit buttons
    * @param selector - The selector to query for submit buttons
+   * @param treeWalkerFilter - The callback used to filter treeWalker results
    */
-  function querySubmitButtonElement(element: HTMLElement, selector: string) {
-    const submitButtonElements = domQueryService.deepQueryElements<HTMLButtonElement>(
+  function querySubmitButtonElement(
+    element: HTMLElement,
+    selector: string,
+    treeWalkerFilter: CallableFunction,
+  ) {
+    const submitButtonElements = domQueryService.query<HTMLButtonElement>(
       element,
       selector,
+      treeWalkerFilter,
     );
     for (let index = 0; index < submitButtonElements.length; index++) {
       const submitElement = submitButtonElements[index];
@@ -272,20 +290,11 @@ import {
    * Gets all form elements on the page.
    */
   function getAutofillFormElements(): HTMLFormElement[] {
-    const formElements: HTMLFormElement[] = [];
-    domQueryService.queryAllTreeWalkerNodes(
+    return domQueryService.query<HTMLFormElement>(
       globalContext.document.documentElement,
-      (node: Node) => {
-        if (nodeIsFormElement(node)) {
-          formElements.push(node);
-          return true;
-        }
-
-        return false;
-      },
+      "form",
+      (node: Node) => nodeIsFormElement(node),
     );
-
-    return formElements;
   }
 
   /**

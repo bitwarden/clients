@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
@@ -14,21 +16,21 @@ import {
 } from "rxjs";
 import { debounceTime, first } from "rxjs/operators";
 
+import {
+  CollectionService,
+  CollectionData,
+  Collection,
+  CollectionDetailsResponse,
+  CollectionResponse,
+  CollectionView,
+} from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
-import { CollectionData } from "@bitwarden/common/vault/models/data/collection.data";
-import { Collection } from "@bitwarden/common/vault/models/domain/collection";
-import {
-  CollectionDetailsResponse,
-  CollectionResponse,
-} from "@bitwarden/common/vault/models/response/collection.response";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { DialogService, TableDataSource, ToastService } from "@bitwarden/components";
 
-import { InternalGroupService as GroupService, GroupView } from "../core";
+import { GroupDetailsView, InternalGroupApiService as GroupService } from "../core";
 
 import {
   GroupAddEditDialogResultType,
@@ -40,7 +42,7 @@ type GroupDetailsRow = {
   /**
    * Details used for displaying group information
    */
-  details: GroupView;
+  details: GroupDetailsView;
 
   /**
    * True if the group is selected in the table
@@ -59,6 +61,7 @@ type GroupDetailsRow = {
  * with members' names (who are assigned to the group) or collection names (which the group has access to).
  */
 const groupsFilter = (filter: string) => {
+  filter ??= "";
   const transformedFilter = filter.trim().toLowerCase();
   return (data: GroupDetailsRow) => {
     const group = data.details;
@@ -81,8 +84,8 @@ export class GroupsComponent {
   protected searchControl = new FormControl("");
 
   // Fixed sizes used for cdkVirtualScroll
-  protected rowHeight = 46;
-  protected rowHeightClass = `tw-h-[46px]`;
+  protected rowHeight = 52;
+  protected rowHeightClass = `tw-h-[52px]`;
 
   protected ModalTabType = GroupAddEditTabType;
   private refreshGroups$ = new BehaviorSubject<void>(null);
@@ -108,7 +111,7 @@ export class GroupsComponent {
             ),
             // groups
             this.refreshGroups$.pipe(
-              switchMap(() => this.groupService.getAll(this.organizationId)),
+              switchMap(() => this.groupService.getAllDetails(this.organizationId)),
             ),
           ]),
         ),

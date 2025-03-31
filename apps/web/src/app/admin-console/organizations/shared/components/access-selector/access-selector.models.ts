@@ -1,11 +1,16 @@
-import { OrganizationUserUserDetailsResponse } from "@bitwarden/admin-console/common";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import {
+  CollectionAccessSelectionView,
+  OrganizationUserUserDetailsResponse,
+} from "@bitwarden/admin-console/common";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
 } from "@bitwarden/common/admin-console/enums";
 import { SelectItemView } from "@bitwarden/components";
 
-import { CollectionAccessSelectionView, GroupView } from "../../../core";
+import { GroupView } from "../../../core";
 
 /**
  * Permission options that replace/correspond with manage, readOnly, and hidePassword server fields.
@@ -78,11 +83,11 @@ export type Permission = {
 
 export const getPermissionList = (): Permission[] => {
   const permissions = [
-    { perm: CollectionPermission.View, labelId: "canView" },
-    { perm: CollectionPermission.ViewExceptPass, labelId: "canViewExceptPass" },
-    { perm: CollectionPermission.Edit, labelId: "canEdit" },
-    { perm: CollectionPermission.EditExceptPass, labelId: "canEditExceptPass" },
-    { perm: CollectionPermission.Manage, labelId: "canManage" },
+    { perm: CollectionPermission.View, labelId: "viewItems" },
+    { perm: CollectionPermission.ViewExceptPass, labelId: "viewItemsHidePass" },
+    { perm: CollectionPermission.Edit, labelId: "editItems" },
+    { perm: CollectionPermission.EditExceptPass, labelId: "editItemsHidePass" },
+    { perm: CollectionPermission.Manage, labelId: "manageCollection" },
   ];
 
   return permissions;

@@ -1,11 +1,11 @@
+import { KdfType } from "@bitwarden/key-management";
+
 import { KeysRequest } from "../../../../models/request/keys.request";
-import { KdfType } from "../../../../platform/enums";
 import { EncryptedString } from "../../../../platform/models/domain/enc-string";
 
 export class RegisterFinishRequest {
   constructor(
     public email: string,
-    public emailVerificationToken: string,
 
     public masterPasswordHash: string,
     public masterPasswordHint: string,
@@ -17,6 +17,13 @@ export class RegisterFinishRequest {
     public kdfIterations: number,
     public kdfMemory?: number,
     public kdfParallelism?: number,
+
+    public emailVerificationToken?: string,
+    public orgSponsoredFreeFamilyPlanToken?: string,
+    public acceptEmergencyAccessInviteToken?: string,
+    public acceptEmergencyAccessId?: string,
+    public providerInviteToken?: string,
+    public providerUserId?: string,
 
     // Org Invite data (only applies on web)
     public organizationUserId?: string,

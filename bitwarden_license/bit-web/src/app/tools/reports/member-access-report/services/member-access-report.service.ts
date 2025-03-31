@@ -1,9 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 
+import { CollectionAccessSelectionView } from "@bitwarden/admin-console/common";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { CollectionAccessSelectionView } from "@bitwarden/web-vault/app/admin-console/organizations/core/views";
 import {
   getPermissionList,
   convertToPermission,

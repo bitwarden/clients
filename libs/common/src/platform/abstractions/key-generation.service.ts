@@ -1,4 +1,5 @@
-import { KdfConfig } from "../../auth/models/domain/kdf-config";
+import { KdfConfig } from "@bitwarden/key-management";
+
 import { CsprngArray } from "../../types/csprng";
 import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 

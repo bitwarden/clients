@@ -1,8 +1,7 @@
 import { Injectable } from "@angular/core";
 
-import { ImportCollectionServiceAbstraction } from "../../../../../../libs/importer/src/services/import-collection.service.abstraction";
-import { CollectionAdminService } from "../../vault/core/collection-admin.service";
-import { CollectionAdminView } from "../../vault/core/views/collection-admin.view";
+import { CollectionAdminService, CollectionAdminView } from "@bitwarden/admin-console/common";
+import { ImportCollectionServiceAbstraction } from "@bitwarden/importer-core";
 
 @Injectable()
 export class ImportCollectionAdminService implements ImportCollectionServiceAbstraction {

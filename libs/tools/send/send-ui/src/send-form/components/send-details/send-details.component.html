@@ -1,0 +1,54 @@
+<bit-section [formGroup]="sendDetailsForm">
+  <bit-section-header class="tw-mt-2">
+    <h2 bitTypography="h6">{{ "sendDetails" | i18n }}</h2>
+  </bit-section-header>
+
+  <bit-card>
+    <bit-form-field>
+      <bit-label>{{ "name" | i18n }}</bit-label>
+      <input appAutofocus bitInput type="text" formControlName="name" />
+    </bit-form-field>
+
+    <tools-send-text-details
+      *ngIf="config.sendType === TextSendType"
+      [config]="config"
+      [originalSendView]="originalSendView"
+    ></tools-send-text-details>
+
+    <tools-send-file-details
+      *ngIf="config.sendType === FileSendType"
+      [config]="config"
+      [originalSendView]="originalSendView"
+    ></tools-send-file-details>
+
+    <bit-form-field *ngIf="sendLink">
+      <bit-label>{{ "sendLink" | i18n }}</bit-label>
+      <input data-testid="send-link" bitInput type="text" [value]="sendLink" disabled />
+      <button
+        type="button"
+        bitSuffix
+        showToast
+        bitIconButton="bwi-clone"
+        [appCopyClick]="sendLink"
+        [appA11yTitle]="'copySendLink' | i18n"
+      ></button>
+    </bit-form-field>
+
+    <bit-form-field disableMargin>
+      <bit-label>{{ "deletionDate" | i18n }}</bit-label>
+      <bit-select
+        id="deletionDate"
+        name="SelectedDeletionDatePreset"
+        formControlName="selectedDeletionDatePreset"
+      >
+        <bit-option
+          *ngFor="let o of datePresetOptions"
+          [value]="o.value"
+          [label]="o.name"
+        ></bit-option>
+      </bit-select>
+      <bit-hint>{{ "deletionDateDescV2" | i18n }}</bit-hint>
+    </bit-form-field>
+  </bit-card>
+  <tools-send-options [config]="config" [originalSendView]="originalSendView"></tools-send-options>
+</bit-section>

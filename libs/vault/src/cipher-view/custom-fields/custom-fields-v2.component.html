@@ -5,11 +5,12 @@
   <bit-card>
     <div
       class="tw-border-secondary-300 [&_bit-form-field:last-of-type]:tw-mb-0"
-      *ngFor="let field of fields; let last = last"
+      *ngFor="let field of cipher.fields; let last = last"
       [ngClass]="{ 'tw-mb-4': !last }"
+      data-testid="custom-field"
     >
       <bit-form-field *ngIf="field.type === fieldType.Text" [disableReadOnlyBorder]="last">
-        <bit-label>{{ field.name }}</bit-label>
+        <bit-label [appTextDrag]="field.value">{{ field.name }}</bit-label>
         <input readonly bitInput type="text" [value]="field.value" aria-readonly="true" />
         <button
           bitIconButton="bwi-clone"
@@ -18,13 +19,28 @@
           [appCopyClick]="field.value"
           showToast
           [valueLabel]="field.name"
-          [appA11yTitle]="'copyValue' | i18n"
+          [appA11yTitle]="'copyCustomField' | i18n: field.name"
+          data-testid="copy-custom-field"
         ></button>
       </bit-form-field>
       <bit-form-field *ngIf="field.type === fieldType.Hidden" [disableReadOnlyBorder]="last">
-        <bit-label>{{ field.name }}</bit-label>
-        <input readonly bitInput type="password" [value]="field.value" aria-readonly="true" />
-        <button bitSuffix type="button" bitIconButton bitPasswordInputToggle></button>
+        <bit-label [appTextDrag]="field.value">{{ field.name }}</bit-label>
+        <input
+          readonly
+          bitInput
+          type="password"
+          [value]="field.value"
+          aria-readonly="true"
+          class="tw-font-mono"
+        />
+        <button
+          bitSuffix
+          type="button"
+          bitIconButton
+          bitPasswordInputToggle
+          *ngIf="canViewPassword"
+          (toggledChange)="logHiddenEvent($event)"
+        ></button>
         <button
           bitIconButton="bwi-clone"
           bitSuffix
@@ -32,7 +48,9 @@
           [appCopyClick]="field.value"
           showToast
           [valueLabel]="field.name"
-          [appA11yTitle]="'copyValue' | i18n"
+          *ngIf="canViewPassword"
+          [appA11yTitle]="'copyCustomField' | i18n: field.name"
+          (click)="logCopyEvent()"
         ></button>
       </bit-form-field>
       <bit-form-control *ngIf="field.type === fieldType.Boolean">
@@ -43,7 +61,9 @@
           aria-readonly="true"
           disabled
         />
-        <bit-label> {{ field.name }} </bit-label>
+        <bit-label [appTextDrag]="field.value">
+          {{ field.name }}
+        </bit-label>
       </bit-form-control>
       <bit-form-field *ngIf="field.type === fieldType.Linked" [disableReadOnlyBorder]="last">
         <bit-label> {{ "cfTypeLinked" | i18n }}: {{ field.name }} </bit-label>

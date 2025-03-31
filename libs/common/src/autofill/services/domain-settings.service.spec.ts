@@ -1,6 +1,8 @@
+import { MockProxy, mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
 import { FakeStateProvider, FakeAccountService, mockAccountServiceWith } from "../../../spec";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { Utils } from "../../platform/misc/utils";
 import { UserId } from "../../types/guid";
 
@@ -8,6 +10,7 @@ import { DefaultDomainSettingsService, DomainSettingsService } from "./domain-se
 
 describe("DefaultDomainSettingsService", () => {
   let domainSettingsService: DomainSettingsService;
+  let configService: MockProxy<ConfigService>;
   const mockUserId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
   const fakeStateProvider: FakeStateProvider = new FakeStateProvider(accountService);
@@ -19,10 +22,13 @@ describe("DefaultDomainSettingsService", () => {
   ];
 
   beforeEach(() => {
-    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockImplementation(() => of(false));
+    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider, configService);
 
     jest.spyOn(domainSettingsService, "getUrlEquivalentDomains");
     domainSettingsService.equivalentDomains$ = of(mockEquivalentDomains);
+    domainSettingsService.blockedInteractionsUris$ = of({});
   });
 
   describe("getUrlEquivalentDomains", () => {

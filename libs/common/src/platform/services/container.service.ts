@@ -1,9 +1,10 @@
-import { CryptoService } from "../abstractions/crypto.service";
-import { EncryptService } from "../abstractions/encrypt.service";
+import { KeyService } from "@bitwarden/key-management";
+
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 
 export class ContainerService {
   constructor(
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private encryptService: EncryptService,
   ) {}
 
@@ -14,13 +15,13 @@ export class ContainerService {
   }
 
   /**
-   * @throws Will throw if CryptoService was not instantiated and provided to the ContainerService constructor
+   * @throws Will throw if KeyService was not instantiated and provided to the ContainerService constructor
    */
-  getCryptoService(): CryptoService {
-    if (this.cryptoService == null) {
-      throw new Error("ContainerService.cryptoService not initialized.");
+  getKeyService(): KeyService {
+    if (this.keyService == null) {
+      throw new Error("ContainerService.keyService not initialized.");
     }
-    return this.cryptoService;
+    return this.keyService;
   }
 
   /**

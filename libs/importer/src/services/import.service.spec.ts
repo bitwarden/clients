@@ -1,16 +1,19 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
+import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { KeyService } from "@bitwarden/key-management";
+import { BitwardenClient } from "@bitwarden/sdk-internal";
 
 import { BitwardenPasswordProtectedImporter } from "../importers/bitwarden/bitwarden-password-protected-importer";
 import { Importer } from "../importers/importer";
@@ -26,9 +29,11 @@ describe("ImportService", () => {
   let importApiService: MockProxy<ImportApiServiceAbstraction>;
   let i18nService: MockProxy<I18nService>;
   let collectionService: MockProxy<CollectionService>;
-  let cryptoService: MockProxy<CryptoService>;
+  let keyService: MockProxy<KeyService>;
+  let encryptService: MockProxy<EncryptService>;
   let pinService: MockProxy<PinServiceAbstraction>;
   let accountService: MockProxy<AccountService>;
+  let sdkService: MockProxy<SdkService>;
 
   beforeEach(() => {
     cipherService = mock<CipherService>();
@@ -36,8 +41,12 @@ describe("ImportService", () => {
     importApiService = mock<ImportApiServiceAbstraction>();
     i18nService = mock<I18nService>();
     collectionService = mock<CollectionService>();
-    cryptoService = mock<CryptoService>();
+    keyService = mock<KeyService>();
+    encryptService = mock<EncryptService>();
     pinService = mock<PinServiceAbstraction>();
+    const mockClient = mock<BitwardenClient>();
+    sdkService = mock<SdkService>();
+    sdkService.client$ = of(mockClient, mockClient, mockClient);
 
     importService = new ImportService(
       cipherService,
@@ -45,9 +54,11 @@ describe("ImportService", () => {
       importApiService,
       i18nService,
       collectionService,
-      cryptoService,
+      keyService,
+      encryptService,
       pinService,
       accountService,
+      sdkService,
     );
   });
 
@@ -264,7 +275,7 @@ describe("ImportService", () => {
 function createCipher(options: Partial<CipherView> = {}) {
   const cipher = new CipherView();
 
-  cipher.name;
+  cipher.name = options.name;
   cipher.type = options.type;
   cipher.folderId = options.folderId;
   cipher.collectionIds = options.collectionIds;

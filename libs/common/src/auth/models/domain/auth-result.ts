@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
 import { TwoFactorProviderType } from "../../enums/two-factor-provider-type";
@@ -20,6 +22,7 @@ export class AuthResult {
   ssoEmail2FaSessionToken?: string;
   email: string;
   requiresEncryptionKeyMigration: boolean;
+  requiresDeviceVerification: boolean;
 
   get requiresCaptcha() {
     return !Utils.isNullOrWhitespace(this.captchaSiteKey);

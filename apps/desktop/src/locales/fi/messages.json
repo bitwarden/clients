@@ -26,6 +26,9 @@
   "typeSecureNote": {
     "message": "Salattu muistio"
   },
+  "typeSshKey": {
+    "message": "SSH-avain"
+  },
   "folders": {
     "message": "Kansiot"
   },
@@ -59,6 +62,9 @@
         "example": "Company Name"
       }
     }
+  },
+  "welcomeBack": {
+    "message": "Tervetuloa takaisin"
   },
   "moveToOrgDesc": {
     "message": "Valitse organisaatio, jolle haluat siirtää kohteen. Tämä siirtää kohteen organisaation omistukseen, etkä tämän jälkeen ole enää sen suora omistaja."
@@ -95,7 +101,7 @@
     "message": "Salasana"
   },
   "passphrase": {
-    "message": "Salauslauseke"
+    "message": "Salauslause"
   },
   "editItem": {
     "message": "Muokkaa kohdetta"
@@ -145,7 +151,7 @@
     "message": "Merkki"
   },
   "expiration": {
-    "message": "Erääntymisaika"
+    "message": "Voimassaolo päättyy"
   },
   "securityCode": {
     "message": "Turvakoodi (CVC/CVV)"
@@ -174,6 +180,63 @@
   "address": {
     "message": "Osoite"
   },
+  "sshPrivateKey": {
+    "message": "Yksityinen avain"
+  },
+  "sshPublicKey": {
+    "message": "Julkinen avain"
+  },
+  "sshFingerprint": {
+    "message": "Sormenjälki"
+  },
+  "sshKeyAlgorithm": {
+    "message": "Avaimen tyyppi"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-bit"
+  },
+  "sshKeyGenerated": {
+    "message": "Uusi SSH-avain luotiin"
+  },
+  "sshKeyWrongPassword": {
+    "message": "Syöttämäsi salasana on virheellinen."
+  },
+  "importSshKey": {
+    "message": "Tuo"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Vahvista salasana"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Syötä SSH-avaimen salasana."
+  },
+  "enterSshKeyPassword": {
+    "message": "Syötä salasana"
+  },
+  "sshAgentUnlockRequired": {
+    "message": "Hyväksy SSH-avainpyyntö avaamalla holvisi."
+  },
+  "sshAgentUnlockTimeout": {
+    "message": "SSH-avainpyyntö aikakatkaistiin."
+  },
+  "enableSshAgent": {
+    "message": "Ota SSH-agentti käyttöön"
+  },
+  "enableSshAgentDesc": {
+    "message": "Enable the SSH agent to sign SSH requests right from your Bitwarden vault."
+  },
+  "enableSshAgentHelp": {
+    "message": "The SSH agent is a service targeted at developers that allows you to sign SSH requests directly from your Bitwarden vault."
+  },
   "premiumRequired": {
     "message": "Premium vaaditaan"
   },
@@ -185,6 +248,20 @@
   },
   "error": {
     "message": "Virhe"
+  },
+  "decryptionError": {
+    "message": "Virhe salauksen purussa"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden ei voinut purkaa alla olevien holvin kohteiden salausta."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Contact customer success",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "to avoid additional data loss.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
     "message": "Tammikuu"
@@ -258,6 +335,9 @@
   },
   "generatePassword": {
     "message": "Luo salasana"
+  },
+  "generatePassphrase": {
+    "message": "Luo salalause"
   },
   "type": {
     "message": "Tyyppi"
@@ -394,6 +474,16 @@
   "copyPassword": {
     "message": "Kopioi salasana"
   },
+  "regenerateSshKey": {
+    "message": "Luo SSH-avain uudelleen"
+  },
+  "copySshPrivateKey": {
+    "message": "Kopioi yksityinen SSH-avain"
+  },
+  "copyPassphrase": {
+    "message": "Kopioi salalause",
+    "description": "Copy passphrase to clipboard"
+  },
   "copyUri": {
     "message": "Kopioi URI"
   },
@@ -407,16 +497,51 @@
     "message": "Salasanan vähimmäispituus"
   },
   "uppercase": {
-    "message": "Isot kirjaimet (A-Z)"
+    "message": "Isot kirjaimet (A-Z)",
+    "description": "deprecated. Use uppercaseLabel instead."
   },
   "lowercase": {
-    "message": "Pienet kirjaimet (a-z)"
+    "message": "Pienet kirjaimet (a-z)",
+    "description": "deprecated. Use lowercaseLabel instead."
   },
   "numbers": {
-    "message": "Numerot (0-9)"
+    "message": "Numerot (0-9)",
+    "description": "deprecated. Use numbersLabel instead."
   },
   "specialCharacters": {
     "message": "Erikoismerkit (!@#$%^&*)"
+  },
+  "include": {
+    "message": "Sisällytys",
+    "description": "Card header for password generator include block"
+  },
+  "uppercaseDescription": {
+    "message": "Sisällytä isoja kirjaimia",
+    "description": "Tooltip for the password generator uppercase character checkbox"
+  },
+  "uppercaseLabel": {
+    "message": "A-Ö",
+    "description": "Label for the password generator uppercase character checkbox"
+  },
+  "lowercaseDescription": {
+    "message": "Sisällytä pieniä kirjaimia",
+    "description": "Full description for the password generator lowercase character checkbox"
+  },
+  "lowercaseLabel": {
+    "message": "a-ö",
+    "description": "Label for the password generator lowercase character checkbox"
+  },
+  "numbersDescription": {
+    "message": "Sisällytä numeroita",
+    "description": "Full description for the password generator numbers checkbox"
+  },
+  "numbersLabel": {
+    "message": "0-9",
+    "description": "Label for the password generator numbers checkbox"
+  },
+  "specialCharactersDescription": {
+    "message": "Sisällytä erikoismerkkejä",
+    "description": "Full description for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Sanojen määrä"
@@ -442,7 +567,16 @@
     "description": "Minimum Special Characters"
   },
   "ambiguous": {
-    "message": "Vältä epäselviä merkkejä"
+    "message": "Vältä epäselviä merkkejä",
+    "description": "deprecated. Use avoidAmbiguous instead."
+  },
+  "avoidAmbiguous": {
+    "message": "Vältä epäselviä merkkejä",
+    "description": "Label for the avoid ambiguous characters checkbox."
+  },
+  "generatorPolicyInEffect": {
+    "message": "Yrityskäytännön säännöt vaikuttavat generaattoriasetuksiisi.",
+    "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchCollection": {
     "message": "Etsi kokoelmasta"
@@ -499,6 +633,9 @@
   "createAccount": {
     "message": "Luo tili"
   },
+  "newToBitwarden": {
+    "message": "Oletko uusi Bitwarden-käyttäjä?"
+  },
   "setAStrongPassword": {
     "message": "Aseta vahva salasana"
   },
@@ -508,6 +645,27 @@
   "logIn": {
     "message": "Kirjaudu"
   },
+  "logInToBitwarden": {
+    "message": "Kirjaudu Bitwardeniin"
+  },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Syötä sähköpostitse vastaanottamasi koodi"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Syötä todennussovelluksesi näyttämä koodi"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Tunnistaudu koskettamalla YubiKeytäsi"
+  },
+  "logInWithPasskey": {
+    "message": "Kirjaudu pääsyavaimella"
+  },
+  "loginWithDevice": {
+    "message": "Kirjaudu laitteella"
+  },
+  "useSingleSignOn": {
+    "message": "Käytä kertakirjautumista"
+  },
   "submit": {
     "message": "Jatka"
   },
@@ -515,7 +673,7 @@
     "message": "Pääsalasana"
   },
   "masterPassDesc": {
-    "message": "Pääsalasanalla pääset käsiksi holviisi. On erittäin tärkeää, että muistat pääsalasanasi, koska sen palautus ei ole mahdollista, jos unohdat sen."
+    "message": "Pääsalasanalla pääset käsiksi holviisi. On erittäin tärkeää, että muistat pääsalasanasi, koska sitä ei ole mahdollista palauttaa, jos unohdat sen."
   },
   "masterPassHintDesc": {
     "message": "Pääsalasanan vihje voi auttaa sinua muistamaan unohtamasi salasanan."
@@ -543,7 +701,7 @@
     "message": "Pääsalasana"
   },
   "masterPassImportant": {
-    "message": "Pääsalasanasi palauttaminen ei ole mahdollista, jos unohdat sen!"
+    "message": "Pääsalasanaasi ei ole mahdollista palauttaa, jos unohdat sen!"
   },
   "confirmMasterPassword": {
     "message": "Vahvista pääsalasana"
@@ -551,8 +709,26 @@
   "masterPassHintLabel": {
     "message": "Pääsalasanan vihje"
   },
+  "passwordStrengthScore": {
+    "message": "Salasanan vahvuusarvio $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Liity organisaatioon"
+  },
+  "joinOrganizationName": {
+    "message": "Liity organisaatioon $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
     "message": "Viimeistele organisaatioon liittyminen asettamalla pääsalasana."
@@ -560,11 +736,17 @@
   "settings": {
     "message": "Asetukset"
   },
-  "passwordHint": {
-    "message": "Salasanavihje"
+  "accountEmail": {
+    "message": "Tilin sähköpostiosoite"
   },
-  "enterEmailToGetHint": {
-    "message": "Syötä tilisi sähköpostiosoite saadaksesi pääsalasanan vihjeen."
+  "requestHint": {
+    "message": "Pyydä vihje"
+  },
+  "requestPasswordHint": {
+    "message": "Pyydä pääsalasanan vihje"
+  },
+  "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
+    "message": "Syötä tilisi sähköpostiosoite, niin salasanavihjeesi lähetetään sinulle sähköpostitse"
   },
   "getMasterPasswordHint": {
     "message": "Pyydä pääsalasanan vihjettä"
@@ -642,6 +824,9 @@
   "webauthnCancelOrTimeout": {
     "message": "Tunnistautuminen peruttiin tai se kesti liian kauan. Yritä uudelleen."
   },
+  "openInNewTab": {
+    "message": "Avaa uudessa välilehdessä"
+  },
   "invalidVerificationCode": {
     "message": "Virheellinen todennuskoodi"
   },
@@ -672,14 +857,24 @@
   "rememberMe": {
     "message": "Muista minut"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Älä kysy uudelleen tällä laitteella 30 päivään"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Lähetä todennuskoodi sähköpostitse uudelleen"
   },
   "useAnotherTwoStepMethod": {
     "message": "Käytä vaihtoehtoista todennustapaa"
   },
+  "selectAnotherMethod": {
+    "message": "Valitse vaihtoehtoinen tapa",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Käytä palautuskoodiasi"
+  },
   "insertYubiKey": {
-    "message": "Kytke YubiKey-todennuslaitteesi tietokoneen USB-porttiin ja paina sen painiketta."
+    "message": "Kytke YubiKey-suojausavaimesi tietokoneen USB-porttiin ja kosketa sen painiketta."
   },
   "insertU2f": {
     "message": "Kytke suojausavaimesi tietokoneen USB-porttiin ja jos laitteessa on painike, paina sitä."
@@ -701,7 +896,7 @@
     "message": "Yubico OTP -suojausavain"
   },
   "yubiKeyDesc": {
-    "message": "Käytä YubiKey-todennuslaitetta tilisi avaukseen. Toimii YubiKey 4, 4 Nano, 4C sekä NEO -laitteiden kanssa."
+    "message": "Käytä YubiKey-suojausavainta tilisi avaukseen. Toimii YubiKey 4, 4 Nano, 4C ja NEO -laitteiden kanssa."
   },
   "duoDescV2": {
     "message": "Syötä Duo Securityn luoma koodi.",
@@ -710,6 +905,15 @@
   "duoOrganizationDesc": {
     "message": "Vahvista organisaatiollesi Duo Securityn avulla käyttäen Duo Mobile ‑sovellusta, tekstiviestiä, puhelua tai U2F-suojausavainta.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
+  },
+  "verifyYourIdentity": {
+    "message": "Vahvista henkilöllisyytesi"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Laitetta ei tunnistettu. Vahvista henkilöllisyytesi syöttämällä sähköpostitse saamasi koodi."
+  },
+  "continueLoggingIn": {
+    "message": "Jatka kirjautumista"
   },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
@@ -735,11 +939,11 @@
   "twoStepOptions": {
     "message": "Kaksivaiheisen kirjautumisen asetukset"
   },
+  "selectTwoStepLoginMethod": {
+    "message": "Valitse todennustapa"
+  },
   "selfHostedEnvironment": {
     "message": "Itse ylläpidetty palvelinympäristö"
-  },
-  "selfHostedEnvironmentFooter": {
-    "message": "Määritä omassa palvelinympäristössäsi suoritettavan Bitwarden-asennuksen pääverkkotunnus."
   },
   "selfHostedBaseUrlHint": {
     "message": "Määritä itse ylläpitämäsi Bitwarden-asennuksen perusosoite. Esimerkki: https://bitwarden.yritys.fi."
@@ -753,11 +957,18 @@
   "customEnvironment": {
     "message": "Mukautettu palvelinympäristö"
   },
-  "customEnvironmentFooter": {
-    "message": "Edistyneille käyttäjille. Voit määrittää jokaiselle palvelulle oman pääverkkotunnuksen."
-  },
   "baseUrl": {
     "message": "Palvelimen URL"
+  },
+  "authenticationTimeout": {
+    "message": "Todennus aikakatkaistiin"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Todennusistunto aikakatkaistiin. Aloita kirjautumisprosessi alusta."
+  },
+  "selfHostBaseUrl": {
+    "message": "Itse ylläpidetyn palvelimen URL-osoite",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
     "message": "API-palvelimen URL"
@@ -785,6 +996,9 @@
   },
   "no": {
     "message": "En"
+  },
+  "location": {
+    "message": "Sijainti"
   },
   "overwritePassword": {
     "message": "Korvaa salasana"
@@ -877,11 +1091,11 @@
     "message": "Voit vaihtaa pääsalasanasi Bitwardenin verkkosovelluksessa."
   },
   "fingerprintPhrase": {
-    "message": "Tunnistelauseke",
+    "message": "Tunnistelause",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "yourAccountsFingerprint": {
-    "message": "Tilisi tunnistelauseke",
+    "message": "Tilisi tunnistelause",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "goToWebVault": {
@@ -901,6 +1115,18 @@
   },
   "yourVaultIsLocked": {
     "message": "Holvisi on lukittu. Jatka vahvistamalla henkilöllisyytesi."
+  },
+  "yourAccountIsLocked": {
+    "message": "Tilisi on lukittu"
+  },
+  "or": {
+    "message": "tai"
+  },
+  "unlockWithBiometrics": {
+    "message": "Avaa biometrialla"
+  },
+  "unlockWithMasterPassword": {
+    "message": "Avaa pääsalasanalla"
   },
   "unlock": {
     "message": "Avaa"
@@ -929,6 +1155,9 @@
   },
   "vaultTimeout": {
     "message": "Holvin aikakatkaisu"
+  },
+  "vaultTimeout1": {
+    "message": "Aikakatkaisu"
   },
   "vaultTimeoutDesc": {
     "message": "Määritä milloin holvin aikakatkaisutoiminto suoritetaan."
@@ -1134,6 +1363,9 @@
     "message": "Kopioi numero",
     "description": "Copy credit card number"
   },
+  "copyEmail": {
+    "message": "Kopioi sähköpostiosoite"
+  },
   "copySecurityCode": {
     "message": "Kopioi turvakoodi",
     "description": "Copy credit card security code (CVV)"
@@ -1177,9 +1409,6 @@
   "premiumPurchase": {
     "message": "Osta Premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Voit ostaa Premium-jäsenyyden bitwarden.com-verkkoholvista. Haluatko käydä sivustolla nyt?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Voit ostaa Premiumin tiliasetuksistasi Bitwardenin verkkosovelluksen kautta."
   },
@@ -1204,12 +1433,30 @@
   "passwordHistory": {
     "message": "Salasanahistoria"
   },
+  "generatorHistory": {
+    "message": "Generaattorihistoria"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Tyhjennä generaattorihistoria"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Jos jatkat, kaikki generaattorihistorian kohteet poistetaan. Haluatko varmasti jatkaa?"
+  },
   "clear": {
     "message": "Tyhjennä",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Ei näytettäviä salasanoja."
+  },
+  "clearHistory": {
+    "message": "Tyhjennä historia"
+  },
+  "nothingToShow": {
+    "message": "Ei näytettävää"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Et ole luonut mitään hiljattain"
   },
   "undo": {
     "message": "Kumoa"
@@ -1284,6 +1531,9 @@
         "example": "Password"
       }
     }
+  },
+  "copySuccessful": {
+    "message": "Kopiointi onnistui"
   },
   "errorRefreshingAccessToken": {
     "message": "Käyttötunnisteen päivitysvirhe"
@@ -1492,7 +1742,7 @@
     "message": "Heikko pääsalasana"
   },
   "weakMasterPasswordDesc": {
-    "message": "Valitsemasi pääsalasana on heikko. Sinun tulisi käyttää vahvaa pääsalasanaa (tai salauslauseketta) suojataksesi Bitwarden-tilisi kunnolla. Haluatko varmasti käyttää tätä pääsalasanaa?"
+    "message": "Valitsemasi pääsalasana on heikko. Sinun tulisi käyttää vahvaa pääsalasanaa (tai salauslausetta) suojataksesi Bitwarden-tilisi kunnolla. Haluatko varmasti käyttää tätä pääsalasanaa?"
   },
   "pin": {
     "message": "PIN",
@@ -1525,9 +1775,6 @@
   "windowsHelloConsentMessage": {
     "message": "Vahvista Bitwarden."
   },
-  "polkitConsentMessage": {
-    "message": "Avaa Bitwardenin lukitus tunnistautumalla."
-  },
   "unlockWithTouchId": {
     "message": "Avaa Touch ID:llä"
   },
@@ -1549,10 +1796,13 @@
   "requirePasswordOnStart": {
     "message": "Pyydä salasana tai PIN-koodi sovelluksen käynnistyessä"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Vaadi salasana sovelluksen käynnistyessä"
+  },
   "recommendedForSecurity": {
     "message": "Suositeltavaa parempaa suojausta varten."
   },
-  "lockWithMasterPassOnRestart": {
+  "lockWithMasterPassOnRestart1": {
     "message": "Lukitse pääsalasanalla uudelleenkäynnistyksen yhteydessä"
   },
   "deleteAccount": {
@@ -1563,6 +1813,12 @@
   },
   "deleteAccountWarning": {
     "message": "Tilin poisto on pysyvä toimenpide, eikä sen peruminen ole mahdollista."
+  },
+  "cannotDeleteAccount": {
+    "message": "Tiliä ei voi poistaa"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "Tätä toimintoa ei voida suorittaa, koska tilisi on organisaation omistama. Ota yhteyttä organisaation ylläpitäjään saadaksesi lisätietoja."
   },
   "accountDeleted": {
     "message": "Tili poistettiin"
@@ -1630,7 +1886,7 @@
   },
   "lock": {
     "message": "Lukitse",
-    "description": "Verb form: to make secure or inaccesible by"
+    "description": "Verb form: to make secure or inaccessible by"
   },
   "trash": {
     "message": "Roskakori",
@@ -1673,6 +1929,15 @@
   "orgRequiresYouToSetPassword": {
     "message": "Organisaatiosi edellyttää, että asetat pääsalasanan.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "cardMetrics": {
+    "message": "/$TOTAL$",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "verificationRequired": {
     "message": "Vahvistus vaaditaan",
@@ -1753,8 +2018,8 @@
   "enableBrowserIntegration": {
     "message": "Salli selainintegraatio"
   },
-  "enableBrowserIntegrationDesc": {
-    "message": "Käytetään verkkoselainten biometriatukeen."
+  "enableBrowserIntegrationDesc1": {
+    "message": "Käytetään biometrisen avauksen sallimiseen muissa selaimissa kuin Safarissa."
   },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "Salli integraatio DuckDuckGo-selaimeen"
@@ -1784,7 +2049,7 @@
     "message": "Vaadi selainintegraation vahvistus"
   },
   "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Paranna tietoturvaa vaatimalla työpöytäsovelluksen ja selainlaajennuksen kytköksen todennus tunnistelausekkeella. Tämä vaatii aina yhteyden muodostuessa vahvistuksen käyttäjältä."
+    "message": "Paranna tietoturvaa vaatimalla työpöytäsovelluksen ja selainlaajennuksen kytköksen todennus tunnistelauseella. Tämä vaatii aina yhteyden muodostuessa vahvistuksen käyttäjältä."
   },
   "enableHardwareAcceleration": {
     "message": "Käytä laitteistokiihdytystä"
@@ -2003,6 +2268,12 @@
   "webAuthnAuthenticate": {
     "message": "WebAuthn-todennus"
   },
+  "readSecurityKey": {
+    "message": "Lue suojausavain"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Odotetaan suojausavaimen aktivointia..."
+  },
   "hideEmail": {
     "message": "Piilota sähköpostiosoitteeni vastaanottajilta."
   },
@@ -2084,8 +2355,8 @@
   "minutes": {
     "message": "Minuuttia"
   },
-  "vaultTimeoutPolicyInEffect": {
-    "message": "Organisaatiokäytännöt ovat määrittäneet holvisi aikakatkaisun enimmäisajaksi $HOURS$ tunti(a) $MINUTES$ minuutti(a).",
+  "vaultTimeoutPolicyInEffect1": {
+    "message": "Enintään $HOURS$ tuntia $MINUTES$ minuuttia.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2098,7 +2369,7 @@
     }
   },
   "vaultTimeoutPolicyWithActionInEffect": {
-    "message": "Organisaatiokäytännöt vaikuttavat holvisi aikakatkaisuun. Suurin sallittu aika on $HOURS$ tunti(a) $MINUTES$ minuutti(a). Holvillesi määritetty aikakatkaisutoiminto on $ACTION$.",
+    "message": "Organisaatiokäytännöt vaikuttavat holvisi aikakatkaisuun. Suurin sallittu aika on $HOURS$ tuntia $MINUTES$ minuuttia. Holvillesi määritetty aikakatkaisutoiminto on $ACTION$.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2234,11 +2505,15 @@
   "locked": {
     "message": "Lukittu"
   },
+  "yourVaultIsLockedV2": {
+    "message": "Holvisi on lukittu"
+  },
   "unlocked": {
     "message": "Avattu"
   },
   "generator": {
-    "message": "Generaattori"
+    "message": "Generaattori",
+    "description": "Short for 'credential generator'."
   },
   "whatWouldYouLikeToGenerate": {
     "message": "Mitä haluat luoda?"
@@ -2251,6 +2526,43 @@
   },
   "generateUsername": {
     "message": "Luo käyttäjätunnus"
+  },
+  "generateEmail": {
+    "message": "Luo sähköpostiosoite"
+  },
+  "spinboxBoundariesHint": {
+    "message": "Arvon tulee olla väliltä $MIN$—$MAX$.",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Käytä $RECOMMENDED$ tai useampaa merkkiä vahvan salasanan luomiseksi.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Käytä vahvaan salalauseeseen ainakin $RECOMMENDED$ sanaa.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
   },
   "usernameType": {
     "message": "Käyttäjätunnuksen tyyppi"
@@ -2267,6 +2579,9 @@
   },
   "catchallEmailDesc": {
     "message": "Käytä verkkotunnuksesi catch-all-postilaatikkoa."
+  },
+  "useThisEmail": {
+    "message": "Käytä tätä sähköpostia"
   },
   "random": {
     "message": "Satunnainen"
@@ -2294,6 +2609,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Luo sähköpostialias ulkoisella ohjauspalvelulla."
+  },
+  "forwarderDomainName": {
+    "message": "Sähköpostin verkkotunnus",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Valitse verkkotunnus, jota valittu palvelu tukee",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ -virhe: $ERRORMESSAGE$",
@@ -2336,6 +2659,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Virheellinen $SERVICENAME$ API -tunniste: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -2425,14 +2772,8 @@
   "loginWithMasterPassword": {
     "message": "Kirjaudu pääsalasanalla"
   },
-  "loggingInAs": {
-    "message": "Kirjaudutaan tunnuksella"
-  },
   "rememberEmail": {
     "message": "Muista sähköpostiosoite"
-  },
-  "notYou": {
-    "message": "Etkö se ollut sinä?"
   },
   "newAroundHere": {
     "message": "Oletko uusi täällä?"
@@ -2452,17 +2793,41 @@
   "loginInitiated": {
     "message": "Kirjautuminen aloitettu"
   },
+  "logInRequestSent": {
+    "message": "Pyyntö lähetetty"
+  },
   "notificationSentDevice": {
     "message": "Laitteellesi on lähetetty ilmoitus."
   },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Laitteeseesi lähetettiin ilmoitus"
+  },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Ennen hyväksyntää varmista, että tunnistelause vastaa alla olevaa lausetta."
+  },
+  "needAnotherOptionV1": {
+    "message": "Tarvitsetko toisen vaihtoehdon?"
+  },
   "fingerprintMatchInfo": {
-    "message": "Varmista, että vahvistavan laitteen holvi on avattu ja että se näyttää saman tunnistelausekkeen."
+    "message": "Varmista, että vahvistavan laitteen holvi on avattu ja että se näyttää saman tunnistelauseen."
   },
   "fingerprintPhraseHeader": {
-    "message": "Tunnistelauseke"
+    "message": "Tunnistelause"
+  },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Ilmoitamme sinulle, kun pyyntösi on hyväksytty"
   },
   "needAnotherOption": {
     "message": "Laitteella kirjautuminen on määritettävä Bitwarden-sovelluksen asetuksista. Tarvitsetko eri vaihtoehdon?"
+  },
+  "viewAllLogInOptions": {
+    "message": "Näytä kaikki kirjautumisvaihtoehdot"
   },
   "viewAllLoginOptions": {
     "message": "Näytä kaikki kirjautumisvaihtoehdot"
@@ -2474,11 +2839,11 @@
     "message": "Näytä/piilota merkkikohtainen numerointi",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Yritätkö kirjautua sisään?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
   },
-  "logInAttemptBy": {
-    "message": "Kirjautumisyritys tunnuksella $EMAIL$.",
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2495,11 +2860,11 @@
   "time": {
     "message": "Aika"
   },
-  "confirmLogIn": {
-    "message": "Vahvista kirjautuminen"
+  "confirmAccess": {
+    "message": "Confirm access"
   },
-  "denyLogIn": {
-    "message": "Hylkää kirjautuminen"
+  "denyAccess": {
+    "message": "Deny access"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Kirjautuminen vahvistettu tunnuksella $EMAIL$ alustalla $DEVICE$",
@@ -2535,8 +2900,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Pyyntö ei ole enää voimassa."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Vahvista kirjautuminen tunnuksella $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2546,6 +2911,9 @@
   },
   "logInRequested": {
     "message": "Kirjautumista pyydetty"
+  },
+  "accountAccessRequested": {
+    "message": "Account access requested"
   },
   "creatingAccountOn": {
     "message": "Luodaan tili palvelimelle"
@@ -2580,11 +2948,23 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Havaittiin heikko ja tietovuodosta löytynyt salasana. Sinun tulisi suojata tilisi vahvalla ja ainutlaatuisella salasanalla. Haluatko varmasti käyttää tätä salasanaa?"
   },
+  "useThisPassword": {
+    "message": "Käytä tätä salasanaa"
+  },
+  "useThisUsername": {
+    "message": "Käytä tätä käyttäjätunnusta"
+  },
   "checkForBreaches": {
     "message": "Tarkasta esiintyykö salasanaa tunnetuissa tietovuodoissa"
   },
+  "loggedInExclamation": {
+    "message": "Kirjautuminen onnistui!"
+  },
   "important": {
     "message": "Tärkeää:"
+  },
+  "accessing": {
+    "message": "Avataan"
   },
   "accessTokenUnableToBeDecrypted": {
     "message": "Sinut on kirjattu ulos, koska käyttötunnisteesi salausta ei voitu purkaa. Ratkaise ongelma kirjautumalla sisään uudelleen."
@@ -2593,7 +2973,7 @@
     "message": "Sinut on kirjattu ulos, koska päivitystunnistettasi ei voitu noutaa. Ratkaise ongelma kirjautumalla sisään uudelleen."
   },
   "masterPasswordHint": {
-    "message": "Pääsalasanasi palauttaminen ei ole mahdollista, jos unohdat sen!"
+    "message": "Pääsalasanaasi ei ole mahdollista palauttaa, jos unohdat sen!"
   },
   "characterMinimum": {
     "message": "Vähintään $LENGTH$ merkkiä",
@@ -2610,8 +2990,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Suositeltava asetusmuutos"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Muista tämä laite tehdäksesi tulevista kirjautumisista helpompaa"
+  },
   "deviceApprovalRequired": {
     "message": "Laitehyväksyntä vaaditaan. Valitse hyväksyntätapa alta:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Laitteen hyväksyntä vaaditaan"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Valitse hyväksyntävaihtoehto alta"
   },
   "rememberThisDevice": {
     "message": "Muista tämä laite"
@@ -2625,9 +3014,6 @@
   "requestAdminApproval": {
     "message": "Pyydä hyväksyntää ylläpidolta"
   },
-  "approveWithMasterPassword": {
-    "message": "Hyväksy pääsalasanalla"
-  },
   "region": {
     "message": "Alue"
   },
@@ -2637,9 +3023,6 @@
   "eu": {
     "message": "EU",
     "description": "European Union"
-  },
-  "loggingInOn": {
-    "message": "Kirjaudutaan sijaintiin"
   },
   "selfHostedServer": {
     "message": "itse ylläpidetty"
@@ -2656,9 +3039,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Pyyntösi on välitetty ylläpidollesi."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Saat ilmoituksen kun se on hyväksytty."
-  },
   "troubleLoggingIn": {
     "message": "Ongelmia kirjautumisessa?"
   },
@@ -2667,6 +3047,9 @@
   },
   "userEmailMissing": {
     "message": "Käyttäjän sähköpostiosoite puuttuu"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Aktiivista käyttäjän sähköpostiosoitetta ei löytynyt. Kirjaudutaan ulos."
   },
   "deviceTrusted": {
     "message": "Laitteeseen luotettu"
@@ -2838,6 +3221,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "Tilillesi kirjautuminen vaatii Duo-vahvistuksen."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo edellyttää tililtäsi kaksivaiheista tunnistautumista. Viimeistele kirjautuminen seuraamalla seuraavia vaiheita."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
+  },
   "launchDuo": {
     "message": "Avaa Duo verkkoselaimessa"
   },
@@ -2854,7 +3243,7 @@
     "message": "Tiedoston salasana on virheellinen. Käytä vientitiedoston luonnin yhteydessä syötettyä salasanaa."
   },
   "destination": {
-    "message": "Määränpää"
+    "message": "Kohde"
   },
   "learnAboutImportOptions": {
     "message": "Lue lisää tuontivaihtoehdoista"
@@ -3061,5 +3450,134 @@
   },
   "ssoError": {
     "message": "Kertakirjautumiselle ei löytynyt vapaita portteja."
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometrinen avaus ei ole käytettävissä, koska PIN-koodi tai salasanan lukituksen avaus vaaditaan ensin."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometrinen lukituksen avaus ei ole tällä hetkellä käytettävissä."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometric unlock is unavailable due to misconfigured system files."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometric unlock is unavailable due to misconfigured system files."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "Biometrinen avaus ei ole käytettävissä, koska sitä ei ole otettu käyttöön osoitteelle $EMAIL$ Bitwardenin työpöytäsovelluksessa.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Biometrinen avaus ei ole tällä hetkellä käytettävissä tuntemattomasta syystä."
+  },
+  "authorize": {
+    "message": "Valtuuta"
+  },
+  "deny": {
+    "message": "Estä"
+  },
+  "sshkeyApprovalTitle": {
+    "message": "Vahvista SSH-avainkäyttö"
+  },
+  "agentForwardingWarningTitle": {
+    "message": "Warning: Agent Forwarding"
+  },
+  "agentForwardingWarningText": {
+    "message": "This request comes from a remote device that you are logged into"
+  },
+  "sshkeyApprovalMessageInfix": {
+    "message": "pyytää pääsyä"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "in order to"
+  },
+  "sshActionLogin": {
+    "message": "authenticate to a server"
+  },
+  "sshActionSign": {
+    "message": "sign a message"
+  },
+  "sshActionGitSign": {
+    "message": "sign a git commit"
+  },
+  "unknownApplication": {
+    "message": "Sovellus"
+  },
+  "invalidSshKey": {
+    "message": "SSH-avain on virheellinen"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "SSH-avaintyyppiä ei ole tuettui"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Tuo avain leikepöydältä"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
+  "fileSavedToDevice": {
+    "message": "Tiedosto tallennettiin laitteelle. Hallitse sitä laitteesi latauksista."
+  },
+  "importantNotice": {
+    "message": "Tärkeä ilmoitus"
+  },
+  "setupTwoStepLogin": {
+    "message": "Määritä kaksivaiheinen kirjautuminen"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden lähettää tilisi sähköpostiosoitteeseen koodin, jolla voit vahvistaa kirjautumiset uusista laitteista helmikuusta 2025 alkaen."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Voit määrittää kaksivaiheisen kirjautumisen tilisi vaihtoehtoiseksi suojaustavaksi tai vaihtaa sähköpostiosoitteesi sellaiseen, johon sinulla on pääsy."
+  },
+  "remindMeLater": {
+    "message": "Muistuta myöhemmin"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "No, I do not"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Yes, I can reliably access my email"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Ota kaksivaiheinen kirjautuminen käyttöön"
+  },
+  "changeAcctEmail": {
+    "message": "Muuta tilin sähköpostiosoitetta"
+  },
+  "allowScreenshots": {
+    "message": "Salli kuvankaappaus"
+  },
+  "allowScreenshotsDesc": {
+    "message": "Allow the Bitwarden desktop application to be captured in screenshots and viewed in remote desktop sessions. Disabling this will prevent access on some external displays."
+  },
+  "confirmWindowStillVisibleTitle": {
+    "message": "Vahvista, että ikkuna on vielä näkyvissä"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Vahvista, että ikkuna on vielä näkyvissä."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Laajennus on päivitettävä"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Vaihda vaarantunut salasana"
   }
 }

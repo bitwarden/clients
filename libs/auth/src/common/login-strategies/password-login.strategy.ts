@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { BehaviorSubject, firstValueFrom, map, Observable } from "rxjs";
 import { Jsonify } from "type-fest";
 
@@ -8,6 +10,7 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { IdentityCaptchaResponse } from "@bitwarden/common/auth/models/response/identity-captcha.response";
+import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
@@ -83,15 +86,12 @@ export class PasswordLoginStrategy extends LoginStrategy {
     data.userEnteredEmail = email;
 
     // Hash the password early (before authentication) so we don't persist it in memory in plaintext
-    data.localMasterKeyHash = await this.cryptoService.hashMasterKey(
+    data.localMasterKeyHash = await this.keyService.hashMasterKey(
       masterPassword,
       data.masterKey,
       HashPurpose.LocalAuthorization,
     );
-    const serverMasterKeyHash = await this.cryptoService.hashMasterKey(
-      masterPassword,
-      data.masterKey,
-    );
+    const serverMasterKeyHash = await this.keyService.hashMasterKey(masterPassword, data.masterKey);
 
     data.tokenRequest = new PasswordTokenRequest(
       email,
@@ -182,12 +182,15 @@ export class PasswordLoginStrategy extends LoginStrategy {
     if (this.encryptionKeyMigrationRequired(response)) {
       return;
     }
-    await this.cryptoService.setMasterKeyEncryptedUserKey(response.key, userId);
+    await this.keyService.setMasterKeyEncryptedUserKey(response.key, userId);
 
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
     if (masterKey) {
-      const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey);
-      await this.cryptoService.setUserKey(userKey, userId);
+      const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
+        masterKey,
+        userId,
+      );
+      await this.keyService.setUserKey(userKey, userId);
     }
   }
 
@@ -195,7 +198,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    await this.cryptoService.setPrivateKey(
+    await this.keyService.setPrivateKey(
       response.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
       userId,
     );
@@ -206,9 +209,12 @@ export class PasswordLoginStrategy extends LoginStrategy {
   }
 
   private getMasterPasswordPolicyOptionsFromResponse(
-    response: IdentityTokenResponse | IdentityTwoFactorResponse,
+    response:
+      | IdentityTokenResponse
+      | IdentityTwoFactorResponse
+      | IdentityDeviceVerificationResponse,
   ): MasterPasswordPolicyOptions {
-    if (response == null) {
+    if (response == null || response instanceof IdentityDeviceVerificationResponse) {
       return null;
     }
     return MasterPasswordPolicyOptions.fromResponse(response.masterPasswordPolicy);
@@ -230,5 +236,14 @@ export class PasswordLoginStrategy extends LoginStrategy {
     return {
       password: this.cache.value,
     };
+  }
+
+  async logInNewDeviceVerification(deviceVerificationOtp: string): Promise<AuthResult> {
+    const data = this.cache.value;
+    data.tokenRequest.newDeviceOtp = deviceVerificationOtp;
+    this.cache.next(data);
+
+    const [authResult] = await this.startLogIn();
+    return authResult;
   }
 }

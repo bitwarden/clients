@@ -56,7 +56,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=5600%3A24278",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=13213-55392&t=b5tDKylm5sWm2yKo-4",
     },
   },
 } as Meta;
@@ -66,9 +66,9 @@ export const actionsData = {
 };
 
 const fb = new FormBuilder();
-const formObjFactory = () =>
+const formObjFactory = (isDisabled = false) =>
   fb.group({
-    select: [[], [Validators.required]],
+    select: fb.control({ value: [], disabled: isDisabled }, { validators: [Validators.required] }),
   });
 
 function submit(formObj: FormGroup) {
@@ -85,7 +85,7 @@ export const Loading: Story = {
       ...args,
       onItemsConfirmed: actionsData.onItemsConfirmed,
     },
-    template: `
+    template: /*html*/ `
       <form [formGroup]="formObj" (ngSubmit)="submit(formObj)">
         <bit-form-field>
           <bit-label>{{ name }}</bit-label>
@@ -100,7 +100,6 @@ export const Loading: Story = {
           </bit-multi-select>
           <bit-hint>{{ hint }}</bit-hint>
         </bit-form-field>
-        <button type="submit" bitButton buttonType="primary">Submit</button>
       </form>
     `,
   }),
@@ -113,8 +112,33 @@ export const Loading: Story = {
 };
 
 export const Disabled: Story = {
-  ...Loading,
+  render: (args) => ({
+    props: {
+      formObj: formObjFactory(true),
+      submit: submit,
+      ...args,
+      onItemsConfirmed: actionsData.onItemsConfirmed,
+    },
+    template: /*html*/ `
+      <form [formGroup]="formObj" (ngSubmit)="submit(formObj)">
+        <bit-form-field>
+          <bit-label>{{ name }}</bit-label>
+          <bit-multi-select
+            class="tw-w-full"
+            formControlName="select"
+            [baseItems]="baseItems"
+            [removeSelectedItems]="removeSelectedItems"
+            [loading]="loading"
+            [disabled]="disabled"
+            (onItemsConfirmed)="onItemsConfirmed($event)">
+          </bit-multi-select>
+          <bit-hint>{{ hint }}</bit-hint>
+        </bit-form-field>
+      </form>
+    `,
+  }),
   args: {
+    baseItems: [] as any,
     name: "Disabled",
     disabled: true,
     hint: "This is what a disabled multi-select looks like",
@@ -178,7 +202,7 @@ export const Members: Story = {
       {
         id: "7",
         listName: "Final listName (fname@mail.me)",
-        labelName: "(fname@mail.me)",
+        labelName: "Final listName (fname@mail.me)",
         icon: "bwi-user",
       },
     ],
@@ -257,37 +281,6 @@ export const RemoveSelected: Story = {
   args: {
     name: "Select groups",
     hint: "Groups will be removed from the list once the dropdown is closed",
-    baseItems: [
-      { id: "1", listName: "Group 1", labelName: "Group 1", icon: "bwi-family" },
-      { id: "2", listName: "Group 2", labelName: "Group 2", icon: "bwi-family" },
-      { id: "3", listName: "Group 3", labelName: "Group 3", icon: "bwi-family" },
-      { id: "4", listName: "Group 4", labelName: "Group 4", icon: "bwi-family" },
-      { id: "5", listName: "Group 5", labelName: "Group 5", icon: "bwi-family" },
-      { id: "6", listName: "Group 6", labelName: "Group 6", icon: "bwi-family" },
-      { id: "7", listName: "Group 7", labelName: "Group 7", icon: "bwi-family" },
-    ],
-    removeSelectedItems: true,
-  },
-};
-
-export const Standalone: Story = {
-  render: (args) => ({
-    props: {
-      ...args,
-      onItemsConfirmed: actionsData.onItemsConfirmed,
-    },
-    template: `
-      <bit-multi-select
-        class="tw-w-full"
-        [baseItems]="baseItems"
-        [removeSelectedItems]="removeSelectedItems"
-        [loading]="loading"
-        [disabled]="disabled"
-        (onItemsConfirmed)="onItemsConfirmed($event)">
-      </bit-multi-select>
-    `,
-  }),
-  args: {
     baseItems: [
       { id: "1", listName: "Group 1", labelName: "Group 1", icon: "bwi-family" },
       { id: "2", listName: "Group 2", labelName: "Group 2", icon: "bwi-family" },

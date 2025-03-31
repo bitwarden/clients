@@ -11,8 +11,12 @@
   ></i>
   <span class="tw-sr-only">{{ "loading" | i18n }}</span>
 </ng-container>
-<ng-container *ngIf="invoices || transactions">
-  <app-billing-history [invoices]="invoices" [transactions]="transactions"></app-billing-history>
+<ng-container *ngIf="openInvoices || paidInvoices || transactions">
+  <app-billing-history
+    [openInvoices]="openInvoices"
+    [paidInvoices]="paidInvoices"
+    [transactions]="transactions"
+  ></app-billing-history>
   <button
     type="button"
     bitButton

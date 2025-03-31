@@ -27,6 +27,9 @@ npm-debug.log
 dist
 build
 .angular/cache
+.flatpak
+.flatpak-repo
+.flatpak-builder
 
 # Testing
 coverage

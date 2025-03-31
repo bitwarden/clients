@@ -1,8 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { normalizeExpiryYearFormat } from "../../../autofill/utils";
 import { CardLinkedId as LinkedId } from "../../enums";
 import { linkedFieldOption } from "../../linked-field-option.decorator";
-import { normalizeExpiryYearFormat } from "../../utils";
 
 import { ItemView } from "./item.view";
 

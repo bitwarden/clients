@@ -1,4 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
+
+import { CollectionService } from "@bitwarden/admin-console/common";
 
 import { ApiService } from "../../abstractions/api.service";
 import { AccountService } from "../../auth/abstractions/account.service";
@@ -14,7 +18,6 @@ import { SendApiService } from "../../tools/send/services/send-api.service.abstr
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
 import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
-import { CollectionService } from "../../vault/abstractions/collection.service";
 import { FolderApiServiceAbstraction } from "../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "../../vault/abstractions/sync/sync.service.abstraction";
@@ -82,18 +85,25 @@ export abstract class CoreSyncService implements SyncService {
     await this.stateProvider.getUser(userId, LAST_SYNC_DATE).update(() => date);
   }
 
-  async syncUpsertFolder(notification: SyncFolderNotification, isEdit: boolean): Promise<boolean> {
+  async syncUpsertFolder(
+    notification: SyncFolderNotification,
+    isEdit: boolean,
+    userId: UserId,
+  ): Promise<boolean> {
     this.syncStarted();
-    if (await this.stateService.getIsAuthenticated()) {
+
+    const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
+
+    if (authStatus >= AuthenticationStatus.Locked) {
       try {
-        const localFolder = await this.folderService.get(notification.id);
+        const localFolder = await this.folderService.get(notification.id, userId);
         if (
           (!isEdit && localFolder == null) ||
           (isEdit && localFolder != null && localFolder.revisionDate < notification.revisionDate)
         ) {
           const remoteFolder = await this.folderApiService.get(notification.id);
           if (remoteFolder != null) {
-            await this.folderService.upsert(new FolderData(remoteFolder));
+            await this.folderService.upsert(new FolderData(remoteFolder), userId);
             this.messageSender.send("syncedUpsertedFolder", { folderId: notification.id });
             return this.syncCompleted(true);
           }
@@ -105,10 +115,13 @@ export abstract class CoreSyncService implements SyncService {
     return this.syncCompleted(false);
   }
 
-  async syncDeleteFolder(notification: SyncFolderNotification): Promise<boolean> {
+  async syncDeleteFolder(notification: SyncFolderNotification, userId: UserId): Promise<boolean> {
     this.syncStarted();
-    if (await this.stateService.getIsAuthenticated()) {
-      await this.folderService.delete(notification.id);
+
+    const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
+
+    if (authStatus >= AuthenticationStatus.Locked) {
+      await this.folderService.delete(notification.id, userId);
       this.messageSender.send("syncedDeletedFolder", { folderId: notification.id });
       this.syncCompleted(true);
       return true;
@@ -116,12 +129,18 @@ export abstract class CoreSyncService implements SyncService {
     return this.syncCompleted(false);
   }
 
-  async syncUpsertCipher(notification: SyncCipherNotification, isEdit: boolean): Promise<boolean> {
+  async syncUpsertCipher(
+    notification: SyncCipherNotification,
+    isEdit: boolean,
+    userId: UserId,
+  ): Promise<boolean> {
     this.syncStarted();
-    if (await this.stateService.getIsAuthenticated()) {
+
+    const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
+    if (authStatus >= AuthenticationStatus.Locked) {
       try {
         let shouldUpdate = true;
-        const localCipher = await this.cipherService.get(notification.id);
+        const localCipher = await this.cipherService.get(notification.id, userId);
         if (localCipher != null && localCipher.revisionDate >= notification.revisionDate) {
           shouldUpdate = false;
         }
@@ -169,7 +188,7 @@ export abstract class CoreSyncService implements SyncService {
         }
       } catch (e) {
         if (e != null && e.statusCode === 404 && isEdit) {
-          await this.cipherService.delete(notification.id);
+          await this.cipherService.delete(notification.id, userId);
           this.messageSender.send("syncedDeletedCipher", { cipherId: notification.id });
           return this.syncCompleted(true);
         }
@@ -178,10 +197,12 @@ export abstract class CoreSyncService implements SyncService {
     return this.syncCompleted(false);
   }
 
-  async syncDeleteCipher(notification: SyncCipherNotification): Promise<boolean> {
+  async syncDeleteCipher(notification: SyncCipherNotification, userId: UserId): Promise<boolean> {
     this.syncStarted();
-    if (await this.stateService.getIsAuthenticated()) {
-      await this.cipherService.delete(notification.id);
+
+    const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
+    if (authStatus >= AuthenticationStatus.Locked) {
+      await this.cipherService.delete(notification.id, userId);
       this.messageSender.send("syncedDeletedCipher", { cipherId: notification.id });
       return this.syncCompleted(true);
     }

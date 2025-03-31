@@ -10,13 +10,14 @@
   <input
     #input
     bitInput
-    type="search"
+    [type]="inputType"
     [id]="id"
     [placeholder]="placeholder ?? ('search' | i18n)"
-    class="tw-rounded-l tw-pl-9"
+    class="tw-pl-9"
     [ngModel]="searchText"
     (ngModelChange)="onChange($event)"
     (blur)="onTouch()"
     [disabled]="disabled"
+    [attr.autocomplete]="autocomplete"
   />
 </div>

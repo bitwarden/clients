@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogConfig, DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";

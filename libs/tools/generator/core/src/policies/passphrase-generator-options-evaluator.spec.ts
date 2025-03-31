@@ -6,7 +6,7 @@ import { PassphraseGeneratorOptionsEvaluator } from "./passphrase-generator-opti
 describe("Password generator options builder", () => {
   describe("constructor()", () => {
     it("should set the policy object to a copy of the input policy", () => {
-      const policy = Object.assign({}, Policies.Passphrase.disabledValue);
+      const policy: any = Object.assign({}, Policies.Passphrase.disabledValue);
       policy.minNumberWords = 10; // arbitrary change for deep equality check
 
       const builder = new PassphraseGeneratorOptionsEvaluator(policy);
@@ -25,7 +25,7 @@ describe("Password generator options builder", () => {
     it.each([1, 2])(
       "should use the default word boundaries when they are greater than `policy.minNumberWords` (= %i)",
       (minNumberWords) => {
-        const policy = Object.assign({}, Policies.Passphrase.disabledValue);
+        const policy: any = Object.assign({}, Policies.Passphrase.disabledValue);
         policy.minNumberWords = minNumberWords;
 
         const builder = new PassphraseGeneratorOptionsEvaluator(policy);
@@ -37,7 +37,7 @@ describe("Password generator options builder", () => {
     it.each([8, 12, 18])(
       "should use `policy.minNumberWords` (= %i) when it is greater than the default minimum words",
       (minNumberWords) => {
-        const policy = Object.assign({}, Policies.Passphrase.disabledValue);
+        const policy: any = Object.assign({}, Policies.Passphrase.disabledValue);
         policy.minNumberWords = minNumberWords;
 
         const builder = new PassphraseGeneratorOptionsEvaluator(policy);
@@ -50,7 +50,7 @@ describe("Password generator options builder", () => {
     it.each([150, 300, 9000])(
       "should use `policy.minNumberWords` (= %i) when it is greater than the default boundaries",
       (minNumberWords) => {
-        const policy = Object.assign({}, Policies.Passphrase.disabledValue);
+        const policy: any = Object.assign({}, Policies.Passphrase.disabledValue);
         policy.minNumberWords = minNumberWords;
 
         const builder = new PassphraseGeneratorOptionsEvaluator(policy);
@@ -70,7 +70,7 @@ describe("Password generator options builder", () => {
     });
 
     it("should return true when the policy has a numWords greater than the default boundary", () => {
-      const policy = Object.assign({}, Policies.Passphrase.disabledValue);
+      const policy: any = Object.assign({}, Policies.Passphrase.disabledValue);
       policy.minNumberWords = DefaultPassphraseBoundaries.numWords.min + 1;
       const builder = new PassphraseGeneratorOptionsEvaluator(policy);
 
@@ -78,7 +78,7 @@ describe("Password generator options builder", () => {
     });
 
     it("should return true when the policy has capitalize enabled", () => {
-      const policy = Object.assign({}, Policies.Passphrase.disabledValue);
+      const policy: any = Object.assign({}, Policies.Passphrase.disabledValue);
       policy.capitalize = true;
       const builder = new PassphraseGeneratorOptionsEvaluator(policy);
 
@@ -86,7 +86,7 @@ describe("Password generator options builder", () => {
     });
 
     it("should return true when the policy has includeNumber enabled", () => {
-      const policy = Object.assign({}, Policies.Passphrase.disabledValue);
+      const policy: any = Object.assign({}, Policies.Passphrase.disabledValue);
       policy.includeNumber = true;
       const builder = new PassphraseGeneratorOptionsEvaluator(policy);
 
@@ -108,7 +108,7 @@ describe("Password generator options builder", () => {
     });
 
     it("should set `capitalize` to `true` when the policy overrides it", () => {
-      const policy = Object.assign({}, Policies.Passphrase.disabledValue);
+      const policy: any = Object.assign({}, Policies.Passphrase.disabledValue);
       policy.capitalize = true;
       const builder = new PassphraseGeneratorOptionsEvaluator(policy);
       const options = Object.freeze({ capitalize: false });
@@ -129,7 +129,7 @@ describe("Password generator options builder", () => {
     });
 
     it("should set `includeNumber` to true when the policy overrides it", () => {
-      const policy = Object.assign({}, Policies.Passphrase.disabledValue);
+      const policy: any = Object.assign({}, Policies.Passphrase.disabledValue);
       policy.includeNumber = true;
       const builder = new PassphraseGeneratorOptionsEvaluator(policy);
       const options = Object.freeze({ includeNumber: false });
@@ -164,7 +164,7 @@ describe("Password generator options builder", () => {
       },
     );
 
-    it.each([3, 8, 18, 20])(
+    it.each([6, 8, 18, 20])(
       "should set `numWords` (= %i) to the input value when it is within the boundaries",
       (numWords) => {
         expect(numWords).toBeGreaterThanOrEqual(DefaultPassphraseBoundaries.numWords.min);

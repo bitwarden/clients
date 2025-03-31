@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ApiService } from "../../abstractions/api.service";
 import { ListResponse } from "../../models/response/list.response";
 import { Utils } from "../../platform/misc/utils";
@@ -114,5 +116,9 @@ export class DevicesApiServiceImplementation implements DevicesApiServiceAbstrac
         headers.set("Device-Identifier", deviceIdentifier);
       },
     );
+  }
+
+  async deactivateDevice(deviceId: string): Promise<void> {
+    await this.apiService.send("POST", `/devices/${deviceId}/deactivate`, null, true, false);
   }
 }

@@ -3,12 +3,19 @@ import { BrowserApi } from "../browser/browser-api";
 import BrowserClipboardService from "../services/browser-clipboard.service";
 
 describe("OffscreenDocument", () => {
-  const browserApiMessageListenerSpy = jest.spyOn(BrowserApi, "messageListener");
-  const browserClipboardServiceCopySpy = jest.spyOn(BrowserClipboardService, "copy");
-  const browserClipboardServiceReadSpy = jest.spyOn(BrowserClipboardService, "read");
-  const consoleErrorSpy = jest.spyOn(console, "error");
+  let browserClipboardServiceCopySpy: jest.SpyInstance;
+  let browserClipboardServiceReadSpy: jest.SpyInstance;
+  let browserApiMessageListenerSpy: jest.SpyInstance;
+  let consoleErrorSpy: jest.SpyInstance;
 
-  require("../offscreen-document/offscreen-document");
+  beforeEach(async () => {
+    browserApiMessageListenerSpy = jest.spyOn(BrowserApi, "messageListener");
+    browserClipboardServiceCopySpy = jest.spyOn(BrowserClipboardService, "copy");
+    browserClipboardServiceReadSpy = jest.spyOn(BrowserClipboardService, "read");
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+
+    await import("./offscreen-document");
+  });
 
   describe("init", () => {
     it("sets up a `chrome.runtime.onMessage` listener", () => {
@@ -45,6 +52,7 @@ describe("OffscreenDocument", () => {
       it("copies the message text", async () => {
         const text = "test";
 
+        browserClipboardServiceCopySpy.mockResolvedValueOnce(undefined);
         sendMockExtensionMessage({ command: "offscreenCopyToClipboard", text });
         await flushPromises();
 
@@ -54,6 +62,7 @@ describe("OffscreenDocument", () => {
 
     describe("handleOffscreenReadFromClipboard", () => {
       it("reads the value from the clipboard service", async () => {
+        browserClipboardServiceReadSpy.mockResolvedValueOnce("");
         sendMockExtensionMessage({ command: "offscreenReadFromClipboard" });
         await flushPromises();
 

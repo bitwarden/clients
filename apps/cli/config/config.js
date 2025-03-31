@@ -1,7 +1,27 @@
 function load(envName) {
+  const base = require("./base.json");
+  const env = loadConfig(envName);
+  const local = loadConfig("local");
+
   return {
-    ...loadConfig(envName),
-    ...loadConfig("local"),
+    ...base,
+    ...env,
+    ...local,
+    dev: {
+      ...base.dev,
+      ...env.dev,
+      ...local.dev,
+    },
+    flags: {
+      ...base.flags,
+      ...env.flags,
+      ...local.flags,
+    },
+    devFlags: {
+      ...base.devFlags,
+      ...env.devFlags,
+      ...local.devFlags,
+    },
   };
 }
 

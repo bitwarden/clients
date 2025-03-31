@@ -18,7 +18,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { ButtonModule } from "@bitwarden/components";
 
 // FIXME: remove `/apps` import from `/libs`
-// eslint-disable-next-line import/no-restricted-paths
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line import/no-restricted-paths, no-restricted-imports
 import { PreloadedEnglishI18nModule } from "../../../../../apps/web/src/app/core/tests";
 import { LockIcon } from "../icons";
 import { RegistrationCheckEmailIcon } from "../icons/registration-check-email.icon";
@@ -163,17 +164,20 @@ export const DefaultContentExample: Story = {
 
 // Dynamic Content Example
 const initialData: AnonLayoutWrapperData = {
-  pageTitle: "setAStrongPassword",
-  pageSubtitle: "finishCreatingYourAccountBySettingAPassword",
+  pageTitle: {
+    key: "setAStrongPassword",
+  },
+  pageSubtitle: {
+    key: "finishCreatingYourAccountBySettingAPassword",
+  },
   pageIcon: LockIcon,
 };
 
 const changedData: AnonLayoutWrapperData = {
-  pageTitle: "enterpriseSingleSignOn",
-  pageSubtitle: {
-    subtitle: "user@email.com (non-translated)",
-    translate: false,
+  pageTitle: {
+    key: "enterpriseSingleSignOn",
   },
+  pageSubtitle: "user@email.com (non-translated)",
   pageIcon: RegistrationCheckEmailIcon,
 };
 

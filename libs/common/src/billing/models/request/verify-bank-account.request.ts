@@ -1,9 +1,7 @@
 export class VerifyBankAccountRequest {
-  amount1: number;
-  amount2: number;
+  descriptorCode: string;
 
-  constructor(amount1: number, amount2: number) {
-    this.amount1 = amount1;
-    this.amount2 = amount2;
+  constructor(descriptorCode: string) {
+    this.descriptorCode = descriptorCode;
   }
 }

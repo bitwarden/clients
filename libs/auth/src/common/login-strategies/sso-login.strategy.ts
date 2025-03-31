@@ -1,14 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, Observable, map, BehaviorSubject } from "rxjs";
 import { Jsonify } from "type-fest";
 
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/sso-token.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { HttpStatusCode } from "@bitwarden/common/enums";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -106,14 +107,6 @@ export class SsoLoginStrategy extends LoginStrategy {
     const email = ssoAuthResult.email;
     const ssoEmail2FaSessionToken = ssoAuthResult.ssoEmail2FaSessionToken;
 
-    // Auth guard currently handles redirects for this.
-    if (ssoAuthResult.forcePasswordReset == ForceSetPasswordReason.AdminForcePasswordReset) {
-      await this.masterPasswordService.setForceSetPasswordReason(
-        ssoAuthResult.forcePasswordReset,
-        ssoAuthResult.userId,
-      );
-    }
-
     this.cache.next({
       ...this.cache.value,
       email,
@@ -192,7 +185,7 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     if (masterKeyEncryptedUserKey) {
       // set the master key encrypted user key if it exists
-      await this.cryptoService.setMasterKeyEncryptedUserKey(masterKeyEncryptedUserKey, userId);
+      await this.keyService.setMasterKeyEncryptedUserKey(masterKeyEncryptedUserKey, userId);
     }
 
     const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
@@ -205,7 +198,7 @@ export class SsoLoginStrategy extends LoginStrategy {
       // Using it will clear it from state and future requests will use the device key.
       await this.trySetUserKeyWithApprovedAdminRequestIfExists(userId);
 
-      const hasUserKey = await this.cryptoService.hasUserKey(userId);
+      const hasUserKey = await this.keyService.hasUserKey(userId);
 
       // Only try to set user key with device key if admin approval request was not successful.
       if (!hasUserKey) {
@@ -267,7 +260,7 @@ export class SsoLoginStrategy extends LoginStrategy {
         );
       }
 
-      if (await this.cryptoService.hasUserKey()) {
+      if (await this.keyService.hasUserKey()) {
         // Now that we have a decrypted user key in memory, we can check if we
         // need to establish trust on the current device
         await this.deviceTrustService.trustDeviceIfRequired(userId);
@@ -276,7 +269,8 @@ export class SsoLoginStrategy extends LoginStrategy {
         // TODO: eventually we post and clean up DB as well once consumed on client
         await this.authRequestService.clearAdminAuthRequest(userId);
 
-        this.platformUtilsService.showToast("success", null, this.i18nService.t("loginApproved"));
+        // This notification will be picked up by the SsoComponent to handle displaying a toast to the user
+        this.authRequestService.emitAdminLoginApproved();
       }
     }
   }
@@ -323,7 +317,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     );
 
     if (userKey) {
-      await this.cryptoService.setUserKey(userKey, userId);
+      await this.keyService.setUserKey(userKey, userId);
     }
   }
 
@@ -338,8 +332,8 @@ export class SsoLoginStrategy extends LoginStrategy {
       return;
     }
 
-    const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey);
-    await this.cryptoService.setUserKey(userKey, userId);
+    const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey, userId);
+    await this.keyService.setUserKey(userKey, userId);
   }
 
   protected override async setPrivateKey(
@@ -349,7 +343,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     const newSsoUser = tokenResponse.key == null;
 
     if (!newSsoUser) {
-      await this.cryptoService.setPrivateKey(
+      await this.keyService.setPrivateKey(
         tokenResponse.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
         userId,
       );

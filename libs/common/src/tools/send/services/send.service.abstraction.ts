@@ -1,6 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
 
-import { UserKeyRotationDataProvider } from "@bitwarden/auth/common";
+import { UserKeyRotationDataProvider } from "@bitwarden/key-management";
 
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";

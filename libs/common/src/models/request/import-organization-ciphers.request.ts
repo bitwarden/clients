@@ -1,5 +1,6 @@
+import { CollectionWithIdRequest } from "@bitwarden/admin-console/common";
+
 import { CipherRequest } from "../../vault/models/request/cipher.request";
-import { CollectionWithIdRequest } from "../../vault/models/request/collection-with-id.request";
 
 import { KvpRequest } from "./kvp.request";
 

@@ -1,7 +1,11 @@
-import { map, Observable } from "rxjs";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { map, Observable, switchMap } from "rxjs";
 
 import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "../../admin-console/enums";
+import { AccountService } from "../../auth/abstractions/account.service";
+import { getUserId } from "../../auth/services/account.service";
 import {
   AUTOFILL_SETTINGS_DISK,
   AUTOFILL_SETTINGS_DISK_LOCAL,
@@ -59,6 +63,24 @@ const INLINE_MENU_VISIBILITY = new KeyDefinition(
   },
 );
 
+const SHOW_INLINE_MENU_IDENTITIES = new UserKeyDefinition(
+  AUTOFILL_SETTINGS_DISK,
+  "showInlineMenuIdentities",
+  {
+    deserializer: (value: boolean) => value ?? true,
+    clearOn: [],
+  },
+);
+
+const SHOW_INLINE_MENU_CARDS = new UserKeyDefinition(
+  AUTOFILL_SETTINGS_DISK,
+  "showInlineMenuCards",
+  {
+    deserializer: (value: boolean) => value ?? true,
+    clearOn: [],
+  },
+);
+
 const ENABLE_CONTEXT_MENU = new KeyDefinition(AUTOFILL_SETTINGS_DISK, "enableContextMenu", {
   deserializer: (value: boolean) => value ?? true,
 });
@@ -86,6 +108,10 @@ export abstract class AutofillSettingsServiceAbstraction {
   setAutoCopyTotp: (newValue: boolean) => Promise<void>;
   inlineMenuVisibility$: Observable<InlineMenuVisibilitySetting>;
   setInlineMenuVisibility: (newValue: InlineMenuVisibilitySetting) => Promise<void>;
+  showInlineMenuIdentities$: Observable<boolean>;
+  setShowInlineMenuIdentities: (newValue: boolean) => Promise<void>;
+  showInlineMenuCards$: Observable<boolean>;
+  setShowInlineMenuCards: (newValue: boolean) => Promise<void>;
   enableContextMenu$: Observable<boolean>;
   setEnableContextMenu: (newValue: boolean) => Promise<void>;
   clearClipboardDelay$: Observable<ClearClipboardDelaySetting>;
@@ -113,6 +139,12 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
   private inlineMenuVisibilityState: GlobalState<InlineMenuVisibilitySetting>;
   readonly inlineMenuVisibility$: Observable<InlineMenuVisibilitySetting>;
 
+  private showInlineMenuIdentitiesState: ActiveUserState<boolean>;
+  readonly showInlineMenuIdentities$: Observable<boolean>;
+
+  private showInlineMenuCardsState: ActiveUserState<boolean>;
+  readonly showInlineMenuCards$: Observable<boolean>;
+
   private enableContextMenuState: GlobalState<boolean>;
   readonly enableContextMenu$: Observable<boolean>;
 
@@ -122,6 +154,7 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
   constructor(
     private stateProvider: StateProvider,
     private policyService: PolicyService,
+    private accountService: AccountService,
   ) {
     this.autofillOnPageLoadState = this.stateProvider.getActive(AUTOFILL_ON_PAGE_LOAD);
     this.autofillOnPageLoad$ = this.autofillOnPageLoadState.state$.pipe(map((x) => x ?? false));
@@ -139,8 +172,11 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
     this.autofillOnPageLoadCalloutIsDismissed$ =
       this.autofillOnPageLoadCalloutIsDismissedState.state$.pipe(map((x) => x ?? false));
 
-    this.activateAutofillOnPageLoadFromPolicy$ = this.policyService.policyAppliesToActiveUser$(
-      PolicyType.ActivateAutofill,
+    this.activateAutofillOnPageLoadFromPolicy$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policyAppliesToUser$(PolicyType.ActivateAutofill, userId),
+      ),
     );
 
     this.autofillOnPageLoadPolicyToastHasDisplayedState = this.stateProvider.getActive(
@@ -156,6 +192,14 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
     this.inlineMenuVisibility$ = this.inlineMenuVisibilityState.state$.pipe(
       map((x) => x ?? AutofillOverlayVisibility.Off),
     );
+
+    this.showInlineMenuIdentitiesState = this.stateProvider.getActive(SHOW_INLINE_MENU_IDENTITIES);
+    this.showInlineMenuIdentities$ = this.showInlineMenuIdentitiesState.state$.pipe(
+      map((x) => x ?? true),
+    );
+
+    this.showInlineMenuCardsState = this.stateProvider.getActive(SHOW_INLINE_MENU_CARDS);
+    this.showInlineMenuCards$ = this.showInlineMenuCardsState.state$.pipe(map((x) => x ?? true));
 
     this.enableContextMenuState = this.stateProvider.getGlobal(ENABLE_CONTEXT_MENU);
     this.enableContextMenu$ = this.enableContextMenuState.state$.pipe(map((x) => x ?? true));
@@ -188,6 +232,14 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
 
   async setInlineMenuVisibility(newValue: InlineMenuVisibilitySetting): Promise<void> {
     await this.inlineMenuVisibilityState.update(() => newValue);
+  }
+
+  async setShowInlineMenuIdentities(newValue: boolean): Promise<void> {
+    await this.showInlineMenuIdentitiesState.update(() => newValue);
+  }
+
+  async setShowInlineMenuCards(newValue: boolean): Promise<void> {
+    await this.showInlineMenuCardsState.update(() => newValue);
   }
 
   async setEnableContextMenu(newValue: boolean): Promise<void> {

@@ -1,10 +1,12 @@
 import { NgModule } from "@angular/core";
 
 import {
+  CardComponent,
   MultiSelectModule,
   SearchModule,
   SelectModule,
   NoItemsModule,
+  FormFieldModule,
 } from "@bitwarden/components";
 import { CoreOrganizationModule } from "@bitwarden/web-vault/app/admin-console/organizations/core";
 import { DynamicAvatarComponent } from "@bitwarden/web-vault/app/components/dynamic-avatar.component";
@@ -31,17 +33,21 @@ import { SecretsListComponent } from "./secrets-list.component";
     DynamicAvatarComponent,
     SearchModule,
     HeaderModule,
+    CardComponent,
+    FormFieldModule,
   ],
   exports: [
     AccessPolicySelectorComponent,
     BulkConfirmationDialogComponent,
     BulkStatusDialogComponent,
+    FormFieldModule,
     HeaderModule,
     NewMenuComponent,
     NoItemsModule,
     ProjectsListComponent,
     SearchModule,
     SecretsListComponent,
+    CardComponent,
     SelectModule,
     SharedModule,
   ],

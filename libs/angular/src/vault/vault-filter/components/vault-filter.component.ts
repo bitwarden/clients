@@ -1,9 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { firstValueFrom, Observable } from "rxjs";
 
+import { CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ITreeNodeObject } from "@bitwarden/common/vault/models/domain/tree-node";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { DeprecatedVaultFilterService } from "../../abstractions/deprecated-vault-filter.service";

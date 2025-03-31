@@ -1,4 +1,4 @@
-import { Meta, Story, Controls, Canvas, Primary } from "@storybook/addon-docs";
+import { Meta, Controls, Canvas, Primary } from "@storybook/addon-docs";
 
 import * as stories from "./banner.stories";
 
@@ -15,7 +15,8 @@ persist across all pages a user navigates to.
 - Use banners sparingly, as they can feel intrusive to the user if they appear unexpectedly. Their
   effectiveness may decrease if too many are used.
 - Avoid stacking multiple banners.
-- Banners support a button link (text button).
+- Banners can contain a button or anchor that uses the `bitLink` directive with
+  `linkType="secondary"`.
 
 <Primary />
 
@@ -30,25 +31,25 @@ Use the following guidelines to help choose the correct type of banner.
 
 ### Premium
 
-<Story of={stories.Premium} />
+<Canvas of={stories.Premium} />
 
 Used primarily to encourage user to upgrade to premium.
 
 ### Info
 
-<Story of={stories.Info} />
+<Canvas of={stories.Info} />
 
 Used to communicate release notes, server maintenance or other informative event.
 
 ### Warning
 
-<Story of={stories.Warning} />
+<Canvas of={stories.Warning} />
 
 Used to alert the user of outdated info or versions.
 
 ### Danger
 
-<Story of={stories.Danger} />
+<Canvas of={stories.Danger} />
 
 Rarely used, but may be used to alert users over critical messages or very outdated versions.
 

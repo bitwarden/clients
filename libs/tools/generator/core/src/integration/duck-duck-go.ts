@@ -1,7 +1,15 @@
-import { GENERATOR_DISK, UserKeyDefinition } from "@bitwarden/common/platform/state";
+import {
+  GENERATOR_DISK,
+  GENERATOR_MEMORY,
+  UserKeyDefinition,
+} from "@bitwarden/common/platform/state";
+import { VendorId } from "@bitwarden/common/tools/extension";
 import { IntegrationContext, IntegrationId } from "@bitwarden/common/tools/integration";
 import { ApiSettings, IntegrationRequest } from "@bitwarden/common/tools/integration/rpc";
+import { PrivateClassifier } from "@bitwarden/common/tools/private-classifier";
+import { PublicClassifier } from "@bitwarden/common/tools/public-classifier";
 import { BufferedKeyDefinition } from "@bitwarden/common/tools/state/buffered-key-definition";
+import { ObjectKey } from "@bitwarden/common/tools/state/object-key";
 
 import { ForwarderConfiguration, ForwarderContext } from "../engine";
 import { CreateForwardingEmailRpcDef } from "../engine/forwarder-configuration";
@@ -36,6 +44,40 @@ const createForwardingEmail = Object.freeze({
 // forwarder configuration
 const forwarder = Object.freeze({
   defaultSettings,
+  createForwardingEmail,
+  request: ["token"],
+  settingsConstraints: {
+    token: { required: true },
+  },
+  local: {
+    settings: {
+      // FIXME: integration should issue keys at runtime
+      // based on integrationId & extension metadata
+      // e.g. key: "forwarder.DuckDuckGo.local.settings",
+      key: "duckDuckGoForwarder",
+      target: "object",
+      format: "secret-state",
+      frame: 512,
+      classifier: new PrivateClassifier<DuckDuckGoSettings>(),
+      state: GENERATOR_DISK,
+      initial: defaultSettings,
+      options: {
+        deserializer: (value) => value,
+        clearOn: ["logout"],
+      },
+    } satisfies ObjectKey<DuckDuckGoSettings>,
+    import: {
+      key: "forwarder.DuckDuckGo.local.import",
+      target: "object",
+      format: "plain",
+      classifier: new PublicClassifier<DuckDuckGoSettings>(["token"]),
+      state: GENERATOR_MEMORY,
+      options: {
+        deserializer: (value) => value,
+        clearOn: ["logout", "lock"],
+      },
+    } satisfies ObjectKey<DuckDuckGoSettings, Record<string, never>, DuckDuckGoSettings>,
+  },
   settings: new UserKeyDefinition<DuckDuckGoSettings>(GENERATOR_DISK, "duckDuckGoForwarder", {
     deserializer: (value) => value,
     clearOn: [],
@@ -44,12 +86,11 @@ const forwarder = Object.freeze({
     deserializer: (value) => value,
     clearOn: ["logout"],
   }),
-  createForwardingEmail,
 } as const);
 
 // integration-wide configuration
 export const DuckDuckGo = Object.freeze({
-  id: "duckduckgo" as IntegrationId,
+  id: "duckduckgo" as IntegrationId & VendorId,
   name: "DuckDuckGo",
   baseUrl: "https://quack.duckduckgo.com/api",
   selfHost: "never",

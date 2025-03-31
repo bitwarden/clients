@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as fs from "fs";
 import * as path from "path";
 
@@ -35,6 +37,10 @@ export class MessagingMain {
 
   async onMessage(message: any) {
     switch (message.command) {
+      case "loadurl":
+        // TODO: Remove this once fakepopup is removed from tray (just used for dev)
+        await this.main.windowMain.loadUrl(message.url, message.modal);
+        break;
       case "scheduleNextSync":
         this.scheduleNextSync();
         break;

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule, Location } from "@angular/common";
 import { Component } from "@angular/core";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
@@ -59,7 +61,7 @@ export class CurrentAccountComponent {
   }
 
   async currentAccountClicked() {
-    if (this.route.snapshot.data.state.includes("account-switcher")) {
+    if (this.route.snapshot.data?.state?.includes("account-switcher")) {
       this.location.back();
     } else {
       await this.router.navigate(["/account-switcher"]);

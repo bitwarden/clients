@@ -81,8 +81,6 @@ const main = {
   externals: {
     "electron-reload": "commonjs2 electron-reload",
     "@bitwarden/desktop-napi": "commonjs2 @bitwarden/desktop-napi",
-
-    argon2: "commonjs2 argon2",
   },
 };
 

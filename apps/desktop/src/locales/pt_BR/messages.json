@@ -26,6 +26,9 @@
   "typeSecureNote": {
     "message": "Nota Segura"
   },
+  "typeSshKey": {
+    "message": "Chave SSH"
+  },
   "folders": {
     "message": "Pastas"
   },
@@ -59,6 +62,9 @@
         "example": "Company Name"
       }
     }
+  },
+  "welcomeBack": {
+    "message": "Bem vindo de volta"
   },
   "moveToOrgDesc": {
     "message": "Escolha uma organização para a qual deseja mover este item. Mudar para uma organização transfere a propriedade do item para essa organização. Você não será mais o proprietário direto deste item depois que ele for movido."
@@ -174,6 +180,63 @@
   "address": {
     "message": "Endereço"
   },
+  "sshPrivateKey": {
+    "message": "Chave privada"
+  },
+  "sshPublicKey": {
+    "message": "Chave pública"
+  },
+  "sshFingerprint": {
+    "message": "Impressão digital"
+  },
+  "sshKeyAlgorithm": {
+    "message": "Tipo de chave"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-Bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-Bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-Bit"
+  },
+  "sshKeyGenerated": {
+    "message": "Uma nova chave SSH foi gerada"
+  },
+  "sshKeyWrongPassword": {
+    "message": "Sua senha está incorreta."
+  },
+  "importSshKey": {
+    "message": "Importar"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirme a senha"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Digite a senha para a chave SSH."
+  },
+  "enterSshKeyPassword": {
+    "message": "Insira sua senha"
+  },
+  "sshAgentUnlockRequired": {
+    "message": "Por favor, desbloqueie seu cofre para aprovar a solicitação de chave SSH."
+  },
+  "sshAgentUnlockTimeout": {
+    "message": "Solicitação de chave SSH expirada."
+  },
+  "enableSshAgent": {
+    "message": "Habilitar SSH agent"
+  },
+  "enableSshAgentDesc": {
+    "message": "Permitir que o agente SSH assine solicitações SSH diretamente do seu cofre Bitwarden."
+  },
+  "enableSshAgentHelp": {
+    "message": "O agente SSH é um serviço direcionado a desenvolvedores que permite que você assine solicitações SSH diretamente do seu cofre do Bitwarden."
+  },
   "premiumRequired": {
     "message": "Requer Assinatura Premium"
   },
@@ -185,6 +248,20 @@
   },
   "error": {
     "message": "Erro"
+  },
+  "decryptionError": {
+    "message": "Decryption error"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Contact customer success",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "to avoid additional data loss.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
     "message": "Janeiro"
@@ -258,6 +335,9 @@
   },
   "generatePassword": {
     "message": "Gerar Senha"
+  },
+  "generatePassphrase": {
+    "message": "Gerar frase secreta"
   },
   "type": {
     "message": "Tipo"
@@ -394,6 +474,16 @@
   "copyPassword": {
     "message": "Copiar Senha"
   },
+  "regenerateSshKey": {
+    "message": "Regerar chave SSH"
+  },
+  "copySshPrivateKey": {
+    "message": "Copiar chave SSH privada"
+  },
+  "copyPassphrase": {
+    "message": "Copiar senha",
+    "description": "Copy passphrase to clipboard"
+  },
   "copyUri": {
     "message": "Copiar URI"
   },
@@ -407,16 +497,51 @@
     "message": "Tamanho mínimo da senha"
   },
   "uppercase": {
-    "message": "Maiúsculas (A-Z)"
+    "message": "Maiúsculas (A-Z)",
+    "description": "deprecated. Use uppercaseLabel instead."
   },
   "lowercase": {
-    "message": "Minúsculas (a-z)"
+    "message": "Minúsculas (a-z)",
+    "description": "deprecated. Use lowercaseLabel instead."
   },
   "numbers": {
-    "message": "Números (0-9)"
+    "message": "Números (0-9)",
+    "description": "deprecated. Use numbersLabel instead."
   },
   "specialCharacters": {
     "message": "Caracteres especiais (!@#$%^&*)"
+  },
+  "include": {
+    "message": "Incluir",
+    "description": "Card header for password generator include block"
+  },
+  "uppercaseDescription": {
+    "message": "Incluir caracteres maiúsculos",
+    "description": "Tooltip for the password generator uppercase character checkbox"
+  },
+  "uppercaseLabel": {
+    "message": "A-Z",
+    "description": "Label for the password generator uppercase character checkbox"
+  },
+  "lowercaseDescription": {
+    "message": "Incluir caracteres minúsculos",
+    "description": "Full description for the password generator lowercase character checkbox"
+  },
+  "lowercaseLabel": {
+    "message": "a-z",
+    "description": "Label for the password generator lowercase character checkbox"
+  },
+  "numbersDescription": {
+    "message": "Incluir números",
+    "description": "Full description for the password generator numbers checkbox"
+  },
+  "numbersLabel": {
+    "message": "0-9",
+    "description": "Label for the password generator numbers checkbox"
+  },
+  "specialCharactersDescription": {
+    "message": "Incluir caracteres especiais",
+    "description": "Full description for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Número de palavras"
@@ -442,7 +567,16 @@
     "description": "Minimum Special Characters"
   },
   "ambiguous": {
-    "message": "Evitar Caracteres Ambíguos"
+    "message": "Evitar Caracteres Ambíguos",
+    "description": "deprecated. Use avoidAmbiguous instead."
+  },
+  "avoidAmbiguous": {
+    "message": "Evitar caracteres ambíguos",
+    "description": "Label for the avoid ambiguous characters checkbox."
+  },
+  "generatorPolicyInEffect": {
+    "message": "Os requisitos de política empresarial foram aplicados às suas opções de gerador.",
+    "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchCollection": {
     "message": "Pesquisar coleção"
@@ -499,6 +633,9 @@
   "createAccount": {
     "message": "Criar Conta"
   },
+  "newToBitwarden": {
+    "message": "Novo no Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Defina uma senha forte"
   },
@@ -507,6 +644,27 @@
   },
   "logIn": {
     "message": "Iniciar sessão"
+  },
+  "logInToBitwarden": {
+    "message": "Inicie a sessão no Bitwarden"
+  },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
+  "logInWithPasskey": {
+    "message": "Iniciar sessão com a chave de acesso"
+  },
+  "loginWithDevice": {
+    "message": "Fazer login com dispositivo"
+  },
+  "useSingleSignOn": {
+    "message": "Usar login único"
   },
   "submit": {
     "message": "Enviar"
@@ -551,8 +709,26 @@
   "masterPassHintLabel": {
     "message": "Dica da senha mestra"
   },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Juntar-se à organização"
+  },
+  "joinOrganizationName": {
+    "message": "Entrar em $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
     "message": "Termine de juntar-se nessa organização definindo uma senha mestra."
@@ -560,11 +736,17 @@
   "settings": {
     "message": "Configurações"
   },
-  "passwordHint": {
-    "message": "Dica da Senha"
+  "accountEmail": {
+    "message": "Email da conta"
   },
-  "enterEmailToGetHint": {
-    "message": "Insira o seu endereço de e-mail para receber a dica da sua senha mestra."
+  "requestHint": {
+    "message": "Pedir dica"
+  },
+  "requestPasswordHint": {
+    "message": "Dica da senha mestra"
+  },
+  "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
+    "message": "Digite o endereço de e-mail da sua conta e sua dica da senha será enviada para você"
   },
   "getMasterPasswordHint": {
     "message": "Obter dica da senha mestra"
@@ -604,10 +786,10 @@
     "message": "A sua nova conta foi criada! Agora você pode iniciar a sessão."
   },
   "newAccountCreated2": {
-    "message": "Your new account has been created!"
+    "message": "Sua nova conta foi criada!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "Você está conectado!"
   },
   "masterPassSent": {
     "message": "Enviamos um e-mail com a dica da sua senha mestra."
@@ -642,6 +824,9 @@
   "webauthnCancelOrTimeout": {
     "message": "A autenticação foi cancelada ou demorou muito. Por favor tente novamente."
   },
+  "openInNewTab": {
+    "message": "Open in new tab"
+  },
   "invalidVerificationCode": {
     "message": "Código de verificação inválido"
   },
@@ -672,11 +857,21 @@
   "rememberMe": {
     "message": "Lembrar de mim"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Enviar código de verificação para o e-mail novamente"
   },
   "useAnotherTwoStepMethod": {
     "message": "Utilizar outro método de verificação em duas etapas"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "Introduza a sua YubiKey na porta USB do seu computador, e depois toque no botão da mesma."
@@ -711,6 +906,15 @@
     "message": "Verifique com o Duo Security utilizando o aplicativo Duo Mobile, SMS, chamada telefônica, ou chave de segurança U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
+  "verifyYourIdentity": {
+    "message": "Verify your Identity"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "webAuthnTitle": {
     "message": "WebAuthn FIDO2"
   },
@@ -735,11 +939,11 @@
   "twoStepOptions": {
     "message": "Opções de Login em Duas Etapas"
   },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
+  },
   "selfHostedEnvironment": {
     "message": "Ambiente auto-hospedado"
-  },
-  "selfHostedEnvironmentFooter": {
-    "message": "Especifique a URL de base da sua instalação local do Bitwarden."
   },
   "selfHostedBaseUrlHint": {
     "message": "Especifique a URL de base da sua instalação local do Bitwarden. Exemplo: https://bitwarden.company.com"
@@ -753,11 +957,18 @@
   "customEnvironment": {
     "message": "Ambiente Personalizado"
   },
-  "customEnvironmentFooter": {
-    "message": "Para usuários avançados. Você pode especificar a URL de base de cada serviço independentemente."
-  },
   "baseUrl": {
     "message": "URL do Servidor"
+  },
+  "authenticationTimeout": {
+    "message": "Tempo de autenticação esgotado"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "A sessão de autenticação expirou. Por favor, reinicie o processo de login."
+  },
+  "selfHostBaseUrl": {
+    "message": "URL do servidor auto-host",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
     "message": "URL do Servidor da API"
@@ -785,6 +996,9 @@
   },
   "no": {
     "message": "Não"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Substituir Senha"
@@ -902,6 +1116,18 @@
   "yourVaultIsLocked": {
     "message": "Seu cofre está trancado. Verifique sua identidade para continuar."
   },
+  "yourAccountIsLocked": {
+    "message": "Sua conta está bloqueada"
+  },
+  "or": {
+    "message": "ou"
+  },
+  "unlockWithBiometrics": {
+    "message": "Desbloquear com a biometria"
+  },
+  "unlockWithMasterPassword": {
+    "message": "Desbloquear com a senha mestra"
+  },
   "unlock": {
     "message": "Desbloquear"
   },
@@ -929,6 +1155,9 @@
   },
   "vaultTimeout": {
     "message": "Tempo Limite do Cofre"
+  },
+  "vaultTimeout1": {
+    "message": "Tempo esgotado"
   },
   "vaultTimeoutDesc": {
     "message": "Escolha quando o tempo limite do seu cofre irá se esgotar e execute a ação selecionada."
@@ -1134,6 +1363,9 @@
     "message": "Copiar Número",
     "description": "Copy credit card number"
   },
+  "copyEmail": {
+    "message": "Copiar e-mail"
+  },
   "copySecurityCode": {
     "message": "Copiar Código de Segurança",
     "description": "Copy credit card security code (CVV)"
@@ -1177,9 +1409,6 @@
   "premiumPurchase": {
     "message": "Comprar Premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Você pode comprar a assinatura premium no cofre web em bitwarden.com. Você deseja visitar o site agora?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Você pode comprar Premium nas configurações de sua conta no aplicativo web do Bitwarden."
   },
@@ -1204,12 +1433,30 @@
   "passwordHistory": {
     "message": "Histórico de senhas"
   },
+  "generatorHistory": {
+    "message": "Histórico do gerador"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Limpar histórico do gerador"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Se continuar, todas as entradas serão permanentemente excluídas do histórico do gerador. Tem certeza que deseja continuar?"
+  },
   "clear": {
     "message": "Limpar",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Não existem senhas para listar."
+  },
+  "clearHistory": {
+    "message": "Limpar histórico"
+  },
+  "nothingToShow": {
+    "message": "Nada para mostrar"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Você não gerou uma senha recentemente"
   },
   "undo": {
     "message": "Desfazer"
@@ -1284,6 +1531,9 @@
         "example": "Password"
       }
     }
+  },
+  "copySuccessful": {
+    "message": "Copiado com sucesso"
   },
   "errorRefreshingAccessToken": {
     "message": "Erro ao Atualizar Token"
@@ -1525,9 +1775,6 @@
   "windowsHelloConsentMessage": {
     "message": "Verifique para o Bitwarden."
   },
-  "polkitConsentMessage": {
-    "message": "Autentice para desbloquear o Bitwarden."
-  },
   "unlockWithTouchId": {
     "message": "Desbloquear com o Touch ID"
   },
@@ -1549,10 +1796,13 @@
   "requirePasswordOnStart": {
     "message": "Exigir senha ou PIN ao iniciar o app"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Require password on app start"
+  },
   "recommendedForSecurity": {
     "message": "Recomendado para segurança."
   },
-  "lockWithMasterPassOnRestart": {
+  "lockWithMasterPassOnRestart1": {
     "message": "Bloquear com senha mestra ao reiniciar"
   },
   "deleteAccount": {
@@ -1563,6 +1813,12 @@
   },
   "deleteAccountWarning": {
     "message": "A exclusão de sua conta é permanente. Não poderá ser desfeito."
+  },
+  "cannotDeleteAccount": {
+    "message": "Não é possível excluir conta"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "Esta ação não pode ser concluída porque sua conta pertence a uma organização. Entre em contato com o administrador da sua organização para obter mais detalhes."
   },
   "accountDeleted": {
     "message": "Conta excluída"
@@ -1630,7 +1886,7 @@
   },
   "lock": {
     "message": "Bloquear",
-    "description": "Verb form: to make secure or inaccesible by"
+    "description": "Verb form: to make secure or inaccessible by"
   },
   "trash": {
     "message": "Lixeira",
@@ -1673,6 +1929,15 @@
   "orgRequiresYouToSetPassword": {
     "message": "Sua organização requer que você defina uma senha mestra.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "cardMetrics": {
+    "message": "fora do $TOTAL$",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "verificationRequired": {
     "message": "Verificação necessária",
@@ -1753,8 +2018,8 @@
   "enableBrowserIntegration": {
     "message": "Ativar integração com o navegador"
   },
-  "enableBrowserIntegrationDesc": {
-    "message": "A integração do navegador é usada para biometria no navegador."
+  "enableBrowserIntegrationDesc1": {
+    "message": "Usado para permitir desbloqueio biométrico em navegadores que não são Safari."
   },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "Permitir integração ao navegador DuckDuckGo"
@@ -2003,6 +2268,12 @@
   "webAuthnAuthenticate": {
     "message": "Autenticar WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
+  },
   "hideEmail": {
     "message": "Ocultar meu endereço de e-mail dos destinatários."
   },
@@ -2084,8 +2355,8 @@
   "minutes": {
     "message": "Minutos"
   },
-  "vaultTimeoutPolicyInEffect": {
-    "message": "As políticas da sua organização definiram o tempo limite máximo permitido do cofre para $HOURS$ hora(s) e $MINUTES$ minuto(s).",
+  "vaultTimeoutPolicyInEffect1": {
+    "message": "Máximo de $HOURS$ hora(s) e $MINUTES$ minuto(s).",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2234,11 +2505,15 @@
   "locked": {
     "message": "Bloqueado"
   },
+  "yourVaultIsLockedV2": {
+    "message": "Seu cofre está bloqueado"
+  },
   "unlocked": {
     "message": "Desbloqueado"
   },
   "generator": {
-    "message": "Gerador"
+    "message": "Gerador",
+    "description": "Short for 'credential generator'."
   },
   "whatWouldYouLikeToGenerate": {
     "message": "O que você gostaria de gerar?"
@@ -2251,6 +2526,43 @@
   },
   "generateUsername": {
     "message": "Gerar usuário"
+  },
+  "generateEmail": {
+    "message": "Gerar e-mail"
+  },
+  "spinboxBoundariesHint": {
+    "message": "Valor deve ser entre $MIN$ e $MAX$.",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": "",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Utilize as palavras $RECOMMENDED$ ou mais para gerar uma frase secreta forte.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
   },
   "usernameType": {
     "message": "Tipo de usuário"
@@ -2267,6 +2579,9 @@
   },
   "catchallEmailDesc": {
     "message": "Use o catch-all configurado no seu domínio."
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "random": {
     "message": "Aleatório"
@@ -2294,6 +2609,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Gere um alias de e-mail com um serviço externo de encaminhamento."
+  },
+  "forwarderDomainName": {
+    "message": "Domínio de e-mail",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Escolha um domínio que seja suportado pelo serviço selecionado",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "Erro $SERVICENAME$: $ERRORMESSAGE$",
@@ -2336,6 +2659,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Token de API $SERVICENAME$ inválido: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -2425,14 +2772,8 @@
   "loginWithMasterPassword": {
     "message": "‘Login’ com senha ‘master’"
   },
-  "loggingInAs": {
-    "message": "Logar como"
-  },
   "rememberEmail": {
     "message": "Lembrar e-mail"
-  },
-  "notYou": {
-    "message": "Não é você?"
   },
   "newAroundHere": {
     "message": "Novo por aqui?"
@@ -2452,8 +2793,26 @@
   "loginInitiated": {
     "message": "Login iniciado"
   },
+  "logInRequestSent": {
+    "message": "Request sent"
+  },
   "notificationSentDevice": {
     "message": "Uma notificação foi enviada para seu dispositivo."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Uma notificação foi enviada para seu dispositivo"
+  },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
+  "needAnotherOptionV1": {
+    "message": "Precisa de outra opção?"
   },
   "fingerprintMatchInfo": {
     "message": "Por favor, certifique-se de que o seu cofre esteja desbloqueado e a frase de identificação corresponda ao outro dispositivo."
@@ -2461,8 +2820,14 @@
   "fingerprintPhraseHeader": {
     "message": "Frase de identificação"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Você será notificado assim que a requisição for aprovada"
+  },
   "needAnotherOption": {
     "message": "Login com dispositivo deve ser habilitado nas configurações do aplicativo móvel do Bitwarden. Necessita de outra opção?"
+  },
+  "viewAllLogInOptions": {
+    "message": "Ver todas as opções de login"
   },
   "viewAllLoginOptions": {
     "message": "Ver todas as opções de login"
@@ -2474,11 +2839,11 @@
     "message": "Ativar/Desativar contagem de caracteres",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Você está tentando fazer login?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
   },
-  "logInAttemptBy": {
-    "message": "Tentativa de login por $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2495,11 +2860,11 @@
   "time": {
     "message": "Horário"
   },
-  "confirmLogIn": {
-    "message": "Confirmar acesso"
+  "confirmAccess": {
+    "message": "Confirm access"
   },
-  "denyLogIn": {
-    "message": "Negar acesso"
+  "denyAccess": {
+    "message": "Deny access"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Acesso confirmado para $EMAIL$ em $DEVICE$",
@@ -2535,8 +2900,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Este pedido não é mais válido."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Confirmar tentativa de acesso de $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2546,6 +2911,9 @@
   },
   "logInRequested": {
     "message": "Acesso solicitado"
+  },
+  "accountAccessRequested": {
+    "message": "Account access requested"
   },
   "creatingAccountOn": {
     "message": "Criando conta em"
@@ -2580,11 +2948,23 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Senha fraca identificada e encontrada em um vazamento de dados. Use uma senha forte e única para proteger a sua conta. Tem certeza de que deseja usar essa senha?"
   },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
   "checkForBreaches": {
     "message": "Verificar vazamentos de dados conhecidos para esta senha"
   },
+  "loggedInExclamation": {
+    "message": "Sessão Iniciada!"
+  },
   "important": {
     "message": "Importante:"
+  },
+  "accessing": {
+    "message": "Acessando"
   },
   "accessTokenUnableToBeDecrypted": {
     "message": "Você foi desconectado porque seu token de acesso não pôde ser descriptografado. Por favor, faça o login novamente para resolver esse problema."
@@ -2610,8 +2990,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Atualização de configurações recomendadas"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Lembrar deste dispositivo para permanecer conectado"
+  },
   "deviceApprovalRequired": {
     "message": "Aprovação do dispositivo necessária. Selecione uma opção de aprovação abaixo:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "É necessária a aprovação do dispositivo"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Selecione uma opção de aprovação abaixo"
   },
   "rememberThisDevice": {
     "message": "Lembrar deste dispositivo"
@@ -2625,9 +3014,6 @@
   "requestAdminApproval": {
     "message": "Solicitar aprovação do administrador"
   },
-  "approveWithMasterPassword": {
-    "message": "Aprovar com senha mestra"
-  },
   "region": {
     "message": "Região"
   },
@@ -2637,9 +3023,6 @@
   "eu": {
     "message": "Europa",
     "description": "European Union"
-  },
-  "loggingInOn": {
-    "message": "Entrando em"
   },
   "selfHostedServer": {
     "message": "auto-hospedado"
@@ -2656,9 +3039,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Seu pedido foi enviado para seu administrador."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Será notificado assim que for aprovado."
-  },
   "troubleLoggingIn": {
     "message": "Problemas em efetuar login?"
   },
@@ -2667,6 +3047,9 @@
   },
   "userEmailMissing": {
     "message": "E-mail do usuário ausente"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "E-mail de usuário ativo não encontrado. Desconectando."
   },
   "deviceTrusted": {
     "message": "Dispositivo confiável"
@@ -2837,6 +3220,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "A autenticação em duas etapas do Duo é necessária para sua conta."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
   },
   "launchDuo": {
     "message": "Iniciar o Duo no navegador"
@@ -3061,5 +3450,134 @@
   },
   "ssoError": {
     "message": "Nenhuma porta livre foi encontrada para o cliente final."
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometric unlock is currently unavailable."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometric unlock is unavailable due to misconfigured system files."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometric unlock is unavailable due to misconfigured system files."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Biometric unlock is currently unavailable for an unknown reason."
+  },
+  "authorize": {
+    "message": "Autorizar"
+  },
+  "deny": {
+    "message": "Negar"
+  },
+  "sshkeyApprovalTitle": {
+    "message": "Confirmar uso da chave SSH"
+  },
+  "agentForwardingWarningTitle": {
+    "message": "Warning: Agent Forwarding"
+  },
+  "agentForwardingWarningText": {
+    "message": "This request comes from a remote device that you are logged into"
+  },
+  "sshkeyApprovalMessageInfix": {
+    "message": "está solicitando acesso para"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "in order to"
+  },
+  "sshActionLogin": {
+    "message": "authenticate to a server"
+  },
+  "sshActionSign": {
+    "message": "sign a message"
+  },
+  "sshActionGitSign": {
+    "message": "sign a git commit"
+  },
+  "unknownApplication": {
+    "message": "Uma aplicação"
+  },
+  "invalidSshKey": {
+    "message": "A chave SSH é inválida"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "O tipo de chave SSH não é suportado"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Importar chave da área de transferência"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
+  "fileSavedToDevice": {
+    "message": "Arquivo salvo no dispositivo. Gerencie a partir das transferências do seu dispositivo."
+  },
+  "importantNotice": {
+    "message": "Aviso importante"
+  },
+  "setupTwoStepLogin": {
+    "message": "Configurar login em duas etapas"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden enviará um código para o seu e-mail para verificar novos dispositivos a partir de fevereiro de 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Você pode configurar o login em duas etapas como uma forma alternativa de proteger sua conta ou mudar seu e-mail para um que você possa acessar."
+  },
+  "remindMeLater": {
+    "message": "Lembre-me depois"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Você tem acesso ao seu e-mail, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Não tenho"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Sim, eu tenho"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Ativar login em duas etapas"
+  },
+  "changeAcctEmail": {
+    "message": "Alterar e-mail"
+  },
+  "allowScreenshots": {
+    "message": "Allow screen capture"
+  },
+  "allowScreenshotsDesc": {
+    "message": "Allow the Bitwarden desktop application to be captured in screenshots and viewed in remote desktop sessions. Disabling this will prevent access on some external displays."
+  },
+  "confirmWindowStillVisibleTitle": {
+    "message": "Confirm window still visible"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Please confirm that the window is still visible."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Extension update required"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

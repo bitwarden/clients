@@ -12,13 +12,20 @@
 
     <bit-form-field>
       <bit-label>{{ "number" | i18n }}</bit-label>
-      <input id="cardNumber" bitInput formControlName="number" type="password" />
+      <input
+        id="cardNumber"
+        bitInput
+        formControlName="number"
+        type="password"
+        class="tw-font-mono"
+      />
       <button
         type="button"
         bitIconButton
         bitSuffix
         bitPasswordInputToggle
         data-testid="visibility-for-card-number"
+        (toggledChange)="logCardEvent($event, EventType.Cipher_ClientToggledCardNumberVisible)"
       ></button>
     </bit-form-field>
 
@@ -53,13 +60,14 @@
 
     <bit-form-field disableMargin>
       <bit-label>{{ "securityCode" | i18n }}</bit-label>
-      <input id="cardCode" bitInput formControlName="code" type="password" />
+      <input id="cardCode" bitInput formControlName="code" type="password" class="tw-font-mono" />
       <button
         type="button"
         bitIconButton
         bitSuffix
         bitPasswordInputToggle
         data-testid="visibility-for-card-code"
+        (toggledChange)="logCardEvent($event, EventType.Cipher_ClientToggledCardCodeVisible)"
       ></button>
     </bit-form-field>
   </bit-card>

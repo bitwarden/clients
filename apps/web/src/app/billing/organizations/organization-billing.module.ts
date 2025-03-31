@@ -1,5 +1,8 @@
 import { NgModule } from "@angular/core";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
+import { BannerModule } from "../../../../../../libs/components/src/banner/banner.module";
 import { UserVerificationModule } from "../../auth/shared/components/user-verification";
 import { LooseComponentsModule } from "../../shared";
 import { BillingSharedModule } from "../shared";
@@ -7,7 +10,6 @@ import { BillingSharedModule } from "../shared";
 import { AdjustSubscription } from "./adjust-subscription.component";
 import { BillingSyncApiKeyComponent } from "./billing-sync-api-key.component";
 import { BillingSyncKeyComponent } from "./billing-sync-key.component";
-import { ChangePlanDialogComponent } from "./change-plan-dialog.component";
 import { ChangePlanComponent } from "./change-plan.component";
 import { DownloadLicenceDialogComponent } from "./download-license.component";
 import { OrgBillingHistoryViewComponent } from "./organization-billing-history-view.component";
@@ -28,6 +30,7 @@ import { SubscriptionStatusComponent } from "./subscription-status.component";
     BillingSharedModule,
     OrganizationPlansComponent,
     LooseComponentsModule,
+    BannerModule,
   ],
   declarations: [
     AdjustSubscription,
@@ -42,7 +45,6 @@ import { SubscriptionStatusComponent } from "./subscription-status.component";
     SecretsManagerSubscribeStandaloneComponent,
     SubscriptionHiddenComponent,
     SubscriptionStatusComponent,
-    ChangePlanDialogComponent,
     OrganizationPaymentMethodComponent,
   ],
 })

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { SendFileView } from "@bitwarden/common/tools/send/models/view/send-file.view";
 
 export class SendFileResponse {

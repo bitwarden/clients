@@ -348,7 +348,7 @@ describe("LegacyPasswordGenerationService", () => {
       const innerPassphrase = createPassphraseGenerator(
         {},
         {
-          minNumberWords: 5,
+          minNumberWords: 6,
           capitalize: true,
           includeNumber: true,
         },
@@ -370,7 +370,7 @@ describe("LegacyPasswordGenerationService", () => {
 
       expect(result).toBe(options);
       expect(result).toMatchObject({
-        numWords: 5,
+        numWords: 6,
         capitalize: true,
         includeNumber: true,
       });

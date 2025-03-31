@@ -4,7 +4,7 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Params } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
-import { of } from "rxjs";
+import { of, BehaviorSubject } from "rxjs";
 
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { ClientType } from "@bitwarden/common/enums";
@@ -28,8 +28,12 @@ import {
 } from "@bitwarden/components";
 
 // FIXME: remove `/apps` import from `/libs`
-// eslint-disable-next-line import/no-restricted-paths
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line import/no-restricted-paths, no-restricted-imports
 import { PreloadedEnglishI18nModule } from "../../../../../../apps/web/src/app/core/tests";
+import { LoginEmailService } from "../../../common";
+import { AnonLayoutWrapperDataService } from "../../anon-layout/anon-layout-wrapper-data.service";
+import { AnonLayoutWrapperData } from "../../anon-layout/anon-layout-wrapper.component";
 
 import { RegistrationStartComponent } from "./registration-start.component";
 
@@ -43,6 +47,7 @@ const decorators = (options: {
   queryParams?: Params;
   clientType?: ClientType;
   defaultRegion?: Region;
+  initialLoginEmail?: string;
 }) => {
   return [
     moduleMetadata({
@@ -87,6 +92,20 @@ const decorators = (options: {
             isSelfHost: () => options.isSelfHost || false,
             getClientType: () => options.clientType || ClientType.Web,
           } as Partial<PlatformUtilsService>,
+        },
+        {
+          provide: LoginEmailService,
+          useValue: {
+            loginEmail$: new BehaviorSubject<string | null>(options.initialLoginEmail || null),
+          } as Partial<LoginEmailService>,
+        },
+        {
+          provide: AnonLayoutWrapperDataService,
+          useValue: {
+            setAnonLayoutWrapperData: (data: AnonLayoutWrapperData) => {
+              return;
+            },
+          } as Partial<AnonLayoutWrapperDataService>,
         },
         {
           provide: ToastService,
@@ -146,6 +165,21 @@ export const WebUSRegionQueryParamsExample: Story = {
     clientType: ClientType.Web,
     defaultRegion: Region.US,
     queryParams: { email: "jaredWasHere@bitwarden.com", emailReadonly: "true" },
+  }),
+};
+
+export const WebUSRegionWithInitialLoginEmailExample: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <auth-registration-start></auth-registration-start>
+      `,
+  }),
+  decorators: decorators({
+    clientType: ClientType.Web,
+    queryParams: {},
+    defaultRegion: Region.US,
+    initialLoginEmail: "example@bitwarden.com",
   }),
 };
 

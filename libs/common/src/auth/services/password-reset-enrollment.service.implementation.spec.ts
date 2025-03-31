@@ -2,22 +2,24 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import { KeyService } from "@bitwarden/key-management";
 
-import { UserId } from "../../../../common/src/types/guid";
 import { OrganizationApiServiceAbstraction } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationAutoEnrollStatusResponse } from "../../admin-console/models/response/organization-auto-enroll-status.response";
-import { CryptoService } from "../../platform/abstractions/crypto.service";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
-import { AccountInfo, AccountService } from "../abstractions/account.service";
+import { UserId } from "../../types/guid";
+import { Account, AccountInfo, AccountService } from "../abstractions/account.service";
 
 import { PasswordResetEnrollmentServiceImplementation } from "./password-reset-enrollment.service.implementation";
 
 describe("PasswordResetEnrollmentServiceImplementation", () => {
-  const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>(null);
+  const activeAccountSubject = new BehaviorSubject<Account | null>(null);
 
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
   let accountService: MockProxy<AccountService>;
-  let cryptoService: MockProxy<CryptoService>;
+  let keyService: MockProxy<KeyService>;
+  let encryptService: MockProxy<EncryptService>;
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let i18nService: MockProxy<I18nService>;
   let service: PasswordResetEnrollmentServiceImplementation;
@@ -26,13 +28,15 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
     organizationApiService = mock<OrganizationApiServiceAbstraction>();
     accountService = mock<AccountService>();
     accountService.activeAccount$ = activeAccountSubject;
-    cryptoService = mock<CryptoService>();
+    keyService = mock<KeyService>();
+    encryptService = mock<EncryptService>();
     organizationUserApiService = mock<OrganizationUserApiService>();
     i18nService = mock<I18nService>();
     service = new PasswordResetEnrollmentServiceImplementation(
       organizationApiService,
       accountService,
-      cryptoService,
+      keyService,
+      encryptService,
       organizationUserApiService,
       i18nService,
     );
@@ -95,8 +99,8 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
       };
       activeAccountSubject.next(Object.assign(user1AccountInfo, { id: "userId" as UserId }));
 
-      cryptoService.getUserKey.mockResolvedValue({ key: "key" } as any);
-      cryptoService.rsaEncrypt.mockResolvedValue(encryptedKey as any);
+      keyService.getUserKey.mockResolvedValue({ key: "key" } as any);
+      encryptService.rsaEncrypt.mockResolvedValue(encryptedKey as any);
 
       await service.enroll("orgId");
 
@@ -118,7 +122,7 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
       };
       const encryptedKey = { encryptedString: "encryptedString" };
       organizationApiService.getKeys.mockResolvedValue(orgKeyResponse as any);
-      cryptoService.rsaEncrypt.mockResolvedValue(encryptedKey as any);
+      encryptService.rsaEncrypt.mockResolvedValue(encryptedKey as any);
 
       await service.enroll("orgId", "userId", { key: "key" } as any);
 

@@ -1,15 +1,15 @@
 import { mock } from "jest-mock-extended";
 import { Jsonify } from "type-fest";
 
-import { UserId } from "@bitwarden/common/types/guid";
+import { KeyService } from "@bitwarden/key-management";
 
 import { makeStaticByteArray, mockEnc, mockFromJson } from "../../../../spec/utils";
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
-import { CryptoService } from "../../../platform/abstractions/crypto.service";
-import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { ContainerService } from "../../../platform/services/container.service";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
+import { UserId } from "../../../types/guid";
 import { CipherService } from "../../abstractions/cipher.service";
 import { FieldType, SecureNoteType } from "../../enums";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
@@ -26,6 +26,7 @@ import { SecureNote } from "../../models/domain/secure-note";
 import { CardView } from "../../models/view/card.view";
 import { IdentityView } from "../../models/view/identity.view";
 import { LoginView } from "../../models/view/login.view";
+import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 
 describe("Cipher DTO", () => {
   it("Convert from empty CipherData", () => {
@@ -54,6 +55,7 @@ describe("Cipher DTO", () => {
       fields: null,
       passwordHistory: null,
       key: null,
+      permissions: undefined,
     });
   });
 
@@ -75,6 +77,7 @@ describe("Cipher DTO", () => {
         notes: "EncryptedString",
         creationDate: "2022-01-01T12:00:00.000Z",
         deletedDate: null,
+        permissions: new CipherPermissionsApi(),
         reprompt: CipherRepromptType.None,
         key: "EncryptedString",
         login: {
@@ -149,6 +152,7 @@ describe("Cipher DTO", () => {
         localData: null,
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
         deletedDate: null,
+        permissions: new CipherPermissionsApi(),
         reprompt: 0,
         key: { encryptedString: "EncryptedString", encryptionType: 0 },
         login: {
@@ -228,6 +232,7 @@ describe("Cipher DTO", () => {
       cipher.deletedDate = null;
       cipher.reprompt = CipherRepromptType.None;
       cipher.key = mockEnc("EncKey");
+      cipher.permissions = new CipherPermissionsApi();
 
       const loginView = new LoginView();
       loginView.username = "username";
@@ -237,16 +242,13 @@ describe("Cipher DTO", () => {
       login.decrypt.mockResolvedValue(loginView);
       cipher.login = login;
 
-      const cryptoService = mock<CryptoService>();
+      const keyService = mock<KeyService>();
       const encryptService = mock<EncryptService>();
       const cipherService = mock<CipherService>();
 
       encryptService.decryptToBytes.mockResolvedValue(makeStaticByteArray(64));
 
-      (window as any).bitwardenContainerService = new ContainerService(
-        cryptoService,
-        encryptService,
-      );
+      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
       const cipherView = await cipher.decrypt(
         await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
@@ -273,6 +275,7 @@ describe("Cipher DTO", () => {
         deletedDate: null,
         reprompt: 0,
         localData: undefined,
+        permissions: new CipherPermissionsApi(),
       });
     });
   });
@@ -300,6 +303,7 @@ describe("Cipher DTO", () => {
         secureNote: {
           type: SecureNoteType.Generic,
         },
+        permissions: new CipherPermissionsApi(),
       };
     });
 
@@ -329,6 +333,7 @@ describe("Cipher DTO", () => {
         fields: null,
         passwordHistory: null,
         key: { encryptedString: "EncKey", encryptionType: 0 },
+        permissions: new CipherPermissionsApi(),
       });
     });
 
@@ -356,17 +361,15 @@ describe("Cipher DTO", () => {
       cipher.secureNote = new SecureNote();
       cipher.secureNote.type = SecureNoteType.Generic;
       cipher.key = mockEnc("EncKey");
+      cipher.permissions = new CipherPermissionsApi();
 
-      const cryptoService = mock<CryptoService>();
+      const keyService = mock<KeyService>();
       const encryptService = mock<EncryptService>();
       const cipherService = mock<CipherService>();
 
       encryptService.decryptToBytes.mockResolvedValue(makeStaticByteArray(64));
 
-      (window as any).bitwardenContainerService = new ContainerService(
-        cryptoService,
-        encryptService,
-      );
+      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
       const cipherView = await cipher.decrypt(
         await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
@@ -393,6 +396,7 @@ describe("Cipher DTO", () => {
         deletedDate: null,
         reprompt: 0,
         localData: undefined,
+        permissions: new CipherPermissionsApi(),
       });
     });
   });
@@ -415,6 +419,7 @@ describe("Cipher DTO", () => {
         notes: "EncryptedString",
         creationDate: "2022-01-01T12:00:00.000Z",
         deletedDate: null,
+        permissions: new CipherPermissionsApi(),
         reprompt: CipherRepromptType.None,
         card: {
           cardholderName: "EncryptedString",
@@ -461,6 +466,7 @@ describe("Cipher DTO", () => {
         fields: null,
         passwordHistory: null,
         key: { encryptedString: "EncKey", encryptionType: 0 },
+        permissions: new CipherPermissionsApi(),
       });
     });
 
@@ -486,6 +492,7 @@ describe("Cipher DTO", () => {
       cipher.deletedDate = null;
       cipher.reprompt = CipherRepromptType.None;
       cipher.key = mockEnc("EncKey");
+      cipher.permissions = new CipherPermissionsApi();
 
       const cardView = new CardView();
       cardView.cardholderName = "cardholderName";
@@ -495,16 +502,13 @@ describe("Cipher DTO", () => {
       card.decrypt.mockResolvedValue(cardView);
       cipher.card = card;
 
-      const cryptoService = mock<CryptoService>();
+      const keyService = mock<KeyService>();
       const encryptService = mock<EncryptService>();
       const cipherService = mock<CipherService>();
 
       encryptService.decryptToBytes.mockResolvedValue(makeStaticByteArray(64));
 
-      (window as any).bitwardenContainerService = new ContainerService(
-        cryptoService,
-        encryptService,
-      );
+      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
       const cipherView = await cipher.decrypt(
         await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
@@ -531,6 +535,7 @@ describe("Cipher DTO", () => {
         deletedDate: null,
         reprompt: 0,
         localData: undefined,
+        permissions: new CipherPermissionsApi(),
       });
     });
   });
@@ -553,6 +558,7 @@ describe("Cipher DTO", () => {
         notes: "EncryptedString",
         creationDate: "2022-01-01T12:00:00.000Z",
         deletedDate: null,
+        permissions: new CipherPermissionsApi(),
         reprompt: CipherRepromptType.None,
         key: "EncKey",
         identity: {
@@ -623,6 +629,7 @@ describe("Cipher DTO", () => {
         fields: null,
         passwordHistory: null,
         key: { encryptedString: "EncKey", encryptionType: 0 },
+        permissions: new CipherPermissionsApi(),
       });
     });
 
@@ -648,6 +655,7 @@ describe("Cipher DTO", () => {
       cipher.deletedDate = null;
       cipher.reprompt = CipherRepromptType.None;
       cipher.key = mockEnc("EncKey");
+      cipher.permissions = new CipherPermissionsApi();
 
       const identityView = new IdentityView();
       identityView.firstName = "firstName";
@@ -657,16 +665,13 @@ describe("Cipher DTO", () => {
       identity.decrypt.mockResolvedValue(identityView);
       cipher.identity = identity;
 
-      const cryptoService = mock<CryptoService>();
+      const keyService = mock<KeyService>();
       const encryptService = mock<EncryptService>();
       const cipherService = mock<CipherService>();
 
       encryptService.decryptToBytes.mockResolvedValue(makeStaticByteArray(64));
 
-      (window as any).bitwardenContainerService = new ContainerService(
-        cryptoService,
-        encryptService,
-      );
+      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
       const cipherView = await cipher.decrypt(
         await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
@@ -693,6 +698,7 @@ describe("Cipher DTO", () => {
         deletedDate: null,
         reprompt: 0,
         localData: undefined,
+        permissions: new CipherPermissionsApi(),
       });
     });
   });

@@ -8,7 +8,7 @@ import {
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { WindowState } from "../models/domain/window-state";
+import { ModalModeState, WindowState } from "../models/domain/window-state";
 
 export const HARDWARE_ACCELERATION = new KeyDefinition<boolean>(
   DESKTOP_SETTINGS_DISK,
@@ -66,10 +66,26 @@ const BROWSER_INTEGRATION_FINGERPRINT_ENABLED = new KeyDefinition<boolean>(
   },
 );
 
+const SSH_AGENT_ENABLED = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "sshAgentEnabled", {
+  deserializer: (b) => b,
+});
+
 const MINIMIZE_ON_COPY = new UserKeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "minimizeOnCopy", {
   deserializer: (b) => b,
   clearOn: [], // User setting, no need to clear
 });
+
+const MODAL_MODE = new KeyDefinition<ModalModeState>(DESKTOP_SETTINGS_DISK, "modalMode", {
+  deserializer: (b) => b,
+});
+
+const PREVENT_SCREENSHOTS = new KeyDefinition<boolean>(
+  DESKTOP_SETTINGS_DISK,
+  "preventScreenshots",
+  {
+    deserializer: (b) => b,
+  },
+);
 
 /**
  * Various settings for controlling application behavior specific to the desktop client.
@@ -139,6 +155,17 @@ export class DesktopSettingsService {
   browserIntegrationFingerprintEnabled$ =
     this.browserIntegrationFingerprintEnabledState.state$.pipe(map(Boolean));
 
+  private readonly sshAgentEnabledState = this.stateProvider.getGlobal(SSH_AGENT_ENABLED);
+
+  sshAgentEnabled$ = this.sshAgentEnabledState.state$.pipe(map(Boolean));
+
+  private readonly preventScreenshotState = this.stateProvider.getGlobal(PREVENT_SCREENSHOTS);
+
+  /**
+   * The application setting for whether or not to allow screenshots of the app.
+   */
+  preventScreenshots$ = this.preventScreenshotState.state$.pipe(map(Boolean));
+
   private readonly minimizeOnCopyState = this.stateProvider.getActive(MINIMIZE_ON_COPY);
 
   /**
@@ -147,12 +174,24 @@ export class DesktopSettingsService {
    */
   minimizeOnCopy$ = this.minimizeOnCopyState.state$.pipe(map(Boolean));
 
+  private readonly modalModeState = this.stateProvider.getGlobal(MODAL_MODE);
+
+  modalMode$ = this.modalModeState.state$;
+
   constructor(private stateProvider: StateProvider) {
     this.window$ = this.windowState.state$.pipe(
       map((window) =>
         window != null && Object.keys(window).length > 0 ? window : new WindowState(),
       ),
     );
+  }
+
+  /**
+   * This is used to clear the setting on application start to make sure we don't end up
+   * stuck in modal mode if the application is force-closed in modal mode.
+   */
+  async resetModalMode() {
+    await this.modalModeState.update(() => ({ isModalModeActive: false }));
   }
 
   async setHardwareAcceleration(enabled: boolean) {
@@ -247,6 +286,13 @@ export class DesktopSettingsService {
   }
 
   /**
+   * Sets a setting for whether or not the SSH agent is enabled.
+   */
+  async setSshAgentEnabled(value: boolean) {
+    await this.sshAgentEnabledState.update(() => value);
+  }
+
+  /**
    * Sets the minimize on copy value for the current user.
    * @param value `true` if the application should minimize when a value is copied,
    * `false` if it should not.
@@ -254,5 +300,24 @@ export class DesktopSettingsService {
    */
   async setMinimizeOnCopy(value: boolean, userId: UserId) {
     await this.stateProvider.getUser(userId, MINIMIZE_ON_COPY).update(() => value);
+  }
+
+  /**
+   * Sets the modal mode of the application. Setting this changes the windows-size and other properties.
+   * @param value `true` if the application is in modal mode, `false` if it is not.
+   */
+  async setModalMode(value: boolean, modalPosition?: { x: number; y: number }) {
+    await this.modalModeState.update(() => ({
+      isModalModeActive: value,
+      modalPosition,
+    }));
+  }
+
+  /**
+   * Sets the setting for whether or not the screenshot protection is enabled.
+   * @param value `true` if the screenshot protection is enabled, `false` if it is not.
+   */
+  async setPreventScreenshots(value: boolean) {
+    await this.preventScreenshotState.update(() => value);
   }
 }

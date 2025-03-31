@@ -1,0 +1,47 @@
+<div *ngIf="!loading">
+  <div class="tw-p-6 tw-border tw-border-solid tw-border-secondary-600 tw-rounded">
+    <h2 bitTypography="h2">{{ "environmentVariables" | i18n }}</h2>
+    <div class="tw-flex tw-gap-6 tw-pt-4">
+      <bit-form-field class="tw-w-2/5 tw-min-w-80" tw>
+        <bit-label>{{ "identityUrl" | i18n }}</bit-label>
+        <input bitInput type="text" [(ngModel)]="identityUrl" [disabled]="true" />
+        <button
+          bitSuffix
+          type="button"
+          type="button"
+          bitIconButton="bwi-clone"
+          [bitAction]="copyIdentityUrl"
+        ></button>
+      </bit-form-field>
+      <bit-form-field class="tw-w-2/5 tw-min-w-80">
+        <bit-label>{{ "apiUrl" | i18n }}</bit-label>
+        <input bitInput type="text" [(ngModel)]="apiUrl" [disabled]="true" />
+        <button bitSuffix type="button" bitIconButton="bwi-clone" [bitAction]="copyApiUrl"></button>
+      </bit-form-field>
+    </div>
+    <bit-form-field class="tw-w-2/5 tw-min-w-80">
+      <bit-label>{{ "organizationId" | i18n }}</bit-label>
+      <input bitInput type="text" [(ngModel)]="organizationId" [disabled]="true" />
+      <button
+        bitSuffix
+        type="button"
+        bitIconButton="bwi-clone"
+        [bitAction]="copyOrganizationId"
+      ></button>
+    </bit-form-field>
+  </div>
+  <div class="tw-pt-12">
+    <h2 slot="summary" class="tw-mb-0" bitTypography="h2" noMargin>{{ "projectIds" | i18n }}</h2>
+    <p *ngIf="!hasProjects" class="tw-mt-6">{{ "projectsNoItemsTitle" | i18n }}</p>
+    <p *ngIf="hasProjects" class="tw-mt-4">{{ "projectsAccessedByMachineAccount" | i18n }}</p>
+    <sm-projects-list
+      class="tw-mt-8"
+      *ngIf="hasProjects"
+      [showMenus]="false"
+      [projects]="projects"
+    ></sm-projects-list>
+  </div>
+</div>
+<div *ngIf="loading" class="tw-items-center tw-justify-center tw-pt-64 tw-text-center">
+  <i class="bwi bwi-spinner bwi-spin bwi-3x"></i>
+</div>
