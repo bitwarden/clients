@@ -2490,6 +2490,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Yalnızca $EMAIL$ ile ilişkili kişisel kasadaki kayıtlar ve dosyalar dışa aktarılacaktır. Kuruluş kasasındaki kayıtlar dahil edilmeyecektir",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Kuruluş kasasını dışa aktarma"
   },
