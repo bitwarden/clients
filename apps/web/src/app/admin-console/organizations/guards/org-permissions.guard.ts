@@ -1,13 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { inject } from "@angular/core";
+import { EnvironmentInjector, inject, runInInjectionContext } from "@angular/core";
 import {
   ActivatedRouteSnapshot,
   CanActivateFn,
   Router,
   RouterStateSnapshot,
 } from "@angular/router";
-import { firstValueFrom, Observable, switchMap } from "rxjs";
+import { firstValueFrom, isObservable, Observable, switchMap } from "rxjs";
 
 import {
   canAccessOrgAdmin,
@@ -16,15 +16,10 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
-
-export type InjectedOrganizationPermissionServices = {
-  organizationBillingService: OrganizationBillingServiceAbstraction;
-};
 
 /**
  * `CanActivateFn` that asserts the logged in user has permission to access
@@ -49,7 +44,6 @@ export type InjectedOrganizationPermissionServices = {
 export function organizationPermissionsGuard(
   permissionsCallback?: (
     organization: Organization,
-    services: InjectedOrganizationPermissionServices,
   ) => boolean | Promise<boolean> | Observable<boolean>,
 ): CanActivateFn {
   return async (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
@@ -59,7 +53,7 @@ export function organizationPermissionsGuard(
     const i18nService = inject(I18nService);
     const syncService = inject(SyncService);
     const accountService = inject(AccountService);
-    const organizationBillingService = inject(OrganizationBillingServiceAbstraction);
+    const environmentInjector = inject(EnvironmentInjector);
 
     // TODO: We need to fix issue once and for all.
     if ((await syncService.getLastSync()) == null) {
@@ -87,21 +81,24 @@ export function organizationPermissionsGuard(
       return router.createUrlTree(["/"]);
     }
 
-    const callbackServices = {
-      organizationBillingService: organizationBillingService,
-    };
+    if (permissionsCallback == null) {
+      // No additional permission checks required, allow navigation
+      return true;
+    }
 
-    const hasPermissions =
-      permissionsCallback == null || permissionsCallback(org, callbackServices);
+    const callbackResult = runInInjectionContext(environmentInjector, () =>
+      permissionsCallback(org),
+    );
 
-    const permissionResult =
-      hasPermissions instanceof Promise
-        ? await hasPermissions
-        : hasPermissions instanceof Observable
-          ? await new Promise<boolean>((resolve) => hasPermissions.subscribe(resolve))
-          : hasPermissions;
+    const hasPermissions = isObservable(callbackResult)
+      ? await firstValueFrom(callbackResult) // handles observables
+      : await Promise.resolve(callbackResult); // handles promises and boolean values
 
-    if (!permissionResult) {
+    if (hasPermissions !== true && hasPermissions !== false) {
+      throw new Error("Permission callback did not resolve to a boolean.");
+    }
+
+    if (!hasPermissions) {
       // Handle linkable ciphers for organizations the user only has view access to
       // https://bitwarden.atlassian.net/browse/EC-203
       const cipherId =
