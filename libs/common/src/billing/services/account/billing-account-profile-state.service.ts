@@ -74,12 +74,12 @@ export class DefaultBillingAccountProfileStateService implements BillingAccountP
 
         const isCloud = !this.platformUtilsService.isSelfHost();
 
-        let billing = null;
         if (isCloud) {
-          billing = await this.apiService.getUserBillingHistory();
+          const billing = await this.apiService.getUserBillingHistory();
+          return !billing?.hasNoHistory;
         }
 
-        return isCloud && !billing?.hasNoHistory;
+        return false;
       }),
     );
   }
