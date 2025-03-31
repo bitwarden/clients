@@ -6741,6 +6741,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Ще бъдат изнесени само записите и прикачените файлове от личния трезор свързан с $EMAIL$. Записите в трезора на организацията няма да бъдат включени.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultDesc": {
     "message": "Ще бъдат изнесени само записите от трезора свързан с $ORGANIZATION$. Записите в отделните лични трезори и тези в други организации няма да бъдат включени.",
     "placeholders": {
