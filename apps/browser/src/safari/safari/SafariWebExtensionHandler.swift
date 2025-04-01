@@ -152,7 +152,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 response.userInfo = [
                     SFExtensionMessageKey: [
                         "message": [
-                            "command": "biometricUnlock",
+                            "command": "unlockWithBiometricsForUser",
                             "response": false,
                             "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
                             "messageId": messageId,
@@ -177,7 +177,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 response.userInfo = [
                     SFExtensionMessageKey: [
                         "message": [
-                            "command": "biometricUnlock",
+                            "command": "unlockWithBiometricsForUser",
                             "response": false,
                             "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
                             "messageId": messageId,
@@ -209,7 +209,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
 
                         response.userInfo = [ SFExtensionMessageKey: [
                             "message": [
-                                "command": "biometricUnlock",
+                                "command": "unlockWithBiometricsForUser",
                                 "response": true,
                                 "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
                                 "userKeyB64": result!.replacingOccurrences(of: "\"", with: ""),
@@ -220,7 +220,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                         response.userInfo = [
                             SFExtensionMessageKey: [
                                 "message": [
-                                    "command": "biometricUnlock",
+                                    "command": "unlockWithBiometricsForUser",
                                     "response": true,
                                     "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
                                     "messageId": messageId,
