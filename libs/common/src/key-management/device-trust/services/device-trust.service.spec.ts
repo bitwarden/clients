@@ -7,6 +7,7 @@ import {
   UserDecryptionOptionsServiceAbstraction,
   UserDecryptionOptions,
 } from "@bitwarden/auth/common";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { KeyService } from "@bitwarden/key-management";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec/fake-account-service";
@@ -655,6 +656,86 @@ describe("deviceTrustService", () => {
       });
     });
 
+    describe("getRotatedData", () => {
+      let fakeNewUserKey: UserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
+      let fakeOldUserKey: UserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
+      const userId: UserId = Utils.newGuid() as UserId;
+
+      it("throws an error when a null user id is passed in", async () => {
+        await expect(
+          deviceTrustService.getRotatedData(fakeOldUserKey, fakeNewUserKey, null),
+        ).rejects.toThrow("UserId is required. Cannot get rotated data.");
+      });
+
+      it("throws an error when a null old user key is passed in", async () => {
+        await expect(
+          deviceTrustService.getRotatedData(null, fakeNewUserKey, userId),
+        ).rejects.toThrow("Old user key is required. Cannot get rotated data.");
+      });
+
+      it("throws an error when a null new user key is passed in", async () => {
+        await expect(
+          deviceTrustService.getRotatedData(fakeOldUserKey, null, userId),
+        ).rejects.toThrow("New user key is required. Cannot get rotated data.");
+      });
+
+      it("returns the expected data when all required parameters are provided", async () => {
+        const deviceResponse = {
+          id: "",
+          userId: "",
+          name: "",
+          identifier: "",
+          type: DeviceType.Android,
+          creationDate: "",
+          revisionDate: "",
+          isTrusted: true,
+        };
+        devicesApiService.getDevices.mockResolvedValue(
+          new ListResponse(
+            {
+              data: [deviceResponse],
+            },
+            DeviceResponse,
+          ),
+        );
+        encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(64));
+        encryptService.encrypt.mockResolvedValue(new EncString("test_encrypted_data"));
+        encryptService.rsaEncrypt.mockResolvedValue(new EncString("test_encrypted_data"));
+
+        const protectedDeviceResponse = new ProtectedDeviceResponse({
+          id: "",
+          creationDate: "",
+          identifier: "test_device_identifier",
+          name: "Firefox",
+          type: DeviceType.FirefoxBrowser,
+          encryptedPublicKey: "",
+          encryptedUserKey: "",
+        });
+        devicesApiService.getDeviceKeys.mockResolvedValue(protectedDeviceResponse);
+        const fakeOldUserKeyData = new Uint8Array(64);
+        fakeOldUserKeyData.fill(5, 0, 1);
+        fakeOldUserKey = new SymmetricCryptoKey(fakeOldUserKeyData) as UserKey;
+
+        const fakeNewUserKeyData = new Uint8Array(64);
+        fakeNewUserKeyData.fill(1, 0, 1);
+        fakeNewUserKey = new SymmetricCryptoKey(fakeNewUserKeyData) as UserKey;
+
+        const result = await deviceTrustService.getRotatedData(
+          fakeOldUserKey,
+          fakeNewUserKey,
+          userId,
+        );
+
+        expect(result).toEqual([
+          {
+            deviceId: "",
+            encryptedUserKey: "test_encrypted_data",
+            encryptedPublicKey: "test_encrypted_data",
+          },
+        ]);
+      });
+    });
+
     describe("rotateDevicesTrust", () => {
       let fakeNewUserKey: UserKey = null;
 
@@ -708,11 +789,8 @@ describe("deviceTrustService", () => {
 
           appIdService.getAppId.mockResolvedValue("test_device_identifier");
 
-          devicesApiService.getDeviceKeys.mockImplementation((deviceIdentifier, secretRequest) => {
-            if (
-              deviceIdentifier !== "test_device_identifier" ||
-              secretRequest.masterPasswordHash !== "my_password_hash"
-            ) {
+          devicesApiService.getDeviceKeys.mockImplementation((deviceIdentifier) => {
+            if (deviceIdentifier !== "test_device_identifier") {
               return Promise.resolve(null);
             }
 
