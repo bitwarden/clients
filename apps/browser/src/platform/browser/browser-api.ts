@@ -596,7 +596,7 @@ export class BrowserApi {
    * Identifies if the browser autofill settings are overridden by the extension.
    */
   static async browserAutofillSettingsOverridden(): Promise<boolean> {
-    const checkOverrideStatus = (details: chrome.types.ChromeSettingGetResultDetails) =>
+    const checkOverrideStatus = (details: chrome.types.ChromeSettingGetResult<boolean>) =>
       details.levelOfControl === "controlled_by_this_extension" && !details.value;
 
     const autofillAddressOverridden: boolean = await new Promise((resolve) =>
