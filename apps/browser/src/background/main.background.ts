@@ -1615,18 +1615,21 @@ export default class MainBackground {
   /** Opens the `/at-risk-passwords` page within the popup */
   async openAtRisksPasswordsPage() {
     const browserAction = BrowserApi.getBrowserAction();
-    // Set route of the popup before attempting to open it.
-    // If the vault is locked, this won't have an effect as the auth guards will
-    // redirect the user to the login page.
-    await browserAction.setPopup({ popup: "popup/index.html#/at-risk-passwords" });
 
-    await this.openPopup();
+    try {
+      // Set route of the popup before attempting to open it.
+      // If the vault is locked, this won't have an effect as the auth guards will
+      // redirect the user to the login page.
+      await browserAction.setPopup({ popup: "popup/index.html#/at-risk-passwords" });
 
-    // Reset the popup route to the default route so any subsequent
-    // popup openings will not open to the at-risk-passwords page.
-    await browserAction.setPopup({
-      popup: "popup/index.html#/",
-    });
+      await this.openPopup();
+    } finally {
+      // Reset the popup route to the default route so any subsequent
+      // popup openings will not open to the at-risk-passwords page.
+      await browserAction.setPopup({
+        popup: "popup/index.html#/",
+      });
+    }
   }
 
   async reseedStorage() {
