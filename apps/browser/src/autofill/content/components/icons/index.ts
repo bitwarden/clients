@@ -7,6 +7,7 @@ export { ExclamationTriangle } from "./exclamation-triangle";
 export { Family } from "./family";
 export { Folder } from "./folder";
 export { Globe } from "./globe";
+export { Keyhole } from "./keyhole";
 export { PartyHorn } from "./party-horn";
 export { PencilSquare } from "./pencil-square";
 export { Shield } from "./shield";
