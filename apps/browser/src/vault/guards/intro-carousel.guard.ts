@@ -1,5 +1,5 @@
 import { inject } from "@angular/core";
-import { ActivatedRouteSnapshot, CanActivateFn, Router } from "@angular/router";
+import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -7,7 +7,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 
 import { IntroCarouselService } from "../popup/services/intro-carousel.service";
 
-export const IntroCarouselGuard: CanActivateFn = async (route: ActivatedRouteSnapshot) => {
+export const IntroCarouselGuard = async () => {
   const router = inject(Router);
   const configService = inject(ConfigService);
   const introCarouselService = inject(IntroCarouselService);
