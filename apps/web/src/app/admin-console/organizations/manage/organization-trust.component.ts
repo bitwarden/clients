@@ -25,7 +25,7 @@ type OrganizationTrustDialogData = {
 })
 export class OrganizationTrustComponent implements OnInit {
   loading = true;
-  fingerprint: string;
+  fingerprint: string = "";
   confirmForm = this.formBuilder.group({});
 
   constructor(

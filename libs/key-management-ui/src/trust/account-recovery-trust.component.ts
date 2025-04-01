@@ -45,7 +45,7 @@ type AccountRecoveryTrustDialogData = {
 })
 export class AccountRecoveryTrustComponent implements OnInit {
   loading = true;
-  fingerprint: string;
+  fingerprint: string = "";
   confirmForm = this.formBuilder.group({});
 
   constructor(

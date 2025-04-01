@@ -45,7 +45,7 @@ type EmergencyAccessTrustDialogData = {
 })
 export class EmergencyAccessTrustComponent implements OnInit {
   loading = true;
-  fingerprint: string;
+  fingerprint: string = "";
   confirmForm = this.formBuilder.group({});
 
   constructor(
