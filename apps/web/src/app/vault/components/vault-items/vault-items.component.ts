@@ -138,6 +138,7 @@ export class VaultItemsComponent {
 
         return canRestore$;
       }),
+      map((canRestore) => canRestore && this.showBulkTrashOptions),
     );
   }
 

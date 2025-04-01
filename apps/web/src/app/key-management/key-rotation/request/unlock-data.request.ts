@@ -1,4 +1,5 @@
 import { OrganizationUserResetPasswordWithIdRequest } from "@bitwarden/admin-console/common";
+import { DeviceKeysUpdateRequest } from "@bitwarden/common/auth/models/request/update-devices-trust.request";
 import { WebauthnRotateCredentialRequest } from "@bitwarden/common/auth/models/request/webauthn-rotate-credential.request";
 
 import { EmergencyAccessWithIdRequest } from "../../../auth/emergency-access/request/emergency-access-update.request";
@@ -11,16 +12,19 @@ export class UnlockDataRequest {
   emergencyAccessUnlockData: EmergencyAccessWithIdRequest[];
   organizationAccountRecoveryUnlockData: OrganizationUserResetPasswordWithIdRequest[];
   passkeyUnlockData: WebauthnRotateCredentialRequest[];
+  deviceKeyUnlockData: DeviceKeysUpdateRequest[];
 
   constructor(
     masterPasswordUnlockData: MasterPasswordUnlockDataRequest,
     emergencyAccessUnlockData: EmergencyAccessWithIdRequest[],
     organizationAccountRecoveryUnlockData: OrganizationUserResetPasswordWithIdRequest[],
     passkeyUnlockData: WebauthnRotateCredentialRequest[],
+    deviceTrustUnlockData: DeviceKeysUpdateRequest[],
   ) {
     this.masterPasswordUnlockData = masterPasswordUnlockData;
     this.emergencyAccessUnlockData = emergencyAccessUnlockData;
     this.organizationAccountRecoveryUnlockData = organizationAccountRecoveryUnlockData;
     this.passkeyUnlockData = passkeyUnlockData;
+    this.deviceKeyUnlockData = deviceTrustUnlockData;
   }
 }

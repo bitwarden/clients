@@ -109,7 +109,6 @@ export class InputPasswordComponent implements OnInit {
 
   protected formGroup = this.formBuilder.nonNullable.group(
     {
-      currentPassword: ["", Validators.required],
       newPassword: ["", [Validators.required, Validators.minLength(this.minPasswordLength)]],
       confirmNewPassword: ["", Validators.required],
       hint: [
@@ -117,7 +116,6 @@ export class InputPasswordComponent implements OnInit {
         [Validators.minLength(this.minHintLength), Validators.maxLength(this.maxHintLength)],
       ],
       checkForBreaches: [true],
-      rotateUserKey: [false],
     },
     {
       validators: [
@@ -144,7 +142,7 @@ export class InputPasswordComponent implements OnInit {
   );
 
   get currentPassword() {
-    return this.formGroup.controls.currentPassword.value;
+    return this.formGroup.get("currentPassword")?.value;
   }
 
   get newPassword() {
@@ -164,7 +162,7 @@ export class InputPasswordComponent implements OnInit {
   }
 
   get rotateUserKey() {
-    return this.formGroup.controls.rotateUserKey.value;
+    return this.formGroup.get("rotateUserKey")?.value;
   }
 
   constructor(
@@ -183,15 +181,23 @@ export class InputPasswordComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if (this.inputPasswordFlow === InputPasswordFlow.SetInitialPassword) {
+    if (
+      this.inputPasswordFlow === InputPasswordFlow.ChangePassword ||
+      this.inputPasswordFlow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
+    ) {
       // https://github.com/angular/angular/issues/48794
-      (this.formGroup as FormGroup<any>).removeControl("currentPassword");
-      (this.formGroup as FormGroup<any>).removeControl("rotateUserKey");
+      (this.formGroup as FormGroup<any>).addControl(
+        "currentPassword",
+        this.formBuilder.control("", Validators.required),
+      );
     }
 
-    if (this.inputPasswordFlow === InputPasswordFlow.ChangePassword) {
+    if (this.inputPasswordFlow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation) {
       // https://github.com/angular/angular/issues/48794
-      (this.formGroup as FormGroup<any>).removeControl("rotateUserKey");
+      (this.formGroup as FormGroup<any>).addControl(
+        "rotateUserKey",
+        this.formBuilder.control(false),
+      );
     }
 
     if (this.primaryButtonText) {
@@ -292,11 +298,11 @@ export class InputPasswordComponent implements OnInit {
       this.inputPasswordFlow === InputPasswordFlow.ChangePassword ||
       this.inputPasswordFlow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
     ) {
-      passwordInputResult.currentPassword = this.currentPassword;
+      passwordInputResult.currentPassword = this.formGroup.get("currentPassword")?.value;
     }
 
     if (this.inputPasswordFlow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation) {
-      passwordInputResult.rotateUserKey = this.formGroup.controls.rotateUserKey.value;
+      passwordInputResult.rotateUserKey = this.formGroup.get("rotateUserKey")?.value;
     }
 
     this.onPasswordFormSubmit.emit(passwordInputResult);
@@ -422,7 +428,8 @@ export class InputPasswordComponent implements OnInit {
           );
         }
 
-        this.formGroup.controls.rotateUserKey.setValue(false);
+        // TODO-rr-bw
+        // this.formGroup.controls.rotateUserKey.setValue(false);
         return;
       }
 
@@ -438,7 +445,8 @@ export class InputPasswordComponent implements OnInit {
       });
 
       if (!result) {
-        this.formGroup.controls.rotateUserKey.setValue(false);
+        // TODO-rr-bw
+        // this.formGroup.controls.rotateUserKey.setValue(false);
       }
     }
   }
