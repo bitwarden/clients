@@ -39,10 +39,12 @@
     </div>
   </ng-container>
 
-  <button type="submit" bitButton buttonType="primary" bitFormButton>
-    {{ (tokenSent ? "changeEmail" : "continue") | i18n }}
-  </button>
-  <button type="button" bitButton *ngIf="tokenSent" (click)="reset()">
-    {{ "cancel" | i18n }}
-  </button>
+  <div class="tw-flex tw-gap-2">
+    <button type="submit" bitButton buttonType="primary" bitFormButton>
+      {{ (tokenSent ? "changeEmail" : "continue") | i18n }}
+    </button>
+    <button type="button" bitButton *ngIf="tokenSent" (click)="reset()">
+      {{ "cancel" | i18n }}
+    </button>
+  </div>
 </form>

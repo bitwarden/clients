@@ -49,8 +49,6 @@ export class AccountKeys {
   publicKey?: Uint8Array;
 
   /** @deprecated July 2023, left for migration purposes*/
-  cryptoMasterKeyAuto?: string;
-  /** @deprecated July 2023, left for migration purposes*/
   cryptoSymmetricKey?: EncryptionPair<string, SymmetricCryptoKey> = new EncryptionPair<
     string,
     SymmetricCryptoKey

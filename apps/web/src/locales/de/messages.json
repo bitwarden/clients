@@ -429,7 +429,7 @@
     "message": "Zum Sortieren ziehen"
   },
   "dragToReorder": {
-    "message": "Ziehen zum umsortieren"
+    "message": "Ziehen zum Umsortieren"
   },
   "cfTypeText": {
     "message": "Text"
@@ -6734,6 +6734,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "Es werden nur persönliche Tresoreinträge exportiert, die mit $EMAIL$ verbunden sind. Tresoreinträge der Organisation werden nicht berücksichtigt. Es werden nur Informationen der Tresoreinträge exportiert. Diese enthalten nicht die zugehörigen Anhänge.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
     "placeholders": {
       "email": {
         "content": "$1",

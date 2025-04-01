@@ -2500,7 +2500,7 @@
     }
   },
   "noInactive2fa": {
-    "message": "没有在您的密码库发现未配置两步登录的网站。"
+    "message": "在您的密码库中没有发现未配置两步登录的网站。"
   },
   "instructions": {
     "message": "说明"
@@ -2596,7 +2596,7 @@
     }
   },
   "noReusedPasswords": {
-    "message": "您密码库中没有密码重复使用的项目。"
+    "message": "您密码库中没有密码重复使用的登录项目。"
   },
   "timesReused": {
     "message": "重复使用次数"
@@ -2958,7 +2958,7 @@
     "description": "Past tense status of an invoice. ex. Paid or unpaid."
   },
   "unpaid": {
-    "message": "待支付",
+    "message": "未支付",
     "description": "Past tense status of an invoice. ex. Paid or unpaid."
   },
   "transactions": {
@@ -4799,7 +4799,7 @@
     "message": "您必须至少选择一个集合。"
   },
   "couldNotChargeCardPayInvoice": {
-    "message": "我们无法从您的支付卡中扣款。请查看并支付下面列出的待支付账单。"
+    "message": "我们无法从您的支付卡中扣款。请查看并支付下面列出的未支付账单。"
   },
   "minLength": {
     "message": "最小长度"
@@ -6741,6 +6741,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "仅会导出与 $EMAIL$ 关联的个人密码库项目（包括附件）。不包括组织密码库项目。",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultDesc": {
     "message": "仅会导出与 $ORGANIZATION$ 关联的组织密码库数据。不包括个人密码库和其他组织中的项目。",
     "placeholders": {
@@ -7921,7 +7930,7 @@
     }
   },
   "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ 未验证",
+    "message": "$DOMAIN$ 无法验证",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -8779,7 +8788,7 @@
     "description": "Label for field requesting a self-hosted integration service URL"
   },
   "alreadyHaveAccount": {
-    "message": "已经拥有账户了吗？"
+    "message": "已经有账户了吗？"
   },
   "toggleSideNavigation": {
     "message": "切换侧边导航"
@@ -10264,7 +10273,7 @@
     "message": "您的账户在以下设备上登录过。"
   },
   "claimedDomains": {
-    "message": "已声明的域名"
+    "message": "声明域名"
   },
   "claimDomain": {
     "message": "声明域名"
@@ -10294,7 +10303,7 @@
     "message": "已声明"
   },
   "domainStatusUnderVerification": {
-    "message": "正在验证"
+    "message": "验证中"
   },
   "claimedDomainsDesc": {
     "message": "声明一个域名，以拥有电子邮箱地址与该域名匹配的所有成员账户。成员登录时将可以跳过 SSO 标识符。管理员也可以删除成员账户。"
