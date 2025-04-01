@@ -259,17 +259,21 @@ export class InputPasswordComponent implements OnInit {
 
     const kdfConfig = (await this.kdfConfigService.getKdfConfig()) || DEFAULT_KDF_CONFIG; // TODO-rr-bw: confirm this
 
-    const masterKey = await this.keyService.makeMasterKey(
+    const newMasterKey = await this.keyService.makeMasterKey(
       this.newPassword,
       this.email.trim().toLowerCase(),
       kdfConfig,
     );
 
-    const masterKeyHash = await this.keyService.hashMasterKey(this.newPassword, masterKey);
+    const serverMasterKeyHash = await this.keyService.hashMasterKey(
+      this.newPassword,
+      newMasterKey,
+      HashPurpose.ServerAuthorization,
+    );
 
     const localMasterKeyHash = await this.keyService.hashMasterKey(
       this.newPassword,
-      masterKey,
+      newMasterKey,
       HashPurpose.LocalAuthorization,
     );
 
@@ -278,7 +282,7 @@ export class InputPasswordComponent implements OnInit {
       newPassword: this.newPassword,
       hint: this.hint,
       kdfConfig,
-      masterKey,
+      newMasterKey,
       serverMasterKeyHash,
       localMasterKeyHash,
     };

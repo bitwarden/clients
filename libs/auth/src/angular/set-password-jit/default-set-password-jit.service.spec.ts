@@ -111,7 +111,7 @@ describe("DefaultSetPasswordJitService", () => {
       userId = "userId" as UserId;
 
       passwordInputResult = {
-        masterKey: masterKey,
+        newMasterKey: masterKey,
         serverMasterKeyHash: "serverMasterKeyHash",
         localMasterKeyHash: "localMasterKeyHash",
         hint: "hint",

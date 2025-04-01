@@ -43,7 +43,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
 
   async setPassword(credentials: SetPasswordCredentials): Promise<void> {
     const {
-      masterKey,
+      newMasterKey,
       serverMasterKeyHash,
       localMasterKeyHash,
       hint,
@@ -60,7 +60,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
       }
     }
 
-    const protectedUserKey = await this.makeProtectedUserKey(masterKey, userId);
+    const protectedUserKey = await this.makeProtectedUserKey(newMasterKey, userId);
     if (protectedUserKey == null) {
       throw new Error("protectedUserKey not found. Could not set password.");
     }
@@ -85,7 +85,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
 
     // User now has a password so update account decryption options in state
-    await this.updateAccountDecryptionProperties(masterKey, kdfConfig, protectedUserKey, userId);
+    await this.updateAccountDecryptionProperties(newMasterKey, kdfConfig, protectedUserKey, userId);
 
     await this.keyService.setPrivateKey(keyPair[1].encryptedString, userId);
 

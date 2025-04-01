@@ -5,7 +5,7 @@ import { MasterKey } from "@bitwarden/common/types/key";
 import { KdfConfig } from "@bitwarden/key-management";
 
 export interface SetPasswordCredentials {
-  masterKey: MasterKey;
+  newMasterKey: MasterKey;
   serverMasterKeyHash: string;
   localMasterKeyHash: string;
   kdfConfig: KdfConfig;
