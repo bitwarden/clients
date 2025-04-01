@@ -599,6 +599,7 @@ const routes: Routes = [
         component: IntroCarouselComponent,
         data: {
           hideIcon: true,
+          hideFooter: true,
         },
       },
     ],

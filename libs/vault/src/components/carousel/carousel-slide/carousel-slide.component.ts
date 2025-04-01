@@ -1,15 +1,18 @@
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { TemplatePortal } from "@angular/cdk/portal";
+import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit, TemplateRef, ViewChild, ViewContainerRef } from "@angular/core";
 
 @Component({
   selector: "vault-carousel-slide",
   templateUrl: "./carousel-slide.component.html",
   standalone: true,
+  imports: [CommonModule],
 })
 export class VaultCarouselSlideComponent implements OnInit {
   /** `aria-label` that is assigned to the carousel toggle. */
   @Input({ required: true }) label!: string;
+  @Input() setStyles?: string;
 
   /**
    * Should be set to true when the slide has no focusable elements.
@@ -37,5 +40,6 @@ export class VaultCarouselSlideComponent implements OnInit {
 
   ngOnInit(): void {
     this._contentPortal = new TemplatePortal(this.implicitContent, this.viewContainerRef);
+    this.setStyles = this.setStyles ? this.setStyles : "tw-px-4 tw-py-5";
   }
 }
