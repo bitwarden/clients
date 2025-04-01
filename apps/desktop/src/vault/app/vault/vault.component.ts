@@ -697,7 +697,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       editFolderConfig: {
         folder: {
           ...folder,
-          name: folder.fullName ?? folder.name,
+          name: folder.name,
         },
       },
     });
