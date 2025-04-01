@@ -13,7 +13,7 @@ import { TwoFactorResponse } from "@bitwarden/common/auth/types/two-factor-respo
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DIALOG_DATA, DialogConfig, DialogRef , DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 
 type TwoFactorVerifyDialogData = {
   type: TwoFactorProviderType;

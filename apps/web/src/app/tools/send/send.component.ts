@@ -16,7 +16,8 @@ import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendId } from "@bitwarden/common/types/guid";
-import { DialogRef ,
+import {
+  DialogRef,
   DialogService,
   NoItemsModule,
   SearchModule,

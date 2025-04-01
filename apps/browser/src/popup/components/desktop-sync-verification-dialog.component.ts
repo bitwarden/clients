@@ -3,7 +3,13 @@ import { filter, Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
-import { DIALOG_DATA, DialogRef , ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogRef,
+  ButtonModule,
+  DialogModule,
+  DialogService,
+} from "@bitwarden/components";
 
 export type DesktopSyncVerificationDialogParams = {
   fingerprint: string[];

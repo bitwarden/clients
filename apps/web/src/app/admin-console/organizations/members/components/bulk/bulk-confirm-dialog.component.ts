@@ -20,7 +20,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
-import { DIALOG_DATA, DialogConfig , DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import { BaseBulkConfirmComponent } from "./base-bulk-confirm.component";

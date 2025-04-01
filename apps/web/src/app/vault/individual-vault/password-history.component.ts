@@ -4,7 +4,14 @@ import { CommonModule } from "@angular/common";
 import { Inject, Component } from "@angular/core";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DIALOG_DATA, DialogConfig, DialogRef , AsyncActionsModule, DialogModule, DialogService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  AsyncActionsModule,
+  DialogModule,
+  DialogService,
+} from "@bitwarden/components";
 import { PasswordHistoryViewComponent } from "@bitwarden/vault";
 
 import { SharedModule } from "../../shared/shared.module";

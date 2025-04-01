@@ -3,7 +3,7 @@
 import { Component, Inject } from "@angular/core";
 
 import { PluralizePipe } from "@bitwarden/angular/pipes/pluralize.pipe";
-import { DIALOG_DATA, DialogConfig, DialogRef , DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 import {
   AssignCollectionsComponent,
   CollectionAssignmentParams,

@@ -13,7 +13,13 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogConfig, DialogRef, DIALOG_DATA , DialogService, ToastService } from "@bitwarden/components";
+import {
+  DialogConfig,
+  DialogRef,
+  DIALOG_DATA,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 import { KdfType, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { EmergencyAccessService } from "../../../emergency-access";

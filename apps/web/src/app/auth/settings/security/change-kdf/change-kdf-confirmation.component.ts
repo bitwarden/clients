@@ -10,7 +10,7 @@ import { KdfRequest } from "@bitwarden/common/models/request/kdf.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DIALOG_DATA , ToastService } from "@bitwarden/components";
+import { DIALOG_DATA, ToastService } from "@bitwarden/components";
 import { KdfConfig, KdfType, KeyService } from "@bitwarden/key-management";
 
 @Component({

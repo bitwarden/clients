@@ -13,7 +13,7 @@ import { Verification } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DIALOG_DATA , DialogService, ToastService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogService, ToastService } from "@bitwarden/components";
 
 export interface BillingSyncApiModalData {
   organizationId: string;

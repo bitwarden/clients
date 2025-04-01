@@ -5,7 +5,7 @@ import { FormControl, FormGroup } from "@angular/forms";
 
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { DIALOG_DATA, DialogConfig, DialogRef , DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 export type UserConfirmDialogData = {

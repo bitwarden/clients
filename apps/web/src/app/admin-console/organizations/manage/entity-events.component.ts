@@ -14,7 +14,13 @@ import { EventView } from "@bitwarden/common/models/view/event.view";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { DIALOG_DATA, DialogConfig , DialogService, TableDataSource, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogService,
+  TableDataSource,
+  ToastService,
+} from "@bitwarden/components";
 
 import { EventService } from "../../../core";
 import { SharedModule } from "../../../shared";

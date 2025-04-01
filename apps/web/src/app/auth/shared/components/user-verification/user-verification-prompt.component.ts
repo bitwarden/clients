@@ -10,7 +10,13 @@ import {
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogConfig, DialogRef, DIALOG_DATA , DialogService, ToastService } from "@bitwarden/components";
+import {
+  DialogConfig,
+  DialogRef,
+  DIALOG_DATA,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 /**
  * @deprecated Jan 24, 2024: Use new libs/auth UserVerificationDialogComponent instead.

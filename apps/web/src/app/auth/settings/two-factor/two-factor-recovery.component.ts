@@ -5,7 +5,7 @@ import { Component, Inject } from "@angular/core";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorRecoverResponse } from "@bitwarden/common/auth/models/response/two-factor-recover.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DIALOG_DATA, DialogConfig , DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
 
 @Component({
   selector: "app-two-factor-recovery",

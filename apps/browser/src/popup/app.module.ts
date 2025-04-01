@@ -14,7 +14,13 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
 import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
-import { DialogModule , AvatarModule, ButtonModule, FormFieldModule, ToastModule } from "@bitwarden/components";
+import {
+  DialogModule,
+  AvatarModule,
+  ButtonModule,
+  FormFieldModule,
+  ToastModule,
+} from "@bitwarden/components";
 
 import { AccountComponent } from "../auth/popup/account-switching/account.component";
 import { CurrentAccountComponent } from "../auth/popup/account-switching/current-account.component";

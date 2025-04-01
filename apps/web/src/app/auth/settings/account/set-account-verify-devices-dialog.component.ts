@@ -13,7 +13,8 @@ import { SetVerifyDevicesRequest } from "@bitwarden/common/auth/models/request/s
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogRef ,
+import {
+  DialogRef,
   AsyncActionsModule,
   ButtonModule,
   CalloutModule,

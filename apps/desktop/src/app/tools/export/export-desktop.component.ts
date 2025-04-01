@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { DialogRef , AsyncActionsModule, ButtonModule, DialogModule } from "@bitwarden/components";
+import { DialogRef, AsyncActionsModule, ButtonModule, DialogModule } from "@bitwarden/components";
 import { ExportComponent } from "@bitwarden/vault-export-ui";
 
 @Component({

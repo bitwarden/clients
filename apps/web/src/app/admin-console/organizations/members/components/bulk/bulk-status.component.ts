@@ -12,7 +12,7 @@ import { ProviderUserUserDetailsResponse } from "@bitwarden/common/admin-console
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { DIALOG_DATA, DialogConfig , DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 

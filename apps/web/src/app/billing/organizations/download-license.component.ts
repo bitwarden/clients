@@ -5,7 +5,7 @@ import { FormBuilder, Validators } from "@angular/forms";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
-import { DialogConfig, DIALOG_DATA, DialogRef , DialogService } from "@bitwarden/components";
+import { DialogConfig, DIALOG_DATA, DialogRef, DialogService } from "@bitwarden/components";
 
 export enum DownloadLicenseDialogResult {
   Cancelled = "cancelled",

@@ -9,7 +9,7 @@ import {
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DIALOG_DATA, DialogConfig , DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
 
 import { BaseBulkRemoveComponent } from "./base-bulk-remove.component";
 import { BulkUserDetails } from "./bulk-status.component";

@@ -16,7 +16,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DIALOG_DATA, DialogRef , DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogRef, DialogService } from "@bitwarden/components";
 import { ChangeLoginPasswordService, TaskService } from "@bitwarden/vault";
 
 import { EmergencyViewDialogComponent } from "./emergency-view-dialog.component";

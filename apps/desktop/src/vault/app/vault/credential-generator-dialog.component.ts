@@ -3,7 +3,8 @@ import { Component, Inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DIALOG_DATA ,
+import {
+  DIALOG_DATA,
   ButtonModule,
   DialogModule,
   DialogService,

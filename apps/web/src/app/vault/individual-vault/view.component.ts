@@ -19,7 +19,10 @@ import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
-import { DIALOG_DATA, DialogConfig, DialogRef ,
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
   AsyncActionsModule,
   DialogModule,
   DialogService,

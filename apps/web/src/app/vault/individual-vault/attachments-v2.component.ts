@@ -4,7 +4,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
 import { CipherId } from "@bitwarden/common/types/guid";
-import { DialogRef, DIALOG_DATA , DialogService } from "@bitwarden/components";
+import { DialogRef, DIALOG_DATA, DialogService } from "@bitwarden/components";
 import { CipherAttachmentsComponent } from "@bitwarden/vault";
 
 import { SharedModule } from "../../shared/shared.module";

@@ -21,7 +21,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogRef , TableDataSource, DialogService } from "@bitwarden/components";
+import { DialogRef, TableDataSource, DialogService } from "@bitwarden/components";
 import {
   CipherFormConfig,
   CipherFormConfigService,

@@ -7,7 +7,13 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DIALOG_DATA, DialogRef , ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogRef,
+  ButtonModule,
+  DialogModule,
+  DialogService,
+} from "@bitwarden/components";
 import {
   ChangeLoginPasswordService,
   CipherViewComponent,

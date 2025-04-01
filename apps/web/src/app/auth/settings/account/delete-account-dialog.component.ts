@@ -7,7 +7,7 @@ import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-a
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogRef , DialogService, ToastService } from "@bitwarden/components";
+import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 
 @Component({
   templateUrl: "delete-account-dialog.component.html",

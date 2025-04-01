@@ -8,7 +8,13 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { DialogRef , ButtonModule, DialogModule, ToastService, TypographyModule } from "@bitwarden/components";
+import {
+  DialogRef,
+  ButtonModule,
+  DialogModule,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
 
 @Component({
   templateUrl: "about-dialog.component.html",

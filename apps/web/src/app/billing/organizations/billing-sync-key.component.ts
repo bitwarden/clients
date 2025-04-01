@@ -10,7 +10,7 @@ import { OrganizationConnectionResponse } from "@bitwarden/common/admin-console/
 import { BillingSyncConfigApi } from "@bitwarden/common/billing/models/api/billing-sync-config.api";
 import { BillingSyncConfigRequest } from "@bitwarden/common/billing/models/request/billing-sync-config.request";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { DIALOG_DATA, DialogRef , DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogRef, DialogService } from "@bitwarden/components";
 
 export interface BillingSyncKeyModalData {
   entityId: string;

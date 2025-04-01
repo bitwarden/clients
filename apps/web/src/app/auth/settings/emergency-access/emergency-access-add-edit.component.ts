@@ -6,7 +6,13 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogConfig, DialogRef, DIALOG_DATA , DialogService, ToastService } from "@bitwarden/components";
+import {
+  DialogConfig,
+  DialogRef,
+  DIALOG_DATA,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import { EmergencyAccessService } from "../../emergency-access";
 import { EmergencyAccessType } from "../../emergency-access/enums/emergency-access-type";

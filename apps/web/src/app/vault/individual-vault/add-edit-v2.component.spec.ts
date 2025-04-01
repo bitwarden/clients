@@ -14,7 +14,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { DIALOG_DATA, DialogRef , DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogRef, DialogService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { KeyService } from "@bitwarden/key-management";
 import { CipherFormConfig, DefaultCipherFormConfigService } from "@bitwarden/vault";

@@ -11,7 +11,15 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DIALOG_DATA, DialogConfig, DialogRef , AsyncActionsModule, DialogModule, DialogService, ItemModule } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  AsyncActionsModule,
+  DialogModule,
+  DialogService,
+  ItemModule,
+} from "@bitwarden/components";
 import {
   CipherAttachmentsComponent,
   CipherFormConfig,

@@ -5,7 +5,13 @@ import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DIALOG_DATA, DialogConfig, DialogRef , ButtonModule, DialogService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  ButtonModule,
+  DialogService,
+} from "@bitwarden/components";
 import { AlgorithmInfo } from "@bitwarden/generator-core";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";

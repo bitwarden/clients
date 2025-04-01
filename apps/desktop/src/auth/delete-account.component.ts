@@ -8,7 +8,8 @@ import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-a
 import { VerificationWithSecret } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogRef ,
+import {
+  DialogRef,
   AsyncActionsModule,
   ButtonModule,
   CalloutModule,
