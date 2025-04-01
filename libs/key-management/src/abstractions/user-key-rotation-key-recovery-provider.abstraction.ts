@@ -18,8 +18,8 @@ export interface UserKeyRotationKeyRecoveryProvider<
 
   /**
    * Provides re-encrypted data for the user key rotation process
-   * @param originalUserKey The original user key, useful for decrypting data
-   * @param newUserKey The new user key to use for re-encryption
+   * @param newUserKey The new user key
+   * @param trustedPublicKeys The public keys that the user trusted
    * @param userId The owner of the data, useful for fetching data
    * @returns A list of data that has been re-encrypted with the new user key
    */

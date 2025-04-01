@@ -373,7 +373,7 @@ export class EmergencyAccessService
       throw new Error("New user key is required for rotation.");
     }
 
-    const requests = [];
+    const requests: EmergencyAccessWithIdRequest[] = [];
 
     this.logService.info(
       "Starting emergency access rotation, with trusted keys: ",

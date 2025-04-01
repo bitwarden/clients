@@ -1,8 +1,9 @@
-<bit-dialog dialogSize="large" [loading]="loading">
-  <span bitDialogTitle>
-    {{ "trustUser" | i18n }}
-    <small class="tw-text-muted">{{ params.name }}</small>
-  </span>
+<bit-dialog
+  dialogSize="large"
+  [loading]="loading"
+  [title]="'trustUser' | i18n"
+  [subtitle]="params.name"
+>
   <div bitDialogContent>
     <bit-callout type="warning">{{ "emergencyAccessTrustWarning" | i18n }}</bit-callout>
     <p bitTypography="body1">
