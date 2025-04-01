@@ -10,6 +10,7 @@
       <vault-autofill-uri-option
         *ngFor="let uri of uriControls; let i = index"
         cdkDrag
+        [cdkDragDisabled]="uriControls.length <= 1"
         [formControlName]="i"
         (remove)="removeUri(i)"
         (onKeydown)="onUriItemKeydown($event, i)"
