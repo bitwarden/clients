@@ -14,7 +14,7 @@
   </a>
 
   <div
-    *ngIf="!hideIcon && !title && !subtitle"
+    *ngIf="!hideIcon && (title || subtitle)"
     class="tw-text-center tw-mb-4 sm:tw-mb-6"
     [ngClass]="{ 'tw-max-w-md tw-mx-auto': titleAreaMaxWidth === 'md' }"
   >
