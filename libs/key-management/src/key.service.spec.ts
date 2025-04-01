@@ -736,6 +736,52 @@ describe("keyService", () => {
     });
   });
 
+  describe("getOrDeriveMasterKey", () => {
+    it("returns the master key if it is already available", async () => {
+      const getMasterKey = jest
+        .spyOn(masterPasswordService, "masterKey$")
+        .mockReturnValue(of("masterKey" as any));
+
+      const result = await keyService.getOrDeriveMasterKey("password", mockUserId);
+
+      expect(getMasterKey).toHaveBeenCalledWith(mockUserId);
+      expect(result).toEqual("masterKey");
+    });
+
+    it("derives the master key if it is not available", async () => {
+      const getMasterKey = jest
+        .spyOn(masterPasswordService, "masterKey$")
+        .mockReturnValue(of(null as any));
+
+      const deriveKeyFromPassword = jest
+        .spyOn(keyGenerationService, "deriveKeyFromPassword")
+        .mockResolvedValue("mockMasterKey" as any);
+
+      kdfConfigService.getKdfConfig$.mockReturnValue(of("mockKdfConfig" as any));
+
+      const result = await keyService.getOrDeriveMasterKey("password", mockUserId);
+
+      expect(getMasterKey).toHaveBeenCalledWith(mockUserId);
+      expect(deriveKeyFromPassword).toHaveBeenCalledWith("password", "email", "mockKdfConfig");
+      expect(result).toEqual("mockMasterKey");
+    });
+
+    it("throws an error if no user is found", async () => {
+      accountService.activeAccountSubject.next(null);
+
+      await expect(keyService.getOrDeriveMasterKey("password")).rejects.toThrow("No user found");
+    });
+
+    it("throws an error if no kdf config is found", async () => {
+      jest.spyOn(masterPasswordService, "masterKey$").mockReturnValue(of(null as any));
+      kdfConfigService.getKdfConfig$.mockReturnValue(of(null));
+
+      await expect(keyService.getOrDeriveMasterKey("password", mockUserId)).rejects.toThrow(
+        "No kdf found for user",
+      );
+    });
+  });
+
   describe("compareKeyHash", () => {
     type TestCase = {
       masterKey: MasterKey;
