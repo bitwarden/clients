@@ -4,6 +4,7 @@ export { BrandIconContainer } from "./brand-icon-container";
 export { Business } from "./business";
 export { Close } from "./close";
 export { ExclamationTriangle } from "./exclamation-triangle";
+export { ExternalLink } from "./external-link";
 export { Family } from "./family";
 export { Folder } from "./folder";
 export { Globe } from "./globe";
