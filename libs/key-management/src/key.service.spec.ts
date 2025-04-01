@@ -252,14 +252,6 @@ describe("keyService", () => {
           userId: mockUserId,
         });
       });
-
-      it("clears the old deprecated Auto key whenever a User Key is set", async () => {
-        await keyService.setUserKey(mockUserKey, mockUserId);
-
-        expect(stateService.setCryptoMasterKeyAuto).toHaveBeenCalledWith(null, {
-          userId: mockUserId,
-        });
-      });
     });
 
     it("throws if key is null", async () => {

@@ -180,11 +180,19 @@ export class UserKeyRotationService {
       newUnencryptedUserKey,
       user.id,
     );
+
+    const trustedDeviceUnlockData = await this.deviceTrustService.getRotatedData(
+      originalUserKey,
+      newUnencryptedUserKey,
+      user.id,
+    );
+
     const unlockDataRequest = new UnlockDataRequest(
       masterPasswordUnlockData,
       emergencyAccessUnlockData,
       organizationAccountRecoveryUnlockData,
       passkeyUnlockData,
+      trustedDeviceUnlockData,
     );
 
     const request = new RotateUserAccountKeysRequest(
@@ -198,14 +206,6 @@ export class UserKeyRotationService {
     await this.apiService.postUserKeyUpdateV2(request);
     this.logService.info("[Userkey rotation] Userkey rotation request posted to server");
 
-    // TODO PM-2199: Add device trust rotation support to the user key rotation endpoint
-    this.logService.info("[Userkey rotation] Rotating device trust...");
-    await this.deviceTrustService.rotateDevicesTrust(
-      user.id,
-      newUnencryptedUserKey,
-      newMasterKeyAuthenticationHash,
-    );
-    this.logService.info("[Userkey rotation] Device trust rotation completed");
     this.toastService.showToast({
       variant: "success",
       title: this.i18nService.t("rotationCompletedTitle"),
