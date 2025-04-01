@@ -1479,6 +1479,7 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       AuthServiceAbstraction,
       NotificationsService,
+      MessageListener,
     ],
   }),
   safeProvider({

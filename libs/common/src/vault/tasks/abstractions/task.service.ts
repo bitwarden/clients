@@ -45,7 +45,7 @@ export abstract class TaskService {
   abstract markAsComplete(taskId: SecurityTaskId, userId: UserId): Promise<void>;
 
   /**
-   * Creates a subscription for pending security task notifications for unlocked users.
+   * Creates a subscription for pending security task notifications or completed syncs for unlocked users.
    */
   abstract listenForTaskNotifications(): Subscription;
 }

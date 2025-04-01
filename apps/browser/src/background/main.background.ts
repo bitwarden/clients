@@ -1305,6 +1305,7 @@ export default class MainBackground {
       this.configService,
       this.authService,
       this.notificationsService,
+      messageListener,
     );
 
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
