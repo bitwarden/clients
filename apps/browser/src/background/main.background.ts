@@ -127,7 +127,6 @@ import {
   WebPushNotificationsApiService,
   WorkerWebPushConnectionService,
 } from "@bitwarden/common/platform/notifications/internal";
-import { ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
@@ -222,6 +221,7 @@ import {
   KdfConfigService,
   KeyService as KeyServiceAbstraction,
 } from "@bitwarden/key-management";
+import { BackgroundSyncService } from "@bitwarden/platform/background-sync";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -391,6 +391,7 @@ export default class MainBackground {
   offscreenDocumentService: OffscreenDocumentService;
   syncServiceListener: SyncServiceListener;
   browserInitialInstallService: BrowserInitialInstallService;
+  backgroundSyncService: BackgroundSyncService;
 
   webPushConnectionService: WorkerWebPushConnectionService | UnsupportedWebPushConnectionService;
   themeStateService: DefaultThemeStateService;
@@ -585,9 +586,9 @@ export default class MainBackground {
       this.logService,
       this.stateProvider,
     );
-    this.taskSchedulerService.registerTaskHandler(ScheduledTaskNames.scheduleNextSyncInterval, () =>
-      this.fullSync(),
-    );
+
+    this.backgroundSyncService = new BackgroundSyncService(this.taskSchedulerService);
+    this.backgroundSyncService.register(() => this.fullSync());
 
     this.environmentService = new BrowserEnvironmentService(
       this.logService,
@@ -654,9 +655,7 @@ export default class MainBackground {
       this.kdfConfigService,
       this.keyGenerationService,
       this.logService,
-      this.masterPasswordService,
       this.stateProvider,
-      this.stateService,
     );
 
     this.keyService = new DefaultKeyService(
@@ -671,14 +670,6 @@ export default class MainBackground {
       this.accountService,
       this.stateProvider,
       this.kdfConfigService,
-    );
-
-    this.biometricsService = new BackgroundBrowserBiometricsService(
-      runtimeNativeMessagingBackground,
-      this.logService,
-      this.keyService,
-      this.biometricStateService,
-      this.messagingService,
     );
 
     this.appIdService = new AppIdService(this.storageService, this.logService);
@@ -698,6 +689,15 @@ export default class MainBackground {
       this.stateProvider,
       this.logService,
       VaultTimeoutStringType.OnRestart, // default vault timeout
+    );
+
+    this.biometricsService = new BackgroundBrowserBiometricsService(
+      runtimeNativeMessagingBackground,
+      this.logService,
+      this.keyService,
+      this.biometricStateService,
+      this.messagingService,
+      this.vaultTimeoutSettingsService,
     );
 
     this.apiService = new ApiService(
@@ -1368,6 +1368,7 @@ export default class MainBackground {
       setTimeout(async () => {
         await this.refreshBadge();
         await this.fullSync(false);
+        this.backgroundSyncService.init();
         this.notificationsService.startListening();
         resolve();
       }, 500);

@@ -13,5 +13,5 @@ export class DeviceKeysUpdateRequest {
 }
 
 export class OtherDeviceKeysUpdateRequest extends DeviceKeysUpdateRequest {
-  id: string;
+  deviceId: string;
 }
