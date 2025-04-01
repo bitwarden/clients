@@ -57,6 +57,7 @@ export const BusinessIcon = createIconStory("Business");
 export const BrandIcon = createIconStory("BrandIconContainer");
 export const CloseIcon = createIconStory("Close");
 export const ExclamationTriangleIcon = createIconStory("ExclamationTriangle");
+export const ExternalLinkIcon = createIconStory("ExternalLink");
 export const FamilyIcon = createIconStory("Family");
 export const FolderIcon = createIconStory("Folder");
 export const GlobeIcon = createIconStory("Globe");
