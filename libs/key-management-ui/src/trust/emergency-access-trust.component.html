@@ -4,7 +4,7 @@
   [title]="'trustUser' | i18n"
   [subtitle]="params.name"
 >
-  <div bitDialogContent>
+  <ng-container bitDialogContent>
     <bit-callout type="warning">{{ "emergencyAccessTrustWarning" | i18n }}</bit-callout>
     <p bitTypography="body1">
       {{ "fingerprintEnsureIntegrityVerify" | i18n }}
@@ -20,13 +20,13 @@
     <p bitTypography="body1">
       <code>{{ fingerprint }}</code>
     </p>
-  </div>
-  <div bitDialogFooter>
+  </ng-container>
+  <ng-container bitDialogFooter>
     <button buttonType="primary" bitButton bitFormButton type="button" (click)="submit()">
       <span>{{ "trust" | i18n }}</span>
     </button>
     <button bitButton bitFormButton buttonType="secondary" type="button" bitDialogClose>
       {{ "doNotTrust" | i18n }}
     </button>
-  </div>
+  </ng-container>
 </bit-dialog>
