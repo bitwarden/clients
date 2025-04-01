@@ -2958,7 +2958,7 @@
     "description": "Past tense status of an invoice. ex. Paid or unpaid."
   },
   "unpaid": {
-    "message": "待支付",
+    "message": "未支付",
     "description": "Past tense status of an invoice. ex. Paid or unpaid."
   },
   "transactions": {
@@ -4799,7 +4799,7 @@
     "message": "您必须至少选择一个集合。"
   },
   "couldNotChargeCardPayInvoice": {
-    "message": "我们无法从您的支付卡中扣款。请查看并支付下面列出的待支付账单。"
+    "message": "我们无法从您的支付卡中扣款。请查看并支付下面列出的未支付账单。"
   },
   "minLength": {
     "message": "最小长度"
@@ -6734,6 +6734,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "仅会导出与 $EMAIL$ 关联的个人密码库项目，不包括组织密码库项目。仅会导出密码库项目信息，不包括关联的附件。",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "仅会导出与 $EMAIL$ 关联的个人密码库项目（包括附件）。不包括组织密码库项目。",
     "placeholders": {
       "email": {
         "content": "$1",

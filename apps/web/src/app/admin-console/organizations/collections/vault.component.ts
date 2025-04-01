@@ -45,7 +45,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -196,7 +195,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
   protected addAccessStatus$ = new BehaviorSubject<AddAccessStatusType>(0);
-  private resellerManagedOrgAlert: boolean;
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
 
   private readonly unpaidSubscriptionDialog$ = this.accountService.activeAccount$.pipe(
@@ -263,10 +261,6 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     this.userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-
-    this.resellerManagedOrgAlert = await this.configService.getFeatureFlag(
-      FeatureFlag.ResellerManagedOrgAlert,
-    );
 
     this.trashCleanupWarning = this.i18nService.t(
       this.platformUtilsService.isSelfHost()
@@ -654,7 +648,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     );
 
     this.resellerWarning$ = organization$.pipe(
-      filter((org) => org.isOwner && this.resellerManagedOrgAlert),
+      filter((org) => org.isOwner),
       switchMap((org) =>
         from(this.billingApiService.getOrganizationBillingMetadata(org.id)).pipe(
           map((metadata) => ({ org, metadata })),

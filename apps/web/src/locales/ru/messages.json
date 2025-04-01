@@ -6741,6 +6741,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Будут экспортированы только отдельные элементы хранилища, включая вложения, связанные с $EMAIL$. Элементы хранилища организации включены не будут",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultDesc": {
     "message": "Будет экспортировано только хранилище организации, связанное с $ORGANIZATION$. Элементы из личных хранилищ и из других организаций включены не будут.",
     "placeholders": {
