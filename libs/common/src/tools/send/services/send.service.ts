@@ -81,7 +81,7 @@ export class SendService implements InternalSendServiceAbstraction {
     if (key == null) {
       key = await this.keyService.getUserKey();
     }
-    send.key = await this.encryptService.encrypt(model.key, key);
+    send.key = await this.encryptService.wrapSymmetricKey(new SymmetricCryptoKey(model.key), key);
     send.name = await this.encryptService.encrypt(model.name, model.cryptoKey);
     send.notes = await this.encryptService.encrypt(model.notes, model.cryptoKey);
     if (send.type === SendType.Text) {
@@ -287,8 +287,10 @@ export class SendService implements InternalSendServiceAbstraction {
   ) {
     const requests = await Promise.all(
       sends.map(async (send) => {
-        const sendKey = await this.encryptService.decryptToBytes(send.key, originalUserKey);
-        send.key = await this.encryptService.encrypt(sendKey, rotateUserKey);
+        const sendKey = new SymmetricCryptoKey(
+          await this.encryptService.decryptToBytes(send.key, originalUserKey),
+        );
+        send.key = await this.encryptService.wrapSymmetricKey(sendKey, rotateUserKey);
         return new SendWithIdRequest(send);
       }),
     );

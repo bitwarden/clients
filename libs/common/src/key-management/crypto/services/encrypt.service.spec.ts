@@ -26,6 +26,52 @@ describe("EncryptService", () => {
     encryptService = new EncryptServiceImplementation(cryptoFunctionService, logService, true);
   });
 
+  describe("wrapSymmetricKey", () => {
+    it("roundtrip encrypts and decrypts a symmetric key", async () => {
+      cryptoFunctionService.aesEncrypt.mockResolvedValue(makeStaticByteArray(64, 0));
+      cryptoFunctionService.randomBytes.mockResolvedValue(makeStaticByteArray(16) as CsprngArray);
+      cryptoFunctionService.hmac.mockResolvedValue(makeStaticByteArray(32));
+
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const wrappingKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const encString = await encryptService.wrapSymmetricKey(key, wrappingKey);
+      expect(encString.encryptionType).toEqual(EncryptionType.AesCbc256_HmacSha256_B64);
+      expect(encString.data).toEqual(Utils.fromBufferToB64(makeStaticByteArray(64, 0)));
+    });
+  });
+
+  describe("wrapDecapsulationKey", () => {
+    it("roundtrip encrypts and decrypts a decapsulation key", async () => {
+      cryptoFunctionService.aesEncrypt.mockResolvedValue(makeStaticByteArray(64, 0));
+      cryptoFunctionService.randomBytes.mockResolvedValue(makeStaticByteArray(16) as CsprngArray);
+      cryptoFunctionService.hmac.mockResolvedValue(makeStaticByteArray(32));
+
+      const wrappingKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const encString = await encryptService.wrapDecapsulationKey(
+        makeStaticByteArray(64),
+        wrappingKey,
+      );
+      expect(encString.encryptionType).toEqual(EncryptionType.AesCbc256_HmacSha256_B64);
+      expect(encString.data).toEqual(Utils.fromBufferToB64(makeStaticByteArray(64, 0)));
+    });
+  });
+
+  describe("wrapEncapsulationKey", () => {
+    it("roundtrip encrypts and decrypts an encapsulationKey key", async () => {
+      cryptoFunctionService.aesEncrypt.mockResolvedValue(makeStaticByteArray(64, 0));
+      cryptoFunctionService.randomBytes.mockResolvedValue(makeStaticByteArray(16) as CsprngArray);
+      cryptoFunctionService.hmac.mockResolvedValue(makeStaticByteArray(32));
+
+      const wrappingKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const encString = await encryptService.wrapEncapsulationKey(
+        makeStaticByteArray(64),
+        wrappingKey,
+      );
+      expect(encString.encryptionType).toEqual(EncryptionType.AesCbc256_HmacSha256_B64);
+      expect(encString.data).toEqual(Utils.fromBufferToB64(makeStaticByteArray(64, 0)));
+    });
+  });
+
   describe("encrypt", () => {
     it("throws if no key is provided", () => {
       return expect(encryptService.encrypt(null, null)).rejects.toThrow(

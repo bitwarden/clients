@@ -271,7 +271,7 @@ export class CipherService implements CipherServiceAbstraction {
         key,
       ).then(async () => {
         if (model.key != null) {
-          attachment.key = await this.encryptService.encrypt(model.key.key, key);
+          attachment.key = await this.encryptService.wrapSymmetricKey(model.key, key);
         }
         encAttachments.push(attachment);
       });
@@ -1818,8 +1818,8 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     // Then, we have to encrypt the cipher key with the proper key.
-    cipher.key = await this.encryptService.encrypt(
-      decryptedCipherKey.key,
+    cipher.key = await this.encryptService.wrapSymmetricKey(
+      decryptedCipherKey,
       keyForCipherKeyEncryption,
     );
 
