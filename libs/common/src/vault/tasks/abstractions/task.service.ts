@@ -1,7 +1,8 @@
 import { Observable } from "rxjs";
 
 import { SecurityTaskId, UserId } from "@bitwarden/common/types/guid";
-import { SecurityTask } from "@bitwarden/vault";
+
+import { SecurityTask } from "../models";
 
 export abstract class TaskService {
   /**

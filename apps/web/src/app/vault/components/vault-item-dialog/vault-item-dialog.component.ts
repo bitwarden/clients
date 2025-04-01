@@ -40,7 +40,6 @@ import {
 } from "@bitwarden/components";
 import {
   ChangeLoginPasswordService,
-  CipherAttachmentsComponent,
   CipherFormComponent,
   CipherFormConfig,
   CipherFormGenerationService,
@@ -48,8 +47,6 @@ import {
   CipherViewComponent,
   DecryptionFailureDialogComponent,
   DefaultChangeLoginPasswordService,
-  DefaultTaskService,
-  TaskService,
 } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared/shared.module";
@@ -133,17 +130,14 @@ export enum VaultItemDialogResult {
     CommonModule,
     SharedModule,
     CipherFormModule,
-    CipherAttachmentsComponent,
     AsyncActionsModule,
     ItemModule,
-    DecryptionFailureDialogComponent,
   ],
   providers: [
     { provide: PremiumUpgradePromptService, useClass: WebVaultPremiumUpgradePromptService },
     { provide: ViewPasswordHistoryService, useClass: WebViewPasswordHistoryService },
     { provide: CipherFormGenerationService, useClass: WebCipherFormGenerationService },
     RoutedVaultFilterService,
-    { provide: TaskService, useClass: DefaultTaskService },
     { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
   ],
 })
