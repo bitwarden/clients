@@ -51,6 +51,7 @@ describe("ViewV2Component", () => {
   const openSimpleDialog = jest.fn().mockResolvedValue(true);
   const stop = jest.fn();
   const showToast = jest.fn();
+  const getFeatureFlag$ = jest.fn().mockReturnValue(of(true));
 
   const mockCipher = {
     id: "122-333-444",
@@ -105,7 +106,7 @@ describe("ViewV2Component", () => {
         { provide: VaultPopupScrollPositionService, useValue: { stop } },
         { provide: VaultPopupAutofillService, useValue: mockVaultPopupAutofillService },
         { provide: ToastService, useValue: { showToast } },
-        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
+        { provide: ConfigService, useValue: { getFeatureFlag$ } },
         {
           provide: I18nService,
           useValue: {
