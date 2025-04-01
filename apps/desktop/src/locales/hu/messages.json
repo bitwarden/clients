@@ -2490,6 +2490,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Csak $EMAIL$ email címmel társított személyes széf elemek kerülnek exportálásra. Ebbe nem kerülnek be a szervezeti széf elemek.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Szervezeti széf exportálása"
   },

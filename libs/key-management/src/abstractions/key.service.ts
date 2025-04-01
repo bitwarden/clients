@@ -390,14 +390,6 @@ export abstract class KeyService {
     publicKey: string;
     privateKey: EncString;
   }>;
-  /**
-   * Previously, the master key was used for any additional key like the biometrics or pin key.
-   * We have switched to using the user key for these purposes. This method is for clearing the state
-   * of the older keys on logout or post migration.
-   * @param keySuffix The desired type of key to clear
-   * @param userId The desired user
-   */
-  abstract clearDeprecatedKeys(keySuffix: KeySuffixOptions, userId?: string): Promise<void>;
 
   /**
    * Retrieves all the keys needed for decrypting Ciphers

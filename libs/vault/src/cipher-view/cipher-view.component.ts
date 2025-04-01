@@ -20,10 +20,10 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 import { AnchorLinkDirective, CalloutModule, SearchModule } from "@bitwarden/components";
 
 import { ChangeLoginPasswordService } from "../abstractions/change-login-password.service";
-import { TaskService, SecurityTaskType } from "../tasks";
 
 import { AdditionalOptionsComponent } from "./additional-options/additional-options.component";
 import { AttachmentsV2ViewComponent } from "./attachments/attachments-v2-view.component";

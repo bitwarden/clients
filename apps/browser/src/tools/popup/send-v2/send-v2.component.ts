@@ -2,11 +2,13 @@ import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
-import { combineLatest } from "rxjs";
+import { combineLatest, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { ButtonModule, CalloutModule, Icons, NoItemsModule } from "@bitwarden/components";
 import {
@@ -66,6 +68,7 @@ export class SendV2Component implements OnInit, OnDestroy {
     protected sendItemsService: SendItemsService,
     protected sendListFiltersService: SendListFiltersService,
     private policyService: PolicyService,
+    private accountService: AccountService,
   ) {
     combineLatest([
       this.sendItemsService.emptyList$,
@@ -93,9 +96,14 @@ export class SendV2Component implements OnInit, OnDestroy {
         this.listState = null;
       });
 
-    this.policyService
-      .policyAppliesToActiveUser$(PolicyType.DisableSend)
-      .pipe(takeUntilDestroyed())
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
+        ),
+        takeUntilDestroyed(),
+      )
       .subscribe((sendsDisabled) => {
         this.sendsDisabled = sendsDisabled;
       });

@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -8,7 +8,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
+import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   ExtensionCommand,
   ExtensionCommandType,
@@ -743,7 +743,12 @@ export default class NotificationBackground {
 
   private async removeIndividualVault(): Promise<boolean> {
     return await firstValueFrom(
-      this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+        ),
+      ),
     );
   }
 
