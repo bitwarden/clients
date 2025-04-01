@@ -438,9 +438,7 @@ export class ServiceContainer {
       this.kdfConfigService,
       this.keyGenerationService,
       this.logService,
-      this.masterPasswordService,
       this.stateProvider,
-      this.stateService,
     );
 
     this.keyService = new KeyService(
