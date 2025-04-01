@@ -1,10 +1,9 @@
-import { DialogModule } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { ReactiveFormsModule, FormsModule, FormControl } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import {
+import { DialogModule ,
   ButtonModule,
   LinkModule,
   TypographyModule,

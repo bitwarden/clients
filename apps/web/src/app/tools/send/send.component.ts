@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef } from "@angular/cdk/dialog";
 import { Component, NgZone, OnInit, OnDestroy } from "@angular/core";
 import { lastValueFrom } from "rxjs";
 
@@ -17,7 +16,7 @@ import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendId } from "@bitwarden/common/types/guid";
-import {
+import { DialogRef ,
   DialogService,
   NoItemsModule,
   SearchModule,

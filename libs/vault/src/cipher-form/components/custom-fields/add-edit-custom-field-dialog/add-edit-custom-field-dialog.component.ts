@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -8,7 +7,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
-import {
+import { DIALOG_DATA ,
   AsyncActionsModule,
   ButtonModule,
   DialogModule,
