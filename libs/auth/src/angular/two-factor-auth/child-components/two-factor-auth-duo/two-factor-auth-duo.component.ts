@@ -6,7 +6,8 @@ import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogModule ,
+import {
+  DialogModule,
   ButtonModule,
   LinkModule,
   TypographyModule,

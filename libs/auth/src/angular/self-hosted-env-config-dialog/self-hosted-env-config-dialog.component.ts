@@ -18,7 +18,8 @@ import {
   EnvironmentService,
   Region,
 } from "@bitwarden/common/platform/abstractions/environment.service";
-import { DialogRef ,
+import {
+  DialogRef,
   AsyncActionsModule,
   ButtonModule,
   DialogModule,

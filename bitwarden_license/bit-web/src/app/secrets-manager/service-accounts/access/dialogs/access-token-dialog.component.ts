@@ -4,7 +4,7 @@ import { Component, Inject, OnInit } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogRef, DIALOG_DATA , ToastService } from "@bitwarden/components";
+import { DialogRef, DIALOG_DATA, ToastService } from "@bitwarden/components";
 
 export interface AccessTokenDetails {
   subTitle: string;

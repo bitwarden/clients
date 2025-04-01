@@ -7,7 +7,8 @@ import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
-import { DIALOG_DATA ,
+import {
+  DIALOG_DATA,
   AsyncActionsModule,
   ButtonModule,
   DialogModule,

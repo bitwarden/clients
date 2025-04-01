@@ -29,7 +29,8 @@ import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
-import { DialogRef ,
+import {
+  DialogRef,
   CardComponent,
   CheckboxModule,
   DialogService,

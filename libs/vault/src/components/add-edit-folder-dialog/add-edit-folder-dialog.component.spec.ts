@@ -10,7 +10,7 @@ import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstraction
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { DIALOG_DATA, DialogRef , DialogService, ToastService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import {

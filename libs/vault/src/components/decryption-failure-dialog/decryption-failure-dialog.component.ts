@@ -4,7 +4,9 @@ import { Component, inject } from "@angular/core";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherId } from "@bitwarden/common/types/guid";
-import { DIALOG_DATA, DialogRef ,
+import {
+  DIALOG_DATA,
+  DialogRef,
   AnchorLinkDirective,
   AsyncActionsModule,
   ButtonModule,

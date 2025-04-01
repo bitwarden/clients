@@ -3,8 +3,7 @@
 import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { DialogRef , DialogService } from "@bitwarden/components";
-
+import { DialogRef, DialogService } from "@bitwarden/components";
 
 import { OtpResult, OobResult } from "../../importers/lastpass/access/models";
 import { Ui } from "../../importers/lastpass/access/ui";

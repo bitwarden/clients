@@ -7,7 +7,8 @@ import {
   TwoFactorService,
 } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { DialogRef ,
+import {
+  DialogRef,
   ButtonModule,
   DialogModule,
   DialogService,

@@ -14,7 +14,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DialogRef, DIALOG_DATA , ToastService } from "@bitwarden/components";
+import { DialogRef, DIALOG_DATA, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import { LoginApprovalComponent } from "./login-approval.component";

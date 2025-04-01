@@ -4,7 +4,13 @@ import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/a
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AddableOrganizationResponse } from "@bitwarden/common/admin-console/models/response/addable-organization.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DIALOG_DATA, DialogConfig, DialogRef , DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import { WebProviderService } from "../../../admin-console/providers/services/web-provider.service";
 

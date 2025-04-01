@@ -8,7 +8,7 @@ import { Provider } from "@bitwarden/common/admin-console/models/domain/provider
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { DIALOG_DATA, DialogRef , DialogService, ToastService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 
 import { WebProviderService } from "../services/web-provider.service";
 

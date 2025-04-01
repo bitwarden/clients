@@ -4,7 +4,8 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angula
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { DialogRef ,
+import {
+  DialogRef,
   AsyncActionsModule,
   ButtonModule,
   DialogModule,

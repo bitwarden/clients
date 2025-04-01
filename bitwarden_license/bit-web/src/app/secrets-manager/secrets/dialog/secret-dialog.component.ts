@@ -13,7 +13,13 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { DialogRef, DIALOG_DATA , DialogService, BitValidators, ToastService } from "@bitwarden/components";
+import {
+  DialogRef,
+  DIALOG_DATA,
+  DialogService,
+  BitValidators,
+  ToastService,
+} from "@bitwarden/components";
 
 import { SecretAccessPoliciesView } from "../../models/view/access-policies/secret-access-policies.view";
 import { ProjectListView } from "../../models/view/project-list.view";

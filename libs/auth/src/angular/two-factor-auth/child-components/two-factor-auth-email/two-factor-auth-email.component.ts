@@ -12,7 +12,8 @@ import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.ser
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogModule ,
+import {
+  DialogModule,
   ButtonModule,
   LinkModule,
   TypographyModule,

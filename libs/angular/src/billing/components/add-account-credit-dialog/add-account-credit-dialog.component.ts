@@ -15,7 +15,7 @@ import { BitPayInvoiceRequest } from "@bitwarden/common/billing/models/request/b
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DIALOG_DATA, DialogConfig, DialogRef , DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 
 export type AddAccountCreditDialogParams = {
   organizationId?: string;

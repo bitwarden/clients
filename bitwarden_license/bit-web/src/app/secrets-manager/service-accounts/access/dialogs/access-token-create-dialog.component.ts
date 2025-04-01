@@ -3,8 +3,7 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
-import { DialogRef, DIALOG_DATA , DialogService, BitValidators } from "@bitwarden/components";
-
+import { DialogRef, DIALOG_DATA, DialogService, BitValidators } from "@bitwarden/components";
 
 import { ServiceAccountView } from "../../../models/view/service-account.view";
 import { AccessTokenView } from "../../models/view/access-token.view";

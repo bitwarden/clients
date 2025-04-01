@@ -2,7 +2,14 @@ import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { DialogRef, DIALOG_DATA , ButtonModule, DialogModule, TableDataSource, TableModule } from "@bitwarden/components";
+import {
+  DialogRef,
+  DIALOG_DATA,
+  ButtonModule,
+  DialogModule,
+  TableDataSource,
+  TableModule,
+} from "@bitwarden/components";
 
 export interface ErrorListItem {
   type: string;

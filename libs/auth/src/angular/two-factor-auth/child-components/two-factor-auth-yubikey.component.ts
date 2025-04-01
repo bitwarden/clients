@@ -3,7 +3,8 @@ import { Component, Input } from "@angular/core";
 import { ReactiveFormsModule, FormsModule, FormControl } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { DialogModule ,
+import {
+  DialogModule,
   ButtonModule,
   LinkModule,
   TypographyModule,

@@ -19,7 +19,9 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { DIALOG_DATA, DialogRef ,
+import {
+  DIALOG_DATA,
+  DialogRef,
   AsyncActionsModule,
   BitSubmitDirective,
   ButtonComponent,
