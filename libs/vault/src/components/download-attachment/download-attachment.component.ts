@@ -13,7 +13,7 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { StateProvider } from "@bitwarden/common/platform/state";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { EmergencyAccessId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -35,6 +35,9 @@ export class DownloadAttachmentComponent {
 
   // When in view mode, we will want to check for the master password reprompt
   @Input() checkPwReprompt?: boolean = false;
+
+  // Required for fetching attachment data when viewed from cipher via emergency access
+  @Input() emergencyAccessId?: EmergencyAccessId;
 
   /** The organization key if the cipher is associated with one */
   private orgKey: OrgKey | null = null;
@@ -68,6 +71,7 @@ export class DownloadAttachmentComponent {
       const attachmentDownloadResponse = await this.apiService.getAttachmentData(
         this.cipher.id,
         this.attachment.id,
+        this.emergencyAccessId,
       );
       url = attachmentDownloadResponse.url;
     } catch (e) {
