@@ -186,7 +186,7 @@ describe("WebRegistrationFinishService", () => {
       emailVerificationToken = "emailVerificationToken";
       masterKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as MasterKey;
       passwordInputResult = {
-        masterKey: masterKey,
+        newMasterKey: masterKey,
         serverMasterKeyHash: "serverMasterKeyHash",
         localMasterKeyHash: "localMasterKeyHash",
         kdfConfig: DEFAULT_KDF_CONFIG,

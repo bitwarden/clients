@@ -5,7 +5,7 @@ export interface PasswordInputResult {
   newPassword: string;
   hint: string;
   kdfConfig: KdfConfig;
-  masterKey: MasterKey;
+  newMasterKey: MasterKey;
   serverMasterKeyHash: string;
   localMasterKeyHash: string;
   currentPassword?: string;

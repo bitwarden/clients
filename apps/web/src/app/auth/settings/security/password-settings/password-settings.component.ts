@@ -24,6 +24,7 @@ export class PasswordSettingsComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
+    // TODO-rr-bw: test that no MP = get routed to settings/security/two-factor
     const userHasMasterPassword = await firstValueFrom(
       this.userDecryptionOptionsService.hasMasterPassword$,
     );

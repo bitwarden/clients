@@ -61,7 +61,7 @@ export class ChangeExistingPasswordComponent implements OnInit {
       this.accountService.activeAccount$.pipe(map((a) => a?.email)),
     );
 
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     this.masterPasswordPolicyOptions = await firstValueFrom(
       this.policyService.masterPasswordPolicyOptions$(userId),
@@ -77,23 +77,21 @@ export class ChangeExistingPasswordComponent implements OnInit {
   }
 
   async submitNew(passwordInputResult: PasswordInputResult) {
+    const { currentPassword, newPassword, hint, rotateUserKey } = passwordInputResult;
+
     try {
-      if (passwordInputResult.rotateUserKey) {
+      if (rotateUserKey) {
         await this.syncService.fullSync(true);
         const user = await firstValueFrom(this.accountService.activeAccount$);
 
         await this.changePasswordService.rotateUserKeyMasterPasswordAndEncryptedData(
-          passwordInputResult.currentPassword,
-          passwordInputResult.newPassword,
+          currentPassword,
+          newPassword,
           user,
-          passwordInputResult.hint,
+          hint,
         );
       } else {
-        await this.updatePassword(
-          passwordInputResult.currentPassword,
-          passwordInputResult.newPassword,
-          passwordInputResult.hint,
-        );
+        await this.updatePassword(currentPassword, newPassword, hint);
       }
     } catch (e) {
       this.toastService.showToast({
@@ -118,7 +116,7 @@ export class ChangeExistingPasswordComponent implements OnInit {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const newLocalKeyHash = await this.keyService.hashMasterKey(
       passwordInputResult.newPassword,
-      passwordInputResult.masterKey,
+      passwordInputResult.newMasterKey,
       HashPurpose.LocalAuthorization,
     );
 
@@ -147,7 +145,7 @@ export class ChangeExistingPasswordComponent implements OnInit {
           // we need to save this for local masterkey verification during rotation
           await this.masterPasswordService.setMasterKeyHash(newLocalKeyHash, userId as UserId);
           await this.masterPasswordService.setMasterKey(
-            passwordInputResult.masterKey,
+            passwordInputResult.newMasterKey,
             userId as UserId,
           );
           return this.updateKey(passwordInputResult.newPassword);

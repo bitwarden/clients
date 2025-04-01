@@ -36,7 +36,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     providerUserId?: string,
   ): Promise<string> {
     const [newUserKey, newEncUserKey] = await this.keyService.makeUserKey(
-      passwordInputResult.masterKey,
+      passwordInputResult.newMasterKey,
     );
 
     if (!newUserKey || !newEncUserKey) {
