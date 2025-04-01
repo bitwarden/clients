@@ -60,6 +60,7 @@ export const ExclamationTriangleIcon = createIconStory("ExclamationTriangle");
 export const FamilyIcon = createIconStory("Family");
 export const FolderIcon = createIconStory("Folder");
 export const GlobeIcon = createIconStory("Globe");
+export const KeyholeIcon = createIconStory("Keyhole");
 export const PartyHornIcon = createIconStory("PartyHorn");
 export const PencilSquareIcon = createIconStory("PencilSquare");
 export const ShieldIcon = createIconStory("Shield");
