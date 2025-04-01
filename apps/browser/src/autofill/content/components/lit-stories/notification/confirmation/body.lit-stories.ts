@@ -13,18 +13,14 @@ export default {
     error: { control: "text" },
     buttonText: { control: "text" },
     confirmationMessage: { control: "text" },
+    messageDetails: { control: "text" },
     theme: { control: "select", options: [...Object.values(ThemeTypes)] },
   },
   args: {
     error: "",
     buttonText: "View",
     confirmationMessage: "[item name] updated in Bitwarden.",
-    task: {
-      cipherName: "user@org.org",
-      orgName: "Acme, Inc.",
-      remainingTasksCount: 0,
-      taskCompleted: true,
-    },
+    messageDetails: "You can view it in your vault.",
     theme: ThemeTypes.Light,
   },
   parameters: {

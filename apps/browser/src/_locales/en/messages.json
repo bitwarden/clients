@@ -1119,6 +1119,10 @@
       },
       "description": "Shown to user after login is updated."
   },
+  "nextSecurityTaskAction": {
+    "message": "Change next password",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
   "saveFailure": {
     "message": "Error saving",
     "description": "Error message shown when the system fails to save login details."

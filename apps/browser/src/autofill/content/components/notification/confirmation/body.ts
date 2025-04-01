@@ -3,7 +3,6 @@ import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { NotificationTaskInfo } from "../../../../notification/abstractions/notification-bar";
 import { themes } from "../../constants/styles";
 import { PartyHorn, Warning } from "../../icons";
 
@@ -16,37 +15,23 @@ const { css } = createEmotion({
 });
 
 export type NotificationConfirmationBodyProps = {
-  error?: string;
   buttonText: string;
   confirmationMessage: string;
-  task?: NotificationTaskInfo;
+  error?: string;
+  messageDetails?: string;
   theme: Theme;
   handleOpenVault: (e: Event) => void;
 };
 
 export function NotificationConfirmationBody({
   buttonText,
-  error,
   confirmationMessage,
-  task,
+  error,
+  messageDetails,
   theme,
   handleOpenVault,
 }: NotificationConfirmationBodyProps) {
   const IconComponent = !error ? PartyHorn : Warning;
-
-  let messageDetails: string | undefined;
-
-  if (task) {
-    const remainingTasksCount = task.remainingTasksCount || 0;
-
-    messageDetails =
-      remainingTasksCount > 0
-        ? chrome.i18n.getMessage("loginUpdateTaskSuccessAdditional", [
-            task.orgName,
-            remainingTasksCount,
-          ])
-        : chrome.i18n.getMessage("loginUpdateTaskSuccess", [task.orgName]);
-  }
 
   const showConfirmationMessage = confirmationMessage || buttonText || messageDetails;
 
@@ -55,11 +40,11 @@ export function NotificationConfirmationBody({
       <div class=${iconContainerStyles(error)}>${IconComponent({ theme })}</div>
       ${showConfirmationMessage
         ? NotificationConfirmationMessage({
-            handleClick: handleOpenVault,
+            buttonText,
             message: confirmationMessage,
             messageDetails,
             theme,
-            buttonText,
+            handleClick: handleOpenVault,
           })
         : nothing}
     </div>

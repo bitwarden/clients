@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import { html } from "lit";
+import { html, nothing } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
@@ -16,6 +16,7 @@ import {
 } from "../header";
 
 import { NotificationConfirmationBody } from "./body";
+import { NotificationConfirmationFooter } from "./footer";
 
 export type NotificationConfirmationContainerProps = NotificationBarIframeInitData & {
   handleCloseNotification: (e: Event) => void;
@@ -39,8 +40,23 @@ export function NotificationConfirmationContainer({
   username,
 }: NotificationConfirmationContainerProps) {
   const headerMessage = getHeaderMessage(i18n, type, error);
-  const confirmationMessage = getConfirmationMessage(i18n, username, task, type, error);
+  const confirmationMessage = getConfirmationMessage(i18n, username, type, error);
   const buttonText = error ? i18n.newItem : i18n.view;
+
+  let messageDetails: string | undefined;
+  let remainingTasksCount: number | undefined;
+
+  if (task) {
+    remainingTasksCount = task.remainingTasksCount || 0;
+
+    messageDetails =
+      remainingTasksCount > 0
+        ? chrome.i18n.getMessage("loginUpdateTaskSuccessAdditional", [
+            task.orgName,
+            `${remainingTasksCount}`,
+          ])
+        : chrome.i18n.getMessage("loginUpdateTaskSuccess", [task.orgName]);
+  }
 
   return html`
     <div class=${notificationContainerStyles(theme)}>
@@ -52,11 +68,17 @@ export function NotificationConfirmationContainer({
       ${NotificationConfirmationBody({
         buttonText,
         confirmationMessage,
-        error: error,
-        handleOpenVault,
-        task,
+        error,
+        messageDetails,
         theme,
+        handleOpenVault,
       })}
+      ${remainingTasksCount
+        ? NotificationConfirmationFooter({
+            i18n,
+            theme,
+          })
+        : nothing}
     </div>
   `;
 }
@@ -80,7 +102,6 @@ const notificationContainerStyles = (theme: Theme) => css`
 function getConfirmationMessage(
   i18n: { [key: string]: string },
   username: string,
-  task?: NotificationTaskInfo,
   type?: NotificationType,
   error?: string,
 ) {
