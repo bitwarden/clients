@@ -28,17 +28,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button
-          type="submit"
-          class="primary"
-          appA11yTitle="{{ 'save' | i18n }}"
-          [disabled]="form.loading"
-        >
-          <i
-            class="bwi bwi-save-changes bwi-lg bwi-fw"
-            [hidden]="form.loading"
-            aria-hidden="true"
-          ></i>
+        <button type="submit" class="primary" [disabled]="form.loading">
+          <span [hidden]="form.loading">{{ "save" | i18n }}</span>
           <i
             class="bwi bwi-spinner bwi-spin bwi-lg bwi-fw"
             [hidden]="!form.loading"
