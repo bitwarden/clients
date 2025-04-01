@@ -5,10 +5,7 @@
 
   <app-cipher-view *ngIf="cipher" [cipher]="cipher"></app-cipher-view>
 
-  <popup-footer
-    slot="footer"
-    *ngIf="(limitItemDeletion$ | async) ? (showFooter$ | async) : showFooter()"
-  >
+  <popup-footer slot="footer" *ngIf="showFooter$ | async">
     <button
       *ngIf="!cipher.isDeleted"
       buttonType="primary"
@@ -22,7 +19,7 @@
     <button
       *ngIf="
         (limitItemDeletion$ | async)
-          ? cipher.isDeleted && cipher.permissions.delete
+          ? cipher.isDeleted && cipher.permissions.restore
           : cipher.isDeleted && cipher.edit
       "
       buttonType="primary"

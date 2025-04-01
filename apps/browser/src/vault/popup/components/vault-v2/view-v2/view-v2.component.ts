@@ -168,7 +168,7 @@ export class ViewV2Component {
                     (cipher.isDeleted && (cipher.permissions.restore || cipher.permissions.delete)))
                 );
               }
-              return false;
+              return this.showFooterLegacy();
             }),
           );
 
@@ -269,7 +269,8 @@ export class ViewV2Component {
       : this.cipherService.softDeleteWithServer(this.cipher.id, this.activeUserId);
   }
 
-  protected showFooter(): boolean {
+  //@TODO: remove this when the LimitItemDeletion feature flag is removed
+  protected showFooterLegacy(): boolean {
     return (
       this.cipher &&
       (!this.cipher.isDeleted ||
