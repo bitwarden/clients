@@ -13,7 +13,7 @@
       class="tw-pr-1 tw-pt-1"
       bitIconButton="bwi-close"
       size="default"
-      *ngIf="!indismissable"
+      *ngIf="!persistent"
       (click)="handleDismiss()"
       [attr.title]="'close' | i18n"
       [attr.aria-label]="'close' | i18n"
@@ -26,8 +26,12 @@
     type="button"
     buttonType="primary"
     *ngIf="buttonText"
-    (click)="handleDismiss()"
+    (click)="handleButtonClick()"
   >
     {{ buttonText }}
   </button>
+
+  <div class="mt-2" *ngIf="!buttonText">
+    <ng-content></ng-content>
+  </div>
 </div>

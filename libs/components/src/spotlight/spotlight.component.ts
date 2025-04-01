@@ -18,8 +18,13 @@ export class SpotlightComponent {
   @Input({ required: true }) title: string | null = null;
   @Input({ required: true }) subtitle: string | null = null;
   @Input() buttonText?: string;
-  @Input() indismissable = false;
+  @Input() persistent = false;
   @Output() onDismiss = new EventEmitter<void>();
+  @Output() onButtonClick = new EventEmitter<void>();
+
+  handleButtonClick(): void {
+    this.onButtonClick.emit();
+  }
 
   handleDismiss(): void {
     this.onDismiss.emit();

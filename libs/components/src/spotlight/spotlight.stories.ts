@@ -45,8 +45,35 @@ export const WithoutButton: Story = {
   },
 };
 
-export const Indismissable: Story = {
+export const Persistent: Story = {
   args: {
-    indismissable: true,
+    persistent: true,
   },
+};
+
+export const WithCustomButton: Story = {
+  args: {
+    buttonText: "Custom Button",
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-spotlight
+        [title]="title"
+        [subtitle]="subtitle"
+      >
+        <button
+          class="tw-w-full"
+          bit-item-content
+          bitButton
+          type="button"
+          buttonType="primary"
+          (click)="handleButtonClick()"
+        >
+          External Link
+           <i slot="end" class="bwi bwi-external-link ml-2" aria-hidden="true"></i>
+        </button>
+      </bit-spotlight>
+    `,
+  }),
 };
