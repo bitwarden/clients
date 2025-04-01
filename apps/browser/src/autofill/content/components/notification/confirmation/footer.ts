@@ -3,8 +3,9 @@ import { html } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
+import { ActionButton } from "../../buttons/action-button";
 import { spacing, themes } from "../../constants/styles";
-import { ButtonRow } from "../../rows/button-row";
+import { ExternalLink } from "../../icons";
 
 export type NotificationConfirmationFooterProps = {
   i18n: { [key: string]: string };
@@ -22,11 +23,9 @@ export function NotificationConfirmationFooter({
 
   return html`
     <div class=${notificationConfirmationFooterStyles({ theme })}>
-      ${ButtonRow({
-        primaryButton: {
-          handlePrimaryButtonClick: handleButtonClick,
-          text: primaryButtonText,
-        },
+      ${ActionButton({
+        handleClick: handleButtonClick,
+        buttonText: AdditionalTasksButtonContent({ buttonText: primaryButtonText, theme }),
         theme,
       })}
     </div>
@@ -34,12 +33,28 @@ export function NotificationConfirmationFooter({
 }
 
 const notificationConfirmationFooterStyles = ({ theme }: { theme: Theme }) => css`
-  display: flex;
   background-color: ${themes[theme].background.alt};
   padding: 0 ${spacing[3]} ${spacing[3]} ${spacing[3]};
+  max-width: min-content;
 
   :last-child {
     border-radius: 0 0 ${spacing["4"]} ${spacing["4"]};
     padding-bottom: ${spacing[4]};
   }
+`;
+
+function AdditionalTasksButtonContent({ buttonText, theme }: { buttonText: string; theme: Theme }) {
+  return html`
+    <div class=${additionalTasksButtonContentStyles({ theme })}>
+      <span>${buttonText}</span>
+      ${ExternalLink({ theme, color: themes[theme].text.contrast })}
+    </div>
+  `;
+}
+
+const additionalTasksButtonContentStyles = ({ theme }: { theme: Theme }) => css`
+  gap: ${spacing[2]};
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
 `;
