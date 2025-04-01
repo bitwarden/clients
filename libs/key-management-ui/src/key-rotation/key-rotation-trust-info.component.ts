@@ -1,19 +1,11 @@
-import { DialogConfig, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
+import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import {
-  AsyncActionsModule,
-  ButtonModule,
-  DialogModule,
-  DialogService,
-  FormFieldModule,
-  LinkModule,
-  TypographyModule,
-} from "@bitwarden/components";
+import { AsyncActionsModule, ButtonModule, DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 type KeyRotationTrustDialogData = {
@@ -28,12 +20,8 @@ type KeyRotationTrustDialogData = {
   imports: [
     CommonModule,
     JslibModule,
-    DialogModule,
     ButtonModule,
-    LinkModule,
-    TypographyModule,
     ReactiveFormsModule,
-    FormFieldModule,
     AsyncActionsModule,
     FormsModule,
   ],
@@ -56,9 +44,11 @@ export class KeyRotationTrustInfoComponent {
   /**
    * Strongly typed helper to open a KeyRotationTrustComponent
    * @param dialogService Instance of the dialog service that will be used to open the dialog
-   * @param config Configuration for the dialog
+   * @param data The data to pass to the dialog
    */
-  static open(dialogService: DialogService, config: DialogConfig<KeyRotationTrustDialogData>) {
-    return dialogService.open<boolean>(KeyRotationTrustInfoComponent, config as any);
+  static open(dialogService: DialogService, data: KeyRotationTrustDialogData) {
+    return dialogService.open<boolean, KeyRotationTrustDialogData>(KeyRotationTrustInfoComponent, {
+      data,
+    });
   }
 }

@@ -1,4 +1,4 @@
-import { DialogConfig, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
+import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, OnInit, Inject } from "@angular/core";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
@@ -81,12 +81,14 @@ export class AccountRecoveryTrustComponent implements OnInit {
   /**
    * Strongly typed helper to open a AccountRecoveryTrustComponent
    * @param dialogService Instance of the dialog service that will be used to open the dialog
-   * @param config Configuration for the dialog
+   * @param data The data to pass to the dialog
    */
-  static open(dialogService: DialogService, config: DialogConfig<AccountRecoveryTrustDialogData>) {
+  static open(dialogService: DialogService, data: AccountRecoveryTrustDialogData) {
     return dialogService.open<boolean, AccountRecoveryTrustDialogData>(
       AccountRecoveryTrustComponent,
-      config as any,
+      {
+        data,
+      },
     );
   }
 }

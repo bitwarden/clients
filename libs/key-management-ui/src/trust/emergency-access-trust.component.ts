@@ -1,4 +1,4 @@
-import { DialogConfig, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
+import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, OnInit, Inject } from "@angular/core";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
@@ -81,9 +81,14 @@ export class EmergencyAccessTrustComponent implements OnInit {
   /**
    * Strongly typed helper to open a EmergencyAccessTrustComponent
    * @param dialogService Instance of the dialog service that will be used to open the dialog
-   * @param config Configuration for the dialog
+   * @param data The data to pass to the dialog
    */
-  static open(dialogService: DialogService, config: DialogConfig<EmergencyAccessTrustDialogData>) {
-    return dialogService.open<boolean>(EmergencyAccessTrustComponent, config as any);
+  static open(dialogService: DialogService, data: EmergencyAccessTrustDialogData) {
+    return dialogService.open<boolean, EmergencyAccessTrustDialogData>(
+      EmergencyAccessTrustComponent,
+      {
+        data,
+      },
+    );
   }
 }

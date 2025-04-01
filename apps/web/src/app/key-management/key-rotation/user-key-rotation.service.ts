@@ -91,10 +91,8 @@ export class UserKeyRotationService {
     const orgs = await this.resetPasswordService.getPublicKeys(user.id);
     if (orgs.length > 0 || emergencyAccessGrantees.length > 0) {
       const trustInfoDialog = KeyRotationTrustInfoComponent.open(this.dialogService, {
-        data: {
-          numberOfEmergencyAccessUsers: emergencyAccessGrantees.length,
-          orgName: orgs.length > 0 ? orgs[0].orgName : undefined,
-        },
+        numberOfEmergencyAccessUsers: emergencyAccessGrantees.length,
+        orgName: orgs.length > 0 ? orgs[0].orgName : undefined,
       });
       const result = await firstValueFrom(trustInfoDialog.closed);
       if (!result) {
@@ -186,11 +184,9 @@ export class UserKeyRotationService {
       );
 
       const dialogRef = EmergencyAccessTrustComponent.open(this.dialogService, {
-        data: {
-          name: details.name,
-          userId: details.granteeId,
-          publicKey: details.publicKey,
-        },
+        name: details.name,
+        userId: details.granteeId,
+        publicKey: details.publicKey,
       });
       const result = await firstValueFrom(dialogRef.closed);
       if (result === true) {
@@ -224,11 +220,9 @@ export class UserKeyRotationService {
       );
 
       const dialogRef = AccountRecoveryTrustComponent.open(this.dialogService, {
-        data: {
-          name: organization.orgName,
-          orgId: organization.orgId,
-          publicKey: organization.publicKey,
-        },
+        name: organization.orgName,
+        orgId: organization.orgId,
+        publicKey: organization.publicKey,
       });
       const result = await firstValueFrom(dialogRef.closed);
       if (result === true) {

@@ -1,4 +1,4 @@
-import { DialogConfig, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
+import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, OnInit, Inject } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 
@@ -7,10 +7,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
-export enum OrganizationTrustDialogResult {
-  Trusted = "trusted",
-  NotTrusted = "not-trusted",
-}
 type OrganizationTrustDialogData = {
   /** display name of the organization */
   name: string;
@@ -63,9 +59,11 @@ export class OrganizationTrustComponent implements OnInit {
   /**
    * Strongly typed helper to open a OrganizationTrustComponent
    * @param dialogService Instance of the dialog service that will be used to open the dialog
-   * @param config Configuration for the dialog
+   * @param data The data to pass to the dialog
    */
-  static open(dialogService: DialogService, config: DialogConfig<OrganizationTrustDialogData>) {
-    return dialogService.open<boolean>(OrganizationTrustComponent, config as any);
+  static open(dialogService: DialogService, data: OrganizationTrustDialogData) {
+    return dialogService.open<boolean, OrganizationTrustDialogData>(OrganizationTrustComponent, {
+      data,
+    });
   }
 }
