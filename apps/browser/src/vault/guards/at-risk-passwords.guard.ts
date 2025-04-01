@@ -4,8 +4,9 @@ import { switchMap, tap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { TaskService } from "@bitwarden/common/vault/tasks";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { ToastService } from "@bitwarden/components";
-import { filterOutNullish, TaskService } from "@bitwarden/vault";
 
 export const canAccessAtRiskPasswords: CanActivateFn = () => {
   const accountService = inject(AccountService);
