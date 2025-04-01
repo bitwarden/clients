@@ -15,8 +15,6 @@ on:
       - ".storybook/**"
   pull_request_target:
     types: [opened, synchronize]
-    branches:
-      - "uif/cl-394/chromatic-paths"
     paths:
       - "apps/**"
       - "!apps/cli/**"
