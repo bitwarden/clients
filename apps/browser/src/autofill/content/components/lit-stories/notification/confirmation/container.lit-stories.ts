@@ -24,10 +24,11 @@ export default {
       taskCompleted: true,
     },
     i18n: {
-      saveFailureDetails: "Oh no! We couldn't save this. Try entering the details manually.",
-      saveFailure: "Error saving",
       loginSaveSuccess: "Login saved",
       loginUpdateSuccess: "Login updated",
+      nextSecurityTaskAction: "Change next password",
+      saveFailure: "Error saving",
+      saveFailureDetails: "Oh no! We couldn't save this. Try entering the details manually.",
       view: "View",
     },
     type: NotificationTypes.Change,
