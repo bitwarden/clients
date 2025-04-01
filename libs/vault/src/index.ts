@@ -6,8 +6,6 @@ export { OrgIconDirective } from "./components/org-icon.directive";
 export { CanDeleteCipherDirective } from "./components/can-delete-cipher.directive";
 export { DarkImageSourceDirective } from "./components/dark-image-source.directive";
 
-export * from "./utils/observable-utilities";
-
 export * from "./cipher-view";
 export * from "./cipher-form";
 export {
@@ -25,8 +23,8 @@ export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.compon
 export * from "./components/carousel";
 
 export * as VaultIcons from "./icons";
-export * from "./tasks";
 export * from "./notifications";
+export * from "./services/vault-nudges.service";
 
 export { DefaultSshImportPromptService } from "./services/default-ssh-import-prompt.service";
 export { SshImportPromptService } from "./services/ssh-import-prompt.service";

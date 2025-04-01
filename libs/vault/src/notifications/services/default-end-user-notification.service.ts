@@ -1,12 +1,17 @@
 import { Injectable } from "@angular/core";
-import { map, Observable, switchMap } from "rxjs";
+import { concatMap, filter, map, Observable, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { NotificationType } from "@bitwarden/common/enums";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
+import {
+  filterOutNullish,
+  perUserCache$,
+} from "@bitwarden/common/vault/utils/observable-utilities";
 
-import { filterOutNullish, perUserCache$ } from "../../utils/observable-utilities";
 import { EndUserNotificationService } from "../abstractions/end-user-notification.service";
 import { NotificationView, NotificationViewData, NotificationViewResponse } from "../models";
 import { NOTIFICATIONS } from "../state/end-user-notification.state";
@@ -14,12 +19,30 @@ import { NOTIFICATIONS } from "../state/end-user-notification.state";
 /**
  * A service for retrieving and managing notifications for end users.
  */
-@Injectable()
+@Injectable({
+  providedIn: "root",
+})
 export class DefaultEndUserNotificationService implements EndUserNotificationService {
   constructor(
     private stateProvider: StateProvider,
     private apiService: ApiService,
-  ) {}
+    private defaultNotifications: NotificationsService,
+  ) {
+    this.defaultNotifications.notifications$
+      .pipe(
+        filter(
+          ([notification]) =>
+            notification.type === NotificationType.Notification ||
+            notification.type === NotificationType.NotificationStatus,
+        ),
+        concatMap(([notification, userId]) =>
+          this.updateNotificationState(userId, [
+            new NotificationViewData(notification.payload as NotificationViewResponse),
+          ]),
+        ),
+      )
+      .subscribe();
+  }
 
   notifications$ = perUserCache$((userId: UserId): Observable<NotificationView[]> => {
     return this.notificationState(userId).state$.pipe(
@@ -57,8 +80,6 @@ export class DefaultEndUserNotificationService implements EndUserNotificationSer
     );
     await this.getNotifications(userId);
   }
-
-  upsert(notification: Notification): any {}
 
   async clearState(userId: UserId): Promise<void> {
     await this.updateNotificationState(userId, []);
