@@ -2208,7 +2208,7 @@
     "message": "项目已恢复"
   },
   "alreadyHaveAccount": {
-    "message": "已经拥有账户了吗？"
+    "message": "已经有账户了吗？"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "超时后注销账户将解除对密码库的所有访问权限，并需要进行在线身份验证。确定使用此设置吗？"
@@ -3007,6 +3007,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "仅会导出与 $EMAIL$ 关联的个人密码库项目（包括附件）。不包括组织密码库项目。",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "正在导出组织密码库"
   },
@@ -3543,7 +3552,7 @@
     "message": "搜索"
   },
   "inputMinLength": {
-    "message": "至少输入 $COUNT$ 个字符。",
+    "message": "输入长度不能低于 $COUNT$ 个字符。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3628,7 +3637,7 @@
     "message": "正在获取选项..."
   },
   "multiSelectNotFound": {
-    "message": "未找到任何条目"
+    "message": "未找到任何项目"
   },
   "multiSelectClearAll": {
     "message": "清除全部"
@@ -4209,7 +4218,7 @@
     "message": "建议的项目"
   },
   "autofillSuggestionsTip": {
-    "message": "将此站点保存为登录项目以用于自动填充"
+    "message": "为这个站点保存一个登录项目以自动填充"
   },
   "yourVaultIsEmpty": {
     "message": "您的密码库是空的"
@@ -4270,6 +4279,20 @@
       }
     }
   },
+  "viewItemTitleWithField": {
+    "message": "查看项目 - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "autofillTitle": {
     "message": "自动填充 - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
@@ -4277,6 +4300,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "autofillTitleWithField": {
+    "message": "自动填充 - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
       }
     }
   },
@@ -4732,15 +4769,6 @@
   },
   "nothingSelected": {
     "message": "您尚未选择任何内容。"
-  },
-  "movedItemsToOrg": {
-    "message": "所选项目已移动到 $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
   },
   "itemsMovedToOrg": {
     "message": "项目已移动到 $ORGNAME$",

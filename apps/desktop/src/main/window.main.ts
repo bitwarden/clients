@@ -78,18 +78,19 @@ export class WindowMain {
       }
     });
 
-    this.desktopSettingsService.inModalMode$
+    this.desktopSettingsService.modalMode$
       .pipe(
         pairwise(),
         concatMap(async ([lastValue, newValue]) => {
-          if (lastValue && !newValue) {
+          if (lastValue.isModalModeActive && !newValue.isModalModeActive) {
             // Reset the window state to the main window state
             applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
             // Because modal is used in front of another app, UX wise it makes sense to hide the main window when leaving modal mode.
             this.win.hide();
-          } else if (!lastValue && newValue) {
+          } else if (!lastValue.isModalModeActive && newValue.isModalModeActive) {
             // Apply the popup modal styles
-            applyPopupModalStyles(this.win);
+            this.logService.info("Applying popup modal styles", newValue.modalPosition);
+            applyPopupModalStyles(this.win, newValue.modalPosition);
             this.win.show();
           }
         }),
@@ -207,6 +208,35 @@ export class WindowMain {
       applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
       this.win.show();
     }
+  }
+
+  // TODO: REMOVE ONCE WE CAN STOP USING FAKE POP UP BTN FROM TRAY
+  // Only used for development
+  async loadUrl(targetPath: string, modal: boolean = false) {
+    if (this.win == null || this.win.isDestroyed()) {
+      await this.createWindow("modal-app");
+      return;
+    }
+
+    await this.desktopSettingsService.setModalMode(modal);
+    await this.win.loadURL(
+      url.format({
+        protocol: "file:",
+        //pathname: `${__dirname}/index.html`,
+        pathname: path.join(__dirname, "/index.html"),
+        slashes: true,
+        hash: targetPath,
+        query: {
+          redirectUrl: targetPath,
+        },
+      }),
+      {
+        userAgent: cleanUserAgent(this.win.webContents.userAgent),
+      },
+    );
+    this.win.once("ready-to-show", () => {
+      this.win.show();
+    });
   }
 
   /**
@@ -394,9 +424,9 @@ export class WindowMain {
       return;
     }
 
-    const inModalMode = await firstValueFrom(this.desktopSettingsService.inModalMode$);
+    const modalMode = await firstValueFrom(this.desktopSettingsService.modalMode$);
 
-    if (inModalMode) {
+    if (modalMode.isModalModeActive) {
       return;
     }
 

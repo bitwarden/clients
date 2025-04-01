@@ -13,6 +13,8 @@ import {
   Subject,
   switchMap,
   takeUntil,
+  tap,
+  filter,
 } from "rxjs";
 import { first } from "rxjs/operators";
 
@@ -189,10 +191,29 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       this.formGroup.updateValueAndValidity();
     }
 
-    this.organizationSelected.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((_) => {
-      this.organizationSelected.markAsTouched();
-      this.formGroup.updateValueAndValidity();
-    });
+    this.organizationSelected.valueChanges
+      .pipe(
+        tap((_) => {
+          if (this.organizationSelected.errors?.cannotCreateCollections) {
+            this.buttonDisplayName = ButtonType.Upgrade;
+          } else {
+            this.buttonDisplayName = ButtonType.Save;
+          }
+        }),
+        filter(() => this.organizationSelected.errors?.cannotCreateCollections),
+        switchMap((value) => this.findOrganizationById(value)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((org) => {
+        this.orgExceedingCollectionLimit = org;
+        this.organizationSelected.markAsTouched();
+        this.formGroup.updateValueAndValidity();
+      });
+  }
+
+  async findOrganizationById(orgId: string): Promise<Organization | undefined> {
+    const organizations = await firstValueFrom(this.organizations$);
+    return organizations.find((org) => org.id === orgId);
   }
 
   async loadOrg(orgId: string) {
