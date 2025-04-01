@@ -84,6 +84,9 @@ export class AccountRecoveryTrustComponent implements OnInit {
    * @param config Configuration for the dialog
    */
   static open(dialogService: DialogService, config: DialogConfig<AccountRecoveryTrustDialogData>) {
-    return dialogService.open<boolean>(AccountRecoveryTrustComponent, config);
+    return dialogService.open<boolean, AccountRecoveryTrustDialogData>(
+      AccountRecoveryTrustComponent,
+      config as any,
+    );
   }
 }

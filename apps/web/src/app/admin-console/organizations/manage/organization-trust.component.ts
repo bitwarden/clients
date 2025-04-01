@@ -66,6 +66,6 @@ export class OrganizationTrustComponent implements OnInit {
    * @param config Configuration for the dialog
    */
   static open(dialogService: DialogService, config: DialogConfig<OrganizationTrustDialogData>) {
-    return dialogService.open<boolean>(OrganizationTrustComponent, config);
+    return dialogService.open<boolean>(OrganizationTrustComponent, config as any);
   }
 }

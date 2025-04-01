@@ -53,7 +53,7 @@ export class EmergencyAccessTrustComponent implements OnInit {
     private formBuilder: FormBuilder,
     private keyService: KeyService,
     private logService: LogService,
-    private dialogRef: DialogRef<boolean>,
+    private dialogRef: DialogRef<boolean, EmergencyAccessTrustComponent>,
   ) {}
 
   async ngOnInit() {
@@ -84,6 +84,6 @@ export class EmergencyAccessTrustComponent implements OnInit {
    * @param config Configuration for the dialog
    */
   static open(dialogService: DialogService, config: DialogConfig<EmergencyAccessTrustDialogData>) {
-    return dialogService.open<boolean>(EmergencyAccessTrustComponent, config);
+    return dialogService.open<boolean>(EmergencyAccessTrustComponent, config as any);
   }
 }

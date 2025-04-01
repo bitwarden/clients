@@ -59,6 +59,6 @@ export class KeyRotationTrustInfoComponent {
    * @param config Configuration for the dialog
    */
   static open(dialogService: DialogService, config: DialogConfig<KeyRotationTrustDialogData>) {
-    return dialogService.open<boolean>(KeyRotationTrustInfoComponent, config);
+    return dialogService.open<boolean>(KeyRotationTrustInfoComponent, config as any);
   }
 }
