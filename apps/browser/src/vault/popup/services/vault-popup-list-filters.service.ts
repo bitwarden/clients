@@ -12,7 +12,6 @@ import {
   startWith,
   switchMap,
   take,
-  tap,
 } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
@@ -360,10 +359,10 @@ export class VaultPopupListFiltersService {
     switchMap((userId) => {
       // Observable of cipher views
       const cipherViews$ = this.cipherService.cipherViews$(userId).pipe(
-        tap((cipherViews) => {
-          this.cipherViews = Object.values(cipherViews);
+        map((ciphers) => {
+          this.cipherViews = ciphers ? Object.values(ciphers) : [];
+          return this.cipherViews;
         }),
-        map((ciphers) => Object.values(ciphers)),
       );
 
       return combineLatest([
