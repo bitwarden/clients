@@ -12,7 +12,6 @@ const NotificationTypes = {
 type NotificationType = (typeof NotificationTypes)[keyof typeof NotificationTypes];
 
 type NotificationBarIframeInitData = {
-  applyRedesign?: boolean;
   ciphers?: NotificationCipherData[];
   folders?: FolderView[];
   importType?: string;
