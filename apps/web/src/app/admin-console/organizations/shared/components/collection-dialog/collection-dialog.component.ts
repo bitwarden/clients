@@ -121,7 +121,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected showOrgSelector = false;
   protected formGroup = this.formBuilder.group({
     name: ["", [Validators.required, BitValidators.forbiddenCharacters(["/"])]],
-    externalId: "",
+    externalId: this.formBuilder.control({ value: "", disabled: true }),
     parent: undefined as string | undefined,
     access: [[] as AccessItemValue[]],
     selectedOrg: "",
@@ -474,7 +474,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       this.formGroup.controls.access.disable();
     } else {
       this.formGroup.controls.name.enable();
-      this.formGroup.controls.externalId.enable();
+      this.formGroup.controls.externalId.disable();
       this.formGroup.controls.parent.enable();
       this.formGroup.controls.access.enable();
     }
