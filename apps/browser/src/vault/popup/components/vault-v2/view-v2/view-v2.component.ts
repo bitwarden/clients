@@ -5,7 +5,7 @@ import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Observable, switchMap } from "rxjs";
+import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -21,6 +21,8 @@ import {
   SHOW_AUTOFILL_BUTTON,
 } from "@bitwarden/common/autofill/constants";
 import { EventType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -33,19 +35,17 @@ import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cip
 import {
   AsyncActionsModule,
   ButtonModule,
+  CalloutModule,
   DialogService,
   IconButtonModule,
   SearchModule,
   ToastService,
-  CalloutModule,
 } from "@bitwarden/components";
 import {
   ChangeLoginPasswordService,
   CipherViewComponent,
   CopyCipherFieldService,
   DefaultChangeLoginPasswordService,
-  DefaultTaskService,
-  TaskService,
 } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
@@ -95,7 +95,6 @@ type LoadAction =
   providers: [
     { provide: ViewPasswordHistoryService, useClass: BrowserViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
-    { provide: TaskService, useClass: DefaultTaskService },
     { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
   ],
 })
@@ -109,6 +108,9 @@ export class ViewV2Component {
   collections$: Observable<CollectionView[]>;
   loadAction: LoadAction;
   senderTabId?: number;
+
+  protected limitItemDeletion$ = this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion);
+  protected showFooter$: Observable<boolean>;
 
   constructor(
     private route: ActivatedRoute,
@@ -125,6 +127,7 @@ export class ViewV2Component {
     protected cipherAuthorizationService: CipherAuthorizationService,
     private copyCipherFieldService: CopyCipherFieldService,
     private popupScrollPositionService: VaultPopupScrollPositionService,
+    private configService: ConfigService,
   ) {
     this.subscribeToParams();
   }
@@ -152,6 +155,19 @@ export class ViewV2Component {
           }
 
           this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(cipher);
+
+          this.showFooter$ = this.limitItemDeletion$.pipe(
+            map((enabled) => {
+              if (enabled) {
+                return (
+                  cipher &&
+                  (!cipher.isDeleted ||
+                    (cipher.isDeleted && (cipher.permissions.restore || cipher.permissions.delete)))
+                );
+              }
+              return this.showFooterLegacy();
+            }),
+          );
 
           await this.eventCollectionService.collect(
             EventType.Cipher_ClientViewed,
@@ -250,7 +266,8 @@ export class ViewV2Component {
       : this.cipherService.softDeleteWithServer(this.cipher.id, this.activeUserId);
   }
 
-  protected showFooter(): boolean {
+  //@TODO: remove this when the LimitItemDeletion feature flag is removed
+  protected showFooterLegacy(): boolean {
     return (
       this.cipher &&
       (!this.cipher.isDeleted ||
