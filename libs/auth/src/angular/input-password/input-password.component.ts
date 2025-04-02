@@ -108,7 +108,7 @@ export class InputPasswordComponent implements OnInit {
   protected secondaryButtonTextStr: string = "";
 
   protected InputPasswordFlow = InputPasswordFlow;
-  private kdfConfig: KdfConfig = DEFAULT_KDF_CONFIG; // TODO-rr-bw: verify
+  private kdfConfig: KdfConfig = DEFAULT_KDF_CONFIG;
   private minHintLength = 0;
   protected maxHintLength = 50;
   protected minPasswordLength = Utils.minimumPasswordLength;
@@ -222,7 +222,7 @@ export class InputPasswordComponent implements OnInit {
       throw new Error("Email is required to create master key.");
     }
 
-    this.kdfConfig = (await this.kdfConfigService.getKdfConfig()) || DEFAULT_KDF_CONFIG; // TODO-rr-bw: confirm this
+    this.kdfConfig = (await this.kdfConfigService.getKdfConfig()) || DEFAULT_KDF_CONFIG;
 
     const currentPassword = this.formGroup.get("currentPassword")?.value;
     const { newPassword, newPasswordHint, checkForBreaches } = this.formGroup.value;
@@ -445,7 +445,6 @@ export class InputPasswordComponent implements OnInit {
           );
         }
 
-        // TODO-rr-bw: verify
         (this.formGroup.get("rotateUserKey") as unknown as FormControl<boolean>)?.setValue(false);
         return;
       }
@@ -462,7 +461,6 @@ export class InputPasswordComponent implements OnInit {
       });
 
       if (!result) {
-        // TODO-rr-bw: verify
         (this.formGroup.get("rotateUserKey") as unknown as FormControl<boolean>)?.setValue(false);
       }
     }
