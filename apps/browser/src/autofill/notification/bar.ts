@@ -58,6 +58,9 @@ function getI18n() {
     loginSaveSuccessDetails: chrome.i18n.getMessage("loginSaveSuccessDetails"),
     loginUpdateSuccess: chrome.i18n.getMessage("loginUpdateSuccess"),
     loginUpdateSuccessDetails: chrome.i18n.getMessage("loginUpdatedSuccessDetails"),
+    loginUpdateTaskSuccess: chrome.i18n.getMessage("loginUpdateTaskSuccess"),
+    loginUpdateTaskSuccessAdditional: chrome.i18n.getMessage("loginUpdateTaskSuccessAdditional"),
+    nextSecurityTaskAction: chrome.i18n.getMessage("nextSecurityTaskAction"),
     newItem: chrome.i18n.getMessage("newItem"),
     never: chrome.i18n.getMessage("never"),
     notificationAddDesc: chrome.i18n.getMessage("notificationAddDesc"),
@@ -357,7 +360,7 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
 
-  globalThis.setTimeout(() => sendPlatformMessage({ command: "bgCloseNotificationBar" }), 5000);
+  globalThis.setTimeout(() => sendPlatformMessage({ command: "bgCloseNotificationBar" }), 500000);
 
   return render(
     NotificationConfirmationContainer({

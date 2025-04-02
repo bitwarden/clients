@@ -51,14 +51,19 @@ export function NotificationConfirmationContainer({
     remainingTasksCount = task.remainingTasksCount || 0;
     tasksAreComplete = remainingTasksCount === 0;
 
-    messageDetails =
-      remainingTasksCount > 0
-        ? chrome.i18n.getMessage("loginUpdateTaskSuccessAdditional", [
-            task.orgName,
-            `${remainingTasksCount}`,
-          ])
-        : chrome.i18n.getMessage("loginUpdateTaskSuccess", [task.orgName]);
+    // messageDetails =
+    //   remainingTasksCount > 0
+    //     ? chrome.i18n.getMessage("loginUpdateTaskSuccessAdditional", [
+    //         task.orgName,
+    //         `${remainingTasksCount}`,
+    //       ])
+    //     : chrome.i18n.getMessage("loginUpdateTaskSuccess", [task.orgName]);
+
+    messageDetails = remainingTasksCount > 0 ?
+      `Thank you for making ${task.orgName} more secure. You have ${remainingTasksCount} more passwords to update.` :
+      `Great job! You took the steps to make you and ${task.orgName} more secure.`;
   }
+    console.log(' remainingTasksCount:', remainingTasksCount);
 
   return html`
     <div class=${notificationContainerStyles(theme)}>

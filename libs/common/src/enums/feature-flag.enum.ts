@@ -85,14 +85,14 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.IdpAutoSubmitLogin]: FALSE,
   [FeatureFlag.InlineMenuPositioningImprovements]: FALSE,
   [FeatureFlag.NotificationBarAddLoginImprovements]: FALSE,
-  [FeatureFlag.NotificationRefresh]: FALSE,
+  [FeatureFlag.NotificationRefresh]: true,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
 
   /* Tools */
   [FeatureFlag.ItemShare]: FALSE,
-  [FeatureFlag.CriticalApps]: FALSE,
-  [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
+  [FeatureFlag.CriticalApps]: true,
+  [FeatureFlag.EnableRiskInsightsNotifications]: true,
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
   [FeatureFlag.ExportAttachments]: FALSE,
 
@@ -102,7 +102,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.NewDeviceVerificationTemporaryDismiss]: FALSE,
   [FeatureFlag.NewDeviceVerificationPermanentDismiss]: FALSE,
   [FeatureFlag.VaultBulkManagementAction]: FALSE,
-  [FeatureFlag.SecurityTasks]: FALSE,
+  [FeatureFlag.SecurityTasks]: true,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
 
   /* Auth */

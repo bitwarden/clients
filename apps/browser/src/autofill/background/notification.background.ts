@@ -673,10 +673,11 @@ export default class NotificationBackground {
         },
       });
 
+      // @TODO leave disabled while WiP for easier debugging
       // If the cipher had a security task, mark it as complete
-      if (taskCompleted) {
-        await this.taskService.markAsComplete(updatedCipherTask.id, userId);
-      }
+      // if (taskCompleted) {
+      //   await this.taskService.markAsComplete(updatedCipherTask.id, userId);
+      // }
     } catch (error) {
       await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
         error: String(error?.message),
