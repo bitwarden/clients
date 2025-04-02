@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from "@angular/forms";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -29,7 +29,12 @@ import {
   ToastService,
   Translation,
 } from "@bitwarden/components";
-import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
+import {
+  DEFAULT_KDF_CONFIG,
+  KdfConfig,
+  KdfConfigService,
+  KeyService,
+} from "@bitwarden/key-management";
 
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
@@ -97,6 +102,7 @@ export class InputPasswordComponent implements OnInit {
   protected secondaryButtonTextStr: string = "";
 
   protected InputPasswordFlow = InputPasswordFlow;
+  private kdfConfig: KdfConfig = DEFAULT_KDF_CONFIG; // TODO-rr-bw: verify
   private minHintLength = 0;
   protected maxHintLength = 50;
   protected minPasswordLength = Utils.minimumPasswordLength;
@@ -108,8 +114,8 @@ export class InputPasswordComponent implements OnInit {
   protected formGroup = this.formBuilder.nonNullable.group(
     {
       newPassword: ["", [Validators.required, Validators.minLength(this.minPasswordLength)]],
-      confirmNewPassword: ["", Validators.required],
-      hint: [
+      newPasswordConfirm: ["", Validators.required],
+      newPasswordHint: [
         "", // must be string (not null) because we check length in validation
         [Validators.minLength(this.minHintLength), Validators.maxLength(this.maxHintLength)],
       ],
@@ -120,7 +126,7 @@ export class InputPasswordComponent implements OnInit {
         compareInputs(
           ValidationGoal.InputsShouldMatch,
           "newPassword",
-          "confirmNewPassword",
+          "newPasswordConfirm",
           this.i18nService.t("masterPassDoesntMatch"),
         ),
         compareInputs(
@@ -132,30 +138,6 @@ export class InputPasswordComponent implements OnInit {
       ],
     },
   );
-
-  get currentPassword() {
-    return this.formGroup.controls.currentPassword.value;
-  }
-
-  get newPassword() {
-    return this.formGroup.controls.newPassword.value;
-  }
-
-  get confirmNewPassword() {
-    return this.formGroup.controls.confirmNewPassword.value;
-  }
-
-  get hint() {
-    return this.formGroup.controls.hint.value;
-  }
-
-  get checkForBreaches() {
-    return this.formGroup.controls.checkForBreaches.value;
-  }
-
-  get rotateAccountEncryptionKey() {
-    return this.formGroup.controls.rotateAccountEncryptionKey.value;
-  }
 
   constructor(
     private accountService: AccountService,
@@ -230,68 +212,91 @@ export class InputPasswordComponent implements OnInit {
       return;
     }
 
-    // 1. Evaluate current password
+    if (this.email == null) {
+      throw new Error("Email is required to create master key.");
+    }
+
+    this.kdfConfig = (await this.kdfConfigService.getKdfConfig()) || DEFAULT_KDF_CONFIG; // TODO-rr-bw: confirm this
+
+    const currentPassword = this.formGroup.get("currentPassword")?.value;
+    const { newPassword, newPasswordHint, checkForBreaches } = this.formGroup.value;
+
+    // 1. Verify current password is correct (if necessary)
     if (
       this.inputPasswordFlow === InputPasswordFlow.ChangeExistingPassword ||
       this.inputPasswordFlow ===
         InputPasswordFlow.ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey
     ) {
-      const currentPasswordEvaluatedSuccessfully = await this.evaluateCurrentPassword();
-      if (!currentPasswordEvaluatedSuccessfully) {
+      const currentPasswordIsCorrect = await this.verifyCurrentPassword(currentPassword);
+      if (!currentPasswordIsCorrect) {
         return;
       }
     }
 
     // 2. Evaluate new password
     const newPasswordEvaluatedSuccessfully = await this.evaluateNewPassword(
-      this.newPassword,
+      newPassword,
       this.passwordStrengthScore,
-      this.checkForBreaches,
+      checkForBreaches,
     );
     if (!newPasswordEvaluatedSuccessfully) {
       return;
     }
 
     // 3. Create cryptographic keys
-    if (this.email == null) {
-      throw new Error("Email is required to create master key.");
-    }
-
-    const kdfConfig = (await this.kdfConfigService.getKdfConfig()) || DEFAULT_KDF_CONFIG; // TODO-rr-bw: confirm this
-
     const newMasterKey = await this.keyService.makeMasterKey(
-      this.newPassword,
+      newPassword,
       this.email.trim().toLowerCase(),
-      kdfConfig,
+      this.kdfConfig,
     );
 
-    const serverMasterKeyHash = await this.keyService.hashMasterKey(
-      this.newPassword,
+    const newServerMasterKeyHash = await this.keyService.hashMasterKey(
+      newPassword,
       newMasterKey,
       HashPurpose.ServerAuthorization,
     );
 
-    const localMasterKeyHash = await this.keyService.hashMasterKey(
-      this.newPassword,
+    const newLocalMasterKeyHash = await this.keyService.hashMasterKey(
+      newPassword,
       newMasterKey,
       HashPurpose.LocalAuthorization,
     );
 
-    // 3. Emit cryptographic keys and other password related properties
     const passwordInputResult: PasswordInputResult = {
-      newPassword: this.newPassword,
-      hint: this.hint,
-      kdfConfig,
+      newPassword,
       newMasterKey,
-      serverMasterKeyHash,
-      localMasterKeyHash,
+      newServerMasterKeyHash,
+      newLocalMasterKeyHash,
+      newPasswordHint,
+      kdfConfig: this.kdfConfig,
     };
 
     if (
       this.inputPasswordFlow === InputPasswordFlow.ChangePassword ||
       this.inputPasswordFlow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
     ) {
-      passwordInputResult.currentPassword = this.currentPassword;
+      const currentMasterKey = await this.keyService.makeMasterKey(
+        currentPassword,
+        this.email.trim().toLowerCase(),
+        this.kdfConfig,
+      );
+
+      const currentServerMasterKeyHash = await this.keyService.hashMasterKey(
+        currentPassword,
+        currentMasterKey,
+        HashPurpose.ServerAuthorization,
+      );
+
+      const currentLocalMasterKeyHash = await this.keyService.hashMasterKey(
+        currentPassword,
+        currentMasterKey,
+        HashPurpose.LocalAuthorization,
+      );
+
+      passwordInputResult.currentPassword = this.formGroup.get("currentPassword")?.value;
+      passwordInputResult.currentMasterKey = currentMasterKey;
+      passwordInputResult.currentServerMasterKeyHash = currentServerMasterKeyHash;
+      passwordInputResult.currentLocalMasterKeyHash = currentLocalMasterKeyHash;
     }
 
     if (
@@ -301,22 +306,28 @@ export class InputPasswordComponent implements OnInit {
       passwordInputResult.rotateAccountEncryptionKey = this.rotateAccountEncryptionKey;
     }
 
+    // 4. Emit cryptographic keys and other password related properties
     this.onPasswordFormSubmit.emit(passwordInputResult);
   };
 
-  // Returns true if the current password is correct, false otherwise
-  private async evaluateCurrentPassword(): Promise<boolean> {
+  /**
+   * Returns true if the current password is correct, false otherwise
+   */
+  private async verifyCurrentPassword(currentPassword: string): Promise<boolean> {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
-    const masterKey = await this.keyService.makeMasterKey(
-      this.currentPassword,
-      await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.email))),
-      await this.kdfConfigService.getKdfConfig(),
+    const currentMasterKey = await this.keyService.makeMasterKey(
+      currentPassword,
+      this.email.trim().toLowerCase(),
+      this.kdfConfig,
     );
 
-    const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey, userId);
+    const decryptedUserKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
+      currentMasterKey,
+      userId,
+    );
 
-    if (userKey == null) {
+    if (decryptedUserKey == null) {
       this.toastService.showToast({
         variant: "error",
         title: null,
@@ -329,7 +340,9 @@ export class InputPasswordComponent implements OnInit {
     return true;
   }
 
-  // Returns true if the password passes all checks, false otherwise
+  /**
+   * Returns true if the new password passes all checks, false otherwise
+   */
   private async evaluateNewPassword(
     newPassword: string,
     passwordStrengthScore: PasswordStrengthScore,
@@ -395,7 +408,9 @@ export class InputPasswordComponent implements OnInit {
   }
 
   async rotateUserKeyClicked() {
-    if (this.rotateUserKey) {
+    const rotateUserKey = this.formGroup.get("rotateUserKey")?.value;
+
+    if (rotateUserKey) {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
       const ciphers = await this.cipherService.getAllDecrypted(activeUserId);

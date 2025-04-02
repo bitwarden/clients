@@ -102,6 +102,62 @@ export class ChangeExistingPasswordComponent implements OnInit {
     }
   }
 
+  // todo: move this to a service
+  // https://bitwarden.atlassian.net/browse/PM-17108
+  async updatePassword(currentPassword: string, newPassword: string, hint: string) {
+    const { userId, email } = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => ({ userId: a?.id, email: a?.email }))),
+    );
+    const kdfConfig = await firstValueFrom(this.kdfConfigService.getKdfConfig$(userId));
+
+    const currentMasterKey = await this.keyService.makeMasterKey(currentPassword, email, kdfConfig);
+    const decryptedUserKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
+      currentMasterKey,
+      userId,
+    );
+    if (decryptedUserKey == null) {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("invalidMasterPassword"),
+      });
+      return;
+    }
+
+    const newMasterKey = await this.keyService.makeMasterKey(newPassword, email, kdfConfig);
+    const newMasterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
+      newMasterKey,
+      decryptedUserKey,
+    );
+
+    const request = new PasswordRequest();
+    request.masterPasswordHash = await this.keyService.hashMasterKey(
+      currentPassword,
+      currentMasterKey,
+    );
+    request.masterPasswordHint = hint;
+    request.newMasterPasswordHash = await this.keyService.hashMasterKey(newPassword, newMasterKey);
+    request.key = newMasterKeyEncryptedUserKey[1].encryptedString;
+
+    try {
+      await this.masterPasswordApiService.postPassword(request);
+
+      this.toastService.showToast({
+        variant: "success",
+        title: this.i18nService.t("masterPasswordChanged"),
+        message: this.i18nService.t("masterPasswordChangedDesc"),
+      });
+
+      this.messagingService.send("logout");
+    } catch {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("errorOccurred"),
+      });
+    }
+  }
+
   async submitOld(passwordInputResult: PasswordInputResult) {
     if (passwordInputResult.rotateUserKey) {
       await this.syncService.fullSync(true);
@@ -161,62 +217,6 @@ export class ChangeExistingPasswordComponent implements OnInit {
         title: this.i18nService.t("masterPasswordChanged"),
         message: this.i18nService.t("logBackIn"),
       });
-      this.messagingService.send("logout");
-    } catch {
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("errorOccurred"),
-      });
-    }
-  }
-
-  // todo: move this to a service
-  // https://bitwarden.atlassian.net/browse/PM-17108
-  async updatePassword(currentPassword: string, newPassword: string, hint: string) {
-    const { userId, email } = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => ({ userId: a?.id, email: a?.email }))),
-    );
-    const kdfConfig = await firstValueFrom(this.kdfConfigService.getKdfConfig$(userId));
-
-    const currentMasterKey = await this.keyService.makeMasterKey(currentPassword, email, kdfConfig);
-    const decryptedUserKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
-      currentMasterKey,
-      userId,
-    );
-    if (decryptedUserKey == null) {
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("invalidMasterPassword"),
-      });
-      return;
-    }
-
-    const newMasterKey = await this.keyService.makeMasterKey(newPassword, email, kdfConfig);
-    const newMasterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
-      newMasterKey,
-      decryptedUserKey,
-    );
-
-    const request = new PasswordRequest();
-    request.masterPasswordHash = await this.keyService.hashMasterKey(
-      currentPassword,
-      currentMasterKey,
-    );
-    request.masterPasswordHint = hint;
-    request.newMasterPasswordHash = await this.keyService.hashMasterKey(newPassword, newMasterKey);
-    request.key = newMasterKeyEncryptedUserKey[1].encryptedString;
-
-    try {
-      await this.masterPasswordApiService.postPassword(request);
-
-      this.toastService.showToast({
-        variant: "success",
-        title: this.i18nService.t("masterPasswordChanged"),
-        message: this.i18nService.t("masterPasswordChangedDesc"),
-      });
-
       this.messagingService.send("logout");
     } catch {
       this.toastService.showToast({
