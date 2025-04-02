@@ -11,7 +11,7 @@ import {
 import { SpotlightComponent } from "./spotlight.component";
 
 const meta: Meta<SpotlightComponent> = {
-  title: "Component Library/Spotlight",
+  title: "Vault/Spotlight",
   component: SpotlightComponent,
   decorators: [
     moduleMetadata({
