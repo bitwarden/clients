@@ -23,7 +23,7 @@
     "message": "Упершыню ў Bitwarden?"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Увайсці з ключом доступу"
   },
   "useSingleSignOn": {
     "message": "Выкарыстаць аднаразовы ўваход"
@@ -35,7 +35,7 @@
     "message": "Прызначыць надзейны пароль"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Finish creating your account by setting a password"
+    "message": "Завяршыць стварэнне вашага ўліковага запісу нарадзіўшы пароль"
   },
   "enterpriseSingleSignOn": {
     "message": "Адзіны ўваход прадпрыемства (SSO)"
@@ -62,7 +62,7 @@
     "message": "Падказка да асноўнага пароля можа дапамагчы вам успомніць яго, калі вы яго забылі."
   },
   "masterPassHintText": {
-    "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
+    "message": "Падказка пароля можа быць адпраўлена на ваш адрас электроннай пошты, калі вы яго забудзеце. Максімум сімвалаў: $CURRENT$/$MAXIMUM$.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -81,7 +81,7 @@
     "message": "Падказка да асноўнага пароля (неабавязкова)"
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "Ацэнка надзейнасці пароля $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -206,10 +206,10 @@
     "message": "Аўтазапаўненне асабістых даных"
   },
   "fillVerificationCode": {
-    "message": "Fill verification code"
+    "message": "Запоўніць праверачны код"
   },
   "fillVerificationCodeAria": {
-    "message": "Fill Verification Code",
+    "message": "Запоўніць праверачны код",
     "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
@@ -261,7 +261,7 @@
     "message": "Запытаць падказку да асноўнага пароля"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
-    "message": "Enter your account email address and your password hint will be sent to you"
+    "message": "Увядзіце адрас электроннай пошты ўліковага запісу і падказка пароля будзе адпраўлена вам"
   },
   "getMasterPasswordHint": {
     "message": "Атрымаць падказку да асноўнага пароля"
@@ -291,7 +291,7 @@
     "message": "Працягнуць у вэб-праграме?"
   },
   "continueToWebAppDesc": {
-    "message": "Explore more features of your Bitwarden account on the web app."
+    "message": "Даследуйце больш функцый вашага уліковага запісу Bitwarden у вэб-праграме."
   },
   "continueToHelpCenter": {
     "message": "Працягнуць працу ў Даведачным цэнтры?"
@@ -3007,6 +3007,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Экспартаванне сховішча арганізацыі"
   },
@@ -4270,6 +4279,20 @@
       }
     }
   },
+  "viewItemTitleWithField": {
+    "message": "View item - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "autofillTitle": {
     "message": "Autofill - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
@@ -4277,6 +4300,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "autofillTitleWithField": {
+    "message": "Autofill - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
       }
     }
   },

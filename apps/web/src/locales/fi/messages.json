@@ -6741,6 +6741,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultDesc": {
     "message": "Vain organisaatioon $ORGANIZATION$ liitetyn holvin kohteet viedään. Yksityisen holvin ja muiden organisaatioiden kohteita ei sisällytetä.",
     "placeholders": {

@@ -2490,6 +2490,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Apenas os itens individuais do cofre, incluindo os anexos associados a $EMAIL$, serão exportados. Os itens do cofre da organização não serão incluídos",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "A exportar o cofre da organização"
   },
