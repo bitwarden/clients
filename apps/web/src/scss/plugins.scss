@@ -66,14 +66,6 @@
   }
 }
 
-.recovery-code-img {
-  @include themify($themes) {
-    content: url("../images/two-factor/rc" + themed("mfaLogoSuffix"));
-    max-width: 100px;
-    max-height: 45px;
-  }
-}
-
 .progress {
   @include themify($themes) {
     background-color: themed("pwStrengthBackground");
