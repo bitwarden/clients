@@ -35,7 +35,7 @@ export class BrowserEnvironmentService extends DefaultEnvironmentService {
       return false;
     }
 
-    const managedEnv = await this.getManagedEnvironment();
+    const managedEnv = await this.getManagedEnvironment<GroupPolicyEnvironment>();
     const env = await firstValueFrom(this.environment$);
     const urls = env.getUrls();
 
@@ -50,9 +50,9 @@ export class BrowserEnvironmentService extends DefaultEnvironmentService {
     );
   }
 
-  getManagedEnvironment(): Promise<GroupPolicyEnvironment> {
+  getManagedEnvironment<T = GroupPolicyEnvironment>(): Promise<T | null> {
     return devFlagEnabled("managedEnvironment")
-      ? new Promise((resolve) => resolve(devFlagValue("managedEnvironment")))
+      ? new Promise((resolve) => resolve(devFlagValue("managedEnvironment") as T))
       : new Promise((resolve, reject) => {
           if (chrome.storage.managed == null) {
             return resolve(null);
@@ -63,13 +63,13 @@ export class BrowserEnvironmentService extends DefaultEnvironmentService {
               return reject(chrome.runtime.lastError);
             }
 
-            resolve(result.environment);
+            resolve(result.environment as T);
           });
         });
   }
 
   async setUrlsToManagedEnvironment() {
-    const env = await this.getManagedEnvironment();
+    const env = await this.getManagedEnvironment<GroupPolicyEnvironment>();
     await this.setEnvironment(Region.SelfHosted, {
       base: env.base,
       webVault: env.webVault,
