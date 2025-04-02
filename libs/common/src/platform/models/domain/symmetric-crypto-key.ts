@@ -83,6 +83,7 @@ export class SymmetricCryptoKey {
   }
 
   /**
+   * THIS SHOULD ONLY BE USED BY ENCRYPT SERVICE
    * @returns The inner key instance that can be directly used for encryption primitives
    */
   inner(): Aes256CbcHmacKey | Aes256CbcKey {
