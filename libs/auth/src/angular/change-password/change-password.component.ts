@@ -26,11 +26,11 @@ import { PasswordInputResult } from "../input-password/password-input-result";
 
 @Component({
   standalone: true,
-  selector: "auth-change-existing-password",
-  templateUrl: "change-existing-password.component.html",
+  selector: "auth-change-password",
+  templateUrl: "change-password.component.html",
   imports: [InputPasswordComponent],
 })
-export class ChangeExistingPasswordComponent implements OnInit {
+export class ChangePasswordComponent implements OnInit {
   @Input() inputPasswordFlow: InputPasswordFlow = InputPasswordFlow.ChangePassword;
 
   email?: string;
