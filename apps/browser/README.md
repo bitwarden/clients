@@ -20,3 +20,5 @@ The Bitwarden browser extension is written using the Web Extension API and Angul
 ## Documentation
 
 Please refer to the [Browser section](https://contributing.bitwarden.com/getting-started/clients/browser/) of the [Contributing Documentation](https://contributing.bitwarden.com/) for build instructions, recommended tooling, code style tips, and lots of other great information to get you started.
+
+test change
