@@ -1,4 +1,3 @@
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit } from "@angular/core";
 import {
@@ -24,6 +23,8 @@ import {
   ButtonModule,
   CalloutModule,
   CheckboxModule,
+  DIALOG_DATA,
+  DialogConfig,
   DialogModule,
   DialogService,
   FormFieldModule,

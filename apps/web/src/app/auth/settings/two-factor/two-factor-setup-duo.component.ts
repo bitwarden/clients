@@ -1,4 +1,3 @@
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Inject, OnInit, Output } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -16,7 +15,10 @@ import {
   AsyncActionsModule,
   ButtonModule,
   CalloutModule,
+  DIALOG_DATA,
+  DialogConfig,
   DialogModule,
+  DialogRef,
   DialogService,
   FormFieldModule,
   IconModule,

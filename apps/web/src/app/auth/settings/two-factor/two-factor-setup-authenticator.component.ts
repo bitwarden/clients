@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Inject, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -24,7 +23,10 @@ import {
   AsyncActionsModule,
   ButtonModule,
   CalloutModule,
+  DIALOG_DATA,
+  DialogConfig,
   DialogModule,
+  DialogRef,
   DialogService,
   FormFieldModule,
   IconModule,

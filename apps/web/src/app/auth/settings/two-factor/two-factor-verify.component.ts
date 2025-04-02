@@ -1,4 +1,3 @@
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, EventEmitter, Inject, Output } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 
@@ -16,7 +15,10 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import {
   AsyncActionsModule,
   ButtonModule,
+  DIALOG_DATA,
+  DialogConfig,
   DialogModule,
+  DialogRef,
   DialogService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -31,11 +33,11 @@ type TwoFactorVerifyDialogData = {
   templateUrl: "two-factor-verify.component.html",
   standalone: true,
   imports: [
-    ReactiveFormsModule,
-    DialogModule,
-    ButtonModule,
     AsyncActionsModule,
+    ButtonModule,
+    DialogModule,
     I18nPipe,
+    ReactiveFormsModule,
     UserVerificationFormInputComponent,
   ],
 })

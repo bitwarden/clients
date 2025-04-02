@@ -1,4 +1,3 @@
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Inject, OnInit, Output } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -19,7 +18,10 @@ import {
   AsyncActionsModule,
   ButtonModule,
   CalloutModule,
+  DIALOG_DATA,
+  DialogConfig,
   DialogModule,
+  DialogRef,
   DialogService,
   FormFieldModule,
   IconModule,
@@ -36,17 +38,17 @@ import { TwoFactorSetupMethodBaseComponent } from "./two-factor-setup-method-bas
   templateUrl: "two-factor-setup-email.component.html",
   standalone: true,
   imports: [
+    AsyncActionsModule,
+    ButtonModule,
+    CalloutModule,
     CommonModule,
     DialogModule,
     FormFieldModule,
-    InputModule,
-    TypographyModule,
-    ButtonModule,
     IconModule,
     I18nPipe,
+    InputModule,
     ReactiveFormsModule,
-    AsyncActionsModule,
-    CalloutModule,
+    TypographyModule,
   ],
 })
 export class TwoFactorSetupEmailComponent

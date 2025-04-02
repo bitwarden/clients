@@ -1,4 +1,3 @@
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject, NgZone } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
@@ -22,7 +21,10 @@ import {
   AsyncActionsModule,
   ButtonModule,
   CalloutModule,
+  DIALOG_DATA,
+  DialogConfig,
   DialogModule,
+  DialogRef,
   DialogService,
   FormFieldModule,
   LinkModule,
@@ -46,17 +48,17 @@ interface Key {
   templateUrl: "two-factor-setup-webauthn.component.html",
   standalone: true,
   imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    JslibModule,
-    DialogModule,
-    FormFieldModule,
+    AsyncActionsModule,
     ButtonModule,
     CalloutModule,
-    LinkModule,
-    TypographyModule,
-    AsyncActionsModule,
+    CommonModule,
+    DialogModule,
+    FormFieldModule,
     I18nPipe,
+    JslibModule,
+    LinkModule,
+    ReactiveFormsModule,
+    TypographyModule,
   ],
 })
 export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseComponent {
