@@ -32,11 +32,11 @@ import { ApiKeyComponent } from "../auth/settings/security/api-key.component";
 import { ChangeKdfModule } from "../auth/settings/security/change-kdf/change-kdf.module";
 import { SecurityKeysComponent } from "../auth/settings/security/security-keys.component";
 import { SecurityComponent } from "../auth/settings/security/security.component";
-import { TwoFactorRecoveryComponent } from "../auth/settings/two-factor/two-factor-recovery.component";
 import { TwoFactorSetupAuthenticatorComponent } from "../auth/settings/two-factor/two-factor-setup-authenticator.component";
 import { TwoFactorSetupDuoComponent } from "../auth/settings/two-factor/two-factor-setup-duo.component";
 import { TwoFactorSetupEmailComponent } from "../auth/settings/two-factor/two-factor-setup-email.component";
-import { TwoFactorSetupComponent } from "../auth/settings/two-factor/two-factor-setup.component";
+import { TwoFactorSetupWebAuthnComponent } from "../auth/settings/two-factor/two-factor-setup-webauthn.component";
+import { TwoFactorSetupYubiKeyComponent } from "../auth/settings/two-factor/two-factor-setup-yubikey.component";
 import { TwoFactorVerifyComponent } from "../auth/settings/two-factor/two-factor-verify.component";
 import { UserVerificationModule } from "../auth/shared/components/user-verification";
 import { UpdatePasswordComponent } from "../auth/update-password.component";
@@ -144,9 +144,9 @@ import { SharedModule } from "./shared.module";
     TwoFactorSetupAuthenticatorComponent,
     TwoFactorSetupDuoComponent,
     TwoFactorSetupEmailComponent,
-    TwoFactorRecoveryComponent,
-    TwoFactorSetupComponent,
     TwoFactorVerifyComponent,
+    TwoFactorSetupWebAuthnComponent,
+    TwoFactorSetupYubiKeyComponent,
     UpdatePasswordComponent,
     UpdateTempPasswordComponent,
     VerifyEmailTokenComponent,
@@ -200,8 +200,9 @@ import { SharedModule } from "./shared.module";
     TwoFactorSetupAuthenticatorComponent,
     TwoFactorSetupDuoComponent,
     TwoFactorSetupEmailComponent,
-    TwoFactorSetupComponent,
     TwoFactorVerifyComponent,
+    TwoFactorSetupWebAuthnComponent,
+    TwoFactorSetupYubiKeyComponent,
     UpdateTempPasswordComponent,
     UpdatePasswordComponent,
     UserLayoutComponent,

@@ -9,7 +9,6 @@ import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared/shared.module";
 import { UserVerificationModule } from "../../shared/components/user-verification";
 
-import { TwoFactorRecoveryComponent } from "./two-factor-recovery.component";
 import { TwoFactorSetupAuthenticatorComponent } from "./two-factor-setup-authenticator.component";
 import { TwoFactorSetupDuoComponent } from "./two-factor-setup-duo.component";
 import { TwoFactorSetupEmailComponent } from "./two-factor-setup-email.component";
@@ -30,7 +29,6 @@ import { TwoFactorSetupYubiKeyComponent } from "./two-factor-setup-yubikey.compo
     LinkModule,
   ],
   declarations: [
-    TwoFactorRecoveryComponent,
     TwoFactorSetupAuthenticatorComponent,
     TwoFactorSetupDuoComponent,
     TwoFactorSetupEmailComponent,
@@ -38,7 +36,6 @@ import { TwoFactorSetupYubiKeyComponent } from "./two-factor-setup-yubikey.compo
     TwoFactorSetupYubiKeyComponent,
   ],
   exports: [
-    TwoFactorRecoveryComponent,
     TwoFactorSetupAuthenticatorComponent,
     TwoFactorSetupDuoComponent,
     TwoFactorSetupEmailComponent,
