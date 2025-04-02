@@ -4,11 +4,12 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { NotificationId, UserId } from "@bitwarden/common/types/guid";
-import { DefaultEndUserNotificationService } from "@bitwarden/vault";
 
-import { FakeStateProvider, mockAccountServiceWith } from "../../../../common/spec";
+import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { NotificationViewResponse } from "../models";
 import { NOTIFICATIONS } from "../state/end-user-notification.state";
+
+import { DefaultEndUserNotificationService } from "./default-end-user-notification.service";
 
 describe("End User Notification Center Service", () => {
   let fakeStateProvider: FakeStateProvider;
