@@ -11,13 +11,16 @@ import { TypographyModule } from "../typography";
   selector: "bit-spotlight",
   templateUrl: "spotlight.component.html",
   standalone: true,
-  providers: [I18nPipe],
   imports: [ButtonModule, CommonModule, IconButtonModule, I18nPipe, TypographyModule],
 })
 export class SpotlightComponent {
+  // The title of the component
   @Input({ required: true }) title: string | null = null;
+  // The subtitle of the component
   @Input({ required: true }) subtitle: string | null = null;
+  // The text to display on the button
   @Input() buttonText?: string;
+  // Wheter the component can be dismissed, if true, the component will not show a close button
   @Input() persistent = false;
   @Output() onDismiss = new EventEmitter<void>();
   @Output() onButtonClick = new EventEmitter<void>();
