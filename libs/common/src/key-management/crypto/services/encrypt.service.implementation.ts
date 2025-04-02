@@ -169,17 +169,19 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     const inner = key.inner();
+    if (encThing.encryptionType !== inner.type) {
+      this.logDecryptError(
+        "Encryption key type mismatch",
+        key.encType,
+        encThing.encryptionType,
+        decryptContext,
+      );
+      return null;
+    }
+
     if (inner.type === EncryptionType.AesCbc256_HmacSha256_B64) {
-      if (
-        encThing.encryptionType !== EncryptionType.AesCbc256_HmacSha256_B64 ||
-        encThing.macBytes === null
-      ) {
-        this.logDecryptError(
-          "Encryption key type mismatch",
-          key.encType,
-          encThing.encryptionType,
-          decryptContext,
-        );
+      if (encThing.macBytes == null) {
+        this.logDecryptError("Mac missing", key.encType, encThing.encryptionType, decryptContext);
         return null;
       }
 
@@ -205,16 +207,6 @@ export class EncryptServiceImplementation implements EncryptService {
         "cbc",
       );
     } else if (inner.type === EncryptionType.AesCbc256_B64) {
-      if (encThing.encryptionType !== EncryptionType.AesCbc256_B64) {
-        this.logDecryptError(
-          "Encryption key type mismatch",
-          key.encType,
-          encThing.encryptionType,
-          decryptContext,
-        );
-        return null;
-      }
-
       return await this.cryptoFunctionService.aesDecrypt(
         encThing.dataBytes,
         encThing.ivBytes,
