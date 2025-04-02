@@ -1195,7 +1195,6 @@ export default class MainBackground {
 
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(
       this.logService,
-      this.configService,
       this.notificationBackground,
     );
 
