@@ -9,7 +9,6 @@ import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared/shared.module";
 import { UserVerificationModule } from "../../shared/components/user-verification";
 
-import { TwoFactorSetupWebAuthnComponent } from "./two-factor-setup-webauthn.component";
 import { TwoFactorSetupYubiKeyComponent } from "./two-factor-setup-yubikey.component";
 
 @NgModule({
@@ -25,7 +24,7 @@ import { TwoFactorSetupYubiKeyComponent } from "./two-factor-setup-yubikey.compo
     JslibModule,
     LinkModule,
   ],
-  declarations: [TwoFactorSetupWebAuthnComponent, TwoFactorSetupYubiKeyComponent],
-  exports: [TwoFactorSetupWebAuthnComponent, TwoFactorSetupYubiKeyComponent],
+  declarations: [TwoFactorSetupYubiKeyComponent],
+  exports: [TwoFactorSetupYubiKeyComponent],
 })
 export class TwoFactorModule {}
