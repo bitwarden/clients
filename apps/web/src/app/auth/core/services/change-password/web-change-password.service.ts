@@ -14,13 +14,13 @@ export class WebChangePasswordService
     currentPassword: string,
     newPassword: string,
     user: Account,
-    hint: string,
+    newPasswordHint: string,
   ): Promise<void | null> {
     await this.userKeyRotationService.rotateUserKeyMasterPasswordAndEncryptedData(
       currentPassword,
       newPassword,
       user,
-      hint,
+      newPasswordHint,
     );
   }
 

@@ -60,11 +60,11 @@ describe("DefaultRegistrationFinishService", () => {
       masterKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as MasterKey;
       passwordInputResult = {
         newMasterKey: masterKey,
-        serverMasterKeyHash: "serverMasterKeyHash",
-        localMasterKeyHash: "localMasterKeyHash",
+        newServerMasterKeyHash: "newServerMasterKeyHash",
+        newLocalMasterKeyHash: "newLocalMasterKeyHash",
         kdfConfig: DEFAULT_KDF_CONFIG,
-        hint: "hint",
-        newPassword: "password",
+        newPasswordHint: "newPasswordHint",
+        newPassword: "newPassword",
       };
 
       userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
@@ -101,8 +101,8 @@ describe("DefaultRegistrationFinishService", () => {
         expect.objectContaining({
           email,
           emailVerificationToken: emailVerificationToken,
-          masterPasswordHash: passwordInputResult.serverMasterKeyHash,
-          masterPasswordHint: passwordInputResult.hint,
+          masterPasswordHash: passwordInputResult.newServerMasterKeyHash,
+          masterPasswordHint: passwordInputResult.newPasswordHint,
           userSymmetricKey: userKeyEncString.encryptedString,
           userAsymmetricKeys: {
             publicKey: userKeyPair[0],
