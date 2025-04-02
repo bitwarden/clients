@@ -61,7 +61,7 @@ export class TwoFactorRecoveryComponent {
     w.print();
   }
 
-  private formatString(s: string | null): string {
+  private formatString(s: string): string {
     if (s == null) {
       return "";
     }

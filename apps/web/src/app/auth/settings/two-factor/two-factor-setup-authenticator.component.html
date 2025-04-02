@@ -80,7 +80,7 @@
         </ng-container>
         <canvas *ngIf="!qrScriptError" id="qr"></canvas>
         <br />
-        <code [attr.aria-label]="'key' | i18n">{{ key }}</code>
+        <code appA11yTitle="{{ 'key' | i18n }}">{{ key }}</code>
       </p>
       <bit-form-field *ngIf="!enabled" [disableMargin]="true">
         <bit-label>{{ "twoStepAuthenticatorEnterCodeV2" | i18n }}</bit-label>
