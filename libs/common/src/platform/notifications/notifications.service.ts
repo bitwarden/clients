@@ -7,6 +7,11 @@ import { UserId } from "@bitwarden/common/types/guid";
  * A service offering abilities to interact with push notifications from the server.
  */
 export abstract class NotificationsService {
+  /**
+   * @deprecated This method should not be consumed, an observable to listen to server
+   * notifications will be available one day but it is not ready to be consumed generally.
+   * Please add code reacting to notifications in `DefaultNotificationsService.processNotification`
+   */
   abstract notifications$: Observable<readonly [NotificationResponse, UserId]>;
   /**
    * Starts automatic listening and processing of notifications, should only be called once per application,
