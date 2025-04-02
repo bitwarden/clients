@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
@@ -46,6 +45,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import {
+  DialogRef,
   CardComponent,
   CheckboxModule,
   DialogService,
@@ -233,11 +233,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap(async () => {
           const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
-          const biometricSettingAvailable =
-            !(await BrowserApi.permissionsGranted(["nativeMessaging"])) ||
-            (status !== BiometricsStatus.DesktopDisconnected &&
-              status !== BiometricsStatus.NotEnabledInConnectedDesktopApp) ||
-            (await this.vaultTimeoutSettingsService.isBiometricLockSet());
+          const biometricSettingAvailable = await this.biometricsService.canEnableBiometricUnlock();
           if (!biometricSettingAvailable) {
             this.form.controls.biometric.disable({ emitEvent: false });
           } else {
@@ -255,6 +251,13 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
             this.biometricUnavailabilityReason = this.i18nService.t(
               "biometricsStatusHelptextNotEnabledInDesktop",
               activeAccount.email,
+            );
+          } else if (
+            status === BiometricsStatus.HardwareUnavailable &&
+            !biometricSettingAvailable
+          ) {
+            this.biometricUnavailabilityReason = this.i18nService.t(
+              "biometricsStatusHelptextHardwareUnavailable",
             );
           } else {
             this.biometricUnavailabilityReason = "";
