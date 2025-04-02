@@ -5,7 +5,12 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { AsyncActionsModule, ButtonModule, DialogService } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  DialogModule,
+  DialogService,
+} from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 type KeyRotationTrustDialogData = {
@@ -20,6 +25,7 @@ type KeyRotationTrustDialogData = {
   imports: [
     CommonModule,
     JslibModule,
+    DialogModule,
     ButtonModule,
     ReactiveFormsModule,
     AsyncActionsModule,
