@@ -43,7 +43,7 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     if (this.blockType0) {
-      if (key.encType === EncryptionType.AesCbc256_B64 || key.key.length < 64) {
+      if (key.encType === EncryptionType.AesCbc256_B64 || key.key.byteLength < 64) {
         throw new Error("Type 0 encryption is not supported.");
       }
     }
@@ -72,7 +72,7 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     if (this.blockType0) {
-      if (key.encType === EncryptionType.AesCbc256_B64 || key.key.length < 64) {
+      if (key.encType === EncryptionType.AesCbc256_B64 || key.key.byteLength < 64) {
         throw new Error("Type 0 encryption is not supported.");
       }
     }
