@@ -2,14 +2,20 @@ import { importProvidersFrom } from "@angular/core";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { action } from "@storybook/addon-actions";
 import { Meta, StoryObj, applicationConfig } from "@storybook/angular";
+import { of } from "rxjs";
 import { ZXCVBNResult } from "zxcvbn";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import { UserId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 // FIXME: remove `/apps` import from `/libs`
 // FIXME: remove `src` and fix import
@@ -27,10 +33,45 @@ export default {
         importProvidersFrom(PreloadedEnglishI18nModule),
         importProvidersFrom(BrowserAnimationsModule),
         {
+          provide: AccountService,
+          useValue: {
+            activeAccount$: of({
+              id: "test-user-id" as UserId,
+              name: "Test User 1",
+              email: "test@email.com",
+              emailVerified: true,
+            }),
+          },
+        },
+        {
           provide: AuditService,
           useValue: {
             passwordLeaked: () => Promise.resolve(1),
           } as Partial<AuditService>,
+        },
+        {
+          provide: CipherService,
+          useValue: {
+            getAllDecrypted: () => Promise.resolve([]),
+          },
+        },
+        {
+          provide: KdfConfigService,
+          useValue: {
+            getKdfConfig: () => Promise.resolve(DEFAULT_KDF_CONFIG),
+          },
+        },
+        {
+          provide: MasterPasswordServiceAbstraction,
+          useValue: {
+            decryptUserKeyWithMasterKey: () => Promise.resolve("example-decrypted-user-key"),
+          },
+        },
+        {
+          provide: PlatformUtilsService,
+          useValue: {
+            launchUri: () => Promise.resolve(true),
+          },
         },
         {
           provide: KeyService,
