@@ -118,6 +118,10 @@ export declare namespace autofill {
     Required = 'required',
     Discouraged = 'discouraged'
   }
+  export interface Position {
+    x: number
+    y: number
+  }
   export interface PasskeyRegistrationRequest {
     rpId: string
     userName: string
@@ -125,6 +129,7 @@ export declare namespace autofill {
     clientDataHash: Array<number>
     userVerification: UserVerification
     supportedAlgorithms: Array<number>
+    windowXy: Position
   }
   export interface PasskeyRegistrationResponse {
     rpId: string
@@ -134,12 +139,20 @@ export declare namespace autofill {
   }
   export interface PasskeyAssertionRequest {
     rpId: string
+    clientDataHash: Array<number>
+    userVerification: UserVerification
+    allowedCredentials: Array<Array<number>>
+    windowXy: Position
+  }
+  export interface PasskeyAssertionWithoutUserInterfaceRequest {
+    rpId: string
     credentialId: Array<number>
     userName: string
     userHandle: Array<number>
     recordIdentifier?: string
     clientDataHash: Array<number>
     userVerification: UserVerification
+    windowXy: Position
   }
   export interface PasskeyAssertionResponse {
     rpId: string
@@ -156,7 +169,7 @@ export declare namespace autofill {
      * @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
      * @param callback This function will be called whenever a message is received from a client.
      */
-    static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void): Promise<IpcServer>
+    static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void, assertionWithoutUserInterfaceCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void): Promise<IpcServer>
     /** Return the path to the IPC server. */
     getPath(): string
     /** Stop the IPC server. */

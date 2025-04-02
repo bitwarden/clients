@@ -316,10 +316,8 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: BiometricsService,
-    useFactory: () => {
-      return new ForegroundBrowserBiometricsService();
-    },
-    deps: [],
+    useClass: ForegroundBrowserBiometricsService,
+    deps: [PlatformUtilsService],
   }),
   safeProvider({
     provide: SyncService,
@@ -482,7 +480,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AutofillSettingsServiceAbstraction,
     useClass: AutofillSettingsService,
-    deps: [StateProvider, PolicyService],
+    deps: [StateProvider, PolicyService, AccountService],
   }),
   safeProvider({
     provide: UserNotificationSettingsServiceAbstraction,
