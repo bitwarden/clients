@@ -7,8 +7,11 @@ import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { SecurityTaskId, UserId } from "@bitwarden/common/types/guid";
+import {
+  filterOutNullish,
+  perUserCache$,
+} from "@bitwarden/common/vault/utils/observable-utilities";
 
-import { filterOutNullish, perUserCache$ } from "../../utils/observable-utilities";
 import { TaskService } from "../abstractions/task.service";
 import { SecurityTaskStatus } from "../enums";
 import { SecurityTask, SecurityTaskData, SecurityTaskResponse } from "../models";
