@@ -1,4 +1,3 @@
-import { Injectable } from "@angular/core";
 import { concatMap, filter, map, Observable, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -19,9 +18,6 @@ import { NOTIFICATIONS } from "../state/end-user-notification.state";
 /**
  * A service for retrieving and managing notifications for end users.
  */
-@Injectable({
-  providedIn: "root",
-})
 export class DefaultEndUserNotificationService implements EndUserNotificationService {
   constructor(
     private stateProvider: StateProvider,

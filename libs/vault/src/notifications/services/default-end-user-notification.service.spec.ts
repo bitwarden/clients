@@ -1,4 +1,3 @@
-import { TestBed } from "@angular/core/testing";
 import { firstValueFrom, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -13,38 +12,24 @@ import { NOTIFICATIONS } from "../state/end-user-notification.state";
 
 describe("End User Notification Center Service", () => {
   let fakeStateProvider: FakeStateProvider;
+  let mockApiService: jest.Mocked<ApiService>;
+  let mockNotificationsService: jest.Mocked<NotificationsService>;
+  let service: DefaultEndUserNotificationService;
 
-  const mockApiSend = jest.fn();
-
-  let testBed: TestBed;
-
-  beforeEach(async () => {
-    mockApiSend.mockClear();
-
+  beforeEach(() => {
     fakeStateProvider = new FakeStateProvider(mockAccountServiceWith("user-id" as UserId));
+    mockApiService = {
+      send: jest.fn(),
+    } as any;
+    mockNotificationsService = {
+      notifications$: of(null),
+    } as any;
 
-    testBed = TestBed.configureTestingModule({
-      imports: [],
-      providers: [
-        DefaultEndUserNotificationService,
-        {
-          provide: StateProvider,
-          useValue: fakeStateProvider,
-        },
-        {
-          provide: ApiService,
-          useValue: {
-            send: mockApiSend,
-          },
-        },
-        {
-          provide: NotificationsService,
-          useValue: {
-            notifications$: of(null),
-          },
-        },
-      ],
-    });
+    service = new DefaultEndUserNotificationService(
+      fakeStateProvider as unknown as StateProvider,
+      mockApiService,
+      mockNotificationsService,
+    );
   });
 
   describe("notifications$", () => {
@@ -55,16 +40,14 @@ describe("End User Notification Center Service", () => {
         } as NotificationViewResponse,
       ]);
 
-      const { notifications$ } = testBed.inject(DefaultEndUserNotificationService);
-
-      const result = await firstValueFrom(notifications$("user-id" as UserId));
+      const result = await firstValueFrom(service.notifications$("user-id" as UserId));
 
       expect(result.length).toBe(1);
-      expect(mockApiSend).not.toHaveBeenCalled();
+      expect(mockApiService.send).not.toHaveBeenCalled();
     });
 
     it("should return notifications API when state is null", async () => {
-      mockApiSend.mockResolvedValue({
+      mockApiService.send.mockResolvedValue({
         data: [
           {
             id: "notification-id",
@@ -74,19 +57,15 @@ describe("End User Notification Center Service", () => {
 
       fakeStateProvider.singleUser.mockFor("user-id" as UserId, NOTIFICATIONS, null as any);
 
-      const { notifications$ } = testBed.inject(DefaultEndUserNotificationService);
-
-      const result = await firstValueFrom(notifications$("user-id" as UserId));
+      const result = await firstValueFrom(service.notifications$("user-id" as UserId));
 
       expect(result.length).toBe(1);
-      expect(mockApiSend).toHaveBeenCalledWith("GET", "/notifications", null, true, true);
+      expect(mockApiService.send).toHaveBeenCalledWith("GET", "/notifications", null, true, true);
     });
 
     it("should share the same observable for the same user", async () => {
-      const { notifications$ } = testBed.inject(DefaultEndUserNotificationService);
-
-      const first = notifications$("user-id" as UserId);
-      const second = notifications$("user-id" as UserId);
+      const first = service.notifications$("user-id" as UserId);
+      const second = service.notifications$("user-id" as UserId);
 
       expect(first).toBe(second);
     });
@@ -101,55 +80,51 @@ describe("End User Notification Center Service", () => {
         } as NotificationViewResponse,
       ]);
 
-      const { unreadNotifications$ } = testBed.inject(DefaultEndUserNotificationService);
-
-      const result = await firstValueFrom(unreadNotifications$("user-id" as UserId));
+      const result = await firstValueFrom(service.unreadNotifications$("user-id" as UserId));
 
       expect(result.length).toBe(1);
-      expect(mockApiSend).not.toHaveBeenCalled();
+      expect(mockApiService.send).not.toHaveBeenCalled();
     });
   });
 
   describe("getNotifications", () => {
     it("should call getNotifications returning notifications from API", async () => {
-      mockApiSend.mockResolvedValue({
+      mockApiService.send.mockResolvedValue({
         data: [
           {
             id: "notification-id",
           },
         ] as NotificationViewResponse[],
       });
-      const service = testBed.inject(DefaultEndUserNotificationService);
 
       await service.getNotifications("user-id" as UserId);
 
-      expect(mockApiSend).toHaveBeenCalledWith("GET", "/notifications", null, true, true);
-    });
-  });
-  it("should update local state when notifications are updated", async () => {
-    mockApiSend.mockResolvedValue({
-      data: [
-        {
-          id: "notification-id",
-        },
-      ] as NotificationViewResponse[],
+      expect(mockApiService.send).toHaveBeenCalledWith("GET", "/notifications", null, true, true);
     });
 
-    const mock = fakeStateProvider.singleUser.mockFor(
-      "user-id" as UserId,
-      NOTIFICATIONS,
-      null as any,
-    );
+    it("should update local state when notifications are updated", async () => {
+      mockApiService.send.mockResolvedValue({
+        data: [
+          {
+            id: "notification-id",
+          },
+        ] as NotificationViewResponse[],
+      });
 
-    const service = testBed.inject(DefaultEndUserNotificationService);
+      const mock = fakeStateProvider.singleUser.mockFor(
+        "user-id" as UserId,
+        NOTIFICATIONS,
+        null as any,
+      );
 
-    await service.getNotifications("user-id" as UserId);
+      await service.getNotifications("user-id" as UserId);
 
-    expect(mock.nextMock).toHaveBeenCalledWith([
-      expect.objectContaining({
-        id: "notification-id" as NotificationId,
-      } as NotificationViewResponse),
-    ]);
+      expect(mock.nextMock).toHaveBeenCalledWith([
+        expect.objectContaining({
+          id: "notification-id" as NotificationId,
+        } as NotificationViewResponse),
+      ]);
+    });
   });
 
   describe("clear", () => {
@@ -160,8 +135,6 @@ describe("End User Notification Center Service", () => {
         } as NotificationViewResponse,
       ]);
 
-      const service = testBed.inject(DefaultEndUserNotificationService);
-
       await service.clearState("user-id" as UserId);
 
       expect(mock.nextMock).toHaveBeenCalledWith([]);
@@ -170,10 +143,8 @@ describe("End User Notification Center Service", () => {
 
   describe("markAsDeleted", () => {
     it("should send an API request to mark the notification as deleted", async () => {
-      const service = testBed.inject(DefaultEndUserNotificationService);
-
       await service.markAsDeleted("notification-id" as NotificationId, "user-id" as UserId);
-      expect(mockApiSend).toHaveBeenCalledWith(
+      expect(mockApiService.send).toHaveBeenCalledWith(
         "DELETE",
         "/notifications/notification-id/delete",
         null,
@@ -185,10 +156,8 @@ describe("End User Notification Center Service", () => {
 
   describe("markAsRead", () => {
     it("should send an API request to mark the notification as read", async () => {
-      const service = testBed.inject(DefaultEndUserNotificationService);
-
       await service.markAsRead("notification-id" as NotificationId, "user-id" as UserId);
-      expect(mockApiSend).toHaveBeenCalledWith(
+      expect(mockApiService.send).toHaveBeenCalledWith(
         "PATCH",
         "/notifications/notification-id/read",
         null,
