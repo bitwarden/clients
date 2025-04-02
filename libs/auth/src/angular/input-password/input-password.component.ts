@@ -1,5 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from "@angular/forms";
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  Validators,
+  FormGroup,
+  FormControl,
+} from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -170,7 +176,7 @@ export class InputPasswordComponent implements OnInit {
       // https://github.com/angular/angular/issues/48794
       (this.formGroup as FormGroup<any>).addControl(
         "rotateUserKey",
-        this.formBuilder.control(false),
+        this.formBuilder.control<boolean>(false),
       );
     }
 
@@ -439,7 +445,8 @@ export class InputPasswordComponent implements OnInit {
           );
         }
 
-        this.formGroup.controls.rotateUserKey.setValue(false);
+        // TODO-rr-bw: verify
+        (this.formGroup.get("rotateUserKey") as unknown as FormControl<boolean>)?.setValue(false);
         return;
       }
 
@@ -455,7 +462,8 @@ export class InputPasswordComponent implements OnInit {
       });
 
       if (!result) {
-        this.formGroup.controls.rotateUserKey.setValue(false);
+        // TODO-rr-bw: verify
+        (this.formGroup.get("rotateUserKey") as unknown as FormControl<boolean>)?.setValue(false);
       }
     }
   }
