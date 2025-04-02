@@ -64,7 +64,7 @@ export const WithCustomButton: Story = {
         [subtitle]="subtitle"
       >
         <button
-          class="tw-w-full tw-mt-2"
+          class="tw-w-full"
           bit-item-content
           bitButton
           type="button"
