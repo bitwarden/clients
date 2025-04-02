@@ -57,8 +57,11 @@ export class EncryptServiceImplementation implements EncryptService {
       const data = Utils.fromBufferToB64(encObj.data);
       const mac = Utils.fromBufferToB64(encObj.mac);
       return new EncString(innerKey.type, data, iv, mac);
-    } else {
-      throw new Error(`Encrypt is not supported for keys of type ${innerKey.type}`);
+    } else if (innerKey.type === EncryptionType.AesCbc256_B64) {
+      const encObj = await this.aesEncryptLegacy(plainBuf, innerKey);
+      const iv = Utils.fromBufferToB64(encObj.iv);
+      const data = Utils.fromBufferToB64(encObj.data);
+      return new EncString(innerKey.type, data, iv);
     }
   }
 
