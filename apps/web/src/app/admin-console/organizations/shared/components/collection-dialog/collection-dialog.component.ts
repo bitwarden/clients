@@ -88,6 +88,7 @@ export interface CollectionDialogParams {
   limitNestedCollections?: boolean;
   readonly?: boolean;
   isAddAccessCollection?: boolean;
+  isAdminConsoleActive?: boolean;
 }
 
 export interface CollectionDialogResult {
@@ -133,7 +134,14 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected buttonDisplayName: ButtonType = ButtonType.Save;
   protected isExternalIdVisible$ = this.configService
     .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
-    .pipe(map((isEnabled) => !isEnabled || !!this.formGroup.get("externalId")?.value));
+    .pipe(
+      map((isEnabled) => {
+        return (
+          !isEnabled ||
+          (!!this.params.isAdminConsoleActive && !!this.formGroup.get("externalId")?.value)
+        );
+      }),
+    );
   private orgExceedingCollectionLimit!: Organization;
 
   constructor(
