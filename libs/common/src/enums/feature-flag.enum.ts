@@ -15,6 +15,7 @@ export enum FeatureFlag {
 
   /* Auth */
   PM9112_DeviceApprovalPersistence = "pm-9112-device-approval-persistence",
+  PM16117_ChangeExistingPasswordRefactor = "pm-16117-change-existing-password-refactor",
 
   /* Autofill */
   BlockBrowserInjectionsByDomain = "block-browser-injections-by-domain",
@@ -107,6 +108,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Auth */
   [FeatureFlag.PM9112_DeviceApprovalPersistence]: FALSE,
+  [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
