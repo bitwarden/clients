@@ -1,8 +1,9 @@
-import { Component, signal } from "@angular/core";
+import { Component } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ButtonModule, DialogModule, IconModule, TypographyModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { VaultCarouselModule, VaultIcons } from "@bitwarden/vault";
 
 import { IntroCarouselService } from "../../../services/intro-carousel.service";
@@ -17,11 +18,11 @@ import { IntroCarouselService } from "../../../services/intro-carousel.service";
     DialogModule,
     TypographyModule,
     JslibModule,
+    I18nPipe,
   ],
   standalone: true,
 })
 export class IntroCarouselComponent {
-  protected dismissBtnEnabled = signal(false);
   protected securityHandshake = VaultIcons.SecurityHandshake;
   protected loginCards = VaultIcons.LoginCards;
   protected secureUser = VaultIcons.SecureUser;
@@ -31,12 +32,6 @@ export class IntroCarouselComponent {
     private router: Router,
     private introCarouselService: IntroCarouselService,
   ) {}
-
-  protected onSlideChange(slideIndex: number) {
-    if (slideIndex === 4) {
-      this.dismissBtnEnabled.set(true);
-    }
-  }
 
   protected async navigateToSignup() {
     await this.introCarouselService.setIntroCarouselDismissed();
