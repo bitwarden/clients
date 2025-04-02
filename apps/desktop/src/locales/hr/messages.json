@@ -2490,6 +2490,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Izvest će se samo stavke i privici osobnog trezora povezanog s $EMAIL$. Stavke organizacijskog trezora neće biti uključene",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Izvoz organizacijskog trezora"
   },

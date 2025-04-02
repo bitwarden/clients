@@ -81,7 +81,7 @@
     "message": "Petunjuk Kata Sandi Utama (opsional)"
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "Skor kekuatan kata sandi $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -656,10 +656,10 @@
     "message": "Verifikasikan identitas Anda"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Kami tidak mengenali perangkat ini. Masukkan kode yang dikirim ke surel Anda untuk memverifikasi identitas Anda."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Lanjutkan log masuk"
   },
   "yourVaultIsLocked": {
     "message": "Brankas Anda terkunci. Verifikasi kata sandi utama Anda untuk melanjutkan."
@@ -869,19 +869,19 @@
     "message": "Masuk ke Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Masukkan kode yang dikirim ke surel Anda"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Masukkan kode dari aplikasi autentikator Anda"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Sentuh YubiKey Anda untuk mengautentikasi"
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+    "message": "Log masuk dua langkah berganda diperlukan bagi akun Anda. Ikuti langkah di bawah untuk menyelesaikan log masuk."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Follow the steps below to finish logging in."
+    "message": "Ikuti langkah-langkah di bawah untuk menyelesaikan log masuk."
   },
   "restartRegistration": {
     "message": "Mulai ulang pendaftaran"
@@ -1019,7 +1019,7 @@
     "message": "Tanyakan untuk menambah sebuah benda jika benda itu tidak ditemukan di brankas Anda. Diterapkan ke seluruh akun yang telah masuk."
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "Selalu tampilan kartu sebagai saran isi otomatis pada tampilan Brankas"
   },
   "showCardsCurrentTab": {
     "message": "Tamplikan kartu pada halaman Tab"
@@ -1028,7 +1028,7 @@
     "message": "Buat tampilan daftar benda dari kartu pada halaman Tab untuk isi otomatis yang mudah."
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "Selalu tampilan identitas sebagai saran isi otomatis pada tampilan Brankas"
   },
   "showIdentitiesCurrentTab": {
     "message": "Tampilkan identitas pada halaman Tab"
@@ -1037,10 +1037,10 @@
     "message": "Buat tampilan daftar benda dari identitas pada halaman Tab untuk isi otomatis yang mudah."
   },
   "clickToAutofillOnVault": {
-    "message": "Click items to autofill on Vault view"
+    "message": "Klik butir untuk mengisi otomatis pada tampilan Brankas"
   },
   "clickToAutofill": {
-    "message": "Click items in autofill suggestion to fill"
+    "message": "Klik butir dalam saran isi otomatis untuk mengisi"
   },
   "clearClipboard": {
     "message": "Hapus Papan Klip",
@@ -1057,7 +1057,7 @@
     "message": "Iya, Simpan Sekarang"
   },
   "loginSaveSuccessDetails": {
-    "message": "$USERNAME$ saved to Bitwarden.",
+    "message": "$USERNAME$ disimpan ke Bitwarden.",
     "placeholders": {
       "username": {
         "content": "$1"
@@ -1066,7 +1066,7 @@
     "description": "Shown to user after login is saved."
   },
   "loginUpdatedSuccessDetails": {
-    "message": "$USERNAME$ updated in Bitwarden.",
+    "message": "$USERNAME$ diperbarui di Bitwarden.",
     "placeholders": {
       "username": {
         "content": "$1"
@@ -1075,35 +1075,35 @@
     "description": "Shown to user after login is updated."
   },
   "saveAsNewLoginAction": {
-    "message": "Save as new login",
+    "message": "Simpan sebagai log masuk baru",
     "description": "Button text for saving login details as a new entry."
   },
   "updateLoginAction": {
-    "message": "Update login",
+    "message": "Perbarui log masuk",
     "description": "Button text for updating an existing login entry."
   },
   "saveLoginPrompt": {
-    "message": "Save login?",
+    "message": "Simpan log masuk?",
     "description": "Prompt asking the user if they want to save their login details."
   },
   "updateLoginPrompt": {
-    "message": "Update existing login?",
+    "message": "Perbarui log masuk yang ada?",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
-    "message": "Login saved",
+    "message": "Log masuk disimpan",
     "description": "Message displayed when login details are successfully saved."
   },
   "loginUpdateSuccess": {
-    "message": "Login updated",
+    "message": "Log masuk diperbarui",
     "description": "Message displayed when login details are successfully updated."
   },
   "saveFailure": {
-    "message": "Error saving",
+    "message": "Kesalahan saat menyimpan",
     "description": "Error message shown when the system fails to save login details."
   },
   "saveFailureDetails": {
-    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "message": "Oh tidak! Kami tidak bisa menyimpan ini. Cobalah memasukkan rincian secara manual.",
     "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
@@ -1422,7 +1422,7 @@
     "message": "Ingat saya"
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "Jangan tanyakan lagi pada perangkat ini untuk 30 hari"
   },
   "sendVerificationCodeEmailAgain": {
     "message": "Kirim ulang email kode verifikasi"
@@ -1431,11 +1431,11 @@
     "message": "Gunakan metode masuk dua langkah lainnya"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Pilih metode lain",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "Gunakan kode pemulihan Anda"
   },
   "insertYubiKey": {
     "message": "Masukkan YubiKey Anda ke port USB komputer Anda, lalu sentuh tombolnya."
@@ -1450,16 +1450,16 @@
     "message": "Buka tab baru"
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "Buka dalam tab baru"
   },
   "webAuthnAuthenticate": {
     "message": "Autentikasi dengan WebAuthn."
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "Baca kunci keamanan"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Awaiting security key interaction..."
+    "message": "Menunggu interaksi kunci keamanan..."
   },
   "loginUnavailable": {
     "message": "Info Masuk Tidak Tersedia"
@@ -1474,7 +1474,7 @@
     "message": "Opsi Info Masuk Dua Langkah"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "Pilih metode log masuk dua langkah"
   },
   "recoveryCodeDesc": {
     "message": "Kehilangan akses ke semua penyedia dua faktor Anda? Gunakan kode pemulihan untuk menonaktifkan semua penyedia dua faktor dari akun Anda."
@@ -1668,7 +1668,7 @@
     "message": "Seret untuk mengurutkan"
   },
   "dragToReorder": {
-    "message": "Drag to reorder"
+    "message": "Seret untuk mengubah urutan"
   },
   "cfTypeText": {
     "message": "Teks"
@@ -2144,7 +2144,7 @@
     "message": "Pembuat nama pengguna"
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Pakai surel ini"
   },
   "useThisPassword": {
     "message": "Gunakan kata sandi ini"
@@ -2164,7 +2164,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultCustomization": {
-    "message": "Vault customization"
+    "message": "Penyesuaian brankas"
   },
   "vaultTimeoutAction": {
     "message": "Tindakan Batas Waktu Brankas"
@@ -2173,13 +2173,13 @@
     "message": "Batas waktu tindakan"
   },
   "newCustomizationOptionsCalloutTitle": {
-    "message": "New customization options"
+    "message": "Opsi penyesuaian baru"
   },
   "newCustomizationOptionsCalloutContent": {
-    "message": "Customize your vault experience with quick copy actions, compact mode, and more!"
+    "message": "Sesuaikan pengalaman brankas Anda dengan aksi salin cepat, mode kompak, dan lainnya!"
   },
   "newCustomizationOptionsCalloutLink": {
-    "message": "View all Appearance settings"
+    "message": "Lihat semua pengaturan Penampilan"
   },
   "lock": {
     "message": "Kunci",
@@ -2437,10 +2437,10 @@
     "description": "A category title describing the concept of web domains"
   },
   "blockedDomains": {
-    "message": "Blocked domains"
+    "message": "Domain terblokir"
   },
   "learnMoreAboutBlockedDomains": {
-    "message": "Learn more about blocked domains"
+    "message": "Pelajari lebih lanjut tentang domain yang diblokir"
   },
   "excludedDomains": {
     "message": "Domain yang Dikecualikan"
@@ -2452,19 +2452,19 @@
     "message": "Bitwarden tidak akan meminta untuk menyimpan rincian login untuk domain tersebut. Anda harus menyegarkan halaman agar perubahan diterapkan."
   },
   "blockedDomainsDesc": {
-    "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
+    "message": "Isi otomatis dan fitur terkait lain tidak akan ditawarkan bagi situs-situs web ini. Anda mesti menyegarkan halaman agar perubahan berdampak."
   },
   "autofillBlockedNoticeV2": {
-    "message": "Autofill is blocked for this website."
+    "message": "Isi otomatis diblokir bagi situs web ini."
   },
   "autofillBlockedNoticeGuidance": {
-    "message": "Change this in settings"
+    "message": "Ubah ini di pengaturan"
   },
   "change": {
     "message": "Ubah"
   },
   "changeButtonTitle": {
-    "message": "Change password - $ITEMNAME$",
+    "message": "Ubah kata sandi - $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -2473,10 +2473,10 @@
     }
   },
   "atRiskPasswords": {
-    "message": "At-risk passwords"
+    "message": "Kata sandi yang berrisiko"
   },
   "atRiskPasswordDescSingleOrg": {
-    "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
+    "message": "$ORGANIZATION$ meminta Ada mengubah satu kata sandi karena itu berrisiko.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2485,7 +2485,7 @@
     }
   },
   "atRiskPasswordsDescSingleOrgPlural": {
-    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at-risk.",
+    "message": "$ORGANIZATION$ meminta Anda mengubah $COUNT$ kata sandi karena mereka berrisiko.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2498,7 +2498,7 @@
     }
   },
   "atRiskPasswordsDescMultiOrgPlural": {
-    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at-risk.",
+    "message": "Organisasi Anda meminta Anda mengubah $COUNT$ kata sandi karena mereka berrisiko.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2507,10 +2507,10 @@
     }
   },
   "reviewAndChangeAtRiskPassword": {
-    "message": "Review and change one at-risk password"
+    "message": "Tinjau dan ubah satu kata sandi berrisiko"
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
-    "message": "Review and change $COUNT$ at-risk passwords",
+    "message": "Tinjau dan ubah $COUNT$ kata sandi berrisiko",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2519,7 +2519,7 @@
     }
   },
   "changeAtRiskPasswordsFaster": {
-    "message": "Change at-risk passwords faster"
+    "message": "Ubah lebih cepat kata sandi yang berrisiko"
   },
   "changeAtRiskPasswordsFasterDesc": {
     "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
@@ -2528,14 +2528,14 @@
     "message": "Review at-risk logins"
   },
   "reviewAtRiskPasswords": {
-    "message": "Review at-risk passwords"
+    "message": "Tinjau kata sandi yang berrisiko"
   },
   "reviewAtRiskLoginsSlideDesc": {
-    "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
+    "message": "Kata sandi organisasi Anda berrisiko karena mereka lemah, dipakai ulang, dan/atau terpapar.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
   "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Illustration of a list of logins that are at-risk"
+    "message": "Ilustrasi dari daftar log masuk yang berrisiko"
   },
   "generatePasswordSlideDesc": {
     "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
@@ -2561,7 +2561,7 @@
     "message": "Turned on autofill"
   },
   "dismiss": {
-    "message": "Dismiss"
+    "message": "Tutup"
   },
   "websiteItemLabel": {
     "message": "Situs web $number$ (URI)",
@@ -2582,7 +2582,7 @@
     }
   },
   "blockedDomainsSavedSuccess": {
-    "message": "Blocked domain changes saved"
+    "message": "Perubahan domain yang diblokir disimpan"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Perubahan domain yang diabaikan telah disimpan"
@@ -3007,6 +3007,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Mengekspor brankas organisasi"
   },
@@ -3023,17 +3032,17 @@
     "message": "Galat"
   },
   "decryptionError": {
-    "message": "Decryption error"
+    "message": "Kesalahan dekripsi"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+    "message": "Bitwarden tidak bisa mendekripsi butir brankas yang tercantum di bawah."
   },
   "contactCSToAvoidDataLossPart1": {
     "message": "Contact customer success",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "untuk menghindari lanjutan hilang data.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
@@ -3168,7 +3177,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ menolak permintaan Anda. Harap hubungi penyedia layanan Anda untuk bantuan.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3178,7 +3187,7 @@
     }
   },
   "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ menolak permintaan Anda: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3327,13 +3336,13 @@
     "message": "Sebuah pemberitahuan dikirim ke perangkat Anda."
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the"
+    "message": "Buka kunci Bitwarden pada perangkat Anda atau pada"
   },
   "notificationSentDeviceAnchor": {
-    "message": "web app"
+    "message": "aplikasi web"
   },
   "notificationSentDevicePart2": {
-    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+    "message": "Pastikan frasa Sidik Jari cocok dengan yang di bawah sebelum menyetujui."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Sebuah pemberitahuan telah dikirim ke perangkat Anda"
@@ -3348,7 +3357,7 @@
     "message": "Memulai login"
   },
   "logInRequestSent": {
-    "message": "Request sent"
+    "message": "Permintaan terkirim"
   },
   "exposedMasterPassword": {
     "message": "Kata Sandi Utama yang Terpapar"
@@ -4080,7 +4089,7 @@
     "message": "Akun aktif"
   },
   "bitwardenAccount": {
-    "message": "Bitwarden account"
+    "message": "Akun Bitwarden"
   },
   "availableAccounts": {
     "message": "Akun yang tersedia"
@@ -4203,10 +4212,10 @@
     "message": "Kunci sandi dihapus"
   },
   "autofillSuggestions": {
-    "message": "Autofill suggestions"
+    "message": "Saran isi otomatis"
   },
   "itemSuggestions": {
-    "message": "Suggested items"
+    "message": "Butir yang disarankan"
   },
   "autofillSuggestionsTip": {
     "message": "Simpan benda login untuk situs ini ke isi otomatis"
@@ -4270,6 +4279,20 @@
       }
     }
   },
+  "viewItemTitleWithField": {
+    "message": "View item - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "autofillTitle": {
     "message": "Isi otomatis - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
@@ -4280,8 +4303,22 @@
       }
     }
   },
+  "autofillTitleWithField": {
+    "message": "Autofill - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "copyFieldValue": {
-    "message": "Copy $FIELD$, $VALUE$",
+    "message": "Salin $FIELD$, $VALUE$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -4769,7 +4806,7 @@
     }
   },
   "itemLocation": {
-    "message": "Item Location"
+    "message": "Lokasi Item"
   },
   "fileSend": {
     "message": "File Send"
@@ -4835,7 +4872,7 @@
     "message": "File saved to device. Manage from your device downloads."
   },
   "showCharacterCount": {
-    "message": "Show character count"
+    "message": "Tunjukkan cacah karakter"
   },
   "hideCharacterCount": {
     "message": "Hide character count"
@@ -4896,15 +4933,15 @@
     "description": "Heading for the password generator within the inline menu"
   },
   "passwordRegenerated": {
-    "message": "Password regenerated",
+    "message": "Kata sandi dibuat ulang",
     "description": "Notification message for when a password has been regenerated"
   },
   "saveLoginToBitwarden": {
-    "message": "Save login to Bitwarden?",
+    "message": "Simpan log masuk ke Bitwarden?",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
-    "message": "Space",
+    "message": "Spasi",
     "description": "Represents the space key in screen reader content as a readable word"
   },
   "tildeCharacterDescriptor": {
@@ -5051,22 +5088,22 @@
     "message": "Beta"
   },
   "importantNotice": {
-    "message": "Important notice"
+    "message": "Pemberitahuan penting"
   },
   "setupTwoStepLogin": {
-    "message": "Set up two-step login"
+    "message": "Siapkan log masuk dua langkah"
   },
   "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+    "message": "Bitwarden akan mengirim suatu kode ke akun surel Anda untuk memverifikasi log masuk dari perangkat baru sejak Februari 2025."
   },
   "newDeviceVerificationNoticeContentPage2": {
-    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+    "message": "Anda dapat menyiapkan log masuk dua langkah sebagai cara alternatif untuk melindungi akun Anda atau mengubah surel Anda ke yang bisa Anda akses."
   },
   "remindMeLater": {
-    "message": "Remind me later"
+    "message": "Ingatkan saya nanti"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "message": "Apakah Anda punya akses yang handal ke surel Anda, $EMAIL$?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5081,7 +5118,7 @@
     "message": "Ya, saya dapat mengakses surel saya secara handla"
   },
   "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
+    "message": "Nyalakan log masuk dua langkah"
   },
   "changeAcctEmail": {
     "message": "Ubah surel akun"
