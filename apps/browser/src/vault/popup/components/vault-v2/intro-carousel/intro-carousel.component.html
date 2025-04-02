@@ -29,21 +29,23 @@
   </vault-carousel-slide>
 </vault-carousel>
 
-<a
-  bitButton
-  buttonType="primary"
-  appStopClick
-  (click)="navigateToSignup()"
-  class="tw-w-full tw-mt-4"
->
-  {{ "createAccount" | i18n }}
-</a>
-<a
-  bitButton
-  buttonType="secondary"
-  appStopClick
-  (click)="navigateToLogin()"
-  class="tw-w-full tw-mt-4"
->
-  {{ "logIn" | i18n }}
-</a>
+<ng-container bitDialogFooter>
+  <button
+    type="button"
+    bitButton
+    buttonType="primary"
+    (click)="navigateToSignup()"
+    class="tw-w-full tw-mt-4"
+  >
+    {{ "createAccount" | i18n }}
+  </button>
+  <button
+    type="button"
+    bitButton
+    buttonType="secondary"
+    (click)="navigateToLogin()"
+    class="tw-w-full tw-mt-4"
+  >
+    {{ "logIn" | i18n }}
+  </button>
+</ng-container>
