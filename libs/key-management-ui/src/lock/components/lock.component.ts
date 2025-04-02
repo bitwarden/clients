@@ -22,6 +22,7 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   MasterPasswordVerification,
   MasterPasswordVerificationResponse,
@@ -584,7 +585,10 @@ export class LockComponent implements OnInit, OnDestroy {
         // If we do not have any saved policies, attempt to load them from the service
         if (this.enforcedMasterPasswordOptions == undefined) {
           this.enforcedMasterPasswordOptions = await firstValueFrom(
-            this.policyService.masterPasswordPolicyOptions$(),
+            this.accountService.activeAccount$.pipe(
+              getUserId,
+              switchMap((userId) => this.policyService.masterPasswordPolicyOptions$(userId)),
+            ),
           );
         }
 

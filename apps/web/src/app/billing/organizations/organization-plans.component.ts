@@ -12,7 +12,7 @@ import {
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import { Subject, firstValueFrom, takeUntil } from "rxjs";
-import { debounceTime, map } from "rxjs/operators";
+import { debounceTime, map, switchMap } from "rxjs/operators";
 
 import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -31,6 +31,7 @@ import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/mode
 import { ProviderOrganizationCreateRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-organization-create.request";
 import { ProviderResponse } from "@bitwarden/common/admin-console/models/response/provider/provider.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
 import { PaymentMethodType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
@@ -240,9 +241,14 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       this.formGroup.controls.billingEmail.addValidators(Validators.required);
     }
 
-    this.policyService
-      .policyAppliesToActiveUser$(PolicyType.SingleOrg)
-      .pipe(takeUntil(this.destroy$))
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
+        ),
+        takeUntil(this.destroy$),
+      )
       .subscribe((policyAppliesToActiveUser) => {
         this.singleOrgPolicyAppliesToActiveUser = policyAppliesToActiveUser;
       });

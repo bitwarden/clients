@@ -32,7 +32,6 @@ import { View } from "../../models/view/view";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { StateService } from "../../platform/abstractions/state.service";
-import { sequentialize } from "../../platform/misc/sequentialize";
 import { Utils } from "../../platform/misc/utils";
 import Domain from "../../platform/models/domain/domain-base";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
@@ -225,7 +224,11 @@ export class CipherService implements CipherServiceAbstraction {
     cipher.reprompt = model.reprompt;
     cipher.edit = model.edit;
 
-    if (await this.getCipherKeyEncryptionEnabled()) {
+    if (
+      // prevent unprivileged users from migrating to cipher key encryption
+      (model.viewPassword || originalCipher?.key) &&
+      (await this.getCipherKeyEncryptionEnabled())
+    ) {
       cipher.key = originalCipher?.key ?? null;
       const userOrOrgKey = await this.getKeyForCipherKeyDecryption(cipher, userId);
       // The keyForEncryption is only used for encrypting the cipher key, not the cipher itself, since cipher key encryption is enabled.
@@ -392,7 +395,6 @@ export class CipherService implements CipherServiceAbstraction {
    * cached, the cached ciphers are returned.
    * @deprecated Use `cipherViews$` observable instead
    */
-  @sequentialize(() => "getAllDecrypted")
   async getAllDecrypted(userId: UserId): Promise<CipherView[]> {
     const decCiphers = await this.getDecryptedCiphers(userId);
     if (decCiphers != null && decCiphers.length !== 0) {
