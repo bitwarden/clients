@@ -45,9 +45,11 @@ export function NotificationConfirmationContainer({
 
   let messageDetails: string | undefined;
   let remainingTasksCount: number | undefined;
+  let tasksAreComplete: boolean = false;
 
   if (task) {
     remainingTasksCount = task.remainingTasksCount || 0;
+    tasksAreComplete = remainingTasksCount === 0;
 
     messageDetails =
       remainingTasksCount > 0
@@ -68,7 +70,7 @@ export function NotificationConfirmationContainer({
       ${NotificationConfirmationBody({
         buttonText,
         confirmationMessage,
-        error,
+        tasksAreComplete,
         messageDetails,
         theme,
         handleOpenVault,
@@ -105,10 +107,12 @@ function getConfirmationMessage(
   type?: NotificationType,
   error?: string,
 ) {
-  const loginSaveSuccessDetails = chrome.i18n.getMessage("loginSaveSuccessDetails", [username]);
-  const loginUpdatedSuccessDetails = chrome.i18n.getMessage("loginUpdatedSuccessDetails", [
-    username,
-  ]);
+  // const loginSaveSuccessDetails = chrome.i18n.getMessage("loginSaveSuccessDetails", [username]);
+  // const loginUpdatedSuccessDetails = chrome.i18n.getMessage("loginUpdatedSuccessDetails", [
+  //   username,
+  // ]);
+  const loginSaveSuccessDetails = `${username} saved to Bitwarden.`;
+  const loginUpdatedSuccessDetails = `${username} updated in Bitwarden.`;
 
   if (error) {
     return i18n.saveFailureDetails;
