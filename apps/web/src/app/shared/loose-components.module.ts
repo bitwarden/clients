@@ -32,7 +32,6 @@ import { ApiKeyComponent } from "../auth/settings/security/api-key.component";
 import { ChangeKdfModule } from "../auth/settings/security/change-kdf/change-kdf.module";
 import { SecurityKeysComponent } from "../auth/settings/security/security-keys.component";
 import { SecurityComponent } from "../auth/settings/security/security.component";
-import { TwoFactorSetupEmailComponent } from "../auth/settings/two-factor/two-factor-setup-email.component";
 import { TwoFactorSetupWebAuthnComponent } from "../auth/settings/two-factor/two-factor-setup-webauthn.component";
 import { TwoFactorSetupYubiKeyComponent } from "../auth/settings/two-factor/two-factor-setup-yubikey.component";
 import { TwoFactorVerifyComponent } from "../auth/settings/two-factor/two-factor-verify.component";
@@ -139,7 +138,6 @@ import { SharedModule } from "./shared.module";
     SetPasswordComponent,
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
-    TwoFactorSetupEmailComponent,
     TwoFactorVerifyComponent,
     TwoFactorSetupWebAuthnComponent,
     TwoFactorSetupYubiKeyComponent,
@@ -193,7 +191,6 @@ import { SharedModule } from "./shared.module";
     SetPasswordComponent,
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
-    TwoFactorSetupEmailComponent,
     TwoFactorVerifyComponent,
     TwoFactorSetupWebAuthnComponent,
     TwoFactorSetupYubiKeyComponent,
