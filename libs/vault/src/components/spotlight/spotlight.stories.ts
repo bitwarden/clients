@@ -1,11 +1,12 @@
 import { moduleMetadata, Meta, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-
-import { ButtonModule } from "../button";
-import { IconButtonModule } from "../icon-button";
-import { TypographyModule } from "../typography";
-import { I18nMockService } from "../utils/i18n-mock.service";
+import {
+  ButtonModule,
+  I18nMockService,
+  IconButtonModule,
+  TypographyModule,
+} from "@bitwarden/components";
 
 import { SpotlightComponent } from "./spotlight.component";
 

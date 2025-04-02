@@ -1,11 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
+import { ButtonModule, IconButtonModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-
-import { ButtonModule } from "../button";
-import { IconButtonModule } from "../icon-button";
-import { TypographyModule } from "../typography";
 
 @Component({
   selector: "bit-spotlight",
