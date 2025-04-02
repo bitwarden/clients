@@ -30,12 +30,6 @@
   width: 100%;
 }
 
-.list-group-2fa {
-  .logo-2fa {
-    min-width: 120px;
-  }
-}
-
 @each $mfaType in $mfaTypes {
   .mfaType#{$mfaType} {
     content: url("../images/two-factor/" + $mfaType + ".png");
