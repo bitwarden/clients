@@ -26,6 +26,7 @@ import {
   DIALOG_DATA,
   DialogConfig,
   DialogModule,
+  DialogRef,
   DialogService,
   FormFieldModule,
   IconButtonModule,
