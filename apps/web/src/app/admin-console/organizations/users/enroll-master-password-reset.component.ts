@@ -63,11 +63,9 @@ export class EnrollMasterPasswordReset {
               secret,
             );
           const dialogRef = OrganizationTrustComponent.open(dialogService, {
-            data: {
-              name: data.organization.name,
-              orgId: data.organization.id,
-              publicKey,
-            },
+            name: data.organization.name,
+            orgId: data.organization.id,
+            publicKey,
           });
           const result = await lastValueFrom(dialogRef.closed);
           if (result !== true) {

@@ -190,11 +190,9 @@ export class AcceptOrganizationInviteService {
 
       const publicKey = Utils.fromB64ToArray(response.publicKey);
       const dialogRef = OrganizationTrustComponent.open(this.dialogService, {
-        data: {
-          name: invite.organizationName,
-          orgId: invite.organizationId,
-          publicKey,
-        },
+        name: invite.organizationName,
+        orgId: invite.organizationId,
+        publicKey,
       });
       const result = await firstValueFrom(dialogRef.closed);
       if (result !== true) {
