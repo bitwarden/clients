@@ -1502,11 +1502,9 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultChangePasswordService,
     deps: [
       AccountServiceAbstraction,
-      I18nServiceAbstraction,
       KeyService,
       MasterPasswordApiServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
-      ToastService,
     ],
   }),
 ];

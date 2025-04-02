@@ -101,7 +101,7 @@ export class ChangePasswordComponent implements OnInit {
           message: this.i18nService.t("masterPasswordChangedDesc"),
         });
 
-        this.messagingService.send("logout"); // TODO-rr-bw: verify
+        this.messagingService.send("logout");
       }
     } catch (e) {
       this.toastService.showToast({
@@ -126,16 +126,6 @@ export class ChangePasswordComponent implements OnInit {
 
     if (decryptedUserKey == null) {
       throw new Error("Could not decrypt user key");
-    }
-
-    // TODO-rr-bw: do we still need this check/toast if it is handled in InputPasswordComponent?
-    if (decryptedUserKey == null) {
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("invalidMasterPassword"),
-      });
-      return;
     }
 
     const newMasterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
