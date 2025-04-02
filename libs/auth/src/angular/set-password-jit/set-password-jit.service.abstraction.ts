@@ -6,10 +6,10 @@ import { KdfConfig } from "@bitwarden/key-management";
 
 export interface SetPasswordCredentials {
   newMasterKey: MasterKey;
-  serverMasterKeyHash: string;
-  localMasterKeyHash: string;
+  newServerMasterKeyHash: string;
+  newLocalMasterKeyHash: string;
+  newPasswordHint: string;
   kdfConfig: KdfConfig;
-  hint: string;
   orgSsoIdentifier: string;
   orgId: string;
   resetPasswordAutoEnroll: boolean;

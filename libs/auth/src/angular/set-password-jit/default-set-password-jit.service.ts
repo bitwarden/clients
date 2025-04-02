@@ -44,9 +44,9 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
   async setPassword(credentials: SetPasswordCredentials): Promise<void> {
     const {
       newMasterKey,
-      serverMasterKeyHash,
-      localMasterKeyHash,
-      hint,
+      newServerMasterKeyHash,
+      newLocalMasterKeyHash,
+      newPasswordHint,
       kdfConfig,
       orgSsoIdentifier,
       orgId,
@@ -70,9 +70,9 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
     const [keyPair, keysRequest] = await this.makeKeyPairAndRequest(protectedUserKey);
 
     const request = new SetPasswordRequest(
-      serverMasterKeyHash,
+      newServerMasterKeyHash,
       protectedUserKey[1].encryptedString,
-      hint,
+      newPasswordHint,
       orgSsoIdentifier,
       keysRequest,
       kdfConfig.kdfType,
@@ -89,10 +89,10 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
 
     await this.keyService.setPrivateKey(keyPair[1].encryptedString, userId);
 
-    await this.masterPasswordService.setMasterKeyHash(localMasterKeyHash, userId);
+    await this.masterPasswordService.setMasterKeyHash(newLocalMasterKeyHash, userId);
 
     if (resetPasswordAutoEnroll) {
-      await this.handleResetPasswordAutoEnroll(serverMasterKeyHash, orgId, userId);
+      await this.handleResetPasswordAutoEnroll(newServerMasterKeyHash, orgId, userId);
     }
   }
 

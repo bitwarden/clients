@@ -1500,7 +1500,14 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ChangePasswordService,
     useClass: DefaultChangePasswordService,
-    deps: [],
+    deps: [
+      AccountServiceAbstraction,
+      I18nServiceAbstraction,
+      KeyService,
+      MasterPasswordApiServiceAbstraction,
+      InternalMasterPasswordServiceAbstraction,
+      ToastService,
+    ],
   }),
 ];
 
