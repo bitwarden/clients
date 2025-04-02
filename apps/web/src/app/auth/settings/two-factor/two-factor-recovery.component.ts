@@ -5,13 +5,14 @@ import { Component, Inject } from "@angular/core";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorRecoverResponse } from "@bitwarden/common/auth/models/response/two-factor-recover.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, ButtonModule, TypographyModule } from "@bitwarden/components";
+import { DialogModule, DialogService, ButtonModule, TypographyModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 @Component({
   selector: "app-two-factor-recovery",
   templateUrl: "two-factor-recovery.component.html",
   standalone: true,
-  imports: [CommonModule, ButtonModule, TypographyModule],
+  imports: [CommonModule, DialogModule, ButtonModule, TypographyModule, I18nPipe],
 })
 export class TwoFactorRecoveryComponent {
   type = -1;

@@ -3,6 +3,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Inject, NgZone } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
@@ -47,6 +48,7 @@ interface Key {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    JslibModule,
     DialogModule,
     FormFieldModule,
     ButtonModule,

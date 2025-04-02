@@ -6,6 +6,7 @@ import { Component, EventEmitter, Inject, OnDestroy, OnInit, Output } from "@ang
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { firstValueFrom, map } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -67,6 +68,7 @@ declare global {
     IconModule,
     I18nPipe,
     AsyncActionsModule,
+    JslibModule,
   ],
 })
 export class TwoFactorSetupAuthenticatorComponent

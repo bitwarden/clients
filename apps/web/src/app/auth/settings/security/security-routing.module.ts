@@ -3,7 +3,6 @@ import { RouterModule, Routes } from "@angular/router";
 
 import { ChangePasswordComponent } from "../change-password.component";
 import { TwoFactorSetupComponent } from "../two-factor/two-factor-setup.component";
-import { TwoFactorModule } from "../two-factor/two-factor.module";
 
 import { DeviceManagementComponent } from "./device-management.component";
 import { SecurityKeysComponent } from "./security-keys.component";
@@ -41,7 +40,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forChild(routes), TwoFactorModule],
+  imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
 export class SecurityRoutingModule {}
