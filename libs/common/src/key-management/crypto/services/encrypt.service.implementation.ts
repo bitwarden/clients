@@ -102,17 +102,17 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     const innerKey = key.inner();
-    if (innerKey.type === EncryptionType.AesCbc256_HmacSha256_B64) {
-      if (encString.encryptionType !== EncryptionType.AesCbc256_HmacSha256_B64) {
-        this.logDecryptError(
-          "Key encryption type does not match payload encryption type",
-          key.encType,
-          encString.encryptionType,
-          decryptContext,
-        );
-        return null;
-      }
+    if (encString.encryptionType !== innerKey.type) {
+      this.logDecryptError(
+        "Key encryption type does not match payload encryption type",
+        key.encType,
+        encString.encryptionType,
+        decryptContext,
+      );
+      return null;
+    }
 
+    if (innerKey.type === EncryptionType.AesCbc256_HmacSha256_B64) {
       const fastParams = this.cryptoFunctionService.aesDecryptFastParameters(
         encString.data,
         encString.iv,
@@ -140,16 +140,6 @@ export class EncryptServiceImplementation implements EncryptService {
         parameters: fastParams,
       });
     } else if (innerKey.type === EncryptionType.AesCbc256_B64) {
-      if (encString.encryptionType !== EncryptionType.AesCbc256_B64) {
-        this.logDecryptError(
-          "Key encryption type does not match payload encryption type",
-          key.encType,
-          encString.encryptionType,
-          decryptContext,
-        );
-        return null;
-      }
-
       const fastParams = this.cryptoFunctionService.aesDecryptFastParameters(
         encString.data,
         encString.iv,
