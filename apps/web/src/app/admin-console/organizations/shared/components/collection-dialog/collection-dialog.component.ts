@@ -131,6 +131,9 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected showAddAccessWarning = false;
   protected collections: Collection[];
   protected buttonDisplayName: ButtonType = ButtonType.Save;
+  protected isExternalIdVisible$ = this.configService
+    .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
+    .pipe(map((isEnabled) => !isEnabled || !!this.formGroup.get("externalId")?.value));
   private orgExceedingCollectionLimit!: Organization;
 
   constructor(
