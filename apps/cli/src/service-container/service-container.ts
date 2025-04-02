@@ -283,6 +283,7 @@ export class ServiceContainer {
   cipherAuthorizationService: CipherAuthorizationService;
   ssoUrlService: SsoUrlService;
   masterPasswordApiService: MasterPasswordApiServiceAbstraction;
+  bulkEncryptService: FallbackBulkEncryptService;
 
   constructor() {
     let p = null;
@@ -314,6 +315,7 @@ export class ServiceContainer {
       this.logService,
       true,
     );
+    this.bulkEncryptService = new FallbackBulkEncryptService(this.encryptService);
     this.storageService = new LowdbStorageService(this.logService, null, p, false, true);
     this.secureStorageService = new NodeEnvSecureStorageService(
       this.storageService,
@@ -686,7 +688,7 @@ export class ServiceContainer {
       this.stateService,
       this.autofillSettingsService,
       this.encryptService,
-      new FallbackBulkEncryptService(this.encryptService),
+      this.bulkEncryptService,
       this.cipherFileUploadService,
       this.configService,
       this.stateProvider,
@@ -885,6 +887,12 @@ export class ServiceContainer {
     await this.sdkLoadService.loadAndInit();
     await this.storageService.init();
     await this.stateService.init();
+    this.configService.serverConfig$.subscribe((newConfig) => {
+      if (newConfig != null) {
+        this.encryptService.onServerConfigChange(newConfig);
+        this.bulkEncryptService.onServerConfigChange(newConfig);
+      }
+    });
     this.containerService.attachToGlobal(global);
     await this.i18nService.init();
     this.twoFactorService.init();
