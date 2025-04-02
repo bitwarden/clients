@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
 import { BehaviorSubject, firstValueFrom, map, Observable } from "rxjs";
 
@@ -48,7 +48,7 @@ import { DesktopSettingsService } from "../../../platform/services/desktop-setti
   ],
   templateUrl: "fido2-create.component.html",
 })
-export class Fido2CreateComponent implements OnInit {
+export class Fido2CreateComponent implements OnInit, OnDestroy {
   session?: DesktopFido2UserInterfaceSession = null;
   private ciphersSubject = new BehaviorSubject<CipherView[]>([]);
   ciphers$: Observable<CipherView[]> = this.ciphersSubject.asObservable();
@@ -67,6 +67,7 @@ export class Fido2CreateComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
+    await this.accountService.setShowHeader(false);
     this.session = this.fido2UserInterfaceService.getCurrentSession();
     const rpid = await this.session.getRpId();
     const equivalentDomains = await firstValueFrom(
@@ -92,6 +93,10 @@ export class Fido2CreateComponent implements OnInit {
         this.ciphersSubject.next(relevantCiphers);
       })
       .catch((error) => this.logService.error(error));
+  }
+
+  async ngOnDestroy() {
+    await this.accountService.setShowHeader(true);
   }
 
   async addPasskeyToCipher(cipher: CipherView) {

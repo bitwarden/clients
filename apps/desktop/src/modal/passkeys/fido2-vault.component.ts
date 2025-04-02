@@ -1,8 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit, OnDestroy } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { RouterModule, Router } from "@angular/router";
-import { firstValueFrom, map, BehaviorSubject, Observable } from "rxjs";
+import { firstValueFrom, map, BehaviorSubject, Observable, Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BitwardenShield } from "@bitwarden/auth/angular";
@@ -50,6 +49,7 @@ import { DesktopSettingsService } from "../../platform/services/desktop-settings
 })
 export class Fido2VaultComponent implements OnInit, OnDestroy {
   session?: DesktopFido2UserInterfaceSession = null;
+  private destroy$ = new Subject<void>();
   private ciphersSubject = new BehaviorSubject<CipherView[]>([]);
   ciphers$: Observable<CipherView[]> = this.ciphersSubject.asObservable();
   private cipherIdsSubject = new BehaviorSubject<string[]>([]);
@@ -67,6 +67,7 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
+    await this.accountService.setShowHeader(false);
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
@@ -74,7 +75,7 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
     this.session = this.fido2UserInterfaceService.getCurrentSession();
     this.cipherIds$ = this.session?.availableCipherIds$;
 
-    this.cipherIds$.pipe(takeUntilDestroyed()).subscribe((cipherIds) => {
+    this.cipherIds$.pipe(takeUntil(this.destroy$)).subscribe((cipherIds) => {
       this.cipherService
         .getAllDecryptedForIds(activeUserId, cipherIds || [])
         .then((ciphers) => {
@@ -84,7 +85,8 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy() {
+  async ngOnDestroy() {
+    await this.accountService.setShowHeader(true);
     this.cipherIdsSubject.complete(); // Clean up the BehaviorSubject
   }
 
