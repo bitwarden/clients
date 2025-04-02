@@ -59,7 +59,7 @@ export function isEnterpriseOrgGuard(showError: boolean = true): CanActivateFn {
           content: { key: "onlyAvailableForEnterpriseOrganization" },
           acceptButtonText: { key: "upgradeOrganization" },
           type: "info",
-          icon: "bwi-arrow-circle-up",
+          icon: "bwi-plus-circle",
         });
         if (upgradeConfirmed) {
           await router.navigate(["organizations", org.id, "billing", "subscription"], {

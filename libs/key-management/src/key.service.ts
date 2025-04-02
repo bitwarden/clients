@@ -287,10 +287,15 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       ),
     );
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(resolvedUserId));
-    return (
-      masterKey ||
-      (await this.makeMasterKey(password, email, await this.kdfConfigService.getKdfConfig()))
-    );
+    if (masterKey != null) {
+      return masterKey;
+    }
+
+    const kdf = await firstValueFrom(this.kdfConfigService.getKdfConfig$(resolvedUserId));
+    if (kdf == null) {
+      throw new Error("No kdf found for user");
+    }
+    return await this.makeMasterKey(password, email, kdf);
   }
 
   /**
