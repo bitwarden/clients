@@ -290,10 +290,14 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
     const encCipher = await this.cipherService.encrypt(cipher, activeUserId);
 
-    const createdCipher = await this.cipherService.createWithServer(encCipher);
-    this.createdCipher = createdCipher;
+    try {
+      const createdCipher = await this.cipherService.createWithServer(encCipher);
+      this.createdCipher = createdCipher;
 
-    return createdCipher;
+      return createdCipher;
+    } catch {
+      throw new Error("Unable to create cipher");
+    }
   }
 
   async updateCredential(cipher: CipherView): Promise<void> {
