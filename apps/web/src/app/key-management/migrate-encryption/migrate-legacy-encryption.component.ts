@@ -2,7 +2,6 @@ import { Component } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
-import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -21,7 +20,7 @@ import { UserKeyRotationService } from "../key-rotation/user-key-rotation.servic
 // This component is used to migrate from the old encryption scheme to the new one.
 @Component({
   standalone: true,
-  imports: [SharedModule, JslibServicesModule, UserKeyRotationModule],
+  imports: [SharedModule, UserKeyRotationModule],
   templateUrl: "migrate-legacy-encryption.component.html",
 })
 export class MigrateFromLegacyEncryptionComponent {
