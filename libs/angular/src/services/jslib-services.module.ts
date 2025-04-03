@@ -309,7 +309,6 @@ import { SafeInjectionToken } from "@bitwarden/ui-common";
 import {
   DefaultEndUserNotificationService,
   EndUserNotificationService,
-  NewDeviceVerificationNoticeService,
   PasswordRepromptService,
 } from "@bitwarden/vault";
 import {
@@ -1448,7 +1447,6 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultLoginDecryptionOptionsService,
     deps: [MessagingServiceAbstraction],
   }),
-  safeProvider(NewDeviceVerificationNoticeService),
   safeProvider({
     provide: UserAsymmetricKeysRegenerationApiService,
     useClass: DefaultUserAsymmetricKeysRegenerationApiService,
