@@ -5141,6 +5141,9 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "introCarouselLabel": {
+    "message": "Welcome to Bitwarden"
+  },
   "securityPrioritized": {
     "message": "Security, prioritized"
   },

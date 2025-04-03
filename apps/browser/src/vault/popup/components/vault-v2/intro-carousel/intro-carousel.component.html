@@ -1,26 +1,26 @@
-<vault-carousel label="Placeholder">
-  <vault-carousel-slide [label]="'securityPrioritized' | i18n" [setStyles]="'tw-px-1'">
+<vault-carousel [label]="'introCarouselLabel' | i18n">
+  <vault-carousel-slide [label]="'securityPrioritized' | i18n" [disablePadding]="true">
     <div class="tw-flex tw-flex-col tw-items-center tw-justify-around">
       <bit-icon [icon]="securityHandshake"></bit-icon>
       <h2 bitTypography="h2" class="tw-text-center">{{ "securityPrioritized" | i18n }}</h2>
       <p bitTypography="body1" class="tw-text-center">{{ "securityPrioritizedBody" | i18n }}</p>
     </div>
   </vault-carousel-slide>
-  <vault-carousel-slide [label]="'quickLogin' | i18n" [setStyles]="'tw-px-1'">
+  <vault-carousel-slide [label]="'quickLogin' | i18n" [disablePadding]="true">
     <div class="tw-flex tw-flex-col tw-items-center tw-justify-around">
       <bit-icon [icon]="loginCards"></bit-icon>
       <h2 bitTypography="h2" class="tw-text-center">{{ "quickLogin" | i18n }}</h2>
       <p bitTypography="body1" class="tw-text-center">{{ "quickLoginBody" | i18n }}</p>
     </div>
   </vault-carousel-slide>
-  <vault-carousel-slide [label]="'secureUser' | i18n" [setStyles]="'tw-px-1'">
+  <vault-carousel-slide [label]="'secureUser' | i18n" [disablePadding]="true">
     <div class="tw-flex tw-flex-col tw-items-center tw-justify-around">
       <bit-icon [icon]="secureUser"></bit-icon>
       <h2 bitTypography="h2" class="tw-text-center">{{ "secureUser" | i18n }}</h2>
       <p bitTypography="body1" class="tw-text-center">{{ "secureUserBody" | i18n }}</p>
     </div>
   </vault-carousel-slide>
-  <vault-carousel-slide [label]="'secureDevices' | i18n" [setStyles]="'tw-px-1'">
+  <vault-carousel-slide [label]="'secureDevices' | i18n" [disablePadding]="true">
     <div class="tw-flex tw-flex-col tw-items-center tw-justify-around">
       <bit-icon [icon]="secureDevices"></bit-icon>
       <h2 bitTypography="h2" class="tw-text-center">{{ "secureDevices" | i18n }}</h2>
@@ -29,23 +29,21 @@
   </vault-carousel-slide>
 </vault-carousel>
 
-<ng-container>
-  <button
-    type="button"
-    bitButton
-    buttonType="primary"
-    (click)="navigateToSignup()"
-    class="tw-w-full tw-mt-4"
-  >
-    {{ "createAccount" | i18n }}
-  </button>
-  <button
-    type="button"
-    bitButton
-    buttonType="secondary"
-    (click)="navigateToLogin()"
-    class="tw-w-full tw-mt-4"
-  >
-    {{ "logIn" | i18n }}
-  </button>
-</ng-container>
+<button
+  type="button"
+  bitButton
+  buttonType="primary"
+  (click)="navigateToSignup()"
+  class="tw-w-full tw-mt-4"
+>
+  {{ "createAccount" | i18n }}
+</button>
+<button
+  type="button"
+  bitButton
+  buttonType="secondary"
+  (click)="navigateToLogin()"
+  class="tw-w-full tw-mt-4"
+>
+  {{ "logIn" | i18n }}
+</button>
