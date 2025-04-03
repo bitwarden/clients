@@ -8,18 +8,7 @@
     <ng-container bitDialogContent>
       <bit-callout type="warning">{{ "orgTrustWarning" | i18n }}</bit-callout>
       <p bitTypography="body1">
-        {{ "fingerprintEnsureIntegrityVerify" | i18n }}
-        <a
-          bitLink
-          href="https://bitwarden.com/help/fingerprint-phrase/"
-          target="_blank"
-          rel="noopener"
-        >
-          {{ "learnMore" | i18n }}</a
-        >
-      </p>
-      <p bitTypography="body1">
-        <code>{{ fingerprint }}</code>
+        {{ "fingerprintPhrase" | i18n }} <code>{{ fingerprint }}</code>
       </p>
     </ng-container>
     <ng-container bitDialogFooter>

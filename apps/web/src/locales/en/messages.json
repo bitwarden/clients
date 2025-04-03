@@ -5902,6 +5902,9 @@
   "fingerprint": {
     "message": "Fingerprint"
   },
+  "fingerprintPhrase": {
+    "message": "Fingerprint phrase:"
+  },
   "removeUsers": {
     "message": "Remove users"
   },
@@ -10377,7 +10380,7 @@
     "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
   },
   "orgTrustWarning": {
-    "message": "For the security of your account, only confirm if you are a member of this organization, have account recovery enabled, and the fingerprint displayed matches the organization's fingerprint"
+    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
   },
   "trustUser":{
     "message": "Trust user"
