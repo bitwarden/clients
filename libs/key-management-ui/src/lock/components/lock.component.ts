@@ -607,9 +607,17 @@ export class LockComponent implements OnInit, OnDestroy {
     }
 
     // Vault can be de-synced since notifications get ignored while locked. Need to check whether sync is required using the sync service.
+    const startSync = new Date().getTime();
+    // TODO: This should probably not be blocking
     await this.syncService.fullSync(false);
+    this.logService.info(`[LockComponent] Sync took ${new Date().getTime() - startSync}ms`);
 
+    const startRegeneration = new Date().getTime();
+    // TODO: This should probably not be blocking
     await this.userAsymmetricKeysRegenerationService.regenerateIfNeeded(this.activeAccount.id);
+    this.logService.info(
+      `[LockComponent] Private key regeneration took ${new Date().getTime() - startRegeneration}ms`,
+    );
 
     if (this.clientType === "browser") {
       const previousUrl = this.lockComponentService.getPreviousUrl();
