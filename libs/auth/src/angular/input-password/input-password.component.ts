@@ -356,7 +356,7 @@ export class InputPasswordComponent implements OnInit {
   ): Promise<boolean> {
     // Check if the password is breached, weak, or both
     const passwordIsBreached =
-      checkForBreaches && (await this.auditService.passwordLeaked(newPassword));
+      checkForBreaches && (await this.auditService.passwordLeaked(newPassword)) > 0;
 
     const passwordWeak = passwordStrengthScore != null && passwordStrengthScore < 3;
 
