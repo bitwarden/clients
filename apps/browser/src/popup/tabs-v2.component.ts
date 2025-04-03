@@ -29,7 +29,6 @@ export class TabsV2Component {
   ) {
     this.showBerry$ = combineLatest([
       this.accountService.activeAccount$,
-      // Only listen to NavigationEnd events so we can reliably use urlAfterRedirects.
       this.router.events.pipe(
         filter((event): event is NavigationEnd => event instanceof NavigationEnd),
         startWith(new NavigationEnd(0, "/tabs/vault", "/tabs/vault")),
@@ -40,7 +39,6 @@ export class TabsV2Component {
           return of(false);
         }
         const userId: UserId = activeAccount.id;
-        // Map each nudge type to its corresponding observable
         const nudgeObservables: Observable<boolean>[] = this.nudgeTypes.map((nudge) =>
           this.vaultNudgesService.showNudge$(nudge, userId),
         );
