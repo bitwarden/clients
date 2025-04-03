@@ -191,6 +191,10 @@ import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/a
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
+  DefaultEndUserNotificationService,
+  EndUserNotificationService,
+} from "@bitwarden/common/vault/notifications";
+import {
   CipherAuthorizationService,
   DefaultCipherAuthorizationService,
 } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -399,6 +403,7 @@ export default class MainBackground {
   sdkService: SdkService;
   sdkLoadService: SdkLoadService;
   cipherAuthorizationService: CipherAuthorizationService;
+  endUserNotificationService: EndUserNotificationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
 
   onUpdatedRan: boolean;
@@ -1296,6 +1301,13 @@ export default class MainBackground {
     );
 
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
+
+    this.endUserNotificationService = new DefaultEndUserNotificationService(
+      this.stateProvider,
+      this.apiService,
+      this.notificationsService,
+      this.authService,
+    );
   }
 
   async bootstrap() {
@@ -1376,6 +1388,11 @@ export default class MainBackground {
         await this.fullSync(false);
         this.backgroundSyncService.init();
         this.notificationsService.startListening();
+
+        if (await this.configService.getFeatureFlag(FeatureFlag.SecurityTasks)) {
+          this.endUserNotificationService.listenForEndUserNotifications();
+        }
+
         resolve();
       }, 500);
     });

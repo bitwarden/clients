@@ -1476,7 +1476,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: EndUserNotificationService,
     useClass: DefaultEndUserNotificationService,
-    deps: [StateProvider, ApiServiceAbstraction, NotificationsService],
+    deps: [StateProvider, ApiServiceAbstraction, NotificationsService, AuthServiceAbstraction],
   }),
   safeProvider({
     provide: DeviceTrustToastServiceAbstraction,

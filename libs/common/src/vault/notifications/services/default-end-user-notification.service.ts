@@ -1,6 +1,8 @@
-import { concatMap, filter, map, Observable, switchMap } from "rxjs";
+import { concatMap, EMPTY, filter, map, Observable, Subscription, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { NotificationType } from "@bitwarden/common/enums";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { NotificationsService } from "@bitwarden/common/platform/notifications";
@@ -15,6 +17,12 @@ import { EndUserNotificationService } from "../abstractions/end-user-notificatio
 import { NotificationView, NotificationViewData, NotificationViewResponse } from "../models";
 import { NOTIFICATIONS } from "../state/end-user-notification.state";
 
+const getLoggedInUserIds = map<Record<UserId, AuthenticationStatus>, UserId[]>((authStatuses) =>
+  Object.entries(authStatuses ?? {})
+    .filter(([, status]) => status >= AuthenticationStatus.Locked)
+    .map(([userId]) => userId as UserId),
+);
+
 /**
  * A service for retrieving and managing notifications for end users.
  */
@@ -22,29 +30,16 @@ export class DefaultEndUserNotificationService implements EndUserNotificationSer
   constructor(
     private stateProvider: StateProvider,
     private apiService: ApiService,
-    private defaultNotifications: NotificationsService,
-  ) {
-    this.defaultNotifications.notifications$
-      .pipe(
-        filter(
-          ([notification]) =>
-            notification.type === NotificationType.Notification ||
-            notification.type === NotificationType.NotificationStatus,
-        ),
-        concatMap(([notification, userId]) =>
-          this.updateNotificationState(userId, [
-            new NotificationViewData(notification.payload as NotificationViewResponse),
-          ]),
-        ),
-      )
-      .subscribe();
-  }
+    private notificationService: NotificationsService,
+    private authService: AuthService,
+  ) {}
 
   notifications$ = perUserCache$((userId: UserId): Observable<NotificationView[]> => {
     return this.notificationState(userId).state$.pipe(
       switchMap(async (notifications) => {
         if (notifications == null) {
           await this.fetchNotificationsFromApi(userId);
+          return null;
         }
         return notifications;
       }),
@@ -63,7 +58,7 @@ export class DefaultEndUserNotificationService implements EndUserNotificationSer
 
   async markAsRead(notificationId: any, userId: UserId): Promise<void> {
     await this.apiService.send("PATCH", `/notifications/${notificationId}/read`, null, true, false);
-    await this.getNotifications(userId);
+    await this.refreshNotifications(userId);
   }
 
   async markAsDeleted(notificationId: any, userId: UserId): Promise<void> {
@@ -74,15 +69,54 @@ export class DefaultEndUserNotificationService implements EndUserNotificationSer
       true,
       false,
     );
-    await this.getNotifications(userId);
+    await this.refreshNotifications(userId);
   }
 
   async clearState(userId: UserId): Promise<void> {
-    await this.updateNotificationState(userId, []);
+    await this.replaceNotificationState(userId, []);
   }
 
-  async getNotifications(userId: UserId) {
+  async refreshNotifications(userId: UserId) {
     await this.fetchNotificationsFromApi(userId);
+  }
+
+  /**
+   * Helper observable to filter notifications by the notification type and user ids
+   * Returns EMPTY if no user ids are provided
+   * @param userIds
+   * @private
+   */
+  private filteredEndUserNotifications$(userIds: UserId[]) {
+    if (userIds.length == 0) {
+      return EMPTY;
+    }
+
+    return this.notificationService.notifications$.pipe(
+      filter(
+        ([{ type }, userId]) =>
+          (type === NotificationType.Notification ||
+            type === NotificationType.NotificationStatus) &&
+          userIds.includes(userId),
+      ),
+    );
+  }
+
+  /**
+   * Creates a subscription to listen for end user push notifications and notification status updates.
+   */
+  listenForEndUserNotifications(): Subscription {
+    return this.authService.authStatuses$
+      .pipe(
+        getLoggedInUserIds,
+        switchMap((userIds) => this.filteredEndUserNotifications$(userIds)),
+        concatMap(([notification, userId]) =>
+          this.upsertNotification(
+            userId,
+            new NotificationViewData(notification.payload as NotificationViewResponse),
+          ),
+        ),
+      )
+      .subscribe();
   }
 
   /**
@@ -93,21 +127,47 @@ export class DefaultEndUserNotificationService implements EndUserNotificationSer
   private async fetchNotificationsFromApi(userId: UserId): Promise<void> {
     const res = await this.apiService.send("GET", "/notifications", null, true, true);
     const response = new ListResponse(res, NotificationViewResponse);
-    const notificationData = response.data.map((n) => new NotificationView(n));
-    await this.updateNotificationState(userId, notificationData);
+    const notificationData = response.data.map((n) => new NotificationViewData(n));
+    await this.replaceNotificationState(userId, notificationData);
   }
 
   /**
-   * Updates the local state with notifications and returns the updated state
+   * Replaces the local state with notifications and returns the updated state
    * @param userId
    * @param notifications
    * @private
    */
-  private updateNotificationState(
+  private replaceNotificationState(
     userId: UserId,
     notifications: NotificationViewData[],
   ): Promise<NotificationViewData[] | null> {
     return this.notificationState(userId).update(() => notifications);
+  }
+
+  /**
+   * Updates the local state adding the new notification or updates an existing one with the same id
+   * Returns the entire updated notifications state
+   * @param userId
+   * @param notification
+   * @private
+   */
+  private async upsertNotification(
+    userId: UserId,
+    notification: NotificationViewData,
+  ): Promise<NotificationViewData[] | null> {
+    return this.notificationState(userId).update((current) => {
+      current ??= [];
+
+      const existingIndex = current.findIndex((n) => n.id === notification.id);
+
+      if (existingIndex === -1) {
+        current.push(notification);
+      } else {
+        current[existingIndex] = notification;
+      }
+
+      return current;
+    });
   }
 
   /**

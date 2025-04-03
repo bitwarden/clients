@@ -1,6 +1,7 @@
 import { firstValueFrom, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { NotificationId, UserId } from "@bitwarden/common/types/guid";
@@ -15,6 +16,7 @@ describe("End User Notification Center Service", () => {
   let fakeStateProvider: FakeStateProvider;
   let mockApiService: jest.Mocked<ApiService>;
   let mockNotificationsService: jest.Mocked<NotificationsService>;
+  let mockAuthService: jest.Mocked<AuthService>;
   let service: DefaultEndUserNotificationService;
 
   beforeEach(() => {
@@ -25,11 +27,15 @@ describe("End User Notification Center Service", () => {
     mockNotificationsService = {
       notifications$: of(null),
     } as any;
+    mockAuthService = {
+      authStatuses$: of({}),
+    } as any;
 
     service = new DefaultEndUserNotificationService(
       fakeStateProvider as unknown as StateProvider,
       mockApiService,
       mockNotificationsService,
+      mockAuthService,
     );
   });
 
@@ -98,7 +104,7 @@ describe("End User Notification Center Service", () => {
         ] as NotificationViewResponse[],
       });
 
-      await service.getNotifications("user-id" as UserId);
+      await service.refreshNotifications("user-id" as UserId);
 
       expect(mockApiService.send).toHaveBeenCalledWith("GET", "/notifications", null, true, true);
     });
@@ -118,7 +124,7 @@ describe("End User Notification Center Service", () => {
         null as any,
       );
 
-      await service.getNotifications("user-id" as UserId);
+      await service.refreshNotifications("user-id" as UserId);
 
       expect(mock.nextMock).toHaveBeenCalledWith([
         expect.objectContaining({

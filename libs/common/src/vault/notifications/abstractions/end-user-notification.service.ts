@@ -1,4 +1,4 @@
-import { Observable } from "rxjs";
+import { Observable, Subscription } from "rxjs";
 
 import { UserId } from "@bitwarden/common/types/guid";
 
@@ -39,4 +39,9 @@ export abstract class EndUserNotificationService {
    * @param userId
    */
   abstract clearState(userId: UserId): Promise<void>;
+
+  /**
+   * Creates a subscription to listen for end user push notifications and notification status updates.
+   */
+  abstract listenForEndUserNotifications(): Subscription;
 }
