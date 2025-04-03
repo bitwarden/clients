@@ -13,7 +13,11 @@ FILENAME=$1
 
 SCRIPT_ROOT="$(dirname "$0")"
 BUILD_DIR="$SCRIPT_ROOT/../build"
-DIST_DIR="$SCRIPT_ROOT/../dist"
+
+# Change into build directory
+cd $BUILD_DIR
+
+DIST_DIR="../dist"
 
 # Create dist directory if it doesn't exist
 mkdir -p $DIST_DIR
@@ -24,7 +28,6 @@ rm -f $DIST_PATH
 
 # Compress build directory
 if [ -d "$BUILD_DIR" ]; then
-  cd $BUILD_DIR
   zip -r $DIST_PATH .
   echo "Zipped $BUILD_DIR into $DIST_PATH"
 fi
