@@ -108,7 +108,7 @@ export class InputPasswordComponent implements OnInit {
   protected secondaryButtonTextStr: string = "";
 
   protected InputPasswordFlow = InputPasswordFlow;
-  private kdfConfig: KdfConfig = DEFAULT_KDF_CONFIG;
+  private kdfConfig?: KdfConfig;
   private minHintLength = 0;
   protected maxHintLength = 50;
   protected minPasswordLength = Utils.minimumPasswordLength;
@@ -299,7 +299,7 @@ export class InputPasswordComponent implements OnInit {
         HashPurpose.LocalAuthorization,
       );
 
-      passwordInputResult.currentPassword = this.formGroup.get("currentPassword")?.value;
+      passwordInputResult.currentPassword = currentPassword;
       passwordInputResult.currentMasterKey = currentMasterKey;
       passwordInputResult.currentServerMasterKeyHash = currentServerMasterKeyHash;
       passwordInputResult.currentLocalMasterKeyHash = currentLocalMasterKeyHash;
