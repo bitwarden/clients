@@ -1,7 +1,7 @@
 import { ComponentFixture, fakeAsync, flush, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { Subject } from "rxjs";
+import { of, Subject } from "rxjs";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -52,6 +52,7 @@ describe("ViewV2Component", () => {
   const stop = jest.fn();
   const showToast = jest.fn();
   const showPasswordPrompt = jest.fn().mockResolvedValue(true);
+  const getFeatureFlag$ = jest.fn().mockReturnValue(of(true));
 
   const mockCipher = {
     id: "122-333-444",
@@ -110,6 +111,7 @@ describe("ViewV2Component", () => {
         { provide: VaultPopupScrollPositionService, useValue: { stop } },
         { provide: VaultPopupAutofillService, useValue: mockVaultPopupAutofillService },
         { provide: ToastService, useValue: { showToast } },
+        { provide: ConfigService, useValue: { getFeatureFlag$ } },
         {
           provide: I18nService,
           useValue: {
