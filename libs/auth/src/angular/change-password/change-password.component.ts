@@ -13,8 +13,10 @@ import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
+import { UserKey } from "@bitwarden/common/types/key";
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -119,19 +121,18 @@ export class ChangePasswordComponent implements OnInit {
 
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
-    const decryptedUserKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
-      passwordInputResult.currentMasterKey,
-      userId,
-    );
+    let newMasterKeyEncryptedUserKey: [UserKey, EncString] = null;
 
-    if (decryptedUserKey == null) {
-      throw new Error("Could not decrypt user key");
+    const userKey = await this.keyService.getUserKey();
+    if (userKey == null) {
+      newMasterKeyEncryptedUserKey = await this.keyService.makeUserKey(
+        passwordInputResult.newMasterKey,
+      );
+    } else {
+      newMasterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
+        passwordInputResult.newMasterKey,
+      );
     }
-
-    const newMasterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
-      passwordInputResult.newMasterKey,
-      decryptedUserKey,
-    );
 
     const request = new PasswordRequest();
     request.masterPasswordHash = passwordInputResult.currentServerMasterKeyHash;
