@@ -35,7 +35,6 @@ type KeyRotationTrustDialogData = {
 export class KeyRotationTrustInfoComponent {
   constructor(
     @Inject(DIALOG_DATA) protected params: KeyRotationTrustDialogData,
-    private keyService: KeyService,
     private logService: LogService,
     private dialogRef: DialogRef<boolean>,
   ) {}
