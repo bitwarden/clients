@@ -7,8 +7,8 @@ on:
       - "rc"
       - "hotfix-rc"
       - "uif/cl-394/chromatic-paths"
-  # pull_request_target:
-  #   types: [opened, synchronize]
+  pull_request_target:
+    types: [opened, synchronize]
 
 jobs:
   check-run:
@@ -24,6 +24,13 @@ jobs:
       pull-requests: write
 
     steps:
+      
+      - name: Check out repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{  github.event.pull_request.head.sha }}
+          fetch-depth: 0
+        
       - name: Get changed files
         id: get-changed-files-for-chromatic
         uses: tj-actions/changed-files@823fcebdb31bb35fdf2229d9f769b400309430d0 # v46
@@ -36,13 +43,6 @@ jobs:
             "!libs/eslint/**"
             "package.json"
             ".storybook/**"
-
-      - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        if: ${{ steps.get-changed-files-for-chromatic.outputs.any_modified == 'true' }}
-        with:
-          ref: ${{  github.event.pull_request.head.sha }}
-          fetch-depth: 0
 
       - name: Get Node version
         id: retrieve-node-version
