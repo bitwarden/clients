@@ -82,7 +82,7 @@ jobs:
 
 
   build-containers:
-    name: Build [${{matrix.artifact_name}}], image: [${{matrix.image_name}}]
+    name: "Build [${{matrix.artifact_name}}], image: [${{matrix.image_name}}]"
     runs-on: ubuntu-24.04
     permissions:
       security-events: write
