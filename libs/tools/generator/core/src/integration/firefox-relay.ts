@@ -33,7 +33,7 @@ const createForwardingEmail = Object.freeze({
   body(request: IntegrationRequest, context: ForwarderContext<FirefoxRelaySettings>) {
     return {
       enabled: true,
-      generated_for: context.website(request),
+      generated_for: context.domain(request),
       description: context.generatedBy(request),
     };
   },

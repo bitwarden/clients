@@ -99,4 +99,48 @@ export class IntegrationContext<Settings extends object> {
 
     return description;
   }
+
+  /** look up the website the integration is working with and extract the domain name.
+   * for example, "https://example.com/path" becomes "https://example.com"
+   * @param request supplies information about the state of the extension site
+   * @returns the domain name or an empty string if a website isn't available
+   * */
+  domain(request: IntegrationRequest) {
+    const website = this.website(request);
+    if (website === "") {
+      return "";
+    }
+
+    // extract the domain name from the website
+    const url = new URL(website);
+    return url.host;
+  }
+
+  /** transform a domain into a valid prefifx
+   * for example, "example.com" becomes "example", "foo.example.com" becomes "foo_example"
+   * @param request supplies information about the state of the extension site
+   * @returns prefix for the forwarding address
+   * */
+  prefix(request: IntegrationRequest) {
+    const url = new URL(this.domain(request));
+    const hostname = url.hostname;
+    if (hostname === "") {
+      return "";
+    }
+
+    const parts = hostname.split(".");
+    if (parts.length <= 1) {
+      return hostname;
+    }
+
+    // For second-level domains (example.com), return just the domain name
+    if (parts.length === 2) {
+      return parts[0];
+    }
+
+    // For subdomains (foo.example.com), return "foo_example"
+    // We take all parts except the TLD and join them with underscore
+    const partsWithoutTld = parts.slice(0, parts.length - 1);
+    return partsWithoutTld.join("_");
+  }
 }
