@@ -1,0 +1,6 @@
+<popup-tab-navigation>
+  <ng-container slot="notification">
+    <app-vault-berry *ngIf="showBerry$ | async"></app-vault-berry>
+  </ng-container>
+  <router-outlet></router-outlet>
+</popup-tab-navigation>

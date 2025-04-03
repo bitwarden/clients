@@ -5,7 +5,7 @@
   <div class="tw-max-w-screen-sm tw-mx-auto">
     <nav>
       <ul class="tw-flex tw-flex-1 tw-mb-0 tw-p-0">
-        <li *ngFor="let button of navButtons" class="tw-flex-1 tw-list-none">
+        <li *ngFor="let button of navButtons" class="tw-flex-1 tw-list-none tw-relative">
           <button
             class="tw-w-full tw-flex tw-flex-col tw-items-center tw-gap-1 tw-px-0.5 tw-pb-2 bit-compact:tw-pb-1 tw-pt-3 bit-compact:tw-pt-2 tw-text-sm tw-bg-transparent tw-no-underline hover:tw-no-underline hover:tw-text-primary-600 hover:tw-bg-primary-100 tw-border-2 tw-border-solid tw-border-transparent focus-visible:tw-rounded-lg focus-visible:tw-border-primary-600"
             [ngClass]="rla.isActive ? 'tw-font-bold tw-text-primary-600' : 'tw-text-muted'"
@@ -31,6 +31,9 @@
               {{ button.label | i18n }}
             </span>
           </button>
+          <div class="tw-absolute tw-top-1 tw-left-[calc(50%+0.5rem)]">
+            <ng-content select="[slot=notification]"> </ng-content>
+          </div>
         </li>
       </ul>
     </nav>
