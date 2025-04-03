@@ -21,6 +21,7 @@ import { NotificationConfirmationFooter } from "./footer";
 export type NotificationConfirmationContainerProps = NotificationBarIframeInitData & {
   handleCloseNotification: (e: Event) => void;
   handleOpenVault: (e: Event) => void;
+  handleOpenTasks: (e: Event) => void;
 } & {
   error?: string;
   i18n: { [key: string]: string };
@@ -33,6 +34,7 @@ export function NotificationConfirmationContainer({
   error,
   handleCloseNotification,
   handleOpenVault,
+  handleOpenTasks,
   i18n,
   task,
   theme = ThemeTypes.Light,
@@ -79,6 +81,7 @@ export function NotificationConfirmationContainer({
         ? NotificationConfirmationFooter({
             i18n,
             theme,
+            handleButtonClick: handleOpenTasks,
           })
         : nothing}
     </div>
@@ -107,12 +110,10 @@ function getConfirmationMessage(
   type?: NotificationType,
   error?: string,
 ) {
-  // const loginSaveSuccessDetails = chrome.i18n.getMessage("loginSaveSuccessDetails", [username]);
-  // const loginUpdatedSuccessDetails = chrome.i18n.getMessage("loginUpdatedSuccessDetails", [
-  //   username,
-  // ]);
-  const loginSaveSuccessDetails = `${username} saved to Bitwarden.`;
-  const loginUpdatedSuccessDetails = `${username} updated in Bitwarden.`;
+  const loginSaveSuccessDetails = chrome.i18n.getMessage("loginSaveSuccessDetails", [username]);
+  const loginUpdatedSuccessDetails = chrome.i18n.getMessage("loginUpdatedSuccessDetails", [
+    username,
+  ]);
 
   if (error) {
     return i18n.saveFailureDetails;

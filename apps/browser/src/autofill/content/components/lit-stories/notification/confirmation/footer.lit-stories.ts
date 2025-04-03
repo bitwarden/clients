@@ -14,6 +14,7 @@ export default {
     theme: { control: "select", options: [...Object.values(ThemeTypes)] },
   },
   args: {
+    handleButtonClick: () => alert("Action button triggered"),
     i18n: {
       nextSecurityTaskAction: "Change next password",
     },
