@@ -73,9 +73,9 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
 
     this.cipherIds$.pipe(takeUntilDestroyed()).subscribe((cipherIds) => {
       this.cipherService
-        .getAllDecryptedForIds(activeUserId, cipherIds || [])
+        .getAllDecrypted(activeUserId)
         .then((ciphers) => {
-          this.ciphersSubject.next(ciphers);
+          this.ciphersSubject.next(ciphers.filter((cipher) => cipherIds.includes(cipher.id)));
         })
         .catch((error) => this.logService.error(error));
     });

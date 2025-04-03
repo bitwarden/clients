@@ -95,11 +95,11 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
   private confirmCredentialSubject = new Subject<boolean>();
 
-  private createdCipher: Cipher;
-  private updatedCipher: CipherView;
+  private createdCipher: Cipher = new Cipher();
+  private updatedCipher: CipherView = new CipherView();
 
-  private rpId = new BehaviorSubject<string>(null);
-  private availableCipherIdsSubject = new BehaviorSubject<string[]>(null);
+  private rpId = new BehaviorSubject<string>("");
+  private availableCipherIdsSubject = new BehaviorSubject<string[]>([""]);
   /**
    * Observable that emits available cipher IDs once they're confirmed by the UI
    */
@@ -146,8 +146,8 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       this.logService.debug("Received chosen cipher", chosenCipherResponse);
 
       return {
-        cipherId: chosenCipherResponse.cipherId,
-        userVerified: chosenCipherResponse.userVerified,
+        cipherId: chosenCipherResponse?.cipherId,
+        userVerified: chosenCipherResponse?.userVerified,
       };
     } finally {
       // Make sure to clean up so the app is never stuck in modal mode?
@@ -171,7 +171,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
   private async waitForUiChosenCipher(
     timeoutMs: number = 60000,
-  ): Promise<{ cipherId: string; userVerified: boolean } | undefined> {
+  ): Promise<{ cipherId?: string; userVerified: boolean } | undefined> {
     try {
       return await lastValueFrom(this.chosenCipherSubject.pipe(timeout(timeoutMs)));
     } catch {
@@ -213,7 +213,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     userHandle,
     userVerification,
     rpId,
-  }: NewCredentialParams): Promise<{ cipherId: string; userVerified: boolean }> {
+  }: NewCredentialParams): Promise<{ cipherId?: string; userVerified: boolean }> {
     this.logService.warning(
       "confirmNewCredential",
       credentialName,
@@ -284,9 +284,13 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
 
-    const encCipher = await this.cipherService.encrypt(cipher, activeUserId);
-    const createdCipher = await this.cipherService.createWithServer(encCipher);
+    if (!activeUserId) {
+      throw new Error("No active user ID found!");
+    }
 
+    const encCipher = await this.cipherService.encrypt(cipher, activeUserId);
+
+    const createdCipher = await this.cipherService.createWithServer(encCipher);
     this.createdCipher = createdCipher;
 
     return createdCipher;
