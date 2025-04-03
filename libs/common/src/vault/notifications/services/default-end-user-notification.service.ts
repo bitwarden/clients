@@ -7,7 +7,7 @@ import { NotificationType } from "@bitwarden/common/enums";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { StateProvider } from "@bitwarden/common/platform/state";
-import { UserId } from "@bitwarden/common/types/guid";
+import { NotificationId, UserId } from "@bitwarden/common/types/guid";
 import {
   filterOutNullish,
   perUserCache$,
@@ -56,12 +56,18 @@ export class DefaultEndUserNotificationService implements EndUserNotificationSer
     );
   });
 
-  async markAsRead(notificationId: any, userId: UserId): Promise<void> {
+  async markAsRead(notificationId: NotificationId, userId: UserId): Promise<void> {
     await this.apiService.send("PATCH", `/notifications/${notificationId}/read`, null, true, false);
-    await this.refreshNotifications(userId);
+    await this.notificationState(userId).update((current) => {
+      const notification = current?.find((n) => n.id === notificationId);
+      if (notification) {
+        notification.readDate = new Date();
+      }
+      return current;
+    });
   }
 
-  async markAsDeleted(notificationId: any, userId: UserId): Promise<void> {
+  async markAsDeleted(notificationId: NotificationId, userId: UserId): Promise<void> {
     await this.apiService.send(
       "DELETE",
       `/notifications/${notificationId}/delete`,
@@ -69,7 +75,13 @@ export class DefaultEndUserNotificationService implements EndUserNotificationSer
       true,
       false,
     );
-    await this.refreshNotifications(userId);
+    await this.notificationState(userId).update((current) => {
+      const notification = current?.find((n) => n.id === notificationId);
+      if (notification) {
+        notification.deletedDate = new Date();
+      }
+      return current;
+    });
   }
 
   async clearState(userId: UserId): Promise<void> {
@@ -125,7 +137,7 @@ export class DefaultEndUserNotificationService implements EndUserNotificationSer
    * @private
    */
   private async fetchNotificationsFromApi(userId: UserId): Promise<void> {
-    const res = await this.apiService.send("GET", "/notifications", null, true, true);
+    const res = await this.apiService.send("GET", "/notifications?pageSize=1000", null, true, true);
     const response = new ListResponse(res, NotificationViewResponse);
     const notificationData = response.data.map((n) => new NotificationViewData(n));
     await this.replaceNotificationState(userId, notificationData);

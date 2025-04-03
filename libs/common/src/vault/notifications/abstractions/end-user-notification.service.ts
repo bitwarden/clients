@@ -1,6 +1,6 @@
 import { Observable, Subscription } from "rxjs";
 
-import { UserId } from "@bitwarden/common/types/guid";
+import { NotificationId, UserId } from "@bitwarden/common/types/guid";
 
 import { NotificationView } from "../models";
 
@@ -25,14 +25,14 @@ export abstract class EndUserNotificationService {
    * @param notificationId
    * @param userId
    */
-  abstract markAsRead(notificationId: any, userId: UserId): Promise<void>;
+  abstract markAsRead(notificationId: NotificationId, userId: UserId): Promise<void>;
 
   /**
    * Mark a notification as deleted.
    * @param notificationId
    * @param userId
    */
-  abstract markAsDeleted(notificationId: any, userId: UserId): Promise<void>;
+  abstract markAsDeleted(notificationId: NotificationId, userId: UserId): Promise<void>;
 
   /**
    * Clear all notifications from state for the given user.
