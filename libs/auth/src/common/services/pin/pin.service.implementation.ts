@@ -224,7 +224,10 @@ export class PinService implements PinServiceAbstraction {
   }
 
   async makePinKey(pin: string, salt: string, kdfConfig: KdfConfig): Promise<PinKey> {
+    const start = Date.now();
     const pinKey = await this.keyGenerationService.deriveKeyFromPassword(pin, salt, kdfConfig);
+    this.logService.info(`[Pin Service] deriving pin key took ${Date.now() - start}ms`);
+
     return (await this.keyGenerationService.stretchKey(pinKey)) as PinKey;
   }
 
