@@ -1,7 +1,12 @@
-import { DialogRef } from "@angular/cdk/dialog";
 import { Component, inject, signal } from "@angular/core";
 
-import { ButtonModule, DialogModule, DialogService, TypographyModule } from "@bitwarden/components";
+import {
+  DialogRef,
+  ButtonModule,
+  DialogModule,
+  DialogService,
+  TypographyModule,
+} from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { DarkImageSourceDirective, VaultCarouselModule } from "@bitwarden/vault";
 
