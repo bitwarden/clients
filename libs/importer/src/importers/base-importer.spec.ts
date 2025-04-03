@@ -62,7 +62,7 @@ describe("processFolder method", () => {
     expect(result.folderRelationships[0]).toEqual([1, 1]); // cipher1 -> Folder1
   });
 
-  it("should not add duplicate folders but should add relationships", () => {
+  it("should not add duplicate folders and should add relationships", () => {
     // setup
     // folder called "Folder1" already exists
     result = {
@@ -84,13 +84,13 @@ describe("processFolder method", () => {
     expect(result.folderRelationships[0]).toEqual([1, 0]); // cipher1 -> folder1
   });
 
-  it("should create parent folders for nested folder names", () => {
+  it("should create parent folders for nested folder names but not duplicates", () => {
     // arrange
-    // "Parent/Child" folder has no ciphers
-    // "Parent/Child/Grandchild" is the new folder we and it should
-    // have a relationship with the cipher
     result = {
-      folders: [{ name: "Parent/Child" } as FolderView, { name: "Parent" } as FolderView],
+      folders: [
+        { name: "Ancestor/Parent/Child" } as FolderView,
+        { name: "Ancestor" } as FolderView,
+      ],
       folderRelationships: [],
       collections: [],
       collectionRelationships: [],
@@ -102,13 +102,15 @@ describe("processFolder method", () => {
     // act
     // importing an existing folder with a relationship should not change the result.folders
     // nor should it change the result.folderRelationships
-    importer.processFolder(result, "Parent/Child/Grandchild");
+    importer.processFolder(result, "Ancestor/Parent/Child/Grandchild/GreatGrandchild");
 
-    expect(result.folders).toHaveLength(3);
+    expect(result.folders).toHaveLength(5);
     expect(result.folders.map((f) => f.name)).toEqual([
-      "Parent/Child",
-      "Parent",
-      "Parent/Child/Grandchild",
+      "Ancestor/Parent/Child",
+      "Ancestor",
+      "Ancestor/Parent/Child/Grandchild/GreatGrandchild",
+      "Ancestor/Parent/Child/Grandchild",
+      "Ancestor/Parent",
     ]);
     expect(result.folderRelationships).toHaveLength(1);
     expect(result.folderRelationships[0]).toEqual([1, 2]); // cipher1 -> grandchild
