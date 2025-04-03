@@ -1,4 +1,4 @@
-<!-- 
+<!--
   # Table of Contents
 
     This file contains a single consolidated template for all visual clients.
@@ -9,6 +9,12 @@
       EMAIL_ENTRY: displays the email input field + continue button
       MASTER_PASSWORD_ENTRY: displays the master password input field + login button
 -->
+
+<p i18n>Updated {minutes, plural, =0 {just now} =1 {one minute ago} other {{{ 5 }} minutes ago}}</p>
+
+<p i18n>This is a inline link to <a href="/settings">Settings</a> with text before and after.</p>
+
+<p i18n>A phrase we really <strong>need</strong> to highlight!</p>
 
 <form [bitSubmit]="submit" [formGroup]="formGroup">
   <div [ngClass]="{ 'tw-hidden': loginUiState !== LoginUiState.EMAIL_ENTRY }">

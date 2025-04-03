@@ -13,15 +13,7 @@ export class I18nService extends BaseI18nService {
       systemLanguage || "en-US",
       localesDirectory,
       async (formattedLocale: string) => {
-        const filePath =
-          this.localesDirectory +
-          "/" +
-          formattedLocale +
-          "/messages.json?cache=" +
-          process.env.CACHE_TAG;
-        const localesResult = await fetch(filePath);
-        const locales = await localesResult.json();
-        return locales;
+        return Promise.resolve({});
       },
       globalStateProvider,
     );
