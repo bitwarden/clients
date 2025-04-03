@@ -92,6 +92,12 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
 
   async migrateUser(userId: UserId) {
     const organization = await this.getManagingOrganization(userId);
+    if (organization == null) {
+      throw new Error(
+        "[Key Connector service] No key connector enabled organization found, aborting user migration to key connector.",
+      );
+    }
+
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
     const keyConnectorRequest = new KeyConnectorUserKeyRequest(masterKey.encKeyB64);
 
@@ -188,7 +194,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     throw new Error("Key Connector error");
   }
 
-  private findManagingOrganization(organizations: Organization[]) {
+  private findManagingOrganization(organizations: Organization[]): Organization | undefined {
     return organizations.find(
       (o) =>
         o.keyConnectorEnabled &&
