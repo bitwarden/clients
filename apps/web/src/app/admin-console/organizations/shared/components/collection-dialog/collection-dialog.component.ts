@@ -95,6 +95,7 @@ export interface CollectionDialogParams {
   limitNestedCollections?: boolean;
   readonly?: boolean;
   isAddAccessCollection?: boolean;
+  isAdminConsoleActive?: boolean;
 }
 
 export interface CollectionDialogResult {
@@ -138,6 +139,16 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected showAddAccessWarning = false;
   protected collections: Collection[];
   protected buttonDisplayName: ButtonType = ButtonType.Save;
+  protected isExternalIdVisible$ = this.configService
+    .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
+    .pipe(
+      map((isEnabled) => {
+        return (
+          !isEnabled ||
+          (!!this.params.isAdminConsoleActive && !!this.formGroup.get("externalId")?.value)
+        );
+      }),
+    );
   private orgExceedingCollectionLimit!: Organization;
 
   constructor(
@@ -478,7 +489,18 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       this.formGroup.controls.access.disable();
     } else {
       this.formGroup.controls.name.enable();
-      this.formGroup.controls.externalId.enable();
+
+      this.configService
+        .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((isEnabled) => {
+          if (isEnabled) {
+            this.formGroup.controls.externalId.disable();
+          } else {
+            this.formGroup.controls.externalId.enable();
+          }
+        });
+
       this.formGroup.controls.parent.enable();
       this.formGroup.controls.access.enable();
     }
