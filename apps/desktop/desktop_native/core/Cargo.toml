@@ -70,6 +70,7 @@ windows = { workspace = true, features = [
     "Win32_UI_WindowsAndMessaging",
     "Win32_System_Pipes",
 ], optional = true }
+windows-future = { workspace = true }
 
 [target.'cfg(windows)'.dev-dependencies]
 keytar = { workspace = true }
