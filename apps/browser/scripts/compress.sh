@@ -24,6 +24,7 @@ rm -f $DIST_PATH
 
 # Compress build directory
 if [ -d "$BUILD_DIR" ]; then
-  zip -jr $DIST_PATH $BUILD_DIR
+  cd $BUILD_DIR
+  zip -r $DIST_PATH .
   echo "Zipped $BUILD_DIR into $DIST_PATH"
 fi
