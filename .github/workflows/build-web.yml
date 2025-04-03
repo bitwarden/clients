@@ -82,7 +82,7 @@ jobs:
 
 
   build-containers:
-    name: "Build [${{matrix.artifact_name}}], image: [${{matrix.image_name}}]"
+    name: "Build [${{matrix.artifact_name}}], image tag: [${{matrix.image_name}}]"
     runs-on: ubuntu-24.04
     permissions:
       security-events: write
@@ -177,15 +177,13 @@ jobs:
 
       ########## ACRs ##########
       - name: Login to Prod Azure
-        # if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        if: false
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
         with:
           creds: ${{ secrets.AZURE_PROD_KV_CREDENTIALS }}
 
       - name: Log into Prod container registry
-        # if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        if: false
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: az acr login -n ${_AZ_REGISTRY%.azurecr.io}
 
       ########## Generate image tag and build Docker image ##########
@@ -236,8 +234,7 @@ jobs:
           tags: ${{ steps.image-name.outputs.name }}
 
       - name: Push images
-        # if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        if: false
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         env:
           IMAGE_NAME: ${{ steps.image-name.outputs.name }}
         run: docker push $IMAGE_NAME
@@ -278,8 +275,7 @@ jobs:
           cosign sign --yes ${images}
 
       - name: Scan Docker image
-        # if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        if: false
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         id: container-scan
         uses: anchore/scan-action@869c549e657a088dc0441b08ce4fc0ecdac2bb65 # v5.3.0
         with:
@@ -288,8 +284,7 @@ jobs:
           output-format: sarif
 
       - name: Upload Grype results to GitHub
-        # if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        if: false
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: github/codeql-action/upload-sarif@d68b2d4edb4189fd2a5366ac14e72027bd4b37dd # v3.28.2
         with:
           sarif_file: ${{ steps.container-scan.outputs.sarif }}
