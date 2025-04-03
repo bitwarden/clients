@@ -214,6 +214,7 @@ jobs:
             NPM_COMMAND=${{ matrix.npm_command }}
           context: .
           file: apps/web/Dockerfile
+          load: true
           platforms: |
             linux/amd64,
             linux/arm/v7,
