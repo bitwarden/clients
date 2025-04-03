@@ -1,8 +1,7 @@
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
-import { NavigationEnd, Router } from "@angular/router";
-import { RouterTestingModule } from "@angular/router/testing";
-import { BehaviorSubject, Subject, of } from "rxjs";
+import { RouterModule } from "@angular/router";
+import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
@@ -28,7 +27,6 @@ class DummyPopupTabNavigationComponent {}
 describe("TabsV2Component", () => {
   let component: TabsV2Component;
   let fixture: ComponentFixture<TabsV2Component>;
-  let routerEventsSubject: Subject<any>;
 
   // Use a BehaviorSubject so the active account remains available.
   const accountSubject = new BehaviorSubject({
@@ -49,13 +47,10 @@ describe("TabsV2Component", () => {
   };
 
   beforeEach(async () => {
-    routerEventsSubject = new Subject();
-
     await TestBed.configureTestingModule({
-      imports: [RouterTestingModule],
+      imports: [RouterModule],
       declarations: [TabsV2Component, DummyVaultBerryComponent, DummyPopupTabNavigationComponent],
       providers: [
-        { provide: Router, useValue: { events: routerEventsSubject.asObservable() } },
         { provide: AccountService, useValue: accountServiceStub },
         { provide: StateProvider, useValue: {} },
       ],
@@ -74,10 +69,7 @@ describe("TabsV2Component", () => {
     component.nudgeTypes = [VaultNudgeType.HasVaultItems, VaultNudgeType.IntroCarouselDismissal];
   });
 
-  test('should display vault berry when active account exists, route includes "tabs/vault", and nudge is true', fakeAsync(() => {
-    // Emit a NavigationEnd event with a URL containing "tabs/vault".
-    routerEventsSubject.next(new NavigationEnd(1, "/tabs/vault", "/tabs/vault"));
-
+  test("should display vault berry when active account exists and the nudge is true", fakeAsync(() => {
     fixture.detectChanges();
     tick();
     fixture.detectChanges();

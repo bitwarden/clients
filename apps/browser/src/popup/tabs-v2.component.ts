@@ -1,11 +1,9 @@
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Router, NavigationEnd } from "@angular/router";
 import { combineLatest, of, Observable } from "rxjs";
-import { filter, map, startWith, switchMap } from "rxjs/operators";
+import { map, switchMap } from "rxjs/operators";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { UserId } from "@bitwarden/common/types/guid";
 import { VaultNudgeType, VaultNudgesService } from "@bitwarden/vault";
 
 @Component({
@@ -23,22 +21,16 @@ export class TabsV2Component {
   ];
 
   constructor(
-    private router: Router,
     private vaultNudgesService: VaultNudgesService,
     private accountService: AccountService,
   ) {
-    this.showBerry$ = combineLatest([
-      this.accountService.activeAccount$,
-      this.router.events.pipe(
-        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-        startWith(new NavigationEnd(0, "/tabs/vault", "/tabs/vault")),
-      ),
-    ]).pipe(
-      switchMap(([activeAccount, navEvent]): Observable<boolean> => {
-        if (!activeAccount || !navEvent.urlAfterRedirects.includes("tabs/vault")) {
+    this.showBerry$ = this.accountService.activeAccount$.pipe(
+      switchMap((activeAccount) => {
+        // Listen for navigation events to determine if the current route is the vault
+        const userId = activeAccount?.id;
+        if (!userId) {
           return of(false);
         }
-        const userId: UserId = activeAccount.id;
         const nudgeObservables: Observable<boolean>[] = this.nudgeTypes.map((nudge) =>
           this.vaultNudgesService.showNudge$(nudge, userId),
         );
