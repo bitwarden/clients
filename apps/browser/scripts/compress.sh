@@ -12,8 +12,8 @@ set -o pipefail
 FILENAME=$1
 
 SCRIPT_ROOT="$(dirname "$0")"
-BUILD_DIR="$SCRIPT_ROOT/build"
-DIST_DIR="$SCRIPT_ROOT/dist"
+BUILD_DIR="$SCRIPT_ROOT/../build"
+DIST_DIR="$SCRIPT_ROOT/../dist"
 
 # Create dist directory if it doesn't exist
 mkdir -p $DIST_DIR
