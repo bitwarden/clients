@@ -16,7 +16,7 @@ import { WebauthnLoginSettingsModule } from "../../webauthn-login-settings";
   imports: [CalloutModule, ChangePasswordComponent, I18nPipe, WebauthnLoginSettingsModule],
 })
 export class PasswordSettingsComponent implements OnInit {
-  InputPasswordFlow = InputPasswordFlow;
+  inputPasswordFlow = InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation;
 
   constructor(
     private router: Router,
