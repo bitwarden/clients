@@ -22,12 +22,14 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
@@ -77,6 +79,8 @@ export default class NotificationBackground {
     bgChangedPassword: ({ message, sender }) => this.changedPassword(message, sender),
     bgCloseNotificationBar: ({ message, sender }) =>
       this.handleCloseNotificationBarMessage(message, sender),
+    bgOpenAtRisksPasswords: ({ message, sender }) =>
+      this.handleOpenAtRisksPasswordsMessage(message, sender),
     bgGetActiveUserServerConfig: () => this.getActiveUserServerConfig(),
     bgGetDecryptedCiphers: () => this.getNotificationCipherData(),
     bgGetEnableChangedPasswordPrompt: () => this.getEnableChangedPasswordPrompt(),
@@ -114,6 +118,7 @@ export default class NotificationBackground {
     private themeStateService: ThemeStateService,
     private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
     private taskService: TaskService,
+    protected messagingService: MessagingService,
   ) {}
 
   init() {
@@ -677,7 +682,9 @@ export default class NotificationBackground {
 
       // If the cipher had a security task, mark it as complete
       if (cipherHasTask) {
-        await this.taskService.markAsComplete(updatedCipherTask.id, userId);
+        if (cipherHasTask) {
+          await this.taskService.markAsComplete(updatedCipherTask.id, userId);
+        }
       }
     } catch (error) {
       await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
@@ -878,6 +885,41 @@ export default class NotificationBackground {
     await BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar", {
       fadeOutNotification: !!message.fadeOutNotification,
     });
+  }
+
+  /**
+   * Sends a message to the background to open the
+   * at-risk passwords extension view. Triggers
+   * notification closure as a side-effect.
+   *
+   * @param message - The extension message
+   * @param sender - The contextual sender of the message
+   */
+  private async handleOpenAtRisksPasswordsMessage(
+    message: NotificationBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    const browserAction = BrowserApi.getBrowserAction();
+
+    try {
+      // Set route of the popup before attempting to open it.
+      // If the vault is locked, this won't have an effect as the auth guards will
+      // redirect the user to the login page.
+      await browserAction.setPopup({ popup: "popup/index.html#/at-risk-passwords" });
+
+      await Promise.all([
+        this.messagingService.send(VaultMessages.OpenPopup),
+        BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar", {
+          fadeOutNotification: !!message.fadeOutNotification,
+        }),
+      ]);
+    } finally {
+      // Reset the popup route to the default route so any subsequent
+      // popup openings will not open to the at-risk-passwords page.
+      await browserAction.setPopup({
+        popup: "popup/index.html#/",
+      });
+    }
   }
 
   /**

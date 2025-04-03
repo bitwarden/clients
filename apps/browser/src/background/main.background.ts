@@ -1206,6 +1206,7 @@ export default class MainBackground {
       this.themeStateService,
       this.userNotificationSettingsService,
       this.taskService,
+      this.messagingService,
     );
 
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(

@@ -10,16 +10,15 @@ import { ExternalLink } from "../../icons";
 export type NotificationConfirmationFooterProps = {
   i18n: { [key: string]: string };
   theme: Theme;
+  handleButtonClick: (event: Event) => void;
 };
 
 export function NotificationConfirmationFooter({
   i18n,
   theme,
+  handleButtonClick,
 }: NotificationConfirmationFooterProps) {
   const primaryButtonText = i18n.nextSecurityTaskAction;
-
-  // @TODO link to followup tasks
-  const handleButtonClick = () => {};
 
   return html`
     <div class=${notificationConfirmationFooterStyles({ theme })}>

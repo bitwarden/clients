@@ -21,16 +21,22 @@ export default {
       orgName: "Acme, Inc.",
       remainingTasksCount: 0,
     },
+    handleCloseNotification: () => alert("Close notification action triggered"),
+    handleOpenTasks: () => alert("Open tasks action triggered"),
     i18n: {
       loginSaveSuccess: "Login saved",
       loginUpdateSuccess: "Login updated",
+      loginUpdateTaskSuccessAdditional:
+        "Thank you for making your organization more secure. You have 3 more passwords to update.",
+      loginUpdateTaskSuccess:
+        "Great job! You took the steps to make you and your organization more secure.",
       nextSecurityTaskAction: "Change next password",
       saveFailure: "Error saving",
       saveFailureDetails: "Oh no! We couldn't save this. Try entering the details manually.",
       view: "View",
     },
     type: NotificationTypes.Change,
-    username: "mockUsername",
+    username: "Acme, Inc. Login",
     theme: ThemeTypes.Light,
   },
   parameters: {

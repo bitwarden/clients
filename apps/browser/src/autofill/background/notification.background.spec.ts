@@ -12,6 +12,7 @@ import { UserNotificationSettingsService } from "@bitwarden/common/autofill/serv
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -48,6 +49,7 @@ jest.mock("rxjs", () => {
 });
 
 describe("NotificationBackground", () => {
+  const messagingService = mock<MessagingService>();
   const taskService = mock<TaskService>();
   let notificationBackground: NotificationBackground;
   const autofillService = mock<AutofillService>();
@@ -92,6 +94,7 @@ describe("NotificationBackground", () => {
       themeStateService,
       userNotificationSettingsService,
       taskService,
+      messagingService,
     );
   });
 
