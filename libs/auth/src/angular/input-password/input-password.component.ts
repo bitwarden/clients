@@ -108,7 +108,7 @@ export class InputPasswordComponent implements OnInit {
   protected secondaryButtonTextStr: string = "";
 
   protected InputPasswordFlow = InputPasswordFlow;
-  private kdfConfig?: KdfConfig;
+  private kdfConfig: KdfConfig = DEFAULT_KDF_CONFIG;
   private minHintLength = 0;
   protected maxHintLength = 50;
   protected minPasswordLength = Utils.minimumPasswordLength;
@@ -224,8 +224,10 @@ export class InputPasswordComponent implements OnInit {
 
     this.kdfConfig = (await this.kdfConfigService.getKdfConfig()) || DEFAULT_KDF_CONFIG;
 
-    const currentPassword = this.formGroup.get("currentPassword")?.value;
-    const { newPassword, newPasswordHint, checkForBreaches } = this.formGroup.value;
+    const currentPassword = this.formGroup.get("currentPassword")?.value || "";
+    const newPassword = this.formGroup.controls.newPassword.value;
+    const newPasswordHint = this.formGroup.controls.newPasswordHint.value;
+    const checkForBreaches = this.formGroup.controls.checkForBreaches.value;
 
     // 1. Verify current password is correct (if necessary)
     if (
@@ -336,7 +338,7 @@ export class InputPasswordComponent implements OnInit {
     if (decryptedUserKey == null) {
       this.toastService.showToast({
         variant: "error",
-        title: null,
+        title: "",
         message: this.i18nService.t("invalidMasterPassword"),
       });
 
