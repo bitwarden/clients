@@ -38,7 +38,7 @@ export class ChangePasswordComponent implements OnInit {
   email?: string;
   masterPasswordPolicyOptions?: MasterPasswordPolicyOptions;
   userkeyRotationV2 = false;
-  formPromise: Promise<any>;
+  formPromise?: Promise<any>;
 
   constructor(
     private accountService: AccountService,
@@ -77,10 +77,22 @@ export class ChangePasswordComponent implements OnInit {
   }
 
   async submitNew(passwordInputResult: PasswordInputResult) {
+    if (
+      passwordInputResult.currentPassword == null ||
+      passwordInputResult.currentMasterKey == null ||
+      passwordInputResult.currentServerMasterKeyHash == null
+    ) {
+      throw new Error("Invalid current password credentials");
+    }
+
     try {
       if (passwordInputResult.rotateUserKey) {
         await this.syncService.fullSync(true);
         const user = await firstValueFrom(this.accountService.activeAccount$);
+
+        if (user == null) {
+          throw new Error("User not found");
+        }
 
         await this.changePasswordService.rotateUserKeyMasterPasswordAndEncryptedData(
           passwordInputResult.currentPassword,
@@ -105,23 +117,27 @@ export class ChangePasswordComponent implements OnInit {
 
         this.messagingService.send("logout");
       }
-    } catch (e) {
+    } catch {
       this.toastService.showToast({
         variant: "error",
-        title: this.i18nService.t("errorOccurred"),
-        message: e.message,
+        title: "",
+        message: this.i18nService.t("errorOccurred"),
       });
     }
   }
 
   async submitOld(passwordInputResult: PasswordInputResult) {
+    if (passwordInputResult.currentServerMasterKeyHash == null) {
+      throw new Error("Invalid current password credentials");
+    }
+
     if (passwordInputResult.rotateUserKey) {
       await this.syncService.fullSync(true);
     }
 
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
-    let newMasterKeyEncryptedUserKey: [UserKey, EncString] = null;
+    let newMasterKeyEncryptedUserKey: [UserKey, EncString] | null = null;
 
     const userKey = await this.keyService.getUserKey();
     if (userKey == null) {
@@ -138,7 +154,7 @@ export class ChangePasswordComponent implements OnInit {
     request.masterPasswordHash = passwordInputResult.currentServerMasterKeyHash;
     request.masterPasswordHint = passwordInputResult.newPasswordHint;
     request.newMasterPasswordHash = passwordInputResult.newServerMasterKeyHash;
-    request.key = newMasterKeyEncryptedUserKey[1].encryptedString;
+    request.key = newMasterKeyEncryptedUserKey[1].encryptedString as string;
 
     try {
       if (passwordInputResult.rotateUserKey) {
@@ -169,7 +185,7 @@ export class ChangePasswordComponent implements OnInit {
     } catch {
       this.toastService.showToast({
         variant: "error",
-        title: null,
+        title: "",
         message: this.i18nService.t("errorOccurred"),
       });
     }
@@ -177,6 +193,11 @@ export class ChangePasswordComponent implements OnInit {
 
   private async updateKey(newPassword: string) {
     const user = await firstValueFrom(this.accountService.activeAccount$);
+
+    if (user == null) {
+      throw new Error("User not found");
+    }
+
     await this.changePasswordService.rotateUserKeyAndEncryptedDataLegacy(newPassword, user);
   }
 }

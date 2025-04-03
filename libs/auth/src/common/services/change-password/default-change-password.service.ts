@@ -61,12 +61,12 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     request.masterPasswordHash = currentServerMasterKeyHash;
     request.masterPasswordHint = newPasswordHint;
     request.newMasterPasswordHash = newServerMasterKeyHash;
-    request.key = newMasterKeyEncryptedUserKey[1].encryptedString;
+    request.key = newMasterKeyEncryptedUserKey[1].encryptedString as string;
 
     try {
       await this.masterPasswordApiService.postPassword(request);
-    } catch (e) {
-      throw new Error(e);
+    } catch {
+      throw new Error("Could not change password");
     }
   }
 }
