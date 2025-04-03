@@ -34,12 +34,13 @@ body * {
 
 .inline-menu-list-message {
   font-size: 1.4rem;
+  font-weight: 500;
   line-height: 1.5;
   width: 100%;
   padding: 0.8rem;
 
   @include themify($themes) {
-    color: themed("textColor");
+    color: themed("primaryColor");
   }
 
   &.no-items,
