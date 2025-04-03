@@ -44,7 +44,7 @@ jobs:
 
       - name: Get Node version
         id: retrieve-node-version
-        if: ${{ steps.get-changed-files-for-chromatic.outputs.any_modified == 'true' }}
+        if: steps.get-changed-files-for-chromatic.outputs.any_modified == 'true'
         run: |
           NODE_NVMRC=$(cat .nvmrc)
           NODE_VERSION=${NODE_NVMRC/v/''}
@@ -54,7 +54,7 @@ jobs:
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
-        if: ${{ steps.get-changed-files-for-chromatic.outputs.any_modified == 'true' }}
+        if: steps.get-changed-files-for-chromatic.outputs.any_modified == 'true'
 
       - name: Cache NPM
         id: npm-cache
@@ -62,15 +62,15 @@ jobs:
         with:
           path: "~/.npm"
           key: ${{ runner.os }}-npm-chromatic-${{ hashFiles('**/package-lock.json') }}
-        if: ${{ steps.get-changed-files-for-chromatic.outputs.any_modified == 'true' }}
+        if: steps.get-changed-files-for-chromatic.outputs.any_modified == 'true'
 
       - name: Install Node dependencies
-        if: ${{ steps.get-changed-files-for-chromatic.outputs.any_modified == 'true' }}
+        if: steps.get-changed-files-for-chromatic.outputs.any_modified == 'true'
         run: npm ci
 
       # Manually build the Storybook to resolve a bug related to TurboSnap
       - name: Build Storybook
-        if: ${{ steps.get-changed-files-for-chromatic.outputs.any_modified == 'true' }}
+        if: steps.get-changed-files-for-chromatic.outputs.any_modified == 'true'
         run: npm run build-storybook:ci
 
       - name: Publish to Chromatic
