@@ -34,12 +34,12 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
 /* eslint-disable-next-line no-restricted-imports */
-import { TaskService } from "../../../../../libs/vault/src/tasks/abstractions/task.service";
+import { TaskService } from "../../../../../libs/common/src/vault/tasks/abstractions/task.service";
 /* eslint-disable-next-line no-restricted-imports */
-import { SecurityTaskType } from "../../../../../libs/vault/src/tasks/enums";
+import { SecurityTaskType } from "../../../../../libs/common/src/vault/tasks/enums";
 /* eslint-disable-next-line no-restricted-imports */
-import { SecurityTask } from "../../../../../libs/vault/src/tasks/models/security-task";
-// import { DefaultTaskService, SecurityTaskType } from "../../../../../libs/vault/src/tasks/services/default-task.service";
+import { SecurityTask } from "../../../../../libs/common/src/vault/tasks/models/security-task";
+// import { DefaultTaskService, SecurityTaskType } from "../../../../../libs/common/src/vault/tasks/services/default-task.service";
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { openAddEditVaultItemPopout } from "../../vault/popup/utils/vault-popout-window";
@@ -610,13 +610,13 @@ export default class NotificationBackground {
       try {
         await this.cipherService.createWithServer(cipher);
         await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
-          username: String(queueMessage?.username),
-          cipherId: String(cipher?.id),
+          username: queueMessage?.username && String(queueMessage?.username),
+          cipherId: cipher?.id && String(cipher?.id),
         });
         await BrowserApi.tabSendMessage(tab, { command: "addedCipher" });
       } catch (error) {
         await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
-          error: String(error.message),
+          error: error?.message && String(error?.message),
         });
       }
     }
@@ -652,34 +652,36 @@ export default class NotificationBackground {
     try {
       const tasks = await this.getSecurityTasks(userId);
       const updatedCipherTask = tasks.find((task) => task.cipherId === cipherView?.id);
-      const taskCompleted = !!updatedCipherTask?.id;
+      const cipherHasTask = !!updatedCipherTask?.id;
 
       let taskOrgName: string;
-      if (updatedCipherTask?.organizationId) {
+      if (cipherHasTask && updatedCipherTask?.organizationId) {
         const userOrgs = await this.getOrgData();
         taskOrgName = userOrgs.find(({ id }) => id === updatedCipherTask.organizationId)?.name;
       }
 
+      const taskData = cipherHasTask
+        ? {
+            remainingTasksCount: tasks.length - 1,
+            orgName: taskOrgName,
+          }
+        : undefined;
+
       await this.cipherService.updateWithServer(cipher);
 
       await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
-        username: String(cipherView?.login?.username),
-        cipherId: String(cipherView?.id),
-        task: {
-          cipherName: cipherView?.name,
-          taskCompleted,
-          remainingTasksCount: tasks.length - (taskCompleted ? 1 : 0),
-          orgName: taskOrgName,
-        },
+        username: cipherView?.login?.username && String(cipherView?.login?.username),
+        cipherId: cipherView?.id && String(cipherView?.id),
+        task: taskData,
       });
 
       // If the cipher had a security task, mark it as complete
-      if (taskCompleted) {
+      if (cipherHasTask) {
         await this.taskService.markAsComplete(updatedCipherTask.id, userId);
       }
     } catch (error) {
       await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
-        error: String(error?.message),
+        error: error?.message && String(error?.message),
       });
     }
   }

@@ -21,7 +21,7 @@ import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
 
 /* eslint-disable-next-line no-restricted-imports */
-import { TaskService } from "../../../../../libs/vault/src/tasks/abstractions/task.service";
+import { TaskService } from "../../../../../libs/common/src/vault/tasks/abstractions/task.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
 import { FormData } from "../services/abstractions/autofill.service";

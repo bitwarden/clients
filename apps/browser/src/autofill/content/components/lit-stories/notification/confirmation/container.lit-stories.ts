@@ -18,10 +18,8 @@ export default {
   args: {
     error: "",
     task: {
-      cipherName: "user@org.org",
       orgName: "Acme, Inc.",
       remainingTasksCount: 0,
-      taskCompleted: true,
     },
     i18n: {
       loginSaveSuccess: "Login saved",

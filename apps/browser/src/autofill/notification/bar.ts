@@ -356,7 +356,8 @@ function openViewVaultItemPopout(e: Event, cipherId: string) {
 
 function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
   const { theme, type } = notificationBarIframeInitData;
-  const { error, username, cipherId, task } = message;
+  const { error, data } = message;
+  const { username, cipherId, task } = data || {};
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
 
