@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef } from "@angular/cdk/dialog";
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { concatMap, takeUntil, map, lastValueFrom, firstValueFrom } from "rxjs";
@@ -21,7 +20,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogRef, DialogService } from "@bitwarden/components";
 
 import { TwoFactorSetupDuoComponent } from "../../../auth/settings/two-factor/two-factor-setup-duo.component";
 import { TwoFactorSetupComponent as BaseTwoFactorSetupComponent } from "../../../auth/settings/two-factor/two-factor-setup.component";
