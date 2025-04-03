@@ -11,7 +11,6 @@ import {
   DialogModule,
   DialogService,
 } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
 
 type KeyRotationTrustDialogData = {
   orgName?: string;
