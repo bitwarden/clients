@@ -232,9 +232,9 @@ import {
 } from "@bitwarden/vault-export-core";
 
 /* eslint-disable-next-line no-restricted-imports */
-import { TaskService } from "../../../../libs/vault/src/tasks/abstractions/task.service";
+import { TaskService } from "../../../../libs/common/src/vault/tasks/abstractions/task.service";
 /* eslint-disable-next-line no-restricted-imports */
-import { DefaultTaskService } from "../../../../libs/vault/src/tasks/services/default-task.service";
+import { DefaultTaskService } from "../../../../libs/common/src/vault/tasks/services/default-task.service";
 import { OverlayNotificationsBackground as OverlayNotificationsBackgroundInterface } from "../autofill/background/abstractions/overlay-notifications.background";
 import { OverlayBackground as OverlayBackgroundInterface } from "../autofill/background/abstractions/overlay.background";
 import { AutoSubmitLoginBackground } from "../autofill/background/auto-submit-login.background";
