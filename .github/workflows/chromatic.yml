@@ -80,4 +80,4 @@ jobs:
           onlyChanged: true
           externals: "[\"libs/components/**/*.scss\", \"libs/components/**/*.css\", \"libs/components/tailwind.config*.js\"]"
           # Rather than use an `if` check on the whole publish step, we need to tell Chromatic to skip so that any Chromatic-spawned actions are properly skipped
-          skip: ${{ steps.get-changed-files-for-chromatic.outputs.any_modified == 'true' }}
+          skip: ${{ steps.get-changed-files-for-chromatic.outputs.any_modified == 'false' }}
