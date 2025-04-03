@@ -56,8 +56,8 @@ import { PasswordInputResult } from "./password-input-result";
 export enum InputPasswordFlow {
   /**
    * - Input: New password
-   * - Input: Confirm new password
-   * - Input: Hint
+   * - Input: New password confirm
+   * - Input: New password hint
    * - Checkbox: Check for breaches
    */
   SetInitialPassword,
@@ -358,9 +358,9 @@ export class InputPasswordComponent implements OnInit {
     const passwordIsBreached =
       checkForBreaches && (await this.auditService.passwordLeaked(newPassword)) > 0;
 
-    const passwordWeak = passwordStrengthScore != null && passwordStrengthScore < 3;
+    const passwordIsWeak = passwordStrengthScore != null && passwordStrengthScore < 3;
 
-    if (passwordIsBreached && passwordWeak) {
+    if (passwordIsBreached && passwordIsWeak) {
       const userAcceptedDialog = await this.dialogService.openSimpleDialog({
         title: { key: "weakAndExposedMasterPassword" },
         content: { key: "weakAndBreachedMasterPasswordDesc" },
@@ -370,7 +370,7 @@ export class InputPasswordComponent implements OnInit {
       if (!userAcceptedDialog) {
         return false;
       }
-    } else if (passwordWeak) {
+    } else if (passwordIsWeak) {
       const userAcceptedDialog = await this.dialogService.openSimpleDialog({
         title: { key: "weakMasterPasswordDesc" },
         content: { key: "weakMasterPasswordDesc" },
