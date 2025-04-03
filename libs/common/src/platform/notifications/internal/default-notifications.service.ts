@@ -7,7 +7,6 @@ import {
   map,
   mergeMap,
   Observable,
-  share,
   switchMap,
 } from "rxjs";
 
@@ -67,7 +66,6 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
           map((notification) => [notification, activeAccountId] as const),
         );
       }),
-      share(),
     );
   }
 
