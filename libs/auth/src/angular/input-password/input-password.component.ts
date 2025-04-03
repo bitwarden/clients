@@ -418,7 +418,11 @@ export class InputPasswordComponent implements OnInit {
   }
 
   async rotateUserKeyClicked() {
-    const rotateUserKey = this.formGroup.get("rotateUserKey")?.value;
+    const rotateUserKeyCtrl = this.formGroup.get(
+      "rotateUserKey",
+    ) as unknown as FormControl<boolean>;
+
+    const rotateUserKey = rotateUserKeyCtrl?.value;
 
     if (rotateUserKey) {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -449,7 +453,7 @@ export class InputPasswordComponent implements OnInit {
           );
         }
 
-        (this.formGroup.get("rotateUserKey") as unknown as FormControl<boolean>)?.setValue(false);
+        rotateUserKeyCtrl.setValue(false);
         return;
       }
 
@@ -465,7 +469,7 @@ export class InputPasswordComponent implements OnInit {
       });
 
       if (!result) {
-        (this.formGroup.get("rotateUserKey") as unknown as FormControl<boolean>)?.setValue(false);
+        rotateUserKeyCtrl.setValue(false);
       }
     }
   }
