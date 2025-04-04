@@ -23,6 +23,8 @@ import {
   CheckboxModule,
 } from "@bitwarden/components";
 
+import { VaultAutosizeReadOnlyTextArea } from "../../directives/readonly-textarea.directive";
+
 @Component({
   selector: "app-custom-fields-v2",
   templateUrl: "custom-fields-v2.component.html",
@@ -38,12 +40,16 @@ import {
     SectionHeaderComponent,
     TypographyModule,
     CheckboxModule,
+    VaultAutosizeReadOnlyTextArea,
   ],
 })
 export class CustomFieldV2Component implements OnInit {
   @Input() cipher: CipherView;
   fieldType = FieldType;
   fieldOptions: any;
+
+  /** Indexes of hidden fields that are revealed */
+  revealedHiddenFields: number[] = [];
 
   constructor(
     private i18nService: I18nService,
@@ -63,7 +69,13 @@ export class CustomFieldV2Component implements OnInit {
     return this.cipher.viewPassword;
   }
 
-  async logHiddenEvent(hiddenFieldVisible: boolean) {
+  async toggleHiddenField(hiddenFieldVisible: boolean, index: number) {
+    if (hiddenFieldVisible) {
+      this.revealedHiddenFields.push(index);
+    } else {
+      this.revealedHiddenFields = this.revealedHiddenFields.filter((i) => i !== index);
+    }
+
     if (hiddenFieldVisible) {
       await this.eventCollectionService.collect(
         EventType.Cipher_ClientToggledHiddenFieldVisible,

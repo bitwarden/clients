@@ -1,7 +1,6 @@
 ﻿@import "variables.scss";
 
 #lock-page,
-#sso-page,
 #set-password-page,
 #remove-password-page {
   display: flex;
@@ -102,18 +101,6 @@
           margin-bottom: 0;
         }
       }
-    }
-  }
-}
-
-#sso-page {
-  .content {
-    width: 325px;
-
-    .box {
-      margin-top: 30px;
-      margin-bottom: 30px;
-      text-align: center;
     }
   }
 }

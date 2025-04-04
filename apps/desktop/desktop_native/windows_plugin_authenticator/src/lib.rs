@@ -14,7 +14,7 @@ use pa::{
 };
 use std::ffi::c_uchar;
 use std::ptr;
-use windows::Win32::Foundation::{BOOL, *};
+use windows::Win32::Foundation::*;
 use windows::Win32::System::Com::*;
 use windows::Win32::System::LibraryLoader::*;
 use windows_core::*;
