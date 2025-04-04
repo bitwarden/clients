@@ -277,7 +277,6 @@ export class Program extends BaseProgram {
             this.serviceContainer.logService,
             this.serviceContainer.keyConnectorService,
             this.serviceContainer.environmentService,
-            this.serviceContainer.syncService,
             this.serviceContainer.organizationApiService,
             async () => await this.serviceContainer.logout(),
           );
