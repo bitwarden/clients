@@ -571,7 +571,7 @@ pub mod autofill {
         pub user_verification: UserVerification,
         pub window_xy: Position,
     }
-    
+
     #[napi(object)]
     #[derive(Debug, Serialize, Deserialize)]
     #[serde(rename_all = "camelCase")]
@@ -704,13 +704,13 @@ pub mod autofill {
                                     continue;
                                 }
                                 Err(e) => {
-                                    println!("[ERROR] Error deserializing registration request: {e}");
+                                    println!(
+                                        "[ERROR] Error deserializing registration request: {e}"
+                                    );
                                 }
                             }
-                            
-                            match serde_json::from_str::<PasskeyMessage<NativeStatus>>(
-                                &message,
-                            ) {
+
+                            match serde_json::from_str::<PasskeyMessage<NativeStatus>>(&message) {
                                 Ok(msg) => {
                                     let value = msg
                                         .value
