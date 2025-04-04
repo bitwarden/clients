@@ -63,7 +63,7 @@ pub struct MacOSProviderClient {
     response_callbacks_counter: AtomicU32,
     #[allow(clippy::type_complexity)]
     response_callbacks_queue: Arc<Mutex<HashMap<u32, (Box<dyn Callback>, Instant)>>>,
-    
+
     // Flag to track connection status - atomic for thread safety without locks
     connection_status: Arc<std::sync::atomic::AtomicBool>,
 }
@@ -107,11 +107,11 @@ impl MacOSProviderClient {
                     match serde_json::from_str::<SerializedMessage>(&message) {
                         Ok(SerializedMessage::Command(CommandMessage::Connected)) => {
                             info!("Connected to server");
-                            connection_status.store(true, std::sync::atomic::Ordering::SeqCst);
+                            connection_status.store(true, std::sync::atomic::Ordering::Relaxed);
                         }
                         Ok(SerializedMessage::Command(CommandMessage::Disconnected)) => {
                             info!("Disconnected from server");
-                            connection_status.store(false, std::sync::atomic::Ordering::SeqCst);
+                            connection_status.store(false, std::sync::atomic::Ordering::Relaxed);
                         }
                         Ok(SerializedMessage::Message {
                             sequence_number,
@@ -172,9 +172,11 @@ impl MacOSProviderClient {
     ) {
         self.send_message(request, Box::new(callback));
     }
-    
+
     pub fn get_connection_status(&self) -> ConnectionStatus {
-        let is_connected = self.connection_status.load(std::sync::atomic::Ordering::SeqCst);
+        let is_connected = self
+            .connection_status
+            .load(std::sync::atomic::Ordering::Relaxed);
         if is_connected {
             ConnectionStatus::Connected
         } else {
