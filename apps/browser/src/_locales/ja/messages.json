@@ -1391,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "この機能を使うにはプレミアム会員になってください。"
   },
-  "enterVerificationCodeApp": {
-    "message": "認証アプリに表示された6桁の認証コードを入力してください。"
-  },
   "authenticationTimeout": {
     "message": "認証のタイムアウト"
   },
   "authenticationSessionTimedOut": {
     "message": "認証セッションの有効期限が切れました。ログインプロセスを再開してください。"
-  },
-  "enterVerificationCodeEmail": {
-    "message": "$EMAIL$に送信された6桁の認証コードを入力してください。",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "$EMAIL$に認証コードを送信しました。",
@@ -1418,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "情報を保存する"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "このデバイスで30日間再表示しない"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "確認コードをメールで再送"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "他の2段階認証方法を使用"
   },
   "selectAnotherMethod": {
     "message": "別の方法を選択",
@@ -1437,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "リカバリーコードを使用する"
   },
-  "insertYubiKey": {
-    "message": " YubiKey を USB ポートに挿入し、ボタンをタッチしてください。"
-  },
   "insertU2f": {
     "message": "セキュリティキーを USB ポートに挿入し、ボタンがある場合はボタンをタッチしてください。"
-  },
-  "webAuthnNewTab": {
-    "message": "WebAuthn 2FA 認証を開始するには、下のボタンをクリックして新しいタブを開き、新しいタブの指示に従ってください。"
-  },
-  "webAuthnNewTabOpen": {
-    "message": "新しいタブを開く"
   },
   "openInNewTab": {
     "message": "新しいタブで開く"
@@ -2534,15 +2504,15 @@
     "message": "組織で使用するパスワードが脆弱である、または再利用されているか流出しており、危険な状態です。",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "危険な状態にあるログイン情報の一覧表示の例"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
   },
   "generatePasswordSlideDesc": {
     "message": "Bitwarden の自動入力メニューで、強力で一意なパスワードをすぐに生成しましょう。",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Bitwarden の自動入力メニューで、生成されたパスワードが表示されている例"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
   },
   "updateInBitwarden": {
     "message": "Bitwarden 上のデータを更新"
@@ -2551,8 +2521,8 @@
     "message": "続いて、 Bitwarden がパスワードマネージャーに保存されたパスワードを更新するよう促します。",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "ユーザーにログイン情報を更新するよう促す Bitwarden の通知例"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
   },
   "turnOnAutofill": {
     "message": "自動入力をオンにする"
@@ -3848,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Duo サービスへの接続中にエラーが発生しました。異なる二段階ログイン方法を使用するか、Duo に連絡してください。"
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "ログインを完了するには DUO を起動し手順に従ってください。"
-  },
   "duoRequiredForAccount": {
     "message": "アカウントには Duo 二段階認証が必要です。"
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "ログインを完了するために拡張機能を開きます。"
   },
   "popoutExtension": {
     "message": "拡張機能のポップアップ"
