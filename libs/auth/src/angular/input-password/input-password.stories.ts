@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { importProvidersFrom } from "@angular/core";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { action } from "@storybook/addon-actions";
@@ -18,7 +16,7 @@ import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line import/no-restricted-paths, no-restricted-imports
 import { PreloadedEnglishI18nModule } from "../../../../../apps/web/src/app/core/tests";
 
-import { InputPasswordComponent } from "./input-password.component";
+import { InputPasswordComponent, InputPasswordFlow } from "./input-password.component";
 
 export default {
   title: "Auth/Input Password",
@@ -62,7 +60,7 @@ export default {
           provide: PasswordStrengthServiceAbstraction,
           useValue: {
             getPasswordStrength: (password) => {
-              let score = 0;
+              let score: number | null = null;
               if (password.length === 0) {
                 score = null;
               } else if (password.length <= 4) {
@@ -88,6 +86,12 @@ export default {
     }),
   ],
   args: {
+    InputPasswordFlow: {
+      SetInitialPassword: InputPasswordFlow.SetInitialPassword,
+      ChangePassword: InputPasswordFlow.ChangePassword,
+      ChangePasswordWithOptionalUserKeyRotation:
+        InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation,
+    },
     masterPasswordPolicyOptions: {
       minComplexity: 4,
       minLength: 14,
@@ -96,25 +100,77 @@ export default {
       requireNumbers: true,
       requireSpecial: true,
     } as MasterPasswordPolicyOptions,
+    argTypes: {
+      onSecondaryButtonClick: { action: "onSecondaryButtonClick" },
+    },
   },
 } as Meta;
 
 type Story = StoryObj<InputPasswordComponent>;
 
-export const Default: Story = {
+export const SetInitialPassword: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <auth-input-password></auth-input-password>
+      <auth-input-password [inputPasswordFlow]="InputPasswordFlow.SetInitialPassword"></auth-input-password>
     `,
   }),
 };
 
-export const WithPolicy: Story = {
+export const ChangePassword: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <auth-input-password [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"></auth-input-password>
+      <auth-input-password [inputPasswordFlow]="InputPasswordFlow.ChangePassword"></auth-input-password>
+    `,
+  }),
+};
+
+export const ChangePasswordWithOptionalUserKeyRotation: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <auth-input-password
+        [inputPasswordFlow]="InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation"
+      ></auth-input-password>
+    `,
+  }),
+};
+
+export const WithPolicies: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <auth-input-password
+        [inputPasswordFlow]="InputPasswordFlow.SetInitialPassword"
+        [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
+      ></auth-input-password>
+    `,
+  }),
+};
+
+export const SecondaryButton: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <auth-input-password
+        [inputPasswordFlow]="InputPasswordFlow.SetInitialPassword"
+        [secondaryButtonText]="{ key: 'cancel' }"
+        (onSecondaryButtonClick)="onSecondaryButtonClick()"
+      ></auth-input-password>
+    `,
+  }),
+};
+
+export const SecondaryButtonWithPlaceHolderText: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <auth-input-password
+        [inputPasswordFlow]="InputPasswordFlow.SetInitialPassword"
+        [secondaryButtonText]="{ key: 'backTo', placeholders: ['homepage'] }"
+        (onSecondaryButtonClick)="onSecondaryButtonClick()"
+      ></auth-input-password>
     `,
   }),
 };
@@ -123,7 +179,24 @@ export const InlineButton: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <auth-input-password [btnBlock]="false" [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"></auth-input-password>
+      <auth-input-password
+        [inputPasswordFlow]="InputPasswordFlow.SetInitialPassword"
+        [inlineButtons]="true"
+      ></auth-input-password>
+    `,
+  }),
+};
+
+export const InlineButtons: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <auth-input-password
+        [inputPasswordFlow]="InputPasswordFlow.SetInitialPassword"
+        [secondaryButtonText]="{ key: 'cancel' }"
+        [inlineButtons]="true"
+        (onSecondaryButtonClick)="onSecondaryButtonClick()"
+      ></auth-input-password>
     `,
   }),
 };
