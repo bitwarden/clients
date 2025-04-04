@@ -41,7 +41,6 @@ import { TaskService } from "../../../../../libs/common/src/vault/tasks/abstract
 import { SecurityTaskType } from "../../../../../libs/common/src/vault/tasks/enums";
 /* eslint-disable-next-line no-restricted-imports */
 import { SecurityTask } from "../../../../../libs/common/src/vault/tasks/models/security-task";
-// import { DefaultTaskService, SecurityTaskType } from "../../../../../libs/common/src/vault/tasks/services/default-task.service";
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { openAddEditVaultItemPopout } from "../../vault/popup/utils/vault-popout-window";
@@ -682,9 +681,14 @@ export default class NotificationBackground {
 
       // If the cipher had a security task, mark it as complete
       if (cipherHasTask) {
-        if (cipherHasTask) {
-          await this.taskService.markAsComplete(updatedCipherTask.id, userId);
-        }
+        // guard against multiple (redundant) security tasks per cipher
+        await Promise.all(
+          tasks.map((task) => {
+            if (task.cipherId === cipherView?.id) {
+              return this.taskService.markAsComplete(task.id, userId);
+            }
+          }),
+        );
       }
     } catch (error) {
       await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
@@ -908,7 +912,7 @@ export default class NotificationBackground {
       await browserAction.setPopup({ popup: "popup/index.html#/at-risk-passwords" });
 
       await Promise.all([
-        this.messagingService.send(VaultMessages.OpenPopup),
+        this.messagingService.send(VaultMessages.OpenAtRiskPasswords),
         BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar", {
           fadeOutNotification: !!message.fadeOutNotification,
         }),
