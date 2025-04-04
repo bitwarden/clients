@@ -1,12 +1,15 @@
 <section
-  class="tw-flex tw-w-full tw-flex-col tw-self-center tw-overflow-hidden tw-rounded-xl tw-border tw-border-solid tw-border-secondary-300 tw-bg-background tw-text-main"
-  [ngClass]="width"
+  class="tw-flex tw-w-full tw-flex-col tw-self-center tw-overflow-hidden tw-border tw-border-solid tw-border-secondary-300 tw-bg-background tw-text-main"
+  [ngClass]="[width, isDrawer ? 'tw-h-screen tw-border-t-0' : 'tw-rounded-xl']"
   @fadeIn
+  cdkTrapFocus
+  cdkTrapFocusAutoCapture
 >
   <header
-    class="tw-flex tw-justify-between tw-items-center tw-gap-4 tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300 tw-p-4"
+    class="tw-flex tw-justify-between tw-items-center tw-gap-4 tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300"
+    [ngClass]="[isDrawer ? 'tw-py-2 tw-px-4' : 'tw-p-4'].flat()"
   >
-    <h1
+    <h2
       bitDialogTitleContainer
       bitTypography="h3"
       noMargin
@@ -19,7 +22,7 @@
         </span>
       }
       <ng-content select="[bitDialogTitle]"></ng-content>
-    </h1>
+    </h2>
     <button
       type="button"
       bitIconButton="bwi-close"
