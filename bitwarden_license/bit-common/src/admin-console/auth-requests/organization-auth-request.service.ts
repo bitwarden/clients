@@ -7,7 +7,6 @@ import {
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationAuthRequestApiService } from "./organization-auth-request-api.service";
@@ -119,13 +118,12 @@ export class OrganizationAuthRequestService {
     );
 
     // Decrypt user key with decrypted org private key
-    const decValue = await this.encryptService.rsaDecrypt(
+    const userKey = await this.encryptService.decapsulateKeyUnsigned(
       new EncString(encryptedUserKey),
       decOrgPrivateKey,
     );
-    const userKey = new SymmetricCryptoKey(decValue);
 
     // Re-encrypt user Key with the Device Public Key
-    return await this.encryptService.rsaEncrypt(userKey.key, devicePubKey);
+    return await this.encryptService.encapsulateKeyUnsigned(userKey, devicePubKey);
   }
 }

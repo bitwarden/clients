@@ -187,7 +187,7 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
 
   async confirmUser(user: ProviderUser, publicKey: Uint8Array): Promise<void> {
     const providerKey = await this.keyService.getProviderKey(this.providerId);
-    const key = await this.encryptService.rsaEncrypt(providerKey.key, publicKey);
+    const key = await this.encryptService.encapsulateKeyUnsigned(providerKey, publicKey);
     const request = new ProviderUserConfirmRequest();
     request.key = key.encryptedString;
     await this.apiService.postProviderUserConfirm(this.providerId, user.id, request);

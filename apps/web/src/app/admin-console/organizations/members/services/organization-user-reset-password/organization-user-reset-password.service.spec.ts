@@ -74,7 +74,7 @@ describe("OrganizationUserResetPasswordService", () => {
       const mockUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
       keyService.getUserKey.mockResolvedValue(mockUserKey);
 
-      encryptService.rsaEncrypt.mockResolvedValue(
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(
         new EncString(EncryptionType.Rsa2048_OaepSha1_B64, "mockEncryptedUserKey"),
       );
     });
@@ -103,10 +103,13 @@ describe("OrganizationUserResetPasswordService", () => {
       await expect(sut.buildRecoveryKey(mockOrgId)).rejects.toThrow();
     });
 
-    it("should rsa encrypt the user key", async () => {
+    it("should encapsulate the user key", async () => {
       await sut.buildRecoveryKey(mockOrgId);
 
-      expect(encryptService.rsaEncrypt).toHaveBeenCalledWith(expect.anything(), expect.anything());
+      expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+      );
     });
   });
 
@@ -174,7 +177,7 @@ describe("OrganizationUserResetPasswordService", () => {
           publicKey: "test-public-key",
         }),
       );
-      encryptService.rsaEncrypt.mockResolvedValue(
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(
         new EncString(EncryptionType.Rsa2048_OaepSha1_B64, "mockEncryptedUserKey"),
       );
     });
