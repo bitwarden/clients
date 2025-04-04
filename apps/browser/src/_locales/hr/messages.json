@@ -1391,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "Za korištenje ove značajke potrebno je Premium članstvo."
   },
-  "enterVerificationCodeApp": {
-    "message": "Unesi 6-znamenkasti kôd za provjeru iz autentifikatorske aplikacije."
-  },
   "authenticationTimeout": {
     "message": "Istek vremena za autentifikaciju"
   },
   "authenticationSessionTimedOut": {
     "message": "Sesija za autentifikaciju je istekla. Ponovi proces prijave."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Unesi 6-znamenkasti kôd za provjeru poslan e-poštom na $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "E-pošta za potvrdu poslana je na $EMAIL$.",
@@ -1418,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Zapamti me"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Ne pitaj na ovom uređaju idućih 30 dana"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Ponovno slanje kontrolnog koda e-poštom"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Koristiti drugi način prijave dvostrukom autentifikacijom"
   },
   "selectAnotherMethod": {
     "message": "Odaberi drugi način",
@@ -1437,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Koristi kôd za oporavak"
   },
-  "insertYubiKey": {
-    "message": "Umetni svoj YubiKey u USB priključak računala, a zatim dodirni njegovu tipku."
-  },
   "insertU2f": {
     "message": "Umetni svoj sigurnosni ključ u USB priključak računala. Ako ima tipku, dodirni ju."
-  },
-  "webAuthnNewTab": {
-    "message": "Nastavi na WebAuthn 2FA verifikaciju u novoj kartici."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Otvori novu karticu"
   },
   "openInNewTab": {
     "message": "Otvori u novoj kartici"
@@ -2534,15 +2504,15 @@
     "message": "Lozinke tvoje organizacije su rizične jer su slabe, nanovo korištene i/ili iscurile.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Ilustracija liste rizičnih prijava"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
   },
   "generatePasswordSlideDesc": {
     "message": "Brzo generiraj jake, jedinstvene lozinke koristeći Bitwarden dijalog auto-ispune direktno na stranici.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Ilustracija Bitwarden dijalog auto-ispune s prikazom generirane lozinke"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
   },
   "updateInBitwarden": {
     "message": "Ažuriraj u Bitwardenu"
@@ -2551,8 +2521,8 @@
     "message": "Bitwarden će te pitati treba li ažurirati lozinku u upravitelju lozinki.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Ilustracija Bitwarden upita za ažuriranje prijave"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
   },
   "turnOnAutofill": {
     "message": "Uključi auto-ispunu"
@@ -3848,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Greška pri povezivanju s uslugom Duo. Koristi drugu metodu prijave s dvostrukom autentifikacijom ili kontaktiraj Duo za pomoć."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Pokreni Duo i slijedi korake za dovršetak prijave."
-  },
   "duoRequiredForAccount": {
     "message": "Za tvoj račun je potrebna Duo dvostruka autentifikacija."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Otvori proširenje za dovršetak prijave."
   },
   "popoutExtension": {
     "message": "Otvori proširenje"

@@ -1435,18 +1435,6 @@
       }
     }
   },
-  "enterVerificationCodeApp": {
-    "message": "Inserisci il codice di verifica a 6 cifre dalla tua app di autenticazione."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Inserisci il codice di verifica a 6 cifre inviato a $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Email di verifica inviata a $EMAIL$.",
     "placeholders": {
@@ -1456,17 +1444,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Ricordami"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Non chiedere più per 30 giorni su questo dispositivo"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Invia di nuovo l'email con codice di verifica"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Usa un altro metodo di verifica in due passaggi"
   },
   "selectAnotherMethod": {
     "message": "Scegli un altro metodo",
@@ -1474,9 +1453,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Usa un codice di recupero"
-  },
-  "insertYubiKey": {
-    "message": "Inserisci la tua YubiKey nella porta USB del computer e premi il suo pulsante."
   },
   "insertU2f": {
     "message": "Inserisci la tua chiave di sicurezza nella porta USB del tuo computer. Se dispone di un pulsante, premilo."
@@ -7252,9 +7228,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Errore di connessione con il servizio Duo. Utilizza un metodo di login in due passaggi diverso o contatta Duo per assistenza."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Avvia DUO e segui i passaggi per finire di accedere."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Per il tuo account è richiesta la verifica in due passaggi DUO."
   },
@@ -8735,8 +8708,8 @@
   "limitCollectionDeletionDesc": {
     "message": "Limita l'eliminazione delle raccolte ai proprietari e agli amministratori"
   },
-  "limitItemDeletionDesc": {
-    "message": "Limita l'eliminazione di elementi ai membri con il permesso di gestione"
+  "limitItemDeletionDescription": {
+    "message": "Limit item deletion to members with the Manage collection permissions"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Proprietari e amministratori possono gestire tutte le raccolte e gli elementi"

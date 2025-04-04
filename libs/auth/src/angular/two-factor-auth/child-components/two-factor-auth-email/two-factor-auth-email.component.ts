@@ -1,4 +1,3 @@
-import { DialogModule } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { ReactiveFormsModule, FormsModule, FormControl } from "@angular/forms";
@@ -14,6 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
+  DialogModule,
   ButtonModule,
   LinkModule,
   TypographyModule,

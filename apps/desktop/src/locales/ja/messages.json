@@ -833,18 +833,6 @@
   "continue": {
     "message": "続行"
   },
-  "enterVerificationCodeApp": {
-    "message": "認証アプリに表示された6桁の認証コードを入力してください。"
-  },
-  "enterVerificationCodeEmail": {
-    "message": "$EMAIL$ に送信された6桁の認証コードを入力してください。",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "$EMAIL$ に認証コードを送信しました。",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "情報を保存する"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "このデバイスで30日間再表示しない"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "確認コードをメールで再送"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "他の2段階認証方法を使用"
   },
   "selectAnotherMethod": {
     "message": "別の方法を選択",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "リカバリーコードを使用する"
-  },
-  "insertYubiKey": {
-    "message": "YubiKey を USB ポートに挿入し、ボタンをタッチしてください。"
   },
   "insertU2f": {
     "message": "セキュリティキーを USB ポートに挿入し、ボタンがある場合はボタンをタッチしてください。"
@@ -3224,9 +3200,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Duo サービスへの接続中にエラーが発生しました。異なる二段階ログイン方法を使用するか、Duo に連絡してください。"
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "ログインを完了するには Duo を起動し手順に従ってください。"
-  },
   "duoRequiredByOrgForAccount": {
     "message": "アカウントには Duo 二段階認証が必要です。"
   },
@@ -3588,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "危険なパスワードの変更"
+  },
+  "move": {
+    "message": "Move"
   }
 }

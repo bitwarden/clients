@@ -833,18 +833,6 @@
   "continue": {
     "message": "Tiếp tục"
   },
-  "enterVerificationCodeApp": {
-    "message": "Nhập mã xác minh 6 chữ số từ ứng dụng xác thực của bạn."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Nhập mã xác nhận 6 chữ số đã được gửi tới $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Email xác minh được gửi tới $EMAIL$.",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Ghi nhớ đăng nhập"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Gửi lại email chứa mã xác minh"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Sử dụng phương pháp xác minh hai lớp khác"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "Cắm YubiKey vào cổng USB trên máy tính bạn và bấm nút trên Yubikey."
   },
   "insertU2f": {
     "message": "Lắp khóa bảo mật vào cổng USB của máy tính. Nếu nó có một nút, nhấn vào nó."
@@ -3224,9 +3200,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Lỗi kết nối với dịch vụ Duo. Sử dụng phương thức đăng nhập hai bước khác hoặc liên hệ với Duo để được hỗ trợ."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Khởi chạy Duo và làm theo các bước để hoàn tất đăng nhập."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Tài khoản của bạn yêu cầu xác minh hai bước với Duo."
   },
@@ -3588,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }

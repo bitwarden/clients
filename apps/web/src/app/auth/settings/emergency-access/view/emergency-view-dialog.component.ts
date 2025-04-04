@@ -1,4 +1,3 @@
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
@@ -9,7 +8,13 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogRef,
+  ButtonModule,
+  DialogModule,
+  DialogService,
+} from "@bitwarden/components";
 import {
   ChangeLoginPasswordService,
   CipherViewComponent,

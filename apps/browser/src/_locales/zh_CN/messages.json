@@ -219,7 +219,7 @@
     "message": "复制自定义字段名称"
   },
   "noMatchingLogins": {
-    "message": "无匹配的登录项目"
+    "message": "没有匹配的登录"
   },
   "noCards": {
     "message": "无支付卡"
@@ -1003,7 +1003,7 @@
     "message": "搜索类型"
   },
   "noneFolder": {
-    "message": "默认文件夹",
+    "message": "无文件夹",
     "description": "This is the folder for uncategorized items"
   },
   "enableAddLoginNotification": {
@@ -1019,7 +1019,7 @@
     "message": "在密码库中找不到匹配项目时询问添加一个。适用于所有已登录的账户。"
   },
   "showCardsInVaultViewV2": {
-    "message": "在密码库视图中将支付卡始终显示为自动填充建议"
+    "message": "在密码库视图中始终将支付卡显示为自动填充建议"
   },
   "showCardsCurrentTab": {
     "message": "在标签页上显示支付卡"
@@ -1028,7 +1028,7 @@
     "message": "在标签页上列出支付卡项目，以便于自动填充。"
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "在密码库视图中将身份始终显示为自动填充建议"
+    "message": "在密码库视图中始终将身份显示为自动填充建议"
   },
   "showIdentitiesCurrentTab": {
     "message": "在标签页上显示身份"
@@ -1391,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "使用此功能需要高级会员资格。"
   },
-  "enterVerificationCodeApp": {
-    "message": "请输入您的验证器 App 中的 6 位数验证码。"
-  },
   "authenticationTimeout": {
     "message": "身份验证超时"
   },
   "authenticationSessionTimedOut": {
     "message": "身份验证会话超时。请重新启动登录过程。"
-  },
-  "enterVerificationCodeEmail": {
-    "message": "请输入发送给 $EMAIL$ 的 6 位数验证码。",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "验证邮件已发送到 $EMAIL$。",
@@ -1418,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "记住我"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "30 天内在此设备上不再询问"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "再次发送验证码电子邮件"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "使用其他两步登录方式"
   },
   "selectAnotherMethod": {
     "message": "选择其他方式",
@@ -1437,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "使用您的恢复代码"
   },
-  "insertYubiKey": {
-    "message": "将您的 YubiKey 插入计算机的 USB 端口，然后触摸其按钮。"
-  },
   "insertU2f": {
     "message": "将您的安全密钥插入计算机的 USB 端口。如果它有按钮，请触摸它。"
-  },
-  "webAuthnNewTab": {
-    "message": "要开始 WebAuthn 2FA 验证，请点击下面的按钮打开一个新标签页，并按照新标签页中提供的说明操作。"
-  },
-  "webAuthnNewTabOpen": {
-    "message": "打开新标签页"
   },
   "openInNewTab": {
     "message": "在新标签页中打开"
@@ -1477,7 +1447,7 @@
     "message": "选择两步登录方式"
   },
   "recoveryCodeDesc": {
-    "message": "无法访问您所有的双重身份提供程序吗？请使用您的恢复代码来关闭您账户中所有的双重身份提供程序。"
+    "message": "无法访问您所有的双重身份提供程序吗？请使用您的恢复代码来停用您账户中所有的双重身份提供程序。"
   },
   "recoveryCodeTitle": {
     "message": "恢复代码"
@@ -1578,7 +1548,7 @@
     "message": "适用于所有已登录的账户。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "关闭您浏览器内置的密码管理器设置以避免冲突。"
+    "message": "停用您浏览器内置的密码管理器设置以避免冲突。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
     "message": "编辑浏览器设置。"
@@ -1617,7 +1587,7 @@
     "message": "登录项目的默认自动填充设置"
   },
   "defaultAutoFillOnPageLoadDesc": {
-    "message": "您可以从项目编辑视图中为单个登录项目关闭页面加载时自动填充。"
+    "message": "您可以从项目编辑视图中为单个登录项目停用页面加载时自动填充。"
   },
   "itemAutoFillOnPageLoad": {
     "message": "页面加载时自动填充（如果选项中已设置）"
@@ -2534,15 +2504,15 @@
     "message": "您的组织密码存在风险，因为它们过于简单、被重复使用和/或已暴露。",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "存在风险的登录列表示意图"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "存在风险的登录列表示意图。"
   },
   "generatePasswordSlideDesc": {
     "message": "在存在风险的网站上，使用 Bitwarden 自动填充菜单快速生成强大且唯一的密码。",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Bitwarden 自动填充菜单显示生成的密码示意图"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "显示生成的密码的 Bitwarden 自动填充菜单示意图。"
   },
   "updateInBitwarden": {
     "message": "在 Bitwarden 中更新"
@@ -2551,14 +2521,14 @@
     "message": "然后，Bitwarden 会提示您更新密码管理器中的密码。",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "提示用户更新登录的 Bitwarden 通知示意图"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "提示用户更新登录的 Bitwarden 通知示意图。"
   },
   "turnOnAutofill": {
-    "message": "开启自动填充"
+    "message": "启用自动填充"
   },
   "turnedOnAutofill": {
-    "message": "已开启自动填充"
+    "message": "已启用自动填充"
   },
   "dismiss": {
     "message": "忽略"
@@ -3390,7 +3360,7 @@
     }
   },
   "autofillPageLoadPolicyActivated": {
-    "message": "您的组织策略已开启页面加载时自动填充。"
+    "message": "您的组织策略已启用页面加载时自动填充。"
   },
   "howToAutofill": {
     "message": "如何自动填充"
@@ -3662,7 +3632,7 @@
     "message": "别名域"
   },
   "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "具有主密码重新提示的项目无法在页面加载时自动填充。页面加载时的自动填充功能已关闭。",
+    "message": "具有主密码重新提示的项目无法在页面加载时自动填充。页面加载时的自动填充功能已停用。",
     "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
   },
   "autofillOnPageLoadSetToDefault": {
@@ -3670,7 +3640,7 @@
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "turnOffMasterPasswordPromptToEditField": {
-    "message": "关闭主密码重新提示以编辑此字段",
+    "message": "停用主密码重新提示以编辑此字段",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
@@ -3764,7 +3734,7 @@
     "description": "Screen reader text for announcing when the overlay opens on the page"
   },
   "turnOn": {
-    "message": "开启"
+    "message": "启用"
   },
   "ignore": {
     "message": "忽略"
@@ -3848,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "与 Duo 服务连接时出错。请使用其他两步登录方式或联系 Duo 寻求帮助。"
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "启动 DUO 并按照步骤完成登录。"
-  },
   "duoRequiredForAccount": {
     "message": "您的账户要求使用 Duo 两步登录。"
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "弹出扩展以完成登录。"
   },
   "popoutExtension": {
     "message": "弹出扩展"
@@ -3965,10 +3929,10 @@
     "message": "没有找到此应用程序的通行密钥。"
   },
   "noMatchingPasskeyLogin": {
-    "message": "不存在匹配此站点的登录项目。"
+    "message": "您没有匹配此站点的登录。"
   },
   "noMatchingLoginsForSite": {
-    "message": "此站点没有匹配的登录项目"
+    "message": "此站点没有匹配的登录"
   },
   "searchSavePasskeyNewLogin": {
     "message": "搜索或将通行密钥保存为一个新的登录"
@@ -5118,7 +5082,7 @@
     "message": "是的，我可以正常访问我的电子邮箱"
   },
   "turnOnTwoStepLogin": {
-    "message": "开启两步登录"
+    "message": "启用两步登录"
   },
   "changeAcctEmail": {
     "message": "更改账户电子邮箱"

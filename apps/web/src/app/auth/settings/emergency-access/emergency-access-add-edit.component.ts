@@ -1,13 +1,18 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogConfig, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DialogConfig,
+  DialogRef,
+  DIALOG_DATA,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import { EmergencyAccessService } from "../../emergency-access";
 import { EmergencyAccessType } from "../../emergency-access/enums/emergency-access-type";

@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, forwardRef, Inject, OnInit, ViewChild } from "@angular/core";
 
 import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
@@ -14,7 +13,13 @@ import { PaymentRequest } from "@bitwarden/common/billing/models/request/payment
 import { UpdatePaymentMethodRequest } from "@bitwarden/common/billing/models/request/update-payment-method.request";
 import { TaxInfoResponse } from "@bitwarden/common/billing/models/response/tax-info.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import { PaymentComponent } from "../payment/payment.component";
 
