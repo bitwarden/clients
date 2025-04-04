@@ -130,6 +130,7 @@ export declare namespace autofill {
     userVerification: UserVerification
     supportedAlgorithms: Array<number>
     windowXy: Position
+    excludedCredentials: Array<Array<number>>
   }
   export interface PasskeyRegistrationResponse {
     rpId: string

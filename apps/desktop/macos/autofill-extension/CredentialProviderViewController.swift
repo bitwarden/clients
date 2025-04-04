@@ -246,6 +246,14 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                     UserVerification.discouraged
                 }
                 
+                // Convert excluded credentials to an array of credential IDs
+                var excludedCredentialIds: [Data] = []
+                if #available(macOSApplicationExtension 15.0, *) {
+                    if let excludedCreds = request.excludedCredentials {
+                        excludedCredentialIds = excludedCreds.map { $0.credentialID }
+                    }
+                }
+                
                 let req = PasskeyRegistrationRequest(
                     rpId: passkeyIdentity.relyingPartyIdentifier,
                     userName: passkeyIdentity.userName,
@@ -253,7 +261,8 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                     clientDataHash: request.clientDataHash,
                     userVerification: userVerification,
                     supportedAlgorithms: request.supportedAlgorithms.map{ Int32($0.rawValue) },
-                    windowXy: self.getWindowPosition()
+                    windowXy: self.getWindowPosition(),
+                    excludedCredentials: excludedCredentialIds
                 )
                 logger.log("[autofill-extension] prepareInterface(passkey) calling preparePasskeyRegistration")                
                 

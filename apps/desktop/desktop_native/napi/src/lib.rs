@@ -534,6 +534,7 @@ pub mod autofill {
         pub user_verification: UserVerification,
         pub supported_algorithms: Vec<i32>,
         pub window_xy: Position,
+        pub excluded_credentials: Vec<Vec<u8>>,
     }
 
     #[napi(object)]
