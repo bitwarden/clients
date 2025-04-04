@@ -96,7 +96,7 @@ export function compareInputs(
     function fail() {
       controlThatShowsError.setErrors({
         // Preserve any pre-existing errors
-        ...controlThatShowsError.errors,
+        ...(controlThatShowsError.errors || {}),
         // Add new compareInputsError
         compareInputsError: {
           message: errorMessage,
