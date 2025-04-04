@@ -2,13 +2,18 @@ import { FormControl, FormGroup, ValidationErrors } from "@angular/forms";
 
 import { compareInputs, ValidationGoal } from "./compare-inputs.validator";
 
-const validationErrorsObj: ValidationErrors = {
-  compareInputsError: {
-    message: "Custom error message",
-  },
-};
-
 describe("compareInputs", () => {
+  let validationErrorsObj: ValidationErrors;
+
+  beforeEach(() => {
+    // Use a fresh object for each test so that a mutation in one test doesn't affect another test
+    validationErrorsObj = {
+      compareInputsError: {
+        message: "Custom error message",
+      },
+    };
+  });
+
   it("should throw an error if compareInputs is not being applied to a FormGroup", () => {
     const notAFormGroup = new FormControl("form-control");
 
@@ -73,7 +78,7 @@ describe("compareInputs", () => {
       ctrlB: new FormControl("banana"),
     });
 
-    jest.spyOn(formGroup.controls.ctrlB, "setErrors");
+    const ctrlBSetErrorsSpy = jest.spyOn(formGroup.controls.ctrlB, "setErrors");
 
     // Act
     const validatorFn = compareInputs(
@@ -86,7 +91,7 @@ describe("compareInputs", () => {
     validatorFn(formGroup);
 
     // Assert
-    expect(formGroup.controls.ctrlB.setErrors).toHaveBeenCalledWith(validationErrorsObj);
+    expect(ctrlBSetErrorsSpy).toHaveBeenCalledWith(validationErrorsObj);
   });
 
   it("should call setErrors() on ctrlA if validation fails and 'showErrorOn' is set to 'controlA'", () => {
@@ -96,8 +101,8 @@ describe("compareInputs", () => {
       ctrlB: new FormControl("banana"),
     });
 
-    jest.spyOn(formGroup.controls.ctrlA, "setErrors");
-    jest.spyOn(formGroup.controls.ctrlB, "setErrors");
+    const ctrlASetErrorsSpy = jest.spyOn(formGroup.controls.ctrlA, "setErrors");
+    const ctrlBSetErrorsSpy = jest.spyOn(formGroup.controls.ctrlB, "setErrors");
 
     // Act
     const validatorFn = compareInputs(
@@ -111,8 +116,56 @@ describe("compareInputs", () => {
     validatorFn(formGroup);
 
     // Assert
-    expect(formGroup.controls.ctrlA.setErrors).toHaveBeenCalledWith(validationErrorsObj);
-    expect(formGroup.controls.ctrlB.setErrors).not.toHaveBeenCalled();
+    expect(ctrlASetErrorsSpy).toHaveBeenCalledWith(validationErrorsObj);
+    expect(ctrlBSetErrorsSpy).not.toHaveBeenCalled();
+  });
+
+  it("should not call setErrors() on ctrlB if validation passes and there is not a pre-existing error on ctrlB", () => {
+    // Arrange
+    const formGroup = new FormGroup({
+      ctrlA: new FormControl("apple"),
+      ctrlB: new FormControl("apple"),
+    });
+
+    const ctrlBSetErrorsSpy = jest.spyOn(formGroup.controls.ctrlB, "setErrors");
+
+    // Act
+    const validatorFn = compareInputs(
+      ValidationGoal.InputsShouldMatch,
+      "ctrlA",
+      "ctrlB",
+      "Custom error message",
+    );
+
+    validatorFn(formGroup);
+
+    // Assert
+    expect(ctrlBSetErrorsSpy).not.toHaveBeenCalled();
+  });
+
+  it("should call setErrors(null) on ctrlB if validation passes and there is a pre-existing error on ctrlB", () => {
+    // Arrange
+    const formGroup = new FormGroup({
+      ctrlA: new FormControl("apple"),
+      ctrlB: new FormControl("apple"),
+    });
+
+    const ctrlBSetErrorsSpy = jest.spyOn(formGroup.controls.ctrlB, "setErrors");
+
+    formGroup.controls.ctrlB.setErrors(validationErrorsObj);
+
+    // Act
+    const validatorFn = compareInputs(
+      ValidationGoal.InputsShouldMatch,
+      "ctrlA",
+      "ctrlB",
+      "Custom error message",
+    );
+
+    validatorFn(formGroup);
+
+    // Assert
+    expect(ctrlBSetErrorsSpy).toHaveBeenCalledWith(null);
   });
 
   const cases = [
