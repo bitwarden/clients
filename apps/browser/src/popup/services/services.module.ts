@@ -94,6 +94,7 @@ import { Message, MessageListener, MessageSender } from "@bitwarden/common/platf
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
 import { flagEnabled } from "@bitwarden/common/platform/misc/flags";
+import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
@@ -157,6 +158,7 @@ import { runInsideAngular } from "../../platform/browser/run-inside-angular.oper
 import { ZonedMessageListenerService } from "../../platform/browser/zoned-message-listener.service";
 import { ChromeMessageSender } from "../../platform/messaging/chrome-message.sender";
 /* eslint-enable no-restricted-imports */
+import { ForegroundNotificationsService } from "../../platform/notifications/foreground-notifications.service";
 import { OffscreenDocumentService } from "../../platform/offscreen-document/abstractions/offscreen-document";
 import { DefaultOffscreenDocumentService } from "../../platform/offscreen-document/offscreen-document.service";
 import { PopupCompactModeService } from "../../platform/popup/layout/popup-compact-mode.service";
@@ -659,6 +661,11 @@ const safeProviders: SafeProvider[] = [
     provide: SshImportPromptService,
     useClass: DefaultSshImportPromptService,
     deps: [DialogService, ToastService, PlatformUtilsService, I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: NotificationsService,
+    useClass: ForegroundNotificationsService,
+    deps: [LogService],
   }),
 ];
 

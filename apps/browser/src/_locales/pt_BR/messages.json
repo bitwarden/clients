@@ -878,7 +878,7 @@
     "message": "Insira sua YubiKey para autenticar"
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+    "message": "A autenticação de dois fatores é necessária para sua conta. Siga os passos abaixo para conseguir entrar."
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Siga os passos abaixo para finalizar o login."
@@ -1019,7 +1019,7 @@
     "message": "Pedir para adicionar um item se um não for encontrado no seu cofre. Aplica-se a todas as contas logadas."
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "Sempre mostrar cartões como sugestões de preenchimento automático na Tela do Cofre"
   },
   "showCardsCurrentTab": {
     "message": "Mostrar cartões em páginas com guias."
@@ -1028,7 +1028,7 @@
     "message": "Exibir itens de cartão em páginas com abas para simplificar o preenchimento automático"
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "Sempre mostrar identidades como sugestões de preenchimento automático na Tela do Cofre"
   },
   "showIdentitiesCurrentTab": {
     "message": "Exibir Identidades na Aba Atual"
@@ -1037,10 +1037,10 @@
     "message": "Liste os itens de identidade na aba atual  para facilitar preenchimento automático."
   },
   "clickToAutofillOnVault": {
-    "message": "Click items to autofill on Vault view"
+    "message": "Clique em itens para autopreencher na Tela do Cofre"
   },
   "clickToAutofill": {
-    "message": "Click items in autofill suggestion to fill"
+    "message": "Selecione itens sugeridos pelo autopreenchimento"
   },
   "clearClipboard": {
     "message": "Limpar Área de Transferência",
@@ -1391,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "Uma conta premium é necessária para usar esse recurso."
   },
-  "enterVerificationCodeApp": {
-    "message": "Insira o código de verificação de 6 dígitos do seu aplicativo de autenticação."
-  },
   "authenticationTimeout": {
     "message": "Tempo de autenticação esgotado"
   },
   "authenticationSessionTimedOut": {
     "message": "A sessão de autenticação expirou. Por favor, reinicie o processo de login."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Insira o código de verificação de 6 dígitos que foi enviado por e-mail para $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "E-mail de verificação enviado para $EMAIL$.",
@@ -1418,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Lembrar de mim"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Não perguntar novamente neste dispositivo por 30 dias"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Enviar código de verificação para o e-mail novamente"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Utilizar outro método de verificação em duas etapas"
   },
   "selectAnotherMethod": {
     "message": "Escolher outro método",
@@ -1437,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Use seu código de recuperação"
   },
-  "insertYubiKey": {
-    "message": "Insira a sua YubiKey na porta USB do seu computador, e depois toque no botão da mesma."
-  },
   "insertU2f": {
     "message": "Insira a sua chave de segurança na porta USB do seu computador. Se ele tiver um botão, toque nele."
-  },
-  "webAuthnNewTab": {
-    "message": "Para iniciar a verificação 2FA WebAuthn. Clique no botão abaixo para abrir uma nova aba e siga as instruções fornecidas na nova aba."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Abrir nova aba"
   },
   "openInNewTab": {
     "message": "Abrir numa nova aba"
@@ -1668,7 +1638,7 @@
     "message": "Arrastar para ordenar"
   },
   "dragToReorder": {
-    "message": "Drag to reorder"
+    "message": "Arraste para reorganizar"
   },
   "cfTypeText": {
     "message": "Texto"
@@ -2176,7 +2146,7 @@
     "message": "Novas opções de personalização"
   },
   "newCustomizationOptionsCalloutContent": {
-    "message": "Customize your vault experience with quick copy actions, compact mode, and more!"
+    "message": "Personalize a experiência do seu cofre com ações de cópia rápida, modo compacto e muito mais!"
   },
   "newCustomizationOptionsCalloutLink": {
     "message": "Ver todas as configurações de aparência"
@@ -2452,13 +2422,13 @@
     "message": "O Bitwarden não irá pedir para salvar os detalhes de credencial para estes domínios. Você deve atualizar a página para que as alterações entrem em vigor."
   },
   "blockedDomainsDesc": {
-    "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
+    "message": "\"Autopreencher\" e outros recursos podem não estar disponíveis para estes sites. Atualize a página para que as mudanças surtam efeito."
   },
   "autofillBlockedNoticeV2": {
-    "message": "Autofill is blocked for this website."
+    "message": "\"Auto completar\" está bloqueado para este site."
   },
   "autofillBlockedNoticeGuidance": {
-    "message": "Change this in settings"
+    "message": "Altere isso em configurações"
   },
   "change": {
     "message": "Alterar"
@@ -2476,7 +2446,7 @@
     "message": "Senhas em risco"
   },
   "atRiskPasswordDescSingleOrg": {
-    "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
+    "message": "$ORGANIZATION$ solicita que altere uma senha, pois ela está vulnerável.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2485,7 +2455,7 @@
     }
   },
   "atRiskPasswordsDescSingleOrgPlural": {
-    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at-risk.",
+    "message": "$ORGANIZATION$ solicita que altere $COUNT$ senhas, pois elas estão vulneráveis.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2498,7 +2468,7 @@
     }
   },
   "atRiskPasswordsDescMultiOrgPlural": {
-    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at-risk.",
+    "message": "Suas organizações estão solicitando que altere $COUNT$ senhas porque elas estão vulneráveis.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2507,10 +2477,10 @@
     }
   },
   "reviewAndChangeAtRiskPassword": {
-    "message": "Review and change one at-risk password"
+    "message": "Revisar e alterar uma senha vulnerável"
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
-    "message": "Review and change $COUNT$ at-risk passwords",
+    "message": "Revisar e alterar $COUNT$ senhas vulneráveis",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2519,40 +2489,40 @@
     }
   },
   "changeAtRiskPasswordsFaster": {
-    "message": "Change at-risk passwords faster"
+    "message": "Mude senhas vulneráveis rapidamente"
   },
   "changeAtRiskPasswordsFasterDesc": {
-    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+    "message": "Atualize suas configurações para poder autopreencher ou gerar novas senhas"
   },
   "reviewAtRiskLogins": {
-    "message": "Review at-risk logins"
+    "message": "Revisar logins em risco"
   },
   "reviewAtRiskPasswords": {
-    "message": "Review at-risk passwords"
+    "message": "Revisar senhas vulneráveis"
   },
   "reviewAtRiskLoginsSlideDesc": {
-    "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
+    "message": "As senhas da sua organização estão vulneráveis, pois são fracas, reutilizadas e/ou comprometidas.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Illustration of a list of logins that are at-risk"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Ilustração de uma lista de logins em risco."
   },
   "generatePasswordSlideDesc": {
-    "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
+    "message": "Gere rapidamente uma senha forte e única com a opção de autopreenchimento no site vulnerável.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Ilustração do menu de autopreenchimento do Bitwarden exibindo uma senha gerada."
   },
   "updateInBitwarden": {
     "message": "Atualizar no Bitwarden"
   },
   "updateInBitwardenSlideDesc": {
-    "message": "Bitwarden will then prompt you to update the password in the password manager.",
+    "message": "O Bitwarden então solicitará que você atualize a senha no gerenciador de senhas.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Ilustração de umja notificação do Bitwarden solicitando que o usuário atualize o login."
   },
   "turnOnAutofill": {
     "message": "Ativar preenchimento automático"
@@ -2582,7 +2552,7 @@
     }
   },
   "blockedDomainsSavedSuccess": {
-    "message": "Blocked domain changes saved"
+    "message": "Alterações de domínios bloqueados salvas"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Mudanças de domínios excluídos salvas"
@@ -3008,7 +2978,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "message": "Apenas os itens individuais do cofre, incluindo anexos associados ao $EMAIL$ serão exportados. Os itens do cofre da organização não serão incluídos",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3038,11 +3008,11 @@
     "message": "O Bitwarden não pode descriptografar o(s) item(ns) do cofre listado abaixo."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
+    "message": "Contato com o cliente feito com sucesso",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "para evitar a perca adicional dos dados.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
@@ -3177,7 +3147,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ recusou sua solicitação. Contate seu provedor de serviços para receber assistência.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3187,7 +3157,7 @@
     }
   },
   "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ recusou sua solicitação: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3336,13 +3306,13 @@
     "message": "Uma notificação foi enviada para seu dispositivo."
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the"
+    "message": "Desbloqueie o Bitwarden em seu dispositivo ou na"
   },
   "notificationSentDeviceAnchor": {
-    "message": "web app"
+    "message": "aplicativo web"
   },
   "notificationSentDevicePart2": {
-    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+    "message": "Certifique-se de que a frase de biometria corresponde a frase abaixo antes de aprovar."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Uma notificação foi enviada para o seu dispositivo"
@@ -3848,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Erro ao se conectar com o serviço Duo. Use um método de verificação de duas etapas diferente ou contate o Duo para assistência."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Inicie o Duo e siga os passos para finalizar o login."
-  },
   "duoRequiredForAccount": {
     "message": "A autenticação em duas etapas do Duo é necessária para sua conta."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Abra a extensão para concluir o login."
   },
   "popoutExtension": {
     "message": "Extensão pop-out"
@@ -4280,7 +4244,7 @@
     }
   },
   "viewItemTitleWithField": {
-    "message": "View item - $ITEMNAME$ - $FIELD$",
+    "message": "Visualizar item - $ITEMNAME$ - $FIELD$",
     "description": "Title for a link that opens a view for an item.",
     "placeholders": {
       "itemname": {
@@ -4304,7 +4268,7 @@
     }
   },
   "autofillTitleWithField": {
-    "message": "Autofill - $ITEMNAME$ - $FIELD$",
+    "message": "Autocompletar - $ITEMNAME$ - $FIELD$",
     "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
@@ -4708,7 +4672,7 @@
     }
   },
   "reorderWebsiteUriButton": {
-    "message": "Reorder website URI. Use arrow key to move item up or down."
+    "message": "Reorganize a URI do site. Use as setas para mover o item para cima ou para baixo."
   },
   "reorderFieldUp": {
     "message": "$LABEL$ se moveu para cima, posição $INDEX$ de $LENGTH$",
@@ -4827,7 +4791,7 @@
     "message": "Mostrar o número de sugestões de preenchimento automático de login no ícone da extensão"
   },
   "showQuickCopyActions": {
-    "message": "Show quick copy actions on Vault"
+    "message": "Mostrar a opção de cópia rápida no Cofre"
   },
   "systemDefault": {
     "message": "Padrão do sistema"
@@ -4899,22 +4863,22 @@
     "message": "Você não tem permissão para editar este arquivo"
   },
   "biometricsStatusHelptextUnlockNeeded": {
-    "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
+    "message": "O desbloqueio por biometria está indisponível, pois é necessário informar o PIN ou a senha primeiro."
   },
   "biometricsStatusHelptextHardwareUnavailable": {
-    "message": "Biometric unlock is currently unavailable."
+    "message": "O desbloqueio por biometria está indisponível no momento."
   },
   "biometricsStatusHelptextAutoSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "O desbloqueio por biometria está indisponível devido a algum erro na configuração dos arquivos de sistema."
   },
   "biometricsStatusHelptextManualSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "O desbloqueio por biometria está indisponível devido a algum erro na configuração dos arquivos de sistema."
   },
   "biometricsStatusHelptextDesktopDisconnected": {
-    "message": "Biometric unlock is unavailable because the Bitwarden desktop app is closed."
+    "message": "O desbloqueio por biometria está indisponível porque o aplicativo de desktop não está aberto."
   },
   "biometricsStatusHelptextNotEnabledInDesktop": {
-    "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
+    "message": "O desbloqueio por biometria está indisponível, pois a opção não foi ativada no aplicativo de desktop de $EMAIL$.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4923,7 +4887,7 @@
     }
   },
   "biometricsStatusHelptextUnavailableReasonUnknown": {
-    "message": "Biometric unlock is currently unavailable for an unknown reason."
+    "message": "O desbloqueio por biometria está indisponível por razões desconhecidas."
   },
   "authenticating": {
     "message": "Autenticando"
@@ -5133,31 +5097,31 @@
     "message": "Extra Grande"
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "A senha está incorreta."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "Importar"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "Confirme a senha"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Enter the password for the SSH key."
+    "message": "Insira a senha da chave SSH."
   },
   "enterSshKeyPassword": {
-    "message": "Enter password"
+    "message": "Insira a senha"
   },
   "invalidSshKey": {
-    "message": "The SSH key is invalid"
+    "message": "A chave SSH é inválida"
   },
   "sshKeyTypeUnsupported": {
-    "message": "The SSH key type is not supported"
+    "message": "O tipo de chave SSH não é suportado"
   },
   "importSshKeyFromClipboard": {
-    "message": "Import key from clipboard"
+    "message": "Importar chave da área de transferência"
   },
   "sshKeyImported": {
-    "message": "SSH key imported successfully"
+    "message": "Chave SSH importada com sucesso"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Você não pode remover coleções com permissões de Somente leitura: $COLLECTIONS$",
@@ -5169,12 +5133,12 @@
     }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Please update your desktop application"
+    "message": "Atualize seu aplicativo de desktop"
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
+    "message": "Para usar o desbloqueio de biometria, atualize seu aplicativo de desktop ou desative a opção \"desbloqueio por biometria\"."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "Alterar senhas vulneráveis"
   }
 }

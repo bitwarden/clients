@@ -833,18 +833,6 @@
   "continue": {
     "message": "Folytatás"
   },
-  "enterVerificationCodeApp": {
-    "message": "A 6 számjegyű ellenőrző kód megadása a hitelesítő alkalmazásból."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "$EMAIL$ email címre elküldött  6 számjegyű ellenőrző kód megadása.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Az ellenőrző kód elküldésre került $EMAIL$ email címre.",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Adatok megjegyzése"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Ne kérdezzen újra ezen az eszközön 30 napig"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Megerősítő kód ismételt elküldése emailben"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Másik kétlépcsős bejelentkezési mód használata"
   },
   "selectAnotherMethod": {
     "message": "Másik módszer választás",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Helyreállító kód használata"
-  },
-  "insertYubiKey": {
-    "message": "A YubiKey beillesztése a számítógép USB portjába és a rajta levő gomb megnyomása."
   },
   "insertU2f": {
     "message": "A biztonsági kulcs beillesztése a számítógép USB portjába. Ha van rajta gomb, nyomjuk meg."
@@ -3224,9 +3200,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Hiba történt a Duo szolgáltatáshoz csatlakozáskor. Használjunk másik kétlépcsős bejelentkezési módot vagy kérjünk segítséget a Duotól."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Indítsuk el a DUO-t és kövessük a lépéseket a bejelentkezés befejezéséhez."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "A fiókhoz kétlépcsős DUO bejelentkezés szükséges."
   },
@@ -3588,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Kockázatos jelszó megváltoztatása"
+  },
+  "move": {
+    "message": "Áthelyezés"
   }
 }
