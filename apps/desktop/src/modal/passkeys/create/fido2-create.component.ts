@@ -22,6 +22,7 @@ import {
   SectionHeaderComponent,
   BitIconButtonComponent,
 } from "@bitwarden/components";
+import { PasswordRepromptService } from "@bitwarden/vault";
 
 import {
   DesktopFido2UserInterfaceService,
@@ -61,6 +62,7 @@ export class Fido2CreateComponent implements OnInit {
     private readonly dialogService: DialogService,
     private readonly domainSettingsService: DomainSettingsService,
     private readonly logService: LogService,
+    private readonly passwordRepromptService: PasswordRepromptService,
     private readonly router: Router,
   ) {}
 
@@ -97,6 +99,8 @@ export class Fido2CreateComponent implements OnInit {
   }
 
   async confirmPasskey() {
+    const userVerified = await this.passwordRepromptService.showPasswordPrompt();
+
     try {
       // Retrieve the current UI session to control the flow
       if (!this.session) {
@@ -111,7 +115,7 @@ export class Fido2CreateComponent implements OnInit {
           await this.closeModal();
         }
       } else {
-        this.session.notifyConfirmCreateCredential(true);
+        this.session.notifyConfirmCreateCredential(userVerified);
       }
 
       // Not sure this clean up should happen here or in session.

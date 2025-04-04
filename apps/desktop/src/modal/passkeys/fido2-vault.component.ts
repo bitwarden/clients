@@ -9,6 +9,7 @@ import { BitwardenShield } from "@bitwarden/auth/angular";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherRepromptType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeModule,
@@ -21,6 +22,7 @@ import {
   BitIconButtonComponent,
   SectionHeaderComponent,
 } from "@bitwarden/components";
+import { PasswordRepromptService } from "@bitwarden/vault";
 
 import {
   DesktopFido2UserInterfaceService,
@@ -60,6 +62,7 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
     private readonly cipherService: CipherService,
     private readonly accountService: AccountService,
     private readonly logService: LogService,
+    private readonly passwordRepromptService: PasswordRepromptService,
     private readonly router: Router,
   ) {}
 
@@ -85,8 +88,15 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
     this.cipherIdsSubject.complete(); // Clean up the BehaviorSubject
   }
 
-  async chooseCipher(cipherId: string) {
-    this.session?.confirmChosenCipher(cipherId, true);
+  async chooseCipher(cipher: CipherView) {
+    if (
+      cipher.reprompt !== CipherRepromptType.None &&
+      !(await this.passwordRepromptService.showPasswordPrompt())
+    ) {
+      this.session?.confirmChosenCipher(cipher.id, false);
+    } else {
+      this.session?.confirmChosenCipher(cipher.id, true);
+    }
 
     await this.router.navigate(["/"]);
     await this.desktopSettingsService.setModalMode(false);

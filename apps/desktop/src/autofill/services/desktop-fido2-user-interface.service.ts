@@ -3,6 +3,7 @@ import {
   lastValueFrom,
   firstValueFrom,
   map,
+  of,
   Subject,
   filter,
   take,
@@ -253,10 +254,19 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     }
   }
 
-  private async showUi(route: string, position?: { x: number; y: number }): Promise<void> {
+  private async showUi(
+    route: string,
+    position?: { x: number; y: number },
+    disableRedirect?: boolean,
+  ): Promise<void> {
     // Load the UI:
     await this.desktopSettingsService.setModalMode(true, position);
-    await this.router.navigate([route]);
+    await this.router.navigate([
+      route,
+      {
+        "disable-redirect": disableRedirect || null,
+      },
+    ]);
   }
 
   /**
@@ -323,7 +333,17 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
     const status = await firstValueFrom(this.authService.activeAccountStatus$);
     if (status !== AuthenticationStatus.Unlocked) {
-      throw new Error("Vault is not unlocked");
+      await this.showUi("/lock", this.windowObject.windowXy, true);
+      const status2 = await lastValueFrom(
+        this.authService.activeAccountStatus$.pipe(
+          filter((s) => s === AuthenticationStatus.Unlocked),
+          take(1),
+          timeout({ first: 30000, with: () => of(AuthenticationStatus.Locked) }),
+        ),
+      );
+      if (status2 !== AuthenticationStatus.Unlocked) {
+        throw new Error("Vault is not unlocked");
+      }
     }
   }
 
