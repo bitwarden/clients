@@ -49,6 +49,19 @@ trait Callback: Send + Sync {
     fn error(&self, error: BitwardenError);
 }
 
+// Empty callback implementation for sending messages without handling responses
+struct EmptyCallback;
+
+impl Callback for EmptyCallback {
+    fn complete(&self, _: serde_json::Value) -> Result<(), serde_json::Error> {
+        Ok(())
+    }
+
+    fn error(&self, _: BitwardenError) {
+        // No-op
+    }
+}
+
 #[derive(uniffi::Object)]
 pub struct MacOSProviderClient {
     to_server_send: tokio::sync::mpsc::Sender<String>,
@@ -57,6 +70,13 @@ pub struct MacOSProviderClient {
     response_callbacks_counter: AtomicU32,
     #[allow(clippy::type_complexity)]
     response_callbacks_queue: Arc<Mutex<HashMap<u32, (Box<dyn Callback>, Instant)>>>,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NativeStatus {
+    key: String,
+    value: String,
 }
 
 #[uniffi::export]
@@ -134,6 +154,11 @@ impl MacOSProviderClient {
         });
 
         client
+    }
+
+    pub fn send_native_status(&self, key: String, value: String) {
+        let status = NativeStatus { key, value };
+        self.send_message(status, Box::new(EmptyCallback));
     }
 
     pub fn prepare_passkey_registration(
