@@ -678,7 +678,6 @@ class LegacyOverlayBackground implements OverlayBackgroundInterface {
     );
 
     await this.openAddEditVaultItemPopout(sender.tab, { cipherId: cipherView.id });
-    await BrowserApi.sendMessage("inlineAutofillMenuRefreshAddEditCipher");
   }
 
   /**
