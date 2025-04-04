@@ -1,17 +1,16 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { ValidatorFn, Validators } from "@angular/forms";
 import { distinctUntilChanged, map, pairwise, pipe, skipWhile, startWith, takeWhile } from "rxjs";
 
-import { AnyConstraint, Constraints } from "@bitwarden/common/tools/types";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { I18nKeyOrLiteral } from "@bitwarden/common/tools/types";
+import { isI18nKey } from "@bitwarden/common/tools/util";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CredentialGeneratorConfiguration } from "@bitwarden/generator-core";
+import { AlgorithmInfo, AlgorithmMetadata } from "@bitwarden/generator-core";
 
 export function completeOnAccountSwitch() {
   return pipe(
     map(({ id }: { id: UserId | null }) => id),
     skipWhile((id) => !id),
-    startWith(null as UserId),
+    startWith(null as UserId | null),
     pairwise(),
     takeWhile(([prev, next]) => (prev ?? next) === next),
     map(([_, id]) => id),
@@ -19,53 +18,27 @@ export function completeOnAccountSwitch() {
   );
 }
 
-export function toValidators<Policy, Settings>(
-  target: keyof Settings,
-  configuration: CredentialGeneratorConfiguration<Settings, Policy>,
-  policy?: Constraints<Settings>,
-) {
-  const validators: Array<ValidatorFn> = [];
+export function toAlgorithmInfo(metadata: AlgorithmMetadata, i18n: I18nService) {
+  const info: AlgorithmInfo = {
+    id: metadata.id,
+    type: metadata.type,
+    name: translate(metadata.i18nKeys.name, i18n),
+    generate: translate(metadata.i18nKeys.generateCredential, i18n),
+    onGeneratedMessage: translate(metadata.i18nKeys.credentialGenerated, i18n),
+    credentialType: translate(metadata.i18nKeys.credentialType, i18n),
+    copy: translate(metadata.i18nKeys.copyCredential, i18n),
+    useGeneratedValue: translate(metadata.i18nKeys.useCredential, i18n),
+    onlyOnRequest: !metadata.capabilities.autogenerate,
+    request: metadata.capabilities.fields,
+  };
 
-  // widen the types to avoid typecheck issues
-  const config: AnyConstraint = configuration.settings.constraints[target];
-  const runtime: AnyConstraint = policy[target];
-
-  const required = getConstraint("required", config, runtime) ?? false;
-  if (required) {
-    validators.push(Validators.required);
+  if (metadata.i18nKeys.description) {
+    info.description = translate(metadata.i18nKeys.description, i18n);
   }
 
-  const maxLength = getConstraint("maxLength", config, runtime);
-  if (maxLength !== undefined) {
-    validators.push(Validators.maxLength(maxLength));
-  }
-
-  const minLength = getConstraint("minLength", config, runtime);
-  if (minLength !== undefined) {
-    validators.push(Validators.minLength(config.minLength));
-  }
-
-  const min = getConstraint("min", config, runtime);
-  if (min !== undefined) {
-    validators.push(Validators.min(min));
-  }
-
-  const max = getConstraint("max", config, runtime);
-  if (max !== undefined) {
-    validators.push(Validators.max(max));
-  }
-
-  return validators;
+  return info;
 }
 
-function getConstraint<Key extends keyof AnyConstraint>(
-  key: Key,
-  config: AnyConstraint,
-  policy?: AnyConstraint,
-) {
-  if (policy && key in policy) {
-    return policy[key] ?? config[key];
-  } else if (config && key in config) {
-    return config[key];
-  }
+export function translate(key: I18nKeyOrLiteral, i18n: I18nService) {
+  return isI18nKey(key) ? i18n.t(key) : key.literal;
 }

@@ -28,7 +28,7 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import { CredentialGeneratorService, GenerateRequest, Generators } from "@bitwarden/generator-core";
+import { CredentialGeneratorService, GenerateRequest, Type } from "@bitwarden/generator-core";
 
 import { SendFormConfig } from "../../abstractions/send-form-config.service";
 import { SendFormContainer } from "../../send-form-container";
@@ -122,12 +122,12 @@ export class SendOptionsComponent implements OnInit {
   }
 
   generatePassword = async () => {
-    const on$ = new BehaviorSubject<GenerateRequest>({ source: "send" });
+    const on$ = new BehaviorSubject<GenerateRequest>({ source: "send", type: Type.password });
     const account$ = this.accountService.activeAccount$.pipe(
       pin({ name: () => "send-options.component", distinct: (p, c) => p.id === c.id }),
     );
     const generatedCredential = await firstValueFrom(
-      this.generatorService.generate$(Generators.password, { on$, account$ }),
+      this.generatorService.generate$({ on$, account$ }),
     );
 
     this.sendOptionsForm.patchValue({

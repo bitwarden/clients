@@ -9,7 +9,7 @@ import { BufferedState } from "@bitwarden/common/tools/state/buffered-state";
 import { PaddedDataPacker } from "@bitwarden/common/tools/state/padded-data-packer";
 import { SecretState } from "@bitwarden/common/tools/state/secret-state";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CredentialAlgorithm } from "@bitwarden/generator-core";
+import { CredentialType } from "@bitwarden/generator-core";
 import { KeyService } from "@bitwarden/key-management";
 
 import { GeneratedCredential } from "./generated-credential";
@@ -36,12 +36,7 @@ export class LocalGeneratorHistoryService extends GeneratorHistoryService {
   private _credentialStates = new Map<UserId, SingleUserState<GeneratedCredential[]>>();
 
   /** {@link GeneratorHistoryService.track} */
-  track = async (
-    userId: UserId,
-    credential: string,
-    category: CredentialAlgorithm,
-    date?: Date,
-  ) => {
+  track = async (userId: UserId, credential: string, category: CredentialType, date?: Date) => {
     const state = this.getCredentialState(userId);
     let result: GeneratedCredential = null;
 

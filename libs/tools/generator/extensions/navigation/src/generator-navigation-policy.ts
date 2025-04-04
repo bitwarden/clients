@@ -4,14 +4,14 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 // FIXME: use index.ts imports once policy abstractions and models
 // implement ADR-0002
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { PasswordType } from "@bitwarden/generator-core";
+import { PasswordAlgorithm } from "@bitwarden/generator-core";
 
 /** Policy settings affecting password generator navigation */
 export type GeneratorNavigationPolicy = {
   /** The type of generator that should be shown by default when opening
    *  the password generator.
    */
-  overridePasswordType?: PasswordType;
+  overridePasswordType?: PasswordAlgorithm;
 };
 
 /** Reduces a policy into an accumulator by preferring the password generator

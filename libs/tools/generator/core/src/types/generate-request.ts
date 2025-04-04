@@ -1,6 +1,15 @@
+import { RequireExactlyOne } from "type-fest";
+
+import { CredentialType, GeneratorProfile, CredentialAlgorithm } from "../metadata";
+
 /** Contextual information about the application state when a generator is invoked.
  */
-export type GenerateRequest = {
+export type GenerateRequest = RequireExactlyOne<
+  { type: CredentialType; algorithm: CredentialAlgorithm },
+  "type" | "algorithm"
+> & {
+  profile?: GeneratorProfile;
+
   /** Traces the origin of the generation request. This parameter is
    *  copied to the generated credential.
    *

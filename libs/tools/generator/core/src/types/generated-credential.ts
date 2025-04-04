@@ -1,6 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import { CredentialAlgorithm } from "./generator-type";
+import { CredentialType } from "../metadata";
 
 /** A credential generation result */
 export class GeneratedCredential {
@@ -16,7 +16,7 @@ export class GeneratedCredential {
    */
   constructor(
     readonly credential: string,
-    readonly category: CredentialAlgorithm,
+    readonly category: CredentialType,
     generationDate: Date | number,
     readonly source?: string,
     readonly website?: string,

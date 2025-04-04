@@ -29,7 +29,7 @@ import {
   Algorithms,
   Types,
 } from "../metadata";
-import { availableAlgorithms_vNext } from "../policies/available-algorithms-policy";
+import { availableAlgorithms } from "../policies/available-algorithms-policy";
 import { CredentialPreference } from "../types";
 import {
   AlgorithmRequest,
@@ -148,7 +148,7 @@ export class GeneratorMetadataProvider {
         const policies$ = this.application.policy
           .policiesByType$(PolicyType.PasswordGenerator, id)
           .pipe(
-            map((p) => availableAlgorithms_vNext(p).filter((a) => this._metadata.has(a))),
+            map((p) => availableAlgorithms(p).filter((a) => this._metadata.has(a))),
             map((p) => new Set(p)),
             // complete policy emissions otherwise `switchMap` holds `available$` open indefinitely
             takeUntil(anyComplete(id$)),

@@ -16,7 +16,7 @@ export class PublicClassifier<Data> implements Classifier<Data, Data, Record<str
     }
     const disclosed = picked as Jsonify<Data>;
 
-    return { disclosed, secret: "" };
+    return { disclosed, secret: null };
   }
 
   declassify(disclosed: Jsonify<Data>, _secret: Jsonify<Record<keyof Data, never>>) {
