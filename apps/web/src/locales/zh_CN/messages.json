@@ -460,7 +460,7 @@
     "message": "未分配"
   },
   "noneFolder": {
-    "message": "默认文件夹",
+    "message": "无文件夹",
     "description": "This is the folder for uncategorized items"
   },
   "selfOwnershipLabel": {
@@ -1124,7 +1124,7 @@
     "message": "已用于加密"
   },
   "loginWithPasskeyEnabled": {
-    "message": "通行密钥登录已开启"
+    "message": "通行密钥登录已启用"
   },
   "passkeySaved": {
     "message": "$NAME$ 已保存",
@@ -1435,18 +1435,6 @@
       }
     }
   },
-  "enterVerificationCodeApp": {
-    "message": "请输入您的验证器 App 中的 6 位数验证码。"
-  },
-  "enterVerificationCodeEmail": {
-    "message": "请输入发送给 $EMAIL$ 的 6 位数验证码。",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "验证邮件已发送到 $EMAIL$。",
     "placeholders": {
@@ -1456,17 +1444,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "记住我"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "30 天内在此设备上不再询问"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "再次发送验证码电子邮件"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "使用其他两步登录方式"
   },
   "selectAnotherMethod": {
     "message": "选择其他方式",
@@ -1474,9 +1453,6 @@
   },
   "useYourRecoveryCode": {
     "message": "使用您的恢复代码"
-  },
-  "insertYubiKey": {
-    "message": "将您的 YubiKey 插入计算机的 USB 端口，然后触摸其按钮。"
   },
   "insertU2f": {
     "message": "将您的安全密钥插入计算机的 USB 端口。如果它有按钮，请触摸它。"
@@ -1497,7 +1473,7 @@
     "message": "选择两步登录方式"
   },
   "recoveryCodeDesc": {
-    "message": "失去对您所有的双重身份验证设备的访问？请使用您的恢复代码来关闭您账户中所有的两步登录提供程序。"
+    "message": "无法访问您所有的两步登录提供程序吗？请使用您的恢复代码来停用您账户中所有的两步登录提供程序。"
   },
   "recoveryCodeTitle": {
     "message": "恢复代码"
@@ -1894,19 +1870,19 @@
     "message": "新设备登录"
   },
   "turnOffNewDeviceLoginProtection": {
-    "message": "关闭新设备登录保护"
+    "message": "停用新设备登录保护"
   },
   "turnOnNewDeviceLoginProtection": {
-    "message": "开启新设备登录保护"
+    "message": "启用新设备登录保护"
   },
   "turnOffNewDeviceLoginProtectionModalDesc": {
-    "message": "继续下面的操作以关闭 Bitwarden 在您从新设备登录时发送验证电子邮件的功能。"
+    "message": "继续下面的操作以停用 Bitwarden 在您从新设备登录时发送验证电子邮件的功能。"
   },
   "turnOnNewDeviceLoginProtectionModalDesc": {
-    "message": "继续下面的操作以开启 Bitwarden 在您从新设备登录时发送验证电子邮件的功能。"
+    "message": "继续下面的操作以启用 Bitwarden 在您从新设备登录时发送验证电子邮件的功能。"
   },
   "turnOffNewDeviceLoginProtectionWarning": {
-    "message": "关闭新设备登录保护后，任何拥有您的主密码的人都可以从任何设备访问您的账户。要在没有验证电子邮件的情况下保护您的账户，请设置两步登录。"
+    "message": "停用新设备登录保护后，任何拥有您的主密码的人都可以从任何设备访问您的账户。要在没有验证电子邮件的情况下保护您的账户，请设置两步登录。"
   },
   "accountNewDeviceLoginProtectionSaved": {
     "message": "新设备登录保护更改已保存"
@@ -2175,7 +2151,7 @@
     "message": "启用两步登录可能会将您永久锁定在 Bitwarden 账户之外。当您无法使用常规的两步登录提供程序（例如您丢失了设备）时，可以使用恢复代码访问您的账户。如果您失去对您账户的访问，Bitwarden 支持也无法帮助您。我们建议您写下或打印恢复代码，并将其妥善保管。"
   },
   "yourSingleUseRecoveryCode": {
-    "message": "当您无法访问两步登录提供程序时，您的一次性恢复代码可用于关闭两步登录。Bitwarden 建议您写下恢复代码，并将其妥善保管。"
+    "message": "当您无法访问两步登录提供程序时，您的一次性恢复代码可用于停用两步登录。Bitwarden 建议您写下恢复代码，并将其妥善保管。"
   },
   "viewRecoveryCode": {
     "message": "查看恢复代码"
@@ -2185,10 +2161,10 @@
     "description": "Two-step login providers such as YubiKey, Duo, Authenticator apps, Email, etc."
   },
   "enable": {
-    "message": "开启"
+    "message": "启用"
   },
   "enabled": {
-    "message": "已开启"
+    "message": "已启用"
   },
   "restoreAccess": {
     "message": "恢复访问权限"
@@ -2231,7 +2207,7 @@
     "message": "编辑项目，隐藏密码"
   },
   "disable": {
-    "message": "关闭"
+    "message": "停用"
   },
   "revokeAccess": {
     "message": "撤销访问权限"
@@ -2291,10 +2267,10 @@
     "message": "如果您要把它添加到其他设备，下面是您的验证器 App 所需要的二维码（或密钥）。"
   },
   "twoStepDisableDesc": {
-    "message": "确定要关闭此两步登录提供程序吗？"
+    "message": "确定要停用此两步登录提供程序吗？"
   },
   "twoStepDisabled": {
-    "message": "两步登录提供程序已关闭。"
+    "message": "两步登录提供程序已停用。"
   },
   "twoFactorYubikeyAdd": {
     "message": "添加一个新的 YubiKey 到您的账户"
@@ -2417,7 +2393,7 @@
     "message": "由于平台限制，FIDO U2F 不能在所有 Bitwarden 应用程序上使用。您应该启用另一个两步登录提供程序，以便在无法使用 FIDO U2F 时可以访问您的账户。支持的平台："
   },
   "twoFactorU2fSupportWeb": {
-    "message": "桌面/笔记本电脑上支持 U2F 的浏览器（开启了 FIDO U2F 的 Chrome、Opera、Vivaldi 或 Firefox）中的网页密码库和浏览器扩展。"
+    "message": "桌面/笔记本电脑上支持 U2F 的浏览器（启用了 FIDO U2F 的 Chrome、Opera、Vivaldi 或 Firefox）中的网页密码库和浏览器扩展。"
   },
   "twoFactorU2fWaiting": {
     "message": "等待您触摸安全密钥上的按钮"
@@ -2936,7 +2912,7 @@
     "message": "付款方式"
   },
   "noPaymentMethod": {
-    "message": "无付款方式"
+    "message": "无付款方式。"
   },
   "addPaymentMethod": {
     "message": "添加付款方式"
@@ -3495,7 +3471,7 @@
     "message": "两步登录已保存"
   },
   "disabled2fa": {
-    "message": "两步登录已关闭"
+    "message": "两步登录已停用"
   },
   "recovered2fa": {
     "message": "从两步登录中恢复了账户。"
@@ -4194,16 +4170,16 @@
     "message": "记住电子邮箱"
   },
   "recoverAccountTwoStepDesc": {
-    "message": "如果您无法通过常规的两步登录方式访问您的账户，您可以使用两步登录恢复代码来关闭账户上的所有两步登录提供程序。"
+    "message": "如果您无法通过常规的两步登录方式访问您的账户，您可以使用两步登录恢复代码来停用账户上的所有两步登录提供程序。"
   },
   "logInBelowUsingYourSingleUseRecoveryCode": {
-    "message": "在下方使用您的一次性恢复代码登录。这将关闭您账户上的所有两步提供程序。"
+    "message": "在下方使用您的一次性恢复代码登录。这将停用您账户上的所有两步提供程序。"
   },
   "recoverAccountTwoStep": {
     "message": "恢复账户两步登录"
   },
   "twoStepRecoverDisabled": {
-    "message": "两步登录已在您的账户中关闭。"
+    "message": "两步登录已在您的账户中停用。"
   },
   "learnMore": {
     "message": "进一步了解"
@@ -4832,7 +4808,7 @@
     "message": "非所有者或管理员并且其账户未启用两步登录的组织成员将从组织中移除，并将收到一封关于此更改的电子邮件通知。"
   },
   "twoStepLoginPolicyUserWarning": {
-    "message": "您是组织的成员，该组织要求在您的用户账户上设置两步登录。如果您关闭所有两步登录提供程序，您将被自动从这些组织中移除。"
+    "message": "您是组织的成员，该组织要求在您的用户账户上设置两步登录。如果您停用所有两步登录提供程序，您将被自动从这些组织中移除。"
   },
   "passwordGeneratorPolicyDesc": {
     "message": "设置密码生成器要求。"
@@ -5094,7 +5070,7 @@
     "message": "先决条件"
   },
   "requireSsoPolicyReq": {
-    "message": "必须先开启「单一组织」企业策略，然后才能激活此策略。"
+    "message": "必须先启用「单一组织」企业策略，然后才能激活此策略。"
   },
   "requireSsoPolicyReqError": {
     "message": "单一组织策略未启用。"
@@ -5523,7 +5499,7 @@
     "message": "管理账户恢复"
   },
   "disableRequiredError": {
-    "message": "您必须先手动切换 $POLICYNAME$ 策略，然后才能关闭此策略。",
+    "message": "您必须先手动切换 $POLICYNAME$ 策略，然后才能停用此策略。",
     "placeholders": {
       "policyName": {
         "content": "$1",
@@ -5803,10 +5779,10 @@
     "message": "基于加密方式，当主密码或受信任设备被遗忘或丢失时恢复账户。"
   },
   "accountRecoveryPolicyWarning": {
-    "message": "对于具有主密码的现有账户，需要成员自行注册后，管理员才可以恢复他们的账户。对于新的成员，自动注册后将开启账户恢复功能。"
+    "message": "对于具有主密码的现有账户，需要成员自行注册后，管理员才可以恢复他们的账户。对于新的成员，自动注册后将启用账户恢复功能。"
   },
   "accountRecoverySingleOrgRequirementDesc": {
-    "message": "必须先开启「单一组织」企业策略，然后才能激活此策略。"
+    "message": "必须先启用「单一组织」企业策略，然后才能激活此策略。"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "自动注册"
@@ -6318,10 +6294,10 @@
     "message": "免费 Bitwarden 家庭"
   },
   "sponsoredFamiliesEligible": {
-    "message": "您和您的家人有资格享受免费的 Bitwarden 家庭版计划。即使您不在公司上班，您也可以使用个人电子邮箱兑换此计划，以保护您的数据安全。"
+    "message": "您和您的家人有资格获得免费的 Bitwarden 家庭版计划。使用您的个人电子邮箱兑换，即使您不在工作中，也能确保您的数据安全。"
   },
   "sponsoredFamiliesEligibleCard": {
-    "message": "立即兑换免费的 Bitwarden 家庭版计划，即使您不在公司上班也能确保您的数据安全。"
+    "message": "立即兑换免费的 Bitwarden 家庭版计划，即使您不在工作中，也能确保您的数据安全。"
   },
   "sponsoredFamiliesInclude": {
     "message": "Bitwarden 家庭版计划包含"
@@ -6516,7 +6492,7 @@
     "message": "「SSO 登录和 Key Connector 解密」已启用。此策略仅适用于所有者和管理员。"
   },
   "enabledSso": {
-    "message": "SSO 已开启"
+    "message": "SSO 已启用"
   },
   "disabledSso": {
     "message": "SSO 已关闭"
@@ -7087,7 +7063,7 @@
     "message": "设备验证"
   },
   "enableDeviceVerification": {
-    "message": "开启设备验证"
+    "message": "启用设备验证"
   },
   "deviceVerificationDesc": {
     "message": "登录未识别的设备时，验证码会发送到您的电子邮箱地址"
@@ -7096,7 +7072,7 @@
     "message": "更新了设备验证"
   },
   "areYouSureYouWantToEnableDeviceVerificationTheVerificationCodeEmailsWillArriveAtX": {
-    "message": "确定要开启设备验证吗？验证码电子邮件将发送到：$EMAIL$",
+    "message": "确定要启用设备验证吗？验证码电子邮件将发送到：$EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -7252,9 +7228,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "与 Duo 服务连接时出错。请使用其他两步登录方式或联系 Duo 寻求帮助。"
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "启动 Duo 然后按照步骤完成登录。"
-  },
   "duoRequiredByOrgForAccount": {
     "message": "您的账户要求使用 Duo 两步登录。"
   },
@@ -7268,7 +7241,7 @@
     "message": "启动 Duo"
   },
   "turnOn": {
-    "message": "开启"
+    "message": "启用"
   },
   "on": {
     "message": "开启"
@@ -8439,7 +8412,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart4": {
-    "message": "策略将在使用此选项时开启。",
+    "message": "策略将在使用此选项时启用。",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
@@ -8735,8 +8708,8 @@
   "limitCollectionDeletionDesc": {
     "message": "限制为所有者和管理员可以删除集合"
   },
-  "limitItemDeletionDesc": {
-    "message": "限制为拥有「可以管理」权限的成员可以删除项目"
+  "limitItemDeletionDescription": {
+    "message": "限制为具有「管理集合」权限的成员可以删项目"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "所有者和管理员可以管理所有集合和项目"
@@ -9305,14 +9278,14 @@
     "message": "SDK"
   },
   "sdksDesc": {
-    "message": "使用以下编程语言中的 Bitwarden 机密管理器 SDK 来构建您自己的应用程序。"
+    "message": "在以下编程语言中使用 Bitwarden 机密管理器 SDK 来构建您自己的应用程序。"
   },
   "ssoDescStart": {
-    "message": "配置",
+    "message": "使用适合您的身份提供程序的实施指南为 Bitwarden 配置",
     "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
   "ssoDescEnd": {
-    "message": "为 Bitwarden（使用您的身份提供程序的实施指南）。",
+    "message": "。",
     "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
   "userProvisioning": {
@@ -9322,30 +9295,30 @@
     "message": "SCIM"
   },
   "scimIntegrationDescStart": {
-    "message": "配置 ",
+    "message": "使用适合您的身份提供程序的实施指南配置 ",
     "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
   "scimIntegrationDescEnd": {
-    "message": "（跨域身份管理系统）以自动向 Bitwarden 配置用户和群组（使用您的身份提供程序的实施指南）。",
+    "message": "（跨域身份管理系统）以自动向 Bitwarden 配置用户和群组。",
     "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
   "bwdc": {
     "message": "Bitwarden Directory Connector"
   },
   "bwdcDesc": {
-    "message": "使用您的身份提供程序的实施指南配置 Bitwarden Directory Connector 以自动配置用户和群组。"
+    "message": "使用适合您的身份提供程序的实施指南配置 Bitwarden Directory Connector 以自动配置用户和群组。"
   },
   "eventManagement": {
     "message": "事件管理"
   },
   "eventManagementDesc": {
-    "message": "使用适合您平台的实施指南将 Bitwarden 事件日志与您的 SIEM（系统信息和事件管理）系统集成。"
+    "message": "使用适合您的平台的实施指南将 Bitwarden 事件日志与您的 SIEM（系统信息和事件管理）系统集成。"
   },
   "deviceManagement": {
     "message": "设备管理"
   },
   "deviceManagementDesc": {
-    "message": "使用适合您平台的实施指南为 Bitwarden 配置设备管理。"
+    "message": "使用适合您的平台的实施指南为 Bitwarden 配置设备管理。"
   },
   "deviceIdMissing": {
     "message": "缺少设备 ID"
@@ -10117,7 +10090,7 @@
     "message": "自托管"
   },
   "claim-domain-single-org-warning": {
-    "message": "声明域名将开启单一组织策略。"
+    "message": "声明域名将启用单一组织策略。"
   },
   "single-org-revoked-user-warning": {
     "message": "不符合要求的成员将被撤销。管理员可以在他们退出所有其他组织后恢复其成员资格。"
@@ -10255,7 +10228,7 @@
     "message": "是的，我可以正常访问我的电子邮箱"
   },
   "turnOnTwoStepLogin": {
-    "message": "开启两步登录"
+    "message": "启用两步登录"
   },
   "changeAcctEmail": {
     "message": "更改账户电子邮箱"

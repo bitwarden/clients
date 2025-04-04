@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
 import {
@@ -41,7 +40,15 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SelectModule, BitValidators, DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  SelectModule,
+  BitValidators,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import { openChangePlanDialog } from "../../../../../billing/organizations/change-plan-dialog.component";
 import { SharedModule } from "../../../../../shared";
@@ -88,6 +95,7 @@ export interface CollectionDialogParams {
   limitNestedCollections?: boolean;
   readonly?: boolean;
   isAddAccessCollection?: boolean;
+  isAdminConsoleActive?: boolean;
 }
 
 export interface CollectionDialogResult {
@@ -131,6 +139,16 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected showAddAccessWarning = false;
   protected collections: Collection[];
   protected buttonDisplayName: ButtonType = ButtonType.Save;
+  protected isExternalIdVisible$ = this.configService
+    .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
+    .pipe(
+      map((isEnabled) => {
+        return (
+          !isEnabled ||
+          (!!this.params.isAdminConsoleActive && !!this.formGroup.get("externalId")?.value)
+        );
+      }),
+    );
   private orgExceedingCollectionLimit!: Organization;
 
   constructor(
@@ -471,7 +489,18 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       this.formGroup.controls.access.disable();
     } else {
       this.formGroup.controls.name.enable();
-      this.formGroup.controls.externalId.enable();
+
+      this.configService
+        .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((isEnabled) => {
+          if (isEnabled) {
+            this.formGroup.controls.externalId.disable();
+          } else {
+            this.formGroup.controls.externalId.enable();
+          }
+        });
+
       this.formGroup.controls.parent.enable();
       this.formGroup.controls.access.enable();
     }
