@@ -107,6 +107,11 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         view.isHidden = true    
         self.view = view
     }
+    
+    override func prepareInterfaceForExtensionConfiguration() {
+        client.sendNativeStatus(key: "request-sync", value: "")
+        self.extensionContext.completeExtensionConfigurationRequest()
+    }
        
     override func provideCredentialWithoutUserInteraction(for credentialRequest: any ASCredentialRequest) {
         let timeoutTimer = createTimer()

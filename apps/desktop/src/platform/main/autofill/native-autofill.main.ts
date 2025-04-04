@@ -75,6 +75,20 @@ export class NativeAutofillMain {
           request,
         });
       },
+      // NativeStatusCallback
+      (error, clientId, sequenceNumber, status) => {
+        if (error) {
+          this.logService.error("autofill.IpcServer.nativeStatus", error);
+          this.ipcServer.completeError(clientId, sequenceNumber, String(error));
+          return;
+        }
+        this.logService.info("Received native status", status);
+        this.windowMain.win.webContents.send("autofill.nativeStatus", {
+          clientId,
+          sequenceNumber,
+          status,
+        });
+      },
     );
 
     ipcMain.on("autofill.completePasskeyRegistration", (event, data) => {

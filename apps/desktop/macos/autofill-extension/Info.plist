@@ -9,10 +9,10 @@
 			<key>ASCredentialProviderExtensionCapabilities</key>
 			<dict>
 				<key>ProvidesPasskeys</key>
-				<true/>
+				<true />
+				<key>ShowsConfigurationUI</key>
+				<true />
 			</dict>
-			<key>ASCredentialProviderExtensionShowsConfigurationUI</key>
-			<false/>
 		</dict>
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.authentication-services-credential-provider-ui</string>
