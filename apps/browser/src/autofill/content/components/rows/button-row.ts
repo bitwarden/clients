@@ -19,6 +19,7 @@ export type ButtonRowProps = {
     label?: string;
     options: Option[];
     handleSelectionUpdate?: (args: any) => void;
+    selectedSignal?: { set: (value: any) => void };
   }[];
 };
 
@@ -32,7 +33,7 @@ export function ButtonRow({ theme, primaryButton, selectButtons }: ButtonRowProp
       })}
       <div class=${optionSelectionsStyles}>
         ${selectButtons?.map(
-          ({ id, label, options, handleSelectionUpdate }) =>
+          ({ id, label, options, handleSelectionUpdate, selectedSignal }) =>
             html`
               <option-selection
                 key=${id}
@@ -40,6 +41,7 @@ export function ButtonRow({ theme, primaryButton, selectButtons }: ButtonRowProp
                 .label=${label}
                 .options=${options}
                 .handleSelectionUpdate=${handleSelectionUpdate}
+                .selectedSignal=${selectedSignal}
               ></option-selection>
             ` || nothing,
         )}
