@@ -21,6 +21,7 @@ export { NewDeviceVerificationNoticePageTwoComponent } from "./components/new-de
 export { DecryptionFailureDialogComponent } from "./components/decryption-failure-dialog/decryption-failure-dialog.component";
 export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.component";
 export * from "./components/carousel";
+export { VaultBerryComponent } from "./components/berry/berry.component";
 
 export * as VaultIcons from "./icons";
 export * from "./notifications";

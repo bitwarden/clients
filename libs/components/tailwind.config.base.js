@@ -81,6 +81,7 @@ module.exports = {
         alt2: rgba("--color-background-alt2"),
         alt3: rgba("--color-background-alt3"),
         alt4: rgba("--color-background-alt4"),
+        alt5: rgba("--color-background-alt5"),
       },
       "marketing-logo": rgba("--color-marketing-logo"),
     },
