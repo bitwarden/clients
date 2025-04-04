@@ -13,6 +13,9 @@ then
   export LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libdbus-1.so.3"
 fi
 
-# pass through all args
-$APP_PATH/bitwarden-app "$@"
+PARAMS="--enable-features=UseOzonePlatform,WaylandWindowDecorations --ozone-platform-hint=auto"
+if [ "$USE_X11" = "true" ]; then
+  PARAMS=""
+fi
 
+$APP_PATH/bitwarden-app $PARAMS "$@"
