@@ -59,9 +59,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         
         logger.log("[autofill-extension] Connecting to Bitwarden over IPC")    
 
-        // Just create the client for now - we'll start monitoring later
-        let client = MacOsProviderClient.connect()
-        return client
+        return MacOsProviderClient.connect()
     }()
     
     // Timer for checking connection status
@@ -89,7 +87,11 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         
         // Only post notification if state changed
         if currentStatus != lastConnectionStatus {
-            logger.log("[autofill-extension] Connection status changed: \(currentStatus == .connected ? "Connected" : "Disconnected")")
+            if(currentStatus == .connected) {
+                logger.log("[autofill-extension] Connection status changed: Connected")
+            } else {
+                logger.log("[autofill-extension] Connection status changed: Disconnected")
+            }
             
             // Save the new status
             lastConnectionStatus = currentStatus
