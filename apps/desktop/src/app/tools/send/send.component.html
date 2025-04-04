@@ -138,7 +138,13 @@
         </ng-container>
       </div>
       <div class="footer">
+        <tools-new-send-dropdown
+          *ngIf="isDesktopSendUIRefreshEnabled$ | async"
+          (onCreateSendOfType)="addSend($event)"
+        >
+        </tools-new-send-dropdown>
         <button
+          *ngIf="!(isDesktopSendUIRefreshEnabled$ | async)"
           type="button"
           (click)="addSend()"
           class="block primary"
