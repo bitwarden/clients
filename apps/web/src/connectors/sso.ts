@@ -32,7 +32,16 @@ function initiateWebAppSso(code: string, state: string) {
 }
 
 function initiateBrowserSso(code: string, state: string, lastpass: boolean) {
-  window.postMessage({ command: "authResult", code: code, state: state, lastpass: lastpass }, "*");
+  const channel = new BroadcastChannel("BitwardenContentScriptMessageHandler");
+  channel.postMessage({
+    command: "authResult",
+    code: code,
+    state: state,
+    lastpass: lastpass,
+    source: window.location.hostname,
+  });
+  channel.close();
+
   const handOffMessage = ("; " + document.cookie)
     .split("; ssoHandOffMessage=")
     .pop()
