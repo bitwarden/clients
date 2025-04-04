@@ -8,6 +8,7 @@ import {
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
+import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { ModalModeState, WindowState } from "../models/domain/window-state";
 
 export const HARDWARE_ACCELERATION = new KeyDefinition<boolean>(
@@ -69,6 +70,15 @@ const BROWSER_INTEGRATION_FINGERPRINT_ENABLED = new KeyDefinition<boolean>(
 const SSH_AGENT_ENABLED = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "sshAgentEnabled", {
   deserializer: (b) => b,
 });
+
+const SSH_AGENT_PROMPT_BEHAVIOR = new UserKeyDefinition<SshAgentPromptType>(
+  DESKTOP_SETTINGS_DISK,
+  "sshAgentRememberAuthorizations",
+  {
+    deserializer: (b) => b,
+    clearOn: [],
+  },
+);
 
 const MINIMIZE_ON_COPY = new UserKeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "minimizeOnCopy", {
   deserializer: (b) => b,
@@ -158,6 +168,11 @@ export class DesktopSettingsService {
   private readonly sshAgentEnabledState = this.stateProvider.getGlobal(SSH_AGENT_ENABLED);
 
   sshAgentEnabled$ = this.sshAgentEnabledState.state$.pipe(map(Boolean));
+
+  private readonly sshAgentPromptBehavior = this.stateProvider.getActive(SSH_AGENT_PROMPT_BEHAVIOR);
+  sshAgentPromptBehavior$ = this.sshAgentPromptBehavior.state$.pipe(
+    map((v) => v ?? SshAgentPromptType.Always),
+  );
 
   private readonly preventScreenshotState = this.stateProvider.getGlobal(PREVENT_SCREENSHOTS);
 
@@ -290,6 +305,10 @@ export class DesktopSettingsService {
    */
   async setSshAgentEnabled(value: boolean) {
     await this.sshAgentEnabledState.update(() => value);
+  }
+
+  async setSshAgentPromptBehavior(value: SshAgentPromptType) {
+    await this.sshAgentPromptBehavior.update(() => value);
   }
 
   /**
