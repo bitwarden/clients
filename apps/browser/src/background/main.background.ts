@@ -200,7 +200,7 @@ import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
-import { DefaultTaskService } from "@bitwarden/common/vault/tasks";
+import { DefaultTaskService, TaskService } from "@bitwarden/common/vault/tasks";
 import {
   legacyPasswordGenerationServiceFactory,
   legacyUsernameGenerationServiceFactory,
@@ -401,7 +401,7 @@ export default class MainBackground {
   sdkLoadService: SdkLoadService;
   cipherAuthorizationService: CipherAuthorizationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
-  taskService: DefaultTaskService;
+  taskService: TaskService;
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
