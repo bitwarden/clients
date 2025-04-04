@@ -170,7 +170,9 @@ export class DesktopSettingsService {
   sshAgentEnabled$ = this.sshAgentEnabledState.state$.pipe(map(Boolean));
 
   private readonly sshAgentPromptBehavior = this.stateProvider.getActive(SSH_AGENT_PROMPT_BEHAVIOR);
-  sshAgentPromptBehavior$ = this.sshAgentPromptBehavior.state$;
+  sshAgentPromptBehavior$ = this.sshAgentPromptBehavior.state$.pipe(
+    map((v) => v ?? SshAgentPromptType.Always),
+  );
 
   private readonly preventScreenshotState = this.stateProvider.getGlobal(PREVENT_SCREENSHOTS);
 
