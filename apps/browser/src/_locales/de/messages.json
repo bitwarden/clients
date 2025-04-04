@@ -1391,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "Eine Premium-Mitgliedschaft ist für diese Funktion notwendig."
   },
-  "enterVerificationCodeApp": {
-    "message": "Gib den 6-stelligen Verifizierungscode aus deiner Authenticator App ein."
-  },
   "authenticationTimeout": {
     "message": "Authentifizierungs-Timeout"
   },
   "authenticationSessionTimedOut": {
     "message": "Die Authentifizierungssitzung ist abgelaufen. Bitte starte den Anmeldeprozess neu."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Gib den 6-stelligen Bestätigungscode ein, der an $EMAIL$ gesendet wurde.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Verifizierungsmail wurde an $EMAIL$ gesendet.",
@@ -1418,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Angemeldet bleiben"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Für 30 Tage auf diesem Gerät nicht mehr fragen"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "E-Mail mit Bestätigungscode erneut versenden"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Verwende eine andere zweistufige Login-Methode"
   },
   "selectAnotherMethod": {
     "message": "Wähle eine andere Methode",
@@ -1437,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Verwende deinen Wiederherstellungscode"
   },
-  "insertYubiKey": {
-    "message": "Stecke deinen YubiKey in den USB-Port Ihres Computers, dann berühre den Button."
-  },
   "insertU2f": {
     "message": "Stecke deinen Sicherheitsschlüssel in den USB-Port deines Computers. Falls ein Knopf vorhanden ist, berühre diesen."
-  },
-  "webAuthnNewTab": {
-    "message": "Um die WebAuthn 2FA Verifizierung zu starten, klicke auf die Schaltfläche unten, um einen neuen Tab zu öffnen und folge den Anweisungen, die im neuen Tab angezeigt werden."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Neuen Tab öffnen"
   },
   "openInNewTab": {
     "message": "In neuem Tab öffnen"
@@ -2534,15 +2504,15 @@
     "message": "Die Passwörter deiner Organisationen sind gefährdet, weil sie schwach, wiederverwendet und/oder kompromittiert sind.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Illustration einer Liste gefährdeter Zugangsdaten"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
   },
   "generatePasswordSlideDesc": {
     "message": "Generiere schnell ein starkes, einzigartiges Passwort mit dem Bitwarden Auto-Ausfüllen-Menü auf der gefährdeten Website.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Illustration des Bitwarden Auto-Ausfüllen-Menüs, das ein generiertes Passwort anzeigt"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
   },
   "updateInBitwarden": {
     "message": "In Bitwarden aktualisieren"
@@ -2551,8 +2521,8 @@
     "message": "Bitwarden wird dich dann auffordern, das Passwort im Passwort-Manager zu aktualisieren.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Illustration einer Bitwarden-Benachrichtigung, die den Benutzer dazu auffordert, die Zugangsdaten zu aktualisieren"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
   },
   "turnOnAutofill": {
     "message": "Auto-Ausfüllen aktivieren"
@@ -3848,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Fehler beim Verbinden mit dem Duo-Dienst. Verwende eine andere Zwei-Faktor-Authentifizierungsmethode oder kontaktiere Duo für Hilfe."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Starte DUO und folge den Schritten, um die Anmeldung zu abzuschließen."
-  },
   "duoRequiredForAccount": {
     "message": "Für dein Konto ist die Duo Zwei-Faktor-Authentifizierung erforderlich."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Koppel die Erweiterung ab, um die Anmeldung abzuschließen."
   },
   "popoutExtension": {
     "message": "Popout-Erweiterung"

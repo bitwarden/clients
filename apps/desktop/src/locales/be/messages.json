@@ -833,18 +833,6 @@
   "continue": {
     "message": "Працягнуць"
   },
-  "enterVerificationCodeApp": {
-    "message": "Увядзіце 6 лічбаў праверачнага кода з вашай праграмы аўтэнтыфікацыі."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Увядзіце 6 лічбаў праверачнага кода, які быў адпраўлены на $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Праверачны ліст адпраўлены на $EMAIL$.",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Запомніць мяне"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Адправіць праверачны код яшчэ раз"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Выкарыстоўваць іншы метад двухэтапнага ўваходу"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "Устаўце свой YubiKey у порт USB камп'ютара, а потым націсніце на кнопку."
   },
   "insertU2f": {
     "message": "Устаўце ваш ключ бяспекі ў порт USB камп'ютара. Калі на ім ёсць кнопка, націсніце на яе."
@@ -3224,9 +3200,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
   },
@@ -3588,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }

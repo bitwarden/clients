@@ -1391,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "Prémium tagság szükséges ennek a funkciónak eléréséhez a jövőben."
   },
-  "enterVerificationCodeApp": {
-    "message": "Add meg a 6 számjegyű ellenőrző kódot a hitelesítő alkalmazásodból."
-  },
   "authenticationTimeout": {
     "message": "Hitelesítési időkifutás"
   },
   "authenticationSessionTimedOut": {
     "message": "A hitelesítési munkamenet időkifutással lejárt. Indítsuk újra a bejelentkezési folyamatot."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "$EMAIL$ email címre elküldött 6 számjegyű ellenőrző kód megadása.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Az ellenőrző kód elküldésre került $EMAIL$ email címre.",
@@ -1418,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Emlékezz rám"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Ne kérdezzen újra ezen az eszközön 30 napig"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Megerősítő kód e-mail újra küldése"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Más két lépcsős bejelentkezés használata"
   },
   "selectAnotherMethod": {
     "message": "Másik módszer választás",
@@ -1437,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Helyreállító kód használata"
   },
-  "insertYubiKey": {
-    "message": "Illeszd be a YubiKey-t a számítógéped egyik USB portjába, majd nyomd meg a gombját."
-  },
   "insertU2f": {
     "message": "Illesz be biztonsági kulcsod a számítógéped egyik USB portjába. Ha van rajta egy gomb, nyomd le."
-  },
-  "webAuthnNewTab": {
-    "message": "A WebAuthn 2FA ellenőrzés folytatása az új fülön."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Új fül megnyitása"
   },
   "openInNewTab": {
     "message": "Megnyitás új fülön"
@@ -2534,14 +2504,14 @@
     "message": "A szervezeti jelszavak kockázatosak, mert gyengék, újra felhasználásra kerültek és/vagy nyilvánosságra kerültek.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "A kockázatos bejelentkezések listájának illusztrációja"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "A kockázatos bejelentkezések listájának illusztrációja."
   },
   "generatePasswordSlideDesc": {
     "message": "Gyorsan generálhatunk erős, egyedi jelszót a Bitwarden automatikus kitöltési menüjével a kockázatos webhelyen.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
+  "generatePasswordSlideImgAltPeriod": {
     "message": "A Bitwarden automatikus kitöltési menüjének illusztrációja, amely egy generált jelszót jelenít meg."
   },
   "updateInBitwarden": {
@@ -2551,7 +2521,7 @@
     "message": "A Bitwarden ezután felkér a jelszó frissítésére a jelszókezelőben.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
+  "updateInBitwardenSlideImgAltPeriod": {
     "message": "Illusztráció a Bitwarden értesítéséről, amely felszólítja a felhasználót a bejelentkezési adatok frissítésére."
   },
   "turnOnAutofill": {
@@ -3848,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Indítsuk el a DUO-t és kövessük a lépéseket a bejelentkezés befejezéséhez."
-  },
   "duoRequiredForAccount": {
     "message": "A fiókhoz kétlépcsős DUO bejelentkezés szükséges."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "A bejelentkezés befejezéséhez nyissuk meg a kiterjesztést."
   },
   "popoutExtension": {
     "message": "Felugró bővítmény"
@@ -4280,7 +4244,7 @@
     }
   },
   "viewItemTitleWithField": {
-    "message": "View item - $ITEMNAME$ - $FIELD$",
+    "message": "Elem megtekintése - $ITEMNAME$ - $FIELD$",
     "description": "Title for a link that opens a view for an item.",
     "placeholders": {
       "itemname": {
@@ -4304,7 +4268,7 @@
     }
   },
   "autofillTitleWithField": {
-    "message": "Autofill - $ITEMNAME$ - $FIELD$",
+    "message": "Automatikus kitöltés - $ITEMNAME$ - $FIELD$",
     "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {

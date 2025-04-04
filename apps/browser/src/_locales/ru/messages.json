@@ -1391,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "Для использования этой функции необходим Премиум."
   },
-  "enterVerificationCodeApp": {
-    "message": "Введите 6-значный код подтверждения из вашего приложения-аутентификатора."
-  },
   "authenticationTimeout": {
     "message": "Таймаут аутентификации"
   },
   "authenticationSessionTimedOut": {
     "message": "Сеанс аутентификации завершился по времени. Пожалуйста, попробуйте войти еще раз."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Введите 6-значный код подтверждения, который был отправлен на $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Отправлено письмо подтверждения на $EMAIL$.",
@@ -1418,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Запомнить меня"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Не спрашивать на этом устройстве в течение 30 дней"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Отправить код подтверждения еще раз"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Использовать другой метод двухэтапной аутентификации"
   },
   "selectAnotherMethod": {
     "message": "Выбрать другой способ",
@@ -1437,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Использовать код восстановления"
   },
-  "insertYubiKey": {
-    "message": "Вставьте свой YubiKey в USB-порт компьютера и нажмите его кнопку."
-  },
   "insertU2f": {
     "message": "Вставьте ключ безопасности в USB-порт компьютера. Если у ключа есть кнопка, нажмите ее."
-  },
-  "webAuthnNewTab": {
-    "message": "Продолжить верификацию 2ЭА WebAuthn в новой вкладке."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Открыть новую вкладку"
   },
   "openInNewTab": {
     "message": "Открыть в новой вкладке"
@@ -2534,15 +2504,15 @@
     "message": "Пароли вашей организации подвержены риску, потому что они слабые, повторно используются и/или раскрыты.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Иллюстрация списка логинов, которые подвержены риску"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Иллюстрация списка логинов, которые подвержены риску."
   },
   "generatePasswordSlideDesc": {
     "message": "Быстро сгенерируйте надежный уникальный пароль с помощью меню автозаполнения Bitwarden на сайте, подверженном риску.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Иллюстрация меню автозаполнения Bitwarden, отображающего сгенерированный пароль"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Иллюстрация меню автозаполнения Bitwarden, отображающего сгенерированный пароль."
   },
   "updateInBitwarden": {
     "message": "Обновить в Bitwarden"
@@ -2551,8 +2521,8 @@
     "message": "После этого Bitwarden предложит вам обновить пароль в менеджере паролей.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Иллюстрация уведомления Bitwarden, предлагающего пользователю обновить логин"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Иллюстрация уведомления Bitwarden, предлагающего пользователю обновить логин."
   },
   "turnOnAutofill": {
     "message": "Включить автозаполнение"
@@ -3848,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Ошибка при подключении к сервису Duo. Используйте другой метод двухэтапной аутентификации или обратитесь за помощью в Duo."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Запустите Duo и следуйте шагам для завершения авторизации."
-  },
   "duoRequiredForAccount": {
     "message": "Для вашего аккаунта требуется двухэтапная аутентификация Duo."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Запустите расширение для завершения авторизации."
   },
   "popoutExtension": {
     "message": "Открепить расширение"
@@ -4280,7 +4244,7 @@
     }
   },
   "viewItemTitleWithField": {
-    "message": "View item - $ITEMNAME$ - $FIELD$",
+    "message": "Просмотр элемента - $ITEMNAME$ - $FIELD$",
     "description": "Title for a link that opens a view for an item.",
     "placeholders": {
       "itemname": {
@@ -4304,7 +4268,7 @@
     }
   },
   "autofillTitleWithField": {
-    "message": "Autofill - $ITEMNAME$ - $FIELD$",
+    "message": "Автозаполнение - $ITEMNAME$ - $FIELD$",
     "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {

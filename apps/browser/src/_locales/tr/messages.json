@@ -1391,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "Bu özelliği kullanmak için premium üyelik gereklidir."
   },
-  "enterVerificationCodeApp": {
-    "message": "Kimlik doğrulama uygulamanızdaki 6 haneli doğrulama kodunu girin."
-  },
   "authenticationTimeout": {
     "message": "Kimlik doğrulama zaman aşımı"
   },
   "authenticationSessionTimedOut": {
     "message": "Kimlik doğrulama oturumu zaman aşımına uğradı. Lütfen giriş sürecini yeniden başlatın."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "$EMAIL$ adresine e-postayla gönderdiğimiz 6 haneli doğrulama kodunu girin.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Doğrulama e-postası $EMAIL$ adresine gönderildi.",
@@ -1418,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Beni hatırla"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Doğrulama kodunu yeniden gönder"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Başka bir iki aşamalı giriş yöntemini kullan"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -1437,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
   },
-  "insertYubiKey": {
-    "message": "YubiKey'i bilgisayarınızın USB portuna takın, ardından düğmesine dokunun."
-  },
   "insertU2f": {
     "message": "Güvenlik anahtarınızı bilgisayarınızın USB portuna takın. Düğmesi varsa dokunun."
-  },
-  "webAuthnNewTab": {
-    "message": "WebAuthn iki aşamalı doğrulamayı başlatmak için aşağıdaki düğmeye tıklayın ve açılan sekmedeki yönergeleri takip edin."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Yeni sekme aç"
   },
   "openInNewTab": {
     "message": "Yeni sekmede aç"
@@ -2534,15 +2504,15 @@
     "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Illustration of a list of logins that are at-risk"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
   },
   "generatePasswordSlideDesc": {
     "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
   },
   "updateInBitwarden": {
     "message": "Update in Bitwarden"
@@ -2551,8 +2521,8 @@
     "message": "Bitwarden will then prompt you to update the password in the password manager.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
   },
   "turnOnAutofill": {
     "message": "Otomatik doldurmayı etkinleştir"
@@ -3848,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Duo'yu açın ve girişi tamamlamak için adımları izleyin."
-  },
   "duoRequiredForAccount": {
     "message": "Hesabınız için Duo iki adımlı giriş gereklidir."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Giriş işlemini tamamlamak için uzantıyı dışarı alın."
   },
   "popoutExtension": {
     "message": "Uzantıyı dışarı al"
