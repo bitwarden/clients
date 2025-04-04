@@ -232,10 +232,9 @@ export class SshAgentService implements OnDestroy {
     combineLatest([
       timer(0, this.SSH_REFRESH_INTERVAL),
       this.desktopSettingsService.sshAgentEnabled$,
-      this.desktopSettingsService.sshAgentPromptBehavior$,
     ])
       .pipe(
-        concatMap(async ([, enabled, promptBehavior]) => {
+        concatMap(async ([, enabled]) => {
           if (!this.isFeatureFlagEnabled) {
             return;
           }
