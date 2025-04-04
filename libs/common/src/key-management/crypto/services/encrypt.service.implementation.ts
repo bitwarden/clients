@@ -13,7 +13,11 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { EncryptedObject } from "@bitwarden/common/platform/models/domain/encrypted-object";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import {
+  Aes256CbcHmacKey,
+  Aes256CbcKey,
+  SymmetricCryptoKey,
+} from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 
 import { ServerConfig } from "../../../platform/abstractions/config/server-config";
 import { EncryptService } from "../abstractions/encrypt.service";
@@ -46,11 +50,19 @@ export class EncryptServiceImplementation implements EncryptService {
       plainBuf = plainValue;
     }
 
-    const encObj = await this.aesEncrypt(plainBuf, key);
-    const iv = Utils.fromBufferToB64(encObj.iv);
-    const data = Utils.fromBufferToB64(encObj.data);
-    const mac = encObj.mac != null ? Utils.fromBufferToB64(encObj.mac) : null;
-    return new EncString(encObj.key.encType, data, iv, mac);
+    const innerKey = key.inner();
+    if (innerKey.type === EncryptionType.AesCbc256_HmacSha256_B64) {
+      const encObj = await this.aesEncrypt(plainBuf, innerKey);
+      const iv = Utils.fromBufferToB64(encObj.iv);
+      const data = Utils.fromBufferToB64(encObj.data);
+      const mac = Utils.fromBufferToB64(encObj.mac);
+      return new EncString(innerKey.type, data, iv, mac);
+    } else if (innerKey.type === EncryptionType.AesCbc256_B64) {
+      const encObj = await this.aesEncryptLegacy(plainBuf, innerKey);
+      const iv = Utils.fromBufferToB64(encObj.iv);
+      const data = Utils.fromBufferToB64(encObj.data);
+      return new EncString(innerKey.type, data, iv);
+    }
   }
 
   async encryptToBytes(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncArrayBuffer> {
@@ -58,21 +70,26 @@ export class EncryptServiceImplementation implements EncryptService {
       throw new Error("No encryption key provided.");
     }
 
-    const encValue = await this.aesEncrypt(plainValue, key);
-    let macLen = 0;
-    if (encValue.mac != null) {
-      macLen = encValue.mac.byteLength;
-    }
-
-    const encBytes = new Uint8Array(1 + encValue.iv.byteLength + macLen + encValue.data.byteLength);
-    encBytes.set([encValue.key.encType]);
-    encBytes.set(new Uint8Array(encValue.iv), 1);
-    if (encValue.mac != null) {
+    const innerKey = key.inner();
+    if (innerKey.type === EncryptionType.AesCbc256_HmacSha256_B64) {
+      const encValue = await this.aesEncrypt(plainValue, innerKey);
+      const macLen = encValue.mac.length;
+      const encBytes = new Uint8Array(
+        1 + encValue.iv.byteLength + macLen + encValue.data.byteLength,
+      );
+      encBytes.set([innerKey.type]);
+      encBytes.set(new Uint8Array(encValue.iv), 1);
       encBytes.set(new Uint8Array(encValue.mac), 1 + encValue.iv.byteLength);
+      encBytes.set(new Uint8Array(encValue.data), 1 + encValue.iv.byteLength + macLen);
+      return new EncArrayBuffer(encBytes);
+    } else if (innerKey.type === EncryptionType.AesCbc256_B64) {
+      const encValue = await this.aesEncryptLegacy(plainValue, innerKey);
+      const encBytes = new Uint8Array(1 + encValue.iv.byteLength + encValue.data.byteLength);
+      encBytes.set([innerKey.type]);
+      encBytes.set(new Uint8Array(encValue.iv), 1);
+      encBytes.set(new Uint8Array(encValue.data), 1 + encValue.iv.byteLength);
+      return new EncArrayBuffer(encBytes);
     }
-
-    encBytes.set(new Uint8Array(encValue.data), 1 + encValue.iv.byteLength + macLen);
-    return new EncArrayBuffer(encBytes);
   }
 
   async decryptToUtf8(
@@ -84,36 +101,25 @@ export class EncryptServiceImplementation implements EncryptService {
       throw new Error("No key provided for decryption.");
     }
 
-    // DO NOT REMOVE OR MOVE. This prevents downgrade to mac-less CBC, which would compromise integrity and confidentiality.
-    if (key.macKey != null && encString?.mac == null) {
-      this.logService.error(
-        "[Encrypt service] Key has mac key but payload is missing mac bytes. Key type " +
-          encryptionTypeName(key.encType) +
-          "Payload type " +
-          encryptionTypeName(encString.encryptionType),
-        "Decrypt context: " + decryptContext,
+    const innerKey = key.inner();
+    if (encString.encryptionType !== innerKey.type) {
+      this.logDecryptError(
+        "Key encryption type does not match payload encryption type",
+        key.encType,
+        encString.encryptionType,
+        decryptContext,
       );
       return null;
     }
 
-    if (key.encType !== encString.encryptionType) {
-      this.logService.error(
-        "[Encrypt service] Key encryption type does not match payload encryption type. Key type " +
-          encryptionTypeName(key.encType) +
-          "Payload type " +
-          encryptionTypeName(encString.encryptionType),
-        "Decrypt context: " + decryptContext,
+    if (innerKey.type === EncryptionType.AesCbc256_HmacSha256_B64) {
+      const fastParams = this.cryptoFunctionService.aesDecryptFastParameters(
+        encString.data,
+        encString.iv,
+        encString.mac,
+        key,
       );
-      return null;
-    }
 
-    const fastParams = this.cryptoFunctionService.aesDecryptFastParameters(
-      encString.data,
-      encString.iv,
-      encString.mac,
-      key,
-    );
-    if (fastParams.macKey != null && fastParams.mac != null) {
       const computedMac = await this.cryptoFunctionService.hmacFast(
         fastParams.macData,
         fastParams.macKey,
@@ -122,18 +128,31 @@ export class EncryptServiceImplementation implements EncryptService {
       const macsEqual = await this.cryptoFunctionService.compareFast(fastParams.mac, computedMac);
       if (!macsEqual) {
         this.logMacFailed(
-          "[Encrypt service] decryptToUtf8 MAC comparison failed. Key or payload has changed. Key type " +
-            encryptionTypeName(key.encType) +
-            "Payload type " +
-            encryptionTypeName(encString.encryptionType) +
-            " Decrypt context: " +
-            decryptContext,
+          "decryptToUtf8 MAC comparison failed. Key or payload has changed.",
+          key.encType,
+          encString.encryptionType,
+          decryptContext,
         );
         return null;
       }
+      return await this.cryptoFunctionService.aesDecryptFast({
+        mode: "cbc",
+        parameters: fastParams,
+      });
+    } else if (innerKey.type === EncryptionType.AesCbc256_B64) {
+      const fastParams = this.cryptoFunctionService.aesDecryptFastParameters(
+        encString.data,
+        encString.iv,
+        undefined,
+        key,
+      );
+      return await this.cryptoFunctionService.aesDecryptFast({
+        mode: "cbc",
+        parameters: fastParams,
+      });
+    } else {
+      throw new Error(`Unsupported encryption type`);
     }
-
-    return await this.cryptoFunctionService.aesDecryptFast({ mode: "cbc", parameters: fastParams });
   }
 
   async decryptToBytes(
@@ -149,72 +168,52 @@ export class EncryptServiceImplementation implements EncryptService {
       throw new Error("Nothing provided for decryption.");
     }
 
-    // DO NOT REMOVE OR MOVE. This prevents downgrade to mac-less CBC, which would compromise integrity and confidentiality.
-    if (key.macKey != null && encThing.macBytes == null) {
-      this.logService.error(
-        "[Encrypt service] Key has mac key but payload is missing mac bytes. Key type " +
-          encryptionTypeName(key.encType) +
-          " Payload type " +
-          encryptionTypeName(encThing.encryptionType) +
-          " Decrypt context: " +
-          decryptContext,
+    const inner = key.inner();
+    if (encThing.encryptionType !== inner.type) {
+      this.logDecryptError(
+        "Encryption key type mismatch",
+        key.encType,
+        encThing.encryptionType,
+        decryptContext,
       );
       return null;
     }
 
-    if (key.encType !== encThing.encryptionType) {
-      this.logService.error(
-        "[Encrypt service] Key encryption type does not match payload encryption type. Key type " +
-          encryptionTypeName(key.encType) +
-          " Payload type " +
-          encryptionTypeName(encThing.encryptionType) +
-          " Decrypt context: " +
-          decryptContext,
-      );
-      return null;
-    }
+    if (inner.type === EncryptionType.AesCbc256_HmacSha256_B64) {
+      if (encThing.macBytes == null) {
+        this.logDecryptError("Mac missing", key.encType, encThing.encryptionType, decryptContext);
+        return null;
+      }
 
-    if (key.macKey != null && encThing.macBytes != null) {
       const macData = new Uint8Array(encThing.ivBytes.byteLength + encThing.dataBytes.byteLength);
       macData.set(new Uint8Array(encThing.ivBytes), 0);
       macData.set(new Uint8Array(encThing.dataBytes), encThing.ivBytes.byteLength);
       const computedMac = await this.cryptoFunctionService.hmac(macData, key.macKey, "sha256");
-      if (computedMac === null) {
-        this.logMacFailed(
-          "[Encrypt service#decryptToBytes] Failed to compute MAC." +
-            " Key type " +
-            encryptionTypeName(key.encType) +
-            " Payload type " +
-            encryptionTypeName(encThing.encryptionType) +
-            " Decrypt context: " +
-            decryptContext,
-        );
-        return null;
-      }
-
       const macsMatch = await this.cryptoFunctionService.compare(encThing.macBytes, computedMac);
       if (!macsMatch) {
         this.logMacFailed(
-          "[Encrypt service#decryptToBytes]: MAC comparison failed. Key or payload has changed." +
-            " Key type " +
-            encryptionTypeName(key.encType) +
-            " Payload type " +
-            encryptionTypeName(encThing.encryptionType) +
-            " Decrypt context: " +
-            decryptContext,
+          "MAC comparison failed. Key or payload has changed.",
+          key.encType,
+          encThing.encryptionType,
+          decryptContext,
         );
         return null;
       }
+
+      return await this.cryptoFunctionService.aesDecrypt(
+        encThing.dataBytes,
+        encThing.ivBytes,
+        key.encKey,
+        "cbc",
+      );
+    } else if (inner.type === EncryptionType.AesCbc256_B64) {
+      return await this.cryptoFunctionService.aesDecrypt(
+        encThing.dataBytes,
+        encThing.ivBytes,
+        key.encKey,
+        "cbc",
+      );
     }
-
-    const result = await this.cryptoFunctionService.aesDecrypt(
-      encThing.dataBytes,
-      encThing.ivBytes,
-      key.encKey,
-      "cbc",
-    );
-
-    return result ?? null;
   }
 
   async rsaEncrypt(data: Uint8Array, publicKey: Uint8Array): Promise<EncString> {
@@ -279,25 +278,48 @@ export class EncryptServiceImplementation implements EncryptService {
     return Utils.fromBufferToB64(hashArray);
   }
 
-  private async aesEncrypt(data: Uint8Array, key: SymmetricCryptoKey): Promise<EncryptedObject> {
+  private async aesEncrypt(data: Uint8Array, key: Aes256CbcHmacKey): Promise<EncryptedObject> {
     const obj = new EncryptedObject();
-    obj.key = key;
     obj.iv = await this.cryptoFunctionService.randomBytes(16);
-    obj.data = await this.cryptoFunctionService.aesEncrypt(data, obj.iv, obj.key.encKey);
+    obj.data = await this.cryptoFunctionService.aesEncrypt(data, obj.iv, key.encryptionKey);
 
-    if (obj.key.macKey != null) {
-      const macData = new Uint8Array(obj.iv.byteLength + obj.data.byteLength);
-      macData.set(new Uint8Array(obj.iv), 0);
-      macData.set(new Uint8Array(obj.data), obj.iv.byteLength);
-      obj.mac = await this.cryptoFunctionService.hmac(macData, obj.key.macKey, "sha256");
-    }
+    const macData = new Uint8Array(obj.iv.byteLength + obj.data.byteLength);
+    macData.set(new Uint8Array(obj.iv), 0);
+    macData.set(new Uint8Array(obj.data), obj.iv.byteLength);
+    obj.mac = await this.cryptoFunctionService.hmac(macData, key.authenticationKey, "sha256");
 
     return obj;
   }
 
-  private logMacFailed(msg: string) {
+  /**
+   * @deprecated Removed once AesCbc256_B64 support is removed
+   */
+  private async aesEncryptLegacy(data: Uint8Array, key: Aes256CbcKey): Promise<EncryptedObject> {
+    const obj = new EncryptedObject();
+    obj.iv = await this.cryptoFunctionService.randomBytes(16);
+    obj.data = await this.cryptoFunctionService.aesEncrypt(data, obj.iv, key.encryptionKey);
+    return obj;
+  }
+
+  private logDecryptError(
+    msg: string,
+    keyEncType: EncryptionType,
+    dataEncType: EncryptionType,
+    decryptContext: string,
+  ) {
+    this.logService.error(
+      `[Encrypt service] ${msg} Key type ${encryptionTypeName(keyEncType)} Payload type ${encryptionTypeName(dataEncType)} Decrypt context: ${decryptContext}`,
+    );
+  }
+
+  private logMacFailed(
+    msg: string,
+    keyEncType: EncryptionType,
+    dataEncType: EncryptionType,
+    decryptContext: string,
+  ) {
     if (this.logMacFailures) {
-      this.logService.error(msg);
+      this.logDecryptError(msg, keyEncType, dataEncType, decryptContext);
     }
   }
 }
