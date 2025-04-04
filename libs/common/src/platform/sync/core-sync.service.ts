@@ -264,7 +264,7 @@ export abstract class CoreSyncService implements SyncService {
     this.messageSender.send("syncStarted");
   }
 
-  protected syncCompleted(successfully: boolean, userId?: UserId): boolean {
+  protected syncCompleted(successfully: boolean, userId: UserId | undefined): boolean {
     this.syncInProgress = false;
     this.messageSender.send("syncCompleted", { successfully: successfully, userId });
     return successfully;
