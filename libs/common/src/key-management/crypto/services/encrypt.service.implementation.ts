@@ -143,7 +143,7 @@ export class EncryptServiceImplementation implements EncryptService {
       const fastParams = this.cryptoFunctionService.aesDecryptFastParameters(
         encString.data,
         encString.iv,
-        null,
+        undefined,
         key,
       );
       return await this.cryptoFunctionService.aesDecryptFast({

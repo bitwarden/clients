@@ -56,7 +56,7 @@ export class SymmetricCryptoKey {
       this.encKeyB64 = Utils.fromBufferToB64(this.encKey);
 
       this.macKey = null;
-      this.macKeyB64 = null;
+      this.macKeyB64 = undefined;
     } else if (key.byteLength === 64) {
       this.innerKey = {
         type: EncryptionType.AesCbc256_HmacSha256_B64,
