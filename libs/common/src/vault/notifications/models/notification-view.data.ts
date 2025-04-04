@@ -1,6 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import { NotificationId } from "@bitwarden/common/types/guid";
+import { NotificationId, SecurityTaskId } from "@bitwarden/common/types/guid";
 
 import { NotificationViewResponse } from "./notification-view.response";
 
@@ -10,6 +10,7 @@ export class NotificationViewData {
   title: string;
   body: string;
   date: Date;
+  taskId?: SecurityTaskId;
   readDate: Date | null;
   deletedDate: Date | null;
 
@@ -19,6 +20,7 @@ export class NotificationViewData {
     this.title = response.title;
     this.body = response.body;
     this.date = response.date;
+    this.taskId = response.taskId;
     this.readDate = response.readDate;
     this.deletedDate = response.deletedDate;
   }
@@ -30,6 +32,7 @@ export class NotificationViewData {
       title: obj.title,
       body: obj.body,
       date: new Date(obj.date),
+      taskId: obj.taskId,
       readDate: obj.readDate ? new Date(obj.readDate) : null,
       deletedDate: obj.deletedDate ? new Date(obj.deletedDate) : null,
     });

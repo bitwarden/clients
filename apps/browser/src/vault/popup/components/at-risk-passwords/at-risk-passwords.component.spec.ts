@@ -16,6 +16,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { EndUserNotificationService } from "@bitwarden/common/vault/notifications";
+import { NotificationView } from "@bitwarden/common/vault/notifications/models";
 import { SecurityTask, SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
@@ -66,6 +68,7 @@ describe("AtRiskPasswordsComponent", () => {
   let mockTasks$: BehaviorSubject<SecurityTask[]>;
   let mockCiphers$: BehaviorSubject<CipherView[]>;
   let mockOrgs$: BehaviorSubject<Organization[]>;
+  let mockNotifications$: BehaviorSubject<NotificationView[]>;
   let mockInlineMenuVisibility$: BehaviorSubject<InlineMenuVisibilitySetting>;
   let calloutDismissed$: BehaviorSubject<boolean>;
   const setInlineMenuVisibility = jest.fn();
@@ -101,6 +104,7 @@ describe("AtRiskPasswordsComponent", () => {
         name: "Org 1",
       } as Organization,
     ]);
+    mockNotifications$ = new BehaviorSubject<NotificationView[]>([]);
 
     mockInlineMenuVisibility$ = new BehaviorSubject<InlineMenuVisibilitySetting>(
       AutofillOverlayVisibility.Off,
@@ -131,6 +135,12 @@ describe("AtRiskPasswordsComponent", () => {
           provide: CipherService,
           useValue: {
             cipherViews$: () => mockCiphers$,
+          },
+        },
+        {
+          provide: EndUserNotificationService,
+          useValue: {
+            unreadNotifications$: () => mockNotifications$,
           },
         },
         { provide: I18nService, useValue: { t: (key: string) => key } },
