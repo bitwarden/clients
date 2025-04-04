@@ -1,13 +1,13 @@
 import { Meta, StoryObj } from "@storybook/angular";
 
-import { BerryComponent } from "./berry.component";
+import { VaultBerryComponent } from "./berry.component";
 
 export default {
   title: "Vault/Berry",
-  component: BerryComponent,
+  component: VaultBerryComponent,
   argTypes: {},
 } as Meta;
 
-type Story = StoryObj<BerryComponent>;
+type Story = StoryObj<VaultBerryComponent>;
 
 export const Default: Story = {};
