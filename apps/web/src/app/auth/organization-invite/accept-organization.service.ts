@@ -15,6 +15,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -27,7 +28,10 @@ import {
   ORGANIZATION_INVITE_DISK,
 } from "@bitwarden/common/platform/state";
 import { OrgKey } from "@bitwarden/common/types/key";
+import { DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+
+import { OrganizationTrustComponent } from "../../admin-console/organizations/manage/organization-trust.component";
 
 import { OrganizationInvite } from "./organization-invite";
 
@@ -63,6 +67,8 @@ export class AcceptOrganizationInviteService {
     private readonly organizationUserApiService: OrganizationUserApiService,
     private readonly i18nService: I18nService,
     private readonly globalStateProvider: GlobalStateProvider,
+    private readonly dialogService: DialogService,
+    private readonly accountService: AccountService,
   ) {
     this.organizationInvitationState = this.globalStateProvider.get(ORGANIZATION_INVITE);
   }
@@ -183,9 +189,19 @@ export class AcceptOrganizationInviteService {
       }
 
       const publicKey = Utils.fromB64ToArray(response.publicKey);
+      const dialogRef = OrganizationTrustComponent.open(this.dialogService, {
+        name: invite.organizationName,
+        orgId: invite.organizationId,
+        publicKey,
+      });
+      const result = await firstValueFrom(dialogRef.closed);
+      if (result !== true) {
+        throw new Error("Organization not trusted, aborting user key rotation");
+      }
 
+      const activeUserId = (await firstValueFrom(this.accountService.activeAccount$)).id;
+      const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
       // RSA Encrypt user's encKey.key with organization public key
-      const userKey = await this.keyService.getUserKey();
       const encryptedKey = await this.encryptService.rsaEncrypt(userKey.key, publicKey);
 
       // Add reset password key to accept request

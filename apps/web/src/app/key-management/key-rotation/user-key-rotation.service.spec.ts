@@ -23,16 +23,46 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherWithIdRequest } from "@bitwarden/common/vault/models/request/cipher-with-id.request";
 import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
-import { ToastService } from "@bitwarden/components";
-import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
+import { DialogService, ToastService } from "@bitwarden/components";
+import { KeyService, DEFAULT_KDF_CONFIG } from "@bitwarden/key-management";
+import {
+  AccountRecoveryTrustComponent,
+  EmergencyAccessTrustComponent,
+  KeyRotationTrustInfoComponent,
+} from "@bitwarden/key-management-ui";
 
 import { OrganizationUserResetPasswordService } from "../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
-import { WebauthnLoginAdminService } from "../../auth/core";
+import { WebauthnLoginAdminService } from "../../auth";
 import { EmergencyAccessService } from "../../auth/emergency-access";
+import { EmergencyAccessStatusType } from "../../auth/emergency-access/enums/emergency-access-status-type";
+import { EmergencyAccessType } from "../../auth/emergency-access/enums/emergency-access-type";
 import { EmergencyAccessWithIdRequest } from "../../auth/emergency-access/request/emergency-access-update.request";
 
 import { UserKeyRotationApiService } from "./user-key-rotation-api.service";
 import { UserKeyRotationService } from "./user-key-rotation.service";
+
+const initialPromptedOpenTrue = jest.fn();
+initialPromptedOpenTrue.mockReturnValue({ closed: new BehaviorSubject(true) });
+const initialPromptedOpenFalse = jest.fn();
+initialPromptedOpenFalse.mockReturnValue({ closed: new BehaviorSubject(false) });
+
+const emergencyAccessTrustOpenTrusted = jest.fn();
+emergencyAccessTrustOpenTrusted.mockReturnValue({
+  closed: new BehaviorSubject(true),
+});
+const emergencyAccessTrustOpenUntrusted = jest.fn();
+emergencyAccessTrustOpenUntrusted.mockReturnValue({
+  closed: new BehaviorSubject(false),
+});
+
+const accountRecoveryTrustOpenTrusted = jest.fn();
+accountRecoveryTrustOpenTrusted.mockReturnValue({
+  closed: new BehaviorSubject(true),
+});
+const accountRecoveryTrustOpenUntrusted = jest.fn();
+accountRecoveryTrustOpenUntrusted.mockReturnValue({
+  closed: new BehaviorSubject(false),
+});
 
 describe("KeyRotationService", () => {
   let keyRotationService: UserKeyRotationService;
@@ -52,6 +82,7 @@ describe("KeyRotationService", () => {
   let mockWebauthnLoginAdminService: MockProxy<WebauthnLoginAdminService>;
   let mockLogService: MockProxy<LogService>;
   let mockVaultTimeoutService: MockProxy<VaultTimeoutService>;
+  let mockDialogService: MockProxy<DialogService>;
   let mockToastService: MockProxy<ToastService>;
   let mockI18nService: MockProxy<I18nService>;
 
@@ -62,6 +93,8 @@ describe("KeyRotationService", () => {
     name: "mockName",
   };
 
+  const mockTrustedPublicKeys = [Utils.fromUtf8ToArray("test-public-key")];
+
   beforeAll(() => {
     mockUserVerificationService = mock<UserVerificationService>();
     mockApiService = mock<UserKeyRotationApiService>();
@@ -69,7 +102,32 @@ describe("KeyRotationService", () => {
     mockFolderService = mock<FolderService>();
     mockSendService = mock<SendService>();
     mockEmergencyAccessService = mock<EmergencyAccessService>();
+    mockEmergencyAccessService.getPublicKeys.mockResolvedValue(
+      mockTrustedPublicKeys.map((key) => {
+        return {
+          publicKey: key,
+          id: "mockId",
+          granteeId: "mockGranteeId",
+          name: "mockName",
+          email: "mockEmail",
+          type: EmergencyAccessType.Takeover,
+          status: EmergencyAccessStatusType.Accepted,
+          waitTimeDays: 5,
+          creationDate: "mockCreationDate",
+          avatarColor: "mockAvatarColor",
+        };
+      }),
+    );
     mockResetPasswordService = mock<OrganizationUserResetPasswordService>();
+    mockResetPasswordService.getPublicKeys.mockResolvedValue(
+      mockTrustedPublicKeys.map((key) => {
+        return {
+          publicKey: key,
+          orgId: "mockOrgId",
+          orgName: "mockOrgName",
+        };
+      }),
+    );
     mockDeviceTrustService = mock<DeviceTrustServiceAbstraction>();
     mockKeyService = mock<KeyService>();
     mockEncryptService = mock<EncryptService>();
@@ -80,6 +138,7 @@ describe("KeyRotationService", () => {
     mockVaultTimeoutService = mock<VaultTimeoutService>();
     mockToastService = mock<ToastService>();
     mockI18nService = mock<I18nService>();
+    mockDialogService = mock<DialogService>();
 
     keyRotationService = new UserKeyRotationService(
       mockUserVerificationService,
@@ -98,7 +157,12 @@ describe("KeyRotationService", () => {
       mockVaultTimeoutService,
       mockToastService,
       mockI18nService,
+      mockDialogService,
     );
+  });
+
+  beforeEach(() => {
+    jest.mock("@bitwarden/key-management-ui");
   });
 
   beforeEach(() => {
@@ -133,6 +197,8 @@ describe("KeyRotationService", () => {
 
       // Mock user key
       mockKeyService.userKey$.mockReturnValue(new BehaviorSubject("mockOriginalUserKey" as any));
+
+      mockKeyService.getFingerprint.mockResolvedValue(["a", "b"]);
 
       // Mock private key
       privateKey = new BehaviorSubject("mockPrivateKey" as any);
@@ -184,15 +250,21 @@ describe("KeyRotationService", () => {
       expect(arg.webauthnKeys.length).toBe(2);
     });
 
-    it("rotates the user key and encrypted data", async () => {
+    it("rotates the userkey and encrypted data and changes master password", async () => {
+      KeyRotationTrustInfoComponent.open = initialPromptedOpenTrue;
+      EmergencyAccessTrustComponent.open = emergencyAccessTrustOpenTrusted;
+      AccountRecoveryTrustComponent.open = accountRecoveryTrustOpenTrusted;
       await keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData(
         "mockMasterPassword",
-        "mockNewMasterPassword",
+        "newMasterPassword",
         mockUser,
       );
 
       expect(mockApiService.postUserKeyUpdateV2).toHaveBeenCalled();
       const arg = mockApiService.postUserKeyUpdateV2.mock.calls[0][0];
+      expect(arg.accountUnlockData.masterPasswordUnlockData.masterKeyEncryptedUserKey).toBe(
+        "mockNewUserKey",
+      );
       expect(arg.oldMasterKeyAuthenticationHash).toBe("mockMasterPasswordHash");
       expect(arg.accountUnlockData.masterPasswordUnlockData.email).toBe("mockEmail");
       expect(arg.accountUnlockData.masterPasswordUnlockData.kdfType).toBe(
@@ -201,11 +273,52 @@ describe("KeyRotationService", () => {
       expect(arg.accountUnlockData.masterPasswordUnlockData.kdfIterations).toBe(
         DEFAULT_KDF_CONFIG.iterations,
       );
+
       expect(arg.accountKeys.accountPublicKey).toBe(Utils.fromUtf8ToB64("mockPublicKey"));
       expect(arg.accountKeys.userKeyEncryptedAccountPrivateKey).toBe("mockEncryptedData");
+
       expect(arg.accountData.ciphers.length).toBe(2);
       expect(arg.accountData.folders.length).toBe(2);
       expect(arg.accountData.sends.length).toBe(2);
+      expect(arg.accountUnlockData.emergencyAccessUnlockData.length).toBe(1);
+      expect(arg.accountUnlockData.organizationAccountRecoveryUnlockData.length).toBe(1);
+      expect(arg.accountUnlockData.passkeyUnlockData.length).toBe(2);
+    });
+
+    it("returns early when first trust warning dialog is declined", async () => {
+      KeyRotationTrustInfoComponent.open = initialPromptedOpenFalse;
+      EmergencyAccessTrustComponent.open = emergencyAccessTrustOpenTrusted;
+      AccountRecoveryTrustComponent.open = accountRecoveryTrustOpenTrusted;
+      await keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData(
+        "mockMasterPassword",
+        "newMasterPassword",
+        mockUser,
+      );
+      expect(mockApiService.postUserKeyUpdateV2).not.toHaveBeenCalled();
+    });
+
+    it("returns early when emergency access trust warning dialog is declined", async () => {
+      KeyRotationTrustInfoComponent.open = initialPromptedOpenTrue;
+      EmergencyAccessTrustComponent.open = emergencyAccessTrustOpenUntrusted;
+      AccountRecoveryTrustComponent.open = accountRecoveryTrustOpenTrusted;
+      await keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData(
+        "mockMasterPassword",
+        "newMasterPassword",
+        mockUser,
+      );
+      expect(mockApiService.postUserKeyUpdateV2).not.toHaveBeenCalled();
+    });
+
+    it("returns early when account recovery trust warning dialog is declined", async () => {
+      KeyRotationTrustInfoComponent.open = initialPromptedOpenTrue;
+      EmergencyAccessTrustComponent.open = emergencyAccessTrustOpenTrusted;
+      AccountRecoveryTrustComponent.open = accountRecoveryTrustOpenUntrusted;
+      await keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData(
+        "mockMasterPassword",
+        "newMasterPassword",
+        mockUser,
+      );
+      expect(mockApiService.postUserKeyUpdateV2).not.toHaveBeenCalled();
     });
 
     it("legacy throws if master password provided is falsey", async () => {
@@ -296,6 +409,9 @@ describe("KeyRotationService", () => {
     });
 
     it("throws if server rotation fails", async () => {
+      KeyRotationTrustInfoComponent.open = initialPromptedOpenTrue;
+      EmergencyAccessTrustComponent.open = emergencyAccessTrustOpenTrusted;
+      AccountRecoveryTrustComponent.open = accountRecoveryTrustOpenTrusted;
       mockApiService.postUserKeyUpdateV2.mockRejectedValueOnce(new Error("mockError"));
 
       await expect(
