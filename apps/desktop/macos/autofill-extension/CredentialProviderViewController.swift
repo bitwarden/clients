@@ -62,12 +62,56 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         return MacOsProviderClient.connect()
     }()
     
+    // Timer for checking connection status
+    private var connectionMonitorTimer: Timer?
+    private var lastConnectionStatus: ConnectionStatus = .disconnected
+    
+    // Setup the connection monitoring timer
+    private func setupConnectionMonitoring() {
+        // Check connection status every 1 second
+        connectionMonitorTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            self?.checkConnectionStatus()
+        }
+        
+        // Make sure timer runs even when UI is busy
+        RunLoop.current.add(connectionMonitorTimer!, forMode: .common)
+        
+        // Initial check
+        checkConnectionStatus()
+    }
+    
+    // Check the connection status by calling into Rust
+    private func checkConnectionStatus() {
+        // Get the current connection status from Rust
+        let currentStatus = client.getConnectionStatus()
+        
+        // Only post notification if state changed
+        if currentStatus != lastConnectionStatus {
+            if(currentStatus == .connected) {
+                logger.log("[autofill-extension] Connection status changed: Connected")
+            } else {
+                logger.log("[autofill-extension] Connection status changed: Disconnected")
+            }
+            
+            // Save the new status
+            lastConnectionStatus = currentStatus
+            
+            // If we just disconnected, try to cancel the request
+            if currentStatus == .disconnected {
+                self.extensionContext.cancelRequest(withError: BitwardenError.Internal("Bitwarden desktop app disconnected"))
+            }
+        }
+    }
+    
     init() {
         logger = Logger(subsystem: "com.bitwarden.desktop.autofill-extension", category: "credential-provider")
         
         logger.log("[autofill-extension] initializing extension")
         
         super.init(nibName: nil, bundle: nil)
+        
+        // Setup connection monitoring now that self is available
+        setupConnectionMonitoring()
     }
     
     required init?(coder: NSCoder) {
@@ -76,6 +120,10 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     
     deinit {
         logger.log("[autofill-extension] deinitializing extension")
+        
+        // Stop the connection monitor timer
+        connectionMonitorTimer?.invalidate()
+        connectionMonitorTimer = nil
     }
     
     

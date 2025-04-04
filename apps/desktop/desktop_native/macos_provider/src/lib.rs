@@ -49,6 +49,12 @@ trait Callback: Send + Sync {
     fn error(&self, error: BitwardenError);
 }
 
+#[derive(uniffi::Enum, Debug)]
+pub enum ConnectionStatus {
+    Connected,
+    Disconnected,
+}
+
 #[derive(uniffi::Object)]
 pub struct MacOSProviderClient {
     to_server_send: tokio::sync::mpsc::Sender<String>,
@@ -57,6 +63,9 @@ pub struct MacOSProviderClient {
     response_callbacks_counter: AtomicU32,
     #[allow(clippy::type_complexity)]
     response_callbacks_queue: Arc<Mutex<HashMap<u32, (Box<dyn Callback>, Instant)>>>,
+
+    // Flag to track connection status - atomic for thread safety without locks
+    connection_status: Arc<std::sync::atomic::AtomicBool>,
 }
 
 #[uniffi::export]
@@ -74,11 +83,13 @@ impl MacOSProviderClient {
             to_server_send,
             response_callbacks_counter: AtomicU32::new(0),
             response_callbacks_queue: Arc::new(Mutex::new(HashMap::new())),
+            connection_status: Arc::new(std::sync::atomic::AtomicBool::new(false)),
         };
 
         let path = desktop_core::ipc::path("autofill");
 
         let queue = client.response_callbacks_queue.clone();
+        let connection_status = client.connection_status.clone();
 
         std::thread::spawn(move || {
             let rt = tokio::runtime::Builder::new_current_thread()
@@ -96,9 +107,11 @@ impl MacOSProviderClient {
                     match serde_json::from_str::<SerializedMessage>(&message) {
                         Ok(SerializedMessage::Command(CommandMessage::Connected)) => {
                             info!("Connected to server");
+                            connection_status.store(true, std::sync::atomic::Ordering::Relaxed);
                         }
                         Ok(SerializedMessage::Command(CommandMessage::Disconnected)) => {
                             info!("Disconnected from server");
+                            connection_status.store(false, std::sync::atomic::Ordering::Relaxed);
                         }
                         Ok(SerializedMessage::Message {
                             sequence_number,
@@ -158,6 +171,17 @@ impl MacOSProviderClient {
         callback: Arc<dyn PreparePasskeyAssertionCallback>,
     ) {
         self.send_message(request, Box::new(callback));
+    }
+
+    pub fn get_connection_status(&self) -> ConnectionStatus {
+        let is_connected = self
+            .connection_status
+            .load(std::sync::atomic::Ordering::Relaxed);
+        if is_connected {
+            ConnectionStatus::Connected
+        } else {
+            ConnectionStatus::Disconnected
+        }
     }
 }
 
