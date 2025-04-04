@@ -250,17 +250,17 @@
     "message": "Erro"
   },
   "decryptionError": {
-    "message": "Decryption error"
+    "message": "Erro ao descriptografar"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+    "message": "O Bitwarden não pode descriptografar o(s) item(ns) do cofre listado abaixo."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
+    "message": "Contato com o cliente feito com sucesso",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "para evitar a perca adicional dos dados.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
@@ -649,13 +649,13 @@
     "message": "Inicie a sessão no Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Digite o código enviado por e-mail"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Insira o código do seu aplicativo autenticador"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Pressione seu YubiKey para autenticar"
   },
   "logInWithPasskey": {
     "message": "Iniciar sessão com a chave de acesso"
@@ -710,7 +710,7 @@
     "message": "Dica da senha mestra"
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "Pontuação de força da senha $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -825,25 +825,13 @@
     "message": "A autenticação foi cancelada ou demorou muito. Por favor tente novamente."
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "Abrir numa nova aba"
   },
   "invalidVerificationCode": {
     "message": "Código de verificação inválido"
   },
   "continue": {
     "message": "Continuar"
-  },
-  "enterVerificationCodeApp": {
-    "message": "Insira o código de verificação de 6 dígitos do seu aplicativo de autenticação."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Insira o código de verificação de 6 dígitos que foi enviado por e-mail para $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "E-mail de verificação enviado para $EMAIL$.",
@@ -854,27 +842,15 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Lembrar de mim"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Enviar código de verificação para o e-mail novamente"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Utilizar outro método de verificação em duas etapas"
+    "message": "Não perguntar novamente neste dispositivo por 30 dias"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Escolher outro método",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "Introduza a sua YubiKey na porta USB do seu computador, e depois toque no botão da mesma."
+    "message": "Use seu código de recuperação"
   },
   "insertU2f": {
     "message": "Insira a sua chave de segurança na porta USB do seu computador. Se ele tiver um botão, toque nele."
@@ -907,13 +883,13 @@
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Verifique sua identidade"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Não reconhecemos este dispositivo. Digite o código enviado por e-mail para verificar a sua identidade."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Continue acessando"
   },
   "webAuthnTitle": {
     "message": "WebAuthn FIDO2"
@@ -940,7 +916,7 @@
     "message": "Opções de Login em Duas Etapas"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "Selecionar método de login em duas etapas"
   },
   "selfHostedEnvironment": {
     "message": "Ambiente auto-hospedado"
@@ -998,7 +974,7 @@
     "message": "Não"
   },
   "location": {
-    "message": "Location"
+    "message": "Localização"
   },
   "overwritePassword": {
     "message": "Substituir Senha"
@@ -1797,7 +1773,7 @@
     "message": "Exigir senha ou PIN ao iniciar o app"
   },
   "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
+    "message": "Exigir senha ao iniciar o app"
   },
   "recommendedForSecurity": {
     "message": "Recomendado para segurança."
@@ -2269,10 +2245,10 @@
     "message": "Autenticar WebAuthn"
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "Ler chave de segurança"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Awaiting security key interaction..."
+    "message": "Aguardando interação com a chave de segurança..."
   },
   "hideEmail": {
     "message": "Ocultar meu endereço de e-mail dos destinatários."
@@ -2491,7 +2467,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "message": "Apenas os itens individuais do cofre, incluindo anexos associados ao $EMAIL$ serão exportados. Os itens do cofre da organização não serão incluídos",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2590,7 +2566,7 @@
     "message": "Use o catch-all configurado no seu domínio."
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Usar este e-mail"
   },
   "random": {
     "message": "Aleatório"
@@ -2680,7 +2656,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ recusou sua solicitação. Contate seu provedor de serviços para receber assistência.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -2690,7 +2666,7 @@
     }
   },
   "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ recusou sua solicitação: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -2803,7 +2779,7 @@
     "message": "Login iniciado"
   },
   "logInRequestSent": {
-    "message": "Request sent"
+    "message": "Pedido enviado"
   },
   "notificationSentDevice": {
     "message": "Uma notificação foi enviada para seu dispositivo."
@@ -2812,13 +2788,13 @@
     "message": "Uma notificação foi enviada para seu dispositivo"
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the "
+    "message": "Desbloqueie o Bitwarden no seu dispositivo ou na "
   },
   "notificationSentDeviceAnchor": {
-    "message": "web app"
+    "message": "aplicativo web"
   },
   "notificationSentDevicePart2": {
-    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+    "message": "Certifique-se de que a frase de biometria corresponde à frase abaixo antes de aprovar."
   },
   "needAnotherOptionV1": {
     "message": "Precisa de outra opção?"
@@ -2849,10 +2825,10 @@
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "Você está tentando acessar sua conta?"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "Tentativa de acesso por $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2870,10 +2846,10 @@
     "message": "Horário"
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Confirmar acesso"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Negar acesso"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Acesso confirmado para $EMAIL$ em $DEVICE$",
@@ -2910,7 +2886,7 @@
     "message": "Este pedido não é mais válido."
   },
   "confirmAccessAttempt": {
-    "message": "Confirm access attempt for $EMAIL$",
+    "message": "Confirmar tentativa de acesso para $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2922,7 +2898,7 @@
     "message": "Acesso solicitado"
   },
   "accountAccessRequested": {
-    "message": "Account access requested"
+    "message": "Acesso à conta solicitado"
   },
   "creatingAccountOn": {
     "message": "Criando conta em"
@@ -2958,10 +2934,10 @@
     "message": "Senha fraca identificada e encontrada em um vazamento de dados. Use uma senha forte e única para proteger a sua conta. Tem certeza de que deseja usar essa senha?"
   },
   "useThisPassword": {
-    "message": "Use this password"
+    "message": "Use esta senha"
   },
   "useThisUsername": {
-    "message": "Use this username"
+    "message": "Use este nome de usuário"
   },
   "checkForBreaches": {
     "message": "Verificar vazamentos de dados conhecidos para esta senha"
@@ -3224,17 +3200,14 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Erro ao se conectar com o serviço Duo. Use um método de verificação de duas etapas diferente ou contate o Duo para assistência."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Inicie o Duo e siga os passos para finalizar o login."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "A autenticação em duas etapas do Duo é necessária para sua conta."
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+    "message": "A autenticação de dois fatores é necessária para sua conta. Siga os passos abaixo para conseguir entrar."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Follow the steps below to finish logging in."
+    "message": "Siga os passos abaixo para finalizar o login."
   },
   "launchDuo": {
     "message": "Iniciar o Duo no navegador"
@@ -3461,19 +3434,19 @@
     "message": "Nenhuma porta livre foi encontrada para o cliente final."
   },
   "biometricsStatusHelptextUnlockNeeded": {
-    "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
+    "message": "O desbloqueio por biometria está indisponível, pois é necessário informar o PIN ou a senha primeiro."
   },
   "biometricsStatusHelptextHardwareUnavailable": {
-    "message": "Biometric unlock is currently unavailable."
+    "message": "O desbloqueio por biometria está indisponível no momento."
   },
   "biometricsStatusHelptextAutoSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "O desbloqueio por biometria está indisponível devido a algum erro na configuração dos arquivos de sistema."
   },
   "biometricsStatusHelptextManualSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "O desbloqueio por biometria está indisponível devido a algum erro na configuração dos arquivos de sistema."
   },
   "biometricsStatusHelptextNotEnabledLocally": {
-    "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
+    "message": "O desbloqueio por biometria está indisponível, pois a opção não foi ativada no aplicativo de desktop de $EMAIL$.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3482,7 +3455,7 @@
     }
   },
   "biometricsStatusHelptextUnavailableReasonUnknown": {
-    "message": "Biometric unlock is currently unavailable for an unknown reason."
+    "message": "O desbloqueio por biometria está indisponível por razões desconhecidas."
   },
   "authorize": {
     "message": "Autorizar"
@@ -3494,25 +3467,25 @@
     "message": "Confirmar uso da chave SSH"
   },
   "agentForwardingWarningTitle": {
-    "message": "Warning: Agent Forwarding"
+    "message": "Aviso: Encaminhamento de Agente"
   },
   "agentForwardingWarningText": {
-    "message": "This request comes from a remote device that you are logged into"
+    "message": "Este pedido vem de um dispositivo remoto em que você está logado"
   },
   "sshkeyApprovalMessageInfix": {
     "message": "está solicitando acesso para"
   },
   "sshkeyApprovalMessageSuffix": {
-    "message": "in order to"
+    "message": "a fim de"
   },
   "sshActionLogin": {
-    "message": "authenticate to a server"
+    "message": "autenticar em um servidor"
   },
   "sshActionSign": {
-    "message": "sign a message"
+    "message": "assine uma mensagem"
   },
   "sshActionGitSign": {
-    "message": "sign a git commit"
+    "message": "assine um commit no git"
   },
   "unknownApplication": {
     "message": "Uma aplicação"
@@ -3527,7 +3500,7 @@
     "message": "Importar chave da área de transferência"
   },
   "sshKeyImported": {
-    "message": "SSH key imported successfully"
+    "message": "Chave SSH importada com sucesso"
   },
   "fileSavedToDevice": {
     "message": "Arquivo salvo no dispositivo. Gerencie a partir das transferências do seu dispositivo."
@@ -3569,24 +3542,27 @@
     "message": "Alterar e-mail"
   },
   "allowScreenshots": {
-    "message": "Allow screen capture"
+    "message": "Permitir captura de tela"
   },
   "allowScreenshotsDesc": {
-    "message": "Allow the Bitwarden desktop application to be captured in screenshots and viewed in remote desktop sessions. Disabling this will prevent access on some external displays."
+    "message": "Permitir que a aplicação do Bitwarden seja capturada em capturas de tela e visualizada em sessões remotas no computador. Desabilitar isso impedirá acesso em algumas telas externas."
   },
   "confirmWindowStillVisibleTitle": {
-    "message": "Confirm window still visible"
+    "message": "Confirmar janela ainda visível"
   },
   "confirmWindowStillVisibleContent": {
-    "message": "Please confirm that the window is still visible."
+    "message": "Por favor, confirme que a janela ainda está visível."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
-    "message": "Extension update required"
+    "message": "Atualização de extensão necessária"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
-    "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
+    "message": "A extensão de navegador que você está usando está desatualizada. Atualize-a ou desabilite a validação de integração de impressão digital do navegador nas configurações do aplicativo da área de trabalho."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "Alterar senhas vulneráveis"
+  },
+  "move": {
+    "message": "Mover"
   }
 }

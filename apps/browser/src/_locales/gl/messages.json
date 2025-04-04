@@ -1391,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "Requírese un plan Prémium para poder empregar esta función."
   },
-  "enterVerificationCodeApp": {
-    "message": "Insire o código de 6 díxitos da túa aplicación de autenticación."
-  },
   "authenticationTimeout": {
     "message": "Tempo límite de autenticación superado"
   },
   "authenticationSessionTimedOut": {
     "message": "Superouse o tempo límite da sesión de autenticación. Recomeza o proceso."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Insire o código de verificación de 6 díxitos enviado a $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Enviouse un correo de verificación a $EMAIL$.",
@@ -1418,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Lémbrame"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Enviar un novo correo de verificación"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Empregar outro método de verificación en 2 pasos"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -1437,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
   },
-  "insertYubiKey": {
-    "message": "Conecta a túa YubiKey no porto USB, despois preme o seu botón."
-  },
   "insertU2f": {
     "message": "Conecta a túa YubiKey no porto USB. Se ten un botón, prémeo."
-  },
-  "webAuthnNewTab": {
-    "message": "Para iniciar o proceso de verificación WebAuthn 2FA, clica no botón embaixo e segue as instrucións na pestana que se abrirá."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Abrir nova pestana"
   },
   "openInNewTab": {
     "message": "Open in new tab"
@@ -2534,15 +2504,15 @@
     "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Illustration of a list of logins that are at-risk"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
   },
   "generatePasswordSlideDesc": {
     "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
   },
   "updateInBitwarden": {
     "message": "Update in Bitwarden"
@@ -2551,8 +2521,8 @@
     "message": "Bitwarden will then prompt you to update the password in the password manager.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
   },
   "turnOnAutofill": {
     "message": "Turn on autofill"
@@ -3848,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Erro conectando co servizo de Duo. Usa un método de verificación en 2 pasos alternativo ou contacta con Duo."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Executa Duo e segue os pasos para finalizar o inicio de sesión."
-  },
   "duoRequiredForAccount": {
     "message": "A túa conta require a verificación en 2 pasos de Duo."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Saca a extensión nunha ventá para continuar."
   },
   "popoutExtension": {
     "message": "Sacar a extensión"

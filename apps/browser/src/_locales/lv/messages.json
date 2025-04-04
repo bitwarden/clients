@@ -1391,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "Ir nepieciešama Premium dalība, lai izmantotu šo iespēju."
   },
-  "enterVerificationCodeApp": {
-    "message": "Jāievada 6 ciparu apstiprinājuma kods no autentificētāja lietotnes."
-  },
   "authenticationTimeout": {
     "message": "Autentificēšanās noildze"
   },
   "authenticationSessionTimedOut": {
     "message": "Iestājās autentificēšanās sesijas noildze. Lūgums sākt pieteikšanos no jauna."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Jāievada 6 ciparu apstiprinājuma kods, kas tika nosūtīts uz $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "E-pasts apstiprināšanai nosūtīts uz $EMAIL$.",
@@ -1418,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Atcerēties mani"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Šajā ierīcē 30 dienas vairs nevaicāt"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Sūtīt apstiprinājuma koda e-pastu vēlreiz"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Izmantot citu divpakāpju pieteikšanās veidu"
   },
   "selectAnotherMethod": {
     "message": "Atlasīt citu veidu",
@@ -1437,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Izmantot savu atkopes kodu"
   },
-  "insertYubiKey": {
-    "message": "Ievieto savu YubiKey datora USB ligzdā un pieskaries tā pogai!"
-  },
   "insertU2f": {
     "message": "Ievieto savu drošības atslēgu datora USB ligzdā! Ja tai ir poga, pieskaries tai!"
-  },
-  "webAuthnNewTab": {
-    "message": "Turpināt WebAuthn 2FA apstiprināšanu jaunā cilnē."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Atvērt jaunu cilni"
   },
   "openInNewTab": {
     "message": "Atvērt jaunā cilnē"
@@ -2534,15 +2504,15 @@
     "message": "Apvienības paroles ir pakļautas riskam, jo tās ir vājas, atkārtoti izmantotas un/vai noplūdušas.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Riskam pakļauto pieteikšanās vienumu saraksta attēlojums"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Riskam pakļauto pieteikšanās vienumu saraksta attēlojums."
   },
   "generatePasswordSlideDesc": {
     "message": "Riskam pakļauto vienumu vietnē ar automātiskās aizpildes izvēlni var ātri izveidot stipru, neatkārtojamu paroli.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Bitwarden automātiskās izvēlnes attēlojums, kurā ir redzama izveidota parole"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Bitwarden automātiskās izvēlnes attēlojums, kurā ir redzama izveidota parole."
   },
   "updateInBitwarden": {
     "message": "Atjaunināt Bitwarden"
@@ -2551,8 +2521,8 @@
     "message": "Bitwarden tad vaicās atjaunināt paroli paroļu pārvaldniekā.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Bitwarden paziņojuma, kas aicina lietotāju atjaunināt pieteikšanās vienumu, attēlojums"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Bitwarden paziņojuma, kas aicina lietotāju atjaunināt pieteikšanās vienumu, attēlojums."
   },
   "turnOnAutofill": {
     "message": "Ieslēgt automātisko aizpildi"
@@ -3848,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Kļūda savienojuma izveidošanā ar Duo pakalpojumu. Jāizmanto cits divpakāpju pieteikšanās veids vai jāvēršas pie Duo pēc palīdzības."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Jāpalaiž DUO un jāseko soļiem, lai pabeigtu pieteikšanos."
-  },
   "duoRequiredForAccount": {
     "message": "Kontam ir nepieciešama Duo divpakāpju pieteikšanās."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Jāatver paplašinājums atsevišķā logā, lai pabeigtu pieteikšanos."
   },
   "popoutExtension": {
     "message": "Atvērt paplašinājumu atsevišķi"

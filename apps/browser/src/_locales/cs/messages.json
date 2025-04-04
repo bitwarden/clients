@@ -1391,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "Pro použití této funkce je potřebné členství Premium."
   },
-  "enterVerificationCodeApp": {
-    "message": "Zadejte 6místný kód z ověřovací aplikace."
-  },
   "authenticationTimeout": {
     "message": "Časový limit ověření"
   },
   "authenticationSessionTimedOut": {
     "message": "Vypršel časový limit relace ověřování. Restartujte proces přihlášení."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Zadejte 6místný kód z e-mailu, který byl zaslán na $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Ověřovací e-mail byl zaslán na $EMAIL$.",
@@ -1418,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Zapamatovat mě"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Neptat se na tomto zařízení 30 dnů"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Znovu zaslat ověřovací kód na e-mail"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Použít jinou metodu dvoufázového přihlášení"
   },
   "selectAnotherMethod": {
     "message": "Vybrat jinou metodu",
@@ -1437,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Použít obnovovací kód"
   },
-  "insertYubiKey": {
-    "message": "Vložte YubiKey do USB portu Vašeho počítače a stiskněte jeho tlačítko."
-  },
   "insertU2f": {
     "message": "Vložte svůj bezpečnostní klíč do USB portu Vašeho počítače a pokud má tlačítko, tak jej stiskněte."
-  },
-  "webAuthnNewTab": {
-    "message": "Pro spuštění ověření WebAuthn 2FA: Klepnutím na tlačítko níže otevřete novou kartu a postupujte podle pokynů uvedených v nové kartě."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Otevřít novou kartu"
   },
   "openInNewTab": {
     "message": "Otevřít v nové kartě"
@@ -2534,15 +2504,15 @@
     "message": "Hesla Vaší organizace jsou ohrožena, protože jsou slabá, opakovaně používaná nebo odhalená.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Ilustrace seznamu přihlášení, která jsou riziková"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Ilustrace seznamu přihlášení, která jsou riziková."
   },
   "generatePasswordSlideDesc": {
     "message": "Rychle vygeneruje silné, unikátní heslo s nabídkou automatického vyplňování Bitwarden na rizikových stránkách.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Ilustrace nabídky automatického vyplňování Bitwarden zobrazující vygenerované heslo"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Ilustrace nabídky automatického vyplňování Bitwarden zobrazující vygenerované heslo."
   },
   "updateInBitwarden": {
     "message": "Aktualizovat v Bitwardenu"
@@ -2551,8 +2521,8 @@
     "message": "Bitwarden Vás poté požádá o aktualizaci hesla ve správci hesel.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Ilustrace oznámení v Bitwardenu, která uživatele vyzývá k aktualizaci přihlášení"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Ilustrace oznámení v Bitwardenu, která uživatele vyzývá k aktualizaci přihlášení."
   },
   "turnOnAutofill": {
     "message": "Zapnout automatické vyplňování"
@@ -3848,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Chyba při připojování ke službě Duo. Použijte jinou dvoufázovou metodu přihlášení nebo kontaktujte Duo o pomoc."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Spusťte DUO a pro dokončení přihlášení postupujte podle kroků."
-  },
   "duoRequiredForAccount": {
     "message": "Pro Váš účet je vyžadováno dvoufázové přihlášení DUO."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Pro dokončení přihlášení použijte vyskakovací okno rozšíření."
   },
   "popoutExtension": {
     "message": "Zobrazit okno s doplňkem"

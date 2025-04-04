@@ -1391,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "É necessária uma subscrição Premium para utilizar esta funcionalidade."
   },
-  "enterVerificationCodeApp": {
-    "message": "Introduza o código de verificação de 6 dígitos da sua aplicação de autenticação."
-  },
   "authenticationTimeout": {
     "message": "Tempo limite de autenticação"
   },
   "authenticationSessionTimedOut": {
     "message": "A sessão de autenticação expirou. Por favor, reinicie o processo de início de sessão."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Introduza o código de verificação de 6 dígitos que foi enviado por e-mail para $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "E-mail de verificação enviado para $EMAIL$.",
@@ -1418,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Memorizar"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Não voltar a perguntar neste dispositivo durante 30 dias"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Enviar e-mail com o código de verificação novamente"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Utilizar outro método de verificação de dois passos"
   },
   "selectAnotherMethod": {
     "message": "Selecionar outro método",
@@ -1437,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Utilize o seu código de recuperação"
   },
-  "insertYubiKey": {
-    "message": "Introduza a sua YubiKey na porta USB do seu computador, depois toque no botão da mesma."
-  },
   "insertU2f": {
     "message": "Introduza a sua chave de segurança na porta USB do seu computador. Se tiver um botão, toque no mesmo."
-  },
-  "webAuthnNewTab": {
-    "message": "Para iniciar a verificação do WebAuthn 2FA, clique no botão abaixo para abrir um novo separador e siga as instruções fornecidas no novo separador."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Abrir novo separador"
   },
   "openInNewTab": {
     "message": "Abrir num novo separador"
@@ -2534,15 +2504,15 @@
     "message": "As palavras-passe da sua organização estão em risco porque são fracas, reutilizadas e/ou expostas.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Ilustração de uma lista de credenciais que estão em risco"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Ilustração de uma lista de credenciais que estão em risco."
   },
   "generatePasswordSlideDesc": {
     "message": "Gira rapidamente uma palavra-passe forte e única com o menu de preenchimento automático do Bitwarden no site em risco.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Ilustração do menu de preenchimento automático do Bitwarden com uma palavra-passe gerada"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Ilustração do menu de preenchimento automático do Bitwarden com uma palavra-passe gerada."
   },
   "updateInBitwarden": {
     "message": "Atualização no Bitwarden"
@@ -2551,8 +2521,8 @@
     "message": "O Bitwarden pedir-lhe-á então para atualizar a palavra-passe no gestor de palavras-passe.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Ilustração de uma notificação do Bitwarden a pedir ao utilizador que atualize a credencial"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Ilustração de uma notificação do Bitwarden a pedir ao utilizador que atualize a credencial."
   },
   "turnOnAutofill": {
     "message": "Ativar o preenchimento automático"
@@ -3848,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Erro ao ligar ao serviço Duo. Utilize um método de verificação de dois passos diferente ou contacte o Duo para obter assistência."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Inicie o Duo e siga os passos para concluir o início de sessão."
-  },
   "duoRequiredForAccount": {
     "message": "A verificação de dois passos Duo é necessária para a sua conta."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Abra a extensão para concluir o início de sessão."
   },
   "popoutExtension": {
     "message": "Extensão popout"
