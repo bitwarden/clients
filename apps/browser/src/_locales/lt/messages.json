@@ -1391,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "Premium narystė reikalinga šiai funkcijai naudoti."
   },
-  "enterVerificationCodeApp": {
-    "message": "Įvesk 6 skaitmenų patvirtinimo kodą iš tavo autentifikavimo aplikacijos."
-  },
   "authenticationTimeout": {
     "message": "Authentication timeout"
   },
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Įvesk 6 skaitmenų prisijungimo kodą, kuris buvo išsiųstas $EMAIL$ el. paštu.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Patvirtinimo elektroninis paštas išsiųstas į $EMAIL$.",
@@ -1418,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Prisiminti mane"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Pakartotinai atsiųsti patvirtinimo koda el. paštu"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Naudoti dar vieną dviejų žingsnių prisijungimo metodą"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -1437,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
   },
-  "insertYubiKey": {
-    "message": "Įkišk YubiKey į savo kompiuterio USB prievadą, tada paliesk jo mygtuką."
-  },
   "insertU2f": {
     "message": "Įkišk savo saugos raktą į kompiuterio USB prievadą. Jei jame yra mygtukas, paliesk jį."
-  },
-  "webAuthnNewTab": {
-    "message": "Norint pradėti WebAuthn 2FA patikrinimą. Spustelėk toliau esantį mygtuką, kad atsidarytų naujas skirtukas, ir sek naujame skirtuke pateiktas instrukcijas."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Atidaryti naują skirtuką"
   },
   "openInNewTab": {
     "message": "Open in new tab"
@@ -2534,15 +2504,15 @@
     "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Illustration of a list of logins that are at-risk"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
   },
   "generatePasswordSlideDesc": {
     "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
   },
   "updateInBitwarden": {
     "message": "Update in Bitwarden"
@@ -2551,8 +2521,8 @@
     "message": "Bitwarden will then prompt you to update the password in the password manager.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
   },
   "turnOnAutofill": {
     "message": "Turn on autofill"
@@ -3848,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Klaida prijungiant su „Duo“ paslauga. Naudokite kitą dvigubo prisijungimo būdą arba susisiekite su „Duo“ dėl pagalbos."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Paleisk DUO ir sek veiksmus, kad baigtum prisijungti."
-  },
   "duoRequiredForAccount": {
     "message": "Tavo paskyrai reikalingas Duo dviejų veiksmų prisijungimas."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Išskleisk plėtinį, kad užbaigtum prisijungimą."
   },
   "popoutExtension": {
     "message": "Iššokantis plėtinys"

@@ -1,4 +1,3 @@
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
@@ -21,7 +20,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { TaskService } from "@bitwarden/common/vault/tasks";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { ChangeLoginPasswordService } from "@bitwarden/vault";
 

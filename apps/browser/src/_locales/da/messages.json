@@ -1391,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "Premium-medlemskab kræves for at anvende denne funktion."
   },
-  "enterVerificationCodeApp": {
-    "message": "Indtast den 6-cifrede verifikationskode fra din autentificerings-app."
-  },
   "authenticationTimeout": {
     "message": "Godkendelsestimeout"
   },
   "authenticationSessionTimedOut": {
     "message": "Godkendelsessessionen fik timeout. Genstart loginprocessen."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Indtast den 6-cifrede verifikationskode, der blev sendt til $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Bekræftelsesmail sendt til $EMAIL$.",
@@ -1418,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Husk mig"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Send verifikationskode-email igen"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Brug en anden to-trins login metode"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -1437,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
   },
-  "insertYubiKey": {
-    "message": "Indsæt din YubiKey i din computers USB-port, og tryk derefter på dens knap."
-  },
   "insertU2f": {
     "message": "Indsæt din sikkerhedsnøgle i din computers USB-port. Hvis den har en knap, tryk på den."
-  },
-  "webAuthnNewTab": {
-    "message": "For at starte WebAuthn 2FA-verifikationen. Klik på knappen nedenfor for at åbne en ny fane og følg instruktionerne i den nye fane."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Åbn ny fane"
   },
   "openInNewTab": {
     "message": "Open in new tab"
@@ -2534,15 +2504,15 @@
     "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Illustration of a list of logins that are at-risk"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
   },
   "generatePasswordSlideDesc": {
     "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
   },
   "updateInBitwarden": {
     "message": "Update in Bitwarden"
@@ -2551,8 +2521,8 @@
     "message": "Bitwarden will then prompt you to update the password in the password manager.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
   },
   "turnOnAutofill": {
     "message": "Turn on autofill"
@@ -3848,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Fejl under forbindelsesoprettelsen til Duo-tjenesten. Brug en anden totrins-indlogningsmetode eller kontakt Duo for hjælp."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Start Duo og følg trinnene for at fuldføre indlogningen."
-  },
   "duoRequiredForAccount": {
     "message": "Duo-totrinsindlogning kræves for kontoen."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Pop udvidelsen ud for at fuldføre indlogning."
   },
   "popoutExtension": {
     "message": "Pop ud-udvidelse"
