@@ -16,7 +16,7 @@ export class SetPinComponent implements OnInit {
   showMasterPasswordOnClientRestartOption = true;
 
   setPinForm = this.formBuilder.group({
-    pin: ["", [Validators.required]],
+    pin: ["", [Validators.required, Validators.minLength(4)]],
     requireMasterPasswordOnClientRestart: true,
   });
 
@@ -37,24 +37,26 @@ export class SetPinComponent implements OnInit {
   }
 
   submit = async () => {
-    const pin = this.setPinForm.get("pin").value;
+    const pinFormControl = this.setPinForm.controls.pin;
     const requireMasterPasswordOnClientRestart = this.setPinForm.get(
       "requireMasterPasswordOnClientRestart",
     ).value;
 
-    if (Utils.isNullOrWhitespace(pin)) {
-      this.dialogRef.close(false);
+    if (Utils.isNullOrWhitespace(pinFormControl.value) || pinFormControl.invalid) {
       return;
     }
 
     const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
     const userKey = await this.keyService.getUserKey();
 
-    const userKeyEncryptedPin = await this.pinService.createUserKeyEncryptedPin(pin, userKey);
+    const userKeyEncryptedPin = await this.pinService.createUserKeyEncryptedPin(
+      pinFormControl.value,
+      userKey,
+    );
     await this.pinService.setUserKeyEncryptedPin(userKeyEncryptedPin, userId);
 
     const pinKeyEncryptedUserKey = await this.pinService.createPinKeyEncryptedUserKey(
-      pin,
+      pinFormControl.value,
       userKey,
       userId,
     );
