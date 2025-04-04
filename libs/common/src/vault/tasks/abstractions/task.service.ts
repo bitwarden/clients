@@ -1,4 +1,4 @@
-import { Observable } from "rxjs";
+import { Observable, Subscription } from "rxjs";
 
 import { SecurityTaskId, UserId } from "@bitwarden/common/types/guid";
 
@@ -43,4 +43,9 @@ export abstract class TaskService {
    * @param userId - The user who is completing the task.
    */
   abstract markAsComplete(taskId: SecurityTaskId, userId: UserId): Promise<void>;
+
+  /**
+   * Creates a subscription for pending security task notifications or completed syncs for unlocked users.
+   */
+  abstract listenForTaskNotifications(): Subscription;
 }
