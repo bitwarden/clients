@@ -54,6 +54,15 @@ export enum FeatureFlag {
   NewDeviceVerificationPermanentDismiss = "new-device-permanent-dismiss",
   VaultBulkManagementAction = "vault-bulk-management-action",
   SecurityTasks = "security-tasks",
+
+  /* Auth */
+  PM9112_DeviceApprovalPersistence = "pm-9112-device-approval-persistence",
+
+  /* Key Management */
+  Argon2Default = "argon2-default",
+  UserKeyRotationV2 = "userkey-rotation-v2",
+  PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
+  UnauthenticatedExtensionUIRefresh = "unauth-ui-refresh",
   CipherKeyEncryption = "cipher-key-encryption",
 }
 
@@ -108,16 +117,18 @@ export const DefaultFeatureFlagValue = {
   /* Auth */
   [FeatureFlag.PM9112_DeviceApprovalPersistence]: FALSE,
 
+  /* Key Management */
+  [FeatureFlag.UserKeyRotationV2]: FALSE,
+  [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
+  [FeatureFlag.UnauthenticatedExtensionUIRefresh]: FALSE,
+  [FeatureFlag.CipherKeyEncryption]: FALSE,
+  [FeatureFlag.Argon2Default]: FALSE,
+
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
   [FeatureFlag.PM15179_AddExistingOrgsFromProviderPortal]: FALSE,
   [FeatureFlag.PM12276_BreadcrumbEventLogs]: FALSE,
   [FeatureFlag.PM18794_ProviderPaymentMethod]: FALSE,
-
-  /* Key Management */
-  [FeatureFlag.PrivateKeyRegeneration]: FALSE,
-  [FeatureFlag.UserKeyRotationV2]: FALSE,
-  [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

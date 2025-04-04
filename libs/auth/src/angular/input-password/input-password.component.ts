@@ -11,6 +11,8 @@ import {
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -24,7 +26,12 @@ import {
   InputModule,
   ToastService,
 } from "@bitwarden/components";
-import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
+import {
+  DEFAULT_KDF_CONFIG,
+  KdfConfig,
+  KeyService,
+  NEW_ARGON2_DEFAULT_KDF_CONFIG,
+} from "@bitwarden/key-management";
 
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
@@ -107,6 +114,7 @@ export class InputPasswordComponent {
     private i18nService: I18nService,
     private policyService: PolicyService,
     private toastService: ToastService,
+    private configService: ConfigService,
   ) {}
 
   get minPasswordLengthMsg() {
@@ -145,7 +153,10 @@ export class InputPasswordComponent {
     }
 
     // Create and hash new master key
-    const kdfConfig = DEFAULT_KDF_CONFIG;
+    let kdfConfig: KdfConfig = DEFAULT_KDF_CONFIG;
+    if (await this.configService.getFeatureFlag(FeatureFlag.Argon2Default)) {
+      kdfConfig = NEW_ARGON2_DEFAULT_KDF_CONFIG;
+    }
 
     if (this.email == null) {
       throw new Error("Email is required to create master key.");

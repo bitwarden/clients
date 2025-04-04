@@ -15,6 +15,7 @@ export {
   Argon2KdfConfig,
   KdfConfig,
   DEFAULT_KDF_CONFIG,
+  NEW_ARGON2_DEFAULT_KDF_CONFIG,
 } from "./models/kdf-config";
 export { KdfConfigService } from "./abstractions/kdf-config.service";
 export { DefaultKdfConfigService } from "./kdf-config.service";
