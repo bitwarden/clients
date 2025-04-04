@@ -797,6 +797,12 @@
   "unexpectedError": {
     "message": "An unexpected error has occurred."
   },
+  "unexpectedErrorShort": {
+    "message": "Unexpected error"
+  },
+  "closeThisBitwardenWindow": {
+    "message": "Close this Bitwarden window and try again."
+  },
   "itemInformation": {
     "message": "Item information"
   },
@@ -3558,6 +3564,21 @@
   },
   "changeAcctEmail": {
     "message": "Change account email"
+  },
+  "passkeyLogin": {
+    "message": "Log in with passkey?"
+  },
+  "savePasskeyQuestion": {
+    "message": "Save passkey?"
+  },
+  "saveNewPasskey": {
+    "message": "Save as new login"
+  },
+  "unableToSavePasskey": {
+    "message": "Unable to save passkey"
+  },
+  "closeBitwarden": {
+    "message": "Close Bitwarden"
   },
   "allowScreenshots": {
     "message": "Allow screen capture"
