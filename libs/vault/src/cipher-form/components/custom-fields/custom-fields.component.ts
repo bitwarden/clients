@@ -198,12 +198,10 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
       this.customFieldsForm.disable();
     }
 
-    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyed$)).subscribe((params) => {
-      const collectionId = params?.collectionId;
-      this.disallowHiddenField = this.cipherFormContainer.config.collections.some(
-        (collection) => collection.id === collectionId && collection.hidePasswords,
-      );
-    });
+    const collectionId = this.route.snapshot.queryParams?.collectionId;
+    this.disallowHiddenField = this.cipherFormContainer.config.collections.some(
+      (collection) => collection.id === collectionId && collection.hidePasswords,
+    );
   }
 
   ngAfterViewInit(): void {

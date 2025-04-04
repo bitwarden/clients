@@ -4,6 +4,7 @@ import { CdkDragDrop } from "@angular/cdk/drag-drop";
 import { DebugElement } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { ActivatedRoute } from "@angular/router";
 import { mock } from "jest-mock-extended";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -46,7 +47,9 @@ describe("CustomFieldsComponent", () => {
     announce = jest.fn().mockResolvedValue(null);
     patchCipher = jest.fn();
     originalCipherView = new CipherView();
-    config = {} as CipherFormConfig;
+    config = {
+      collections: [],
+    } as CipherFormConfig;
 
     await TestBed.configureTestingModule({
       imports: [CustomFieldsComponent],
@@ -69,6 +72,12 @@ describe("CustomFieldsComponent", () => {
         {
           provide: LiveAnnouncer,
           useValue: { announce },
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: mock<ActivatedRoute>({
+            queryParams: {},
+          }),
         },
       ],
     })
