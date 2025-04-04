@@ -1852,7 +1852,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
   /**
    * Verifies whether the save login inline menu view should be shown. This requires that
-   * the login data on the page contains a username and either a current or new password.
+   * the login data on the page contains either a current or new password.
    *
    * @param tab - The tab to check for login data
    */
@@ -1869,7 +1869,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     return (
       (this.shouldShowInlineMenuAccountCreation() ||
         this.focusedFieldMatchesFillType(InlineMenuFillType.PasswordGeneration)) &&
-      !!(loginData.username && (loginData.password || loginData.newPassword))
+      !!(loginData.password || loginData.newPassword)
     );
   }
 
@@ -2157,7 +2157,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         "passwordRegenerated",
         "passwords",
         "regeneratePassword",
-        "saveLoginToBitwarden",
+        "saveToBitwarden",
         "toggleBitwardenVaultOverlay",
         "totpCodeAria",
         "totpSecondsSpanAria",
