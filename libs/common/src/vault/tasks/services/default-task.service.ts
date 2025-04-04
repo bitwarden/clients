@@ -124,9 +124,9 @@ export class DefaultTaskService implements TaskService {
 
     return combineLatest(
       unlockedUserIds.map((userId) =>
-        this.tasksEnabled$(userId).pipe(map((enabled) => [userId, enabled] as const)),
+        this.tasksEnabled$(userId).pipe(map((enabled) => (enabled ? userId : null))),
       ),
-    ).pipe(map((userIds) => userIds.filter(([, enabled]) => enabled).map(([userId]) => userId)));
+    ).pipe(map((userIds) => userIds.filter((userId) => userId !== null) as UserId[]));
   });
 
   /**
