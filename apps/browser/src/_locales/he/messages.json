@@ -1391,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "נדרשת חברות פרימיום כדי להשתמש בתכונה זו."
   },
-  "enterVerificationCodeApp": {
-    "message": "הכנס את קוד האימות בן 6 הספרות מאפליקציית האימות שלך."
-  },
   "authenticationTimeout": {
     "message": "פסק זמן לאימות"
   },
   "authenticationSessionTimedOut": {
     "message": "זמן אימות ההפעלה תם. נא להתחיל מחדש את תהליך הכניסה."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "הכנס את קוד האימות בן 6 הספרות שנשלח ל-$EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "מייל אימות נשלח לכתובת $EMAIL$.",
@@ -1418,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "זכור אותי"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "אל תשאל אותי שוב במכשיר זה למשך 30 יום"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "שלח שוב קוד אימות לאימייל"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "השתמש בשיטה אחרת עבור כניסה דו שלבית"
   },
   "selectAnotherMethod": {
     "message": "בחר שיטה אחרת",
@@ -1437,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "השתמש בקוד השחזור שלך"
   },
-  "insertYubiKey": {
-    "message": "הכנס את ה-YubiKey אל כניסת ה-USB במחשבך, ואז גע בכפתור שלו."
-  },
   "insertU2f": {
     "message": "הכנס את מפתח האבטחה שלך אל כניסת ה-USB במחשבך. אם יש לו כפתור, לחץ עליו."
-  },
-  "webAuthnNewTab": {
-    "message": "על מנת להתחיל אימות WebAuthn דו־שלבי. לחץ על הלחצן למטה כדי לפתוח כרטיסיה חדשה ועקוב אחר ההוראות המסופקת בכרטיסיה החדשה."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "פתח כרטיסיה חדשה"
   },
   "openInNewTab": {
     "message": "פתח בכרטיסיה חדשה"
@@ -2534,15 +2504,15 @@
     "message": "סיסמאות הארגון שלך הן בסכנה בגלל שהן חלשות, משומשות, ו/או חשופות.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "איור של רשימת כניסות בסיכון"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
   },
   "generatePasswordSlideDesc": {
     "message": "צור במהירות סיסמה חזקה וייחודית עם תפריט המילוי האוטומטי של Bitwarden באתר שבסיכון.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "איור של תפריט המילוי האוטומטי של Bitwarden המציג סיסמה שנוצרה"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
   },
   "updateInBitwarden": {
     "message": "עדכן ב־Bitwarden"
@@ -2551,8 +2521,8 @@
     "message": "Bitwarden אז ינחה אותך לעדכן את הסיסמה במנהל הסיסמאות.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "איור של התראת Bitwarden המנחה את המשתמש לעדכן את הכניסה"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
   },
   "turnOnAutofill": {
     "message": "הפעל מילוי אוטומטי"
@@ -3848,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "שגיאה בהתחברות עם השירות Duo. השתמש בשיטת כניסה דו־שלבית אחרת או פנה אל Duo לסיוע."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "פתח את Duo ועקוב אחר השלבים כדי לסיים להיכנס."
-  },
   "duoRequiredForAccount": {
     "message": "נדרשת כניסה דו־שלבית של Duo עבור החשבון שלך."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "הקפץ את ההרחבה כדי להשלים כניסה."
   },
   "popoutExtension": {
     "message": "הקפץ הרחבה"

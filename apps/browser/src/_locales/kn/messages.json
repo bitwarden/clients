@@ -1391,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "ಈ ವೈಶಿಷ್ಟ್ಯವನ್ನು ಬಳಸಲು ಪ್ರೀಮಿಯಂ ಸದಸ್ಯತ್ವ ಅಗತ್ಯವಿದೆ."
   },
-  "enterVerificationCodeApp": {
-    "message": "ನಿಮ್ಮ ದೃಢೀಕರಣ ಅಪ್ಲಿಕೇಶನ್‌ನಿಂದ 6 ಅಂಕಿಯ ಪರಿಶೀಲನಾ ಕೋಡ್ ಅನ್ನು ನಮೂದಿಸಿ."
-  },
   "authenticationTimeout": {
     "message": "Authentication timeout"
   },
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "$EMAIL$ಗೆ ಇಮೇಲ್ ಮಾಡಲಾದ 6 ಅಂಕಿಯ ಪರಿಶೀಲನಾ ಕೋಡ್ ಅನ್ನು ನಮೂದಿಸಿ.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "ಪರಿಶೀಲನೆ ಇಮೇಲ್ $EMAIL$ ಗೆ ಕಳುಹಿಸಲಾಗಿದೆ.",
@@ -1418,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "ನನ್ನನ್ನು ನೆನಪಿನಲ್ಲಿ ಇಡು"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "ಪರಿಶೀಲನೆ ಕೋಡ್ ಇಮೇಲ್ ಅನ್ನು ಮತ್ತೆ ಕಳುಹಿಸಿ"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "ಮತ್ತೊಂದು ಎರಡು-ಹಂತದ ಲಾಗಿನ್ ವಿಧಾನವನ್ನು ಬಳಸಿ"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -1437,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
   },
-  "insertYubiKey": {
-    "message": "ನಿಮ್ಮ ಯುಬಿಕಿಯನ್ನು ನಿಮ್ಮ ಕಂಪ್ಯೂಟರ್‌ನ ಯುಎಸ್‌ಬಿ ಪೋರ್ಟ್ಗೆ ಸೇರಿಸಿ, ನಂತರ ಅದರ ಗುಂಡಿಯನ್ನು ಸ್ಪರ್ಶಿಸಿ."
-  },
   "insertU2f": {
     "message": "ನಿಮ್ಮ ಕಂಪ್ಯೂಟರ್‌ನ ಯುಎಸ್‌ಬಿ ಪೋರ್ಟ್ಗೆ ನಿಮ್ಮ ಭದ್ರತಾ ಕೀಲಿಯನ್ನು ಸೇರಿಸಿ. ಅದು ಬಟನ್ ಹೊಂದಿದ್ದರೆ, ಅದನ್ನು ಸ್ಪರ್ಶಿಸಿ."
-  },
-  "webAuthnNewTab": {
-    "message": "WebAuthn 2FA ಪರಿಶೀಲನೆಯನ್ನು ಪ್ರಾರಂಭಿಸಲು. ಹೊಸ ಟ್ಯಾಬ್ ತೆರೆಯಲು ಕೆಳಗಿನ ಬಟನ್ ಕ್ಲಿಕ್ ಮಾಡಿ ಮತ್ತು ಹೊಸ ಟ್ಯಾಬ್‌ನಲ್ಲಿ ಒದಗಿಸಲಾದ ಸೂಚನೆಗಳನ್ನು ಅನುಸರಿಸಿ."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "ಹೊಸ ಟ್ಯಾಬ್ ತೆರೆಯಿರಿ"
   },
   "openInNewTab": {
     "message": "Open in new tab"
@@ -2534,15 +2504,15 @@
     "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Illustration of a list of logins that are at-risk"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
   },
   "generatePasswordSlideDesc": {
     "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
   },
   "updateInBitwarden": {
     "message": "Update in Bitwarden"
@@ -2551,8 +2521,8 @@
     "message": "Bitwarden will then prompt you to update the password in the password manager.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
   },
   "turnOnAutofill": {
     "message": "Turn on autofill"
@@ -3848,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
-  },
   "duoRequiredForAccount": {
     "message": "Duo two-step login is required for your account."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Popout the extension to complete login."
   },
   "popoutExtension": {
     "message": "Popout extension"

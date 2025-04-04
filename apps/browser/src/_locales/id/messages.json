@@ -1391,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "Keanggotaan premium diperlukan untuk menggunakan fitur ini."
   },
-  "enterVerificationCodeApp": {
-    "message": "Masukkan 6 digit kode verifikasi dari aplikasi autentikasi Anda."
-  },
   "authenticationTimeout": {
     "message": "Batas waktu otentikasi"
   },
   "authenticationSessionTimedOut": {
     "message": "Sesi otentikasi telah berakhir. Harap mulai ulang proses masuk."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Masukkan 6 digit kode verifikasi yang dikirim melalui email ke $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Surel verifikasi telah dikirim ke $EMAIL$.",
@@ -1418,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Ingat saya"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Jangan tanyakan lagi pada perangkat ini untuk 30 hari"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Kirim ulang email kode verifikasi"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Gunakan metode masuk dua langkah lainnya"
   },
   "selectAnotherMethod": {
     "message": "Pilih metode lain",
@@ -1437,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Gunakan kode pemulihan Anda"
   },
-  "insertYubiKey": {
-    "message": "Masukkan YubiKey Anda ke port USB komputer Anda, lalu sentuh tombolnya."
-  },
   "insertU2f": {
     "message": "Masukkan kunci keamanan ke port USB komputer Anda. Jika ada tombolnya, tekanlah."
-  },
-  "webAuthnNewTab": {
-    "message": "Untuk memulai verifikasi 2FA WebAuthn. Klik tombol di bawah untuk membuka tab baru dan ikuti instruksi yang diberikan."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Buka tab baru"
   },
   "openInNewTab": {
     "message": "Buka dalam tab baru"
@@ -2534,15 +2504,15 @@
     "message": "Kata sandi organisasi Anda berrisiko karena mereka lemah, dipakai ulang, dan/atau terpapar.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Ilustrasi dari daftar log masuk yang berrisiko"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
   },
   "generatePasswordSlideDesc": {
     "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
   },
   "updateInBitwarden": {
     "message": "Update in Bitwarden"
@@ -2551,8 +2521,8 @@
     "message": "Bitwarden will then prompt you to update the password in the password manager.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
   },
   "turnOnAutofill": {
     "message": "Turn on autofill"
@@ -3848,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Gagal menyambungkan dengan layanan Duo. Gunakan cara masuk dua-langkah lainnya atau hubungi Duo untuk mendapatkan panduan."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Luncurkan Duo dan ikuti langkah-langkah untuk menyelesaikan masuk."
-  },
   "duoRequiredForAccount": {
     "message": "Login dua-langkah Duo diperlukan untuk akun Anda."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Sembulkan ekstensi untuk melengkapi login."
   },
   "popoutExtension": {
     "message": "Sembulkan ekstensi"

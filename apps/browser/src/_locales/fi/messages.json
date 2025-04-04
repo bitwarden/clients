@@ -1391,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "Tämä ominaisuus edellyttää Premium-jäsenyyttä."
   },
-  "enterVerificationCodeApp": {
-    "message": "Syötä todennussovelluksesi näyttämä kuusinumeroinen todennuskoodi."
-  },
   "authenticationTimeout": {
     "message": "Todennuksen aikakatkaisu"
   },
   "authenticationSessionTimedOut": {
     "message": "Todennusistunto aikakatkaistiin. Ole hyvä ja aloita kirjautumisprosessi uudelleen."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Syötä osoitteeseen $EMAIL$ lähetetty kuusinumeroinen todennuskoodi.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Todennussähköposti lähetettiin osoitteeseen $EMAIL$.",
@@ -1418,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Muista minut"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Älä kysy uudelleen tällä laitteella 30 päivään"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Lähetä todennuskoodi sähköpostitse uudelleen"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Käytä vaihtoehtoista todennustapaa"
   },
   "selectAnotherMethod": {
     "message": "Valitse vaihtoehtoinen tapa",
@@ -1437,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Käytä palautuskoodiasi"
   },
-  "insertYubiKey": {
-    "message": "Kytke YubiKey-suojausavaimesi tietokoneen USB-porttiin ja kosketa sen painiketta."
-  },
   "insertU2f": {
     "message": "Kytke suojausavaimesi tietokoneen USB-porttiin. Jos laitteessa on painike, paina sitä."
-  },
-  "webAuthnNewTab": {
-    "message": "Aloittaaksesi kaksivaiheisen WebAuthn-tunnistautumisen, seuraa alla olevasta painikkeesta uuteen välilehteen avautuvia ohjeita."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Avaa uusi välilehti"
   },
   "openInNewTab": {
     "message": "Avaa uudessa välilehdessä"
@@ -2534,15 +2504,15 @@
     "message": "Organisaatiosalasanasi ovat vaarantuneet, koska ne ovat heikkoja, toistuvasti käytettyjä ja/tai paljastuneita.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Kuvitus vaarantuneiden kirjautumistietojen luettelosta"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
   },
   "generatePasswordSlideDesc": {
     "message": "Luo vahva ja ainutlaatuinen salasana nopeasti Bitwardenin automaattitäytön valikosta vaarantuneella sivustolla.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Kuvitus Bitwardenin automaattitäytön valikosta, luodulla salasanalla"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
   },
   "updateInBitwarden": {
     "message": "Päivitä Bitwardenissa"
@@ -2551,8 +2521,8 @@
     "message": "Bitwarden pyytää sinua sitten päivittämään salasanan salasanahallinnassa.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Kuvitus ilmoituksesta, jossa Bitwarden tarjoaa kirjautumistiedon päivitystä"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
   },
   "turnOnAutofill": {
     "message": "Ota automaattitäyttö käyttöön"
@@ -3848,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Virhe yhdistettäessä Duo-palveluun. Käytä vaihtoehtoista todennustapaa tai ole yhteydessä Duon asiakaspalveluun saadaksesi apua."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Avaa Duo ja viimeistele kirjautuminen seuraamalla ohjeita."
-  },
   "duoRequiredForAccount": {
     "message": "Tilillesi kirjautuminen vaatii Duo-vahvistuksen."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Viimeistele kirjautuminen avaamalla laajennus erilliseen ikkunaan."
   },
   "popoutExtension": {
     "message": "Irrota laajennus"
