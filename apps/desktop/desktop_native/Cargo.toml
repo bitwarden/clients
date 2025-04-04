@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["napi", "core", "proxy", "macos_provider", "windows-plugin-authenticator"]
+members = ["napi", "core", "proxy", "macos_provider", "windows_plugin_authenticator"]
 
 [workspace.package]
 version = "0.0.0"
@@ -58,6 +58,7 @@ typenum = "=1.17.0"
 uniffi =  "=0.28.3"
 widestring = "=1.1.0"
 windows = "=0.61.1"
+windows-core = "=0.61.0"
 windows-future = "=0.2.0"
 windows-registry = "=0.4.0"
 zbus = "=4.4.0"

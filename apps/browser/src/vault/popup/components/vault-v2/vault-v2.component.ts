@@ -18,6 +18,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -28,6 +29,7 @@ import { CurrentAccountComponent } from "../../../../auth/popup/account-switchin
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
+import { IntroCarouselService } from "../../services/intro-carousel.service";
 import { VaultPopupCopyButtonsService } from "../../services/vault-popup-copy-buttons.service";
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
@@ -128,6 +130,8 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private cipherService: CipherService,
     private dialogService: DialogService,
     private vaultCopyButtonsService: VaultPopupCopyButtonsService,
+    private introCarouselService: IntroCarouselService,
+    private configService: ConfigService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
@@ -165,6 +169,12 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async ngOnInit() {
+    const hasVaultNudgeFlag = await this.configService.getFeatureFlag(
+      FeatureFlag.PM8851_BrowserOnboardingNudge,
+    );
+    if (hasVaultNudgeFlag) {
+      await this.introCarouselService.setIntroCarouselDismissed();
+    }
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     this.cipherService
