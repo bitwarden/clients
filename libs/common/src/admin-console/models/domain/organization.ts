@@ -331,8 +331,7 @@ export class Organization {
   get hasBillableProvider() {
     return (
       this.hasProvider &&
-      (this.providerType === ProviderType.Msp ||
-        this.providerType === ProviderType.MultiOrganizationEnterprise)
+      (this.providerType === ProviderType.Msp || this.providerType === ProviderType.BusinessUnit)
     );
   }
 

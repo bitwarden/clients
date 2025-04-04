@@ -1,19 +1,27 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   BillingInvoiceResponse,
   BillingTransactionResponse,
 } from "../../models/response/billing.response";
 
-export class OrganizationBillingApiServiceAbstraction {
-  getBillingInvoices: (
+export abstract class OrganizationBillingApiServiceAbstraction {
+  abstract getBillingInvoices: (
     id: string,
     status?: string,
     startAfter?: string,
   ) => Promise<BillingInvoiceResponse[]>;
 
-  getBillingTransactions: (
+  abstract getBillingTransactions: (
     id: string,
     startAfter?: string,
   ) => Promise<BillingTransactionResponse[]>;
+
+  abstract setupBusinessUnit: (
+    id: string,
+    request: {
+      userId: string;
+      token: string;
+      providerKey: string;
+      organizationKey: string;
+    },
+  ) => Promise<string>;
 }

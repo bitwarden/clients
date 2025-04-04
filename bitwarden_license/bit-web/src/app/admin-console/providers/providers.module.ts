@@ -19,6 +19,7 @@ import {
   ProviderSubscriptionStatusComponent,
 } from "../../billing/providers";
 import { AddExistingOrganizationDialogComponent } from "../../billing/providers/clients/add-existing-organization-dialog.component";
+import { SetupBusinessUnitComponent } from "../../billing/providers/setup/setup-business-unit.component";
 
 import { AddOrganizationComponent } from "./clients/add-organization.component";
 import { CreateOrganizationComponent } from "./clients/create-organization.component";
@@ -75,6 +76,7 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     ProviderSubscriptionStatusComponent,
     ProvidersComponent,
     VerifyRecoverDeleteProviderComponent,
+    SetupBusinessUnitComponent,
   ],
   providers: [WebProviderService],
 })

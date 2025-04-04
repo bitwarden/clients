@@ -49,4 +49,24 @@ export class OrganizationBillingApiService implements OrganizationBillingApiServ
     );
     return r?.map((i: any) => new BillingTransactionResponse(i)) || [];
   }
+
+  async setupBusinessUnit(
+    id: string,
+    request: {
+      userId: string;
+      token: string;
+      providerKey: string;
+      organizationKey: string;
+    },
+  ): Promise<string> {
+    const response = await this.apiService.send(
+      "POST",
+      `/organizations/${id}/billing/setup-business-unit`,
+      request,
+      true,
+      true,
+    );
+
+    return response as string;
+  }
 }
