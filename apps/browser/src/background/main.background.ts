@@ -1308,6 +1308,7 @@ export default class MainBackground {
       this.apiService,
       this.notificationsService,
       this.authService,
+      this.logService,
     );
   }
 

@@ -5,6 +5,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { NotificationType } from "@bitwarden/common/enums";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { NotificationId, UserId } from "@bitwarden/common/types/guid";
@@ -16,6 +17,11 @@ import {
 import { EndUserNotificationService } from "../abstractions/end-user-notification.service";
 import { NotificationView, NotificationViewData, NotificationViewResponse } from "../models";
 import { NOTIFICATIONS } from "../state/end-user-notification.state";
+
+/**
+ * The default number of notifications to fetch from the API.
+ */
+export const DEFAULT_NOTIFICATION_PAGE_SIZE = 50;
 
 const getLoggedInUserIds = map<Record<UserId, AuthenticationStatus>, UserId[]>((authStatuses) =>
   Object.entries(authStatuses ?? {})
@@ -32,6 +38,7 @@ export class DefaultEndUserNotificationService implements EndUserNotificationSer
     private apiService: ApiService,
     private notificationService: NotificationsService,
     private authService: AuthService,
+    private logService: LogService,
   ) {}
 
   notifications$ = perUserCache$((userId: UserId): Observable<NotificationView[]> => {
@@ -137,8 +144,21 @@ export class DefaultEndUserNotificationService implements EndUserNotificationSer
    * @private
    */
   private async fetchNotificationsFromApi(userId: UserId): Promise<void> {
-    const res = await this.apiService.send("GET", "/notifications?pageSize=1000", null, true, true);
+    const res = await this.apiService.send(
+      "GET",
+      `/notifications?pageSize=${DEFAULT_NOTIFICATION_PAGE_SIZE}`,
+      null,
+      true,
+      true,
+    );
     const response = new ListResponse(res, NotificationViewResponse);
+
+    if (response.continuationToken != null) {
+      this.logService.warning(
+        `More notifications available, but not fetched. Consider increasing the page size from ${DEFAULT_NOTIFICATION_PAGE_SIZE}`,
+      );
+    }
+
     const notificationData = response.data.map((n) => new NotificationViewData(n));
     await this.replaceNotificationState(userId, notificationData);
   }
