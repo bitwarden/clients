@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { importProvidersFrom, signal } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
 import { action } from "@storybook/addon-actions";
 import {
   applicationConfig,
@@ -223,6 +224,14 @@ export default {
           provide: ConfigService,
           useValue: {
             getFeatureFlag: () => Promise.resolve(false),
+          },
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              queryParams: {},
+            },
           },
         },
       ],
