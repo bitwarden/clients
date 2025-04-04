@@ -152,7 +152,7 @@ describe("compareInputs", () => {
 
     const ctrlBSetErrorsSpy = jest.spyOn(formGroup.controls.ctrlB, "setErrors");
 
-    formGroup.controls.ctrlB.setErrors(validationErrorsObj);
+    formGroup.controls.ctrlB.setErrors(validationErrorsObj); // the pre-existing error
 
     // Act
     const validatorFn = compareInputs(
