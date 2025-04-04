@@ -84,8 +84,8 @@ describe("AddEditCustomFieldDialogComponent", () => {
     );
   });
 
-  it("does not filter out 'Hidden' field type when 'disableHiddenField' is false", () => {
-    dialogData.disableHiddenField = false;
+  it("does not filter out 'Hidden' field type when 'disallowHiddenField' is false", () => {
+    dialogData.disallowHiddenField = false;
     fixture = TestBed.createComponent(AddEditCustomFieldDialogComponent);
     component = fixture.componentInstance;
 
@@ -94,8 +94,8 @@ describe("AddEditCustomFieldDialogComponent", () => {
     );
   });
 
-  it("filers out 'Hidden' field type when 'disableHiddenField' is true", () => {
-    dialogData.disableHiddenField = true;
+  it("filers out 'Hidden' field type when 'disallowHiddenField' is true", () => {
+    dialogData.disallowHiddenField = true;
     fixture = TestBed.createComponent(AddEditCustomFieldDialogComponent);
     component = fixture.componentInstance;
 
