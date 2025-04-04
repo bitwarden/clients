@@ -174,7 +174,8 @@ export class PinService implements PinServiceAbstraction {
     );
     const kdfConfig = await this.kdfConfigService.getKdfConfig();
     const pinKey = await this.makePinKey(pin, email, kdfConfig);
-    return await this.encryptService.encrypt(userKey.key, pinKey);
+
+    return await this.encryptService.wrapSymmetricKey(userKey, pinKey);
   }
 
   async storePinKeyEncryptedUserKey(
