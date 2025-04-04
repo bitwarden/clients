@@ -18,6 +18,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormArray, FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
 import { Subject, zip } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -116,6 +117,8 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
   /** Emits when a new custom field should be focused */
   private focusOnNewInput$ = new Subject<void>();
 
+  disallowHiddenField?: boolean;
+
   destroyed$: DestroyRef;
   FieldType = FieldType;
 
@@ -126,6 +129,7 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
     private i18nService: I18nService,
     private liveAnnouncer: LiveAnnouncer,
     private eventCollectionService: EventCollectionService,
+    private route: ActivatedRoute,
   ) {
     this.destroyed$ = inject(DestroyRef);
     this.cipherFormContainer.registerChildForm("customFields", this.customFieldsForm);
@@ -139,6 +143,13 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
   /** Fields form array, referenced via a getter to avoid type-casting in multiple places  */
   get fields(): FormArray {
     return this.customFieldsForm.controls.fields as FormArray;
+  }
+
+  canEdit(type: FieldType): boolean {
+    return (
+      !this.isPartialEdit &&
+      (type !== FieldType.Hidden || this.cipherFormContainer.originalCipherView?.viewPassword)
+    );
   }
 
   ngOnInit() {
@@ -186,6 +197,11 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
       this.isPartialEdit = true;
       this.customFieldsForm.disable();
     }
+
+    const collectionId = this.route.snapshot.queryParams?.collectionId;
+    this.disallowHiddenField = this.cipherFormContainer.config.collections.some(
+      (collection) => collection.id === collectionId && collection.hidePasswords,
+    );
   }
 
   ngAfterViewInit(): void {
@@ -219,6 +235,7 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
           removeField: this.removeField.bind(this),
           cipherType: this.cipherFormContainer.config.cipherType,
           editLabelConfig,
+          disallowHiddenField: this.disallowHiddenField,
         },
       },
     );
