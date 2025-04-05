@@ -366,7 +366,7 @@ export abstract class BaseImporter {
 
     let folderIndex = result.folders.length;
     // Replace backslashes with forward slashes, ensuring we create sub-folders
-    folderName = folderName.replace("\\", "/");
+    folderName = folderName.replace(/\\/g, "/");
     let addFolder = true;
 
     for (let i = 0; i < result.folders.length; i++) {
@@ -386,6 +386,17 @@ export abstract class BaseImporter {
     //Some folders can have sub-folders but no ciphers directly, we should not add to the folderRelationships array
     if (addRelationship) {
       result.folderRelationships.push([result.ciphers.length, folderIndex]);
+    }
+
+    // if the folder name is a/b/c/d, we need to create a/b/c and a/b and a
+    const parts = folderName.split("/");
+    for (let i = parts.length - 1; i > 0; i--) {
+      const parentName = parts.slice(0, i).join("/") as string;
+      if (result.folders.find((c) => c.name === parentName) == null) {
+        const folder = new FolderView();
+        folder.name = parentName;
+        result.folders.push(folder);
+      }
     }
   }
 
