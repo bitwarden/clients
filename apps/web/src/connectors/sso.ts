@@ -32,7 +32,7 @@ function initiateWebAppSso(code: string, state: string) {
 }
 
 function initiateBrowserSso(code: string, state: string, lastpass: boolean) {
-  window.postMessage({ command: "authResult", code: code, state: state, lastpass: lastpass }, "*");
+  window.postMessage({ command: "authResult", code, state, lastpass }, window.location.origin);
   const handOffMessage = ("; " + document.cookie)
     .split("; ssoHandOffMessage=")
     .pop()
