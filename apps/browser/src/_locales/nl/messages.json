@@ -1391,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "Je hebt een Premium-abonnement nodig om deze functie te gebruiken."
   },
-  "enterVerificationCodeApp": {
-    "message": "Voer de 6-cijferige verificatiecode uit je authenticatie-app in."
-  },
   "authenticationTimeout": {
     "message": "Authenticatie-timeout"
   },
   "authenticationSessionTimedOut": {
     "message": "De verificatiesessie is verlopen. Start het inlogproces opnieuw op."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Voer de 6-cijferige verificatiecode in die via e-mail is verstuurd naar $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "E-mail met verificatiecode is verzonden naar $EMAIL$.",
@@ -1418,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Mijn gegevens onthouden"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "30 dagen niet opnieuw vragen op dit apparaat"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "E-mail met verificatiecode opnieuw versturen"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Gebruik een andere methode voor tweestapsaanmelding"
   },
   "selectAnotherMethod": {
     "message": "Kies een andere methode",
@@ -1437,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Gebruik je herstelcode"
   },
-  "insertYubiKey": {
-    "message": "Plaats je YubiKey in de USB-poort van je computer en druk op de knop."
-  },
   "insertU2f": {
     "message": "Plaats je beveilingssleutel in de USB-poort van je computer. Als het een knop heeft, druk deze dan in."
-  },
-  "webAuthnNewTab": {
-    "message": "Ga door met WebAuthn 2FA-verificatie in de nieuwe tab."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Nieuwe tab openen"
   },
   "openInNewTab": {
     "message": "Openen in nieuwe tab"
@@ -2473,7 +2443,7 @@
     }
   },
   "atRiskPasswords": {
-    "message": "Wachtwoorden in gevaar"
+    "message": "Risicovolle wachtwoorden"
   },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ vraagt je om één wachtwoord te wijzigen omdat deze een risico vormt.",
@@ -2534,15 +2504,15 @@
     "message": "De wachtwoorden van je organisatie zijn in gevaar omdat ze zwak, hergebruikt en/of gelekt zijn.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Voorbeeld van een lijst van risicovolle logins"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Voorbeeld van een lijst van risicovolle inloggegevens."
   },
   "generatePasswordSlideDesc": {
     "message": "Genereer snel een sterk, uniek wachtwoord met het automatisch invulmenu van Bitwarden op de risicovolle website.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Voorbeeld van het automatisch invulmenu van Bitwarden met een gegenereerd wachtwoord"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Voorbeeld van het automatisch invulmenu van Bitwarden met een gegenereerd wachtwoord."
   },
   "updateInBitwarden": {
     "message": "Bijwerken in Bitwarden"
@@ -2551,8 +2521,8 @@
     "message": "Bitwarden vraagt je vervolgens het wachtwoord bij te werken in de wachtwoordbeheerder.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Voorbeeld van een Bitwarden melding die de gebruiker aanspoort tot het bijwerken van de login"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Voorbeeld van een Bitwarden-melding die de gebruiker aanspoort tot het bijwerken van de login."
   },
   "turnOnAutofill": {
     "message": "Automatisch invullen inschakelen"
@@ -3848,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Fout bij het verbinden met de Duo-service. Gebruik een andere tweestapsaanmeldingsmethode of neem contact op met Duo voor hulp."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Start Duo en volg de stappen om het inloggen te voltooien."
-  },
   "duoRequiredForAccount": {
     "message": "Jouw account vereist Duo-tweestapsaanmelding."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Open de extensie om in te loggen."
   },
   "popoutExtension": {
     "message": "Pop-out extensie"

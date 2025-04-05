@@ -1391,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "Премијум чланство је неопходно за употребу ове опције."
   },
-  "enterVerificationCodeApp": {
-    "message": "Унесите шестоцифрени верификациони код из апликације за утврђивање аутентичности."
-  },
   "authenticationTimeout": {
     "message": "Истекло је време аутентификације"
   },
   "authenticationSessionTimedOut": {
     "message": "Истекло је време сесије за аутентификацију. Молим вас покрените процес пријаве поново."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Унесите шестоцифрени верификациони код који је послан на $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Провера имејла послата на $EMAIL$.",
@@ -1418,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Запамти ме"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Не питајте поново на овом уређају 30 дана"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Поново послати верификациони код на имејл"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Користите другу методу пријављивања у два корака"
   },
   "selectAnotherMethod": {
     "message": "Изаберите другу методу",
@@ -1437,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Употребите шифру за опоравак"
   },
-  "insertYubiKey": {
-    "message": "Убаците свој YubiKey у УСБ порт рачунара, а затим додирните његово дугме."
-  },
   "insertU2f": {
     "message": "Убаците свој сигурносни кључ у УСБ порт рачунара, и ако има дугме , додирните га."
-  },
-  "webAuthnNewTab": {
-    "message": "Да бисте започели WebAuthn верификацију у два корака. Кликните на дугме испод за отваранје новог језичка и пратите упутства у нјему."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Отвори нови језичак "
   },
   "openInNewTab": {
     "message": "Отвори у новом језичку"
@@ -2534,15 +2504,15 @@
     "message": "Ваше организационе лозинке су ризичне јер су слабе, поново употребљене и/или изложене.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Илустрација листе пријаве које су ризичне"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Илустрација листе пријаве које су ризичне."
   },
   "generatePasswordSlideDesc": {
     "message": "Брзо генеришите снажну, јединствену лозинку са Bitwarden менијем аутопуњења за коришћење на ризичном сајту.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Илустрација Bitwarden-ског менија аутопуњења који приказују генерисану лозинку"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Илустрација Bitwarden-ског менија аутопуњења који приказују генерисану лозинку."
   },
   "updateInBitwarden": {
     "message": "Ажурирања у Bitwarden"
@@ -2551,8 +2521,8 @@
     "message": "Bitwarden ће тада затражити да ажурирате лозинку у менаџеру лозинке.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Илустрација Bitwarden-ског обавештења за ажирриање пријаве"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Илустрација Bitwarden-ског обавештења за ажирриање пријаве."
   },
   "turnOnAutofill": {
     "message": "Омогућите ауто-пуњење"
@@ -3008,7 +2978,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "message": "Извешће се само појединачни сеф, укључујући прилоге повезане са $EMAIL$. Организациони сефски предмети неће бити укључени",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3848,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Грешка при повезивању са услугом Duo. Користите други метод пријаве у два корака или контактирајте Duo за помоћ."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Покренути DUO и пратите кораке да бисте завршили пријављивање."
-  },
   "duoRequiredForAccount": {
     "message": "Duo пријава у два корака је потребна за ваш налог."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Искачући додатак да бисте довршили пријаву."
   },
   "popoutExtension": {
     "message": "Искачући додатак"
@@ -4280,7 +4244,7 @@
     }
   },
   "viewItemTitleWithField": {
-    "message": "View item - $ITEMNAME$ - $FIELD$",
+    "message": "Видети ставку - $ITEMNAME$ - $FIELD$",
     "description": "Title for a link that opens a view for an item.",
     "placeholders": {
       "itemname": {
@@ -4304,7 +4268,7 @@
     }
   },
   "autofillTitleWithField": {
-    "message": "Autofill - $ITEMNAME$ - $FIELD$",
+    "message": "Ауто-пуњење - $ITEMNAME$ - $FIELD$",
     "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {

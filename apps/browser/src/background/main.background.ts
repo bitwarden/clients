@@ -200,6 +200,7 @@ import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
+import { DefaultTaskService, TaskService } from "@bitwarden/common/vault/tasks";
 import {
   legacyPasswordGenerationServiceFactory,
   legacyUsernameGenerationServiceFactory,
@@ -400,6 +401,7 @@ export default class MainBackground {
   sdkLoadService: SdkLoadService;
   cipherAuthorizationService: CipherAuthorizationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
+  taskService: TaskService;
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
@@ -655,9 +657,7 @@ export default class MainBackground {
       this.kdfConfigService,
       this.keyGenerationService,
       this.logService,
-      this.masterPasswordService,
       this.stateProvider,
-      this.stateService,
     );
 
     this.keyService = new DefaultKeyService(
@@ -672,14 +672,6 @@ export default class MainBackground {
       this.accountService,
       this.stateProvider,
       this.kdfConfigService,
-    );
-
-    this.biometricsService = new BackgroundBrowserBiometricsService(
-      runtimeNativeMessagingBackground,
-      this.logService,
-      this.keyService,
-      this.biometricStateService,
-      this.messagingService,
     );
 
     this.appIdService = new AppIdService(this.storageService, this.logService);
@@ -699,6 +691,15 @@ export default class MainBackground {
       this.stateProvider,
       this.logService,
       VaultTimeoutStringType.OnRestart, // default vault timeout
+    );
+
+    this.biometricsService = new BackgroundBrowserBiometricsService(
+      runtimeNativeMessagingBackground,
+      this.logService,
+      this.keyService,
+      this.biometricStateService,
+      this.messagingService,
+      this.vaultTimeoutSettingsService,
     );
 
     this.apiService = new ApiService(
@@ -859,6 +860,7 @@ export default class MainBackground {
       this.configService,
       this.stateProvider,
       this.accountService,
+      this.logService,
     );
     this.folderService = new FolderService(
       this.keyService,
@@ -1196,7 +1198,6 @@ export default class MainBackground {
 
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(
       this.logService,
-      this.configService,
       this.notificationBackground,
     );
 
@@ -1297,6 +1298,16 @@ export default class MainBackground {
       this.configService,
     );
 
+    this.taskService = new DefaultTaskService(
+      this.stateProvider,
+      this.apiService,
+      this.organizationService,
+      this.configService,
+      this.authService,
+      this.notificationsService,
+      messageListener,
+    );
+
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
   }
 
@@ -1309,6 +1320,13 @@ export default class MainBackground {
     await this.sdkLoadService.loadAndInit();
     // Only the "true" background should run migrations
     await this.stateService.init({ runMigrations: true });
+
+    this.configService.serverConfig$.subscribe((newConfig) => {
+      if (newConfig != null) {
+        this.encryptService.onServerConfigChange(newConfig);
+        this.bulkEncryptService.onServerConfigChange(newConfig);
+      }
+    });
 
     // This is here instead of in in the InitService b/c we don't plan for
     // side effects to run in the Browser InitService.
@@ -1371,6 +1389,11 @@ export default class MainBackground {
         await this.fullSync(false);
         this.backgroundSyncService.init();
         this.notificationsService.startListening();
+
+        if (await this.configService.getFeatureFlag(FeatureFlag.SecurityTasks)) {
+          this.taskService.listenForTaskNotifications();
+        }
+
         resolve();
       }, 500);
     });
@@ -1611,6 +1634,26 @@ export default class MainBackground {
 
     if (this.isSafari) {
       await SafariApp.sendMessageToApp("showPopover", null, true);
+    }
+  }
+
+  /** Opens the `/at-risk-passwords` page within the popup */
+  async openAtRisksPasswordsPage() {
+    const browserAction = BrowserApi.getBrowserAction();
+
+    try {
+      // Set route of the popup before attempting to open it.
+      // If the vault is locked, this won't have an effect as the auth guards will
+      // redirect the user to the login page.
+      await browserAction.setPopup({ popup: "popup/index.html#/at-risk-passwords" });
+
+      await this.openPopup();
+    } finally {
+      // Reset the popup route to the default route so any subsequent
+      // popup openings will not open to the at-risk-passwords page.
+      await browserAction.setPopup({
+        popup: "popup/index.html#/",
+      });
     }
   }
 
