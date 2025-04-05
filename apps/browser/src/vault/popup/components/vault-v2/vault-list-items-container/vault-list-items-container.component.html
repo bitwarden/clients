@@ -70,7 +70,12 @@
 </ng-template>
 
 <ng-template #descriptionText>
-  <div *ngIf="description" class="tw-text-muted tw-px-1 tw-mb-2" bitTypography="body2">
+  <div
+    *ngIf="description"
+    class="tw-text-muted tw-px-1 tw-mb-2"
+    [ngClass]="{ '!tw-mb-0': disableDescriptionMargin }"
+    bitTypography="body2"
+  >
     {{ description }}
   </div>
 </ng-template>
@@ -94,7 +99,9 @@
             type="button"
             (click)="primaryActionOnSelect(cipher)"
             (dblclick)="launchCipher(cipher)"
-            [appA11yTitle]="cipherItemTitleKey | async | i18n: cipher.name"
+            [appA11yTitle]="
+              cipherItemTitleKey(cipher) | async | i18n: cipher.name : cipher.login.username
+            "
             class="{{ itemHeightClass }}"
           >
             <div slot="start" class="tw-justify-start tw-w-7 tw-flex">

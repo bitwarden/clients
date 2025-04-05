@@ -1,11 +1,10 @@
 import { css } from "@emotion/css";
 import { html } from "lit";
 
-import { Theme } from "@bitwarden/common/platform/enums";
-
+import { IconProps } from "../common-types";
 import { buildIconColorRule, ruleNames, themes } from "../constants/styles";
 
-export function Shield({ color, theme }: { color?: string; theme: Theme }) {
+export function Shield({ color, theme }: IconProps) {
   const shapeColor = color || themes[theme].brandLogo;
 
   return html`

@@ -201,6 +201,9 @@
   "notes": {
     "message": "Märkmed"
   },
+  "privateNote": {
+    "message": "Private note"
+  },
   "note": {
     "message": "Märge"
   },
@@ -425,6 +428,9 @@
   "dragToSort": {
     "message": "Lohista sorteerimiseks"
   },
+  "dragToReorder": {
+    "message": "Drag to reorder"
+  },
   "cfTypeText": {
     "message": "Tekst"
   },
@@ -466,6 +472,19 @@
   },
   "editFolder": {
     "message": "Muuda kausta"
+  },
+  "editWithName": {
+    "message": "Edit $ITEM$: $NAME$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "New folder"
@@ -860,9 +879,6 @@
   "filter": {
     "message": "Filter"
   },
-  "moveSelectedToOrg": {
-    "message": "Teisalda valitud organisatsiooni"
-  },
   "deleteSelected": {
     "message": "Kustuta valitud"
   },
@@ -914,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Valitud kirjed teisaldati $ORGNAME$-le",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1028,6 +1035,9 @@
   },
   "no": {
     "message": "Ei"
+  },
+  "location": {
+    "message": "Location"
   },
   "loginOrCreateNewAccount": {
     "message": "Logi sisse või loo uus konto."
@@ -1179,8 +1189,8 @@
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
   },
-  "verifyIdentity": {
-    "message": "Kinnitage oma Identiteet"
+  "verifyYourIdentity": {
+    "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
@@ -1263,12 +1273,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
-  },
-  "passwordHint": {
-    "message": "Parooli vihje"
-  },
-  "enterEmailToGetHint": {
-    "message": "Ülemparooli vihje saamiseks sisesta oma konto e-posti aadress."
   },
   "getMasterPasswordHint": {
     "message": "Tuleta ülemparooli vihjega meelde"
@@ -1431,18 +1435,6 @@
       }
     }
   },
-  "enterVerificationCodeApp": {
-    "message": "Sisesta autentimise rakendusest 6 kohaline number."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Sisesta 6 kohaline number, mis saadeti e-posti aadressile $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Kinnituskood saadeti e-posti aadressile $EMAIL$.",
     "placeholders": {
@@ -1452,17 +1444,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Jäta mind meelde"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Saada e-postile uus kinnituskood"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Kasuta teist kaheastmelist sisselogimise meetodit"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -1470,9 +1453,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "Sisesta oma YubiKey arvuti USB porti ja kliki sellele nupule."
   },
   "insertU2f": {
     "message": "Sisesta oma turvaline võti arvuti USB porti. Kui sellel on nupp, siis vajuta seda."
@@ -1555,9 +1535,6 @@
   "moveToOrgDesc": {
     "message": "Vali organisatsioon, kuhu soovid seda kirjet teisaldada. Teisaldamisega saab kirje omanikuks organisatsioon. Pärast kirje teisaldamist ei ole sa enam selle otsene omanik."
   },
-  "moveManyToOrgDesc": {
-    "message": "Vali organisatsioon, kuhu soovid seda kirjet teisaldada. Teisaldamisega saab kirje omanikuks organisatsioon. Pärast kirje teisaldamist ei ole sa enam selle otsene omanik."
-  },
   "collectionsDesc": {
     "message": "Muuda kollektsioone, millega seda kirjet jagatakse. Seda kirjet näevad üksnes organisatsiooni kasutajad, kes omavad nendele kollektsioonidele ligipääsu."
   },
@@ -1588,23 +1565,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "Valisid $COUNT$ kirje(t). $MOVEABLE_COUNT$ kirje(t) saab teisaldada organisatsiooni, $NONMOVEABLE_COUNT$ ei saa.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },
@@ -2251,6 +2211,9 @@
   },
   "revokeAccess": {
     "message": "Tühistada ligipääsu luba"
+  },
+  "revoke": {
+    "message": "Revoke"
   },
   "twoStepLoginProviderEnabled": {
     "message": "See kaheastmelise kinnitamise teenus on sinu kontol sisse lülitatud."
@@ -4521,6 +4484,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ moved down, position $INDEX$ of $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "When updating your encryption key, your folders could not be decrypted. To continue with the update, your folders must be deleted. No vault items will be deleted if you proceed."
   },
@@ -5081,11 +5078,39 @@
   "requireSsoExemption": {
     "message": "Selle poliitika rakendamine ei puuduta Omanikke ega Administraatoreid."
   },
+  "limitSendViews": {
+    "message": "Limit views"
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
   "sendTypeFile": {
     "message": "Fail"
   },
   "sendTypeText": {
     "message": "Tekst"
+  },
+  "sendPasswordDescV3": {
+    "message": "Add an optional password for recipients to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Loo uus Send",
@@ -5111,19 +5136,15 @@
     "message": "Kustuta Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Soovid tõesti selle Sendi kustutada?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Mis tüüpi Send see on?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Are you sure you want to permanently delete this Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Kustutamise kuupäev"
   },
-  "deletionDateDesc": {
-    "message": "Send kustutatakse määratud kuupäeval ja kellaajal jäädavalt.",
+  "deletionDateDescV2": {
+    "message": "The Send will be permanently deleted on this date.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5135,21 +5156,6 @@
   },
   "maxAccessCount": {
     "message": "Maksimaalne ligipääsude arv"
-  },
-  "maxAccessCountDesc": {
-    "message": "Selle valimisel ei saa kasutajad pärast maksimaalse ligipääsude arvu saavutamist sellele Sendile enam ligi.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Hetkeline ligipääsude arv"
-  },
-  "sendPasswordDesc": {
-    "message": "Soovi korral nõua parooli, millega Sendile ligi pääseb.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Privaatne märkus selle Sendi kohta.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Keelatud"
@@ -5177,13 +5183,6 @@
   "removePasswordConfirmation": {
     "message": "Soovid kindlasti selle parooli eemaldada?"
   },
-  "hideEmail": {
-    "message": "Ära näita saajatele minu e-posti aadressi."
-  },
-  "disableThisSend": {
-    "message": "Keela see Send, et keegi ei pääseks sellele ligi.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Kõik Sendid"
   },
@@ -5193,6 +5192,9 @@
   },
   "pendingDeletion": {
     "message": "Kustutamise ootel"
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
   },
   "expired": {
     "message": "Aegunud"
@@ -5415,13 +5417,6 @@
     "message": "Ära luba kasutajatel Sendi loomisel või muutmisel oma e-posti aadressi saajate eest peita.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "Hetkel on kehtivad järgmised organisatsiooni poliitikad:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Kasutajatel pole lubatud Sendi loomisel või muutmisel oma e-posti aadressi saajate eest peita.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "Muutis poliitikat $ID$.",
     "placeholders": {
@@ -5520,27 +5515,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Keela organisatsiooni liikmetel paroolide salvestamine isiklikku Hoidlasse"
-  },
-  "textHiddenByDefault": {
-    "message": "Sendi avamisel peida tekst automaatselt",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Sisesta Sendi nimi (kohustuslik).",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Tekst, mida soovid saata."
-  },
-  "sendFileDesc": {
-    "message": "Fail, mida soovid saata."
-  },
-  "copySendLinkOnSave": {
-    "message": "Salvestamisel kopeeri Sendi jagamise link lõikepuhvrisse."
-  },
-  "sendLinkLabel": {
-    "message": "Sendi link",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Send",
@@ -5689,6 +5663,9 @@
   },
   "dateParsingError": {
     "message": "Kustutamis- ja aegumiskuupäevade salvestamisel ilmnes tõrge."
+  },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
   },
   "webAuthnFallbackMsg": {
     "message": "2FA kinnitamiseks kliki alloleval nupul."
@@ -6740,6 +6717,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultDesc": {
     "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. Items in individual vaults or other organizations will not be included.",
     "placeholders": {
@@ -7242,9 +7228,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
   },
@@ -7274,12 +7257,6 @@
   },
   "numberOfUsers": {
     "message": "Kasutajate arv"
-  },
-  "loggingInAs": {
-    "message": "Sisselogimas kui"
-  },
-  "notYou": {
-    "message": "Pole sina?"
   },
   "pickAnAvatarColor": {
     "message": "Pick an avatar color"
@@ -8404,9 +8381,6 @@
   "requestAdminApproval": {
     "message": "Request admin approval"
   },
-  "approveWithMasterPassword": {
-    "message": "Approve with master password"
-  },
   "trustedDeviceEncryption": {
     "message": "Trusted device encryption"
   },
@@ -8621,9 +8595,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Your request has been sent to your admin."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "You will be notified once approved."
-  },
   "troubleLoggingIn": {
     "message": "Trouble logging in?"
   },
@@ -8737,8 +8708,8 @@
   "limitCollectionDeletionDesc": {
     "message": "Limit collection deletion to owners and admins"
   },
-  "limitItemDeletionDesc": {
-    "message": "Limit item deletion to members with the Can manage permission"
+  "limitItemDeletionDescription": {
+    "message": "Limit item deletion to members with the Manage collection permissions"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Owners and admins can manage all collections and items"
@@ -9349,6 +9320,15 @@
   "deviceManagementDesc": {
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
+  "deviceIdMissing": {
+    "message": "Device ID is missing"
+  },
+  "deviceTypeMissing": {
+    "message": "Device type is missing"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Device creation date is missing"
+  },
   "desktopRequired": {
     "message": "Desktop required"
   },
@@ -9848,8 +9828,14 @@
   "learnMoreAboutApi": {
     "message": "Learn more about Bitwarden's API"
   },
+  "fileSend": {
+    "message": "File Send"
+  },
   "fileSends": {
     "message": "File Sends"
+  },
+  "textSend": {
+    "message": "Text Send"
   },
   "textSends": {
     "message": "Text Sends"
@@ -10083,10 +10069,6 @@
   "specialCharactersDescription": {
     "message": "Include special characters",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Add attachment"
@@ -10348,6 +10330,36 @@
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
   },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
+  "copySSHPrivateKey": {
+    "message": "Copy private key"
+  },
   "openingExtension": {
     "message": "Opening the Bitwarden browser extension"
   },
@@ -10487,6 +10499,9 @@
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
   },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"
   },
@@ -10510,5 +10525,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
+  },
+  "cannotCreateCollection": {
+    "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
   }
 }

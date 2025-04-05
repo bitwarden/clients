@@ -201,6 +201,9 @@
   "notes": {
     "message": "메모"
   },
+  "privateNote": {
+    "message": "Private note"
+  },
   "note": {
     "message": "Note"
   },
@@ -425,6 +428,9 @@
   "dragToSort": {
     "message": "드래그하여 정렬"
   },
+  "dragToReorder": {
+    "message": "Drag to reorder"
+  },
   "cfTypeText": {
     "message": "텍스트"
   },
@@ -466,6 +472,19 @@
   },
   "editFolder": {
     "message": "폴더 편집"
+  },
+  "editWithName": {
+    "message": "Edit $ITEM$: $NAME$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "New folder"
@@ -860,9 +879,6 @@
   "filter": {
     "message": "필터"
   },
-  "moveSelectedToOrg": {
-    "message": "선택한 항목을 조직으로 이동함"
-  },
   "deleteSelected": {
     "message": "선택 항목 삭제"
   },
@@ -914,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "선택한 항목이 $ORGNAME$(으)로 이동됨",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1028,6 +1035,9 @@
   },
   "no": {
     "message": "아니오"
+  },
+  "location": {
+    "message": "Location"
   },
   "loginOrCreateNewAccount": {
     "message": "안전 보관함에 접근하려면 로그인하거나 새 계정을 만드세요."
@@ -1179,7 +1189,7 @@
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
@@ -1263,12 +1273,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
-  },
-  "passwordHint": {
-    "message": "비밀번호 힌트"
-  },
-  "enterEmailToGetHint": {
-    "message": "마스터 비밀번호 힌트를 받으려면 계정의 이메일 주소를 입력하세요."
   },
   "getMasterPasswordHint": {
     "message": "마스터 비밀번호 힌트 얻기"
@@ -1431,18 +1435,6 @@
       }
     }
   },
-  "enterVerificationCodeApp": {
-    "message": "인증 앱에서 6자리 인증 코드를 입력하세요."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "$EMAIL$ 주소로 전송된 6자리 인증 코드를 입력하세요.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "$EMAIL$ 주소로 인증 이메일을 보냈습니다.",
     "placeholders": {
@@ -1452,17 +1444,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "기억하기"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "인증 코드 이메일 다시 보내기"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "다른 2단계 로그인 방법 사용"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -1470,9 +1453,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "YubiKey를 컴퓨터의 USB 포트에 삽입하고 버튼을 누르세요."
   },
   "insertU2f": {
     "message": "보안 키를 컴퓨터의 USB 포트에 삽입하고 버튼이 있는 경우 누르세요."
@@ -1555,9 +1535,6 @@
   "moveToOrgDesc": {
     "message": "이 항목을 이동할 조직을 선택하십시오. 항목이 조직으로 이동되면 소유권이 조직으로 이전됩니다. 일단 이동되면, 더는 이동된 항목의 직접적인 소유자가 아니게 됩니다."
   },
-  "moveManyToOrgDesc": {
-    "message": "이 항목을 이동할 조직을 선택하십시오. 항목이 조직으로 이동되면 소유권이 조직으로 이전됩니다. 일단 이동되면, 더는 이동된 항목의 직접적인 소유자가 아니게 됩니다."
-  },
   "collectionsDesc": {
     "message": "이 항목이 공유될 콜렉션을 수정하십시오. 이 콜렉션에 접근할 수 있는 조직 사용자만 이 항목을 볼 수 있습니다."
   },
@@ -1588,23 +1565,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "$COUNT$개의 항목을 선택하셨습니다. $MOVEABLE_COUNT$개의 항목은 조직으로 이동시킬 수 있지만 나머지 $NONMOVEABLE_COUNT$개의 항목은 이동시킬 수 없습니다.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },
@@ -2251,6 +2211,9 @@
   },
   "revokeAccess": {
     "message": "Revoke access"
+  },
+  "revoke": {
+    "message": "Revoke"
   },
   "twoStepLoginProviderEnabled": {
     "message": "이 2단계 로그인 제공자는 귀하의 계정에 사용 가능합니다."
@@ -4521,6 +4484,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ moved down, position $INDEX$ of $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "When updating your encryption key, your folders could not be decrypted. To continue with the update, your folders must be deleted. No vault items will be deleted if you proceed."
   },
@@ -5081,11 +5078,39 @@
   "requireSsoExemption": {
     "message": "조직 소유자와 관리자는 이 정책을 적용받지 않습니다."
   },
+  "limitSendViews": {
+    "message": "Limit views"
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
   "sendTypeFile": {
     "message": "파일"
   },
   "sendTypeText": {
     "message": "텍스트"
+  },
+  "sendPasswordDescV3": {
+    "message": "Add an optional password for recipients to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "새 Send 생성",
@@ -5111,19 +5136,15 @@
     "message": "Send 삭제",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "정말 이 Send를 삭제하시겠습니까?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "어떤 유형의 Send인가요?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Are you sure you want to permanently delete this Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "삭제 날짜"
   },
-  "deletionDateDesc": {
-    "message": "이 Send가 정해진 일시에 영구적으로 삭제됩니다.",
+  "deletionDateDescV2": {
+    "message": "The Send will be permanently deleted on this date.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5135,21 +5156,6 @@
   },
   "maxAccessCount": {
     "message": "최대 접근 횟수"
-  },
-  "maxAccessCountDesc": {
-    "message": "설정할 경우, 최대 접근 횟수에 도달할 때 이 Send에 접근할 수 없게 됩니다.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "현재 접근 횟수"
-  },
-  "sendPasswordDesc": {
-    "message": "이 Send에 접근하기 위해 암호를 입력하도록 선택적으로 요구합니다.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "이 Send에 대한 비공개 메모",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "비활성화됨"
@@ -5177,13 +5183,6 @@
   "removePasswordConfirmation": {
     "message": "비밀번호를 제거하시겠습니까?"
   },
-  "hideEmail": {
-    "message": "받는 사람으로부터 나의 이메일 주소 숨기기"
-  },
-  "disableThisSend": {
-    "message": "이 Send를 비활성화하여 아무도 접근할 수 없게 합니다.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "모든 Send"
   },
@@ -5193,6 +5192,9 @@
   },
   "pendingDeletion": {
     "message": "삭제 대기 중"
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
   },
   "expired": {
     "message": "만료됨"
@@ -5415,13 +5417,6 @@
     "message": "사용자가 Send를 생성하거나 수정할 때 받는 사람으로부터 자신의 이메일 주소를 숨기지 못하게 합니다.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "다음 단체 정책이 현재 영향을 미치고 있습니다:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "사용자는 Send를 생성하거나 수정할 때 받는 사람으로부터 자신의 이메일 주소를 숨기지 못하게 됩니다.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "$ID$ 정책을 편집했습니다.",
     "placeholders": {
@@ -5520,27 +5515,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "조직 사용자의 개인 소유권 비활성화"
-  },
-  "textHiddenByDefault": {
-    "message": "Send에 접근할 때 기본적으로 텍스트를 숨김",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "이 Send의 이름",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "전송하려는 텍스트"
-  },
-  "sendFileDesc": {
-    "message": "전송하려는 파일"
-  },
-  "copySendLinkOnSave": {
-    "message": "저장할 때 이 Send를 공유하기 위한 링크를 클립보드에 복사합니다."
-  },
-  "sendLinkLabel": {
-    "message": "Send 링크",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Send",
@@ -5689,6 +5663,9 @@
   },
   "dateParsingError": {
     "message": "삭제 날짜와 만료 날짜를 저장하는 도중 오류가 발생했습니다."
+  },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
   },
   "webAuthnFallbackMsg": {
     "message": "2단계 인증을 확인하려면 아래의 버튼을 클릭하십시오."
@@ -6740,6 +6717,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultDesc": {
     "message": "$ORGANIZATION$ 조직과 연관된 조직 보관함만 내보내기됩니다. 개인 보관함이나 다른 조직의 항목은 포함되지 않습니다.",
     "placeholders": {
@@ -7242,9 +7228,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
   },
@@ -7274,12 +7257,6 @@
   },
   "numberOfUsers": {
     "message": "Number of users"
-  },
-  "loggingInAs": {
-    "message": "Logging in as"
-  },
-  "notYou": {
-    "message": "Not you?"
   },
   "pickAnAvatarColor": {
     "message": "Pick an avatar color"
@@ -8404,9 +8381,6 @@
   "requestAdminApproval": {
     "message": "Request admin approval"
   },
-  "approveWithMasterPassword": {
-    "message": "Approve with master password"
-  },
   "trustedDeviceEncryption": {
     "message": "Trusted device encryption"
   },
@@ -8621,9 +8595,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Your request has been sent to your admin."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "You will be notified once approved."
-  },
   "troubleLoggingIn": {
     "message": "Trouble logging in?"
   },
@@ -8737,8 +8708,8 @@
   "limitCollectionDeletionDesc": {
     "message": "Limit collection deletion to owners and admins"
   },
-  "limitItemDeletionDesc": {
-    "message": "Limit item deletion to members with the Can manage permission"
+  "limitItemDeletionDescription": {
+    "message": "Limit item deletion to members with the Manage collection permissions"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Owners and admins can manage all collections and items"
@@ -9349,6 +9320,15 @@
   "deviceManagementDesc": {
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
+  "deviceIdMissing": {
+    "message": "Device ID is missing"
+  },
+  "deviceTypeMissing": {
+    "message": "Device type is missing"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Device creation date is missing"
+  },
   "desktopRequired": {
     "message": "Desktop required"
   },
@@ -9848,8 +9828,14 @@
   "learnMoreAboutApi": {
     "message": "Learn more about Bitwarden's API"
   },
+  "fileSend": {
+    "message": "File Send"
+  },
   "fileSends": {
     "message": "File Sends"
+  },
+  "textSend": {
+    "message": "Text Send"
   },
   "textSends": {
     "message": "Text Sends"
@@ -10083,10 +10069,6 @@
   "specialCharactersDescription": {
     "message": "Include special characters",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Add attachment"
@@ -10348,6 +10330,36 @@
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
   },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
+  "copySSHPrivateKey": {
+    "message": "Copy private key"
+  },
   "openingExtension": {
     "message": "Opening the Bitwarden browser extension"
   },
@@ -10487,6 +10499,9 @@
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
   },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"
   },
@@ -10510,5 +10525,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
+  },
+  "cannotCreateCollection": {
+    "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
   }
 }
