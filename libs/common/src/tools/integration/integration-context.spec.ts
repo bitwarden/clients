@@ -189,6 +189,25 @@ describe("IntegrationContext", () => {
 
       expect(result).toBe("");
     });
+
+    it("extracts the hostname when extractHostname is true", () => {
+      const context = new IntegrationContext(EXAMPLE_META, null, i18n);
+
+      const result = context.website(
+        { website: "https://www.example.com/path" },
+        { extractHostname: true },
+      );
+
+      expect(result).toBe("www.example.com");
+    });
+
+    it("falls back to the full URL when Utils.getHost cannot extract the hostname", () => {
+      const context = new IntegrationContext(EXAMPLE_META, null, i18n);
+
+      const result = context.website({ website: "invalid-url" }, { extractHostname: true });
+
+      expect(result).toBe("invalid-url");
+    });
   });
 
   describe("generatedBy", () => {

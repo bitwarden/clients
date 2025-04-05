@@ -31,10 +31,13 @@ const createForwardingEmail = Object.freeze({
     return context.baseUrl() + "/v1/relayaddresses/";
   },
   body(request: IntegrationRequest, context: ForwarderContext<FirefoxRelaySettings>) {
+    const generatedFor = context.website(request);
+    const description = context.generatedBy(request, { extractHostname: true });
+
     return {
       enabled: true,
-      generated_for: context.website(request),
-      description: context.generatedBy(request),
+      generated_for: generatedFor.length > 255 ? generatedFor.slice(0, 255) : generatedFor,
+      description: description.length > 64 ? description.slice(0, 64) : description,
     };
   },
   hasJsonPayload(response: Response) {
