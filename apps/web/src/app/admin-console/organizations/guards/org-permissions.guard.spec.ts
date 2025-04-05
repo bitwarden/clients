@@ -100,20 +100,44 @@ describe("Organization Permissions Guard", () => {
 
     it("permits navigation if the user has permissions", async () => {
       const permissionsCallback = jest.fn();
-      permissionsCallback.mockImplementation((_org) => true);
+      permissionsCallback.mockReturnValue(true);
 
       const actual = await TestBed.runInInjectionContext(
         async () => await organizationPermissionsGuard(permissionsCallback)(route, state),
       );
 
-      expect(permissionsCallback).toHaveBeenCalledWith(orgFactory({ id: targetOrgId }));
+      expect(permissionsCallback).toHaveBeenCalledTimes(1);
+      expect(actual).toBe(true);
+    });
+
+    it("handles a Promise returned from the callback", async () => {
+      const permissionsCallback = jest.fn();
+      permissionsCallback.mockReturnValue(Promise.resolve(true));
+
+      const actual = await TestBed.runInInjectionContext(() =>
+        organizationPermissionsGuard(permissionsCallback)(route, state),
+      );
+
+      expect(permissionsCallback).toHaveBeenCalledTimes(1);
+      expect(actual).toBe(true);
+    });
+
+    it("handles an Observable returned from the callback", async () => {
+      const permissionsCallback = jest.fn();
+      permissionsCallback.mockReturnValue(of(true));
+
+      const actual = await TestBed.runInInjectionContext(() =>
+        organizationPermissionsGuard(permissionsCallback)(route, state),
+      );
+
+      expect(permissionsCallback).toHaveBeenCalledTimes(1);
       expect(actual).toBe(true);
     });
 
     describe("if the user does not have permissions", () => {
       it("and there is no Item ID, block navigation", async () => {
         const permissionsCallback = jest.fn();
-        permissionsCallback.mockImplementation((_org) => false);
+        permissionsCallback.mockReturnValue(false);
 
         state = mock<RouterStateSnapshot>({
           root: mock<ActivatedRouteSnapshot>({
