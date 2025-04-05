@@ -163,8 +163,15 @@ export class SendProgram extends BaseProgram {
     return new Command("get")
       .arguments("<id>")
       .description("Get Sends owned by you.")
-      .option("--output <output>", "Output directory or filename for attachment.")
       .option("--text", "Specifies to return the text content of a Send")
+      .option("--file", "Specifies to return the file content of a Send", true)
+      .option("--password <password>", "Password needed to access the Send.")
+      .option(
+        "--passwordfile <passwordfile>",
+        "Path to a file containing the Sends password as its first line",
+      )
+      .option("--raw", "Return the raw content of a Send", true)
+      .option("--output <output>", "Output directory or filename for attachment.")
       .on("--help", () => {
         writeLn("");
         writeLn("  Id:");
@@ -179,9 +186,9 @@ export class SendProgram extends BaseProgram {
         writeLn("    bw send get searchText");
         writeLn("    bw send get id");
         writeLn("    bw send get searchText --text");
-        writeLn("    bw send get searchText --file");
-        writeLn("    bw send get searchText --file --output ../Photos/photo.jpg");
-        writeLn("    bw send get searchText --file --raw");
+        writeLn("    bw send get id --file");
+        writeLn("    bw send get id --output ../Photos/photo.jpg");
+        writeLn("    bw send get id --file --raw");
         writeLn("", true);
       })
       .action(async (id: string, options: OptionValues) => {
@@ -192,6 +199,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.searchService,
           this.serviceContainer.encryptService,
           this.serviceContainer.apiService,
+          this.serviceContainer.sendDownloadService,
         );
         const response = await cmd.run(id, options);
         this.processResponse(response);
@@ -252,6 +260,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.searchService,
           this.serviceContainer.encryptService,
           this.serviceContainer.apiService,
+          this.serviceContainer.sendDownloadService,
         );
         const cmd = new SendEditCommand(
           this.serviceContainer.sendService,
