@@ -8,14 +8,12 @@ export class IdentityTwoFactorResponse extends BaseResponse {
   twoFactorProviders: TwoFactorProviderType[];
   // a map of two-factor providers to necessary data for completion
   twoFactorProviders2: Record<TwoFactorProviderType, Record<string, string>>;
-  captchaToken: string;
   ssoEmail2faSessionToken: string;
   email?: string;
   masterPasswordPolicy?: MasterPasswordPolicyResponse;
 
   constructor(response: any) {
     super(response);
-    this.captchaToken = this.getResponseProperty("CaptchaBypassToken");
     this.twoFactorProviders = this.getResponseProperty("TwoFactorProviders");
     this.twoFactorProviders2 = this.getResponseProperty("TwoFactorProviders2");
     this.masterPasswordPolicy = new MasterPasswordPolicyResponse(

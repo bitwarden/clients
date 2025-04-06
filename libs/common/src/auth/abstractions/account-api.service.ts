@@ -47,10 +47,9 @@ export abstract class AccountApiService {
    * @param request - The request object containing the user's email verification token,
    * the email, hashed MP, newly created user key, and new asymmetric user key pair along
    * with the KDF information used during the process.
-   * @returns A promise that resolves to a string captcha bypass token when the
-   * registration process is successfully completed.
+   * @returns A promise that resolves when the registration process is successfully completed.
    */
-  abstract registerFinish(request: RegisterFinishRequest): Promise<string>;
+  abstract registerFinish(request: RegisterFinishRequest): Promise<void>;
 
   /**
    * Sets the [dbo].[User].[VerifyDevices] flag to true or false.

@@ -2,12 +2,10 @@
 // @ts-strict-ignore
 import { KdfType } from "@bitwarden/key-management";
 
-import { CaptchaProtectedRequest } from "../../auth/models/request/captcha-protected.request";
-
 import { KeysRequest } from "./keys.request";
 import { ReferenceEventRequest } from "./reference-event.request";
 
-export class RegisterRequest implements CaptchaProtectedRequest {
+export class RegisterRequest {
   masterPasswordHint: string;
   keys: KeysRequest;
   token: string;
@@ -20,7 +18,6 @@ export class RegisterRequest implements CaptchaProtectedRequest {
     masterPasswordHint: string,
     public key: string,
     public referenceData: ReferenceEventRequest,
-    public captchaResponse: string,
     public kdf: KdfType,
     public kdfIterations: number,
     public kdfMemory?: number,

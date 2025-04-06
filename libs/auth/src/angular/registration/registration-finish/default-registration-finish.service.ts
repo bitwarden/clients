@@ -34,7 +34,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     emergencyAccessId?: string,
     providerInviteToken?: string,
     providerUserId?: string,
-  ): Promise<string> {
+  ): Promise<void> {
     const [newUserKey, newEncUserKey] = await this.keyService.makeUserKey(
       passwordInputResult.masterKey,
     );
@@ -57,9 +57,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       providerUserId,
     );
 
-    const capchaBypassToken = await this.accountApiService.registerFinish(registerRequest);
-
-    return capchaBypassToken;
+    return await this.accountApiService.registerFinish(registerRequest);
   }
 
   protected async buildRegisterRequest(

@@ -248,7 +248,7 @@ describe("LoginStrategyService", () => {
       premium: false,
     });
 
-    const result = await sut.logInTwoFactor(twoFactorToken, "CAPTCHA");
+    const result = await sut.logInTwoFactor(twoFactorToken);
 
     expect(result).toBeInstanceOf(AuthResult);
   });
@@ -285,7 +285,7 @@ describe("LoginStrategyService", () => {
       true,
     );
 
-    await expect(sut.logInTwoFactor(twoFactorToken, "CAPTCHA")).rejects.toThrow();
+    await expect(sut.logInTwoFactor(twoFactorToken)).rejects.toThrow();
   });
 
   it("throw error on too low kdf config", async () => {

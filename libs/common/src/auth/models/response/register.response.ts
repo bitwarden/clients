@@ -1,12 +1,6 @@
 import { BaseResponse } from "../../../models/response/base.response";
-
-import { ICaptchaProtectedResponse } from "./captcha-protected.response";
-
-export class RegisterResponse extends BaseResponse implements ICaptchaProtectedResponse {
-  captchaBypassToken: string;
-
+export class RegisterResponse extends BaseResponse {
   constructor(response: any) {
     super(response);
-    this.captchaBypassToken = this.getResponseProperty("CaptchaBypassToken");
   }
 }

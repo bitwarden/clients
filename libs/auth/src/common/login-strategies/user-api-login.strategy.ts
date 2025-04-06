@@ -16,7 +16,6 @@ import { LoginStrategy, LoginStrategyData } from "./login.strategy";
 
 export class UserApiLoginStrategyData implements LoginStrategyData {
   tokenRequest: UserApiTokenRequest;
-  captchaBypassToken: string;
 
   static fromJSON(obj: Jsonify<UserApiLoginStrategyData>): UserApiLoginStrategyData {
     return Object.assign(new UserApiLoginStrategyData(), obj, {

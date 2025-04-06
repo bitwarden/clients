@@ -69,7 +69,6 @@ import { UpdateTwoFactorYubikeyOtpRequest } from "../auth/models/request/update-
 import { ApiKeyResponse } from "../auth/models/response/api-key.response";
 import { AuthRequestResponse } from "../auth/models/response/auth-request.response";
 import { DeviceVerificationResponse } from "../auth/models/response/device-verification.response";
-import { IdentityCaptchaResponse } from "../auth/models/response/identity-captcha.response";
 import { IdentityDeviceVerificationResponse } from "../auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
@@ -200,10 +199,7 @@ export class ApiService implements ApiServiceAbstraction {
       | SsoTokenRequest
       | WebAuthnLoginTokenRequest,
   ): Promise<
-    | IdentityTokenResponse
-    | IdentityTwoFactorResponse
-    | IdentityCaptchaResponse
-    | IdentityDeviceVerificationResponse
+    IdentityTokenResponse | IdentityTwoFactorResponse | IdentityDeviceVerificationResponse
   > {
     const headers = new Headers({
       "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
@@ -246,12 +242,6 @@ export class ApiService implements ApiServiceAbstraction {
         Object.keys(responseJson.TwoFactorProviders2).length
       ) {
         return new IdentityTwoFactorResponse(responseJson);
-      } else if (
-        response.status === 400 &&
-        responseJson.HCaptcha_SiteKey &&
-        Object.keys(responseJson.HCaptcha_SiteKey).length
-      ) {
-        return new IdentityCaptchaResponse(responseJson);
       } else if (
         response.status === 400 &&
         responseJson?.ErrorModel?.Message === ApiService.NEW_DEVICE_VERIFICATION_REQUIRED_MESSAGE

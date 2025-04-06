@@ -184,7 +184,6 @@ describe("PasswordLoginStrategy", () => {
           provider: null,
           token: null,
         }),
-        captchaResponse: undefined,
       }),
     );
   });

@@ -84,7 +84,7 @@ export class AccountApiServiceImplementation implements AccountApiService {
     }
   }
 
-  async registerFinish(request: RegisterFinishRequest): Promise<string> {
+  async registerFinish(request: RegisterFinishRequest): Promise<void> {
     const env = await firstValueFrom(this.environmentService.environment$);
 
     try {

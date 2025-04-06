@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { Directive, ElementRef, Input, OnChanges } from "@angular/core";
 
-import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 
@@ -39,11 +38,6 @@ export class ApiActionDirective implements OnChanges {
       },
       (e: any) => {
         this.el.nativeElement.loading = false;
-
-        if ((e as ErrorResponse).captchaRequired) {
-          this.logService.error("Captcha required error response: " + e.getSingleMessage());
-          return;
-        }
         this.logService?.error(`Received API exception:`, e);
         this.validationService.showError(e);
       },
