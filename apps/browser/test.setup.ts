@@ -1,7 +1,10 @@
 import "@bitwarden/ui-common/setup-jest";
+import failOnConsole from "jest-fail-on-console";
+
 import { addCustomMatchers } from "@bitwarden/common/spec";
 
 addCustomMatchers();
+failOnConsole();
 
 // Add chrome storage api
 const QUOTA_BYTES = 10;
