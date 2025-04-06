@@ -130,16 +130,6 @@ const plugins = [
     chunks: ["connectors/redirect", "styles"],
   }),
   new HtmlWebpackPlugin({
-    template: "./src/connectors/captcha.html",
-    filename: "captcha-connector.html",
-    chunks: ["connectors/captcha"],
-  }),
-  new HtmlWebpackPlugin({
-    template: "./src/connectors/captcha-mobile.html",
-    filename: "captcha-mobile-connector.html",
-    chunks: ["connectors/captcha"],
-  }),
-  new HtmlWebpackPlugin({
     template: "./src/connectors/duo-redirect.html",
     filename: "duo-redirect-connector.html",
     chunks: ["connectors/duo-redirect"],
