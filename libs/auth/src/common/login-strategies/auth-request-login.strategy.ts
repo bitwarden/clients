@@ -53,7 +53,6 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
     data.tokenRequest = new PasswordTokenRequest(
       credentials.email,
       credentials.accessCode,
-      null,
       await this.buildTwoFactor(credentials.twoFactor, credentials.email),
       await this.buildDeviceRequest(),
     );
