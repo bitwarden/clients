@@ -543,10 +543,6 @@
     "message": "Incluir carateres especiais",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Número de palavras"
   },
@@ -652,6 +648,15 @@
   "logInToBitwarden": {
     "message": "Iniciar sessão no Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Introduza o código enviado para o seu e-mail"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Introduza o código da sua app de autenticação"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Prima a sua YubiKey para se autenticar"
+  },
   "logInWithPasskey": {
     "message": "Iniciar sessão com a chave de acesso"
   },
@@ -704,6 +709,15 @@
   "masterPassHintLabel": {
     "message": "Dica da palavra-passe mestra"
   },
+  "passwordStrengthScore": {
+    "message": "Pontuação da força da palavra-passe: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Aderir à organização"
   },
@@ -733,12 +747,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Introduza o endereço de e-mail da sua conta e ser-lhe-á enviada a sua dica da palavra-passe"
-  },
-  "passwordHint": {
-    "message": "Dica da palavra-passe"
-  },
-  "enterEmailToGetHint": {
-    "message": "Introduza o endereço de e-mail da sua conta para receber a dica da sua palavra-passe mestra."
   },
   "getMasterPasswordHint": {
     "message": "Obter a dica da palavra-passe mestra"
@@ -816,23 +824,14 @@
   "webauthnCancelOrTimeout": {
     "message": "A autenticação foi cancelada ou demorou demasiado tempo. Por favor, tente novamente."
   },
+  "openInNewTab": {
+    "message": "Abrir num novo separador"
+  },
   "invalidVerificationCode": {
     "message": "Código de verificação inválido"
   },
   "continue": {
     "message": "Continuar"
-  },
-  "enterVerificationCodeApp": {
-    "message": "Introduza o código de verificação de 6 dígitos da sua aplicação de autenticação."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Introduza o código de verificação de 6 dígitos que foi enviado por e-mail para $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "E-mail de verificação enviado para $EMAIL$.",
@@ -843,17 +842,15 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Memorizar"
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Não voltar a perguntar neste dispositivo durante 30 dias"
   },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Enviar e-mail com o código de verificação novamente"
+  "selectAnotherMethod": {
+    "message": "Selecionar outro método",
+    "description": "Select another two-step login method"
   },
-  "useAnotherTwoStepMethod": {
-    "message": "Utilizar outro método de verificação de dois passos"
-  },
-  "insertYubiKey": {
-    "message": "Introduza a sua YubiKey na porta USB do seu computador, depois toque no botão da mesma."
+  "useYourRecoveryCode": {
+    "message": "Utilize o seu código de recuperação"
   },
   "insertU2f": {
     "message": "Introduza a sua chave de segurança na porta USB do seu computador. Se tiver um botão, toque no mesmo."
@@ -885,7 +882,7 @@
     "message": "Proteja a sua organização com a Duo Security utilizando a aplicação Duo Mobile, SMS, chamada telefónica ou uma chave de segurança U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Verifique a sua identidade"
   },
   "weDontRecognizeThisDevice": {
@@ -918,11 +915,11 @@
   "twoStepOptions": {
     "message": "Opções de verificação de dois passos"
   },
+  "selectTwoStepLoginMethod": {
+    "message": "Selecionar método de verificação de dois passos"
+  },
   "selfHostedEnvironment": {
     "message": "Ambiente auto-hospedado"
-  },
-  "selfHostedEnvironmentFooter": {
-    "message": "Especifique o URL de base da sua instalação Bitwarden hospedada no local."
   },
   "selfHostedBaseUrlHint": {
     "message": "Especifique o URL de base da sua instalação Bitwarden hospedada no local. Exemplo: https://bitwarden.company.com"
@@ -935,9 +932,6 @@
   },
   "customEnvironment": {
     "message": "Ambiente personalizado"
-  },
-  "customEnvironmentFooter": {
-    "message": "Para utilizadores avançados. Pode especificar o URL de base de cada serviço de forma independente."
   },
   "baseUrl": {
     "message": "URL do servidor"
@@ -978,6 +972,9 @@
   },
   "no": {
     "message": "Não"
+  },
+  "location": {
+    "message": "Localização"
   },
   "overwritePassword": {
     "message": "Substituir palavra-passe"
@@ -1764,19 +1761,19 @@
     "message": "desbloquear o cofre"
   },
   "autoPromptWindowsHello": {
-    "message": "Pedir o Windows Hello ao iniciar a aplicação"
+    "message": "Pedir o Windows Hello ao iniciar a app"
   },
   "autoPromptPolkit": {
     "message": "Pedir a autenticação do sistema no arranque"
   },
   "autoPromptTouchId": {
-    "message": "Pedir o Touch ID ao iniciar a aplicação"
+    "message": "Pedir o Touch ID ao iniciar a app"
   },
   "requirePasswordOnStart": {
-    "message": "Exigir palavra-passe ou PIN ao iniciar a aplicação"
+    "message": "Exigir palavra-passe ou PIN ao iniciar a app"
   },
   "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
+    "message": "Exigir palavra-passe ao iniciar a app"
   },
   "recommendedForSecurity": {
     "message": "Recomendado por segurança."
@@ -2247,6 +2244,12 @@
   "webAuthnAuthenticate": {
     "message": "Autenticar o WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "Ler chave de segurança"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "A aguardar interação da chave de segurança..."
+  },
   "hideEmail": {
     "message": "Ocultar o meu endereço de e-mail dos destinatários."
   },
@@ -2456,6 +2459,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "Apenas os itens de cofre individuais associados a $EMAIL$ serão exportados. Os itens do cofre da organização não serão incluídos. Apenas serão exportadas as informações do item do cofre e não serão incluídos os anexos associados.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Apenas os itens individuais do cofre, incluindo os anexos associados a $EMAIL$, serão exportados. Os itens do cofre da organização não serão incluídos",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2745,14 +2757,8 @@
   "loginWithMasterPassword": {
     "message": "Iniciar sessão com a palavra-passe mestra"
   },
-  "loggingInAs": {
-    "message": "A iniciar sessão como"
-  },
   "rememberEmail": {
     "message": "Memorizar e-mail"
-  },
-  "notYou": {
-    "message": "Utilizador incorreto?"
   },
   "newAroundHere": {
     "message": "É novo por cá?"
@@ -2993,9 +2999,6 @@
   "requestAdminApproval": {
     "message": "Pedir aprovação do administrador"
   },
-  "approveWithMasterPassword": {
-    "message": "Aprovar com a palavra-passe mestra"
-  },
   "region": {
     "message": "Região"
   },
@@ -3020,9 +3023,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "O seu pedido foi enviado ao seu administrador."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Será notificado quando for aprovado."
   },
   "troubleLoggingIn": {
     "message": "Problemas a iniciar sessão?"
@@ -3200,11 +3200,14 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Erro ao ligar ao serviço Duo. Utilize um método de verificação de dois passos diferente ou contacte o Duo para obter assistência."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Inicie o Duo e siga os passos para concluir o início de sessão."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "A verificação de dois passos Duo é necessária para a sua conta."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "A verificação de dois passos do Duo é necessária para a sua conta. Siga os passos abaixo para concluir o início de sessão."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Siga os passos abaixo para concluir o início de sessão."
   },
   "launchDuo": {
     "message": "Iniciar o Duo no navegador"
@@ -3463,14 +3466,29 @@
   "sshkeyApprovalTitle": {
     "message": "Confirmar a utilização da chave SSH"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Aviso: Reencaminhamento de agentes"
+  },
+  "agentForwardingWarningText": {
+    "message": "Este pedido provém de um dispositivo remoto no qual tem sessão iniciada"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "está a pedir acesso a"
   },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "para"
+  },
+  "sshActionLogin": {
+    "message": "se autenticar num servidor"
+  },
+  "sshActionSign": {
+    "message": "assinar uma mensagem"
+  },
+  "sshActionGitSign": {
+    "message": "assinar um commit no git"
+  },
   "unknownApplication": {
     "message": "Uma aplicação"
-  },
-  "sshKeyPasswordUnsupported": {
-    "message": "A importação de chaves SSH protegidas por palavra-passe ainda não é suportada"
   },
   "invalidSshKey": {
     "message": "A chave SSH é inválida"
@@ -3481,7 +3499,7 @@
   "importSshKeyFromClipboard": {
     "message": "Importar chave da área de transferência"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "Chave SSH importada com sucesso"
   },
   "fileSavedToDevice": {
@@ -3540,5 +3558,11 @@
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "A extensão do navegador que está a utilizar está desatualizada. Atualize-a ou desative a validação de impressões digitais da integração do navegador nas definições da aplicação para computador."
+  },
+  "changeAtRiskPassword": {
+    "message": "Alterar palavra-passe em risco"
+  },
+  "move": {
+    "message": "Mover"
   }
 }

@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "Podpowiedź do hasła głównego (opcjonalnie)"
   },
+  "passwordStrengthScore": {
+    "message": "Siła hasła: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Dołącz do organizacji"
   },
@@ -254,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Wprowadź adres e-mail swojego konta, a podpowiedź hasła zostanie wysłana do Ciebie"
   },
-  "passwordHint": {
-    "message": "Podpowiedź do hasła"
-  },
-  "enterEmailToGetHint": {
-    "message": "Wpisz adres e-mail powiązany z kontem, aby otrzymać podpowiedź do hasła głównego."
-  },
   "getMasterPasswordHint": {
     "message": "Uzyskaj podpowiedź do hasła głównego"
   },
@@ -376,6 +379,15 @@
   "editFolder": {
     "message": "Edytuj folder"
   },
+  "editFolderWithName": {
+    "message": "Edytuj folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
     "message": "Nowy folder"
   },
@@ -470,22 +482,6 @@
   "length": {
     "message": "Długość"
   },
-  "uppercase": {
-    "message": "Wielkie litery (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Małe litery (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Cyfry (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Znaki specjalne (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Uwzględnij",
     "description": "Card header for password generator include block"
@@ -517,10 +513,6 @@
   "specialCharactersDescription": {
     "message": "Uwzględnij znaki specjalne",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Liczba słów"
@@ -660,8 +652,8 @@
   "browserNotSupportClipboard": {
     "message": "Przeglądarka nie obsługuje łatwego kopiowania schowka. Skopiuj element ręcznie."
   },
-  "verifyIdentity": {
-    "message": "Zweryfikuj tożsamość"
+  "verifyYourIdentity": {
+    "message": "Potwierdź swoją tożsamość"
   },
   "weDontRecognizeThisDevice": {
     "message": "Nie rozpoznajemy tego urządzenia. Wpisz kod wysłany na Twój e-mail, aby zweryfikować tożsamość."
@@ -876,6 +868,21 @@
   "logInToBitwarden": {
     "message": "Zaloguj się do Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Wpisz kod wysłany na Twój adres e-mail"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Wpisz kod z aplikacji uwierzytelniającej"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Naciśnij YubiKey aby uwierzytelnić"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Logowanie dwustopniowe Duo jest wymagane dla twojego konta. Wykonaj poniższe kroki, by dokończyć logowanie"
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Wykonaj poniższe kroki, by dokończyć logowanie"
+  },
   "restartRegistration": {
     "message": "Zrestartuj rejestrację"
   },
@@ -896,6 +903,9 @@
   },
   "no": {
     "message": "Nie"
+  },
+  "location": {
+    "message": "Lokalizacja"
   },
   "unexpectedError": {
     "message": "Wystąpił nieoczekiwany błąd."
@@ -1046,6 +1056,56 @@
   "notificationAddSave": {
     "message": "Zapisz"
   },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ został zapisany w Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ został zaktualizowany w Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Zapisz jako nowy login",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Zaktualizuj dane logowania",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Zapisać dane logowania?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Zaktualizować istniejące dane logowania?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Dane logowania zapisane",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Dane logowania zostały zaktualizowane",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Błąd podczas zapisywania",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "O nie! Nie mogliśmy zapisać tego. Spróbuj wprowadzić szczegóły ręcznie.",
+    "description": "Detailed error message shown when saving login details fails."
+  },
   "enableChangedPasswordNotification": {
     "message": "Poproś o aktualizację istniejących danych logowania"
   },
@@ -1108,10 +1168,6 @@
   "light": {
     "message": "Jasny",
     "description": "Light color"
-  },
-  "solarizedDark": {
-    "message": "Solarized Dark",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
     "message": "Eksportuj z"
@@ -1335,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "Konto Premium jest wymagane, aby skorzystać z tej funkcji."
   },
-  "enterVerificationCodeApp": {
-    "message": "Wpisz 6-cyfrowy kod weryfikacyjny z aplikacji uwierzytelniającej."
-  },
   "authenticationTimeout": {
     "message": "Limit czasu uwierzytelniania"
   },
   "authenticationSessionTimedOut": {
     "message": "Upłynął limit czasu uwierzytelniania. Uruchom ponownie proces logowania."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Wpisz 6-cyfrowy kod weryfikacyjny, który został przesłany na adres $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Kod weryfikacyjny został wysłany na adres $EMAIL$.",
@@ -1362,29 +1406,30 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Zapamiętaj mnie"
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Nie pytaj ponownie na tym urządzeniu przez 30 dni"
   },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Wyślij ponownie wiadomość z kodem weryfikacyjnym"
+  "selectAnotherMethod": {
+    "message": "Wybierz inną metodę",
+    "description": "Select another two-step login method"
   },
-  "useAnotherTwoStepMethod": {
-    "message": "Użyj innej metody logowania dwustopniowego"
-  },
-  "insertYubiKey": {
-    "message": "Włóż klucz YubiKey do portu USB komputera, a następnie dotknij jego przycisku."
+  "useYourRecoveryCode": {
+    "message": "Użyj kodu odzyskiwania"
   },
   "insertU2f": {
     "message": "Włóż klucz bezpieczeństwa do portu USB komputera. Jeśli klucz posiada przycisk, dotknij go."
   },
-  "webAuthnNewTab": {
-    "message": "Kontynuuj logowanie dwustopniowe WebAuthn w nowej karcie."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Otwórz nową kartę"
+  "openInNewTab": {
+    "message": "Otwórz w nowej karcie"
   },
   "webAuthnAuthenticate": {
     "message": "Uwierzytelnianie WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Odczytaj klucz bezpieczeństwa"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Oczekiwanie na interakcję z kluczem bezpieczeństwa..."
   },
   "loginUnavailable": {
     "message": "Logowanie jest niedostępne"
@@ -1397,6 +1442,9 @@
   },
   "twoStepOptions": {
     "message": "Opcje logowania dwustopniowego"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Wybierz metodę logowania dwustopniowego"
   },
   "recoveryCodeDesc": {
     "message": "Utraciłeś dostęp do wszystkich swoich mechanizmów dwustopniowego logowania? Użyj kodów odzyskiwania, aby wyłączyć dwustopniowe logowanie na Twoim koncie."
@@ -1440,9 +1488,6 @@
   "selfHostedEnvironment": {
     "message": "Samodzielnie hostowane środowisko"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Wpisz podstawowy adres URL hostowanej instalacji Bitwarden."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Określ bazowy adres URL swojej instalacji Bitwarden. Przykład: https://bitwarden.company.com"
   },
@@ -1454,9 +1499,6 @@
   },
   "customEnvironment": {
     "message": "Niestandardowe środowisko"
-  },
-  "customEnvironmentFooter": {
-    "message": "Dla zaawansowanych użytkowników. Możesz wpisać podstawowy adres URL niezależnie dla każdej usługi."
   },
   "baseUrl": {
     "message": "Adres URL serwera"
@@ -1594,6 +1636,9 @@
   },
   "dragToSort": {
     "message": "Przeciągnij, aby posortować"
+  },
+  "dragToReorder": {
+    "message": "Przeciągnij, aby zmienić kolejność"
   },
   "cfTypeText": {
     "message": "Tekst"
@@ -2097,6 +2142,15 @@
   "vaultTimeoutAction1": {
     "message": "Akcja po przekroczeniu limitu czasu"
   },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "Nowe opcje dostosowywania"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Dostosuj swój sejf dzięki akcjom szybkiego kopiowania, trybowi kompaktowemu i więcej!"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "Zobacz wszystkie ustawienia wyglądu"
+  },
   "lock": {
     "message": "Zablokuj",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2391,7 +2445,16 @@
   "atRiskPasswords": {
     "message": "Zagrożone hasła"
   },
-  "atRiskPasswordsDescSingleOrg": {
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ prosi o zmianę jednego hasła, ponieważ jest ono zagrożone.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
     "message": "$ORGANIZATION$ prosi o zmianę $COUNT$ haseł, ponieważ są one zagrożone.",
     "placeholders": {
       "organization": {
@@ -2404,7 +2467,7 @@
       }
     }
   },
-  "atRiskPasswordsDescMultiOrg": {
+  "atRiskPasswordsDescMultiOrgPlural": {
     "message": "Twoje organizacje proszą o zmianę $COUNT$ haseł, ponieważ są one zagrożone.",
     "placeholders": {
       "count": {
@@ -2430,6 +2493,36 @@
   },
   "changeAtRiskPasswordsFasterDesc": {
     "message": "Zaktualizuj swoje ustawienia, aby szybko autouzupełniać hasła i generować nowe"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Przejrzyj zagrożone loginy"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Przejrzyj zagrożone hasła"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Twoje hasła organizacji są zagrożone, ponieważ są słabe, ponownie używane i/lub narażone.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Ilustracja listy danych logowania, które są zagrożone."
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Szybko wygeneruj silne, unikalne hasło z menu autouzupełniania Bitwarden na stronie narażonej na ryzyko.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Ilustracja menu autouzupełniania Bitwardena pokazująca wygenerowane hasło."
+  },
+  "updateInBitwarden": {
+    "message": "Aktualizacja w Bitwarden"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "Bitwarden poprosi Cię o aktualizację hasła w menedżerze haseł.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Ilustracja powiadomienia Bitwardena, skłaniająca użytkownika do zaktualizowania danych logowania."
   },
   "turnOnAutofill": {
     "message": "Włącz autouzupełnienie"
@@ -2884,6 +2977,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Tylko poszczególne elementy sejfu łącznie z załącznikami powiązanymi z $EMAIL$ zostaną wyeksportowane. Elementy sejfu organizacji nie będą dołączone",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Eksportowanie sejfu organizacji"
   },
@@ -3149,15 +3251,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Ustawienia zostały zmienione"
-  },
-  "environmentEditedClick": {
-    "message": "Kliknij tutaj"
-  },
-  "environmentEditedReset": {
-    "message": "aby zresetować do wstępnie skonfigurowanych ustawień"
-  },
   "serverVersion": {
     "message": "Wersja serwera"
   },
@@ -3188,12 +3281,6 @@
   "loginWithMasterPassword": {
     "message": "Logowanie hasłem głównym"
   },
-  "loggingInAs": {
-    "message": "Logowanie jako"
-  },
-  "notYou": {
-    "message": "To nie Ty?"
-  },
   "newAroundHere": {
     "message": "Nowy użytkownik?"
   },
@@ -3202,9 +3289,6 @@
   },
   "loginWithDevice": {
     "message": "Zaloguj się za pomocą urządzenia"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Logowanie za pomocą urządzenia musi być włączone w ustawieniach aplikacji Bitwarden. Potrzebujesz innej opcji?"
   },
   "fingerprintPhraseHeader": {
     "message": "Unikalny identyfikator konta"
@@ -3216,9 +3300,6 @@
     "message": "Wyślij ponownie powiadomienie"
   },
   "viewAllLogInOptions": {
-    "message": "Zobacz wszystkie sposoby logowania"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Zobacz wszystkie sposoby logowania"
   },
   "notificationSentDevice": {
@@ -3362,9 +3443,6 @@
   "requestAdminApproval": {
     "message": "Poproś administratora o zatwierdzenie"
   },
-  "approveWithMasterPassword": {
-    "message": "Zatwierdź przy użyciu hasła głównego"
-  },
   "ssoIdentifierRequired": {
     "message": "Identyfikator organizacji jest wymagany."
   },
@@ -3410,9 +3488,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Twoja prośba została wysłana do Twojego administratora."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Zostaniesz powiadomiony po zatwierdzeniu."
   },
   "troubleLoggingIn": {
     "message": "Problem z zalogowaniem?"
@@ -3743,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Wystąpił błąd podczas połączenia z usługą Duo. Aby uzyskać pomoc, użyj innej metody dwustopniowego logowania lub skontaktuj się z Duo."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Uruchom DUO i wykonaj kroki, aby zakończyć logowanie."
-  },
   "duoRequiredForAccount": {
     "message": "Dwustopniowe logowanie Duo jest wymagane dla Twojego konta."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Otwórz rozszerzenie w nowym oknie, aby dokończyć logowanie."
   },
   "popoutExtension": {
     "message": "Otwórz rozszerzenie w nowym oknie"
@@ -3983,6 +4052,9 @@
   "activeAccount": {
     "message": "Aktywne konto"
   },
+  "bitwardenAccount": {
+    "message": "Konto Bitwarden"
+  },
   "availableAccounts": {
     "message": "Dostępne konta"
   },
@@ -4171,6 +4243,20 @@
       }
     }
   },
+  "viewItemTitleWithField": {
+    "message": "Zobacz element - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "autofillTitle": {
     "message": "Autouzupełnij - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
@@ -4178,6 +4264,34 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "autofillTitleWithField": {
+    "message": "Autouzupełnij - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "Kopiuj $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
       }
     }
   },
@@ -4557,6 +4671,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Zmień kolejność URI strony. Użyj klawiszy ze strzałkami, aby przenieść element w górę lub w dół."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ przeniósł się w górę, pozycja $INDEX$ z $LENGTH$",
     "placeholders": {
@@ -4616,15 +4733,6 @@
   },
   "nothingSelected": {
     "message": "Nie zaznaczyłeś żadnych elementów."
-  },
-  "movedItemsToOrg": {
-    "message": "Zaznaczone elementy zostały przeniesione do $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
   },
   "itemsMovedToOrg": {
     "message": "Elementy przeniesione do $ORGNAME$",
@@ -4988,6 +5096,33 @@
   "extraWide": {
     "message": "Bardzo szerokie"
   },
+  "sshKeyWrongPassword": {
+    "message": "Wprowadzone hasło jest nieprawidłowe."
+  },
+  "importSshKey": {
+    "message": "Importuj"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Potwierdź hasło"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Wprowadź hasło dla klucza SSH."
+  },
+  "enterSshKeyPassword": {
+    "message": "Wprowadź hasło"
+  },
+  "invalidSshKey": {
+    "message": "Klucz SSH jest nieprawidłowy"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Typ klucza SSH nie jest obsługiwany"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Importuj klucz ze schowka"
+  },
+  "sshKeyImported": {
+    "message": "Klucz SSH zaimportowano pomyślnie"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nie można usunąć kolekcji z uprawnieniami tylko do przeglądania: $COLLECTIONS$",
     "placeholders": {
@@ -5002,5 +5137,35 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "Aby używać odblokowywania biometrycznego, zaktualizuj aplikację na komputerze lub wyłącz odblokowywanie odciskiem palca w ustawieniach aplikacji na komputerze."
+  },
+  "changeAtRiskPassword": {
+    "message": "Zmień hasło zagrożone"
+  },
+  "introCarouselLabel": {
+    "message": "Witaj w Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Bezpieczeństwo priorytetem"
+  },
+  "securityPrioritizedBody": {
+    "message": "Zapisz dane logowania, karty i tożsamości w bezpiecznym sejfie. Bitwarden stosuje szyfrowanie end-to-end z wiedzą zerową, aby chronić to, co jest dla Ciebie ważne."
+  },
+  "quickLogin": {
+    "message": "Szybkie i łatwe logowanie"
+  },
+  "quickLoginBody": {
+    "message": "Skonfiguruj odblokowanie i autouzupełnianie biometryczne, aby zalogować się na swoje konta bez wpisywania pojedynczej litery."
+  },
+  "secureUser": {
+    "message": "Ulepsz swoje loginy"
+  },
+  "secureUserBody": {
+    "message": "Użyj generatora do tworzenia i zapisywania silnych, unikalnych haseł dla wszystkich kont."
+  },
+  "secureDevices": {
+    "message": "Twoje dane, kiedy i gdzie potrzebujesz"
+  },
+  "secureDevicesBody": {
+    "message": "Zapisuj nieograniczoną liczbę haseł na nieograniczonej liczbie urządzeń dzięki aplikacjom Bitwarden na urządzenia mobilne, przeglądarki i komputery stacjonarne."
   }
 }

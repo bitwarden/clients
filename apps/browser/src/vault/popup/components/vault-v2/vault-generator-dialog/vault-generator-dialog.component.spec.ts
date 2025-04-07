@@ -1,15 +1,18 @@
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
+import { AlgorithmInfo } from "@bitwarden/generator-core";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 
 import {
+  GeneratorDialogAction,
   GeneratorDialogParams,
   GeneratorDialogResult,
   VaultGeneratorDialogComponent,
@@ -21,8 +24,9 @@ import {
   standalone: true,
 })
 class MockCipherFormGenerator {
-  @Input() type: "password" | "username";
-  @Input() uri: string;
+  @Input() type: "password" | "username" = "password";
+  @Output() algorithmSelected: EventEmitter<AlgorithmInfo> = new EventEmitter();
+  @Input() uri: string = "";
   @Output() valueGenerated = new EventEmitter<string>();
 }
 
@@ -53,34 +57,87 @@ describe("VaultGeneratorDialogComponent", () => {
 
     fixture = TestBed.createComponent(VaultGeneratorDialogComponent);
     component = fixture.componentInstance;
-  });
-
-  it("should create", () => {
     fixture.detectChanges();
-    expect(component).toBeTruthy();
   });
 
-  it("should use the appropriate text based on generator type", () => {
-    expect(component["title"]).toBe("passwordGenerator");
-    expect(component["selectButtonText"]).toBe("useThisPassword");
-
-    dialogData.type = "username";
-
-    fixture = TestBed.createComponent(VaultGeneratorDialogComponent);
-    component = fixture.componentInstance;
-
-    expect(component["title"]).toBe("usernameGenerator");
-    expect(component["selectButtonText"]).toBe("useThisUsername");
+  it("should show password generator title", () => {
+    const header = fixture.debugElement.query(By.css("popup-header")).componentInstance;
+    expect(header.pageTitle).toBe("passwordGenerator");
   });
 
-  it("should close the dialog with the generated value when the user selects it", () => {
-    component["generatedValue"] = "generated-value";
+  it("should pass type to cipher form generator", () => {
+    const generator = fixture.debugElement.query(
+      By.css("vault-cipher-form-generator"),
+    ).componentInstance;
+    expect(generator.type).toBe("password");
+  });
 
-    fixture.nativeElement.querySelector("button[data-testid='select-button']").click();
+  it("should enable select button when value is generated", () => {
+    component.onAlgorithmSelected({ useGeneratedValue: "Test" } as any);
+    component.onValueGenerated("test-password");
+    fixture.detectChanges();
+
+    const button = fixture.debugElement.query(
+      By.css("[data-testid='select-button']"),
+    ).nativeElement;
+    expect(button.disabled).toBe(false);
+  });
+
+  it("should disable the button if no value has been generated", () => {
+    const generator = fixture.debugElement.query(
+      By.css("vault-cipher-form-generator"),
+    ).componentInstance;
+
+    generator.algorithmSelected.emit({ useGeneratedValue: "Use Password" } as any);
+    fixture.detectChanges();
+
+    const button = fixture.debugElement.query(
+      By.css("[data-testid='select-button']"),
+    ).nativeElement;
+    expect(button.disabled).toBe(true);
+  });
+
+  it("should disable the button if no algorithm is selected", () => {
+    const generator = fixture.debugElement.query(
+      By.css("vault-cipher-form-generator"),
+    ).componentInstance;
+
+    generator.valueGenerated.emit("test-password");
+    fixture.detectChanges();
+
+    const button = fixture.debugElement.query(
+      By.css("[data-testid='select-button']"),
+    ).nativeElement;
+    expect(button.disabled).toBe(true);
+  });
+
+  it("should update button text when algorithm is selected", () => {
+    component.onAlgorithmSelected({ useGeneratedValue: "Use This Password" } as any);
+    fixture.detectChanges();
+
+    const button = fixture.debugElement.query(
+      By.css("[data-testid='select-button']"),
+    ).nativeElement;
+    expect(button.textContent.trim()).toBe("Use This Password");
+  });
+
+  it("should close with generated value when selected", () => {
+    component.onAlgorithmSelected({ useGeneratedValue: "Test" } as any);
+    component.onValueGenerated("test-password");
+    fixture.detectChanges();
+
+    fixture.debugElement.query(By.css("[data-testid='select-button']")).nativeElement.click();
 
     expect(mockDialogRef.close).toHaveBeenCalledWith({
-      action: "selected",
-      generatedValue: "generated-value",
+      action: GeneratorDialogAction.Selected,
+      generatedValue: "test-password",
+    });
+  });
+
+  it("should close with canceled action when dismissed", () => {
+    fixture.debugElement.query(By.css("popup-header")).componentInstance.backAction();
+    expect(mockDialogRef.close).toHaveBeenCalledWith({
+      action: GeneratorDialogAction.Canceled,
     });
   });
 });

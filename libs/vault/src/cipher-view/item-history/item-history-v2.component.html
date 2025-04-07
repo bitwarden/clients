@@ -1,14 +1,14 @@
-<bit-section>
+<bit-section disableMargin>
   <bit-section-header>
     <h2 bitTypography="h6">{{ "itemHistory" | i18n }}</h2>
   </bit-section-header>
   <bit-card>
-    <p class="tw-mb-1 tw-text-xs tw-text-muted tw-select-none">
+    <p class="tw-mb-1 tw-text-xs tw-text-muted tw-select-all">
       <span class="tw-font-bold">{{ "lastEdited" | i18n }}:</span>
       {{ cipher.revisionDate | date: "medium" }}
     </p>
     <p
-      class="tw-text-xs tw-text-muted tw-select-none"
+      class="tw-text-xs tw-text-muted tw-select-all"
       [ngClass]="{
         'tw-mb-1 ': cipher.hasPasswordHistory,
         'tw-mb-0': !cipher.hasPasswordHistory,
@@ -19,7 +19,7 @@
     </p>
     <p
       *ngIf="cipher.passwordRevisionDisplayDate"
-      class="tw-text-xs tw-text-muted tw-select-none"
+      class="tw-text-xs tw-text-muted tw-select-all"
       [ngClass]="{ 'tw-mb-3': cipher.hasPasswordHistory }"
     >
       <span class="tw-font-bold">{{ "datePasswordUpdated" | i18n }}:</span>

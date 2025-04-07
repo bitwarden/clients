@@ -48,6 +48,8 @@ describe("PasswordXPCsvImporter", () => {
 
   beforeEach(() => {
     importer = new PasswordXPCsvImporter();
+    // Importers currently create their own ConsoleLogService. This should be replaced by injecting a test log service.
+    jest.spyOn(console, "warn").mockImplementation();
   });
 
   it("should return success false if CSV data is null", async () => {

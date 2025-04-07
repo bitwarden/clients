@@ -543,10 +543,6 @@
     "message": "Включить специальные символы",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Количество слов"
   },
@@ -652,6 +648,15 @@
   "logInToBitwarden": {
     "message": "Войти в Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Введите код, отправленный на ваш email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Введите код из приложения-аутентификатора"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Нажмите на YubiKey для аутентификации"
+  },
   "logInWithPasskey": {
     "message": "Войти с passkey"
   },
@@ -704,6 +709,15 @@
   "masterPassHintLabel": {
     "message": "Подсказка к мастер-паролю"
   },
+  "passwordStrengthScore": {
+    "message": "Оценка надежности пароля $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Присоединиться к организации"
   },
@@ -733,12 +747,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Введите email вашего аккаунта, и вам будет отправлена подсказка для пароля"
-  },
-  "passwordHint": {
-    "message": "Подсказка к паролю"
-  },
-  "enterEmailToGetHint": {
-    "message": "Введите email аккаунта для получения подсказки к мастер-паролю."
   },
   "getMasterPasswordHint": {
     "message": "Получить подсказку к мастер-паролю"
@@ -816,23 +824,14 @@
   "webauthnCancelOrTimeout": {
     "message": "Аутентификация была отменена или заняла слишком много времени. Пожалуйста, попробуйте еще раз."
   },
+  "openInNewTab": {
+    "message": "Открыть в новой вкладке"
+  },
   "invalidVerificationCode": {
     "message": "Неверный код подтверждения"
   },
   "continue": {
     "message": "Продолжить"
-  },
-  "enterVerificationCodeApp": {
-    "message": "Введите 6-значный код подтверждения из вашего приложения-аутентификатора."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Введите 6-значный код подтверждения, который был отправлен на $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Отправлено письмо подтверждения на $EMAIL$.",
@@ -843,17 +842,15 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Запомнить меня"
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Не спрашивать на этом устройстве в течение 30 дней"
   },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Отправить код подтверждения еще раз"
+  "selectAnotherMethod": {
+    "message": "Выбрать другой способ",
+    "description": "Select another two-step login method"
   },
-  "useAnotherTwoStepMethod": {
-    "message": "Использовать другой метод двухэтапной аутентификации"
-  },
-  "insertYubiKey": {
-    "message": "Вставьте свой YubiKey в USB-порт компьютера и нажмите его кнопку."
+  "useYourRecoveryCode": {
+    "message": "Использовать код восстановления"
   },
   "insertU2f": {
     "message": "Вставьте ключ безопасности в USB-порт компьютера. Если у ключа есть кнопка, нажмите ее."
@@ -885,7 +882,7 @@
     "message": "Подтвердите с помощью Duo Security для вашей организации, используя приложение Duo Mobile, SMS, телефонный звонок или ключ безопасности U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Подтвердите вашу личность"
   },
   "weDontRecognizeThisDevice": {
@@ -918,11 +915,11 @@
   "twoStepOptions": {
     "message": "Настройки двухэтапной аутентификации"
   },
+  "selectTwoStepLoginMethod": {
+    "message": "Выбрать другой метод двухэтапной аутентификации"
+  },
   "selfHostedEnvironment": {
     "message": "Окружение пользовательского хостинга"
-  },
-  "selfHostedEnvironmentFooter": {
-    "message": "Укажите URL Bitwarden на вашем сервере."
   },
   "selfHostedBaseUrlHint": {
     "message": "Укажите базовый URL вашего локального хостинга Bitwarden. Пример: https://bitwarden.company.com"
@@ -935,9 +932,6 @@
   },
   "customEnvironment": {
     "message": "Пользовательское окружение"
-  },
-  "customEnvironmentFooter": {
-    "message": "Для опытных пользователей. Можно указать URL отдельно для каждой службы."
   },
   "baseUrl": {
     "message": "URL сервера"
@@ -978,6 +972,9 @@
   },
   "no": {
     "message": "Нет"
+  },
+  "location": {
+    "message": "Местоположение"
   },
   "overwritePassword": {
     "message": "Перезаписать пароль"
@@ -2247,6 +2244,12 @@
   "webAuthnAuthenticate": {
     "message": "Аутентификация WebAutn"
   },
+  "readSecurityKey": {
+    "message": "Считать ключ безопасности"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Ожидание взаимодействия с ключом безопасности..."
+  },
   "hideEmail": {
     "message": "Скрыть мой адрес email от получателей."
   },
@@ -2456,6 +2459,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "Будут экспортированы только отдельные элементы хранилища, связанные с $EMAIL$. Элементы хранилища организации включены не будут. Экспортируется только информация об элементах хранилища, не включая связанные вложения.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Будут экспортированы только отдельные элементы хранилища, включая вложения, связанные с $EMAIL$. Элементы хранилища организации включены не будут",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2745,14 +2757,8 @@
   "loginWithMasterPassword": {
     "message": "Войти с мастер-паролем"
   },
-  "loggingInAs": {
-    "message": "Войти как"
-  },
   "rememberEmail": {
     "message": "Запомнить email"
-  },
-  "notYou": {
-    "message": "Не вы?"
   },
   "newAroundHere": {
     "message": "Вы здесь впервые?"
@@ -2993,9 +2999,6 @@
   "requestAdminApproval": {
     "message": "Запросить одобрение администратора"
   },
-  "approveWithMasterPassword": {
-    "message": "Одобрить с мастер-паролем"
-  },
   "region": {
     "message": "Регион"
   },
@@ -3020,9 +3023,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Ваш запрос был отправлен администратору."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Вас уведомят об одобрении."
   },
   "troubleLoggingIn": {
     "message": "Не удалось войти?"
@@ -3200,11 +3200,14 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Ошибка при подключении к сервису Duo. Используйте другой метод двухэтапной аутентификации или обратитесь за помощью в Duo."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Запустите Duo и следуйте шагам для завершения авторизации."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Для вашего аккаунта требуется двухэтапная аутентификация Duo."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Для вашего аккаунта требуется двухэтапная аутентификация Duo. Выполните следующие действия, чтобы завершить авторизацию."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Следуйте указаниям ниже, чтобы завершить авторизацию."
   },
   "launchDuo": {
     "message": "Запустить Duo в браузере"
@@ -3463,14 +3466,29 @@
   "sshkeyApprovalTitle": {
     "message": "Подтвердить использование ключа SSH"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Предупреждение: Переадресация агента"
+  },
+  "agentForwardingWarningText": {
+    "message": "Этот запрос поступает с удаленного устройства, на котором вы авторизовались"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "запрашивает доступ к"
   },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "чтобы"
+  },
+  "sshActionLogin": {
+    "message": "авторизоваться на сервере"
+  },
+  "sshActionSign": {
+    "message": "подписать сообщение"
+  },
+  "sshActionGitSign": {
+    "message": "подписать git коммит"
+  },
   "unknownApplication": {
     "message": "Приложение"
-  },
-  "sshKeyPasswordUnsupported": {
-    "message": "Импорт защищенных паролем ключей SSH пока не поддерживается"
   },
   "invalidSshKey": {
     "message": "Ключ SSH недействителен"
@@ -3481,7 +3499,7 @@
   "importSshKeyFromClipboard": {
     "message": "Импорт ключа из буфера обмена"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "Ключ SSH успешно импортирован"
   },
   "fileSavedToDevice": {
@@ -3533,12 +3551,18 @@
     "message": "Окно подтверждения остается видимым"
   },
   "confirmWindowStillVisibleContent": {
-    "message": "Убедитесь, что окно по-прежнему видно."
+    "message": "Пожалуйста, подтвердите, что окно все еще видно."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Необходимо обновить расширение"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Используемое вами расширение браузера устарело. Пожалуйста, обновите его или отключите проверку интеграции браузера с помощью отпечатка пальца в настройках приложения для компьютера."
+  },
+  "changeAtRiskPassword": {
+    "message": "Изменить пароль, подверженный риску"
+  },
+  "move": {
+    "message": "Переместить"
   }
 }

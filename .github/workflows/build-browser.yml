@@ -1,3 +1,7 @@
+# This workflow will run in the context of the source of the PR.
+# On a PR from a fork, the workflow will not have access to secrets, and so any parts of the build that require secrets will not run.
+# If additional artifacts are needed, the failed "build-browser-target.yml" workflow held up by the check-run should be re-run.
+
 name: Build Browser
 
 on:
@@ -200,10 +204,14 @@ jobs:
             npm_command: "dist:edge"
             archive_name: "dist-edge.zip"
             artifact_name: "dist-edge-MV3"
+          - name: "firefox"
+            npm_command: "dist:firefox"
+            archive_name: "dist-firefox.zip"
+            artifact_name: "dist-firefox"
           - name: "firefox-mv3"
             npm_command: "dist:firefox:mv3"
             archive_name: "dist-firefox.zip"
-            artifact_name: "dist-firefox-MV3"
+            artifact_name: "DO-NOT-USE-FOR-PROD-dist-firefox-MV3"
           - name: "opera-mv3"
             npm_command: "dist:opera:mv3"
             archive_name: "dist-opera.zip"

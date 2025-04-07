@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "Підказка для головного пароля (необов'язково)"
   },
+  "passwordStrengthScore": {
+    "message": "Рейтинг надійності пароля $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Приєднатися до організації"
   },
@@ -254,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Введіть адресу е-пошти свого облікового запису і вам буде надіслано підказку для пароля"
   },
-  "passwordHint": {
-    "message": "Підказка для пароля"
-  },
-  "enterEmailToGetHint": {
-    "message": "Введіть свою адресу е-пошти, щоб отримати підказку для головного пароля."
-  },
   "getMasterPasswordHint": {
     "message": "Отримати підказку для головного пароля"
   },
@@ -376,6 +379,15 @@
   "editFolder": {
     "message": "Редагування"
   },
+  "editFolderWithName": {
+    "message": "Редагувати теку: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
     "message": "Нова тека"
   },
@@ -470,22 +482,6 @@
   "length": {
     "message": "Довжина"
   },
-  "uppercase": {
-    "message": "Верхній регістр (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Нижній регістр (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Числа (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Спеціальні символи (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Включити",
     "description": "Card header for password generator include block"
@@ -517,10 +513,6 @@
   "specialCharactersDescription": {
     "message": "Спеціальні символи",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Кількість слів"
@@ -660,8 +652,8 @@
   "browserNotSupportClipboard": {
     "message": "Ваш браузер не підтримує копіювання даних в буфер обміну. Скопіюйте вручну."
   },
-  "verifyIdentity": {
-    "message": "Виконати перевірку"
+  "verifyYourIdentity": {
+    "message": "Підтвердьте свою особу"
   },
   "weDontRecognizeThisDevice": {
     "message": "Ми не розпізнаємо цей пристрій. Введіть код, надісланий на вашу електронну пошту, щоб підтвердити вашу особу."
@@ -876,6 +868,21 @@
   "logInToBitwarden": {
     "message": "Увійти в Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Введіть код, надісланий вам електронною поштою"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Введіть код з програми автентифікації"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Натисніть свій YubiKey для автентифікації"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Для вашого облікового запису необхідно пройти двоетапну перевірку з Duo. Виконайте наведені нижче кроки, щоб завершити вхід."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Виконайте наведені нижче кроки, щоб завершити вхід."
+  },
   "restartRegistration": {
     "message": "Перезапустити реєстрацію"
   },
@@ -896,6 +903,9 @@
   },
   "no": {
     "message": "Ні"
+  },
+  "location": {
+    "message": "Розташування"
   },
   "unexpectedError": {
     "message": "Сталася неочікувана помилка."
@@ -1030,7 +1040,7 @@
     "message": "Натисніть на запис у режимі перегляду сховища для автозаповнення"
   },
   "clickToAutofill": {
-    "message": "Click items in autofill suggestion to fill"
+    "message": "Натисніть запис у пропозиціях для автозаповнення"
   },
   "clearClipboard": {
     "message": "Очистити буфер обміну",
@@ -1045,6 +1055,56 @@
   },
   "notificationAddSave": {
     "message": "Зберегти"
+  },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ збережено до Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ оновлено у Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Зберегти як новий запис",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Оновити запис",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Зберегти запис?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Оновити наявний запис?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Запис збережено",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Запис оновлено",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Помилка збереження",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "На жаль, не вдається зберегти. Введіть дані вручну.",
+    "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
     "message": "Запитувати про оновлення запису"
@@ -1108,10 +1168,6 @@
   "light": {
     "message": "Світла",
     "description": "Light color"
-  },
-  "solarizedDark": {
-    "message": "Solarized темна",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
     "message": "Експортувати з"
@@ -1335,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "Для використання цієї функції необхідна передплата преміум."
   },
-  "enterVerificationCodeApp": {
-    "message": "Введіть 6-значний код підтвердження з програми автентифікації."
-  },
   "authenticationTimeout": {
     "message": "Час очікування автентифікації"
   },
   "authenticationSessionTimedOut": {
     "message": "Час очікування сеансу автентифікації завершився. Перезапустіть процес входу в систему."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Введіть 6-значний код підтвердження, надісланий на $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Код підтвердження надіслано на $EMAIL$.",
@@ -1362,29 +1406,30 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Запам'ятати мене"
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Більше не запитувати на цьому пристрої протягом 30 днів"
   },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Надіслати код підтвердження ще раз"
+  "selectAnotherMethod": {
+    "message": "Обрати інший спосіб",
+    "description": "Select another two-step login method"
   },
-  "useAnotherTwoStepMethod": {
-    "message": "Інший спосіб двоетапної перевірки"
-  },
-  "insertYubiKey": {
-    "message": "Вставте свій YubiKey в USB порт комп'ютера, потім торкніться цієї кнопки."
+  "useYourRecoveryCode": {
+    "message": "Скористайтеся своїм кодом відновлення"
   },
   "insertU2f": {
     "message": "Вставте свій ключ безпеки в USB порт комп'ютера. Якщо в нього є кнопка, натисніть її."
   },
-  "webAuthnNewTab": {
-    "message": "Щоб почати перевірку WebAuthn 2FA, натисніть кнопку внизу для відкриття нової вкладки і дотримуйтесь зазначених на ній настанов."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Відкрити нову вкладку"
+  "openInNewTab": {
+    "message": "Відкрити в новій вкладці"
   },
   "webAuthnAuthenticate": {
     "message": "Автентифікація WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Зчитати ключ безпеки"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Очікується взаємодія з ключем безпеки..."
   },
   "loginUnavailable": {
     "message": "Вхід недоступний"
@@ -1397,6 +1442,9 @@
   },
   "twoStepOptions": {
     "message": "Налаштування двоетапної перевірки"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Виберіть спосіб двоетапної перевірки"
   },
   "recoveryCodeDesc": {
     "message": "Втратили доступ до всіх провайдерів двоетапної перевірки? Скористайтеся кодом відновлення, щоб вимкнути двоетапну перевірку для свого облікового запису."
@@ -1440,9 +1488,6 @@
   "selfHostedEnvironment": {
     "message": "Середовище власного хостингу"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Вкажіть основну URL-адресу вашого встановлення Bitwarden на власному хостингу."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Вкажіть основну URL-адресу вашого встановлення Bitwarden на власному хостингу. Зразок: https://bitwarden.company.com"
   },
@@ -1454,9 +1499,6 @@
   },
   "customEnvironment": {
     "message": "Власне середовище"
-  },
-  "customEnvironmentFooter": {
-    "message": "Для досвідчених користувачів. Ви можете вказати основну URL-адресу окремо для кожної служби."
   },
   "baseUrl": {
     "message": "URL-адреса сервера"
@@ -1594,6 +1636,9 @@
   },
   "dragToSort": {
     "message": "Перетягніть, щоб відсортувати"
+  },
+  "dragToReorder": {
+    "message": "Потягніть, щоб упорядкувати"
   },
   "cfTypeText": {
     "message": "Текст"
@@ -2089,13 +2134,22 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultCustomization": {
-    "message": "Vault customization"
+    "message": "Налаштування сховища"
   },
   "vaultTimeoutAction": {
     "message": "Дія після часу очікування сховища"
   },
   "vaultTimeoutAction1": {
     "message": "Дія після часу очікування"
+  },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "Нові можливості налаштування"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Налаштуйте своє сховище за допомогою швидких дій копіювання, компактного режиму та інших можливостей!"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "Всі налаштування подання"
   },
   "lock": {
     "message": "Блокувати",
@@ -2391,7 +2445,16 @@
   "atRiskPasswords": {
     "message": "Ризиковані паролі"
   },
-  "atRiskPasswordsDescSingleOrg": {
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ вимагає зміни один пароль, оскільки він ризикований.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
     "message": "$ORGANIZATION$ вимагає зміни $COUNT$ паролів, оскільки вони ризиковані.",
     "placeholders": {
       "organization": {
@@ -2404,7 +2467,7 @@
       }
     }
   },
-  "atRiskPasswordsDescMultiOrg": {
+  "atRiskPasswordsDescMultiOrgPlural": {
     "message": "Ваші організації вимагають зміни $COUNT$ паролів, оскільки вони ризиковані.",
     "placeholders": {
       "count": {
@@ -2430,6 +2493,36 @@
   },
   "changeAtRiskPasswordsFasterDesc": {
     "message": "Оновіть налаштування, щоб швидше автоматично заповнювати й створювати паролі"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Переглянути записи з ризиком"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Переглянути ризиковані паролі"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Паролі вашої організації ризиковані, оскільки вони ненадійні, повторно використовуються, та/або викриті.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Швидко згенеруйте надійний, унікальний пароль через меню автозаповнення Bitwarden на сайті з ризикованим паролем.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
+  },
+  "updateInBitwarden": {
+    "message": "Оновити в Bitwarden"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "Потім Bitwarden запропонує вам оновити пароль у менеджері паролів.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
   },
   "turnOnAutofill": {
     "message": "Увімкніть автозаповнення"
@@ -2884,6 +2977,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Експортування сховища організації"
   },
@@ -3149,15 +3251,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Налаштування змінено"
-  },
-  "environmentEditedClick": {
-    "message": "Натисніть тут,"
-  },
-  "environmentEditedReset": {
-    "message": "щоб скинути налаштування"
-  },
   "serverVersion": {
     "message": "Версія сервера"
   },
@@ -3188,12 +3281,6 @@
   "loginWithMasterPassword": {
     "message": "Увійти з головним паролем"
   },
-  "loggingInAs": {
-    "message": "Вхід у систему як"
-  },
-  "notYou": {
-    "message": "Не ви?"
-  },
   "newAroundHere": {
     "message": "Виконуєте вхід вперше?"
   },
@@ -3202,9 +3289,6 @@
   },
   "loginWithDevice": {
     "message": "Увійти з пристроєм"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Потрібно увімкнути схвалення запитів на вхід у налаштуваннях програми Bitwarden. Потрібен інший варіант?"
   },
   "fingerprintPhraseHeader": {
     "message": "Фраза відбитка"
@@ -3216,9 +3300,6 @@
     "message": "Надіслати сповіщення ще раз"
   },
   "viewAllLogInOptions": {
-    "message": "Переглянути всі варіанти входу"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Переглянути всі варіанти входу"
   },
   "notificationSentDevice": {
@@ -3362,9 +3443,6 @@
   "requestAdminApproval": {
     "message": "Запит підтвердження адміністратора"
   },
-  "approveWithMasterPassword": {
-    "message": "Затвердити з головним паролем"
-  },
   "ssoIdentifierRequired": {
     "message": "Потрібен SSO-ідентифікатор організації."
   },
@@ -3410,9 +3488,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Ваш запит відправлено адміністратору."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Ви отримаєте сповіщення після затвердження."
   },
   "troubleLoggingIn": {
     "message": "Проблема під час входу?"
@@ -3743,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Помилка під'єднання до служби Duo. Скористайтеся іншим способом двоетапної перевірки або зверніться до служби підтримки Duo по допомогу."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Запустіть Duo і виконайте дії для завершення входу."
-  },
   "duoRequiredForAccount": {
     "message": "Для вашого облікового запису необхідна двоетапна перевірка з Duo."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Відкріпіть розширення для завершення входу."
   },
   "popoutExtension": {
     "message": "Відкріпити вікно розширення"
@@ -3983,6 +4052,9 @@
   "activeAccount": {
     "message": "Активний обліковий запис"
   },
+  "bitwardenAccount": {
+    "message": "Обліковий запис Bitwarden"
+  },
   "availableAccounts": {
     "message": "Доступні облікові записи"
   },
@@ -4171,6 +4243,20 @@
       }
     }
   },
+  "viewItemTitleWithField": {
+    "message": "View item - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "autofillTitle": {
     "message": "Автозаповнення – $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
@@ -4178,6 +4264,34 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "autofillTitleWithField": {
+    "message": "Autofill - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "Копіювати $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
       }
     }
   },
@@ -4206,7 +4320,7 @@
     "message": "Сповіщення"
   },
   "appearance": {
-    "message": "Вигляд"
+    "message": "Подання"
   },
   "errorAssigningTargetCollection": {
     "message": "Помилка призначення цільової збірки."
@@ -4557,6 +4671,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Змініть порядок URI вебсайтів. Використовуйте стрілки, щоб перемістити елемент вгору чи вниз."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ переміщено вгору, позиція $INDEX$ з $LENGTH$",
     "placeholders": {
@@ -4616,15 +4733,6 @@
   },
   "nothingSelected": {
     "message": "Ви нічого не вибрали."
-  },
-  "movedItemsToOrg": {
-    "message": "Вибрані записи переміщено до $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
   },
   "itemsMovedToOrg": {
     "message": "Записи переміщено до $ORGNAME$",
@@ -4988,6 +5096,33 @@
   "extraWide": {
     "message": "Дуже широке"
   },
+  "sshKeyWrongPassword": {
+    "message": "Ви ввели неправильний пароль."
+  },
+  "importSshKey": {
+    "message": "Імпорт"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Підтвердити пароль"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Введіть пароль для ключа SSH."
+  },
+  "enterSshKeyPassword": {
+    "message": "Введіть пароль"
+  },
+  "invalidSshKey": {
+    "message": "Ключ SSH недійсний"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Тип ключа SSH не підтримується"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Імпортувати ключ із буфера обміну"
+  },
+  "sshKeyImported": {
+    "message": "Ключ SSH успішно імпортовано"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Ви не можете вилучати збірки, маючи дозвіл лише на перегляд: $COLLECTIONS$",
     "placeholders": {
@@ -5002,5 +5137,35 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "Щоб використовувати біометричне розблокування, оновіть комп'ютерну програму, або вимкніть розблокування відбитком пальця в налаштуваннях системи."
+  },
+  "changeAtRiskPassword": {
+    "message": "Змінити ризикований пароль"
+  },
+  "introCarouselLabel": {
+    "message": "Welcome to Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Security, prioritized"
+  },
+  "securityPrioritizedBody": {
+    "message": "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you."
+  },
+  "quickLogin": {
+    "message": "Quick and easy login"
+  },
+  "quickLoginBody": {
+    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+  },
+  "secureUser": {
+    "message": "Level up your logins"
+  },
+  "secureUserBody": {
+    "message": "Use the generator to create and save strong, unique passwords for all your accounts."
+  },
+  "secureDevices": {
+    "message": "Your data, when and where you need it"
+  },
+  "secureDevicesBody": {
+    "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
   }
 }

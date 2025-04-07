@@ -133,7 +133,9 @@ export type CredentialGeneratorConfiguration<Settings, Policy> = CredentialGener
   };
   /** Defines the stored parameters for credential generation */
   settings: {
-    /** value used when an account's settings haven't been initialized */
+    /** value used when an account's settings haven't been initialized
+     *  @deprecated use `ObjectKey.initial` for your desired storage property instead
+     */
     initial: Readonly<Partial<Settings>>;
 
     /** Application-global constraints that apply to account settings */
