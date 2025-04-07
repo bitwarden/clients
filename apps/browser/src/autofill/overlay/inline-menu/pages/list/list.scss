@@ -40,7 +40,7 @@ body * {
   padding: 0.8rem;
 
   @include themify($themes) {
-    color: themed("primaryColor");
+    color: themed("textColor");
   }
 
   &.no-items,

@@ -167,9 +167,13 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    */
   private buildSaveLoginInlineMenuList() {
     const saveLoginMessage = globalThis.document.createElement("div");
-    saveLoginMessage.classList.add("save-login", "inline-menu-list-message");
+    saveLoginMessage.classList.add(
+      "save-login",
+      "inline-menu-list-button",
+      "inline-menu-list-action",
+    );
     saveLoginMessage.textContent = this.getTranslation("saveToBitwarden");
-    saveLoginMessage.addEventListener(EVENTS.CLICK, this.handleNewLoginVaultItemIntent);
+    saveLoginMessage.addEventListener(EVENTS.CLICK, this.handleNewLoginVaultItemAction);
 
     this.showInlineMenuAccountCreation = true;
 
@@ -521,7 +525,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.newItemButtonElement.textContent = this.getNewItemButtonText(showLogin);
     this.newItemButtonElement.setAttribute("aria-label", this.getNewItemAriaLabel(showLogin));
     this.newItemButtonElement.prepend(buildSvgDomElement(plusIcon));
-    this.newItemButtonElement.addEventListener(EVENTS.CLICK, this.handleNewLoginVaultItemIntent);
+    this.newItemButtonElement.addEventListener(EVENTS.CLICK, this.handleNewLoginVaultItemAction);
 
     return this.buildButtonContainer(this.newItemButtonElement);
   }
@@ -581,7 +585,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Handles the click event for the new item button.
    * Sends a message to the parent window to add a new vault item.
    */
-  private handleNewLoginVaultItemIntent = () => {
+  private handleNewLoginVaultItemAction = () => {
     let addNewCipherType = this.inlineMenuFillType;
 
     if (this.showInlineMenuAccountCreation) {
