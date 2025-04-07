@@ -8,7 +8,7 @@
 name: Build Desktop on PR Target
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize]
     branches-ignore:
       - 'l10n_master'
