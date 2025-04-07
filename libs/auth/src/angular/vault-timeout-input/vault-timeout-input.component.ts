@@ -14,12 +14,15 @@ import {
   ValidationErrors,
   Validator,
 } from "@angular/forms";
-import { filter, map, Observable, Subject, takeUntil } from "rxjs";
+import { filter, map, Observable, Subject, switchMap, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   VaultTimeout,
   VaultTimeoutAction,
@@ -123,12 +126,17 @@ export class VaultTimeoutInputComponent
     private policyService: PolicyService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private i18nService: I18nService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
-    this.policyService
-      .get$(PolicyType.MaximumVaultTimeout)
+    this.accountService.activeAccount$
       .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policiesByType$(PolicyType.MaximumVaultTimeout, userId),
+        ),
+        getFirstPolicy,
         filter((policy) => policy != null),
         takeUntil(this.destroy$),
       )
@@ -136,7 +144,6 @@ export class VaultTimeoutInputComponent
         this.vaultTimeoutPolicy = policy;
         this.applyVaultTimeoutPolicy();
       });
-
     this.form.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe((value: VaultTimeoutFormValue) => {

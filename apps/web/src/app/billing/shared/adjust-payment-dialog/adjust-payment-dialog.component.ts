@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, forwardRef, Inject, OnInit, ViewChild } from "@angular/core";
 
 import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
@@ -14,7 +13,13 @@ import { PaymentRequest } from "@bitwarden/common/billing/models/request/payment
 import { UpdatePaymentMethodRequest } from "@bitwarden/common/billing/models/request/update-payment-method.request";
 import { TaxInfoResponse } from "@bitwarden/common/billing/models/response/tax-info.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import { PaymentComponent } from "../payment/payment.component";
 
@@ -47,6 +52,8 @@ export class AdjustPaymentDialogComponent implements OnInit {
   protected productTier?: ProductTierType;
   protected providerId?: string;
 
+  protected loading = true;
+
   protected taxInformation: TaxInformation;
 
   constructor(
@@ -72,16 +79,26 @@ export class AdjustPaymentDialogComponent implements OnInit {
         .getTaxInfo(this.organizationId)
         .then((response: TaxInfoResponse) => {
           this.taxInformation = TaxInformation.from(response);
+          this.toggleBankAccount();
         })
         .catch(() => {
           this.taxInformation = new TaxInformation();
+        })
+        .finally(() => {
+          this.loading = false;
         });
     } else if (this.providerId) {
       this.billingApiService
         .getProviderTaxInformation(this.providerId)
-        .then((response) => (this.taxInformation = TaxInformation.from(response)))
+        .then((response) => {
+          this.taxInformation = TaxInformation.from(response);
+          this.toggleBankAccount();
+        })
         .catch(() => {
           this.taxInformation = new TaxInformation();
+        })
+        .finally(() => {
+          this.loading = false;
         });
     } else {
       this.apiService
@@ -91,21 +108,28 @@ export class AdjustPaymentDialogComponent implements OnInit {
         })
         .catch(() => {
           this.taxInformation = new TaxInformation();
+        })
+        .finally(() => {
+          this.loading = false;
         });
     }
   }
 
   taxInformationChanged(event: TaxInformation) {
     this.taxInformation = event;
-    if (event.country === "US") {
-      this.paymentComponent.showBankAccount = !!this.organizationId;
+    this.toggleBankAccount();
+  }
+
+  toggleBankAccount = () => {
+    if (this.taxInformation.country === "US") {
+      this.paymentComponent.showBankAccount = !!this.organizationId || !!this.providerId;
     } else {
       this.paymentComponent.showBankAccount = false;
       if (this.paymentComponent.selected === PaymentMethodType.BankAccount) {
         this.paymentComponent.select(PaymentMethodType.Card);
       }
     }
-  }
+  };
 
   submit = async (): Promise<void> => {
     if (!this.taxInfoComponent.validate()) {
