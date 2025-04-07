@@ -85,7 +85,7 @@ export const SecondLevel: Story = {
   args: {
     items: [
       { name: "Acme Vault", route: "/" },
-      { icon: "bwi-collection-shared-shared", name: "Collection", route: "collection" },
+      { icon: "bwi-collection-shared", name: "Collection", route: "collection" },
     ] as Breadcrumb[],
   },
 };
