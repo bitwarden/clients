@@ -1,0 +1,26 @@
+default_platform(:mac)
+
+platform :mac do
+  desc "Publish desktop to the Mac App Store"
+  lane :publish do
+    app_store_connect_api_key(
+      key_id: "6TV9MKN3GP",
+      issuer_id: ENV["APP_STORE_CONNECT_TEAM_ISSUER"],
+      key_content: Base64.encode64(ENV["APP_STORE_CONNECT_AUTH_KEY"]),
+      is_key_content_base64: true
+    )
+
+    deliver(
+      platform: "osx",
+      app_identifier: "com.bitwarden.desktop",
+      build_number: ENV["BUILD_NUMBER"],
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      skip_metadata: true,
+      submit_for_review: true,
+      precheck_include_in_app_purchases: false,
+      run_precheck_before_submit: true,
+      force: true
+    )
+  end
+end
