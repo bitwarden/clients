@@ -81,30 +81,38 @@ export class IntegrationContext<Settings extends object> {
    *  @param request supplies information about the state of the extension site
    *  @param options optional parameters
    *  @param options.extractHostname when `true`, tries to extract the hostname from the website URL, returns full URL otherwise
+   *  @param options.maxLength limits the length of the return value
    *  @returns The website or an empty string if a website isn't available
    *  @remarks `website` is usually supplied when generating a credential from the vault
    */
-  website(request: IntegrationRequest, options?: { extractHostname?: boolean }) {
-    const url = request.website ?? "";
+  website(
+    request: IntegrationRequest,
+    options?: { extractHostname?: boolean; maxLength?: number },
+  ) {
+    let url = request.website ?? "";
     if (options?.extractHostname) {
-      return Utils.getHost(url) ?? url;
+      url = Utils.getHost(url) ?? url;
     }
-    return url;
+    return url.slice(0, options?.maxLength);
   }
 
   /** look up localized text indicating Bitwarden requested the forwarding address.
    *  @param request supplies information about the state of the extension site
    *  @param options optional parameters
    *  @param options.extractHostname when `true`, extracts the hostname from the website URL
+   *  @param options.maxLength limits the length of the return value
    *  @returns localized text describing a generated forwarding address
    */
-  generatedBy(request: IntegrationRequest, options?: { extractHostname?: boolean }) {
+  generatedBy(
+    request: IntegrationRequest,
+    options?: { extractHostname?: boolean; maxLength?: number },
+  ) {
     const website = this.website(request, { extractHostname: options?.extractHostname ?? false });
 
     const descriptionId =
       website === "" ? "forwarderGeneratedBy" : "forwarderGeneratedByWithWebsite";
     const description = this.i18n.t(descriptionId, website);
 
-    return description;
+    return description.slice(0, options?.maxLength);
   }
 }

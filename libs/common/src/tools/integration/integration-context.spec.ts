@@ -208,6 +208,14 @@ describe("IntegrationContext", () => {
 
       expect(result).toBe("invalid-url");
     });
+
+    it("truncates the website to maxLength", () => {
+      const context = new IntegrationContext(EXAMPLE_META, null, i18n);
+
+      const result = context.website({ website: "www.example.com" }, { maxLength: 3 });
+
+      expect(result).toBe("www");
+    });
   });
 
   describe("generatedBy", () => {
@@ -229,6 +237,16 @@ describe("IntegrationContext", () => {
 
       expect(result).toBe("result");
       expect(i18n.t).toHaveBeenCalledWith("forwarderGeneratedByWithWebsite", "www.example.com");
+    });
+
+    it("truncates generated text to maxLength", () => {
+      const context = new IntegrationContext(EXAMPLE_META, null, i18n);
+      i18n.t.mockReturnValue("This is the result text");
+
+      const result = context.generatedBy({ website: null }, { maxLength: 4 });
+
+      expect(result).toBe("This");
+      expect(i18n.t).toHaveBeenCalledWith("forwarderGeneratedBy", "");
     });
   });
 });
