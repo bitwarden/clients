@@ -6,6 +6,7 @@ on:
       - "main"
       - "rc"
       - "hotfix-rc"
+      - "uif/cl-394/chromatic-paths"
   pull_request_target:
     types: [opened, synchronize]
 
@@ -31,20 +32,21 @@ jobs:
         
       - name: Get changed files
         id: get-changed-files-for-chromatic
-        uses: tj-actions/changed-files@823fcebdb31bb35fdf2229d9f769b400309430d0 # v46
+        uses: dorny/paths-filter@v3
         with:
-          files: |
-            "apps/**"
-            "!apps/cli/**"
-            "bitwarden_license/bit-web/src/app/**"
-            "libs/**"
-            "!libs/eslint/**"
-            "package.json"
-            ".storybook/**"
+          filters: |
+            storyFiles: 
+              "apps/**"
+              "!apps/cli/**"
+              "bitwarden_license/bit-web/src/app/**"
+              "libs/**"
+              "!libs/eslint/**"
+              "package.json"
+              ".storybook/**"
 
       - name: Get Node version
         id: retrieve-node-version
-        if: steps.get-changed-files-for-chromatic.outputs.any_modified == 'true'
+        if: steps.get-changed-files-for-chromatic.outputs.storyFiles == 'true'
         run: |
           NODE_NVMRC=$(cat .nvmrc)
           NODE_VERSION=${NODE_NVMRC/v/''}
@@ -54,7 +56,7 @@ jobs:
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
-        if: steps.get-changed-files-for-chromatic.outputs.any_modified == 'true'
+        if: steps.get-changed-files-for-chromatic.outputs.storyFiles == 'true'
 
       - name: Cache NPM
         id: npm-cache
@@ -62,15 +64,15 @@ jobs:
         with:
           path: "~/.npm"
           key: ${{ runner.os }}-npm-chromatic-${{ hashFiles('**/package-lock.json') }}
-        if: steps.get-changed-files-for-chromatic.outputs.any_modified == 'true'
+        if: steps.get-changed-files-for-chromatic.outputs.storyFiles == 'true'
 
       - name: Install Node dependencies
-        if: steps.get-changed-files-for-chromatic.outputs.any_modified == 'true'
+        if: steps.get-changed-files-for-chromatic.outputs.storyFiles == 'true'
         run: npm ci
 
       # Manually build the Storybook to resolve a bug related to TurboSnap
       - name: Build Storybook
-        if: steps.get-changed-files-for-chromatic.outputs.any_modified == 'true'
+        if: steps.get-changed-files-for-chromatic.outputs.storyFiles == 'true'
         run: npm run build-storybook:ci
 
       - name: Publish to Chromatic
@@ -83,4 +85,4 @@ jobs:
           onlyChanged: true
           externals: "[\"libs/components/**/*.scss\", \"libs/components/**/*.css\", \"libs/components/tailwind.config*.js\"]"
           # Rather than use an `if` check on the whole publish step, we need to tell Chromatic to skip so that any Chromatic-spawned actions are properly skipped
-          skip: ${{ steps.get-changed-files-for-chromatic.outputs.any_modified == 'false' }}
+          skip: ${{ steps.get-changed-files-for-chromatic.outputs.storyFiles == 'false' }}
