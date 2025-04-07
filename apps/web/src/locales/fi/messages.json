@@ -1435,18 +1435,6 @@
       }
     }
   },
-  "enterVerificationCodeApp": {
-    "message": "Syötä todennussovelluksesi näyttämä kuusinumeroinen todennuskoodi."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Syötä osoitteeseen $EMAIL$ lähetetty kuusinumeroinen todennuskoodi.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Todennussähköposti lähetettiin osoitteeseen $EMAIL$.",
     "placeholders": {
@@ -1456,17 +1444,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Muista minut"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Älä kysy uudelleen tällä laitteella 30 päivään"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Lähetä todennuskoodi sähköpostitse uudelleen"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Käytä vaihtoehtoista todennustapaa"
   },
   "selectAnotherMethod": {
     "message": "Valitse vaihtoehtoinen tapa",
@@ -1474,9 +1453,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Käytä palautuskoodiasi"
-  },
-  "insertYubiKey": {
-    "message": "Kytke YubiKey-suojausavaimesi tietokoneen USB-porttiin ja kosketa sen painiketta."
   },
   "insertU2f": {
     "message": "Kytke suojausavaimesi tietokoneen USB-porttiin ja jos laitteessa on painike, paina sitä."
@@ -7252,9 +7228,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Virhe yhdistettäessä Duo-palveluun. Käytä vaihtoehtoista todennustapaa tai ole yhteydessä Duon asiakaspalveluun saadaksesi apua."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Avaa Duo ja viimeistele kirjautuminen seuraamalla ohjeita."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Tilillesi kirjautuminen vaatii Duo-vahvistuksen."
   },
@@ -8735,8 +8708,8 @@
   "limitCollectionDeletionDesc": {
     "message": "Rajoita kokoelmien poisto omistajille ja ylläpitäjille"
   },
-  "limitItemDeletionDesc": {
-    "message": "Limit item deletion to members with the Can manage permission"
+  "limitItemDeletionDescription": {
+    "message": "Limit item deletion to members with the Manage collection permissions"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Omistajat ja ylläpitäjät voivat hallita kaikkia kokoelmia ja kohteita"

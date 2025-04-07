@@ -234,6 +234,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
         this.organizationId = value !== "myVault" ? value : undefined;
 
         this.formatOptions = this.formatOptions.filter((option) => option.value !== "zip");
+        this.exportForm.get("format").setValue("json");
         if (value === "myVault" && isExportAttachmentsEnabled) {
           this.formatOptions.push({ name: ".zip (with attachments)", value: "zip" });
         }
