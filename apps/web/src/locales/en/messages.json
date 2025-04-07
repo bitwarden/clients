@@ -10573,7 +10573,7 @@
     }
   },
   "userkeyRotationDisclaimerDescription": {
-    "message": "Rotating your encryption keys will require you to trust keys of any organizations that can recover your account, and any contacts that can you have enabled emergency access for. To continue, make sure you can verify the following:"
+    "message": "Rotating your encryption keys will require you to trust keys of any organizations that can recover your account, and any contacts that you have enabled emergency access for. To continue, make sure you can verify the following:"
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Untrusted encryption keys"
