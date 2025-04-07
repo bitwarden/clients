@@ -81,7 +81,7 @@ export class DesktopAutofillService implements OnDestroy {
     this.listenIpc();
   }
 
-  async AdHocSync(): Promise<any> {
+  async adHocSync(): Promise<any> {
     this.logService.info("Performing AdHoc sync");
     const account = await firstValueFrom(this.accountService.activeAccount$);
     const userId = account?.id;
