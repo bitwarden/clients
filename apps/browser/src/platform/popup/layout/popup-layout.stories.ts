@@ -81,7 +81,7 @@ class VaultComponent {
   selector: "mock-add-button",
   template: `
     <button bitButton buttonType="primary" type="button">
-      <i class="bwi bwi-plus-f" aria-hidden="true"></i>
+      <i class="bwi bwi-plus" aria-hidden="true"></i>
       Add
     </button>
   `,

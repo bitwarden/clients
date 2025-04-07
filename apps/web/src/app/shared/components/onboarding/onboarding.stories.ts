@@ -47,7 +47,7 @@ export default {
         </app-onboarding-task>
         <app-onboarding-task
           [title]="'createProject' | i18n"
-          icon="bwi-collection"
+          icon="bwi-collection-shared"
           [completed]="createProject"
         ></app-onboarding-task>
         <app-onboarding-task

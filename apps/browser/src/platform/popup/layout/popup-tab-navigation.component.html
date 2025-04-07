@@ -17,16 +17,10 @@
             type="button"
             role="link"
           >
-            <i
-              *ngIf="!rla.isActive"
-              class="bwi bwi-lg bwi-{{ button.iconKey }}"
+            <bit-icon
+              [icon]="rla.isActive ? button.iconKeyActive : button.iconKey"
               aria-hidden="true"
-            ></i>
-            <i
-              *ngIf="rla.isActive"
-              class="bwi bwi-lg bwi-{{ button.iconKeyActive }}"
-              aria-hidden="true"
-            ></i>
+            ></bit-icon>
             <span class="tw-truncate tw-max-w-full">
               {{ button.label | i18n }}
             </span>
