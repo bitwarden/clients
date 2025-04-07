@@ -881,7 +881,7 @@
     "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Follow the steps below to finish logging in."
+    "message": "Girişi tamamlamak için aşağıdaki adımları izleyin."
   },
   "restartRegistration": {
     "message": "Kaydı yeniden başlat"
@@ -1407,14 +1407,14 @@
     }
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "Bu cihazda 30 gün boyunca sorma"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Başka bir yöntem seç",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "Kurtarma kodu kullan"
   },
   "insertU2f": {
     "message": "Güvenlik anahtarınızı bilgisayarınızın USB portuna takın. Düğmesi varsa dokunun."
@@ -1426,7 +1426,7 @@
     "message": "WebAutn ile doğrula"
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "Güvenlik anahtarını oku"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Awaiting security key interaction..."
@@ -1444,7 +1444,7 @@
     "message": "İki aşamalı giriş seçenekleri"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "İki aşamalı giriş yöntemini seçin"
   },
   "recoveryCodeDesc": {
     "message": "İki aşamalı doğrulama sağlayıcılarınıza ulaşamıyor musunuz? Kurtarma kodunuzu kullanarak hesabınızdaki tüm iki aşamalı giriş sağlayıcılarını devre dışı bırakabilirsiniz."
@@ -2149,7 +2149,7 @@
     "message": "Customize your vault experience with quick copy actions, compact mode, and more!"
   },
   "newCustomizationOptionsCalloutLink": {
-    "message": "View all Appearance settings"
+    "message": "Görünüm ayarlarının hepsini göster"
   },
   "lock": {
     "message": "Kilitle",
@@ -5140,5 +5140,32 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "introCarouselLabel": {
+    "message": "Bitwarden’a hoş geldiniz"
+  },
+  "securityPrioritized": {
+    "message": "Önce güvenlik"
+  },
+  "securityPrioritizedBody": {
+    "message": "Hesaplarınızı, kartlarınızı ve kimliklerinizi güvenli kasanıza kaydedin. Bitwarden'ın sıfır bilgi ispatlı uçtan uca şifrelemesi sizin için önemli olan her şeyi korur."
+  },
+  "quickLogin": {
+    "message": "Hızlı ve kolay giriş"
+  },
+  "quickLoginBody": {
+    "message": "Hesaplarınıza parola yazmadan giriş yapmak için biyometrik kilit açmayı ayarlayabilirsiniz."
+  },
+  "secureUser": {
+    "message": "Hesaplarınızı güçlendirin"
+  },
+  "secureUserBody": {
+    "message": "Hesaplarınız için güçlü ve benzersiz parolalar oluşturmak amacıyla üreteci kullanabilirsiniz."
+  },
+  "secureDevices": {
+    "message": "Verilerinize her zaman, her yerden ulaşın"
+  },
+  "secureDevicesBody": {
+    "message": "Bitwarden mobil, tarayıcı ve masaüstü uygulamalarıyla istediğiniz kadar cihaza istediğiniz kadar parola kaydedebilirsiniz."
   }
 }
