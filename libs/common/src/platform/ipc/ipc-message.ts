@@ -1,4 +1,4 @@
-import { OutgoingMessage } from "@bitwarden/sdk-internal";
+import type { OutgoingMessage } from "@bitwarden/sdk-internal";
 
 export interface IpcMessage {
   type: "bitwarden-ipc-message";
