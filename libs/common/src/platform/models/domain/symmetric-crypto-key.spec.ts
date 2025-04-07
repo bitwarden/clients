@@ -25,7 +25,7 @@ describe("SymmetricCryptoKey", () => {
         key: key,
         keyB64: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
         macKey: null,
-        macKeyB64: null,
+        macKeyB64: undefined,
         innerKey: {
           type: EncryptionType.AesCbc256_B64,
           encryptionKey: key,
