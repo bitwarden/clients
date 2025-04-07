@@ -18,7 +18,7 @@ export class BackgroundCommunicationBackend implements CommunicationBackend {
   }
 
   async send(message: OutgoingMessage): Promise<void> {
-    if (typeof message.destination === "object") {
+    if (typeof message.destination === "object" && "Web" in message.destination) {
       await BrowserApi.tabSendMessage(
         { id: message.destination.Web.id } as chrome.tabs.Tab,
         { type: "bitwarden-ipc-message", message } satisfies IpcMessage,
