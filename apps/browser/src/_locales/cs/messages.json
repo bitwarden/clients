@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Zadejte svou e-mailovou adresu, na kterou Vám zašleme nápovědu k heslu"
   },
-  "passwordHint": {
-    "message": "Nápověda pro heslo"
-  },
-  "enterEmailToGetHint": {
-    "message": "Zadejte e-mailovou adresu pro zaslání nápovědy k hlavnímu heslu."
-  },
   "getMasterPasswordHint": {
     "message": "Zaslat nápovědu k hlavnímu heslu"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Upravit složku"
+  },
+  "editFolderWithName": {
+    "message": "Upravit složku: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Nová složka"
@@ -1166,10 +1169,6 @@
     "message": "Světlý",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Tmavý (solarizovaný)",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Exportovat z"
   },
@@ -1392,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "Pro použití této funkce je potřebné členství Premium."
   },
-  "enterVerificationCodeApp": {
-    "message": "Zadejte 6místný kód z ověřovací aplikace."
-  },
   "authenticationTimeout": {
     "message": "Časový limit ověření"
   },
   "authenticationSessionTimedOut": {
     "message": "Vypršel časový limit relace ověřování. Restartujte proces přihlášení."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Zadejte 6místný kód z e-mailu, který byl zaslán na $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Ověřovací e-mail byl zaslán na $EMAIL$.",
@@ -1419,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Zapamatovat mě"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Neptat se na tomto zařízení 30 dnů"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Znovu zaslat ověřovací kód na e-mail"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Použít jinou metodu dvoufázového přihlášení"
   },
   "selectAnotherMethod": {
     "message": "Vybrat jinou metodu",
@@ -1438,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Použít obnovovací kód"
   },
-  "insertYubiKey": {
-    "message": "Vložte YubiKey do USB portu Vašeho počítače a stiskněte jeho tlačítko."
-  },
   "insertU2f": {
     "message": "Vložte svůj bezpečnostní klíč do USB portu Vašeho počítače a pokud má tlačítko, tak jej stiskněte."
-  },
-  "webAuthnNewTab": {
-    "message": "Pro spuštění ověření WebAuthn 2FA: Klepnutím na tlačítko níže otevřete novou kartu a postupujte podle pokynů uvedených v nové kartě."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Otevřít novou kartu"
   },
   "openInNewTab": {
     "message": "Otevřít v nové kartě"
@@ -1519,9 +1488,6 @@
   "selfHostedEnvironment": {
     "message": "Vlastní hostované prostředí"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Zadejte základní URL adresu vlastní hostované aplikace Bitwarden."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Zadejte základní URL adresu Vaší vlastní hostované aplikace Bitwarden. Příklad: https://bitwarden.spolecnost.cz"
   },
@@ -1533,9 +1499,6 @@
   },
   "customEnvironment": {
     "message": "Vlastní prostředí"
-  },
-  "customEnvironmentFooter": {
-    "message": "Pro pokročilé uživatele. Můžete zadat základní URL adresu každé služby zvlášť."
   },
   "baseUrl": {
     "message": "URL serveru"
@@ -1673,6 +1636,9 @@
   },
   "dragToSort": {
     "message": "Přetáhnutím seřadíte"
+  },
+  "dragToReorder": {
+    "message": "Přesuňte tažením"
   },
   "cfTypeText": {
     "message": "Text"
@@ -2538,15 +2504,15 @@
     "message": "Hesla Vaší organizace jsou ohrožena, protože jsou slabá, opakovaně používaná nebo odhalená.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Ilustrace seznamu přihlášení, která jsou riziková"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Ilustrace seznamu přihlášení, která jsou riziková."
   },
   "generatePasswordSlideDesc": {
     "message": "Rychle vygeneruje silné, unikátní heslo s nabídkou automatického vyplňování Bitwarden na rizikových stránkách.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Ilustrace nabídky automatického vyplňování Bitwarden zobrazující vygenerované heslo"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Ilustrace nabídky automatického vyplňování Bitwarden zobrazující vygenerované heslo."
   },
   "updateInBitwarden": {
     "message": "Aktualizovat v Bitwardenu"
@@ -2555,8 +2521,8 @@
     "message": "Bitwarden Vás poté požádá o aktualizaci hesla ve správci hesel.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Ilustrace oznámení v Bitwardenu, která uživatele vyzývá k aktualizaci přihlášení"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Ilustrace oznámení v Bitwardenu, která uživatele vyzývá k aktualizaci přihlášení."
   },
   "turnOnAutofill": {
     "message": "Zapnout automatické vyplňování"
@@ -3011,6 +2977,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Budou exportovány jen osobní položky trezoru včetně příloh spojené s účtem $EMAIL$. Nebudou zahrnuty položky trezoru v organizaci.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Exportování trezoru organizace"
   },
@@ -3276,15 +3251,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Nastavení byla upravena"
-  },
-  "environmentEditedClick": {
-    "message": "Klepněte zde"
-  },
-  "environmentEditedReset": {
-    "message": "pro obnovení do přednastavených nastavení"
-  },
   "serverVersion": {
     "message": "Verze serveru"
   },
@@ -3315,12 +3281,6 @@
   "loginWithMasterPassword": {
     "message": "Přihlásit se pomocí hlavního hesla"
   },
-  "loggingInAs": {
-    "message": "Přihlašování jako"
-  },
-  "notYou": {
-    "message": "Nejste to Vy?"
-  },
   "newAroundHere": {
     "message": "Jste tu noví?"
   },
@@ -3329,9 +3289,6 @@
   },
   "loginWithDevice": {
     "message": "Přihlásit se zařízením"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Přihlášení zařízením musí být nastaveno v aplikaci Bitwarden pro počítač. Potřebujete další volby?"
   },
   "fingerprintPhraseHeader": {
     "message": "Fráze otisku prstu"
@@ -3343,9 +3300,6 @@
     "message": "Znovu odeslat oznámení"
   },
   "viewAllLogInOptions": {
-    "message": "Zobrazit všechny volby přihlášení"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Zobrazit všechny volby přihlášení"
   },
   "notificationSentDevice": {
@@ -3489,9 +3443,6 @@
   "requestAdminApproval": {
     "message": "Žádost o schválení správcem"
   },
-  "approveWithMasterPassword": {
-    "message": "Schválit hlavním heslem"
-  },
   "ssoIdentifierRequired": {
     "message": "Je vyžadován SSO identifikátor organizace."
   },
@@ -3537,9 +3488,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Váš požadavek byl odeslán Vašemu správci."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Po schválení budete upozorněni."
   },
   "troubleLoggingIn": {
     "message": "Potíže s přihlášením?"
@@ -3870,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Chyba při připojování ke službě Duo. Použijte jinou dvoufázovou metodu přihlášení nebo kontaktujte Duo o pomoc."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Spusťte DUO a pro dokončení přihlášení postupujte podle kroků."
-  },
   "duoRequiredForAccount": {
     "message": "Pro Váš účet je vyžadováno dvoufázové přihlášení DUO."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Pro dokončení přihlášení použijte vyskakovací okno rozšíření."
   },
   "popoutExtension": {
     "message": "Zobrazit okno s doplňkem"
@@ -4301,6 +4243,20 @@
       }
     }
   },
+  "viewItemTitleWithField": {
+    "message": "Zobrazit položku - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "autofillTitle": {
     "message": "Automatické vyplnění - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
@@ -4308,6 +4264,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "autofillTitleWithField": {
+    "message": "Automatické vyplnění - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
       }
     }
   },
@@ -4701,6 +4671,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Změnit pořadí URI webové stránky. Použijte šipky pro posunutí položky nahoru nebo dolů."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ - přesunuto nahoru, pozice $INDEX$ z $LENGTH$",
     "placeholders": {
@@ -4760,15 +4733,6 @@
   },
   "nothingSelected": {
     "message": "Nevybrali jste žádné položky."
-  },
-  "movedItemsToOrg": {
-    "message": "Vybrané položky přesunuty do $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
   },
   "itemsMovedToOrg": {
     "message": "Položky přesunuty do $ORGNAME$",
@@ -5132,6 +5096,33 @@
   "extraWide": {
     "message": "Extra široký"
   },
+  "sshKeyWrongPassword": {
+    "message": "Zadané heslo není správné."
+  },
+  "importSshKey": {
+    "message": "Importovat"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Potvrdit heslo"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Zadejte heslo pro SSH klíč."
+  },
+  "enterSshKeyPassword": {
+    "message": "Zadejte heslo"
+  },
+  "invalidSshKey": {
+    "message": "SSH klíč je neplatný"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Typ SSH klíče není podporován"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Importovat klíč ze schránky"
+  },
+  "sshKeyImported": {
+    "message": "SSH klíč byl úspěšně importován"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nemůžete odebrat kolekce s oprávněními jen pro zobrazení: $COLLECTIONS$",
     "placeholders": {
@@ -5149,5 +5140,32 @@
   },
   "changeAtRiskPassword": {
     "message": "Změnit ohrožené heslo"
+  },
+  "introCarouselLabel": {
+    "message": "Vítejte v Bitwardenu"
+  },
+  "securityPrioritized": {
+    "message": "Bezpečnost, priorita"
+  },
+  "securityPrioritizedBody": {
+    "message": "Uložte si přihlašovací údaje, karty a identity do zabezpečeného trezoru. Bitwarden používá šifrování end-to-end s nulovou znalostí, aby ochránil to, co je pro Vás důležité."
+  },
+  "quickLogin": {
+    "message": "Rychlé a snadné přihlášení"
+  },
+  "quickLoginBody": {
+    "message": "Nastavte biometrické odemknutí a automatické vyplňování pro přihlášení k Vašim účtům bez zadání jediného písmene."
+  },
+  "secureUser": {
+    "message": "Zvýšit úroveň přihlašování"
+  },
+  "secureUserBody": {
+    "message": "Použijte generátor k vytvoření a uložení silných, jedinečných hesel pro všechny Vaše účty."
+  },
+  "secureDevices": {
+    "message": "Vaše data, kdy a kde je potřebujete"
+  },
+  "secureDevicesBody": {
+    "message": "Uložte neomezená hesla na neomezených zařízeních s Bitwardenem na mobilu, prohlížeči a desktopové aplikaci."
   }
 }

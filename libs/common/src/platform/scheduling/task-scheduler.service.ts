@@ -11,7 +11,7 @@ import { ScheduledTaskName } from "./scheduled-task-name.enum";
  * in the future but the task that is ran is NOT the remainder of your RXJS pipeline. The
  * task you want ran must instead be registered in a location reachable on a service worker
  * startup (on browser). An example of an acceptible location is the constructor of a service
- * you know is created in `MainBackground`. Uses of this API is other clients _can_ have the
+ * you know is created in `MainBackground`. Uses of this API in other clients _can_ have the
  * `registerTaskHandler` call in more places, but in order to have it work across clients
  * it is recommended to register it according to the rules of browser.
  *

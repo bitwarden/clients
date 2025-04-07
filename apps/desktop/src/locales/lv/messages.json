@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Jāievada sava konta e-pasta adrese, un paroles norāde tiks nosūtīta"
   },
-  "passwordHint": {
-    "message": "Paroles norāde"
-  },
-  "enterEmailToGetHint": {
-    "message": "Ievadiet sava konta e-pasta adresi, lai saņemtu galvenās paroles norādi!"
-  },
   "getMasterPasswordHint": {
     "message": "Saņemt galvenās paroles norādi"
   },
@@ -839,18 +833,6 @@
   "continue": {
     "message": "Turpināt"
   },
-  "enterVerificationCodeApp": {
-    "message": "Jāievada 6 ciparu apstiprinājuma kods no autentificētāja lietotnes."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Jāievada 6 ciparu apstiprinājuma kods, kas tika nosūtīts uz $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "E-pasts apstiprināšanai nosūtīts uz $EMAIL$.",
     "placeholders": {
@@ -860,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Atcerēties mani"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Šajā ierīcē 30 dienas vairs nevaicāt"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Sūtīt apstiprinājuma koda e-pastu vēlreiz"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Izmantot citu divpakāpju pieteikšanās veidu"
   },
   "selectAnotherMethod": {
     "message": "Atlasīt citu veidu",
@@ -878,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Izmantot savu atkopes kodu"
-  },
-  "insertYubiKey": {
-    "message": "Ievieto savu YubiKey datora USB ligzdā un pieskaries tā pogai!"
   },
   "insertU2f": {
     "message": "Ievieto savu drošības atslēgu datora USB ligzdā! Ja tai ir poga, pieskaries tai!"
@@ -951,9 +921,6 @@
   "selfHostedEnvironment": {
     "message": "Pašuzturēta vide"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Norādīt pašuzstādīta Bitwarden pamata URL."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Jānorāda sava pašizvietotā Bitward servera pamata URL. Piemērs: https://bitwarden.uznemums.lv"
   },
@@ -965,9 +932,6 @@
   },
   "customEnvironment": {
     "message": "Pielāgota vide"
-  },
-  "customEnvironmentFooter": {
-    "message": "Pieredzējušiem lietotājiem. Ir iespējams norādīt URL katram pakalpojumam atsevišķi."
   },
   "baseUrl": {
     "message": "Servera URL"
@@ -1008,6 +972,9 @@
   },
   "no": {
     "message": "Nē"
+  },
+  "location": {
+    "message": "Atrašanās vieta"
   },
   "overwritePassword": {
     "message": "Pārrakstīt paroli"
@@ -1715,7 +1682,7 @@
     "message": "Apstiprināt glabātavas satura izgūšanu"
   },
   "exportWarningDesc": {
-    "message": "Šī izguve satur glabātavas datus nešifrētā veidā. Izdoto datni nevajadzētu glabāt vai sūtīt nedrošos veidos (piemēram, e-pastā). Tā ir jāizdzēš uzreiz pēc izmantošanas."
+    "message": "Šī izguve satur glabātavas datus nešifrētā veidā. Izgūto datni nevajadzētu glabāt vai sūtīt nedrošos veidos (piemēram, e-pastā). Tā ir jāizdzēš uzreiz pēc izmantošanas."
   },
   "encExportKeyWarningDesc": {
     "message": "Šī izguve šifrē datus ar konta šifrēšanas atslēgu. Ja tā jebkad tiks mainīta, izvadi vajadzētu veikt vēlreiz, jo vairs nebūs iespējams atšifrēt šo datni."
@@ -2499,6 +2466,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Tiks izdoti tikai atsevišķi glabātavas vienumi, tajā skaitā pielikumi, kas ir saistīti ar $EMAIL$. Apvienības glabātavas vienumi netiks iekļauti",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Izgūst apvienības glabātavu"
   },
@@ -2781,14 +2757,8 @@
   "loginWithMasterPassword": {
     "message": "Pieteikties ar galveno paroli"
   },
-  "loggingInAs": {
-    "message": "Piesakās kā"
-  },
   "rememberEmail": {
     "message": "Atcerēties e-pasta adresi"
-  },
-  "notYou": {
-    "message": "Tas neesi Tu?"
   },
   "newAroundHere": {
     "message": "Jauns šeit?"
@@ -3029,9 +2999,6 @@
   "requestAdminApproval": {
     "message": "Pieprasīt pārvaldītāja apstiprinājumu"
   },
-  "approveWithMasterPassword": {
-    "message": "Apstiprināt ar galveno paroli"
-  },
   "region": {
     "message": "Apgabals"
   },
@@ -3056,9 +3023,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Pieprasījums tika nosūtīts pārvaldītājam."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Tiks saņemts paziņojums, tiklīdz būs apstiprināts."
   },
   "troubleLoggingIn": {
     "message": "Neizdodas pieteikties?"
@@ -3235,9 +3199,6 @@
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Kļūda savienojuma izveidošanā ar Duo pakalpojumu. Jāizmanto cits divpakāpju pieteikšanās veids vai jāvēršas pie Duo pēc palīdzības."
-  },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Jāpalaiž Duo un jāseko soļiem, lai pabeigtu pieteikšanos."
   },
   "duoRequiredByOrgForAccount": {
     "message": "Kontam ir nepieciešama Duo divpakāpju pieteikšanās."
@@ -3529,9 +3490,6 @@
   "unknownApplication": {
     "message": "Lietotne"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Ar paroli aizsargātu SSH atslēgu ievietošana pagaidām netiek nodrošināta"
-  },
   "invalidSshKey": {
     "message": "SSH atslēga ir nederīga"
   },
@@ -3541,8 +3499,8 @@
   "importSshKeyFromClipboard": {
     "message": "Ievietot atslēgu no starpliktuves"
   },
-  "sshKeyPasted": {
-    "message": "SSH atslēga tika veiksmīgi ievietota"
+  "sshKeyImported": {
+    "message": "SSH atslēga tika sekmīgi ievietota"
   },
   "fileSavedToDevice": {
     "message": "Datne saglabāta ierīcē. Tā ir atrodama ierīces lejupielāžu mapē."
@@ -3603,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Mainīt riskam pakļautu paroli"
+  },
+  "move": {
+    "message": "Pārvietot"
   }
 }

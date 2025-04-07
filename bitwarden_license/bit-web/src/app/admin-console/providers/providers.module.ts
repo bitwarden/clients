@@ -4,9 +4,10 @@ import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { SearchModule } from "@bitwarden/components";
+import { CardComponent, SearchModule } from "@bitwarden/components";
 import { DangerZoneComponent } from "@bitwarden/web-vault/app/auth/settings/account/danger-zone.component";
 import { OrganizationPlansComponent } from "@bitwarden/web-vault/app/billing";
+import { VerifyBankAccountComponent } from "@bitwarden/web-vault/app/billing/shared/verify-bank-account/verify-bank-account.component";
 import { OssModule } from "@bitwarden/web-vault/app/oss.module";
 
 import {
@@ -49,6 +50,8 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     ProvidersLayoutComponent,
     DangerZoneComponent,
     ScrollingModule,
+    VerifyBankAccountComponent,
+    CardComponent,
   ],
   declarations: [
     AcceptProviderComponent,

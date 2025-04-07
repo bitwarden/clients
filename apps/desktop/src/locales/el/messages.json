@@ -649,7 +649,7 @@
     "message": "Σύνδεση στο Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Εισάγετε τον κωδικό που στάλθηκε στο email σας"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
     "message": "Enter the code from your authenticator app"
@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Εισάγετε τη διεύθυνση ηλ. ταχυδρομείου του λογαριασμού σας και θα σας αποσταλεί η υπόδειξη κωδικού πρόσβασης"
   },
-  "passwordHint": {
-    "message": "Υπόδειξη κωδικού πρόσβασης"
-  },
-  "enterEmailToGetHint": {
-    "message": "Εισάγετε τη διεύθυνση ηλ. ταχυδρομείου του λογαριασμού σας για να λάβετε την υπόδειξη του κύριου κωδικού πρόσβασης."
-  },
   "getMasterPasswordHint": {
     "message": "Λήψη υπόδειξης κύριου κωδικού"
   },
@@ -839,18 +833,6 @@
   "continue": {
     "message": "Συνέχεια"
   },
-  "enterVerificationCodeApp": {
-    "message": "Εισάγετε τον 6ψήφιο κωδικό από την εφαρμογή επαλήθευσης."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Εισάγετε τον 6ψήφιο κωδικό επαλήθευσης τον οποίο λάβατε στο $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Εστάλη email επαλήθευσης στο $EMAIL$.",
     "placeholders": {
@@ -860,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Να με θυμάσαι"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Επανάληψη αποστολής κωδικού επαλήθευσης μέσω ηλ. ταχυδρομείου"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Χρήση άλλης μεθόδου σύνδεσης δύο βημάτων"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -878,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "Τοποθετήστε το YubiKey στη θύρα USB του υπολογιστή σας και έπειτα αγγίξτε το κουμπί του."
   },
   "insertU2f": {
     "message": "Εισάγετε το κλειδί ασφαλείας στη θύρα USB του υπολογιστή σας. Αν έχει κουμπί, πατήστε το."
@@ -951,9 +921,6 @@
   "selfHostedEnvironment": {
     "message": "Αυτο-φιλοξενούμενο περιβάλλον"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Καθορίστε τη βασική διεύθυνση URL, της εγκατάστασης του Bitwarden που φιλοξενείται στο χώρο σας."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Καθορίστε το βασικό URL της εγκατάστασης Bitwarden που φιλοξενείται στο χώρο σας. Παράδειγμα: https://bitwarden.company.com"
   },
@@ -965,9 +932,6 @@
   },
   "customEnvironment": {
     "message": "Προσαρμοσμένο περιβάλλον"
-  },
-  "customEnvironmentFooter": {
-    "message": "Για προχωρημένους χρήστες. Μπορείτε να ορίσετε ανεξάρτητα τη βασική διεύθυνση URL κάθε υπηρεσίας."
   },
   "baseUrl": {
     "message": "URL Διακομιστή"
@@ -1008,6 +972,9 @@
   },
   "no": {
     "message": "Όχι"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Αντικατάσταση κωδικού πρόσβασης"
@@ -2499,6 +2466,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Εξαγωγή θησαυ/κίου οργανισμού"
   },
@@ -2781,14 +2757,8 @@
   "loginWithMasterPassword": {
     "message": "Συνδεθείτε με τον κύριο κωδικό πρόσβασης"
   },
-  "loggingInAs": {
-    "message": "Σύνδεση ως"
-  },
   "rememberEmail": {
     "message": "Απομνημόνευση διεύθυνσης ηλ. ταχυδρομείου"
-  },
-  "notYou": {
-    "message": "Δεν είστε εσείς;"
   },
   "newAroundHere": {
     "message": "Είστε νέος/α εδώ;"
@@ -3029,9 +2999,6 @@
   "requestAdminApproval": {
     "message": "Αίτηση έγκρισης διαχειριστή"
   },
-  "approveWithMasterPassword": {
-    "message": "Έγκριση με τον κύριο κωδικό πρόσβασης"
-  },
   "region": {
     "message": "Περιοχή"
   },
@@ -3056,9 +3023,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Το αίτημά σας εστάλη στον διαχειριστή σας."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Θα ειδοποιηθείτε μόλις εγκριθεί."
   },
   "troubleLoggingIn": {
     "message": "Πρόβλημα σύνδεσης;"
@@ -3235,9 +3199,6 @@
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Σφάλμα κατά τη σύνδεση με την υπηρεσία Duo. Χρησιμοποιήστε μια διαφορετική μέθοδο σύνδεσης δύο βημάτων ή επικοινωνήστε με την Duo για βοήθεια."
-  },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Εκκινήστε το Duo και ακολουθήστε τα βήματα για να ολοκληρώσετε τη σύνδεση."
   },
   "duoRequiredByOrgForAccount": {
     "message": "Η σύνδεση δύο βημάτων Duo απαιτείται για τον λογαριασμό σας."
@@ -3529,9 +3490,6 @@
   "unknownApplication": {
     "message": "Μια εφαρμογή"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Η εισαγωγή κλειδιών SSH που προστατεύονται με κωδικό πρόσβασης δεν υποστηρίζεται ακόμη"
-  },
   "invalidSshKey": {
     "message": "Το SSH κλειδί δεν είναι έγκυρο"
   },
@@ -3541,8 +3499,8 @@
   "importSshKeyFromClipboard": {
     "message": "Εισαγωγή κλειδιού από το πρόχειρο"
   },
-  "sshKeyPasted": {
-    "message": "Το SSH κλειδί εισήχθη με επιτυχία"
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
     "message": "Το αρχείο αποθηκεύτηκε στη συσκευή. Διαχείριση από τις λήψεις της συσκευής σας."
@@ -3603,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }

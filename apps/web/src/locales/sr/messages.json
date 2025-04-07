@@ -428,6 +428,9 @@
   "dragToSort": {
     "message": "Превуците за сортирање"
   },
+  "dragToReorder": {
+    "message": "Превуците да бисте организовали"
+  },
   "cfTypeText": {
     "message": "Текст"
   },
@@ -469,6 +472,19 @@
   },
   "editFolder": {
     "message": "Уреди фасциклу"
+  },
+  "editWithName": {
+    "message": "Уредити $ITEM$: $NAME$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Нова фасцикла"
@@ -863,9 +879,6 @@
   "filter": {
     "message": "Филтер"
   },
-  "moveSelectedToOrg": {
-    "message": "Премести одабрано у организацију"
-  },
   "deleteSelected": {
     "message": "Избриши изабрано"
   },
@@ -917,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Одабране ставке премештене у $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1270,12 +1274,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Унеси адресу Е-поште свог налога и биће ти послат савет за лозинку"
   },
-  "passwordHint": {
-    "message": "Помоћ за лозинку"
-  },
-  "enterEmailToGetHint": {
-    "message": "Унеси твоју Е-пошту да би добио савет за твоју Главну Лозинку."
-  },
   "getMasterPasswordHint": {
     "message": "Добити савет за Главну Лозинку"
   },
@@ -1437,18 +1435,6 @@
       }
     }
   },
-  "enterVerificationCodeApp": {
-    "message": "Унесите шестоцифрени верификациони код из апликације за утврђивање аутентичности."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Унесите шестоцифрени верификациони код који је послан на $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Е-пошта за верификацију је послата на $EMAIL$.",
     "placeholders": {
@@ -1458,17 +1444,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Запамти ме"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Не питајте поново на овом уређају 30 дана"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Поново послати верификациони код на Е-пошту"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Користите другу методу пријављивања у два корака"
   },
   "selectAnotherMethod": {
     "message": "Изаберите другу методу",
@@ -1476,9 +1453,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Употребите шифру за опоравак"
-  },
-  "insertYubiKey": {
-    "message": "Убаците свој YubiKey у УСБ порт рачунара, а затим додирните његово дугме."
   },
   "insertU2f": {
     "message": "Убаците свој сигурносни кључ у УСБ порт рачунара, и ако има дугме, додирните га."
@@ -1561,9 +1535,6 @@
   "moveToOrgDesc": {
     "message": "Изаберите организацију коју желите да преместите овај предмет. Прелазак на организацију преноси власништво над ставком у ту организацију. Више нећете бити директни власник ове ставке након што је премештена."
   },
-  "moveManyToOrgDesc": {
-    "message": "Изаберите организацију коју желите да преместите ове ставке. Прелазак на организацију преноси власништво над ставкама у ту организацију. Више нећете бити директни власник ове ставки након што су премештене."
-  },
   "collectionsDesc": {
     "message": "Уредите колекције са којима се ова ставка дели. Само корисници организације који имају приступ овим колекцијама моћи ће да виде ову ставку."
   },
@@ -1594,23 +1565,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "Одабрали сте $COUNT$ ставку(и). $MOVEABLE_COUNT$ ставка(и) може да се преместе у организацију, $NONMOVEABLE_COUNT$ не.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },
@@ -4530,6 +4484,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "$LABEL$ премештено на горе, позиција $INDEX$ од $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ премештено на доле, позиција $INDEX$ од $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "Приликом ажурирања кључа за шифровање, ваше фасцикле нису могле да се дешифрују. Да бисте наставили са ажурирањем, ваше фасцикле морају бити избрисане. Ниједна ставка у сефу неће бити избрисана ако наставите."
   },
@@ -6729,6 +6717,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Извешће се само појединачни сеф, укључујући прилоге повезане са $EMAIL$. Организациони сефски предмети неће бити укључени",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultDesc": {
     "message": "Биће извезен само сеф организације повезан са $ORGANIZATION$. Ставке у појединачним сефовима или другим организацијама неће бити укључене.",
     "placeholders": {
@@ -7231,9 +7228,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Грешка при повезивању са услугом Duo. Користите други метод пријаве у два корака или контактирајте Duo за помоћ."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Покренути DUO и пратите кораке да бисте завршили пријављивање."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "DUO пријава у два корака је потребна за ваш налог."
   },
@@ -7263,12 +7257,6 @@
   },
   "numberOfUsers": {
     "message": "Број корисника"
-  },
-  "loggingInAs": {
-    "message": "Пријављивање као"
-  },
-  "notYou": {
-    "message": "Нисте Ви?"
   },
   "pickAnAvatarColor": {
     "message": "Изабрати боју аватара"
@@ -8393,9 +8381,6 @@
   "requestAdminApproval": {
     "message": "Затражити одобрење администратора"
   },
-  "approveWithMasterPassword": {
-    "message": "Одобрити са главном лозинком"
-  },
   "trustedDeviceEncryption": {
     "message": "Шифровање поузданог уређаја"
   },
@@ -8610,9 +8595,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Ваш захтев је послат вашем администратору."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Бићете обавештени када буде одобрено."
-  },
   "troubleLoggingIn": {
     "message": "Имате проблема са пријављивањем?"
   },
@@ -8726,8 +8708,8 @@
   "limitCollectionDeletionDesc": {
     "message": "Ограничите брисање збирке на власнике и администраторе"
   },
-  "limitItemDeletionDesc": {
-    "message": "Limit item deletion to members with the Can manage permission"
+  "limitItemDeletionDescription": {
+    "message": "Limit item deletion to members with the Manage collection permissions"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Власници и администратори могу да управљају свим колекцијама и ставкама"
@@ -9337,6 +9319,15 @@
   },
   "deviceManagementDesc": {
     "message": "Конфигуришите управљање уређајима за Bitwarden помоћу водича за имплементацију за своју платформу."
+  },
+  "deviceIdMissing": {
+    "message": "Недостаје ИД уређаја"
+  },
+  "deviceTypeMissing": {
+    "message": "Недостаје тип уређаја"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Недостаје датум креације уређаја"
   },
   "desktopRequired": {
     "message": "Desktop required"
@@ -10339,6 +10330,36 @@
   "organizationNameMaxLength": {
     "message": "Име организације не може прећи 50 знакова."
   },
+  "sshKeyWrongPassword": {
+    "message": "Лозинка коју сте унели није тачна."
+  },
+  "importSshKey": {
+    "message": "Увоз"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Потврда лозинке"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Унети лозинку за SSH кључ."
+  },
+  "enterSshKeyPassword": {
+    "message": "Унесите лозинку"
+  },
+  "invalidSshKey": {
+    "message": "SSH кључ је неважећи"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Тип SSH кључа није подржан"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Увезите кључ из оставе"
+  },
+  "sshKeyImported": {
+    "message": "SSH кључ је успешно увезен"
+  },
+  "copySSHPrivateKey": {
+    "message": "Копирај приватни кључ"
+  },
   "openingExtension": {
     "message": "Отварање Bitwarden додатка прегледача"
   },
@@ -10504,5 +10525,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "Ови догађаји су само примери и не одражавају стварне догађаје у вашем Bitwarden отганизацији."
+  },
+  "cannotCreateCollection": {
+    "message": "Бесплатне организације могу имати до 2 колекције. Надоградите на плаћени план за додавање више колекција."
   }
 }

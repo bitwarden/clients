@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "Passordhint"
-  },
-  "enterEmailToGetHint": {
-    "message": "Skriv inn e-postadressen din for å motta hintet til hovedpassordet."
-  },
   "getMasterPasswordHint": {
     "message": "Få et hint om superpassordet"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Rediger mappen"
+  },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Ny mappe"
@@ -1166,10 +1169,6 @@
     "message": "Lyst",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Solarisert mørk",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Export from"
   },
@@ -1392,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "Et Premium-medlemskap er påkrevd for å bruke denne funksjonen."
   },
-  "enterVerificationCodeApp": {
-    "message": "Skriv inn den 6-sifrede verifiseringskoden som står på din autentiseringsapp."
-  },
   "authenticationTimeout": {
     "message": "Authentication timeout"
   },
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Skriv inn den 6-sifrede verifiseringskoden som ble sendt til",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "En verifiserings-E-post har blitt sendt til $EMAIL$.",
@@ -1419,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Husk på meg"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Send E-posten med verifiseringskoden på nytt"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Bruk en annen 2-trinnsinnloggingsmetode"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -1438,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
   },
-  "insertYubiKey": {
-    "message": "Sett inn din YubiKey i din datamaskins USB-uttak, og så trykk på dens knapp."
-  },
   "insertU2f": {
     "message": "Sett din sikkerhetsnøkkel inn i din datamaskins USB-uttak. Dersom den har en knapp, trykk på den."
-  },
-  "webAuthnNewTab": {
-    "message": "For å starte WebAuthn 2FA bekreftelsen. Klikk på knappen nedenfor for å åpne en ny fane og følge instruksene som er gitt i den nye fanen."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Åpne ny fane"
   },
   "openInNewTab": {
     "message": "Open in new tab"
@@ -1519,9 +1488,6 @@
   "selfHostedEnvironment": {
     "message": "Selvbetjent miljø"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Spesifiser grunn-nettadressen til din selvbetjente Bitwarden-installasjon."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -1533,9 +1499,6 @@
   },
   "customEnvironment": {
     "message": "Tilpasset miljø"
-  },
-  "customEnvironmentFooter": {
-    "message": "For avanserte brukere. Du kan bestemme grunn-nettadressen til hver tjeneste separat."
   },
   "baseUrl": {
     "message": "Tjener-nettadresse"
@@ -1673,6 +1636,9 @@
   },
   "dragToSort": {
     "message": "Dra for å sortere"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Tekst"
@@ -2538,15 +2504,15 @@
     "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Illustration of a list of logins that are at-risk"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
   },
   "generatePasswordSlideDesc": {
     "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
   },
   "updateInBitwarden": {
     "message": "Update in Bitwarden"
@@ -2555,8 +2521,8 @@
     "message": "Bitwarden will then prompt you to update the password in the password manager.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
   },
   "turnOnAutofill": {
     "message": "Turn on autofill"
@@ -3011,6 +2977,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Exporting organization vault"
   },
@@ -3276,15 +3251,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Innstillingene har blitt endret"
-  },
-  "environmentEditedClick": {
-    "message": "Klikk her"
-  },
-  "environmentEditedReset": {
-    "message": "for å tilbakestille til forhåndskonfigurerte innstillinger"
-  },
   "serverVersion": {
     "message": "Server Versjon"
   },
@@ -3315,12 +3281,6 @@
   "loginWithMasterPassword": {
     "message": "Logg på med hovedpassord"
   },
-  "loggingInAs": {
-    "message": "Logger på som"
-  },
-  "notYou": {
-    "message": "Ikke deg?"
-  },
   "newAroundHere": {
     "message": "Er du ny her?"
   },
@@ -3329,9 +3289,6 @@
   },
   "loginWithDevice": {
     "message": "Logg inn med enhet"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Logg på med enhet må settes opp i Bitwarden-innstillingene. Trenger du et annet alternativ?"
   },
   "fingerprintPhraseHeader": {
     "message": "Fingeravtrykksfrase"
@@ -3343,9 +3300,6 @@
     "message": "Send varslingen på nytt"
   },
   "viewAllLogInOptions": {
-    "message": "Vis alle påloggingsalternativer"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Vis alle påloggingsalternativer"
   },
   "notificationSentDevice": {
@@ -3489,9 +3443,6 @@
   "requestAdminApproval": {
     "message": "Be om administratorgodkjennelse"
   },
-  "approveWithMasterPassword": {
-    "message": "Godkjenn med hovedpassord"
-  },
   "ssoIdentifierRequired": {
     "message": "Organization SSO identifier is required."
   },
@@ -3537,9 +3488,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Forespørselen din har blitt sendt til administratoren din."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Du vil bli varslet når det er godkjent."
   },
   "troubleLoggingIn": {
     "message": "Har du problemer med å logge inn?"
@@ -3870,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
-  },
   "duoRequiredForAccount": {
     "message": "Duo two-step login is required for your account."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Popout the extension to complete login."
   },
   "popoutExtension": {
     "message": "Popout extension"
@@ -4301,6 +4243,20 @@
       }
     }
   },
+  "viewItemTitleWithField": {
+    "message": "View item - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "autofillTitle": {
     "message": "Autoutfyll - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
@@ -4308,6 +4264,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "autofillTitleWithField": {
+    "message": "Autofill - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
       }
     }
   },
@@ -4701,6 +4671,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
     "placeholders": {
@@ -4760,15 +4733,6 @@
   },
   "nothingSelected": {
     "message": "Du har ikke valgt noe."
-  },
-  "movedItemsToOrg": {
-    "message": "De valgte gjenstandene ble flyttet til $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
   },
   "itemsMovedToOrg": {
     "message": "Gjenstandene ble flyttet til $ORGNAME$",
@@ -5132,6 +5096,33 @@
   "extraWide": {
     "message": "Ekstra bred"
   },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
     "placeholders": {
@@ -5149,5 +5140,32 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "introCarouselLabel": {
+    "message": "Welcome to Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Security, prioritized"
+  },
+  "securityPrioritizedBody": {
+    "message": "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you."
+  },
+  "quickLogin": {
+    "message": "Quick and easy login"
+  },
+  "quickLoginBody": {
+    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+  },
+  "secureUser": {
+    "message": "Level up your logins"
+  },
+  "secureUserBody": {
+    "message": "Use the generator to create and save strong, unique passwords for all your accounts."
+  },
+  "secureDevices": {
+    "message": "Your data, when and where you need it"
+  },
+  "secureDevicesBody": {
+    "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
   }
 }

@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "輸入您帳號的電子郵件，您的密碼提示會傳送給您"
   },
-  "passwordHint": {
-    "message": "密碼提示"
-  },
-  "enterEmailToGetHint": {
-    "message": "請輸入您的帳户電子郵件地址以接收主密碼提示。"
-  },
   "getMasterPasswordHint": {
     "message": "取得主密碼提示"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "編輯資料夾"
+  },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "新增資料夾"
@@ -1166,10 +1169,6 @@
     "message": "淺色",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Solarized 深色主題",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "匯出自"
   },
@@ -1392,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "進階會員才可使用此功能。"
   },
-  "enterVerificationCodeApp": {
-    "message": "輸入驗證器應用程式提供的 6 位數驗證碼。"
-  },
   "authenticationTimeout": {
     "message": "驗證逾時"
   },
   "authenticationSessionTimedOut": {
     "message": "驗證工作階段因時間過久已逾時。請重試登入。"
-  },
-  "enterVerificationCodeEmail": {
-    "message": "輸入已傳送至 $EMAIL$ 的 6 位數驗證碼。",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "已傳送驗證電子郵件至 $EMAIL$。",
@@ -1419,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "記住我"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "再次傳送​​包含驗證碼的電子郵件"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "使用另一種兩步驟登入方法"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -1438,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
   },
-  "insertYubiKey": {
-    "message": "將您的 YubiKey 插入電腦的 USB 連接埠，然後按一下它的按鈕。"
-  },
   "insertU2f": {
     "message": "將您的安全鑰匙插入電腦的 USB 連接埠，然後觸摸其按鈕（如有的話）。"
-  },
-  "webAuthnNewTab": {
-    "message": "要開始 WebAuthn 2FA 驗證，請點選下面的按鈕開啟一個新分頁，並依照新分頁中提供的說明操作。"
-  },
-  "webAuthnNewTabOpen": {
-    "message": "開啟新分頁"
   },
   "openInNewTab": {
     "message": "Open in new tab"
@@ -1519,9 +1488,6 @@
   "selfHostedEnvironment": {
     "message": "自我裝載環境"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "指定您內部部署的 Bitwarden 安裝之基礎 URL。"
-  },
   "selfHostedBaseUrlHint": {
     "message": "指定您自建的 Bitwarden 伺服器的網域 URL。例如：https://bitwarden.company.com"
   },
@@ -1533,9 +1499,6 @@
   },
   "customEnvironment": {
     "message": "自訂環境"
-  },
-  "customEnvironmentFooter": {
-    "message": "適用於進階使用者。您可以單獨指定各個服務的基礎 URL。"
   },
   "baseUrl": {
     "message": "伺服器 URL"
@@ -1673,6 +1636,9 @@
   },
   "dragToSort": {
     "message": "透過拖曳來排序"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "文字型"
@@ -2538,15 +2504,15 @@
     "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Illustration of a list of logins that are at-risk"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
   },
   "generatePasswordSlideDesc": {
     "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
   },
   "updateInBitwarden": {
     "message": "Update in Bitwarden"
@@ -2555,8 +2521,8 @@
     "message": "Bitwarden will then prompt you to update the password in the password manager.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
   },
   "turnOnAutofill": {
     "message": "Turn on autofill"
@@ -3011,6 +2977,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "正在匯出組織密碼庫"
   },
@@ -3276,15 +3251,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "設定已編輯"
-  },
-  "environmentEditedClick": {
-    "message": "點選此處"
-  },
-  "environmentEditedReset": {
-    "message": "重設為預設設定"
-  },
   "serverVersion": {
     "message": "伺服器版本"
   },
@@ -3315,12 +3281,6 @@
   "loginWithMasterPassword": {
     "message": "使用主密碼登入"
   },
-  "loggingInAs": {
-    "message": "正登入為"
-  },
-  "notYou": {
-    "message": "不是您嗎？"
-  },
   "newAroundHere": {
     "message": "第一次使用？"
   },
@@ -3329,9 +3289,6 @@
   },
   "loginWithDevice": {
     "message": "使用裝置登入"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "裝置登入必須在 Bitwarden 應用程式的設定中啟用。需要其他選項嗎？"
   },
   "fingerprintPhraseHeader": {
     "message": "指紋短語"
@@ -3343,9 +3300,6 @@
     "message": "重新傳送通知"
   },
   "viewAllLogInOptions": {
-    "message": "檢視所有登入選項"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "檢視所有登入選項"
   },
   "notificationSentDevice": {
@@ -3489,9 +3443,6 @@
   "requestAdminApproval": {
     "message": "要求管理員核准"
   },
-  "approveWithMasterPassword": {
-    "message": "使用主密碼核准"
-  },
   "ssoIdentifierRequired": {
     "message": "需要組織 SSO 識別碼。"
   },
@@ -3537,9 +3488,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "您的要求已傳送給您的管理員。"
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "核准後將通知您。"
   },
   "troubleLoggingIn": {
     "message": "登入時遇到困難？"
@@ -3870,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "連接到 Duo 服務時發生錯誤。使用不同的兩階段認證或聯繫 Duo 來獲得支援。"
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "啟動 Duo 並依照步驟完成登入。"
-  },
   "duoRequiredForAccount": {
     "message": "您的帳號要求使用 Duo 兩步驟驗證登入。"
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "彈出擴充套件視窗來完成登入。"
   },
   "popoutExtension": {
     "message": "彈出擴充套件視窗"
@@ -4301,6 +4243,20 @@
       }
     }
   },
+  "viewItemTitleWithField": {
+    "message": "View item - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "autofillTitle": {
     "message": "自動填入 - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
@@ -4308,6 +4264,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "autofillTitleWithField": {
+    "message": "Autofill - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
       }
     }
   },
@@ -4701,6 +4671,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "往上移動 $LABEL$，位置 $LENGTH$ 之 $INDEX$",
     "placeholders": {
@@ -4760,15 +4733,6 @@
   },
   "nothingSelected": {
     "message": "您沒有選擇任何項目。"
-  },
-  "movedItemsToOrg": {
-    "message": "將已選取項目移動至 $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
   },
   "itemsMovedToOrg": {
     "message": "項目已移到 $ORGNAME$",
@@ -5132,6 +5096,33 @@
   "extraWide": {
     "message": "更寬"
   },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "若您只有檢視權限，無法移除集合 $COLLECTIONS$。",
     "placeholders": {
@@ -5149,5 +5140,32 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "introCarouselLabel": {
+    "message": "Welcome to Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Security, prioritized"
+  },
+  "securityPrioritizedBody": {
+    "message": "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you."
+  },
+  "quickLogin": {
+    "message": "Quick and easy login"
+  },
+  "quickLoginBody": {
+    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+  },
+  "secureUser": {
+    "message": "Level up your logins"
+  },
+  "secureUserBody": {
+    "message": "Use the generator to create and save strong, unique passwords for all your accounts."
+  },
+  "secureDevices": {
+    "message": "Your data, when and where you need it"
+  },
+  "secureDevicesBody": {
+    "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
   }
 }

@@ -26,17 +26,14 @@ import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abs
 import { InternalPolicyService as InternalPolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
+import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
-import { PolicyService } from "@bitwarden/common/admin-console/services/policy/policy.service";
 import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
-import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarden/common/auth/abstractions/key-connector.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification-api.service.abstraction";
@@ -46,11 +43,8 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
-import { DeviceTrustService } from "@bitwarden/common/auth/services/device-trust.service.implementation";
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
-import { KeyConnectorService } from "@bitwarden/common/auth/services/key-connector.service";
-import { MasterPasswordService } from "@bitwarden/common/auth/services/master-password/master-password.service";
 import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login.service";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
@@ -82,6 +76,12 @@ import { BulkEncryptServiceImplementation } from "@bitwarden/common/key-manageme
 import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import { FallbackBulkEncryptService } from "@bitwarden/common/key-management/crypto/services/fallback-bulk-encrypt.service";
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/multithread-encrypt.service.implementation";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
+import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
 import {
   DefaultVaultTimeoutSettingsService,
@@ -115,7 +115,6 @@ import { Message, MessageListener, MessageSender } from "@bitwarden/common/platf
 // eslint-disable-next-line no-restricted-imports -- Used for dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
 import { Lazy } from "@bitwarden/common/platform/misc/lazy";
-import { clearCaches } from "@bitwarden/common/platform/misc/sequentialize";
 import { Account } from "@bitwarden/common/platform/models/domain/account";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -128,7 +127,6 @@ import {
   WebPushNotificationsApiService,
   WorkerWebPushConnectionService,
 } from "@bitwarden/common/platform/notifications/internal";
-import { ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
@@ -202,6 +200,7 @@ import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
+import { DefaultTaskService, TaskService } from "@bitwarden/common/vault/tasks";
 import {
   legacyPasswordGenerationServiceFactory,
   legacyUsernameGenerationServiceFactory,
@@ -223,6 +222,7 @@ import {
   KdfConfigService,
   KeyService as KeyServiceAbstraction,
 } from "@bitwarden/key-management";
+import { BackgroundSyncService } from "@bitwarden/platform/background-sync";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -267,6 +267,7 @@ import { OffscreenDocumentService } from "../platform/offscreen-document/abstrac
 import { DefaultOffscreenDocumentService } from "../platform/offscreen-document/offscreen-document.service";
 import { BrowserTaskSchedulerService } from "../platform/services/abstractions/browser-task-scheduler.service";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
+import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
 import BrowserLocalStorageService from "../platform/services/browser-local-storage.service";
 import BrowserMemoryStorageService from "../platform/services/browser-memory-storage.service";
 import { BrowserScriptInjectorService } from "../platform/services/browser-script-injector.service";
@@ -390,6 +391,8 @@ export default class MainBackground {
   kdfConfigService: KdfConfigService;
   offscreenDocumentService: OffscreenDocumentService;
   syncServiceListener: SyncServiceListener;
+  browserInitialInstallService: BrowserInitialInstallService;
+  backgroundSyncService: BackgroundSyncService;
 
   webPushConnectionService: WorkerWebPushConnectionService | UnsupportedWebPushConnectionService;
   themeStateService: DefaultThemeStateService;
@@ -398,6 +401,7 @@ export default class MainBackground {
   sdkLoadService: SdkLoadService;
   cipherAuthorizationService: CipherAuthorizationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
+  taskService: TaskService;
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
@@ -584,9 +588,9 @@ export default class MainBackground {
       this.logService,
       this.stateProvider,
     );
-    this.taskSchedulerService.registerTaskHandler(ScheduledTaskNames.scheduleNextSyncInterval, () =>
-      this.fullSync(),
-    );
+
+    this.backgroundSyncService = new BackgroundSyncService(this.taskSchedulerService);
+    this.backgroundSyncService.register(() => this.fullSync());
 
     this.environmentService = new BrowserEnvironmentService(
       this.logService,
@@ -653,9 +657,7 @@ export default class MainBackground {
       this.kdfConfigService,
       this.keyGenerationService,
       this.logService,
-      this.masterPasswordService,
       this.stateProvider,
-      this.stateService,
     );
 
     this.keyService = new DefaultKeyService(
@@ -672,19 +674,11 @@ export default class MainBackground {
       this.kdfConfigService,
     );
 
-    this.biometricsService = new BackgroundBrowserBiometricsService(
-      runtimeNativeMessagingBackground,
-      this.logService,
-      this.keyService,
-      this.biometricStateService,
-      this.messagingService,
-    );
-
     this.appIdService = new AppIdService(this.storageService, this.logService);
 
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(this.stateProvider);
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
-    this.policyService = new PolicyService(this.stateProvider, this.organizationService);
+    this.policyService = new DefaultPolicyService(this.stateProvider, this.organizationService);
 
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
@@ -697,6 +691,15 @@ export default class MainBackground {
       this.stateProvider,
       this.logService,
       VaultTimeoutStringType.OnRestart, // default vault timeout
+    );
+
+    this.biometricsService = new BackgroundBrowserBiometricsService(
+      runtimeNativeMessagingBackground,
+      this.logService,
+      this.keyService,
+      this.biometricStateService,
+      this.messagingService,
+      this.vaultTimeoutSettingsService,
     );
 
     this.apiService = new ApiService(
@@ -727,9 +730,14 @@ export default class MainBackground {
     this.autofillSettingsService = new AutofillSettingsService(
       this.stateProvider,
       this.policyService,
+      this.accountService,
     );
     this.badgeSettingsService = new BadgeSettingsService(this.stateProvider);
-    this.policyApiService = new PolicyApiService(this.policyService, this.apiService);
+    this.policyApiService = new PolicyApiService(
+      this.policyService,
+      this.apiService,
+      this.accountService,
+    );
     this.keyConnectorService = new KeyConnectorService(
       this.accountService,
       this.masterPasswordService,
@@ -852,6 +860,7 @@ export default class MainBackground {
       this.configService,
       this.stateProvider,
       this.accountService,
+      this.logService,
     );
     this.folderService = new FolderService(
       this.keyService,
@@ -1024,6 +1033,7 @@ export default class MainBackground {
       this.cryptoFunctionService,
       this.kdfConfigService,
       this.accountService,
+      this.apiService,
     );
 
     this.organizationVaultExportService = new OrganizationVaultExportService(
@@ -1042,6 +1052,8 @@ export default class MainBackground {
       this.individualVaultExportService,
       this.organizationVaultExportService,
     );
+
+    this.browserInitialInstallService = new BrowserInitialInstallService(this.stateProvider);
 
     if (BrowserApi.isManifestVersion(3)) {
       const registration = (self as unknown as { registration: ServiceWorkerRegistration })
@@ -1146,6 +1158,7 @@ export default class MainBackground {
       this.accountService,
       lockService,
       this.billingAccountProfileStateService,
+      this.browserInitialInstallService,
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.keyService,
@@ -1168,23 +1181,23 @@ export default class MainBackground {
       () => this.generatePasswordToClipboard(),
     );
     this.notificationBackground = new NotificationBackground(
+      this.accountService,
+      this.authService,
       this.autofillService,
       this.cipherService,
-      this.authService,
-      this.policyService,
-      this.folderService,
-      this.userNotificationSettingsService,
+      this.configService,
       this.domainSettingsService,
       this.environmentService,
+      this.folderService,
       this.logService,
+      this.organizationService,
+      this.policyService,
       this.themeStateService,
-      this.configService,
-      this.accountService,
+      this.userNotificationSettingsService,
     );
 
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(
       this.logService,
-      this.configService,
       this.notificationBackground,
     );
 
@@ -1196,6 +1209,7 @@ export default class MainBackground {
       this.configService,
       this.platformUtilsService,
       this.policyService,
+      this.accountService,
     );
 
     const contextMenuClickedHandler = new ContextMenuClickedHandler(
@@ -1281,6 +1295,17 @@ export default class MainBackground {
       this.collectionService,
       this.organizationService,
       this.accountService,
+      this.configService,
+    );
+
+    this.taskService = new DefaultTaskService(
+      this.stateProvider,
+      this.apiService,
+      this.organizationService,
+      this.configService,
+      this.authService,
+      this.notificationsService,
+      messageListener,
     );
 
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
@@ -1295,6 +1320,13 @@ export default class MainBackground {
     await this.sdkLoadService.loadAndInit();
     // Only the "true" background should run migrations
     await this.stateService.init({ runMigrations: true });
+
+    this.configService.serverConfig$.subscribe((newConfig) => {
+      if (newConfig != null) {
+        this.encryptService.onServerConfigChange(newConfig);
+        this.bulkEncryptService.onServerConfigChange(newConfig);
+      }
+    });
 
     // This is here instead of in in the InitService b/c we don't plan for
     // side effects to run in the Browser InitService.
@@ -1355,7 +1387,13 @@ export default class MainBackground {
       setTimeout(async () => {
         await this.refreshBadge();
         await this.fullSync(false);
+        this.backgroundSyncService.init();
         this.notificationsService.startListening();
+
+        if (await this.configService.getFeatureFlag(FeatureFlag.SecurityTasks)) {
+          this.taskService.listenForTaskNotifications();
+        }
+
         resolve();
       }, 500);
     });
@@ -1434,8 +1472,6 @@ export default class MainBackground {
       await this.popupViewCacheBackgroundService.clearState();
       await this.accountService.switchAccount(userId);
       await switchPromise;
-      // Clear sequentialized caches
-      clearCaches();
 
       if (userId == null) {
         await this.refreshBadge();
@@ -1598,6 +1634,26 @@ export default class MainBackground {
 
     if (this.isSafari) {
       await SafariApp.sendMessageToApp("showPopover", null, true);
+    }
+  }
+
+  /** Opens the `/at-risk-passwords` page within the popup */
+  async openAtRisksPasswordsPage() {
+    const browserAction = BrowserApi.getBrowserAction();
+
+    try {
+      // Set route of the popup before attempting to open it.
+      // If the vault is locked, this won't have an effect as the auth guards will
+      // redirect the user to the login page.
+      await browserAction.setPopup({ popup: "popup/index.html#/at-risk-passwords" });
+
+      await this.openPopup();
+    } finally {
+      // Reset the popup route to the default route so any subsequent
+      // popup openings will not open to the at-risk-passwords page.
+      await browserAction.setPopup({
+        popup: "popup/index.html#/",
+      });
     }
   }
 

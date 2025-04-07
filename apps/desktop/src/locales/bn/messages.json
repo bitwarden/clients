@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "পাসওয়ার্ড ইঙ্গিত"
-  },
-  "enterEmailToGetHint": {
-    "message": "আপনার মূল পাসওয়ার্ডের ইঙ্গিতটি পেতে আপনার অ্যাকাউন্টের ইমেল ঠিকানা প্রবেশ করুন।"
-  },
   "getMasterPasswordHint": {
     "message": "মূল পাসওয়ার্ডের ইঙ্গিত পান"
   },
@@ -839,18 +833,6 @@
   "continue": {
     "message": "অবিরত"
   },
-  "enterVerificationCodeApp": {
-    "message": "আপনার প্রমাণীকরণকারী অ্যাপ থেকে ৬ সংখ্যার যাচাইকরণ কোডটি প্রবেশ করুন।"
-  },
-  "enterVerificationCodeEmail": {
-    "message": "$EMAIL$ এ ইমেইল করা ৬ সংখ্যার যাচাই কোডটি প্রবেশ করুন।",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "$EMAIL$ এ যাচাইকরণ ইমেইল প্রেরণ করা হয়েছে।",
     "placeholders": {
@@ -860,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "আমাকে মনে রাখবেন"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "আবার যাচাইকরণ কোড ইমেইলে প্রেরণ করুন"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "অন্য দ্বি-পদক্ষেপ প্রবেশ পদ্ধতি ব্যবহার করুন"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -878,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "আপনার কম্পিউটারের ইউএসবি পোর্টে আপনার YubiKey ঢোকান, তারপরে তার বোতামটি স্পর্শ করুন।"
   },
   "insertU2f": {
     "message": "আপনার কম্পিউটারের ইউএসবি পোর্টে আপনার সুরক্ষা কী ঢোকান। এটিতে যদি একটি বোতাম থাকে তবে তা স্পর্শ করুন।"
@@ -951,9 +921,6 @@
   "selfHostedEnvironment": {
     "message": "স্ব-হোস্টকৃত পরিবেশ"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "আপনার অন-প্রাঙ্গনে হোস্টকৃত Bitwarden ইনস্টলেশনটির বেস URL উল্লেখ করুন।"
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -965,9 +932,6 @@
   },
   "customEnvironment": {
     "message": "পছন্দসই পরিবেশ"
-  },
-  "customEnvironmentFooter": {
-    "message": "উন্নত ব্যবহারকারীদের জন্য। আপনি স্বতন্ত্রভাবে প্রতিটি পরিষেবার মূল URL নির্দিষ্ট করতে পারেন।"
   },
   "baseUrl": {
     "message": "সার্ভার URL"
@@ -1008,6 +972,9 @@
   },
   "no": {
     "message": "না"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "ওভাররাইট পাসওয়ার্ড"
@@ -2499,6 +2466,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Exporting organization vault"
   },
@@ -2781,14 +2757,8 @@
   "loginWithMasterPassword": {
     "message": "Log in with master password"
   },
-  "loggingInAs": {
-    "message": "Logging in as"
-  },
   "rememberEmail": {
     "message": "Remember email"
-  },
-  "notYou": {
-    "message": "Not you?"
   },
   "newAroundHere": {
     "message": "New around here?"
@@ -3029,9 +2999,6 @@
   "requestAdminApproval": {
     "message": "Request admin approval"
   },
-  "approveWithMasterPassword": {
-    "message": "Approve with master password"
-  },
   "region": {
     "message": "Region"
   },
@@ -3056,9 +3023,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Your request has been sent to your admin."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "You will be notified once approved."
   },
   "troubleLoggingIn": {
     "message": "Trouble logging in?"
@@ -3235,9 +3199,6 @@
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
-  },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
   },
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
@@ -3529,9 +3490,6 @@
   "unknownApplication": {
     "message": "An application"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
   },
@@ -3541,7 +3499,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
@@ -3603,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }

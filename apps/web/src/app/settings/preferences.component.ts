@@ -2,11 +2,23 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { concatMap, filter, firstValueFrom, map, Observable, Subject, takeUntil, tap } from "rxjs";
+import {
+  concatMap,
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  Subject,
+  switchMap,
+  takeUntil,
+  tap,
+} from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import {
   VaultTimeout,
@@ -100,7 +112,12 @@ export class PreferencesComponent implements OnInit, OnDestroy {
     this.availableVaultTimeoutActions$ =
       this.vaultTimeoutSettingsService.availableVaultTimeoutActions$();
 
-    this.vaultTimeoutPolicyCallout = this.policyService.get$(PolicyType.MaximumVaultTimeout).pipe(
+    this.vaultTimeoutPolicyCallout = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policiesByType$(PolicyType.MaximumVaultTimeout, userId),
+      ),
+      getFirstPolicy,
       filter((policy) => policy != null),
       map((policy) => {
         let timeout;

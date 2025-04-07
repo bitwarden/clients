@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Zadajte e-mailovú adresu účtu a zašleme vám nápoveď k heslu"
   },
-  "passwordHint": {
-    "message": "Nápoveď k heslu"
-  },
-  "enterEmailToGetHint": {
-    "message": "Zadajte e-mailovú adresu na zaslanie nápovede k vášmu hlavnému heslu."
-  },
   "getMasterPasswordHint": {
     "message": "Získať nápoveď k hlavnému heslu"
   },
@@ -839,18 +833,6 @@
   "continue": {
     "message": "Pokračovať"
   },
-  "enterVerificationCodeApp": {
-    "message": "Zadajte 6-miestny overovací kód z vašej overovacej aplikácie."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Zadajte 6-miestny overovací kód, ktorý bol zaslaný e-mailom na $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Overovací e-mail odoslaný na $EMAIL$.",
     "placeholders": {
@@ -860,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Zapamätaj si ma"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Nepýtať sa znova na tomto zariadení 30 dní"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Znovu zaslať overovací kód e-mailom"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Použiť inú dvojstupňovú metódu prihlásenia"
   },
   "selectAnotherMethod": {
     "message": "Vyberte iný spôsob",
@@ -878,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Použiť obnovovací kód"
-  },
-  "insertYubiKey": {
-    "message": "Vložte váš YubiKey do USB portu počítača a stlačte jeho tlačidlo."
   },
   "insertU2f": {
     "message": "Vložte váš bezpečnostný kľúč do USB portu počítača. Ak má tlačidlo, stlačte ho."
@@ -951,9 +921,6 @@
   "selfHostedEnvironment": {
     "message": "Prevádzkované vo vlastnom prostredí"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Zadajte URL Bitwarden inštalácie, ktorú prevádzkujete vo vlastnom prostredí."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Zadajte základnú URL adresu lokálne hosťovanej inštalácie Bitwarden. Napríklad: https://bitwarden.company.com"
   },
@@ -965,9 +932,6 @@
   },
   "customEnvironment": {
     "message": "Vlastné prostredie"
-  },
-  "customEnvironmentFooter": {
-    "message": "Pre pokročilých používateľov. Môžete špecifikovať základnú URL pre každú službu nezávisle."
   },
   "baseUrl": {
     "message": "URL servera"
@@ -1008,6 +972,9 @@
   },
   "no": {
     "message": "Nie"
+  },
+  "location": {
+    "message": "Poloha"
   },
   "overwritePassword": {
     "message": "Prepísať heslo"
@@ -2499,6 +2466,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Exportované budú iba položky osobného trezora spojené s $EMAIL$. Položky trezora organizácie nebudú zahrnuté v exporte",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Exportovanie trezora organizácie"
   },
@@ -2781,14 +2757,8 @@
   "loginWithMasterPassword": {
     "message": "Prihlásenie pomocou hlavného hesla"
   },
-  "loggingInAs": {
-    "message": "Prihlasujete sa ako"
-  },
   "rememberEmail": {
     "message": "Zapamätať si e-mail"
-  },
-  "notYou": {
-    "message": "Nie ste to vy?"
   },
   "newAroundHere": {
     "message": "Ste tu nový?"
@@ -3029,9 +2999,6 @@
   "requestAdminApproval": {
     "message": "Žiadosť o schválenie správcom"
   },
-  "approveWithMasterPassword": {
-    "message": "Schváliť pomocou hlavného hesla"
-  },
   "region": {
     "message": "Región"
   },
@@ -3056,9 +3023,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Vaša žiadosť bola odoslaná správcovi."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Po schválení budete informovaný."
   },
   "troubleLoggingIn": {
     "message": "Máte problémy s prihlásením?"
@@ -3235,9 +3199,6 @@
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Chyba pri pripájaní k službe Duo. Použite inú metódu dvojstupňového prihlásenia alebo kontaktujte Duo a požiadajte o pomoc."
-  },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Spustite DuO a postupujte podľa pokynov na dokončenie prihlásenia."
   },
   "duoRequiredByOrgForAccount": {
     "message": "Pre váš účet je potrebné dvojstupňové prihlásenie Duo."
@@ -3529,9 +3490,6 @@
   "unknownApplication": {
     "message": "Aplikácia"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importovanie kľúčov SSH chránených heslom zatiaľ nie je podporované"
-  },
   "invalidSshKey": {
     "message": "Kľúč SSH je neplatný"
   },
@@ -3541,7 +3499,7 @@
   "importSshKeyFromClipboard": {
     "message": "Importovať kľúč zo schránky"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "Kľúč SSH bol úspešne importovaný"
   },
   "fileSavedToDevice": {
@@ -3603,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Zmeniť rizikové heslá"
+  },
+  "move": {
+    "message": "Presunúť"
   }
 }

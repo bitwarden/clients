@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Въведете е-пощата на регистрацията си и подсказката за паролата ще Ви бъде изпратена"
   },
-  "passwordHint": {
-    "message": "Подсказка за паролата"
-  },
-  "enterEmailToGetHint": {
-    "message": "Въведете адреса на е-пощата си, за да получите подсказка за главната парола."
-  },
   "getMasterPasswordHint": {
     "message": "Получете подсказване за главната парола"
   },
@@ -839,18 +833,6 @@
   "continue": {
     "message": "Продължаване"
   },
-  "enterVerificationCodeApp": {
-    "message": "Въведете шестцифрения код за потвърждение от приложението за удостоверяване."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Въведете шестцифрения код за потвърждение, който е бил изпратен на $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Писмото за потвърждение е изпратено на $EMAIL$.",
     "placeholders": {
@@ -860,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Запомняне"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Не ме питайте отново на това устройство за 30 дни"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Повторно изпращане на писмото за потвърждение"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Използвайте друг начин на двустепенно удостоверяване"
   },
   "selectAnotherMethod": {
     "message": "Изберете друг метод",
@@ -878,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Използване на код за възстановяване"
-  },
-  "insertYubiKey": {
-    "message": "Поставете устройството на YubiKey в USB порт на компютъра и натиснете бутона на устройството."
   },
   "insertU2f": {
     "message": "Поставете устройството за удостоверяване в USB порт на компютъра. Ако на устройството има бутон, натиснете го."
@@ -951,9 +921,6 @@
   "selfHostedEnvironment": {
     "message": "Собствена среда"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Укажете базовия адрес за собствената ви инсталирана среда на Bitwarden."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Посочете базовия адрес на Вашата собствена инсталация на Битуорден. Пример: https://bitwarden.company.com"
   },
@@ -965,9 +932,6 @@
   },
   "customEnvironment": {
     "message": "Специална среда"
-  },
-  "customEnvironmentFooter": {
-    "message": "За специални случаи. Може да укажете основните адреси на всяка ползвана услуга поотделно."
   },
   "baseUrl": {
     "message": "Адрес на сървъра"
@@ -1008,6 +972,9 @@
   },
   "no": {
     "message": "Не"
+  },
+  "location": {
+    "message": "Местоположение"
   },
   "overwritePassword": {
     "message": "Обновяване на паролата"
@@ -2499,6 +2466,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Ще бъдат изнесени само записите и прикачените файлове от личния трезор свързан с $EMAIL$. Записите в трезора на организацията няма да бъдат включени.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Изнасяне на трезора на организацията"
   },
@@ -2781,14 +2757,8 @@
   "loginWithMasterPassword": {
     "message": "Вписване с главната парола"
   },
-  "loggingInAs": {
-    "message": "Вписване като"
-  },
   "rememberEmail": {
     "message": "Запомняне на е-пощата"
-  },
-  "notYou": {
-    "message": "Това не сте Вие?"
   },
   "newAroundHere": {
     "message": "За пръв път ли сте тук?"
@@ -3029,9 +2999,6 @@
   "requestAdminApproval": {
     "message": "Подаване на заявка за одобрение от администратор"
   },
-  "approveWithMasterPassword": {
-    "message": "Одобряване с главната парола"
-  },
   "region": {
     "message": "Регион"
   },
@@ -3056,9 +3023,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Вашата заявка беше изпратена до администратора Ви."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Ще получите известие, когато тя бъде одобрена."
   },
   "troubleLoggingIn": {
     "message": "Имате проблем с вписването?"
@@ -3235,9 +3199,6 @@
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Грешка при свързването с услугата на Duo. Използвайте друг метод за двустепенно удостоверяване или се свържете с Duo за съдействие."
-  },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Стартирайте Duo и следвайте инструкциите, за да завършите вписването."
   },
   "duoRequiredByOrgForAccount": {
     "message": "Вашата регистрация изисква двустепенно удостоверяване чрез Duo."
@@ -3529,9 +3490,6 @@
   "unknownApplication": {
     "message": "Приложение"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Внасянето на SSH ключ, които са защитени с парола, все още не се поддържа"
-  },
   "invalidSshKey": {
     "message": "SSH ключът е неправилен"
   },
@@ -3541,7 +3499,7 @@
   "importSshKeyFromClipboard": {
     "message": "Внасяне на ключ от буфера за обмен"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH ключът е внесен успешно"
   },
   "fileSavedToDevice": {
@@ -3603,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Промяна на парола в риск"
+  },
+  "move": {
+    "message": "Преместване"
   }
 }

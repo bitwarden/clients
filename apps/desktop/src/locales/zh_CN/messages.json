@@ -459,7 +459,7 @@
     "message": "确定要覆盖当前用户名吗？"
   },
   "noneFolder": {
-    "message": "默认文件夹",
+    "message": "无文件夹",
     "description": "This is the folder for uncategorized items"
   },
   "addFolder": {
@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "输入您的账户电子邮箱地址，您的密码提示将发送给您"
   },
-  "passwordHint": {
-    "message": "密码提示"
-  },
-  "enterEmailToGetHint": {
-    "message": "请输入您的账户电子邮箱地址来接收主密码提示。"
-  },
   "getMasterPasswordHint": {
     "message": "获取主密码提示"
   },
@@ -839,18 +833,6 @@
   "continue": {
     "message": "继续"
   },
-  "enterVerificationCodeApp": {
-    "message": "请输入您的验证器 App 中的 6 位数验证码。"
-  },
-  "enterVerificationCodeEmail": {
-    "message": "请输入发送给 $EMAIL$ 的 6 位数验证码。",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "验证邮件已发送到 $EMAIL$。",
     "placeholders": {
@@ -860,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "记住我"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "30 天内在此设备上不再询问"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "再次发送验证码电子邮件"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "使用其他两步登录方式"
   },
   "selectAnotherMethod": {
     "message": "选择其他方式",
@@ -879,14 +852,11 @@
   "useYourRecoveryCode": {
     "message": "使用您的恢复代码"
   },
-  "insertYubiKey": {
-    "message": "将您的 YubiKey 插入计算机的 USB 端口，然后触摸其按钮。"
-  },
   "insertU2f": {
     "message": "将您的安全密钥插入计算机的 USB 端口。如果它有按钮，请触摸它。"
   },
   "recoveryCodeDesc": {
-    "message": "无法访问您所有的双重身份提供程序吗？请使用您的恢复代码来关闭您账户中所有的双重身份提供程序。"
+    "message": "无法访问您所有的双重身份提供程序吗？请使用您的恢复代码来停用您账户中所有的双重身份提供程序。"
   },
   "recoveryCodeTitle": {
     "message": "恢复代码"
@@ -951,9 +921,6 @@
   "selfHostedEnvironment": {
     "message": "自托管环境"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "指定您本地托管的 Bitwarden 安装的基础 URL。"
-  },
   "selfHostedBaseUrlHint": {
     "message": "指定您的本地托管 Bitwarden 安装的基础 URL。例如：https://bitwarden.company.com"
   },
@@ -965,9 +932,6 @@
   },
   "customEnvironment": {
     "message": "自定义环境"
-  },
-  "customEnvironmentFooter": {
-    "message": "适用于高级用户。您可以分别指定各个服务的基础 URL。"
   },
   "baseUrl": {
     "message": "服务器 URL"
@@ -1008,6 +972,9 @@
   },
   "no": {
     "message": "否"
+  },
+  "location": {
+    "message": "位置"
   },
   "overwritePassword": {
     "message": "覆盖密码"
@@ -2094,7 +2061,7 @@
     "message": "生物识别未设置"
   },
   "biometricsNotEnabledDesc": {
-    "message": "需要先在桌面应用程序的设置中设置生物识别，才能使用浏览器中的生物识别。"
+    "message": "需要首先在桌面端的设置中设置生物识别，才能使用浏览器的生物识别。"
   },
   "biometricsManualSetupTitle": {
     "message": "自动设置不可用"
@@ -2479,7 +2446,7 @@
     "message": "切换账户"
   },
   "alreadyHaveAccount": {
-    "message": "已经拥有账户了吗？"
+    "message": "已经有账户了吗？"
   },
   "options": {
     "message": "选项"
@@ -2492,6 +2459,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "仅会导出与 $EMAIL$ 关联的个人密码库项目，不包括组织密码库项目。仅会导出密码库项目信息，不包括关联的附件。",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "仅会导出与 $EMAIL$ 关联的个人密码库项目（包括附件）。不包括组织密码库项目。",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2781,14 +2757,8 @@
   "loginWithMasterPassword": {
     "message": "使用主密码登录"
   },
-  "loggingInAs": {
-    "message": "正登录为"
-  },
   "rememberEmail": {
     "message": "记住电子邮箱"
-  },
-  "notYou": {
-    "message": "不是您吗？"
   },
   "newAroundHere": {
     "message": "初来乍到吗？"
@@ -2818,13 +2788,13 @@
     "message": "通知已发送到您的设备"
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the "
+    "message": "解锁您设备上的 Bitwarden 或通过"
   },
   "notificationSentDeviceAnchor": {
     "message": "网页 App"
   },
   "notificationSentDevicePart2": {
-    "message": "在批准前，请确保指纹短语与下面的相匹配。"
+    "message": "批准前，请确保指纹短语与下面的相匹配。"
   },
   "needAnotherOptionV1": {
     "message": "需要其他选项吗？"
@@ -3029,9 +2999,6 @@
   "requestAdminApproval": {
     "message": "请求管理员批准"
   },
-  "approveWithMasterPassword": {
-    "message": "使用主密码批准"
-  },
   "region": {
     "message": "区域"
   },
@@ -3056,9 +3023,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "您的请求已发送给您的管理员。"
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "批准后，您将收到通知。"
   },
   "troubleLoggingIn": {
     "message": "登录遇到问题吗？"
@@ -3085,7 +3049,7 @@
     "message": "搜索"
   },
   "inputMinLength": {
-    "message": "至少输入 $COUNT$ 个字符。",
+    "message": "输入长度不能低于 $COUNT$ 个字符。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3235,9 +3199,6 @@
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "与 Duo 服务连接时出错。请使用其他两步登录方式或联系 Duo 寻求帮助。"
-  },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "启动 Duo 然后按照步骤完成登录。"
   },
   "duoRequiredByOrgForAccount": {
     "message": "您的账户要求使用 Duo 两步登录。"
@@ -3529,9 +3490,6 @@
   "unknownApplication": {
     "message": "某个应用程序"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "尚不支持导入受密码保护的 SSH 密钥"
-  },
   "invalidSshKey": {
     "message": "此 SSH 密钥无效"
   },
@@ -3541,7 +3499,7 @@
   "importSshKeyFromClipboard": {
     "message": "从剪贴板导入密钥"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH 密钥导入成功"
   },
   "fileSavedToDevice": {
@@ -3578,7 +3536,7 @@
     "message": "是的，我可以正常访问我的电子邮箱"
   },
   "turnOnTwoStepLogin": {
-    "message": "开启两步登录"
+    "message": "启用两步登录"
   },
   "changeAcctEmail": {
     "message": "更改账户电子邮箱"
@@ -3603,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "更改有风险的密码"
+  },
+  "move": {
+    "message": "移动"
   }
 }

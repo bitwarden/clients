@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "Mungkahi sa Password"
-  },
-  "enterEmailToGetHint": {
-    "message": "Ipasok ang iyong email address ng account para makatanggap ng hint ng iyong master password."
-  },
   "getMasterPasswordHint": {
     "message": "Makuha ang Punong Password na Hint"
   },
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "I-edit ang folder"
+  },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "New folder"
@@ -1166,10 +1169,6 @@
     "message": "Mabait",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Solarized dark",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Export from"
   },
@@ -1392,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "Ang Premium na membership ay kinakailangan upang gamitin ang tampok na ito."
   },
-  "enterVerificationCodeApp": {
-    "message": "Ipasok ang 6 na digit na code ng pagpapatunay mula sa iyong authenticator app."
-  },
   "authenticationTimeout": {
     "message": "Authentication timeout"
   },
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Ipasok ang 6 na digit na code na na-email sa $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Veripikasyon na email na ipinadala sa $EMAIL$.",
@@ -1419,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Tandaan mo ako"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Ipadala muli ang email ng verification code"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Gamitin ang isa pang two-step na paraan ng pag-login"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -1438,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
   },
-  "insertYubiKey": {
-    "message": "I-insert ang iyong YubiKey sa USB port ng iyong computer, pagkatapos ay tindigin ang buton nito."
-  },
   "insertU2f": {
     "message": "I-insert ang iyong security key sa USB port ng iyong computer. Kung mayroon itong buton, tindigin ito."
-  },
-  "webAuthnNewTab": {
-    "message": "Upang simulan ang WebAuthn 2FA verification. I-click ang buton sa ibaba upang buksan ang isang bagong tab at sundin ang mga tagubilin na ibinigay sa bagong tab."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Buksan ang bagong tab"
   },
   "openInNewTab": {
     "message": "Open in new tab"
@@ -1519,9 +1488,6 @@
   "selfHostedEnvironment": {
     "message": "Kapaligirang self-hosted"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Tukuyin ang base URL ng iyong Bitwarden installation na naka-host sa on-premises."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -1533,9 +1499,6 @@
   },
   "customEnvironment": {
     "message": "Kapaligirang Custom"
-  },
-  "customEnvironmentFooter": {
-    "message": "Para sa mga advanced na gumagamit. Maaari mong tukuyin ang base URL ng bawat serbisyo nang independiyente."
   },
   "baseUrl": {
     "message": "URL ng Server"
@@ -1673,6 +1636,9 @@
   },
   "dragToSort": {
     "message": "I-drag upang i-sort"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Teksto"
@@ -2538,15 +2504,15 @@
     "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Illustration of a list of logins that are at-risk"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
   },
   "generatePasswordSlideDesc": {
     "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
   },
   "updateInBitwarden": {
     "message": "Update in Bitwarden"
@@ -2555,8 +2521,8 @@
     "message": "Bitwarden will then prompt you to update the password in the password manager.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
   },
   "turnOnAutofill": {
     "message": "Turn on autofill"
@@ -3011,6 +2977,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Exporting organization vault"
   },
@@ -3276,15 +3251,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Nabago ang mga setting"
-  },
-  "environmentEditedClick": {
-    "message": "Mag-click dito"
-  },
-  "environmentEditedReset": {
-    "message": "i-reset sa pre-configured na mga setting"
-  },
   "serverVersion": {
     "message": "Bersyon ng server"
   },
@@ -3315,12 +3281,6 @@
   "loginWithMasterPassword": {
     "message": "Mag-login gamit ang pangunahing password"
   },
-  "loggingInAs": {
-    "message": "Naglolog-in bilang"
-  },
-  "notYou": {
-    "message": "Hindi ikaw?"
-  },
   "newAroundHere": {
     "message": "Mag-login gamit ang pangunahing password?"
   },
@@ -3329,9 +3289,6 @@
   },
   "loginWithDevice": {
     "message": "Mag log in gamit ang device"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Ang pag log in gamit ang device ay dapat na naka set up sa mga setting ng Bitwarden app. Kailangan mo ng ibang opsyon?"
   },
   "fingerprintPhraseHeader": {
     "message": "Hulmabig ng Hilik ng Dako"
@@ -3343,9 +3300,6 @@
     "message": "Muling ipadala ang abiso"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "View all log in options"
   },
   "notificationSentDevice": {
@@ -3489,9 +3443,6 @@
   "requestAdminApproval": {
     "message": "Request admin approval"
   },
-  "approveWithMasterPassword": {
-    "message": "Approve with master password"
-  },
   "ssoIdentifierRequired": {
     "message": "Organization SSO identifier is required."
   },
@@ -3537,9 +3488,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Your request has been sent to your admin."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "You will be notified once approved."
   },
   "troubleLoggingIn": {
     "message": "Trouble logging in?"
@@ -3870,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
-  },
   "duoRequiredForAccount": {
     "message": "Duo two-step login is required for your account."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Popout the extension to complete login."
   },
   "popoutExtension": {
     "message": "Popout extension"
@@ -4301,6 +4243,20 @@
       }
     }
   },
+  "viewItemTitleWithField": {
+    "message": "View item - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "autofillTitle": {
     "message": "Autofill - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
@@ -4308,6 +4264,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "autofillTitleWithField": {
+    "message": "Autofill - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
       }
     }
   },
@@ -4701,6 +4671,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
     "placeholders": {
@@ -4760,15 +4733,6 @@
   },
   "nothingSelected": {
     "message": "You have not selected anything."
-  },
-  "movedItemsToOrg": {
-    "message": "Selected items moved to $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
   },
   "itemsMovedToOrg": {
     "message": "Items moved to $ORGNAME$",
@@ -5132,6 +5096,33 @@
   "extraWide": {
     "message": "Extra wide"
   },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
     "placeholders": {
@@ -5149,5 +5140,32 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "introCarouselLabel": {
+    "message": "Welcome to Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Security, prioritized"
+  },
+  "securityPrioritizedBody": {
+    "message": "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you."
+  },
+  "quickLogin": {
+    "message": "Quick and easy login"
+  },
+  "quickLoginBody": {
+    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+  },
+  "secureUser": {
+    "message": "Level up your logins"
+  },
+  "secureUserBody": {
+    "message": "Use the generator to create and save strong, unique passwords for all your accounts."
+  },
+  "secureDevices": {
+    "message": "Your data, when and where you need it"
+  },
+  "secureDevicesBody": {
+    "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
   }
 }

@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Hesabınızın e-poçt ünvanını daxil edin və parolunuz üçün ipucu sizə göndəriləcək"
   },
-  "passwordHint": {
-    "message": "Parol məsləhəti"
-  },
-  "enterEmailToGetHint": {
-    "message": "Ana parol məsləhətini alacağınız hesabınızın e-poçt ünvanını daxil edin."
-  },
   "getMasterPasswordHint": {
     "message": "Ana parol üçün məsləhət alın"
   },
@@ -807,7 +801,7 @@
     "message": "Element məlumatları"
   },
   "noItemsInList": {
-    "message": "Siyahılanacaq heç bir element yoxdur."
+    "message": "Sadalanacaq heç bir element yoxdur."
   },
   "sendVerificationCode": {
     "message": "Doğrulama kodunu e-poçtunuza göndərin"
@@ -839,18 +833,6 @@
   "continue": {
     "message": "Davam"
   },
-  "enterVerificationCodeApp": {
-    "message": "Kimlik doğrulayıcı tətbiqindən 6 rəqəmli doğrulama kodunu daxil edin."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "$EMAIL$ ünvanına göndərilən e-poçtdakı 6 rəqəmli doğrulama kodunu daxil edin.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Doğrulama poçtu $EMAIL$ ünvanına göndərildi.",
     "placeholders": {
@@ -860,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Məni xatırla"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Bu cihazda 30 gün ərzində soruşulmasın"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Doğrulama kodu olan e-poçtu yenidən göndər"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Başqa bir iki mərhələli giriş metodu istifadə edin"
   },
   "selectAnotherMethod": {
     "message": "Başqa üsul seçin",
@@ -878,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Geri qaytarma kodunuzu istifadə edin"
-  },
-  "insertYubiKey": {
-    "message": "\"YubiKey\"i kompüterinizin USB portuna taxın, daha sonra düyməsinə toxunun."
   },
   "insertU2f": {
     "message": "Güvənlik açarını kompüterinizin USB portuna taxın. Düyməsi varsa toxunun."
@@ -951,9 +921,6 @@
   "selfHostedEnvironment": {
     "message": "Self-hosted mühit"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Öz-özünə sahiblik edən Bitwarden quraşdırmasının təməl URL-sini müəyyənləşdirin."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Öz-özünə sahiblik edən Bitwarden quraşdırmasının təməl URL-sini müəyyənləşdirin. Nümunə: https://bitwarden.company.com"
   },
@@ -965,9 +932,6 @@
   },
   "customEnvironment": {
     "message": "Özəl mühit"
-  },
-  "customEnvironmentFooter": {
-    "message": "Qabaqcıl istifadəçilər üçündür. Hər xidmətin baza URL-sini müstəqil olaraq müəyyənləşdirə bilərsiniz."
   },
   "baseUrl": {
     "message": "Server URL-si"
@@ -1008,6 +972,9 @@
   },
   "no": {
     "message": "Xeyr"
+  },
+  "location": {
+    "message": "Yerləşmə"
   },
   "overwritePassword": {
     "message": "Parolun üzərinə yaz"
@@ -1456,7 +1423,7 @@
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
-    "message": "Siyahılanacaq heç bir parol yoxdur."
+    "message": "Sadalanacaq heç bir parol yoxdur."
   },
   "clearHistory": {
     "message": "Tarixçəni təmizlə"
@@ -1727,7 +1694,7 @@
     "message": "Heç bir təşkilata aid deyilsiniz. Təşkilatlar, elementlərinizi digər istifadəçilərlə güvənli şəkildə paylaşmağınızı təmin edir."
   },
   "noCollectionsInList": {
-    "message": "Siyahılanacaq heç bir kolleksiya yoxdur."
+    "message": "Sadalanacaq heç bir kolleksiya yoxdur."
   },
   "ownership": {
     "message": "Sahiblik"
@@ -2499,6 +2466,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Yalnız $EMAIL$ ilə əlaqələndirilmiş qoşmalar daxil olmaqla fərdi anbar elementləri xaricə köçürüləcək. Təşkilat anbar elementləri daxil edilməyəcək",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Təşkilat seyfini xaricə köçürmə"
   },
@@ -2781,14 +2757,8 @@
   "loginWithMasterPassword": {
     "message": "Ana parolla giriş et"
   },
-  "loggingInAs": {
-    "message": "Giriş et"
-  },
   "rememberEmail": {
     "message": "E-poçtu xatırla"
-  },
-  "notYou": {
-    "message": "Siz deyilsiniz?"
   },
   "newAroundHere": {
     "message": "Burada yenisiniz?"
@@ -3029,9 +2999,6 @@
   "requestAdminApproval": {
     "message": "Admin təsdiqini tələb et"
   },
-  "approveWithMasterPassword": {
-    "message": "Ana parolla təsdiqlə"
-  },
   "region": {
     "message": "Bölgə"
   },
@@ -3056,9 +3023,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Tələbiniz admininizə göndərildi."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Təsdiqləndikdən sonra məlumatlandırılacaqsınız."
   },
   "troubleLoggingIn": {
     "message": "Girişdə problem var?"
@@ -3235,9 +3199,6 @@
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Duo xidmətinə bağlanarkən xəta baş verdi. Fərqli iki addımlı giriş üsulu istifadə edin və ya kömək üçün Duo ilə əlaqə saxlayın."
-  },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Duo-nu başladın və giriş prosesini tamamlamaq üçün addımları izləyin."
   },
   "duoRequiredByOrgForAccount": {
     "message": "Hesabınız üçün Duo iki addımlı giriş tələb olunur."
@@ -3529,9 +3490,6 @@
   "unknownApplication": {
     "message": "Bir tətbiq"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Parolla qorunan SSH açarlarının daxilə köçürülməsi hələ dəstəklənmir"
-  },
   "invalidSshKey": {
     "message": "SSH açarı yararsızdır"
   },
@@ -3541,7 +3499,7 @@
   "importSshKeyFromClipboard": {
     "message": "Açarı lövhədən daxilə köçür"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH açarı uğurla daxilə köçürüldü"
   },
   "fileSavedToDevice": {
@@ -3603,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Riskli parolları dəyişdir"
+  },
+  "move": {
+    "message": "Daşı"
   }
 }
