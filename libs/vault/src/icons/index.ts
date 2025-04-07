@@ -6,3 +6,7 @@ export * from "./exclamation-triangle";
 export * from "./user-lock";
 export * from "./browser-extension";
 export * from "./bitwarden-icon";
+export * from "./security-handshake";
+export * from "./login-cards";
+export * from "./secure-user";
+export * from "./secure-devices";
