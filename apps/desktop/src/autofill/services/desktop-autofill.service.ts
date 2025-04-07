@@ -267,11 +267,9 @@ export class DesktopAutofillService implements OnDestroy {
     // Listen for native status messages
     ipc.autofill.listenNativeStatus(async (clientId, sequenceNumber, status) => {
       this.logService.info("Received native status", status.key, status.value);
-      if (status.key === "ping" && status.value === "pong") {
-        this.logService.info("Ping-pong communication successful with MacOS provider");
-      } else if (status.key === "request-sync") {
+      if (status.key === "request-sync") {
         // perform ad-hoc sync
-        await this.AdHocSync();
+        await this.adHocSync();
       }
     });
   }
