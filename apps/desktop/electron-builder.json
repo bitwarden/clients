@@ -34,6 +34,7 @@
     "hardenedRuntime": true,
     "entitlements": "resources/entitlements.mac.plist",
     "entitlementsInherit": "resources/entitlements.mac.plist",
+    "provisioningProfile": "bitwarden_desktop_appstore.provisionprofile",
     "extendInfo": {
       "ITSAppUsesNonExemptEncryption": false,
       "CFBundleLocalizations": [
@@ -133,7 +134,9 @@
     "entitlements": "resources/entitlements.mas.plist",
     "entitlementsInherit": "resources/entitlements.mas.inherit.plist",
     "entitlementsLoginHelper": "resources/entitlements.mas.loginhelper.plist",
+    "provisioningProfile": "bitwarden_desktop_appstore.provisionprofile",
     "hardenedRuntime": true,
+    "identity": "Bitwarden Inc.",
     "extendInfo": {
       "LSMinimumSystemVersion": "12",
       "ElectronTeamID": "LTZ2PFU5D6"

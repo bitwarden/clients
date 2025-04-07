@@ -9,7 +9,7 @@ const fse = require("fs-extra");
 exports.default = run;
 
 async function run(context) {
-  console.log("## After sign");
+  console.log("## After sign", context);
   // console.log(context);
 
   const appName = context.packager.appInfo.productFilename;
@@ -54,6 +54,7 @@ async function run(context) {
   }
 
   if (shouldResign) {
+    console.log("### Resigning app");
     // Resign to sign safari extension
     if (context.electronPlatformName === "mas") {
       const masBuildOptions = deepAssign(
@@ -63,7 +64,7 @@ async function run(context) {
       );
       if (context.targets.some((e) => e.name === "mas-dev")) {
         deepAssign(masBuildOptions, {
-          type: "development",
+          identity: "Bitwarden Inc",
         });
       }
       if (context.packager.packagerOptions.prepackaged == null) {
@@ -98,5 +99,7 @@ async function run(context) {
         appleIdPassword: appleIdPassword,
       });
     }
+  } else {
+    console.log("### Skipping notarization");
   }
 }
