@@ -194,7 +194,7 @@
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
-    "message": "Fyll i automatiskt"
+    "message": "Autofyll"
   },
   "autoFillLogin": {
     "message": "Autofyll inloggning"
@@ -1530,10 +1530,10 @@
     "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
-    "message": "Autofill suggestions"
+    "message": "Förslag för autofyll"
   },
   "showInlineMenuLabel": {
-    "message": "Show autofill suggestions on form fields"
+    "message": "Visa förslag för autofyll i formulärfält"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Visa identiteter som förslag"
@@ -1566,7 +1566,7 @@
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
   "enableAutoFillOnPageLoadSectionTitle": {
-    "message": "Autofill on page load"
+    "message": "Autofyll vid sidladdning"
   },
   "enableAutoFillOnPageLoad": {
     "message": "Aktivera automatisk ifyllnad vid sidhämtning"
@@ -2428,7 +2428,7 @@
     "message": "Autofill is blocked for this website."
   },
   "autofillBlockedNoticeGuidance": {
-    "message": "Change this in settings"
+    "message": "Ändra detta i inställningar"
   },
   "change": {
     "message": "Change"
@@ -2525,10 +2525,10 @@
     "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
   },
   "turnOnAutofill": {
-    "message": "Turn on autofill"
+    "message": "Aktivera autofyll"
   },
   "turnedOnAutofill": {
-    "message": "Turned on autofill"
+    "message": "Aktiverade autofyll"
   },
   "dismiss": {
     "message": "Dismiss"
@@ -3384,7 +3384,7 @@
     "message": "Inställningar för automatisk ifyllnad"
   },
   "autofillKeyboardShortcutSectionTitle": {
-    "message": "Autofill shortcut"
+    "message": "Kortkommando för autofyll"
   },
   "autofillKeyboardShortcutUpdateLabel": {
     "message": "Ändra genväg"
@@ -3396,7 +3396,7 @@
     "message": "Tangentbordsgenväg för automatisk ifyllnad"
   },
   "autofillLoginShortcutNotSet": {
-    "message": "The autofill login shortcut is not set. Change this in the browser's settings."
+    "message": "Kortkommandot för autofyll av inloggning är inte inställt. Du kan ändra det i webbläsarens inställningar."
   },
   "autofillLoginShortcutText": {
     "message": "The autofill login shortcut is $COMMAND$. Manage all shortcuts in the browser's settings.",
@@ -4365,7 +4365,7 @@
     "message": "Objekt utan mapp"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "Objektdetaljer"
   },
   "itemName": {
     "message": "Objektnamn"
@@ -4456,13 +4456,13 @@
     }
   },
   "personalDetails": {
-    "message": "Personal details"
+    "message": "Personuppgifter"
   },
   "identification": {
     "message": "Identifikation"
   },
   "contactInfo": {
-    "message": "Contact info"
+    "message": "Kontaktuppgifter"
   },
   "downloadAttachment": {
     "message": "Download - $ITEMNAME$",
@@ -4478,13 +4478,13 @@
     "description": "Used within the inline menu to provide an aria description when users are attempting to fill a card cipher."
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Inloggningsuppgifter"
   },
   "authenticatorKey": {
     "message": "Autentiseringsnyckel"
   },
   "autofillOptions": {
-    "message": "Autofill options"
+    "message": "Alternativ för autofyll"
   },
   "websiteUri": {
     "message": "Webbplats (URI)"
@@ -5140,5 +5140,32 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "introCarouselLabel": {
+    "message": "Welcome to Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Security, prioritized"
+  },
+  "securityPrioritizedBody": {
+    "message": "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you."
+  },
+  "quickLogin": {
+    "message": "Quick and easy login"
+  },
+  "quickLoginBody": {
+    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+  },
+  "secureUser": {
+    "message": "Level up your logins"
+  },
+  "secureUserBody": {
+    "message": "Use the generator to create and save strong, unique passwords for all your accounts."
+  },
+  "secureDevices": {
+    "message": "Your data, when and where you need it"
+  },
+  "secureDevicesBody": {
+    "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
   }
 }
