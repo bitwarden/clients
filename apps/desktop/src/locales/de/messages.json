@@ -2467,7 +2467,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "message": "Nur die einzelnen Tresor-Einträge einschließlich Anhängen von $EMAIL$ werden exportiert. Tresor-Einträge der Organisation werden nicht berücksichtigt",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3563,6 +3563,6 @@
     "message": "Gefährdetes Passwort ändern"
   },
   "move": {
-    "message": "Move"
+    "message": "Verschieben"
   }
 }
