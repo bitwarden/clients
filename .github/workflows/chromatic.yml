@@ -36,13 +36,13 @@ jobs:
         with:
           filters: |
             storyFiles: 
-              "apps/**"
-              "!apps/cli/**"
-              "bitwarden_license/bit-web/src/app/**"
-              "libs/**"
-              "!libs/eslint/**"
-              "package.json"
-              ".storybook/**"
+              - "apps/**"
+              - "!apps/cli/**"
+              - "bitwarden_license/bit-web/src/app/**"
+              - "libs/**"
+              - "!libs/eslint/**"
+              - "package.json"
+              - ".storybook/**"
 
       - name: Get Node version
         id: retrieve-node-version
