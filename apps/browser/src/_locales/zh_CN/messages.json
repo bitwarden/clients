@@ -3306,13 +3306,13 @@
     "message": "通知已发送到您的设备。"
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the"
+    "message": "解锁您设备上的 Bitwarden 或通过"
   },
   "notificationSentDeviceAnchor": {
     "message": "网页 App"
   },
   "notificationSentDevicePart2": {
-    "message": "在批准前，请确保指纹短语与下面的相匹配。"
+    "message": "批准前，请确保指纹短语与下面的相匹配。"
   },
   "aNotificationWasSentToYourDevice": {
     "message": "通知已发送到您的设备"
@@ -5140,5 +5140,32 @@
   },
   "changeAtRiskPassword": {
     "message": "更改有风险的密码"
+  },
+  "introCarouselLabel": {
+    "message": "欢迎使用 Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "安全优先"
+  },
+  "securityPrioritizedBody": {
+    "message": "将登录、支付卡和身份保存到您的安全密码库。Bitwarden 使用零知识、端到端的加密来保护您的重要信息。"
+  },
+  "quickLogin": {
+    "message": "快速便捷的登录"
+  },
+  "quickLoginBody": {
+    "message": "设置生物识别解锁和自动填充，无需输入任何字符即可登录您的账户。"
+  },
+  "secureUser": {
+    "message": "提升您的登录体验"
+  },
+  "secureUserBody": {
+    "message": "使用生成器创建并保存强大且唯一的密码，以保护您的所有账户。"
+  },
+  "secureDevices": {
+    "message": "随时随地在您需要时获取您的数据"
+  },
+  "secureDevicesBody": {
+    "message": "使用 Bitwarden 移动端、浏览器和桌面 App 在无限制的设备上保存无限数量的密码。"
   }
 }

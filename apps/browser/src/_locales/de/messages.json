@@ -1150,7 +1150,7 @@
     "description": "Default URI match detection for autofill."
   },
   "defaultUriMatchDetectionDesc": {
-    "message": "Wähle die Standardmethode, mit der die URI-Match-Erkennung für Anmeldungen bei Aktionen wie dem automatischen Ausfüllen behandelt wird."
+    "message": "Wähle die Standardmethode, mit der die URI-Übereinstimmungserkennung für Anmeldungen bei Aktionen wie dem automatischen Ausfüllen behandelt wird."
   },
   "theme": {
     "message": "Design"
@@ -1584,7 +1584,7 @@
     "message": "Erfahre mehr über Auto-Ausfüllen"
   },
   "defaultAutoFillOnPageLoad": {
-    "message": "Standard Auto-Ausfüllen Einstellung für Login-Einträge"
+    "message": "Standard Auto-Ausfüllen Einstellung für Zugangsdaten-Einträge"
   },
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Du kannst Auto-Ausfüllen beim Laden der Seite für einzelne Zugangsdaten-Einträge in der Bearbeiten-Ansicht des Eintrags deaktivieren."
@@ -1965,7 +1965,7 @@
     "description": "URI match detection for autofill."
   },
   "defaultMatchDetection": {
-    "message": "Standard-Match-Erkennung",
+    "message": "Standard Übereinstimmungserkennung",
     "description": "Default URI match detection for autofill."
   },
   "toggleOptions": {
@@ -2505,14 +2505,14 @@
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
-    "message": "Illustration of a list of logins that are at-risk."
+    "message": "Illustration einer Liste gefährdeter Zugangsdaten."
   },
   "generatePasswordSlideDesc": {
     "message": "Generiere schnell ein starkes, einzigartiges Passwort mit dem Bitwarden Auto-Ausfüllen-Menü auf der gefährdeten Website.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
   "generatePasswordSlideImgAltPeriod": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
+    "message": "Illustration des Bitwarden Auto-Ausfüllen-Menüs, das ein generiertes Passwort anzeigt."
   },
   "updateInBitwarden": {
     "message": "In Bitwarden aktualisieren"
@@ -2522,7 +2522,7 @@
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
   "updateInBitwardenSlideImgAltPeriod": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
+    "message": "Illustration einer Bitwarden-Benachrichtigung, die den Benutzer dazu auffordert, die Zugangsdaten zu aktualisieren."
   },
   "turnOnAutofill": {
     "message": "Auto-Ausfüllen aktivieren"
@@ -2978,7 +2978,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "message": "Nur die einzelnen Tresor-Einträge einschließlich Anhängen von $EMAIL$ werden exportiert. Tresor-Einträge der Organisation werden nicht berücksichtigt",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4244,7 +4244,7 @@
     }
   },
   "viewItemTitleWithField": {
-    "message": "View item - $ITEMNAME$ - $FIELD$",
+    "message": "Eintrag ansehen - $ITEMNAME$ - $FIELD$",
     "description": "Title for a link that opens a view for an item.",
     "placeholders": {
       "itemname": {
@@ -4268,7 +4268,7 @@
     }
   },
   "autofillTitleWithField": {
-    "message": "Autofill - $ITEMNAME$ - $FIELD$",
+    "message": "Auto-Ausfüllen - $ITEMNAME$ - $FIELD$",
     "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
@@ -5140,5 +5140,32 @@
   },
   "changeAtRiskPassword": {
     "message": "Gefährdetes Passwort ändern"
+  },
+  "introCarouselLabel": {
+    "message": "Willkommen bei Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Sicherheit, priorisiert"
+  },
+  "securityPrioritizedBody": {
+    "message": "Speichere Zugangsdaten, Karten und Identitäten in deinem sicheren Tresor. Bitwarden verwendet Zero-Knowledge und Ende-zu-Ende-Verschlüsselung, um das zu schützen, was für dich wichtig ist."
+  },
+  "quickLogin": {
+    "message": "Schnelle und einfache Anmeldung"
+  },
+  "quickLoginBody": {
+    "message": "Richte biometrisches Entsperren und Auto-Ausfüllen ein, um dich ohne einen einzigen Buchstaben einzugeben bei deinen Konten anzumelden."
+  },
+  "secureUser": {
+    "message": "Optimiere deine Zugangsdaten"
+  },
+  "secureUserBody": {
+    "message": "Verwende den Generator, um einzigartige Passwörter für alle deine Konten zu erstellen und zu speichern."
+  },
+  "secureDevices": {
+    "message": "Deine Daten, wann und wo du sie brauchst"
+  },
+  "secureDevicesBody": {
+    "message": "Speicher eine unbegrenzte Anzahl von Passwörter auf unbegrenzt vielen Geräten mit Bitwarden-Apps für Smartphones, Browser und Desktop."
   }
 }
