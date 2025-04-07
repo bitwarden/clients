@@ -27,7 +27,7 @@ export abstract class IpcService {
       return () => {
         isSubscribed = false;
       };
-    }).pipe(shareReplay({ bufferSize: 1, refCount: true }));
+    }).pipe(shareReplay({ bufferSize: 0, refCount: true }));
   }
 
   async send(message: OutgoingMessage) {
