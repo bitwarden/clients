@@ -287,10 +287,15 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       ),
     );
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(resolvedUserId));
-    return (
-      masterKey ||
-      (await this.makeMasterKey(password, email, await this.kdfConfigService.getKdfConfig()))
-    );
+    if (masterKey != null) {
+      return masterKey;
+    }
+
+    const kdf = await firstValueFrom(this.kdfConfigService.getKdfConfig$(resolvedUserId));
+    if (kdf == null) {
+      throw new Error("No kdf found for user");
+    }
+    return await this.makeMasterKey(password, email, kdf);
   }
 
   /**
@@ -301,11 +306,16 @@ export class DefaultKeyService implements KeyServiceAbstraction {
    * TODO: Move to MasterPasswordService
    */
   async makeMasterKey(password: string, email: string, KdfConfig: KdfConfig): Promise<MasterKey> {
-    return (await this.keyGenerationService.deriveKeyFromPassword(
+    const start = new Date().getTime();
+    const masterKey = (await this.keyGenerationService.deriveKeyFromPassword(
       password,
       email,
       KdfConfig,
     )) as MasterKey;
+    const end = new Date().getTime();
+    this.logService.info(`[KeyService] Deriving master key took ${end - start}ms`);
+
+    return masterKey;
   }
 
   async encryptUserKeyWithMasterKey(

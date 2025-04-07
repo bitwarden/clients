@@ -5,7 +5,14 @@ import { Component, ElementRef, HostBinding, Input } from "@angular/core";
 
 import { FocusableElement } from "../shared/focusable-element";
 
-export type BadgeVariant = "primary" | "secondary" | "success" | "danger" | "warning" | "info";
+export type BadgeVariant =
+  | "primary"
+  | "secondary"
+  | "success"
+  | "danger"
+  | "warning"
+  | "info"
+  | "notification";
 
 const styles: Record<BadgeVariant, string[]> = {
   primary: ["tw-bg-primary-100", "tw-border-primary-700", "!tw-text-primary-700"],
@@ -14,6 +21,11 @@ const styles: Record<BadgeVariant, string[]> = {
   danger: ["tw-bg-danger-100", "tw-border-danger-700", "!tw-text-danger-700"],
   warning: ["tw-bg-warning-100", "tw-border-warning-700", "!tw-text-warning-700"],
   info: ["tw-bg-info-100", "tw-border-info-700", "!tw-text-info-700"],
+  notification: [
+    "tw-bg-notification-100",
+    "tw-border-notification-600",
+    "!tw-text-notification-600",
+  ],
 };
 
 const hoverStyles: Record<BadgeVariant, string[]> = {
@@ -27,6 +39,11 @@ const hoverStyles: Record<BadgeVariant, string[]> = {
   danger: ["hover:tw-bg-danger-600", "hover:tw-border-danger-600", "hover:!tw-text-contrast"],
   warning: ["hover:tw-bg-warning-600", "hover:tw-border-warning-600", "hover:!tw-text-black"],
   info: ["hover:tw-bg-info-600", "hover:tw-border-info-600", "hover:!tw-text-black"],
+  notification: [
+    "hover:tw-bg-notification-600",
+    "hover:tw-border-notification-600",
+    "hover:!tw-text-contrast",
+  ],
 };
 
 @Component({
