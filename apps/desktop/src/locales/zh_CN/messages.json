@@ -2788,13 +2788,13 @@
     "message": "通知已发送到您的设备"
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the "
+    "message": "解锁您设备上的 Bitwarden 或通过"
   },
   "notificationSentDeviceAnchor": {
     "message": "网页 App"
   },
   "notificationSentDevicePart2": {
-    "message": "在批准前，请确保指纹短语与下面的相匹配。"
+    "message": "批准前，请确保指纹短语与下面的相匹配。"
   },
   "needAnotherOptionV1": {
     "message": "需要其他选项吗？"
