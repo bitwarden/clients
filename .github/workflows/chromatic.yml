@@ -36,11 +36,9 @@ jobs:
         with:
           filters: |
             storyFiles: 
-              - "apps/browser/**"
-              - "apps/desktop/**"
-              - "apps/web/**"
+              - "apps/!(cli)/**""
               - "bitwarden_license/bit-web/src/app/**"
-              - "libs/**"
+              - "libs/!(eslint)/**"
               - "package.json"
               - ".storybook/**"
 
