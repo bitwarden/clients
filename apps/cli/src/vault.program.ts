@@ -350,6 +350,8 @@ export class VaultProgram extends BaseProgram {
         const command = new RestoreCommand(
           this.serviceContainer.cipherService,
           this.serviceContainer.accountService,
+          this.serviceContainer.configService,
+          this.serviceContainer.cipherAuthorizationService,
         );
         const response = await command.run(object, id);
         this.processResponse(response);

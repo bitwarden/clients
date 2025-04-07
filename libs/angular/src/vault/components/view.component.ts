@@ -80,6 +80,7 @@ export class ViewComponent implements OnDestroy, OnInit {
   @Output() onRestoredCipher = new EventEmitter<CipherView>();
 
   canDeleteCipher$: Observable<boolean>;
+  canRestoreCipher$: Observable<boolean>;
   cipher: CipherView;
   showPassword: boolean;
   showPasswordCount: boolean;
@@ -178,12 +179,7 @@ export class ViewComponent implements OnDestroy, OnInit {
   }
 
   async edit() {
-    if (await this.promptPassword()) {
-      this.onEditCipher.emit(this.cipher);
-      return true;
-    }
-
-    return false;
+    this.onEditCipher.emit(this.cipher);
   }
 
   async clone() {
@@ -525,6 +521,7 @@ export class ViewComponent implements OnDestroy, OnInit {
     this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher, [
       this.collectionId as CollectionId,
     ]);
+    this.canRestoreCipher$ = this.cipherAuthorizationService.canRestoreCipher$(this.cipher);
 
     if (this.cipher.folderId) {
       this.folder = await (
