@@ -3,10 +3,12 @@ const child = require("child_process");
 const { exit } = require("process");
 
 const fse = require("fs-extra");
+const { build } = require("electron-builder");
 
 const paths = {
   macosBuild: "./macos/build",
-  extensionBuild: "./macos/build/Release/autofill-extension.appex",
+  extensionBuildDebug: "./macos/build/Debug/autofill-extension.appex",
+  extensionBuildRelease: "./macos/build/Release/autofill-extension.appex",
   extensionDistDir: "./macos/dist",
   extensionDist: "./macos/dist/autofill-extension.appex",
   macOsProject: "./macos/desktop.xcodeproj",
@@ -14,7 +16,7 @@ const paths = {
 
 exports.default = buildMacOs;
 
-async function buildMacOs(context) {
+async function buildMacOs() {
   console.log("### Building Autofill Extension");
 
   if (fse.existsSync(paths.macosBuild)) {
@@ -26,37 +28,27 @@ async function buildMacOs(context) {
   }
 
   let configuration;
-  if (context !== undefined) {
-    // Extract the first target name (assuming there's at least one target)
-    const appOutDir = context.appOutDir;
-
-    if (appOutDir.includes("mas-dev")) {
+  let buildDirectory;
+  const configurationArgument = process.argv[2];
+  if (configurationArgument !== undefined) {
+    // Use the configuration passed in to determine the configuration file.
+    if (configurationArgument == "mas-dev") {
       configuration = "Debug";
-    } else if (appOutDir.includes("mas")) {
+      buildDirectory = paths.extensionBuildDebug;
+    } else if (configurationArgument == "mas") {
       configuration = "ReleaseAppStore";
-    } else if (appOutDir.includes("mac")) {
+      buildDirectory = paths.extensionBuildRelease;
+    } else if (configurationArgument == "mac") {
       configuration = "ReleaseDeveloper";
+      buildDirectory = paths.extensionBuildRelease;
     } else {
       console.log("### Unable to determine configuration, skipping Autofill Extension build");
       return;
     }
   } else {
-    console.log("### No context found, skipping Autofill Extension build");
+    console.log("### No configuration argument found, skipping Autofill Extension build");
     return;
   }
-
-  const ls = child.spawn("ls", ["-al", "/Users/runner/work/clients/clients/apps/desktop/desktop_native/macos_provider"]);
-  stdOutProc(ls);
-  await new Promise((resolve, reject) =>
-    ls.on("close", (code) => {
-      if (code > 0) {
-        console.error("ls failed with code", code);
-        return reject(new Error(`ls failed with code ${code}`));
-      }
-      console.log("ls success");
-      resolve();
-    }),
-  );
 
   const proc = child.spawn("xcodebuild", [
     "-project",
@@ -65,7 +57,7 @@ async function buildMacOs(context) {
     "-configuration",
     configuration,
     "CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO",
-    "OTHER_CODE_SIGN_FLAGS='--timestamp'"
+    "OTHER_CODE_SIGN_FLAGS='--timestamp'",
   ]);
   stdOutProc(proc);
   await new Promise((resolve, reject) =>
@@ -80,7 +72,8 @@ async function buildMacOs(context) {
   );
 
   fse.mkdirSync(paths.extensionDistDir);
-  fse.copySync(paths.extensionBuild, paths.extensionDist);
+  fse.copySync(buildDirectory, paths.extensionDist);
+
   // Delete the build dir, otherwise MacOS will load the extension from there instead of the Bitwarden.app bundle
   fse.removeSync(paths.macosBuild);
 }
@@ -90,9 +83,9 @@ function stdOutProc(proc) {
   proc.stderr.on("data", (data) => console.error(data.toString()));
 }
 
-// buildMacOs()
-//   .then(() => console.log("macOS build complete"))
-//   .catch((err) => {
-//     console.error("macOS build failed", err);
-//     exit(-1);
-//   });
+buildMacOs()
+  .then(() => console.log("macOS build complete"))
+  .catch((err) => {
+    console.error("macOS build failed", err);
+    exit(-1);
+  });

@@ -981,7 +981,7 @@ jobs:
           APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
           CSC_FOR_PULL_REQUEST: true
-        run: npm run pack:mac
+        run: npm run pack:mac:with-extension
 
       - name: Upload .zip artifact
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
@@ -1247,7 +1247,7 @@ jobs:
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
           DEBUG: electron-osx-sign*
           CSC_FOR_PULL_REQUEST: true
-        run: npm run pack:mac:mas
+        run: npm run pack:mac:mas:with-extension
 
       - name: Upload .pkg artifact
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
@@ -1521,7 +1521,7 @@ jobs:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
           DEBUG: electron-osx-sign*
-        run: npm run pack:mac:masdev
+        run: npm run pack:mac:masdev:with-extension
 
       - name: Zip masdev asset
         run: |

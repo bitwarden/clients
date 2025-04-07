@@ -5,7 +5,7 @@ const path = require("path");
 const { notarize } = require("@electron/notarize");
 const { deepAssign } = require("builder-util");
 const fse = require("fs-extra");
-const buildExtension = require('./build-macos-extension.js');
+const buildExtension = require("./build-macos-extension.js");
 
 exports.default = run;
 
@@ -18,18 +18,11 @@ async function run(context) {
   const macBuild = context.electronPlatformName === "darwin";
   const copySafariExtension = ["darwin", "mas"].includes(context.electronPlatformName);
   const copyAutofillExtension = ["darwin", "mas"].includes(context.electronPlatformName);
-  const isTempBuild = context.appOutDir.includes("temp");
 
   let shouldResign = false;
 
   // cannot use extraFiles because it modifies the extensions .plist and makes it invalid
   if (copyAutofillExtension) {
-    if (!isTempBuild) {
-      await buildExtension.default(context);
-    } else {
-      console.log("### Packing in a temporary build location - skipping autofill extension build");
-    }
-
     console.log("### Copying autofill extension");
     const extensionPath = path.join(__dirname, "../macos/dist/autofill-extension.appex");
     if (!fse.existsSync(extensionPath)) {
