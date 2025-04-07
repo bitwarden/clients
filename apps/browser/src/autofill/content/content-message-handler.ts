@@ -6,6 +6,21 @@ import {
 } from "./abstractions/content-message-handler";
 
 /**
+ * Handlers for window messages from the content script.
+ * NOTE: These handlers should be above the event listener to ensure they are defined before being used.
+ */
+const windowMessageHandlers: ContentMessageWindowEventHandlers = {
+  authResult: ({ data, referrer }: { data: any; referrer: string }) =>
+    handleAuthResultMessage(data, referrer),
+  webAuthnResult: ({ data, referrer }: { data: any; referrer: string }) =>
+    handleWebAuthnResultMessage(data, referrer),
+  [VaultMessages.checkBwInstalled]: () => handleExtensionInstallCheck(),
+  duoResult: ({ data, referrer }: { data: any; referrer: string }) =>
+    handleDuoResultMessage(data, referrer),
+  [VaultMessages.OpenAtRiskPasswords]: () => handleOpenAtRiskPasswordsMessage(),
+};
+
+/**
  * IMPORTANT: Safari seems to have a bug where it doesn't properly handle
  * window message events from content scripts when the listener these events
  * is registered within a class. This is why these listeners are registered
@@ -17,20 +32,6 @@ setupExtensionDisconnectAction(() => {
   window.removeEventListener("message", handleWindowMessageEvent);
   chrome.runtime.onMessage.removeListener(handleExtensionMessage);
 });
-
-/**
- * Handlers for window messages from the content script.
- */
-const windowMessageHandlers: ContentMessageWindowEventHandlers = {
-  authResult: ({ data, referrer }: { data: any; referrer: string }) =>
-    handleAuthResultMessage(data, referrer),
-  webAuthnResult: ({ data, referrer }: { data: any; referrer: string }) =>
-    handleWebAuthnResultMessage(data, referrer),
-  [VaultMessages.checkBwInstalled]: () => handleExtensionInstallCheck(),
-  duoResult: ({ data, referrer }: { data: any; referrer: string }) =>
-    handleDuoResultMessage(data, referrer),
-  [VaultMessages.OpenPopup]: () => handleOpenPopupMessage(),
-};
 
 /**
  * Handles the post to the web vault showing the extension has been installed
@@ -72,8 +73,8 @@ function handleWebAuthnResultMessage(data: ContentMessageWindowData, referrer: s
   sendExtensionRuntimeMessage({ command, data: data.data, remember, referrer });
 }
 
-function handleOpenPopupMessage() {
-  sendExtensionRuntimeMessage({ command: VaultMessages.OpenPopup });
+function handleOpenAtRiskPasswordsMessage() {
+  sendExtensionRuntimeMessage({ command: VaultMessages.OpenAtRiskPasswords });
 }
 
 /**

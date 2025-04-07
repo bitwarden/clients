@@ -15,6 +15,7 @@ import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { EncryptedObject } from "@bitwarden/common/platform/models/domain/encrypted-object";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 
+import { ServerConfig } from "../../../platform/abstractions/config/server-config";
 import { EncryptService } from "../abstractions/encrypt.service";
 
 export class EncryptServiceImplementation implements EncryptService {
@@ -23,6 +24,11 @@ export class EncryptServiceImplementation implements EncryptService {
     protected logService: LogService,
     protected logMacFailures: boolean,
   ) {}
+
+  // Handle updating private properties to turn on/off feature flags.
+  onServerConfigChange(newConfig: ServerConfig): void {
+    return;
+  }
 
   async encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString> {
     if (key == null) {
@@ -77,8 +83,6 @@ export class EncryptServiceImplementation implements EncryptService {
     if (key == null) {
       throw new Error("No key provided for decryption.");
     }
-
-    key = this.resolveLegacyKey(key, encString);
 
     // DO NOT REMOVE OR MOVE. This prevents downgrade to mac-less CBC, which would compromise integrity and confidentiality.
     if (key.macKey != null && encString?.mac == null) {
@@ -144,8 +148,6 @@ export class EncryptServiceImplementation implements EncryptService {
     if (encThing == null) {
       throw new Error("Nothing provided for decryption.");
     }
-
-    key = this.resolveLegacyKey(key, encThing);
 
     // DO NOT REMOVE OR MOVE. This prevents downgrade to mac-less CBC, which would compromise integrity and confidentiality.
     if (key.macKey != null && encThing.macBytes == null) {
@@ -297,20 +299,5 @@ export class EncryptServiceImplementation implements EncryptService {
     if (this.logMacFailures) {
       this.logService.error(msg);
     }
-  }
-
-  /**
-   * Transform into new key for the old encrypt-then-mac scheme if required, otherwise return the current key unchanged
-   * @param encThing The encrypted object (e.g. encString or encArrayBuffer) that you want to decrypt
-   */
-  resolveLegacyKey(key: SymmetricCryptoKey, encThing: Encrypted): SymmetricCryptoKey {
-    if (
-      encThing.encryptionType === EncryptionType.AesCbc128_HmacSha256_B64 &&
-      key.encType === EncryptionType.AesCbc256_B64
-    ) {
-      return new SymmetricCryptoKey(key.key, EncryptionType.AesCbc128_HmacSha256_B64);
-    }
-
-    return key;
   }
 }

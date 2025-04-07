@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Introduce la dirección de correo electrónico de tu cuenta y se te enviará la pista de tu contraseña"
   },
-  "passwordHint": {
-    "message": "Pista de contraseña"
-  },
-  "enterEmailToGetHint": {
-    "message": "Introduce el correo electrónico de tu cuenta para recibir la pista de tu contraseña maestra."
-  },
   "getMasterPasswordHint": {
     "message": "Obtener pista de la contraseña maestra"
   },
@@ -839,18 +833,6 @@
   "continue": {
     "message": "Continuar"
   },
-  "enterVerificationCodeApp": {
-    "message": "Introduce el código de verificación de 6 dígitos de tu aplicación autenticadora."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Introduce el código de verificación de 6 dígitos que fue enviado a $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Correo de verificación enviado a $EMAIL$.",
     "placeholders": {
@@ -860,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Recordarme"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Reenviar código de verificación por correo electrónico"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Utilizar otro método de autenticación en dos pasos"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -878,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "Inserta tu YubiKey en el puerto USB de tu equipo y posteriormente pulsa su botón."
   },
   "insertU2f": {
     "message": "Inserta tu llave de seguridad en el puerto USB de tu equipo. Si tiene un botón, púlsalo."
@@ -951,9 +921,6 @@
   "selfHostedEnvironment": {
     "message": "Entorno de alojamiento propio"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Especifica la URL base de tu instalación de Bitwarden de alojamiento propio."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Especifica la dirección URL base de tu instalación alojada localmente de Bitwarden. Por ejemplo: https://bitwarden.empresa.com"
   },
@@ -965,9 +932,6 @@
   },
   "customEnvironment": {
     "message": "Entorno personalizado"
-  },
-  "customEnvironmentFooter": {
-    "message": "Para usuarios avanzados. Puedes especificar la URL base de cada servicio de forma independiente."
   },
   "baseUrl": {
     "message": "URL del servidor"
@@ -1008,6 +972,9 @@
   },
   "no": {
     "message": "No"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Sobreescribir contraseña"
@@ -2499,6 +2466,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Exportando caja fuerte de la organización"
   },
@@ -2781,14 +2757,8 @@
   "loginWithMasterPassword": {
     "message": "Iniciar sesión con contraseña maestra"
   },
-  "loggingInAs": {
-    "message": "Iniciando sesión como"
-  },
   "rememberEmail": {
     "message": "Recordar email"
-  },
-  "notYou": {
-    "message": "¿No eres tú?"
   },
   "newAroundHere": {
     "message": "¿Nuevo por aquí?"
@@ -3029,9 +2999,6 @@
   "requestAdminApproval": {
     "message": "Solicitar aprobación del administrador"
   },
-  "approveWithMasterPassword": {
-    "message": "Aprobar con contraseña maestra"
-  },
   "region": {
     "message": "Región"
   },
@@ -3056,9 +3023,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Tu solicitud ha sido enviada a tu administrador."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Se te notificará una vez aprobado."
   },
   "troubleLoggingIn": {
     "message": "¿Tienes problemas para iniciar sesión?"
@@ -3235,9 +3199,6 @@
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
-  },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Inicia Duo y sigue los pasos para terminar de iniciar sesión."
   },
   "duoRequiredByOrgForAccount": {
     "message": "Se requiere el inicio de sesión en dos pasos de Duo para tu cuenta."
@@ -3529,9 +3490,6 @@
   "unknownApplication": {
     "message": "An application"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
   },
@@ -3541,7 +3499,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
@@ -3603,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }

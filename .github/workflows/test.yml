@@ -71,8 +71,6 @@ jobs:
 
       - name: Upload results to codecov.io
         uses: codecov/test-results-action@4e79e65778be1cecd5df25e14af1eafb6df80ea9 # v1.0.2
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   rust:
     name: Run Rust tests on ${{ matrix.os }}

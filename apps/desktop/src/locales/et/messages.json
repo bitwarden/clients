@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Sisesta oma e-maili aadress ja sulle saadetakse sinna parooli vihje"
   },
-  "passwordHint": {
-    "message": "Parooli vihje"
-  },
-  "enterEmailToGetHint": {
-    "message": "Ülemparooli vihje saamiseks sisesta oma konto e-posti aadress."
-  },
   "getMasterPasswordHint": {
     "message": "Tuleta ülemparooli vihjega meelde"
   },
@@ -839,18 +833,6 @@
   "continue": {
     "message": "Jätka"
   },
-  "enterVerificationCodeApp": {
-    "message": "Sisesta autentimise rakendusest 6 kohaline number."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Sisesta 6 kohaline number, mis saadeti e-posti aadressile $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Kinnituskood saadeti e-posti aadressile $EMAIL$.",
     "placeholders": {
@@ -860,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Jäta mind meelde"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Saada kinnituskood uuesti e-postile"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Kasuta teist kaheastmelist sisselogimise meetodit"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -878,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "Sisesta oma YubiKey arvuti USB porti ja kliki sellele nupule."
   },
   "insertU2f": {
     "message": "Sisesta oma turvaline võti arvuti USB porti. Kui sellel on nupp, siis vajuta seda."
@@ -951,9 +921,6 @@
   "selfHostedEnvironment": {
     "message": "Self-hosted Environment"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Specify the base URL of your on-premise hosted bitwarden installation."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Sisesta enda ise-majutatud Bitwardeni serveri nimi (base URL). Näiteks: https://bitwarden.company.com"
   },
@@ -965,9 +932,6 @@
   },
   "customEnvironment": {
     "message": "Kohandatud keskkond"
-  },
-  "customEnvironmentFooter": {
-    "message": "For advanced users. You can specify the base URL of each service independently."
   },
   "baseUrl": {
     "message": "Serveri URL"
@@ -1008,6 +972,9 @@
   },
   "no": {
     "message": "Ei"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Kirjuta parool üle"
@@ -2499,6 +2466,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Ekspordin organisatsiooni hoidlat"
   },
@@ -2781,14 +2757,8 @@
   "loginWithMasterPassword": {
     "message": "Logi sisse ülemparooliga"
   },
-  "loggingInAs": {
-    "message": "Sisselogimas kui"
-  },
   "rememberEmail": {
     "message": "Mäleta e-posti aadressi"
-  },
-  "notYou": {
-    "message": "Pole sina?"
   },
   "newAroundHere": {
     "message": "Oled siin uus?"
@@ -3029,9 +2999,6 @@
   "requestAdminApproval": {
     "message": "Küsi administraatori nõusolekut"
   },
-  "approveWithMasterPassword": {
-    "message": "Kinnita ülemparooliga"
-  },
   "region": {
     "message": "Piirkond"
   },
@@ -3056,9 +3023,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Sinu taotlus saadeti administraatorile."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Kinnitamise järel saad selle kohta teavituse."
   },
   "troubleLoggingIn": {
     "message": "Ei õnnestu sisse logida?"
@@ -3235,9 +3199,6 @@
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Duo teenustega ühendamine ebaõnnestus. Kasuta teist kahe-astmelise sisselogimise meetodit või kontakteeru Duoga."
-  },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Käivita Duo ja järgi juhiseid, et lõpetada sisselogimine."
   },
   "duoRequiredByOrgForAccount": {
     "message": "Duo kahe-astmeline sisselogimine on sinu kontol nõutud."
@@ -3529,9 +3490,6 @@
   "unknownApplication": {
     "message": "An application"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
   },
@@ -3541,7 +3499,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
@@ -3603,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }
