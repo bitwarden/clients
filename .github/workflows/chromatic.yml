@@ -36,7 +36,7 @@ jobs:
         with:
           filters: |
             storyFiles: 
-              - "apps/!(cli)/**""
+              - "apps/!(cli)/**"
               - "bitwarden_license/bit-web/src/app/**"
               - "libs/!(eslint)/**"
               - "package.json"
