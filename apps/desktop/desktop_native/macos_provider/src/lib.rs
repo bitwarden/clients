@@ -50,17 +50,6 @@ trait Callback: Send + Sync {
 }
 
 // Empty callback implementation for sending messages without handling responses
-struct EmptyCallback;
-
-impl Callback for EmptyCallback {
-    fn complete(&self, _: serde_json::Value) -> Result<(), serde_json::Error> {
-        Ok(())
-    }
-
-    fn error(&self, _: BitwardenError) {
-        // No-op
-    }
-}
 
 #[derive(uniffi::Object)]
 pub struct MacOSProviderClient {
@@ -92,7 +81,7 @@ impl MacOSProviderClient {
 
         let client = MacOSProviderClient {
             to_server_send,
-            response_callbacks_counter: AtomicU32::new(0),
+            response_callbacks_counter: AtomicU32::new(1), // 0 is reserved for no callback
             response_callbacks_queue: Arc::new(Mutex::new(HashMap::new())),
         };
 
@@ -158,7 +147,7 @@ impl MacOSProviderClient {
 
     pub fn send_native_status(&self, key: String, value: String) {
         let status = NativeStatus { key, value };
-        self.send_message(status, Box::new(EmptyCallback));
+        self.send_message(status, None);
     }
 
     pub fn prepare_passkey_registration(
@@ -166,7 +155,7 @@ impl MacOSProviderClient {
         request: PasskeyRegistrationRequest,
         callback: Arc<dyn PreparePasskeyRegistrationCallback>,
     ) {
-        self.send_message(request, Box::new(callback));
+        self.send_message(request, Some(Box::new(callback)));
     }
 
     pub fn prepare_passkey_assertion(
@@ -174,7 +163,7 @@ impl MacOSProviderClient {
         request: PasskeyAssertionRequest,
         callback: Arc<dyn PreparePasskeyAssertionCallback>,
     ) {
-        self.send_message(request, Box::new(callback));
+        self.send_message(request, Some(Box::new(callback)));
     }
 
     pub fn prepare_passkey_assertion_without_user_interface(
@@ -182,7 +171,7 @@ impl MacOSProviderClient {
         request: PasskeyAssertionWithoutUserInterfaceRequest,
         callback: Arc<dyn PreparePasskeyAssertionCallback>,
     ) {
-        self.send_message(request, Box::new(callback));
+        self.send_message(request, Some(Box::new(callback)));
     }
 }
 
@@ -220,9 +209,13 @@ impl MacOSProviderClient {
     fn send_message(
         &self,
         message: impl Serialize + DeserializeOwned,
-        callback: Box<dyn Callback>,
+        callback: Option<Box<dyn Callback>>,
     ) {
-        let sequence_number = self.add_callback(callback);
+        let sequence_number = if let Some(cb) = callback {
+            self.add_callback(cb)
+        } else {
+            0 // Special value indicating "no callback"
+        };
 
         let message = serde_json::to_string(&SerializedMessage::Message {
             sequence_number,
@@ -232,16 +225,18 @@ impl MacOSProviderClient {
 
         if let Err(e) = self.to_server_send.blocking_send(message) {
             // Make sure we remove the callback from the queue if we can't send the message
-            if let Some((cb, _)) = self
-                .response_callbacks_queue
-                .lock()
-                .unwrap()
-                .remove(&sequence_number)
-            {
-                cb.error(BitwardenError::Internal(format!(
-                    "Error sending message: {}",
-                    e
-                )));
+            if sequence_number != 0 {
+                if let Some((cb, _)) = self
+                    .response_callbacks_queue
+                    .lock()
+                    .unwrap()
+                    .remove(&sequence_number)
+                {
+                    cb.error(BitwardenError::Internal(format!(
+                        "Error sending message: {}",
+                        e
+                    )));
+                }
             }
         }
     }
