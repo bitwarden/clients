@@ -5140,5 +5140,32 @@
   },
   "changeAtRiskPassword": {
     "message": "Risicovol wachtwoord wijzigen"
+  },
+  "introCarouselLabel": {
+    "message": "Welkom bij Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Security, geprioriteerd"
+  },
+  "securityPrioritizedBody": {
+    "message": "Logins, kaarten en identiteiten in je beveiligde kluis opslaan. Bitwarden gebruikt zero-knowledge, end-to-end versleuteling om te beschermen wat belangrijk voor jou is."
+  },
+  "quickLogin": {
+    "message": "Snel en eenvoudig inloggen"
+  },
+  "quickLoginBody": {
+    "message": "Biometrische ontgrendelen en automatisch invullen instellen zodat je kunt inloggen op je accounts zonder één letter te typen."
+  },
+  "secureUser": {
+    "message": "Versterk je logins"
+  },
+  "secureUserBody": {
+    "message": "Gebruik de generator voor het aanmaken en bewaren van sterke, unieke wachtwoorden voor al je accounts."
+  },
+  "secureDevices": {
+    "message": "Jouw gegevens, wanneer en waar je ze nodig hebt"
+  },
+  "secureDevicesBody": {
+    "message": "Onbeperkt wachtwoorden opslaan op alle apparaten met Bitwarden-apps voor mobiel, browser en desktop."
   }
 }

@@ -5140,5 +5140,32 @@
   },
   "changeAtRiskPassword": {
     "message": "Kockázatos jelszó megváltoztatása"
+  },
+  "introCarouselLabel": {
+    "message": "Üdvözlet a Bitwardenben"
+  },
+  "securityPrioritized": {
+    "message": "Biztonság, prioritásos"
+  },
+  "securityPrioritizedBody": {
+    "message": "Mentsük el a bejelentkezési adatokat, kártyákat és azonosításokat a biztonságos széfbe. A Bitwarden tudás nélküli, végpontok közötti titkosítást használ a felhasználók számára fontos dolgok védelmére."
+  },
+  "quickLogin": {
+    "message": "Gyors és könnyű bejelentkezés"
+  },
+  "quickLoginBody": {
+    "message": "Állítsuk be a biometrikus feloldást és az automatikus kitöltést, hogy egyetlen betű beírása nélkül jelentkezzünk be a fiókokba."
+  },
+  "secureUser": {
+    "message": "A bejelentkezések magasabb szintre emelése"
+  },
+  "secureUserBody": {
+    "message": "Használjuk a generátort, hogy erős, egyedi jelszavakat hozzunk létre és mentsük az összes fióknál."
+  },
+  "secureDevices": {
+    "message": "Saját adatok, mikor és hol van rá szükség"
+  },
+  "secureDevicesBody": {
+    "message": "Mentsünk el a korlátlan jelszót korlátlan számú eszközön a Bitwarden mobil, böngésző és asztali alkalmazásokkal."
   }
 }
