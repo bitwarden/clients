@@ -11,10 +11,10 @@ export class MessageQueue<T> {
 
   async dequeue(): Promise<T> {
     if (this.queue.length > 0) {
-      return this.queue.shift();
+      return this.queue.shift() as T;
     }
 
     await firstValueFrom(this.messageAvailable$);
-    return this.queue.shift();
+    return this.queue.shift() as T;
   }
 }

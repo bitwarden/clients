@@ -6,7 +6,7 @@ import { IpcClient } from "@bitwarden/sdk-internal";
 import { BackgroundCommunicationBackend } from "./background-communication-backend";
 
 export class IpcBackgroundService extends IpcService {
-  private communicationProvider: BackgroundCommunicationBackend;
+  private communicationProvider?: BackgroundCommunicationBackend;
 
   constructor(private logService: LogService) {
     super();
@@ -17,9 +17,8 @@ export class IpcBackgroundService extends IpcService {
       // This function uses classes and functions defined in the SDK, so we need to wait for the SDK to load.
       await SdkLoadService.Ready;
       this.communicationProvider = new BackgroundCommunicationBackend();
-      this.client = new IpcClient(this.communicationProvider);
 
-      await super.init();
+      await super.initWithClient(new IpcClient(this.communicationProvider));
     } catch (e) {
       this.logService.error("[IPC] Initialization failed", e);
     }

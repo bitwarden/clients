@@ -13,6 +13,11 @@ export class BackgroundCommunicationBackend implements CommunicationBackend {
         return;
       }
 
+      if (sender.tab?.id === undefined || sender.tab.id === chrome.tabs.TAB_ID_NONE) {
+        // Ignore messages from non-tab sources
+        return;
+      }
+
       void this.queue.enqueue({ ...message.message, source: { Web: { id: sender.tab.id } } });
     });
   }

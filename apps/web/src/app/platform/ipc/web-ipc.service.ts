@@ -9,16 +9,15 @@ import { WebCommunicationProvider } from "./web-communication-provider";
 
 export class WebIpcService extends IpcService {
   private logService = inject(LogService);
-  private communicationProvider: WebCommunicationProvider;
+  private communicationProvider?: WebCommunicationProvider;
 
   override async init() {
     try {
       // This function uses classes and functions defined in the SDK, so we need to wait for the SDK to load.
       await SdkLoadService.Ready;
       this.communicationProvider = new WebCommunicationProvider();
-      this.client = new IpcClient(this.communicationProvider);
 
-      await super.init();
+      await super.initWithClient(new IpcClient(this.communicationProvider));
     } catch (e) {
       this.logService.error("[IPC] Initialization failed", e);
     }
