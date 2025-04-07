@@ -250,17 +250,17 @@
     "message": "خطأ"
   },
   "decryptionError": {
-    "message": "Decryption error"
+    "message": "خطأ في فك التشفير"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+    "message": "تعذّر على Bitwarden فك تشفير عنصر(العناصر) المخزنة في الخزنة والمذكورة أدناه"
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
+    "message": "فريق نجاح العملاء",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "لتجنب فقدان بيانات إضافية.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
@@ -649,7 +649,7 @@
     "message": "تسجيل الدخول إلى Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "أدخل الرمز الذي تم إرساله إلى بريدك الإلكتروني."
   },
   "enterTheCodeFromYourAuthenticatorApp": {
     "message": "Enter the code from your authenticator app"
@@ -833,18 +833,6 @@
   "continue": {
     "message": "متابعة"
   },
-  "enterVerificationCodeApp": {
-    "message": "أدخل رمز التحقق من 6 أرقام من تطبيق المصادقة الخاص بك."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "أدخل رمز التحقق المكون من 6 أرقام الذي تم إرساله إلى $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "تم إرسال رسالة التحقق إلى $EMAIL$.",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "تذكرني"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "إرسال رمز التحقق إلى البريد الإلكتروني مرة أخرى"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "استخدام طريقة أخرى لتسجيل الدخول بخطوتين"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "أدخل YubiKey الخاص بك في منفذ USB في كمبيوترك، ثم لمس الزر."
   },
   "insertU2f": {
     "message": "أدخل مفتاح الأمان الخاص بك في منفذ USB كمبيوترك، إذا كان يحتوي على زر، إلمسه."
@@ -3224,9 +3200,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "خطأ في الاتصال بخدمة Duo. استخدم طريقة تسجيل الدخول بخطوتين مختلفة أو اتصل بـ Duo للمساعدة."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "قم بتشغيل دوو واتبع الخطوات لإنهاء تسجيل الدخول."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "تسجيل الدخول لـ Duo من خطوتين مطلوب لحسابك."
   },
@@ -3588,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }
