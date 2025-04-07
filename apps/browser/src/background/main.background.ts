@@ -200,6 +200,7 @@ import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
+import { DefaultTaskService, TaskService } from "@bitwarden/common/vault/tasks";
 import {
   legacyPasswordGenerationServiceFactory,
   legacyUsernameGenerationServiceFactory,
@@ -400,6 +401,7 @@ export default class MainBackground {
   sdkLoadService: SdkLoadService;
   cipherAuthorizationService: CipherAuthorizationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
+  taskService: TaskService;
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
@@ -1296,6 +1298,16 @@ export default class MainBackground {
       this.configService,
     );
 
+    this.taskService = new DefaultTaskService(
+      this.stateProvider,
+      this.apiService,
+      this.organizationService,
+      this.configService,
+      this.authService,
+      this.notificationsService,
+      messageListener,
+    );
+
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
   }
 
@@ -1377,6 +1389,11 @@ export default class MainBackground {
         await this.fullSync(false);
         this.backgroundSyncService.init();
         this.notificationsService.startListening();
+
+        if (await this.configService.getFeatureFlag(FeatureFlag.SecurityTasks)) {
+          this.taskService.listenForTaskNotifications();
+        }
+
         resolve();
       }, 500);
     });
