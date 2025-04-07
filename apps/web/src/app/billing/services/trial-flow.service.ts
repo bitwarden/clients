@@ -51,6 +51,28 @@ export class TrialFlowService {
     };
   }
 
+  organizationHasUpcomingPaymentIssues(
+    organization: Organization,
+    organizationSubscription: OrganizationSubscriptionResponse,
+    metadata: OrganizationBillingMetadataResponse,
+  ): FreeTrial {
+    const trialEndDate = organizationSubscription?.subscription?.trialEndDate;
+    const displayBanner =
+      metadata.isPaymentMethodConfigured === false &&
+      organization?.isOwner &&
+      organizationSubscription?.subscription?.status === "trialing";
+    const trialRemainingDays = trialEndDate ? this.calculateTrialRemainingDays(trialEndDate) : 0;
+    const freeTrialMessage = this.getFreeTrialMessage(trialRemainingDays);
+
+    return {
+      remainingDays: trialRemainingDays,
+      message: freeTrialMessage,
+      shownBanner: displayBanner,
+      organizationId: organization.id,
+      organizationName: organization.name,
+    };
+  }
+
   calculateTrialRemainingDays(trialEndDate: string): number | undefined {
     const today = new Date();
     const trialEnd = new Date(trialEndDate);

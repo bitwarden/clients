@@ -23,7 +23,6 @@ import {
   switchMap,
   takeUntil,
   tap,
-  catchError,
 } from "rxjs/operators";
 
 import {
@@ -41,8 +40,8 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { EventType } from "@bitwarden/common/enums";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -76,7 +75,6 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
-import { BillingNotificationService } from "../../../billing/services/billing-notification.service";
 import {
   ResellerWarning,
   ResellerWarningService,
@@ -180,6 +178,8 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected resellerWarning$: Observable<ResellerWarning | null>;
   protected prevCipherId: string | null = null;
   protected userId: UserId;
+  private metadata$: Observable<OrganizationBillingMetadataResponse>;
+
   /**
    * A list of collections that the user can assign items to and edit those items within.
    * @protected
@@ -204,7 +204,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         filter((organizations) => organizations.length === 1),
         map(([organization]) => organization),
         switchMap((organization) =>
-          from(this.billingApiService.getOrganizationBillingMetadata(organization.id)).pipe(
+          this.metadata$.pipe(
             tap((organizationMetaData) => {
               this.hasSubscription$.next(organizationMetaData.hasSubscription);
             }),
@@ -253,10 +253,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     private organizationApiService: OrganizationApiServiceAbstraction,
     private trialFlowService: TrialFlowService,
     protected billingApiService: BillingApiServiceAbstraction,
-    private organizationBillingService: OrganizationBillingServiceAbstraction,
     private resellerWarningService: ResellerWarningService,
     private accountService: AccountService,
-    private billingNotificationService: BillingNotificationService,
   ) {}
 
   async ngOnInit() {
@@ -279,11 +277,17 @@ export class VaultComponent implements OnInit, OnDestroy {
       map((account) => account?.id),
       switchMap((id) =>
         organizationId$.pipe(
-          switchMap((organizationId) =>
-            this.organizationService
+          switchMap((organizationId) => {
+            if (!this.metadata$) {
+              this.metadata$ = from(
+                this.billingApiService.getOrganizationBillingMetadata(organizationId),
+              );
+            }
+
+            return this.organizationService
               .organizations$(id)
-              .pipe(map((organizations) => organizations.find((org) => org.id === organizationId))),
-          ),
+              .pipe(map((organizations) => organizations.find((org) => org.id === organizationId)));
+          }),
           takeUntil(this.destroy$),
           shareReplay({ refCount: false, bufferSize: 1 }),
         ),
@@ -633,27 +637,18 @@ export class VaultComponent implements OnInit, OnDestroy {
         combineLatest([
           of(org),
           this.organizationApiService.getSubscription(org.id),
-          from(this.organizationBillingService.getPaymentSource(org.id)).pipe(
-            catchError((error: unknown) => {
-              this.billingNotificationService.handleError(error);
-              return of(null);
-            }),
-          ),
+          this.metadata$,
         ]),
       ),
-      map(([org, sub, paymentSource]) =>
-        this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(org, sub, paymentSource),
+      map(([org, sub, metadata]) =>
+        this.trialFlowService.organizationHasUpcomingPaymentIssues(org, sub, metadata),
       ),
       filter((result) => result !== null),
     );
 
     this.resellerWarning$ = organization$.pipe(
       filter((org) => org.isOwner),
-      switchMap((org) =>
-        from(this.billingApiService.getOrganizationBillingMetadata(org.id)).pipe(
-          map((metadata) => ({ org, metadata })),
-        ),
-      ),
+      switchMap((org) => this.metadata$.pipe(map((metadata) => ({ org, metadata })))),
       map(({ org, metadata }) => this.resellerWarningService.getWarning(org, metadata)),
     );
 
