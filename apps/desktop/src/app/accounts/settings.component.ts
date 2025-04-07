@@ -388,22 +388,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.supportsBiometric = this.shouldAllowBiometricSetup(
-      await this.biometricsService.getBiometricsStatus(),
-    );
+    this.supportsBiometric = await this.biometricsService.canEnableBiometricUnlock();
     this.timerId = setInterval(async () => {
-      this.supportsBiometric = this.shouldAllowBiometricSetup(
-        await this.biometricsService.getBiometricsStatus(),
-      );
+      this.supportsBiometric = await this.biometricsService.canEnableBiometricUnlock();
     }, 1000);
-  }
-
-  private shouldAllowBiometricSetup(biometricStatus: BiometricsStatus): boolean {
-    return [
-      BiometricsStatus.Available,
-      BiometricsStatus.AutoSetupNeeded,
-      BiometricsStatus.ManualSetupNeeded,
-    ].includes(biometricStatus);
   }
 
   async saveVaultTimeout(newValue: VaultTimeout) {
