@@ -221,7 +221,7 @@ export class EncryptServiceImplementation implements EncryptService {
     encapsulationKey: Uint8Array,
   ): Promise<EncString> {
     if (sharedKey == null) {
-      throw new Error("No key provided for encapsulation");
+      throw new Error("No sharedKey provided for encapsulation");
     }
     return await this.rsaEncrypt(sharedKey.toEncoded(), encapsulationKey);
   }
