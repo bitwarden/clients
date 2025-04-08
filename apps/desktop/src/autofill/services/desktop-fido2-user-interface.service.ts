@@ -95,8 +95,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
   private confirmCredentialSubject = new Subject<boolean>();
 
-  private createdCipher: Cipher = new Cipher();
-  private updatedCipher: CipherView = new CipherView();
+  private updatedCipher: CipherView;
 
   private rpId = new BehaviorSubject<string>("");
   private availableCipherIdsSubject = new BehaviorSubject<string[]>([""]);
@@ -238,14 +237,14 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
         return { cipherId: this.updatedCipher.id, userVerified: userVerification };
       } else {
         // Create the credential
-        await this.createCipher({
+        const createdCipher = await this.createCipher({
           credentialName,
           userName,
           rpId,
           userHandle,
           userVerification,
         });
-        return { cipherId: this.createdCipher.id, userVerified: userVerification };
+        return { cipherId: createdCipher.id, userVerified: userVerification };
       }
     } finally {
       // Make sure to clean up so the app is never stuck in modal mode?
@@ -306,7 +305,6 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
     try {
       const createdCipher = await this.cipherService.createWithServer(encCipher);
-      this.createdCipher = createdCipher;
 
       return createdCipher;
     } catch {
