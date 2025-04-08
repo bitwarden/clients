@@ -39,11 +39,11 @@ export abstract class EncryptService {
   /**
    * Encapsulates a symmetric key with an asymmetric public key
    * Note: This does not establish sender authenticity
-   * @param key - The symmetric key that is to be shared
+   * @param sharedKey - The symmetric key that is to be shared
    * @param encapsulationKey - The encapsulation key (public key) of the receiver that the key is shared with
    */
   abstract encapsulateKeyUnsigned(
-    key: SymmetricCryptoKey,
+    sharedKey: SymmetricCryptoKey,
     encapsulationKey: Uint8Array,
   ): Promise<EncString>;
   /**
