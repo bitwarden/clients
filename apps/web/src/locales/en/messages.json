@@ -5707,6 +5707,9 @@
   "webAuthnSuccess": {
     "message": "WebAuthn verified successfully! You may close this tab."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Your password hint cannot be the same as your password."
   },
