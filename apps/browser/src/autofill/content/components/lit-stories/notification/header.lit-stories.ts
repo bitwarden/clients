@@ -12,7 +12,7 @@ type Args = {
 };
 
 export default {
-  title: "Components/Notifications/Notification Header",
+  title: "Components/Notifications/Header",
   argTypes: {
     message: { control: "text" },
     standalone: { control: "boolean" },

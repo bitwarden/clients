@@ -16,7 +16,7 @@ type Args = {
 };
 
 export default {
-  title: "Components/Notifications/Notification Body",
+  title: "Components/Notifications/Body",
   argTypes: {
     ciphers: { control: "object" },
     theme: { control: "select", options: [...Object.values(ThemeTypes)] },

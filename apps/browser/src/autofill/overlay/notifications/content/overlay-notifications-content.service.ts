@@ -137,6 +137,7 @@ export class OverlayNotificationsContentService
   private handleSaveCipherAttemptCompletedMessage(message: NotificationsExtensionMessage) {
     this.sendMessageToNotificationBarIframe({
       command: "saveCipherAttemptCompleted",
+      data: message.data,
       error: message.data?.error,
     });
   }

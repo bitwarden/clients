@@ -12,6 +12,7 @@ import { UserNotificationSettingsService } from "@bitwarden/common/autofill/serv
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -20,6 +21,8 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
 
+/* eslint-disable-next-line no-restricted-imports */
+import { TaskService } from "../../../../../libs/common/src/vault/tasks/abstractions/task.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
 import { FormData } from "../services/abstractions/autofill.service";
@@ -46,6 +49,8 @@ jest.mock("rxjs", () => {
 });
 
 describe("NotificationBackground", () => {
+  const messagingService = mock<MessagingService>();
+  const taskService = mock<TaskService>();
   let notificationBackground: NotificationBackground;
   const autofillService = mock<AutofillService>();
   const cipherService = mock<CipherService>();
@@ -88,6 +93,8 @@ describe("NotificationBackground", () => {
       policyService,
       themeStateService,
       userNotificationSettingsService,
+      taskService,
+      messagingService,
     );
   });
 

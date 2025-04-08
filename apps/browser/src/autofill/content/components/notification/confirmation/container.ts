@@ -1,41 +1,66 @@
 import { css } from "@emotion/css";
-import { html } from "lit";
+import { html, nothing } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import {
   NotificationBarIframeInitData,
-  NotificationTypes,
+  NotificationTaskInfo,
   NotificationType,
-} from "../../../notification/abstractions/notification-bar";
-import { themes, spacing } from "../constants/styles";
-
-import { NotificationConfirmationBody } from "./confirmation";
+  NotificationTypes,
+} from "../../../../notification/abstractions/notification-bar";
+import { themes, spacing } from "../../constants/styles";
 import {
   NotificationHeader,
   componentClassPrefix as notificationHeaderClassPrefix,
-} from "./header";
+} from "../header";
+
+import { NotificationConfirmationBody } from "./body";
+import { NotificationConfirmationFooter } from "./footer";
+
+export type NotificationConfirmationContainerProps = NotificationBarIframeInitData & {
+  handleCloseNotification: (e: Event) => void;
+  handleOpenVault: (e: Event) => void;
+  handleOpenTasks: (e: Event) => void;
+} & {
+  error?: string;
+  i18n: { [key: string]: string };
+  task?: NotificationTaskInfo;
+  type: NotificationType;
+  username: string;
+};
 
 export function NotificationConfirmationContainer({
   error,
   handleCloseNotification,
   handleOpenVault,
+  handleOpenTasks,
   i18n,
+  task,
   theme = ThemeTypes.Light,
   type,
   username,
-}: NotificationBarIframeInitData & {
-  handleCloseNotification: (e: Event) => void;
-  handleOpenVault: (e: Event) => void;
-} & {
-  error?: string;
-  i18n: { [key: string]: string };
-  type: NotificationType;
-  username: string;
-}) {
+}: NotificationConfirmationContainerProps) {
   const headerMessage = getHeaderMessage(i18n, type, error);
   const confirmationMessage = getConfirmationMessage(i18n, username, type, error);
   const buttonText = error ? i18n.newItem : i18n.view;
+
+  let messageDetails: string | undefined;
+  let remainingTasksCount: number | undefined;
+  let tasksAreComplete: boolean = false;
+
+  if (task) {
+    remainingTasksCount = task.remainingTasksCount || 0;
+    tasksAreComplete = remainingTasksCount === 0;
+
+    messageDetails =
+      remainingTasksCount > 0
+        ? chrome.i18n.getMessage("loginUpdateTaskSuccessAdditional", [
+            task.orgName,
+            `${remainingTasksCount}`,
+          ])
+        : chrome.i18n.getMessage("loginUpdateTaskSuccess", [task.orgName]);
+  }
 
   return html`
     <div class=${notificationContainerStyles(theme)}>
@@ -47,10 +72,18 @@ export function NotificationConfirmationContainer({
       ${NotificationConfirmationBody({
         buttonText,
         confirmationMessage,
-        error: error,
-        handleOpenVault,
+        tasksAreComplete,
+        messageDetails,
         theme,
+        handleOpenVault,
       })}
+      ${remainingTasksCount
+        ? NotificationConfirmationFooter({
+            i18n,
+            theme,
+            handleButtonClick: handleOpenTasks,
+          })
+        : nothing}
     </div>
   `;
 }

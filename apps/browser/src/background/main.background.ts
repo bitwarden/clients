@@ -232,6 +232,10 @@ import {
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
+/* eslint-disable-next-line no-restricted-imports */
+import { TaskService } from "../../../../libs/common/src/vault/tasks/abstractions/task.service";
+/* eslint-disable-next-line no-restricted-imports */
+import { DefaultTaskService } from "../../../../libs/common/src/vault/tasks/services/default-task.service";
 import { OverlayNotificationsBackground as OverlayNotificationsBackgroundInterface } from "../autofill/background/abstractions/overlay-notifications.background";
 import { OverlayBackground as OverlayBackgroundInterface } from "../autofill/background/abstractions/overlay.background";
 import { AutoSubmitLoginBackground } from "../autofill/background/auto-submit-login.background";
@@ -1085,6 +1089,13 @@ export default class MainBackground {
       this.webPushConnectionService,
     );
 
+    this.taskService = new DefaultTaskService(
+      this.stateProvider,
+      this.apiService,
+      this.organizationService,
+      this.configService,
+    );
+
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
     this.fido2AuthenticatorService = new Fido2AuthenticatorService(
       this.cipherService,
@@ -1180,6 +1191,7 @@ export default class MainBackground {
       this.authService,
       () => this.generatePasswordToClipboard(),
     );
+
     this.notificationBackground = new NotificationBackground(
       this.accountService,
       this.authService,
@@ -1194,6 +1206,8 @@ export default class MainBackground {
       this.policyService,
       this.themeStateService,
       this.userNotificationSettingsService,
+      this.taskService,
+      this.messagingService,
     );
 
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(
