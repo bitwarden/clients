@@ -27,9 +27,11 @@ import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
 
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
+import { InputsFieldMatch } from "../../../../angular/src/auth/validators/inputs-field-match.validator";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { SharedModule } from "../../../../components/src/shared";
 import { PasswordCalloutComponent } from "../password-callout/password-callout.component";
-import { compareInputs, ValidationGoal } from "../validators/compare-inputs.validator";
 
 import { PasswordInputResult } from "./password-input-result";
 
@@ -111,21 +113,21 @@ export class InputPasswordComponent implements OnInit {
     },
     {
       validators: [
-        compareInputs(
-          ValidationGoal.InputsShouldNotMatch,
+        InputsFieldMatch.compareInputs(
+          "doNotMatch",
           "currentPassword",
           "newPassword",
           this.i18nService.t("yourNewPasswordCannotBeTheSameAsYourCurrentPassword"),
         ),
-        compareInputs(
-          ValidationGoal.InputsShouldMatch,
-          "password",
-          "confirmedPassword",
+        InputsFieldMatch.compareInputs(
+          "match",
+          "newPassword",
+          "confirmNewPassword",
           this.i18nService.t("masterPassDoesntMatch"),
         ),
-        compareInputs(
-          ValidationGoal.InputsShouldNotMatch,
-          "password",
+        InputsFieldMatch.compareInputs(
+          "doNotMatch",
+          "newPassword",
           "hint",
           this.i18nService.t("hintEqualsPassword"),
         ),
