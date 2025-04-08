@@ -10,25 +10,27 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Subject, takeUntil, switchMap } from "rxjs";
+import { firstValueFrom, Subject, takeUntil, switchMap, lastValueFrom, Observable } from "rxjs";
 import { filter, first, map, take } from "rxjs/operators";
 
+import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { CipherId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -36,18 +38,22 @@ import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-repromp
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { DecryptionFailureDialogComponent, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  CollectionAssignmentResult,
+  DecryptionFailureDialogComponent,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
 import { invokeMenu, RendererMenuItem } from "../../../utils";
 
 import { AddEditComponent } from "./add-edit.component";
+import { AssignCollectionsWebComponent } from "./assign-collections";
 import { AttachmentsComponent } from "./attachments.component";
 import { CollectionsComponent } from "./collections.component";
 import { CredentialGeneratorDialogComponent } from "./credential-generator-dialog.component";
 import { FolderAddEditComponent } from "./folder-add-edit.component";
 import { PasswordHistoryComponent } from "./password-history.component";
-import { ShareComponent } from "./share.component";
 import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
 import { VaultItemsComponent } from "./vault-items.component";
 import { ViewComponent } from "./view.component";
@@ -94,6 +100,13 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   private modal: ModalRef = null;
   private componentIsDestroyed$ = new Subject<boolean>();
+  private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
+    map((a) => a?.id),
+    switchMap((id) => this.organizationService.organizations$(id)),
+  );
+
+  private allOrganizations: Organization[] = [];
+  private allCollections: CollectionView[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -114,9 +127,10 @@ export class VaultComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private toastService: ToastService,
-    private configService: ConfigService,
     private accountService: AccountService,
     private cipherService: CipherService,
+    private collectionService: CollectionService,
+    private organizationService: OrganizationService,
   ) {}
 
   async ngOnInit() {
@@ -252,6 +266,16 @@ export class VaultComponent implements OnInit, OnDestroy {
         DecryptionFailureDialogComponent.open(this.dialogService, {
           cipherIds: ciphers.map((c) => c.id as CipherId),
         });
+      });
+
+    this.organizations$.pipe(takeUntil(this.componentIsDestroyed$)).subscribe((orgs) => {
+      this.allOrganizations = orgs;
+    });
+
+    this.collectionService.decryptedCollections$
+      .pipe(takeUntil(this.componentIsDestroyed$))
+      .subscribe((collections) => {
+        this.allCollections = collections;
       });
   }
 
@@ -556,31 +580,46 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async shareCipher(cipher: CipherView) {
-    if (this.modal != null) {
-      this.modal.close();
+    if (!cipher) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("nothingSelected"),
+      });
+      return;
     }
 
-    const [modal, childComponent] = await this.modalService.openViewRef(
-      ShareComponent,
-      this.shareModalRef,
-      (comp) => (comp.cipherId = cipher.id),
-    );
-    this.modal = modal;
+    const availableCollections = this.getAvailableCollections(cipher);
 
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    childComponent.onSharedCipher.subscribe(async () => {
-      this.modal.close();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.viewCipher(cipher);
-      await this.vaultItemsComponent.refresh();
-      await this.cipherService.clearCache(this.activeUserId);
-      await this.vaultItemsComponent.load(this.activeFilter.buildFilter());
+    const dialog = AssignCollectionsWebComponent.open(this.dialogService, {
+      data: {
+        ciphers: [cipher],
+        organizationId: cipher.organizationId as OrganizationId,
+        availableCollections,
+      },
     });
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    this.modal.onClosed.subscribe(async () => {
-      this.modal = null;
-    });
+
+    const result = await lastValueFrom(dialog.closed);
+    if (result === CollectionAssignmentResult.Saved) {
+      await this.handleSuccessfulShare(cipher);
+    }
+  }
+
+  private getAvailableCollections(cipher: CipherView): CollectionView[] {
+    const orgId = cipher.organizationId;
+    if (!orgId || orgId === "MyVault") {
+      return [];
+    }
+
+    const organization = this.allOrganizations.find((o) => o.id === orgId);
+    return this.allCollections.filter((c) => c.organizationId === organization?.id && !c.readOnly);
+  }
+
+  private async handleSuccessfulShare(cipher: CipherView) {
+    await this.viewCipher(cipher);
+    await this.vaultItemsComponent.refresh();
+    await this.cipherService.clearCache(this.activeUserId);
+    await this.vaultItemsComponent.load(this.activeFilter.buildFilter());
   }
 
   async cipherCollections(cipher: CipherView) {
