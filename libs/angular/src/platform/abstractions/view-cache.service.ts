@@ -9,7 +9,7 @@ type Deserializer<T> = {
    * @param jsonValue The JSON object representation of your state.
    * @returns The fully typed version of your state.
    */
-  readonly deserializer?: (jsonValue: Jsonify<T>) => T;
+  readonly deserializer?: (jsonValue: Jsonify<T>) => T | null;
 };
 
 type BaseCacheOptions<T> = {

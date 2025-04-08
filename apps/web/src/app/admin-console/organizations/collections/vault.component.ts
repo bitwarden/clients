@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef } from "@angular/cdk/dialog";
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
@@ -34,6 +33,7 @@ import {
   Unassigned,
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
+import { VaultItemDialogResult } from "@bitwarden/angular/services/premium-upgrade-prompt.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
@@ -45,7 +45,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -63,6 +62,7 @@ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import {
+  DialogRef,
   BannerModule,
   DialogService,
   Icons,
@@ -91,7 +91,6 @@ import { AssignCollectionsWebComponent } from "../../../vault/components/assign-
 import {
   VaultItemDialogComponent,
   VaultItemDialogMode,
-  VaultItemDialogResult,
 } from "../../../vault/components/vault-item-dialog/vault-item-dialog.component";
 import { VaultItemEvent } from "../../../vault/components/vault-items/vault-item-event";
 import { VaultItemsModule } from "../../../vault/components/vault-items/vault-items.module";
@@ -194,7 +193,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
   protected addAccessStatus$ = new BehaviorSubject<AddAccessStatusType>(0);
-  private resellerManagedOrgAlert: boolean;
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
 
   private readonly unpaidSubscriptionDialog$ = this.accountService.activeAccount$.pipe(
@@ -261,10 +259,6 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     this.userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-
-    this.resellerManagedOrgAlert = await this.configService.getFeatureFlag(
-      FeatureFlag.ResellerManagedOrgAlert,
-    );
 
     this.trashCleanupWarning = this.i18nService.t(
       this.platformUtilsService.isSelfHost()
@@ -652,7 +646,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     );
 
     this.resellerWarning$ = organization$.pipe(
-      filter((org) => org.isOwner && this.resellerManagedOrgAlert),
+      filter((org) => org.isOwner),
       switchMap((org) =>
         from(this.billingApiService.getOrganizationBillingMetadata(org.id)).pipe(
           map((metadata) => ({ org, metadata })),
@@ -1230,6 +1224,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         organizationId: this.organization?.id,
         parentCollectionId: this.selectedCollection?.node.id,
         limitNestedCollections: !this.organization.canEditAnyCollection,
+        isAdminConsoleActive: true,
       },
     });
 
@@ -1255,6 +1250,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         readonly: readonly,
         isAddAccessCollection: c.unmanaged,
         limitNestedCollections: !this.organization.canEditAnyCollection,
+        isAdminConsoleActive: true,
       },
     });
 

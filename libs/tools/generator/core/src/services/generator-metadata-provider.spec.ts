@@ -295,7 +295,7 @@ describe("GeneratorMetadataProvider", () => {
       [Algorithm.username, effWordList],
       [Algorithm.password, password],
     ])("gets a specific algorithm", async (algorithm, metadata) => {
-      SomePolicyService.getAll$.mockReturnValue(new BehaviorSubject([]));
+      SomePolicyService.policiesByType$.mockReturnValue(new BehaviorSubject([]));
       const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, [
         metadata,
       ]);
@@ -311,7 +311,7 @@ describe("GeneratorMetadataProvider", () => {
       [Type.username, [effWordList]],
       [Type.password, [password, passphrase]],
     ])("gets a category of algorithms", async (category, metadata) => {
-      SomePolicyService.getAll$.mockReturnValue(new BehaviorSubject([]));
+      SomePolicyService.policiesByType$.mockReturnValue(new BehaviorSubject([]));
       const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, metadata);
       const result = new ReplaySubject<CredentialAlgorithm[]>(1);
 
@@ -329,7 +329,7 @@ describe("GeneratorMetadataProvider", () => {
           overridePasswordType: Algorithm.password,
         },
       } as any);
-      SomePolicyService.getAll$.mockReturnValue(new BehaviorSubject([policy]));
+      SomePolicyService.policiesByType$.mockReturnValue(new BehaviorSubject([policy]));
       const metadata = [password, passphrase];
       const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, metadata);
       const algorithmResult = new ReplaySubject<CredentialAlgorithm[]>(1);
@@ -347,7 +347,7 @@ describe("GeneratorMetadataProvider", () => {
     });
 
     it("omits algorithms whose metadata is unavailable", async () => {
-      SomePolicyService.getAll$.mockReturnValue(new BehaviorSubject([]));
+      SomePolicyService.policiesByType$.mockReturnValue(new BehaviorSubject([]));
       const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, [
         password,
       ]);
@@ -389,7 +389,7 @@ describe("GeneratorMetadataProvider", () => {
       [Type.username, effWordList],
       [Type.password, password],
     ])("emits the user's %s preference", async (type, metadata) => {
-      SomePolicyService.getAll$.mockReturnValue(new BehaviorSubject([]));
+      SomePolicyService.policiesByType$.mockReturnValue(new BehaviorSubject([]));
       const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, [
         metadata,
       ]);
@@ -401,7 +401,7 @@ describe("GeneratorMetadataProvider", () => {
     });
 
     it("emits a default when the user's preference is unavailable", async () => {
-      SomePolicyService.getAll$.mockReturnValue(new BehaviorSubject([]));
+      SomePolicyService.policiesByType$.mockReturnValue(new BehaviorSubject([]));
       const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, [
         plusAddress,
       ]);
@@ -416,7 +416,7 @@ describe("GeneratorMetadataProvider", () => {
     });
 
     it("emits undefined when the user's preference is unavailable and there is no metadata", async () => {
-      SomePolicyService.getAll$.mockReturnValue(new BehaviorSubject([]));
+      SomePolicyService.policiesByType$.mockReturnValue(new BehaviorSubject([]));
       const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, []);
       const result = new ReplaySubject<CredentialAlgorithm | undefined>(1);
 

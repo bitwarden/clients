@@ -94,6 +94,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   }
 
   private trialFlowService = inject(TrialFlowService);
+  protected activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   constructor(
     protected vaultFilterService: VaultFilterService,
@@ -162,7 +163,8 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       filter.selectedOrganizationNode = orgNode;
     }
     this.vaultFilterService.setOrganizationFilter(orgNode.node);
-    await this.vaultFilterService.expandOrgFilter();
+    const userId = await firstValueFrom(this.activeUserId$);
+    await this.vaultFilterService.expandOrgFilter(userId);
   };
 
   applyTypeFilter = async (filterNode: TreeNode<CipherTypeFilter>): Promise<void> => {

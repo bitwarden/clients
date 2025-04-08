@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef } from "@angular/cdk/dialog";
 import { Directive, ViewChild, ViewContainerRef, OnDestroy } from "@angular/core";
 import {
   BehaviorSubject,
@@ -12,6 +11,7 @@ import {
   takeUntil,
 } from "rxjs";
 
+import { VaultItemDialogResult } from "@bitwarden/angular/services/premium-upgrade-prompt.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -22,7 +22,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { TableDataSource, DialogService } from "@bitwarden/components";
+import { DialogRef, TableDataSource, DialogService } from "@bitwarden/components";
 import {
   CipherFormConfig,
   CipherFormConfigService,
@@ -32,7 +32,6 @@ import {
 import {
   VaultItemDialogComponent,
   VaultItemDialogMode,
-  VaultItemDialogResult,
 } from "../../../vault/components/vault-item-dialog/vault-item-dialog.component";
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 

@@ -1,29 +1,43 @@
+import { Overlay } from "@angular/cdk/overlay";
 import { TestBed } from "@angular/core/testing";
-import { Router } from "@angular/router";
-import { mock, MockProxy } from "jest-mock-extended";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { DialogService } from "@bitwarden/components";
+import { openPasswordHistoryDialog } from "@bitwarden/vault";
 
-import { RoutedViewPasswordHistoryService } from "./view-password-history.service";
+import { VaultViewPasswordHistoryService } from "./view-password-history.service";
 
-describe("RoutedViewPasswordHistoryService", () => {
-  let service: RoutedViewPasswordHistoryService;
-  let router: MockProxy<Router>;
+jest.mock("@bitwarden/vault", () => ({
+  openPasswordHistoryDialog: jest.fn(),
+}));
+
+describe("VaultViewPasswordHistoryService", () => {
+  let service: VaultViewPasswordHistoryService;
+  let dialogService: DialogService;
 
   beforeEach(async () => {
-    router = mock<Router>();
+    const mockDialogService = {
+      open: jest.fn(),
+    };
+
     await TestBed.configureTestingModule({
-      providers: [RoutedViewPasswordHistoryService, { provide: Router, useValue: router }],
+      providers: [
+        VaultViewPasswordHistoryService,
+        { provide: DialogService, useValue: mockDialogService },
+        Overlay,
+      ],
     }).compileComponents();
 
-    service = TestBed.inject(RoutedViewPasswordHistoryService);
+    service = TestBed.inject(VaultViewPasswordHistoryService);
+    dialogService = TestBed.inject(DialogService);
   });
 
   describe("viewPasswordHistory", () => {
-    it("navigates to the password history screen", async () => {
-      await service.viewPasswordHistory({ id: "cipher-id" } as CipherView);
-      expect(router.navigate).toHaveBeenCalledWith(["/cipher-password-history"], {
-        queryParams: { cipherId: "cipher-id" },
+    it("calls openPasswordHistoryDialog with the correct parameters", async () => {
+      const mockCipher = { id: "cipher-id" } as CipherView;
+      await service.viewPasswordHistory(mockCipher);
+      expect(openPasswordHistoryDialog).toHaveBeenCalledWith(dialogService, {
+        data: { cipher: mockCipher },
       });
     });
   });

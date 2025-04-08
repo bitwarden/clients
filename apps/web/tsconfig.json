@@ -43,6 +43,7 @@
     "src/connectors/*.ts",
     "src/**/*.stories.ts",
     "src/**/*.spec.ts",
-    "../../libs/common/src/key-management/crypto/services/encrypt.worker.ts"
+    "../../libs/common/src/key-management/crypto/services/encrypt.worker.ts",
+    "../../libs/angular/src/services/premium-upgrade-prompt.service.spec.ts"
   ]
 }

@@ -1,14 +1,18 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
 import { CipherId } from "@bitwarden/common/types/guid";
-import { ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
+import {
+  ButtonModule,
+  DialogModule,
+  DialogService,
+  DIALOG_DATA,
+  DialogRef,
+} from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-
-import { CipherAttachmentsComponent } from "../../cipher-form/components/attachments/cipher-attachments.component";
+import { CipherAttachmentsComponent } from "@bitwarden/vault";
 
 export interface AttachmentsDialogParams {
   cipherId: CipherId;

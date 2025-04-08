@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { Router } from "@angular/router";
@@ -8,8 +7,11 @@ import { firstValueFrom, Subject, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
-import { RoutedPremiumUpgradePromptService } from "@bitwarden/angular/services/premium-upgrade-prompt.service";
-import { RoutedViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
+import {
+  VaultItemDialogResult,
+  VaultPremiumUpgradePromptService,
+} from "@bitwarden/angular/services/premium-upgrade-prompt.service";
+import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -32,6 +34,8 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
+  DIALOG_DATA,
+  DialogRef,
   AsyncActionsModule,
   ButtonModule,
   DialogModule,
@@ -44,7 +48,6 @@ import {
   AttachmentDialogResult,
   AttachmentsV2Component,
   ChangeLoginPasswordService,
-  CipherAttachmentsComponent,
   CipherFormComponent,
   CipherFormConfig,
   CipherFormGenerationService,
@@ -52,8 +55,6 @@ import {
   CipherViewComponent,
   DecryptionFailureDialogComponent,
   DefaultChangeLoginPasswordService,
-  DefaultTaskService,
-  TaskService,
 } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared/shared.module";
@@ -97,28 +98,6 @@ export interface VaultItemDialogParams {
   restore?: (c: CipherView) => Promise<boolean>;
 }
 
-export enum VaultItemDialogResult {
-  /**
-   * A cipher was saved (created or updated).
-   */
-  Saved = "saved",
-
-  /**
-   * A cipher was deleted.
-   */
-  Deleted = "deleted",
-
-  /**
-   * The dialog was closed to navigate the user the premium upgrade page.
-   */
-  PremiumUpgrade = "premiumUpgrade",
-
-  /**
-   * A cipher was restored
-   */
-  Restored = "restored",
-}
-
 @Component({
   selector: "app-vault-item-dialog",
   templateUrl: "vault-item-dialog.component.html",
@@ -130,17 +109,14 @@ export enum VaultItemDialogResult {
     CommonModule,
     SharedModule,
     CipherFormModule,
-    CipherAttachmentsComponent,
     AsyncActionsModule,
     ItemModule,
-    DecryptionFailureDialogComponent,
   ],
   providers: [
-    { provide: PremiumUpgradePromptService, useClass: RoutedPremiumUpgradePromptService },
-    { provide: ViewPasswordHistoryService, useClass: RoutedViewPasswordHistoryService },
+    { provide: PremiumUpgradePromptService, useClass: VaultPremiumUpgradePromptService },
+    { provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService },
     { provide: CipherFormGenerationService, useClass: WebCipherFormGenerationService },
     RoutedVaultFilterService,
-    { provide: TaskService, useClass: DefaultTaskService },
     { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
   ],
 })

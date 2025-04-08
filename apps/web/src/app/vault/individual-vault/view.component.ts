@@ -1,13 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Inject, OnInit } from "@angular/core";
-import { Observable, firstValueFrom, map } from "rxjs";
+import { firstValueFrom, map, Observable } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
-import { RoutedPremiumUpgradePromptService } from "@bitwarden/angular/services/premium-upgrade-prompt.service";
-import { RoutedViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
+import { VaultPremiumUpgradePromptService } from "@bitwarden/angular/services/premium-upgrade-prompt.service";
+import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -23,12 +22,15 @@ import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
+  DIALOG_DATA,
+  DialogRef,
+  DialogConfig,
   AsyncActionsModule,
   DialogModule,
   DialogService,
   ToastService,
 } from "@bitwarden/components";
-import { CipherViewComponent, DefaultTaskService, TaskService } from "@bitwarden/vault";
+import { CipherViewComponent } from "@bitwarden/vault";
 
 import { SharedModule } from "../../shared/shared.module";
 
@@ -72,9 +74,8 @@ export interface ViewCipherDialogCloseResult {
   standalone: true,
   imports: [CipherViewComponent, CommonModule, AsyncActionsModule, DialogModule, SharedModule],
   providers: [
-    { provide: ViewPasswordHistoryService, useClass: RoutedViewPasswordHistoryService },
-    { provide: PremiumUpgradePromptService, useClass: RoutedPremiumUpgradePromptService },
-    { provide: TaskService, useClass: DefaultTaskService },
+    { provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService },
+    { provide: PremiumUpgradePromptService, useClass: VaultPremiumUpgradePromptService },
   ],
 })
 export class ViewComponent implements OnInit {
