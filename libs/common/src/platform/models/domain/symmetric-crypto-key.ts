@@ -61,6 +61,9 @@ export class SymmetricCryptoKey {
   }
 
   /**
+   * It is preferred not to work with the raw key where possible.
+   * Only use this method if absolutely necessary.
+   *
    * @returns The inner key instance that can be directly used for encryption primitives
    */
   inner(): Aes256CbcHmacKey | Aes256CbcKey {

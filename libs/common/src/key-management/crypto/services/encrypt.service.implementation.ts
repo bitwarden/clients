@@ -19,6 +19,7 @@ import {
   SymmetricCryptoKey,
 } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 
+import { ServerConfig } from "../../../platform/abstractions/config/server-config";
 import { EncryptService } from "../abstractions/encrypt.service";
 
 export class EncryptServiceImplementation implements EncryptService {
@@ -27,6 +28,11 @@ export class EncryptServiceImplementation implements EncryptService {
     protected logService: LogService,
     protected logMacFailures: boolean,
   ) {}
+
+  // Handle updating private properties to turn on/off feature flags.
+  onServerConfigChange(newConfig: ServerConfig): void {
+    return;
+  }
 
   async encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString> {
     if (key == null) {
@@ -51,8 +57,11 @@ export class EncryptServiceImplementation implements EncryptService {
       const data = Utils.fromBufferToB64(encObj.data);
       const mac = Utils.fromBufferToB64(encObj.mac);
       return new EncString(innerKey.type, data, iv, mac);
-    } else {
-      throw new Error(`Encrypt is not supported for keys of type ${innerKey.type}`);
+    } else if (innerKey.type === EncryptionType.AesCbc256_B64) {
+      const encObj = await this.aesEncryptLegacy(plainBuf, innerKey);
+      const iv = Utils.fromBufferToB64(encObj.iv);
+      const data = Utils.fromBufferToB64(encObj.data);
+      return new EncString(innerKey.type, data, iv);
     }
   }
 
@@ -93,17 +102,17 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     const innerKey = key.inner();
-    if (innerKey.type === EncryptionType.AesCbc256_HmacSha256_B64) {
-      if (encString.encryptionType !== EncryptionType.AesCbc256_HmacSha256_B64) {
-        this.logDecryptError(
-          "Key encryption type does not match payload encryption type",
-          key.inner().type,
-          encString.encryptionType,
-          decryptContext,
-        );
-        return null;
-      }
+    if (encString.encryptionType !== innerKey.type) {
+      this.logDecryptError(
+        "Key encryption type does not match payload encryption type",
+        innerKey.type,
+        encString.encryptionType,
+        decryptContext,
+      );
+      return null;
+    }
 
+    if (innerKey.type === EncryptionType.AesCbc256_HmacSha256_B64) {
       const fastParams = this.cryptoFunctionService.aesDecryptFastParameters(
         encString.data,
         encString.iv,
@@ -120,7 +129,7 @@ export class EncryptServiceImplementation implements EncryptService {
       if (!macsEqual) {
         this.logMacFailed(
           "decryptToUtf8 MAC comparison failed. Key or payload has changed.",
-          key.inner().type,
+          innerKey.type,
           encString.encryptionType,
           decryptContext,
         );
@@ -131,20 +140,10 @@ export class EncryptServiceImplementation implements EncryptService {
         parameters: fastParams,
       });
     } else if (innerKey.type === EncryptionType.AesCbc256_B64) {
-      if (encString.encryptionType !== EncryptionType.AesCbc256_B64) {
-        this.logDecryptError(
-          "Key encryption type does not match payload encryption type",
-          key.inner().type,
-          encString.encryptionType,
-          decryptContext,
-        );
-        return null;
-      }
-
       const fastParams = this.cryptoFunctionService.aesDecryptFastParameters(
         encString.data,
         encString.iv,
-        null,
+        undefined,
         key,
       );
       return await this.cryptoFunctionService.aesDecryptFast({
@@ -170,17 +169,19 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     const inner = key.inner();
+    if (encThing.encryptionType !== inner.type) {
+      this.logDecryptError(
+        "Encryption key type mismatch",
+        inner.type,
+        encThing.encryptionType,
+        decryptContext,
+      );
+      return null;
+    }
+
     if (inner.type === EncryptionType.AesCbc256_HmacSha256_B64) {
-      if (
-        encThing.encryptionType !== EncryptionType.AesCbc256_HmacSha256_B64 ||
-        encThing.macBytes === null
-      ) {
-        this.logDecryptError(
-          "Encryption key type mismatch",
-          inner.type,
-          encThing.encryptionType,
-          decryptContext,
-        );
+      if (encThing.macBytes == null) {
+        this.logDecryptError("Mac missing", inner.type, encThing.encryptionType, decryptContext);
         return null;
       }
 
@@ -210,16 +211,6 @@ export class EncryptServiceImplementation implements EncryptService {
         "cbc",
       );
     } else if (inner.type === EncryptionType.AesCbc256_B64) {
-      if (encThing.encryptionType !== EncryptionType.AesCbc256_B64) {
-        this.logDecryptError(
-          "Encryption key type mismatch",
-          inner.type,
-          encThing.encryptionType,
-          decryptContext,
-        );
-        return null;
-      }
-
       return await this.cryptoFunctionService.aesDecrypt(
         encThing.dataBytes,
         encThing.ivBytes,

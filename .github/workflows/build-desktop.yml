@@ -1,3 +1,7 @@
+# This workflow will run in the context of the source of the PR.
+# On a PR from a fork, the workflow will not have access to secrets, and so any parts of the build that require secrets will not run.
+# If additional artifacts are needed, the failed "build-desktop-target.yml" workflow held up by the check-run should be re-run.
+
 name: Build Desktop
 
 on:
@@ -33,6 +37,10 @@ on:
         description: "Custom SDK branch"
         required: false
         type: string
+      testflight_distribute:
+        description: "Force distribute to TestFlight regardless of branch (useful for QA testing on feature branches)"
+        type: boolean
+        default: true
 
 defaults:
   run:
@@ -146,9 +154,9 @@ jobs:
     # Note, before updating the ubuntu version of the workflow, ensure the snap base image
     # is equal or greater than the new version. Otherwise there might be GLIBC version issues.
     # The snap base for desktop is defined in `apps/desktop/electron-builder.json`
-    # We are currently running on 20.04 until the Ubuntu 24.04 release is available, as moving
-    # to 22.04 now breaks users who are on 20.04 due to mismatched GLIBC versions.
-    runs-on: ubuntu-20.04
+    # We intentionally keep this runner on the oldest supported OS in GitHub Actions
+    # for maximum compatibility across GLIBC versions
+    runs-on: ubuntu-22.04
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -1208,21 +1216,45 @@ jobs:
           path: apps/desktop/dist/mas-universal/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.pkg
           if-no-files-found: error
 
+      - name: Create secrets for Fastlane
+        if: |
+          github.event_name != 'pull_request_target'
+          && (inputs.testflight_distribute || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
+        run: |
+          brew install gsed
+
+          KEY_WITHOUT_NEWLINES=$(gsed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' ~/private_keys/AuthKey_6TV9MKN3GP.p8)
+
+          cat << EOF > ~/secrets/appstoreconnect-fastlane.json
+          {
+            "issuer_id": "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}",
+            "key_id": "6TV9MKN3GP",
+            "key": "$KEY_WITHOUT_NEWLINES"
+          }
+          EOF
+
       - name: Deploy to TestFlight
         id: testflight-deploy
         if: |
           github.event_name != 'pull_request_target'
-          && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
+          && (inputs.testflight_distribute || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
+          BRANCH: ${{ github.ref }}
         run: |
-          xcrun altool \
-            --upload-app \
-            --type macos \
-            --file "$(find ./dist/mas-universal/Bitwarden*.pkg)" \
-            --apiKey $APP_STORE_CONNECT_AUTH_KEY \
-            --apiIssuer $APP_STORE_CONNECT_TEAM_ISSUER
+
+          GIT_CHANGE="$(git show -s --format=%s)"
+
+          BRANCH=$(echo $BRANCH | sed 's/refs\/heads\///')
+
+          CHANGELOG="$BRANCH: $GIT_CHANGE"
+
+          fastlane pilot upload \
+            --app_identifier "com.bitwarden.desktop" \
+            --changelog "$CHANGELOG" \
+            --api_key_path $HOME/secrets/appstoreconnect-fastlane.json \
+            --pkg "$(find ./dist/mas-universal/Bitwarden*.pkg)"
 
       - name: Post message to a Slack channel
         id: slack-message

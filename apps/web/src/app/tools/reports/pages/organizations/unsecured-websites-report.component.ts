@@ -18,7 +18,6 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
 
-// eslint-disable-next-line no-restricted-imports
 import { RoutedVaultFilterBridgeService } from "../../../../vault/individual-vault/vault-filter/services/routed-vault-filter-bridge.service";
 import { RoutedVaultFilterService } from "../../../../vault/individual-vault/vault-filter/services/routed-vault-filter.service";
 import { AdminConsoleCipherFormConfigService } from "../../../../vault/org-vault/services/admin-console-cipher-form-config.service";
@@ -37,7 +36,6 @@ import { UnsecuredWebsitesReportComponent as BaseUnsecuredWebsitesReportComponen
     RoutedVaultFilterBridgeService,
   ],
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class UnsecuredWebsitesReportComponent
   extends BaseUnsecuredWebsitesReportComponent
   implements OnInit

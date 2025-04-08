@@ -156,7 +156,7 @@ export class EncString implements Encrypted {
 
   async decrypt(
     orgId: string | null,
-    key: SymmetricCryptoKey = null,
+    key: SymmetricCryptoKey | null = null,
     context?: string,
   ): Promise<string> {
     if (this.decryptedValue != null) {

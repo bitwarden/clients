@@ -19,6 +19,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
+import { SecurityTaskType } from "@bitwarden/common/vault/tasks";
 import {
   Icons,
   NoItemsModule,
@@ -27,7 +28,6 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { CardComponent } from "@bitwarden/tools-card";
-import { SecurityTaskType } from "@bitwarden/vault";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";

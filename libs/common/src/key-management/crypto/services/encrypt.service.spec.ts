@@ -40,16 +40,45 @@ describe("EncryptService", () => {
       const actual = await encryptService.encrypt(null, key);
       expect(actual).toBeNull();
     });
+    it("creates an EncString for Aes256Cbc", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(32));
+      const plainValue = "data";
+      cryptoFunctionService.aesEncrypt.mockResolvedValue(makeStaticByteArray(4, 100));
+      cryptoFunctionService.randomBytes.mockResolvedValue(makeStaticByteArray(16) as CsprngArray);
+      const result = await encryptService.encrypt(plainValue, key);
+      expect(cryptoFunctionService.aesEncrypt).toHaveBeenCalledWith(
+        Utils.fromByteStringToArray(plainValue),
+        makeStaticByteArray(16),
+        makeStaticByteArray(32),
+      );
+      expect(cryptoFunctionService.hmac).not.toHaveBeenCalled();
+
+      expect(Utils.fromB64ToArray(result.data).length).toEqual(4);
+      expect(Utils.fromB64ToArray(result.iv).length).toEqual(16);
+    });
     it("creates an EncString for Aes256Cbc_HmacSha256_B64", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
       const plainValue = "data";
       cryptoFunctionService.hmac.mockResolvedValue(makeStaticByteArray(32));
-      cryptoFunctionService.aesEncrypt.mockResolvedValue(makeStaticByteArray(32));
+      cryptoFunctionService.aesEncrypt.mockResolvedValue(makeStaticByteArray(4, 100));
       cryptoFunctionService.randomBytes.mockResolvedValue(makeStaticByteArray(16) as CsprngArray);
       const result = await encryptService.encrypt(plainValue, key);
-      expect(cryptoFunctionService.aesEncrypt).toHaveBeenCalled();
-      expect(cryptoFunctionService.hmac).toHaveBeenCalled();
-      expect(Utils.fromB64ToArray(result.data).length).toEqual(32);
+      expect(cryptoFunctionService.aesEncrypt).toHaveBeenCalledWith(
+        Utils.fromByteStringToArray(plainValue),
+        makeStaticByteArray(16),
+        makeStaticByteArray(32),
+      );
+
+      const macData = new Uint8Array(16 + 4);
+      macData.set(makeStaticByteArray(16));
+      macData.set(makeStaticByteArray(4, 100), 16);
+      expect(cryptoFunctionService.hmac).toHaveBeenCalledWith(
+        macData,
+        makeStaticByteArray(32, 32),
+        "sha256",
+      );
+
+      expect(Utils.fromB64ToArray(result.data).length).toEqual(4);
       expect(Utils.fromB64ToArray(result.iv).length).toEqual(16);
       expect(Utils.fromB64ToArray(result.mac).length).toEqual(32);
     });
@@ -245,7 +274,10 @@ describe("EncryptService", () => {
 
       const actual = await encryptService.decryptToUtf8(encString, key);
       expect(actual).toEqual("data");
-      expect(cryptoFunctionService.compareFast).toHaveBeenCalled();
+      expect(cryptoFunctionService.compareFast).toHaveBeenCalledWith(
+        makeStaticByteArray(32, 0),
+        makeStaticByteArray(32, 0),
+      );
     });
 
     it("decrypts data with provided key for AesCbc256", async () => {
@@ -297,6 +329,22 @@ describe("EncryptService", () => {
 
       const actual = await encryptService.decryptToUtf8(encString, key);
       expect(actual).toBeNull();
+    });
+  });
+
+  describe("decryptToUtf8", () => {
+    it("throws if no key is provided", () => {
+      return expect(encryptService.decryptToUtf8(null, null)).rejects.toThrow(
+        "No key provided for decryption.",
+      );
+    });
+    it("returns null if key is mac key but encstring has no mac", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64, 0));
+      const encString = new EncString(EncryptionType.AesCbc256_B64, "data");
+
+      const actual = await encryptService.decryptToUtf8(encString, key);
+      expect(actual).toBeNull();
+      expect(logService.error).toHaveBeenCalled();
     });
   });
 

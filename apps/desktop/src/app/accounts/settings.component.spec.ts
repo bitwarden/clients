@@ -6,7 +6,6 @@ import { firstValueFrom, of } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
@@ -15,7 +14,11 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { DeviceType } from "@bitwarden/common/enums";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
+import {
+  VaultTimeoutSettingsService,
+  VaultTimeoutStringType,
+  VaultTimeoutAction,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -27,7 +30,6 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { DialogService } from "@bitwarden/components";
 import { BiometricStateService, BiometricsStatus, KeyService } from "@bitwarden/key-management";
 
@@ -151,7 +153,7 @@ describe("SettingsComponent", () => {
 
   it("pin enabled when RemoveUnlockWithPin policy is not set", async () => {
     // @ts-strict-ignore
-    policyService.get$.mockReturnValue(of(null));
+    policyService.policiesByType$.mockReturnValue(of([null]));
 
     await component.ngOnInit();
 
@@ -162,7 +164,7 @@ describe("SettingsComponent", () => {
     const policy = new Policy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = false;
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
 
@@ -173,7 +175,7 @@ describe("SettingsComponent", () => {
     const policy = new Policy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
 
@@ -182,7 +184,7 @@ describe("SettingsComponent", () => {
 
   it("pin visible when RemoveUnlockWithPin policy is not set", async () => {
     // @ts-strict-ignore
-    policyService.get$.mockReturnValue(of(null));
+    policyService.policiesByType$.mockReturnValue(of([null]));
 
     await component.ngOnInit();
     fixture.detectChanges();
@@ -199,7 +201,7 @@ describe("SettingsComponent", () => {
     const policy = new Policy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = false;
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
     fixture.detectChanges();
@@ -216,7 +218,7 @@ describe("SettingsComponent", () => {
     const policy = new Policy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
     pinServiceAbstraction.isPinSet.mockResolvedValue(true);
 
     await component.ngOnInit();
@@ -234,7 +236,7 @@ describe("SettingsComponent", () => {
     const policy = new Policy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
     fixture.detectChanges();
@@ -246,6 +248,7 @@ describe("SettingsComponent", () => {
   describe("biometrics enabled", () => {
     beforeEach(() => {
       desktopBiometricsService.getBiometricsStatus.mockResolvedValue(BiometricsStatus.Available);
+      desktopBiometricsService.canEnableBiometricUnlock.mockResolvedValue(true);
       vaultTimeoutSettingsService.isBiometricLockSet.mockResolvedValue(true);
     });
 
@@ -253,7 +256,7 @@ describe("SettingsComponent", () => {
       const policy = new Policy();
       policy.type = PolicyType.RemoveUnlockWithPin;
       policy.enabled = false;
-      policyService.get$.mockReturnValue(of(policy));
+      policyService.policiesByType$.mockReturnValue(of([policy]));
       platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
       i18nService.t.mockImplementation((id: string) => {
         if (id === "requirePasswordOnStart") {
@@ -288,7 +291,7 @@ describe("SettingsComponent", () => {
       const policy = new Policy();
       policy.type = PolicyType.RemoveUnlockWithPin;
       policy.enabled = true;
-      policyService.get$.mockReturnValue(of(policy));
+      policyService.policiesByType$.mockReturnValue(of([policy]));
       platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
       i18nService.t.mockImplementation((id: string) => {
         if (id === "requirePasswordOnStart") {

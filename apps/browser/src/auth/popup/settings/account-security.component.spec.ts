@@ -5,14 +5,17 @@ import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
+import {
+  VaultTimeoutSettingsService,
+  VaultTimeoutService,
+  VaultTimeoutStringType,
+  VaultTimeoutAction,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -21,7 +24,6 @@ import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { BiometricStateService, BiometricsService, KeyService } from "@bitwarden/key-management";
 
@@ -97,7 +99,7 @@ describe("AccountSecurityComponent", () => {
 
   it("pin enabled when RemoveUnlockWithPin policy is not set", async () => {
     // @ts-strict-ignore
-    policyService.get$.mockReturnValue(of(null));
+    policyService.policiesByType$.mockReturnValue(of([null]));
 
     await component.ngOnInit();
 
@@ -109,7 +111,7 @@ describe("AccountSecurityComponent", () => {
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = false;
 
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
 
@@ -127,7 +129,7 @@ describe("AccountSecurityComponent", () => {
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
 
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
 
@@ -141,7 +143,7 @@ describe("AccountSecurityComponent", () => {
 
   it("pin visible when RemoveUnlockWithPin policy is not set", async () => {
     // @ts-strict-ignore
-    policyService.get$.mockReturnValue(of(null));
+    policyService.policiesByType$.mockReturnValue(of([null]));
 
     await component.ngOnInit();
     fixture.detectChanges();
@@ -156,7 +158,7 @@ describe("AccountSecurityComponent", () => {
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = false;
 
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
     fixture.detectChanges();
@@ -171,7 +173,7 @@ describe("AccountSecurityComponent", () => {
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
 
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     pinServiceAbstraction.isPinSet.mockResolvedValue(true);
 
@@ -188,7 +190,7 @@ describe("AccountSecurityComponent", () => {
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
 
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
     fixture.detectChanges();
