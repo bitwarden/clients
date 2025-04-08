@@ -216,22 +216,22 @@ export class EncryptServiceImplementation implements EncryptService {
     }
   }
 
-  async encapsulateKeyUnsigned(key: SymmetricCryptoKey, publicKey: Uint8Array): Promise<EncString> {
-    if (key == null) {
-      throw new Error("No key");
+  async encapsulateKeyUnsigned(
+    sharedKey: SymmetricCryptoKey,
+    encapsulationKey: Uint8Array,
+  ): Promise<EncString> {
+    if (sharedKey == null) {
+      throw new Error("No key provided for encapsulation");
     }
-    const keyBytes = key.key;
-    const encryptedKey = await this.rsaEncrypt(keyBytes, publicKey);
-    return encryptedKey;
+    return await this.rsaEncrypt(sharedKey.toEncoded(), encapsulationKey);
   }
 
   async decapsulateKeyUnsigned(
-    data: EncString,
-    privateKey: Uint8Array,
+    encryptedSharedKey: EncString,
+    decapsulationKey: Uint8Array,
   ): Promise<SymmetricCryptoKey> {
-    const keyBytes = await this.rsaDecrypt(data, privateKey);
-    const key = new SymmetricCryptoKey(keyBytes);
-    return key;
+    const keyBytes = await this.rsaDecrypt(encryptedSharedKey, decapsulationKey);
+    return new SymmetricCryptoKey(keyBytes);
   }
 
   /**
