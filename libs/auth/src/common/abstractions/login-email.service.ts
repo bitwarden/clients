@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 export abstract class LoginEmailServiceAbstraction {
@@ -28,13 +26,4 @@ export abstract class LoginEmailServiceAbstraction {
    * Clears the in-progress login email, to be used after a successful login.
    */
   clearLoginEmail: () => Promise<void>;
-  // /**
-  //  * Saves or clears the email on disk
-  //  * - If an account is being added, only changes the stored email when rememberEmail is true.
-  //  * - If rememberEmail is true, sets the email on disk to the current email.
-  //  * - If rememberEmail is false, sets the email on disk to null.
-  //  * Always clears the email and rememberEmail properties from memory.
-  //  * @returns A promise that resolves once the email settings are saved.
-  //  */
-  // saveEmailSettings: () => Promise<void>;
 }

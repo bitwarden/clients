@@ -305,7 +305,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     // User logged in successfully so execute side effects
     await this.loginSuccessHandlerService.run(authResult.userId);
-    this.loginEmailService.clearLoginEmail();
 
     // Determine where to send the user next
     if (authResult.forcePasswordReset != ForceSetPasswordReason.None) {

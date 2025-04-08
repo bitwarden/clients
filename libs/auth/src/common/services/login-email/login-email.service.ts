@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable, firstValueFrom, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -93,25 +91,4 @@ export class LoginEmailService implements LoginEmailServiceAbstraction {
       await this.storedEmailState.update((_) => null);
     }
   }
-
-  // async saveEmailSettings() {
-  //   const addingAccount = await firstValueFrom(this.addingAccount$);
-  //   const email = await firstValueFrom(this.loginEmail$);
-
-  //   await this.storedEmailState.update((storedEmail) => {
-  //     // If we're adding an account, only overwrite the stored email when rememberEmail is true
-  //     if (addingAccount) {
-  //       if (this.rememberEmail) {
-  //         return email;
-  //       }
-  //       return storedEmail;
-  //     }
-
-  //     // Saving with rememberEmail set to false will clear the stored email
-  //     if (this.rememberEmail) {
-  //       return email;
-  //     }
-  //     return null;
-  //   });
-  // }
 }
