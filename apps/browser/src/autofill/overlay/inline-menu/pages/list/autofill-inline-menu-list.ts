@@ -176,7 +176,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     );
 
     saveLoginButton.tabIndex = -1;
-    saveLoginButton.setAttribute("aria-label", this.getTranslation("saveToBitwarden"));
+    saveLoginButton.setAttribute(
+      "aria-label",
+      `${this.getTranslation("saveToBitwarden")}, ${this.getTranslation("opensInANewWindow")}`,
+    );
     saveLoginButton.textContent = this.getTranslation("saveToBitwarden");
 
     saveLoginButton.addEventListener(EVENTS.CLICK, this.handleNewLoginVaultItemAction);
