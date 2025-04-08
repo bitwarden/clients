@@ -54,6 +54,12 @@ window.addEventListener("load", async () => {
  * @param redirectUrl the duo auth url
  */
 function redirectToDuoFrameless(redirectUrl: string) {
+  // Regex to match a valid duo redirect URL
+  const duoRedirectUrlRegex = /^https:\/\/api-[a-zA-Z0-9]+\.(duosecurity|duofederal)\.com/;
+  // Check if the redirect URL matches the regex
+  if (!duoRedirectUrlRegex.test(redirectUrl)) {
+    throw new Error("Invalid redirect URL");
+  }
   const validateUrl = new URL(redirectUrl);
   const validDuoUrl =
     validateUrl.protocol === "https:" &&
