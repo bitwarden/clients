@@ -1,0 +1,14 @@
+<form>
+  <bit-dialog>
+    <span bitDialogTitle>{{ "addSponsorship" | i18n }}</span>
+
+    <ng-container bitDialogFooter>
+      <button bitButton type="button" buttonType="primary" [bitDialogClose]="false">
+        {{ "save" | i18n }}
+      </button>
+      <button bitButton type="button" buttonType="secondary" [bitDialogClose]="false">
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

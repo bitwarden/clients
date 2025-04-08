@@ -3,7 +3,7 @@ import { RouterModule, Routes } from "@angular/router";
 
 import { canAccessMembersTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 
-import { SponsoredFamiliesComponent } from "../../../billing/settings/sponsored-families.component";
+import { SponsoredFamiliesNewComponent } from "../../../billing/members/sponsored-families-new.component";
 import { organizationPermissionsGuard } from "../guards/org-permissions.guard";
 
 import { MembersComponent } from "./members.component";
@@ -19,7 +19,7 @@ const routes: Routes = [
   },
   {
     path: "sponsored-families",
-    component: SponsoredFamiliesComponent,
+    component: SponsoredFamiliesNewComponent,
     canActivate: [organizationPermissionsGuard(canAccessMembersTab)],
     data: {
       titleId: "sponsoredFamilies",
