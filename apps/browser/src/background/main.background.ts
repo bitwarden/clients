@@ -1185,6 +1185,7 @@ export default class MainBackground {
       this.authService,
       this.autofillService,
       this.cipherService,
+      this.collectionService,
       this.configService,
       this.domainSettingsService,
       this.environmentService,

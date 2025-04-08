@@ -7,6 +7,7 @@ import { Option, OrgView, FolderView } from "../common-types";
 import { Business, Family, Folder, User } from "../icons";
 import { ButtonRow } from "../rows/button-row";
 import { selectedFolder as selectedFolderSignal } from "../signals/selected-folder";
+import { selectedVault as selectedVaultSignal } from "../signals/selected-vault";
 
 function getVaultIconByProductTier(productTierType?: ProductTierType): Option["icon"] {
   switch (productTierType) {
@@ -87,6 +88,7 @@ export function NotificationButtonRow({
                 id: "organization",
                 label: "Vault", // @TODO localize
                 options: organizationOptions,
+                selectedSignal: selectedVaultSignal,
               },
             ]
           : []),

@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { firstValueFrom, switchMap } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -97,6 +98,7 @@ export default class NotificationBackground {
     private authService: AuthService,
     private autofillService: AutofillService,
     private cipherService: CipherService,
+    private collectionService: CollectionService,
     private configService: ConfigService,
     private domainSettingsService: DomainSettingsService,
     private environmentService: EnvironmentService,
