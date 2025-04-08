@@ -112,20 +112,14 @@ export class InputPasswordComponent implements OnInit {
     {
       validators: [
         compareInputs(
-          ValidationGoal.InputsShouldNotMatch,
-          "currentPassword",
-          "newPassword",
-          this.i18nService.t("yourNewPasswordCannotBeTheSameAsYourCurrentPassword"),
-        ),
-        compareInputs(
           ValidationGoal.InputsShouldMatch,
-          "password",
-          "confirmedPassword",
+          "newPassword",
+          "confirmNewPassword",
           this.i18nService.t("masterPassDoesntMatch"),
         ),
         compareInputs(
           ValidationGoal.InputsShouldNotMatch,
-          "password",
+          "newPassword",
           "hint",
           this.i18nService.t("hintEqualsPassword"),
         ),
