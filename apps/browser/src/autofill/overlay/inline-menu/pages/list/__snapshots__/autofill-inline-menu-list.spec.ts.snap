@@ -5,8 +5,14 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList creates the build sav
   class="inline-menu-list-container theme_light"
 >
   <div
-    class="save-login inline-menu-list-message"
-  />
+    class="inline-menu-list-button-container"
+  >
+    <button
+      aria-label=""
+      class="save-login inline-menu-list-button inline-menu-list-action"
+      tabindex="-1"
+    />
+  </div>
 </div>
 `;
 
