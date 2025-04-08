@@ -34,12 +34,7 @@ import {
   ToastService,
   Translation,
 } from "@bitwarden/components";
-import {
-  DEFAULT_KDF_CONFIG,
-  KdfConfig,
-  KdfConfigService,
-  KeyService,
-} from "@bitwarden/key-management";
+import { KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
@@ -110,7 +105,7 @@ export class InputPasswordComponent implements OnInit {
   protected secondaryButtonTextStr: string = "";
 
   protected InputPasswordFlow = InputPasswordFlow;
-  private kdfConfig: KdfConfig = DEFAULT_KDF_CONFIG;
+  private kdfConfig: KdfConfig | null = null;
   private minHintLength = 0;
   protected maxHintLength = 50;
   protected minPasswordLength = Utils.minimumPasswordLength;
@@ -247,6 +242,7 @@ export class InputPasswordComponent implements OnInit {
       const currentPasswordIsCorrect = await this.verifyCurrentPassword(
         currentPassword,
         this.userId,
+        this.kdfConfig,
       );
       if (!currentPasswordIsCorrect) {
         return;
@@ -330,11 +326,15 @@ export class InputPasswordComponent implements OnInit {
   /**
    * Returns true if the current password is correct, false otherwise
    */
-  private async verifyCurrentPassword(currentPassword: string, userId: UserId): Promise<boolean> {
+  private async verifyCurrentPassword(
+    currentPassword: string,
+    userId: UserId,
+    kdfConfig: KdfConfig,
+  ): Promise<boolean> {
     const currentMasterKey = await this.keyService.makeMasterKey(
       currentPassword,
       this.email.trim().toLowerCase(),
-      this.kdfConfig,
+      kdfConfig,
     );
 
     const decryptedUserKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
