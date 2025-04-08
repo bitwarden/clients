@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Input, Output, EventEmitter, Component, OnInit, ViewChild } from "@angular/core";
 import { Observable, firstValueFrom } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -14,13 +15,11 @@ import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cip
 import { ButtonComponent, ButtonModule, DialogService, ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
-import { SharedModule } from "../../../app/shared/shared.module";
-
 @Component({
   selector: "app-vault-item-footer",
   templateUrl: "item-footer.component.html",
   standalone: true,
-  imports: [ButtonModule, CommonModule, SharedModule],
+  imports: [ButtonModule, CommonModule, JslibModule],
 })
 export class ItemFooterComponent implements OnInit {
   @Input({ required: true }) cipher: CipherView = new CipherView();

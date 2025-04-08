@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { CommonModule } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
@@ -48,13 +49,14 @@ import {
   ItemModule,
   ToastService,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import {
   AttachmentDialogResult,
   AttachmentsV2Component,
   ChangeLoginPasswordService,
-  CipherFormComponent,
   CipherFormConfig,
   CipherFormConfigService,
+  CipherFormModule,
   CipherViewComponent,
   DecryptionFailureDialogComponent,
   DefaultChangeLoginPasswordService,
@@ -64,20 +66,15 @@ import {
 
 import { NavComponent } from "../../../app/layout/nav.component";
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
-import { SharedModule } from "../../../app/shared/shared.module";
 import { invokeMenu, RendererMenuItem } from "../../../utils";
 
 import { AddEditComponent } from "./add-edit.component";
-import { AttachmentsComponent } from "./attachments.component";
 import { CredentialGeneratorDialogComponent } from "./credential-generator-dialog.component";
 import { FolderAddEditComponent } from "./folder-add-edit.component";
 import { ItemFooterComponent } from "./item-footer.component";
-import { PasswordHistoryComponent } from "./password-history.component";
-import { ShareComponent } from "./share.component";
 import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultItemsV2Component } from "./vault-items-v2.component";
-import { VaultItemsV2Module } from "./vault-items-v2.module";
 import { ViewComponent } from "./view.component";
 
 const BroadcasterSubscriptionId = "VaultComponent";
@@ -88,15 +85,16 @@ const BroadcasterSubscriptionId = "VaultComponent";
   standalone: true,
   imports: [
     BadgeModule,
-    CipherFormComponent,
+    CommonModule,
+    CipherFormModule,
     CipherViewComponent,
     ItemFooterComponent,
+    I18nPipe,
     ItemModule,
     ButtonModule,
     NavComponent,
-    SharedModule,
     VaultFilterModule,
-    VaultItemsV2Module,
+    VaultItemsV2Component,
   ],
   providers: [
     {
@@ -123,16 +121,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
   @ViewChild(ViewComponent) viewComponent: ViewComponent;
   @ViewChild(AddEditComponent) addEditComponent: AddEditComponent;
   @ViewChild(VaultItemsV2Component, { static: true }) vaultItemsComponent: VaultItemsV2Component;
-  @ViewChild("generator", { read: ViewContainerRef, static: true })
-  generatorModalRef: ViewContainerRef;
   @ViewChild(VaultFilterComponent, { static: true }) vaultFilterComponent: VaultFilterComponent;
-  @ViewChild("attachments", { read: ViewContainerRef, static: true })
-  attachmentsModalRef: ViewContainerRef;
-  @ViewChild("passwordHistory", { read: ViewContainerRef, static: true })
-  passwordHistoryModalRef: ViewContainerRef;
-  @ViewChild("share", { read: ViewContainerRef, static: true }) shareModalRef: ViewContainerRef;
-  @ViewChild("collectionsModal", { read: ViewContainerRef, static: true })
-  collectionsModalRef: ViewContainerRef;
   @ViewChild("folderAddEdit", { read: ViewContainerRef, static: true })
   folderAddEditModalRef: ViewContainerRef;
   @ViewChild("footer") footer: ItemFooterComponent;
@@ -608,89 +597,6 @@ export class VaultV2Component implements OnInit, OnDestroy {
     this.cipher = cipher;
     this.action = this.cipherId != null ? "view" : null;
     await this.go();
-  }
-
-  async editCipherAttachments(cipher: CipherView) {
-    if (this.modal != null) {
-      this.modal.close();
-    }
-
-    const [modal, childComponent] = await this.modalService.openViewRef(
-      AttachmentsComponent,
-      this.attachmentsModalRef,
-      (comp) => (comp.cipherId = cipher.id),
-    );
-    this.modal = modal;
-
-    let madeAttachmentChanges = false;
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    childComponent.onUploadedAttachment.subscribe((cipher) => {
-      madeAttachmentChanges = true;
-      // Update the edit component cipher with the updated cipher,
-      // which is needed because the revision date is updated when an attachment is altered
-      this.addEditComponent.patchCipherAttachments(cipher);
-    });
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    childComponent.onDeletedAttachment.subscribe((cipher) => {
-      madeAttachmentChanges = true;
-      // Update the edit component cipher with the updated cipher,
-      // which is needed because the revision date is updated when an attachment is altered
-      this.addEditComponent.patchCipherAttachments(cipher);
-    });
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    this.modal.onClosed.subscribe(async () => {
-      this.modal = null;
-      if (madeAttachmentChanges) {
-        await this.vaultItemsComponent.refresh();
-      }
-      madeAttachmentChanges = false;
-    });
-  }
-
-  async shareCipher(cipher: CipherView) {
-    if (this.modal != null) {
-      this.modal.close();
-    }
-
-    const [modal, childComponent] = await this.modalService.openViewRef(
-      ShareComponent,
-      this.shareModalRef,
-      (comp) => (comp.cipherId = cipher.id),
-    );
-    this.modal = modal;
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    childComponent.onSharedCipher.subscribe(async () => {
-      this.modal.close();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.viewCipher(cipher);
-      await this.vaultItemsComponent.refresh();
-      await this.cipherService.clearCache(this.activeUserId);
-      await this.vaultItemsComponent.load(this.activeFilter.buildFilter());
-    });
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    this.modal.onClosed.subscribe(async () => {
-      this.modal = null;
-    });
-  }
-
-  async viewCipherPasswordHistory(cipher: CipherView) {
-    if (this.modal != null) {
-      this.modal.close();
-    }
-
-    [this.modal] = await this.modalService.openViewRef(
-      PasswordHistoryComponent,
-      this.passwordHistoryModalRef,
-      (comp) => (comp.cipherId = cipher.id),
-    );
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    this.modal.onClosed.subscribe(async () => {
-      this.modal = null;
-    });
   }
 
   async applyVaultFilter(vaultFilter: VaultFilter) {
