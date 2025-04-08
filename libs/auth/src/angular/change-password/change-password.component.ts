@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from "@angular/core";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { ChangePasswordService } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -57,11 +57,9 @@ export class ChangePasswordComponent implements OnInit {
   async ngOnInit() {
     this.userkeyRotationV2 = await this.configService.getFeatureFlag(FeatureFlag.UserKeyRotationV2);
 
-    this.email = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.email)),
-    );
-
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    const userId = activeAccount.id;
+    this.email = activeAccount.email;
 
     this.masterPasswordPolicyOptions = await firstValueFrom(
       this.policyService.masterPasswordPolicyOptions$(userId),
