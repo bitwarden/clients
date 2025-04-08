@@ -1093,6 +1093,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private buildCipherIconElement(cipher: InlineMenuCipherData) {
     const cipherIcon = globalThis.document.createElement("span");
     cipherIcon.classList.add("cipher-icon");
+    cipherIcon.setAttribute("aria-hidden", "true");
 
     if (cipher.login?.totpField && cipher.login?.totp) {
       const totpContainer = document.createElement("div");
