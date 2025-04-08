@@ -3,6 +3,8 @@
 import "@webcomponents/custom-elements";
 import "lit/polyfill-support.js";
 
+import { FocusableElement } from "tabbable";
+
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EVENTS, UPDATE_PASSKEYS_HEADINGS_ON_SCROLL } from "@bitwarden/common/autofill/constants";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
@@ -117,7 +119,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     if (showSaveLoginMenu) {
-      this.buildSaveLoginInlineMenuList();
+      this.buildSaveLoginInlineMenu();
       return;
     }
 
@@ -165,20 +167,40 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   /**
    * Builds the inline menu list as a prompt that asks the user if they'd like to save the login data.
    */
-  private buildSaveLoginInlineMenuList() {
-    const saveLoginMessage = globalThis.document.createElement("div");
-    saveLoginMessage.classList.add(
+  private buildSaveLoginInlineMenu() {
+    const saveLoginButton = globalThis.document.createElement("button");
+    saveLoginButton.classList.add(
       "save-login",
       "inline-menu-list-button",
       "inline-menu-list-action",
     );
-    saveLoginMessage.textContent = this.getTranslation("saveToBitwarden");
-    saveLoginMessage.addEventListener(EVENTS.CLICK, this.handleNewLoginVaultItemAction);
+    saveLoginButton.tabIndex = -1;
+    saveLoginButton.setAttribute("aria-label", this.getTranslation("saveToBitwarden"));
+    saveLoginButton.textContent = this.getTranslation("saveToBitwarden");
+
+    saveLoginButton.addEventListener(EVENTS.CLICK, this.handleNewLoginVaultItemAction);
+    saveLoginButton.addEventListener(EVENTS.KEYUP, this.handleSaveLoginInlineMenuKeyUp);
+
+    const inlineMenuListButtonContainer = this.buildButtonContainer(saveLoginButton);
 
     this.showInlineMenuAccountCreation = true;
 
-    this.inlineMenuListContainer.append(saveLoginMessage);
+    this.inlineMenuListContainer.append(inlineMenuListButtonContainer);
   }
+
+  private handleSaveLoginInlineMenuKeyUp = (event: KeyboardEvent) => {
+    const listenedForKeys = new Set(["ArrowDown"]);
+    if (!listenedForKeys.has(event.code) || !(event.target instanceof Element)) {
+      return;
+    }
+
+    event.preventDefault();
+
+    if (event.code === "ArrowDown") {
+      (event.target as FocusableElement).focus();
+      return;
+    }
+  };
 
   /**
    * Handles the show save login inline menu list message that is triggered from the background script.
@@ -186,7 +208,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private handleShowSaveLoginInlineMenuList() {
     if (this.authStatus === AuthenticationStatus.Unlocked) {
       this.resetInlineMenuContainer();
-      this.buildSaveLoginInlineMenuList();
+      this.buildSaveLoginInlineMenu();
     }
   }
 
@@ -1071,7 +1093,6 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private buildCipherIconElement(cipher: InlineMenuCipherData) {
     const cipherIcon = globalThis.document.createElement("span");
     cipherIcon.classList.add("cipher-icon");
-    cipherIcon.setAttribute("aria-hidden", "true");
 
     if (cipher.login?.totpField && cipher.login?.totp) {
       const totpContainer = document.createElement("div");
