@@ -18,6 +18,8 @@ import { filter, first, map, take } from "rxjs/operators";
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
+import { RoutedPremiumUpgradePromptService } from "@bitwarden/angular/services/premium-upgrade-prompt.service";
+import { RoutedViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -32,34 +34,50 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
+import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  BadgeModule,
+  ButtonModule,
+  DialogService,
+  ItemModule,
+  ToastService,
+} from "@bitwarden/components";
 import {
   AttachmentDialogResult,
   AttachmentsV2Component,
+  ChangeLoginPasswordService,
+  CipherFormComponent,
   CipherFormConfig,
   CipherFormConfigService,
+  CipherViewComponent,
   DecryptionFailureDialogComponent,
+  DefaultChangeLoginPasswordService,
+  DefaultCipherFormConfigService,
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
+import { NavComponent } from "../../../app/layout/nav.component";
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
+import { SharedModule } from "../../../app/shared/shared.module";
 import { invokeMenu, RendererMenuItem } from "../../../utils";
 
 import { AddEditComponent } from "./add-edit.component";
 import { AttachmentsComponent } from "./attachments.component";
-import { CollectionsComponent } from "./collections.component";
 import { CredentialGeneratorDialogComponent } from "./credential-generator-dialog.component";
 import { FolderAddEditComponent } from "./folder-add-edit.component";
 import { ItemFooterComponent } from "./item-footer.component";
 import { PasswordHistoryComponent } from "./password-history.component";
 import { ShareComponent } from "./share.component";
 import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
+import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultItemsV2Component } from "./vault-items-v2.component";
+import { VaultItemsV2Module } from "./vault-items-v2.module";
 import { ViewComponent } from "./view.component";
 
 const BroadcasterSubscriptionId = "VaultComponent";
@@ -67,6 +85,37 @@ const BroadcasterSubscriptionId = "VaultComponent";
 @Component({
   selector: "app-vault",
   templateUrl: "vault-v2.component.html",
+  standalone: true,
+  imports: [
+    BadgeModule,
+    CipherFormComponent,
+    CipherViewComponent,
+    ItemFooterComponent,
+    ItemModule,
+    ButtonModule,
+    NavComponent,
+    SharedModule,
+    VaultFilterModule,
+    VaultItemsV2Module,
+  ],
+  providers: [
+    {
+      provide: CipherFormConfigService,
+      useClass: DefaultCipherFormConfigService,
+    },
+    {
+      provide: ChangeLoginPasswordService,
+      useClass: DefaultChangeLoginPasswordService,
+    },
+    {
+      provide: ViewPasswordHistoryService,
+      useClass: RoutedViewPasswordHistoryService,
+    },
+    {
+      provide: PremiumUpgradePromptService,
+      useClass: RoutedPremiumUpgradePromptService,
+    },
+  ],
 })
 export class VaultV2Component implements OnInit, OnDestroy {
   showForm = false;
@@ -620,31 +669,6 @@ export class VaultV2Component implements OnInit, OnDestroy {
       await this.vaultItemsComponent.refresh();
       await this.cipherService.clearCache(this.activeUserId);
       await this.vaultItemsComponent.load(this.activeFilter.buildFilter());
-    });
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    this.modal.onClosed.subscribe(async () => {
-      this.modal = null;
-    });
-  }
-
-  async cipherCollections(cipher: CipherView) {
-    if (this.modal != null) {
-      this.modal.close();
-    }
-
-    const [modal, childComponent] = await this.modalService.openViewRef(
-      CollectionsComponent,
-      this.collectionsModalRef,
-      (comp) => (comp.cipherId = cipher.id),
-    );
-    this.modal = modal;
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    childComponent.onSavedCollections.subscribe(() => {
-      this.modal.close();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.viewCipher(cipher);
     });
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.modal.onClosed.subscribe(async () => {

@@ -3,24 +3,12 @@ import "zone.js";
 // Register the locales for the application
 import "../platform/app/locales";
 
-import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
 import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
-import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
-import { CalloutModule, DialogModule, ItemModule, MenuModule } from "@bitwarden/components";
-import {
-  ChangeLoginPasswordService,
-  CipherFormComponent,
-  CipherFormConfigService,
-  CipherFormModule,
-  CipherViewComponent,
-  DecryptionFailureDialogComponent,
-  DefaultChangeLoginPasswordService,
-  DefaultCipherFormConfigService,
-} from "@bitwarden/vault";
+import { CalloutModule, DialogModule } from "@bitwarden/components";
 
 import { AccessibilityCookieComponent } from "../auth/accessibility-cookie.component";
 import { DeleteAccountComponent } from "../auth/delete-account.component";
@@ -33,18 +21,14 @@ import { TwoFactorComponentV1 } from "../auth/two-factor-v1.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { SshAgentService } from "../autofill/services/ssh-agent.service";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
-import { DesktopPremiumUpgradePromptService } from "../services/desktop-premium-upgrade-prompt.service";
-import { DesktopViewPasswordHistoryService } from "../services/desktop-view-password-history.service";
 import { AddEditCustomFieldsComponent } from "../vault/app/vault/add-edit-custom-fields.component";
 import { AddEditComponent } from "../vault/app/vault/add-edit.component";
 import { AttachmentsComponent } from "../vault/app/vault/attachments.component";
 import { CollectionsComponent } from "../vault/app/vault/collections.component";
 import { FolderAddEditComponent } from "../vault/app/vault/folder-add-edit.component";
-import { ItemFooterComponent } from "../vault/app/vault/item-footer.component";
 import { PasswordHistoryComponent } from "../vault/app/vault/password-history.component";
 import { ShareComponent } from "../vault/app/vault/share.component";
 import { VaultFilterModule } from "../vault/app/vault/vault-filter/vault-filter.module";
-import { VaultItemsV2Component } from "../vault/app/vault/vault-items-v2.component";
 import { VaultItemsComponent } from "../vault/app/vault/vault-items.component";
 import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 import { VaultComponent } from "../vault/app/vault/vault.component";
@@ -64,23 +48,17 @@ import { SharedModule } from "./shared/shared.module";
 
 @NgModule({
   imports: [
-    CipherFormModule,
-    CommonModule,
+    BrowserAnimationsModule,
     SharedModule,
     AppRoutingModule,
     VaultFilterModule,
-    MenuModule,
     LoginModule,
     DialogModule,
     CalloutModule,
-    CipherViewComponent,
-    CipherFormComponent,
-    ItemModule,
-    ItemFooterComponent,
     DeleteAccountComponent,
     UserVerificationComponent,
-    DecryptionFailureDialogComponent,
     NavComponent,
+    VaultV2Component,
   ],
   declarations: [
     AccessibilityCookieComponent,
@@ -89,7 +67,6 @@ import { SharedModule } from "./shared/shared.module";
     AddEditCustomFieldsComponent,
     AppComponent,
     AttachmentsComponent,
-    VaultItemsComponent,
     CollectionsComponent,
     ColorPasswordPipe,
     ColorPasswordCountPipe,
@@ -109,30 +86,11 @@ import { SharedModule } from "./shared/shared.module";
     VaultComponent,
     VaultItemsComponent,
     VaultTimeoutInputComponent,
-    ViewComponent,
     ViewCustomFieldsComponent,
-    VaultItemsV2Component,
-    VaultV2Component,
+    ViewComponent,
   ],
-  providers: [
-    SshAgentService,
-    {
-      provide: CipherFormConfigService,
-      useClass: DefaultCipherFormConfigService,
-    },
-    {
-      provide: ChangeLoginPasswordService,
-      useClass: DefaultChangeLoginPasswordService,
-    },
-    {
-      provide: ViewPasswordHistoryService,
-      useClass: DesktopViewPasswordHistoryService,
-    },
-    {
-      provide: PremiumUpgradePromptService,
-      useClass: DesktopPremiumUpgradePromptService,
-    },
-  ],
+  providers: [SshAgentService],
   bootstrap: [AppComponent],
+  exports: [BrowserAnimationsModule, SharedModule],
 })
 export class AppModule {}

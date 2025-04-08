@@ -1,4 +1,4 @@
-import { NgModule, inject } from "@angular/core";
+import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
@@ -15,7 +15,7 @@ import {
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
-import { componentRouteSwap } from "@bitwarden/angular/utils/component-route-swap";
+import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
 import {
   AnonLayoutWrapperComponent,
@@ -44,7 +44,6 @@ import {
   DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LockComponent } from "@bitwarden/key-management-ui";
 import {
   NewDeviceVerificationNoticePageOneComponent,
@@ -160,18 +159,15 @@ const routes: Routes = [
       },
     ],
   },
-  ...componentRouteSwap(
-    VaultComponent,
-    VaultV2Component,
-    () => {
-      const configService = inject(ConfigService);
-      return configService.getFeatureFlag(FeatureFlag.PM18520_UpdateDesktopCipherForm);
-    },
-    {
+  ...featureFlaggedRoute({
+    defaultComponent: VaultComponent,
+    flaggedComponent: VaultV2Component,
+    featureFlag: FeatureFlag.PM18520_UpdateDesktopCipherForm,
+    routeOptions: {
       path: "vault",
       canActivate: [authGuard, NewDeviceVerificationNoticeGuard],
     },
-  ),
+  }),
   { path: "accessibility-cookie", component: AccessibilityCookieComponent },
   { path: "set-password", component: SetPasswordComponent },
   {
@@ -379,7 +375,7 @@ const routes: Routes = [
   imports: [
     RouterModule.forRoot(routes, {
       useHash: true,
-      /*enableTracing: true,*/
+      enableTracing: true,
     }),
   ],
   exports: [RouterModule],

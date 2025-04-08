@@ -29,7 +29,6 @@ export class ItemFooterComponent implements OnInit {
   @Input() isSubmitting: boolean = false;
   @Output() onEdit = new EventEmitter<CipherView>();
   @Output() onClone = new EventEmitter<CipherView>();
-  @Output() onShare = new EventEmitter<CipherView>();
   @Output() onDelete = new EventEmitter<CipherView>();
   @Output() onRestore = new EventEmitter<CipherView>();
   @Output() onCancel = new EventEmitter<CipherView>();
@@ -85,15 +84,6 @@ export class ItemFooterComponent implements OnInit {
 
   cancel() {
     this.onCancel.emit(this.cipher);
-  }
-
-  async share() {
-    if (await this.promptPassword()) {
-      this.onShare.emit(this.cipher);
-      return true;
-    }
-
-    return false;
   }
 
   async delete(): Promise<boolean> {

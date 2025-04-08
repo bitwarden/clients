@@ -4,19 +4,19 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { BrowserViewPasswordHistoryService } from "./browser-view-password-history.service";
+import { RoutedViewPasswordHistoryService } from "./view-password-history.service";
 
-describe("BrowserViewPasswordHistoryService", () => {
-  let service: BrowserViewPasswordHistoryService;
+describe("RoutedViewPasswordHistoryService", () => {
+  let service: RoutedViewPasswordHistoryService;
   let router: MockProxy<Router>;
 
   beforeEach(async () => {
     router = mock<Router>();
     await TestBed.configureTestingModule({
-      providers: [BrowserViewPasswordHistoryService, { provide: Router, useValue: router }],
+      providers: [RoutedViewPasswordHistoryService, { provide: Router, useValue: router }],
     }).compileComponents();
 
-    service = TestBed.inject(BrowserViewPasswordHistoryService);
+    service = TestBed.inject(RoutedViewPasswordHistoryService);
   });
 
   describe("viewPasswordHistory", () => {

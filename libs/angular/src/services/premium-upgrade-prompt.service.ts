@@ -4,9 +4,9 @@ import { Router } from "@angular/router";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 
 /**
- * This class handles the premium upgrade process for the browser extension.
+ * This class handles the premium upgrade process for the web and browser clients.
  */
-export class BrowserPremiumUpgradePromptService implements PremiumUpgradePromptService {
+export class RoutedPremiumUpgradePromptService implements PremiumUpgradePromptService {
   private router = inject(Router);
 
   async promptForPremium() {

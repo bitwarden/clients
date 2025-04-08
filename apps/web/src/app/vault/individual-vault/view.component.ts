@@ -6,6 +6,8 @@ import { Component, EventEmitter, Inject, OnInit } from "@angular/core";
 import { Observable, firstValueFrom, map } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
+import { RoutedPremiumUpgradePromptService } from "@bitwarden/angular/services/premium-upgrade-prompt.service";
+import { RoutedViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -29,8 +31,6 @@ import {
 import { CipherViewComponent, DefaultTaskService, TaskService } from "@bitwarden/vault";
 
 import { SharedModule } from "../../shared/shared.module";
-import { WebVaultPremiumUpgradePromptService } from "../services/web-premium-upgrade-prompt.service";
-import { WebViewPasswordHistoryService } from "../services/web-view-password-history.service";
 
 export interface ViewCipherDialogParams {
   cipher: CipherView;
@@ -72,8 +72,8 @@ export interface ViewCipherDialogCloseResult {
   standalone: true,
   imports: [CipherViewComponent, CommonModule, AsyncActionsModule, DialogModule, SharedModule],
   providers: [
-    { provide: ViewPasswordHistoryService, useClass: WebViewPasswordHistoryService },
-    { provide: PremiumUpgradePromptService, useClass: WebVaultPremiumUpgradePromptService },
+    { provide: ViewPasswordHistoryService, useClass: RoutedViewPasswordHistoryService },
+    { provide: PremiumUpgradePromptService, useClass: RoutedPremiumUpgradePromptService },
     { provide: TaskService, useClass: DefaultTaskService },
   ],
 })

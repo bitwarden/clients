@@ -22,6 +22,11 @@
       "@bitwarden/vault": ["../vault/src"]
     }
   },
-  "include": ["src", "spec"],
+  "include": [
+    "src",
+    "spec",
+    "src/services/vault-premium-upgrade-prompt.service.spec.ts",
+    "src/services/vault-premium-upgrade-prompt.service.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }
