@@ -6,6 +6,7 @@
         class="!tw-align-middle"
         (click)="upgradePlan()"
         *ngIf="isBreadcrumbingEnabled$ | async"
+        type="button"
         variant="primary"
       >
         {{ "planNameEnterprise" | i18n }}

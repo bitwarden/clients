@@ -6,6 +6,7 @@
     (click)="changePlan(organization)"
     *ngIf="isBreadcrumbingEnabled$ | async"
     slot="title-suffix"
+    type="button"
     variant="primary"
   >
     {{ "upgrade" | i18n }}
