@@ -4,10 +4,10 @@
   enabledManagers: ["cargo", "github-actions", "npm"],
   packageRules: [
     {
-      // Group all build/test/lint workflows for GitHub Actions together for Platform
-      // Since they are code owners we don't need to assign a review team in Renovate
-      // Any changes here should also be reflected in CODEOWNERS
-      groupName: "github-action minor",
+      // Group all build/test/lint workflows for GitHub Actions together for Platform.
+      // Since they are code owners we don't need to assign a review team in Renovate.
+      // Any changes here should also be reflected in CODEOWNERS.
+      groupName: "github-action",
       matchManagers: ["github-actions"],
       matchFileNames: [
         "./github/workflows/automatic-issue-responses.yml",
@@ -30,10 +30,10 @@
       commitMessagePrefix: "[deps] Platform:",
     },
     {
-      // Group all release-related workflows for GitHub Actions together for BRE
-      // Since they are code owners we don't need to assign a review team in Renovate
-      // Any changes here should also be reflected in CODEOWNERS
-      groupName: "github-action minor",
+      // Group all release-related workflows for GitHub Actions together for BRE.
+      // Since they are code owners we don't need to assign a review team in Renovate.
+      // Any changes here should also be reflected in CODEOWNERS.
+      groupName: "github-action",
       matchManagers: ["github-actions"],
       matchFileNames: [
         "./github/workflows/brew-bump-desktop.yml",
@@ -51,7 +51,7 @@
       commitMessagePrefix: "[deps] BRE:",
     },
     {
-      // Disable major and minor updates for TypeScript and Zone.js because they are managed by Angular
+      // Disable major and minor updates for TypeScript and Zone.js because they are managed by Angular.
       matchPackageNames: ["typescript", "zone.js"],
       matchUpdateTypes: ["major", "minor"],
       description: "Determined by Angular",
@@ -72,27 +72,27 @@
       enabled: false,
     },
     {
-      // Renovate should manage patch updates for TypeScript and Zone.js, despite ignoring major and minor
+      // Renovate should manage patch updates for TypeScript and Zone.js, despite ignoring major and minor.
       matchPackageNames: ["typescript", "zone.js"],
       matchUpdateTypes: "patch",
     },
     {
-      // We want to update all the Jest-related packages together, to reduce PR noise
+      // We want to update all the Jest-related packages together, to reduce PR noise.
       groupName: "jest",
       matchPackageNames: ["@types/jest", "jest", "ts-jest", "jest-preset-angular"],
     },
     {
-      // We need to group all napi-related packages together to avoid build errors caused by version incompatibilities
+      // We need to group all napi-related packages together to avoid build errors caused by version incompatibilities.
       groupName: "napi",
       matchPackageNames: ["napi", "napi-build", "napi-derive"],
     },
     {
-      // We need to group all macOS/iOS binding-related packages together to avoid build errors caused by version incompatibilities
+      // We need to group all macOS/iOS binding-related packages together to avoid build errors caused by version incompatibilities.
       groupName: "macOS/iOS bindings",
       matchPackageNames: ["core-foundation", "security-framework", "security-framework-sys"],
     },
     {
-      // We need to group all zbus-related packages together to avoid build errors caused by version incompatibilities
+      // We need to group all zbus-related packages together to avoid build errors caused by version incompatibilities.
       groupName: "zbus",
       matchPackageNames: ["zbus", "zbus_polkit"],
     },

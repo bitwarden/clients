@@ -6718,7 +6718,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "message": "Nur die einzelnen Tresor-Einträge einschließlich Anhängen von $EMAIL$ werden exportiert. Tresor-Einträge der Organisation werden nicht berücksichtigt",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -8709,7 +8709,7 @@
     "message": "Das Löschen von Sammlungen auf Eigentümer und Administratoren beschränken"
   },
   "limitItemDeletionDescription": {
-    "message": "Limit item deletion to members with the Manage collection permissions"
+    "message": "Die Löschung von Einträgen auf Mitglieder mit den Berechtigungen zur Verwaltung von Sammlungen beschränken"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Besitzer und Administratoren können alle Sammlungen und Einträge verwalten"
