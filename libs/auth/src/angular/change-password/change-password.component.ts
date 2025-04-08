@@ -7,7 +7,6 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -36,6 +35,7 @@ export class ChangePasswordComponent implements OnInit {
   @Input() inputPasswordFlow: InputPasswordFlow = InputPasswordFlow.ChangePassword;
 
   email?: string;
+  userId?: UserId;
   masterPasswordPolicyOptions?: MasterPasswordPolicyOptions;
   userkeyRotationV2 = false;
   formPromise?: Promise<any>;
@@ -58,11 +58,11 @@ export class ChangePasswordComponent implements OnInit {
     this.userkeyRotationV2 = await this.configService.getFeatureFlag(FeatureFlag.UserKeyRotationV2);
 
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-    const userId = activeAccount.id;
-    this.email = activeAccount.email;
+    this.userId = activeAccount?.id;
+    this.email = activeAccount?.email;
 
     this.masterPasswordPolicyOptions = await firstValueFrom(
-      this.policyService.masterPasswordPolicyOptions$(userId),
+      this.policyService.masterPasswordPolicyOptions$(this.userId),
     );
   }
 
@@ -133,8 +133,6 @@ export class ChangePasswordComponent implements OnInit {
       await this.syncService.fullSync(true);
     }
 
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-
     let newMasterKeyEncryptedUserKey: [UserKey, EncString] | null = null;
 
     const userKey = await this.keyService.getUserKey();
@@ -160,11 +158,11 @@ export class ChangePasswordComponent implements OnInit {
           // we need to save this for local masterkey verification during rotation
           await this.masterPasswordService.setMasterKeyHash(
             passwordInputResult.newLocalMasterKeyHash,
-            userId as UserId,
+            this.userId as UserId,
           );
           await this.masterPasswordService.setMasterKey(
             passwordInputResult.newMasterKey,
-            userId as UserId,
+            this.userId as UserId,
           );
           return this.updateKey(passwordInputResult.newPassword);
         });

@@ -6,7 +6,6 @@ import {
   FormGroup,
   FormControl,
 } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -17,12 +16,12 @@ import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
   AsyncActionsModule,
@@ -97,6 +96,7 @@ export class InputPasswordComponent implements OnInit {
 
   @Input({ required: true }) inputPasswordFlow!: InputPasswordFlow;
   @Input({ required: true }) email!: string;
+  @Input({ required: true }) userId!: UserId;
 
   @Input() loading = false;
   @Input() masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
@@ -235,7 +235,10 @@ export class InputPasswordComponent implements OnInit {
       this.inputPasswordFlow ===
         InputPasswordFlow.ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey
     ) {
-      const currentPasswordIsCorrect = await this.verifyCurrentPassword(currentPassword);
+      const currentPasswordIsCorrect = await this.verifyCurrentPassword(
+        currentPassword,
+        this.userId,
+      );
       if (!currentPasswordIsCorrect) {
         return;
       }
@@ -321,9 +324,7 @@ export class InputPasswordComponent implements OnInit {
   /**
    * Returns true if the current password is correct, false otherwise
    */
-  private async verifyCurrentPassword(currentPassword: string): Promise<boolean> {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-
+  private async verifyCurrentPassword(currentPassword: string, userId: UserId): Promise<boolean> {
     const currentMasterKey = await this.keyService.makeMasterKey(
       currentPassword,
       this.email.trim().toLowerCase(),
@@ -423,9 +424,7 @@ export class InputPasswordComponent implements OnInit {
     const rotateUserKey = rotateUserKeyCtrl?.value;
 
     if (rotateUserKey) {
-      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-
-      const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
+      const ciphers = await this.cipherService.getAllDecrypted(this.userId);
       let hasOldAttachments = false;
       if (ciphers != null) {
         for (let i = 0; i < ciphers.length; i++) {
