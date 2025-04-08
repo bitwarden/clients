@@ -180,17 +180,15 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     pubKeyEncryptedMasterKeyHash: string,
     privateKey: Uint8Array,
   ): Promise<{ masterKey: MasterKey; masterKeyHash: string }> {
-    const decryptedMasterKeyArrayBuffer = await this.encryptService.decapsulateKeyUnsigned(
+    const masterKey = (await this.encryptService.decapsulateKeyUnsigned(
       new EncString(pubKeyEncryptedMasterKey),
       privateKey,
-    );
+    )) as MasterKey;
 
     const decryptedMasterKeyHashArrayBuffer = await this.encryptService.rsaDecrypt(
       new EncString(pubKeyEncryptedMasterKeyHash),
       privateKey,
     );
-
-    const masterKey = decryptedMasterKeyArrayBuffer as MasterKey;
     const masterKeyHash = Utils.fromBufferToUtf8(decryptedMasterKeyHashArrayBuffer);
 
     return {
