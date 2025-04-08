@@ -4,7 +4,7 @@ import { firstValueFrom } from "rxjs";
 import { ChangePasswordService } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -34,6 +34,7 @@ import { PasswordInputResult } from "../input-password/password-input-result";
 export class ChangePasswordComponent implements OnInit {
   @Input() inputPasswordFlow: InputPasswordFlow = InputPasswordFlow.ChangePassword;
 
+  activeAccount?: Account;
   email?: string;
   userId?: UserId;
   masterPasswordPolicyOptions?: MasterPasswordPolicyOptions;
@@ -57,9 +58,9 @@ export class ChangePasswordComponent implements OnInit {
   async ngOnInit() {
     this.userkeyRotationV2 = await this.configService.getFeatureFlag(FeatureFlag.UserKeyRotationV2);
 
-    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-    this.userId = activeAccount?.id;
-    this.email = activeAccount?.email;
+    this.activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    this.userId = this.activeAccount?.id;
+    this.email = this.activeAccount?.email;
 
     this.masterPasswordPolicyOptions = await firstValueFrom(
       this.policyService.masterPasswordPolicyOptions$(this.userId),
@@ -86,16 +87,15 @@ export class ChangePasswordComponent implements OnInit {
     try {
       if (passwordInputResult.rotateUserKey) {
         await this.syncService.fullSync(true);
-        const user = await firstValueFrom(this.accountService.activeAccount$);
 
-        if (user == null) {
+        if (this.activeAccount == null) {
           throw new Error("User not found");
         }
 
         await this.changePasswordService.rotateUserKeyMasterPasswordAndEncryptedData(
           passwordInputResult.currentPassword,
           passwordInputResult.newPassword,
-          user,
+          this.activeAccount,
           passwordInputResult.newPasswordHint,
         );
       } else {
@@ -188,12 +188,13 @@ export class ChangePasswordComponent implements OnInit {
   }
 
   private async updateKey(newPassword: string) {
-    const user = await firstValueFrom(this.accountService.activeAccount$);
-
-    if (user == null) {
+    if (this.activeAccount == null) {
       throw new Error("User not found");
     }
 
-    await this.changePasswordService.rotateUserKeyAndEncryptedDataLegacy(newPassword, user);
+    await this.changePasswordService.rotateUserKeyAndEncryptedDataLegacy(
+      newPassword,
+      this.activeAccount,
+    );
   }
 }

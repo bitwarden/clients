@@ -15,7 +15,6 @@ import {
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -146,7 +145,6 @@ export class InputPasswordComponent implements OnInit {
   );
 
   constructor(
-    private accountService: AccountService,
     private auditService: AuditService,
     private cipherService: CipherService,
     private dialogService: DialogService,
