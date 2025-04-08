@@ -18,6 +18,10 @@ export function sendExtensionMessage(message: unknown) {
 }
 
 window.addEventListener("message", (event) => {
+  if (event.origin !== window.origin) {
+    return;
+  }
+
   if (isIpcMessage(event.data)) {
     sendExtensionMessage(event.data);
   }

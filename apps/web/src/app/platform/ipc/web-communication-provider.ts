@@ -10,6 +10,10 @@ export class WebCommunicationProvider implements CommunicationBackend {
 
   constructor() {
     window.addEventListener("message", async (event: MessageEvent) => {
+      if (event.origin !== window.origin) {
+        return;
+      }
+
       const message = event.data;
       if (!isIpcMessage(message)) {
         return;
