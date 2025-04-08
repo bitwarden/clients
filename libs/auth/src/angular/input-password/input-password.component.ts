@@ -29,6 +29,7 @@ import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { SharedModule } from "../../../../components/src/shared";
 import { PasswordCalloutComponent } from "../password-callout/password-callout.component";
+import { compareInputs, ValidationGoal } from "../validators/compare-inputs.validator";
 
 import { PasswordInputResult } from "./password-input-result";
 
