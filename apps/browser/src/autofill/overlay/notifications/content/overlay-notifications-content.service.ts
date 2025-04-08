@@ -17,6 +17,7 @@ export class OverlayNotificationsContentService
   private notificationBarIframeElement: HTMLIFrameElement | null = null;
   private currentNotificationBarType: string | null = null;
   private removeTabFromNotificationQueueTypes = new Set(["add", "change"]);
+  private notificationRefreshFlag: boolean;
   private notificationBarElementStyles: Partial<CSSStyleDeclaration> = {
     height: "82px",
     width: "430px",
@@ -54,6 +55,9 @@ export class OverlayNotificationsContentService
 
   constructor() {
     void sendExtensionMessage("checkNotificationQueue");
+    void sendExtensionMessage("notificationRefreshFlagValue").then((notificationRefreshFlag) => {
+      this.notificationRefreshFlag = !!notificationRefreshFlag;
+    });
   }
 
   /**
@@ -84,7 +88,6 @@ export class OverlayNotificationsContentService
       theme: typeData.theme,
       removeIndividualVault: typeData.removeIndividualVault,
       importType: typeData.importType,
-      applyRedesign: true,
       launchTimestamp: typeData.launchTimestamp,
     };
 
@@ -192,7 +195,13 @@ export class OverlayNotificationsContentService
       { transform: "translateX(0)", opacity: "1" },
       true,
     );
-    setElementStyles(this.notificationBarElement, { boxShadow: "2px 4px 6px 0px #0000001A" }, true);
+    if (!this.notificationRefreshFlag) {
+      setElementStyles(
+        this.notificationBarElement,
+        { boxShadow: "2px 4px 6px 0px #0000001A" },
+        true,
+      );
+    }
     this.notificationBarIframeElement.removeEventListener(
       EVENTS.LOAD,
       this.handleNotificationBarIframeOnLoad,
@@ -206,7 +215,13 @@ export class OverlayNotificationsContentService
     if (this.notificationBarIframeElement) {
       this.notificationBarElement = globalThis.document.createElement("div");
       this.notificationBarElement.id = "bit-notification-bar";
+
       setElementStyles(this.notificationBarElement, this.notificationBarElementStyles, true);
+
+      if (this.notificationRefreshFlag) {
+        setElementStyles(this.notificationBarElement, { height: "400px", right: "0" }, true);
+      }
+
       this.notificationBarElement.appendChild(this.notificationBarIframeElement);
     }
   }

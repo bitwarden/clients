@@ -17,6 +17,7 @@ import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 import { BiometricsCommands } from "@bitwarden/key-management";
 
 import {
@@ -289,6 +290,10 @@ export default class RuntimeBackground {
       case "openPopup":
         await this.openPopup();
         break;
+      case VaultMessages.OpenAtRiskPasswords:
+        await this.main.openAtRisksPasswordsPage();
+        this.announcePopupOpen();
+        break;
       case "bgUpdateContextMenu":
       case "editedCipher":
       case "addedCipher":
@@ -418,24 +423,6 @@ export default class RuntimeBackground {
 
   private async openPopup() {
     await this.main.openPopup();
-
-    const announcePopupOpen = async () => {
-      const isOpen = await this.platformUtilsService.isViewOpen();
-      const tabs = await this.getBwTabs();
-
-      if (isOpen && tabs.length > 0) {
-        // Send message to all vault tabs that the extension has opened
-        for (const tab of tabs) {
-          await BrowserApi.executeScriptInTab(tab.id, {
-            file: "content/send-popup-open-message.js",
-            runAt: "document_end",
-          });
-        }
-      }
-    };
-
-    // Give the popup a buffer to open
-    setTimeout(announcePopupOpen, 100);
   }
 
   async sendBwInstalledMessageToVault() {
@@ -455,5 +442,26 @@ export default class RuntimeBackground {
     } catch (e) {
       this.logService.error(`Error sending on installed message to vault: ${e}`);
     }
+  }
+
+  /** Sends a message to each tab that the popup was opened */
+  private announcePopupOpen() {
+    const announceToAllTabs = async () => {
+      const isOpen = await this.platformUtilsService.isViewOpen();
+      const tabs = await this.getBwTabs();
+
+      if (isOpen && tabs.length > 0) {
+        // Send message to all vault tabs that the extension has opened
+        for (const tab of tabs) {
+          await BrowserApi.executeScriptInTab(tab.id, {
+            file: "content/send-popup-open-message.js",
+            runAt: "document_end",
+          });
+        }
+      }
+    };
+
+    // Give the popup a buffer to complete opening
+    setTimeout(announceToAllTabs, 100);
   }
 }

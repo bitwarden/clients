@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from "@angular/forms";
 import { Subject, takeUntil, Observable, firstValueFrom } from "rxjs";
@@ -17,7 +16,7 @@ import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitw
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogRef, DIALOG_DATA, DialogService, ToastService } from "@bitwarden/components";
 
 import { domainNameValidator } from "./validators/domain-name.validator";
 import { uniqueInArrayValidator } from "./validators/unique-in-array.validator";
