@@ -5140,5 +5140,32 @@
   },
   "changeAtRiskPassword": {
     "message": "Alterar palavra-passe em risco"
+  },
+  "introCarouselLabel": {
+    "message": "Bem-vindo ao Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Segurança, com prioridade"
+  },
+  "securityPrioritizedBody": {
+    "message": "Guarde credenciais, cartões e identidades no seu cofre seguro. O Bitwarden utiliza encriptação de ponto a ponto e conhecimento zero para proteger o que é importante para si."
+  },
+  "quickLogin": {
+    "message": "Início de sessão rápido e fácil"
+  },
+  "quickLoginBody": {
+    "message": "Configure o desbloqueio biométrico e o preenchimento automático para iniciar sessão nas suas contas sem escrever uma única letra."
+  },
+  "secureUser": {
+    "message": "Eleve o nível das suas credenciais"
+  },
+  "secureUserBody": {
+    "message": "Utilize o gerador para criar e guardar palavras-passe fortes e únicas para todas as suas contas."
+  },
+  "secureDevices": {
+    "message": "Os seus dados, quando e onde precisar"
+  },
+  "secureDevicesBody": {
+    "message": "Guarde palavras-passe ilimitadas em dispositivos ilimitados com as apps Bitwarden para telemóvel, navegador e computador."
   }
 }

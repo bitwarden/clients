@@ -5140,5 +5140,32 @@
   },
   "changeAtRiskPassword": {
     "message": "Zmień hasło zagrożone"
+  },
+  "introCarouselLabel": {
+    "message": "Witaj w Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Bezpieczeństwo priorytetem"
+  },
+  "securityPrioritizedBody": {
+    "message": "Zapisz dane logowania, karty i tożsamości w bezpiecznym sejfie. Bitwarden stosuje szyfrowanie end-to-end z wiedzą zerową, aby chronić to, co jest dla Ciebie ważne."
+  },
+  "quickLogin": {
+    "message": "Szybkie i łatwe logowanie"
+  },
+  "quickLoginBody": {
+    "message": "Skonfiguruj odblokowanie i autouzupełnianie biometryczne, aby zalogować się na swoje konta bez wpisywania pojedynczej litery."
+  },
+  "secureUser": {
+    "message": "Ulepsz swoje loginy"
+  },
+  "secureUserBody": {
+    "message": "Użyj generatora do tworzenia i zapisywania silnych, unikalnych haseł dla wszystkich kont."
+  },
+  "secureDevices": {
+    "message": "Twoje dane, kiedy i gdzie potrzebujesz"
+  },
+  "secureDevicesBody": {
+    "message": "Zapisuj nieograniczoną liczbę haseł na nieograniczonej liczbie urządzeń dzięki aplikacjom Bitwarden na urządzenia mobilne, przeglądarki i komputery stacjonarne."
   }
 }
