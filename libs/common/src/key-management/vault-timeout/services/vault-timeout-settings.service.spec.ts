@@ -175,7 +175,7 @@ describe("VaultTimeoutSettingsService", () => {
         "returns $expected when policy is $policy, and user preference is $userPreference",
         async ({ policy, userPreference, expected }) => {
           userDecryptionOptionsSubject.next(new UserDecryptionOptions({ hasMasterPassword: true }));
-          policyService.getAll$.mockReturnValue(
+          policyService.policiesByType$.mockReturnValue(
             of(policy === null ? [] : ([{ data: { action: policy } }] as unknown as Policy[])),
           );
 
@@ -213,7 +213,7 @@ describe("VaultTimeoutSettingsService", () => {
           userDecryptionOptionsSubject.next(
             new UserDecryptionOptions({ hasMasterPassword: false }),
           );
-          policyService.getAll$.mockReturnValue(
+          policyService.policiesByType$.mockReturnValue(
             of(policy === null ? [] : ([{ data: { action: policy } }] as unknown as Policy[])),
           );
 
@@ -257,7 +257,7 @@ describe("VaultTimeoutSettingsService", () => {
       "when policy is %s, and vault timeout is %s, returns %s",
       async (policy, vaultTimeout, expected) => {
         userDecryptionOptionsSubject.next(new UserDecryptionOptions({ hasMasterPassword: true }));
-        policyService.getAll$.mockReturnValue(
+        policyService.policiesByType$.mockReturnValue(
           of(policy === null ? [] : ([{ data: { minutes: policy } }] as unknown as Policy[])),
         );
 

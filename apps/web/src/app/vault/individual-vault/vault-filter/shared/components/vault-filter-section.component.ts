@@ -1,10 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, InjectionToken, Injector, Input, OnDestroy, OnInit } from "@angular/core";
-import { Observable, Subject, takeUntil } from "rxjs";
+import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 
 import { VaultFilterService } from "../../services/abstractions/vault-filter.service";
@@ -17,6 +19,7 @@ import { VaultFilter } from "../models/vault-filter.model";
 })
 export class VaultFilterSectionComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  private activeUserId$ = getUserId(this.accountService.activeAccount$);
 
   @Input() activeFilter: VaultFilter;
   @Input() section: VaultFilterSection;
@@ -29,6 +32,7 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
   constructor(
     private vaultFilterService: VaultFilterService,
     private injector: Injector,
+    private accountService: AccountService,
   ) {
     this.vaultFilterService.collapsedFilterNodes$
       .pipe(takeUntil(this.destroy$))
@@ -126,7 +130,8 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
     } else {
       this.collapsedFilterNodes.add(node.id);
     }
-    await this.vaultFilterService.setCollapsedFilterNodes(this.collapsedFilterNodes);
+    const userId = await firstValueFrom(this.activeUserId$);
+    await this.vaultFilterService.setCollapsedFilterNodes(this.collapsedFilterNodes, userId);
   }
 
   // an injector is necessary to pass data into a dynamic component

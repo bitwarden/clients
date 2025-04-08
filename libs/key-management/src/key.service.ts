@@ -254,16 +254,10 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.clearDeprecatedKeys(KeySuffixOptions.Auto, userId);
     }
     if (keySuffix === KeySuffixOptions.Pin && userId != null) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.clearDeprecatedKeys(KeySuffixOptions.Pin, userId);
     }
   }
 
@@ -293,10 +287,15 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       ),
     );
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(resolvedUserId));
-    return (
-      masterKey ||
-      (await this.makeMasterKey(password, email, await this.kdfConfigService.getKdfConfig()))
-    );
+    if (masterKey != null) {
+      return masterKey;
+    }
+
+    const kdf = await firstValueFrom(this.kdfConfigService.getKdfConfig$(resolvedUserId));
+    if (kdf == null) {
+      throw new Error("No kdf found for user");
+    }
+    return await this.makeMasterKey(password, email, kdf);
   }
 
   /**
@@ -307,11 +306,16 @@ export class DefaultKeyService implements KeyServiceAbstraction {
    * TODO: Move to MasterPasswordService
    */
   async makeMasterKey(password: string, email: string, KdfConfig: KdfConfig): Promise<MasterKey> {
-    return (await this.keyGenerationService.deriveKeyFromPassword(
+    const start = new Date().getTime();
+    const masterKey = (await this.keyGenerationService.deriveKeyFromPassword(
       password,
       email,
       KdfConfig,
     )) as MasterKey;
+    const end = new Date().getTime();
+    this.logService.info(`[KeyService] Deriving master key took ${end - start}ms`);
+
+    return masterKey;
   }
 
   async encryptUserKeyWithMasterKey(
@@ -565,7 +569,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.pinService.clearPinKeyEncryptedUserKeyPersistent(userId);
     await this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
     await this.pinService.clearUserKeyEncryptedPin(userId);
-    await this.clearDeprecatedKeys(KeySuffixOptions.Pin, userId);
   }
 
   async makeSendKey(keyMaterial: CsprngArray): Promise<SymmetricCryptoKey> {
@@ -726,7 +729,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     } else {
       await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
     }
-    await this.clearDeprecatedKeys(KeySuffixOptions.Auto, userId);
 
     const storePin = await this.shouldStoreKey(KeySuffixOptions.Pin, userId);
     if (storePin) {
@@ -749,9 +751,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
         noPreExistingPersistentKey,
         userId,
       );
-      // We can't always clear deprecated keys because the pin is only
-      // migrated once used to unlock
-      await this.clearDeprecatedKeys(KeySuffixOptions.Pin, userId);
     } else {
       await this.pinService.clearPinKeyEncryptedUserKeyPersistent(userId);
       await this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
@@ -833,19 +832,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       throw new Error("Invalid key size.");
     }
     return [new SymmetricCryptoKey(newSymKey) as T, protectedSymKey];
-  }
-
-  // --LEGACY METHODS--
-  // We previously used the master key for additional keys, but now we use the user key.
-  // These methods support migrating the old keys to the new ones.
-  // TODO: Remove after 2023.10 release (https://bitwarden.atlassian.net/browse/PM-3475)
-
-  async clearDeprecatedKeys(keySuffix: KeySuffixOptions, userId?: UserId) {
-    if (keySuffix === KeySuffixOptions.Auto) {
-      await this.stateService.setCryptoMasterKeyAuto(null, { userId: userId });
-    } else if (keySuffix === KeySuffixOptions.Pin && userId != null) {
-      await this.pinService.clearOldPinKeyEncryptedMasterKey(userId);
-    }
   }
 
   userKey$(userId: UserId): Observable<UserKey | null> {
