@@ -47,13 +47,13 @@ export abstract class EncryptService {
     encapsulationKey: Uint8Array,
   ): Promise<EncString>;
   /**
-   * Decapsulates a symmetric key with an asymmetric private key
+   * Decapsulates a shared symmetric key with an asymmetric private key
    * Note: This does not establish sender authenticity
-   * @param encapsulatedKey - The encapsulated key
+   * @param encryptedSharedKey - The encrypted shared symmetric key
    * @param decapsulationKey - The key to decapsulate with (private key)
    */
   abstract decapsulateKeyUnsigned(
-    encapsulatedKey: EncString,
+    encryptedSharedKey: EncString,
     decapsulationKey: Uint8Array,
   ): Promise<SymmetricCryptoKey>;
   /**
