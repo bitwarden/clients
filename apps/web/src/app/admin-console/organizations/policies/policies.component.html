@@ -1,15 +1,15 @@
 <app-header>
   @let organization = organization$ | async;
-  <span
+  <button
     bitBadge
-    class="tw-cursor-pointer !tw-align-middle"
+    class="!tw-align-middle"
     (click)="changePlan(organization)"
     *ngIf="isBreadcrumbingEnabled$ | async"
     slot="title-suffix"
     variant="primary"
   >
     {{ "upgrade" | i18n }}
-  </span>
+  </button>
 </app-header>
 
 <bit-container>

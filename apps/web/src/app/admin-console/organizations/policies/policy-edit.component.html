@@ -1,15 +1,15 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
   <bit-dialog [loading]="loading" [title]="'editPolicy' | i18n" [subtitle]="policy.name | i18n">
     <ng-container bitDialogTitle>
-      <span
+      <button
         bitBadge
-        class="tw-cursor-pointer !tw-align-middle"
+        class="!tw-align-middle"
         (click)="upgradePlan()"
         *ngIf="isBreadcrumbingEnabled$ | async"
         variant="primary"
       >
         {{ "planNameEnterprise" | i18n }}
-      </span>
+      </button>
     </ng-container>
     <ng-container bitDialogContent>
       <div *ngIf="loading">
@@ -37,14 +37,7 @@
         {{ "save" | i18n }}
       </button>
       <ng-template #breadcrumbing>
-        <button
-          *ngIf="isBreadcrumbingEnabled$ | async; else breadcrumbing"
-          bitButton
-          buttonType="primary"
-          bitFormButton
-          type="button"
-          (click)="upgradePlan()"
-        >
+        <button bitButton buttonType="primary" bitFormButton type="button" (click)="upgradePlan()">
           {{ "upgrade" | i18n }}
         </button>
       </ng-template>
