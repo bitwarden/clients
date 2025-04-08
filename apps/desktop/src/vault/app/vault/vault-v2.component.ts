@@ -19,8 +19,8 @@ import { filter, first, map, take } from "rxjs/operators";
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { RoutedPremiumUpgradePromptService } from "@bitwarden/angular/services/premium-upgrade-prompt.service";
-import { RoutedViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
+import { VaultPremiumUpgradePromptService } from "@bitwarden/angular/services/premium-upgrade-prompt.service";
+import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -107,11 +107,11 @@ const BroadcasterSubscriptionId = "VaultComponent";
     },
     {
       provide: ViewPasswordHistoryService,
-      useClass: RoutedViewPasswordHistoryService,
+      useClass: VaultViewPasswordHistoryService,
     },
     {
       provide: PremiumUpgradePromptService,
-      useClass: RoutedPremiumUpgradePromptService,
+      useClass: VaultPremiumUpgradePromptService,
     },
   ],
 })

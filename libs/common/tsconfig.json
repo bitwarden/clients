@@ -10,13 +10,6 @@
       "@bitwarden/vault-export-core": ["../tools/export/vault-export/vault-export-core/src"]
     }
   },
-  "include": [
-    "src",
-    "spec",
-    "./custom-matchers.d.ts",
-    "../key-management/src/index.ts",
-    "../angular/src/services/vault-premium-upgrade-prompt.service.spec.ts",
-    "../angular/src/services/vault-premium-upgrade-prompt.service.ts"
-  ],
+  "include": ["src", "spec", "./custom-matchers.d.ts", "../key-management/src/index.ts"],
   "exclude": ["node_modules", "dist"]
 }
