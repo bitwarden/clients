@@ -34,7 +34,7 @@ import { PasswordInputResult } from "../input-password/password-input-result";
 export class ChangePasswordComponent implements OnInit {
   @Input() inputPasswordFlow: InputPasswordFlow = InputPasswordFlow.ChangePassword;
 
-  activeAccount?: Account;
+  activeAccount: Account | null = null;
   email?: string;
   userId?: UserId;
   masterPasswordPolicyOptions?: MasterPasswordPolicyOptions;
@@ -61,6 +61,10 @@ export class ChangePasswordComponent implements OnInit {
     this.activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     this.userId = this.activeAccount?.id;
     this.email = this.activeAccount?.email;
+
+    if (this.userId == null) {
+      throw new Error("UserId cannot be null");
+    }
 
     this.masterPasswordPolicyOptions = await firstValueFrom(
       this.policyService.masterPasswordPolicyOptions$(this.userId),
