@@ -49,8 +49,6 @@ trait Callback: Send + Sync {
     fn error(&self, error: BitwardenError);
 }
 
-// Empty callback implementation for sending messages without handling responses
-
 #[derive(uniffi::Object)]
 pub struct MacOSProviderClient {
     to_server_send: tokio::sync::mpsc::Sender<String>,
