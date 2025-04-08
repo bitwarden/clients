@@ -238,7 +238,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
           request.deviceId = device.id;
           return request;
         })
-        .filter((device) => device != null),
+        .filter((otherDeviceKeysUpdateRequest) => otherDeviceKeysUpdateRequest != null),
     );
     if (rotatedData.length > 0) {
       this.logService.info("[Device trust rotation] Distrusting devices that failed to decrypt.");
