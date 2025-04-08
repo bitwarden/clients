@@ -225,6 +225,21 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       ),
     );
 
+    combineLatest([
+      this.exportForm.controls.vaultSelector.valueChanges,
+      this.isExportAttachmentsEnabled$,
+    ])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([value, isExportAttachmentsEnabled]) => {
+        this.organizationId = value !== "myVault" ? value : undefined;
+
+        this.formatOptions = this.formatOptions.filter((option) => option.value !== "zip");
+        this.exportForm.get("format").setValue("json");
+        if (value === "myVault" && isExportAttachmentsEnabled) {
+          this.formatOptions.push({ name: ".zip (with attachments)", value: "zip" });
+        }
+      });
+
     merge(
       this.exportForm.get("format").valueChanges,
       this.exportForm.get("fileEncryptionType").valueChanges,
@@ -322,22 +337,6 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
         takeUntil(this.destroy$),
       )
       .subscribe();
-
-    combineLatest([
-      this.exportForm.controls.vaultSelector.valueChanges,
-      this.isExportAttachmentsEnabled$,
-    ])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(([value, isExportAttachmentsEnabled]) => {
-        this.organizationId = value !== "myVault" ? value : undefined;
-        if (value === "myVault" && isExportAttachmentsEnabled) {
-          if (!this.formatOptions.some((option) => option.value === "zip")) {
-            this.formatOptions.push({ name: ".zip (with attachments)", value: "zip" });
-          }
-        } else {
-          this.formatOptions = this.formatOptions.filter((option) => option.value !== "zip");
-        }
-      });
   }
 
   ngAfterViewInit(): void {

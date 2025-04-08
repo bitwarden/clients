@@ -1,10 +1,10 @@
-import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
+  DIALOG_DATA,
   ButtonModule,
   DialogModule,
   DialogService,

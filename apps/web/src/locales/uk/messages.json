@@ -1435,18 +1435,6 @@
       }
     }
   },
-  "enterVerificationCodeApp": {
-    "message": "Введіть 6-значний код підтвердження з програми автентифікації."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Введіть 6-значний код підтвердження, надісланий на $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Код підтвердження надіслано на $EMAIL$.",
     "placeholders": {
@@ -1456,17 +1444,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Запам'ятати мене"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Більше не запитувати на цьому пристрої протягом 30 днів"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Надіслати код підтвердження ще раз"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Інший спосіб двоетапної перевірки"
   },
   "selectAnotherMethod": {
     "message": "Обрати інший спосіб",
@@ -1474,9 +1453,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Скористайтеся своїм кодом відновлення"
-  },
-  "insertYubiKey": {
-    "message": "Вставте свій YubiKey в USB порт комп'ютера, потім торкніться цієї кнопки."
   },
   "insertU2f": {
     "message": "Вставте свій ключ безпеки в USB порт комп'ютера. Якщо в нього є кнопка, натисніть її."
@@ -7252,9 +7228,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Помилка під'єднання до служби Duo. Скористайтеся іншим способом двоетапної перевірки або зверніться до служби підтримки Duo по допомогу."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Запустіть Duo і виконайте дії для завершення входу."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Для вашого облікового запису необхідна двоетапна перевірка з Duo."
   },
@@ -8735,8 +8708,8 @@
   "limitCollectionDeletionDesc": {
     "message": "Дозволити видалення збірок лише власникам та адміністраторам"
   },
-  "limitItemDeletionDesc": {
-    "message": "Обмежити видалення записів для учасників, які мають дозвіл \"Може керувати\""
+  "limitItemDeletionDescription": {
+    "message": "Limit item deletion to members with the Manage collection permissions"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Власники та адміністратори можуть керувати всіма збірками та записами"

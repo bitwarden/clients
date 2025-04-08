@@ -201,11 +201,11 @@ const mainConfig = {
       "./src/autofill/deprecated/content/bootstrap-legacy-autofill-overlay.ts",
     "content/autofiller": "./src/autofill/content/autofiller.ts",
     "content/auto-submit-login": "./src/autofill/content/auto-submit-login.ts",
-    "content/notificationBar": "./src/autofill/content/notification-bar.ts",
     "content/contextMenuHandler": "./src/autofill/content/context-menu-handler.ts",
     "content/content-message-handler": "./src/autofill/content/content-message-handler.ts",
     "content/fido2-content-script": "./src/autofill/fido2/content/fido2-content-script.ts",
     "content/fido2-page-script": "./src/autofill/fido2/content/fido2-page-script.ts",
+    "content/ipc-content-script": "./src/platform/ipc/content/ipc-content-script.ts",
     "notification/bar": "./src/autofill/notification/bar.ts",
     "overlay/menu-button":
       "./src/autofill/overlay/inline-menu/pages/button/bootstrap-autofill-inline-menu-button.ts",

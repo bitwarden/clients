@@ -833,18 +833,6 @@
   "continue": {
     "message": "Tęsti"
   },
-  "enterVerificationCodeApp": {
-    "message": "Įveskite 6 skaitmenų patvirtinimo kodą iš autentifikavimo programos."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Įveskite 6 skaitmenų patvirtinimo kodą, kuris buvo išsiųstas $EMAIL$ el. paštu.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Patvirtinimo laiškas išsiųstas į $EMAIL$.",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Prisiminti mane"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Pakartotinai atsiųsti patvirtinimo kodą el. paštu"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Naudoti kitą dviejų žingsnių prisijungimo metodą"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "Įkiškite YubiKey į savo kompiuterio USB prievadą, tada palieskite jo mygtuką."
   },
   "insertU2f": {
     "message": "Įkiškite savo saugos raktą į kompiuterio USB prievadą. Jei jame yra mygtukas, palieskite jį."
@@ -3224,9 +3200,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
   },
@@ -3588,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }

@@ -1,3 +1,5 @@
+import { ServerConfig } from "../platform/abstractions/config/server-config";
+
 /**
  * Feature flags.
  *
@@ -15,7 +17,6 @@ export enum FeatureFlag {
 
   /* Auth */
   PM9112_DeviceApprovalPersistence = "pm-9112-device-approval-persistence",
-  UnauthenticatedExtensionUIRefresh = "unauth-ui-refresh",
 
   /* Autofill */
   BlockBrowserInjectionsByDomain = "block-browser-injections-by-domain",
@@ -23,9 +24,7 @@ export enum FeatureFlag {
   EnableNewCardCombinedExpiryAutofill = "enable-new-card-combined-expiry-autofill",
   GenerateIdentityFillScriptRefactor = "generate-identity-fill-script-refactor",
   IdpAutoSubmitLogin = "idp-auto-submit-login",
-  InlineMenuFieldQualification = "inline-menu-field-qualification",
   InlineMenuPositioningImprovements = "inline-menu-positioning-improvements",
-  NotificationBarAddLoginImprovements = "notification-bar-add-login-improvements",
   NotificationRefresh = "notification-refresh",
   UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
@@ -84,9 +83,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnableNewCardCombinedExpiryAutofill]: FALSE,
   [FeatureFlag.GenerateIdentityFillScriptRefactor]: FALSE,
   [FeatureFlag.IdpAutoSubmitLogin]: FALSE,
-  [FeatureFlag.InlineMenuFieldQualification]: FALSE,
   [FeatureFlag.InlineMenuPositioningImprovements]: FALSE,
-  [FeatureFlag.NotificationBarAddLoginImprovements]: FALSE,
   [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
@@ -109,7 +106,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Auth */
   [FeatureFlag.PM9112_DeviceApprovalPersistence]: FALSE,
-  [FeatureFlag.UnauthenticatedExtensionUIRefresh]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
@@ -125,3 +121,14 @@ export const DefaultFeatureFlagValue = {
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
 
 export type FeatureFlagValueType<Flag extends FeatureFlag> = DefaultFeatureFlagValueType[Flag];
+
+export function getFeatureFlagValue<Flag extends FeatureFlag>(
+  serverConfig: ServerConfig | null,
+  flag: Flag,
+) {
+  if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
+    return DefaultFeatureFlagValue[flag];
+  }
+
+  return serverConfig.featureStates[flag] as FeatureFlagValueType<Flag>;
+}
