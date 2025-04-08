@@ -6,6 +6,7 @@ import {
   FormGroup,
   FormControl,
 } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -220,7 +221,10 @@ export class InputPasswordComponent implements OnInit {
       throw new Error("Email is required to create master key.");
     }
 
-    this.kdfConfig = (await this.kdfConfigService.getKdfConfig()) || DEFAULT_KDF_CONFIG;
+    this.kdfConfig = await firstValueFrom(this.kdfConfigService.getKdfConfig$(this.userId));
+    if (this.kdfConfig == null) {
+      throw new Error("KdfConfig is required to create master key.");
+    }
 
     const currentPassword = this.formGroup.get("currentPassword")?.value || "";
     const newPassword = this.formGroup.controls.newPassword.value;
