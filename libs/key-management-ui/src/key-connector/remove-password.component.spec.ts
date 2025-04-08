@@ -22,6 +22,7 @@ describe("RemovePasswordComponent", () => {
   const organization = {
     id: "test-organization-id",
     name: "test-organization-name",
+    keyConnectorUrl: "https://key-connector-url.com",
   } as Organization;
 
   const accountService = mockAccountServiceWith(userId);
@@ -121,7 +122,10 @@ describe("RemovePasswordComponent", () => {
       await component.convert();
 
       expect(component.continuing).toBe(true);
-      expect(mockKeyConnectorService.migrateUser).toHaveBeenCalledWith(userId);
+      expect(mockKeyConnectorService.migrateUser).toHaveBeenCalledWith(
+        organization.keyConnectorUrl,
+        userId,
+      );
       expect(mockToastService.showToast).toHaveBeenCalledWith({
         variant: "success",
         message: "removed master password",
@@ -137,7 +141,10 @@ describe("RemovePasswordComponent", () => {
       await component.convert();
 
       expect(component.continuing).toBe(false);
-      expect(mockKeyConnectorService.migrateUser).toHaveBeenCalledWith(userId);
+      expect(mockKeyConnectorService.migrateUser).toHaveBeenCalledWith(
+        organization.keyConnectorUrl,
+        userId,
+      );
       expect(mockToastService.showToast).toHaveBeenCalledWith({
         variant: "error",
         title: "error occurred",
@@ -161,7 +168,10 @@ describe("RemovePasswordComponent", () => {
       await component.convert();
 
       expect(component.continuing).toBe(false);
-      expect(mockKeyConnectorService.migrateUser).toHaveBeenCalledWith(userId);
+      expect(mockKeyConnectorService.migrateUser).toHaveBeenCalledWith(
+        organization.keyConnectorUrl,
+        userId,
+      );
       expect(mockToastService.showToast).toHaveBeenCalledWith({
         variant: "error",
         title: "error occurred",

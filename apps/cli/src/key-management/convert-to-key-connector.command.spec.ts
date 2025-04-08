@@ -15,6 +15,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 
 import { Response } from "../models/response";
 import { MessageResponse } from "../models/response/message.response";
+import { I18nService } from "../platform/services/i18n.service";
 
 import { ConvertToKeyConnectorCommand } from "./convert-to-key-connector.command";
 
@@ -38,6 +39,7 @@ describe("ConvertToKeyConnectorCommand", () => {
   const environmentService = mock<EnvironmentService>();
   const organizationApiService = mock<OrganizationApiServiceAbstraction>();
   const logout = jest.fn();
+  const i18nService = mock<I18nService>();
 
   beforeEach(async () => {
     command = new ConvertToKeyConnectorCommand(
@@ -46,7 +48,27 @@ describe("ConvertToKeyConnectorCommand", () => {
       environmentService,
       organizationApiService,
       logout,
+      i18nService,
     );
+
+    i18nService.t.mockImplementation((key: string) => {
+      switch (key) {
+        case "removeMasterPasswordForOrganizationUserKeyConnector":
+          return "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator. Organization name: Test Organization. Key Connector domain: https://keyconnector.example.com";
+        case "removeMasterPasswordAndUnlock":
+          return "Remove master password and unlock";
+        case "leaveOrganizationAndUnlock":
+          return "Leave organization and unlock";
+        case "logOut":
+          return "Log out";
+        case "youHaveBeenLoggedOut":
+          return "You have been logged out.";
+        case "organizationUsingKeyConnectorOptInLoggedOut":
+          return "An organization you are a member of is using Key Connector. In order to access the vault, you must opt-in to Key Connector now via the web vault. You have been logged out.";
+        default:
+          return "";
+      }
+    });
   });
 
   describe("run", () => {
@@ -73,7 +95,10 @@ describe("ConvertToKeyConnectorCommand", () => {
       keyConnectorService.getManagingOrganization.mockResolvedValue(organization);
 
       (createPromptModule as jest.Mock).mockImplementation(() =>
-        jest.fn(() => Promise.resolve({ convert: "exit" })),
+        jest.fn((prompt) => {
+          assertPrompt(prompt);
+          return Promise.resolve({ convert: "exit" });
+        }),
       );
 
       const response = await command.run();
@@ -95,14 +120,20 @@ describe("ConvertToKeyConnectorCommand", () => {
       } as Environment);
 
       (createPromptModule as jest.Mock).mockImplementation(() =>
-        jest.fn(() => Promise.resolve({ convert: "remove" })),
+        jest.fn((prompt) => {
+          assertPrompt(prompt);
+          return Promise.resolve({ convert: "remove" });
+        }),
       );
 
       const response = await command.run();
 
       expect(response).not.toBeNull();
       expect(response.success).toEqual(true);
-      expect(keyConnectorService.migrateUser).toHaveBeenCalledWith(userId);
+      expect(keyConnectorService.migrateUser).toHaveBeenCalledWith(
+        organization.keyConnectorUrl,
+        userId,
+      );
       expect(environmentService.setEnvironment).toHaveBeenCalledWith(Region.SelfHosted, {
         keyConnector: organization.keyConnectorUrl,
       } as Urls);
@@ -113,7 +144,10 @@ describe("ConvertToKeyConnectorCommand", () => {
       keyConnectorService.getManagingOrganization.mockResolvedValue(organization);
 
       (createPromptModule as jest.Mock).mockImplementation(() =>
-        jest.fn(() => Promise.resolve({ convert: "remove" })),
+        jest.fn((prompt) => {
+          assertPrompt(prompt);
+          return Promise.resolve({ convert: "remove" });
+        }),
       );
 
       keyConnectorService.migrateUser.mockRejectedValue(new Error("Migration failed"));
@@ -127,7 +161,10 @@ describe("ConvertToKeyConnectorCommand", () => {
       keyConnectorService.getManagingOrganization.mockResolvedValue(organization);
 
       (createPromptModule as jest.Mock).mockImplementation(() =>
-        jest.fn(() => Promise.resolve({ convert: "leave" })),
+        jest.fn((prompt) => {
+          assertPrompt(prompt);
+          return Promise.resolve({ convert: "leave" });
+        }),
       );
 
       const response = await command.run();
@@ -136,5 +173,34 @@ describe("ConvertToKeyConnectorCommand", () => {
       expect(response.success).toEqual(true);
       expect(organizationApiService.leave).toHaveBeenCalledWith(organization.id);
     });
+
+    function assertPrompt(prompt: unknown) {
+      expect(typeof prompt).toEqual("object");
+      expect(prompt).toHaveProperty("type");
+      expect(prompt).toHaveProperty("name");
+      expect(prompt).toHaveProperty("message");
+      expect(prompt).toHaveProperty("choices");
+      const promptObj = prompt as Record<string, unknown>;
+      expect(promptObj["type"]).toEqual("list");
+      expect(promptObj["name"]).toEqual("convert");
+      expect(promptObj["message"]).toEqual(
+        `A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator. Organization name: ${organization.name}. Key Connector domain: ${organization.keyConnectorUrl}`,
+      );
+      expect(promptObj["choices"]).toBeInstanceOf(Array);
+      const choices = promptObj["choices"] as Array<Record<string, unknown>>;
+      expect(choices).toHaveLength(3);
+      expect(choices[0]).toEqual({
+        name: "Remove master password and unlock",
+        value: "remove",
+      });
+      expect(choices[1]).toEqual({
+        name: "Leave organization and unlock",
+        value: "leave",
+      });
+      expect(choices[2]).toEqual({
+        name: "Log out",
+        value: "exit",
+      });
+    }
   });
 });

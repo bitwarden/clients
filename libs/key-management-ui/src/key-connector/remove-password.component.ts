@@ -65,7 +65,10 @@ export class RemovePasswordComponent implements OnInit {
     this.continuing = true;
 
     try {
-      await this.keyConnectorService.migrateUser(this.activeUserId);
+      await this.keyConnectorService.migrateUser(
+        this.organization.keyConnectorUrl,
+        this.activeUserId,
+      );
 
       this.toastService.showToast({
         variant: "success",
