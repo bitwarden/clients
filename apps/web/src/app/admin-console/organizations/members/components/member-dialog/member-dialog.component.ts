@@ -125,6 +125,7 @@ export class MemberDialogComponent implements OnDestroy {
     emails: [""],
     type: OrganizationUserType.User,
     externalId: this.formBuilder.control({ value: "", disabled: true }),
+    ssoExternalId: this.formBuilder.control({ value: "", disabled: true }),
     accessSecretsManager: false,
     access: [[] as AccessItemValue[]],
     groups: [[] as AccessItemValue[]],
@@ -154,6 +155,22 @@ export class MemberDialogComponent implements OnDestroy {
   protected accountDeprovisioningEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
     FeatureFlag.AccountDeprovisioning,
   );
+
+  protected isExternalIdVisible$ = this.configService
+    .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
+    .pipe(
+      map((isEnabled) => {
+        return !isEnabled || !!this.formGroup.get("externalId")?.value;
+      }),
+    );
+
+  protected isSsoExternalIdVisible$ = this.configService
+    .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
+    .pipe(
+      map((isEnabled) => {
+        return isEnabled && !!this.formGroup.get("ssoExternalId")?.value;
+      }),
+    );
 
   private destroy$ = new Subject<void>();
 
@@ -402,6 +419,7 @@ export class MemberDialogComponent implements OnDestroy {
     this.formGroup.patchValue({
       type: userDetails.type,
       externalId: userDetails.externalId,
+      ssoExternalId: userDetails.ssoExternalId,
       access: accessSelections,
       accessSecretsManager: userDetails.accessSecretsManager,
       groups: groupAccessSelections,
