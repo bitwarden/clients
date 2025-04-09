@@ -190,6 +190,7 @@ jobs:
       - name: Generate container image tag
         id: tag
         run: |
+          echo "Triggered by ${GITHUB_EVENT_NAME}"
           if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
             IMAGE_TAG=$(echo "${GITHUB_HEAD_REF}" | sed "s#/#-#g")
             echo "Image tag from head ref: $IMAGE_TAG"
