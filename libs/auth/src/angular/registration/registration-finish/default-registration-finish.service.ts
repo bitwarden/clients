@@ -81,7 +81,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
 
     const registerFinishRequest = new RegisterFinishRequest(
       email,
-      passwordInputResult.masterKeyHash,
+      passwordInputResult.serverMasterKeyHash,
       passwordInputResult.hint,
       encryptedUserKey,
       userAsymmetricKeysRequest,
