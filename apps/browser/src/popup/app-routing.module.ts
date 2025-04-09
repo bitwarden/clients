@@ -79,10 +79,12 @@ import { ImportBrowserV2Component } from "../tools/popup/settings/import/import-
 import { SettingsV2Component } from "../tools/popup/settings/settings-v2.component";
 import { canAccessAtRiskPasswords } from "../vault/guards/at-risk-passwords.guard";
 import { clearVaultStateGuard } from "../vault/guards/clear-vault-state.guard";
+import { IntroCarouselGuard } from "../vault/guards/intro-carousel.guard";
 import { AtRiskPasswordsComponent } from "../vault/popup/components/at-risk-passwords/at-risk-passwords.component";
 import { AddEditV2Component } from "../vault/popup/components/vault-v2/add-edit/add-edit-v2.component";
 import { AssignCollections } from "../vault/popup/components/vault-v2/assign-collections/assign-collections.component";
 import { AttachmentsV2Component } from "../vault/popup/components/vault-v2/attachments/attachments-v2.component";
+import { IntroCarouselComponent } from "../vault/popup/components/vault-v2/intro-carousel/intro-carousel.component";
 import { PasswordHistoryV2Component } from "../vault/popup/components/vault-v2/vault-password-history-v2/vault-password-history-v2.component";
 import { VaultV2Component } from "../vault/popup/components/vault-v2/vault-v2.component";
 import { ViewV2Component } from "../vault/popup/components/vault-v2/view-v2/view-v2.component";
@@ -383,7 +385,7 @@ const routes: Routes = [
       },
       {
         path: "login",
-        canActivate: [unauthGuardFn(unauthRouteOverrides)],
+        canActivate: [unauthGuardFn(unauthRouteOverrides), IntroCarouselGuard],
         data: {
           pageIcon: VaultIcon,
           pageTitle: {
@@ -586,6 +588,21 @@ const routes: Routes = [
     component: MoreFromBitwardenPageV2Component,
     canActivate: [authGuard],
     data: { elevation: 2 } satisfies RouteDataProperties,
+  },
+  {
+    path: "intro-carousel",
+    component: ExtensionAnonLayoutWrapperComponent,
+    canActivate: [],
+    children: [
+      {
+        path: "",
+        component: IntroCarouselComponent,
+        data: {
+          hideIcon: true,
+          hideFooter: true,
+        },
+      },
+    ],
   },
   {
     path: "new-device-notice",

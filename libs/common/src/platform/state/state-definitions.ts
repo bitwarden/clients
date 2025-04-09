@@ -207,3 +207,7 @@ export const SECURITY_TASKS_DISK = new StateDefinition("securityTasks", "disk");
 export const AT_RISK_PASSWORDS_PAGE_DISK = new StateDefinition("atRiskPasswordsPage", "disk");
 export const NOTIFICATION_DISK = new StateDefinition("notifications", "disk");
 export const VAULT_NUDGES_DISK = new StateDefinition("vaultNudges", "disk");
+export const VAULT_BROWSER_INTRO_CAROUSEL = new StateDefinition(
+  "vaultBrowserIntroCarousel",
+  "disk",
+);
