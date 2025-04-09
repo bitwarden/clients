@@ -10,6 +10,7 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
+import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 import { CipherData } from "../data/cipher.data";
 import { LocalData } from "../data/local.data";
 import { AttachmentView } from "../view/attachment.view";
@@ -39,6 +40,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   organizationUseTotp: boolean;
   edit: boolean;
   viewPassword: boolean;
+  permissions: CipherPermissionsApi;
   revisionDate: Date;
   localData: LocalData;
   login: Login;
@@ -84,6 +86,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     } else {
       this.viewPassword = true; // Default for already synced Ciphers without viewPassword
     }
+    this.permissions = obj.permissions;
     this.revisionDate = obj.revisionDate != null ? new Date(obj.revisionDate) : null;
     this.collectionIds = obj.collectionIds;
     this.localData = localData;
@@ -244,6 +247,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     c.deletedDate = this.deletedDate != null ? this.deletedDate.toISOString() : null;
     c.reprompt = this.reprompt;
     c.key = this.key?.encryptedString;
+    c.permissions = this.permissions;
 
     this.buildDataModel(this, c, {
       name: null,

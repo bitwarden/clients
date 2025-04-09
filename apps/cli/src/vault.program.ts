@@ -350,6 +350,8 @@ export class VaultProgram extends BaseProgram {
         const command = new RestoreCommand(
           this.serviceContainer.cipherService,
           this.serviceContainer.accountService,
+          this.serviceContainer.configService,
+          this.serviceContainer.cipherAuthorizationService,
         );
         const response = await command.run(object, id);
         this.processResponse(response);
@@ -501,6 +503,8 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.exportService,
           this.serviceContainer.policyService,
           this.serviceContainer.eventCollectionService,
+          this.serviceContainer.accountService,
+          this.serviceContainer.configService,
         );
         const response = await command.run(options);
         this.processResponse(response);

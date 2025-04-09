@@ -163,6 +163,22 @@ export const WithCustomIcon: Story = {
   }),
 };
 
+export const HideIcon: Story = {
+  render: (args) => ({
+    props: args,
+    template:
+      // Projected content (the <div>) and styling is just a sample and can be replaced with any content/styling.
+      `
+      <auth-anon-layout [title]="title" [subtitle]="subtitle" [showReadonlyHostname]="showReadonlyHostname" [hideIcon]="true" >
+        <div>
+          <div class="tw-font-bold">Primary Projected Content Area (customizable)</div>
+          <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus illum vero, placeat recusandae esse ratione eius minima veniam nemo, quas beatae! Impedit molestiae alias sapiente explicabo. Sapiente corporis ipsa numquam?</div>
+        </div>
+      </auth-anon-layout>
+    `,
+  }),
+};
+
 export const HideLogo: Story = {
   render: (args) => ({
     props: args,

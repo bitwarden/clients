@@ -209,6 +209,14 @@ export class Main {
       new ElectronMainMessagingService(this.windowMain),
     );
 
+    this.trayMain = new TrayMain(
+      this.windowMain,
+      this.i18nService,
+      this.desktopSettingsService,
+      this.messagingService,
+      this.biometricsService,
+    );
+
     messageSubject.asObservable().subscribe((message) => {
       void this.messagingMain.onMessage(message).catch((err) => {
         this.logService.error(
@@ -236,7 +244,7 @@ export class Main {
       this.windowMain,
       this.i18nService,
       this.desktopSettingsService,
-      biometricStateService,
+      this.messagingService,
       this.biometricsService,
     );
 
@@ -285,7 +293,7 @@ export class Main {
       async () => {
         await this.toggleHardwareAcceleration();
         // Reset modal mode to make sure main window is displayed correctly
-        await this.desktopSettingsService.resetInModalMode();
+        await this.desktopSettingsService.resetModalMode();
         await this.windowMain.init();
         await this.i18nService.init();
         await this.messagingMain.init();

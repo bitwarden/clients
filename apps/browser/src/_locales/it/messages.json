@@ -20,7 +20,7 @@
     "message": "Crea account"
   },
   "newToBitwarden": {
-    "message": "Nuovo in Bitwarden?"
+    "message": "Sei un nuovo utente?"
   },
   "logInWithPasskey": {
     "message": "Accedi con passkey"
@@ -29,7 +29,7 @@
     "message": "Usa il Single Sign-On"
   },
   "welcomeBack": {
-    "message": "Bentornato"
+    "message": "Bentornat*"
   },
   "setAStrongPassword": {
     "message": "Imposta una password robusta"
@@ -62,7 +62,7 @@
     "message": "Un suggerimento per la password principale può aiutarti a ricordarla se la dimentichi."
   },
   "masterPassHintText": {
-    "message": "Se dimentichi la password, il suggerimento password può essere inviato alla tua email. $CURRENT$/$MAXIMUM$ massimo carattere.",
+    "message": "Se dimentichi la password, il suggerimento password può essere inviato alla tua email. Attualmente $CURRENT$ caratteri, massimo $MAXIMUM$.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -81,7 +81,7 @@
     "message": "Suggerimento per la password principale (facoltativo)"
   },
   "passwordStrengthScore": {
-    "message": "Valutazione complessità parola d'accesso $SCORE$",
+    "message": "Complessità password: $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -159,7 +159,7 @@
     "message": "Copia numero passaporto"
   },
   "copyLicenseNumber": {
-    "message": "Copia numero licenza"
+    "message": "Copia numero patente"
   },
   "copyPrivateKey": {
     "message": "Copia chiave privata"
@@ -186,7 +186,7 @@
     "message": "Copia note"
   },
   "copy": {
-    "message": "Copy",
+    "message": "Copia",
     "description": "Copy to clipboard"
   },
   "fill": {
@@ -206,10 +206,10 @@
     "message": "Riempi automaticamente identità"
   },
   "fillVerificationCode": {
-    "message": "Riempi codice di verifica"
+    "message": "Inserisci codice di verifica"
   },
   "fillVerificationCodeAria": {
-    "message": "Riempi Codice di Verifica",
+    "message": "Inserisci codice di verifica",
     "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
@@ -252,7 +252,7 @@
     "message": "Aggiungi elemento"
   },
   "accountEmail": {
-    "message": "Email dell'account"
+    "message": "Account email"
   },
   "requestHint": {
     "message": "Richiedi suggerimento"
@@ -262,12 +262,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Inserisci l'indirizzo email dell'account e ti invieremo il tuo suggerimento per la password"
-  },
-  "passwordHint": {
-    "message": "Suggerimento per la password"
-  },
-  "enterEmailToGetHint": {
-    "message": "Inserisci l'indirizzo email del tuo account per ricevere il suggerimento per la password principale."
   },
   "getMasterPasswordHint": {
     "message": "Ottieni suggerimento della password principale"
@@ -384,6 +378,15 @@
   },
   "editFolder": {
     "message": "Modifica cartella"
+  },
+  "editFolderWithName": {
+    "message": "Modifica cartella: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Nuova cartella"
@@ -653,7 +656,7 @@
     "message": "Verifica la tua identità"
   },
   "weDontRecognizeThisDevice": {
-    "message": "Non riconosciamo questo dispositivo. Inserisci il codice inviato alla tua e-mail per verificare la tua identità."
+    "message": "Inserisci il codice inviato alla tua e-mail per verificare la tua identità."
   },
   "continueLoggingIn": {
     "message": "Continua l'accesso"
@@ -872,7 +875,7 @@
     "message": "Inserisci il codice dalla tua app di autenticazione"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Premi la tua chiave Yubi per autenticare"
+    "message": "Premi la tua YubiKey per accedere"
   },
   "duoTwoFactorRequiredPageSubtitle": {
     "message": "Il login Duo in due passaggi è richiesto per il tuo account. Segui i passaggi qui sotto per completare l'accesso."
@@ -881,7 +884,7 @@
     "message": "Segui i passaggi qui sotto per completare l'accesso."
   },
   "restartRegistration": {
-    "message": "Riprova la registrazione"
+    "message": "Ricomincia la registrazione"
   },
   "expiredLink": {
     "message": "Link scaduto"
@@ -920,7 +923,7 @@
     "message": "Rendi il tuo account più sicuro impostando l'autenticazione a due fattori nell'app web di Bitwarden."
   },
   "twoStepLoginConfirmationTitle": {
-    "message": "Aprire web app?"
+    "message": "Vuoi continuare sulla web app?"
   },
   "editedFolder": {
     "message": "Cartella salvata"
@@ -1166,10 +1169,6 @@
     "message": "Chiaro",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Scuro solarizzato",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Esporta da"
   },
@@ -1392,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "Passa a Premium per utilizzare questa funzionalità."
   },
-  "enterVerificationCodeApp": {
-    "message": "Inserisci il codice di verifica a 6 cifre dalla tua app di autenticazione."
-  },
   "authenticationTimeout": {
     "message": "Timeout autenticazione"
   },
   "authenticationSessionTimedOut": {
     "message": "La sessione di autenticazione è scaduta. Accedi di nuovo."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Inserisci il codice di verifica a 6 cifre inviato a $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "L'email di verifica è stata inviata all'indirizzo $EMAIL$.",
@@ -1419,17 +1406,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Ricordami"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Non chiedere più su questo dispositivo per 30 giorni"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Invia di nuovo l'email con codice di verifica"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Usa un altro metodo di verifica in due passaggi"
   },
   "selectAnotherMethod": {
     "message": "Seleziona un altro metodo",
@@ -1438,17 +1416,8 @@
   "useYourRecoveryCode": {
     "message": "Usa il tuo codice di recupero"
   },
-  "insertYubiKey": {
-    "message": "Inserisci la tua YubiKey nella porta USB del computer, poi premi il suo pulsante."
-  },
   "insertU2f": {
     "message": "Inserisci la tua chiave di sicurezza nella porta USB del tuo computer. Se dispone di un pulsante, premilo."
-  },
-  "webAuthnNewTab": {
-    "message": "Per avviare la verifica WebAuthn 2FA. Clicca il pulsante qui sotto per aprire una nuova scheda e segui le istruzioni fornite nella nuova scheda."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Apri nuova scheda"
   },
   "openInNewTab": {
     "message": "Apri in una nuova scheda"
@@ -1519,9 +1488,6 @@
   "selfHostedEnvironment": {
     "message": "Ambiente self-hosted"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Specifica l'URL principale della tua installazione self-hosted di Bitwarden."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specifica lo URL principale della tua installazione self-hosted di Bitwarden. Esempio: https://bitwarden.company.com"
   },
@@ -1533,9 +1499,6 @@
   },
   "customEnvironment": {
     "message": "Ambiente personalizzato"
-  },
-  "customEnvironmentFooter": {
-    "message": "Per utenti avanzati. Puoi specificare l'URL principale di ogni servizio indipendentemente."
   },
   "baseUrl": {
     "message": "URL del server"
@@ -1673,6 +1636,9 @@
   },
   "dragToSort": {
     "message": "Trascina per ordinare"
+  },
+  "dragToReorder": {
+    "message": "Trascina per riordinare"
   },
   "cfTypeText": {
     "message": "Testo"
@@ -2444,7 +2410,7 @@
     "message": "Domini bloccati"
   },
   "learnMoreAboutBlockedDomains": {
-    "message": "Learn more about blocked domains"
+    "message": "Info sui domini bloccati"
   },
   "excludedDomains": {
     "message": "Domini esclusi"
@@ -2456,7 +2422,7 @@
     "message": "Bitwarden non chiederà di salvare le credenziali di accesso per questi domini per tutti gli account sul dispositivo. Ricarica la pagina affinché le modifiche abbiano effetto."
   },
   "blockedDomainsDesc": {
-    "message": "Per questi siti, l'auto-completamento e funzionalità simili non saranno disponibili. Ricarica la pagina per applicare le modifiche."
+    "message": "Per questi siti, riempimento automatico e funzionalità simili non saranno disponibili. Ricarica la pagina per applicare le modifiche."
   },
   "autofillBlockedNoticeV2": {
     "message": "La compilazione automatica è bloccata per questo sito."
@@ -2538,15 +2504,15 @@
     "message": "Le parole d'accesso dell'organizzazione sono a rischio perché sono deboli, riutilizzate, e/o esposte.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Illustrazione di un elenco di accessi a rischio"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
   },
   "generatePasswordSlideDesc": {
     "message": "Genera rapidamente una parola d'accesso forte e unica con il menu' di riempimento automatico Bitwarden nel sito a rischio.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Illustrazione del menu' di riempimento automatico Bitwarden che mostra una parola d'accesso generata"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
   },
   "updateInBitwarden": {
     "message": "Aggiorna in Bitwarden"
@@ -2555,8 +2521,8 @@
     "message": "Bitwarden ti chiederà quindi di aggiornare la parola d'accesso nel gestore di parole d'accesso.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Illustrazione di una notifica Bitwarden che richiede all'utente di aggiornare l'accesso"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
   },
   "turnOnAutofill": {
     "message": "Attiva riempimento automatico"
@@ -3011,6 +2977,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Esportando cassaforte dell'organizzazione"
   },
@@ -3276,15 +3251,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Impostazioni modificate"
-  },
-  "environmentEditedClick": {
-    "message": "Clicca qui"
-  },
-  "environmentEditedReset": {
-    "message": "per ritornare alle impostazioni preconfigurate"
-  },
   "serverVersion": {
     "message": "Versione server"
   },
@@ -3315,12 +3281,6 @@
   "loginWithMasterPassword": {
     "message": "Accedi con password principale"
   },
-  "loggingInAs": {
-    "message": "Accedendo come"
-  },
-  "notYou": {
-    "message": "Non sei tu?"
-  },
   "newAroundHere": {
     "message": "Nuovo da queste parti?"
   },
@@ -3329,9 +3289,6 @@
   },
   "loginWithDevice": {
     "message": "Accedi con dispositivo"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "L'accesso con dispositivo deve essere abilitato nelle impostazioni dell'app Bitwarden. Ti serve un'altra opzione?"
   },
   "fingerprintPhraseHeader": {
     "message": "Frase impronta"
@@ -3343,9 +3300,6 @@
     "message": "Invia notifica di nuovo"
   },
   "viewAllLogInOptions": {
-    "message": "Visualizza tutte le opzioni di accesso"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Visualizza tutte le opzioni di accesso"
   },
   "notificationSentDevice": {
@@ -3489,9 +3443,6 @@
   "requestAdminApproval": {
     "message": "Richiedi approvazione dell'amministratore"
   },
-  "approveWithMasterPassword": {
-    "message": "Approva con password principale"
-  },
   "ssoIdentifierRequired": {
     "message": "Identificatore SSO dell'organizzazione obbligatorio."
   },
@@ -3537,9 +3488,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "La tua richiesta è stata inviata al tuo amministratore."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Riceverai una notifica una volta approvato."
   },
   "troubleLoggingIn": {
     "message": "Problemi ad accedere?"
@@ -3870,14 +3818,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Errore di connessione con il servizio Duo. Utilizza un metodo di login in due passaggi diverso o contatta Duo per assistenza."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Avvia DUO e segui i passaggi per finire di accedere."
-  },
   "duoRequiredForAccount": {
     "message": "Per il tuo account è richiesta la verifica in due passaggi DUO."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Apri l'estensione in un popup per completare l'accesso."
   },
   "popoutExtension": {
     "message": "Estrai estensione"
@@ -4301,6 +4243,20 @@
       }
     }
   },
+  "viewItemTitleWithField": {
+    "message": "View item - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "autofillTitle": {
     "message": "Riempi automaticamente - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
@@ -4308,6 +4264,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "autofillTitleWithField": {
+    "message": "Autofill - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
       }
     }
   },
@@ -4701,6 +4671,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Riordina l'URI del sito web. Usa il tasto freccia per spostare l'elemento su o giù."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ spostato su, in posizione $INDEX$ di $LENGTH$",
     "placeholders": {
@@ -4760,15 +4733,6 @@
   },
   "nothingSelected": {
     "message": "Non hai selezionato nulla."
-  },
-  "movedItemsToOrg": {
-    "message": "Elementi selezionati spostati in $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
   },
   "itemsMovedToOrg": {
     "message": "Elementi spostati su $ORGNAME$",
@@ -5132,6 +5096,33 @@
   "extraWide": {
     "message": "Molto larga"
   },
+  "sshKeyWrongPassword": {
+    "message": "La parola d'accesso inserita non è corretta."
+  },
+  "importSshKey": {
+    "message": "Importa"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Conferma parola d'accesso"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Inserisci la parola d'accesso per la chiave SSH."
+  },
+  "enterSshKeyPassword": {
+    "message": "Inserisci parola d'accesso"
+  },
+  "invalidSshKey": {
+    "message": "La chiave SSH non è valida"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Il tipo di chiave SSH non è supportato"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Importa chiave dagli Appunti"
+  },
+  "sshKeyImported": {
+    "message": "Chiave SSH importata correttamente"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Non puoi rimuovere raccolte con i soli permessi di visualizzazione: $COLLECTIONS$",
     "placeholders": {
@@ -5149,5 +5140,32 @@
   },
   "changeAtRiskPassword": {
     "message": "Cambia parola d'accesso a rischio"
+  },
+  "introCarouselLabel": {
+    "message": "Welcome to Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Security, prioritized"
+  },
+  "securityPrioritizedBody": {
+    "message": "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you."
+  },
+  "quickLogin": {
+    "message": "Quick and easy login"
+  },
+  "quickLoginBody": {
+    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+  },
+  "secureUser": {
+    "message": "Level up your logins"
+  },
+  "secureUserBody": {
+    "message": "Use the generator to create and save strong, unique passwords for all your accounts."
+  },
+  "secureDevices": {
+    "message": "Your data, when and where you need it"
+  },
+  "secureDevicesBody": {
+    "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
   }
 }

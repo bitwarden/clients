@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Inserisci l'indirizzo email dell'account e ti invieremo il tuo suggerimento per la password"
   },
-  "passwordHint": {
-    "message": "Suggerimento per la password"
-  },
-  "enterEmailToGetHint": {
-    "message": "Inserisci l'indirizzo email del tuo account per ricevere il suggerimento per la password principale."
-  },
   "getMasterPasswordHint": {
     "message": "Ottieni suggerimento della password principale"
   },
@@ -839,18 +833,6 @@
   "continue": {
     "message": "Continua"
   },
-  "enterVerificationCodeApp": {
-    "message": "Inserisci il codice di verifica a 6 cifre dalla tua app di autenticazione."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Inserisci il codice di verifica a 6 cifre inviato a $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Email di verifica inviata a $EMAIL$.",
     "placeholders": {
@@ -860,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Ricordami"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Non chiedere più su questo dispositivo per 30 giorni"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Invia email con codice di verifica di nuovo"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Usa un altro metodo di verifica in due passaggi"
   },
   "selectAnotherMethod": {
     "message": "Seleziona un altro metodo",
@@ -878,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Usa il tuo codice di recupero"
-  },
-  "insertYubiKey": {
-    "message": "Inserisci la tua YubiKey nella porta USB del computer e premi il suo pulsante."
   },
   "insertU2f": {
     "message": "Inserisci la tua chiave di sicurezza nella porta USB del tuo computer. Se dispone di un pulsante, premilo."
@@ -913,7 +883,7 @@
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Verifica la tua identità"
   },
   "weDontRecognizeThisDevice": {
     "message": "Non riconosciamo questo dispositivo. Inserisci il codice inviato alla tua e-mail per verificare la tua identità."
@@ -951,9 +921,6 @@
   "selfHostedEnvironment": {
     "message": "Ambiente self-hosted"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Specifica l'URL principale della tua installazione self-hosted di Bitwarden."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specifica lo URL principale della tua installazione self-hosted di Bitwarden. Esempio: https://bitwarden.company.com"
   },
@@ -965,9 +932,6 @@
   },
   "customEnvironment": {
     "message": "Ambiente personalizzato"
-  },
-  "customEnvironmentFooter": {
-    "message": "Per utenti avanzati. Puoi specificare l'URL principale di ogni servizio indipendentemente."
   },
   "baseUrl": {
     "message": "URL del server"
@@ -1008,6 +972,9 @@
   },
   "no": {
     "message": "No"
+  },
+  "location": {
+    "message": "Luogo"
   },
   "overwritePassword": {
     "message": "Sovrascrivi password"
@@ -2499,6 +2466,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Esportando cassaforte dell'organizzazione"
   },
@@ -2781,14 +2757,8 @@
   "loginWithMasterPassword": {
     "message": "Accedi con password principale"
   },
-  "loggingInAs": {
-    "message": "Accedendo come"
-  },
   "rememberEmail": {
     "message": "Ricorda email"
-  },
-  "notYou": {
-    "message": "Non sei tu?"
   },
   "newAroundHere": {
     "message": "Nuovo da queste parti?"
@@ -3029,9 +2999,6 @@
   "requestAdminApproval": {
     "message": "Richiedi approvazione dell'amministratore"
   },
-  "approveWithMasterPassword": {
-    "message": "Approva con password principale"
-  },
   "region": {
     "message": "Regione"
   },
@@ -3056,9 +3023,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "La tua richiesta è stata inviata al tuo amministratore."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Riceverai una notifica una volta approvato."
   },
   "troubleLoggingIn": {
     "message": "Problemi ad accedere?"
@@ -3235,9 +3199,6 @@
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Errore di connessione con il servizio Duo. Utilizza un metodo di login in due passaggi diverso o contatta Duo per assistenza."
-  },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Avvia Duo e segui i passaggi per finire di accedere."
   },
   "duoRequiredByOrgForAccount": {
     "message": "Per il tuo account è richiesta la verifica in due passaggi Duo."
@@ -3529,9 +3490,6 @@
   "unknownApplication": {
     "message": "Un'applicazione"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "L'importazione di chiavi SSH protette da password non è ancora supportata"
-  },
   "invalidSshKey": {
     "message": "La chiave SSH non è valida"
   },
@@ -3541,7 +3499,7 @@
   "importSshKeyFromClipboard": {
     "message": "Importa chiave dagli Appunti"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "Chiave SSH importata correttamente"
   },
   "fileSavedToDevice": {
@@ -3602,6 +3560,9 @@
     "message": "L'estensione del browser che stai usando non è aggiornata. Aggiornala o disabilita la convalida dell'impronta digitale per l'integrazione del browser nelle impostazioni dell'app desktop."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "Modifica la password non sicura o esposta"
+  },
+  "move": {
+    "message": "Move"
   }
 }

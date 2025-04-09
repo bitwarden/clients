@@ -28,7 +28,9 @@
       [originalCipherView]="originalCipherView"
     ></vault-sshkey-section>
 
-    <vault-additional-options-section></vault-additional-options-section>
+    <vault-additional-options-section
+      [disableSectionMargin]="config.mode !== 'edit'"
+    ></vault-additional-options-section>
 
     <!-- Attachments are only available for existing ciphers -->
     <ng-container *ngIf="config.mode == 'edit'">

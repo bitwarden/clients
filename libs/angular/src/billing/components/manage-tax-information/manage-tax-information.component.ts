@@ -77,6 +77,18 @@ export class ManageTaxInformationComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
+    this.formGroup.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((values) => {
+      this.taxInformation = {
+        country: values.country,
+        postalCode: values.postalCode,
+        taxId: values.taxId,
+        line1: values.line1,
+        line2: values.line2,
+        city: values.city,
+        state: values.state,
+      };
+    });
+
     if (this.startWith) {
       this.formGroup.controls.country.setValue(this.startWith.country);
       this.formGroup.controls.postalCode.setValue(this.startWith.postalCode);
@@ -94,18 +106,6 @@ export class ManageTaxInformationComponent implements OnInit, OnDestroy {
         this.formGroup.controls.state.setValue(this.startWith.state);
       }
     }
-
-    this.formGroup.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((values) => {
-      this.taxInformation = {
-        country: values.country,
-        postalCode: values.postalCode,
-        taxId: values.taxId,
-        line1: values.line1,
-        line2: values.line2,
-        city: values.city,
-        state: values.state,
-      };
-    });
 
     this.formGroup.controls.country.valueChanges
       .pipe(debounceTime(1000), takeUntil(this.destroy$))
