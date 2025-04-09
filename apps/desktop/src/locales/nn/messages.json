@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "Passordhint"
-  },
-  "enterEmailToGetHint": {
-    "message": "Skriv inn e-postadressa til kontoen din, for å få tilsendt hovudpassordhintet ditt på e-post."
-  },
   "getMasterPasswordHint": {
     "message": "Få hovudpassordhint"
   },
@@ -839,18 +833,6 @@
   "continue": {
     "message": "Fortsett"
   },
-  "enterVerificationCodeApp": {
-    "message": "Enter the 6 digit verification code from your authenticator app."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Enter the 6 digit verification code that was emailed to $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Ein stadfestingskode har blitt sendt til $EMAIL$.",
     "placeholders": {
@@ -860,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Husk meg"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Send e-post om stadfestingskode på nytt"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Use another two-step login method"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -878,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "Insert your YubiKey into your computer's USB port, then touch its button."
   },
   "insertU2f": {
     "message": "Insert your security key into your computer's USB port. If it has a button, touch it."
@@ -951,9 +921,6 @@
   "selfHostedEnvironment": {
     "message": "Self-hosted environment"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Specify the base URL of your on-premises hosted Bitwarden installation."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -965,9 +932,6 @@
   },
   "customEnvironment": {
     "message": "Custom environment"
-  },
-  "customEnvironmentFooter": {
-    "message": "For advanced users. You can specify the base URL of each service independently."
   },
   "baseUrl": {
     "message": "Nettadresse for tenar"
@@ -1008,6 +972,9 @@
   },
   "no": {
     "message": "Nei"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Overskriv passord"
@@ -2499,6 +2466,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Exporting organization vault"
   },
@@ -2781,14 +2757,8 @@
   "loginWithMasterPassword": {
     "message": "Log in with master password"
   },
-  "loggingInAs": {
-    "message": "Logging in as"
-  },
   "rememberEmail": {
     "message": "Remember email"
-  },
-  "notYou": {
-    "message": "Not you?"
   },
   "newAroundHere": {
     "message": "New around here?"
@@ -3029,9 +2999,6 @@
   "requestAdminApproval": {
     "message": "Request admin approval"
   },
-  "approveWithMasterPassword": {
-    "message": "Approve with master password"
-  },
   "region": {
     "message": "Region"
   },
@@ -3056,9 +3023,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Your request has been sent to your admin."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "You will be notified once approved."
   },
   "troubleLoggingIn": {
     "message": "Trouble logging in?"
@@ -3235,9 +3199,6 @@
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
-  },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
   },
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
@@ -3529,9 +3490,6 @@
   "unknownApplication": {
     "message": "An application"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
-  },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
   },
@@ -3541,7 +3499,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
@@ -3603,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }

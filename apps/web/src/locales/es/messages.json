@@ -428,6 +428,9 @@
   "dragToSort": {
     "message": "Arrastra para ordenar"
   },
+  "dragToReorder": {
+    "message": "Drag to reorder"
+  },
   "cfTypeText": {
     "message": "Texto"
   },
@@ -469,6 +472,19 @@
   },
   "editFolder": {
     "message": "Editar carpeta"
+  },
+  "editWithName": {
+    "message": "Edit $ITEM$: $NAME$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "New folder"
@@ -863,9 +879,6 @@
   "filter": {
     "message": "Filtro"
   },
-  "moveSelectedToOrg": {
-    "message": "Mover los seleccionados a la organización"
-  },
   "deleteSelected": {
     "message": "Eliminar selección"
   },
@@ -917,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Elementos seleccionados movidos a $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1270,12 +1274,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
   },
-  "passwordHint": {
-    "message": "Pista de contraseña"
-  },
-  "enterEmailToGetHint": {
-    "message": "Introduce el correo electrónico de tu cuenta para recibir la pista de tu contraseña maestra."
-  },
   "getMasterPasswordHint": {
     "message": "Obtener pista de la contraseña maestra"
   },
@@ -1437,18 +1435,6 @@
       }
     }
   },
-  "enterVerificationCodeApp": {
-    "message": "Introduce el código de verificación de 6 dígitos de tu aplicación autenticadora."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Introduce el código de verificación de 6 dígitos que fue enviado a $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Correo de verificación enviado a $EMAIL$.",
     "placeholders": {
@@ -1458,17 +1444,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Recordarme"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Reenviar código de verificación por correo electrónico"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Utilizar otro método de autenticación en dos pasos"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -1476,9 +1453,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "Inserta tu YubiKey en el puerto USB de tu equipo y posteriormente pulsa su botón."
   },
   "insertU2f": {
     "message": "Inserta tu llave de seguridad en el puerto USB de tu equipo. Si tiene un botón, púlsalo."
@@ -1561,9 +1535,6 @@
   "moveToOrgDesc": {
     "message": "Elige una organización a la que deseas mover este objeto. Moviendo a una organización transfiere la propiedad del objeto a esa organización. Ya no serás el dueño directo de este objeto una vez que haya sido movido."
   },
-  "moveManyToOrgDesc": {
-    "message": "Elija una organización a la que desea mover estos elementos. Moviendo a una organización transfiere la propiedad de los elementos a esa organización. Ya no serás el dueño directo de estos objetos una vez que hayan sido movidos."
-  },
   "collectionsDesc": {
     "message": "Elige las colecciones con la que este elemento va a ser compartido. Solo los miembros de la organización que puedan acceder a esas colecciones podrán ver el elemento."
   },
@@ -1594,23 +1565,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "Ha seleccionado $COUNT$ elemento(s). Se pueden mover $MOVEABLE_COUNT$ elemento(s) a una organización, no se pueden mover $NONMOVEABLE_COUNT$.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },
@@ -4530,6 +4484,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ moved down, position $INDEX$ of $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "When updating your encryption key, your folders could not be decrypted. To continue with the update, your folders must be deleted. No vault items will be deleted if you proceed."
   },
@@ -6729,6 +6717,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultDesc": {
     "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. Items in individual vaults or other organizations will not be included.",
     "placeholders": {
@@ -7231,9 +7228,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
   },
@@ -7263,12 +7257,6 @@
   },
   "numberOfUsers": {
     "message": "Número de usuarios"
-  },
-  "loggingInAs": {
-    "message": "Iniciando sesión como"
-  },
-  "notYou": {
-    "message": "¿No eres tú?"
   },
   "pickAnAvatarColor": {
     "message": "Elige un color de avatar"
@@ -8393,9 +8381,6 @@
   "requestAdminApproval": {
     "message": "Solicitar aprobación del administrador"
   },
-  "approveWithMasterPassword": {
-    "message": "Aprobar con contraseña maestra"
-  },
   "trustedDeviceEncryption": {
     "message": "Cifrado de dispositivo de confianza"
   },
@@ -8610,9 +8595,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Su solicitud ha sido enviada a su administrador."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Se le notificará una vez aprobado."
-  },
   "troubleLoggingIn": {
     "message": "¿Problemas para iniciar sesión?"
   },
@@ -8726,8 +8708,8 @@
   "limitCollectionDeletionDesc": {
     "message": "Limit collection deletion to owners and admins"
   },
-  "limitItemDeletionDesc": {
-    "message": "Limit item deletion to members with the Can manage permission"
+  "limitItemDeletionDescription": {
+    "message": "Limit item deletion to members with the Manage collection permissions"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Propietarios y administradores pueden gestionar todas las colecciones y elementos"
@@ -9337,6 +9319,15 @@
   },
   "deviceManagementDesc": {
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
+  },
+  "deviceIdMissing": {
+    "message": "Device ID is missing"
+  },
+  "deviceTypeMissing": {
+    "message": "Device type is missing"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Device creation date is missing"
   },
   "desktopRequired": {
     "message": "Desktop required"
@@ -10339,6 +10330,36 @@
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
   },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
+  "copySSHPrivateKey": {
+    "message": "Copy private key"
+  },
   "openingExtension": {
     "message": "Opening the Bitwarden browser extension"
   },
@@ -10504,5 +10525,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
+  },
+  "cannotCreateCollection": {
+    "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
   }
 }

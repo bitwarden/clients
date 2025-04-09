@@ -4,14 +4,20 @@ import { StepperSelectionEvent } from "@angular/cdk/stepper";
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Subject, takeUntil } from "rxjs";
+import { firstValueFrom, Subject, switchMap, takeUntil } from "rxjs";
 
-import { PasswordInputResult, RegistrationFinishService } from "@bitwarden/auth/angular";
+import {
+  InputPasswordFlow,
+  PasswordInputResult,
+  RegistrationFinishService,
+} from "@bitwarden/auth/angular";
 import { LoginStrategyServiceAbstraction, PasswordLoginCredentials } from "@bitwarden/auth/common";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   OrganizationBillingServiceAbstraction as OrganizationBillingService,
   OrganizationInformation,
@@ -44,6 +50,8 @@ export type InitiationPath =
 })
 export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   @ViewChild("stepper", { static: false }) verticalStepper: VerticalStepperComponent;
+
+  InputPasswordFlow = InputPasswordFlow;
 
   /** Password Manager or Secrets Manager */
   product: ProductType;
@@ -106,6 +114,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     private validationService: ValidationService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
     private configService: ConfigService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -173,9 +182,12 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     }
 
     if (policies !== null) {
-      this.policyService
-        .masterPasswordPolicyOptions$(policies)
-        .pipe(takeUntil(this.destroy$))
+      this.accountService.activeAccount$
+        .pipe(
+          getUserId,
+          switchMap((userId) => this.policyService.masterPasswordPolicyOptions$(userId, policies)),
+          takeUntil(this.destroy$),
+        )
         .subscribe((enforcedPasswordPolicyOptions) => {
           this.enforcedPolicyOptions = enforcedPasswordPolicyOptions;
         });
@@ -357,7 +369,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.logIn(passwordInputResult.password, captchaToken);
+    await this.logIn(passwordInputResult.newPassword, captchaToken);
 
     this.submitting = false;
 

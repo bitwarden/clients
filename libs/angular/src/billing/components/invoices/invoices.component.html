@@ -35,7 +35,7 @@
           {{ "open" | i18n | titlecase }}
         </span>
         <span *ngIf="expandedInvoiceStatus === 'unpaid'">
-          <i class="bwi bwi-exclamation-circle tw-text-muted" aria-hidden="true"></i>
+          <i class="bwi bwi-error tw-text-muted" aria-hidden="true"></i>
           {{ "unpaid" | i18n | titlecase }}
         </span>
         <span *ngIf="expandedInvoiceStatus === 'paid'">

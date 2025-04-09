@@ -1,5 +1,4 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
-import { DialogRef } from "@angular/cdk/dialog";
 import { CdkDragDrop } from "@angular/cdk/drag-drop";
 import { DebugElement } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
@@ -17,7 +16,7 @@ import {
 } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
-import { BitPasswordInputToggleDirective, DialogService } from "@bitwarden/components";
+import { DialogRef, BitPasswordInputToggleDirective, DialogService } from "@bitwarden/components";
 
 import { CipherFormConfig } from "../../abstractions/cipher-form-config.service";
 import { CipherFormContainer } from "../../cipher-form-container";

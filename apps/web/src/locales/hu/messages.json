@@ -428,6 +428,9 @@
   "dragToSort": {
     "message": "Húzás a rendezéshez"
   },
+  "dragToReorder": {
+    "message": "Átrendezés áthúzással"
+  },
   "cfTypeText": {
     "message": "Szöveg"
   },
@@ -469,6 +472,19 @@
   },
   "editFolder": {
     "message": "Mappa szerkesztése"
+  },
+  "editWithName": {
+    "message": "$ITEM$: $NAME$ szerkesztése",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Új mappa"
@@ -863,9 +879,6 @@
   "filter": {
     "message": "Szűrő"
   },
-  "moveSelectedToOrg": {
-    "message": "A kiválasztott áthelyezése szervezetbe"
-  },
   "deleteSelected": {
     "message": "Kiválasztott törlése"
   },
@@ -917,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "A kiválasztott elemek átkerültek $ORGNAME$ szervezethez",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1270,12 +1274,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Adjuk meg fiók email címét és elküldésre kerül a jelszóra vonatkozó tipp."
   },
-  "passwordHint": {
-    "message": "Jelszó emlékeztető"
-  },
-  "enterEmailToGetHint": {
-    "message": "A fiók email címének megadása a mesterjelszó emlékeztető fogadásához."
-  },
   "getMasterPasswordHint": {
     "message": "Mesterjelszó emlékeztető kérése"
   },
@@ -1437,18 +1435,6 @@
       }
     }
   },
-  "enterVerificationCodeApp": {
-    "message": "A 6 számjegyű ellenőrző kód megadása a hitelesítő alkalmazásból."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "$EMAIL$ email címre elküldött 6 számjegyű ellenőrző kód megadása.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Az ellenőrző kód elküldésre került $EMAIL$ email címre.",
     "placeholders": {
@@ -1458,17 +1444,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Adatok megjegyzése"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Ne kérdezzen újra ezen az eszközön 30 napig"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Megerősítő kód ismételt elküldése emailben"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Másik kétlépcsős bejelentkezés használata"
   },
   "selectAnotherMethod": {
     "message": "Másik módszer választás",
@@ -1476,9 +1453,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Helyreállító kód használata"
-  },
-  "insertYubiKey": {
-    "message": "A YubiKey beillesztése a számítógép USB portjába és a rajta levő gomb megnyomása."
   },
   "insertU2f": {
     "message": "A biztonsági kulcs beillesztése a számítógép USB portjába. Ha van rajta gomb, nyomjuk meg."
@@ -1561,9 +1535,6 @@
   "moveToOrgDesc": {
     "message": "Válasszunk egy szervezetet, ahová áthelyezni szeretnénk ezt az elemet. A szervezetbe áthelyezés átruházza az elem tulajdonjogát az adott szervezetre. Az áthelyezés után többé nem leszünk az elem közvetlen tulajdonosa."
   },
-  "moveManyToOrgDesc": {
-    "message": "Válasszunk egy szervezetet, ahová áthelyezni szeretnénk ezeket az elemeket. A szervezetbe áthelyezés átruházza az elemek tulajdonjogát az adott szervezetre. Az áthelyezés után többé nem leszünk az elemek közvetlen tulajdonosa."
-  },
   "collectionsDesc": {
     "message": "A megosztásra kerülő elem gyűjteményének szerkesztése. Csak az ezeket a gyűjteményeket elérő szervezeti felhasználók látják ezt az elemet."
   },
@@ -1594,23 +1565,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "$COUNT$ elem került kiválasztásra. $MOVEABLE_COUNT$ elem áthelyezhető szervezethezi, $NONMOVEABLE_COUNT$ nem.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },
@@ -4530,6 +4484,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "$LABEL$ feljebb került, $INDEX$/$LENGTH$ pozícióba",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ lejjebb került, $INDEX$/$LENGTH$ pozícióba",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "A titkosítókulcs frissítésekor a mappáid nem fejthetőek vissza. A frissítés folytatásához a mappáidat törölni kell. Semmi nem fog törlődni, ha folytatod."
   },
@@ -6729,6 +6717,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Csak $EMAIL$ email címmel társított személyes széf elemek kerülnek exportálásra. Ebbe nem kerülnek be a szervezeti széf elemek.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultDesc": {
     "message": "Csak$ORGANIZATION$ névvel társított szervezeti széf elemek kerülnek exportálásra. Ebbe nem kerülnek be a személyes és más szervezeti széf elemek.",
     "placeholders": {
@@ -7231,9 +7228,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Hiba történt a Duo szolgáltatáshoz csatlakozáskor. Használjunk másik kétlépcsős bejelentkezési módot vagy kérjünk segítséget a Duotól."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Indítsd el a Duo-t és kövesd a lépéseket a bejelentkezés befejezéséhez."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "A fiókhoz kétlépcsős Duo bejelentkezés szükséges."
   },
@@ -7263,12 +7257,6 @@
   },
   "numberOfUsers": {
     "message": "Felhasználók száma"
-  },
-  "loggingInAs": {
-    "message": "Bejelentkezve mint"
-  },
-  "notYou": {
-    "message": "Ez tévedés?"
   },
   "pickAnAvatarColor": {
     "message": "Avatar szín választás"
@@ -8393,9 +8381,6 @@
   "requestAdminApproval": {
     "message": "Adminisztrátori jóváhagyás kérés"
   },
-  "approveWithMasterPassword": {
-    "message": "Jóváhagyás mesterjelszóval"
-  },
   "trustedDeviceEncryption": {
     "message": "Megbízható eszköztitkosítás"
   },
@@ -8610,9 +8595,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "A kérés elküldésre került az adminisztrátornak."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "A jóváhagyás után értesítés érkezik."
-  },
   "troubleLoggingIn": {
     "message": "Probléma van a bejelentkezéssel?"
   },
@@ -8726,8 +8708,8 @@
   "limitCollectionDeletionDesc": {
     "message": "A gyűjtemény törlésének korlátozása tulajdonosokra és adminisztrátorokra"
   },
-  "limitItemDeletionDesc": {
-    "message": "Az elemek törlésének korlátozása a Kezelheti jogosultsággal rendelkező tagokra"
+  "limitItemDeletionDescription": {
+    "message": "Az elemek törlésének korlátozása a Gyűjtemény kezelése jogosultsággal rendelkező tagokra"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Owners and admins can manage all collections and items"
@@ -9337,6 +9319,15 @@
   },
   "deviceManagementDesc": {
     "message": "Az eszközkezelés konfigurálása a Bitwarden számára a platform megvalósítási útmutatója segítségével."
+  },
+  "deviceIdMissing": {
+    "message": "Az eszköz AZ hiányzik."
+  },
+  "deviceTypeMissing": {
+    "message": "Az eszköz típus hiányzik."
+  },
+  "deviceCreationDateMissing": {
+    "message": "Az eszköz létrehozás dátuma hiányzik."
   },
   "desktopRequired": {
     "message": "Asztali gép szükséges"
@@ -10339,6 +10330,36 @@
   "organizationNameMaxLength": {
     "message": "A szervezet neve nem haladhatja meg az 50 karaktert."
   },
+  "sshKeyWrongPassword": {
+    "message": "A megadott jelszó helytelen."
+  },
+  "importSshKey": {
+    "message": "Importálás"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Jelszó megerősítése"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Adjuk meg az SSH kulcs jelszót."
+  },
+  "enterSshKeyPassword": {
+    "message": "Jelszó megadása"
+  },
+  "invalidSshKey": {
+    "message": "Az SSH kulcs érvénytelen."
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Az SSH kulcstípus nem támogatott."
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Kulcs importálása vágólapból"
+  },
+  "sshKeyImported": {
+    "message": "Az SSH kulcs sikeresen importálásra került."
+  },
+  "copySSHPrivateKey": {
+    "message": "Személyes kulcs másolása"
+  },
   "openingExtension": {
     "message": "A Bitwarden böngésző bővítmény megnyitása"
   },
@@ -10504,5 +10525,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "Ezek az események csak példák és nem tükröznek valós eseményeket a Bitwarden szervezetén belül."
+  },
+  "cannotCreateCollection": {
+    "message": "Az ingyenes szervezeteknek legfeljebb 2 gyűjteményük lehet. Térjünk át egy fizetett csomagra további gyűjtemények hozzáadásához."
   }
 }

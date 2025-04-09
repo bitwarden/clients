@@ -250,17 +250,17 @@
     "message": "خطأ"
   },
   "decryptionError": {
-    "message": "Decryption error"
+    "message": "خطأ في فك التشفير"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+    "message": "تعذّر على Bitwarden فك تشفير عنصر(العناصر) المخزنة في الخزنة والمذكورة أدناه"
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
+    "message": "فريق نجاح العملاء",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "لتجنب فقدان بيانات إضافية.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
@@ -649,7 +649,7 @@
     "message": "تسجيل الدخول إلى Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "أدخل الرمز الذي تم إرساله إلى بريدك الإلكتروني."
   },
   "enterTheCodeFromYourAuthenticatorApp": {
     "message": "Enter the code from your authenticator app"
@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "أدخل عنوان البريد الإلكتروني لحسابك وسيُرسل تلميح كلمة المرور الخاصة بك إليك"
   },
-  "passwordHint": {
-    "message": "تلميح كلمة المرور"
-  },
-  "enterEmailToGetHint": {
-    "message": "أدخل عنوان البريد الإلكتروني لحسابك لتلقي تلميحات كلمة المرور الرئيسية."
-  },
   "getMasterPasswordHint": {
     "message": "احصل على تلميح لكلمة المرور الرئيسية"
   },
@@ -839,18 +833,6 @@
   "continue": {
     "message": "متابعة"
   },
-  "enterVerificationCodeApp": {
-    "message": "أدخل رمز التحقق من 6 أرقام من تطبيق المصادقة الخاص بك."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "أدخل رمز التحقق المكون من 6 أرقام الذي تم إرساله إلى $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "تم إرسال رسالة التحقق إلى $EMAIL$.",
     "placeholders": {
@@ -860,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "تذكرني"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "إرسال رمز التحقق إلى البريد الإلكتروني مرة أخرى"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "استخدام طريقة أخرى لتسجيل الدخول بخطوتين"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -878,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "أدخل YubiKey الخاص بك في منفذ USB في كمبيوترك، ثم لمس الزر."
   },
   "insertU2f": {
     "message": "أدخل مفتاح الأمان الخاص بك في منفذ USB كمبيوترك، إذا كان يحتوي على زر، إلمسه."
@@ -951,9 +921,6 @@
   "selfHostedEnvironment": {
     "message": "البيئة المستضافة ذاتيا"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "حدد عنوان URL الأساسي لتثبيت Bitwarden المستضاف محليًا."
-  },
   "selfHostedBaseUrlHint": {
     "message": "حدد عنوان URL الأساسي لمحالّك التي استضافت تثبيت Bitwarden على سبيل المثال: https://bitwarden.company.com"
   },
@@ -965,9 +932,6 @@
   },
   "customEnvironment": {
     "message": "بيئة مخصصة"
-  },
-  "customEnvironmentFooter": {
-    "message": "للمستخدمين المتقدمين. يمكنك تحديد عنوان URL الأساسي لكل خدمة بشكل مستقل."
   },
   "baseUrl": {
     "message": "رابط الخادم"
@@ -1008,6 +972,9 @@
   },
   "no": {
     "message": "لا"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "الكتابة فوق كلمة المرور"
@@ -2499,6 +2466,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "تصدير خزانة المؤسسة"
   },
@@ -2781,14 +2757,8 @@
   "loginWithMasterPassword": {
     "message": "تسجيل الدخول باستخدام كلمة المرور الرئيسية"
   },
-  "loggingInAs": {
-    "message": "تسجيل الدخول كـ"
-  },
   "rememberEmail": {
     "message": "تذكر البريد الإلكتروني"
-  },
-  "notYou": {
-    "message": "ليس أنت؟"
   },
   "newAroundHere": {
     "message": "جديد هنا؟"
@@ -3029,9 +2999,6 @@
   "requestAdminApproval": {
     "message": "طلب موافقة المشرف"
   },
-  "approveWithMasterPassword": {
-    "message": "الموافقة بواسطة كلمة المرور الرئيسية"
-  },
   "region": {
     "message": "المنطقة"
   },
@@ -3056,9 +3023,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "تم إرسال طلبك إلى المشرف الخاص بك."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "سيتم إعلامك بمجرد الموافقة."
   },
   "troubleLoggingIn": {
     "message": "مشكلة في تسجيل الدخول؟"
@@ -3235,9 +3199,6 @@
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "خطأ في الاتصال بخدمة Duo. استخدم طريقة تسجيل الدخول بخطوتين مختلفة أو اتصل بـ Duo للمساعدة."
-  },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "قم بتشغيل دوو واتبع الخطوات لإنهاء تسجيل الدخول."
   },
   "duoRequiredByOrgForAccount": {
     "message": "تسجيل الدخول لـ Duo من خطوتين مطلوب لحسابك."
@@ -3529,9 +3490,6 @@
   "unknownApplication": {
     "message": "تطبيق"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "استيراد مفاتيح SSH المحمية بكلمة المرور غير معتمد حتى الآن"
-  },
   "invalidSshKey": {
     "message": "مفتاح SSH غير صالح"
   },
@@ -3541,8 +3499,8 @@
   "importSshKeyFromClipboard": {
     "message": "استيراد المفتاح من الحافظة"
   },
-  "sshKeyPasted": {
-    "message": "تم استيراد مفتاح SSH بنجاح"
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
     "message": "تم حفظ الملف على الجهاز. إدارة من تنزيلات جهازك."
@@ -3603,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }

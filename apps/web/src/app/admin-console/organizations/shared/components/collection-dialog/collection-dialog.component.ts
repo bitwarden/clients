@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
 import {
@@ -13,6 +12,8 @@ import {
   Subject,
   switchMap,
   takeUntil,
+  tap,
+  filter,
 } from "rxjs";
 import { first } from "rxjs/operators";
 
@@ -24,6 +25,8 @@ import {
   OrganizationUserUserMiniResponse,
   CollectionResponse,
   CollectionView,
+  CollectionService,
+  Collection,
 } from "@bitwarden/admin-console/common";
 import {
   getOrganizationById,
@@ -32,13 +35,25 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SelectModule, BitValidators, DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  SelectModule,
+  BitValidators,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
+import { openChangePlanDialog } from "../../../../../billing/organizations/change-plan-dialog.component";
 import { SharedModule } from "../../../../../shared";
 import { GroupApiService, GroupView } from "../../../core";
+import { freeOrgCollectionLimitValidator } from "../../validators/free-org-collection-limit.validator";
 import { PermissionMode } from "../access-selector/access-selector.component";
 import {
   AccessItemType,
@@ -55,6 +70,19 @@ export enum CollectionDialogTabType {
   Access = 1,
 }
 
+/**
+ * Enum representing button labels for the "Add New Collection" dialog.
+ *
+ * @readonly
+ * @enum {string}
+ */
+enum ButtonType {
+  /** Displayed when the user has reached the maximum number of collections allowed for the organization. */
+  Upgrade = "upgrade",
+  /** Displayed when the user can still add more collections within the allowed limit. */
+  Save = "save",
+}
+
 export interface CollectionDialogParams {
   collectionId?: string;
   organizationId: string;
@@ -67,6 +95,7 @@ export interface CollectionDialogParams {
   limitNestedCollections?: boolean;
   readonly?: boolean;
   isAddAccessCollection?: boolean;
+  isAdminConsoleActive?: boolean;
 }
 
 export interface CollectionDialogResult {
@@ -78,6 +107,7 @@ export enum CollectionDialogAction {
   Saved = "saved",
   Canceled = "canceled",
   Deleted = "deleted",
+  Upgrade = "upgrade",
 }
 
 @Component({
@@ -107,6 +137,19 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected PermissionMode = PermissionMode;
   protected showDeleteButton = false;
   protected showAddAccessWarning = false;
+  protected collections: Collection[];
+  protected buttonDisplayName: ButtonType = ButtonType.Save;
+  protected isExternalIdVisible$ = this.configService
+    .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
+    .pipe(
+      map((isEnabled) => {
+        return (
+          !isEnabled ||
+          (!!this.params.isAdminConsoleActive && !!this.formGroup.get("externalId")?.value)
+        );
+      }),
+    );
+  private orgExceedingCollectionLimit!: Organization;
 
   constructor(
     @Inject(DIALOG_DATA) private params: CollectionDialogParams,
@@ -122,6 +165,8 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     private changeDetectorRef: ChangeDetectorRef,
     private accountService: AccountService,
     private toastService: ToastService,
+    private collectionService: CollectionService,
+    private configService: ConfigService,
   ) {
     this.tabIndex = params.initialTab ?? CollectionDialogTabType.Info;
   }
@@ -151,6 +196,42 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       this.formGroup.patchValue({ selectedOrg: this.params.organizationId });
       await this.loadOrg(this.params.organizationId);
     }
+
+    const isBreadcrumbEventLogsEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.PM12276_BreadcrumbEventLogs),
+    );
+
+    if (isBreadcrumbEventLogsEnabled) {
+      this.collections = await this.collectionService.getAll();
+      this.organizationSelected.setAsyncValidators(
+        freeOrgCollectionLimitValidator(this.organizations$, this.collections, this.i18nService),
+      );
+      this.formGroup.updateValueAndValidity();
+    }
+
+    this.organizationSelected.valueChanges
+      .pipe(
+        tap((_) => {
+          if (this.organizationSelected.errors?.cannotCreateCollections) {
+            this.buttonDisplayName = ButtonType.Upgrade;
+          } else {
+            this.buttonDisplayName = ButtonType.Save;
+          }
+        }),
+        filter(() => this.organizationSelected.errors?.cannotCreateCollections),
+        switchMap((value) => this.findOrganizationById(value)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((org) => {
+        this.orgExceedingCollectionLimit = org;
+        this.organizationSelected.markAsTouched();
+        this.formGroup.updateValueAndValidity();
+      });
+  }
+
+  async findOrganizationById(orgId: string): Promise<Organization | undefined> {
+    const organizations = await firstValueFrom(this.organizations$);
+    return organizations.find((org) => org.id === orgId);
   }
 
   async loadOrg(orgId: string) {
@@ -263,6 +344,10 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       });
   }
 
+  get organizationSelected() {
+    return this.formGroup.controls.selectedOrg;
+  }
+
   protected get collectionId() {
     return this.params.collectionId;
   }
@@ -286,6 +371,12 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     }
 
     this.formGroup.markAllAsTouched();
+
+    if (this.buttonDisplayName == ButtonType.Upgrade) {
+      this.close(CollectionDialogAction.Upgrade);
+      this.changePlan(this.orgExceedingCollectionLimit);
+      return;
+    }
 
     if (this.formGroup.invalid) {
       const accessTabError = this.formGroup.controls.access.hasError("managePermissionRequired");
@@ -369,6 +460,16 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  private changePlan(org: Organization) {
+    openChangePlanDialog(this.dialogService, {
+      data: {
+        organizationId: org.id,
+        subscription: null,
+        productTierType: org.productTierType,
+      },
+    });
+  }
+
   private handleAddAccessWarning(): boolean {
     if (
       !this.organization?.allowAdminAccessToAllCollectionItems &&
@@ -388,7 +489,18 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       this.formGroup.controls.access.disable();
     } else {
       this.formGroup.controls.name.enable();
-      this.formGroup.controls.externalId.enable();
+
+      this.configService
+        .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((isEnabled) => {
+          if (isEnabled) {
+            this.formGroup.controls.externalId.disable();
+          } else {
+            this.formGroup.controls.externalId.enable();
+          }
+        });
+
       this.formGroup.controls.parent.enable();
       this.formGroup.controls.access.enable();
     }

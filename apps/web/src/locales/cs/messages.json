@@ -428,6 +428,9 @@
   "dragToSort": {
     "message": "Přetáhnutím seřadíte"
   },
+  "dragToReorder": {
+    "message": "Přesuňte tažením"
+  },
   "cfTypeText": {
     "message": "Text"
   },
@@ -469,6 +472,19 @@
   },
   "editFolder": {
     "message": "Upravit složku"
+  },
+  "editWithName": {
+    "message": "Upravit $ITEM$: $NAME$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Nová složka"
@@ -863,9 +879,6 @@
   "filter": {
     "message": "Filtr"
   },
-  "moveSelectedToOrg": {
-    "message": "Přesunout vybrané do organizace"
-  },
   "deleteSelected": {
     "message": "Smazat vybrané"
   },
@@ -917,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Vybrané položky přesunuty do $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1270,12 +1274,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Zadejte svou e-mailovou adresu, na kterou Vám zašleme nápovědu k heslu"
   },
-  "passwordHint": {
-    "message": "Nápověda pro heslo"
-  },
-  "enterEmailToGetHint": {
-    "message": "Zadejte e-mailovou adresu pro zaslání nápovědy k hlavnímu heslu."
-  },
   "getMasterPasswordHint": {
     "message": "Zaslat nápovědu k hlavnímu heslu"
   },
@@ -1437,18 +1435,6 @@
       }
     }
   },
-  "enterVerificationCodeApp": {
-    "message": "Zadejte 6místný kód z ověřovací aplikace."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Zadejte 6místný kód z e-mailu, který byl zaslán na $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Ověřovací e-mail byl zaslán na $EMAIL$.",
     "placeholders": {
@@ -1458,17 +1444,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Zapamatovat mě"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Neptat se na tomto zařízení 30 dnů"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Znovu zaslat ověřovací kód na e-mail"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Použít jinou metodu dvoufázového přihlášení"
   },
   "selectAnotherMethod": {
     "message": "Vybrat jinou metodu",
@@ -1476,9 +1453,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Použít obnovovací kód"
-  },
-  "insertYubiKey": {
-    "message": "Vložte YubiKey do USB portu Vašeho počítače a stiskněte jeho tlačítko."
   },
   "insertU2f": {
     "message": "Vložte svůj bezpečnostní klíč do USB portu Vašeho počítače a pokud má tlačítko, tak jej stiskněte."
@@ -1561,9 +1535,6 @@
   "moveToOrgDesc": {
     "message": "Vyberte organizaci, do které chcete tuto položku přesunout. Přesun do organizace převede vlastnictví položky této organizaci. Po přesunutí této položky již nebudete přímým vlastníkem této položky."
   },
-  "moveManyToOrgDesc": {
-    "message": "Vyberte organizaci, do které chcete tyto položky přesunout. Přesun do organizace převede vlastnictví položek této organizaci. Po přesunutí již nebudete přímým vlastníkem těchto položek."
-  },
   "collectionsDesc": {
     "message": "Upravte kolekce, ve kterých je tato položka sdílená. Pouze uživatelé organizace, kteří mají přístup k těmto kolekcím, budou moci tuto položku vidět."
   },
@@ -1594,23 +1565,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "Vybrali jste $COUNT$ položek. $MOVEABLE_COUNT$ položek lze přesunout do organizace, $NONMOVEABLE_COUNT$ nelze.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },
@@ -4530,6 +4484,40 @@
       }
     }
   },
+  "reorderFieldUp": {
+    "message": "$LABEL$ - přesunuto nahoru, pozice $INDEX$ z $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ - přesunuto dolů, pozice $INDEX$ z $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "Při aktualizaci šifrovacího klíče se nepodařilo dešifrovat Vaše složky. Chcete-li pokračovat v aktualizaci, musí být Vaše složky smazány. Pokud budete pokračovat, nebudou smazány žádné položky trezoru."
   },
@@ -6729,6 +6717,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Budou exportovány jen osobní položky trezoru včetně příloh spojené s účtem $EMAIL$. Nebudou zahrnuty položky trezoru v organizaci.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultDesc": {
     "message": "Exportován bude jen trezor organizace přidružený k položce $ORGANIZATION$. Osobní položky trezoru a položky z jiných organizací nebudou zahrnuty.",
     "placeholders": {
@@ -7231,9 +7228,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Chyba při připojování ke službě Duo. Použijte jinou dvoufázovou metodu přihlášení nebo kontaktujte Duo o pomoc."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Spusťte Duo a pro dokončení přihlášení postupujte podle kroků."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Pro Váš účet je vyžadováno dvoufázové přihlášení Duo."
   },
@@ -7263,12 +7257,6 @@
   },
   "numberOfUsers": {
     "message": "Počet uživatelů"
-  },
-  "loggingInAs": {
-    "message": "Přihlašování jako"
-  },
-  "notYou": {
-    "message": "Nejste to Vy?"
   },
   "pickAnAvatarColor": {
     "message": "Zvolte barvu avatara"
@@ -8393,9 +8381,6 @@
   "requestAdminApproval": {
     "message": "Žádost o schválení správcem"
   },
-  "approveWithMasterPassword": {
-    "message": "Schválit hlavním heslem"
-  },
   "trustedDeviceEncryption": {
     "message": "Šifrování důvěryhodného zařízení"
   },
@@ -8610,9 +8595,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Váš požadavek byl odeslán Vašemu správci."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Po schválení budete upozorněni."
-  },
   "troubleLoggingIn": {
     "message": "Potíže s přihlášením?"
   },
@@ -8726,8 +8708,8 @@
   "limitCollectionDeletionDesc": {
     "message": "Omezí mazání kolekce na vlastníky a správce"
   },
-  "limitItemDeletionDesc": {
-    "message": "Omezit smazání položky na členy s oprávněním ke správě"
+  "limitItemDeletionDescription": {
+    "message": "Omezit smazání položky na členy s oprávněním Spravovat kolekci"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Vlastníci a správci mohou spravovat všechny kolekce a předměty"
@@ -9337,6 +9319,15 @@
   },
   "deviceManagementDesc": {
     "message": "Nastaví správu zařízení pro Bitwarden pomocí implementačního průvodce pro Vaši platformu."
+  },
+  "deviceIdMissing": {
+    "message": "Chybí ID zařízení"
+  },
+  "deviceTypeMissing": {
+    "message": "Chybí typ zařízení"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Chybí datum vytvoření zařízení"
   },
   "desktopRequired": {
     "message": "Je vyžadována desktopová aplikace"
@@ -10339,6 +10330,36 @@
   "organizationNameMaxLength": {
     "message": "Název organizace nesmí přesáhnout 50 znaků."
   },
+  "sshKeyWrongPassword": {
+    "message": "Zadané heslo není správné."
+  },
+  "importSshKey": {
+    "message": "Importovat"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Potvrdit heslo"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Zadejte heslo pro SSH klíč."
+  },
+  "enterSshKeyPassword": {
+    "message": "Zadejte heslo"
+  },
+  "invalidSshKey": {
+    "message": "SSH klíč je neplatný"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Typ SSH klíče není podporován"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Importovat klíč ze schránky"
+  },
+  "sshKeyImported": {
+    "message": "SSH klíč byl úspěšně importován"
+  },
+  "copySSHPrivateKey": {
+    "message": "Kopírovat soukromý klíč"
+  },
   "openingExtension": {
     "message": "Otevírání rozšíření Bitwarden pro prohlížeč"
   },
@@ -10504,5 +10525,8 @@
   },
   "upgradeEventLogMessage": {
     "message": "Tyto události jsou jen příklady a neodrážejí skutečné události v rámci Vaší organizace Bitwarden."
+  },
+  "cannotCreateCollection": {
+    "message": "Bezplatné organizace mohou mít až 2 kolekce. Chcete-li přidat více kolekcí, přejděte na placený tarif."
   }
 }

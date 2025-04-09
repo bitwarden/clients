@@ -748,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Adjuk meg fiók email címét és elküldésre kerül a jelszóra vonatkozó tipp."
   },
-  "passwordHint": {
-    "message": "Jelszó emlékeztető"
-  },
-  "enterEmailToGetHint": {
-    "message": "A fiók email címének megadása a mesterjelszó emlékeztető fogadásához."
-  },
   "getMasterPasswordHint": {
     "message": "Mesterjelszó emlékeztető kérése"
   },
@@ -839,18 +833,6 @@
   "continue": {
     "message": "Folytatás"
   },
-  "enterVerificationCodeApp": {
-    "message": "A 6 számjegyű ellenőrző kód megadása a hitelesítő alkalmazásból."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "$EMAIL$ email címre elküldött  6 számjegyű ellenőrző kód megadása.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Az ellenőrző kód elküldésre került $EMAIL$ email címre.",
     "placeholders": {
@@ -860,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Adatok megjegyzése"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Ne kérdezzen újra ezen az eszközön 30 napig"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Megerősítő kód ismételt elküldése emailben"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Másik kétlépcsős bejelentkezési mód használata"
   },
   "selectAnotherMethod": {
     "message": "Másik módszer választás",
@@ -878,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Helyreállító kód használata"
-  },
-  "insertYubiKey": {
-    "message": "A YubiKey beillesztése a számítógép USB portjába és a rajta levő gomb megnyomása."
   },
   "insertU2f": {
     "message": "A biztonsági kulcs beillesztése a számítógép USB portjába. Ha van rajta gomb, nyomjuk meg."
@@ -951,9 +921,6 @@
   "selfHostedEnvironment": {
     "message": "Saját üzemeltetésű környezet"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "A helyileg üzemeltetett Bitwarden telepítés webcímének megadása."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Adjuk meg a helyileg tárolt Bitwarden telepítés alap webcímét. Példa: https://bitwarden.company.com"
   },
@@ -965,9 +932,6 @@
   },
   "customEnvironment": {
     "message": "Egyedi környezet"
-  },
-  "customEnvironmentFooter": {
-    "message": "Haladó felhasználóknak. Minden egyes szolgáltatásnak külön megadható az alap webcím."
   },
   "baseUrl": {
     "message": "Szerver webcím"
@@ -1008,6 +972,9 @@
   },
   "no": {
     "message": "Nem"
+  },
+  "location": {
+    "message": "Hely"
   },
   "overwritePassword": {
     "message": "Jelszó felülírása"
@@ -2499,6 +2466,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Csak $EMAIL$ email címmel társított személyes széf elemek kerülnek exportálásra. Ebbe nem kerülnek be a szervezeti széf elemek.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Szervezeti széf exportálása"
   },
@@ -2781,14 +2757,8 @@
   "loginWithMasterPassword": {
     "message": "Bejelentkezés mesterjelszóval"
   },
-  "loggingInAs": {
-    "message": "Bejelentkezve mint"
-  },
   "rememberEmail": {
     "message": "Email megjegyzése"
-  },
-  "notYou": {
-    "message": "Ez tévedés?"
   },
   "newAroundHere": {
     "message": "Új felhasználó vagyunk?"
@@ -3029,9 +2999,6 @@
   "requestAdminApproval": {
     "message": "Adminisztrátori jóváhagyás kérés"
   },
-  "approveWithMasterPassword": {
-    "message": "Jóváhagyás mesterjelszóval"
-  },
   "region": {
     "message": "Régió"
   },
@@ -3056,9 +3023,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "A kérés elküldésre került az adminisztrátornak."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "A jóváhagyás után értesítés érkezik."
   },
   "troubleLoggingIn": {
     "message": "Probléma van a bejelentkezéssel?"
@@ -3235,9 +3199,6 @@
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Hiba történt a Duo szolgáltatáshoz csatlakozáskor. Használjunk másik kétlépcsős bejelentkezési módot vagy kérjünk segítséget a Duotól."
-  },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Indítsuk el a DUO-t és kövessük a lépéseket a bejelentkezés befejezéséhez."
   },
   "duoRequiredByOrgForAccount": {
     "message": "A fiókhoz kétlépcsős DUO bejelentkezés szükséges."
@@ -3529,9 +3490,6 @@
   "unknownApplication": {
     "message": "Egy alkalmazás"
   },
-  "sshKeyPasswordUnsupported": {
-    "message": "A jelszóval védett SSH kulcsok importálása még nem támogatott."
-  },
   "invalidSshKey": {
     "message": "Az SSH kulcs érvénytelen."
   },
@@ -3541,7 +3499,7 @@
   "importSshKeyFromClipboard": {
     "message": "Kulcs importálása vágólapból"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "Az SSH kulcs sikeresen importálásra került."
   },
   "fileSavedToDevice": {
@@ -3603,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Kockázatos jelszó megváltoztatása"
+  },
+  "move": {
+    "message": "Áthelyezés"
   }
 }

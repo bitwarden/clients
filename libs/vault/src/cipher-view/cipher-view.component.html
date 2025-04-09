@@ -10,9 +10,9 @@
       [title]="''"
     >
       <i class="bwi bwi-exclamation-triangle tw-text-warning" aria-hidden="true"></i>
-      <a bitLink (click)="launchChangePassword()">
+      <a bitLink href="#" appStopClick (click)="launchChangePassword()">
         {{ "changeAtRiskPassword" | i18n }}
-        <i class="bwi bwi-popout tw-ml-1" aria-hidden="true"></i>
+        <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
       </a>
     </bit-callout>
   </ng-container>
@@ -76,7 +76,8 @@
 
   <!-- ATTACHMENTS SECTION -->
   <ng-container *ngIf="cipher.attachments">
-    <app-attachments-v2-view [cipher]="cipher"> </app-attachments-v2-view>
+    <app-attachments-v2-view [emergencyAccessId]="emergencyAccessId" [cipher]="cipher">
+    </app-attachments-v2-view>
   </ng-container>
 
   <!-- ITEM HISTORY SECTION -->

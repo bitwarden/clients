@@ -35,6 +35,7 @@
 		<string>/Library/Application Support/Microsoft Edge Dev/NativeMessagingHosts/</string>
 		<string>/Library/Application Support/Microsoft Edge Canary/NativeMessagingHosts/</string>
         <string>/Library/Application Support/Vivaldi/NativeMessagingHosts/</string>
+		<string>/Library/Application Support/Zen/NativeMessagingHosts/</string>
 	</array>
 	<key>com.apple.security.cs.allow-jit</key>
 	<true/>

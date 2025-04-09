@@ -2,9 +2,23 @@ import { Utils } from "../../platform/misc/utils";
 import { CipherType } from "../enums/cipher-type";
 import { CipherView } from "../models/view/cipher.view";
 
-export function buildCipherIcon(iconsServerUrl: string, cipher: CipherView, showFavicon: boolean) {
-  let icon;
-  let image;
+export interface CipherIconDetails {
+  imageEnabled: boolean;
+  image: string | null;
+  /**
+   * @deprecated Fallback to `icon` instead which will default to "bwi-globe" if no other icon is applicable.
+   */
+  fallbackImage: string;
+  icon: string;
+}
+
+export function buildCipherIcon(
+  iconsServerUrl: string | null,
+  cipher: CipherView,
+  showFavicon: boolean,
+): CipherIconDetails {
+  let icon: string = "bwi-globe";
+  let image: string | null = null;
   let fallbackImage = "";
   const cardIcons: Record<string, string> = {
     Visa: "card-visa",
@@ -17,6 +31,10 @@ export function buildCipherIcon(iconsServerUrl: string, cipher: CipherView, show
     UnionPay: "card-union-pay",
     RuPay: "card-ru-pay",
   };
+
+  if (iconsServerUrl == null) {
+    showFavicon = false;
+  }
 
   switch (cipher.type) {
     case CipherType.Login:
@@ -53,9 +71,7 @@ export function buildCipherIcon(iconsServerUrl: string, cipher: CipherView, show
           try {
             image = `${iconsServerUrl}/${Utils.getHostname(hostnameUri)}/icon.png`;
             fallbackImage = "images/bwi-globe.png";
-            // FIXME: Remove when updating file. Eslint update
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          } catch (e) {
+          } catch {
             // Ignore error since the fallback icon will be shown if image is null.
           }
         }
