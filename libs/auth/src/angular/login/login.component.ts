@@ -73,6 +73,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   readonly Icons = { WaveIcon, VaultIcon };
+  protected minutes = 5;
 
   clientType: ClientType;
   ClientType = ClientType;
