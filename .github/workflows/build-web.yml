@@ -198,6 +198,7 @@ jobs:
 
           if [[ "${{ github.event.pull_request.head.repo.fork }}" == "true" ]]; then
             IMAGE_TAG=$(echo "${{ github.event.pull_request.head.repo.full_name }}" | sed "s#/#-#g")-$IMAGE_TAG
+            IMAGE_TAG=${IMAGE_TAG:0:128}  # Limit to 128 characters, as that's the max length for Docker image tags
           fi
 
           if [[ "$IMAGE_TAG" == "main" ]]; then
