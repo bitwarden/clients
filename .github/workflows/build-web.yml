@@ -192,8 +192,14 @@ jobs:
         run: |
           if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
             IMAGE_TAG=$(echo "${GITHUB_HEAD_REF}" | sed "s#/#-#g")
+            echo "Image tag from head ref: $IMAGE_TAG"
           else
             IMAGE_TAG=$(echo "${GITHUB_REF_NAME}" | sed "s#/#-#g")
+            echo "Image tag from ref name: $IMAGE_TAG"
+          fi
+
+          if [[ "${{ github.event.repository.fork }}" == "true" ]]; then
+              IMAGE_TAG="$(echo "${{ github.repository }}" | sed 's#/#-#g')-${IMAGE_TAG}"
           fi
 
           if [[ "$IMAGE_TAG" == "main" ]]; then
