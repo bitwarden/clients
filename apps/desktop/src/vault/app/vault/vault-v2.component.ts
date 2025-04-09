@@ -7,9 +7,7 @@ import {
   NgZone,
   OnDestroy,
   OnInit,
-  QueryList,
   ViewChild,
-  ViewChildren,
   ViewContainerRef,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -56,6 +54,7 @@ import {
   ChangeLoginPasswordService,
   CipherFormConfig,
   CipherFormConfigService,
+  CipherFormMode,
   CipherFormModule,
   CipherViewComponent,
   DecryptionFailureDialogComponent,
@@ -116,8 +115,6 @@ const BroadcasterSubscriptionId = "VaultComponent";
   ],
 })
 export class VaultV2Component implements OnInit, OnDestroy {
-  showForm = false;
-
   @ViewChild(ViewComponent) viewComponent: ViewComponent;
   @ViewChild(AddEditComponent) addEditComponent: AddEditComponent;
   @ViewChild(VaultItemsV2Component, { static: true }) vaultItemsComponent: VaultItemsV2Component;
@@ -125,15 +122,8 @@ export class VaultV2Component implements OnInit, OnDestroy {
   @ViewChild("folderAddEdit", { read: ViewContainerRef, static: true })
   folderAddEditModalRef: ViewContainerRef;
   @ViewChild("footer") footer: ItemFooterComponent;
-  @ViewChild("vaultForm", { static: false }) set vaultFormInstance(instance: any) {
-    if (instance) {
-      this.showForm = true;
-      this.changeDetectorRef.detectChanges();
-    }
-  }
-  @ViewChildren("vaultForm") vaultForms!: QueryList<any>;
 
-  action: string;
+  action: CipherFormMode | "view";
   cipherId: string = null;
   favorites = false;
   type: CipherType = null;
@@ -511,6 +501,14 @@ export class VaultV2Component implements OnInit, OnDestroy {
     return !(await this.canNavigateAway(action, cipher)) || !(await this.passwordReprompt(cipher));
   }
 
+  async buildFormConfig(action: CipherFormMode) {
+    this.config = await this.formConfigService.buildConfig(
+      action,
+      this.cipherId as CipherId,
+      this.addType,
+    );
+  }
+
   async editCipher(cipher: CipherView) {
     if (await this.shouldReprompt(cipher, "edit")) {
       return;
@@ -518,6 +516,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
 
     this.cipherId = cipher.id;
     this.cipher = cipher;
+    await this.buildFormConfig("edit");
     this.action = "edit";
     await this.go();
   }
@@ -529,14 +528,16 @@ export class VaultV2Component implements OnInit, OnDestroy {
 
     this.cipherId = cipher.id;
     this.cipher = cipher;
+    await this.buildFormConfig("clone");
     this.action = "clone";
     await this.go();
   }
 
   async addCipher(type: CipherType = null) {
     this.addType = type || this.activeFilter.cipherType;
-    this.action = "add";
     this.cipherId = null;
+    await this.buildFormConfig("add");
+    this.action = "add";
     this.prefillNewCipherFromFilter();
 
     await this.go();
@@ -690,7 +691,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
   private dirtyInput(): boolean {
     return (
       (this.action === "add" || this.action === "edit" || this.action === "clone") &&
-      document.querySelectorAll("app-vault-add-edit .ng-dirty").length > 0
+      document.querySelectorAll("vault-cipher-form .ng-dirty").length > 0
     );
   }
 
@@ -717,20 +718,6 @@ export class VaultV2Component implements OnInit, OnDestroy {
         myVaultOnly: this.myVaultOnly,
       };
     }
-
-    this.config = await this.formConfigService.buildConfig(
-      queryParams.action,
-      this.cipherId as CipherId,
-      this.addType || queryParams.type,
-    );
-
-    // Set showForm to false to remove any existing form context
-    this.showForm = false;
-
-    setTimeout(() => {
-      this.showForm = true;
-      this.changeDetectorRef.detectChanges();
-    }, 0);
 
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises

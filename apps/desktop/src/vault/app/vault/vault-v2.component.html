@@ -28,7 +28,7 @@
           </app-cipher-view>
           <vault-cipher-form
             #vaultForm
-            *ngIf="(action === 'add' || action === 'edit' || action === 'clone') && showForm"
+            *ngIf="action === 'add' || action === 'edit' || action === 'clone'"
             formId="cipherForm"
             [config]="config"
             (cipherSaved)="savedCipher($event)"
