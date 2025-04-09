@@ -228,9 +228,8 @@ export class InputPasswordComponent implements OnInit {
 
     // 1. Verify current password is correct (if necessary)
     if (
-      this.inputPasswordFlow === InputPasswordFlow.ChangeExistingPassword ||
-      this.inputPasswordFlow ===
-        InputPasswordFlow.ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey
+      this.inputPasswordFlow === InputPasswordFlow.ChangePassword ||
+      this.inputPasswordFlow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
     ) {
       const currentPasswordIsCorrect = await this.verifyCurrentPassword(
         currentPassword,
@@ -308,11 +307,8 @@ export class InputPasswordComponent implements OnInit {
       passwordInputResult.currentLocalMasterKeyHash = currentLocalMasterKeyHash;
     }
 
-    if (
-      this.inputPasswordFlow ===
-      InputPasswordFlow.ChangeExistingPasswordAndOptionallyRotateAccountEncryptionKey
-    ) {
-      passwordInputResult.rotateAccountEncryptionKey = this.rotateAccountEncryptionKey;
+    if (this.inputPasswordFlow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation) {
+      passwordInputResult.rotateUserKey = this.formGroup.get("rotateUserKey")?.value;
     }
 
     // 4. Emit cryptographic keys and other password related properties
