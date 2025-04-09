@@ -196,6 +196,10 @@ jobs:
             IMAGE_TAG=$(echo "${GITHUB_REF_NAME}" | sed "s#/#-#g")
           fi
 
+          if [[ "${{ github.event.pull_request.head.repo.fork }}" == "true" ]]; then
+            IMAGE_TAG=$(echo "${{ github.event.pull_request.head.repo.full_name }}" | sed "s#/#-#g")-$IMAGE_TAG
+          fi
+
           if [[ "$IMAGE_TAG" == "main" ]]; then
             IMAGE_TAG=dev
           fi
