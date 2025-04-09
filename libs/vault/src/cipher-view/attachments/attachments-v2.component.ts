@@ -12,7 +12,8 @@ import {
   DialogRef,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { CipherAttachmentsComponent } from "@bitwarden/vault";
+
+import { CipherAttachmentsComponent } from "../../cipher-form/components/attachments/cipher-attachments.component";
 
 export interface AttachmentsDialogParams {
   cipherId: CipherId;

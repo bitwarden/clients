@@ -366,7 +366,7 @@ const routes: Routes = [
   imports: [
     RouterModule.forRoot(routes, {
       useHash: true,
-      enableTracing: true,
+      // enableTracing: true,
     }),
   ],
   exports: [RouterModule],
