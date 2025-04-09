@@ -204,7 +204,8 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     }
 
     const devices = await this.devicesApiService.getDevices();
-    return await Promise.all(
+    const devicesToUntrust: string[] = [];
+    const rotatedData = await Promise.all(
       devices.data
         .filter((device) => device.isTrusted)
         .map(async (device) => {
@@ -213,6 +214,13 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
             deviceWithKeys.encryptedPublicKey,
             oldUserKey,
           );
+
+          if (!publicKey) {
+            // Device was trusted but encryption is broken. This should be untrusted
+            devicesToUntrust.push(device.id);
+            return null;
+          }
+
           const newEncryptedPublicKey = await this.encryptService.encrypt(publicKey, newUserKey);
           const newEncryptedUserKey = await this.encryptService.rsaEncrypt(
             newUserKey.key,
@@ -229,8 +237,14 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
           request.encryptedUserKey = newRotateableKeySet.encryptedUserKey.encryptedString;
           request.deviceId = device.id;
           return request;
-        }),
+        })
+        .filter((otherDeviceKeysUpdateRequest) => otherDeviceKeysUpdateRequest != null),
     );
+    if (rotatedData.length > 0) {
+      this.logService.info("[Device trust rotation] Distrusting devices that failed to decrypt.");
+      await this.devicesApiService.untrustDevices(devicesToUntrust);
+    }
+    return rotatedData;
   }
 
   async rotateDevicesTrust(

@@ -679,6 +679,52 @@ describe("deviceTrustService", () => {
         ).rejects.toThrow("New user key is required. Cannot get rotated data.");
       });
 
+      it("untrusts devices that failed to decrypt", async () => {
+        const deviceResponse = {
+          id: "id",
+          userId: "",
+          name: "",
+          identifier: "",
+          type: DeviceType.Android,
+          creationDate: "",
+          revisionDate: "",
+          isTrusted: true,
+        };
+        devicesApiService.getDevices.mockResolvedValue(
+          new ListResponse(
+            {
+              data: [deviceResponse],
+            },
+            DeviceResponse,
+          ),
+        );
+        encryptService.decryptToBytes.mockResolvedValue(null);
+        encryptService.encrypt.mockResolvedValue(new EncString("test_encrypted_data"));
+        encryptService.rsaEncrypt.mockResolvedValue(new EncString("test_encrypted_data"));
+
+        const protectedDeviceResponse = new ProtectedDeviceResponse({
+          id: "id",
+          creationDate: "",
+          identifier: "test_device_identifier",
+          name: "Firefox",
+          type: DeviceType.FirefoxBrowser,
+          encryptedPublicKey: "",
+          encryptedUserKey: "",
+        });
+        devicesApiService.getDeviceKeys.mockResolvedValue(protectedDeviceResponse);
+
+        const fakeOldUserKeyData = new Uint8Array(64);
+        fakeOldUserKeyData.fill(5, 0, 1);
+        fakeOldUserKey = new SymmetricCryptoKey(fakeOldUserKeyData) as UserKey;
+        const fakeNewUserKeyData = new Uint8Array(64);
+        fakeNewUserKeyData.fill(1, 0, 1);
+        fakeNewUserKey = new SymmetricCryptoKey(fakeNewUserKeyData) as UserKey;
+
+        await deviceTrustService.getRotatedData(fakeOldUserKey, fakeNewUserKey, userId);
+
+        expect(devicesApiService.untrustDevices).toHaveBeenCalledWith(["id"]);
+      });
+
       it("returns the expected data when all required parameters are provided", async () => {
         const deviceResponse = {
           id: "",
