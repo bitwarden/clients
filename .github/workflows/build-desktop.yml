@@ -372,12 +372,12 @@ jobs:
         env:
           PKG_CONFIG_ALLOW_CROSS: false
           PKG_CONFIG_ALL_STATIC: true
-          TARGET: "aarch64-unknown-linux-musl:arm64"
+          TARGET: musl
         run: |
           curl https://sh.rustup.rs -sSf | sh -s -- -y
           . "$HOME/.cargo/env" 
           rustup target add aarch64-unknown-linux-musl
-          node build.js cross-platform
+          node build.js
 
       - name: Build application
         run: |
