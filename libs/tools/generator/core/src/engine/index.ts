@@ -5,4 +5,5 @@ export * from "./settings";
 export { EmailRandomizer } from "./email-randomizer";
 export { EmailCalculator } from "./email-calculator";
 export { PasswordRandomizer } from "./password-randomizer";
+export { SdkPasswordRandomizer } from "./sdk-password-randomizer";
 export { UsernameRandomizer } from "./username-randomizer";
