@@ -144,7 +144,7 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
         this.freeTrialData = this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
           this.organization,
           this.organizationSubscriptionResponse,
-          paymentSource,
+          !!paymentSource,
         );
       }
       this.isUnpaid = this.subscriptionStatus === "unpaid" ?? false;

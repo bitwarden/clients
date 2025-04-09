@@ -7,10 +7,8 @@ import { lastValueFrom } from "rxjs";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
-import { BillingSourceResponse } from "@bitwarden/common/billing/models/response/billing.response";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
-import { PaymentSourceResponse } from "@bitwarden/common/billing/models/response/payment-source.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService } from "@bitwarden/components";
 
@@ -32,33 +30,11 @@ export class TrialFlowService {
   checkForOrgsWithUpcomingPaymentIssues(
     organization: Organization,
     organizationSubscription: OrganizationSubscriptionResponse,
-    paymentSource: BillingSourceResponse | PaymentSourceResponse,
+    isPaymentConfigured: boolean,
   ): FreeTrial {
     const trialEndDate = organizationSubscription?.subscription?.trialEndDate;
     const displayBanner =
-      !paymentSource &&
-      organization?.isOwner &&
-      organizationSubscription?.subscription?.status === "trialing";
-    const trialRemainingDays = trialEndDate ? this.calculateTrialRemainingDays(trialEndDate) : 0;
-    const freeTrialMessage = this.getFreeTrialMessage(trialRemainingDays);
-
-    return {
-      remainingDays: trialRemainingDays,
-      message: freeTrialMessage,
-      shownBanner: displayBanner,
-      organizationId: organization.id,
-      organizationName: organization.name,
-    };
-  }
-
-  organizationHasUpcomingPaymentIssues(
-    organization: Organization,
-    organizationSubscription: OrganizationSubscriptionResponse,
-    metadata: OrganizationBillingMetadataResponse,
-  ): FreeTrial {
-    const trialEndDate = organizationSubscription?.subscription?.trialEndDate;
-    const displayBanner =
-      metadata.isPaymentMethodConfigured === false &&
+      isPaymentConfigured === false &&
       organization?.isOwner &&
       organizationSubscription?.subscription?.status === "trialing";
     const trialRemainingDays = trialEndDate ? this.calculateTrialRemainingDays(trialEndDate) : 0;

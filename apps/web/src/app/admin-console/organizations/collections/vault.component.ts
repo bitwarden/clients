@@ -641,7 +641,11 @@ export class VaultComponent implements OnInit, OnDestroy {
         ]),
       ),
       map(([org, sub, metadata]) =>
-        this.trialFlowService.organizationHasUpcomingPaymentIssues(org, sub, metadata),
+        this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
+          org,
+          sub,
+          metadata.isPaymentMethodConfigured,
+        ),
       ),
       filter((result) => result !== null),
     );
