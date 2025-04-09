@@ -7,6 +7,10 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BitwardenShield } from "@bitwarden/auth/angular";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import {
+  compareCredentialIds,
+  parseCredentialId,
+} from "@bitwarden/common/platform/services/fido2/credential-id-utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -23,6 +27,7 @@ import {
 } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
+import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import {
   DesktopFido2UserInterfaceService,
   DesktopFido2UserInterfaceSession,
@@ -53,6 +58,7 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
   private ciphersSubject = new BehaviorSubject<CipherView[]>([]);
   ciphers$: Observable<CipherView[]> = this.ciphersSubject.asObservable();
   private cipherIdsSubject = new BehaviorSubject<string[]>([]);
+  protected containsExcludedCiphers: boolean = false;
   cipherIds$: Observable<string[]>;
   readonly Icons = { BitwardenShield };
 
@@ -61,12 +67,14 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
     private readonly fido2UserInterfaceService: DesktopFido2UserInterfaceService,
     private readonly cipherService: CipherService,
     private readonly accountService: AccountService,
+    private readonly desktopAutofillService: DesktopAutofillService,
     private readonly logService: LogService,
     private readonly passwordRepromptService: PasswordRepromptService,
     private readonly router: Router,
   ) {}
 
   async ngOnInit() {
+    const lastRegistrationRequest = this.desktopAutofillService.lastRegistrationRequest;
     await this.accountService.setShowHeader(false);
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
@@ -79,7 +87,27 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
       this.cipherService
         .getAllDecryptedForIds(activeUserId, cipherIds || [])
         .then((ciphers) => {
-          this.ciphersSubject.next(ciphers);
+          if (lastRegistrationRequest) {
+            const excludedCiphers = ciphers.filter((cipher) => {
+              const credentialId = cipher.login.hasFido2Credentials
+                ? parseCredentialId(cipher.login.fido2Credentials[0]?.credentialId)
+                : new Uint8Array();
+              if (!cipher.login || !cipher.login.hasUris) {
+                return false;
+              }
+
+              return compareCredentialIds(
+                credentialId,
+                new Uint8Array(lastRegistrationRequest.excludedCredentials[0]),
+              );
+            });
+
+            this.containsExcludedCiphers = excludedCiphers.length > 0;
+
+            this.ciphersSubject.next(excludedCiphers || ciphers);
+          } else {
+            this.ciphersSubject.next(ciphers);
+          }
         })
         .catch((error) => this.logService.error(error));
     });
@@ -91,7 +119,9 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
   }
 
   async chooseCipher(cipher: CipherView) {
-    if (
+    if (this.containsExcludedCiphers) {
+      this.session?.confirmChosenCipher(cipher.id, false);
+    } else if (
       cipher.reprompt !== CipherRepromptType.None &&
       !(await this.passwordRepromptService.showPasswordPrompt())
     ) {

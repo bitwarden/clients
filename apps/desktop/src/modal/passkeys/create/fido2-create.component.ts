@@ -8,7 +8,14 @@ import { BitwardenShield } from "@bitwarden/auth/angular";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+<<<<<<< HEAD
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
+=======
+import {
+  compareCredentialIds,
+  parseCredentialId,
+} from "@bitwarden/common/platform/services/fido2/credential-id-utils";
+>>>>>>> e4221d4d56 (Show existing login items in the UI)
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -54,6 +61,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
   session?: DesktopFido2UserInterfaceSession = null;
   private ciphersSubject = new BehaviorSubject<CipherView[]>([]);
   ciphers$: Observable<CipherView[]> = this.ciphersSubject.asObservable();
+  containsExcludedCiphers: boolean = false;
   readonly Icons = { BitwardenShield };
 
   constructor(
@@ -84,6 +92,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
     this.cipherService
       .getAllDecrypted(activeUserId)
       .then((ciphers) => {
+<<<<<<< HEAD
         const relevantCiphers = ciphers.filter((cipher) => {
           const userHandle = Fido2Utils.bufferToString(
             new Uint8Array(lastRegistrationRequest.userHandle),
@@ -95,6 +104,44 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
           );
         });
         this.ciphersSubject.next(relevantCiphers);
+=======
+        if (lastRegistrationRequest.excludedCredentials.length > 0) {
+          const excludedCiphers = ciphers.filter((cipher) => {
+            const credentialId = cipher.login.hasFido2Credentials
+              ? parseCredentialId(cipher.login.fido2Credentials[0]?.credentialId)
+              : new Uint8Array();
+            if (!cipher.login || !cipher.login.hasUris) {
+              return false;
+            }
+
+            return (
+              cipher.login.matchesUri(rpid, equivalentDomains) &&
+              compareCredentialIds(
+                credentialId,
+                new Uint8Array(lastRegistrationRequest.excludedCredentials[0]),
+              )
+            );
+          });
+
+          this.containsExcludedCiphers = excludedCiphers.length > 0;
+          this.ciphersSubject.next(excludedCiphers);
+        } else {
+          const relevantCiphers = ciphers.filter((cipher) => {
+            const credentialId = cipher.login.hasFido2Credentials
+              ? Array.from(parseCredentialId(cipher.login.fido2Credentials[0]?.credentialId))
+              : [];
+            if (!cipher.login || !cipher.login.hasUris) {
+              return false;
+            }
+
+            return (
+              cipher.login.matchesUri(rpid, equivalentDomains) &&
+              !lastRegistrationRequest.excludedCredentials.includes(credentialId)
+            );
+          });
+          this.ciphersSubject.next(relevantCiphers);
+        }
+>>>>>>> e4221d4d56 (Show existing login items in the UI)
       })
       .catch((error) => this.logService.error(error));
   }
