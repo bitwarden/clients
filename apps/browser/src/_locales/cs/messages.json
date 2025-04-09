@@ -5140,5 +5140,32 @@
   },
   "changeAtRiskPassword": {
     "message": "Změnit ohrožené heslo"
+  },
+  "introCarouselLabel": {
+    "message": "Vítejte v Bitwardenu"
+  },
+  "securityPrioritized": {
+    "message": "Bezpečnost, priorita"
+  },
+  "securityPrioritizedBody": {
+    "message": "Uložte si přihlašovací údaje, karty a identity do zabezpečeného trezoru. Bitwarden používá šifrování end-to-end s nulovou znalostí, aby ochránil to, co je pro Vás důležité."
+  },
+  "quickLogin": {
+    "message": "Rychlé a snadné přihlášení"
+  },
+  "quickLoginBody": {
+    "message": "Nastavte biometrické odemknutí a automatické vyplňování pro přihlášení k Vašim účtům bez zadání jediného písmene."
+  },
+  "secureUser": {
+    "message": "Zvýšit úroveň přihlašování"
+  },
+  "secureUserBody": {
+    "message": "Použijte generátor k vytvoření a uložení silných, jedinečných hesel pro všechny Vaše účty."
+  },
+  "secureDevices": {
+    "message": "Vaše data, kdy a kde je potřebujete"
+  },
+  "secureDevicesBody": {
+    "message": "Uložte neomezená hesla na neomezených zařízeních s Bitwardenem na mobilu, prohlížeči a desktopové aplikaci."
   }
 }

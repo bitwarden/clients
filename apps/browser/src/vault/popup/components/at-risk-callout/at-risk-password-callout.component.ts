@@ -1,15 +1,13 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { map, switchMap } from "rxjs";
+import { map, of, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
-import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { AnchorLinkDirective, CalloutModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-
-// TODO: This component will need to be reworked to use the new EndUserNotificationService in PM-10609
 
 @Component({
   selector: "vault-at-risk-password-callout",
@@ -19,15 +17,24 @@ import { I18nPipe } from "@bitwarden/ui-common";
 })
 export class AtRiskPasswordCalloutComponent {
   private taskService = inject(TaskService);
-  private activeAccount$ = inject(AccountService).activeAccount$.pipe(filterOutNullish());
+  private activeAccount$ = inject(AccountService).activeAccount$.pipe(getUserId);
 
   protected pendingTasks$ = this.activeAccount$.pipe(
-    switchMap((user) =>
-      this.taskService
-        .pendingTasks$(user.id)
-        .pipe(
-          map((tasks) => tasks.filter((t) => t.type === SecurityTaskType.UpdateAtRiskCredential)),
-        ),
+    switchMap((userId) =>
+      this.taskService.tasksEnabled$(userId).pipe(
+        switchMap((enabled) => {
+          if (!enabled) {
+            return of([]);
+          }
+          return this.taskService
+            .pendingTasks$(userId)
+            .pipe(
+              map((tasks) =>
+                tasks.filter((t) => t.type === SecurityTaskType.UpdateAtRiskCredential),
+              ),
+            );
+        }),
+      ),
     ),
   );
 }

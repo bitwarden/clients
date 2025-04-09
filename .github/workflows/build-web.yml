@@ -82,7 +82,7 @@ jobs:
 
 
   build-containers:
-    name: Build artifacts and container images
+    name: "Build [${{matrix.artifact_name}}], image tag: [${{matrix.image_name}}]"
     runs-on: ubuntu-24.04
     permissions:
       security-events: write
@@ -158,6 +158,17 @@ jobs:
           mv package.json.tmp package.json
       
       ########## Set up Docker ##########
+      - name: Set up Docker
+        uses: docker/setup-docker-action@b60f85385d03ac8acfca6d9996982511d8620a19 # v4.3.0
+        with:
+          daemon-config: |
+            {
+              "debug": true,
+              "features": {
+                "containerd-snapshotter": true
+              }
+            }
+
       - name: Set up QEMU emulators
         uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
 
@@ -174,20 +185,6 @@ jobs:
       - name: Log into Prod container registry
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: az acr login -n ${_AZ_REGISTRY%.azurecr.io}
-
-      - name: Login to Azure - CI Subscription
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
-        with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
-
-      - name: Retrieve github PAT secrets
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        id: retrieve-secret-pat
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: "bitwarden-ci"
-          secrets: "github-pat-bitwarden-devops-bot-repo-scope"
 
       ########## Generate image tag and build Docker image ##########
       - name: Generate container image tag
@@ -220,7 +217,6 @@ jobs:
         run: echo "name=$_AZ_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}" >> $GITHUB_OUTPUT
 
       - name: Build Docker image
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         id: build-container
         uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d # v6.12.0
         with:
@@ -229,12 +225,19 @@ jobs:
             NPM_COMMAND=${{ matrix.npm_command }}
           context: .
           file: apps/web/Dockerfile
+          load: true
           platforms: |
             linux/amd64,
             linux/arm/v7,
             linux/arm64
-          push: true
+          push: false
           tags: ${{ steps.image-name.outputs.name }}
+
+      - name: Push images
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        env:
+          IMAGE_NAME: ${{ steps.image-name.outputs.name }}
+        run: docker push $IMAGE_NAME
 
       - name: Zip project
         working-directory: apps/web
