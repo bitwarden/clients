@@ -19,7 +19,6 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormArray, FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
 import { Subject, zip } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -129,7 +128,6 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
     private i18nService: I18nService,
     private liveAnnouncer: LiveAnnouncer,
     private eventCollectionService: EventCollectionService,
-    private route: ActivatedRoute,
   ) {
     this.destroyed$ = inject(DestroyRef);
     this.cipherFormContainer.registerChildForm("customFields", this.customFieldsForm);
@@ -197,11 +195,6 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
       this.isPartialEdit = true;
       this.customFieldsForm.disable();
     }
-
-    const collectionId = this.route.snapshot.queryParams?.collectionId;
-    this.disallowHiddenField = this.cipherFormContainer.config.collections.some(
-      (collection) => collection.id === collectionId && collection.hidePasswords,
-    );
   }
 
   ngAfterViewInit(): void {
@@ -226,6 +219,7 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
 
   /** Opens the add/edit custom field dialog */
   openAddEditCustomFieldDialog(editLabelConfig?: AddEditCustomFieldDialogData["editLabelConfig"]) {
+    const { cipherType, mode, originalCipher } = this.cipherFormContainer.config;
     this.dialogRef = this.dialogService.open<unknown, AddEditCustomFieldDialogData>(
       AddEditCustomFieldDialogComponent,
       {
@@ -233,9 +227,9 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
           addField: this.addField.bind(this),
           updateLabel: this.updateLabel.bind(this),
           removeField: this.removeField.bind(this),
-          cipherType: this.cipherFormContainer.config.cipherType,
+          cipherType,
           editLabelConfig,
-          disallowHiddenField: this.disallowHiddenField,
+          disallowHiddenField: mode === "edit" && !originalCipher.viewPassword,
         },
       },
     );
