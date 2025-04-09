@@ -1435,18 +1435,6 @@
       }
     }
   },
-  "enterVerificationCodeApp": {
-    "message": "Jāievada 6 ciparu apstiprinājuma kods no autentificētāja lietotnes."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Jāievada 6 ciparu apstiprinājuma kods, kas tika nosūtīts uz $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "E-pasts apstiprināšanai nosūtīts uz $EMAIL$.",
     "placeholders": {
@@ -1456,17 +1444,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Atcerēties mani"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Šajā ierīcē 30 dienas vairs nevaicāt"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Atkārtoti nosūtīt apstiprinājuma kodu"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Izmantot citu divpakāpju pieteikšanās veidu"
   },
   "selectAnotherMethod": {
     "message": "Atlasīt citu veidu",
@@ -1474,9 +1453,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Izmantot savu atkopes kodu"
-  },
-  "insertYubiKey": {
-    "message": "Ievietojiet YubiKey datora USB portā un pēc tam pieskarieties tā pogai."
   },
   "insertU2f": {
     "message": "Ievietojiet drošības atslēgu datora USB portā. Ja tam ir poga, pieskarieties tai."
@@ -7252,9 +7228,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Kļūda savienojuma izveidošanā ar Duo pakalpojumu. Jāizmanto cits divpakāpju pieteikšanās veids vai jāvēršas pie Duo pēc palīdzības."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Jāpalaiž DUO un jāseko soļiem, lai pabeigtu pieteikšanos."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Kontam ir nepieciešama DUO divpakāpju pieteikšanās."
   },
@@ -8358,7 +8331,7 @@
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
   },
   "dismiss": {
-    "message": "Noraidīt"
+    "message": "Atcelt"
   },
   "notAvailableForFreeOrganization": {
     "message": "Šī iespēja nav pieejama bezmaksas apvienībām. Jāsazinās ar apvienības īpašnieku, lai uzlabotu."
@@ -8735,8 +8708,8 @@
   "limitCollectionDeletionDesc": {
     "message": "Ļaut krājumu izdzēšanu tikai īpašniekiem un pārvaldītājiem"
   },
-  "limitItemDeletionDesc": {
-    "message": "Ierobežot lietotājiem vienumu izdzēšanu ar atļauju \"Var pārvaldīt\""
+  "limitItemDeletionDescription": {
+    "message": "Ļaut vienumu izdzēšanu tikai dalībniekiem ar krājuma pārvaldīšanas atļaujām"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Īpašnieki un pārvaldnieki var pārvaldīt visus krājumus un vienumus"

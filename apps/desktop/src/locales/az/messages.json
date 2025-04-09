@@ -801,7 +801,7 @@
     "message": "Element məlumatları"
   },
   "noItemsInList": {
-    "message": "Siyahılanacaq heç bir element yoxdur."
+    "message": "Sadalanacaq heç bir element yoxdur."
   },
   "sendVerificationCode": {
     "message": "Doğrulama kodunu e-poçtunuza göndərin"
@@ -833,18 +833,6 @@
   "continue": {
     "message": "Davam"
   },
-  "enterVerificationCodeApp": {
-    "message": "Kimlik doğrulayıcı tətbiqindən 6 rəqəmli doğrulama kodunu daxil edin."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "$EMAIL$ ünvanına göndərilən e-poçtdakı 6 rəqəmli doğrulama kodunu daxil edin.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Doğrulama poçtu $EMAIL$ ünvanına göndərildi.",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Məni xatırla"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Bu cihazda 30 gün ərzində soruşulmasın"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Doğrulama kodu olan e-poçtu yenidən göndər"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Başqa bir iki mərhələli giriş metodu istifadə edin"
   },
   "selectAnotherMethod": {
     "message": "Başqa üsul seçin",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Geri qaytarma kodunuzu istifadə edin"
-  },
-  "insertYubiKey": {
-    "message": "\"YubiKey\"i kompüterinizin USB portuna taxın, daha sonra düyməsinə toxunun."
   },
   "insertU2f": {
     "message": "Güvənlik açarını kompüterinizin USB portuna taxın. Düyməsi varsa toxunun."
@@ -1447,7 +1423,7 @@
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
-    "message": "Siyahılanacaq heç bir parol yoxdur."
+    "message": "Sadalanacaq heç bir parol yoxdur."
   },
   "clearHistory": {
     "message": "Tarixçəni təmizlə"
@@ -1718,7 +1694,7 @@
     "message": "Heç bir təşkilata aid deyilsiniz. Təşkilatlar, elementlərinizi digər istifadəçilərlə güvənli şəkildə paylaşmağınızı təmin edir."
   },
   "noCollectionsInList": {
-    "message": "Siyahılanacaq heç bir kolleksiya yoxdur."
+    "message": "Sadalanacaq heç bir kolleksiya yoxdur."
   },
   "ownership": {
     "message": "Sahiblik"
@@ -3224,9 +3200,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Duo xidmətinə bağlanarkən xəta baş verdi. Fərqli iki addımlı giriş üsulu istifadə edin və ya kömək üçün Duo ilə əlaqə saxlayın."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Duo-nu başladın və giriş prosesini tamamlamaq üçün addımları izləyin."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Hesabınız üçün Duo iki addımlı giriş tələb olunur."
   },
@@ -3588,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Riskli parolları dəyişdir"
+  },
+  "move": {
+    "message": "Daşı"
   }
 }

@@ -833,18 +833,6 @@
   "continue": {
     "message": "Continuar"
   },
-  "enterVerificationCodeApp": {
-    "message": "Introduce el código de verificación de 6 dígitos de tu aplicación autenticadora."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Introduce el código de verificación de 6 dígitos que fue enviado a $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Correo de verificación enviado a $EMAIL$.",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Recordarme"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Reenviar código de verificación por correo electrónico"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Utilizar otro método de autenticación en dos pasos"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "Inserta tu YubiKey en el puerto USB de tu equipo y posteriormente pulsa su botón."
   },
   "insertU2f": {
     "message": "Inserta tu llave de seguridad en el puerto USB de tu equipo. Si tiene un botón, púlsalo."
@@ -3224,9 +3200,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Inicia Duo y sigue los pasos para terminar de iniciar sesión."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Se requiere el inicio de sesión en dos pasos de Duo para tu cuenta."
   },
@@ -3588,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }

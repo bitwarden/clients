@@ -222,4 +222,13 @@ export class AtRiskPasswordsComponent implements OnInit {
       this.launchingCipher.set(null);
     }
   };
+
+  /**
+   * This page can be the first page the user sees when the extension launches,
+   * which can conflict with the `PopupRouterCacheService`. This replaces the
+   * built-in back button behavior so the user always navigates to the vault.
+   */
+  protected async navigateToVault() {
+    await this.router.navigate(["/tabs/vault"]);
+  }
 }

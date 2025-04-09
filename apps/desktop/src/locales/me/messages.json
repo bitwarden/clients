@@ -833,18 +833,6 @@
   "continue": {
     "message": "Nastavi"
   },
-  "enterVerificationCodeApp": {
-    "message": "Unesi kod sa 6 cifri iz vaše aplikacije za autentifikaciju."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Unesi kod sa 6 cifri koji vam je poslat na email $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Verifikacioni email poslat na $EMAIL$.",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Zapamti me"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Pošalji ponovo verifikacioni kod na email"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Koristi drugi metod prijave u dva koraka"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "Priključi svoj YubiKey u USB port na kompjuteru i onda takni njegovo dugme."
   },
   "insertU2f": {
     "message": "Priključi svoj sigurnonosni ključ u USB port na kompjuteru. Ako ima dugme, takni ga."
@@ -3224,9 +3200,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
   },
@@ -3588,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }

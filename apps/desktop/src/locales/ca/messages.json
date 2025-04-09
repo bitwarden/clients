@@ -833,18 +833,6 @@
   "continue": {
     "message": "Continua"
   },
-  "enterVerificationCodeApp": {
-    "message": "Introduïu el codi de verificació de 6 dígits de l'aplicació autenticadora."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Introduïu el codi de verificació de 6 dígits que s'ha enviat per correu electrònic a $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Correu electrònic de verificació enviat a $EMAIL$.",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Recorda'm"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Envia el codi de verificació altra vegada"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Utilitzeu un altre mètode d'inici de sessió en dues passes"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "Introduïu la vostra YubiKey al port USB de l'ordinador i, a continuació, premeu el seu botó."
   },
   "insertU2f": {
     "message": "Introduïu la vostra clau de seguretat al port USB de l'ordinador. Si té un botó, premeu-lo."
@@ -3224,9 +3200,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "S'ha produït un error en connectar amb el servei Duo. Utilitzeu un mètode d'inici de sessió en dos passos diferent o poseu-vos en contacte amb Duo per obtenir ajuda."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Inicieu DUO i seguiu els passos per finalitzar la sessió."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Es requereix l'inici de sessió en dos passos de DUO al vostre compte."
   },
@@ -3588,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }

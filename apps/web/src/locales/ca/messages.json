@@ -1435,18 +1435,6 @@
       }
     }
   },
-  "enterVerificationCodeApp": {
-    "message": "Introduïu el codi de verificació de 6 dígits de l'aplicació autenticadora."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Introduïu el codi de verificació de 6 dígits que s'ha enviat per correu electrònic a $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Correu electrònic de verificació enviat a $EMAIL$.",
     "placeholders": {
@@ -1456,17 +1444,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Recorda'm"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Envia el codi de verificació altra vegada"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Utilitzeu un altre mètode d'inici de sessió en dues passes"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -1474,9 +1453,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "Introduïu el vostre YubiKey al port USB de l'ordinador i, a continuació, premeu el seu botó."
   },
   "insertU2f": {
     "message": "Introduïu la vostra clau de seguretat al port USB de l'ordinador. Si té un botó, premeu-lo."
@@ -7252,9 +7228,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Inicieu DUO i seguiu els passos per finalitzar la sessió."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Es requereix l'inici de sessió en dos passos de DUO al vostre compte."
   },
@@ -8735,8 +8708,8 @@
   "limitCollectionDeletionDesc": {
     "message": "Limit collection deletion to owners and admins"
   },
-  "limitItemDeletionDesc": {
-    "message": "Limit item deletion to members with the Can manage permission"
+  "limitItemDeletionDescription": {
+    "message": "Limit item deletion to members with the Manage collection permissions"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Els propietaris i els administradors poden gestionar totes les col·leccions i articles"
