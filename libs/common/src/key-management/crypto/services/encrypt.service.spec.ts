@@ -360,7 +360,7 @@ describe("EncryptService", () => {
     describe("encapsulateKeyUnsigned", () => {
       it("throws if no data is provided", () => {
         return expect(encryptService.encapsulateKeyUnsigned(null, publicKey)).rejects.toThrow(
-          "No key",
+          "No sharedKey provided for encapsulation",
         );
       });
 
