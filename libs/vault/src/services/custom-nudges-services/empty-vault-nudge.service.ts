@@ -8,12 +8,12 @@ import { DefaultSingleNudgeService } from "../default-single-nudge.service";
 import { VaultNudgeType } from "../vault-nudges.service";
 
 /**
- * Custom Nudge Service Checking Nudge Status For Welcome Nudge With Populated Vault
+ * Custom Nudge Service Checking Nudge Status For Welcome Nudge For Empty Vault
  */
 @Injectable({
   providedIn: "root",
 })
-export class HasItemsNudgeService extends DefaultSingleNudgeService {
+export class EmptyVaultNudgeService extends DefaultSingleNudgeService {
   cipherService = inject(CipherService);
 
   shouldShowNudge$(nudgeType: VaultNudgeType, userId: UserId): Observable<boolean> {
@@ -23,7 +23,7 @@ export class HasItemsNudgeService extends DefaultSingleNudgeService {
           ? of(false)
           : this.cipherService
               .cipherViews$(userId)
-              .pipe(map((ciphers) => ciphers != null && ciphers.length > 0)),
+              .pipe(map((ciphers) => ciphers == null || ciphers.length === 0)),
       ),
     );
   }

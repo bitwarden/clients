@@ -12,6 +12,17 @@
     *ngIf="vaultState === VaultStateEnum.Empty"
     class="tw-flex tw-flex-col tw-h-full tw-justify-center"
   >
+    <div *ngIf="hasVaultNudgeFlag && (showEmptyVaultNudge$ | async)" class="tw-mx-2">
+      <bit-spotlight
+        [title]="'emptyVaultNudgeTitle' | i18n"
+        [subtitle]="'emptyVaultNudgeBody' | i18n"
+        [buttonText]="'emptyVaultNudgeButton' | i18n"
+        (onButtonClick)="navigateToImport()"
+        (onDismiss)="dismissEmptyVaultNudge()"
+      >
+      </bit-spotlight>
+    </div>
+
     <bit-no-items [icon]="vaultIcon">
       <ng-container slot="title">{{ "yourVaultIsEmpty" | i18n }}</ng-container>
       <ng-container slot="description">{{ "autofillSuggestionsTip" | i18n }}</ng-container>
@@ -36,6 +47,11 @@
   </ng-container>
 
   <ng-container *ngIf="vaultState !== VaultStateEnum.Empty">
+    <bit-spotlight
+      [title]="'hasItemsVaultNudgeTitle' | i18n"
+      [subtitle]="'hasItemsVaultNudgeBody' | i18n"
+    >
+    </bit-spotlight>
     <div
       *ngIf="vaultState === VaultStateEnum.NoResults"
       class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12"

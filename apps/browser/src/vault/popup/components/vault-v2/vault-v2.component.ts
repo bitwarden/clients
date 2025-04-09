@@ -2,16 +2,17 @@ import { CdkVirtualScrollableElement, ScrollingModule } from "@angular/cdk/scrol
 import { CommonModule } from "@angular/common";
 import { AfterViewInit, Component, DestroyRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Router, RouterModule } from "@angular/router";
 import {
   combineLatest,
   filter,
-  map,
   firstValueFrom,
+  map,
   Observable,
   shareReplay,
+  startWith,
   switchMap,
   take,
-  startWith,
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -19,13 +20,21 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { ButtonModule, DialogService, Icons, NoItemsModule } from "@bitwarden/components";
-import { DecryptionFailureDialogComponent, VaultIcons } from "@bitwarden/vault";
+import {
+  DecryptionFailureDialogComponent,
+  SpotlightComponent,
+  VaultIcons,
+  VaultNudgesService,
+  VaultNudgeType,
+} from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
+import { BrowserApi } from "../../../../platform/browser/browser-api";
+import BrowserPopupUtils from "../../../../platform/popup/browser-popup-utils";
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
@@ -74,6 +83,8 @@ enum VaultState {
     VaultHeaderV2Component,
     AtRiskPasswordCalloutComponent,
     NewSettingsCalloutComponent,
+    SpotlightComponent,
+    RouterModule,
   ],
   providers: [VaultPageService],
 })
@@ -81,7 +92,9 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(CdkVirtualScrollableElement) virtualScrollElement?: CdkVirtualScrollableElement;
 
   cipherType = CipherType;
-
+  hasVaultNudgeFlag: boolean = false;
+  showEmptyVaultNudge$: Observable<boolean> = new Observable();
+  activeUserId: UserId | null = null;
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
   protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
@@ -132,6 +145,8 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private vaultCopyButtonsService: VaultPopupCopyButtonsService,
     private introCarouselService: IntroCarouselService,
     private configService: ConfigService,
+    private vaultNudgesService: VaultNudgesService,
+    private router: Router,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
@@ -169,16 +184,20 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async ngOnInit() {
-    const hasVaultNudgeFlag = await this.configService.getFeatureFlag(
+    this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    this.hasVaultNudgeFlag = await this.configService.getFeatureFlag(
       FeatureFlag.PM8851_BrowserOnboardingNudge,
     );
-    if (hasVaultNudgeFlag) {
+    if (this.hasVaultNudgeFlag) {
+      this.showEmptyVaultNudge$ = this.vaultNudgesService.showNudge$(
+        VaultNudgeType.EmptyVaultNudge,
+        this.activeUserId,
+      );
       await this.introCarouselService.setIntroCarouselDismissed();
     }
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     this.cipherService
-      .failedToDecryptCiphers$(activeUserId)
+      .failedToDecryptCiphers$(this.activeUserId)
       .pipe(
         map((ciphers) => (ciphers ? ciphers.filter((c) => !c.isDeleted) : [])),
         filter((ciphers) => ciphers.length > 0),
@@ -194,6 +213,20 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.vaultScrollPositionService.stop();
+  }
+
+  async navigateToImport() {
+    await this.router.navigate(["/import"]);
+    if (await BrowserApi.isPopupOpen()) {
+      await BrowserPopupUtils.openCurrentPagePopout(window);
+    }
+  }
+
+  async dismissEmptyVaultNudge() {
+    await this.vaultNudgesService.dismissNudge(
+      VaultNudgeType.EmptyVaultNudge,
+      this.activeUserId as UserId,
+    );
   }
 
   protected readonly FeatureFlag = FeatureFlag;

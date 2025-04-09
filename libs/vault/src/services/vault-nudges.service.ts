@@ -3,7 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { UserKeyDefinition, VAULT_NUDGES_DISK } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { HasItemsNudgeService } from "./custom-nudges-services/has-items-nudge.service";
+import { HasItemsNudgeService, EmptyVaultNudgeService } from "./custom-nudges-services";
 import { DefaultSingleNudgeService, SingleNudgeService } from "./default-single-nudge.service";
 
 /**
@@ -13,6 +13,7 @@ export enum VaultNudgeType {
   /** Nudge to show when user has no items in their vault
    * Add future nudges here
    */
+  EmptyVaultNudge = "empty-vault-nudge",
   HasVaultItems = "has-vault-items",
   IntroCarouselDismissal = "intro-carousel-dismissal",
 }
@@ -37,6 +38,7 @@ export class VaultNudgesService {
    */
   private customNudgeServices: any = {
     [VaultNudgeType.HasVaultItems]: inject(HasItemsNudgeService),
+    [VaultNudgeType.EmptyVaultNudge]: inject(EmptyVaultNudgeService),
   };
 
   /**

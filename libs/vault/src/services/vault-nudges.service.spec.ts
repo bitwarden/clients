@@ -7,7 +7,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 
 import { FakeStateProvider, mockAccountServiceWith } from "../../../common/spec";
 
-import { HasItemsNudgeService } from "./custom-nudges-services/has-items-nudge.service";
+import { HasItemsNudgeService, EmptyVaultNudgeService } from "./custom-nudges-services";
 import { DefaultSingleNudgeService } from "./default-single-nudge.service";
 import { VaultNudgesService, VaultNudgeType } from "./vault-nudges.service";
 
@@ -35,6 +35,10 @@ describe("Vault Nudges Service", () => {
         {
           provide: HasItemsNudgeService,
           useValue: mock<HasItemsNudgeService>(),
+        },
+        {
+          provide: EmptyVaultNudgeService,
+          useValue: mock<EmptyVaultNudgeService>(),
         },
       ],
     });
