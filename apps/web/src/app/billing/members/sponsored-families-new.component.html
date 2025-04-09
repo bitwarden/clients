@@ -1,4 +1,5 @@
 <app-header>
+  <!-- <button type="button" (click)="addSponsorship()" bitButton buttonType="primary" *ngIf="!(anyOrgsAvailable$ | async)"> -->
   <button type="button" (click)="addSponsorship()" bitButton buttonType="primary">
     <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
     {{ "addSponsorship" | i18n }}
@@ -25,28 +26,7 @@
       <div class="tw-grid tw-grid-cols-12 tw-gap-4">
         <div class="tw-col-span-7">
           <bit-form-field>
-            <bit-label>{{ "familiesSponsoringOrgSelect" | i18n }}</bit-label>
-            <bit-select
-              id="availableSponsorshipOrg"
-              name="Available Sponsorship Organization"
-              formControlName="selectedSponsorshipOrgId"
-            >
-              <bit-option
-                [disabled]="true"
-                [value]=""
-                [label]="'--' + ('select' | i18n) + '--'"
-              ></bit-option>
-              <bit-option
-                *ngFor="let o of availableSponsorshipOrgs$ | async"
-                [value]="o.id"
-                [label]="o.name"
-              ></bit-option>
-            </bit-select>
-          </bit-form-field>
-        </div>
-        <div class="tw-col-span-7">
-          <bit-form-field>
-            <bit-label>{{ "sponsoredFamiliesEmail" | i18n }}:</bit-label>
+            <bit-label>{{ "email" | i18n }}:</bit-label>
             <input
               bitInput
               inputmode="email"
@@ -57,8 +37,20 @@
           </bit-form-field>
         </div>
         <div class="tw-col-span-7">
+          <bit-form-field>
+            <bit-label>{{ "notes" | i18n }}:</bit-label>
+            <input
+              bitInput
+              inputmode="text"
+              formControlName="sponsorshipNote"
+              [attr.aria-invalid]="sponsorshipNoteControl.invalid"
+              appInputStripSpaces
+            />
+          </bit-form-field>
+        </div>
+        <div class="tw-col-span-7">
           <button bitButton bitFormButton buttonType="primary" type="submit">
-            {{ "redeem" | i18n }}
+            {{ "addSponsorship" | i18n }}
           </button>
         </div>
       </div>

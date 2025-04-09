@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { DialogRef } from "@angular/cdk/dialog";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import {
   FormBuilder,
@@ -28,11 +29,15 @@ import { DialogService, ToastService } from "@bitwarden/components";
 
 import { FreeFamiliesPolicyService } from "../services/free-families-policy.service";
 
-import { AddSponsorShipDialogComponent } from "./add-sponsorship-dialog.component";
+import {
+  AddSponsorshipDialogComponent,
+  AddSponsorshipDialogResult,
+} from "./add-sponsorship-dialog.component";
 
 interface RequestSponsorshipForm {
   selectedSponsorshipOrgId: FormControl<string>;
   sponsorshipEmail: FormControl<string>;
+  sponsorshipNote: FormControl<string>;
 }
 
 @Component({
@@ -73,6 +78,16 @@ export class SponsoredFamiliesNewComponent implements OnInit, OnDestroy {
         validators: [Validators.required],
       }),
       sponsorshipEmail: new FormControl("", {
+        validators: [Validators.email, Validators.required],
+        asyncValidators: [
+          this.notAllowedValueAsync(
+            () => firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.email))),
+            true,
+          ),
+        ],
+        updateOn: "change",
+      }),
+      sponsorshipNote: new FormControl("", {
         validators: [Validators.email, Validators.required],
         asyncValidators: [
           this.notAllowedValueAsync(
@@ -152,8 +167,16 @@ export class SponsoredFamiliesNewComponent implements OnInit, OnDestroy {
     }
   }
 
-  addSponsorship() {
-    AddSponsorShipDialogComponent.open(this.dialogService);
+  async addSponsorship() {
+    const addSponsorshipDialogRef: DialogRef<AddSponsorshipDialogResult> =
+      AddSponsorshipDialogComponent.open(this.dialogService);
+
+    const result: AddSponsorshipDialogResult = await firstValueFrom(addSponsorshipDialogRef.closed);
+
+    if (result.value) {
+      this.sponsorshipForm.patchValue(result.value);
+      await this.submit();
+    }
   }
 
   submit = async () => {
@@ -163,6 +186,7 @@ export class SponsoredFamiliesNewComponent implements OnInit, OnDestroy {
         sponsoredEmail: this.sponsorshipForm.value.sponsorshipEmail,
         planSponsorshipType: PlanSponsorshipType.FamiliesForEnterprise,
         friendlyName: this.sponsorshipForm.value.sponsorshipEmail,
+        notes: this.sponsorshipForm.value.sponsorshipNote,
       },
     );
 
@@ -186,6 +210,10 @@ export class SponsoredFamiliesNewComponent implements OnInit, OnDestroy {
   }
 
   get sponsorshipEmailControl() {
+    return this.sponsorshipForm.controls.sponsorshipEmail;
+  }
+
+  get sponsorshipNoteControl() {
     return this.sponsorshipForm.controls.sponsorshipEmail;
   }
 

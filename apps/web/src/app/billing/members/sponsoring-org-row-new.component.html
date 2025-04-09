@@ -1,10 +1,10 @@
 <td bitCell>
   {{ sponsoringOrg.familySponsorshipFriendlyName }}
 </td>
-<td bitCell>{{ sponsoringOrg.name }}</td>
 <td bitCell>
   <span [ngClass]="statusClass">{{ statusMessage }}</span>
 </td>
+<td bitCell>{{ sponsoringOrg.name }}</td>
 <td bitCell>
   <button
     *ngIf="!sponsoringOrg.familySponsorshipToDelete"
