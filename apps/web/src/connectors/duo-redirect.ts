@@ -1,11 +1,6 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { getQsParam } from "./common";
 import { TranslationService } from "./translation.service";
-
-// FIXME: Remove when updating file. Eslint update
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-require("./duo-redirect.scss");
+import "./duo-redirect.scss";
 
 const mobileDesktopCallback = "bitwarden://duo-callback";
 let localeService: TranslationService = null;
@@ -53,7 +48,7 @@ window.addEventListener("load", async () => {
  * validate the Duo AuthUrl and redirect to it.
  * @param redirectUrl the duo auth url
  */
-function redirectToDuoFrameless(redirectUrl: string) {
+export function redirectToDuoFrameless(redirectUrl: string) {
   // Regex to match a valid duo redirect URL
   /**
    * This regex checks for the following:

@@ -13,6 +13,7 @@ module.exports = {
     // Replace ESM SDK with Node compatible SDK
     "@bitwarden/common/platform/services/sdk/default-sdk-client-factory":
       "<rootDir>/../../libs/common/spec/jest-sdk-client-factory",
+    "\\.(css|scss)$": "<rootDir>/../../libs/common/spec/jest-styles",
     ...pathsToModuleNameMapper(
       {
         // lets us use @bitwarden/common/spec in web tests
