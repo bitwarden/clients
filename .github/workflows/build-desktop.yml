@@ -370,9 +370,9 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
         env:
-          PKG_CONFIG_ALLOW_CROSS: true
+          PKG_CONFIG_ALLOW_CROSS: false
           PKG_CONFIG_ALL_STATIC: true
-          TARGET: musl
+          TARGET: "aarch64-unknown-linux-musl:arm64"
         run: |
           curl https://sh.rustup.rs -sSf | sh -s -- -y
           . "$HOME/.cargo/env" 
