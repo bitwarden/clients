@@ -15,7 +15,6 @@ import {
 } from "../../../auth/models/request/update-devices-trust.request";
 import { AppIdService } from "../../../platform/abstractions/app-id.service";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
-import { CryptoFunctionService } from "../../../platform/abstractions/crypto-function.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { LogService } from "../../../platform/abstractions/log.service";
@@ -28,6 +27,7 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import { DEVICE_TRUST_DISK_LOCAL, StateProvider, UserKeyDefinition } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { UserKey, DeviceKey } from "../../../types/key";
+import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
 import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 import { DeviceTrustServiceAbstraction } from "../abstractions/device-trust.service.abstraction";
 
