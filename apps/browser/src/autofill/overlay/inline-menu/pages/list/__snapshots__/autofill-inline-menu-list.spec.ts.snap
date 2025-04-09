@@ -8,7 +8,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList creates the build sav
     class="inline-menu-list-button-container"
   >
     <button
-      aria-label=""
+      aria-label=", opensInANewWindow"
       class="save-login inline-menu-list-button inline-menu-list-action"
       tabindex="-1"
     />
