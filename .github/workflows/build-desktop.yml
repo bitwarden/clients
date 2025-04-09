@@ -226,7 +226,8 @@ jobs:
           TARGET: musl
         run: |
           rustup target add x86_64-unknown-linux-musl
-          node build.js cross-platform
+          npm run build -- --release --target x86_64-unknown-linux-musl
+          cargo build --bin desktop_proxy --release --target x86_64-unknown-linux-musl
 
       - name: Build application
         run: npm run dist:lin
@@ -370,14 +371,15 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
         env:
-          PKG_CONFIG_ALLOW_CROSS: false
+          PKG_CONFIG_ALLOW_CROSS: true
           PKG_CONFIG_ALL_STATIC: true
           TARGET: musl
         run: |
           curl https://sh.rustup.rs -sSf | sh -s -- -y
           . "$HOME/.cargo/env" 
           rustup target add aarch64-unknown-linux-musl
-          node build.js
+          npm run build -- --release --target aarch64-unknown-linux-musl
+          cargo build --bin desktop_proxy --release --target aarch64-unknown-linux-musl
 
       - name: Build application
         run: |
