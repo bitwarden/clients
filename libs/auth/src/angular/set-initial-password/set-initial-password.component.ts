@@ -19,9 +19,11 @@ import {
   InputPasswordFlow,
 } from "../input-password/input-password.component";
 import { PasswordInputResult } from "../input-password/password-input-result";
-import { SetPasswordJitService } from "../set-password-jit/set-password-jit.service.abstraction";
 
-import { SetInitialPasswordCredentials } from "./set-initial-password.service.abstraction";
+import {
+  SetInitialPasswordService,
+  SetInitialPasswordCredentials,
+} from "./set-initial-password.service.abstraction";
 
 @Component({
   standalone: true,
@@ -46,7 +48,7 @@ export class SetInitialPasswordComponent implements OnInit {
     private organizationApiService: OrganizationApiServiceAbstraction,
     private policyApiService: PolicyApiServiceAbstraction,
     private router: Router,
-    private setPasswordJitService: SetPasswordJitService,
+    private setInitialPasswordService: SetInitialPasswordService,
     private syncService: SyncService,
     private toastService: ToastService,
     private validationService: ValidationService,
@@ -101,7 +103,7 @@ export class SetInitialPasswordComponent implements OnInit {
     };
 
     try {
-      await this.setPasswordJitService.setPassword(credentials);
+      await this.setInitialPasswordService.setPassword(credentials);
     } catch (e) {
       this.validationService.showError(e);
       this.submitting = false;
