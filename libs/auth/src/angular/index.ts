@@ -47,6 +47,11 @@ export * from "./registration/registration-env-selector/registration-env-selecto
 export * from "./registration/registration-finish/registration-finish.service";
 export * from "./registration/registration-finish/default-registration-finish.service";
 
+// set initial password
+export * from "./set-initial-password/set-initial-password.component";
+export * from "./set-initial-password/set-initial-password.service.abstraction";
+export * from "./set-initial-password/default-set-initial-password.service.implementation";
+
 // set password (JIT user)
 export * from "./set-password-jit/set-password-jit.component";
 export * from "./set-password-jit/set-password-jit.service.abstraction";

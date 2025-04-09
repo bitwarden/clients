@@ -20,6 +20,7 @@ import {
   RegistrationStartSecondaryComponent,
   RegistrationStartSecondaryComponentData,
   SetPasswordJitComponent,
+  SetInitialPasswordComponent,
   RegistrationLinkExpiredComponent,
   LoginComponent,
   LoginSecondaryContentComponent,
@@ -318,6 +319,14 @@ const routes: Routes = [
             component: SendAccessExplainerComponent,
           },
         ],
+      },
+      {
+        path: "set-initial-password",
+        component: SetInitialPasswordComponent,
+        data: {
+          pageTitle: "Set Initial Password",
+          pageSubtitle: "subtitle",
+        } satisfies AnonLayoutWrapperData,
       },
       {
         path: "set-password-jit",
