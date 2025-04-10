@@ -18,7 +18,7 @@
         [subtitle]="'emptyVaultNudgeBody' | i18n"
         [buttonText]="'emptyVaultNudgeButton' | i18n"
         (onButtonClick)="navigateToImport()"
-        (onDismiss)="dismissEmptyVaultNudge()"
+        (onDismiss)="dismissEmptyVaultNudge(VaultNudgeType.EmptyVaultNudge)"
       >
       </bit-spotlight>
     </div>
@@ -50,6 +50,7 @@
     <bit-spotlight
       [title]="'hasItemsVaultNudgeTitle' | i18n"
       [subtitle]="'hasItemsVaultNudgeBody' | i18n"
+      (onDismiss)="dismissEmptyVaultNudge(VaultNudgeType.HasVaultItems)"
     >
     </bit-spotlight>
     <div

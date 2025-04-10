@@ -91,6 +91,7 @@ enum VaultState {
 export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(CdkVirtualScrollableElement) virtualScrollElement?: CdkVirtualScrollableElement;
 
+  VaultNudgeType = VaultNudgeType;
   cipherType = CipherType;
   hasVaultNudgeFlag: boolean = false;
   showEmptyVaultNudge$: Observable<boolean> = new Observable();
@@ -222,11 +223,8 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  async dismissEmptyVaultNudge() {
-    await this.vaultNudgesService.dismissNudge(
-      VaultNudgeType.EmptyVaultNudge,
-      this.activeUserId as UserId,
-    );
+  async dismissEmptyVaultNudge(type: VaultNudgeType) {
+    await this.vaultNudgesService.dismissNudge(type, this.activeUserId as UserId);
   }
 
   protected readonly FeatureFlag = FeatureFlag;
