@@ -1,10 +1,14 @@
 <app-layout>
   <app-side-nav variant="secondary" *ngIf="provider$ | async as provider">
-    <bit-nav-logo [openIcon]="logo" route="." [label]="'providerPortal' | i18n"></bit-nav-logo>
+    <bit-nav-logo
+      [openIcon]="logo$ | async"
+      route="."
+      [label]="'providerPortal' | i18n"
+    ></bit-nav-logo>
 
     <bit-nav-item
       icon="bwi-provider"
-      [text]="'clients' | i18n"
+      [text]="clientsTranslationKey$ | async | i18n"
       [route]="(isBillable | async) ? 'manage-client-organizations' : 'clients'"
     ></bit-nav-item>
     <bit-nav-group
