@@ -22,6 +22,6 @@ export class BitIconComponent {
   }
 
   @HostBinding() innerHtml: SafeHtml;
-
+  // test
   constructor(private domSanitizer: DomSanitizer) {}
 }
