@@ -232,3 +232,11 @@
     font-size: $font-size-small;
   }
 }
+
+.passkey-header {
+  -webkit-app-region: drag;
+}
+
+.passkey-header-close {
+  -webkit-app-region: no-drag;
+}

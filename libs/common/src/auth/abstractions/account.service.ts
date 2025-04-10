@@ -49,6 +49,7 @@ export abstract class AccountService {
   sortedUserIds$: Observable<UserId[]>;
   /** Next account that is not the current active account */
   nextUpAccount$: Observable<Account>;
+  showHeader$: Observable<boolean>;
   /**
    * Updates the `accounts$` observable with the new account data.
    *
@@ -102,6 +103,11 @@ export abstract class AccountService {
    * @param lastActivity
    */
   abstract setAccountActivity(userId: UserId, lastActivity: Date): Promise<void>;
+  /**
+   * Show the account switcher.
+   * @param value
+   */
+  abstract setShowHeader(visible: boolean): Promise<void>;
 }
 
 export abstract class InternalAccountService extends AccountService {
