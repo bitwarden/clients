@@ -64,6 +64,7 @@ import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-repromp
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { DialogRef, DialogService, Icons, ToastService } from "@bitwarden/components";
 import {
   AddEditFolderDialogComponent,
@@ -348,9 +349,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
       concatMap(async ([ciphers, filter, searchText]) => {
-        const failedCiphers = await firstValueFrom(
-          this.cipherService.failedToDecryptCiphers$(activeUserId),
-        );
+        const failedCiphers =
+          (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
         const filterFunction = createFilterFunction(filter);
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
@@ -472,6 +472,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     firstSetup$
       .pipe(
         switchMap(() => this.cipherService.failedToDecryptCiphers$(activeUserId)),
+        filterOutNullish(),
         map((ciphers) => ciphers.filter((c) => !c.isDeleted)),
         filter((ciphers) => ciphers.length > 0),
         take(1),
