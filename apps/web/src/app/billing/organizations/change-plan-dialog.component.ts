@@ -479,6 +479,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  protected get canRestartSubscription(): boolean {
+    return this.sub.subscription.status === "canceled";
+  }
+
   get upgradeRequiresPaymentMethod() {
     const isFreeTier = this.organization?.productTierType === ProductTierType.Free;
     const shouldHideFree = !this.showFree;
@@ -744,7 +748,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
     const doSubmit = async (): Promise<string> => {
       let orgId: string = null;
-      if (this.isSubscriptionCanceled) {
+      if (this.canRestartSubscription) {
         await this.restartSubscription();
         orgId = this.organizationId;
       } else {
