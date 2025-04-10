@@ -22,10 +22,12 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanSponsorshipType } from "@bitwarden/common/billing/enums";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { FreeFamiliesPolicyService } from "../services/free-families-policy.service";
 
@@ -52,7 +54,6 @@ export class OrganizationSponsoredFamiliesComponent implements OnInit, OnDestroy
   anyOrgsAvailable$: Observable<boolean>;
   anyActiveSponsorships$: Observable<boolean>;
 
-  // Conditional display properties
   formPromise: Promise<void>;
 
   sponsorshipForm: FormGroup<RequestSponsorshipForm>;
@@ -72,6 +73,8 @@ export class OrganizationSponsoredFamiliesComponent implements OnInit, OnDestroy
     private freeFamiliesPolicyService: FreeFamiliesPolicyService,
     private router: Router,
     private dialogService: DialogService,
+    private keyService: KeyService,
+    private encryptService: EncryptService,
   ) {
     this.sponsorshipForm = this.formBuilder.group<RequestSponsorshipForm>({
       selectedSponsorshipOrgId: new FormControl("", {
@@ -88,14 +91,7 @@ export class OrganizationSponsoredFamiliesComponent implements OnInit, OnDestroy
         updateOn: "change",
       }),
       sponsorshipNote: new FormControl("", {
-        validators: [Validators.email, Validators.required],
-        asyncValidators: [
-          this.notAllowedValueAsync(
-            () => firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.email))),
-            true,
-          ),
-        ],
-        updateOn: "change",
+        validators: [Validators.required],
       }),
     });
   }
@@ -180,13 +176,20 @@ export class OrganizationSponsoredFamiliesComponent implements OnInit, OnDestroy
   }
 
   submit = async () => {
+    const orgKey = await this.keyService.getOrgKey(
+      this.sponsorshipForm.value.selectedSponsorshipOrgId,
+    );
+    const encryptedNotes = await this.encryptService.encrypt(
+      this.sponsorshipForm.value.sponsorshipNote,
+      orgKey,
+    );
     this.formPromise = this.apiService.postCreateSponsorship(
       this.sponsorshipForm.value.selectedSponsorshipOrgId,
       {
         sponsoredEmail: this.sponsorshipForm.value.sponsorshipEmail,
         planSponsorshipType: PlanSponsorshipType.FamiliesForEnterprise,
         friendlyName: this.sponsorshipForm.value.sponsorshipEmail,
-        notes: this.sponsorshipForm.value.sponsorshipNote,
+        notes: encryptedNotes.encryptedString,
       },
     );
 

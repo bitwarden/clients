@@ -1,6 +1,11 @@
 <app-header>
-  <!-- <button type="button" (click)="addSponsorship()" bitButton buttonType="primary" *ngIf="!(anyOrgsAvailable$ | async)"> -->
-  <button type="button" (click)="addSponsorship()" bitButton buttonType="primary">
+  <button
+    type="button"
+    (click)="addSponsorship()"
+    bitButton
+    buttonType="primary"
+    *ngIf="!(anyOrgsAvailable$ | async)"
+  >
     <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
     {{ "addSponsorship" | i18n }}
   </button>
