@@ -47,6 +47,7 @@
     "pack:win:ci": "npm run clean:dist && electron-builder --win --x64 --arm64 --ia32 -p never",
     "dist:dir": "npm run build && npm run pack:dir",
     "dist:lin": "npm run build && npm run pack:lin",
+    "dist:lin:arm64": "npm run build && npm run pack:lin:arm64",
     "dist:mac": "npm run build && npm run pack:mac",
     "dist:mac:mas": "npm run build && npm run pack:mac:mas",
     "dist:mac:masdev": "npm run build && npm run pack:mac:masdev",

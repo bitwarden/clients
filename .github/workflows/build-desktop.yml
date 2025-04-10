@@ -386,7 +386,7 @@ jobs:
           DEBUG: electron-builder
         run: |
           npm run build
-          npm run pack:lin:arm64
+          npm run dist:lin:arm64
 
       - name: Upload tar.gz artifact
         uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
