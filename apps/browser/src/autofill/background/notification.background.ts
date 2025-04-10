@@ -37,7 +37,10 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { openAddEditVaultItemPopout } from "../../vault/popup/utils/vault-popout-window";
-import { NotificationCipherData } from "../content/components/cipher/types";
+import {
+  NotificationCipherData,
+  NotificationFoldersAndCollections,
+} from "../content/components/cipher/types";
 import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
 
@@ -77,6 +80,7 @@ export default class NotificationBackground {
     bgGetEnableAddedLoginPrompt: () => this.getEnableAddedLoginPrompt(),
     bgGetExcludedDomains: () => this.getExcludedDomains(),
     bgGetFolderData: () => this.getFolderData(),
+    bgGetFolderAndCollectionData: ({ message }) => this.getFolderAndCollectionsData(message),
     bgGetOrgData: () => this.getOrgData(),
     bgNeverSave: ({ sender }) => this.saveNever(sender.tab),
     bgOpenVault: ({ message, sender }) => this.openVault(message, sender.tab),
@@ -670,7 +674,7 @@ export default class NotificationBackground {
       userId,
     );
 
-    await this.openAddEditVaultItemPopout(senderTab, { cipherId: cipherView.id });
+    await this.openAddEditVaultItemPopout(senderTab, { cipherId: cipherView?.id });
   }
 
   private async openVault(
@@ -680,7 +684,7 @@ export default class NotificationBackground {
     if (!message.cipherId) {
       await this.openAddEditVaultItemPopout(senderTab);
     }
-    await this.openAddEditVaultItemPopout(senderTab, { cipherId: message.cipherId });
+    await this.openAddEditVaultItemPopout(senderTab, { cipherId: message?.cipherId });
   }
 
   private async folderExists(folderId: string, userId: UserId) {
@@ -736,6 +740,39 @@ export default class NotificationBackground {
       this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
     return await firstValueFrom(this.folderService.folderViews$(activeUserId));
+  }
+
+  private async getFolderAndCollectionsData(
+    message: NotificationBackgroundExtensionMessage,
+  ): Promise<NotificationFoldersAndCollections[]> {
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+
+    if (!message?.orgId || message.orgId === "0") {
+      const folders = (await firstValueFrom(this.folderService.folderViews$(activeUserId)))
+        .map((folder) => ({
+          id: folder.id,
+          name: folder.name,
+          type: "folder" as const,
+        }))
+        .sort((f) => (f.id === null || f.id === "0" ? -1 : 1));
+      console.log("folders", folders);
+      return folders;
+    }
+
+    const collections = (await this.collectionService.getAllDecrypted())
+      .filter((collection) => collection.organizationId === message?.orgId)
+      .map((collection) => ({
+        id: collection.id,
+        name: collection.name,
+        organizationId: collection.organizationId,
+        type: "collection" as const,
+      }));
+
+    console.log("collections", collections);
+
+    return collections;
   }
 
   private async getWebVaultUrl(): Promise<string> {

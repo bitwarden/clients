@@ -23,7 +23,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -115,7 +114,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private toastService: ToastService,
-    private configService: ConfigService,
     private accountService: AccountService,
     private cipherService: CipherService,
   ) {}

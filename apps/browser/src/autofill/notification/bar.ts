@@ -5,11 +5,15 @@ import { ConsoleLogService } from "@bitwarden/common/platform/services/console-l
 import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
-import { NotificationCipherData } from "../content/components/cipher/types";
+import {
+  NotificationCipherData,
+  NotificationFoldersAndCollections,
+} from "../content/components/cipher/types";
 import { OrgView } from "../content/components/common-types";
 import { NotificationConfirmationContainer } from "../content/components/notification/confirmation-container";
 import { NotificationContainer } from "../content/components/notification/container";
 import { selectedFolder as selectedFolderSignal } from "../content/components/signals/selected-folder";
+import { selectedVault as selectedVaultSignal } from "../content/components/signals/selected-vault";
 import { buildSvgDomElement } from "../utils";
 import { circleCheckIcon } from "../utils/svg-icons";
 
@@ -134,13 +138,13 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
     document.body.innerHTML = "";
     // Current implementations utilize a require for scss files which creates the need to remove the node.
     document.head.querySelectorAll('link[rel="stylesheet"]').forEach((node) => node.remove());
-
+    const orgId = selectedVaultSignal.get();
     await Promise.all([
       new Promise<OrgView[]>((resolve) =>
         sendPlatformMessage({ command: "bgGetOrgData" }, resolve),
       ),
-      new Promise<FolderView[]>((resolve) =>
-        sendPlatformMessage({ command: "bgGetFolderData" }, resolve),
+      new Promise<NotificationFoldersAndCollections[]>((resolve) =>
+        sendPlatformMessage({ command: "bgGetFolderAndCollectionData", orgId }, resolve),
       ),
       new Promise<NotificationCipherData[]>((resolve) =>
         sendPlatformMessage({ command: "bgGetDecryptedCiphers" }, resolve),
@@ -152,6 +156,8 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
         ciphers,
         organizations,
       };
+
+      console.log(notificationBarIframeInitData);
       // @TODO use context to avoid prop drilling
       return render(
         NotificationContainer({
