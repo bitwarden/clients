@@ -6,7 +6,6 @@ import {
   OrganizationUserApiService,
   OrganizationUserResetPasswordEnrollmentRequest,
 } from "@bitwarden/admin-console/common";
-import { OrganizationTrustComponent } from "@bitwarden/angular/key-management/components/organization-trust.component";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -19,6 +18,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { AccountRecoveryTrustComponent } from "@bitwarden/key-management-ui";
 
 import { OrganizationUserResetPasswordService } from "../members/services/organization-user-reset-password/organization-user-reset-password.service";
 
@@ -62,7 +62,7 @@ export class EnrollMasterPasswordReset {
             await userVerificationService.buildRequest<OrganizationUserResetPasswordEnrollmentRequest>(
               secret,
             );
-          const dialogRef = OrganizationTrustComponent.open(dialogService, {
+          const dialogRef = AccountRecoveryTrustComponent.open(dialogService, {
             name: data.organization.name,
             orgId: data.organization.id,
             publicKey,

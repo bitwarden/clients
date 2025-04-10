@@ -8,7 +8,6 @@ import {
   OrganizationUserAcceptRequest,
   OrganizationUserAcceptInitRequest,
 } from "@bitwarden/admin-console/common";
-import { OrganizationTrustComponent } from "@bitwarden/angular/key-management/components/organization-trust.component";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -31,6 +30,7 @@ import {
 import { OrgKey } from "@bitwarden/common/types/key";
 import { DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { AccountRecoveryTrustComponent } from "@bitwarden/key-management-ui";
 
 import { OrganizationInvite } from "./organization-invite";
 
@@ -188,7 +188,7 @@ export class AcceptOrganizationInviteService {
       }
 
       const publicKey = Utils.fromB64ToArray(response.publicKey);
-      const dialogRef = OrganizationTrustComponent.open(this.dialogService, {
+      const dialogRef = AccountRecoveryTrustComponent.open(this.dialogService, {
         name: invite.organizationName,
         orgId: invite.organizationId,
         publicKey,

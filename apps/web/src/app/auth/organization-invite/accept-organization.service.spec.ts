@@ -5,7 +5,6 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
-import { OrganizationTrustComponent } from "@bitwarden/angular/key-management/components/organization-trust.component";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -24,6 +23,7 @@ import { FakeGlobalState } from "@bitwarden/common/spec/fake-state";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { AccountRecoveryTrustComponent } from "@bitwarden/key-management-ui";
 
 import { I18nService } from "../../core/i18n.service";
 
@@ -201,9 +201,9 @@ describe("AcceptOrganizationInviteService", () => {
       } as EncString);
 
       jest.mock(
-        "../../../../../../libs/angular/src/key-management/components/organization-trust.component",
+        "../../../../../../libs/key-management-ui/src/trust/account-recovery-trust.component",
       );
-      OrganizationTrustComponent.open = jest.fn().mockReturnValue({
+      AccountRecoveryTrustComponent.open = jest.fn().mockReturnValue({
         closed: new BehaviorSubject(true),
       });
 
@@ -219,7 +219,7 @@ describe("AcceptOrganizationInviteService", () => {
       const result = await sut.validateAndAcceptInvite(invite);
 
       expect(result).toBe(true);
-      expect(OrganizationTrustComponent.open).toHaveBeenCalled();
+      expect(AccountRecoveryTrustComponent.open).toHaveBeenCalled();
       expect(encryptService.rsaEncrypt).toHaveBeenCalledWith(
         "userKey",
         Utils.fromB64ToArray("publicKey"),
