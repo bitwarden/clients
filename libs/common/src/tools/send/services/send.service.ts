@@ -81,7 +81,8 @@ export class SendService implements InternalSendServiceAbstraction {
     if (key == null) {
       key = await this.keyService.getUserKey();
     }
-    send.key = await this.encryptService.wrapSymmetricKey(new SymmetricCryptoKey(model.key), key);
+    // Key is not a SymmetricCryptoKey, but key material used to derive the cryptoKey
+    send.key = await this.encryptService.encrypt(model.key, key);
     send.name = await this.encryptService.encrypt(model.name, model.cryptoKey);
     send.notes = await this.encryptService.encrypt(model.notes, model.cryptoKey);
     if (send.type === SendType.Text) {
