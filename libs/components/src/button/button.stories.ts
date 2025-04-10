@@ -141,7 +141,4 @@ export const WithIcon: Story = {
       </span>
     `,
   }),
-  args: {
-    block: true,
-  },
 };
