@@ -2,10 +2,10 @@ import { mock } from "jest-mock-extended";
 import * as rxjs from "rxjs";
 
 import { ServerConfig } from "../../../platform/abstractions/config/server-config";
-import { CryptoFunctionService } from "../../../platform/abstractions/crypto-function.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { Decryptable } from "../../../platform/interfaces/decryptable.interface";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { CryptoFunctionService } from "../abstractions/crypto-function.service";
 import { buildSetConfigMessage } from "../types/worker-command.type";
 
 import { EncryptServiceImplementation } from "./encrypt.service.implementation";

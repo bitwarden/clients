@@ -10616,5 +10616,14 @@
   },
   "cannotCreateCollection": {
     "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
+  },
+  "businessUnit": {
+    "message": "Business Unit"
+  },
+  "businessUnits": {
+    "message": "Business Units"
+  },
+  "newBusinessUnit": {
+    "message": "New business unit"
   }
 }

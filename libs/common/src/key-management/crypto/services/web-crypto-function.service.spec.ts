@@ -1,9 +1,9 @@
 import { mock } from "jest-mock-extended";
 
-import { Utils } from "../../platform/misc/utils";
-import { PlatformUtilsService } from "../abstractions/platform-utils.service";
-import { EcbDecryptParameters } from "../models/domain/decrypt-parameters";
-import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
+import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
+import { Utils } from "../../../platform/misc/utils";
+import { EcbDecryptParameters } from "../../../platform/models/domain/decrypt-parameters";
+import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 
 import { WebCryptoFunctionService } from "./web-crypto-function.service";
 
