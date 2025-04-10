@@ -39,6 +39,6 @@ NSData *decodeBase64URL(NSString *base64URLString) {
   // Decode the string
   NSData *nsdataFromBase64String = [[NSData alloc]
     initWithBase64EncodedString:base64String options:0];
-    
+  
   return nsdataFromBase64String;
 }
