@@ -26,4 +26,9 @@ export abstract class LoginEmailServiceAbstraction {
    * Clears the in-progress login email, to be used after a successful login.
    */
   abstract clearLoginEmail: () => Promise<void>;
+
+  /**
+   * Clears the remembered email.
+   */
+  abstract clearRememberedEmail: () => Promise<void>;
 }

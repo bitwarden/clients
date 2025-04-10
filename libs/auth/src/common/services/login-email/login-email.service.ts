@@ -91,4 +91,8 @@ export class LoginEmailService implements LoginEmailServiceAbstraction {
       await this.storedEmailState.update((_) => null);
     }
   }
+
+  async clearRememberedEmail(): Promise<void> {
+    await this.storedEmailState.update((_) => null);
+  }
 }

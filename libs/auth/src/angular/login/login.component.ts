@@ -400,7 +400,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     await this.router.navigate(["/login-with-device"]);
   }
 
-  protected async validateEmail(): Promise<boolean> {
+  protected async emailIsValid(): Promise<boolean> {
+    this.formGroup.controls.email.markAsTouched();
+    this.formGroup.controls.email.updateValueAndValidity({ onlySelf: true, emitEvent: true });
     return this.formGroup.controls.email.valid;
   }
 
@@ -472,10 +474,9 @@ export class LoginComponent implements OnInit, OnDestroy {
    * Continue to the master password entry state (only if email is validated)
    */
   protected async continue(): Promise<void> {
-    const isEmailValid = await this.validateEmail();
+    const isEmailValid = await this.emailIsValid();
 
     if (isEmailValid) {
-      await this.persistEmail();
       await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY);
     }
   }
@@ -486,10 +487,6 @@ export class LoginComponent implements OnInit, OnDestroy {
    * @param event - The event object.
    */
   async handleLoginWithPasskeyClick() {
-    const email = this.formGroup.value.email;
-    if (email) {
-      await this.persistEmail();
-    }
     await this.router.navigate(["/login-with-passkey"]);
   }
 
@@ -499,7 +496,7 @@ export class LoginComponent implements OnInit, OnDestroy {
    */
   async handleSsoClick() {
     // Make sure the email is valid
-    const isEmailValid = await this.validateEmail();
+    const isEmailValid = await this.emailIsValid();
     if (!isEmailValid) {
       return;
     }
@@ -510,9 +507,6 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.logService.error("Email is required for SSO");
       return;
     }
-
-    // Save the email configuration for the login component
-    await this.persistEmail();
 
     // Send the user to SSO, either through routing or through redirecting to the web app
     await this.loginComponentService.redirectToSsoLogin(email);
@@ -603,16 +597,17 @@ export class LoginComponent implements OnInit, OnDestroy {
   /**
    * Persist the entered email address and the user's choice to remember it to state.
    */
-  private async persistEmail(): Promise<void> {
-    const email = this.formGroup.value.email;
-    const rememberEmail = this.formGroup.value.rememberEmail ?? false;
-    if (!email) {
-      this.logService.error("Email is required to persist to state.");
-      return;
-    }
+  private async persistEmailIfValid(): Promise<void> {
+    if (await this.emailIsValid()) {
+      const email = this.formGroup.value.email;
+      const rememberEmail = this.formGroup.value.rememberEmail ?? false;
 
-    await this.loginEmailService.setLoginEmail(email);
-    await this.loginEmailService.setRememberedEmailChoice(email, rememberEmail);
+      await this.loginEmailService.setLoginEmail(email);
+      await this.loginEmailService.setRememberedEmailChoice(email, rememberEmail);
+    } else {
+      await this.loginEmailService.clearLoginEmail();
+      await this.loginEmailService.clearRememberedEmail();
+    }
   }
 
   /**
@@ -622,9 +617,10 @@ export class LoginComponent implements OnInit, OnDestroy {
    * displaying them causes the screen to "jump".
    * @param event The event object from the input field.
    */
-  onEmailInput(event: Event) {
+  async onEmailInput(event: Event) {
     const emailInput = event.target as HTMLInputElement;
     this.formGroup.controls.email.setValue(emailInput.value);
+    await this.persistEmailIfValid();
   }
 
   /**
@@ -634,8 +630,9 @@ export class LoginComponent implements OnInit, OnDestroy {
    * displaying them causes the screen to "jump".
    * @param event The event object from the input field.
    */
-  onRememberEmailInput(event: Event) {
+  async onRememberEmailInput(event: Event) {
     const rememberEmailInput = event.target as HTMLInputElement;
     this.formGroup.controls.rememberEmail.setValue(rememberEmailInput.checked);
+    await this.persistEmailIfValid();
   }
 }
