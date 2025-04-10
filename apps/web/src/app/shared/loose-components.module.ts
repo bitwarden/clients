@@ -47,7 +47,7 @@ import { UpdatePasswordComponent } from "../auth/update-password.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { VerifyEmailTokenComponent } from "../auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "../auth/verify-recover-delete.component";
-import { SponsoringOrgRowNewComponent } from "../billing/members/sponsoring-org-row-new.component";
+import { OrganizationSponsoredOrgRowComponent } from "../billing/members/organization-sponsored-org-row.component";
 import { SponsoredFamiliesComponent } from "../billing/settings/sponsored-families.component";
 import { SponsoringOrgRowComponent } from "../billing/settings/sponsoring-org-row.component";
 import { DynamicAvatarComponent } from "../components/dynamic-avatar.component";
@@ -76,7 +76,7 @@ import { AddEditComponent as OrgAddEditComponent } from "../vault/org-vault/add-
 import { AttachmentsComponent as OrgAttachmentsComponent } from "../vault/org-vault/attachments.component";
 import { PurgeVaultComponent } from "../vault/settings/purge-vault.component";
 
-import { SponsoredFamiliesNewComponent } from "./../billing/members/sponsored-families-new.component";
+import { OrganizationSponsoredFamiliesComponent } from "./../billing/members/organization-sponsored-families.component";
 import { EnvironmentSelectorModule } from "./../components/environment-selector/environment-selector.module";
 import { AccountFingerprintComponent } from "./components/account-fingerprint/account-fingerprint.component";
 import { SharedModule } from "./shared.module";
@@ -147,9 +147,9 @@ import { SharedModule } from "./shared.module";
     SelectableAvatarComponent,
     SetPasswordComponent,
     SponsoredFamiliesComponent,
-    SponsoredFamiliesNewComponent,
+    OrganizationSponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
-    SponsoringOrgRowNewComponent,
+    OrganizationSponsoredOrgRowComponent,
     SsoComponentV1,
     TwoFactorSetupAuthenticatorComponent,
     TwoFactorSetupDuoComponent,
@@ -209,9 +209,9 @@ import { SharedModule } from "./shared.module";
     SelectableAvatarComponent,
     SetPasswordComponent,
     SponsoredFamiliesComponent,
-    SponsoredFamiliesNewComponent,
+    OrganizationSponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
-    SponsoringOrgRowNewComponent,
+    OrganizationSponsoredOrgRowComponent,
     SsoComponentV1,
     TwoFactorSetupAuthenticatorComponent,
     TwoFactorSetupDuoComponent,

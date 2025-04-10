@@ -15,10 +15,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { DialogService, ToastService } from "@bitwarden/components";
 
 @Component({
-  selector: "[sponsoring-org-row-new]",
-  templateUrl: "sponsoring-org-row-new.component.html",
+  selector: "[organization-sponsored-org-row]",
+  templateUrl: "organization-sponsored-org-row.component.html",
 })
-export class SponsoringOrgRowNewComponent implements OnInit {
+export class OrganizationSponsoredOrgRowComponent implements OnInit {
   @Input() sponsoringOrg: Organization = null;
   @Input() isSelfHosted = false;
 

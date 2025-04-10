@@ -69,7 +69,7 @@
           <ng-container *ngFor="let o of activeSponsorshipOrgs$ | async">
             <tr
               bitRow
-              sponsoring-org-row-new
+              organization-sponsored-org-row
               [sponsoringOrg]="o"
               [isSelfHosted]="isSelfHosted"
               (sponsorshipRemoved)="forceReload()"

@@ -41,10 +41,10 @@ interface RequestSponsorshipForm {
 }
 
 @Component({
-  selector: "app-sponsored-families-new",
-  templateUrl: "sponsored-families-new.component.html",
+  selector: "app-organization-sponsored-families",
+  templateUrl: "organization-sponsored-families.component.html",
 })
-export class SponsoredFamiliesNewComponent implements OnInit, OnDestroy {
+export class OrganizationSponsoredFamiliesComponent implements OnInit, OnDestroy {
   loading = false;
 
   availableSponsorshipOrgs$: Observable<Organization[]>;

@@ -22,7 +22,7 @@
 
     <ng-container *ngIf="canShowMembersTab(organization)">
       <!-- <ng-container *ngIf="showSponsoredFamiliesDropdown$ | async; else regularMembersItem"> -->
-      <ng-container *ngIf="true; else regularMembersItem">
+      <ng-container *ngIf="showSponsoredFamiliesDropdown$ | async; else regularMembersItem">
         <bit-nav-group icon="bwi-user" [text]="'members' | i18n" route="members">
           <bit-nav-item
             [text]="'members' | i18n"
