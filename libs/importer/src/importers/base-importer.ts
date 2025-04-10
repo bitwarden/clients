@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as papa from "papaparse";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
@@ -18,6 +20,7 @@ import { ImportResult } from "../models/import-result";
 export abstract class BaseImporter {
   organizationId: string = null;
 
+  // FIXME: This should be replaced by injecting the log service.
   protected logService: LogService = new ConsoleLogService(false);
 
   protected newLineRegex = /(?:\r\n|\r|\n)/;

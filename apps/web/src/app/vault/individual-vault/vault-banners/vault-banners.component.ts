@@ -1,12 +1,16 @@
 import { Component, Input, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { Observable } from "rxjs";
+import { firstValueFrom, map, Observable, switchMap, filter } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessageListener } from "@bitwarden/common/platform/messaging";
+import { UserId } from "@bitwarden/common/types/guid";
 import { BannerModule } from "@bitwarden/components";
 
 import { VerifyEmailComponent } from "../../../auth/settings/verify-email.component";
-import { FreeTrial } from "../../../core/types/free-trial";
+import { FreeTrial } from "../../../billing/types/free-trial";
 import { SharedModule } from "../../../shared";
 
 import { VaultBannersService, VisibleVaultBanner } from "./services/vault-banners.service";
@@ -24,12 +28,31 @@ export class VaultBannersComponent implements OnInit {
   VisibleVaultBanner = VisibleVaultBanner;
   @Input() organizationsPaymentStatus: FreeTrial[] = [];
 
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+
   constructor(
     private vaultBannerService: VaultBannersService,
     private router: Router,
     private i18nService: I18nService,
+    private accountService: AccountService,
+    private messageListener: MessageListener,
   ) {
-    this.premiumBannerVisible$ = this.vaultBannerService.shouldShowPremiumBanner$;
+    this.premiumBannerVisible$ = this.activeUserId$.pipe(
+      filter((userId): userId is UserId => userId != null),
+      switchMap((userId) => this.vaultBannerService.shouldShowPremiumBanner$(userId)),
+    );
+
+    // Listen for auth request messages and show banner immediately
+    this.messageListener.allMessages$
+      .pipe(
+        filter((message: { command: string }) => message.command === "openLoginApproval"),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => {
+        if (!this.visibleBanners.includes(VisibleVaultBanner.PendingAuthRequest)) {
+          this.visibleBanners = [...this.visibleBanners, VisibleVaultBanner.PendingAuthRequest];
+        }
+      });
   }
 
   async ngOnInit(): Promise<void> {
@@ -37,8 +60,11 @@ export class VaultBannersComponent implements OnInit {
   }
 
   async dismissBanner(banner: VisibleVaultBanner): Promise<void> {
-    await this.vaultBannerService.dismissBanner(banner);
-
+    const activeUserId = await firstValueFrom(this.activeUserId$);
+    if (!activeUserId) {
+      return;
+    }
+    await this.vaultBannerService.dismissBanner(activeUserId, banner);
     await this.determineVisibleBanners();
   }
 
@@ -54,29 +80,39 @@ export class VaultBannersComponent implements OnInit {
   }
 
   /** Determine which banners should be present */
-  private async determineVisibleBanners(): Promise<void> {
-    const showBrowserOutdated = await this.vaultBannerService.shouldShowUpdateBrowserBanner();
-    const showVerifyEmail = await this.vaultBannerService.shouldShowVerifyEmailBanner();
-    const showLowKdf = await this.vaultBannerService.shouldShowLowKDFBanner();
+  async determineVisibleBanners(): Promise<void> {
+    const activeUserId = await firstValueFrom(this.activeUserId$);
+
+    if (!activeUserId) {
+      return;
+    }
+
+    const showBrowserOutdated =
+      await this.vaultBannerService.shouldShowUpdateBrowserBanner(activeUserId);
+    const showVerifyEmail = await this.vaultBannerService.shouldShowVerifyEmailBanner(activeUserId);
+    const showLowKdf = await this.vaultBannerService.shouldShowLowKDFBanner(activeUserId);
+    const showPendingAuthRequest =
+      await this.vaultBannerService.shouldShowPendingAuthRequestBanner(activeUserId);
 
     this.visibleBanners = [
       showBrowserOutdated ? VisibleVaultBanner.OutdatedBrowser : null,
       showVerifyEmail ? VisibleVaultBanner.VerifyEmail : null,
       showLowKdf ? VisibleVaultBanner.KDFSettings : null,
-    ].filter(Boolean); // remove all falsy values, i.e. null
+      showPendingAuthRequest ? VisibleVaultBanner.PendingAuthRequest : null,
+    ].filter((banner): banner is VisibleVaultBanner => banner !== null); // ensures the filtered array contains only VisibleVaultBanner values
   }
 
   freeTrialMessage(organization: FreeTrial) {
     if (organization.remainingDays >= 2) {
       return this.i18nService.t(
-        "freeTrialEndPromptAboveTwoDays",
+        "freeTrialEndPromptMultipleDays",
         organization.organizationName,
         organization.remainingDays.toString(),
       );
     } else if (organization.remainingDays === 1) {
-      return this.i18nService.t("freeTrialEndPromptForOneDay", organization.organizationName);
+      return this.i18nService.t("freeTrialEndPromptTomorrow", organization.organizationName);
     } else {
-      return this.i18nService.t("freeTrialEndPromptForLessThanADay", organization.organizationName);
+      return this.i18nService.t("freeTrialEndPromptToday", organization.organizationName);
     }
   }
 

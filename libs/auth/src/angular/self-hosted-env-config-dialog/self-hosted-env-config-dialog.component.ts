@@ -1,4 +1,5 @@
-import { DialogRef } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import {
@@ -18,6 +19,7 @@ import {
   Region,
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import {
+  DialogRef,
   AsyncActionsModule,
   ButtonModule,
   DialogModule,

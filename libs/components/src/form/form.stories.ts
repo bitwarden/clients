@@ -51,6 +51,10 @@ export default {
               inputEmail: "Input is not an email-address.",
               inputMinValue: (min) => `Input value must be at least ${min}.`,
               inputMaxValue: (max) => `Input value must not exceed ${max}.`,
+              multiSelectPlaceholder: "-- Type to Filter --",
+              multiSelectLoading: "Retrieving options...",
+              multiSelectNotFound: "No items found",
+              multiSelectClearAll: "Clear all",
             });
           },
         },
@@ -60,7 +64,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=1881%3A17689",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=13213-55392&t=b5tDKylm5sWm2yKo-4",
     },
   },
 } as Meta;
@@ -70,6 +74,7 @@ const exampleFormObj = fb.group({
   name: ["", [Validators.required]],
   email: ["", [Validators.required, Validators.email, forbiddenNameValidator(/bit/i)]],
   country: [undefined as string | undefined, [Validators.required]],
+  groups: [],
   terms: [false, [Validators.requiredTrue]],
   updates: ["yes"],
   age: [null, [Validators.min(0), Validators.max(150)]],
@@ -115,7 +120,7 @@ export const FullExample: Story = {
           <bit-label>Groups</bit-label>
           <bit-multi-select
             class="tw-w-full"
-            formControlName="select"
+            formControlName="groups"
             [baseItems]="baseItems"
             [removeSelectedItems]="removeSelectedItems"
             [loading]="false"

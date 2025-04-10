@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { Decryptable } from "../../../platform/interfaces/decryptable.interface";
@@ -8,9 +10,13 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
+import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 import { CipherData } from "../data/cipher.data";
 import { LocalData } from "../data/local.data";
+import { AttachmentView } from "../view/attachment.view";
 import { CipherView } from "../view/cipher.view";
+import { FieldView } from "../view/field.view";
+import { PasswordHistoryView } from "../view/password-history.view";
 
 import { Attachment } from "./attachment";
 import { Card } from "./card";
@@ -34,6 +40,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   organizationUseTotp: boolean;
   edit: boolean;
   viewPassword: boolean;
+  permissions: CipherPermissionsApi;
   revisionDate: Date;
   localData: LocalData;
   login: Login;
@@ -79,6 +86,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     } else {
       this.viewPassword = true; // Default for already synced Ciphers without viewPassword
     }
+    this.permissions = obj.permissions;
     this.revisionDate = obj.revisionDate != null ? new Date(obj.revisionDate) : null;
     this.collectionIds = obj.collectionIds;
     this.localData = localData;
@@ -134,79 +142,89 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
 
     if (this.key != null) {
       const encryptService = Utils.getContainerService().getEncryptService();
-      encKey = new SymmetricCryptoKey(await encryptService.decryptToBytes(this.key, encKey));
+
+      const keyBytes = await encryptService.decryptToBytes(
+        this.key,
+        encKey,
+        `Cipher Id: ${this.id}; Content: CipherKey; IsEncryptedByOrgKey: ${this.organizationId != null}`,
+      );
+      if (keyBytes == null) {
+        model.name = "[error: cannot decrypt]";
+        model.decryptionFailure = true;
+        return model;
+      }
+      encKey = new SymmetricCryptoKey(keyBytes);
       bypassValidation = false;
     }
 
-    await this.decryptObj(
+    await this.decryptObj<Cipher, CipherView>(
+      this,
       model,
-      {
-        name: null,
-        notes: null,
-      },
+      ["name", "notes"],
       this.organizationId,
       encKey,
     );
 
     switch (this.type) {
       case CipherType.Login:
-        model.login = await this.login.decrypt(this.organizationId, bypassValidation, encKey);
+        model.login = await this.login.decrypt(
+          this.organizationId,
+          bypassValidation,
+          `Cipher Id: ${this.id}`,
+          encKey,
+        );
         break;
       case CipherType.SecureNote:
-        model.secureNote = await this.secureNote.decrypt(this.organizationId, encKey);
+        model.secureNote = await this.secureNote.decrypt(
+          this.organizationId,
+          `Cipher Id: ${this.id}`,
+          encKey,
+        );
         break;
       case CipherType.Card:
-        model.card = await this.card.decrypt(this.organizationId, encKey);
+        model.card = await this.card.decrypt(this.organizationId, `Cipher Id: ${this.id}`, encKey);
         break;
       case CipherType.Identity:
-        model.identity = await this.identity.decrypt(this.organizationId, encKey);
+        model.identity = await this.identity.decrypt(
+          this.organizationId,
+          `Cipher Id: ${this.id}`,
+          encKey,
+        );
         break;
       case CipherType.SshKey:
-        model.sshKey = await this.sshKey.decrypt(this.organizationId, encKey);
+        model.sshKey = await this.sshKey.decrypt(
+          this.organizationId,
+          `Cipher Id: ${this.id}`,
+          encKey,
+        );
         break;
       default:
         break;
     }
 
     if (this.attachments != null && this.attachments.length > 0) {
-      const attachments: any[] = [];
-      await this.attachments.reduce((promise, attachment) => {
-        return promise
-          .then(() => {
-            return attachment.decrypt(this.organizationId, encKey);
-          })
-          .then((decAttachment) => {
-            attachments.push(decAttachment);
-          });
-      }, Promise.resolve());
+      const attachments: AttachmentView[] = [];
+      for (const attachment of this.attachments) {
+        attachments.push(
+          await attachment.decrypt(this.organizationId, `Cipher Id: ${this.id}`, encKey),
+        );
+      }
       model.attachments = attachments;
     }
 
     if (this.fields != null && this.fields.length > 0) {
-      const fields: any[] = [];
-      await this.fields.reduce((promise, field) => {
-        return promise
-          .then(() => {
-            return field.decrypt(this.organizationId, encKey);
-          })
-          .then((decField) => {
-            fields.push(decField);
-          });
-      }, Promise.resolve());
+      const fields: FieldView[] = [];
+      for (const field of this.fields) {
+        fields.push(await field.decrypt(this.organizationId, encKey));
+      }
       model.fields = fields;
     }
 
     if (this.passwordHistory != null && this.passwordHistory.length > 0) {
-      const passwordHistory: any[] = [];
-      await this.passwordHistory.reduce((promise, ph) => {
-        return promise
-          .then(() => {
-            return ph.decrypt(this.organizationId, encKey);
-          })
-          .then((decPh) => {
-            passwordHistory.push(decPh);
-          });
-      }, Promise.resolve());
+      const passwordHistory: PasswordHistoryView[] = [];
+      for (const ph of this.passwordHistory) {
+        passwordHistory.push(await ph.decrypt(this.organizationId, encKey));
+      }
       model.passwordHistory = passwordHistory;
     }
 
@@ -229,6 +247,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     c.deletedDate = this.deletedDate != null ? this.deletedDate.toISOString() : null;
     c.reprompt = this.reprompt;
     c.key = this.key?.encryptedString;
+    c.permissions = this.permissions;
 
     this.buildDataModel(this, c, {
       name: null,

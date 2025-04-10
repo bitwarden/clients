@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { BillingSyncConfigApi } from "../../../billing/models/api/billing-sync-config.api";
 import { BaseResponse } from "../../../models/response/base.response";
 import { OrganizationConnectionType } from "../../enums";

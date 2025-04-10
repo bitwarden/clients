@@ -1,5 +1,5 @@
-import { BillingHistoryResponse } from "@bitwarden/common/billing/models/response/billing-history.response";
-
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { OrganizationApiKeyRequest } from "../../../admin-console/models/request/organization-api-key.request";
 import { OrganizationSsoRequest } from "../../../auth/models/request/organization-sso.request";
 import { SecretVerificationRequest } from "../../../auth/models/request/secret-verification.request";
@@ -11,6 +11,7 @@ import { OrganizationSmSubscriptionUpdateRequest } from "../../../billing/models
 import { OrganizationSubscriptionUpdateRequest } from "../../../billing/models/request/organization-subscription-update.request";
 import { PaymentRequest } from "../../../billing/models/request/payment.request";
 import { SecretsManagerSubscribeRequest } from "../../../billing/models/request/sm-subscribe.request";
+import { BillingHistoryResponse } from "../../../billing/models/response/billing-history.response";
 import { BillingResponse } from "../../../billing/models/response/billing.response";
 import { OrganizationSubscriptionResponse } from "../../../billing/models/response/organization-subscription.response";
 import { PaymentResponse } from "../../../billing/models/response/payment.response";
@@ -51,11 +52,11 @@ export class OrganizationApiServiceAbstraction {
   updatePasswordManagerSeats: (
     id: string,
     request: OrganizationSubscriptionUpdateRequest,
-  ) => Promise<void>;
+  ) => Promise<ProfileOrganizationResponse>;
   updateSecretsManagerSubscription: (
     id: string,
     request: OrganizationSmSubscriptionUpdateRequest,
-  ) => Promise<void>;
+  ) => Promise<ProfileOrganizationResponse>;
   updateSeats: (id: string, request: SeatRequest) => Promise<PaymentResponse>;
   updateStorage: (id: string, request: StorageRequest) => Promise<PaymentResponse>;
   verifyBank: (id: string, request: VerifyBankRequest) => Promise<void>;

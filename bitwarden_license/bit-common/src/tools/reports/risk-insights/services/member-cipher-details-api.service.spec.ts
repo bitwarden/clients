@@ -69,6 +69,12 @@ export const mockMemberCipherDetails: any = [
       "cbea34a8-bde4-46ad-9d19-b05001228xy4",
     ],
   },
+  {
+    userName: "Mister Secure",
+    email: "mister.secure@secureco.com",
+    usesKeyConnector: true,
+    cipherIds: ["cbea34a8-bde4-46ad-9d19-b05001227tt1"],
+  },
 ];
 
 describe("Member Cipher Details API Service", () => {
@@ -91,7 +97,7 @@ describe("Member Cipher Details API Service", () => {
     const orgId = "1234";
     const result = await memberCipherDetailsApiService.getMemberCipherDetails(orgId);
     expect(result).not.toBeNull();
-    expect(result).toHaveLength(6);
+    expect(result).toHaveLength(7);
     expect(apiService.send).toHaveBeenCalledWith(
       "GET",
       "/reports/member-cipher-details/" + orgId,

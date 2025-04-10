@@ -1,5 +1,6 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { LiveAnnouncer } from "@angular/cdk/a11y";
-import { DialogRef } from "@angular/cdk/dialog";
 import { CdkDragDrop, DragDropModule, moveItemInArray } from "@angular/cdk/drag-drop";
 import { CommonModule } from "@angular/common";
 import {
@@ -9,6 +10,7 @@ import {
   ElementRef,
   EventEmitter,
   inject,
+  Input,
   OnInit,
   Output,
   QueryList,
@@ -28,6 +30,7 @@ import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import {
+  DialogRef,
   CardComponent,
   CheckboxModule,
   DialogService,
@@ -92,6 +95,8 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
 
   @ViewChildren("customFieldRow") customFieldRows: QueryList<ElementRef<HTMLDivElement>>;
 
+  @Input() disableSectionMargin: boolean;
+
   customFieldsForm = this.formBuilder.group({
     fields: new FormArray([]),
   });
@@ -125,8 +130,9 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
     this.destroyed$ = inject(DestroyRef);
     this.cipherFormContainer.registerChildForm("customFields", this.customFieldsForm);
 
-    this.customFieldsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((values) => {
-      this.updateCipher(values.fields);
+    this.customFieldsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      // getRawValue ensures disabled fields are included
+      this.updateCipher(this.fields.getRawValue());
     });
   }
 
@@ -146,23 +152,32 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
       value: id,
     }));
 
-    // Populate the form with the existing fields
-    this.cipherFormContainer.originalCipherView?.fields?.forEach((field) => {
+    const prefillCipher = this.cipherFormContainer.getInitialCipherView();
+
+    // When available, populate the form with the existing fields
+    prefillCipher?.fields?.forEach((field) => {
       let value: string | boolean = field.value;
 
       if (field.type === FieldType.Boolean) {
         value = field.value === "true" ? true : false;
       }
 
-      this.fields.push(
-        this.formBuilder.group<CustomField>({
-          type: field.type,
-          name: field.name,
-          value: value,
-          linkedId: field.linkedId,
-          newField: false,
-        }),
-      );
+      const customField = this.formBuilder.group<CustomField>({
+        type: field.type,
+        name: field.name,
+        value: value,
+        linkedId: field.linkedId,
+        newField: false,
+      });
+
+      if (
+        field.type === FieldType.Hidden &&
+        !this.cipherFormContainer.originalCipherView?.viewPassword
+      ) {
+        customField.controls.value.disable();
+      }
+
+      this.fields.push(customField);
     });
 
     // Disable the form if in partial-edit mode

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DatePipe } from "@angular/common";
 import { Component, Input } from "@angular/core";
 
@@ -37,8 +39,8 @@ export class ProviderSubscriptionStatusComponent {
     switch (this.subscription.providerType) {
       case ProviderType.Msp:
         return "managedServiceProvider";
-      case ProviderType.MultiOrganizationEnterprise:
-        return "multiOrganizationEnterprise";
+      case ProviderType.BusinessUnit:
+        return "businessUnit";
     }
   }
 
@@ -63,6 +65,18 @@ export class ProviderSubscriptionStatusComponent {
           status: {
             label: defaultStatusLabel,
             value: this.i18nService.t("active"),
+          },
+          date: {
+            label: nextChargeDateLabel,
+            value: this.subscription.currentPeriodEndDate,
+          },
+        };
+      }
+      case "trialing": {
+        return {
+          status: {
+            label: defaultStatusLabel,
+            value: this.i18nService.t("trial"),
           },
           date: {
             label: nextChargeDateLabel,

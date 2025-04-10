@@ -1,5 +1,5 @@
 import { mock, MockProxy, mockReset } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -14,6 +14,7 @@ import {
 } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   EnvironmentService,
   Region,
@@ -93,6 +94,7 @@ describe("OverlayBackground", () => {
   let logService: MockProxy<LogService>;
   let cipherService: MockProxy<CipherService>;
   let autofillService: MockProxy<AutofillService>;
+  let configService: MockProxy<ConfigService>;
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
   let authService: MockProxy<AuthService>;
   let environmentMock$: BehaviorSubject<CloudEnvironment>;
@@ -149,11 +151,13 @@ describe("OverlayBackground", () => {
   }
 
   beforeEach(() => {
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockImplementation(() => of(true));
     accountService = mockAccountServiceWith(mockUserId);
     fakeStateProvider = new FakeStateProvider(accountService);
     showFaviconsMock$ = new BehaviorSubject(true);
     neverDomainsMock$ = new BehaviorSubject({});
-    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);
+    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider, configService);
     domainSettingsService.showFavicons$ = showFaviconsMock$;
     domainSettingsService.neverDomains$ = neverDomainsMock$;
     logService = mock<LogService>();
@@ -186,7 +190,9 @@ describe("OverlayBackground", () => {
     inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
     themeStateService = mock<ThemeStateService>();
     themeStateService.selectedTheme$ = selectedThemeMock$;
-    totpService = mock<TotpService>();
+    totpService = mock<TotpService>({
+      getCode$: jest.fn().mockReturnValue(of(undefined)),
+    });
     overlayBackground = new OverlayBackground(
       logService,
       cipherService,
@@ -202,6 +208,7 @@ describe("OverlayBackground", () => {
       inlineMenuFieldQualificationService,
       themeStateService,
       totpService,
+      accountService,
       generatedPasswordCallbackMock,
       addPasswordCallbackMock,
     );
@@ -845,7 +852,7 @@ describe("OverlayBackground", () => {
       await flushPromises();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, [
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId, [
         CipherType.Card,
         CipherType.Identity,
       ]);
@@ -868,7 +875,7 @@ describe("OverlayBackground", () => {
       await flushPromises();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url);
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId);
       expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
         new Map([
@@ -887,7 +894,7 @@ describe("OverlayBackground", () => {
       await flushPromises();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, [
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId, [
         CipherType.Card,
         CipherType.Identity,
       ]);
@@ -928,6 +935,7 @@ describe("OverlayBackground", () => {
             login: {
               username: "username-1",
               passkey: null,
+              totpField: false,
             },
             name: "name-1",
             reprompt: loginCipher1.reprompt,
@@ -961,7 +969,7 @@ describe("OverlayBackground", () => {
             icon: {
               fallbackImage: "",
               icon: "bwi-credit-card",
-              image: undefined,
+              image: null,
               imageEnabled: true,
             },
             id: "inline-menu-cipher-0",
@@ -999,7 +1007,7 @@ describe("OverlayBackground", () => {
               icon: {
                 fallbackImage: "",
                 icon: "bwi-id-card",
-                image: undefined,
+                image: null,
                 imageEnabled: true,
               },
               id: "inline-menu-cipher-1",
@@ -1040,7 +1048,7 @@ describe("OverlayBackground", () => {
               icon: {
                 fallbackImage: "",
                 icon: "bwi-id-card",
-                image: undefined,
+                image: null,
                 imageEnabled: true,
               },
               id: "inline-menu-cipher-0",
@@ -1065,6 +1073,7 @@ describe("OverlayBackground", () => {
               login: {
                 username: loginCipher1.login.username,
                 passkey: null,
+                totpField: false,
               },
               name: loginCipher1.name,
               reprompt: loginCipher1.reprompt,
@@ -1111,7 +1120,7 @@ describe("OverlayBackground", () => {
               icon: {
                 fallbackImage: "",
                 icon: "bwi-id-card",
-                image: undefined,
+                image: null,
                 imageEnabled: true,
               },
               id: "inline-menu-cipher-1",
@@ -1189,6 +1198,7 @@ describe("OverlayBackground", () => {
                 rpName: passkeyCipher.login.fido2Credentials[0].rpName,
                 userName: passkeyCipher.login.fido2Credentials[0].userName,
               },
+              totpField: false,
             },
           },
           {
@@ -1207,6 +1217,7 @@ describe("OverlayBackground", () => {
             login: {
               username: passkeyCipher.login.username,
               passkey: null,
+              totpField: false,
             },
           },
           {
@@ -1225,6 +1236,7 @@ describe("OverlayBackground", () => {
             login: {
               username: loginCipher1.login.username,
               passkey: null,
+              totpField: false,
             },
           },
         ],
@@ -1272,6 +1284,7 @@ describe("OverlayBackground", () => {
             login: {
               username: passkeyCipher.login.username,
               passkey: null,
+              totpField: false,
             },
           },
           {
@@ -1290,6 +1303,7 @@ describe("OverlayBackground", () => {
             login: {
               username: loginCipher1.login.username,
               passkey: null,
+              totpField: false,
             },
           },
         ],
@@ -1337,6 +1351,7 @@ describe("OverlayBackground", () => {
             login: {
               username: passkeyCipher.login.username,
               passkey: null,
+              totpField: false,
             },
           },
           {
@@ -1355,6 +1370,7 @@ describe("OverlayBackground", () => {
             login: {
               username: loginCipher1.login.username,
               passkey: null,
+              totpField: false,
             },
           },
         ],
@@ -1400,6 +1416,7 @@ describe("OverlayBackground", () => {
               login: {
                 username: loginCipher1.login.username,
                 passkey: null,
+                totpField: false,
               },
             },
             {
@@ -1418,6 +1435,7 @@ describe("OverlayBackground", () => {
               login: {
                 username: loginCipher2.login.username,
                 passkey: null,
+                totpField: false,
               },
             },
           ],
@@ -1908,7 +1926,17 @@ describe("OverlayBackground", () => {
 
       it("returns true if the overlay login ciphers are populated", async () => {
         overlayBackground["inlineMenuCiphers"] = new Map([
-          ["inline-menu-cipher-0", mock<CipherView>({ type: CipherType.Login })],
+          [
+            "inline-menu-cipher-0",
+            mock<CipherView>({
+              type: CipherType.Login,
+              login: {
+                username: "username1",
+                password: "password1",
+                uri: "https://example.com",
+              },
+            }),
+          ],
         ]);
         await overlayBackground["getInlineMenuCipherData"]();
 
@@ -2886,6 +2914,124 @@ describe("OverlayBackground", () => {
           },
           { frameId: 0 },
         );
+      });
+    });
+    describe("handles menu position when input is focused", () => {
+      it("sets button and menu width and position when non-multi-input totp field is focused", async () => {
+        const subframe = {
+          top: 0,
+          left: 0,
+          url: "",
+          frameId: 0,
+        };
+
+        overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
+          focusedFieldRects: {
+            width: 49.328125,
+            height: 64,
+            top: 302.171875,
+            left: 1270.8125,
+          },
+        });
+
+        const buttonPostion = overlayBackground["getInlineMenuButtonPosition"](subframe);
+        const menuPostion = overlayBackground["getInlineMenuListPosition"](subframe);
+
+        expect(menuPostion).toEqual({
+          width: "49px",
+          top: "366px",
+          left: "1271px",
+        });
+        expect(buttonPostion).toEqual({
+          width: "34px",
+          height: "34px",
+          top: "317px",
+          left: "1271px",
+        });
+      });
+      it("sets button and menu width and position when multi-input totp field is focused", async () => {
+        const subframe = {
+          top: 0,
+          left: 0,
+          url: "",
+          frameId: 0,
+        };
+
+        const totpFields = [
+          createAutofillFieldMock({ autoCompleteType: "one-time-code", opid: "__0" }),
+          createAutofillFieldMock({ autoCompleteType: "one-time-code", opid: "__1" }),
+          createAutofillFieldMock({ autoCompleteType: "one-time-code", opid: "__2" }),
+        ];
+        const allFieldData = [
+          createAutofillFieldMock({
+            autoCompleteType: "one-time-code",
+            opid: "__0",
+            rect: {
+              x: 1041.5,
+              y: 302.171875,
+              width: 49.328125,
+              height: 64,
+              top: 302.171875,
+              right: 1090.828125,
+              bottom: 366.171875,
+              left: 1041.5,
+            },
+          }),
+          createAutofillFieldMock({
+            autoCompleteType: "one-time-code",
+            opid: "__1",
+            rect: {
+              x: 1098.828125,
+              y: 302.171875,
+              width: 49.328125,
+              height: 64,
+              top: 302.171875,
+              right: 1148.15625,
+              bottom: 366.171875,
+              left: 1098.828125,
+            },
+          }),
+          createAutofillFieldMock({
+            autoCompleteType: "one-time-code",
+            opid: "__2",
+            rect: {
+              x: 1156.15625,
+              y: 302.171875,
+              width: 249.328125,
+              height: 64,
+              top: 302.171875,
+              right: 2205.484375,
+              bottom: 366.171875,
+              left: 2156.15625,
+            },
+          }),
+        ];
+        overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
+          focusedFieldRects: {
+            width: 49.328125,
+            height: 64,
+            top: 302.171875,
+            left: 1270.8125,
+          },
+        });
+
+        overlayBackground["allFieldData"] = allFieldData;
+        jest.spyOn(overlayBackground as any, "isTotpFieldForCurrentField").mockReturnValue(true);
+        jest.spyOn(overlayBackground as any, "getTotpFields").mockReturnValue(totpFields);
+
+        const buttonPostion = overlayBackground["getInlineMenuButtonPosition"](subframe);
+        const menuPostion = overlayBackground["getInlineMenuListPosition"](subframe);
+        expect(menuPostion).toEqual({
+          width: "1164px",
+          top: "366px",
+          left: "1042px",
+        });
+        expect(buttonPostion).toEqual({
+          width: "34px",
+          height: "34px",
+          top: "292px",
+          left: "2187px",
+        });
       });
     });
 

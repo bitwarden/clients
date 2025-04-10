@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import Domain from "../../../../platform/models/domain/domain-base";
@@ -28,11 +30,10 @@ export class SendText extends Domain {
   }
 
   decrypt(key: SymmetricCryptoKey): Promise<SendTextView> {
-    return this.decryptObj(
+    return this.decryptObj<SendText, SendTextView>(
+      this,
       new SendTextView(this),
-      {
-        text: null,
-      },
+      ["text"],
       null,
       key,
     );

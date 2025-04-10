@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
@@ -45,7 +47,6 @@ export abstract class LoginStrategyServiceAbstraction {
    * Auth Request. Otherwise, it will return null.
    */
   getAuthRequestId: () => Promise<string | null>;
-
   /**
    * Sends a token request to the server using the provided credentials.
    */
@@ -65,10 +66,19 @@ export abstract class LoginStrategyServiceAbstraction {
    */
   logInTwoFactor: (
     twoFactor: TokenTwoFactorRequest,
+    // TODO: PM-15162 - deprecate captchaResponse
     captchaResponse: string,
   ) => Promise<AuthResult>;
   /**
    * Creates a master key from the provided master password and email.
    */
   makePreloginKey: (masterPassword: string, email: string) => Promise<MasterKey>;
+  /**
+   * Emits true if the authentication session has expired.
+   */
+  authenticationSessionTimeout$: Observable<boolean>;
+  /**
+   * Sends a token request to the server with the provided device verification OTP.
+   */
+  logInNewDeviceVerification: (deviceVerificationOtp: string) => Promise<AuthResult>;
 }

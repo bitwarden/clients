@@ -1,23 +1,34 @@
 <bit-dialog>
-  <span bitDialogTitle>{{ "areYouTryingtoLogin" | i18n }}</span>
+  <span bitDialogTitle>{{ "areYouTryingToAccessYourAccount" | i18n }}</span>
   <ng-container bitDialogContent>
-    <h4 class="tw-mb-3">{{ "logInAttemptBy" | i18n: email }}</h4>
-    <div>
-      <b>{{ "fingerprintPhraseHeader" | i18n }}</b>
-      <p class="tw-text-code">{{ fingerprintPhrase }}</p>
-    </div>
-    <div>
-      <b>{{ "deviceType" | i18n }}</b>
-      <p>{{ authRequestResponse?.requestDeviceType }}</p>
-    </div>
-    <div>
-      <b>{{ "ipAddress" | i18n }}</b>
-      <p>{{ authRequestResponse?.requestIpAddress }}</p>
-    </div>
-    <div>
-      <b>{{ "time" | i18n }}</b>
-      <p>{{ requestTimeText }}</p>
-    </div>
+    <ng-container *ngIf="loading">
+      <div class="tw-flex tw-items-center tw-justify-center" *ngIf="loading">
+        <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!loading">
+      <h4 class="tw-mb-3">{{ "accessAttemptBy" | i18n: email }}</h4>
+      <div>
+        <b>{{ "fingerprintPhraseHeader" | i18n }}</b>
+        <p class="tw-text-code">{{ fingerprintPhrase }}</p>
+      </div>
+      <div>
+        <b>{{ "deviceType" | i18n }}</b>
+        <p>{{ authRequestResponse?.requestDeviceType }}</p>
+      </div>
+      <div>
+        <b>{{ "location" | i18n }}</b>
+        <p>
+          <span class="tw-capitalize">{{ authRequestResponse?.requestCountryName }} </span>
+          ({{ authRequestResponse?.requestIpAddress }})
+        </p>
+      </div>
+      <div>
+        <b>{{ "time" | i18n }}</b>
+        <p>{{ requestTimeText }}</p>
+      </div>
+    </ng-container>
   </ng-container>
   <ng-container bitDialogFooter>
     <button
@@ -25,18 +36,18 @@
       type="button"
       buttonType="primary"
       [bitAction]="approveLogin"
-      [bitDialogClose]="true"
+      [disabled]="loading"
     >
-      {{ "confirmLogIn" | i18n }}
+      {{ "confirmAccess" | i18n }}
     </button>
     <button
       bitButton
       type="button"
       buttonType="secondary"
       [bitAction]="denyLogin"
-      [bitDialogClose]="true"
+      [disabled]="loading"
     >
-      {{ "denyLogIn" | i18n }}
+      {{ "denyAccess" | i18n }}
     </button>
   </ng-container>
 </bit-dialog>

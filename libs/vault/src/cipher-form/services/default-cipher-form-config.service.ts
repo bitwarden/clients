@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { inject, Injectable } from "@angular/core";
 import { combineLatest, filter, firstValueFrom, map, switchMap } from "rxjs";
 
@@ -5,7 +7,9 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -29,16 +33,19 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
   private cipherService: CipherService = inject(CipherService);
   private folderService: FolderService = inject(FolderService);
   private collectionService: CollectionService = inject(CollectionService);
+  private accountService = inject(AccountService);
 
   async buildConfig(
     mode: CipherFormMode,
     cipherId?: CipherId,
     cipherType?: CipherType,
   ): Promise<CipherFormConfig> {
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
     const [organizations, collections, allowPersonalOwnership, folders, cipher] =
       await firstValueFrom(
         combineLatest([
-          this.organizations$,
+          this.organizations$(activeUserId),
           this.collectionService.encryptedCollections$.pipe(
             switchMap((c) =>
               this.collectionService.decryptedCollections$.pipe(
@@ -47,14 +54,14 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
             ),
           ),
           this.allowPersonalOwnership$,
-          this.folderService.folders$.pipe(
+          this.folderService.folders$(activeUserId).pipe(
             switchMap((f) =>
-              this.folderService.folderViews$.pipe(
+              this.folderService.folderViews$(activeUserId).pipe(
                 filter((d) => d.length - 1 === f.length), // -1 for "No Folder" in folderViews$
               ),
             ),
           ),
-          this.getCipher(cipherId),
+          this.getCipher(activeUserId, cipherId),
         ]),
       );
 
@@ -70,22 +77,30 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
     };
   }
 
-  private organizations$ = this.organizationService.organizations$.pipe(
-    map((orgs) =>
-      orgs.filter(
-        (o) => o.isMember && o.enabled && o.status === OrganizationUserStatusType.Confirmed,
-      ),
+  organizations$(userId: UserId) {
+    return this.organizationService
+      .organizations$(userId)
+      .pipe(
+        map((orgs) =>
+          orgs.filter(
+            (o) => o.isMember && o.enabled && o.status === OrganizationUserStatusType.Confirmed,
+          ),
+        ),
+      );
+  }
+
+  private allowPersonalOwnership$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) =>
+      this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
     ),
+    map((p) => !p),
   );
 
-  private allowPersonalOwnership$ = this.policyService
-    .policyAppliesToActiveUser$(PolicyType.PersonalOwnership)
-    .pipe(map((p) => !p));
-
-  private getCipher(id?: CipherId): Promise<Cipher | null> {
+  private getCipher(userId: UserId, id?: CipherId): Promise<Cipher | null> {
     if (id == null) {
       return Promise.resolve(null);
     }
-    return this.cipherService.get(id);
+    return this.cipherService.get(id, userId);
   }
 }

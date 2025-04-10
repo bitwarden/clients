@@ -1,6 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { getQsParam } from "./common";
 import { TranslationService } from "./translation.service";
 
+// FIXME: Remove when updating file. Eslint update
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 require("./duo-redirect.scss");
 
 const mobileDesktopCallback = "bitwarden://duo-callback";

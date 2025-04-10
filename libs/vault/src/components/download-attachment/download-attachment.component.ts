@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -5,13 +7,13 @@ import { NEVER, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { StateProvider } from "@bitwarden/common/platform/state";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { EmergencyAccessId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -33,6 +35,9 @@ export class DownloadAttachmentComponent {
 
   // When in view mode, we will want to check for the master password reprompt
   @Input() checkPwReprompt?: boolean = false;
+
+  // Required for fetching attachment data when viewed from cipher via emergency access
+  @Input() emergencyAccessId?: EmergencyAccessId;
 
   /** The organization key if the cipher is associated with one */
   private orgKey: OrgKey | null = null;
@@ -66,6 +71,7 @@ export class DownloadAttachmentComponent {
       const attachmentDownloadResponse = await this.apiService.getAttachmentData(
         this.cipher.id,
         this.attachment.id,
+        this.emergencyAccessId,
       );
       url = attachmentDownloadResponse.url;
     } catch (e) {
@@ -96,6 +102,8 @@ export class DownloadAttachmentComponent {
         fileName: this.attachment.fileName,
         blobData: decBuf,
       });
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.toastService.showToast({
         variant: "error",

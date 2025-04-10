@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -14,10 +16,10 @@ import {
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { PasswordResetEnrollmentServiceAbstraction } from "@bitwarden/common/auth/abstractions/password-reset-enrollment.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -28,6 +30,7 @@ import {
   AsyncActionsModule,
   ButtonModule,
   CheckboxModule,
+  DialogService,
   FormFieldModule,
   ToastService,
   TypographyModule,
@@ -88,6 +91,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     private apiService: ApiService,
     private destroyRef: DestroyRef,
     private deviceTrustService: DeviceTrustServiceAbstraction,
+    private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
     private keyService: KeyService,
@@ -103,7 +107,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private validationService: ValidationService,
   ) {
-    this.clientType === this.platformUtilsService.getClientType();
+    this.clientType = this.platformUtilsService.getClientType();
   }
 
   async ngOnInit() {
@@ -198,7 +202,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     });
 
     const autoEnrollStatus$ = defer(() =>
-      this.ssoLoginService.getActiveUserOrganizationSsoIdentifier(),
+      this.ssoLoginService.getActiveUserOrganizationSsoIdentifier(this.activeAccountId),
     ).pipe(
       switchMap((organizationIdentifier) => {
         if (organizationIdentifier == undefined) {
@@ -295,5 +299,19 @@ export class LoginDecryptionOptionsComponent implements OnInit {
   protected async requestAdminApproval() {
     this.loginEmailService.setLoginEmail(this.email);
     await this.router.navigate(["/admin-approval-requested"]);
+  }
+
+  async logOut() {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "logOut" },
+      content: { key: "logOutConfirmation" },
+      acceptButtonText: { key: "logOut" },
+      type: "warning",
+    });
+
+    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    if (confirmed) {
+      this.messagingService.send("logout", { userId: userId });
+    }
   }
 }

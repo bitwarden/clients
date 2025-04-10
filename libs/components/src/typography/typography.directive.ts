@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { Directive, HostBinding, Input } from "@angular/core";
 
@@ -29,6 +31,7 @@ const margins: Record<TypographyType, string[]> = {
 
 @Directive({
   selector: "[bitTypography]",
+  standalone: true,
 })
 export class TypographyDirective {
   @Input("bitTypography") bitTypography: TypographyType;

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
 import { LoginDecryptionOptionsService } from "./login-decryption-options.service";

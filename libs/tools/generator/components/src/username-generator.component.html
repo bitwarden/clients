@@ -7,7 +7,7 @@
       type="button"
       bitIconButton="bwi-generate"
       buttonType="main"
-      (click)="generate('user request')"
+      (click)="generate(USER_REQUEST)"
       [appA11yTitle]="credentialTypeGenerateLabel$ | async"
       [disabled]="!(algorithm$ | async)"
     >
@@ -33,7 +33,7 @@
   </bit-section-header>
   <div [ngClass]="{ 'tw-mb-4': !disableMargin }">
     <bit-card>
-      <form class="box" [formGroup]="username" class="tw-container">
+      <form [formGroup]="username" class="tw-container">
         <bit-form-field>
           <bit-label>{{ "type" | i18n }}</bit-label>
           <bit-select
@@ -47,7 +47,7 @@
           }}</bit-hint>
         </bit-form-field>
       </form>
-      <form *ngIf="showForwarder$ | async" [formGroup]="forwarder" class="box tw-container">
+      <form *ngIf="showForwarder$ | async" [formGroup]="forwarder" class="tw-container">
         <bit-form-field>
           <bit-label>{{ "service" | i18n }}</bit-label>
           <bit-select
@@ -60,22 +60,22 @@
       </form>
       <tools-catchall-settings
         *ngIf="(algorithm$ | async)?.id === 'catchall'"
-        [userId]="this.userId$ | async"
+        [account]="account$ | async"
         (onUpdated)="generate('catchall settings')"
       />
       <tools-forwarder-settings
         *ngIf="!!(forwarderId$ | async)"
         [forwarder]="forwarderId$ | async"
-        [userId]="this.userId$ | async"
+        [account]="account$ | async"
       />
       <tools-subaddress-settings
         *ngIf="(algorithm$ | async)?.id === 'subaddress'"
-        [userId]="this.userId$ | async"
+        [account]="account$ | async"
         (onUpdated)="generate('subaddress settings')"
       />
       <tools-username-settings
         *ngIf="(algorithm$ | async)?.id === 'username'"
-        [userId]="this.userId$ | async"
+        [account]="account$ | async"
         (onUpdated)="generate('username settings')"
       />
     </bit-card>

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { ProductTierType } from "../../../billing/enums";
@@ -74,6 +76,12 @@ export class Organization {
   /**
    * Refers to the ability for an owner/admin to access all collection items, regardless of assigned collections
    */
+  limitItemDeletion: boolean;
+  /**
+   * Refers to the ability to limit delete permission of collection items.
+   * If set to true, members can only delete items when they have a Can Manage permission over the collection.
+   * If set to false, members can delete items when they have a Can Manage OR Can Edit permission over the collection.
+   */
   allowAdminAccessToAllCollectionItems: boolean;
   /**
    * Indicates if this organization manages the user.
@@ -81,6 +89,7 @@ export class Organization {
    * matches one of the verified domains of that organization, and the user is a member of it.
    */
   userIsManagedByOrganization: boolean;
+  useRiskInsights: boolean;
 
   constructor(obj?: OrganizationData) {
     if (obj == null) {
@@ -135,8 +144,10 @@ export class Organization {
     this.accessSecretsManager = obj.accessSecretsManager;
     this.limitCollectionCreation = obj.limitCollectionCreation;
     this.limitCollectionDeletion = obj.limitCollectionDeletion;
+    this.limitItemDeletion = obj.limitItemDeletion;
     this.allowAdminAccessToAllCollectionItems = obj.allowAdminAccessToAllCollectionItems;
     this.userIsManagedByOrganization = obj.userIsManagedByOrganization;
+    this.useRiskInsights = obj.useRiskInsights;
   }
 
   get canAccess() {
@@ -178,11 +189,7 @@ export class Organization {
     );
   }
 
-  canAccessExport(removeProviderExport: boolean) {
-    if (!removeProviderExport && this.isProviderUser) {
-      return true;
-    }
-
+  get canAccessExport() {
     return (
       this.isMember &&
       (this.type === OrganizationUserType.Owner ||
@@ -324,8 +331,7 @@ export class Organization {
   get hasBillableProvider() {
     return (
       this.hasProvider &&
-      (this.providerType === ProviderType.Msp ||
-        this.providerType === ProviderType.MultiOrganizationEnterprise)
+      (this.providerType === ProviderType.Msp || this.providerType === ProviderType.BusinessUnit)
     );
   }
 
@@ -355,5 +361,16 @@ export class Organization {
       familySponsorshipLastSyncDate: new Date(json.familySponsorshipLastSyncDate),
       familySponsorshipValidUntil: new Date(json.familySponsorshipValidUntil),
     });
+  }
+
+  get canAccessIntegrations() {
+    return (
+      (this.productTierType === ProductTierType.Teams ||
+        this.productTierType === ProductTierType.Enterprise) &&
+      (this.isAdmin ||
+        this.permissions.manageUsers ||
+        this.permissions.manageGroups ||
+        this.permissions.accessEventLogs)
+    );
   }
 }

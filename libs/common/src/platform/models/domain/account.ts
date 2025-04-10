@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { DeepJsonify } from "../../../types/deep-jsonify";
@@ -46,8 +48,6 @@ export class EncryptionPair<TEncrypted, TDecrypted> {
 export class AccountKeys {
   publicKey?: Uint8Array;
 
-  /** @deprecated July 2023, left for migration purposes*/
-  cryptoMasterKeyAuto?: string;
   /** @deprecated July 2023, left for migration purposes*/
   cryptoSymmetricKey?: EncryptionPair<string, SymmetricCryptoKey> = new EncryptionPair<
     string,

@@ -1,6 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Subject } from "rxjs";
 
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
@@ -88,7 +90,6 @@ export class LocalBackedSessionStorageService
           this.logService.warning(
             `Possible unnecessary write to local session storage. Key: ${key}`,
           );
-          this.logService.warning(obj as any);
         }
       } catch (err) {
         this.logService.warning(`Error while comparing values for key: ${key}`);
@@ -196,6 +197,8 @@ export class LocalBackedSessionStorageService
   private compareValues<T>(value1: T, value2: T): boolean {
     try {
       return compareValues(value1, value2);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.logService.error(
         `error comparing values\n${JSON.stringify(value1)}\n${JSON.stringify(value2)}`,

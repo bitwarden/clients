@@ -1,4 +1,7 @@
-import { Component, OnInit } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Component, OnInit, SecurityContext } from "@angular/core";
+import { DomSanitizer } from "@angular/platform-browser";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
@@ -11,7 +14,6 @@ import { ToastService } from "@bitwarden/components";
   selector: "app-verify-recover-delete-provider",
   templateUrl: "verify-recover-delete-provider.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class VerifyRecoverDeleteProviderComponent implements OnInit {
   name: string;
 
@@ -24,6 +26,7 @@ export class VerifyRecoverDeleteProviderComponent implements OnInit {
     private i18nService: I18nService,
     private route: ActivatedRoute,
     private toastService: ToastService,
+    private sanitizer: DomSanitizer,
   ) {}
 
   async ngOnInit() {
@@ -31,7 +34,10 @@ export class VerifyRecoverDeleteProviderComponent implements OnInit {
     if (qParams.providerId != null && qParams.token != null && qParams.name != null) {
       this.providerId = qParams.providerId;
       this.token = qParams.token;
-      this.name = qParams.name;
+      this.name =
+        qParams.name && typeof qParams.name === "string"
+          ? this.sanitizer.sanitize(SecurityContext.HTML, qParams.name) || ""
+          : "";
     } else {
       await this.router.navigate(["/"]);
     }

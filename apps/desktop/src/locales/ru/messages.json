@@ -249,6 +249,20 @@
   "error": {
     "message": "Ошибка"
   },
+  "decryptionError": {
+    "message": "Ошибка расшифровки"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden не удалось расшифровать элемент(ы) хранилища, перечисленные ниже."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Обратитесь в службу поддержки,",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "чтобы избежать дополнительной потери данных.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
   "january": {
     "message": "Январь"
   },
@@ -529,10 +543,6 @@
     "message": "Включить специальные символы",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Количество слов"
   },
@@ -638,6 +648,15 @@
   "logInToBitwarden": {
     "message": "Войти в Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Введите код, отправленный на ваш email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Введите код из приложения-аутентификатора"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Нажмите на YubiKey для аутентификации"
+  },
   "logInWithPasskey": {
     "message": "Войти с passkey"
   },
@@ -690,6 +709,15 @@
   "masterPassHintLabel": {
     "message": "Подсказка к мастер-паролю"
   },
+  "passwordStrengthScore": {
+    "message": "Оценка надежности пароля $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Присоединиться к организации"
   },
@@ -719,12 +747,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Введите email вашего аккаунта, и вам будет отправлена подсказка для пароля"
-  },
-  "passwordHint": {
-    "message": "Подсказка к паролю"
-  },
-  "enterEmailToGetHint": {
-    "message": "Введите email аккаунта для получения подсказки к мастер-паролю."
   },
   "getMasterPasswordHint": {
     "message": "Получить подсказку к мастер-паролю"
@@ -802,23 +824,14 @@
   "webauthnCancelOrTimeout": {
     "message": "Аутентификация была отменена или заняла слишком много времени. Пожалуйста, попробуйте еще раз."
   },
+  "openInNewTab": {
+    "message": "Открыть в новой вкладке"
+  },
   "invalidVerificationCode": {
     "message": "Неверный код подтверждения"
   },
   "continue": {
     "message": "Продолжить"
-  },
-  "enterVerificationCodeApp": {
-    "message": "Введите 6-значный код подтверждения из вашего приложения-аутентификатора."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Введите 6-значный код подтверждения, который был отправлен на $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Отправлено письмо подтверждения на $EMAIL$.",
@@ -829,17 +842,15 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Запомнить меня"
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Не спрашивать на этом устройстве в течение 30 дней"
   },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Отправить код подтверждения еще раз"
+  "selectAnotherMethod": {
+    "message": "Выбрать другой способ",
+    "description": "Select another two-step login method"
   },
-  "useAnotherTwoStepMethod": {
-    "message": "Использовать другой метод двухэтапной аутентификации"
-  },
-  "insertYubiKey": {
-    "message": "Вставьте свой YubiKey в USB-порт компьютера и нажмите его кнопку."
+  "useYourRecoveryCode": {
+    "message": "Использовать код восстановления"
   },
   "insertU2f": {
     "message": "Вставьте ключ безопасности в USB-порт компьютера. Если у ключа есть кнопка, нажмите ее."
@@ -871,6 +882,15 @@
     "message": "Подтвердите с помощью Duo Security для вашей организации, используя приложение Duo Mobile, SMS, телефонный звонок или ключ безопасности U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
+  "verifyYourIdentity": {
+    "message": "Подтвердите вашу личность"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Мы не распознали это устройство. Введите код, отправленный на ваш email, чтобы подтвердить вашу личность."
+  },
+  "continueLoggingIn": {
+    "message": "Продолжить вход"
+  },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
@@ -895,11 +915,11 @@
   "twoStepOptions": {
     "message": "Настройки двухэтапной аутентификации"
   },
+  "selectTwoStepLoginMethod": {
+    "message": "Выбрать другой метод двухэтапной аутентификации"
+  },
   "selfHostedEnvironment": {
     "message": "Окружение пользовательского хостинга"
-  },
-  "selfHostedEnvironmentFooter": {
-    "message": "Укажите URL Bitwarden на вашем сервере."
   },
   "selfHostedBaseUrlHint": {
     "message": "Укажите базовый URL вашего локального хостинга Bitwarden. Пример: https://bitwarden.company.com"
@@ -913,11 +933,14 @@
   "customEnvironment": {
     "message": "Пользовательское окружение"
   },
-  "customEnvironmentFooter": {
-    "message": "Для опытных пользователей. Можно указать URL отдельно для каждой службы."
-  },
   "baseUrl": {
     "message": "URL сервера"
+  },
+  "authenticationTimeout": {
+    "message": "Тайм-аут аутентификации"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Сеанс аутентификации завершился по времени. Пожалуйста, перезапустите процесс авторизации."
   },
   "selfHostBaseUrl": {
     "message": "URL собственного сервера",
@@ -949,6 +972,9 @@
   },
   "no": {
     "message": "Нет"
+  },
+  "location": {
+    "message": "Местоположение"
   },
   "overwritePassword": {
     "message": "Перезаписать пароль"
@@ -1359,9 +1385,6 @@
   "premiumPurchase": {
     "message": "Купить Премиум"
   },
-  "premiumPurchaseAlert": {
-    "message": "Вы можете купить Премиум на bitwarden.com. Перейти на сайт сейчас?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Премиум можно приобрести в настройках аккаунта в веб-версии Bitwarden."
   },
@@ -1728,9 +1751,6 @@
   "windowsHelloConsentMessage": {
     "message": "Верификация для Bitwarden."
   },
-  "polkitConsentMessage": {
-    "message": "Для разблокировки Bitwarden пройдите аутентификацию."
-  },
   "unlockWithTouchId": {
     "message": "Разблокировать с Touch ID"
   },
@@ -1751,6 +1771,9 @@
   },
   "requirePasswordOnStart": {
     "message": "Требовать пароль или PIN-код при запуске приложения"
+  },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Требовать пароль при запуске приложения"
   },
   "recommendedForSecurity": {
     "message": "Рекомендуется для обеспечения безопасности."
@@ -2221,6 +2244,12 @@
   "webAuthnAuthenticate": {
     "message": "Аутентификация WebAutn"
   },
+  "readSecurityKey": {
+    "message": "Считать ключ безопасности"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Ожидание взаимодействия с ключом безопасности..."
+  },
   "hideEmail": {
     "message": "Скрыть мой адрес email от получателей."
   },
@@ -2437,6 +2466,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Будут экспортированы только отдельные элементы хранилища, включая вложения, связанные с $EMAIL$. Элементы хранилища организации включены не будут",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Экспорт хранилища организации"
   },
@@ -2527,6 +2565,9 @@
   "catchallEmailDesc": {
     "message": "Использовать общую почту домена."
   },
+  "useThisEmail": {
+    "message": "Использовать этот email"
+  },
   "random": {
     "message": "Случайно"
   },
@@ -2603,6 +2644,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Неверный токен $SERVICENAME$ API: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ отклонил(а) ваш запрос. Обратитесь за помощью к своему провайдеру.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ отклонил(а) ваш запрос: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -2692,14 +2757,8 @@
   "loginWithMasterPassword": {
     "message": "Войти с мастер-паролем"
   },
-  "loggingInAs": {
-    "message": "Войти как"
-  },
   "rememberEmail": {
     "message": "Запомнить email"
-  },
-  "notYou": {
-    "message": "Не вы?"
   },
   "newAroundHere": {
     "message": "Вы здесь впервые?"
@@ -2719,14 +2778,23 @@
   "loginInitiated": {
     "message": "Вход инициирован"
   },
+  "logInRequestSent": {
+    "message": "Запрос отправлен"
+  },
   "notificationSentDevice": {
     "message": "На ваше устройство отправлено уведомление."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "На ваше устройство было отправлено уведомление"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Убедитесь, что ваш аккаунт разблокирован и фраза отпечатка совпадает с фразой на другом устройстве"
+  "notificationSentDevicePart1": {
+    "message": "Разблокируйте Bitwarden на своем устройстве или "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "веб-приложении"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Перед одобрением убедитесь, что фраза отпечатка совпадает с приведенной ниже."
   },
   "needAnotherOptionV1": {
     "message": "Нужен другой вариант?"
@@ -2756,11 +2824,11 @@
     "message": "Показать количество символов",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Вы пытаетесь войти?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Вы пытаетесь получить доступ к своему аккаунту?"
   },
-  "logInAttemptBy": {
-    "message": "Попытка авторизации через $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Попытка доступа $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2777,11 +2845,11 @@
   "time": {
     "message": "Время"
   },
-  "confirmLogIn": {
-    "message": "Подтвердить вход"
+  "confirmAccess": {
+    "message": "Подтвердить доступ"
   },
-  "denyLogIn": {
-    "message": "Запретить вход"
+  "denyAccess": {
+    "message": "Отказать в доступе"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Вход подтвержден для $EMAIL$ на $DEVICE$",
@@ -2817,8 +2885,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Этот запрос больше не действителен."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Подтвердите попытку входа для $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Подтвердить попытку доступа $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2828,6 +2896,9 @@
   },
   "logInRequested": {
     "message": "Запрошено разрешение на вход"
+  },
+  "accountAccessRequested": {
+    "message": "Запрошен доступ к аккаунту"
   },
   "creatingAccountOn": {
     "message": "Создание аккаунта"
@@ -2861,6 +2932,12 @@
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Обнаружен слабый пароль, найденный в утечке данных. Используйте надежный и уникальный пароль для защиты вашего аккаунта. Вы уверены, что хотите использовать этот пароль?"
+  },
+  "useThisPassword": {
+    "message": "Использовать этот пароль"
+  },
+  "useThisUsername": {
+    "message": "Использовать это имя пользователя"
   },
   "checkForBreaches": {
     "message": "Проверять известные случаи утечки данных для этого пароля"
@@ -2922,9 +2999,6 @@
   "requestAdminApproval": {
     "message": "Запросить одобрение администратора"
   },
-  "approveWithMasterPassword": {
-    "message": "Одобрить с мастер-паролем"
-  },
   "region": {
     "message": "Регион"
   },
@@ -2949,9 +3023,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Ваш запрос был отправлен администратору."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Вас уведомят об одобрении."
   },
   "troubleLoggingIn": {
     "message": "Не удалось войти?"
@@ -3129,11 +3200,14 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Ошибка при подключении к сервису Duo. Используйте другой метод двухэтапной аутентификации или обратитесь за помощью в Duo."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Запустите Duo и следуйте шагам для завершения авторизации."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Для вашего аккаунта требуется двухэтапная аутентификация Duo."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Для вашего аккаунта требуется двухэтапная аутентификация Duo. Выполните следующие действия, чтобы завершить авторизацию."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Следуйте указаниям ниже, чтобы завершить авторизацию."
   },
   "launchDuo": {
     "message": "Запустить Duo в браузере"
@@ -3359,6 +3433,30 @@
   "ssoError": {
     "message": "Не удалось найти свободные порты для авторизации SSO."
   },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Биометрическая разблокировка недоступна, поскольку сначала требуется разблокировка с помощью PIN-кода или пароля."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Биометрическая разблокировка в настоящее время недоступна."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Биометрическая разблокировка недоступна из-за неправильно настроенных системных файлов."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Биометрическая разблокировка недоступна из-за неправильно настроенных системных файлов."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "Биометрическая разблокировка недоступна, потому что она не включена для $EMAIL$ в приложении Bitwarden для компьютера.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Биометрическая разблокировка в настоящее время недоступна по неизвестной причине."
+  },
   "authorize": {
     "message": "Разрешить"
   },
@@ -3368,14 +3466,29 @@
   "sshkeyApprovalTitle": {
     "message": "Подтвердить использование ключа SSH"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Предупреждение: Переадресация агента"
+  },
+  "agentForwardingWarningText": {
+    "message": "Этот запрос поступает с удаленного устройства, на котором вы авторизовались"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "запрашивает доступ к"
   },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "чтобы"
+  },
+  "sshActionLogin": {
+    "message": "авторизоваться на сервере"
+  },
+  "sshActionSign": {
+    "message": "подписать сообщение"
+  },
+  "sshActionGitSign": {
+    "message": "подписать git коммит"
+  },
   "unknownApplication": {
     "message": "Приложение"
-  },
-  "sshKeyPasswordUnsupported": {
-    "message": "Импорт защищенных паролем ключей SSH пока не поддерживается"
   },
   "invalidSshKey": {
     "message": "Ключ SSH недействителен"
@@ -3386,10 +3499,70 @@
   "importSshKeyFromClipboard": {
     "message": "Импорт ключа из буфера обмена"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "Ключ SSH успешно импортирован"
   },
   "fileSavedToDevice": {
     "message": "Файл сохранен на устройстве. Управляйте им из загрузок устройства."
+  },
+  "importantNotice": {
+    "message": "Важное уведомление"
+  },
+  "setupTwoStepLogin": {
+    "message": "Настроить двухэтапную аутентификацию"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Начиная с февраля 2025 года Bitwarden будет отправлять код на электронную почту вашего аккаунта для подтверждения авторизации с новых устройств."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "В качестве альтернативного способа защиты учетной записи вы можете настроить двухэтапную аутентификацию или сменить электронную почту на ту, к которой вы можете получить доступ."
+  },
+  "remindMeLater": {
+    "message": "Напомнить позже"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Есть ли у вас надежный доступ к электронной почте $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Нет, не знаю"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Да, я имею надежный доступ к своей электронной почте"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Включить двухэтапную аутентификацию"
+  },
+  "changeAcctEmail": {
+    "message": "Изменить email аккаунта"
+  },
+  "allowScreenshots": {
+    "message": "Разрешить захват экрана"
+  },
+  "allowScreenshotsDesc": {
+    "message": "Разрешить приложению Bitwarden захват экрана для скриншотов и просмотра в сеансах удаленного рабочего стола. Отключение параметра запретит доступ на некоторых внешних дисплеях."
+  },
+  "confirmWindowStillVisibleTitle": {
+    "message": "Окно подтверждения остается видимым"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Пожалуйста, подтвердите, что окно все еще видно."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Необходимо обновить расширение"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "Используемое вами расширение браузера устарело. Пожалуйста, обновите его или отключите проверку интеграции браузера с помощью отпечатка пальца в настройках приложения для компьютера."
+  },
+  "changeAtRiskPassword": {
+    "message": "Изменить пароль, подверженный риску"
+  },
+  "move": {
+    "message": "Переместить"
   }
 }

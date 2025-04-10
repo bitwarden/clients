@@ -1,10 +1,18 @@
+import { CommonModule } from "@angular/common";
 import { Component, ContentChildren, Input, QueryList } from "@angular/core";
+import { RouterModule } from "@angular/router";
+
+import { IconButtonModule } from "../icon-button";
+import { LinkModule } from "../link";
+import { MenuModule } from "../menu";
 
 import { BreadcrumbComponent } from "./breadcrumb.component";
 
 @Component({
   selector: "bit-breadcrumbs",
   templateUrl: "./breadcrumbs.component.html",
+  standalone: true,
+  imports: [CommonModule, LinkModule, RouterModule, IconButtonModule, MenuModule],
 })
 export class BreadcrumbsComponent {
   @Input()

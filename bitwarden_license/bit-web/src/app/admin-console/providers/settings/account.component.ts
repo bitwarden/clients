@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -19,7 +21,6 @@ import { DialogService, ToastService } from "@bitwarden/components";
   selector: "provider-account",
   templateUrl: "account.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class AccountComponent implements OnDestroy, OnInit {
   selfHosted = false;
   loading = true;

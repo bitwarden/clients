@@ -35,6 +35,7 @@
               [(ngModel)]="cipher.type"
               class="form-control"
               [disabled]="cipher.isDeleted"
+              (change)="typeChange()"
               appAutofocus
             >
               <option *ngFor="let o of typeOptions" [ngValue]="o.value">{{ o.name }}</option>
@@ -362,7 +363,7 @@
                       (click)="launch(u)"
                       [disabled]="!u.canLaunch"
                     >
-                      <i class="bwi bwi-lg bwi-share-square" aria-hidden="true"></i>
+                      <i class="bwi bwi-lg bwi-external-link" aria-hidden="true"></i>
                     </button>
                     <button
                       type="button"

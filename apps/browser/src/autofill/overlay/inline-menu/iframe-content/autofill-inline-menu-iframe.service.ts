@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 
@@ -247,12 +249,6 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
 
     if (verifiedTheme === ThemeTypes.Dark) {
       borderColor = "#4c525f";
-    }
-    if (theme === ThemeTypes.Nord) {
-      borderColor = "#2E3440";
-    }
-    if (theme === ThemeTypes.SolarizedDark) {
-      borderColor = "#073642";
     }
     if (borderColor) {
       this.updateElementStyles(this.iframe, { borderColor });

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { UriMatchStrategySetting } from "../../../models/domain/domain-service";
 import { LoginUriApi } from "../api/login-uri.api";
 

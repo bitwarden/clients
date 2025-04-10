@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as fs from "fs";
 import * as path from "path";
 
@@ -12,7 +14,6 @@ import {
   AbstractStorageService,
   StorageUpdate,
 } from "@bitwarden/common/platform/abstractions/storage.service";
-import { sequentialize } from "@bitwarden/common/platform/misc/sequentialize";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
@@ -42,7 +43,6 @@ export class LowdbStorageService implements AbstractStorageService {
     this.updates$ = this.updatesSubject.asObservable();
   }
 
-  @sequentialize(() => "lowdbStorageInit")
   async init() {
     if (this.ready) {
       return;

@@ -60,6 +60,8 @@ describe("Fido2 Content Script", () => {
   chrome.runtime.connect = jest.fn(() => portSpy);
 
   it("destroys the messenger when the port is disconnected", () => {
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./fido2-content-script");
 
     triggerPortOnDisconnectEvent(portSpy);
@@ -75,6 +77,8 @@ describe("Fido2 Content Script", () => {
     const mockResult = { credentialId: "mock" } as CreateCredentialResult;
     jest.spyOn(chrome.runtime, "sendMessage").mockResolvedValue(mockResult);
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./fido2-content-script");
 
     const response = await messenger.handler!(message, new AbortController());
@@ -99,6 +103,8 @@ describe("Fido2 Content Script", () => {
       data: mock<InsecureCreateCredentialParams>(),
     });
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./fido2-content-script");
 
     await messenger.handler!(message, new AbortController());
@@ -121,6 +127,8 @@ describe("Fido2 Content Script", () => {
     const abortController = new AbortController();
     const abortSpy = jest.spyOn(abortController.signal, "removeEventListener");
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./fido2-content-script");
 
     await messenger.handler!(message, abortController);
@@ -141,6 +149,8 @@ describe("Fido2 Content Script", () => {
         abortController.abort();
       });
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./fido2-content-script");
 
     await messenger.handler!(message, abortController);
@@ -161,6 +171,8 @@ describe("Fido2 Content Script", () => {
     const abortController = new AbortController();
     jest.spyOn(chrome.runtime, "sendMessage").mockResolvedValue({ error: errorMessage });
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./fido2-content-script");
     const result = messenger.handler!(message, abortController);
 
@@ -175,6 +187,8 @@ describe("Fido2 Content Script", () => {
       contentType: "application/json",
     }));
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./fido2-content-script");
 
     expect(messengerForDOMCommunicationSpy).not.toHaveBeenCalled();
@@ -193,6 +207,8 @@ describe("Fido2 Content Script", () => {
       },
     }));
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./fido2-content-script");
 
     expect(messengerForDOMCommunicationSpy).not.toHaveBeenCalled();

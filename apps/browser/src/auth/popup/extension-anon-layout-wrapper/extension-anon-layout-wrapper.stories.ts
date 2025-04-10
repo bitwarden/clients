@@ -25,6 +25,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { UserId } from "@bitwarden/common/types/guid";
 import { ButtonModule, I18nMockService } from "@bitwarden/components";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { RegistrationCheckEmailIcon } from "../../../../../../libs/auth/src/angular/icons/registration-check-email.icon";
 import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popup-router-cache.service";
 import { AccountSwitcherService } from "../account-switching/services/account-switcher.service";
@@ -240,6 +242,7 @@ const initialData: ExtensionAnonLayoutWrapperData = {
   showAcctSwitcher: true,
   showBackButton: true,
   showLogo: true,
+  hideIcon: false,
 };
 
 const changedData: ExtensionAnonLayoutWrapperData = {
@@ -253,6 +256,7 @@ const changedData: ExtensionAnonLayoutWrapperData = {
   showAcctSwitcher: false,
   showBackButton: false,
   showLogo: false,
+  hideIcon: false,
 };
 
 @Component({

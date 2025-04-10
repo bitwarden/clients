@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";

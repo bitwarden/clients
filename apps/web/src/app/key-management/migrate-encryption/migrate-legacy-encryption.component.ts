@@ -3,6 +3,7 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -48,6 +49,9 @@ export class MigrateFromLegacyEncryptionComponent {
     }
 
     const activeUser = await firstValueFrom(this.accountService.activeAccount$);
+    if (activeUser == null) {
+      throw new Error("No active user.");
+    }
 
     const hasUserKey = await this.keyService.hasUserKey(activeUser.id);
     if (hasUserKey) {
@@ -55,12 +59,12 @@ export class MigrateFromLegacyEncryptionComponent {
       throw new Error("User key already exists, cannot migrate legacy encryption.");
     }
 
-    const masterPassword = this.formGroup.value.masterPassword;
+    const masterPassword = this.formGroup.value.masterPassword!;
 
     try {
       await this.syncService.fullSync(false, true);
 
-      await this.keyRotationService.rotateUserKeyAndEncryptedData(masterPassword, activeUser);
+      await this.keyRotationService.rotateUserKeyAndEncryptedDataLegacy(masterPassword, activeUser);
 
       this.toastService.showToast({
         variant: "success",
@@ -71,7 +75,10 @@ export class MigrateFromLegacyEncryptionComponent {
       this.messagingService.send("logout");
     } catch (e) {
       // If the error is due to missing folders, we can delete all folders and try again
-      if (e.message === "All existing folders must be included in the rotation.") {
+      if (
+        e instanceof ErrorResponse &&
+        e.message === "All existing folders must be included in the rotation."
+      ) {
         const deleteFolders = await this.dialogService.openSimpleDialog({
           type: "warning",
           title: { key: "encryptionKeyUpdateCannotProceed" },
@@ -81,7 +88,7 @@ export class MigrateFromLegacyEncryptionComponent {
         });
 
         if (deleteFolders) {
-          await this.folderApiService.deleteAll();
+          await this.folderApiService.deleteAll(activeUser.id);
           await this.syncService.fullSync(true, true);
           await this.submit();
           return;

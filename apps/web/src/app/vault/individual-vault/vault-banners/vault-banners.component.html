@@ -9,12 +9,12 @@
   {{ freeTrialMessage(organization) }}
   <a
     bitLink
-    linkType="contrast"
+    linkType="secondary"
     (click)="navigateToPaymentMethod(organization?.organizationId)"
     rel="noreferrer noopener"
     class="tw-cursor-pointer"
   >
-    {{ "routeToPaymentMethodTrigger" | i18n }}
+    {{ "clickHereToAddPaymentMethod" | i18n }}
   </a>
 </bit-banner>
 
@@ -47,6 +47,20 @@
   {{ "lowKDFIterationsBanner" | i18n }}
   <a bitLink linkType="secondary" routerLink="/settings/security/security-keys">
     {{ "changeKDFSettings" | i18n }}
+  </a>
+</bit-banner>
+
+<bit-banner
+  id="pending-auth-request-banner"
+  class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+  bannerType="info"
+  icon="bwi-info-circle"
+  *ngIf="visibleBanners.includes(VisibleVaultBanner.PendingAuthRequest)"
+  (onClose)="dismissBanner(VisibleVaultBanner.PendingAuthRequest)"
+>
+  {{ "youHaveAPendingLoginRequest" | i18n }}
+  <a bitLink linkType="secondary" routerLink="/settings/security/device-management">
+    {{ "reviewLoginRequest" | i18n }}
   </a>
 </bit-banner>
 

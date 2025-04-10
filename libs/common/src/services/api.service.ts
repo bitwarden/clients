@@ -1,16 +1,18 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
 import {
-  CollectionRequest,
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,
+  CollectionRequest,
   CollectionResponse,
 } from "@bitwarden/admin-console/common";
 import { LogoutReason } from "@bitwarden/auth/common";
 
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
-import { VaultTimeoutSettingsService } from "../abstractions/vault-timeout/vault-timeout-settings.service";
 import { OrganizationConnectionType } from "../admin-console/enums";
+import { CollectionBulkDeleteRequest } from "../admin-console/models/request/collection-bulk-delete.request";
 import { OrganizationSponsorshipCreateRequest } from "../admin-console/models/request/organization/organization-sponsorship-create.request";
 import { OrganizationSponsorshipRedeemRequest } from "../admin-console/models/request/organization/organization-sponsorship-redeem.request";
 import { OrganizationConnectionRequest } from "../admin-console/models/request/organization-connection.request";
@@ -42,7 +44,6 @@ import {
 } from "../admin-console/models/response/provider/provider-user.response";
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
 import { TokenService } from "../auth/abstractions/token.service";
-import { AuthRequest } from "../auth/models/request/auth.request";
 import { DeviceVerificationRequest } from "../auth/models/request/device-verification.request";
 import { DisableTwoFactorAuthenticatorRequest } from "../auth/models/request/disable-two-factor-authenticator.request";
 import { EmailTokenRequest } from "../auth/models/request/email-token.request";
@@ -53,19 +54,12 @@ import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token
 import { TokenTwoFactorRequest } from "../auth/models/request/identity-token/token-two-factor.request";
 import { UserApiTokenRequest } from "../auth/models/request/identity-token/user-api-token.request";
 import { WebAuthnLoginTokenRequest } from "../auth/models/request/identity-token/webauthn-login-token.request";
-import { KeyConnectorUserKeyRequest } from "../auth/models/request/key-connector-user-key.request";
 import { PasswordHintRequest } from "../auth/models/request/password-hint.request";
-import { PasswordRequest } from "../auth/models/request/password.request";
 import { PasswordlessAuthRequest } from "../auth/models/request/passwordless-auth.request";
 import { SecretVerificationRequest } from "../auth/models/request/secret-verification.request";
-import { SetKeyConnectorKeyRequest } from "../auth/models/request/set-key-connector-key.request";
-import { SetPasswordRequest } from "../auth/models/request/set-password.request";
 import { TwoFactorEmailRequest } from "../auth/models/request/two-factor-email.request";
 import { TwoFactorProviderRequest } from "../auth/models/request/two-factor-provider.request";
-import { TwoFactorRecoveryRequest } from "../auth/models/request/two-factor-recovery.request";
 import { UpdateProfileRequest } from "../auth/models/request/update-profile.request";
-import { UpdateTdeOffboardingPasswordRequest } from "../auth/models/request/update-tde-offboarding-password.request";
-import { UpdateTempPasswordRequest } from "../auth/models/request/update-temp-password.request";
 import { UpdateTwoFactorAuthenticatorRequest } from "../auth/models/request/update-two-factor-authenticator.request";
 import { UpdateTwoFactorDuoRequest } from "../auth/models/request/update-two-factor-duo.request";
 import { UpdateTwoFactorEmailRequest } from "../auth/models/request/update-two-factor-email.request";
@@ -76,6 +70,7 @@ import { ApiKeyResponse } from "../auth/models/response/api-key.response";
 import { AuthRequestResponse } from "../auth/models/response/auth-request.response";
 import { DeviceVerificationResponse } from "../auth/models/response/device-verification.response";
 import { IdentityCaptchaResponse } from "../auth/models/response/identity-captcha.response";
+import { IdentityDeviceVerificationResponse } from "../auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
 import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
@@ -101,10 +96,11 @@ import { PaymentResponse } from "../billing/models/response/payment.response";
 import { PlanResponse } from "../billing/models/response/plan.response";
 import { SubscriptionResponse } from "../billing/models/response/subscription.response";
 import { TaxInfoResponse } from "../billing/models/response/tax-info.response";
-import { TaxRateResponse } from "../billing/models/response/tax-rate.response";
 import { DeviceType } from "../enums";
-import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
-import { CollectionBulkDeleteRequest } from "../models/request/collection-bulk-delete.request";
+import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
+import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
+import { VaultTimeoutSettingsService } from "../key-management/vault-timeout";
+import { VaultTimeoutAction } from "../key-management/vault-timeout/enums/vault-timeout-action.enum";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
 import { EventRequest } from "../models/request/event.request";
 import { KdfRequest } from "../models/request/kdf.request";
@@ -156,6 +152,13 @@ export class ApiService implements ApiServiceAbstraction {
   private deviceType: string;
   private isWebClient = false;
   private isDesktopClient = false;
+  private refreshTokenPromise: Promise<string> | undefined;
+
+  /**
+   * The message (responseJson.ErrorModel.Message) that comes back from the server when a new device verification is required.
+   */
+  private static readonly NEW_DEVICE_VERIFICATION_REQUIRED_MESSAGE =
+    "new device verification required";
 
   constructor(
     private tokenService: TokenService,
@@ -196,7 +199,12 @@ export class ApiService implements ApiServiceAbstraction {
       | PasswordTokenRequest
       | SsoTokenRequest
       | WebAuthnLoginTokenRequest,
-  ): Promise<IdentityTokenResponse | IdentityTwoFactorResponse | IdentityCaptchaResponse> {
+  ): Promise<
+    | IdentityTokenResponse
+    | IdentityTwoFactorResponse
+    | IdentityCaptchaResponse
+    | IdentityDeviceVerificationResponse
+  > {
     const headers = new Headers({
       "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
       Accept: "application/json",
@@ -244,6 +252,11 @@ export class ApiService implements ApiServiceAbstraction {
         Object.keys(responseJson.HCaptcha_SiteKey).length
       ) {
         return new IdentityCaptchaResponse(responseJson);
+      } else if (
+        response.status === 400 &&
+        responseJson?.ErrorModel?.Message === ApiService.NEW_DEVICE_VERIFICATION_REQUIRED_MESSAGE
+      ) {
+        return new IdentityDeviceVerificationResponse(responseJson);
       }
     }
 
@@ -260,22 +273,6 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   // TODO: PM-3519: Create and move to AuthRequest Api service
-  // TODO: PM-9724: Remove legacy auth request methods when we remove legacy LoginViaAuthRequestV1Components
-  async postAuthRequest(request: AuthRequest): Promise<AuthRequestResponse> {
-    const r = await this.send("POST", "/auth-requests/", request, false, true);
-    return new AuthRequestResponse(r);
-  }
-  async postAdminAuthRequest(request: AuthRequest): Promise<AuthRequestResponse> {
-    const r = await this.send("POST", "/auth-requests/admin-request", request, true, true);
-    return new AuthRequestResponse(r);
-  }
-
-  async getAuthResponse(id: string, accessCode: string): Promise<AuthRequestResponse> {
-    const path = `/auth-requests/${id}/response?code=${accessCode}`;
-    const r = await this.send("GET", path, null, false, true);
-    return new AuthRequestResponse(r);
-  }
-
   async getAuthRequest(id: string): Promise<AuthRequestResponse> {
     const path = `/auth-requests/${id}`;
     const r = await this.send("GET", path, null, true, true);
@@ -353,14 +350,6 @@ export class ApiService implements ApiServiceAbstraction {
 
   postEmail(request: EmailRequest): Promise<any> {
     return this.send("POST", "/accounts/email", request, true, false);
-  }
-
-  postPassword(request: PasswordRequest): Promise<any> {
-    return this.send("POST", "/accounts/password", request, true, false);
-  }
-
-  setPassword(request: SetPasswordRequest): Promise<any> {
-    return this.send("POST", "/accounts/set-password", request, true, false);
   }
 
   postSetKeyConnectorKey(request: SetKeyConnectorKeyRequest): Promise<any> {
@@ -458,14 +447,6 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ApiKeyResponse> {
     const r = await this.send("POST", "/accounts/rotate-api-key", request, true, true);
     return new ApiKeyResponse(r);
-  }
-
-  putUpdateTempPassword(request: UpdateTempPasswordRequest): Promise<any> {
-    return this.send("PUT", "/accounts/update-temp-password", request, true, false);
-  }
-
-  putUpdateTdeOffboardingPassword(request: UpdateTdeOffboardingPasswordRequest): Promise<void> {
-    return this.send("PUT", "/accounts/update-tde-offboarding-password", request, true, false);
   }
 
   postConvertToKeyConnector(): Promise<void> {
@@ -683,7 +664,7 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   deleteCipherAttachment(id: string, attachmentId: string): Promise<any> {
-    return this.send("DELETE", "/ciphers/" + id + "/attachment/" + attachmentId, null, true, false);
+    return this.send("DELETE", "/ciphers/" + id + "/attachment/" + attachmentId, null, true, true);
   }
 
   deleteCipherAttachmentAdmin(id: string, attachmentId: string): Promise<any> {
@@ -895,11 +876,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new ListResponse(r, PlanResponse);
   }
 
-  async getTaxRates(): Promise<ListResponse<TaxRateResponse>> {
-    const r = await this.send("GET", "/plans/sales-tax-rates/", null, true, true);
-    return new ListResponse(r, TaxRateResponse);
-  }
-
   // Settings APIs
 
   async getSettingsDomains(): Promise<DomainsResponse> {
@@ -1085,10 +1061,6 @@ export class ApiService implements ApiServiceAbstraction {
       true,
     );
     return new TwoFactorProviderResponse(r);
-  }
-
-  postTwoFactorRecover(request: TwoFactorRecoveryRequest): Promise<any> {
-    return this.send("POST", "/two-factor/recover", request, false, false);
   }
 
   postTwoFactorEmailSetup(request: TwoFactorEmailRequest): Promise<any> {
@@ -1720,7 +1692,18 @@ export class ApiService implements ApiServiceAbstraction {
     );
   }
 
-  protected async refreshToken(): Promise<string> {
+  // Keep the running refreshTokenPromise to prevent parallel calls.
+  protected refreshToken(): Promise<string> {
+    if (this.refreshTokenPromise === undefined) {
+      this.refreshTokenPromise = this.internalRefreshToken();
+      void this.refreshTokenPromise.finally(() => {
+        this.refreshTokenPromise = undefined;
+      });
+    }
+    return this.refreshTokenPromise;
+  }
+
+  private async internalRefreshToken(): Promise<string> {
     const refreshToken = await this.tokenService.getRefreshToken();
     if (refreshToken != null && refreshToken !== "") {
       return this.refreshAccessToken();
@@ -1833,12 +1816,12 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   async send(
-    method: "GET" | "POST" | "PUT" | "DELETE",
+    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
     path: string,
     body: any,
     authed: boolean,
     hasResponse: boolean,
-    apiUrl?: string,
+    apiUrl?: string | null,
     alterHeaders?: (headers: Headers) => void,
   ): Promise<any> {
     const env = await firstValueFrom(this.environmentService.environment$);
@@ -1873,7 +1856,7 @@ export class ApiService implements ApiServiceAbstraction {
       return responseJson;
     } else if (hasResponse && response.status === 200 && responseIsCsv) {
       return await response.text();
-    } else if (response.status !== 200) {
+    } else if (response.status !== 200 && response.status !== 204) {
       const error = await this.handleError(response, false, authed);
       return Promise.reject(error);
     }
@@ -1946,7 +1929,6 @@ export class ApiService implements ApiServiceAbstraction {
           responseJson.error === "invalid_grant")
       ) {
         await this.logoutCallback("invalidGrantError");
-        return null;
       }
     }
 

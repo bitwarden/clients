@@ -7,7 +7,11 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { ButtonModule } from "../../../../components/src/button";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { I18nMockService } from "../../../../components/src/utils/i18n-mock.service";
 import { LockIcon } from "../icons";
 
@@ -159,6 +163,22 @@ export const WithCustomIcon: Story = {
   }),
 };
 
+export const HideIcon: Story = {
+  render: (args) => ({
+    props: args,
+    template:
+      // Projected content (the <div>) and styling is just a sample and can be replaced with any content/styling.
+      `
+      <auth-anon-layout [title]="title" [subtitle]="subtitle" [showReadonlyHostname]="showReadonlyHostname" [hideIcon]="true" >
+        <div>
+          <div class="tw-font-bold">Primary Projected Content Area (customizable)</div>
+          <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus illum vero, placeat recusandae esse ratione eius minima veniam nemo, quas beatae! Impedit molestiae alias sapiente explicabo. Sapiente corporis ipsa numquam?</div>
+        </div>
+      </auth-anon-layout>
+    `,
+  }),
+};
+
 export const HideLogo: Story = {
   render: (args) => ({
     props: args,
@@ -182,6 +202,25 @@ export const HideFooter: Story = {
       // Projected content (the <div>) and styling is just a sample and can be replaced with any content/styling.
       `
       <auth-anon-layout [title]="title" [subtitle]="subtitle" [showReadonlyHostname]="showReadonlyHostname" [hideFooter]="true" [hideLogo]="hideLogo" >
+        <div>
+          <div class="tw-font-bold">Primary Projected Content Area (customizable)</div>
+          <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus illum vero, placeat recusandae esse ratione eius minima veniam nemo, quas beatae! Impedit molestiae alias sapiente explicabo. Sapiente corporis ipsa numquam?</div>
+        </div>
+      </auth-anon-layout>
+    `,
+  }),
+};
+
+export const WithTitleAreaMaxWidth: Story = {
+  render: (args) => ({
+    props: {
+      ...args,
+      title: "This is a very long long title to demonstrate titleAreaMaxWidth set to 'md'",
+      subtitle:
+        "This is a very long subtitle that demonstrates how the max width container handles longer text content with the titleAreaMaxWidth input set to 'md'. Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita, quod est?",
+    },
+    template: `
+      <auth-anon-layout [title]="title" [subtitle]="subtitle" [showReadonlyHostname]="showReadonlyHostname" [hideLogo]="hideLogo" [titleAreaMaxWidth]="'md'">
         <div>
           <div class="tw-font-bold">Primary Projected Content Area (customizable)</div>
           <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus illum vero, placeat recusandae esse ratione eius minima veniam nemo, quas beatae! Impedit molestiae alias sapiente explicabo. Sapiente corporis ipsa numquam?</div>

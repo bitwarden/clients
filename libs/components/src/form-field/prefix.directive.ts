@@ -4,6 +4,7 @@ import { BitIconButtonComponent } from "../icon-button/icon-button.component";
 
 @Directive({
   selector: "[bitPrefix]",
+  standalone: true,
 })
 export class BitPrefixDirective implements OnInit {
   @HostBinding("class") @Input() get classList() {

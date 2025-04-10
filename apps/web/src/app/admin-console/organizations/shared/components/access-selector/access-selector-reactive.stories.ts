@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { Meta, StoryObj } from "@storybook/angular";
 

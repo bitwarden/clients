@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 
 import { CollectionAccessSelectionView } from "./collection-access-selection.view";

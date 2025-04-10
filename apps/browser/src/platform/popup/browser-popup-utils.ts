@@ -1,7 +1,9 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { BrowserApi } from "../browser/browser-api";
 
 import { ScrollOptions } from "./abstractions/browser-popup-utils.abstractions";
-import { PopupWidthOptions } from "./layout/popup-width.service";
+import { PopupWidthOptions } from "./layout/popup-size.service";
 
 class BrowserPopupUtils {
   /**
@@ -20,6 +22,22 @@ class BrowserPopupUtils {
    */
   static inPopout(win: Window): boolean {
     return BrowserPopupUtils.urlContainsSearchParams(win, "uilocation", "popout");
+  }
+
+  /**
+   * Check if the current popup view is open inside of the current browser tab
+   * (it is possible in Chrome to open the extension in a tab)
+   */
+  static async isInTab() {
+    const tabId = (await BrowserApi.getCurrentTab())?.id;
+
+    if (tabId === undefined || tabId === null) {
+      return false;
+    }
+
+    const result = BrowserApi.getExtensionViews({ tabId, type: "tab" });
+
+    return result.length > 0;
   }
 
   /**

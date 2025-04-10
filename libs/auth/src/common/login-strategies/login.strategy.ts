@@ -1,9 +1,7 @@
-import { BehaviorSubject, filter, firstValueFrom, timeout } from "rxjs";
+import { BehaviorSubject, filter, firstValueFrom, timeout, Observable } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
@@ -16,14 +14,20 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { UserApiTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/user-api-token.request";
 import { WebAuthnLoginTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/webauthn-login-token.request";
 import { IdentityCaptchaResponse } from "@bitwarden/common/auth/models/response/identity-captcha.response";
+import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import {
+  VaultTimeoutAction,
+  VaultTimeoutSettingsService,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -49,14 +53,19 @@ import {
 import { UserDecryptionOptions } from "../models/domain/user-decryption-options";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
 
-type IdentityResponse = IdentityTokenResponse | IdentityTwoFactorResponse | IdentityCaptchaResponse;
+type IdentityResponse =
+  | IdentityTokenResponse
+  | IdentityTwoFactorResponse
+  | IdentityCaptchaResponse
+  | IdentityDeviceVerificationResponse;
 
 export abstract class LoginStrategyData {
   tokenRequest:
     | UserApiTokenRequest
     | PasswordTokenRequest
     | SsoTokenRequest
-    | WebAuthnLoginTokenRequest;
+    | WebAuthnLoginTokenRequest
+    | undefined;
   captchaBypassToken?: string;
 
   /** User's entered email obtained pre-login. */
@@ -65,6 +74,8 @@ export abstract class LoginStrategyData {
 
 export abstract class LoginStrategy {
   protected abstract cache: BehaviorSubject<LoginStrategyData>;
+  protected sessionTimeoutSubject = new BehaviorSubject<boolean>(false);
+  sessionTimeout$: Observable<boolean> = this.sessionTimeoutSubject.asObservable();
 
   constructor(
     protected accountService: AccountService,
@@ -83,6 +94,7 @@ export abstract class LoginStrategy {
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
     protected vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     protected KdfConfigService: KdfConfigService,
+    protected environmentService: EnvironmentService,
   ) {}
 
   abstract exportCache(): CacheData;
@@ -98,9 +110,12 @@ export abstract class LoginStrategy {
 
   async logInTwoFactor(
     twoFactor: TokenTwoFactorRequest,
-    captchaResponse: string = null,
+    captchaResponse: string | null = null,
   ): Promise<AuthResult> {
     const data = this.cache.value;
+    if (!data.tokenRequest) {
+      throw new Error("Token request is undefined");
+    }
     data.tokenRequest.setTwoFactor(twoFactor);
     this.cache.next(data);
     const [authResult] = await this.startLogIn();
@@ -111,6 +126,9 @@ export abstract class LoginStrategy {
     await this.twoFactorService.clearSelectedProvider();
 
     const tokenRequest = this.cache.value.tokenRequest;
+    if (!tokenRequest) {
+      throw new Error("Token request is undefined");
+    }
     const response = await this.apiService.postIdentityToken(tokenRequest);
 
     if (response instanceof IdentityTwoFactorResponse) {
@@ -119,6 +137,8 @@ export abstract class LoginStrategy {
       return [await this.processCaptchaResponse(response), response];
     } else if (response instanceof IdentityTokenResponse) {
       return [await this.processTokenResponse(response), response];
+    } else if (response instanceof IdentityDeviceVerificationResponse) {
+      return [await this.processDeviceVerificationResponse(response), response];
     }
 
     throw new Error("Invalid response object.");
@@ -174,9 +194,13 @@ export abstract class LoginStrategy {
 
     await this.accountService.addAccount(userId, {
       name: accountInformation.name,
-      email: accountInformation.email,
-      emailVerified: accountInformation.email_verified,
+      email: accountInformation.email ?? "",
+      emailVerified: accountInformation.email_verified ?? false,
     });
+
+    // User env must be seeded from currently set env before switching to the account
+    // to avoid any incorrect emissions of the global default env.
+    await this.environmentService.seedUserEnvironment(userId);
 
     await this.accountService.switchAccount(userId);
 
@@ -228,7 +252,7 @@ export abstract class LoginStrategy {
     );
 
     await this.billingAccountProfileStateService.setHasPremium(
-      accountInformation.premium,
+      accountInformation.premium ?? false,
       false,
       userId,
     );
@@ -247,16 +271,23 @@ export abstract class LoginStrategy {
       }
     }
 
-    result.resetMasterPassword = response.resetMasterPassword;
-
-    // Convert boolean to enum
-    if (response.forcePasswordReset) {
-      result.forcePasswordReset = ForceSetPasswordReason.AdminForcePasswordReset;
-    }
-
-    // Must come before setting keys, user key needs email to update additional keys
+    // Must come before setting keys, user key needs email to update additional keys.
     const userId = await this.saveAccountInformation(response);
     result.userId = userId;
+
+    result.resetMasterPassword = response.resetMasterPassword;
+
+    // Convert boolean to enum and set the state for the master password service to
+    // so we know when we reach the auth guard that we need to guide them properly to admin
+    // password reset.
+    if (response.forcePasswordReset) {
+      result.forcePasswordReset = ForceSetPasswordReason.AdminForcePasswordReset;
+
+      await this.masterPasswordService.setForceSetPasswordReason(
+        ForceSetPasswordReason.AdminForcePasswordReset,
+        userId,
+      );
+    }
 
     if (response.twoFactorToken != null) {
       // note: we can read email from access token b/c it was saved in saveAccountInformation
@@ -276,7 +307,9 @@ export abstract class LoginStrategy {
 
   // The keys comes from different sources depending on the login strategy
   protected abstract setMasterKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
+
   protected abstract setUserKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
+
   protected abstract setPrivateKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
 
   // Old accounts used master key for encryption. We are forcing migrations but only need to
@@ -289,6 +322,9 @@ export abstract class LoginStrategy {
     try {
       const userKey = await this.keyService.getUserKeyWithLegacySupport(userId);
       const [publicKey, privateKey] = await this.keyService.makeKeyPair(userKey);
+      if (!privateKey.encryptedString) {
+        throw new Error("Failed to create encrypted private key");
+      }
       await this.apiService.postAccountKeys(new KeysRequest(publicKey, privateKey.encryptedString));
       return privateKey.encryptedString;
     } catch (e) {
@@ -314,7 +350,8 @@ export abstract class LoginStrategy {
     await this.twoFactorService.setProviders(response);
     this.cache.next({ ...this.cache.value, captchaBypassToken: response.captchaToken ?? null });
     result.ssoEmail2FaSessionToken = response.ssoEmail2faSessionToken;
-    result.email = response.email;
+
+    result.email = response.email ?? "";
     return result;
   }
 
@@ -352,5 +389,23 @@ export abstract class LoginStrategy {
         }),
       ),
     );
+  }
+
+  /**
+   * Handles the response from the server when a device verification is required.
+   * It sets the requiresDeviceVerification flag to true and caches the captcha token if it came back.
+   *
+   * @param {IdentityDeviceVerificationResponse} response - The response from the server indicating that device verification is required.
+   * @returns {Promise<AuthResult>} - A promise that resolves to an AuthResult object
+   */
+  protected async processDeviceVerificationResponse(
+    response: IdentityDeviceVerificationResponse,
+  ): Promise<AuthResult> {
+    const result = new AuthResult();
+    result.requiresDeviceVerification = true;
+
+    // Extend cached data with captcha bypass token if it came back.
+    this.cache.next({ ...this.cache.value, captchaBypassToken: response.captchaToken ?? null });
+    return result;
   }
 }

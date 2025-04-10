@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 import { Jsonify, JsonValue } from "type-fest";
 
@@ -132,7 +134,6 @@ export class StateService<
   }
 
   async addAccount(account: TAccount) {
-    await this.environmentService.seedUserEnvironment(account.profile.userId as UserId);
     await this.updateState(async (state) => {
       state.accounts[account.profile.userId] = account;
       return state;
@@ -168,7 +169,7 @@ export class StateService<
   /**
    * user key when using the "never" option of vault timeout
    */
-  async setUserKeyAutoUnlock(value: string, options?: StorageOptions): Promise<void> {
+  async setUserKeyAutoUnlock(value: string | null, options?: StorageOptions): Promise<void> {
     options = this.reconcileOptions(
       this.reconcileOptions(options, { keySuffix: "auto" }),
       await this.defaultSecureStorageOptions(),
@@ -219,45 +220,6 @@ export class StateService<
       return;
     }
     await this.saveSecureStorageKey(partialKeys.userBiometricKey, value, options);
-  }
-
-  /**
-   * @deprecated Use UserKeyAuto instead
-   */
-  async setCryptoMasterKeyAuto(value: string, options?: StorageOptions): Promise<void> {
-    options = this.reconcileOptions(
-      this.reconcileOptions(options, { keySuffix: "auto" }),
-      await this.defaultSecureStorageOptions(),
-    );
-    if (options?.userId == null) {
-      return;
-    }
-    await this.saveSecureStorageKey(partialKeys.autoKey, value, options);
-  }
-
-  /**
-   * @deprecated I don't see where this is even used
-   */
-  async getCryptoMasterKeyB64(options?: StorageOptions): Promise<string> {
-    options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
-    if (options?.userId == null) {
-      return null;
-    }
-    return await this.secureStorageService.get<string>(
-      `${options?.userId}${partialKeys.masterKey}`,
-      options,
-    );
-  }
-
-  /**
-   * @deprecated I don't see where this is even used
-   */
-  async setCryptoMasterKeyB64(value: string, options?: StorageOptions): Promise<void> {
-    options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
-    if (options?.userId == null) {
-      return;
-    }
-    await this.saveSecureStorageKey(partialKeys.masterKey, value, options);
   }
 
   async getDuckDuckGoSharedKey(options?: StorageOptions): Promise<string> {
@@ -618,8 +580,6 @@ export class StateService<
 
     await this.setUserKeyAutoUnlock(null, { userId: userId });
     await this.setUserKeyBiometric(null, { userId: userId });
-    await this.setCryptoMasterKeyAuto(null, { userId: userId });
-    await this.setCryptoMasterKeyB64(null, { userId: userId });
   }
 
   protected async removeAccountFromMemory(userId: string = null): Promise<void> {
@@ -661,7 +621,7 @@ export class StateService<
 
   protected async saveSecureStorageKey<T extends JsonValue>(
     key: string,
-    value: T,
+    value: T | null,
     options?: StorageOptions,
   ) {
     return value == null

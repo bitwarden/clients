@@ -1,20 +1,34 @@
 import { Theme } from "@bitwarden/common/platform/enums";
 
+import { NotificationCipherData } from "../../../autofill/content/components/cipher/types";
+import { FolderView, OrgView } from "../../../autofill/content/components/common-types";
+
+const NotificationTypes = {
+  Add: "add",
+  Change: "change",
+  Unlock: "unlock",
+} as const;
+
+type NotificationType = (typeof NotificationTypes)[keyof typeof NotificationTypes];
+
 type NotificationBarIframeInitData = {
-  type?: string;
-  isVaultLocked?: boolean;
-  theme?: Theme;
-  removeIndividualVault?: boolean;
+  ciphers?: NotificationCipherData[];
+  folders?: FolderView[];
   importType?: string;
-  applyRedesign?: boolean;
+  isVaultLocked?: boolean;
   launchTimestamp?: number;
+  organizations?: OrgView[];
+  removeIndividualVault?: boolean;
+  theme?: Theme;
+  type?: string; // @TODO use `NotificationType`
 };
 
 type NotificationBarWindowMessage = {
-  [key: string]: any;
+  cipherId?: string;
   command: string;
   error?: string;
   initData?: NotificationBarIframeInitData;
+  username?: string;
 };
 
 type NotificationBarWindowMessageHandlers = {
@@ -24,6 +38,8 @@ type NotificationBarWindowMessageHandlers = {
 };
 
 export {
+  NotificationTypes,
+  NotificationType,
   NotificationBarIframeInitData,
   NotificationBarWindowMessage,
   NotificationBarWindowMessageHandlers,

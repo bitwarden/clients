@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -13,8 +15,13 @@ import { ValidationService } from "@bitwarden/common/platform/abstractions/valid
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { ToastService } from "../../../../components/src/toast";
-import { InputPasswordComponent } from "../input-password/input-password.component";
+import {
+  InputPasswordComponent,
+  InputPasswordFlow,
+} from "../input-password/input-password.component";
 import { PasswordInputResult } from "../input-password/password-input-result";
 
 import {
@@ -29,6 +36,7 @@ import {
   imports: [CommonModule, InputPasswordComponent, JslibModule],
 })
 export class SetPasswordJitComponent implements OnInit {
+  protected InputPasswordFlow = InputPasswordFlow;
   protected email: string;
   protected masterPasswordPolicyOptions: MasterPasswordPolicyOptions;
   protected orgId: string;

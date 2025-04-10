@@ -1,4 +1,4 @@
-import { Meta, Story, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
 
 import * as stories from "./dialog.stories";
 
@@ -35,7 +35,7 @@ Use the large size for dialogs that have many interactive elements or tabbed con
 
 `max-w-3xl` 48rem
 
-<Story of={stories.Large} />
+<Canvas of={stories.Large} />
 
 ### Default
 
@@ -46,7 +46,7 @@ Use the Default size for most dialogs that require some content and a few intera
 
 `max-w-xl` 36rem
 
-<Story of={stories.Default} />
+<Canvas of={stories.Default} />
 
 ### Small
 
@@ -54,31 +54,31 @@ Use the Default size for most dialogs that require some content and a few intera
 
 `max-w-sm` 24rem
 
-<Story of={stories.Small} />
+<Canvas of={stories.Small} />
 
 ## Long Title
 
 If a dialog's title is too long to fully display. It should be truncated and on hover shown in a
 tooltip.
 
-<Story of={stories.LongTitle} />
+<Canvas of={stories.LongTitle} />
 
 ## Loading
 
 Similar to a page loading state, a Dialog that takes more than a few seconds to load should use a
 loading state.
 
-<Story of={stories.Loading} />
+<Canvas of={stories.Loading} />
 
 ## Tab Content
 
 Use tabs to separate related content within a dialog.
 
-<Story of={stories.TabContent} />
+<Canvas of={stories.TabContent} />
 
 ## Background Color
 
 The `background` input can be set to `alt` to change the background color. This is useful for
 dialogs that contain multiple card sections.
 
-<Story of={stories.WithCards} />
+<Canvas of={stories.WithCards} />

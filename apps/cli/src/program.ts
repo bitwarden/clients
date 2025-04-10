@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as chalk from "chalk";
 import { program, Command, OptionValues } from "commander";
 import { firstValueFrom } from "rxjs";
@@ -153,6 +155,7 @@ export class Program extends BaseProgram {
             this.serviceContainer.loginStrategyService,
             this.serviceContainer.authService,
             this.serviceContainer.apiService,
+            this.serviceContainer.masterPasswordApiService,
             this.serviceContainer.cryptoFunctionService,
             this.serviceContainer.environmentService,
             this.serviceContainer.passwordGenerationService,
@@ -168,6 +171,7 @@ export class Program extends BaseProgram {
             this.serviceContainer.organizationService,
             async () => await this.serviceContainer.logout(),
             this.serviceContainer.kdfConfigService,
+            this.serviceContainer.ssoUrlService,
           );
           const response = await command.run(email, password, options);
           this.processResponse(response, true);
@@ -426,7 +430,10 @@ export class Program extends BaseProgram {
         writeLn("", true);
       })
       .action(async () => {
-        const command = new UpdateCommand(this.serviceContainer.platformUtilsService);
+        const command = new UpdateCommand(
+          this.serviceContainer.platformUtilsService,
+          this.serviceContainer.apiService,
+        );
         const response = await command.run();
         this.processResponse(response);
       });

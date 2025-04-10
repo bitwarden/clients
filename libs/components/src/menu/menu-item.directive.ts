@@ -1,10 +1,13 @@
 import { FocusableOption } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
+import { NgClass } from "@angular/common";
 import { Component, ElementRef, HostBinding, Input } from "@angular/core";
 
 @Component({
   selector: "[bitMenuItem]",
   templateUrl: "menu-item.component.html",
+  standalone: true,
+  imports: [NgClass],
 })
 export class MenuItemDirective implements FocusableOption {
   @HostBinding("class") classList = [

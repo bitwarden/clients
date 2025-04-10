@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Params, Router, RouterModule } from "@angular/router";
@@ -14,9 +16,16 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
 
-import { LoginStrategyServiceAbstraction, PasswordLoginCredentials } from "../../../common";
+import {
+  LoginStrategyServiceAbstraction,
+  LoginSuccessHandlerService,
+  PasswordLoginCredentials,
+} from "../../../common";
 import { AnonLayoutWrapperDataService } from "../../anon-layout/anon-layout-wrapper-data.service";
-import { InputPasswordComponent } from "../../input-password/input-password.component";
+import {
+  InputPasswordComponent,
+  InputPasswordFlow,
+} from "../../input-password/input-password.component";
 import { PasswordInputResult } from "../../input-password/password-input-result";
 
 import { RegistrationFinishService } from "./registration-finish.service";
@@ -29,6 +38,8 @@ import { RegistrationFinishService } from "./registration-finish.service";
 })
 export class RegistrationFinishComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+
+  InputPasswordFlow = InputPasswordFlow;
 
   loading = true;
   submitting = false;
@@ -66,6 +77,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     private loginStrategyService: LoginStrategyServiceAbstraction,
     private logService: LogService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
+    private loginSuccessHandlerService: LoginSuccessHandlerService,
   ) {}
 
   async ngOnInit() {
@@ -169,7 +181,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     try {
       const credentials = new PasswordLoginCredentials(
         this.email,
-        passwordInputResult.password,
+        passwordInputResult.newPassword,
         captchaBypassToken,
         null,
       );
@@ -186,6 +198,8 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
         title: null,
         message: this.i18nService.t("youHaveBeenLoggedIn"),
       });
+
+      await this.loginSuccessHandlerService.run(authenticationResult.userId);
 
       await this.router.navigate(["/vault"]);
     } catch (e) {

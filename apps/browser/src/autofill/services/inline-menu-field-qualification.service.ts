@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { getSubmitButtonKeywordsSet, sendExtensionMessage } from "../utils";
@@ -54,6 +56,7 @@ export class InlineMenuFieldQualificationService
     "neuer benutzer",
     "neues passwort",
     "neue e-mail",
+    "pwdcheck",
   ];
   private updatePasswordFieldKeywords = [
     "update password",
@@ -147,13 +150,15 @@ export class InlineMenuFieldQualificationService
     this.identityPostalCodeAutocompleteValue,
   ]);
   private totpFieldAutocompleteValue = "one-time-code";
-  private inlineMenuFieldQualificationFlagSet = false;
+  private premiumEnabled = false;
 
   constructor() {
-    void sendExtensionMessage("getInlineMenuFieldQualificationFeatureFlag").then(
-      (getInlineMenuFieldQualificationFlag) =>
-        (this.inlineMenuFieldQualificationFlagSet = !!getInlineMenuFieldQualificationFlag?.result),
-    );
+    void Promise.all([
+      sendExtensionMessage("getInlineMenuFieldQualificationFeatureFlag"),
+      sendExtensionMessage("getUserPremiumStatus"),
+    ]).then(([fieldQualificationFlag, premiumStatus]) => {
+      this.premiumEnabled = !!premiumStatus?.result;
+    });
   }
 
   /**
@@ -163,12 +168,16 @@ export class InlineMenuFieldQualificationService
    * @param pageDetails - The details of the page that the field is on.
    */
   isFieldForLoginForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
-    if (!this.inlineMenuFieldQualificationFlagSet) {
-      return this.isFieldForLoginFormFallback(field);
-    }
-
-    if (this.isTotpField(field)) {
-      return false;
+    /**
+     * Totp inline menu is available only for premium users.
+     */
+    if (this.premiumEnabled) {
+      const isTotpField = this.isTotpField(field);
+      // Autofill does not fill totp inputs with a "password" `type` attribute value
+      const passwordType = field.type === "password";
+      if (isTotpField && !passwordType) {
+        return true;
+      }
     }
 
     const isCurrentPasswordField = this.isCurrentPasswordField(field);
@@ -985,7 +994,7 @@ export class InlineMenuFieldQualificationService
    *
    * @param field - The field to validate
    */
-  private isTotpField = (field: AutofillField): boolean => {
+  isTotpField = (field: AutofillField): boolean => {
     if (this.fieldContainsAutocompleteValues(field, this.totpFieldAutocompleteValue)) {
       return true;
     }
@@ -1207,19 +1216,5 @@ export class InlineMenuFieldQualificationService
     }
 
     return false;
-  }
-
-  /**
-   * This method represents the previous rudimentary approach to qualifying fields for login forms.
-   *
-   * @param field - The field to validate
-   * @deprecated - This method will only be used when the fallback flag is set to true.
-   */
-  private isFieldForLoginFormFallback(field: AutofillField): boolean {
-    if (field.type === "password") {
-      return true;
-    }
-
-    return this.isUsernameField(field);
   }
 }

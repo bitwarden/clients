@@ -1,6 +1,9 @@
-import { firstValueFrom, map } from "rxjs";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
+import { getUserId } from "../../../auth/services/account.service";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { SyncService } from "../../../vault/abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "../../../vault/enums/cipher-reprompt-type";
@@ -41,10 +44,12 @@ const KeyUsages: KeyUsage[] = ["sign"];
  *
  * It is highly recommended that the W3C specification is used a reference when reading this code.
  */
-export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstraction {
+export class Fido2AuthenticatorService<ParentWindowReference>
+  implements Fido2AuthenticatorServiceAbstraction<ParentWindowReference>
+{
   constructor(
     private cipherService: CipherService,
-    private userInterface: Fido2UserInterfaceService,
+    private userInterface: Fido2UserInterfaceService<ParentWindowReference>,
     private syncService: SyncService,
     private accountService: AccountService,
     private logService?: LogService,
@@ -52,12 +57,12 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
 
   async makeCredential(
     params: Fido2AuthenticatorMakeCredentialsParams,
-    tab: chrome.tabs.Tab,
+    window: ParentWindowReference,
     abortController?: AbortController,
   ): Promise<Fido2AuthenticatorMakeCredentialResult> {
     const userInterfaceSession = await this.userInterface.newSession(
       params.fallbackSupported,
-      tab,
+      window,
       abortController,
     );
 
@@ -141,10 +146,10 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
       try {
         keyPair = await createKeyPair();
         pubKeyDer = await crypto.subtle.exportKey("spki", keyPair.publicKey);
-        const encrypted = await this.cipherService.get(cipherId);
         const activeUserId = await firstValueFrom(
-          this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+          this.accountService.activeAccount$.pipe(getUserId),
         );
+        const encrypted = await this.cipherService.get(cipherId, activeUserId);
 
         cipher = await encrypted.decrypt(
           await this.cipherService.getKeyForCipherKeyDecryption(encrypted, activeUserId),
@@ -207,12 +212,12 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
 
   async getAssertion(
     params: Fido2AuthenticatorGetAssertionParams,
-    tab: chrome.tabs.Tab,
+    window: ParentWindowReference,
     abortController?: AbortController,
   ): Promise<Fido2AuthenticatorGetAssertionResult> {
     const userInterfaceSession = await this.userInterface.newSession(
       params.fallbackSupported,
-      tab,
+      window,
       abortController,
     );
     try {
@@ -305,7 +310,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
 
         if (selectedFido2Credential.counter > 0) {
           const activeUserId = await firstValueFrom(
-            this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+            this.accountService.activeAccount$.pipe(getUserId),
           );
           const encrypted = await this.cipherService.encrypt(selectedCipher, activeUserId);
           await this.cipherService.updateWithServer(encrypted);
@@ -396,7 +401,8 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
       return [];
     }
 
-    const ciphers = await this.cipherService.getAllDecrypted();
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
     return ciphers
       .filter(
         (cipher) =>
@@ -417,7 +423,8 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
       return [];
     }
 
-    const ciphers = await this.cipherService.getAllDecrypted();
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
     return ciphers.filter(
       (cipher) =>
         !cipher.isDeleted &&
@@ -434,7 +441,8 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
   }
 
   private async findCredentialsByRp(rpId: string): Promise<CipherView[]> {
-    const ciphers = await this.cipherService.getAllDecrypted();
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
     return ciphers.filter(
       (cipher) =>
         !cipher.isDeleted &&

@@ -249,6 +249,20 @@
   "error": {
     "message": "Erro"
   },
+  "decryptionError": {
+    "message": "Erro de desencriptação"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "O Bitwarden não conseguiu desencriptar o(s) item(ns) do cofre listado(s) abaixo."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Contacte o serviço de apoio ao cliente",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "para evitar perdas adicionais de dados.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
   "january": {
     "message": "Janeiro"
   },
@@ -495,14 +509,14 @@
     "description": "deprecated. Use numbersLabel instead."
   },
   "specialCharacters": {
-    "message": "Caracteres especiais (!@#$%^&*)"
+    "message": "Carateres especiais (!@#$%^&*)"
   },
   "include": {
     "message": "Incluir",
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "Incluir caracteres em maiúsculas",
+    "message": "Incluir carateres em maiúsculas",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -510,7 +524,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Incluir caracteres em minúsculas",
+    "message": "Incluir carateres em minúsculas",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -526,12 +540,8 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Incluir caracteres especiais",
+    "message": "Incluir carateres especiais",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Número de palavras"
@@ -553,15 +563,15 @@
     "message": "Mínimo de números"
   },
   "minSpecial": {
-    "message": "Mínimo de caracteres especiais",
+    "message": "Mínimo de carateres especiais",
     "description": "Minimum Special Characters"
   },
   "ambiguous": {
-    "message": "Evitar caracteres ambíguos",
+    "message": "Evitar carateres ambíguos",
     "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
-    "message": "Evitar caracteres ambíguos",
+    "message": "Evitar carateres ambíguos",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
@@ -638,6 +648,15 @@
   "logInToBitwarden": {
     "message": "Iniciar sessão no Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Introduza o código enviado para o seu e-mail"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Introduza o código da sua app de autenticação"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Prima a sua YubiKey para se autenticar"
+  },
   "logInWithPasskey": {
     "message": "Iniciar sessão com a chave de acesso"
   },
@@ -666,7 +685,7 @@
     "message": "Dica da palavra-passe mestra (opcional)"
   },
   "masterPassHintText": {
-    "message": "Se se esquecer da sua palavra-passe, a dica da palavra-passe pode ser enviada para o seu e-mail. Máximo de $CURRENT$/$MAXIMUM$ caracteres.",
+    "message": "Se se esquecer da sua palavra-passe, a dica da palavra-passe pode ser enviada para o seu e-mail. Máximo de $CURRENT$/$MAXIMUM$ carateres.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -689,6 +708,15 @@
   },
   "masterPassHintLabel": {
     "message": "Dica da palavra-passe mestra"
+  },
+  "passwordStrengthScore": {
+    "message": "Pontuação da força da palavra-passe: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Aderir à organização"
@@ -720,12 +748,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Introduza o endereço de e-mail da sua conta e ser-lhe-á enviada a sua dica da palavra-passe"
   },
-  "passwordHint": {
-    "message": "Dica da palavra-passe"
-  },
-  "enterEmailToGetHint": {
-    "message": "Introduza o endereço de e-mail da sua conta para receber a dica da sua palavra-passe mestra."
-  },
   "getMasterPasswordHint": {
     "message": "Obter a dica da palavra-passe mestra"
   },
@@ -742,7 +764,7 @@
     "message": "É necessário reescrever a palavra-passe mestra."
   },
   "masterPasswordMinlength": {
-    "message": "A palavra-passe mestra deve ter pelo menos $VALUE$ caracteres.",
+    "message": "A palavra-passe mestra deve ter pelo menos $VALUE$ carateres.",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -802,23 +824,14 @@
   "webauthnCancelOrTimeout": {
     "message": "A autenticação foi cancelada ou demorou demasiado tempo. Por favor, tente novamente."
   },
+  "openInNewTab": {
+    "message": "Abrir num novo separador"
+  },
   "invalidVerificationCode": {
     "message": "Código de verificação inválido"
   },
   "continue": {
     "message": "Continuar"
-  },
-  "enterVerificationCodeApp": {
-    "message": "Introduza o código de verificação de 6 dígitos da sua aplicação de autenticação."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Introduza o código de verificação de 6 dígitos que foi enviado por e-mail para $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "E-mail de verificação enviado para $EMAIL$.",
@@ -829,17 +842,15 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Memorizar"
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Não voltar a perguntar neste dispositivo durante 30 dias"
   },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Enviar e-mail com o código de verificação novamente"
+  "selectAnotherMethod": {
+    "message": "Selecionar outro método",
+    "description": "Select another two-step login method"
   },
-  "useAnotherTwoStepMethod": {
-    "message": "Utilizar outro método de verificação de dois passos"
-  },
-  "insertYubiKey": {
-    "message": "Introduza a sua YubiKey na porta USB do seu computador, depois toque no botão da mesma."
+  "useYourRecoveryCode": {
+    "message": "Utilize o seu código de recuperação"
   },
   "insertU2f": {
     "message": "Introduza a sua chave de segurança na porta USB do seu computador. Se tiver um botão, toque no mesmo."
@@ -871,6 +882,15 @@
     "message": "Proteja a sua organização com a Duo Security utilizando a aplicação Duo Mobile, SMS, chamada telefónica ou uma chave de segurança U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
+  "verifyYourIdentity": {
+    "message": "Verifique a sua identidade"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Não reconhecemos este dispositivo. Introduza o código enviado para o seu e-mail para verificar a sua identidade."
+  },
+  "continueLoggingIn": {
+    "message": "Continuar a iniciar sessão"
+  },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
@@ -895,11 +915,11 @@
   "twoStepOptions": {
     "message": "Opções de verificação de dois passos"
   },
+  "selectTwoStepLoginMethod": {
+    "message": "Selecionar método de verificação de dois passos"
+  },
   "selfHostedEnvironment": {
     "message": "Ambiente auto-hospedado"
-  },
-  "selfHostedEnvironmentFooter": {
-    "message": "Especifique o URL de base da sua instalação Bitwarden hospedada no local."
   },
   "selfHostedBaseUrlHint": {
     "message": "Especifique o URL de base da sua instalação Bitwarden hospedada no local. Exemplo: https://bitwarden.company.com"
@@ -913,11 +933,14 @@
   "customEnvironment": {
     "message": "Ambiente personalizado"
   },
-  "customEnvironmentFooter": {
-    "message": "Para utilizadores avançados. Pode especificar o URL de base de cada serviço de forma independente."
-  },
   "baseUrl": {
     "message": "URL do servidor"
+  },
+  "authenticationTimeout": {
+    "message": "Tempo limite de autenticação"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "A sessão de autenticação expirou. Por favor, reinicie o processo de início de sessão."
   },
   "selfHostBaseUrl": {
     "message": "URL do servidor auto-hospedado",
@@ -949,6 +972,9 @@
   },
   "no": {
     "message": "Não"
+  },
+  "location": {
+    "message": "Localização"
   },
   "overwritePassword": {
     "message": "Substituir palavra-passe"
@@ -1359,9 +1385,6 @@
   "premiumPurchase": {
     "message": "Adquirir Premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Pode adquirir uma subscrição Premium no cofre web em bitwarden.com. Pretende visitar o site agora?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Pode adquirir o Premium a partir das definições da sua conta na aplicação Web do Bitwarden."
   },
@@ -1728,9 +1751,6 @@
   "windowsHelloConsentMessage": {
     "message": "Verificar para o Bitwarden."
   },
-  "polkitConsentMessage": {
-    "message": "Autenticar para desbloquear o Bitwarden."
-  },
   "unlockWithTouchId": {
     "message": "Desbloquear com Touch ID"
   },
@@ -1741,16 +1761,19 @@
     "message": "desbloquear o cofre"
   },
   "autoPromptWindowsHello": {
-    "message": "Pedir o Windows Hello ao iniciar a aplicação"
+    "message": "Pedir o Windows Hello ao iniciar a app"
   },
   "autoPromptPolkit": {
     "message": "Pedir a autenticação do sistema no arranque"
   },
   "autoPromptTouchId": {
-    "message": "Pedir o Touch ID ao iniciar a aplicação"
+    "message": "Pedir o Touch ID ao iniciar a app"
   },
   "requirePasswordOnStart": {
-    "message": "Exigir palavra-passe ou PIN ao iniciar a aplicação"
+    "message": "Exigir palavra-passe ou PIN ao iniciar a app"
+  },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Exigir palavra-passe ao iniciar a app"
   },
   "recommendedForSecurity": {
     "message": "Recomendado por segurança."
@@ -1927,16 +1950,16 @@
     }
   },
   "policyInEffectUppercase": {
-    "message": "Contém um ou mais caracteres em maiúsculas"
+    "message": "Contém um ou mais carateres em maiúsculas"
   },
   "policyInEffectLowercase": {
-    "message": "Contém um ou mais caracteres em minúsculas"
+    "message": "Contém um ou mais carateres em minúsculas"
   },
   "policyInEffectNumbers": {
     "message": "Contém um ou mais números"
   },
   "policyInEffectSpecial": {
-    "message": "Contém um ou mais dos seguintes caracteres especiais $CHARS$",
+    "message": "Contém um ou mais dos seguintes carateres especiais $CHARS$",
     "placeholders": {
       "chars": {
         "content": "$1",
@@ -2221,6 +2244,12 @@
   "webAuthnAuthenticate": {
     "message": "Autenticar o WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "Ler chave de segurança"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "A aguardar interação da chave de segurança..."
+  },
   "hideEmail": {
     "message": "Ocultar o meu endereço de e-mail dos destinatários."
   },
@@ -2437,6 +2466,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Apenas os itens individuais do cofre, incluindo os anexos associados a $EMAIL$, serão exportados. Os itens do cofre da organização não serão incluídos",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "A exportar o cofre da organização"
   },
@@ -2492,7 +2530,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Utilize $RECOMMENDED$ caracteres ou mais para gerar uma palavra-passe forte.",
+    "message": " Utilize $RECOMMENDED$ carateres ou mais para gerar uma palavra-passe forte.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2526,6 +2564,9 @@
   },
   "catchallEmailDesc": {
     "message": "Utilize a caixa de entrada de captura geral configurada para o seu domínio."
+  },
+  "useThisEmail": {
+    "message": "Utilizar este e-mail"
   },
   "random": {
     "message": "Aleatório"
@@ -2603,6 +2644,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Token da API de $SERVICENAME$ inválido: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ recusou o seu pedido. Por favor, contacte o seu fornecedor de serviços para obter assistência.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ recusou o seu pedido: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -2692,14 +2757,8 @@
   "loginWithMasterPassword": {
     "message": "Iniciar sessão com a palavra-passe mestra"
   },
-  "loggingInAs": {
-    "message": "A iniciar sessão como"
-  },
   "rememberEmail": {
     "message": "Memorizar e-mail"
-  },
-  "notYou": {
-    "message": "Utilizador incorreto?"
   },
   "newAroundHere": {
     "message": "É novo por cá?"
@@ -2719,14 +2778,23 @@
   "loginInitiated": {
     "message": "A preparar o início de sessão"
   },
+  "logInRequestSent": {
+    "message": "Pedido enviado"
+  },
   "notificationSentDevice": {
     "message": "Foi enviada uma notificação para o seu dispositivo."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Foi enviada uma notificação para o seu dispositivo"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Certifique-se de que a sua conta está desbloqueada e que a frase de impressão digital corresponde à do outro dispositivo"
+  "notificationSentDevicePart1": {
+    "message": "Desbloqueie o Bitwarden no seu dispositivo ou no "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "aplicação web"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Certifique-se de que a frase da impressão digital corresponde à frase abaixo indicada antes de a aprovar."
   },
   "needAnotherOptionV1": {
     "message": "Precisa de outra opção?"
@@ -2753,14 +2821,14 @@
     "message": "Reenviar notificação"
   },
   "toggleCharacterCount": {
-    "message": "Mostrar/ocultar contagem de caracteres",
+    "message": "Mostrar/ocultar contagem de carateres",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Está a tentar iniciar sessão?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Está a tentar aceder à sua conta?"
   },
-  "logInAttemptBy": {
-    "message": "Tentativa de início de sessão por $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Tentativa de acesso por $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2777,14 +2845,14 @@
   "time": {
     "message": "Hora"
   },
-  "confirmLogIn": {
-    "message": "Confirmar início de sessão"
+  "confirmAccess": {
+    "message": "Confirmar acesso"
   },
-  "denyLogIn": {
-    "message": "Recusar início de sessão"
+  "denyAccess": {
+    "message": "Recusar acesso"
   },
   "logInConfirmedForEmailOnDevice": {
-    "message": "Início de sessão confirmado para $EMAIL$ em $DEVICE$",
+    "message": "Início de sessão confirmado para $EMAIL$ no $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2797,7 +2865,7 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Negou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
+    "message": "Recusou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
   },
   "justNow": {
     "message": "Agora mesmo"
@@ -2817,8 +2885,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Este pedido já não é válido."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Confirmar tentativa de início de sessão de $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Confirmar tentativa de acesso para $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2828,6 +2896,9 @@
   },
   "logInRequested": {
     "message": "Pedido de início de sessão"
+  },
+  "accountAccessRequested": {
+    "message": "Acesso à conta solicitado"
   },
   "creatingAccountOn": {
     "message": "A criar uma conta em"
@@ -2862,6 +2933,12 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Palavra-passe fraca identificada e encontrada numa violação de dados. Utilize uma palavra-passe forte e única para proteger a sua conta. Tem a certeza de que pretende utilizar esta palavra-passe?"
   },
+  "useThisPassword": {
+    "message": "Utilizar esta palavra-passe"
+  },
+  "useThisUsername": {
+    "message": "Utilizar este nome de utilizador"
+  },
   "checkForBreaches": {
     "message": "Verificar violações de dados conhecidas para esta palavra-passe"
   },
@@ -2872,7 +2949,7 @@
     "message": "Importante:"
   },
   "accessing": {
-    "message": "A aceder"
+    "message": "A aceder a"
   },
   "accessTokenUnableToBeDecrypted": {
     "message": "A sua sessão foi encerrada porque o seu token de acesso não pôde ser desencriptado. Por favor, inicie sessão novamente para resolver este problema."
@@ -2884,7 +2961,7 @@
     "message": "A sua palavra-passe mestra não pode ser recuperada se a esquecer!"
   },
   "characterMinimum": {
-    "message": "$LENGTH$ caracteres no mínimo",
+    "message": "$LENGTH$ carateres no mínimo",
     "placeholders": {
       "length": {
         "content": "$1",
@@ -2922,9 +2999,6 @@
   "requestAdminApproval": {
     "message": "Pedir aprovação do administrador"
   },
-  "approveWithMasterPassword": {
-    "message": "Aprovar com a palavra-passe mestra"
-  },
   "region": {
     "message": "Região"
   },
@@ -2949,9 +3023,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "O seu pedido foi enviado ao seu administrador."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Será notificado quando for aprovado."
   },
   "troubleLoggingIn": {
     "message": "Problemas a iniciar sessão?"
@@ -2978,7 +3049,7 @@
     "message": "Procurar"
   },
   "inputMinLength": {
-    "message": "O campo deve ter pelo menos $COUNT$ caracteres.",
+    "message": "O campo deve ter pelo menos $COUNT$ carateres.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2987,7 +3058,7 @@
     }
   },
   "inputMaxLength": {
-    "message": "O campo não pode exceder os $COUNT$ caracteres de comprimento.",
+    "message": "O campo não pode exceder os $COUNT$ carateres de comprimento.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2996,7 +3067,7 @@
     }
   },
   "inputForbiddenCharacters": {
-    "message": "Não são permitidos os seguintes caracteres: $CHARACTERS$",
+    "message": "Não são permitidos os seguintes carateres: $CHARACTERS$",
     "placeholders": {
       "characters": {
         "content": "$1",
@@ -3005,7 +3076,7 @@
     }
   },
   "inputMinValue": {
-    "message": "O valor do campo tem de ser, pelo menos, $MIN$ caracteres.",
+    "message": "O valor do campo tem de ser, pelo menos, $MIN$ carateres.",
     "placeholders": {
       "min": {
         "content": "$1",
@@ -3014,7 +3085,7 @@
     }
   },
   "inputMaxValue": {
-    "message": "O valor do campo não pode exceder os $MAX$ caracteres.",
+    "message": "O valor do campo não pode exceder os $MAX$ carateres.",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -3129,11 +3200,14 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Erro ao ligar ao serviço Duo. Utilize um método de verificação de dois passos diferente ou contacte o Duo para obter assistência."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Inicie o Duo e siga os passos para concluir o início de sessão."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "A verificação de dois passos Duo é necessária para a sua conta."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "A verificação de dois passos do Duo é necessária para a sua conta. Siga os passos abaixo para concluir o início de sessão."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Siga os passos abaixo para concluir o início de sessão."
   },
   "launchDuo": {
     "message": "Iniciar o Duo no navegador"
@@ -3359,6 +3433,30 @@
   "ssoError": {
     "message": "Não foi possível encontrar portas livres para o início de sessão sso."
   },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "O desbloqueio biométrico não está disponível porque o desbloqueio por PIN ou palavra-passe é necessário primeiro."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "O desbloqueio biométrico está atualmente indisponível."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "O desbloqueio biométrico não está disponível devido a ficheiros de sistema mal configurados."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "O desbloqueio biométrico não está disponível devido a ficheiros de sistema mal configurados."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "O desbloqueio biométrico não está disponível porque não está ativado para $EMAIL$ na app Bitwarden para computador.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "O desbloqueio biométrico está atualmente indisponível por um motivo desconhecido."
+  },
   "authorize": {
     "message": "Autorizar"
   },
@@ -3368,14 +3466,29 @@
   "sshkeyApprovalTitle": {
     "message": "Confirmar a utilização da chave SSH"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Aviso: Reencaminhamento de agentes"
+  },
+  "agentForwardingWarningText": {
+    "message": "Este pedido provém de um dispositivo remoto no qual tem sessão iniciada"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "está a pedir acesso a"
   },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "para"
+  },
+  "sshActionLogin": {
+    "message": "se autenticar num servidor"
+  },
+  "sshActionSign": {
+    "message": "assinar uma mensagem"
+  },
+  "sshActionGitSign": {
+    "message": "assinar um commit no git"
+  },
   "unknownApplication": {
     "message": "Uma aplicação"
-  },
-  "sshKeyPasswordUnsupported": {
-    "message": "A importação de chaves SSH protegidas por palavra-passe ainda não é suportada"
   },
   "invalidSshKey": {
     "message": "A chave SSH é inválida"
@@ -3386,10 +3499,70 @@
   "importSshKeyFromClipboard": {
     "message": "Importar chave da área de transferência"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "Chave SSH importada com sucesso"
   },
   "fileSavedToDevice": {
-    "message": "Ficheiro guardado no dispositivo. Gira-o a partir das transferências do seu dispositivo."
+    "message": "Ficheiro guardado no dispositivo. Faça a gestão a partir das transferências do seu dispositivo."
+  },
+  "importantNotice": {
+    "message": "Aviso importante"
+  },
+  "setupTwoStepLogin": {
+    "message": "Definir a verificação de dois passos"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "O Bitwarden enviará um código para o e-mail da sua conta para verificar as credenciais de novos dispositivos a partir de fevereiro de 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Pode configurar a verificação de dois passos como forma alternativa de proteger a sua conta ou alterar o seu e-mail para um a que possa aceder."
+  },
+  "remindMeLater": {
+    "message": "Lembrar-me mais tarde"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Tem um acesso fiável ao seu e-mail, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Não, não tenho"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Sim, consigo aceder de forma fiável ao meu e-mail"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Ativar a verificação de dois passos"
+  },
+  "changeAcctEmail": {
+    "message": "Alterar o e-mail da conta"
+  },
+  "allowScreenshots": {
+    "message": "Permitir a captura de ecrã"
+  },
+  "allowScreenshotsDesc": {
+    "message": "Permitir capturas de ecrã à aplicação para computador do Bitwarden e que seja vista em sessões remotas no computador. Desativar esta opção impedirá o acesso de alguns monitores externos."
+  },
+  "confirmWindowStillVisibleTitle": {
+    "message": "Janela de confirmação ainda visível"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Por favor, confirme se a janela ainda está visível."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Atualização da extensão necessária"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "A extensão do navegador que está a utilizar está desatualizada. Atualize-a ou desative a validação de impressões digitais da integração do navegador nas definições da aplicação para computador."
+  },
+  "changeAtRiskPassword": {
+    "message": "Alterar palavra-passe em risco"
+  },
+  "move": {
+    "message": "Mover"
   }
 }

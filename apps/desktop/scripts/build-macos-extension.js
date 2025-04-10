@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires, no-console */
+/* eslint-disable @typescript-eslint/no-require-imports, no-console */
 const child = require("child_process");
 const { exit } = require("process");
 
@@ -28,8 +28,9 @@ async function buildMacOs() {
     "-alltargets",
     "-configuration",
     "Release",
-    "-xcconfig",
-    paths.macOsConfig,
+    // Uncomment when signing is fixed
+    // "-xcconfig",
+    // paths.macOsConfig,
   ]);
   stdOutProc(proc);
   await new Promise((resolve, reject) =>

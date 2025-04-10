@@ -13,7 +13,7 @@ pub fn create_key(key: &str, subkey: &str, value: &str) -> Result<()> {
     let key = convert_key(key)?;
 
     let subkey = key.create(subkey)?;
-    
+
     const DEFAULT: &str = "";
     subkey.set_string(DEFAULT, value)?;
 

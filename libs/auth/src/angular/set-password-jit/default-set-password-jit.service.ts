@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
 import {
@@ -7,11 +9,12 @@ import {
 import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -27,6 +30,7 @@ import {
 export class DefaultSetPasswordJitService implements SetPasswordJitService {
   constructor(
     protected apiService: ApiService,
+    protected masterPasswordApiService: MasterPasswordApiService,
     protected keyService: KeyService,
     protected encryptService: EncryptService,
     protected i18nService: I18nService,
@@ -40,7 +44,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
   async setPassword(credentials: SetPasswordCredentials): Promise<void> {
     const {
       masterKey,
-      masterKeyHash,
+      serverMasterKeyHash,
       localMasterKeyHash,
       hint,
       kdfConfig,
@@ -66,7 +70,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
     const [keyPair, keysRequest] = await this.makeKeyPairAndRequest(protectedUserKey);
 
     const request = new SetPasswordRequest(
-      masterKeyHash,
+      serverMasterKeyHash,
       protectedUserKey[1].encryptedString,
       hint,
       orgSsoIdentifier,
@@ -75,7 +79,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
       kdfConfig.iterations,
     );
 
-    await this.apiService.setPassword(request);
+    await this.masterPasswordApiService.setPassword(request);
 
     // Clear force set password reason to allow navigation back to vault.
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
@@ -88,7 +92,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
     await this.masterPasswordService.setMasterKeyHash(localMasterKeyHash, userId);
 
     if (resetPasswordAutoEnroll) {
-      await this.handleResetPasswordAutoEnroll(masterKeyHash, orgId, userId);
+      await this.handleResetPasswordAutoEnroll(serverMasterKeyHash, orgId, userId);
     }
   }
 

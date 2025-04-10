@@ -1,11 +1,16 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { SecretsManagerSubscribeRequest } from "@bitwarden/common/billing/models/request/sm-subscribe.request";
 import { BillingCustomerDiscount } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
@@ -35,6 +40,7 @@ export class SecretsManagerSubscribeStandaloneComponent {
     private organizationApiService: OrganizationApiServiceAbstraction,
     private organizationService: InternalOrganizationServiceAbstraction,
     private toastService: ToastService,
+    private accountService: AccountService,
   ) {}
 
   submit = async () => {
@@ -54,7 +60,8 @@ export class SecretsManagerSubscribeStandaloneComponent {
       isMember: this.organization.isMember,
       isProviderUser: this.organization.isProviderUser,
     });
-    await this.organizationService.upsert(organizationData);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    await this.organizationService.upsert(organizationData, userId);
 
     /*
       Because subscribing to Secrets Manager automatically provides access to Secrets Manager for the

@@ -1,8 +1,8 @@
-import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
+import { DIALOG_DATA } from "@bitwarden/components";
 
 import {
   AddEditCustomFieldDialogComponent,
@@ -38,6 +38,8 @@ describe("AddEditCustomFieldDialogComponent", () => {
 
     fixture = TestBed.createComponent(AddEditCustomFieldDialogComponent);
     component = fixture.componentInstance;
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     fixture.detectChanges;
   });
 
