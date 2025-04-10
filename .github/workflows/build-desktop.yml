@@ -325,6 +325,13 @@ jobs:
       - name: Set up Snap
         run: sudo snap install snapcraft --classic
 
+      - name: Setup LXD
+        run: |
+          sudo apt-get install -y lxd
+          sudo usermod -aG lxd $USER
+          sudo lxd init --auto
+          lxc list
+
       - name: Print environment
         run: |
           node --version
