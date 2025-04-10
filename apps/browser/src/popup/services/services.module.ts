@@ -35,6 +35,7 @@ import {
 import {
   LockService,
   LoginEmailService,
+  LoginSuccessHandlerService,
   PinServiceAbstraction,
   SsoUrlService,
 } from "@bitwarden/auth/common";
@@ -129,6 +130,7 @@ import {
   DefaultKeyService,
   KdfConfigService,
   KeyService,
+  UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
 import { LockComponentService } from "@bitwarden/key-management-ui";
 import {
@@ -146,6 +148,7 @@ import { ExtensionTwoFactorAuthComponentService } from "../../auth/services/exte
 import { ExtensionTwoFactorAuthDuoComponentService } from "../../auth/services/extension-two-factor-auth-duo-component.service";
 import { ExtensionTwoFactorAuthEmailComponentService } from "../../auth/services/extension-two-factor-auth-email-component.service";
 import { ExtensionTwoFactorAuthWebAuthnComponentService } from "../../auth/services/extension-two-factor-auth-webauthn-component.service";
+import { PopupLoginSuccessHandlerService } from "../../auth/services/popup-login-success-handler.service";
 import { AutofillService as AutofillServiceAbstraction } from "../../autofill/services/abstractions/autofill.service";
 import AutofillService from "../../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
@@ -163,6 +166,7 @@ import { OffscreenDocumentService } from "../../platform/offscreen-document/abst
 import { DefaultOffscreenDocumentService } from "../../platform/offscreen-document/offscreen-document.service";
 import { PopupCompactModeService } from "../../platform/popup/layout/popup-compact-mode.service";
 import { BrowserFileDownloadService } from "../../platform/popup/services/browser-file-download.service";
+import { PopupRouterCacheService } from "../../platform/popup/view-cache/popup-router-cache.service";
 import { PopupViewCacheService } from "../../platform/popup/view-cache/popup-view-cache.service";
 import { ScriptInjectorService } from "../../platform/services/abstractions/script-injector.service";
 import { BrowserEnvironmentService } from "../../platform/services/browser-environment.service";
@@ -666,6 +670,11 @@ const safeProviders: SafeProvider[] = [
     provide: NotificationsService,
     useClass: ForegroundNotificationsService,
     deps: [LogService],
+  }),
+  safeProvider({
+    provide: LoginSuccessHandlerService,
+    useClass: PopupLoginSuccessHandlerService,
+    deps: [SyncService, UserAsymmetricKeysRegenerationService, PopupRouterCacheService],
   }),
 ];
 
