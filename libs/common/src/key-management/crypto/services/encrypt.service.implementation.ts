@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
@@ -109,13 +107,13 @@ export class EncryptServiceImplementation implements EncryptService {
 
     const innerKey = key.inner();
     if (innerKey.type === EncryptionType.AesCbc256_HmacSha256_B64) {
-      const encObj = await this.aesEncrypt(plainBuf, innerKey);
+      const encObj = await this.aesEncrypt(plainValue, innerKey);
       const iv = Utils.fromBufferToB64(encObj.iv);
       const data = Utils.fromBufferToB64(encObj.data);
       const mac = Utils.fromBufferToB64(encObj.mac);
       return new EncString(innerKey.type, data, iv, mac);
     } else if (innerKey.type === EncryptionType.AesCbc256_B64) {
-      const encObj = await this.aesEncryptLegacy(plainBuf, innerKey);
+      const encObj = await this.aesEncryptLegacy(plainValue, innerKey);
       const iv = Utils.fromBufferToB64(encObj.iv);
       const data = Utils.fromBufferToB64(encObj.data);
       return new EncString(innerKey.type, data, iv);
