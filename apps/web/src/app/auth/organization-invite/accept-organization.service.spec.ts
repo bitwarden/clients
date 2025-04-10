@@ -5,6 +5,7 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import { OrganizationTrustComponent } from "@bitwarden/angular/key-management/components/organization-trust.component";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -24,7 +25,6 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
-import { OrganizationTrustComponent } from "../../admin-console/organizations/manage/organization-trust.component";
 import { I18nService } from "../../core/i18n.service";
 
 import {
@@ -200,7 +200,9 @@ describe("AcceptOrganizationInviteService", () => {
         encryptedString: "encryptedString",
       } as EncString);
 
-      jest.mock("../../admin-console/organizations/manage/organization-trust.component");
+      jest.mock(
+        "../../../../../../libs/angular/src/key-management/components/organization-trust.component",
+      );
       OrganizationTrustComponent.open = jest.fn().mockReturnValue({
         closed: new BehaviorSubject(true),
       });

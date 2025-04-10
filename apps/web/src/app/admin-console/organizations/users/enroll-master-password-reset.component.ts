@@ -6,6 +6,7 @@ import {
   OrganizationUserApiService,
   OrganizationUserResetPasswordEnrollmentRequest,
 } from "@bitwarden/admin-console/common";
+import { OrganizationTrustComponent } from "@bitwarden/angular/key-management/components/organization-trust.component";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -19,7 +20,6 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
-import { OrganizationTrustComponent } from "../manage/organization-trust.component";
 import { OrganizationUserResetPasswordService } from "../members/services/organization-user-reset-password/organization-user-reset-password.service";
 
 interface EnrollMasterPasswordResetData {

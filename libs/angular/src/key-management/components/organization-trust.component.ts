@@ -1,10 +1,21 @@
 import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
+import { CommonModule } from "@angular/common";
 import { Component, OnInit, Inject } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { DialogService } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  CalloutModule,
+  DialogModule,
+  DialogService,
+  FormFieldModule,
+  LinkModule,
+  TypographyModule,
+} from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 type OrganizationTrustDialogData = {
@@ -18,6 +29,20 @@ type OrganizationTrustDialogData = {
 @Component({
   selector: "organization-trust",
   templateUrl: "organization-trust.component.html",
+  standalone: true,
+  imports: [
+    CommonModule,
+    JslibModule,
+    DialogModule,
+    ButtonModule,
+    LinkModule,
+    TypographyModule,
+    ReactiveFormsModule,
+    FormFieldModule,
+    AsyncActionsModule,
+    FormsModule,
+    CalloutModule,
+  ],
 })
 export class OrganizationTrustComponent implements OnInit {
   loading = true;
