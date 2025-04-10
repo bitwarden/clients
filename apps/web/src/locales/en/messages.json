@@ -3345,6 +3345,12 @@
   "externalIdDesc": {
     "message": "External ID is an unencrypted reference used by the Bitwarden Directory Connector and API."
   },
+  "ssoExternalId": {
+    "message": "SSO External ID"
+  },
+  "ssoExternalIdDesc": {
+    "message": "SSO External ID is an unencrypted reference between Bitwarden and your configured SSO provider."
+  },
   "nestCollectionUnder": {
     "message": "Nest collection under"
   },

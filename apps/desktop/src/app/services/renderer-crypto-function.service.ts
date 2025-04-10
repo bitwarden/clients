@@ -1,5 +1,5 @@
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
 
 export class RendererCryptoFunctionService
   extends WebCryptoFunctionService
