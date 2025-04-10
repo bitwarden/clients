@@ -10,7 +10,7 @@ export default class TabsBackground {
     private overlayBackground: OverlayBackground,
   ) {}
 
-  private focusedWindowId: number;
+  private focusedWindowId: number = -1;
 
   /**
    * Initializes the window and tab listeners.
