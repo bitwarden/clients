@@ -23,6 +23,7 @@ import {
   BitIconButtonComponent,
 } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
+
 import {
   DesktopFido2UserInterfaceService,
   DesktopFido2UserInterfaceSession,
@@ -99,12 +100,14 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
   }
 
   async addPasskeyToCipher(cipher: CipherView) {
-    this.session.notifyConfirmCreateCredential(true, cipher);
+    const userVerified = cipher.reprompt
+      ? await this.passwordRepromptService.showPasswordPrompt()
+      : true;
+
+    this.session.notifyConfirmCreateCredential(userVerified, cipher);
   }
 
   async confirmPasskey() {
-    const userVerified = await this.passwordRepromptService.showPasswordPrompt();
-
     try {
       // Retrieve the current UI session to control the flow
       if (!this.session) {
@@ -119,7 +122,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
           await this.closeModal();
         }
       } else {
-        this.session.notifyConfirmCreateCredential(userVerified);
+        this.session.notifyConfirmCreateCredential(true);
       }
 
       // Not sure this clean up should happen here or in session.

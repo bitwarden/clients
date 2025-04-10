@@ -326,20 +326,6 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     );
   }
 
-  async updateCredential(cipher: CipherView): Promise<void> {
-    this.logService.warning("updateCredential");
-    await firstValueFrom(
-      this.accountService.activeAccount$.pipe(
-        map(async (a) => {
-          if (a) {
-            const encCipher = await this.cipherService.encrypt(cipher, a.id);
-            await this.cipherService.updateWithServer(encCipher);
-          }
-        }),
-      ),
-    );
-  }
-
   async informExcludedCredential(existingCipherIds: string[]): Promise<void> {
     this.logService.warning("informExcludedCredential", existingCipherIds);
   }
