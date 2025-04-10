@@ -8,7 +8,6 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 
 export abstract class EncryptService {
   /**
-   * TODO this needs to be split up by the types of values passed in
    * @param plainValue - The value to encrypt
    * @param key - The key to encrypt the value with
    */
@@ -32,20 +31,20 @@ export abstract class EncryptService {
   /**
    * Wraps an encapsulation key (Public key) with a symmetric key
    * @param encapsulationKeySpki - The public key in SPKI format
-   * @param key - The symmetric key to wrap the public key with
+   * @param wrappingKey - The symmetric key to wrap the public key with
    */
   abstract wrapEncapsulationKey(
     encapsulationKeySpki: Uint8Array,
-    key: SymmetricCryptoKey,
+    wrappingKey: SymmetricCryptoKey,
   ): Promise<EncString>;
   /**
    * Wraps a symmetric key with another symmetric key
-   * @param encapsulatedKey - The symmetric key to wrap
-   * @param key - The symmetric key to wrap the encapsulated key with
+   * @param keyToBeWrapped - The symmetric key to wrap
+   * @param wrappingkey - The symmetric key to wrap the encapsulated key with
    */
   abstract wrapSymmetricKey(
-    encapsulatedKey: SymmetricCryptoKey,
-    key: SymmetricCryptoKey,
+    keyToBeWrapped: SymmetricCryptoKey,
+    wrappingkey: SymmetricCryptoKey,
   ): Promise<EncString>;
 
   abstract rsaEncrypt(data: Uint8Array, publicKey: Uint8Array): Promise<EncString>;

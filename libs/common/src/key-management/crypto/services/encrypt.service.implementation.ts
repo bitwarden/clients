@@ -52,32 +52,32 @@ export class EncryptServiceImplementation implements EncryptService {
 
   async wrapDecapsulationKey(
     privateKeyPkcs8: Uint8Array,
-    key: SymmetricCryptoKey,
+    wrappingKey: SymmetricCryptoKey,
   ): Promise<EncString> {
     if (privateKeyPkcs8 == null) {
       throw new Error("No private key provided for encapsulation.");
     }
 
-    if (key == null) {
+    if (wrappingKey == null) {
       throw new Error("No encryption key provided for encapsulation.");
     }
 
-    return await this.encryptUint8Array(privateKeyPkcs8, key);
+    return await this.encryptUint8Array(privateKeyPkcs8, wrappingKey);
   }
 
   async wrapEncapsulationKey(
     encapsulationKeySpki: Uint8Array,
-    key: SymmetricCryptoKey,
+    wrappingKey: SymmetricCryptoKey,
   ): Promise<EncString> {
     if (encapsulationKeySpki == null) {
       throw new Error("No encapsulation key provided for encapsulation.");
     }
 
-    if (key == null) {
+    if (wrappingKey == null) {
       throw new Error("No encryption key provided for encapsulation.");
     }
 
-    return await this.encryptUint8Array(encapsulationKeySpki, key);
+    return await this.encryptUint8Array(encapsulationKeySpki, wrappingKey);
   }
 
   async wrapSymmetricKey(
