@@ -14,7 +14,7 @@ export class NavComponent {
   items: any[] = [
     {
       link: "/vault",
-      icon: "bwi-lock",
+      icon: "bwi-vault",
       label: this.i18nService.translate("myVault"),
     },
     {
