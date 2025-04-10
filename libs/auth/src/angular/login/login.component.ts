@@ -601,7 +601,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (await this.emailIsValid()) {
       const email = this.formGroup.value.email;
       const rememberEmail = this.formGroup.value.rememberEmail ?? false;
-
+      if (!email) {
+        return;
+      }
       await this.loginEmailService.setLoginEmail(email);
       await this.loginEmailService.setRememberedEmailChoice(email, rememberEmail);
     } else {
