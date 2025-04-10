@@ -28,18 +28,26 @@ async function buildMacOs() {
   }
 
   let configuration;
+  let codeSignIdentity;
+  let provisioningProfileSpecifier;
   let buildDirectory;
   const configurationArgument = process.argv[2];
   if (configurationArgument !== undefined) {
     // Use the configuration passed in to determine the configuration file.
     if (configurationArgument == "mas-dev") {
       configuration = "Debug";
+      codeSignIdentity = "Apple Development";
+      provisioningProfileSpecifier = "Bitwarden Desktop Autofill Development 2024";
       buildDirectory = paths.extensionBuildDebug;
     } else if (configurationArgument == "mas") {
       configuration = "ReleaseAppStore";
+      codeSignIdentity = "3rd Party Mac Developer Application";
+      provisioningProfileSpecifier = "Bitwarden Desktop Autofill App Store 2024";
       buildDirectory = paths.extensionBuildRelease;
     } else if (configurationArgument == "mac") {
       configuration = "ReleaseDeveloper";
+      codeSignIdentity = "Developer ID Application";
+      provisioningProfileSpecifier = "Bitwarden Desktop Autofill Extension Developer Dis";
       buildDirectory = paths.extensionBuildRelease;
     } else {
       console.log("### Unable to determine configuration, skipping Autofill Extension build");
@@ -58,6 +66,8 @@ async function buildMacOs() {
     configuration,
     "CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO",
     "OTHER_CODE_SIGN_FLAGS='--timestamp'",
+    `CODE_SIGN_IDENTITY=${codeSignIdentity}`,
+    `PROVISIONING_PROFILE_SPECIFIER=${provisioningProfileSpecifier}`,
   ]);
   stdOutProc(proc);
   await new Promise((resolve, reject) =>

@@ -827,13 +827,13 @@ jobs:
           mkdir -p $HOME/secrets
 
           az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
-            --name bitwarden_desktop_appstore.provisionprofile \
-            --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+            --name bitwarden_desktop_developer_id.provisionprofile \
+            --file $HOME/secrets/bitwarden_desktop_developer_id.provisionprofile \
             --output none
 
           az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
-            --name bitwarden_desktop_autofill_app_store_2024.provisionprofile \
-            --file $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            --name bitwarden_desktop_autofill_developer_id.provisionprofile \
+            --file $HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile \
             --output none
 
       - name: Get certificates
@@ -886,16 +886,16 @@ jobs:
 
       - name: Set up provisioning profiles
         run: |
-          cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
-            $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
+          cp $HOME/secrets/bitwarden_desktop_developer_id.provisionprofile \
+            $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_developer_id.provisionprofile
 
           mkdir -p $HOME/Library/MobileDevice/Provisioning\ Profiles
-          export APP_UUID=`grep UUID -A1 -a $HOME/secrets/bitwarden_desktop_appstore.provisionprofile | grep -io "[-A-Z0-9]\{36\}"`
-          export AUTOFILL_UUID=`grep UUID -A1 -a $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile | grep -io "[-A-Z0-9]\{36\}"`
+          export APP_UUID=`grep UUID -A1 -a $HOME/secrets/bitwarden_desktop_developer_id.provisionprofile | grep -io "[-A-Z0-9]\{36\}"`
+          export AUTOFILL_UUID=`grep UUID -A1 -a $HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile | grep -io "[-A-Z0-9]\{36\}"`
 
-          cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+          cp $HOME/secrets/bitwarden_desktop_developer_id.provisionprofile \
             $HOME/Library/MobileDevice/Provisioning\ Profiles/$APP_UUID.provisionprofile
-          cp $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+          cp $HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile \
             $HOME/Library/MobileDevice/Provisioning\ Profiles/$AUTOFILL_UUID.provisionprofile
 
       - name: Increment version

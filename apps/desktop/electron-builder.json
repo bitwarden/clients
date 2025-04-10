@@ -67,6 +67,7 @@
       ],
       "CFBundleDevelopmentRegion": "en"
     },
+    "provisioningProfile": "bitwarden_desktop_developer_id.provisionprofile",
     "singleArchFiles": "node_modules/@bitwarden/desktop-napi/desktop_napi.darwin-*.node",
     "extraFiles": [
       {
