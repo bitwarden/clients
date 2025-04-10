@@ -1,9 +1,8 @@
 import { getQsParam } from "./common";
 import { TranslationService } from "./translation.service";
-import "./duo-redirect.scss";
 
 const mobileDesktopCallback = "bitwarden://duo-callback";
-let localeService: TranslationService = null;
+let localeService: TranslationService | null = null;
 
 window.addEventListener("load", async () => {
   const redirectUrl = getQsParam("duoFramelessUrl");
@@ -13,9 +12,18 @@ window.addEventListener("load", async () => {
     return;
   }
 
-  const client = getQsParam("client");
-  const code = getQsParam("code");
-  const state = getQsParam("state");
+  const client: string | null = getQsParam("client");
+  const code: string | null = getQsParam("code");
+  const state: string | null = getQsParam("state");
+  if (!client) {
+    throw new Error("client is null");
+  }
+  if (!code) {
+    throw new Error("code is null");
+  }
+  if (!state) {
+    throw new Error("state is null");
+  }
 
   localeService = new TranslationService(navigator.language, "locales");
   await localeService.init();
@@ -79,13 +87,19 @@ export function redirectToDuoFrameless(redirectUrl: string) {
  * so browser, desktop, and mobile are not able to take advantage of the countdown timer or close button.
  */
 function displayHandoffMessage(client: string) {
-  const content = document.getElementById("content");
+  const content: HTMLElement | null = document.getElementById("content");
+  if (!content) {
+    throw new Error("content element not found");
+  }
   content.className = "text-center";
   content.innerHTML = "";
 
   const h1 = document.createElement("h1");
-  const p = document.createElement("p");
+  const p: HTMLElement = document.createElement("p");
 
+  if (!localeService) {
+    throw new Error("localeService is not initialized");
+  }
   h1.textContent = localeService.t("youSuccessfullyLoggedIn");
   p.textContent =
     client == "web"
@@ -109,11 +123,20 @@ function displayHandoffMessage(client: string) {
     });
     content.appendChild(button);
 
-    // Countdown timer (closes tab upon completion)
-    let num = Number(p.textContent.match(/\d+/)[0]);
+    if (p.textContent === null) {
+      throw new Error("count down container is null");
+    }
+    const counterString: string | null = p.textContent.match(/\d+/)?.[0] || null;
+    if (!counterString) {
+      throw new Error("count down time cannot be null");
+    }
 
+    let num: number = Number(counterString);
     const interval = setInterval(() => {
       if (num > 1) {
+        if (p.textContent === null) {
+          throw new Error("count down container is null");
+        }
         p.textContent = p.textContent.replace(String(num), String(num - 1));
         num--;
       } else {
