@@ -8,7 +8,8 @@ const { build } = require("electron-builder");
 const paths = {
   macosBuild: "./macos/build",
   extensionBuildDebug: "./macos/build/Debug/autofill-extension.appex",
-  extensionBuildRelease: "./macos/build/Release/autofill-extension.appex",
+  extensionBuildReleaseAppStore: "./macos/build/ReleaseAppStore/autofill-extension.appex",
+  extensionBuildReleaseDeveloper: "./macos/build/ReleaseDeveloper/autofill-extension.appex",
   extensionDistDir: "./macos/dist",
   extensionDist: "./macos/dist/autofill-extension.appex",
   macOsProject: "./macos/desktop.xcodeproj",
@@ -43,12 +44,12 @@ async function buildMacOs() {
       configuration = "ReleaseAppStore";
       codeSignIdentity = "3rd Party Mac Developer Application";
       provisioningProfileSpecifier = "Bitwarden Desktop Autofill App Store 2024";
-      buildDirectory = paths.extensionBuildRelease;
+      buildDirectory = paths.extensionBuildReleaseAppStore;
     } else if (configurationArgument == "mac") {
       configuration = "ReleaseDeveloper";
       codeSignIdentity = "Developer ID Application";
       provisioningProfileSpecifier = "Bitwarden Desktop Autofill Extension Developer Dis";
-      buildDirectory = paths.extensionBuildRelease;
+      buildDirectory = paths.extensionBuildReleaseDeveloper;
     } else {
       console.log("### Unable to determine configuration, skipping Autofill Extension build");
       return;
