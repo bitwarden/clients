@@ -95,6 +95,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   cipherType = CipherType;
   hasVaultNudgeFlag: boolean = false;
   showEmptyVaultNudge$: Observable<boolean> = new Observable();
+  showHasItemsVaultNudge$: Observable<boolean> = new Observable();
   activeUserId: UserId | null = null;
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
@@ -192,6 +193,10 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     if (this.hasVaultNudgeFlag) {
       this.showEmptyVaultNudge$ = this.vaultNudgesService.showNudge$(
         VaultNudgeType.EmptyVaultNudge,
+        this.activeUserId,
+      );
+      this.showHasItemsVaultNudge$ = this.vaultNudgesService.showNudge$(
+        VaultNudgeType.HasVaultItems,
         this.activeUserId,
       );
       await this.introCarouselService.setIntroCarouselDismissed();

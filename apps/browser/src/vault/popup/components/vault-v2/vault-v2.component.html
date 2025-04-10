@@ -8,21 +8,26 @@
     </ng-container>
   </popup-header>
 
+  <ng-container
+    slot="above-scroll-area"
+    *ngIf="
+      vaultState === VaultStateEnum.Empty && hasVaultNudgeFlag && (showEmptyVaultNudge$ | async)
+    "
+  >
+    <bit-spotlight
+      [title]="'emptyVaultNudgeTitle' | i18n"
+      [subtitle]="'emptyVaultNudgeBody' | i18n"
+      [buttonText]="'emptyVaultNudgeButton' | i18n"
+      (onButtonClick)="navigateToImport()"
+      (onDismiss)="dismissEmptyVaultNudge(VaultNudgeType.EmptyVaultNudge)"
+    >
+    </bit-spotlight>
+  </ng-container>
+
   <div
     *ngIf="vaultState === VaultStateEnum.Empty"
     class="tw-flex tw-flex-col tw-h-full tw-justify-center"
   >
-    <div *ngIf="hasVaultNudgeFlag && (showEmptyVaultNudge$ | async)" class="tw-mx-2">
-      <bit-spotlight
-        [title]="'emptyVaultNudgeTitle' | i18n"
-        [subtitle]="'emptyVaultNudgeBody' | i18n"
-        [buttonText]="'emptyVaultNudgeButton' | i18n"
-        (onButtonClick)="navigateToImport()"
-        (onDismiss)="dismissEmptyVaultNudge(VaultNudgeType.EmptyVaultNudge)"
-      >
-      </bit-spotlight>
-    </div>
-
     <bit-no-items [icon]="vaultIcon">
       <ng-container slot="title">{{ "yourVaultIsEmpty" | i18n }}</ng-container>
       <ng-container slot="description">{{ "autofillSuggestionsTip" | i18n }}</ng-container>
@@ -32,6 +37,22 @@
       ></app-new-item-dropdown>
     </bit-no-items>
   </div>
+
+  <ng-container
+    slot="above-scroll-area"
+    *ngIf="
+      vaultState !== VaultStateEnum.Empty && hasVaultNudgeFlag && (showHasItemsVaultNudge$ | async)
+    "
+  >
+    <div class="tw-mb-4">
+      <bit-spotlight
+        [title]="'hasItemsVaultNudgeTitle' | i18n"
+        [subtitle]="'hasItemsVaultNudgeBody' | i18n"
+        (onDismiss)="dismissEmptyVaultNudge(VaultNudgeType.HasVaultItems)"
+      >
+      </bit-spotlight>
+    </div>
+  </ng-container>
 
   <blocked-injection-banner
     *ngIf="vaultState !== VaultStateEnum.Empty"
@@ -47,12 +68,6 @@
   </ng-container>
 
   <ng-container *ngIf="vaultState !== VaultStateEnum.Empty">
-    <bit-spotlight
-      [title]="'hasItemsVaultNudgeTitle' | i18n"
-      [subtitle]="'hasItemsVaultNudgeBody' | i18n"
-      (onDismiss)="dismissEmptyVaultNudge(VaultNudgeType.HasVaultItems)"
-    >
-    </bit-spotlight>
     <div
       *ngIf="vaultState === VaultStateEnum.NoResults"
       class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12"
