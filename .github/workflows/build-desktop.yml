@@ -320,17 +320,10 @@ jobs:
       - name: Set up environment
         run: |
           sudo apt-get update
-          sudo apt-get -y install pkg-config libxss-dev rpm musl-dev musl-tools flatpak flatpak-builder libx11-dev libxkbfile-dev snapd
+          sudo apt-get -y install pkg-config libxss-dev rpm musl-dev musl-tools flatpak flatpak-builder
 
       - name: Set up Snap
         run: sudo snap install snapcraft --classic
-
-      - name: Setup LXD
-        run: |
-          sudo snap install lxd
-          sudo usermod -aG lxd $USER
-          sudo lxd init --auto
-          lxc list
 
       - name: Print environment
         run: |
@@ -389,6 +382,8 @@ jobs:
           cargo build --bin desktop_proxy --release --target aarch64-unknown-linux-musl
 
       - name: Build application
+        env:
+          DEBUG: electron-builder
         run: |
           npm run build
           npm run pack:lin:arm64
