@@ -1,6 +1,8 @@
 import * as argon2 from "argon2-browser";
 import * as forge from "node-forge";
 
+import { EncryptionType } from "@bitwarden/common/platform/enums";
+
 import { Utils } from "../../../platform/misc/utils";
 import {
   CbcDecryptParameters,

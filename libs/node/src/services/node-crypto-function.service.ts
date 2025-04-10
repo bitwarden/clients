@@ -3,6 +3,7 @@ import * as crypto from "crypto";
 import * as forge from "node-forge";
 
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   CbcDecryptParameters,
