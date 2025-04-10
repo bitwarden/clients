@@ -7,6 +7,7 @@ type Messages = {
     message: string;
   };
 };
+//test
 
 function findLocaleFiles(dir: string): string[] {
   return fs
