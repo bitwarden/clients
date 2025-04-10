@@ -7,11 +7,11 @@ import { DialogRef, DialogService } from "@bitwarden/components";
 
 import {
   VaultItemDialogResult,
-  VaultPremiumUpgradePromptService,
-} from "./premium-upgrade-prompt.service";
+  WebVaultPremiumUpgradePromptService,
+} from "./web-premium-upgrade-prompt.service";
 
-describe("VaultPremiumUpgradePromptService", () => {
-  let service: VaultPremiumUpgradePromptService;
+describe("WebVaultPremiumUpgradePromptService", () => {
+  let service: WebVaultPremiumUpgradePromptService;
   let dialogServiceMock: jest.Mocked<DialogService>;
   let routerMock: jest.Mocked<Router>;
   let dialogRefMock: jest.Mocked<DialogRef<VaultItemDialogResult>>;
@@ -31,14 +31,14 @@ describe("VaultPremiumUpgradePromptService", () => {
 
     TestBed.configureTestingModule({
       providers: [
-        VaultPremiumUpgradePromptService,
+        WebVaultPremiumUpgradePromptService,
         { provide: DialogService, useValue: dialogServiceMock },
         { provide: Router, useValue: routerMock },
         { provide: DialogRef, useValue: dialogRefMock },
       ],
     });
 
-    service = TestBed.inject(VaultPremiumUpgradePromptService);
+    service = TestBed.inject(WebVaultPremiumUpgradePromptService);
   });
 
   it("prompts for premium upgrade and navigates to organization billing if organizationId is provided", async () => {

@@ -31,7 +31,7 @@ export enum VaultItemDialogResult {
  * This service is used to prompt the user to upgrade to premium.
  */
 @Injectable()
-export class VaultPremiumUpgradePromptService implements PremiumUpgradePromptService {
+export class WebVaultPremiumUpgradePromptService implements PremiumUpgradePromptService {
   constructor(
     private dialogService: DialogService,
     private router: Router,

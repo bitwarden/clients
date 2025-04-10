@@ -9,8 +9,6 @@ import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { VaultPremiumUpgradePromptService } from "@bitwarden/angular/services/premium-upgrade-prompt.service";
-import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -55,6 +53,8 @@ import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
 import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
+import { BrowserPremiumUpgradePromptService } from "../../../services/browser-premium-upgrade-prompt.service";
+import { BrowserViewPasswordHistoryService } from "../../../services/browser-view-password-history.service";
 import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 import { closeViewVaultItemPopout, VaultPopoutType } from "../../../utils/vault-popout-window";
 
@@ -94,8 +94,8 @@ type LoadAction =
     CalloutModule,
   ],
   providers: [
-    { provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService },
-    { provide: PremiumUpgradePromptService, useClass: VaultPremiumUpgradePromptService },
+    { provide: ViewPasswordHistoryService, useClass: BrowserViewPasswordHistoryService },
+    { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
     { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
   ],
 })

@@ -5,7 +5,6 @@ import { Component, EventEmitter, Inject, OnInit } from "@angular/core";
 import { firstValueFrom, map, Observable } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
-import { VaultPremiumUpgradePromptService } from "@bitwarden/angular/services/premium-upgrade-prompt.service";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -31,6 +30,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { CipherViewComponent } from "@bitwarden/vault";
+import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 
 import { SharedModule } from "../../shared/shared.module";
 
@@ -75,7 +75,7 @@ export interface ViewCipherDialogCloseResult {
   imports: [CipherViewComponent, CommonModule, AsyncActionsModule, DialogModule, SharedModule],
   providers: [
     { provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService },
-    { provide: PremiumUpgradePromptService, useClass: VaultPremiumUpgradePromptService },
+    { provide: PremiumUpgradePromptService, useClass: WebVaultPremiumUpgradePromptService },
   ],
 })
 export class ViewComponent implements OnInit {

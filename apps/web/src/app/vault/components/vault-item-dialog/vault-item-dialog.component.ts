@@ -7,10 +7,6 @@ import { firstValueFrom, Subject, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
-import {
-  VaultItemDialogResult,
-  VaultPremiumUpgradePromptService,
-} from "@bitwarden/angular/services/premium-upgrade-prompt.service";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -56,6 +52,10 @@ import {
   DecryptionFailureDialogComponent,
   DefaultChangeLoginPasswordService,
 } from "@bitwarden/vault";
+import {
+  VaultItemDialogResult,
+  WebVaultPremiumUpgradePromptService,
+} from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 
 import { SharedModule } from "../../../shared/shared.module";
 import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/services/routed-vault-filter.service";
@@ -113,7 +113,7 @@ export interface VaultItemDialogParams {
     ItemModule,
   ],
   providers: [
-    { provide: PremiumUpgradePromptService, useClass: VaultPremiumUpgradePromptService },
+    { provide: PremiumUpgradePromptService, useClass: WebVaultPremiumUpgradePromptService },
     { provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService },
     { provide: CipherFormGenerationService, useClass: WebCipherFormGenerationService },
     RoutedVaultFilterService,
