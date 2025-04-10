@@ -833,18 +833,6 @@
   "continue": {
     "message": "繼續"
   },
-  "enterVerificationCodeApp": {
-    "message": "輸入驗證器應用程式提供的 6 位數驗證碼。"
-  },
-  "enterVerificationCodeEmail": {
-    "message": "請輸入 6 位數驗證碼，我們已將其傳送至 $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "已傳送驗證電子郵件至 $EMAIL$。",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "記住我"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "再次傳送​​包含驗證碼的電子郵件"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "使用另一種兩步驟登入方式"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "將您的 YubiKey 插入電腦的 USB 連接埠，然後按一下它的按鈕。"
   },
   "insertU2f": {
     "message": "將您的安全鑰匙插入電腦的 USB 連接埠，然後觸摸其按鈕（如有的話）。"
@@ -3224,9 +3200,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "連接到 Duo 服務時發生錯誤。使用不同的兩階段認證或聯繫 Duo 來獲得支援。"
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "啟動 Duo 並依照步驟完成登入。"
-  },
   "duoRequiredByOrgForAccount": {
     "message": "您的帳號要求使用 Duo 兩步驟驗證登入。"
   },
@@ -3588,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }

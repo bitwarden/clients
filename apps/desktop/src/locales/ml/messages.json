@@ -833,18 +833,6 @@
   "continue": {
     "message": "തുടരുക"
   },
-  "enterVerificationCodeApp": {
-    "message": "നിങ്ങളുടെ ഓതന്റിക്കേറ്റർ അപ്ലിക്കേഷനിൽ നിന്ന് 6 അക്ക സ്ഥിരീകരണ കോഡ് നൽകുക."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "$EMAIL$-ൽ ഇമെയിൽ ചെയ്ത 6 അക്ക സ്ഥിരീകരണ കോഡ് നൽകുക.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "സ്ഥിരീകരണ ഇമെയിൽ $EMAIL$-ലേക്ക് അയച്ചു.",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "എന്നെ ഓർക്കണം"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "സ്ഥിരീകരണ കോഡ് ഇമെയിൽ വഴി വീണ്ടും അയയ്ക്കുക"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "മറ്റൊരു രണ്ട് ഘട്ട പ്രവേശന രീതി ഉപയോഗിക്കുക"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "നിങ്ങളുടെ കമ്പ്യൂട്ടറിന്റെ യു‌എസ്‌ബി പോർട്ടിലേക്ക് YubiKey ഇടുക, തുടർന്ന് അതിന്റെ ബട്ടൺ അമർത്തുക."
   },
   "insertU2f": {
     "message": "നിങ്ങളുടെ കമ്പ്യൂട്ടറിന്റെ യുഎസ്ബി പോർട്ടിൽ സുരക്ഷാ കീ ഇടുക. അതിന് ഒരു ബട്ടൺ ഉണ്ടെങ്കിൽ അത് അമർത്തുക."
@@ -3224,9 +3200,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
   },
@@ -3588,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }

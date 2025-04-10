@@ -505,6 +505,7 @@ const safeProviders: SafeProvider[] = [
       configService: ConfigService,
       stateProvider: StateProvider,
       accountService: AccountServiceAbstraction,
+      logService: LogService,
     ) =>
       new CipherService(
         keyService,
@@ -520,6 +521,7 @@ const safeProviders: SafeProvider[] = [
         configService,
         stateProvider,
         accountService,
+        logService,
       ),
     deps: [
       KeyService,
@@ -535,6 +537,7 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       StateProvider,
       AccountServiceAbstraction,
+      LogService,
     ],
   }),
   safeProvider({
@@ -1472,7 +1475,15 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: TaskService,
     useClass: DefaultTaskService,
-    deps: [StateProvider, ApiServiceAbstraction, OrganizationServiceAbstraction, ConfigService],
+    deps: [
+      StateProvider,
+      ApiServiceAbstraction,
+      OrganizationServiceAbstraction,
+      ConfigService,
+      AuthServiceAbstraction,
+      NotificationsService,
+      MessageListener,
+    ],
   }),
   safeProvider({
     provide: EndUserNotificationService,

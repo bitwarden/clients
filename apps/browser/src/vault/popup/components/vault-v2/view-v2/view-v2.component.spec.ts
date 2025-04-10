@@ -24,7 +24,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { CopyCipherFieldService } from "@bitwarden/vault";
+import { CopyCipherFieldService, PasswordRepromptService } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
@@ -51,6 +51,7 @@ describe("ViewV2Component", () => {
   const openSimpleDialog = jest.fn().mockResolvedValue(true);
   const stop = jest.fn();
   const showToast = jest.fn();
+  const showPasswordPrompt = jest.fn().mockResolvedValue(true);
   const getFeatureFlag$ = jest.fn().mockReturnValue(of(true));
 
   const mockCipher = {
@@ -64,6 +65,9 @@ describe("ViewV2Component", () => {
     },
   } as unknown as CipherView;
 
+  const mockPasswordRepromptService = {
+    showPasswordPrompt,
+  };
   const mockVaultPopupAutofillService = {
     doAutofill,
   };
@@ -91,6 +95,7 @@ describe("ViewV2Component", () => {
     openSimpleDialog.mockClear();
     back.mockClear();
     showToast.mockClear();
+    showPasswordPrompt.mockClear();
 
     await TestBed.configureTestingModule({
       imports: [ViewV2Component],
@@ -131,6 +136,10 @@ describe("ViewV2Component", () => {
         {
           provide: CopyCipherFieldService,
           useValue: mockCopyCipherFieldService,
+        },
+        {
+          provide: PasswordRepromptService,
+          useValue: mockPasswordRepromptService,
         },
       ],
     })

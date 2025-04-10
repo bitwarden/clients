@@ -1435,18 +1435,6 @@
       }
     }
   },
-  "enterVerificationCodeApp": {
-    "message": "Unesite 6-cifreni verifikacioni kod iz aplikacije za autentifikaciju."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Unesite 6-cifreni verifikacioni kod poslat na imejl $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Imejl za potvrdu poslat na $EMAIL$.",
     "placeholders": {
@@ -1456,17 +1444,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Zapamti me"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Ponovno slanje kontrolnog koda imejlom"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Koristiti drugi način prijave u dva koraka"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -1474,9 +1453,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "Povežite Vaš YubiKey preko USB porta na vašem računaru, pa pritisnite dugme na njemu."
   },
   "insertU2f": {
     "message": "Povežite Vaš sigurnosni ključ preko USB porta na Vaš računar. Ukoliko ima dugme, pritisnite ga."
@@ -7252,9 +7228,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
   },
@@ -8735,8 +8708,8 @@
   "limitCollectionDeletionDesc": {
     "message": "Limit collection deletion to owners and admins"
   },
-  "limitItemDeletionDesc": {
-    "message": "Limit item deletion to members with the Can manage permission"
+  "limitItemDeletionDescription": {
+    "message": "Limit item deletion to members with the Manage collection permissions"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Owners and admins can manage all collections and items"

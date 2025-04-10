@@ -55,7 +55,7 @@ export class BrowserExtensionPromptService {
 
   /** Post a message to the extension to open */
   openExtension(setManualErrorTimeout = false) {
-    window.postMessage({ command: VaultMessages.OpenPopup });
+    window.postMessage({ command: VaultMessages.OpenAtRiskPasswords });
 
     // Optionally, configure timeout to show the manual open error state if
     // the extension does not open within one second.

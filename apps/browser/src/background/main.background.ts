@@ -111,6 +111,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -200,6 +201,7 @@ import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
+import { DefaultTaskService, TaskService } from "@bitwarden/common/vault/tasks";
 import {
   legacyPasswordGenerationServiceFactory,
   legacyUsernameGenerationServiceFactory,
@@ -258,6 +260,7 @@ import { BackgroundBrowserBiometricsService } from "../key-management/biometrics
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { flagEnabled } from "../platform/flags";
+import { IpcBackgroundService } from "../platform/ipc/ipc-background.service";
 import { UpdateBadge } from "../platform/listeners/update-badge";
 /* eslint-disable no-restricted-imports */
 import { ChromeMessageSender } from "../platform/messaging/chrome-message.sender";
@@ -400,6 +403,9 @@ export default class MainBackground {
   sdkLoadService: SdkLoadService;
   cipherAuthorizationService: CipherAuthorizationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
+  taskService: TaskService;
+
+  ipcService: IpcService;
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
@@ -858,6 +864,7 @@ export default class MainBackground {
       this.configService,
       this.stateProvider,
       this.accountService,
+      this.logService,
     );
     this.folderService = new FolderService(
       this.keyService,
@@ -1295,7 +1302,19 @@ export default class MainBackground {
       this.configService,
     );
 
+    this.taskService = new DefaultTaskService(
+      this.stateProvider,
+      this.apiService,
+      this.organizationService,
+      this.configService,
+      this.authService,
+      this.notificationsService,
+      messageListener,
+    );
+
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
+
+    this.ipcService = new IpcBackgroundService(this.logService);
   }
 
   async bootstrap() {
@@ -1369,6 +1388,7 @@ export default class MainBackground {
     }
 
     await this.initOverlayAndTabsBackground();
+    await this.ipcService.init();
 
     return new Promise<void>((resolve) => {
       setTimeout(async () => {
@@ -1376,6 +1396,11 @@ export default class MainBackground {
         await this.fullSync(false);
         this.backgroundSyncService.init();
         this.notificationsService.startListening();
+
+        if (await this.configService.getFeatureFlag(FeatureFlag.SecurityTasks)) {
+          this.taskService.listenForTaskNotifications();
+        }
+
         resolve();
       }, 500);
     });
@@ -1616,6 +1641,26 @@ export default class MainBackground {
 
     if (this.isSafari) {
       await SafariApp.sendMessageToApp("showPopover", null, true);
+    }
+  }
+
+  /** Opens the `/at-risk-passwords` page within the popup */
+  async openAtRisksPasswordsPage() {
+    const browserAction = BrowserApi.getBrowserAction();
+
+    try {
+      // Set route of the popup before attempting to open it.
+      // If the vault is locked, this won't have an effect as the auth guards will
+      // redirect the user to the login page.
+      await browserAction.setPopup({ popup: "popup/index.html#/at-risk-passwords" });
+
+      await this.openPopup();
+    } finally {
+      // Reset the popup route to the default route so any subsequent
+      // popup openings will not open to the at-risk-passwords page.
+      await browserAction.setPopup({
+        popup: "popup/index.html#/",
+      });
     }
   }
 

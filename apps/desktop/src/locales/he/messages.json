@@ -833,18 +833,6 @@
   "continue": {
     "message": "המשך"
   },
-  "enterVerificationCodeApp": {
-    "message": "הכנס את קוד האימות בן 6 הספרות מאפליקציית האימות שלך."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "הכנס את קוד האימות בן 6 הספרות שנשלח ל-$EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "מייל אימות נשלח לכתובת $EMAIL$.",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "זכור אותי"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "אל תשאל אותי שוב במכשיר זה למשך 30 יום"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "שלח שוב קוד אימות לאימייל"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "השתמש בשיטה אחרת עבור כניסה דו שלבית"
   },
   "selectAnotherMethod": {
     "message": "בחר שיטה אחרת",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "השתמש בקוד השחזור שלך"
-  },
-  "insertYubiKey": {
-    "message": "הכנס את ה-YubiKey אל כניסת ה-USB במחשבך, ואז גע בכפתור שלו."
   },
   "insertU2f": {
     "message": "הכנס את מפתח האבטחה שלך אל כניסת ה-USB במחשבך. אם יש לו כפתור, גע בו."
@@ -3224,9 +3200,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "שגיאה בהתחברות עם השירות Duo. השתמש בשיטת כניסה דו־שלבית אחרת או פנה אל Duo לסיוע."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "פתח את Duo ועקוב אחר השלבים כדי לסיים להיכנס."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "נדרשת כניסה דו־שלבית של Duo עבור החשבון שלך."
   },
@@ -3588,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "שנה סיסמה בסיכון"
+  },
+  "move": {
+    "message": "Move"
   }
 }
