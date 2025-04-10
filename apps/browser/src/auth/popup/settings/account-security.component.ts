@@ -30,7 +30,6 @@ import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { DeviceType } from "@bitwarden/common/enums";
 import {
   VaultTimeout,
   VaultTimeoutAction,
@@ -110,7 +109,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   hasVaultTimeoutPolicy = false;
   biometricUnavailabilityReason: string;
   showChangeMasterPass = true;
-  showAutoPrompt = true;
   pinEnabled$: Observable<boolean> = of(true);
 
   form = this.formBuilder.group({
@@ -147,11 +145,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    // Firefox popup closes when unfocused by biometrics, blocking all unlock methods
-    if (this.platformUtilsService.getDevice() === DeviceType.FirefoxExtension) {
-      this.showAutoPrompt = false;
-    }
-
     const hasMasterPassword = await this.userVerificationService.hasMasterPassword();
     this.showMasterPasswordOnClientRestartOption = hasMasterPassword;
     const maximumVaultTimeoutPolicy = this.accountService.activeAccount$.pipe(
