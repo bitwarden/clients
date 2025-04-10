@@ -833,18 +833,6 @@
   "continue": {
     "message": "Continuare"
   },
-  "enterVerificationCodeApp": {
-    "message": "Introducere cod de verificare din 6 cifre din aplicația de autentificare."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Introducere cod de verificare din 6 cifre care a fost trimis prin e-mail la $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "E-mailul de verificare a fost trimis la $EMAIL$.",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Memorare autentificare"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Retrimitere e-mail cu codul de verificare"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Utilizare de metodă diferită de autentificare în două etape"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "Introduceți YubiKey în portul USB al calculatorului apoi atingeți butonul acestuia."
   },
   "insertU2f": {
     "message": "Introduceți cheia de securitate în portul USB al computerului. Dacă are un buton, apăsați-l."
@@ -3224,9 +3200,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
   },
@@ -3588,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }

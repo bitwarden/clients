@@ -1,10 +1,9 @@
-import { DialogRef } from "@angular/cdk/dialog";
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogRef, DialogService } from "@bitwarden/components";
 
 import { VaultItemDialogResult } from "../components/vault-item-dialog/vault-item-dialog.component";
 

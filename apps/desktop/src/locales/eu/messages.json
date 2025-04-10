@@ -833,18 +833,6 @@
   "continue": {
     "message": "Jarraitu"
   },
-  "enterVerificationCodeApp": {
-    "message": "Sartu zure autentifikazio aplikazioaren 6 digituko egiaztatze kodea."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Sartu $EMAIL$-era bidalitako 6 digituko egiaztatze-kodea.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Egiaztatze emaila $EMAIL$-era bidalia.",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Gogora nazazu"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Berbidali email bidezko egiaztatze-kodea"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Erabili bi urratseko saio hasierarako beste modu bat"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "Sartu zure YubiKey-a ordenagailuko USB atakan, ondoren, sakatu bere botoia."
   },
   "insertU2f": {
     "message": "Sartu zure segurtasun-gakoa ordenagailuaren USB atakan. Botoia badu, sakatu ezazu."
@@ -3224,9 +3200,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
   },
@@ -3588,5 +3561,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }

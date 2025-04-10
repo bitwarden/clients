@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["napi", "core", "proxy", "macos_provider", "windows-plugin-authenticator"]
+members = ["napi", "core", "proxy", "macos_provider", "windows_plugin_authenticator"]
 
 [workspace.package]
 version = "0.0.0"
@@ -51,13 +51,15 @@ ssh-encoding = "=0.2.0"
 ssh-key = {version = "=0.6.7", default-features = false }
 sysinfo = "0.33.1" 
 thiserror = "=1.0.69"
-tokio = "=1.43.0"
+tokio = "=1.43.1"
 tokio-stream = "=0.1.15"
 tokio-util = "=0.7.13"
 typenum = "=1.17.0"
 uniffi =  "=0.28.3"
 widestring = "=1.1.0"
-windows = "=0.58.0"
+windows = "=0.61.1"
+windows-core = "=0.61.0"
+windows-future = "=0.2.0"
 windows-registry = "=0.4.0"
 zbus = "=4.4.0"
 zbus_polkit = "=4.0.0"

@@ -84,7 +84,7 @@ libs/common/spec @bitwarden/team-platform-dev
 libs/common/src/state-migrations @bitwarden/team-platform-dev
 libs/platform @bitwarden/team-platform-dev
 # Node-specifc platform files
-libs/node @bitwarden/team-platform-dev
+libs/node @bitwarden/team-key-management-dev
 # Web utils used across app and connectors
 apps/web/src/utils/ @bitwarden/team-platform-dev
 # Web core and shared files
@@ -122,7 +122,7 @@ apps/desktop/src/autofill @bitwarden/team-autofill-dev
 libs/common/src/autofill @bitwarden/team-autofill-dev
 apps/desktop/macos/autofill-extension @bitwarden/team-autofill-dev
 apps/desktop/src/app/components/fido2placeholder.component.ts @bitwarden/team-autofill-dev
-apps/desktop/desktop_native/windows-plugin-authenticator @bitwarden/team-autofill-dev
+apps/desktop/desktop_native/windows_plugin_authenticator @bitwarden/team-autofill-dev
 # DuckDuckGo integration
 apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-dev
 apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-dev

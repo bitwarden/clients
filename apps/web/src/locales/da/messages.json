@@ -1435,18 +1435,6 @@
       }
     }
   },
-  "enterVerificationCodeApp": {
-    "message": "Angiv den 6-cifrede bekræftelseskode fra godkendelses-appen."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Angiv den 6-cifrede bekræftelseskode tilsendt $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Bekræftelsese-mail sendt til $EMAIL$.",
     "placeholders": {
@@ -1456,17 +1444,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Husk mig"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Send bekræftelseskode-email igen"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Brug en anden totrins-login metode"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -1474,9 +1453,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "Indsæt din YubiKey i computerens USB-port og tryk på dens knap."
   },
   "insertU2f": {
     "message": "Indsæt din sikkerhedsnøgle i computerens USB-port. Har den en knap, tryk på den."
@@ -7252,9 +7228,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Fejl under forbindelsesoprettelsen til Duo-tjenesten. Brug en anden totrins-indlogningsmetode eller kontakt Duo for hjælp."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Start DUO og følg trinene for at fuldføre indlogningen."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Duo totrinsindlogning kræves for kontoen."
   },
@@ -8735,8 +8708,8 @@
   "limitCollectionDeletionDesc": {
     "message": "Begræns samlingsslettelse til ejere og admins"
   },
-  "limitItemDeletionDesc": {
-    "message": "Limit item deletion to members with the Can manage permission"
+  "limitItemDeletionDescription": {
+    "message": "Limit item deletion to members with the Manage collection permissions"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Ejere og admins kan håndtere alle samlinger og emner"
