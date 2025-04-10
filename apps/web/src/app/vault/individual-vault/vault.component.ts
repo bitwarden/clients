@@ -13,6 +13,7 @@ import {
   Subject,
 } from "rxjs";
 import {
+  catchError,
   concatMap,
   debounceTime,
   filter,
@@ -23,7 +24,6 @@ import {
   take,
   takeUntil,
   tap,
-  catchError,
 } from "rxjs/operators";
 
 import {
@@ -139,7 +139,6 @@ const SearchTextDebounceInterval = 200;
     VaultFilterModule,
     VaultItemsModule,
     SharedModule,
-    DecryptionFailureDialogComponent,
   ],
   providers: [
     RoutedVaultFilterService,
@@ -529,6 +528,10 @@ export class VaultComponent implements OnInit, OnDestroy {
           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
           this.performingInitialLoad = false;
           this.refreshing = false;
+
+          // Explicitly mark for check to ensure the view is updated
+          // Some sources are not always emitted within the Angular zone (e.g. ciphers updated via WS notifications)
+          this.changeDetectorRef.markForCheck();
         },
       );
   }
