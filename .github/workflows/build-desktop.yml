@@ -295,7 +295,7 @@ jobs:
     # The snap base for desktop is defined in `apps/desktop/electron-builder.json`
     # We are currently running on 20.04 until the Ubuntu 24.04 release is available, as moving
     # to 22.04 now breaks users who are on 20.04 due to mismatched GLIBC versions.
-    runs-on: ubuntu-20.04-arm
+    runs-on: ubuntu-24.04-arm
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
