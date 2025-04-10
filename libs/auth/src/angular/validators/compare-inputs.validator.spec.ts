@@ -15,8 +15,10 @@ describe("compareInputs", () => {
   });
 
   it("should throw an error if compareInputs is not being applied to a FormGroup", () => {
+    // Arrange
     const notAFormGroup = new FormControl("form-control");
 
+    // Act
     const validatorFn = compareInputs(
       ValidationGoal.InputsShouldMatch,
       "ctrlA",
@@ -30,9 +32,9 @@ describe("compareInputs", () => {
     );
   });
 
-  it("should return null if either control is not found", () => {
+  it("should throw an error if either control is not found", () => {
     // Arrange
-    const formGroup = new FormGroup({
+    const formGroupMissingControl = new FormGroup({
       ctrlA: new FormControl("content"),
     });
 
@@ -44,10 +46,31 @@ describe("compareInputs", () => {
       "Custom error message",
     );
 
-    const result = validatorFn(formGroup);
+    // Assert
+    expect(() => validatorFn(formGroupMissingControl)).toThrow(
+      "[compareInputs validator] one or both of the specified controls could not be found in the form group",
+    );
+  });
+
+  it("should throw an error if the name of one of the form controls is incorrect or mispelled", () => {
+    // Arrange
+    const formGroupMissingControl = new FormGroup({
+      ctrlA: new FormControl("content"),
+      ctrlB: new FormControl("content"),
+    });
+
+    // Act
+    const validatorFn = compareInputs(
+      ValidationGoal.InputsShouldMatch,
+      "ctrlA",
+      "ctrlC", // ctrlC is incorrect (mimics a developer misspelling a form control name)
+      "Custom error message",
+    );
 
     // Assert
-    expect(result).toBeNull();
+    expect(() => validatorFn(formGroupMissingControl)).toThrow(
+      "[compareInputs validator] one or both of the specified controls could not be found in the form group",
+    );
   });
 
   it("should return null if both controls have empty string values", () => {

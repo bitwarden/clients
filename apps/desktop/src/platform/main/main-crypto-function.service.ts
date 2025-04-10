@@ -1,6 +1,6 @@
 import { ipcMain } from "electron";
 
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { crypto } from "@bitwarden/desktop-napi";
 import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
 

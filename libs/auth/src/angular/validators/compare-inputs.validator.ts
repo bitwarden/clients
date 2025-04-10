@@ -63,7 +63,9 @@ export function compareInputs(
     const controlB = formGroup.get(controlNameB);
 
     if (!controlA || !controlB) {
-      return null;
+      throw new Error(
+        "[compareInputs validator] one or both of the specified controls could not be found in the form group",
+      );
     }
 
     const controlThatShowsError = showErrorOn === "controlA" ? controlA : controlB;
