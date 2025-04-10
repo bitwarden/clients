@@ -534,6 +534,7 @@ pub mod autofill {
         pub user_verification: UserVerification,
         pub supported_algorithms: Vec<i32>,
         pub window_xy: Position,
+        pub excluded_credentials: Vec<Vec<u8>>,
     }
 
     #[napi(object)]
@@ -570,6 +571,14 @@ pub mod autofill {
         pub client_data_hash: Vec<u8>,
         pub user_verification: UserVerification,
         pub window_xy: Position,
+    }
+
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct NativeStatus {
+        pub key: String,
+        pub value: String,
     }
 
     #[napi(object)]
@@ -619,6 +628,13 @@ pub mod autofill {
             )]
             assertion_without_user_interface_callback: ThreadsafeFunction<
                 (u32, u32, PasskeyAssertionWithoutUserInterfaceRequest),
+                ErrorStrategy::CalleeHandled,
+            >,
+            #[napi(
+                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: NativeStatus) => void"
+            )]
+            native_status_callback: ThreadsafeFunction<
+                (u32, u32, NativeStatus),
                 ErrorStrategy::CalleeHandled,
             >,
         ) -> napi::Result<Self> {
@@ -689,7 +705,24 @@ pub mod autofill {
                                     continue;
                                 }
                                 Err(e) => {
-                                    println!("[ERROR] Error deserializing message2: {e}");
+                                    println!(
+                                        "[ERROR] Error deserializing registration request: {e}"
+                                    );
+                                }
+                            }
+
+                            match serde_json::from_str::<PasskeyMessage<NativeStatus>>(&message) {
+                                Ok(msg) => {
+                                    let value = msg
+                                        .value
+                                        .map(|value| (client_id, msg.sequence_number, value))
+                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
+                                    native_status_callback
+                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
+                                    continue;
+                                }
+                                Err(e) => {
+                                    println!("[ERROR] Error deserializing native status: {e}");
                                 }
                             }
 

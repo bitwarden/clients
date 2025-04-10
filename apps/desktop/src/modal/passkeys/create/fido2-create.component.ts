@@ -23,7 +23,6 @@ import {
   BitIconButtonComponent,
 } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
-
 import {
   DesktopFido2UserInterfaceService,
   DesktopFido2UserInterfaceSession,

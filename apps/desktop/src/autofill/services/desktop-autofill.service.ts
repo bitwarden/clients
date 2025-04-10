@@ -77,6 +77,20 @@ export class DesktopAutofillService implements OnDestroy {
     this.listenIpc();
   }
 
+  async adHocSync(): Promise<any> {
+    this.logService.info("Performing AdHoc sync");
+    const account = await firstValueFrom(this.accountService.activeAccount$);
+    const userId = account?.id;
+
+    if (!userId) {
+      throw new Error("No active user found");
+    }
+
+    const cipherViewMap = await firstValueFrom(this.cipherService.cipherViews$(userId));
+    this.logService.info("Performing AdHoc sync", Object.values(cipherViewMap ?? []));
+    await this.sync(Object.values(cipherViewMap ?? []));
+  }
+
   /** Give metadata about all available credentials in the users vault */
   async sync(cipherViews: CipherView[]) {
     const status = await this.status();
@@ -143,7 +157,7 @@ export class DesktopAutofillService implements OnDestroy {
   }
 
   listenIpc() {
-    ipc.autofill.listenPasskeyRegistration((clientId, sequenceNumber, request, callback) => {
+    ipc.autofill.listenPasskeyRegistration(async (clientId, sequenceNumber, request, callback) => {
       this.logService.warning("listenPasskeyRegistration", clientId, sequenceNumber, request);
       this.logService.warning(
         "listenPasskeyRegistration2",
@@ -151,19 +165,19 @@ export class DesktopAutofillService implements OnDestroy {
       );
 
       const controller = new AbortController();
-      void this.fido2AuthenticatorService
-        .makeCredential(
+
+      try {
+        const response = await this.fido2AuthenticatorService.makeCredential(
           this.convertRegistrationRequest(request),
           { windowXy: request.windowXy },
           controller,
-        )
-        .then((response) => {
-          callback(null, this.convertRegistrationResponse(request, response));
-        })
-        .catch((error) => {
-          this.logService.error("listenPasskeyRegistration error", error);
-          callback(error, null);
-        });
+        );
+
+        callback(null, this.convertRegistrationResponse(request, response));
+      } catch (error) {
+        this.logService.error("listenPasskeyRegistration error", error);
+        callback(error, null);
+      }
     });
 
     ipc.autofill.listenPasskeyAssertionWithoutUserInterface(
@@ -175,55 +189,56 @@ export class DesktopAutofillService implements OnDestroy {
           request,
         );
 
-        // For some reason the credentialId is passed as an empty array in the request, so we need to
-        // get it from the cipher. For that we use the recordIdentifier, which is the cipherId.
-        if (request.recordIdentifier && request.credentialId.length === 0) {
-          const activeUserId = await firstValueFrom(
-            this.accountService.activeAccount$.pipe(getOptionalUserId),
-          );
-          if (!activeUserId) {
-            this.logService.error("listenPasskeyAssertion error", "Active user not found");
-            callback(new Error("Active user not found"), null);
-            return;
-          }
-
-          const cipher = await this.cipherService.get(request.recordIdentifier, activeUserId);
-          if (!cipher) {
-            this.logService.error("listenPasskeyAssertion error", "Cipher not found");
-            callback(new Error("Cipher not found"), null);
-            return;
-          }
-
-          const decrypted = await cipher.decrypt(
-            await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-          );
-
-          const fido2Credential = decrypted.login.fido2Credentials?.[0];
-          if (!fido2Credential) {
-            this.logService.error("listenPasskeyAssertion error", "Fido2Credential not found");
-            callback(new Error("Fido2Credential not found"), null);
-            return;
-          }
-
-          request.credentialId = Array.from(
-            parseCredentialId(decrypted.login.fido2Credentials?.[0].credentialId),
-          );
-        }
-
         const controller = new AbortController();
-        void this.fido2AuthenticatorService
-          .getAssertion(
+
+        try {
+          // For some reason the credentialId is passed as an empty array in the request, so we need to
+          // get it from the cipher. For that we use the recordIdentifier, which is the cipherId.
+          if (request.recordIdentifier && request.credentialId.length === 0) {
+            const activeUserId = await firstValueFrom(
+              this.accountService.activeAccount$.pipe(getOptionalUserId),
+            );
+            if (!activeUserId) {
+              this.logService.error("listenPasskeyAssertion error", "Active user not found");
+              callback(new Error("Active user not found"), null);
+              return;
+            }
+
+            const cipher = await this.cipherService.get(request.recordIdentifier, activeUserId);
+            if (!cipher) {
+              this.logService.error("listenPasskeyAssertion error", "Cipher not found");
+              callback(new Error("Cipher not found"), null);
+              return;
+            }
+
+            const decrypted = await cipher.decrypt(
+              await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
+            );
+
+            const fido2Credential = decrypted.login.fido2Credentials?.[0];
+            if (!fido2Credential) {
+              this.logService.error("listenPasskeyAssertion error", "Fido2Credential not found");
+              callback(new Error("Fido2Credential not found"), null);
+              return;
+            }
+
+            request.credentialId = Array.from(
+              parseCredentialId(decrypted.login.fido2Credentials?.[0].credentialId),
+            );
+          }
+
+          const response = await this.fido2AuthenticatorService.getAssertion(
             this.convertAssertionRequest(request),
             { windowXy: request.windowXy },
             controller,
-          )
-          .then((response) => {
-            callback(null, this.convertAssertionResponse(request, response));
-          })
-          .catch((error) => {
-            this.logService.error("listenPasskeyAssertion error", error);
-            callback(error, null);
-          });
+          );
+
+          callback(null, this.convertAssertionResponse(request, response));
+        } catch (error) {
+          this.logService.error("listenPasskeyAssertion error", error);
+          callback(error, null);
+          return;
+        }
       },
     );
 
@@ -231,19 +246,27 @@ export class DesktopAutofillService implements OnDestroy {
       this.logService.warning("listenPasskeyAssertion", clientId, sequenceNumber, request);
 
       const controller = new AbortController();
-      void this.fido2AuthenticatorService
-        .getAssertion(
+      try {
+        const response = await this.fido2AuthenticatorService.getAssertion(
           this.convertAssertionRequest(request),
           { windowXy: request.windowXy },
           controller,
-        )
-        .then((response) => {
-          callback(null, this.convertAssertionResponse(request, response));
-        })
-        .catch((error) => {
-          this.logService.error("listenPasskeyAssertion error", error);
-          callback(error, null);
-        });
+        );
+
+        callback(null, this.convertAssertionResponse(request, response));
+      } catch (error) {
+        this.logService.error("listenPasskeyAssertion error", error);
+        callback(error, null);
+      }
+    });
+
+    // Listen for native status messages
+    ipc.autofill.listenNativeStatus(async (clientId, sequenceNumber, status) => {
+      this.logService.info("Received native status", status.key, status.value);
+      if (status.key === "request-sync") {
+        // perform ad-hoc sync
+        await this.adHocSync();
+      }
     });
   }
 
@@ -266,7 +289,10 @@ export class DesktopAutofillService implements OnDestroy {
         alg,
         type: "public-key",
       })),
-      excludeCredentialDescriptorList: [],
+      excludeCredentialDescriptorList: request.excludedCredentials.map((credentialId) => ({
+        id: new Uint8Array(credentialId),
+        type: "public-key" as const,
+      })),
       requireResidentKey: true,
       requireUserVerification:
         request.userVerification === "required" || request.userVerification === "preferred",
