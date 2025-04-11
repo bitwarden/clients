@@ -21,6 +21,7 @@ import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/us
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
 import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 
+import { IpcPingService } from "../platform/ipc/ipc-ping.service";
 import { VersionService } from "../platform/version.service";
 
 @Injectable()
@@ -40,6 +41,7 @@ export class InitService {
     private accountService: AccountService,
     private versionService: VersionService,
     private ipcService: IpcService,
+    private ipcPingService: IpcPingService,
     private sdkLoadService: SdkLoadService,
     private configService: ConfigService,
     private bulkEncryptService: BulkEncryptService,
@@ -75,6 +77,7 @@ export class InitService {
       this.themingService.applyThemeChangesTo(this.document);
       this.versionService.applyVersionToWindow();
       void this.ipcService.init();
+      void this.ipcPingService.init();
 
       const containerService = new ContainerService(this.keyService, this.encryptService);
       containerService.attachToGlobal(this.win);

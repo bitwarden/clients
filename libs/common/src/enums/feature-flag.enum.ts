@@ -123,7 +123,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
 
   /* Platform */
-  [FeatureFlag.IpcChannelFramework]: FALSE,
+  [FeatureFlag.IpcChannelFramework]: true,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
