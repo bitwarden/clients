@@ -22,9 +22,7 @@ export function CipherInfoIndicatorIcons({
     ...(showFamilyIcon ? [Family({ color: themes[theme].text.muted, theme })] : []),
   ];
 
-  return indicatorIcons.length
-    ? html` <span class=${cipherInfoIndicatorIconsStyles}> ${indicatorIcons} </span> `
-    : null; // @TODO null case should be handled by parent
+  return html` <span class=${cipherInfoIndicatorIconsStyles}> ${indicatorIcons} </span> `;
 }
 
 const cipherInfoIndicatorIconsStyles = css`

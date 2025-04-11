@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import { html } from "lit";
+import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
@@ -10,12 +10,24 @@ import { NotificationCipherData } from "./types";
 
 // @TODO support other cipher types (card, identity, notes, etc)
 export function CipherInfo({ cipher, theme }: { cipher: NotificationCipherData; theme: Theme }) {
-  const { name, login } = cipher;
+  const { name, login, cipherIndicatorIcon } = cipher;
+  const renderIndicator =
+    cipherIndicatorIcon &&
+    (cipherIndicatorIcon.showBusinessIcon || cipherIndicatorIcon.showFamilyIcon);
 
   return html`
     <div>
       <span class=${cipherInfoPrimaryTextStyles(theme)}>
-        ${[name, CipherInfoIndicatorIcons({ theme })]}
+        ${[
+          name,
+          renderIndicator
+            ? CipherInfoIndicatorIcons({
+                theme,
+                showBusinessIcon: cipherIndicatorIcon?.showBusinessIcon,
+                showFamilyIcon: cipherIndicatorIcon?.showFamilyIcon,
+              })
+            : nothing,
+        ]}
       </span>
 
       ${login?.username

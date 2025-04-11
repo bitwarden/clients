@@ -16,6 +16,7 @@ import {
 } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums/product-tier-type.enum";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -163,8 +164,29 @@ export default class NotificationBackground {
       activeUserId,
     );
 
+    const organizations = await firstValueFrom(
+      this.organizationService.organizations$(activeUserId),
+    );
+
     return decryptedCiphers.map((view) => {
-      const { id, name, reprompt, favorite, login } = view;
+      const { id, name, reprompt, favorite, login, organizationId } = view;
+
+      const organizationType = organizationId
+        ? organizations.find((org) => org.id === organizationId)?.productTierType
+        : null;
+
+      const [showBusinessIcon, showFamilyIcon] = [
+        [ProductTierType.Teams, ProductTierType.Enterprise, ProductTierType.TeamsStarter].includes(
+          organizationType,
+        ),
+        [ProductTierType.Families, ProductTierType.Free].includes(organizationType),
+      ];
+
+      const cipherIndicatorIcon = {
+        ...(showBusinessIcon ? { showBusinessIcon: true } : {}),
+        ...(showFamilyIcon ? { showFamilyIcon: true } : {}),
+      };
+
       return {
         id,
         name,
@@ -175,6 +197,7 @@ export default class NotificationBackground {
         login: login && {
           username: login.username,
         },
+        ...(Object.keys(cipherIndicatorIcon).length && { cipherIndicatorIcon }),
       };
     });
   }
