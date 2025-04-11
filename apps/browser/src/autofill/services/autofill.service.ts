@@ -1,13 +1,23 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { filter, firstValueFrom, merge, Observable, ReplaySubject, scan, startWith } from "rxjs";
-import { pairwise } from "rxjs/operators";
+import {
+  filter,
+  firstValueFrom,
+  merge,
+  Observable,
+  ReplaySubject,
+  scan,
+  startWith,
+  timer,
+} from "rxjs";
+import { map, pairwise, share, takeUntil } from "rxjs/operators";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   AutofillOverlayVisibility,
   CardExpiryDateDelimiters,
@@ -145,7 +155,19 @@ export default class AutofillService implements AutofillServiceInterface {
       pageDetailsFallback$.next([]);
     }
 
-    return merge(pageDetailsFromTab$, pageDetailsFallback$);
+    // Share the pageDetailsFromTab$ observable so that multiple subscribers don't trigger multiple executions.
+    const sharedPageDetailsFromTab$ = pageDetailsFromTab$.pipe(share());
+
+    // Create a timeout observable that emits an empty array if pageDetailsFromTab$ hasn't emitted within 1 second.
+    const pageDetailsTimeout$ = timer(1000).pipe(
+      map(() => []),
+      takeUntil(sharedPageDetailsFromTab$),
+    );
+
+    // Merge the responses so that if pageDetailsFromTab$ emits, that value is used.
+    // Otherwise, if it doesn't emit in time, the timeout observable emits an empty array.
+    // Also, pageDetailsFallback$ will emit in error cases.
+    return merge(sharedPageDetailsFromTab$, pageDetailsFallback$, pageDetailsTimeout$);
   }
 
   /**
@@ -214,13 +236,8 @@ export default class AutofillService implements AutofillServiceInterface {
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     const accountIsUnlocked = authStatus === AuthenticationStatus.Unlocked;
     let autoFillOnPageLoadIsEnabled = false;
-    const addLoginImprovementsFlagActive = await this.configService.getFeatureFlag(
-      FeatureFlag.NotificationBarAddLoginImprovements,
-    );
 
-    const injectedScripts = [
-      await this.getBootstrapAutofillContentScript(activeAccount, addLoginImprovementsFlagActive),
-    ];
+    const injectedScripts = [await this.getBootstrapAutofillContentScript(activeAccount)];
 
     if (activeAccount && accountIsUnlocked) {
       autoFillOnPageLoadIsEnabled = await this.getAutofillOnPageLoad();
@@ -235,10 +252,6 @@ export default class AutofillService implements AutofillServiceInterface {
         tabId: tab.id,
         injectDetails: { file: "content/content-message-handler.js", runAt: "document_start" },
       });
-    }
-
-    if (!addLoginImprovementsFlagActive) {
-      injectedScripts.push("notificationBar.js");
     }
 
     injectedScripts.push("contextMenuHandler.js");
@@ -261,11 +274,9 @@ export default class AutofillService implements AutofillServiceInterface {
    * enabled.
    *
    * @param activeAccount - The active account
-   * @param addLoginImprovementsFlagActive - Whether the add login improvements feature flag is active
    */
   private async getBootstrapAutofillContentScript(
     activeAccount: { id: UserId | undefined } & AccountInfo,
-    addLoginImprovementsFlagActive = false,
   ): Promise<string> {
     let inlineMenuVisibility: InlineMenuVisibilitySetting = AutofillOverlayVisibility.Off;
 
@@ -288,8 +299,7 @@ export default class AutofillService implements AutofillServiceInterface {
     const enableAddedLoginPrompt = await firstValueFrom(
       this.userNotificationSettingsService.enableAddedLoginPrompt$,
     );
-    const isNotificationBarEnabled =
-      addLoginImprovementsFlagActive && (enableChangedPasswordPrompt || enableAddedLoginPrompt);
+    const isNotificationBarEnabled = enableChangedPasswordPrompt || enableAddedLoginPrompt;
 
     if (!inlineMenuVisibility && !isNotificationBarEnabled) {
       return "bootstrap-autofill.js";
@@ -463,13 +473,8 @@ export default class AutofillService implements AutofillServiceInterface {
         fillScript.properties.delay_between_operations = 20;
 
         didAutofill = true;
-
         if (!options.skipLastUsed) {
-          // In order to prevent a UI update send message to background script to update last used date
-          await chrome.runtime.sendMessage({
-            command: "updateLastUsedDate",
-            cipherId: options.cipher.id,
-          });
+          await this.cipherService.updateLastUsedDate(options.cipher.id, activeAccount.id);
         }
 
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -498,7 +503,7 @@ export default class AutofillService implements AutofillServiceInterface {
         const shouldAutoCopyTotp = await this.getShouldAutoCopyTotp();
 
         totp = shouldAutoCopyTotp
-          ? await this.totpService.getCode(options.cipher.login.totp)
+          ? (await firstValueFrom(this.totpService.getCode$(options.cipher.login.totp))).code
           : null;
       }),
     );
@@ -532,17 +537,29 @@ export default class AutofillService implements AutofillServiceInterface {
     autoSubmitLogin = false,
   ): Promise<string | null> {
     let cipher: CipherView;
+
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    if (activeUserId == null) {
+      return null;
+    }
+
     if (fromCommand) {
-      cipher = await this.cipherService.getNextCipherForUrl(tab.url);
+      cipher = await this.cipherService.getNextCipherForUrl(tab.url, activeUserId);
     } else {
-      const lastLaunchedCipher = await this.cipherService.getLastLaunchedForUrl(tab.url, true);
+      const lastLaunchedCipher = await this.cipherService.getLastLaunchedForUrl(
+        tab.url,
+        activeUserId,
+        true,
+      );
       if (
         lastLaunchedCipher &&
         Date.now().valueOf() - lastLaunchedCipher.localData?.lastLaunched?.valueOf() < 30000
       ) {
         cipher = lastLaunchedCipher;
       } else {
-        cipher = await this.cipherService.getLastUsedForUrl(tab.url, true);
+        cipher = await this.cipherService.getLastUsedForUrl(tab.url, activeUserId, true);
       }
     }
 
@@ -631,12 +648,19 @@ export default class AutofillService implements AutofillServiceInterface {
     let cipher: CipherView;
     let cacheKey = "";
 
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    if (activeUserId == null) {
+      return null;
+    }
+
     if (cipherType === CipherType.Card) {
       cacheKey = "cardCiphers";
-      cipher = await this.cipherService.getNextCardCipher();
+      cipher = await this.cipherService.getNextCardCipher(activeUserId);
     } else {
       cacheKey = "identityCiphers";
-      cipher = await this.cipherService.getNextIdentityCipher();
+      cipher = await this.cipherService.getNextIdentityCipher(activeUserId);
     }
 
     if (!cipher || !cacheKey || (cipher.reprompt === CipherRepromptType.Password && !fromCommand)) {
@@ -977,7 +1001,10 @@ export default class AutofillService implements AutofillServiceInterface {
           }
 
           filledFields[t.opid] = t;
-          let totpValue = await this.totpService.getCode(login.totp);
+          const totpResponse = await firstValueFrom(
+            this.totpService.getCode$(options.cipher.login.totp),
+          );
+          let totpValue = totpResponse.code;
           if (totpValue.length == totps.length) {
             totpValue = totpValue.charAt(i);
           }
@@ -1394,7 +1421,6 @@ export default class AutofillService implements AutofillServiceInterface {
 
     let doesContainValue = false;
     CreditCardAutoFillConstants.CardAttributesExtended.forEach((attributeName) => {
-      // eslint-disable-next-line no-prototype-builtins
       if (doesContainValue || !field[attributeName]) {
         return;
       }

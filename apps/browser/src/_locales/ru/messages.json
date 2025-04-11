@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "Подсказка к мастер-паролю (необяз.)"
   },
+  "passwordStrengthScore": {
+    "message": "Оценка надежности пароля $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Присоединиться к организации"
   },
@@ -176,6 +185,10 @@
   "copyNotes": {
     "message": "Скопировать заметки"
   },
+  "copy": {
+    "message": "Скопировать",
+    "description": "Copy to clipboard"
+  },
   "fill": {
     "message": "Заполнить",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
@@ -249,12 +262,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Введите email вашего аккаунта, и вам будет отправлена подсказка для пароля"
-  },
-  "passwordHint": {
-    "message": "Подсказка к паролю"
-  },
-  "enterEmailToGetHint": {
-    "message": "Введите email аккаунта для получения подсказки к мастер-паролю."
   },
   "getMasterPasswordHint": {
     "message": "Получить подсказку к мастер-паролю"
@@ -372,6 +379,15 @@
   "editFolder": {
     "message": "Изменить папку"
   },
+  "editFolderWithName": {
+    "message": "Редактировать папку: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
     "message": "Новый папка"
   },
@@ -466,22 +482,6 @@
   "length": {
     "message": "Длина"
   },
-  "uppercase": {
-    "message": "Прописные буквы (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Строчные буквы (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Цифры (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Специальные символы (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Включить",
     "description": "Card header for password generator include block"
@@ -513,10 +513,6 @@
   "specialCharactersDescription": {
     "message": "Включить специальные символы",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Количество слов"
@@ -656,8 +652,8 @@
   "browserNotSupportClipboard": {
     "message": "Ваш браузер не поддерживает копирование данных в буфер обмена. Скопируйте вручную."
   },
-  "verifyIdentity": {
-    "message": "Подтвердить личность"
+  "verifyYourIdentity": {
+    "message": "Подтвердите вашу личность"
   },
   "weDontRecognizeThisDevice": {
     "message": "Мы не распознали это устройство. Введите код, отправленный на ваш email, чтобы подтвердить вашу личность."
@@ -872,6 +868,21 @@
   "logInToBitwarden": {
     "message": "Войти в Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Введите код, отправленный на ваш email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Введите код из приложения-аутентификатора"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Нажмите на YubiKey для аутентификации"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Для вашего аккаунта требуется двухэтапная аутентификация Duo. Выполните следующие действия, чтобы завершить авторизацию."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Следуйте указаниям ниже, чтобы завершить авторизацию."
+  },
   "restartRegistration": {
     "message": "Перезапустить регистрацию"
   },
@@ -892,6 +903,9 @@
   },
   "no": {
     "message": "Нет"
+  },
+  "location": {
+    "message": "Местоположение"
   },
   "unexpectedError": {
     "message": "Произошла непредвиденная ошибка."
@@ -1025,6 +1039,9 @@
   "clickToAutofillOnVault": {
     "message": "Кликните элементы для автозаполнения в режиме просмотра хранилища"
   },
+  "clickToAutofill": {
+    "message": "Выберите элементы в предложении автозаполнения для вставки"
+  },
   "clearClipboard": {
     "message": "Очистить буфер обмена",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1038,6 +1055,56 @@
   },
   "notificationAddSave": {
     "message": "Сохранить"
+  },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ сохранен в Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ обновлен в Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Сохранить как новый логин",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Обновить логин",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Сохранить логин?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Обновить существующий логин?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Логин сохранен",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Логин обновлен",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Ошибка при сохранении",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "О нет! Мы не смогли сохранить это. Попробуйте ввести данные вручную.",
+    "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
     "message": "Спрашивать при обновлении существующего логина"
@@ -1101,10 +1168,6 @@
   "light": {
     "message": "Светлая",
     "description": "Light color"
-  },
-  "solarizedDark": {
-    "message": "Solarized dark",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
     "message": "Экспорт из"
@@ -1328,23 +1391,11 @@
   "premiumRequiredDesc": {
     "message": "Для использования этой функции необходим Премиум."
   },
-  "enterVerificationCodeApp": {
-    "message": "Введите 6-значный код подтверждения из вашего приложения-аутентификатора."
-  },
   "authenticationTimeout": {
     "message": "Таймаут аутентификации"
   },
   "authenticationSessionTimedOut": {
     "message": "Сеанс аутентификации завершился по времени. Пожалуйста, попробуйте войти еще раз."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Введите 6-значный код подтверждения, который был отправлен на $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Отправлено письмо подтверждения на $EMAIL$.",
@@ -1355,29 +1406,30 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Запомнить меня"
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Не спрашивать на этом устройстве в течение 30 дней"
   },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Отправить код подтверждения еще раз"
+  "selectAnotherMethod": {
+    "message": "Выбрать другой способ",
+    "description": "Select another two-step login method"
   },
-  "useAnotherTwoStepMethod": {
-    "message": "Использовать другой метод двухэтапной аутентификации"
-  },
-  "insertYubiKey": {
-    "message": "Вставьте свой YubiKey в USB-порт компьютера и нажмите его кнопку."
+  "useYourRecoveryCode": {
+    "message": "Использовать код восстановления"
   },
   "insertU2f": {
     "message": "Вставьте ключ безопасности в USB-порт компьютера. Если у ключа есть кнопка, нажмите ее."
   },
-  "webAuthnNewTab": {
-    "message": "Продолжить верификацию 2ЭА WebAuthn в новой вкладке."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Открыть новую вкладку"
+  "openInNewTab": {
+    "message": "Открыть в новой вкладке"
   },
   "webAuthnAuthenticate": {
     "message": "Аутентификация WebAutn"
+  },
+  "readSecurityKey": {
+    "message": "Считать ключ безопасности"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Ожидание взаимодействия с ключом безопасности..."
   },
   "loginUnavailable": {
     "message": "Вход недоступен"
@@ -1390,6 +1442,9 @@
   },
   "twoStepOptions": {
     "message": "Настройки двухэтапной аутентификации"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Выбрать другой метод двухэтапной аутентификации"
   },
   "recoveryCodeDesc": {
     "message": "Потеряли доступ ко всем вариантам двухэтапной аутентификации? Используйте код восстановления, чтобы отключить двухэтапную аутентификацию для вашей учетной записи."
@@ -1433,9 +1488,6 @@
   "selfHostedEnvironment": {
     "message": "Окружение пользовательского хостинга"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Укажите URL Bitwarden на вашем сервере."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Укажите базовый URL вашего локального хостинга Bitwarden. Пример: https://bitwarden.company.com"
   },
@@ -1447,9 +1499,6 @@
   },
   "customEnvironment": {
     "message": "Пользовательское окружение"
-  },
-  "customEnvironmentFooter": {
-    "message": "Для опытных пользователей. Можно указать URL отдельно для каждой службы."
   },
   "baseUrl": {
     "message": "URL сервера"
@@ -1587,6 +1636,9 @@
   },
   "dragToSort": {
     "message": "Перетащите для сортировки"
+  },
+  "dragToReorder": {
+    "message": "Перетащите для изменения порядка"
   },
   "cfTypeText": {
     "message": "Текстовое"
@@ -2081,11 +2133,23 @@
     "message": "для создания надежного уникального пароля",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
+  "vaultCustomization": {
+    "message": "Настройка хранилища"
+  },
   "vaultTimeoutAction": {
     "message": "Действие по тайм-ауту хранилища"
   },
   "vaultTimeoutAction1": {
     "message": "Тайм-аут действия"
+  },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "Новые возможности настроек"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Настройте работу с хранилищем с помощью действий быстрого копирования, компактного режима и многого другого!"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "Посмотреть все настройки внешнего вида"
   },
   "lock": {
     "message": "Блокировка",
@@ -2233,6 +2297,9 @@
   "privacyPolicy": {
     "message": "Политика конфиденциальности"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Ваш новый пароль не может быть таким же, как текущий."
+  },
   "hintEqualsPassword": {
     "message": "Подсказка для пароля не может совпадать с паролем."
   },
@@ -2345,6 +2412,9 @@
   "blockedDomains": {
     "message": "Заблокированные домены"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Узнайте больше о заблокированных доменах"
+  },
   "excludedDomains": {
     "message": "Исключенные домены"
   },
@@ -2362,6 +2432,109 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Измените это в настройках"
+  },
+  "change": {
+    "message": "Изменить"
+  },
+  "changeButtonTitle": {
+    "message": "Изменить пароль - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Пароли, подверженные риску"
+  },
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ запрашивает смену одного пароля, так как он подвержен риску.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
+    "message": "$ORGANIZATION$ запрашивает смену $COUNT$ паролей, так как они подвержены риску.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrgPlural": {
+    "message": "Ваша организация запрашивает смену $COUNT$ паролей, так как они подвержены риску.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Проверить и изменить один пароль, подверженный риску"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Проверить и изменить $COUNT$ паролей, подверженных риску",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Меняйте пароли, подверженные риску, быстрее"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Обновите настройки, чтобы можно было быстро автоматически заполнять пароли и генерировать новые"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Обзор логинов, подверженных риску"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Обзор паролей, подверженных риску"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Пароли вашей организации подвержены риску, потому что они слабые, повторно используются и/или раскрыты.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Иллюстрация списка логинов, которые подвержены риску."
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Быстро сгенерируйте надежный уникальный пароль с помощью меню автозаполнения Bitwarden на сайте, подверженном риску.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Иллюстрация меню автозаполнения Bitwarden, отображающего сгенерированный пароль."
+  },
+  "updateInBitwarden": {
+    "message": "Обновить в Bitwarden"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "После этого Bitwarden предложит вам обновить пароль в менеджере паролей.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Иллюстрация уведомления Bitwarden, предлагающего пользователю обновить логин."
+  },
+  "turnOnAutofill": {
+    "message": "Включить автозаполнение"
+  },
+  "turnedOnAutofill": {
+    "message": "Автозаполнение включено"
+  },
+  "dismiss": {
+    "message": "Отклонить"
   },
   "websiteItemLabel": {
     "message": "Сайт $number$ (URI)",
@@ -2807,6 +2980,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Будут экспортированы только отдельные элементы хранилища, включая вложения, связанные с $EMAIL$. Элементы хранилища организации включены не будут",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Экспорт хранилища организации"
   },
@@ -2967,6 +3149,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ отклонил(а) ваш запрос. Обратитесь за помощью к своему провайдеру.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ отклонил(а) ваш запрос: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Не удалось получить скрытый идентификатор email аккаунта $SERVICENAME$.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -3048,15 +3254,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Настройки были изменены"
-  },
-  "environmentEditedClick": {
-    "message": "Нажмите здесь"
-  },
-  "environmentEditedReset": {
-    "message": "для сброса к предварительно настроенным параметрам"
-  },
   "serverVersion": {
     "message": "Версия сервера"
   },
@@ -3087,12 +3284,6 @@
   "loginWithMasterPassword": {
     "message": "Войти с мастер-паролем"
   },
-  "loggingInAs": {
-    "message": "Войти как"
-  },
-  "notYou": {
-    "message": "Не вы?"
-  },
   "newAroundHere": {
     "message": "Вы здесь впервые?"
   },
@@ -3101,9 +3292,6 @@
   },
   "loginWithDevice": {
     "message": "Войти с помощью устройства"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Вход с устройства должен быть настроен в настройках мобильного приложения Bitwarden. Нужен другой вариант?"
   },
   "fingerprintPhraseHeader": {
     "message": "Фраза отпечатка"
@@ -3117,17 +3305,20 @@
   "viewAllLogInOptions": {
     "message": "Посмотреть все варианты авторизации"
   },
-  "viewAllLoginOptionsV1": {
-    "message": "Посмотреть все варианты авторизации"
-  },
   "notificationSentDevice": {
     "message": "На ваше устройство отправлено уведомление."
   },
+  "notificationSentDevicePart1": {
+    "message": "Разблокируйте Bitwarden на своем устройстве или"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "веб-приложении"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Перед одобрением убедитесь, что фраза отпечатка совпадает с приведенной ниже."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "На ваше устройство было отправлено уведомление"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Убедитесь, что ваш аккаунт разблокирован и фраза отпечатка совпадает с фразой на другом устройстве"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Вы получите уведомление, когда запрос будет одобрен"
@@ -3137,6 +3328,9 @@
   },
   "loginInitiated": {
     "message": "Вход инициирован"
+  },
+  "logInRequestSent": {
+    "message": "Запрос отправлен"
   },
   "exposedMasterPassword": {
     "message": "Мастер-пароль скомпрометирован"
@@ -3252,9 +3446,6 @@
   "requestAdminApproval": {
     "message": "Запросить одобрение администратора"
   },
-  "approveWithMasterPassword": {
-    "message": "Одобрить с мастер-паролем"
-  },
   "ssoIdentifierRequired": {
     "message": "Требуется идентификатор SSO организации."
   },
@@ -3300,9 +3491,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Ваш запрос был отправлен администратору."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Вас уведомят об одобрении."
   },
   "troubleLoggingIn": {
     "message": "Не удалось войти?"
@@ -3633,14 +3821,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Ошибка при подключении к сервису Duo. Используйте другой метод двухэтапной аутентификации или обратитесь за помощью в Duo."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Запустите Duo и следуйте шагам для завершения авторизации."
-  },
   "duoRequiredForAccount": {
     "message": "Для вашего аккаунта требуется двухэтапная аутентификация Duo."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Запустите расширение для завершения авторизации."
   },
   "popoutExtension": {
     "message": "Открепить расширение"
@@ -3873,6 +4055,9 @@
   "activeAccount": {
     "message": "Активный аккаунт"
   },
+  "bitwardenAccount": {
+    "message": "Аккаунт Bitwarden"
+  },
   "availableAccounts": {
     "message": "Доступные аккаунты"
   },
@@ -4061,6 +4246,20 @@
       }
     }
   },
+  "viewItemTitleWithField": {
+    "message": "Просмотр элемента - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "autofillTitle": {
     "message": "Автозаполнение - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
@@ -4068,6 +4267,34 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "autofillTitleWithField": {
+    "message": "Автозаполнение - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "Скопировать $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
       }
     }
   },
@@ -4145,15 +4372,6 @@
   },
   "itemName": {
     "message": "Название элемента"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Вы не можете удалить коллекции с правами только на просмотр: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "organizationIsDeactivated": {
     "message": "Организация деактивирована"
@@ -4456,6 +4674,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Изменить порядок URI. Используйте клавиши курсора для перемещения элемента вверх или вниз."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ перемещено вверх, позиция $INDEX$ $LENGTH$",
     "placeholders": {
@@ -4515,15 +4736,6 @@
   },
   "nothingSelected": {
     "message": "Вы ничего не выбрали."
-  },
-  "movedItemsToOrg": {
-    "message": "Выбранные элементы перемещены в $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
   },
   "itemsMovedToOrg": {
     "message": "Элементы перемещены в $ORGNAME$",
@@ -4887,10 +5099,76 @@
   "extraWide": {
     "message": "Очень широкое"
   },
+  "sshKeyWrongPassword": {
+    "message": "Введенный пароль неверен."
+  },
+  "importSshKey": {
+    "message": "Импорт"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Подтвердите пароль"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Введите пароль для ключа SSH."
+  },
+  "enterSshKeyPassword": {
+    "message": "Введите пароль"
+  },
+  "invalidSshKey": {
+    "message": "Ключ SSH недействителен"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Тип ключа SSH не поддерживается"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Импорт ключа из буфера обмена"
+  },
+  "sshKeyImported": {
+    "message": "Ключ SSH успешно импортирован"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Вы не можете удалить коллекции с правами только на просмотр: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Пожалуйста, обновите приложение для компьютера"
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "Чтобы использовать биометрическую разблокировку, обновите приложение для компьютера или отключите разблокировку по отпечатку пальца в настройках компьютера."
+  },
+  "changeAtRiskPassword": {
+    "message": "Изменить пароль, подверженный риску"
+  },
+  "introCarouselLabel": {
+    "message": "Добро пожаловать в Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Безопасность, приоритет"
+  },
+  "securityPrioritizedBody": {
+    "message": "Сохраняйте логины, карты и личные данные в своем защищенном хранилище. Bitwarden использует сквозное шифрование, чтобы защитить то, что для вас важно."
+  },
+  "quickLogin": {
+    "message": "Быстрая и простая авторизация"
+  },
+  "quickLoginBody": {
+    "message": "Настройте биометрическую разблокировку и автозаполнение, чтобы входить в свои аккаунты, не набирая ни одной буквы."
+  },
+  "secureUser": {
+    "message": "Сделайте авторизацию еще проще"
+  },
+  "secureUserBody": {
+    "message": "Используйте генератор для создания и сохранения надежных, уникальных паролей для всех ваших аккаунтов."
+  },
+  "secureDevices": {
+    "message": "Ваши данные, в любое время в любом месте"
+  },
+  "secureDevicesBody": {
+    "message": "Сохраняйте неограниченное количество паролей на неограниченном количестве устройств с помощью мобильных, браузерных и десктопных приложений Bitwarden."
   }
 }

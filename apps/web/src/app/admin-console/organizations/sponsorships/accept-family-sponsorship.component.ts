@@ -3,6 +3,7 @@
 import { Component, inject } from "@angular/core";
 import { Params } from "@angular/router";
 
+import { BitwardenLogo } from "@bitwarden/auth/angular";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { OrganizationSponsorshipResponse } from "@bitwarden/common/admin-console/models/response/organization-sponsorship.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -20,6 +21,7 @@ import { BaseAcceptComponent } from "../../../common/base.accept.component";
   templateUrl: "accept-family-sponsorship.component.html",
 })
 export class AcceptFamilySponsorshipComponent extends BaseAcceptComponent {
+  protected logo = BitwardenLogo;
   failedShortMessage = "inviteAcceptFailedShort";
   failedMessage = "inviteAcceptFailed";
 

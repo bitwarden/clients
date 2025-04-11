@@ -1,16 +1,24 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherBulkDeleteRequest } from "@bitwarden/common/vault/models/request/cipher-bulk-delete.request";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 export interface BulkDeleteDialogParams {
   cipherIds?: string[];
@@ -61,6 +69,7 @@ export class BulkDeleteDialogComponent {
     private apiService: ApiService,
     private collectionService: CollectionService,
     private toastService: ToastService,
+    private accountService: AccountService,
   ) {
     this.cipherIds = params.cipherIds ?? [];
     this.permanent = params.permanent;
@@ -115,10 +124,12 @@ export class BulkDeleteDialogComponent {
 
   private async deleteCiphers(): Promise<any> {
     const asAdmin = this.organization?.canEditAllCiphers;
+
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (this.permanent) {
-      await this.cipherService.deleteManyWithServer(this.cipherIds, asAdmin);
+      await this.cipherService.deleteManyWithServer(this.cipherIds, activeUserId, asAdmin);
     } else {
-      await this.cipherService.softDeleteManyWithServer(this.cipherIds, asAdmin);
+      await this.cipherService.softDeleteManyWithServer(this.cipherIds, activeUserId, asAdmin);
     }
   }
 

@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from "@angular/forms";
 import { Subject, takeUntil, Observable, firstValueFrom } from "rxjs";
@@ -11,13 +10,13 @@ import { OrganizationDomainResponse } from "@bitwarden/common/admin-console/abst
 import { OrganizationDomainRequest } from "@bitwarden/common/admin-console/services/organization-domain/requests/organization-domain.request";
 import { HttpStatusCode } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogRef, DIALOG_DATA, DialogService, ToastService } from "@bitwarden/components";
 
 import { domainNameValidator } from "./validators/domain-name.validator";
 import { uniqueInArrayValidator } from "./validators/unique-in-array.validator";

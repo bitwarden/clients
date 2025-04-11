@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -12,13 +11,15 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { BadgeVariant } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { BadgeVariant, DialogService } from "@bitwarden/components";
+import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
+
+import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
 import { CipherReportComponent } from "./cipher-report.component";
 
-type ReportScore = { label: string; badgeVariant: BadgeVariant };
-type ReportResult = CipherView & { score: number; reportValue: ReportScore };
+type ReportScore = { label: string; badgeVariant: BadgeVariant; sortOrder: number };
+type ReportResult = CipherView & { score: number; reportValue: ReportScore; scoreKey: number };
 
 @Component({
   selector: "app-weak-passwords-report",
@@ -33,20 +34,24 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
     protected cipherService: CipherService,
     protected passwordStrengthService: PasswordStrengthServiceAbstraction,
     protected organizationService: OrganizationService,
+    dialogService: DialogService,
     protected accountService: AccountService,
-    modalService: ModalService,
     passwordRepromptService: PasswordRepromptService,
     i18nService: I18nService,
     syncService: SyncService,
+    cipherFormConfigService: CipherFormConfigService,
+    adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
   ) {
     super(
       cipherService,
-      modalService,
+      dialogService,
       passwordRepromptService,
       organizationService,
       accountService,
       i18nService,
       syncService,
+      cipherFormConfigService,
+      adminConsoleCipherFormConfigService,
     );
   }
 
@@ -105,7 +110,12 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
 
       if (result.score != null && result.score <= 2) {
         const scoreValue = this.scoreKey(result.score);
-        const row = { ...ciph, score: result.score, reportValue: scoreValue } as ReportResult;
+        const row = {
+          ...ciph,
+          score: result.score,
+          reportValue: scoreValue,
+          scoreKey: scoreValue.sortOrder,
+        } as ReportResult;
         this.weakPasswordCiphers.push(row);
       }
     });
@@ -124,13 +134,13 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
   private scoreKey(score: number): ReportScore {
     switch (score) {
       case 4:
-        return { label: "strong", badgeVariant: "success" };
+        return { label: "strong", badgeVariant: "success", sortOrder: 1 };
       case 3:
-        return { label: "good", badgeVariant: "primary" };
+        return { label: "good", badgeVariant: "primary", sortOrder: 2 };
       case 2:
-        return { label: "weak", badgeVariant: "warning" };
+        return { label: "weak", badgeVariant: "warning", sortOrder: 3 };
       default:
-        return { label: "veryWeak", badgeVariant: "danger" };
+        return { label: "veryWeak", badgeVariant: "danger", sortOrder: 4 };
     }
   }
 }

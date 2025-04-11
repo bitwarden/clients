@@ -10,7 +10,8 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
@@ -30,9 +31,13 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
   private apiService: ApiService = inject(ApiService);
   private accountService: AccountService = inject(AccountService);
 
-  private allowPersonalOwnership$ = this.policyService
-    .policyAppliesToActiveUser$(PolicyType.PersonalOwnership)
-    .pipe(map((p) => !p));
+  private allowPersonalOwnership$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) =>
+      this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+    ),
+    map((p) => !p),
+  );
 
   private organizationId$ = this.routedVaultFilterService.filter$.pipe(
     map((filter) => filter.organizationId),
@@ -100,7 +105,7 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
       return null;
     }
 
-    const localCipher = await this.cipherService.get(id);
+    const localCipher = await this.cipherService.get(id, organization.userId as UserId);
 
     // Fetch from the API because we don't need the permissions in local state OR the cipher was not found (e.g. unassigned)
     if (organization.canEditAllCiphers || localCipher == null) {

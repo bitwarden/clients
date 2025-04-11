@@ -8,7 +8,7 @@ import {
   SecurityTaskData,
   SecurityTaskResponse,
   SecurityTaskStatus,
-} from "@bitwarden/vault";
+} from "@bitwarden/common/vault/tasks";
 
 import { AdminTaskService, CreateTasksRequest } from "./abstractions/admin-task.abstraction";
 
@@ -43,6 +43,12 @@ export class DefaultAdminTaskService implements AdminTaskService {
     organizationId: OrganizationId,
     tasks: CreateTasksRequest[],
   ): Promise<void> {
-    await this.apiService.send("POST", `/tasks/${organizationId}/bulk-create`, tasks, true, true);
+    await this.apiService.send(
+      "POST",
+      `/tasks/${organizationId}/bulk-create`,
+      { tasks },
+      true,
+      true,
+    );
   }
 }

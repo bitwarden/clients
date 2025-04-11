@@ -1,5 +1,4 @@
 import { A11yModule } from "@angular/cdk/a11y";
-import { DialogModule } from "@angular/cdk/dialog";
 import { DragDropModule } from "@angular/cdk/drag-drop";
 import { LayoutModule } from "@angular/cdk/layout";
 import { OverlayModule } from "@angular/cdk/overlay";
@@ -15,25 +14,21 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
 import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
-import { AvatarModule, ButtonModule, FormFieldModule, ToastModule } from "@bitwarden/components";
+import {
+  DialogModule,
+  AvatarModule,
+  ButtonModule,
+  FormFieldModule,
+  ToastModule,
+} from "@bitwarden/components";
 
 import { AccountComponent } from "../auth/popup/account-switching/account.component";
 import { CurrentAccountComponent } from "../auth/popup/account-switching/current-account.component";
-import { EnvironmentComponent } from "../auth/popup/environment.component";
 import { ExtensionAnonLayoutWrapperComponent } from "../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
-import { HintComponent } from "../auth/popup/hint.component";
-import { HomeComponent } from "../auth/popup/home.component";
-import { LoginDecryptionOptionsComponentV1 } from "../auth/popup/login-decryption-options/login-decryption-options-v1.component";
-import { LoginComponentV1 } from "../auth/popup/login-v1.component";
-import { LoginViaAuthRequestComponentV1 } from "../auth/popup/login-via-auth-request-v1.component";
-import { RegisterComponent } from "../auth/popup/register.component";
 import { RemovePasswordComponent } from "../auth/popup/remove-password.component";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { VaultTimeoutInputComponent } from "../auth/popup/settings/vault-timeout-input.component";
-import { SsoComponentV1 } from "../auth/popup/sso-v1.component";
-import { TwoFactorOptionsComponent } from "../auth/popup/two-factor-options.component";
-import { TwoFactorComponent } from "../auth/popup/two-factor.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
@@ -97,18 +92,8 @@ import "../platform/popup/locales";
     AppComponent,
     ColorPasswordPipe,
     ColorPasswordCountPipe,
-    EnvironmentComponent,
-    HintComponent,
-    HomeComponent,
-    LoginViaAuthRequestComponentV1,
-    LoginComponentV1,
-    LoginDecryptionOptionsComponentV1,
-    RegisterComponent,
     SetPasswordComponent,
-    SsoComponentV1,
     TabsV2Component,
-    TwoFactorComponent,
-    TwoFactorOptionsComponent,
     UpdateTempPasswordComponent,
     UserVerificationComponent,
     VaultTimeoutInputComponent,

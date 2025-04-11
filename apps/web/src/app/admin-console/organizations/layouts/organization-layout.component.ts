@@ -65,6 +65,7 @@ export class OrganizationLayoutComponent implements OnInit {
   enterpriseOrganization$: Observable<boolean>;
 
   showAccountDeprovisioningBanner$: Observable<boolean>;
+  protected isBreadcrumbEventLogsEnabled$: Observable<boolean>;
 
   constructor(
     private route: ActivatedRoute,
@@ -78,6 +79,9 @@ export class OrganizationLayoutComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
+    this.isBreadcrumbEventLogsEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.PM12276_BreadcrumbEventLogs,
+    );
     document.body.classList.remove("layout_frontend");
 
     this.organization$ = this.route.params.pipe(
@@ -114,7 +118,10 @@ export class OrganizationLayoutComponent implements OnInit {
       ),
     );
 
-    this.hideNewOrgButton$ = this.policyService.policyAppliesToActiveUser$(PolicyType.SingleOrg);
+    this.hideNewOrgButton$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId)),
+    );
 
     const provider$ = this.organization$.pipe(
       switchMap((organization) => this.providerService.get$(organization.providerId)),
@@ -129,10 +136,7 @@ export class OrganizationLayoutComponent implements OnInit {
       ),
     );
 
-    this.integrationPageEnabled$ = combineLatest(
-      this.organization$,
-      this.configService.getFeatureFlag$(FeatureFlag.PM14505AdminConsoleIntegrationPage),
-    ).pipe(map(([org, featureFlagEnabled]) => featureFlagEnabled && org.canAccessIntegrations));
+    this.integrationPageEnabled$ = this.organization$.pipe(map((org) => org.canAccessIntegrations));
 
     this.domainVerificationNavigationTextKey = (await this.configService.getFeatureFlag(
       FeatureFlag.AccountDeprovisioning,

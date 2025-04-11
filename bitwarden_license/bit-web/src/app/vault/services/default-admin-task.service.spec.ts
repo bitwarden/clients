@@ -1,8 +1,8 @@
-import { MockProxy, mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
-import { SecurityTaskStatus, SecurityTaskType } from "@bitwarden/vault";
+import { SecurityTaskStatus, SecurityTaskType } from "@bitwarden/common/vault/tasks";
 
 import { CreateTasksRequest } from "./abstractions/admin-task.abstraction";
 import { DefaultAdminTaskService } from "./default-admin-task.service";
@@ -56,7 +56,7 @@ describe("DefaultAdminTaskService", () => {
       expect(apiService.send).toHaveBeenCalledWith(
         "POST",
         `/tasks/${organizationId}/bulk-create`,
-        tasks,
+        { tasks },
         true,
         true,
       );

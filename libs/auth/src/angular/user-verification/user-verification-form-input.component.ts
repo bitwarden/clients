@@ -68,7 +68,6 @@ import { ActiveClientVerificationOption } from "./active-client-verification-opt
     CalloutModule,
   ],
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class UserVerificationFormInputComponent implements ControlValueAccessor, OnInit, OnDestroy {
   @Input() verificationType: "server" | "client" = "server"; // server represents original behavior
   private _invalidSecret = false;

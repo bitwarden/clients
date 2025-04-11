@@ -3,8 +3,13 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 import { Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId } from "@bitwarden/common/types/guid";
@@ -65,8 +70,12 @@ export class TrashListItemsContainerComponent {
     private i18nService: I18nService,
     private dialogService: DialogService,
     private passwordRepromptService: PasswordRepromptService,
+    private accountService: AccountService,
     private router: Router,
+    private configService: ConfigService,
   ) {}
+
+  protected limitItemDeletion$ = this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion);
 
   /**
    * The tooltip text for the organization icon for ciphers that belong to an organization.
@@ -81,7 +90,8 @@ export class TrashListItemsContainerComponent {
 
   async restore(cipher: CipherView) {
     try {
-      await this.cipherService.restoreWithServer(cipher.id);
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.cipherService.restoreWithServer(cipher.id, activeUserId);
 
       await this.router.navigate(["/trash"]);
       this.toastService.showToast({
@@ -112,7 +122,8 @@ export class TrashListItemsContainerComponent {
     }
 
     try {
-      await this.cipherService.deleteWithServer(cipher.id);
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.cipherService.deleteWithServer(cipher.id, activeUserId);
 
       await this.router.navigate(["/trash"]);
       this.toastService.showToast({

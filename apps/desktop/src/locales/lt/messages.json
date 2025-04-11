@@ -543,10 +543,6 @@
     "message": "Include special characters",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Žodžių skaičius"
   },
@@ -652,6 +648,15 @@
   "logInToBitwarden": {
     "message": "Log in to Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
   "logInWithPasskey": {
     "message": "Log in with passkey"
   },
@@ -704,6 +709,15 @@
   "masterPassHintLabel": {
     "message": "Master password hint"
   },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Join organization"
   },
@@ -733,12 +747,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
-  },
-  "passwordHint": {
-    "message": "Slaptažodžio užuomina"
-  },
-  "enterEmailToGetHint": {
-    "message": "Įveskite savo paskyros el. pašto adresą, kad gautumėte pagrindinio slaptažodžio užuominą."
   },
   "getMasterPasswordHint": {
     "message": "Gauti pagrindinio slaptažodžio užuominą"
@@ -816,23 +824,14 @@
   "webauthnCancelOrTimeout": {
     "message": "The authentication was cancelled or took too long. Please try again."
   },
+  "openInNewTab": {
+    "message": "Open in new tab"
+  },
   "invalidVerificationCode": {
     "message": "Neteisingas patvirtinimo kodas"
   },
   "continue": {
     "message": "Tęsti"
-  },
-  "enterVerificationCodeApp": {
-    "message": "Įveskite 6 skaitmenų patvirtinimo kodą iš autentifikavimo programos."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Įveskite 6 skaitmenų patvirtinimo kodą, kuris buvo išsiųstas $EMAIL$ el. paštu.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Patvirtinimo laiškas išsiųstas į $EMAIL$.",
@@ -843,17 +842,15 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Prisiminti mane"
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
   },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Pakartotinai atsiųsti patvirtinimo kodą el. paštu"
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
   },
-  "useAnotherTwoStepMethod": {
-    "message": "Naudoti kitą dviejų žingsnių prisijungimo metodą"
-  },
-  "insertYubiKey": {
-    "message": "Įkiškite YubiKey į savo kompiuterio USB prievadą, tada palieskite jo mygtuką."
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertU2f": {
     "message": "Įkiškite savo saugos raktą į kompiuterio USB prievadą. Jei jame yra mygtukas, palieskite jį."
@@ -885,7 +882,7 @@
     "message": "Patikrinkite su Duo Security savo organizacijai naudodami Duo Mobile programą, SMS žinutę, telefono skambutį arba U2F saugumo raktą.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Verify your Identity"
   },
   "weDontRecognizeThisDevice": {
@@ -918,11 +915,11 @@
   "twoStepOptions": {
     "message": "Dviejų žingsnių prisijungimo parinktys"
   },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
+  },
   "selfHostedEnvironment": {
     "message": "Savarankiškai sukurta aplinka"
-  },
-  "selfHostedEnvironmentFooter": {
-    "message": "Nurodykite pagrindinį URL adresą savo patalpose esančio Bitwarden įdiegimo."
   },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
@@ -935,9 +932,6 @@
   },
   "customEnvironment": {
     "message": "Individualizuota aplinka"
-  },
-  "customEnvironmentFooter": {
-    "message": "Pažengusiems naudotojams. Galite nurodyti kiekvienos paslaugos pagrindinį URL adresą atskirai."
   },
   "baseUrl": {
     "message": "Serverio nuoroda"
@@ -978,6 +972,9 @@
   },
   "no": {
     "message": "Ne"
+  },
+  "location": {
+    "message": "Location"
   },
   "overwritePassword": {
     "message": "Perrašyti slaptažodį"
@@ -1775,6 +1772,9 @@
   "requirePasswordOnStart": {
     "message": "Reikalauti slaptažodžio arba PIN paleidus programėlę"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Require password on app start"
+  },
   "recommendedForSecurity": {
     "message": "Rekomenduojama dėl saugumo."
   },
@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Dėl įmonės politikos jums neleidžiama saugoti daiktų asmeninėje saugykloje. Pakeiskite nuosavybės parinktį į organizaciją ir pasirinkite iš galimų rinkinių."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Jūsų slaptažodžio užuomina negali būti lygi jūsų slaptažodžiui."
   },
@@ -2243,6 +2246,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "Autentifikuoti WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
   },
   "hideEmail": {
     "message": "Slėpti mano el. pašto adresą nuo gavėjų."
@@ -2460,6 +2469,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Exporting organization vault"
   },
@@ -2640,6 +2658,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Unable to obtain $SERVICENAME$ masked email account ID.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -2718,14 +2760,8 @@
   "loginWithMasterPassword": {
     "message": "Prisijungti su pagrindiniu slaptažodžiu"
   },
-  "loggingInAs": {
-    "message": "Prisijungimas kaip"
-  },
   "rememberEmail": {
     "message": "Prisiminti el. paštą"
-  },
-  "notYou": {
-    "message": "Ne jūs?"
   },
   "newAroundHere": {
     "message": "Ar jūs naujas čia?"
@@ -2745,14 +2781,23 @@
   "loginInitiated": {
     "message": "Pradėtas prisijungimas"
   },
+  "logInRequestSent": {
+    "message": "Request sent"
+  },
   "notificationSentDevice": {
     "message": "Į jūsų įrenginį išsiųstas pranešimas."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "A notification was sent to your device"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
   },
   "needAnotherOptionV1": {
     "message": "Need another option?"
@@ -2782,11 +2827,11 @@
     "message": "Perjungti simbolių skaičių",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Ar bandote prisijungti?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
   },
-  "logInAttemptBy": {
-    "message": "Prisijungimo bandymas iš $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2848,11 @@
   "time": {
     "message": "Laikas"
   },
-  "confirmLogIn": {
-    "message": "Patvirtinkite prisijungimą"
+  "confirmAccess": {
+    "message": "Confirm access"
   },
-  "denyLogIn": {
-    "message": "Neleisti prisijungti"
+  "denyAccess": {
+    "message": "Deny access"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "$EMAIL$ prisijungimas patvirtinas $DEVICE$ įrenginyje",
@@ -2843,8 +2888,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Ši užklausa nebegalioja."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Patvirtinti bandymą prisijungti iš $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2899,9 @@
   },
   "logInRequested": {
     "message": "Prašoma prisijungti"
+  },
+  "accountAccessRequested": {
+    "message": "Account access requested"
   },
   "creatingAccountOn": {
     "message": "Creating account on"
@@ -2954,9 +3002,6 @@
   "requestAdminApproval": {
     "message": "Prašyti administratoriaus patvirtinimo"
   },
-  "approveWithMasterPassword": {
-    "message": "Patvirtinti su pagrindiniu slaptažodžiu"
-  },
   "region": {
     "message": "Regionas"
   },
@@ -2981,9 +3026,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Jūsų prašymas išsiųstas administratoriui."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Jums bus pranešta, kai bus patvirtinta."
   },
   "troubleLoggingIn": {
     "message": "Nepavyksta prisijungti?"
@@ -3161,11 +3203,14 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
   },
   "launchDuo": {
     "message": "Launch Duo in Browser"
@@ -3424,14 +3469,29 @@
   "sshkeyApprovalTitle": {
     "message": "Confirm SSH key usage"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Warning: Agent Forwarding"
+  },
+  "agentForwardingWarningText": {
+    "message": "This request comes from a remote device that you are logged into"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "is requesting access to"
   },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "in order to"
+  },
+  "sshActionLogin": {
+    "message": "authenticate to a server"
+  },
+  "sshActionSign": {
+    "message": "sign a message"
+  },
+  "sshActionGitSign": {
+    "message": "sign a git commit"
+  },
   "unknownApplication": {
     "message": "An application"
-  },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
   },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
@@ -3442,7 +3502,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
@@ -3484,19 +3544,28 @@
   "changeAcctEmail": {
     "message": "Change account email"
   },
-  "organizationUpgradeRequired": {
-    "message": "Organization upgrade required"
+  "allowScreenshots": {
+    "message": "Allow screen capture"
   },
-  "upgradeOrganization": {
-    "message": "Upgrade organization"
+  "allowScreenshotsDesc": {
+    "message": "Allow the Bitwarden desktop application to be captured in screenshots and viewed in remote desktop sessions. Disabling this will prevent access on some external displays."
   },
-  "upgradeOrganizationDesc": {
-    "message": "This feature is not available for free organizations. Switch to a paid plan to unlock more features."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Confirm window still visible"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Please confirm that the window is still visible."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Extension update required"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }

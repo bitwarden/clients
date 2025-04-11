@@ -9,10 +9,12 @@ import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -180,6 +182,7 @@ export class AddEditV2Component implements OnInit {
     private toastService: ToastService,
     private dialogService: DialogService,
     protected cipherAuthorizationService: CipherAuthorizationService,
+    private accountService: AccountService,
   ) {
     this.subscribeToParams();
   }
@@ -209,7 +212,7 @@ export class AddEditV2Component implements OnInit {
   /**
    * Handle back button
    */
-  async handleBackButton() {
+  handleBackButton = async () => {
     if (this.inFido2PopoutWindow) {
       this.popupCloseWarningService.disable();
       BrowserFido2UserInterfaceSession.abortPopout(this.fido2PopoutSessionData.sessionId);
@@ -222,7 +225,7 @@ export class AddEditV2Component implements OnInit {
     }
 
     await this.popupRouterCacheService.back();
-  }
+  };
 
   async onCipherSaved(cipher: CipherView) {
     if (BrowserPopupUtils.inPopout(window)) {
@@ -281,9 +284,15 @@ export class AddEditV2Component implements OnInit {
 
           config.initialValues = this.setInitialValuesFromParams(params);
 
+          const activeUserId = await firstValueFrom(
+            this.accountService.activeAccount$.pipe(getUserId),
+          );
+
           // The browser notification bar and overlay use addEditCipherInfo$ to pass modified cipher details to the form
           // Attempt to fetch them here and overwrite the initialValues if present
-          const cachedCipherInfo = await firstValueFrom(this.cipherService.addEditCipherInfo$);
+          const cachedCipherInfo = await firstValueFrom(
+            this.cipherService.addEditCipherInfo$(activeUserId),
+          );
 
           if (cachedCipherInfo != null) {
             // Cached cipher info has priority over queryParams
@@ -292,7 +301,7 @@ export class AddEditV2Component implements OnInit {
               ...mapAddEditCipherInfoToInitialValues(cachedCipherInfo),
             };
             // Be sure to clear the "cached" cipher info, so it doesn't get used again
-            await this.cipherService.setAddEditCipherInfo(null);
+            await this.cipherService.setAddEditCipherInfo(null, activeUserId);
           }
 
           if (["edit", "partial-edit"].includes(config.mode) && config.originalCipher?.id) {
@@ -371,7 +380,8 @@ export class AddEditV2Component implements OnInit {
     }
 
     try {
-      await this.deleteCipher();
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.deleteCipher(activeUserId);
     } catch (e) {
       this.logService.error(e);
       return false;
@@ -388,10 +398,10 @@ export class AddEditV2Component implements OnInit {
     return true;
   };
 
-  protected deleteCipher() {
+  protected deleteCipher(userId: UserId) {
     return this.config.originalCipher.deletedDate
-      ? this.cipherService.deleteWithServer(this.config.originalCipher.id)
-      : this.cipherService.softDeleteWithServer(this.config.originalCipher.id);
+      ? this.cipherService.deleteWithServer(this.config.originalCipher.id, userId)
+      : this.cipherService.softDeleteWithServer(this.config.originalCipher.id, userId);
   }
 }
 
@@ -430,6 +440,32 @@ const mapAddEditCipherInfoToInitialValues = (
     initialValues.name = cipher.name;
   }
 
+  if (cipher.type === CipherType.Card) {
+    const card = cipher.card;
+
+    if (card != null) {
+      if (card.cardholderName != null) {
+        initialValues.cardholderName = card.cardholderName;
+      }
+
+      if (card.number != null) {
+        initialValues.number = card.number;
+      }
+
+      if (card.expMonth != null) {
+        initialValues.expMonth = card.expMonth;
+      }
+
+      if (card.expYear != null) {
+        initialValues.expYear = card.expYear;
+      }
+
+      if (card.code != null) {
+        initialValues.code = card.code;
+      }
+    }
+  }
+
   if (cipher.type === CipherType.Login) {
     const login = cipher.login;
 
@@ -450,6 +486,80 @@ const mapAddEditCipherInfoToInitialValues = (
 
   if (cipher.type === CipherType.Identity && cipher.identity?.username != null) {
     initialValues.username = cipher.identity.username;
+  }
+
+  if (cipher.type == CipherType.Identity) {
+    const identity = cipher.identity;
+
+    if (identity != null) {
+      if (identity.title != null) {
+        initialValues.title = identity.title;
+      }
+
+      if (identity.firstName != null) {
+        initialValues.firstName = identity.firstName;
+      }
+
+      if (identity.middleName != null) {
+        initialValues.middleName = identity.middleName;
+      }
+
+      if (identity.lastName != null) {
+        initialValues.lastName = identity.lastName;
+      }
+
+      if (identity.company != null) {
+        initialValues.company = identity.company;
+      }
+
+      if (identity.ssn != null) {
+        initialValues.ssn = identity.ssn;
+      }
+
+      if (identity.passportNumber != null) {
+        initialValues.passportNumber = identity.passportNumber;
+      }
+
+      if (identity.licenseNumber != null) {
+        initialValues.licenseNumber = identity.licenseNumber;
+      }
+
+      if (identity.email != null) {
+        initialValues.email = identity.email;
+      }
+
+      if (identity.phone != null) {
+        initialValues.phone = identity.phone;
+      }
+
+      if (identity.address1 != null) {
+        initialValues.address1 = identity.address1;
+      }
+
+      if (identity.address2 != null) {
+        initialValues.address2 = identity.address2;
+      }
+
+      if (identity.address3 != null) {
+        initialValues.address3 = identity.address3;
+      }
+
+      if (identity.city != null) {
+        initialValues.city = identity.city;
+      }
+
+      if (identity.state != null) {
+        initialValues.state = identity.state;
+      }
+
+      if (identity.postalCode != null) {
+        initialValues.postalCode = identity.postalCode;
+      }
+
+      if (identity.country != null) {
+        initialValues.country = identity.country;
+      }
+    }
   }
 
   return initialValues;

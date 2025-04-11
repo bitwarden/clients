@@ -7,7 +7,13 @@ import {
   AfterViewInit,
   ViewChildren,
 } from "@angular/core";
-import { FormsModule } from "@angular/forms";
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  FormArray,
+} from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
@@ -34,6 +40,7 @@ import { PopOutComponent } from "../../../platform/popup/components/pop-out.comp
 import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
+import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popup-router-cache.service";
 
 @Component({
   selector: "app-excluded-domains",
@@ -45,6 +52,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     CommonModule,
     FormFieldModule,
     FormsModule,
+    ReactiveFormsModule,
     IconButtonModule,
     ItemModule,
     JslibModule,
@@ -68,6 +76,11 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
   isLoading = false;
   excludedDomainsState: string[] = [];
   storedExcludedDomains: string[] = [];
+
+  protected domainListForm = new FormGroup({
+    domains: this.formBuilder.array([]),
+  });
+
   // How many fields should be non-editable before editable fields
   fieldsEditThreshold: number = 0;
 
@@ -77,8 +90,14 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
     private domainSettingsService: DomainSettingsService,
     private i18nService: I18nService,
     private toastService: ToastService,
+    private formBuilder: FormBuilder,
+    private popupRouterCacheService: PopupRouterCacheService,
   ) {
     this.accountSwitcherEnabled = enableAccountSwitching();
+  }
+
+  get domainForms() {
+    return this.domainListForm.get("domains") as FormArray;
   }
 
   async ngAfterViewInit() {
@@ -117,8 +136,7 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
   }
 
   async addNewDomain() {
-    // add empty field to the Domains list interface
-    this.excludedDomainsState.push("");
+    this.domainForms.push(this.formBuilder.control(null));
 
     await this.fieldChange();
   }
@@ -132,6 +150,10 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
     }
 
     await this.fieldChange();
+  }
+
+  async goBack() {
+    await this.popupRouterCacheService.back();
   }
 
   async fieldChange() {
@@ -148,7 +170,11 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
     this.isLoading = true;
 
     const newExcludedDomainsSaveState: NeverDomains = {};
-    const uniqueExcludedDomains = new Set(this.excludedDomainsState);
+
+    const uniqueExcludedDomains = new Set([
+      ...this.excludedDomainsState,
+      ...this.domainForms.value,
+    ]);
 
     for (const uri of uniqueExcludedDomains) {
       if (uri && uri !== "") {
@@ -194,13 +220,14 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
         title: "",
         variant: "success",
       });
+
+      this.domainForms.clear();
     } catch {
       this.toastService.showToast({
         message: this.i18nService.t("unexpectedError"),
         title: "",
         variant: "error",
       });
-
       // Don't reset via `handleStateUpdate` to preserve input values
       this.isLoading = false;
     }
