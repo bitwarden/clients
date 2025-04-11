@@ -134,7 +134,7 @@ class MyWebPushConnector implements WebPushConnector {
 
   private async pushManagerSubscribe(key: string) {
     return await this.serviceWorkerRegistration.pushManager.subscribe({
-      userVisibleOnly: true,
+      userVisibleOnly: false,
       applicationServerKey: key,
     });
   }
