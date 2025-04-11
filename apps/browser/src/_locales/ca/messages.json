@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "Declaració de privadesa"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "El vostre suggeriment de contrasenya no pot ser el mateix que la vostra contrasenya."
   },

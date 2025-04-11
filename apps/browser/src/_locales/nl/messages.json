@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "Privacybeleid"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Je nieuwe wachtwoord moet anders zijn dan je huidige wachtwoord."
+  },
   "hintEqualsPassword": {
     "message": "Je wachtwoordhint moet anders zijn dan je wachtwoord."
   },

@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "Politique de confidentialité"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Votre indice de mot de passe ne peut pas être identique à votre mot de passe."
   },
