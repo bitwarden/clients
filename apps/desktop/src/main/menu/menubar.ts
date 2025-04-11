@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { Menu, MenuItemConstructorOptions } from "electron";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
@@ -58,6 +59,7 @@ export class Menubar {
     appVersion: string,
     hardwareAccelerationEnabled: boolean,
     versionMain: VersionMain,
+    configService: ConfigService,
     updateRequest?: MenuUpdateRequest,
   ) {
     let isLocked = true;
@@ -85,7 +87,7 @@ export class Menubar {
         isLockable,
       ),
       new EditMenu(i18nService, messagingService, isLocked),
-      new ViewMenu(i18nService, messagingService, isLocked),
+      new ViewMenu(i18nService, messagingService, isLocked, configService),
       new AccountMenu(
         i18nService,
         messagingService,

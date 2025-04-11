@@ -52,6 +52,7 @@ import {
   ChangeLoginPasswordService,
   CipherFormConfig,
   CipherFormConfigService,
+  CipherFormGenerationService,
   CipherFormMode,
   CipherFormModule,
   CipherViewComponent,
@@ -63,11 +64,11 @@ import {
 
 import { NavComponent } from "../../../app/layout/nav.component";
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
+import { DesktopCredentialGenerationService } from "../../../services/desktop-cipher-form-generator.service";
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { invokeMenu, RendererMenuItem } from "../../../utils";
 
 import { AddEditComponent } from "./add-edit.component";
-import { CredentialGeneratorDialogComponent } from "./credential-generator-dialog.component";
 import { FolderAddEditComponent } from "./folder-add-edit.component";
 import { ItemFooterComponent } from "./item-footer.component";
 import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
@@ -111,6 +112,7 @@ const BroadcasterSubscriptionId = "VaultComponent";
       provide: PremiumUpgradePromptService,
       useClass: DesktopPremiumUpgradePromptService,
     },
+    { provide: CipherFormGenerationService, useClass: DesktopCredentialGenerationService },
   ],
 })
 export class VaultV2Component implements OnInit, OnDestroy {
@@ -641,22 +643,6 @@ export class VaultV2Component implements OnInit, OnDestroy {
       return "searchMyVault";
     }
     return "searchVault";
-  }
-
-  async openGenerator(passwordType = true) {
-    CredentialGeneratorDialogComponent.open(this.dialogService, {
-      onCredentialGenerated: (value?: string) => {
-        if (this.addEditComponent != null) {
-          this.addEditComponent.markPasswordAsDirty();
-          if (passwordType) {
-            this.addEditComponent.cipher.login.password = value ?? "";
-          } else {
-            this.addEditComponent.cipher.login.username = value ?? "";
-          }
-        }
-      },
-      type: passwordType ? "password" : "username",
-    });
   }
 
   async addFolder() {

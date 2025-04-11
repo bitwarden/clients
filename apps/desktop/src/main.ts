@@ -10,6 +10,7 @@ import { Subject, firstValueFrom } from "rxjs";
 import { SsoUrlService } from "@bitwarden/auth/common";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
@@ -55,6 +56,7 @@ import { I18nMainService } from "./platform/services/i18n.main.service";
 import { SSOLocalhostCallbackService } from "./platform/services/sso-localhost-callback.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { isMacAppStore } from "./utils";
+import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
 
 export class Main {
   logService: ElectronLogMainService;
@@ -70,6 +72,7 @@ export class Main {
   mainCryptoFunctionService: MainCryptoFunctionService;
   migrationRunner: MigrationRunner;
   ssoUrlService: SsoUrlService;
+  configService: ConfigService;
 
   windowMain: WindowMain;
   messagingMain: MessagingMain;
@@ -209,6 +212,14 @@ export class Main {
       new ElectronMainMessagingService(this.windowMain),
     );
 
+    this.configService = new DefaultConfigService(
+      this.configApiService,
+      this.environmentService,
+      this.logService,
+      this.stateProvider,
+      this.authService,
+    );
+
     this.trayMain = new TrayMain(
       this.windowMain,
       this.i18nService,
@@ -238,6 +249,7 @@ export class Main {
       this.updaterMain,
       this.desktopSettingsService,
       this.versionMain,
+      this.configService,
     );
 
     this.trayMain = new TrayMain(

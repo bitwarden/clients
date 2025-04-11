@@ -62,6 +62,7 @@ import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
+import { CredentialGeneratorDialogComponent } from "../vault/app/vault/credential-generator-dialog-v2.component";
 import { FolderAddEditComponent } from "../vault/app/vault/folder-add-edit.component";
 
 import { SettingsComponent } from "./accounts/settings.component";
@@ -398,6 +399,12 @@ export class AppComponent implements OnInit, OnDestroy {
           case "openGenerator":
             await this.openGenerator();
             break;
+          case "openPasswordGenerator":
+            await this.openPasswordGenerator();
+            break;
+          case "openUsernameGenerator":
+            await this.openUsernameGenerator();
+            break;
           case "convertAccountToKeyConnector":
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -492,6 +499,18 @@ export class AppComponent implements OnInit, OnDestroy {
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil
     this.modal.onClosed.subscribe(() => {
       this.modal = null;
+    });
+  }
+
+  async openUsernameGenerator() {
+    CredentialGeneratorDialogComponent.open(this.dialogService, {
+      data: { type: "username" },
+    });
+  }
+
+  async openPasswordGenerator() {
+    CredentialGeneratorDialogComponent.open(this.dialogService, {
+      data: { type: "password" },
     });
   }
 

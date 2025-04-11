@@ -1,6 +1,7 @@
 import { app, Menu } from "electron";
 import { firstValueFrom } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -24,6 +25,7 @@ export class MenuMain {
     private updaterMain: UpdaterMain,
     private desktopSettingsService: DesktopSettingsService,
     private versionMain: VersionMain,
+    private configService: ConfigService,
   ) {}
 
   async init() {
@@ -47,6 +49,7 @@ export class MenuMain {
         app.getVersion(),
         await firstValueFrom(this.desktopSettingsService.hardwareAcceleration$),
         this.versionMain,
+        this.configService,
         updateRequest,
       ).menu,
     );
