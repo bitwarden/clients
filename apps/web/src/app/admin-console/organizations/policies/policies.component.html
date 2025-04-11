@@ -1,4 +1,17 @@
-<app-header></app-header>
+<app-header>
+  @let organization = organization$ | async;
+  <button
+    bitBadge
+    class="!tw-align-middle"
+    (click)="changePlan(organization)"
+    *ngIf="isBreadcrumbingEnabled$ | async"
+    slot="title-suffix"
+    type="button"
+    variant="primary"
+  >
+    {{ "upgrade" | i18n }}
+  </button>
+</app-header>
 
 <bit-container>
   <ng-container *ngIf="loading">

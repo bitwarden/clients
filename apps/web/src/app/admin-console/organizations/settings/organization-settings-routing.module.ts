@@ -1,8 +1,10 @@
-import { NgModule } from "@angular/core";
+import { NgModule, inject } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { map } from "rxjs";
 
 import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 
 import { organizationPermissionsGuard } from "../../organizations/guards/org-permissions.guard";
 import { organizationRedirectGuard } from "../../organizations/guards/org-redirect.guard";
@@ -41,7 +43,14 @@ const routes: Routes = [
       {
         path: "policies",
         component: PoliciesComponent,
-        canActivate: [organizationPermissionsGuard((org) => org.canManagePolicies)],
+        canActivate: [
+          organizationPermissionsGuard((o: Organization) => {
+            const organizationBillingService = inject(OrganizationBillingServiceAbstraction);
+            return organizationBillingService
+              .isBreadcrumbingPoliciesEnabled$(o)
+              .pipe(map((isBreadcrumbingEnabled) => o.canManagePolicies || isBreadcrumbingEnabled));
+          }),
+        ],
         data: {
           titleId: "policies",
         },
