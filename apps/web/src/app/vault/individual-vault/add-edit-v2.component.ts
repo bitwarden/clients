@@ -21,6 +21,7 @@ import {
   ItemModule,
 } from "@bitwarden/components";
 import {
+  AttachmentsV2Component,
   CipherAttachmentsComponent,
   CipherFormConfig,
   CipherFormGenerationService,
@@ -30,8 +31,6 @@ import {
 
 import { SharedModule } from "../../shared/shared.module";
 import { WebCipherFormGenerationService } from "../services/web-cipher-form-generation.service";
-
-import { AttachmentsV2Component } from "./attachments-v2.component";
 
 /**
  * The result of the AddEditCipherDialogV2 component.

@@ -55,6 +55,7 @@ export enum FeatureFlag {
   VaultBulkManagementAction = "vault-bulk-management-action",
   SecurityTasks = "security-tasks",
   CipherKeyEncryption = "cipher-key-encryption",
+  PM18520_UpdateDesktopCipherForm = "pm-18520-desktop-cipher-forms",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -104,6 +105,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.VaultBulkManagementAction]: FALSE,
   [FeatureFlag.SecurityTasks]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
+  [FeatureFlag.PM18520_UpdateDesktopCipherForm]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM9112_DeviceApprovalPersistence]: FALSE,

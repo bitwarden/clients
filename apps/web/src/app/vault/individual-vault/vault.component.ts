@@ -34,6 +34,7 @@ import {
   Unassigned,
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
+import { VaultItemDialogResult } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
@@ -68,6 +69,9 @@ import { DialogRef, DialogService, Icons, ToastService } from "@bitwarden/compon
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
+  AttachmentDialogCloseResult,
+  AttachmentDialogResult,
+  AttachmentsV2Component,
   CipherFormConfig,
   CollectionAssignmentResult,
   DecryptionFailureDialogComponent,
@@ -89,17 +93,11 @@ import { AssignCollectionsWebComponent } from "../components/assign-collections"
 import {
   VaultItemDialogComponent,
   VaultItemDialogMode,
-  VaultItemDialogResult,
 } from "../components/vault-item-dialog/vault-item-dialog.component";
 import { VaultItem } from "../components/vault-items/vault-item";
 import { VaultItemEvent } from "../components/vault-items/vault-item-event";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
 
-import {
-  AttachmentDialogCloseResult,
-  AttachmentDialogResult,
-  AttachmentsV2Component,
-} from "./attachments-v2.component";
 import {
   BulkDeleteDialogResult,
   openBulkDeleteDialog,

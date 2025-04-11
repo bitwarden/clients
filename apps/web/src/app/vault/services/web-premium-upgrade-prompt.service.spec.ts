@@ -5,9 +5,10 @@ import { lastValueFrom, of } from "rxjs";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
 
-import { VaultItemDialogResult } from "../components/vault-item-dialog/vault-item-dialog.component";
-
-import { WebVaultPremiumUpgradePromptService } from "./web-premium-upgrade-prompt.service";
+import {
+  VaultItemDialogResult,
+  WebVaultPremiumUpgradePromptService,
+} from "./web-premium-upgrade-prompt.service";
 
 describe("WebVaultPremiumUpgradePromptService", () => {
   let service: WebVaultPremiumUpgradePromptService;

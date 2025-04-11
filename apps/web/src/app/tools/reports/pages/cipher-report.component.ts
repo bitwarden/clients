@@ -11,6 +11,7 @@ import {
   takeUntil,
 } from "rxjs";
 
+import { VaultItemDialogResult } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -31,7 +32,6 @@ import {
 import {
   VaultItemDialogComponent,
   VaultItemDialogMode,
-  VaultItemDialogResult,
 } from "../../../vault/components/vault-item-dialog/vault-item-dialog.component";
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 

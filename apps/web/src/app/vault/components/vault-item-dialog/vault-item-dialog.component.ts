@@ -7,6 +7,7 @@ import { firstValueFrom, Subject, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
+import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -39,6 +40,9 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import {
+  AttachmentDialogCloseResult,
+  AttachmentDialogResult,
+  AttachmentsV2Component,
   ChangeLoginPasswordService,
   CipherFormComponent,
   CipherFormConfig,
@@ -48,18 +52,15 @@ import {
   DecryptionFailureDialogComponent,
   DefaultChangeLoginPasswordService,
 } from "@bitwarden/vault";
+import {
+  VaultItemDialogResult,
+  WebVaultPremiumUpgradePromptService,
+} from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 
 import { SharedModule } from "../../../shared/shared.module";
-import {
-  AttachmentDialogCloseResult,
-  AttachmentDialogResult,
-  AttachmentsV2Component,
-} from "../../individual-vault/attachments-v2.component";
 import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/services/routed-vault-filter.service";
 import { RoutedVaultFilterModel } from "../../individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 import { WebCipherFormGenerationService } from "../../services/web-cipher-form-generation.service";
-import { WebVaultPremiumUpgradePromptService } from "../../services/web-premium-upgrade-prompt.service";
-import { WebViewPasswordHistoryService } from "../../services/web-view-password-history.service";
 
 export type VaultItemDialogMode = "view" | "form";
 
@@ -97,28 +98,6 @@ export interface VaultItemDialogParams {
   restore?: (c: CipherView) => Promise<boolean>;
 }
 
-export enum VaultItemDialogResult {
-  /**
-   * A cipher was saved (created or updated).
-   */
-  Saved = "saved",
-
-  /**
-   * A cipher was deleted.
-   */
-  Deleted = "deleted",
-
-  /**
-   * The dialog was closed to navigate the user the premium upgrade page.
-   */
-  PremiumUpgrade = "premiumUpgrade",
-
-  /**
-   * A cipher was restored
-   */
-  Restored = "restored",
-}
-
 @Component({
   selector: "app-vault-item-dialog",
   templateUrl: "vault-item-dialog.component.html",
@@ -135,7 +114,7 @@ export enum VaultItemDialogResult {
   ],
   providers: [
     { provide: PremiumUpgradePromptService, useClass: WebVaultPremiumUpgradePromptService },
-    { provide: ViewPasswordHistoryService, useClass: WebViewPasswordHistoryService },
+    { provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService },
     { provide: CipherFormGenerationService, useClass: WebCipherFormGenerationService },
     RoutedVaultFilterService,
     { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },

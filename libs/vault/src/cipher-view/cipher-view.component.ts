@@ -124,7 +124,8 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
     }
 
     const { username, password, totp, fido2Credentials } = this.cipher.login;
-    return username || password || totp || fido2Credentials;
+
+    return username || password || totp || fido2Credentials?.length > 0;
   }
 
   get hasAutofill() {
