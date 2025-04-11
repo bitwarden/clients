@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "由於生效中的某個企業原則，您不可將項目儲存至您的個人密碼庫。請將所有權變更為組織帳號，並選擇可用的分類。"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "密碼提示不能與您的密碼相同。"
   },

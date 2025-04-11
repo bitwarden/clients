@@ -665,7 +665,7 @@
     "message": "Glabātava ir aizslēgta. Jāapliecina sava identitāte, lai turpinātu."
   },
   "yourVaultIsLockedV2": {
-    "message": "Glabātava ir slēgta"
+    "message": "Glabātava ir aizslēgta"
   },
   "yourAccountIsLocked": {
     "message": "Konts ir slēgts"
@@ -2296,6 +2296,9 @@
   },
   "privacyPolicy": {
     "message": "Privātuma nosacījumi"
+  },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Jaunā parole nevar būt tāda pati kā pašreizējā."
   },
   "hintEqualsPassword": {
     "message": "Paroles norāde nedrīkst būt tāda pati kā parole."
@@ -5139,33 +5142,33 @@
     "message": "Lai izmantotu atslēgšanu ar biometriju, lūgums atjaunināt darbvirsmas lietotni vai atspējot atslēgšanu ar pirkstu nospiedumu darbvirsmas iestatījumos."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "Mainīt riskam pakļautu paroli"
   },
   "introCarouselLabel": {
-    "message": "Welcome to Bitwarden"
+    "message": "Laipni lūdzam Bitwarden"
   },
   "securityPrioritized": {
-    "message": "Security, prioritized"
+    "message": "Drošība pirmajā vietā"
   },
   "securityPrioritizedBody": {
-    "message": "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you."
+    "message": "Pieteikšanās vienumu, karšu un identitāšu glabāšana savā drošajā glabātavā. Bitwarden izmanto nulles zināšanu pilnīgu šifrēšanu, lai aizsargātu to, kas Tev ir svarīgs."
   },
   "quickLogin": {
-    "message": "Quick and easy login"
+    "message": "Ātra un vienkārša pieteikšanās"
   },
   "quickLoginBody": {
-    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+    "message": "Iestati biometrisko atslēgšanu un automātiski aizpildi, lai pieteiktos savos kontos bez neviena burta ievadīšanas."
   },
   "secureUser": {
-    "message": "Level up your logins"
+    "message": "Uzlabo savu pieteikšanos"
   },
   "secureUserBody": {
-    "message": "Use the generator to create and save strong, unique passwords for all your accounts."
+    "message": "Veidotājs ir izmantojams, lai izveidotu un saglabātu spēcīgas, neatkārtojamas paroles visiem Taviem kontiem."
   },
   "secureDevices": {
-    "message": "Your data, when and where you need it"
+    "message": "Tavi dati, kad un kur vien tie ir nepieciešami"
   },
   "secureDevicesBody": {
-    "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
+    "message": "Neierobežotu paroļu skaitu var saglabāt neierobežotā ierīdžu daudzumā ar Bitwarden viedtālruņa, pārlūka un darbvirsmas lietotni."
   }
 }

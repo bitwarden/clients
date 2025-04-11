@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "Política de Privacidade"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Sua nova senha não pode ser a mesma que a sua atual."
+  },
   "hintEqualsPassword": {
     "message": "Sua dica de senha não pode ser o mesmo que sua senha."
   },
@@ -5142,30 +5145,30 @@
     "message": "Alterar senhas vulneráveis"
   },
   "introCarouselLabel": {
-    "message": "Welcome to Bitwarden"
+    "message": "Bem-vindo(a) ao Bitwarden"
   },
   "securityPrioritized": {
-    "message": "Security, prioritized"
+    "message": "Segurança em primeiro lugar"
   },
   "securityPrioritizedBody": {
-    "message": "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you."
+    "message": "Guarde suas senhas, cartões e documentos no seu cofre seguro. Bitwarden usa criptografia ponta-a-ponta de zero-knowledge, protegendo o que é valioso para você."
   },
   "quickLogin": {
-    "message": "Quick and easy login"
+    "message": "Login rápido e fácil"
   },
   "quickLoginBody": {
-    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+    "message": "Ative o desbloqueio por biometria e o autopreenchimento para acessar suas contas sem digitar uma única letra."
   },
   "secureUser": {
-    "message": "Level up your logins"
+    "message": "Melhore seus logins de nível"
   },
   "secureUserBody": {
-    "message": "Use the generator to create and save strong, unique passwords for all your accounts."
+    "message": "Use o gerador de senhas para criar e salvar senhas fortes e únicas para todas as suas contas."
   },
   "secureDevices": {
-    "message": "Your data, when and where you need it"
+    "message": "Seus dados, quando e onde precisar"
   },
   "secureDevicesBody": {
-    "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
+    "message": "Guarde quantas senhas quiser e acesse de qualquer lugar com o Bitwarden. No seu celular, navegador e computador."
   }
 }

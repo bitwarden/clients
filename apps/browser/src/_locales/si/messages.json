@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "රහස්යතා ප්රතිපත්තිය"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "ඔබගේ මුරපද ඉඟිය ඔබගේ මුරපදයට සමාන විය නොහැක."
   },

@@ -84,7 +84,7 @@ libs/common/spec @bitwarden/team-platform-dev
 libs/common/src/state-migrations @bitwarden/team-platform-dev
 libs/platform @bitwarden/team-platform-dev
 # Node-specifc platform files
-libs/node @bitwarden/team-platform-dev
+libs/node @bitwarden/team-key-management-dev
 # Web utils used across app and connectors
 apps/web/src/utils/ @bitwarden/team-platform-dev
 # Web core and shared files

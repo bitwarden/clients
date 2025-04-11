@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "개인 정보 보호 정책"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "비밀번호 힌트는 비밀번호와 같을 수 없습니다."
   },

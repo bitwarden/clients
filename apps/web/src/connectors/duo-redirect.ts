@@ -33,7 +33,7 @@ window.addEventListener("load", async () => {
 
     displayHandoffMessage(client);
   } else if (client === "browser") {
-    window.postMessage({ command: "duoResult", code: code, state: state }, "*");
+    window.postMessage({ command: "duoResult", code, state }, window.location.origin);
     displayHandoffMessage(client);
   } else if (client === "mobile" || client === "desktop") {
     if (client === "desktop") {
