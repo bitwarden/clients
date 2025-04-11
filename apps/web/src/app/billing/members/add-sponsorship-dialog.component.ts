@@ -19,13 +19,13 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { ButtonModule, DialogModule, DialogService, FormFieldModule } from "@bitwarden/components";
 
 interface RequestSponsorshipForm {
-  sponsorshipEmail: FormControl<string>;
-  sponsorshipNote: FormControl<string>;
+  sponsorshipEmail: FormControl<string | null>;
+  sponsorshipNote: FormControl<string | null>;
 }
 
 export interface AddSponsorshipDialogResult {
   action: AddSponsorshipDialogAction;
-  value: Partial<AddSponsorshipFormValue>;
+  value: Partial<AddSponsorshipFormValue> | null;
 }
 
 interface AddSponsorshipFormValue {
@@ -53,6 +53,7 @@ enum AddSponsorshipDialogAction {
 })
 export class AddSponsorshipDialogComponent {
   sponsorshipForm: FormGroup<RequestSponsorshipForm>;
+  loading = false;
 
   constructor(
     private dialogRef: DialogRef<AddSponsorshipDialogResult>,
@@ -61,17 +62,18 @@ export class AddSponsorshipDialogComponent {
     private i18nService: I18nService,
   ) {
     this.sponsorshipForm = this.formBuilder.group<RequestSponsorshipForm>({
-      sponsorshipEmail: new FormControl("", {
+      sponsorshipEmail: new FormControl<string | null>("", {
         validators: [Validators.email, Validators.required],
         asyncValidators: [
           this.notAllowedValueAsync(
-            () => firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.email))),
+            () =>
+              firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.email ?? ""))),
             true,
           ),
         ],
         updateOn: "change",
       }),
-      sponsorshipNote: new FormControl("", {
+      sponsorshipNote: new FormControl<string | null>("", {
         validators: [Validators.required],
         updateOn: "change",
       }),
@@ -82,13 +84,19 @@ export class AddSponsorshipDialogComponent {
     return dialogService.open<AddSponsorshipDialogResult>(AddSponsorshipDialogComponent);
   }
 
-  protected save = () => {
+  protected async save() {
+    if (this.sponsorshipForm.invalid) {
+      return;
+    }
+    this.loading = true;
     // TODO: This is a mockup implementation - needs to be updated with actual API integration
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+
     this.dialogRef.close({
       action: AddSponsorshipDialogAction.Saved,
       value: { status: "Sent", ...this.sponsorshipForm.value },
     });
-  };
+  }
 
   protected close = () => {
     this.dialogRef.close({ action: AddSponsorshipDialogAction.Canceled, value: null });
@@ -99,28 +107,34 @@ export class AddSponsorshipDialogComponent {
   }
 
   get sponsorshipNoteControl() {
-    return this.sponsorshipForm.controls.sponsorshipEmail;
+    return this.sponsorshipForm.controls.sponsorshipNote;
   }
 
-  notAllowedValueAsync(
-    valueGetter: () => Promise<string>,
-    caseInsensitive = false,
+  private notAllowedValueAsync(
+    getValue: () => Promise<string>,
+    caseSensitive = false,
   ): AsyncValidatorFn {
     return async (control: AbstractControl): Promise<ValidationErrors | null> => {
-      let notAllowedValue = await valueGetter();
-      let controlValue = control.value;
-      if (caseInsensitive) {
-        notAllowedValue = notAllowedValue.toLowerCase();
-        controlValue = controlValue.toLowerCase();
+      const value = control.value;
+      if (!value) {
+        return null;
       }
 
-      if (controlValue === notAllowedValue) {
-        return {
-          errors: {
-            message: this.i18nService.t("cannotSponsorSelf"),
-          },
-        };
+      const notAllowedValue = await getValue();
+      if (!notAllowedValue) {
+        return null;
       }
+
+      const valueToCompare = caseSensitive ? value : value.toLowerCase();
+      const notAllowedValueToCompare = caseSensitive
+        ? notAllowedValue
+        : notAllowedValue.toLowerCase();
+
+      if (valueToCompare === notAllowedValueToCompare) {
+        return { notAllowedValue: true };
+      }
+
+      return null;
     };
   }
 }

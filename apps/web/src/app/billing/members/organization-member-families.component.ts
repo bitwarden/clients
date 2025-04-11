@@ -8,8 +8,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
   templateUrl: "organization-member-families.component.html",
 })
 export class OrganizationMemberFamiliesComponent implements OnInit, OnDestroy {
+  tabIndex = 0;
   loading = false;
-  tabIndex: number;
 
   @Input() memberFamilies: any;
 

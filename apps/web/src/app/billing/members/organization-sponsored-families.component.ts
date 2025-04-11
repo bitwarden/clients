@@ -9,7 +9,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 })
 export class OrganizationSponsoredFamiliesComponent implements OnInit, OnDestroy {
   loading = false;
-  tabIndex: number;
+  tabIndex = 0;
 
   @Input() sponsoredFamilies: any;
   @Output() removeSponsorshipEvent = new EventEmitter();

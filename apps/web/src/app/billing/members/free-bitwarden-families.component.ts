@@ -17,7 +17,7 @@ import {
   templateUrl: "free-bitwarden-families.component.html",
 })
 export class FreeBitwardenFamiliesComponent implements OnInit {
-  tabIndex: number;
+  tabIndex = 0;
   sponsoredFamilies: any[] = [];
 
   constructor(
@@ -36,10 +36,8 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
 
     const dialogRef = await firstValueFrom(addSponsorshipDialogRef.closed);
 
-    const addedSponsorship = dialogRef.value;
-
-    if (addedSponsorship) {
-      this.sponsoredFamilies = [addedSponsorship, ...this.sponsoredFamilies];
+    if (dialogRef?.value) {
+      this.sponsoredFamilies = [dialogRef.value, ...this.sponsoredFamilies];
     }
   }
 
