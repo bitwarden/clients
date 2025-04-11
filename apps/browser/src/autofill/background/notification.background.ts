@@ -37,7 +37,11 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { openAddEditVaultItemPopout } from "../../vault/popup/utils/vault-popout-window";
-import { NotificationCipherData } from "../content/components/cipher/types";
+import {
+  CipherIndicatorIconType,
+  CipherIndicatorIconTypes,
+  NotificationCipherData,
+} from "../content/components/cipher/types";
 import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
 
@@ -175,17 +179,17 @@ export default class NotificationBackground {
         ? organizations.find((org) => org.id === organizationId)?.productTierType
         : null;
 
-      const [showBusinessIcon, showFamilyIcon] = [
+      const cipherIndicatorIcons: CipherIndicatorIconType[] = [];
+      if (
         [ProductTierType.Teams, ProductTierType.Enterprise, ProductTierType.TeamsStarter].includes(
           organizationType,
-        ),
-        [ProductTierType.Families, ProductTierType.Free].includes(organizationType),
-      ];
-
-      const cipherIndicatorIcon = {
-        ...(showBusinessIcon ? { showBusinessIcon: true } : {}),
-        ...(showFamilyIcon ? { showFamilyIcon: true } : {}),
-      };
+        )
+      ) {
+        cipherIndicatorIcons.push(CipherIndicatorIconTypes.business);
+      }
+      if ([ProductTierType.Families, ProductTierType.Free].includes(organizationType)) {
+        cipherIndicatorIcons.push(CipherIndicatorIconTypes.families);
+      }
 
       return {
         id,
@@ -193,11 +197,11 @@ export default class NotificationBackground {
         type: CipherType.Login,
         reprompt,
         favorite,
+        ...(cipherIndicatorIcons.length ? { cipherIndicatorIcons } : {}),
         icon: buildCipherIcon(iconsServerUrl, view, showFavicons),
         login: login && {
           username: login.username,
         },
-        ...(Object.keys(cipherIndicatorIcon).length && { cipherIndicatorIcon }),
       };
     });
   }

@@ -10,21 +10,18 @@ import { NotificationCipherData } from "./types";
 
 // @TODO support other cipher types (card, identity, notes, etc)
 export function CipherInfo({ cipher, theme }: { cipher: NotificationCipherData; theme: Theme }) {
-  const { name, login, cipherIndicatorIcon } = cipher;
-  const renderIndicator =
-    cipherIndicatorIcon &&
-    (cipherIndicatorIcon.showBusinessIcon || cipherIndicatorIcon.showFamilyIcon);
+  const { name, login, cipherIndicatorIcons } = cipher;
+  const hasIndicatorIcons = cipherIndicatorIcons?.length;
 
   return html`
     <div>
       <span class=${cipherInfoPrimaryTextStyles(theme)}>
         ${[
           name,
-          renderIndicator
+          hasIndicatorIcons
             ? CipherInfoIndicatorIcons({
                 theme,
-                showBusinessIcon: cipherIndicatorIcon?.showBusinessIcon,
-                showFamilyIcon: cipherIndicatorIcon?.showFamilyIcon,
+                cipherIndicatorIcons,
               })
             : nothing,
         ]}

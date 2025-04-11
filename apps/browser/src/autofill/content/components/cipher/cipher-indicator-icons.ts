@@ -1,28 +1,35 @@
 import { css } from "@emotion/css";
-import { html } from "lit";
+import { html, TemplateResult } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { themes } from "../../../content/components/constants/styles";
 import { Business, Family } from "../../../content/components/icons";
 
-// @TODO connect data source to icon checks
-// @TODO support other indicator types (attachments, etc)
+import { CipherIndicatorIconType, CipherIndicatorIconTypes } from "./types";
+
+const cipherIndicatorIconsMap: Record<
+  CipherIndicatorIconType,
+  (args: { color: string; theme: Theme }) => TemplateResult
+> = {
+  [CipherIndicatorIconTypes.business]: Business,
+  [CipherIndicatorIconTypes.families]: Family,
+};
+
 export function CipherInfoIndicatorIcons({
-  showBusinessIcon,
-  showFamilyIcon,
+  cipherIndicatorIcons = [],
   theme,
 }: {
-  showBusinessIcon?: boolean;
-  showFamilyIcon?: boolean;
+  cipherIndicatorIcons?: CipherIndicatorIconType[];
   theme: Theme;
 }) {
-  const indicatorIcons = [
-    ...(showBusinessIcon ? [Business({ color: themes[theme].text.muted, theme })] : []),
-    ...(showFamilyIcon ? [Family({ color: themes[theme].text.muted, theme })] : []),
-  ];
-
-  return html` <span class=${cipherInfoIndicatorIconsStyles}> ${indicatorIcons} </span> `;
+  return html`
+    <span class=${cipherInfoIndicatorIconsStyles}>
+      ${cipherIndicatorIcons.map((name) =>
+        cipherIndicatorIconsMap[name]?.({ color: themes[theme].text.muted, theme }),
+      )}
+    </span>
+  `;
 }
 
 const cipherInfoIndicatorIconsStyles = css`
