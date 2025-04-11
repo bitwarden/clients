@@ -31,8 +31,10 @@ export class EncryptedOrganizationKey implements BaseEncryptedOrganizationKey {
   constructor(private key: string) {}
 
   async decrypt(encryptService: EncryptService, privateKey: UserPrivateKey) {
-    const decValue = await encryptService.rsaDecrypt(this.encryptedOrganizationKey, privateKey);
-    return new SymmetricCryptoKey(decValue) as OrgKey;
+    return (await encryptService.decapsulateKeyUnsigned(
+      this.encryptedOrganizationKey,
+      privateKey,
+    )) as OrgKey;
   }
 
   get encryptedOrganizationKey() {

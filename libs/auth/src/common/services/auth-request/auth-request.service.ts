@@ -14,7 +14,6 @@ import { AuthRequestPushNotification } from "@bitwarden/common/models/response/n
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import {
   AUTH_REQUEST_DISK_LOCAL,
   StateProvider,
@@ -116,13 +115,12 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
         Utils.fromUtf8ToArray(masterKeyHash),
         pubKey,
       );
-      keyToEncrypt = masterKey.encKey;
+      keyToEncrypt = masterKey;
     } else {
-      const userKey = await this.keyService.getUserKey();
-      keyToEncrypt = userKey.key;
+      keyToEncrypt = await this.keyService.getUserKey();
     }
 
-    const encryptedKey = await this.encryptService.rsaEncrypt(keyToEncrypt, pubKey);
+    const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(keyToEncrypt, pubKey);
 
     const response = new PasswordlessAuthRequest(
       encryptedKey.encryptedString,
@@ -171,12 +169,10 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     pubKeyEncryptedUserKey: string,
     privateKey: Uint8Array,
   ): Promise<UserKey> {
-    const decryptedUserKeyBytes = await this.encryptService.rsaDecrypt(
+    return (await this.encryptService.decapsulateKeyUnsigned(
       new EncString(pubKeyEncryptedUserKey),
       privateKey,
-    );
-
-    return new SymmetricCryptoKey(decryptedUserKeyBytes) as UserKey;
+    )) as UserKey;
   }
 
   async decryptPubKeyEncryptedMasterKeyAndHash(
@@ -184,17 +180,15 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     pubKeyEncryptedMasterKeyHash: string,
     privateKey: Uint8Array,
   ): Promise<{ masterKey: MasterKey; masterKeyHash: string }> {
-    const decryptedMasterKeyArrayBuffer = await this.encryptService.rsaDecrypt(
+    const masterKey = (await this.encryptService.decapsulateKeyUnsigned(
       new EncString(pubKeyEncryptedMasterKey),
       privateKey,
-    );
+    )) as MasterKey;
 
     const decryptedMasterKeyHashArrayBuffer = await this.encryptService.rsaDecrypt(
       new EncString(pubKeyEncryptedMasterKeyHash),
       privateKey,
     );
-
-    const masterKey = new SymmetricCryptoKey(decryptedMasterKeyArrayBuffer) as MasterKey;
     const masterKeyHash = Utils.fromBufferToUtf8(decryptedMasterKeyHashArrayBuffer);
 
     return {
