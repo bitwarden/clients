@@ -82,8 +82,8 @@ export class AddSponsorshipDialogComponent {
     return dialogService.open<AddSponsorshipDialogResult>(AddSponsorshipDialogComponent);
   }
 
-  // TODO: This is a mockup implementation - needs to be updated with actual API integration
   protected save = () => {
+    // TODO: This is a mockup implementation - needs to be updated with actual API integration
     this.dialogRef.close({
       action: AddSponsorshipDialogAction.Saved,
       value: { status: "Sent", ...this.sponsorshipForm.value },
