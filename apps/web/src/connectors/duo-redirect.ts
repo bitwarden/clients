@@ -103,7 +103,7 @@ function displayHandoffMessage(client: string) {
   h1.textContent = localeService.t("youSuccessfullyLoggedIn");
   p.textContent =
     client == "web"
-      ? (p.textContent = localeService.t("thisWindowWillCloseIn5Seconds"))
+      ? localeService.t("thisWindowWillCloseIn5Seconds")
       : localeService.t("youMayCloseThisWindow");
 
   h1.className = "font-weight-semibold";

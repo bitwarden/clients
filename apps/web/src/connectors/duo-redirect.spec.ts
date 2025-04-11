@@ -26,7 +26,7 @@ describe("duo-redirect", () => {
       expect(() => redirectToDuoFrameless(invalidUrl)).toThrow("Invalid redirect URL");
     });
 
-    it("should throw an error for an invalid malicious URL", () => {
+    it("should throw an error for an malicious URL with valid redirect embedded", () => {
       const invalidUrl = "https://malicious-site.com\\@api-123.duosecurity.com/auth";
       expect(() => redirectToDuoFrameless(invalidUrl)).toThrow("Invalid redirect URL");
     });
