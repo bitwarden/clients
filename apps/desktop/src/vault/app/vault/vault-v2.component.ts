@@ -32,7 +32,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-// import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -64,6 +64,7 @@ import {
 
 import { NavComponent } from "../../../app/layout/nav.component";
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
+import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { invokeMenu, RendererMenuItem } from "../../../utils";
 
 import { AddEditComponent } from "./add-edit.component";
@@ -107,10 +108,10 @@ const BroadcasterSubscriptionId = "VaultComponent";
       provide: ViewPasswordHistoryService,
       useClass: VaultViewPasswordHistoryService,
     },
-    // {
-    //   provide: PremiumUpgradePromptService,
-    //   useClass: VaultPremiumUpgradePromptService,
-    // },
+    {
+      provide: PremiumUpgradePromptService,
+      useClass: DesktopPremiumUpgradePromptService,
+    },
   ],
 })
 export class VaultV2Component implements OnInit, OnDestroy {
