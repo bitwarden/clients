@@ -89,7 +89,7 @@
           bitIconButton="bwi-pencil-square"
           class="tw-self-center tw-mt-2"
           data-testid="edit-custom-field-button"
-          *ngIf="!isPartialEdit"
+          *ngIf="canEdit(field.value.type)"
         ></button>
 
         <button
@@ -100,7 +100,7 @@
           [appA11yTitle]="'reorderToggleButton' | i18n: field.value.name"
           (keydown)="handleKeyDown($event, field.value.name, i)"
           data-testid="reorder-toggle-button"
-          *ngIf="!isPartialEdit"
+          *ngIf="canEdit(field.value.type)"
         ></button>
       </div>
 
