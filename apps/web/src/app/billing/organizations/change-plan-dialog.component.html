@@ -150,10 +150,11 @@
                     >{{
                       "costPerMember"
                         | i18n
-                          : ((selectableProduct.isAnnual
-                              ? selectableProduct.PasswordManager.seatPrice / 12
-                              : selectableProduct.PasswordManager.seatPrice
-                            )
+                          : (((this.sub.useSecretsManager
+                              ? selectableProduct.SecretsManager.seatPrice
+                              : 0) +
+                              selectableProduct.PasswordManager.seatPrice) /
+                              (selectableProduct.isAnnual ? 12 : 1)
                               | currency: "$")
                     }}
                   </b>
