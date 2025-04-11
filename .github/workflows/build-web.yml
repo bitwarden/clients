@@ -277,7 +277,7 @@ jobs:
       - name: Scan Docker image
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         id: container-scan
-        uses: anchore/scan-action@869c549e657a088dc0441b08ce4fc0ecdac2bb65 # v5.3.0
+        uses: anchore/scan-action@7c05671ae9be166aeb155bad2d7df9121823df32 # v6.1.0
         with:
           image: ${{ steps.image-name.outputs.name }}
           fail-build: false
