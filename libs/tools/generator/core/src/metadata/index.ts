@@ -3,7 +3,20 @@ import {
   AlgorithmsByType as AlgorithmsByTypeData,
   Type as TypeData,
 } from "./data";
+import catchall from "./email/catchall";
+import plusAddress from "./email/plus-address";
+import passphrase from "./password/eff-word-list";
+import password from "./password/random-password";
 import { CredentialType, CredentialAlgorithm } from "./type";
+import effWordList from "./username/eff-word-list";
+
+export const BuiltIn = {
+  catchall,
+  plusAddress,
+  passphrase,
+  password,
+  effWordList,
+};
 
 // `CredentialAlgorithm` is defined in terms of `ABT`; supplying
 // type information in the barrel file breaks a circular dependency.
@@ -19,7 +32,14 @@ export const Types: ReadonlyArray<CredentialType> = Object.freeze(Object.values(
 
 export { Profile, Type, Algorithm } from "./data";
 export { toForwarderMetadata } from "./email/forwarder";
+export { AlgorithmMetadata } from "./algorithm-metadata";
 export { GeneratorMetadata } from "./generator-metadata";
 export { ProfileContext, CoreProfileMetadata, ProfileMetadata } from "./profile-metadata";
-export { GeneratorProfile, CredentialAlgorithm, CredentialType } from "./type";
+export {
+  GeneratorProfile,
+  CredentialAlgorithm,
+  PasswordAlgorithm,
+  CredentialType,
+  ForwarderExtensionId,
+} from "./type";
 export { isForwarderProfile, toVendorId, isForwarderExtensionId } from "./util";

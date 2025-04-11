@@ -1,296 +1,180 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { concatMap, distinctUntilChanged, map, Observable, switchMap, takeUntil } from "rxjs";
-import { Simplify } from "type-fest";
+import {
+  concatMap,
+  distinctUntilChanged,
+  filter,
+  map,
+  of,
+  shareReplay,
+  switchMap,
+  takeUntil,
+  tap,
+} from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BoundDependency, OnDependency } from "@bitwarden/common/tools/dependencies";
-import { IntegrationMetadata } from "@bitwarden/common/tools/integration";
-import { RestClient } from "@bitwarden/common/tools/integration/rpc";
+import { VendorId } from "@bitwarden/common/tools/extension";
+import { SemanticLogger } from "@bitwarden/common/tools/log";
+import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
 import { anyComplete, withLatestReady } from "@bitwarden/common/tools/rx";
 import { UserStateSubject } from "@bitwarden/common/tools/state/user-state-subject";
-import { UserStateSubjectDependencyProvider } from "@bitwarden/common/tools/state/user-state-subject-dependency-provider";
 
-import { Randomizer } from "../abstractions";
-import {
-  Generators,
-  getForwarderConfiguration,
-  Integrations,
-  toCredentialGeneratorConfiguration,
-} from "../data";
-import { availableAlgorithms } from "../policies/available-algorithms-policy";
-import { mapPolicyToConstraints } from "../rx";
+import { CredentialGeneratorService } from "../abstractions";
 import {
   CredentialAlgorithm,
-  CredentialCategories,
-  CredentialCategory,
-  AlgorithmInfo,
-  CredentialPreference,
-  isForwarderIntegration,
-  ForwarderIntegration,
-  GenerateRequest,
-} from "../types";
-import {
-  CredentialGeneratorConfiguration as Configuration,
-  CredentialGeneratorInfo,
-  GeneratorDependencyProvider,
-} from "../types/credential-generator-configuration";
-import { GeneratorConstraints } from "../types/generator-constraints";
+  Profile,
+  GeneratorMetadata,
+  GeneratorProfile,
+  isForwarderProfile,
+  toVendorId,
+  CredentialType,
+} from "../metadata";
+import { CredentialGeneratorProviders } from "../providers";
+import { GenerateRequest } from "../types";
+import { isAlgorithmRequest, isTypeRequest } from "../types/metadata-request";
 
-import { PREFERENCES } from "./credential-preferences";
-
-type Generate$Dependencies = Simplify<
-  OnDependency<GenerateRequest> & BoundDependency<"account", Account>
->;
-
-export class CredentialGeneratorService {
+export class DefaultCredentialGeneratorService implements CredentialGeneratorService {
+  /** Instantiate the `DefaultCredentialGeneratorService`.
+   *  @param provide application services required by the credential generator.
+   *  @param system low-level services required by the credential generator.
+   */
   constructor(
-    private readonly randomizer: Randomizer,
-    private readonly policyService: PolicyService,
-    private readonly apiService: ApiService,
-    private readonly i18nService: I18nService,
-    private readonly providers: UserStateSubjectDependencyProvider,
-  ) {}
-
-  private getDependencyProvider(): GeneratorDependencyProvider {
-    return {
-      client: new RestClient(this.apiService, this.i18nService),
-      i18nService: this.i18nService,
-      randomizer: this.randomizer,
-    };
+    private readonly provide: CredentialGeneratorProviders,
+    private readonly system: SystemServiceProvider,
+  ) {
+    this.log = system.log({ type: "CredentialGeneratorService" });
   }
 
-  // FIXME: the rxjs methods of this service can be a lot more resilient if
-  // `Subjects` are introduced where sharing occurs
+  private readonly log: SemanticLogger;
 
-  /** Generates a stream of credentials
-   * @param configuration determines which generator's settings are loaded
-   * @param dependencies.on$ Required. A new credential is emitted when this emits.
-   */
-  generate$<Settings extends object, Policy>(
-    configuration: Readonly<Configuration<Settings, Policy>>,
-    dependencies: Generate$Dependencies,
-  ) {
-    const engine = configuration.engine.create(this.getDependencyProvider());
-    const settings$ = this.settings$(configuration, dependencies);
+  generate$(dependencies: OnDependency<GenerateRequest> & BoundDependency<"account", Account>) {
+    // `on$` is partitioned into several streams so that the generator
+    // engine and settings refresh only when their respective inputs change
+    const on$ = dependencies.on$.pipe(shareReplay({ refCount: true, bufferSize: 1 }));
+    const account$ = dependencies.account$.pipe(shareReplay({ refCount: true, bufferSize: 1 }));
+
+    // load algorithm metadata
+    const algorithm$ = on$.pipe(
+      switchMap((requested) => {
+        if (isAlgorithmRequest(requested)) {
+          return of(requested.algorithm);
+        } else if (isTypeRequest(requested)) {
+          return this.provide.metadata.preference$(requested.type, { account$ });
+        } else {
+          this.log.panic(requested, "algorithm or category required");
+        }
+      }),
+      filter((algorithm): algorithm is CredentialAlgorithm => !!algorithm),
+      map((algorithm) => this.provide.metadata.metadata(algorithm)),
+      distinctUntilChanged((previous, current) => previous.id === current.id),
+    );
+
+    // load the active profile's algorithm settings
+    const settings$ = on$.pipe(
+      map((request) => request.profile ?? Profile.account),
+      distinctUntilChanged(),
+      withLatestReady(algorithm$),
+      switchMap(([profile, meta]) => this.settings(meta, { account$ }, profile)),
+    );
+
+    // load the algorithm's engine
+    const engine$ = algorithm$.pipe(
+      tap((meta) => this.log.info({ algorithm: meta.id }, "engine selected")),
+      map((meta) => meta.engine.create(this.provide.generator)),
+    );
 
     // generation proper
-    const generate$ = dependencies.on$.pipe(
+    const generate$ = on$.pipe(
+      withLatestReady(engine$),
       withLatestReady(settings$),
-      concatMap(([request, settings]) => engine.generate(request, settings)),
+      concatMap(([[request, engine], settings]) => engine.generate(request, settings)),
       takeUntil(anyComplete([settings$])),
     );
 
     return generate$;
   }
 
-  /** Emits metadata concerning the provided generation algorithms
-   *  @param category the category or categories of interest
-   *  @param dependences.account$ algorithms are filtered to only
-   *   those matching the provided account's policy.
-   *  @returns An observable that emits algorithm metadata.
-   */
-  algorithms$(
-    category: CredentialCategory,
-    dependencies: BoundDependency<"account", Account>,
-  ): Observable<AlgorithmInfo[]>;
-  algorithms$(
-    category: CredentialCategory[],
-    dependencies: BoundDependency<"account", Account>,
-  ): Observable<AlgorithmInfo[]>;
-  algorithms$(
-    category: CredentialCategory | CredentialCategory[],
-    dependencies: BoundDependency<"account", Account>,
-  ) {
-    // any cast required here because TypeScript fails to bind `category`
-    // to the union-typed overload of `algorithms`.
-    const algorithms = this.algorithms(category as any);
+  algorithms$(type: CredentialType, dependencies: BoundDependency<"account", Account>) {
+    return this.provide.metadata
+      .algorithms$({ type }, dependencies)
+      .pipe(map((algorithms) => algorithms.map((a) => this.algorithm(a))));
+  }
 
-    // apply policy
-    const algorithms$ = dependencies.account$.pipe(
-      distinctUntilChanged(),
-      switchMap((account) => {
-        const policies$ = this.policyService
-          .policiesByType$(PolicyType.PasswordGenerator, account.id)
-          .pipe(
-            map((p) => new Set(availableAlgorithms(p))),
-            // complete policy emissions otherwise `switchMap` holds `algorithms$` open indefinitely
-            takeUntil(anyComplete(dependencies.account$)),
-          );
-        return policies$;
-      }),
-      map((available) => {
-        const filtered = algorithms.filter(
-          (c) => isForwarderIntegration(c.id) || available.has(c.id),
+  algorithms(type: CredentialType | CredentialType[]) {
+    const types: CredentialType[] = Array.isArray(type) ? type : [type];
+    const algorithms = types
+      .flatMap((type) => this.provide.metadata.algorithms({ type }))
+      .map((algorithm) => this.algorithm(algorithm));
+    return algorithms;
+  }
+
+  algorithm(id: CredentialAlgorithm) {
+    const metadata = this.provide.metadata.metadata(id);
+    if (!metadata) {
+      this.log.panic({ algorithm: id }, "invalid credential algorithm");
+    }
+
+    return metadata;
+  }
+
+  forwarder(id: VendorId) {
+    const metadata = this.provide.metadata.metadata({ forwarder: id });
+    if (!metadata) {
+      this.log.panic({ algorithm: id }, "invalid vendor");
+    }
+
+    return metadata;
+  }
+
+  preferences(dependencies: BoundDependency<"account", Account>) {
+    return this.provide.metadata.preferences(dependencies);
+  }
+
+  settings<Settings extends object>(
+    metadata: Readonly<GeneratorMetadata<Settings>>,
+    dependencies: BoundDependency<"account", Account>,
+    profile: GeneratorProfile = Profile.account,
+  ) {
+    const activeProfile = metadata.profiles[profile];
+    if (!activeProfile) {
+      this.log.panic(
+        { algorithm: metadata.id, profile },
+        "failed to load settings; profile metadata not found",
+      );
+    }
+
+    let settings: UserStateSubject<Settings>;
+    if (isForwarderProfile(activeProfile)) {
+      const vendor = toVendorId(metadata.id);
+      if (!vendor) {
+        this.log.panic(
+          { algorithm: metadata.id, profile },
+          "failed to load extension profile; vendor not specified",
         );
-        return filtered;
-      }),
-    );
-
-    return algorithms$;
-  }
-
-  /** Lists metadata for the algorithms in a credential category
-   *  @param category the category or categories of interest
-   *  @returns A list containing the requested metadata.
-   */
-  algorithms(category: CredentialCategory): AlgorithmInfo[];
-  algorithms(category: CredentialCategory[]): AlgorithmInfo[];
-  algorithms(category: CredentialCategory | CredentialCategory[]): AlgorithmInfo[] {
-    const categories: CredentialCategory[] = Array.isArray(category) ? category : [category];
-
-    const algorithms = categories
-      .flatMap((c) => CredentialCategories[c] as CredentialAlgorithm[])
-      .map((id) => this.algorithm(id))
-      .filter((info) => info !== null);
-
-    const forwarders = Object.keys(Integrations)
-      .map((key: keyof typeof Integrations) => {
-        const forwarder: ForwarderIntegration = { forwarder: Integrations[key].id };
-        return this.algorithm(forwarder);
-      })
-      .filter((forwarder) => categories.includes(forwarder.category));
-
-    return algorithms.concat(forwarders);
-  }
-
-  /** Look up the metadata for a specific generator algorithm
-   *  @param id identifies the algorithm
-   *  @returns the requested metadata, or `null` if the metadata wasn't found.
-   */
-  algorithm(id: CredentialAlgorithm): AlgorithmInfo {
-    let generator: CredentialGeneratorInfo = null;
-    let integration: IntegrationMetadata = null;
-
-    if (isForwarderIntegration(id)) {
-      const forwarderConfig = getForwarderConfiguration(id.forwarder);
-      integration = forwarderConfig;
-
-      if (forwarderConfig) {
-        generator = toCredentialGeneratorConfiguration(forwarderConfig);
       }
+
+      this.log.info({ profile, vendor, site: activeProfile.site }, "loading extension profile");
+      settings = this.system.extension.settings(activeProfile, vendor, dependencies);
     } else {
-      generator = Generators[id];
+      this.log.info({ profile, algorithm: metadata.id }, "loading generator profile");
+      settings = this.provide.profile.settings(activeProfile, dependencies);
     }
 
-    if (!generator) {
-      throw new Error(`Invalid credential algorithm: ${JSON.stringify(id)}`);
-    }
-
-    const info: AlgorithmInfo = {
-      id: generator.id,
-      category: generator.category,
-      name: integration ? integration.name : this.i18nService.t(generator.nameKey),
-      generate: this.i18nService.t(generator.generateKey),
-      onGeneratedMessage: this.i18nService.t(generator.onGeneratedMessageKey),
-      credentialType: this.i18nService.t(generator.credentialTypeKey),
-      copy: this.i18nService.t(generator.copyKey),
-      useGeneratedValue: this.i18nService.t(generator.useGeneratedValueKey),
-      onlyOnRequest: generator.onlyOnRequest,
-      request: generator.request,
-    };
-
-    if (generator.descriptionKey) {
-      info.description = this.i18nService.t(generator.descriptionKey);
-    }
-
-    return info;
+    return settings;
   }
 
-  /** Get the settings for the provided configuration
-   * @param configuration determines which generator's settings are loaded
-   * @param dependencies.account$ identifies the account to which the settings are bound.
-   * @returns an observable that emits settings
-   * @remarks the observable enforces policies on the settings
-   */
-  settings$<Settings extends object, Policy>(
-    configuration: Configuration<Settings, Policy>,
+  policy$<Settings>(
+    metadata: Readonly<GeneratorMetadata<Settings>>,
     dependencies: BoundDependency<"account", Account>,
+    profile: GeneratorProfile = Profile.account,
   ) {
-    const constraints$ = this.policy$(configuration, dependencies);
+    const activeProfile = metadata.profiles[profile];
+    if (!activeProfile) {
+      this.log.panic(
+        { algorithm: metadata.id, profile },
+        "failed to load policy; profile metadata not found",
+      );
+    }
 
-    const settings = new UserStateSubject(configuration.settings.account, this.providers, {
-      constraints$,
-      account$: dependencies.account$,
-    });
-
-    const settings$ = settings.pipe(
-      map((settings) => settings ?? structuredClone(configuration.settings.initial)),
-    );
-
-    return settings$;
-  }
-
-  /** Get a subject bound to credential generator preferences.
-   *  @param dependencies.account$ identifies the account to which the preferences are bound
-   *  @returns a subject bound to the user's preferences
-   *  @remarks Preferences determine which algorithms are used when generating a
-   *   credential from a credential category (e.g. `PassX` or `Username`). Preferences
-   *   should not be used to hold navigation history. Use @bitwarden/generator-navigation
-   *   instead.
-   */
-  preferences(
-    dependencies: BoundDependency<"account", Account>,
-  ): UserStateSubject<CredentialPreference> {
-    // FIXME: enforce policy
-    const subject = new UserStateSubject(PREFERENCES, this.providers, dependencies);
-
-    return subject;
-  }
-
-  /** Get a subject bound to a specific user's settings
-   * @param configuration determines which generator's settings are loaded
-   * @param dependencies.account$ identifies the account to which the settings are bound
-   * @returns a subject bound to the requested user's generator settings
-   * @remarks the subject enforces policy for the settings
-   */
-  settings<Settings extends object, Policy>(
-    configuration: Readonly<Configuration<Settings, Policy>>,
-    dependencies: BoundDependency<"account", Account>,
-  ) {
-    const constraints$ = this.policy$(configuration, dependencies);
-
-    const subject = new UserStateSubject(configuration.settings.account, this.providers, {
-      constraints$,
-      account$: dependencies.account$,
-    });
-
-    return subject;
-  }
-
-  /** Get the policy constraints for the provided configuration
-   *  @param dependencies.account$ determines which user's policy is loaded
-   *  @returns an observable that emits the policy once `dependencies.account$`
-   *   and the policy become available.
-   */
-  policy$<Settings, Policy>(
-    configuration: Configuration<Settings, Policy>,
-    dependencies: BoundDependency<"account", Account>,
-  ): Observable<GeneratorConstraints<Settings>> {
-    const constraints$ = dependencies.account$.pipe(
-      map((account) => {
-        if (account.emailVerified) {
-          return { userId: account.id, email: account.email };
-        }
-
-        return { userId: account.id, email: null };
-      }),
-      switchMap(({ userId, email }) => {
-        // complete policy emissions otherwise `switchMap` holds `policies$` open indefinitely
-        const policies$ = this.policyService
-          .policiesByType$(configuration.policy.type, userId)
-          .pipe(
-            mapPolicyToConstraints(configuration.policy, email),
-            takeUntil(anyComplete(dependencies.account$)),
-          );
-        return policies$;
-      }),
-    );
-
-    return constraints$;
+    return this.provide.profile.constraints$(activeProfile, dependencies);
   }
 }

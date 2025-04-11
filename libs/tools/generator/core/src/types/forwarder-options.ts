@@ -13,18 +13,6 @@ import { EmailDomainSettings, EmailPrefixSettings } from "../engine";
  */
 export type ForwarderId = IntegrationId;
 
-/** Metadata format for email forwarding services. */
-export type ForwarderMetadata = {
-  /** The unique identifier for the forwarder. */
-  id: ForwarderId;
-
-  /** The name of the service the forwarder queries. */
-  name: string;
-
-  /** Whether the forwarder is valid for self-hosted instances of Bitwarden. */
-  validForSelfHosted: boolean;
-};
-
 /** Options common to all forwarder APIs */
 export type ApiOptions = ApiSettings & IntegrationRequest;
 
@@ -36,3 +24,9 @@ export type EmailDomainOptions = EmailDomainSettings;
 
 /** Api configuration for forwarders that support custom email parts. */
 export type EmailPrefixOptions = EmailDomainSettings & EmailPrefixSettings;
+
+// These options are used by all forwarders; each forwarder uses a different set,
+// as defined by `GeneratorMetadata<T>.capabilities.fields`.
+export type ForwarderOptions = Partial<
+  EmailDomainSettings & EmailPrefixSettings & SelfHostedApiSettings
+>;

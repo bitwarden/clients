@@ -4,8 +4,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { PolicyId } from "@bitwarden/common/types/guid";
 
-import { Policies } from "../data";
-
 import { passphraseLeastPrivilege } from "./passphrase-least-privilege";
 
 function createPolicy(
@@ -22,21 +20,27 @@ function createPolicy(
   });
 }
 
+const disabledValue = Object.freeze({
+  minNumberWords: 0,
+  capitalize: false,
+  includeNumber: false,
+});
+
 describe("passphraseLeastPrivilege", () => {
   it("should return the accumulator when the policy type does not apply", () => {
     const policy = createPolicy({}, PolicyType.RequireSso);
 
-    const result = passphraseLeastPrivilege(Policies.Passphrase.disabledValue, policy);
+    const result = passphraseLeastPrivilege(disabledValue, policy);
 
-    expect(result).toEqual(Policies.Passphrase.disabledValue);
+    expect(result).toEqual(disabledValue);
   });
 
   it("should return the accumulator when the policy is not enabled", () => {
     const policy = createPolicy({}, PolicyType.PasswordGenerator, false);
 
-    const result = passphraseLeastPrivilege(Policies.Passphrase.disabledValue, policy);
+    const result = passphraseLeastPrivilege(disabledValue, policy);
 
-    expect(result).toEqual(Policies.Passphrase.disabledValue);
+    expect(result).toEqual(disabledValue);
   });
 
   it.each([
@@ -46,8 +50,8 @@ describe("passphraseLeastPrivilege", () => {
   ])("should take the %p from the policy", (input, value) => {
     const policy = createPolicy({ [input]: value });
 
-    const result = passphraseLeastPrivilege(Policies.Passphrase.disabledValue, policy);
+    const result = passphraseLeastPrivilege(disabledValue, policy);
 
-    expect(result).toEqual({ ...Policies.Passphrase.disabledValue, [input]: value });
+    expect(result).toEqual({ ...disabledValue, [input]: value });
   });
 });
