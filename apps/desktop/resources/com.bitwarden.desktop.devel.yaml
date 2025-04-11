@@ -8,7 +8,8 @@ command: bitwarden.sh
 finish-args:
   - --share=ipc
   - --share=network
-  - --socket=x11
+  - --socket=wayland
+  - --socket=fallback-x11
   - --device=dri
   - --env=XDG_CURRENT_DESKTOP=Unity
   - --env=XCURSOR_PATH=/run/host/user-share/icons:/run/host/share/icons
