@@ -1,0 +1,32 @@
+import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { Subject } from "rxjs";
+
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+
+@Component({
+  selector: "app-organization-member-families",
+  templateUrl: "organization-member-families.component.html",
+})
+export class OrganizationMemberFamiliesComponent implements OnInit, OnDestroy {
+  loading = false;
+  tabIndex: number;
+
+  @Input() memberFamilies: any;
+
+  private _destroy = new Subject<void>();
+
+  constructor(private platformUtilsService: PlatformUtilsService) {}
+
+  async ngOnInit() {
+    this.loading = false;
+  }
+
+  ngOnDestroy(): void {
+    this._destroy.next();
+    this._destroy.complete();
+  }
+
+  get isSelfHosted(): boolean {
+    return this.platformUtilsService.isSelfHost();
+  }
+}

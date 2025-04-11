@@ -47,7 +47,6 @@ import { UpdatePasswordComponent } from "../auth/update-password.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { VerifyEmailTokenComponent } from "../auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "../auth/verify-recover-delete.component";
-import { OrganizationSponsoredOrgRowComponent } from "../billing/members/organization-sponsored-org-row.component";
 import { SponsoredFamiliesComponent } from "../billing/settings/sponsored-families.component";
 import { SponsoringOrgRowComponent } from "../billing/settings/sponsoring-org-row.component";
 import { DynamicAvatarComponent } from "../components/dynamic-avatar.component";
@@ -76,6 +75,8 @@ import { AddEditComponent as OrgAddEditComponent } from "../vault/org-vault/add-
 import { AttachmentsComponent as OrgAttachmentsComponent } from "../vault/org-vault/attachments.component";
 import { PurgeVaultComponent } from "../vault/settings/purge-vault.component";
 
+import { FreeBitwardenFamiliesComponent } from "./../billing/members/free-bitwarden-families.component";
+import { OrganizationMemberFamiliesComponent } from "./../billing/members/organization-member-families.component";
 import { OrganizationSponsoredFamiliesComponent } from "./../billing/members/organization-sponsored-families.component";
 import { EnvironmentSelectorModule } from "./../components/environment-selector/environment-selector.module";
 import { AccountFingerprintComponent } from "./components/account-fingerprint/account-fingerprint.component";
@@ -148,8 +149,9 @@ import { SharedModule } from "./shared.module";
     SetPasswordComponent,
     SponsoredFamiliesComponent,
     OrganizationSponsoredFamiliesComponent,
+    OrganizationMemberFamiliesComponent,
+    FreeBitwardenFamiliesComponent,
     SponsoringOrgRowComponent,
-    OrganizationSponsoredOrgRowComponent,
     SsoComponentV1,
     TwoFactorSetupAuthenticatorComponent,
     TwoFactorSetupDuoComponent,
@@ -210,8 +212,9 @@ import { SharedModule } from "./shared.module";
     SetPasswordComponent,
     SponsoredFamiliesComponent,
     OrganizationSponsoredFamiliesComponent,
+    OrganizationMemberFamiliesComponent,
+    FreeBitwardenFamiliesComponent,
     SponsoringOrgRowComponent,
-    OrganizationSponsoredOrgRowComponent,
     SsoComponentV1,
     TwoFactorSetupAuthenticatorComponent,
     TwoFactorSetupDuoComponent,

@@ -16,13 +16,7 @@ import { firstValueFrom, map } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import {
-  BitSubmitDirective,
-  ButtonModule,
-  DialogModule,
-  DialogService,
-  FormFieldModule,
-} from "@bitwarden/components";
+import { ButtonModule, DialogModule, DialogService, FormFieldModule } from "@bitwarden/components";
 
 interface RequestSponsorshipForm {
   sponsorshipEmail: FormControl<string>;
@@ -37,6 +31,7 @@ export interface AddSponsorshipDialogResult {
 interface AddSponsorshipFormValue {
   sponsorshipEmail: string;
   sponsorshipNote: string;
+  status: string;
 }
 
 enum AddSponsorshipDialogAction {
@@ -54,7 +49,6 @@ enum AddSponsorshipDialogAction {
     FormsModule,
     ReactiveFormsModule,
     FormFieldModule,
-    BitSubmitDirective,
   ],
 })
 export class AddSponsorshipDialogComponent {
@@ -88,10 +82,11 @@ export class AddSponsorshipDialogComponent {
     return dialogService.open<AddSponsorshipDialogResult>(AddSponsorshipDialogComponent);
   }
 
+  // TODO: This is a mockup implementation - needs to be updated with actual API integration
   protected save = () => {
     this.dialogRef.close({
       action: AddSponsorshipDialogAction.Saved,
-      value: this.sponsorshipForm.value,
+      value: { status: "Sent", ...this.sponsorshipForm.value },
     });
   };
 
