@@ -4,7 +4,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 
 /**
- * This class handles the premium upgrade process for the browser extension.
+ * This class handles the premium upgrade process for the desktop.
  */
 export class DesktopPremiumUpgradePromptService implements PremiumUpgradePromptService {
   private messagingService = inject(MessagingService);

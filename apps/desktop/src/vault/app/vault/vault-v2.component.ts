@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import {
   ChangeDetectorRef,
@@ -10,9 +8,10 @@ import {
   ViewChild,
   ViewContainerRef,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, Subject, takeUntil, switchMap } from "rxjs";
-import { filter, first, map, take } from "rxjs/operators";
+import { filter, map, take } from "rxjs/operators";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
@@ -21,7 +20,7 @@ import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/vie
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
@@ -115,45 +114,44 @@ const BroadcasterSubscriptionId = "VaultComponent";
   ],
 })
 export class VaultV2Component implements OnInit, OnDestroy {
-  @ViewChild(ViewComponent) viewComponent: ViewComponent;
-  @ViewChild(AddEditComponent) addEditComponent: AddEditComponent;
-  @ViewChild(VaultItemsV2Component, { static: true }) vaultItemsComponent: VaultItemsV2Component;
-  @ViewChild(VaultFilterComponent, { static: true }) vaultFilterComponent: VaultFilterComponent;
+  @ViewChild(ViewComponent) viewComponent: ViewComponent | null = null;
+  @ViewChild(AddEditComponent) addEditComponent: AddEditComponent | null = null;
+  @ViewChild(VaultItemsV2Component, { static: true })
+  vaultItemsComponent: VaultItemsV2Component | null = null;
+  @ViewChild(VaultFilterComponent, { static: true })
+  vaultFilterComponent: VaultFilterComponent | null = null;
   @ViewChild("folderAddEdit", { read: ViewContainerRef, static: true })
-  folderAddEditModalRef: ViewContainerRef;
-  @ViewChild("footer") footer: ItemFooterComponent;
+  folderAddEditModalRef: ViewContainerRef | null = null;
+  @ViewChild("footer") footer: ItemFooterComponent | null = null;
 
-  action: CipherFormMode | "view";
-  cipherId: string = null;
+  action: CipherFormMode | "view" | null = null;
+  cipherId: string | null = null;
   favorites = false;
-  type: CipherType = null;
-  folderId: string = null;
-  collectionId: string = null;
-  organizationId: string = null;
+  type: CipherType | null = null;
+  folderId: string | null = null;
+  collectionId: string | null = null;
+  organizationId: string | null = null;
   myVaultOnly = false;
-  addType: CipherType = null;
-  addOrganizationId: string = null;
-  addCollectionIds: string[] = null;
+  addType: CipherType | undefined = undefined;
+  addOrganizationId: string | null = null;
+  addCollectionIds: string[] | null = null;
   showingModal = false;
   deleted = false;
   userHasPremiumAccess = false;
   activeFilter: VaultFilter = new VaultFilter();
-  activeUserId: UserId;
-  cipher: CipherView = new CipherView();
+  activeUserId: UserId | null = null;
+  cipher: CipherView | null = new CipherView();
   collections: CollectionView[] = [];
-  config: CipherFormConfig = null;
+  config: CipherFormConfig | null = null;
 
-  /**
-   * Flag to indicate if the user has access to attachments via a premium subscription.
-   * @protected
-   */
   protected canAccessAttachments$ = this.accountService.activeAccount$.pipe(
+    filter((account): account is Account => !!account),
     switchMap((account) =>
       this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
     ),
   );
 
-  private modal: ModalRef = null;
+  private modal: ModalRef | null = null;
   private componentIsDestroyed$ = new Subject<boolean>();
 
   constructor(
@@ -183,6 +181,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
   async ngOnInit() {
     this.accountService.activeAccount$
       .pipe(
+        filter((account): account is Account => !!account),
         switchMap((account) =>
           this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
         ),
@@ -193,127 +192,145 @@ export class VaultV2Component implements OnInit, OnDestroy {
       });
 
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.ngZone.run(async () => {
-        let detectChanges = true;
-
-        switch (message.command) {
-          case "newLogin":
-            await this.addCipher(CipherType.Login);
-            break;
-          case "newCard":
-            await this.addCipher(CipherType.Card);
-            break;
-          case "newIdentity":
-            await this.addCipher(CipherType.Identity);
-            break;
-          case "newSecureNote":
-            await this.addCipher(CipherType.SecureNote);
-            break;
-          case "focusSearch":
-            (document.querySelector("#search") as HTMLInputElement).select();
-            detectChanges = false;
-            break;
-          case "syncCompleted":
-            await this.vaultItemsComponent.reload(this.activeFilter.buildFilter());
-            await this.vaultFilterComponent.reloadCollectionsAndFolders(this.activeFilter);
-            await this.vaultFilterComponent.reloadOrganizations();
-            break;
-          case "modalShown":
-            this.showingModal = true;
-            break;
-          case "modalClosed":
-            this.showingModal = false;
-            break;
-          case "copyUsername": {
-            const uComponent =
-              this.addEditComponent == null ? this.viewComponent : this.addEditComponent;
-            const uCipher = uComponent != null ? uComponent.cipher : null;
-            if (
-              this.cipherId != null &&
-              uCipher != null &&
-              uCipher.id === this.cipherId &&
-              uCipher.login != null &&
-              uCipher.login.username != null
-            ) {
-              this.copyValue(uCipher, uCipher.login.username, "username", "Username");
+      this.ngZone
+        .run(async () => {
+          let detectChanges = true;
+          try {
+            switch (message.command) {
+              case "newLogin":
+                await this.addCipher(CipherType.Login).catch(() => {});
+                break;
+              case "newCard":
+                await this.addCipher(CipherType.Card).catch(() => {});
+                break;
+              case "newIdentity":
+                await this.addCipher(CipherType.Identity).catch(() => {});
+                break;
+              case "newSecureNote":
+                await this.addCipher(CipherType.SecureNote).catch(() => {});
+                break;
+              case "focusSearch":
+                (document.querySelector("#search") as HTMLInputElement)?.select();
+                detectChanges = false;
+                break;
+              case "syncCompleted":
+                if (this.vaultItemsComponent) {
+                  await this.vaultItemsComponent
+                    .reload(this.activeFilter.buildFilter())
+                    .catch(() => {});
+                }
+                if (this.vaultFilterComponent) {
+                  await this.vaultFilterComponent
+                    .reloadCollectionsAndFolders(this.activeFilter)
+                    .catch(() => {});
+                  await this.vaultFilterComponent.reloadOrganizations().catch(() => {});
+                }
+                break;
+              case "modalShown":
+                this.showingModal = true;
+                break;
+              case "modalClosed":
+                this.showingModal = false;
+                break;
+              case "copyUsername": {
+                const uComponent = this.addEditComponent ?? this.viewComponent;
+                const uCipher = uComponent?.cipher ?? null;
+                if (
+                  this.cipherId &&
+                  uCipher &&
+                  uCipher.id === this.cipherId &&
+                  uCipher.login &&
+                  uCipher.login.username
+                ) {
+                  this.copyValue(uCipher, uCipher.login.username, "username", "Username");
+                }
+                break;
+              }
+              case "copyPassword": {
+                const pComponent = this.addEditComponent ?? this.viewComponent;
+                const pCipher = pComponent?.cipher ?? null;
+                if (
+                  this.cipherId &&
+                  pCipher &&
+                  pCipher.id === this.cipherId &&
+                  pCipher.login &&
+                  pCipher.login.password &&
+                  pCipher.viewPassword
+                ) {
+                  this.copyValue(pCipher, pCipher.login.password, "password", "Password");
+                  await this.eventCollectionService
+                    .collect(EventType.Cipher_ClientCopiedPassword, pCipher.id)
+                    .catch(() => {});
+                }
+                break;
+              }
+              case "copyTotp": {
+                const tComponent = this.addEditComponent ?? this.viewComponent;
+                const tCipher = tComponent?.cipher ?? null;
+                if (
+                  this.cipherId &&
+                  tCipher &&
+                  tCipher.id === this.cipherId &&
+                  tCipher.login &&
+                  tCipher.login.hasTotp &&
+                  this.userHasPremiumAccess
+                ) {
+                  const value = await firstValueFrom(
+                    this.totpService.getCode$(tCipher.login.totp),
+                  ).catch(() => null);
+                  if (value) {
+                    this.copyValue(tCipher, value.code, "verificationCodeTotp", "TOTP");
+                  }
+                }
+                break;
+              }
+              default:
+                detectChanges = false;
+                break;
             }
-            break;
+          } catch {
+            // Ignore errors
           }
-          case "copyPassword": {
-            const pComponent =
-              this.addEditComponent == null ? this.viewComponent : this.addEditComponent;
-            const pCipher = pComponent != null ? pComponent.cipher : null;
-            if (
-              this.cipherId != null &&
-              pCipher != null &&
-              pCipher.id === this.cipherId &&
-              pCipher.login != null &&
-              pCipher.login.password != null &&
-              pCipher.viewPassword
-            ) {
-              this.copyValue(pCipher, pCipher.login.password, "password", "Password");
-            }
-            break;
+          if (detectChanges) {
+            this.changeDetectorRef.detectChanges();
           }
-          case "copyTotp": {
-            const tComponent =
-              this.addEditComponent == null ? this.viewComponent : this.addEditComponent;
-            const tCipher = tComponent != null ? tComponent.cipher : null;
-            if (
-              this.cipherId != null &&
-              tCipher != null &&
-              tCipher.id === this.cipherId &&
-              tCipher.login != null &&
-              tCipher.login.hasTotp &&
-              this.userHasPremiumAccess
-            ) {
-              const value = await firstValueFrom(this.totpService.getCode$(tCipher.login.totp));
-              this.copyValue(tCipher, value.code, "verificationCodeTotp", "TOTP");
-            }
-            break;
-          }
-          default:
-            detectChanges = false;
-            break;
-        }
-
-        if (detectChanges) {
-          this.changeDetectorRef.detectChanges();
-        }
-      });
+        })
+        .catch(() => {});
     });
 
     if (!this.syncService.syncInProgress) {
-      await this.load();
+      await this.load().catch(() => {});
     }
 
     this.searchBarService.setEnabled(true);
     this.searchBarService.setPlaceholderText(this.i18nService.t("searchVault"));
 
-    const authRequest = await this.apiService.getLastAuthRequest();
+    const authRequest = await this.apiService.getLastAuthRequest().catch(() => null);
     if (authRequest != null) {
       this.messagingService.send("openLoginApproval", {
         notificationId: authRequest.id,
       });
     }
 
-    this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    this.activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getUserId),
+    ).catch(() => null);
 
-    this.cipherService
-      .failedToDecryptCiphers$(this.activeUserId)
-      .pipe(
-        map((ciphers) => ciphers?.filter((c) => !c.isDeleted) ?? []),
-        filter((ciphers) => ciphers.length > 0),
-        take(1),
-        takeUntil(this.componentIsDestroyed$),
-      )
-      .subscribe((ciphers) => {
-        DecryptionFailureDialogComponent.open(this.dialogService, {
-          cipherIds: ciphers.map((c) => c.id as CipherId),
+    if (this.activeUserId) {
+      this.cipherService
+        .failedToDecryptCiphers$(this.activeUserId)
+        .pipe(
+          map((ciphers) => ciphers?.filter((c) => !c.isDeleted) ?? []),
+          filter((ciphers) => ciphers.length > 0),
+          take(1),
+          takeUntil(this.componentIsDestroyed$),
+        )
+        .subscribe((ciphers) => {
+          DecryptionFailureDialogComponent.open(this.dialogService, {
+            cipherIds: ciphers.map((c) => c.id as CipherId),
+          });
         });
-      });
+    }
   }
 
   ngOnDestroy() {
@@ -324,64 +341,58 @@ export class VaultV2Component implements OnInit, OnDestroy {
   }
 
   async load() {
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    this.route.queryParams.pipe(first()).subscribe(async (params) => {
-      if (params.cipherId) {
-        const cipherView = new CipherView();
-        cipherView.id = params.cipherId;
-        if (params.action === "clone") {
-          await this.cloneCipher(cipherView);
-        } else if (params.action === "edit") {
-          await this.editCipher(cipherView);
-        } else {
-          await this.viewCipher(cipherView);
-        }
-      } else if (params.action === "add") {
-        this.addType = Number(params.addType);
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.addCipher(this.addType);
+    const params = await firstValueFrom(this.route.queryParams).catch();
+    if (params.cipherId) {
+      const cipherView = new CipherView();
+      cipherView.id = params.cipherId;
+      if (params.action === "clone") {
+        await this.cloneCipher(cipherView).catch(() => {});
+      } else if (params.action === "edit") {
+        await this.editCipher(cipherView).catch(() => {});
+      } else {
+        await this.viewCipher(cipherView).catch(() => {});
       }
+    } else if (params.action === "add") {
+      this.addType = Number(params.addType);
+      await this.addCipher(this.addType).catch(() => {});
+    }
 
-      this.activeFilter = new VaultFilter({
-        status: params.deleted ? "trash" : params.favorites ? "favorites" : "all",
-        cipherType:
-          params.action === "add" || params.type == null ? null : parseInt(params.type, null),
-        selectedFolderId: params.folderId,
-        selectedCollectionId: params.selectedCollectionId,
-        selectedOrganizationId: params.selectedOrganizationId,
-        myVaultOnly: params.myVaultOnly ?? false,
-      });
-      await this.vaultItemsComponent.reload(this.activeFilter.buildFilter());
+    this.activeFilter = new VaultFilter({
+      status: params.deleted ? "trash" : params.favorites ? "favorites" : "all",
+      cipherType:
+        params.action === "add" || params.type == null
+          ? undefined
+          : (parseInt(params.type) as CipherType),
+      selectedFolderId: params.folderId,
+      selectedCollectionId: params.selectedCollectionId,
+      selectedOrganizationId: params.selectedOrganizationId,
+      myVaultOnly: params.myVaultOnly ?? false,
     });
+    if (this.vaultItemsComponent) {
+      await this.vaultItemsComponent.reload(this.activeFilter.buildFilter()).catch(() => {});
+    }
   }
 
   async viewCipher(cipher: CipherView) {
     if (!(await this.canNavigateAway("view", cipher))) {
       return;
     }
-
     this.cipherId = cipher.id;
     this.cipher = cipher;
     this.action = "view";
-    await this.go();
+    await this.go().catch(() => {});
   }
 
-  /**
-   * Opens the attachments dialog.
-   */
   async openAttachmentsDialog() {
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
       cipherId: this.cipherId as CipherId,
     });
-
-    const result = await firstValueFrom(dialogRef.closed);
-
+    const result = await firstValueFrom(dialogRef.closed).catch(() => null);
     if (
-      result.action === AttachmentDialogResult.Removed ||
-      result.action === AttachmentDialogResult.Uploaded
+      result?.action === AttachmentDialogResult.Removed ||
+      result?.action === AttachmentDialogResult.Uploaded
     ) {
-      await this.vaultItemsComponent.refresh();
+      await this.vaultItemsComponent?.refresh().catch(() => {});
     }
   }
 
@@ -389,12 +400,11 @@ export class VaultV2Component implements OnInit, OnDestroy {
     const menu: RendererMenuItem[] = [
       {
         label: this.i18nService.t("view"),
-        click: () =>
+        click: () => {
           this.functionWithChangeDetection(() => {
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.viewCipher(cipher);
-          }),
+            this.viewCipher(cipher).catch(() => {});
+          });
+        },
       },
     ];
 
@@ -406,22 +416,20 @@ export class VaultV2Component implements OnInit, OnDestroy {
     if (!cipher.isDeleted) {
       menu.push({
         label: this.i18nService.t("edit"),
-        click: () =>
+        click: () => {
           this.functionWithChangeDetection(() => {
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.editCipher(cipher);
-          }),
+            this.editCipher(cipher).catch(() => {});
+          });
+        },
       });
       if (!cipher.organizationId) {
         menu.push({
           label: this.i18nService.t("clone"),
-          click: () =>
+          click: () => {
             this.functionWithChangeDetection(() => {
-              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              this.cloneCipher(cipher);
-            }),
+              this.cloneCipher(cipher).catch(() => {});
+            });
+          },
         });
       }
     }
@@ -452,9 +460,9 @@ export class VaultV2Component implements OnInit, OnDestroy {
             label: this.i18nService.t("copyPassword"),
             click: () => {
               this.copyValue(cipher, cipher.login.password, "password", "Password");
-              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              this.eventCollectionService.collect(EventType.Cipher_ClientCopiedPassword, cipher.id);
+              this.eventCollectionService
+                .collect(EventType.Cipher_ClientCopiedPassword, cipher.id)
+                .catch(() => {});
             },
           });
         }
@@ -462,8 +470,12 @@ export class VaultV2Component implements OnInit, OnDestroy {
           menu.push({
             label: this.i18nService.t("copyVerificationCodeTotp"),
             click: async () => {
-              const value = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
-              this.copyValue(cipher, value.code, "verificationCodeTotp", "TOTP");
+              const value = await firstValueFrom(
+                this.totpService.getCode$(cipher.login.totp),
+              ).catch(() => null);
+              if (value) {
+                this.copyValue(cipher, value.code, "verificationCodeTotp", "TOTP");
+              }
             },
           });
         }
@@ -483,9 +495,9 @@ export class VaultV2Component implements OnInit, OnDestroy {
             label: this.i18nService.t("copySecurityCode"),
             click: () => {
               this.copyValue(cipher, cipher.card.code, "securityCode", "Security Code");
-              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              this.eventCollectionService.collect(EventType.Cipher_ClientCopiedCardCode, cipher.id);
+              this.eventCollectionService
+                .collect(EventType.Cipher_ClientCopiedCardCode, cipher.id)
+                .catch(() => {});
             },
           });
         }
@@ -493,7 +505,6 @@ export class VaultV2Component implements OnInit, OnDestroy {
       default:
         break;
     }
-
     invokeMenu(menu);
   }
 
@@ -502,45 +513,40 @@ export class VaultV2Component implements OnInit, OnDestroy {
   }
 
   async buildFormConfig(action: CipherFormMode) {
-    this.config = await this.formConfigService.buildConfig(
-      action,
-      this.cipherId as CipherId,
-      this.addType,
-    );
+    this.config = await this.formConfigService
+      .buildConfig(action, this.cipherId as CipherId, this.addType)
+      .catch(() => null);
   }
 
   async editCipher(cipher: CipherView) {
     if (await this.shouldReprompt(cipher, "edit")) {
       return;
     }
-
     this.cipherId = cipher.id;
     this.cipher = cipher;
     await this.buildFormConfig("edit");
     this.action = "edit";
-    await this.go();
+    await this.go().catch(() => {});
   }
 
   async cloneCipher(cipher: CipherView) {
     if (await this.shouldReprompt(cipher, "clone")) {
       return;
     }
-
     this.cipherId = cipher.id;
     this.cipher = cipher;
     await this.buildFormConfig("clone");
     this.action = "clone";
-    await this.go();
+    await this.go().catch(() => {});
   }
 
-  async addCipher(type: CipherType = null) {
+  async addCipher(type: CipherType) {
     this.addType = type || this.activeFilter.cipherType;
     this.cipherId = null;
     await this.buildFormConfig("add");
     this.action = "add";
     this.prefillNewCipherFromFilter();
-
-    await this.go();
+    await this.go().catch(() => {});
   }
 
   addCipherOptions() {
@@ -562,42 +568,43 @@ export class VaultV2Component implements OnInit, OnDestroy {
         click: () => this.addCipherWithChangeDetection(CipherType.SecureNote),
       },
     ];
-
     invokeMenu(menu);
   }
 
   async savedCipher(cipher: CipherView) {
     this.cipherId = null;
     this.action = "view";
-    await this.vaultItemsComponent.refresh();
+    await this.vaultItemsComponent?.refresh().catch(() => {});
     this.cipherId = cipher.id;
     this.cipher = cipher;
-    await this.cipherService.clearCache(this.activeUserId);
-    await this.vaultItemsComponent.load(this.activeFilter.buildFilter());
-    await this.go();
-    await this.vaultItemsComponent.refresh();
+    if (this.activeUserId) {
+      await this.cipherService.clearCache(this.activeUserId).catch(() => {});
+    }
+    await this.vaultItemsComponent?.load(this.activeFilter.buildFilter()).catch(() => {});
+    await this.go().catch(() => {});
+    await this.vaultItemsComponent?.refresh().catch(() => {});
   }
 
   async deleteCipher() {
     this.cipherId = null;
     this.cipher = null;
     this.action = null;
-    await this.go();
-    await this.vaultItemsComponent.refresh();
+    await this.go().catch(() => {});
+    await this.vaultItemsComponent?.refresh().catch(() => {});
   }
 
   async restoreCipher() {
     this.cipherId = null;
     this.action = null;
-    await this.go();
-    await this.vaultItemsComponent.refresh();
+    await this.go().catch(() => {});
+    await this.vaultItemsComponent?.refresh().catch(() => {});
   }
 
   async cancelCipher(cipher: CipherView) {
     this.cipherId = cipher.id;
     this.cipher = cipher;
     this.action = this.cipherId != null ? "view" : null;
-    await this.go();
+    await this.go().catch(() => {});
   }
 
   async applyVaultFilter(vaultFilter: VaultFilter) {
@@ -605,11 +612,10 @@ export class VaultV2Component implements OnInit, OnDestroy {
       this.i18nService.t(this.calculateSearchBarLocalizationString(vaultFilter)),
     );
     this.activeFilter = vaultFilter;
-    await this.vaultItemsComponent.reload(
-      this.activeFilter.buildFilter(),
-      vaultFilter.status === "trash",
-    );
-    await this.go();
+    await this.vaultItemsComponent
+      ?.reload(this.activeFilter.buildFilter(), vaultFilter.status === "trash")
+      .catch(() => {});
+    await this.go().catch(() => {});
   }
 
   private calculateSearchBarLocalizationString(vaultFilter: VaultFilter): string {
@@ -622,7 +628,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
     if (vaultFilter.cipherType != null) {
       return "searchType";
     }
-    if (vaultFilter.selectedFolderId != null && vaultFilter.selectedFolderId != "none") {
+    if (vaultFilter.selectedFolderId != null && vaultFilter.selectedFolderId !== "none") {
       return "searchFolder";
     }
     if (vaultFilter.selectedCollectionId != null) {
@@ -634,7 +640,6 @@ export class VaultV2Component implements OnInit, OnDestroy {
     if (vaultFilter.myVaultOnly) {
       return "searchMyVault";
     }
-
     return "searchVault";
   }
 
@@ -652,7 +657,6 @@ export class VaultV2Component implements OnInit, OnDestroy {
       },
       type: passwordType ? "password" : "username",
     });
-    return;
   }
 
   async addFolder() {
@@ -663,29 +667,36 @@ export class VaultV2Component implements OnInit, OnDestroy {
     if (this.modal != null) {
       this.modal.close();
     }
-
-    const [modal, childComponent] = await this.modalService.openViewRef(
-      FolderAddEditComponent,
-      this.folderAddEditModalRef,
-      (comp) => (comp.folderId = folderId),
-    );
+    if (this.folderAddEditModalRef == null) {
+      return;
+    }
+    const [modal, childComponent] = await this.modalService
+      .openViewRef(
+        FolderAddEditComponent,
+        this.folderAddEditModalRef,
+        (comp) => (comp.folderId = folderId),
+      )
+      .catch(() => [null, null] as any);
     this.modal = modal;
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    childComponent.onSavedFolder.subscribe(async (folder: FolderView) => {
-      this.modal.close();
-      await this.vaultFilterComponent.reloadCollectionsAndFolders(this.activeFilter);
-    });
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    childComponent.onDeletedFolder.subscribe(async (folder: FolderView) => {
-      this.modal.close();
-      await this.vaultFilterComponent.reloadCollectionsAndFolders(this.activeFilter);
-    });
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    this.modal.onClosed.subscribe(() => {
-      this.modal = null;
-    });
+    if (childComponent) {
+      childComponent.onSavedFolder.subscribe(async (folder: FolderView) => {
+        this.modal?.close();
+        await this.vaultFilterComponent
+          ?.reloadCollectionsAndFolders(this.activeFilter)
+          .catch(() => {});
+      });
+      childComponent.onDeletedFolder.subscribe(async (folder: FolderView) => {
+        this.modal?.close();
+        await this.vaultFilterComponent
+          ?.reloadCollectionsAndFolders(this.activeFilter)
+          .catch(() => {});
+      });
+    }
+    if (this.modal) {
+      this.modal.onClosed.pipe(takeUntilDestroyed()).subscribe(() => {
+        this.modal = null;
+      });
+    }
   }
 
   private dirtyInput(): boolean {
@@ -696,11 +707,13 @@ export class VaultV2Component implements OnInit, OnDestroy {
   }
 
   private async wantsToSaveChanges(): Promise<boolean> {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "unsavedChangesTitle" },
-      content: { key: "unsavedChangesConfirmation" },
-      type: "warning",
-    });
+    const confirmed = await this.dialogService
+      .openSimpleDialog({
+        title: { key: "unsavedChangesTitle" },
+        content: { key: "unsavedChangesConfirmation" },
+        type: "warning",
+      })
+      .catch(() => false);
     return !confirmed;
   }
 
@@ -718,39 +731,39 @@ export class VaultV2Component implements OnInit, OnDestroy {
         myVaultOnly: this.myVaultOnly,
       };
     }
-
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: queryParams,
-      replaceUrl: true,
-    });
+    this.router
+      .navigate([], {
+        relativeTo: this.route,
+        queryParams: queryParams,
+        replaceUrl: true,
+      })
+      .catch(() => {});
   }
 
-  private addCipherWithChangeDetection(type: CipherType = null) {
-    this.functionWithChangeDetection(() => this.addCipher(type));
+  private addCipherWithChangeDetection(type: CipherType) {
+    this.functionWithChangeDetection(() => this.addCipher(type).catch(() => {}));
   }
 
   private copyValue(cipher: CipherView, value: string, labelI18nKey: string, aType: string) {
-    this.functionWithChangeDetection(async () => {
-      if (
-        cipher.reprompt !== CipherRepromptType.None &&
-        this.passwordRepromptService.protectedFields().includes(aType) &&
-        !(await this.passwordRepromptService.showPasswordPrompt())
-      ) {
-        return;
-      }
-
-      this.platformUtilsService.copyToClipboard(value);
-      this.toastService.showToast({
-        variant: "info",
-        title: null,
-        message: this.i18nService.t("valueCopied", this.i18nService.t(labelI18nKey)),
-      });
-      if (this.action === "view") {
-        this.messagingService.send("minimizeOnCopy");
-      }
+    this.functionWithChangeDetection(() => {
+      (async () => {
+        if (
+          cipher.reprompt !== CipherRepromptType.None &&
+          this.passwordRepromptService.protectedFields().includes(aType) &&
+          !(await this.passwordRepromptService.showPasswordPrompt())
+        ) {
+          return;
+        }
+        this.platformUtilsService.copyToClipboard(value);
+        this.toastService.showToast({
+          variant: "info",
+          title: undefined,
+          message: this.i18nService.t("valueCopied", this.i18nService.t(labelI18nKey)),
+        });
+        if (this.action === "view") {
+          this.messagingService.send("minimizeOnCopy");
+        }
+      })().catch(() => {});
     });
   }
 
@@ -762,7 +775,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
   }
 
   private prefillNewCipherFromFilter() {
-    if (this.activeFilter.selectedCollectionId != null) {
+    if (this.activeFilter.selectedCollectionId != null && this.vaultFilterComponent != null) {
       const collections = this.vaultFilterComponent.collections.fullList.filter(
         (c) => c.id === this.activeFilter.selectedCollectionId,
       );
@@ -780,13 +793,11 @@ export class VaultV2Component implements OnInit, OnDestroy {
   }
 
   private async canNavigateAway(action: string, cipher?: CipherView) {
-    // Don't navigate to same route
-    if (this.action === action && (cipher == null || this.cipherId === cipher.id)) {
+    if (this.action === action && (!cipher || this.cipherId === cipher.id)) {
       return false;
     } else if (this.dirtyInput() && (await this.wantsToSaveChanges())) {
       return false;
     }
-
     return true;
   }
 
