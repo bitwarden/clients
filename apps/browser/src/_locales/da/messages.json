@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "Fortrolighedspolitik"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Dit adgangskodetip kan ikke være det samme som din adgangskode."
   },
