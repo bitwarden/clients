@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "একটি এন্টারপ্রাইজ নীতির কারণে, আপনি আপনার ব্যক্তিগত ভল্টে বস্তুসমূহ সংরক্ষণ করা থেকে সীমাবদ্ধ। একটি প্রতিষ্ঠানের মালিকানা বিকল্পটি পরিবর্তন করুন এবং উপলভ্য সংগ্রহগুলি থেকে চয়ন করুন।"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "আপনার পাসওয়ার্ডের ইঙ্গিতটি আপনার পাসওয়ার্ড হতে পারবে না।"
   },

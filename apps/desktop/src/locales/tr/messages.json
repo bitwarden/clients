@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Bir kuruluş ilkesi nedeniyle kişisel kasanıza hesap kaydetmeniz kısıtlanmış. Sahip seçeneğini bir kuruluş olarak değiştirin ve mevcut koleksiyonlar arasından seçim yapın."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Parola ipucunuz parolanızla aynı olamaz."
   },

@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "엔터프라이즈 정책으로 인해 개인 보관함에 항목을 저장할 수 없습니다. 조직에서 소유권 설정을 변경한 다음, 사용 가능한 컬렉션 중에서 선택해주세요."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "비밀번호 힌트는 비밀번호와 같을 수 없습니다."
   },

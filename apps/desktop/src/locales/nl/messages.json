@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Wegens bedrijfsbeleid mag je geen wachtwoorden opslaan in je persoonlijke kluis. Verander het eigenaarschap naar een organisatie en kies uit een van de beschikbare collecties."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Je nieuwe wachtwoord moet anders zijn dan je huidige wachtwoord."
+  },
   "hintEqualsPassword": {
     "message": "Je wachtwoordhint moet anders zijn dan je wachtwoord."
   },
