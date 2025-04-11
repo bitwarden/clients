@@ -3318,10 +3318,16 @@
     "message": "Atenção! Este utilizador necessita do Key Connector para gerir a sua encriptação. Ao remover este utilizador da sua organização desativará permanentemente a sua conta. Esta ação não pode ser anulada. Deseja prosseguir?"
   },
   "externalId": {
-    "message": "ID externa"
+    "message": "ID externo"
   },
   "externalIdDesc": {
-    "message": "A ID externa é uma referência não encriptada utilizada pelo Bitwarden Directory Connector e pela API."
+    "message": "O ID externo é uma referência desencriptada utilizada pelo Bitwarden Directory Connector e pela API."
+  },
+  "ssoExternalId": {
+    "message": "ID externo SSO"
+  },
+  "ssoExternalIdDesc": {
+    "message": "O ID externo SSO é uma referência desencriptada entre o Bitwarden e o seu fornecedor de SSO configurado."
   },
   "nestCollectionUnder": {
     "message": "Aninhar coleção em"
@@ -5685,6 +5691,9 @@
   "webAuthnSuccess": {
     "message": "WebAuthn verificado com sucesso! Pode fechar este separador."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "A sua nova palavra-passe não pode ser igual à sua palavra-passe atual."
+  },
   "hintEqualsPassword": {
     "message": "A dica da sua palavra-passe não pode ser igual à sua palavra-passe."
   },
@@ -5879,6 +5888,9 @@
   },
   "fingerprint": {
     "message": "Impressão digital"
+  },
+  "fingerprintPhrase": {
+    "message": "Frase de impressão digital:"
   },
   "removeUsers": {
     "message": "Remover utilizadores"
@@ -10330,6 +10342,33 @@
   "organizationNameMaxLength": {
     "message": "O nome da organização não pode exceder 50 carateres."
   },
+  "rotationCompletedTitle": {
+    "message": "Rotação de chaves bem-sucedida"
+  },
+  "rotationCompletedDesc": {
+    "message": "A sua palavra-passe mestra e as chaves de encriptação foram atualizadas. Foi terminada a sessão nos seus outros dispositivos."
+  },
+  "trustUserEmergencyAccess": {
+    "message": "Confiar e confirmar o utilizador"
+  },
+  "trustOrganization": {
+    "message": "Confiar na organização"
+  },
+  "trust": {
+    "message": "Confiar"
+  },
+  "doNotTrust": {
+    "message": "Não confiar"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Para segurança da sua conta, confirme apenas se tiver concedido acesso de emergência a este utilizador e se a sua impressão digital corresponder à que é apresentada na sua conta"
+  },
+  "orgTrustWarning": {
+    "message": "Para segurança da sua conta, prossiga apenas se for membro desta organização, tiver a recuperação de conta ativada e a impressão digital apresentada abaixo corresponder à impressão digital da organização."
+  },
+  "trustUser": {
+    "message": "Confiar no utilizador"
+  },
   "sshKeyWrongPassword": {
     "message": "A palavra-passe que introduziu está incorreta."
   },
@@ -10499,6 +10538,30 @@
   "assignedExceedsAvailable": {
     "message": "Os lugares atribuídos excedem os lugares disponíveis."
   },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "Frase de impressão digital dos $NUM_USERS$ contactos para os quais ativou o acesso de emergência.",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "Frase de impressão digital para a organização $ORG_NAME$ para a qual ativou a recuperação de conta.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "A rotação das suas chaves de encriptação exigirá que confie nas chaves de quaisquer organizações que possam recuperar a sua conta e em quaisquer contactos para os quais tenha ativado o acesso de emergência. Para continuar, certifique-se de que pode verificar o seguinte:"
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "Chaves de encriptação não fiáveis"
+  },
   "changeAtRiskPassword": {
     "message": "Alterar palavra-passe em risco"
   },
@@ -10528,5 +10591,14 @@
   },
   "cannotCreateCollection": {
     "message": "As organizações gratuitas podem ter até 2 coleções. Atualize para um plano pago para adicionar mais coleções."
+  },
+  "businessUnit": {
+    "message": "Unidade de negócio"
+  },
+  "businessUnits": {
+    "message": "Unidades de negócio"
+  },
+  "newBusinessUnit": {
+    "message": "Nova unidade de negócio"
   }
 }

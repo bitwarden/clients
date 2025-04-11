@@ -1882,7 +1882,7 @@
     "message": "Procédez ci-dessous pour que Bitwarden vous envoie des courriels de vérification lorsque vous vous connectez à partir d'un nouvel appareil."
   },
   "turnOffNewDeviceLoginProtectionWarning": {
-    "message": "Avec la protection de connexion d'un nouvel appareil désactivée, toute personne ayant votre mot de passe maître peut accéder à votre compte depuis n'importe quel appareil. Pour protéger votre compte sans courriel de vérification, configurez la connexion en deux étapes."
+    "message": "Avec la protection de connexion d'un nouvel appareil désactivée, toute personne ayant votre mot de passe principal peut accéder à votre compte depuis n'importe quel appareil. Pour protéger votre compte sans courriel de vérification, configurez la connexion en deux étapes."
   },
   "accountNewDeviceLoginProtectionSaved": {
     "message": "Modifications de la protection de connexion de l'appareil enregistrées"
@@ -3322,6 +3322,12 @@
   },
   "externalIdDesc": {
     "message": "L’identifiant externe peut être utilisé comme référence ou pour lier cette ressource à un système externe tel qu’un répertoire utilisateur."
+  },
+  "ssoExternalId": {
+    "message": "ID externe SSO"
+  },
+  "ssoExternalIdDesc": {
+    "message": "ID externe SSO est une référence non chiffrée entre Bitwarden et votre fournisseur SSO configuré."
   },
   "nestCollectionUnder": {
     "message": "Collection imbriquée sous"
@@ -5685,6 +5691,9 @@
   "webAuthnSuccess": {
     "message": "WebAuthn vérifié avec succès ! Vous pouvez fermer cet onglet."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Votre nouveau mot de passe ne peut être le même que votre mot de passe actuel."
+  },
   "hintEqualsPassword": {
     "message": "Votre indice de mot de passe ne peut pas être identique à votre mot de passe."
   },
@@ -5722,7 +5731,7 @@
     }
   },
   "eventAdminPasswordReset": {
-    "message": "Réinitialisation du mot de passe maître pour l'utilisateur $ID$.",
+    "message": "Réinitialisation du mot de passe principal pour l'utilisateur $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -5879,6 +5888,9 @@
   },
   "fingerprint": {
     "message": "Empreinte"
+  },
+  "fingerprintPhrase": {
+    "message": "Phrase d'empreinte :"
   },
   "removeUsers": {
     "message": "Supprimer les utilisateurs"
@@ -8388,7 +8400,7 @@
     "message": "Appareils de confiance"
   },
   "memberDecryptionOptionTdeDescPart1": {
-    "message": "Les membres n'auront pas besoin d'un mot de passe maître lors de la connexion avec SSO. Le mot de passe principal est remplacé par une clé de chiffrement stockée sur le périphérique, ce qui rend ce périphérique fiable. Le premier appareil avec lequel un membre créera son compte et se connectera sera fiable. Les nouveaux appareils devront être approuvés par un périphérique de confiance existant ou par un administrateur. La",
+    "message": "Les membres n'auront pas besoin d'un mot de passe principale lors de la connexion avec SSO. Le mot de passe principal est remplacé par une clé de chiffrement stockée sur le périphérique, ce qui rend ce périphérique fiable. Le premier appareil avec lequel un membre créera son compte et se connectera sera fiable. Les nouveaux appareils devront être approuvés par un périphérique de confiance existant ou par un administrateur. La",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink1": {
@@ -10330,6 +10342,33 @@
   "organizationNameMaxLength": {
     "message": "Le nom de l'organisation ne doit pas dépasser 50 caractères."
   },
+  "rotationCompletedTitle": {
+    "message": "Rotation de la clé réussie"
+  },
+  "rotationCompletedDesc": {
+    "message": "Votre mot de passe principal et vos clés de chiffrement ont été mis à jour. Vos autres appareils ont été déconnectés."
+  },
+  "trustUserEmergencyAccess": {
+    "message": "Faire confiance et confirmer l'utilisateur"
+  },
+  "trustOrganization": {
+    "message": "Faire confiance à l'organisation"
+  },
+  "trust": {
+    "message": "Faire confiance"
+  },
+  "doNotTrust": {
+    "message": "Ne pas faire confiance"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Pour la sécurité de votre compte, confirmez seulement si vous avez accordé l'accès d'urgence à cet utilisateur et que sa phrase d'empreinte correspond à ce qui est affiché dans son compte"
+  },
+  "orgTrustWarning": {
+    "message": "Pour la sécurité de votre compte, continuez seulement si vous êtes un membre de cette organisation, avez la récupération de compte activée et que la phrase d'empreinte correspond à celle de l'organisation."
+  },
+  "trustUser": {
+    "message": "Faire confiance à l'utilisateur"
+  },
   "sshKeyWrongPassword": {
     "message": "Le mot de passe que vous avez entré est incorrect."
   },
@@ -10499,6 +10538,30 @@
   "assignedExceedsAvailable": {
     "message": "Les places assignées dépassent les places disponibles."
   },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "Phrase d'empreinte des $NUM_USERS$ contacts pour lesquels vous avez activé l'accès d'urgence.",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "Phrase d'empreinte de l'organisation $ORG_NAME$ pour laquelle vous avez activé la récupération de compte.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "Faire la rotation de vos clés exige que vous fassiez confiance aux clés de toutes les organisations qui peuvent récupérer votre compte et à tous les contacts à qui vous avez autorsé l'accès d'urgence. Pour continuer, assurez-vous que vous pouvez vérifier ce qui suit :"
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "Clés de chiffrement non fiables"
+  },
   "changeAtRiskPassword": {
     "message": "Changer le mot de passe à risque"
   },
@@ -10528,5 +10591,14 @@
   },
   "cannotCreateCollection": {
     "message": "Les organisations gratuites peuvent avoir jusqu'à 2 collections. Passez à une offre payante pour ajouter plus de collections."
+  },
+  "businessUnit": {
+    "message": "Unité d'affaires"
+  },
+  "businessUnits": {
+    "message": "Unités d’affaires"
+  },
+  "newBusinessUnit": {
+    "message": "Nouvelle unité d'affaires"
   }
 }

@@ -3323,6 +3323,12 @@
   "externalIdDesc": {
     "message": "Xarici kimlik, referans olaraq və ya bu mənbəni istifadəçi kataloqu kimi xarici bir sistemə bağlamaq üçün istifadə edilir."
   },
+  "ssoExternalId": {
+    "message": "SSO Xarici Kimlik"
+  },
+  "ssoExternalIdDesc": {
+    "message": "SSO Xarici Kimlik, Bitwarden və konfiqurasiya edilmiş SSO provayderiniz arasında şifrələnməmiş referansdır."
+  },
   "nestCollectionUnder": {
     "message": "Kolleksiyanı bunun altında yerləşdir"
   },
@@ -5685,6 +5691,9 @@
   "webAuthnSuccess": {
     "message": "WebAuthn kimliyi doğrulaması uğurlu oldu! Bu vərəqi bağlaya bilərsiniz."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Yeni parolunuz hazırkı parolunuzla eyni ola bilməz."
+  },
   "hintEqualsPassword": {
     "message": "Parol məsləhəti, parolunuzla eyni ola bilməz."
   },
@@ -5879,6 +5888,9 @@
   },
   "fingerprint": {
     "message": "Barmaq izi"
+  },
+  "fingerprintPhrase": {
+    "message": "Barmaq izi ifadəsi:"
   },
   "removeUsers": {
     "message": "İstifadəçiləri çıxart"
@@ -10330,6 +10342,33 @@
   "organizationNameMaxLength": {
     "message": "Təşkilat adı 50 xarakterdən çox ola bilməz."
   },
+  "rotationCompletedTitle": {
+    "message": "Açar döndərmə uğurludur"
+  },
+  "rotationCompletedDesc": {
+    "message": "Ana parol və şifrələmə açarınız güncəllənib. Digər cihazlarınızda hesabdan çıxış edildi."
+  },
+  "trustUserEmergencyAccess": {
+    "message": "İstifadəçiyə güvən və təsdiqlə"
+  },
+  "trustOrganization": {
+    "message": "Təşkilata güvən"
+  },
+  "trust": {
+    "message": "Güvən"
+  },
+  "doNotTrust": {
+    "message": "Güvənmə"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Hesabınızın təhlükəsizliyi üçün yalnız bu istifadəçiyə fövqəladə hal müraciəti icazəsini verdiyinizi və onun barmaq izinin hesabında görünən barmaq izi ilə uyuşduğunu təsdiqləyin"
+  },
+  "orgTrustWarning": {
+    "message": "Hesabınızın təhlükəsizliyi üçün yalnız bu təşkilatın üzvüsünüzsə, hesab geri qaytarma fəaldırsa və aşağıda görünən barmaq izi təşkilatın barmaq izi ilə uyuşursa davam edin."
+  },
+  "trustUser": {
+    "message": "İstifadəçiyə güvən"
+  },
   "sshKeyWrongPassword": {
     "message": "Daxil etdiyiniz parol yanlışdır."
   },
@@ -10499,6 +10538,30 @@
   "assignedExceedsAvailable": {
     "message": "Təyin edilmiş yer sayı, boş yer sayından çoxdur."
   },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "Fövqəladə hal müraciətini fəallaşdırdığınız $NUM_USERS$ kontakt üçün barmaq izi ifadəsi.",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "Hesab geri qaytarma seçimini fəallaşdırdığınız $ORG_NAME$ təşkilatı üçün barmaq izi ifadəsi.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "Şifrələmə açarlarını döndərmək, sizdən hesabınızı geri qaytara biləcək istənilən təşkilatın açarlarına və fövqəladə hal müraciətini fəallaşdırdığınız istənilən kontakta güvənməyinizi tələb edəcək. Davam etmək üçün əmin olun ki, aşağıdakıları doğrulaya bilirsiniz:"
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "Güvənilməyən şifrələmə açarları"
+  },
   "changeAtRiskPassword": {
     "message": "Riskli parolları dəyişdir"
   },
@@ -10528,5 +10591,14 @@
   },
   "cannotCreateCollection": {
     "message": "Ödənişsiz təşkilatların ən çox 2 kolleksiyası ola bilər. Daha çox kolleksiya əlavə etmək üçün ödənişli bir plana yüksəldin."
+  },
+  "businessUnit": {
+    "message": "Business Unit"
+  },
+  "businessUnits": {
+    "message": "Business Units"
+  },
+  "newBusinessUnit": {
+    "message": "New business unit"
   }
 }

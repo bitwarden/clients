@@ -3323,6 +3323,12 @@
   "externalIdDesc": {
     "message": "Зовнішній ID – це незашифроване посилання, призначене для використання Bitwarden Directory Connector і API."
   },
+  "ssoExternalId": {
+    "message": "SSO External ID"
+  },
+  "ssoExternalIdDesc": {
+    "message": "SSO External ID is an unencrypted reference between Bitwarden and your configured SSO provider."
+  },
   "nestCollectionUnder": {
     "message": "Розмістити збірку під"
   },
@@ -5685,8 +5691,11 @@
   "webAuthnSuccess": {
     "message": "WebAuthn успішно підтверджено! Ви можете закрити цю вкладку."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
-    "message": "Підказка для пароля не може бути такою самою, як ваш пароль."
+    "message": "Підказка повинна відрізнятися від пароля."
   },
   "enrollAccountRecovery": {
     "message": "Розгорнути на відновлення облікового запису"
@@ -5879,6 +5888,9 @@
   },
   "fingerprint": {
     "message": "Цифровий відбиток"
+  },
+  "fingerprintPhrase": {
+    "message": "Fingerprint phrase:"
   },
   "removeUsers": {
     "message": "Вилучити користувачів"
@@ -10330,6 +10342,33 @@
   "organizationNameMaxLength": {
     "message": "Назва організації не може перевищувати 50 символів."
   },
+  "rotationCompletedTitle": {
+    "message": "Key rotation successful"
+  },
+  "rotationCompletedDesc": {
+    "message": "Your master password and encryption keys have been updated. Your other devices have been logged out."
+  },
+  "trustUserEmergencyAccess": {
+    "message": "Trust and confirm user"
+  },
+  "trustOrganization": {
+    "message": "Trust organization"
+  },
+  "trust": {
+    "message": "Trust"
+  },
+  "doNotTrust": {
+    "message": "Do not trust"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+  },
+  "orgTrustWarning": {
+    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "trustUser": {
+    "message": "Trust user"
+  },
   "sshKeyWrongPassword": {
     "message": "Ви ввели неправильний пароль."
   },
@@ -10499,6 +10538,30 @@
   "assignedExceedsAvailable": {
     "message": "Призначені місця перевищують доступні місця."
   },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "Fingerprint phrase for $NUM_USERS$ contacts for which you have enabled emergency access.",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "Fingerprint phrase for the organization $ORG_NAME$ for which you have enabled account recovery.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "Rotating your encryption keys will require you to trust keys of any organizations that can recover your account, and any contacts that you have enabled emergency access for. To continue, make sure you can verify the following:"
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "Untrusted encryption keys"
+  },
   "changeAtRiskPassword": {
     "message": "Змінити ризикований пароль"
   },
@@ -10528,5 +10591,14 @@
   },
   "cannotCreateCollection": {
     "message": "Безплатні організації можуть мати до 2 збірок. Передплатіть тарифний план, щоб додати більше збірок."
+  },
+  "businessUnit": {
+    "message": "Business Unit"
+  },
+  "businessUnits": {
+    "message": "Business Units"
+  },
+  "newBusinessUnit": {
+    "message": "New business unit"
   }
 }

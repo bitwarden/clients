@@ -1124,7 +1124,7 @@
     "message": "Izmantota šifrēšanai"
   },
   "loginWithPasskeyEnabled": {
-    "message": "Pieteikšanās ar piekūves atslēgu ieslēgta"
+    "message": "Pieteikšanās ar piekļuves atslēgu ieslēgta"
   },
   "passkeySaved": {
     "message": "$NAME$ saglabāta",
@@ -1327,7 +1327,7 @@
     "message": "E-pasta adrese"
   },
   "yourVaultIsLockedV2": {
-    "message": "Glabātava ir slēgta."
+    "message": "Glabātava ir aizslēgta"
   },
   "yourAccountIsLocked": {
     "message": "Konts ir slēgts"
@@ -3322,6 +3322,12 @@
   },
   "externalIdDesc": {
     "message": "Ārējo ID var izmanto kā atsauci vai kā saikni starp šo līdzekli un ārēju sistēmu, piemēram, lietotāju direktoriju."
+  },
+  "ssoExternalId": {
+    "message": "SSO ārējais Id"
+  },
+  "ssoExternalIdDesc": {
+    "message": "SSO ārējais Id ir nešifrēta atsauce starp Bitwarden un konfigurēto SSO nodrošinātāju."
   },
   "nestCollectionUnder": {
     "message": "Ievietot krājumu zem"
@@ -5685,6 +5691,9 @@
   "webAuthnSuccess": {
     "message": "<strong>WebAuthn tika veiksmīgi apstiprināts.</strong><br>Šo cilni var aizvērt."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Jaunā parole nevar būt tāda pati kā pašreizējā."
+  },
   "hintEqualsPassword": {
     "message": "Paroles norāde nedrīkst būt tāda pati kā parole."
   },
@@ -5879,6 +5888,9 @@
   },
   "fingerprint": {
     "message": "Pirkstu nospiedums"
+  },
+  "fingerprintPhrase": {
+    "message": "Atpazīšanas vārdkopa:"
   },
   "removeUsers": {
     "message": "Noņemt lietotājus"
@@ -10330,6 +10342,33 @@
   "organizationNameMaxLength": {
     "message": "Apvienības nosaukums nevar pārsniegt 50 rakstzīmes."
   },
+  "rotationCompletedTitle": {
+    "message": "Atslēgu nomaiņa sekmīga"
+  },
+  "rotationCompletedDesc": {
+    "message": "Galvenā parole un šifrēšanas atslēgas tika atjauninātas. Citās ierīcēs ir notikusi atteikšanās."
+  },
+  "trustUserEmergencyAccess": {
+    "message": "Uzticēties un apstiprināt lietotāju"
+  },
+  "trustOrganization": {
+    "message": "Uzticēties apvienībai"
+  },
+  "trust": {
+    "message": "Uzticēties"
+  },
+  "doNotTrust": {
+    "message": "Neuzticēties"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Lai nodrošinātu sava konta drošību, jāapstiprina tikai tad, ja šim lietotājam ir nodrošināta ārkārtas piekļuve un tā pirkstu nospiedums atbilsta tam, kas ir attēlots tā kontā"
+  },
+  "orgTrustWarning": {
+    "message": "Lai nodrošinātu sava konta drošību, jāturpina tikai tad, ja esi šīs apvienības dalībnieks, ir iespējota konta atkope un zemāk attēlotais pirkstu nospiedums atbilst apvienības pirkstu nospiedumam."
+  },
+  "trustUser": {
+    "message": "Uzticēties lietotājam"
+  },
   "sshKeyWrongPassword": {
     "message": "Ievadītā parole ir nepareiza."
   },
@@ -10499,6 +10538,30 @@
   "assignedExceedsAvailable": {
     "message": "Piešķirtās vietas pārsniedz pieejamās vietas."
   },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "Atpazīšanas vārdkopa $NUM_USERS$ kontaktpersonām, kurām ir iespējota ārkārtas piekļuve.",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "Atpazīšanas vārdkopa apvienībai $ORG_NAME$, kurā ir iespējota konta atkope.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "Savu šifrēšanas atslēgu nomaiņai būs nepieciešams uzticēties jebkuras apvienības, kura var atkopt kontu, un kontaktpersonas, kurai ir iespējota ārkārtas piekļuve, atslēgām. Lai turpinātu, jāpārliecināš, ka var apliecināt šo:"
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "Neuzticamas šifrēšanas atslēgas"
+  },
   "changeAtRiskPassword": {
     "message": "Mainīt riskam pakļautu paroli"
   },
@@ -10528,5 +10591,14 @@
   },
   "cannotCreateCollection": {
     "message": "Apvienībās, kuras izmanto Bitwarden bez maksas, var būt līdz 2 krājumiem. Jāpāriet uz maksas plānu, lai pievienotu vairāk krājumu."
+  },
+  "businessUnit": {
+    "message": "Business Unit"
+  },
+  "businessUnits": {
+    "message": "Business Units"
+  },
+  "newBusinessUnit": {
+    "message": "New business unit"
   }
 }

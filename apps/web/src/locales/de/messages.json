@@ -3323,6 +3323,12 @@
   "externalIdDesc": {
     "message": "Die externe ID ist eine unverschlüsselte Referenz, die vom Bitwarden Directory Connector und der API verwendet wird."
   },
+  "ssoExternalId": {
+    "message": "SSO External ID"
+  },
+  "ssoExternalIdDesc": {
+    "message": "SSO External ID is an unencrypted reference between Bitwarden and your configured SSO provider."
+  },
   "nestCollectionUnder": {
     "message": "Sammlung verschachteln unter"
   },
@@ -5685,6 +5691,9 @@
   "webAuthnSuccess": {
     "message": "WebAuthn erfolgreich verifiziert! Du kannst diesen Tab nun schließen."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Dein neues Passwort darf nicht dasselbe sein wie dein aktuelles Passwort."
+  },
   "hintEqualsPassword": {
     "message": "Dein Passwort-Hinweis darf nicht identisch mit deinem Passwort sein."
   },
@@ -5879,6 +5888,9 @@
   },
   "fingerprint": {
     "message": "Fingerabdruck"
+  },
+  "fingerprintPhrase": {
+    "message": "Fingerabdruck-Phrase:"
   },
   "removeUsers": {
     "message": "Benutzer entfernen"
@@ -10330,6 +10342,33 @@
   "organizationNameMaxLength": {
     "message": "Der Name der Organisation darf 50 Zeichen nicht überschreiten."
   },
+  "rotationCompletedTitle": {
+    "message": "Schlüsselrotation erfolgreich"
+  },
+  "rotationCompletedDesc": {
+    "message": "Dein Master-Passwort und Verschlüsselungsschlüssel wurden aktualisiert. Deine anderen Geräte wurden abgemeldet."
+  },
+  "trustUserEmergencyAccess": {
+    "message": "Benutzer vertrauen und bestätigen"
+  },
+  "trustOrganization": {
+    "message": "Organisation vertrauen"
+  },
+  "trust": {
+    "message": "Vertrauen"
+  },
+  "doNotTrust": {
+    "message": "Nicht vertrauen"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Bestätige zur Sicherheit deines Kontos nur, wenn du den Notfallzugriff diesem Benutzer gewährt hast und sein Fingerabdruck mit dem übereinstimmt, was in seinem Konto angezeigt wird"
+  },
+  "orgTrustWarning": {
+    "message": "Fahre zur Sicherheit deines Kontos nur fort, wenn du ein Mitglied dieser Organisation bist, die Kontowiederherstellung aktiviert hast und der unten angezeigte Fingerabdruck mit dem Fingerabdruck der Organisation übereinstimmt."
+  },
+  "trustUser": {
+    "message": "Benutzer vertrauen"
+  },
   "sshKeyWrongPassword": {
     "message": "Dein eingegebenes Passwort ist falsch."
   },
@@ -10499,6 +10538,30 @@
   "assignedExceedsAvailable": {
     "message": "Die zugewiesenen Plätze überschreiten die verfügbaren Plätze."
   },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "Fingerabdruck-Phrase für $NUM_USERS$ Kontakte, für die du den Notfallzugriff aktiviert hast.",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "Fingerabdruck-Phrase für die Organisation $ORG_NAME$, für die du die Kontowiederherstellung aktiviert hast.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "Die Rotation deiner Verschlüsselungsschlüssel erfordert, den Schlüsseln aller Organisationen, die dein Konto wiederherstellen können, sowie aller Kontakte, für die du den Notfallzugriff aktiviert hast, zu vertrauen. Um fortzufahren, stelle sicher, dass du Folgendes bestätigen kannst:"
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "Nicht vertrauenswürdige Verschlüsselungsschlüssel"
+  },
   "changeAtRiskPassword": {
     "message": "Gefährdetes Passwort ändern"
   },
@@ -10528,5 +10591,14 @@
   },
   "cannotCreateCollection": {
     "message": "Kostenlose Organisationen können bis zu 2 Sammlungen haben. Upgrade auf ein kostenpflichtiges Abo, um mehr Sammlungen hinzuzufügen."
+  },
+  "businessUnit": {
+    "message": "Business Unit"
+  },
+  "businessUnits": {
+    "message": "Business Units"
+  },
+  "newBusinessUnit": {
+    "message": "New business unit"
   }
 }
