@@ -7,8 +7,50 @@ import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 
 export abstract class EncryptService {
+  /**
+   * Encrypts a string or Uint8Array to an EncString
+   * @param plainValue - The value to encrypt
+   * @param key - The key to encrypt the value with
+   */
   abstract encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString>;
+  /**
+   * Encrypts a value to a Uint8Array
+   * @param plainValue - The value to encrypt
+   * @param key - The key to encrypt the value with
+   */
   abstract encryptToBytes(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncArrayBuffer>;
+
+  /**
+   * Wraps a decapsulation key (Private key) with a symmetric key
+   * @param decapsulationKeyPcks8 - The private key in PKCS8 format
+   * @param wrappingKey - The symmetric key to wrap the private key with
+   */
+  abstract wrapDecapsulationKey(
+    decapsulationKeyPcks8: Uint8Array,
+    wrappingKey: SymmetricCryptoKey,
+  ): Promise<EncString>;
+  /**
+   * Wraps an encapsulation key (Public key) with a symmetric key
+   * @param encapsulationKeySpki - The public key in SPKI format
+   * @param wrappingKey - The symmetric key to wrap the public key with
+   */
+  abstract wrapEncapsulationKey(
+    encapsulationKeySpki: Uint8Array,
+    wrappingKey: SymmetricCryptoKey,
+  ): Promise<EncString>;
+  /**
+   * Wraps a symmetric key with another symmetric key
+   * @param keyToBeWrapped - The symmetric key to wrap
+   * @param wrappingkey - The symmetric key to wrap the encapsulated key with
+   */
+  abstract wrapSymmetricKey(
+    keyToBeWrapped: SymmetricCryptoKey,
+    wrappingkey: SymmetricCryptoKey,
+  ): Promise<EncString>;
+
+  abstract rsaEncrypt(data: Uint8Array, publicKey: Uint8Array): Promise<EncString>;
+  abstract rsaDecrypt(data: EncString, privateKey: Uint8Array): Promise<Uint8Array>;
+
   /**
    * Decrypts an EncString to a string
    * @param encString - The EncString to decrypt
@@ -35,8 +77,6 @@ export abstract class EncryptService {
     key: SymmetricCryptoKey,
     decryptTrace?: string,
   ): Promise<Uint8Array | null>;
-  abstract rsaEncrypt(data: Uint8Array, publicKey: Uint8Array): Promise<EncString>;
-  abstract rsaDecrypt(data: EncString, privateKey: Uint8Array): Promise<Uint8Array>;
   /**
    * @deprecated Replaced by BulkEncryptService, remove once the feature is tested and the featureflag PM-4154-multi-worker-encryption-service is removed
    * @param items The items to decrypt

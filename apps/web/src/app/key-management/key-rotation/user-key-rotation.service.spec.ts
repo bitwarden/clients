@@ -183,7 +183,10 @@ describe("KeyRotationService", () => {
       mockKeyService.hashMasterKey.mockResolvedValue("mockMasterPasswordHash");
       mockConfigService.getFeatureFlag.mockResolvedValue(true);
 
-      mockEncryptService.encrypt.mockResolvedValue({
+      mockEncryptService.wrapSymmetricKey.mockResolvedValue({
+        encryptedString: "mockEncryptedData",
+      } as any);
+      mockEncryptService.wrapDecapsulationKey.mockResolvedValue({
         encryptedString: "mockEncryptedData",
       } as any);
 

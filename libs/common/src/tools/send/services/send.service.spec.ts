@@ -479,7 +479,7 @@ describe("SendService", () => {
     beforeEach(() => {
       encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(32));
       encryptedKey = new EncString("Re-encrypted Send Key");
-      encryptService.encrypt.mockResolvedValue(encryptedKey);
+      encryptService.wrapSymmetricKey.mockResolvedValue(encryptedKey);
     });
 
     it("returns re-encrypted user sends", async () => {

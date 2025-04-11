@@ -43,22 +43,79 @@ export class EncryptServiceImplementation implements EncryptService {
       return Promise.resolve(null);
     }
 
-    let plainBuf: Uint8Array;
     if (typeof plainValue === "string") {
-      plainBuf = Utils.fromUtf8ToArray(plainValue);
+      return this.encryptUint8Array(Utils.fromUtf8ToArray(plainValue), key);
     } else {
-      plainBuf = plainValue;
+      return this.encryptUint8Array(plainValue, key);
+    }
+  }
+
+  async wrapDecapsulationKey(
+    privateKeyPkcs8: Uint8Array,
+    wrappingKey: SymmetricCryptoKey,
+  ): Promise<EncString> {
+    if (privateKeyPkcs8 == null) {
+      throw new Error("No private key provided for encapsulation.");
+    }
+
+    if (wrappingKey == null) {
+      throw new Error("No encryption key provided for encapsulation.");
+    }
+
+    return await this.encryptUint8Array(privateKeyPkcs8, wrappingKey);
+  }
+
+  async wrapEncapsulationKey(
+    encapsulationKeySpki: Uint8Array,
+    wrappingKey: SymmetricCryptoKey,
+  ): Promise<EncString> {
+    if (encapsulationKeySpki == null) {
+      throw new Error("No encapsulation key provided for encapsulation.");
+    }
+
+    if (wrappingKey == null) {
+      throw new Error("No encryption key provided for encapsulation.");
+    }
+
+    return await this.encryptUint8Array(encapsulationKeySpki, wrappingKey);
+  }
+
+  async wrapSymmetricKey(
+    encapsulatedKey: SymmetricCryptoKey,
+    key: SymmetricCryptoKey,
+  ): Promise<EncString> {
+    if (encapsulatedKey == null) {
+      throw new Error("No encapsulated key provided for encapsulation.");
+    }
+
+    if (key == null) {
+      throw new Error("No encryption key provided for encapsulation.");
+    }
+
+    return await this.encryptUint8Array(encapsulatedKey.key, key);
+  }
+
+  private async encryptUint8Array(
+    plainValue: Uint8Array,
+    key: SymmetricCryptoKey,
+  ): Promise<EncString> {
+    if (key == null) {
+      throw new Error("No encryption key provided.");
+    }
+
+    if (plainValue == null) {
+      return Promise.resolve(null);
     }
 
     const innerKey = key.inner();
     if (innerKey.type === EncryptionType.AesCbc256_HmacSha256_B64) {
-      const encObj = await this.aesEncrypt(plainBuf, innerKey);
+      const encObj = await this.aesEncrypt(plainValue, innerKey);
       const iv = Utils.fromBufferToB64(encObj.iv);
       const data = Utils.fromBufferToB64(encObj.data);
       const mac = Utils.fromBufferToB64(encObj.mac);
       return new EncString(innerKey.type, data, iv, mac);
     } else if (innerKey.type === EncryptionType.AesCbc256_B64) {
-      const encObj = await this.aesEncryptLegacy(plainBuf, innerKey);
+      const encObj = await this.aesEncryptLegacy(plainValue, innerKey);
       const iv = Utils.fromBufferToB64(encObj.iv);
       const data = Utils.fromBufferToB64(encObj.data);
       return new EncString(innerKey.type, data, iv);
