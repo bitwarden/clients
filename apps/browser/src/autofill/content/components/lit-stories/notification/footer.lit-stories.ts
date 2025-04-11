@@ -7,7 +7,7 @@ import { NotificationFooter, NotificationFooterProps } from "../../notification/
 import { mockFolderData, mockOrganizationData } from "../mock-data";
 
 export default {
-  title: "Components/Notifications/Notification Footer",
+  title: "Components/Notifications/Footer",
   argTypes: {
     notificationType: {
       control: "select",
