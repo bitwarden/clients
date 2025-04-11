@@ -103,30 +103,12 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     }
     const pubKey = Utils.fromB64ToArray(authRequest.publicKey);
 
-    const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
-    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-    const masterKeyHash = await firstValueFrom(this.masterPasswordService.masterKeyHash$(userId));
-    let encryptedMasterKeyHash;
-    let keyToEncrypt;
-
-    if (masterKey && masterKeyHash) {
-      // Only encrypt the master password hash if masterKey exists as
-      // we won't have a masterKeyHash without a masterKey
-      encryptedMasterKeyHash = await this.encryptService.rsaEncrypt(
-        Utils.fromUtf8ToArray(masterKeyHash),
-        pubKey,
-      );
-      keyToEncrypt = masterKey.encKey;
-    } else {
-      const userKey = await this.keyService.getUserKey();
-      keyToEncrypt = userKey.key;
-    }
-
+    const keyToEncrypt = (await this.keyService.getUserKey()).key;
     const encryptedKey = await this.encryptService.rsaEncrypt(keyToEncrypt, pubKey);
 
     const response = new PasswordlessAuthRequest(
       encryptedKey.encryptedString,
-      encryptedMasterKeyHash?.encryptedString,
+      undefined,
       await this.appIdService.getAppId(),
       approve,
     );
