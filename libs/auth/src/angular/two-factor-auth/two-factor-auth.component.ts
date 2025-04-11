@@ -46,6 +46,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { TwoFactorAuthComponentCacheService } from "../../common/services/auth-request/two-factor-auth-cache.service";
 import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
 import {
   TwoFactorAuthAuthenticatorIcon,
@@ -70,6 +71,15 @@ import {
   TwoFactorOptionsDialogResult,
 } from "./two-factor-options.component";
 
+/**
+ * Interface for the cache data structure
+ */
+interface TwoFactorCacheData {
+  token?: string;
+  remember?: boolean;
+  selectedProviderType?: TwoFactorProviderType;
+}
+
 @Component({
   standalone: true,
   selector: "app-two-factor-auth",
@@ -90,7 +100,11 @@ import {
     TwoFactorAuthYubikeyComponent,
     TwoFactorAuthWebAuthnComponent,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: TwoFactorAuthComponentCacheService,
+    },
+  ],
 })
 export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   @ViewChild("continueButton", { read: ElementRef, static: false }) continueButton:
@@ -160,6 +174,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private environmentService: EnvironmentService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
+    private twoFactorCacheService: TwoFactorAuthComponentCacheService,
   ) {}
 
   async ngOnInit() {
@@ -168,7 +183,30 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
 
     this.listenForAuthnSessionTimeout();
 
-    await this.setSelected2faProviderType();
+    // Initialize the cache
+    await this.twoFactorCacheService.init();
+
+    // Load persisted form data if available
+    let loadedCachedProviderType = false;
+    const persistedData = this.twoFactorCacheService.getCachedData();
+    if (persistedData) {
+      if (persistedData.token) {
+        this.form.patchValue({ token: persistedData.token });
+      }
+      if (persistedData.remember !== undefined) {
+        this.form.patchValue({ remember: persistedData.remember });
+      }
+      if (persistedData.selectedProviderType !== undefined) {
+        this.selectedProviderType = persistedData.selectedProviderType;
+        loadedCachedProviderType = true;
+      }
+    }
+
+    // Only set default 2FA provider type if we don't have one from cache
+    if (!loadedCachedProviderType) {
+      await this.setSelected2faProviderType();
+    }
+
     await this.set2faProvidersAndData();
     await this.setAnonLayoutDataByTwoFactorProviderType();
 
@@ -179,6 +217,36 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     this.duoLaunchAction = this.twoFactorAuthComponentService.determineDuoLaunchAction();
 
     this.loading = false;
+  }
+
+  /**
+   * Save specific form data fields to the cache
+   */
+  async saveFormDataWithPartialData(data: Partial<TwoFactorCacheData>) {
+    // Get current cached data
+    const currentData = this.twoFactorCacheService.getCachedData();
+
+    this.twoFactorCacheService.cacheData({
+      token: data?.token ?? currentData?.token ?? "",
+      remember: data?.remember ?? currentData?.remember ?? false,
+      selectedProviderType:
+        data?.selectedProviderType ??
+        currentData?.selectedProviderType ??
+        TwoFactorProviderType.Authenticator,
+    });
+  }
+
+  /**
+   * Save all current form data to the cache
+   */
+  async saveFormData() {
+    const formData: TwoFactorCacheData = {
+      token: this.tokenFormControl.value || undefined,
+      remember: this.rememberFormControl.value ?? undefined,
+      selectedProviderType: this.selectedProviderType,
+    };
+
+    await this.saveFormDataWithPartialData(formData);
   }
 
   private async setSelected2faProviderType() {
@@ -267,6 +335,13 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     // In all flows but WebAuthn, the remember value is taken from the form.
     const rememberValue = remember ?? this.rememberFormControl.value ?? false;
 
+    // Persist form data before submitting
+    this.twoFactorCacheService.cacheData({
+      token: tokenValue,
+      remember: rememberValue,
+      selectedProviderType: this.selectedProviderType,
+    });
+
     try {
       this.formPromise = this.loginStrategyService.logInTwoFactor(
         new TokenTwoFactorRequest(this.selectedProviderType, tokenValue, rememberValue),
@@ -274,6 +349,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       );
       const authResult: AuthResult = await this.formPromise;
       this.logService.info("Successfully submitted two factor token");
+
       await this.handleAuthResult(authResult);
     } catch {
       this.logService.error("Error submitting two factor token");
@@ -286,6 +362,13 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   };
 
   async selectOtherTwoFactorMethod() {
+    // Persist current form data before navigating to another method
+    this.twoFactorCacheService.cacheData({
+      token: "",
+      remember: false,
+      selectedProviderType: this.selectedProviderType,
+    });
+
     const dialogRef = TwoFactorOptionsComponent.open(this.dialogService);
     const response: TwoFactorOptionsDialogResult | string | undefined = await lastValueFrom(
       dialogRef.closed,
@@ -298,6 +381,13 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       this.selectedProviderData = providerData;
       this.selectedProviderType = response.type;
       await this.setAnonLayoutDataByTwoFactorProviderType();
+
+      // Update the persisted provider type when a new one is chosen
+      this.twoFactorCacheService.cacheData({
+        token: "",
+        remember: false,
+        selectedProviderType: response.type,
+      });
 
       this.form.reset();
       this.form.updateValueAndValidity();
@@ -376,6 +466,9 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   }
 
   private async handleAuthResult(authResult: AuthResult) {
+    // Clear form cache
+    this.twoFactorCacheService.clearCachedData();
+
     if (await this.handleMigrateEncryptionKey(authResult)) {
       return; // stop login process
     }
