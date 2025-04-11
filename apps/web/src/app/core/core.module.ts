@@ -37,6 +37,7 @@ import {
   TwoFactorAuthDuoComponentService,
 } from "@bitwarden/auth/angular";
 import {
+  ChangePasswordService,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
 } from "@bitwarden/auth/common";
@@ -50,7 +51,10 @@ import {
 import { AccountApiService as AccountApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import {
+  MasterPasswordApiService,
+  MasterPasswordApiService as MasterPasswordApiServiceAbstraction,
+} from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
@@ -111,6 +115,7 @@ import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarde
 import { flagEnabled } from "../../utils/flags";
 import { PolicyListService } from "../admin-console/core/policy-list.service";
 import {
+  WebChangePasswordService,
   WebSetPasswordJitService,
   WebRegistrationFinishService,
   WebLoginComponentService,
@@ -379,6 +384,16 @@ const safeProviders: SafeProvider[] = [
     provide: SshImportPromptService,
     useClass: DefaultSshImportPromptService,
     deps: [DialogService, ToastService, PlatformUtilsService, I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: ChangePasswordService,
+    useClass: WebChangePasswordService,
+    deps: [
+      AccountService,
+      KeyServiceAbstraction,
+      MasterPasswordApiServiceAbstraction,
+      InternalMasterPasswordServiceAbstraction,
+    ],
   }),
 ];
 
