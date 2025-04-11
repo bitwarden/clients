@@ -34,7 +34,6 @@ import {
   Unassigned,
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
-import { VaultItemDialogResult } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
@@ -78,6 +77,7 @@ import {
   DefaultCipherFormConfigService,
   PasswordRepromptService,
 } from "@bitwarden/vault";
+import { VaultItemDialogResult } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 
 import { getNestedCollectionTree } from "../../admin-console/organizations/collections";
 import {
