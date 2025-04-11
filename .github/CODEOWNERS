@@ -83,8 +83,6 @@ libs/common/src/platform @bitwarden/team-platform-dev
 libs/common/spec @bitwarden/team-platform-dev
 libs/common/src/state-migrations @bitwarden/team-platform-dev
 libs/platform @bitwarden/team-platform-dev
-# Node-specifc platform files
-libs/node @bitwarden/team-key-management-dev
 # Web utils used across app and connectors
 apps/web/src/utils/ @bitwarden/team-platform-dev
 # Web core and shared files
@@ -146,6 +144,8 @@ apps/cli/src/key-management @bitwarden/team-key-management-dev
 libs/key-management @bitwarden/team-key-management-dev
 libs/key-management-ui @bitwarden/team-key-management-dev
 libs/common/src/key-management @bitwarden/team-key-management-dev
+# Node-cryptofunction service
+libs/node @bitwarden/team-key-management-dev
 
 apps/desktop/desktop_native/core/src/biometric/ @bitwarden/team-key-management-dev
 apps/desktop/src/services/native-messaging.service.ts @bitwarden/team-key-management-dev
