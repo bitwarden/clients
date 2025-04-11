@@ -225,7 +225,7 @@ export class VaultComponent implements OnInit, OnDestroy {
               this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
                 org,
                 subscription,
-                paymentSource,
+                !!paymentSource,
               ),
             ),
           ),

@@ -174,7 +174,11 @@ export class OverviewComponent implements OnInit, OnDestroy {
         ]),
       ),
       map(([org, sub, paymentSource]) => {
-        return this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(org, sub, paymentSource);
+        return this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
+          org,
+          sub,
+          !!paymentSource,
+        );
       }),
       filter((result) => result !== null),
       takeUntil(this.destroy$),

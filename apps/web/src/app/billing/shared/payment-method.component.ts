@@ -209,7 +209,7 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
     this.freeTrialData = this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
       this.organization,
       this.org,
-      this.billing?.paymentSource,
+      !!this.billing?.paymentSource,
     );
   }
 
