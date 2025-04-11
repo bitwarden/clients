@@ -19,7 +19,7 @@ export abstract class NavBaseComponent {
   @Input() ariaLabel: string;
 
   /**
-   * Optional icon, e.g. `"bwi-collection"`
+   * Optional icon, e.g. `"bwi-collection-shared"`
    */
   @Input() icon: string;
 

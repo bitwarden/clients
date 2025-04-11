@@ -105,14 +105,14 @@ export class VaultFilterComponent
           id: "AllCollections",
           name: "collections",
           type: "all",
-          icon: "bwi-collection",
+          icon: "bwi-collection-shared",
         },
         [
           {
             id: "AllCollections",
             name: "Collections",
             type: "all",
-            icon: "bwi-collection",
+            icon: "bwi-collection-shared",
           },
         ],
       ),

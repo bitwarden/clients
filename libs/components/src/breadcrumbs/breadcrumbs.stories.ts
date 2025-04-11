@@ -85,7 +85,7 @@ export const SecondLevel: Story = {
   args: {
     items: [
       { name: "Acme Vault", route: "/" },
-      { icon: "bwi-collection", name: "Collection", route: "collection" },
+      { icon: "bwi-collection-shared", name: "Collection", route: "collection" },
     ] as Breadcrumb[],
   },
 };
@@ -95,12 +95,12 @@ export const Overflow: Story = {
   args: {
     items: [
       { name: "Acme Vault", route: "" },
-      { icon: "bwi-collection", name: "Collection", route: "collection" },
-      { icon: "bwi-collection", name: "Middle-Collection 1", route: "middle-collection-1" },
-      { icon: "bwi-collection", name: "Middle-Collection 2", route: "middle-collection-2" },
-      { icon: "bwi-collection", name: "Middle-Collection 3", route: "middle-collection-3" },
-      { icon: "bwi-collection", name: "Middle-Collection 4", route: "middle-collection-4" },
-      { icon: "bwi-collection", name: "End Collection", route: "end-collection" },
+      { icon: "bwi-collection-shared", name: "Collection", route: "collection" },
+      { icon: "bwi-collection-shared", name: "Middle-Collection 1", route: "middle-collection-1" },
+      { icon: "bwi-collection-shared", name: "Middle-Collection 2", route: "middle-collection-2" },
+      { icon: "bwi-collection-shared", name: "Middle-Collection 3", route: "middle-collection-3" },
+      { icon: "bwi-collection-shared", name: "Middle-Collection 4", route: "middle-collection-4" },
+      { icon: "bwi-collection-shared", name: "End Collection", route: "end-collection" },
     ] as Breadcrumb[],
   },
 };
