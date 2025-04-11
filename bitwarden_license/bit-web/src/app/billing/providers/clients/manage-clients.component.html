@@ -1,39 +1,25 @@
 <app-header [title]="pageTitle">
   <bit-search [placeholder]="'search' | i18n" [formControl]="searchControl"></bit-search>
-  <ng-container *ngIf="addExistingOrgsFromProviderPortal$ | async; else addExistingOrgsDisabled">
-    <button
-      bitButton
-      buttonType="primary"
-      type="button"
-      [bitMenuTriggerFor]="clientMenu"
-      appA11yTitle="{{ 'add' | i18n }}"
-    >
-      <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
-      {{ "add" | i18n }}
+  <button
+    bitButton
+    buttonType="primary"
+    type="button"
+    [bitMenuTriggerFor]="clientMenu"
+    appA11yTitle="{{ 'add' | i18n }}"
+  >
+    <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+    {{ "add" | i18n }}
+  </button>
+  <bit-menu #clientMenu>
+    <button type="button" bitMenuItem (click)="createClient()">
+      <i aria-hidden="true" class="bwi bwi-business"></i>
+      {{ newClientButtonLabel }}
     </button>
-    <bit-menu #clientMenu>
-      <button type="button" bitMenuItem (click)="createClient()">
-        <i aria-hidden="true" class="bwi bwi-business"></i>
-        {{ newClientButtonLabel }}
-      </button>
-      <button type="button" bitMenuItem (click)="addExistingOrganization()">
-        <i aria-hidden="true" class="bwi bwi-filter"></i>
-        {{ "existingOrganization" | i18n }}
-      </button>
-    </bit-menu>
-  </ng-container>
-  <ng-template #addExistingOrgsDisabled>
-    <a
-      type="button"
-      bitButton
-      *ngIf="isProviderAdmin"
-      buttonType="primary"
-      (click)="createClient()"
-    >
-      <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
-      {{ "addNewOrganization" | i18n }}
-    </a>
-  </ng-template>
+    <button type="button" bitMenuItem (click)="addExistingOrganization()">
+      <i aria-hidden="true" class="bwi bwi-filter"></i>
+      {{ "existingOrganization" | i18n }}
+    </button>
+  </bit-menu>
 </app-header>
 
 <ng-container *ngIf="loading">
