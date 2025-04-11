@@ -50,4 +50,8 @@ export type NotificationCipherData = BaseCipherData<typeof CipherTypes.Login> & 
   login?: {
     username: string;
   };
+  cipherIndicatorIcon?: {
+    showBusinessIcon?: boolean;
+    showFamilyIcon?: boolean;
+  };
 };
