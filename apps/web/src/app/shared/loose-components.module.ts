@@ -57,13 +57,9 @@ import { WeakPasswordsReportComponent as OrgWeakPasswordsReportComponent } from 
 /* eslint no-restricted-imports: "error" */
 import { PremiumBadgeComponent } from "../vault/components/premium-badge.component";
 import { AddEditCustomFieldsComponent } from "../vault/individual-vault/add-edit-custom-fields.component";
-import { AddEditComponent } from "../vault/individual-vault/add-edit.component";
-import { AttachmentsComponent } from "../vault/individual-vault/attachments.component";
 import { FolderAddEditComponent } from "../vault/individual-vault/folder-add-edit.component";
 import { OrganizationBadgeModule } from "../vault/individual-vault/organization-badge/organization-badge.module";
 import { PipesModule } from "../vault/individual-vault/pipes/pipes.module";
-import { AddEditComponent as OrgAddEditComponent } from "../vault/org-vault/add-edit.component";
-import { AttachmentsComponent as OrgAttachmentsComponent } from "../vault/org-vault/attachments.component";
 import { PurgeVaultComponent } from "../vault/settings/purge-vault.component";
 
 import { EnvironmentSelectorModule } from "./../components/environment-selector/environment-selector.module";
@@ -97,11 +93,9 @@ import { SharedModule } from "./shared.module";
   declarations: [
     AcceptFamilySponsorshipComponent,
     AccountComponent,
-    AddEditComponent,
     AddEditCustomFieldsComponent,
     AddEditCustomFieldsComponent,
     ApiKeyComponent,
-    AttachmentsComponent,
     ChangeEmailComponent,
     DeauthorizeSessionsComponent,
     DeleteAccountDialogComponent,
@@ -113,8 +107,6 @@ import { SharedModule } from "./shared.module";
     EmergencyAccessViewComponent,
     FolderAddEditComponent,
     FrontendLayoutComponent,
-    OrgAddEditComponent,
-    OrgAttachmentsComponent,
     OrgEventsComponent,
     OrgExposedPasswordsReportComponent,
     OrgInactiveTwoFactorReportComponent,
@@ -146,11 +138,9 @@ import { SharedModule } from "./shared.module";
     UserVerificationModule,
     PremiumBadgeComponent,
     AccountComponent,
-    AddEditComponent,
     AddEditCustomFieldsComponent,
     AddEditCustomFieldsComponent,
     ApiKeyComponent,
-    AttachmentsComponent,
     ChangeEmailComponent,
     DeauthorizeSessionsComponent,
     DeleteAccountDialogComponent,
@@ -163,9 +153,7 @@ import { SharedModule } from "./shared.module";
     EmergencyAccessViewComponent,
     FolderAddEditComponent,
     FrontendLayoutComponent,
-    OrgAddEditComponent,
     OrganizationLayoutComponent,
-    OrgAttachmentsComponent,
     OrgEventsComponent,
     OrgExposedPasswordsReportComponent,
     OrgInactiveTwoFactorReportComponent,

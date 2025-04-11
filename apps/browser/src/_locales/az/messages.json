@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "Gizlilik Siyasəti"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Yeni parolunuz hazırkı parolunuzla eyni ola bilməz."
+  },
   "hintEqualsPassword": {
     "message": "Parol ipucusu, parolunuzla eyni ola bilməz."
   },
@@ -5142,30 +5145,30 @@
     "message": "Riskli parolları dəyişdir"
   },
   "introCarouselLabel": {
-    "message": "Welcome to Bitwarden"
+    "message": "Bitwarden-ə xoş gəlmisiniz"
   },
   "securityPrioritized": {
-    "message": "Security, prioritized"
+    "message": "Təhlükəsizlik, prioritetdir"
   },
   "securityPrioritizedBody": {
-    "message": "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you."
+    "message": "Girişləri, kart və kimlik məlumatlarınızı güvənli seyfinizdə saxlayın. Bitwarden, sizin üçün mühüm olanları qorumaq üçün zero-knowledge və ucdan-uca şifrələmə istifadə edir."
   },
   "quickLogin": {
-    "message": "Quick and easy login"
+    "message": "Cəld və asan giriş"
   },
   "quickLoginBody": {
-    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+    "message": "Tək bir hərf yazmadan hesablarınıza giriş etmək üçün biometrik kilid açma və avto-doldurma seçimlərini qurun."
   },
   "secureUser": {
-    "message": "Level up your logins"
+    "message": "Giriş məlumatlarınızı yüksəldin"
   },
   "secureUserBody": {
-    "message": "Use the generator to create and save strong, unique passwords for all your accounts."
+    "message": "Bütün hesablarınız üçün güclü, unikal parollar yaratmaq və saxlamaq üçün yaradıcını istifadə edin."
   },
   "secureDevices": {
-    "message": "Your data, when and where you need it"
+    "message": "Datanız, ehtiyacınız olan vaxt yanınızdadır"
   },
   "secureDevicesBody": {
-    "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
+    "message": "Bitwarden mobil, brauzer və masaüstü tətbiqləri ilə limitsiz cihaz arasında limitsiz parol saxlayın."
   }
 }
