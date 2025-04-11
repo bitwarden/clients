@@ -3574,6 +3574,18 @@
   "saveNewPasskey": {
     "message": "Save as new login"
   },
+  "overwritePasskey": {
+    "message": "Overwrite passkey?"
+  },
+  "unableToSavePasskey": {
+    "message": "Unable to save passkey"
+  },
+  "alreadyContainsPasskey": {
+    "message": "This item already contains a passkey. Are you sure you want to overwrite the current passkey?"
+  },
+  "passkeyAlreadyExists": {
+    "message": "A passkey already exists for this application."
+  },
   "unableToSavePasskey": {
     "message": "Unable to save passkey"
   },

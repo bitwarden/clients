@@ -95,6 +95,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
   private confirmCredentialSubject = new Subject<boolean>();
 
+  private createdCipher: Cipher;
   private updatedCipher: CipherView;
 
   private rpId = new BehaviorSubject<string>("");
