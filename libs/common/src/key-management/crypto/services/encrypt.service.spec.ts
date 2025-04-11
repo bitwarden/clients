@@ -6,7 +6,10 @@ import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import {
+  Aes256CbcHmacKey,
+  SymmetricCryptoKey,
+} from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 
 import { makeStaticByteArray } from "../../../../spec";
@@ -162,7 +165,7 @@ describe("EncryptService", () => {
       expect(cryptoFunctionService.aesDecrypt).toBeCalledWith(
         expect.toEqualBuffer(encBuffer.dataBytes),
         expect.toEqualBuffer(encBuffer.ivBytes),
-        expect.toEqualBuffer(key.encKey),
+        expect.toEqualBuffer(key.inner().encryptionKey),
         "cbc",
       );
 
@@ -183,7 +186,7 @@ describe("EncryptService", () => {
       expect(cryptoFunctionService.aesDecrypt).toBeCalledWith(
         expect.toEqualBuffer(encBuffer.dataBytes),
         expect.toEqualBuffer(encBuffer.ivBytes),
-        expect.toEqualBuffer(key.encKey),
+        expect.toEqualBuffer(key.inner().encryptionKey),
         "cbc",
       );
 
@@ -201,7 +204,7 @@ describe("EncryptService", () => {
 
       expect(cryptoFunctionService.hmac).toBeCalledWith(
         expect.toEqualBuffer(expectedMacData),
-        key.macKey,
+        (key.inner() as Aes256CbcHmacKey).authenticationKey,
         "sha256",
       );
 
@@ -259,7 +262,7 @@ describe("EncryptService", () => {
 
     it("decrypts data with provided key for AesCbc256_HmacSha256", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64, 0));
-      const encString = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "data", "iv", "mac");
+      const encString = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "data");
       cryptoFunctionService.aesDecryptFastParameters.mockReturnValue({
         macData: makeStaticByteArray(32, 0),
         macKey: makeStaticByteArray(32, 0),
@@ -305,7 +308,7 @@ describe("EncryptService", () => {
 
     it("returns null if key is AesCbc256 but encstring is AesCbc256_HMAC", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(32, 0));
-      const encString = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "data", "iv", "mac");
+      const encString = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "data");
 
       const actual = await encryptService.decryptToUtf8(encString, key);
       expect(actual).toBeNull();
@@ -314,7 +317,7 @@ describe("EncryptService", () => {
 
     it("returns null if macs don't match", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64, 0));
-      const encString = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "data", "iv", "mac");
+      const encString = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "data");
       cryptoFunctionService.aesDecryptFastParameters.mockReturnValue({
         macData: makeStaticByteArray(32, 0),
         macKey: makeStaticByteArray(32, 0),

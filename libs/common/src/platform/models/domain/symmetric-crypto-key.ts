@@ -25,15 +25,7 @@ export class SymmetricCryptoKey {
   private innerKey: Aes256CbcHmacKey | Aes256CbcKey;
 
   key: Uint8Array;
-  encKey: Uint8Array;
-  macKey?: Uint8Array;
-  encType: EncryptionType;
-
   keyB64: string;
-  encKeyB64: string;
-  macKeyB64: string;
-
-  meta: any;
 
   /**
    * @param key The key in one of the permitted serialization formats
@@ -48,30 +40,16 @@ export class SymmetricCryptoKey {
         type: EncryptionType.AesCbc256_B64,
         encryptionKey: key,
       };
-      this.encType = EncryptionType.AesCbc256_B64;
       this.key = key;
-      this.keyB64 = Utils.fromBufferToB64(this.key);
-
-      this.encKey = key;
-      this.encKeyB64 = Utils.fromBufferToB64(this.encKey);
-
-      this.macKey = null;
-      this.macKeyB64 = undefined;
+      this.keyB64 = this.toBase64();
     } else if (key.byteLength === 64) {
       this.innerKey = {
         type: EncryptionType.AesCbc256_HmacSha256_B64,
         encryptionKey: key.slice(0, 32),
         authenticationKey: key.slice(32),
       };
-      this.encType = EncryptionType.AesCbc256_HmacSha256_B64;
       this.key = key;
-      this.keyB64 = Utils.fromBufferToB64(this.key);
-
-      this.encKey = key.slice(0, 32);
-      this.encKeyB64 = Utils.fromBufferToB64(this.encKey);
-
-      this.macKey = key.slice(32);
-      this.macKeyB64 = Utils.fromBufferToB64(this.macKey);
+      this.keyB64 = this.toBase64();
     } else {
       throw new Error(`Unsupported encType/key length ${key.byteLength}`);
     }
