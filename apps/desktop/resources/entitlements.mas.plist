@@ -18,10 +18,8 @@
 	<true/>
 	<key>com.apple.security.device.usb</key>
 	<true/>
-	<!--
 	<key>com.apple.developer.authentication-services.autofill-credential-provider</key>
 	<true/>
-	-->
 	<key>com.apple.security.temporary-exception.files.home-relative-path.read-write</key>
 	<array>
 		<string>/Library/Application Support/Mozilla/NativeMessagingHosts/</string>

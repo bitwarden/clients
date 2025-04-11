@@ -53,9 +53,10 @@ import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
 import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
+import { Fido2CreateComponent } from "../modal/passkeys/create/fido2-create.component";
+import { Fido2VaultComponent } from "../modal/passkeys/fido2-vault.component";
 import { VaultComponent } from "../vault/app/vault/vault.component";
 
-import { Fido2PlaceholderComponent } from "./components/fido2placeholder.component";
 import { SendComponent } from "./tools/send/send.component";
 
 /**
@@ -155,12 +156,12 @@ const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: "passkeys",
-    component: Fido2PlaceholderComponent,
+    path: "fido2-assertion",
+    component: Fido2VaultComponent,
   },
   {
-    path: "passkeys",
-    component: Fido2PlaceholderComponent,
+    path: "fido2-creation",
+    component: Fido2CreateComponent,
   },
   {
     path: "",
