@@ -3323,6 +3323,12 @@
   "externalIdDesc": {
     "message": "O ID externo pode ser usado como referência ou vincular esse recurso a um sistema externo, como um diretório de usuários."
   },
+  "ssoExternalId": {
+    "message": "SSO External ID"
+  },
+  "ssoExternalIdDesc": {
+    "message": "SSO External ID is an unencrypted reference between Bitwarden and your configured SSO provider."
+  },
   "nestCollectionUnder": {
     "message": "Aninhar coleção em"
   },
@@ -5685,6 +5691,9 @@
   "webAuthnSuccess": {
     "message": "<strong>WebAuthn verificado com sucesso!</strong><br>Você pode fechar esta guia."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Sua nova senha não pode ser a mesma que a sua atual."
+  },
   "hintEqualsPassword": {
     "message": "Sua dica de senha senha não pode ser a mesma que a sua senha."
   },
@@ -5879,6 +5888,9 @@
   },
   "fingerprint": {
     "message": "Impressão digital"
+  },
+  "fingerprintPhrase": {
+    "message": "Frase biométrica:"
   },
   "removeUsers": {
     "message": "Remover Usuários"
@@ -10330,6 +10342,33 @@
   "organizationNameMaxLength": {
     "message": "O nome da organização não pode exceder 50 caracteres."
   },
+  "rotationCompletedTitle": {
+    "message": "Rotação de chave bem-sucedida"
+  },
+  "rotationCompletedDesc": {
+    "message": "Sua senha mestra e chave de criptografia foram atualizadas. Seus outros dispositivos foram desconectados."
+  },
+  "trustUserEmergencyAccess": {
+    "message": "Confiar e confirmar usuário"
+  },
+  "trustOrganization": {
+    "message": "Organização de confiança"
+  },
+  "trust": {
+    "message": "Confiança"
+  },
+  "doNotTrust": {
+    "message": "Não confiar"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Para a segurança de sua conta, só confirme se você concedeu acesso de emergência a este usuário e sua impressão digital corresponde ao que é exibido na conta dele"
+  },
+  "orgTrustWarning": {
+    "message": "Para a segurança da sua conta, prossiga somente se você for um membro desta organização, tem a recuperação de conta ativada, e a impressão digital exibida abaixo corresponde à impressão digital da organização."
+  },
+  "trustUser": {
+    "message": "Confiar no usuário"
+  },
   "sshKeyWrongPassword": {
     "message": "A senha está incorreta."
   },
@@ -10499,6 +10538,30 @@
   "assignedExceedsAvailable": {
     "message": "Os assentos atribuídos excedem os disponíveis."
   },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "Frase de impressão digital para contatos $NUM_USERS$ para os quais você ativou o acesso de emergência.",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "Frase de impressão digital para a organização $ORG_NAME$ para a qual você ativou a recuperação de conta.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "Girar suas chaves de criptografia exigirá que você confie nas chaves de qualquer organização que possa recuperar sua conta, e quaisquer contatos que você ativou o acesso de emergência. Para continuar, certifique-se de que pode verificar o seguinte:"
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "Chaves criptográficas não confiáveis"
+  },
   "changeAtRiskPassword": {
     "message": "Alterar senhas vulneráveis"
   },
@@ -10528,5 +10591,14 @@
   },
   "cannotCreateCollection": {
     "message": "Organizações gratuitas podem ter até duas coleções. Faça o upgrade para um plano pago para adicionar mais coleções."
+  },
+  "businessUnit": {
+    "message": "Business Unit"
+  },
+  "businessUnits": {
+    "message": "Business Units"
+  },
+  "newBusinessUnit": {
+    "message": "New business unit"
   }
 }

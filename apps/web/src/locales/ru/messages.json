@@ -3323,6 +3323,12 @@
   "externalIdDesc": {
     "message": "Внешний ID - это незашифрованная ссылка, используемая Bitwarden Directory Connector и API."
   },
+  "ssoExternalId": {
+    "message": "Внешний ID SSO"
+  },
+  "ssoExternalIdDesc": {
+    "message": "Внешний ID SSO - это незашифрованная ссылка между Bitwarden и вашим настроенным провайдером SSO."
+  },
   "nestCollectionUnder": {
     "message": "Разместить коллекцию под:"
   },
@@ -5685,6 +5691,9 @@
   "webAuthnSuccess": {
     "message": "<strong>WebAuthn успешно прошел верификацию!</strong><br>Вы можете закрыть эту вкладку."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Ваш новый пароль не может быть таким же, как текущий."
+  },
   "hintEqualsPassword": {
     "message": "Подсказка для пароля не может совпадать с паролем."
   },
@@ -5879,6 +5888,9 @@
   },
   "fingerprint": {
     "message": "Отпечаток"
+  },
+  "fingerprintPhrase": {
+    "message": "Фраза отпечатка:"
   },
   "removeUsers": {
     "message": "Удалить пользователей"
@@ -10330,6 +10342,33 @@
   "organizationNameMaxLength": {
     "message": "Название организации не может превышать 50 символов."
   },
+  "rotationCompletedTitle": {
+    "message": "Изменение ключа успешно"
+  },
+  "rotationCompletedDesc": {
+    "message": "Ваш мастер-пароль и ключ шифрования были обновлены. Другие ваши устройства были выведены из системы."
+  },
+  "trustUserEmergencyAccess": {
+    "message": "Доверенный и подтвержденный пользователь"
+  },
+  "trustOrganization": {
+    "message": "Доверенная организация"
+  },
+  "trust": {
+    "message": "Доверять"
+  },
+  "doNotTrust": {
+    "message": "Не доверять"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Для обеспечения безопасности вашей учетной записи подтвердите, только если вы предоставили этому пользователю экстренный доступ и его отпечаток пальца соответствует тому, что отображается в его учетной записи"
+  },
+  "orgTrustWarning": {
+    "message": "Для обеспечения безопасности вашей учетной записи действуйте только в том случае, если вы являетесь членом этой организации, у вас включено восстановление учетной записи, и отпечаток пальца, отображаемый ниже, соответствует отпечатку пальца организации."
+  },
+  "trustUser": {
+    "message": "Доверенный пользователь"
+  },
   "sshKeyWrongPassword": {
     "message": "Введенный пароль неверен."
   },
@@ -10499,6 +10538,30 @@
   "assignedExceedsAvailable": {
     "message": "Количество назначенных мест превышает количество доступных."
   },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "Фраза отпечатка пальца для контактов $NUM_USERS$, для которых вы включили экстренный доступ.",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "Фраза отпечатка пальца для организации $ORG_NAME$, для которой вы включили восстановление учетной записи.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "Изменение ключей шифрования потребует от вас доверия к ключам любых организаций, которые могут восстановить вашу учетную запись, а также любым контактам, для которых вы включили экстренный доступ. Для продолжения убедитесь, что вы можете проверить следующее:"
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "Не доверенные ключи шифрования"
+  },
   "changeAtRiskPassword": {
     "message": "Изменить пароль, подверженный риску"
   },
@@ -10528,5 +10591,14 @@
   },
   "cannotCreateCollection": {
     "message": "В бесплатных организациях может быть до 2 коллекций. Перейдите на платный план, чтобы добавить больше коллекций."
+  },
+  "businessUnit": {
+    "message": "Бизнес-единица"
+  },
+  "businessUnits": {
+    "message": "Бизнес-единицы"
+  },
+  "newBusinessUnit": {
+    "message": "Новая бизнес-единица"
   }
 }

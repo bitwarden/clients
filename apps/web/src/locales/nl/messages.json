@@ -3323,6 +3323,12 @@
   "externalIdDesc": {
     "message": "Je kunt het externe ID gebruiken als referentie of om een koppeling te leggen tussen deze bron en een extern systeem zoals een directory met gebruikers."
   },
+  "ssoExternalId": {
+    "message": "SSO extern ID"
+  },
+  "ssoExternalIdDesc": {
+    "message": "SSO Extern ID is een niet-versleutelde referentie tussen Bitwarden en je geconfigureerde SSO-provider."
+  },
   "nestCollectionUnder": {
     "message": "Plaats collectie onder"
   },
@@ -5685,6 +5691,9 @@
   "webAuthnSuccess": {
     "message": "WebAuthn met succes geverifieerd! Je kunt dit tabblad sluiten."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Je nieuwe wachtwoord moet anders zijn dan je huidige wachtwoord."
+  },
   "hintEqualsPassword": {
     "message": "Je wachtwoordhint moet anders zijn dan je wachtwoord."
   },
@@ -5879,6 +5888,9 @@
   },
   "fingerprint": {
     "message": "Vingerafdruk"
+  },
+  "fingerprintPhrase": {
+    "message": "Vingerafdrukzin:"
   },
   "removeUsers": {
     "message": "Gebruikers verwijderen"
@@ -10330,6 +10342,33 @@
   "organizationNameMaxLength": {
     "message": "Organisatienaam mag niet langer zijn dan 50 tekens."
   },
+  "rotationCompletedTitle": {
+    "message": "Sleutelrotatie geslaagd"
+  },
+  "rotationCompletedDesc": {
+    "message": "Je hoofdwachtwoord en encryptiesleutels zijn bijgewerkt. Je andere apparaten zijn uitgelogd."
+  },
+  "trustUserEmergencyAccess": {
+    "message": "Gebruiker vertrouwen en bevestigen"
+  },
+  "trustOrganization": {
+    "message": "Organisatie vertrouwen"
+  },
+  "trust": {
+    "message": "Vertrouwen"
+  },
+  "doNotTrust": {
+    "message": "Niet vertrouwen"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Bevestig, voor de veiligheid van je account, alleen als je noodtoegang hebt verleend aan deze gebruiker en de vingerafdruk voldoet aan wat er in hun account wordt weergegeven"
+  },
+  "orgTrustWarning": {
+    "message": "Ga, voor de veiligheid van je account, alleen verder als je lid bent van deze organisatie, accountherstel hebt ingeschakeld en de hieronder weergegeven vingerafdruk overeenkomt met de vingerafdruk van de organisatie."
+  },
+  "trustUser": {
+    "message": "Gebruiker vertrouwen"
+  },
   "sshKeyWrongPassword": {
     "message": "Het door jou ingevoerde wachtwoord is onjuist."
   },
@@ -10499,6 +10538,30 @@
   "assignedExceedsAvailable": {
     "message": "Meer toegewezen dan beschikbare plaatsen."
   },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "Vingerafdrukzin voor $NUM_USERS$ contacten waarvoor je noodtoegang hebt ingeschakeld.",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "Vingerafdrukzin voor de organisatie $ORG_NAME$ waarvoor je accountherstel hebt ingeschakeld.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "Het roteren van je encryptiesleutels vereist dat je sleutels vertrouwt van alle organisaties die je account kunnen herstellen en alle contacten waarvoor je noodtoegang hebt ingeschakeld. Zorg ervoor dat je het volgende kunt verifiëren:"
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "Niet-vertrouwde encryptiesleutels"
+  },
   "changeAtRiskPassword": {
     "message": "Risicovol wachtwoord wijzigen"
   },
@@ -10528,5 +10591,14 @@
   },
   "cannotCreateCollection": {
     "message": "Gratis organisaties kunnen maximaal twee collecties hebben. Upgrade naar een betaald abonnement voor het toevoegen van meer collecties."
+  },
+  "businessUnit": {
+    "message": "Bedrijfseenheid"
+  },
+  "businessUnits": {
+    "message": "Bedrijfseenheden"
+  },
+  "newBusinessUnit": {
+    "message": "Nieuwe bedrijfseenheid"
   }
 }

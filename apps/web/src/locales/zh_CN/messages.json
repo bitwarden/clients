@@ -1638,10 +1638,10 @@
     "message": "确认文件密码"
   },
   "accountRestrictedOptionDescription": {
-    "message": "使用衍生自您账户的用户名和主密码的加密密钥，以加密此导出并限制只能导入到当前的 Bitwarden 账户。"
+    "message": "使用衍生自您账户用户名和主密码的加密密钥以加密此导出，并限制只能导入到当前 Bitwarden 账户。"
   },
   "passwordProtectedOptionDescription": {
-    "message": "设置一个密码用来加密导出的数据，并使用此密码解密以导入到任意 Bitwarden 账户。"
+    "message": "设置一个文件密码以加密此导出，并使用此密码解密以导入到任意 Bitwarden 账户。"
   },
   "exportTypeHeading": {
     "message": "导出类型"
@@ -3321,7 +3321,13 @@
     "message": "外部 ID"
   },
   "externalIdDesc": {
-    "message": "外部 ID 是一个 Bitwarden Directory Connector 和 API 使用的未经加密的参考。"
+    "message": "外部 ID 是 Bitwarden Directory Connector 和 API 使用的未经加密的参考。"
+  },
+  "ssoExternalId": {
+    "message": "SSO 外部 ID"
+  },
+  "ssoExternalIdDesc": {
+    "message": "SSO 外部 ID 是 Bitwarden 与您配置的 SSO 提供程序之间的未经加密的参考。"
   },
   "nestCollectionUnder": {
     "message": "嵌套于集合下"
@@ -4573,7 +4579,7 @@
     "message": "随时。"
   },
   "byContinuingYouAgreeToThe": {
-    "message": "若继续，代表您同意"
+    "message": "若继续，表示您同意"
   },
   "and": {
     "message": "和"
@@ -5685,6 +5691,9 @@
   "webAuthnSuccess": {
     "message": "WebAuthn 验证成功！您可以关闭此标签页。"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "您的新密码不能与当前密码相同。"
+  },
   "hintEqualsPassword": {
     "message": "密码提示不能与密码相同。"
   },
@@ -5788,7 +5797,7 @@
     "message": "自动注册"
   },
   "resetPasswordPolicyAutoEnrollCheckbox": {
-    "message": "为新用户启用自动注册"
+    "message": "为新成员启用自动注册"
   },
   "resetPasswordAutoEnrollInviteWarning": {
     "message": "此组织有一个企业策略，将自动为您注册密码重置。注册后将允许组织管理员更改您的主密码。"
@@ -5879,6 +5888,9 @@
   },
   "fingerprint": {
     "message": "指纹"
+  },
+  "fingerprintPhrase": {
+    "message": "指纹短语："
   },
   "removeUsers": {
     "message": "移除用户"
@@ -10330,6 +10342,33 @@
   "organizationNameMaxLength": {
     "message": "组织名称不能超过 50 个字符。"
   },
+  "rotationCompletedTitle": {
+    "message": "密钥轮换成功"
+  },
+  "rotationCompletedDesc": {
+    "message": "您的主密码和加密密钥已更新。您的其他设备已被注销。"
+  },
+  "trustUserEmergencyAccess": {
+    "message": "信任并确认用户"
+  },
+  "trustOrganization": {
+    "message": "信任组织"
+  },
+  "trust": {
+    "message": "信任"
+  },
+  "doNotTrust": {
+    "message": "不信任"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "为了您的账户安全，确认前请先确认：您已授予该用户紧急访问权限，以及其指纹与其账户中显示的指纹相匹配"
+  },
+  "orgTrustWarning": {
+    "message": "为了您的账户安全，继续前请先确认：您是启用了账户恢复功能的该组织的成员，以及下方显示的指纹与此组织的指纹相匹配。"
+  },
+  "trustUser": {
+    "message": "信任用户"
+  },
   "sshKeyWrongPassword": {
     "message": "您输入的密码不正确。"
   },
@@ -10499,6 +10538,30 @@
   "assignedExceedsAvailable": {
     "message": "分配的席位超过可用席位。"
   },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "启用了紧急访问权限的 $NUM_USERS$ 位联系人的指纹短语。",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "启用了账户恢复功能的组织 $ORG_NAME$ 的指纹短语。",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "轮换加密密钥将需要您信任能够恢复您账户的所有组织的密钥，以及您已为其启用紧急访问的所有联系人的密钥。要继续操作，请确保您能够验证以下信息："
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "未信任的加密密钥"
+  },
   "changeAtRiskPassword": {
     "message": "更改有风险的密码"
   },
@@ -10528,5 +10591,14 @@
   },
   "cannotCreateCollection": {
     "message": "免费组织最多拥有 2 个集合。要添加更多集合，请升级到付费计划。"
+  },
+  "businessUnit": {
+    "message": "Business Unit"
+  },
+  "businessUnits": {
+    "message": "Business Units"
+  },
+  "newBusinessUnit": {
+    "message": "New business unit"
   }
 }
