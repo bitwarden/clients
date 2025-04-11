@@ -34,13 +34,10 @@ import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon"
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { TaskService } from "@bitwarden/common/vault/tasks";
+import { SecurityTaskType } from "@bitwarden/common/vault/tasks/enums";
+import { SecurityTask } from "@bitwarden/common/vault/tasks/models/security-task";
 
-/* eslint-disable-next-line no-restricted-imports */
-import { TaskService } from "../../../../../libs/common/src/vault/tasks/abstractions/task.service";
-/* eslint-disable-next-line no-restricted-imports */
-import { SecurityTaskType } from "../../../../../libs/common/src/vault/tasks/enums";
-/* eslint-disable-next-line no-restricted-imports */
-import { SecurityTask } from "../../../../../libs/common/src/vault/tasks/models/security-task";
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { openAddEditVaultItemPopout } from "../../vault/popup/utils/vault-popout-window";
