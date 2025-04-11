@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Pravila tvrtke onemogućuju spremanje stavki u osobni trezor. Promijeni vlasništvo stavke na tvrtku i odaberi dostupnu Zbirku."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Podsjetnik za lozinku ne može biti isti kao lozinka."
   },

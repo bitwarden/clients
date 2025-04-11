@@ -120,3 +120,25 @@ export const Block: Story = {
     block: true,
   },
 };
+
+export const WithIcon: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <span class="tw-flex tw-gap-8">
+        <div>
+          <button bitButton [buttonType]="buttonType" [block]="block">
+            <i class="bwi bwi-plus tw-me-2"></i>
+            Button label
+          </button>
+        </div>
+        <div>
+          <button bitButton [buttonType]="buttonType" [block]="block">
+            Button label
+            <i class="bwi bwi-plus tw-ms-2"></i>
+          </button>
+        </div>
+      </span>
+    `,
+  }),
+};

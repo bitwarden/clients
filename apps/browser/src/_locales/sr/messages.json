@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "Политика приватности"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Ваш савет за лозинку не може да буде исти као лозинка."
   },

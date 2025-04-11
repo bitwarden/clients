@@ -1852,7 +1852,7 @@
     "message": "Glabātavas noildzes darbība"
   },
   "vaultTimeoutActionLockDesc": {
-    "message": "Ir nepieciešams atkārtoti ievadīt galveno paroli, lai piekļūt aizslēgtai glabātavai."
+    "message": "Ir nepieciešama galvenā parole vai cits atslēgšanas veids, lai atkal piekļūtu savai glabātavai."
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "Ir nepieciešama atkārtota pieteikšanās, lai atkal piekļūtu glabātavai."
@@ -2071,6 +2071,9 @@
   },
   "personalOwnershipSubmitError": {
     "message": "Uzņēmuma nosacījumi liedz saglabāt vienumus privātajā glabātavā. Ir jānorāda piederība apvienībai un jāizvēlas kāds no pieejamajiem krājumiem."
+  },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Jaunā parole nevar būt tāda pati kā pašreizējā."
   },
   "hintEqualsPassword": {
     "message": "Paroles norāde nedrīkst būt tāda pati kā parole."
@@ -2491,7 +2494,7 @@
     "message": "Aizslēgta"
   },
   "yourVaultIsLockedV2": {
-    "message": "Glabātava ir slēgta"
+    "message": "Glabātava ir aizslēgta"
   },
   "unlocked": {
     "message": "Atslēgta"

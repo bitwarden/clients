@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "Adatvédelem"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Az új jelszó nem lehet azonos a jelenlegi jelszóval."
+  },
   "hintEqualsPassword": {
     "message": "A jelszavas tipp nem lehet azonos a jelszóval."
   },

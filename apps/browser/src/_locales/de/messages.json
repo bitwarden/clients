@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "Datenschutzbestimmungen"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Dein neues Passwort darf nicht dasselbe sein wie dein aktuelles Passwort."
+  },
   "hintEqualsPassword": {
     "message": "Dein Passwort-Hinweis darf nicht identisch mit deinem Passwort sein."
   },
@@ -5166,6 +5169,6 @@
     "message": "Deine Daten, wann und wo du sie brauchst"
   },
   "secureDevicesBody": {
-    "message": "Speicher eine unbegrenzte Anzahl von Passwörter auf unbegrenzt vielen Geräten mit Bitwarden-Apps für Smartphones, Browser und Desktop."
+    "message": "Speicher eine unbegrenzte Anzahl von Passwörtern auf unbegrenzt vielen Geräten mit Bitwarden-Apps für Smartphones, Browser und Desktop."
   }
 }
