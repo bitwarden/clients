@@ -36,6 +36,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { UserId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -46,6 +47,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+import { KdfType } from "@bitwarden/key-management";
 
 import { SsoClientType, SsoComponentService } from "./sso-component.service";
 
@@ -433,6 +435,14 @@ export class SsoComponent implements OnInit {
         return await this.handleTwoFactorRequired(orgSsoIdentifier);
       }
 
+      if (authResult.requiresKeyConnectorDomainConfirmation != null) {
+        this.logService.debug("Key Connector domain confirmation required");
+        return await this.handleKeyConnectorDomainConfirmation(
+          authResult.requiresKeyConnectorDomainConfirmation,
+          authResult.userId,
+        );
+      }
+
       // Everything after the 2FA check is considered a successful login
       // Just have to figure out where to send the user
       await this.loginSuccessHandlerService.run(authResult.userId);
@@ -637,5 +647,24 @@ export class SsoComponent implements OnInit {
     if (storedIdentifier != null) {
       this.identifierFormControl.setValue(storedIdentifier);
     }
+  }
+
+  private async handleKeyConnectorDomainConfirmation(
+    request: {
+      kdf: KdfType;
+      kdfIterations: number;
+      kdfMemory?: number;
+      kdfParallelism?: number;
+      keyConnectorUrl: string;
+      organizationId: string;
+    },
+    userId: UserId,
+  ) {
+    await this.router.navigate(["confirm-key-connector-domain"], {
+      queryParams: {
+        ...request,
+        userId,
+      },
+    });
   }
 }

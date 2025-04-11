@@ -77,7 +77,10 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
     return super.logInTwoFactor(twoFactor);
   }
 
-  protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {
+  protected override async setMasterKey(
+    response: IdentityTokenResponse,
+    userId: UserId,
+  ): Promise<null> {
     const authRequestCredentials = this.cache.value.authRequestCredentials;
     if (
       authRequestCredentials.decryptedMasterKey &&
@@ -92,6 +95,8 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
         userId,
       );
     }
+
+    return null;
   }
 
   protected override async setUserKey(

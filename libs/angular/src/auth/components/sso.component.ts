@@ -27,8 +27,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+import { KdfType } from "@bitwarden/key-management";
 
 @Directive()
 export class SsoComponent implements OnInit {
@@ -217,6 +219,14 @@ export class SsoComponent implements OnInit {
 
       if (authResult.requiresTwoFactor) {
         return await this.handleTwoFactorRequired(orgSsoIdentifier);
+      }
+
+      if (authResult.requiresKeyConnectorDomainConfirmation != null) {
+        this.logService.debug("Key Connector domain confirmation required");
+        return await this.handleKeyConnectorDomainConfirmation(
+          authResult.requiresKeyConnectorDomainConfirmation,
+          authResult.userId,
+        );
       }
 
       // Everything after the 2FA check is considered a successful login
@@ -418,5 +428,24 @@ export class SsoComponent implements OnInit {
     const stateSplit = state.split("_identifier=");
     const checkStateSplit = checkState.split("_identifier=");
     return stateSplit[0] === checkStateSplit[0];
+  }
+
+  private async handleKeyConnectorDomainConfirmation(
+    request: {
+      kdf: KdfType;
+      kdfIterations: number;
+      kdfMemory?: number;
+      kdfParallelism?: number;
+      keyConnectorUrl: string;
+      organizationId: string;
+    },
+    userId: UserId,
+  ) {
+    await this.router.navigate(["confirm-key-connector-domain"], {
+      queryParams: {
+        ...request,
+        userId,
+      },
+    });
   }
 }

@@ -1,0 +1,18 @@
+@if (!loading) {
+  <div id="confirm-key-connector-domain-page">
+    <div class="content">
+      <h1>{{ "confirmKeyConnectorDomain" | i18n }}</h1>
+      <p class="tw-mb-0">{{ "keyConnectorDomain" | i18n }}:</p>
+      <p class="tw-text-muted tw-mb-6">{{ keyConnectorUrl }}</p>
+
+      <div class="buttons">
+        <button bitButton type="button" buttonType="primary" [bitAction]="confirm" [block]="true">
+          {{ "confirm" | i18n }}
+        </button>
+        <button bitButton type="button" buttonType="secondary" [bitAction]="cancel" [block]="true">
+          {{ "cancel" | i18n }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

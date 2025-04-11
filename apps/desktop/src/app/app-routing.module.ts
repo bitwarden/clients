@@ -54,6 +54,7 @@ import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
 import { SetPasswordComponent } from "../auth/set-password.component";
 import { TwoFactorComponentV1 } from "../auth/two-factor-v1.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
+import { ConfirmKeyConnectorDomainComponent } from "../key-management/key-connector/confirm-key-connector-domain.component";
 import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import { VaultComponent } from "../vault/app/vault/vault.component";
 
@@ -177,6 +178,11 @@ const routes: Routes = [
     path: "remove-password",
     component: RemovePasswordComponent,
     canActivate: [authGuard],
+  },
+  {
+    path: "confirm-key-connector-domain",
+    component: ConfirmKeyConnectorDomainComponent,
+    canActivate: [],
   },
   {
     path: "passkeys",

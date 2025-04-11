@@ -3579,5 +3579,11 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
   }
 }
