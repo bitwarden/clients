@@ -1,23 +1,30 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { inject } from "@angular/core";
+import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
+import { mock, MockProxy } from "jest-mock-extended";
 
-import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-/**
- * This class handles the premium upgrade process for the browser extension.
- */
-export class BrowserViewPasswordHistoryService implements ViewPasswordHistoryService {
-  private router = inject(Router);
+import { BrowserViewPasswordHistoryService } from "./browser-view-password-history.service";
 
-  /**
-   * Navigates to the password history screen.
-   */
-  async viewPasswordHistory(cipher: CipherView) {
-    await this.router.navigate(["/cipher-password-history"], {
-      queryParams: { cipherId: cipher.id },
+describe("BrowserViewPasswordHistoryService", () => {
+  let service: BrowserViewPasswordHistoryService;
+  let router: MockProxy<Router>;
+
+  beforeEach(async () => {
+    router = mock<Router>();
+    await TestBed.configureTestingModule({
+      providers: [BrowserViewPasswordHistoryService, { provide: Router, useValue: router }],
+    }).compileComponents();
+
+    service = TestBed.inject(BrowserViewPasswordHistoryService);
+  });
+
+  describe("viewPasswordHistory", () => {
+    it("navigates to the password history screen", async () => {
+      await service.viewPasswordHistory({ id: "cipher-id" } as CipherView);
+      expect(router.navigate).toHaveBeenCalledWith(["/cipher-password-history"], {
+        queryParams: { cipherId: "cipher-id" },
+      });
     });
-  }
-}
+  });
+});

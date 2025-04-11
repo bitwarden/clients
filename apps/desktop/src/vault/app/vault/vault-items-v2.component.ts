@@ -1,8 +1,7 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { distinctUntilChanged } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -24,22 +23,23 @@ import { SearchBarService } from "../../../app/layout/search/search-bar.service"
 export class VaultItemsV2Component extends BaseVaultItemsComponent {
   constructor(
     searchService: SearchService,
-    searchBarService: SearchBarService,
+    private readonly searchBarService: SearchBarService,
     cipherService: CipherService,
     accountService: AccountService,
   ) {
     super(searchService, cipherService, accountService);
 
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    searchBarService.searchText$.pipe(distinctUntilChanged()).subscribe((searchText) => {
-      this.searchText = searchText;
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.search(200);
-    });
+    this.searchBarService.searchText$
+      .pipe(distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe((searchText: string | null) => {
+        if (searchText) {
+          this.searchText = searchText;
+        }
+        this.search(200).catch((error) => {});
+      });
   }
 
-  trackByFn(index: number, c: CipherView) {
+  trackByFn(index: number, c: CipherView): string {
     return c.id;
   }
 }
