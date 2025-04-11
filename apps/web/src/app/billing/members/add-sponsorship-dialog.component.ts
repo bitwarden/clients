@@ -88,14 +88,23 @@ export class AddSponsorshipDialogComponent {
     if (this.sponsorshipForm.invalid) {
       return;
     }
+
     this.loading = true;
     // TODO: This is a mockup implementation - needs to be updated with actual API integration
     await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
 
+    const formValue = this.sponsorshipForm.value;
+    const dialogValue: Partial<AddSponsorshipFormValue> = {
+      status: "Sent",
+      sponsorshipEmail: formValue.sponsorshipEmail ?? "",
+      sponsorshipNote: formValue.sponsorshipNote ?? "",
+    };
+
     this.dialogRef.close({
       action: AddSponsorshipDialogAction.Saved,
-      value: { status: "Sent", ...this.sponsorshipForm.value },
+      value: dialogValue,
     });
+    this.loading = false;
   }
 
   protected close = () => {
