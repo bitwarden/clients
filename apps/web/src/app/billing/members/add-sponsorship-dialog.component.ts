@@ -73,10 +73,7 @@ export class AddSponsorshipDialogComponent {
         ],
         updateOn: "change",
       }),
-      sponsorshipNote: new FormControl<string | null>("", {
-        validators: [Validators.required],
-        updateOn: "change",
-      }),
+      sponsorshipNote: new FormControl<string | null>("", {}),
     });
   }
 
@@ -93,7 +90,7 @@ export class AddSponsorshipDialogComponent {
     // TODO: This is a mockup implementation - needs to be updated with actual API integration
     await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
 
-    const formValue = this.sponsorshipForm.value;
+    const formValue = this.sponsorshipForm.getRawValue();
     const dialogValue: Partial<AddSponsorshipFormValue> = {
       status: "Sent",
       sponsorshipEmail: formValue.sponsorshipEmail ?? "",
@@ -104,6 +101,7 @@ export class AddSponsorshipDialogComponent {
       action: AddSponsorshipDialogAction.Saved,
       value: dialogValue,
     });
+
     this.loading = false;
   }
 
