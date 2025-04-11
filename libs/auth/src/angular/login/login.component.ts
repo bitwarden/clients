@@ -400,12 +400,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     await this.router.navigate(["/login-with-device"]);
   }
 
-  protected async emailIsValid(): Promise<boolean> {
-    this.formGroup.controls.email.markAsTouched();
-    this.formGroup.controls.email.updateValueAndValidity({ onlySelf: true, emitEvent: true });
-    return this.formGroup.controls.email.valid;
-  }
-
   protected async toggleLoginUiState(value: LoginUiState): Promise<void> {
     this.loginUiState = value;
 
@@ -474,7 +468,7 @@ export class LoginComponent implements OnInit, OnDestroy {
    * Continue to the master password entry state (only if email is validated)
    */
   protected async continue(): Promise<void> {
-    const isEmailValid = await this.emailIsValid();
+    const isEmailValid = await this.validateEmail();
 
     if (isEmailValid) {
       await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY);
@@ -496,7 +490,7 @@ export class LoginComponent implements OnInit, OnDestroy {
    */
   async handleSsoClick() {
     // Make sure the email is valid
-    const isEmailValid = await this.emailIsValid();
+    const isEmailValid = await this.validateEmail();
     if (!isEmailValid) {
       return;
     }
@@ -594,6 +588,20 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
   };
 
+  private async emailIsValid(): Promise<boolean> {
+    return this.formGroup.controls.email.valid;
+  }
+
+  /**
+   * Validates the email and displays any validation errors.
+   * @returns true if the email is valid, false otherwise.
+   */
+  protected async validateEmail(): Promise<boolean> {
+    this.formGroup.controls.email.markAsTouched();
+    this.formGroup.controls.email.updateValueAndValidity({ onlySelf: true, emitEvent: true });
+    return this.emailIsValid();
+  }
+
   /**
    * Persist the entered email address and the user's choice to remember it to state.
    */
@@ -613,7 +621,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Set the email value from the input field.
+   * Set the email value from the input field and persists to state if valid.
    * We only update the form controls onSubmit instead of onBlur because we don't want to show validation errors until
    * the user submits. This is because currently our validation errors are shown below the input fields, and
    * displaying them causes the screen to "jump".
@@ -626,7 +634,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Set the Remember Email value from the input field.
+   * Set the Remember Email value from the input field and persists to state if valid.
    * We only update the form controls onSubmit instead of onBlur because we don't want to show validation errors until
    * the user submits. This is because currently our validation errors are shown below the input fields, and
    * displaying them causes the screen to "jump".
