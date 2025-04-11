@@ -209,9 +209,8 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
       devices.data
         .filter((device) => device.isTrusted)
         .map(async (device) => {
-          const deviceWithKeys = await this.devicesApiService.getDeviceKeys(device.identifier);
           const publicKey = await this.encryptService.decryptToBytes(
-            deviceWithKeys.encryptedPublicKey,
+            new EncString(device.encryptedPublicKey),
             oldUserKey,
           );
 
