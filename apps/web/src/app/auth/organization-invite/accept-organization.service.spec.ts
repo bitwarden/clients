@@ -23,8 +23,8 @@ import { FakeGlobalState } from "@bitwarden/common/spec/fake-state";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { AccountRecoveryTrustComponent } from "@bitwarden/key-management-ui";
 
-import { OrganizationTrustComponent } from "../../admin-console/organizations/manage/organization-trust.component";
 import { I18nService } from "../../core/i18n.service";
 
 import {
@@ -200,8 +200,10 @@ describe("AcceptOrganizationInviteService", () => {
         encryptedString: "encryptedString",
       } as EncString);
 
-      jest.mock("../../admin-console/organizations/manage/organization-trust.component");
-      OrganizationTrustComponent.open = jest.fn().mockReturnValue({
+      jest.mock(
+        "../../../../../../libs/key-management-ui/src/trust/account-recovery-trust.component",
+      );
+      AccountRecoveryTrustComponent.open = jest.fn().mockReturnValue({
         closed: new BehaviorSubject(true),
       });
 
@@ -217,7 +219,7 @@ describe("AcceptOrganizationInviteService", () => {
       const result = await sut.validateAndAcceptInvite(invite);
 
       expect(result).toBe(true);
-      expect(OrganizationTrustComponent.open).toHaveBeenCalled();
+      expect(AccountRecoveryTrustComponent.open).toHaveBeenCalled();
       expect(encryptService.rsaEncrypt).toHaveBeenCalledWith(
         "userKey",
         Utils.fromB64ToArray("publicKey"),
