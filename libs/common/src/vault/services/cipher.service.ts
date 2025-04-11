@@ -40,6 +40,7 @@ import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypt
 import { StateProvider } from "../../platform/state";
 import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid";
 import { OrgKey, UserKey } from "../../types/key";
+import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
 import { CipherService as CipherServiceAbstraction } from "../abstractions/cipher.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
 import { FieldType } from "../enums";
@@ -112,6 +113,7 @@ export class CipherService implements CipherServiceAbstraction {
     private stateProvider: StateProvider,
     private accountService: AccountService,
     private logService: LogService,
+    private cipherEncryptionService: CipherEncryptionService,
   ) {}
 
   localData$(userId: UserId): Observable<Record<CipherId, LocalData>> {
@@ -430,59 +432,74 @@ export class CipherService implements CipherServiceAbstraction {
     ciphers: Cipher[],
     userId: UserId,
   ): Promise<[CipherView[], CipherView[]]> {
-    const keys = await firstValueFrom(this.keyService.cipherDecryptionKeys$(userId, true));
-
-    if (keys == null || (keys.userKey == null && Object.keys(keys.orgKeys).length === 0)) {
-      // return early if there are no keys to decrypt with
-      return [[], []];
-    }
-
-    // Group ciphers by orgId or under 'null' for the user's ciphers
-    const grouped = ciphers.reduce(
-      (agg, c) => {
-        agg[c.organizationId] ??= [];
-        agg[c.organizationId].push(c);
-        return agg;
-      },
-      {} as Record<string, Cipher[]>,
-    );
-
-    const decryptStartTime = new Date().getTime();
-    const allCipherViews = (
-      await Promise.all(
-        Object.entries(grouped).map(async ([orgId, groupedCiphers]) => {
-          if (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService)) {
-            return await this.bulkEncryptService.decryptItems(
-              groupedCiphers,
-              keys.orgKeys[orgId as OrganizationId] ?? keys.userKey,
-            );
-          } else {
-            return await this.encryptService.decryptItems(
-              groupedCiphers,
-              keys.orgKeys[orgId as OrganizationId] ?? keys.userKey,
-            );
-          }
-        }),
+    if (await this.configService.getFeatureFlag(FeatureFlag.PM19941MigrateCipherDomainToSdk)) {
+      return this.decryptCiphersWithSdk(ciphers, userId);
+    } else {
+      const keys = await firstValueFrom(this.keyService.cipherDecryptionKeys$(userId, true));
+      if (keys == null || (keys.userKey == null && Object.keys(keys.orgKeys).length === 0)) {
+        // return early if there are no keys to decrypt with
+        return [[], []];
+      }
+      // Group ciphers by orgId or under 'null' for the user's ciphers
+      const grouped = ciphers.reduce(
+        (agg, c) => {
+          agg[c.organizationId] ??= [];
+          agg[c.organizationId].push(c);
+          return agg;
+        },
+        {} as Record<string, Cipher[]>,
+      );
+      const decryptStartTime = new Date().getTime();
+      const allCipherViews = (
+        await Promise.all(
+          Object.entries(grouped).map(async ([orgId, groupedCiphers]) => {
+            if (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService)) {
+              return await this.bulkEncryptService.decryptItems(
+                groupedCiphers,
+                keys.orgKeys[orgId as OrganizationId] ?? keys.userKey,
+              );
+            } else {
+              return await this.encryptService.decryptItems(
+                groupedCiphers,
+                keys.orgKeys[orgId as OrganizationId] ?? keys.userKey,
+              );
+            }
+          }),
+        )
       )
-    )
-      .flat()
-      .sort(this.getLocaleSortingFunction());
-    this.logService.info(
-      `[CipherService] Decrypting ${allCipherViews.length} ciphers took ${new Date().getTime() - decryptStartTime}ms`,
-    );
+        .flat()
+        .sort(this.getLocaleSortingFunction());
+      this.logService.info(
+        `[CipherService] Decrypting ${allCipherViews.length} ciphers took ${new Date().getTime() - decryptStartTime}ms`,
+      );
+      // Split ciphers into two arrays, one for successfully decrypted ciphers and one for ciphers that failed to decrypt
+      return allCipherViews.reduce(
+        (acc, c) => {
+          if (c.decryptionFailure) {
+            acc[1].push(c);
+          } else {
+            acc[0].push(c);
+          }
+          return acc;
+        },
+        [[], []] as [CipherView[], CipherView[]],
+      );
+    }
+  }
 
-    // Split ciphers into two arrays, one for successfully decrypted ciphers and one for ciphers that failed to decrypt
-    return allCipherViews.reduce(
-      (acc, c) => {
-        if (c.decryptionFailure) {
-          acc[1].push(c);
-        } else {
-          acc[0].push(c);
-        }
-        return acc;
-      },
-      [[], []] as [CipherView[], CipherView[]],
-    );
+  /**
+   * Decrypts a cipher using either the SDK or the legacy method based on the feature flag.
+   * @param cipher The cipher to decrypt.
+   * @param userId The user ID to use for decryption.
+   * @returns A promise that resolves to the decrypted cipher view.
+   */
+  async decryptCipherWithSdkOrLegacy(cipher: Cipher, userId: UserId): Promise<CipherView> {
+    if (await this.configService.getFeatureFlag(FeatureFlag.PM19941MigrateCipherDomainToSdk)) {
+      return await this.cipherEncryptionService.decrypt(cipher, userId);
+    } else {
+      const encKey = await this.getKeyForCipherKeyDecryption(cipher, userId);
+      return await cipher.decrypt(encKey);
+    }
   }
 
   private async reindexCiphers(userId: UserId) {
@@ -896,7 +913,7 @@ export class CipherService implements CipherServiceAbstraction {
     //then we rollback to using the user key as the main key of encryption of the item
     //in order to keep item and it's attachments with the same encryption level
     if (cipher.key != null && !cipherKeyEncryptionEnabled) {
-      const model = await cipher.decrypt(await this.getKeyForCipherKeyDecryption(cipher, userId));
+      const model = await this.decryptCipherWithSdkOrLegacy(cipher, userId);
       cipher = await this.encrypt(model, userId);
       await this.updateWithServer(cipher);
     }
@@ -1427,9 +1444,7 @@ export class CipherService implements CipherServiceAbstraction {
     originalCipher: Cipher,
     userId: UserId,
   ): Promise<void> {
-    const existingCipher = await originalCipher.decrypt(
-      await this.getKeyForCipherKeyDecryption(originalCipher, userId),
-    );
+    const existingCipher = await this.decryptCipherWithSdkOrLegacy(originalCipher, userId);
     model.passwordHistory = existingCipher.passwordHistory || [];
     if (model.type === CipherType.Login && existingCipher.type === CipherType.Login) {
       if (
@@ -1841,5 +1856,34 @@ export class CipherService implements CipherServiceAbstraction {
       this.configService.checkServerMeetsVersionRequirement$(CIPHER_KEY_ENC_MIN_SERVER_VER),
     );
     return featureEnabled && meetsServerVersion;
+  }
+
+  /**
+   * Decrypts the provided ciphers using the SDK.
+   * @param ciphers The ciphers to decrypt.
+   * @param userId The user ID to use for decryption.
+   * @returns A tuple containing the successful and failed decrypted ciphers.
+   * @private
+   */
+  private async decryptCiphersWithSdk(
+    ciphers: Cipher[],
+    userId: UserId,
+  ): Promise<[CipherView[], CipherView[]]> {
+    const decryptedViews = await Promise.all(
+      ciphers.map((cipher) => this.cipherEncryptionService.decrypt(cipher, userId)),
+    );
+
+    const successful: CipherView[] = [];
+    const failed: CipherView[] = [];
+
+    decryptedViews.forEach((view) => {
+      if (view.decryptionFailure) {
+        failed.push(view);
+      } else {
+        successful.push(view);
+      }
+    });
+
+    return [successful.sort(this.getLocaleSortingFunction()), failed];
   }
 }

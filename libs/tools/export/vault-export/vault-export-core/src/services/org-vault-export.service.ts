@@ -154,8 +154,7 @@ export class OrganizationVaultExportService
                 const cipher = new Cipher(new CipherData(c));
                 exportPromises.push(
                   this.cipherService
-                    .getKeyForCipherKeyDecryption(cipher, activeUserId)
-                    .then((key) => cipher.decrypt(key))
+                    .decryptCipherWithSdkOrLegacy(cipher, activeUserId)
                     .then((decCipher) => {
                       decCiphers.push(decCipher);
                     }),

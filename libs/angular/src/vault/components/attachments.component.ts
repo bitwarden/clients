@@ -88,8 +88,9 @@ export class AttachmentsComponent implements OnInit {
       const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
       this.formPromise = this.saveCipherAttachment(files[0], activeUserId);
       this.cipherDomain = await this.formPromise;
-      this.cipher = await this.cipherDomain.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, activeUserId),
+      this.cipher = await this.cipherService.decryptCipherWithSdkOrLegacy(
+        this.cipherDomain,
+        activeUserId,
       );
       this.toastService.showToast({
         variant: "success",
@@ -130,9 +131,7 @@ export class AttachmentsComponent implements OnInit {
       const updatedCipher = await this.deletePromises[attachment.id];
 
       const cipher = new Cipher(updatedCipher);
-      this.cipher = await cipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-      );
+      this.cipher = await this.cipherService.decryptCipherWithSdkOrLegacy(cipher, activeUserId);
 
       this.toastService.showToast({
         variant: "success",
@@ -228,8 +227,9 @@ export class AttachmentsComponent implements OnInit {
   protected async init() {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     this.cipherDomain = await this.loadCipher(activeUserId);
-    this.cipher = await this.cipherDomain.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, activeUserId),
+    this.cipher = await this.cipherService.decryptCipherWithSdkOrLegacy(
+      this.cipherDomain,
+      activeUserId,
     );
 
     const canAccessPremium = await firstValueFrom(
@@ -292,8 +292,9 @@ export class AttachmentsComponent implements OnInit {
             activeUserId,
             admin,
           );
-          this.cipher = await this.cipherDomain.decrypt(
-            await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, activeUserId),
+          this.cipher = await this.cipherService.decryptCipherWithSdkOrLegacy(
+            this.cipherDomain,
+            activeUserId,
           );
 
           // 3. Delete old

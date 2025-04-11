@@ -50,4 +50,17 @@ describe("SecureNote", () => {
       expect(SecureNote.fromJSON(null)).toBeNull();
     });
   });
+
+  describe("toSdkSecureNote", () => {
+    it("returns the correct SDK SecureNote object", () => {
+      const secureNote = new SecureNote();
+      secureNote.type = SecureNoteType.Generic;
+
+      const sdkSecureNote = secureNote.toSdkSecureNote();
+
+      expect(sdkSecureNote).toEqual({
+        type: 0,
+      });
+    });
+  });
 });

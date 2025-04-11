@@ -70,4 +70,17 @@ describe("Password", () => {
       expect(Password.fromJSON(null)).toBeNull();
     });
   });
+
+  describe("toSdkPasswordHistory", () => {
+    it("returns the correct SDK PasswordHistory object", () => {
+      const password = new Password(data);
+
+      const sdkPasswordHistory = password.toSdkPasswordHistory();
+
+      expect(sdkPasswordHistory).toEqual({
+        password: "encPassword",
+        lastUsedDate: new Date("2022-01-31T12:00:00.000Z").toISOString(),
+      });
+    });
+  });
 });

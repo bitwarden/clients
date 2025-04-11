@@ -1,3 +1,4 @@
+import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services/default-cipher-encryption.service";
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import * as fs from "fs";
@@ -185,6 +186,7 @@ import { I18nService } from "../platform/services/i18n.service";
 import { LowdbStorageService } from "../platform/services/lowdb-storage.service";
 import { NodeApiService } from "../platform/services/node-api.service";
 import { NodeEnvSecureStorageService } from "../platform/services/node-env-secure-storage.service";
+import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 
 // Polyfills
 global.DOMParser = new jsdom.JSDOM().window.DOMParser;
@@ -284,6 +286,7 @@ export class ServiceContainer {
   ssoUrlService: SsoUrlService;
   masterPasswordApiService: MasterPasswordApiServiceAbstraction;
   bulkEncryptService: FallbackBulkEncryptService;
+  cipherEncryptionService: CipherEncryptionService;
 
   constructor() {
     let p = null;
@@ -679,6 +682,11 @@ export class ServiceContainer {
       this.accountService,
     );
 
+    this.cipherEncryptionService = new DefaultCipherEncryptionService(
+      this.sdkService,
+      this.logService,
+    );
+
     this.cipherService = new CipherService(
       this.keyService,
       this.domainSettingsService,
@@ -694,6 +702,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.accountService,
       this.logService,
+      this.cipherEncryptionService,
     );
 
     this.folderService = new FolderService(

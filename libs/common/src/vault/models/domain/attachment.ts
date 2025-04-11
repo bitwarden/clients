@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { Attachment as SdkAttachment } from "@bitwarden/sdk-internal";
+
 import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
@@ -112,5 +114,21 @@ export class Attachment extends Domain {
       key,
       fileName,
     });
+  }
+
+  /**
+   * Maps to SDK Attachment
+   *
+   * @returns {SdkAttachment} - The SDK Attachment object
+   */
+  toSdkAttachment(): SdkAttachment {
+    return {
+      id: this.id,
+      url: this.url,
+      size: this.size,
+      sizeName: this.sizeName,
+      fileName: this.fileName?.toJSON(),
+      key: this.key?.toJSON(),
+    };
   }
 }

@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { LoginUriView as SdkLoginUriView } from "@bitwarden/sdk-internal";
+
 import { UriMatchStrategy, UriMatchStrategySetting } from "../../../models/domain/domain-service";
 import { View } from "../../../models/view/view";
 import { SafeUrls } from "../../../platform/misc/safe-urls";
@@ -110,6 +112,21 @@ export class LoginUriView implements View {
 
   static fromJSON(obj: Partial<Jsonify<LoginUriView>>): LoginUriView {
     return Object.assign(new LoginUriView(), obj);
+  }
+
+  /**
+   * Converts a LoginUriView object from the SDK to a LoginUriView object.
+   */
+  static fromSdkLoginUriView(obj: SdkLoginUriView): LoginUriView | undefined {
+    if (obj == null) {
+      return undefined;
+    }
+
+    const view = new LoginUriView();
+    view.uri = obj.uri;
+    view.match = obj.match;
+
+    return view;
   }
 
   matchesUri(

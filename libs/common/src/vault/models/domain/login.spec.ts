@@ -202,6 +202,54 @@ describe("Login DTO", () => {
       expect(Login.fromJSON(null)).toBeNull();
     });
   });
+
+  describe("toSdkLogin", () => {
+    it("should map to SDK login", () => {
+      const data: LoginData = {
+        uris: [{ uri: "uri", uriChecksum: "checksum", match: UriMatchStrategy.Domain }],
+        username: "username",
+        password: "password",
+        passwordRevisionDate: "2022-01-31T12:00:00.000Z",
+        totp: "123",
+        autofillOnPageLoad: false,
+        fido2Credentials: [initializeFido2Credential(new Fido2CredentialData())],
+      };
+      const login = new Login(data);
+      const sdkLogin = login.toSdkLogin();
+
+      expect(sdkLogin).toEqual({
+        username: "username",
+        password: "password",
+        passwordRevisionDate: "2022-01-31T12:00:00.000Z",
+        uris: [
+          {
+            match: 0,
+            uri: "uri",
+            uriChecksum: "checksum",
+          },
+        ],
+        totp: "123",
+        autofillOnPageLoad: false,
+        fido2Credentials: [
+          {
+            credentialId: "credentialId",
+            keyType: "public-key",
+            keyAlgorithm: "ECDSA",
+            keyCurve: "P-256",
+            keyValue: "keyValue",
+            rpId: "rpId",
+            userHandle: "userHandle",
+            userName: "userName",
+            counter: "counter",
+            rpName: "rpName",
+            userDisplayName: "userDisplayName",
+            discoverable: "discoverable",
+            creationDate: "2023-01-01T12:00:00.000Z",
+          },
+        ],
+      });
+    });
+  });
 });
 
 type Fido2CredentialLike = Fido2CredentialData | Fido2CredentialView | Fido2CredentialApi;

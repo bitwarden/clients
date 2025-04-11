@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { Login as SdkLogin } from "@bitwarden/sdk-internal";
+
 import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
@@ -143,5 +145,22 @@ export class Login extends Domain {
       uris,
       fido2Credentials,
     });
+  }
+
+  /**
+   * Maps Login to SDK format.
+   *
+   * @returns {SdkLogin} The SDK login object.
+   */
+  toSdkLogin(): SdkLogin {
+    return {
+      uris: this.uris?.map((u) => u.toSdkLoginUri()),
+      username: this.username?.toJSON(),
+      password: this.password?.toJSON(),
+      passwordRevisionDate: this.passwordRevisionDate?.toISOString(),
+      totp: this.totp?.toJSON(),
+      autofillOnPageLoad: this.autofillOnPageLoad,
+      fido2Credentials: this.fido2Credentials?.map((f) => f.toSdkFido2Credential()),
+    };
   }
 }

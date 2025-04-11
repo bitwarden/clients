@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { SecureNoteView as SdkSecureNoteView } from "@bitwarden/sdk-internal";
+
 import { SecureNoteType } from "../../enums";
 import { SecureNote } from "../domain/secure-note";
 
@@ -24,6 +26,17 @@ export class SecureNoteView extends ItemView {
   }
 
   static fromJSON(obj: Partial<Jsonify<SecureNoteView>>): SecureNoteView {
+    return Object.assign(new SecureNoteView(), obj);
+  }
+
+  /**
+   * Converts the SDK SecureNoteView to a SecureNoteView.
+   */
+  static fromSdkSecureNoteView(obj: SdkSecureNoteView): SecureNoteView | undefined {
+    if (!obj) {
+      return undefined;
+    }
+
     return Object.assign(new SecureNoteView(), obj);
   }
 }
