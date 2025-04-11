@@ -1,14 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { CommonModule } from "@angular/common";
-import { Component, HostBinding, Input } from "@angular/core";
+import { Component, HostBinding, Input, inject } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitIconButtonComponent } from "../../icon-button/icon-button.component";
 import { TypographyDirective } from "../../typography/typography.directive";
 import { fadeIn } from "../animations";
+import { DialogRef, IS_DRAWER_TOKEN } from "../dialog.service";
 import { DialogCloseDirective } from "../directives/dialog-close.directive";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
 
@@ -17,6 +19,9 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
   templateUrl: "./dialog.component.html",
   animations: [fadeIn],
   standalone: true,
+  host: {
+    "(keydown.esc)": "handleEsc()",
+  },
   imports: [
     CommonModule,
     DialogTitleContainerDirective,
@@ -24,9 +29,13 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
     BitIconButtonComponent,
     DialogCloseDirective,
     I18nPipe,
+    CdkTrapFocus,
   ],
 })
 export class DialogComponent {
+  private dialogRef = inject(DialogRef, { optional: true });
+  protected isDrawer = inject(IS_DRAWER_TOKEN, { optional: true }) ?? false;
+
   /** Background color */
   @Input()
   background: "default" | "alt" = "default";
@@ -64,21 +73,28 @@ export class DialogComponent {
 
   @HostBinding("class") get classes() {
     // `tw-max-h-[90vh]` is needed to prevent dialogs from overlapping the desktop header
-    return ["tw-flex", "tw-flex-col", "tw-w-screen", "tw-p-4", "tw-max-h-[90vh]"].concat(
-      this.width,
-    );
+    return ["tw-flex", "tw-flex-col"]
+      .concat(
+        this.width,
+        !this.isDrawer ? ["tw-p-4", "tw-w-screen", "tw-max-h-[90vh]"] : ["tw-min-h-screen"],
+      )
+      .flat();
+  }
+
+  handleEsc() {
+    this.dialogRef.close();
   }
 
   get width() {
     switch (this.dialogSize) {
       case "small": {
-        return "tw-max-w-sm";
+        return "md:tw-max-w-sm";
       }
       case "large": {
-        return "tw-max-w-3xl";
+        return "md:tw-max-w-3xl";
       }
       default: {
-        return "tw-max-w-xl";
+        return "md:tw-max-w-xl";
       }
     }
   }

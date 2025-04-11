@@ -1,31 +1,25 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
-  DEFAULT_DIALOG_CONFIG,
-  Dialog,
+  Dialog as CdkDialog,
   DialogConfig,
-  DialogRef,
-  DIALOG_SCROLL_STRATEGY,
+  DialogRef as CdkDialogRef,
+  DIALOG_DATA,
+  DialogCloseOptions,
 } from "@angular/cdk/dialog";
-import { ComponentType, Overlay, OverlayContainer, ScrollStrategy } from "@angular/cdk/overlay";
-import {
-  Inject,
-  Injectable,
-  Injector,
-  OnDestroy,
-  Optional,
-  SkipSelf,
-  TemplateRef,
-} from "@angular/core";
+import { ComponentType, ScrollStrategy } from "@angular/cdk/overlay";
+import { ComponentPortal, Portal } from "@angular/cdk/portal";
+import { Injectable, InjectionToken, Injector, TemplateRef, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
-import { filter, firstValueFrom, Subject, switchMap, takeUntil } from "rxjs";
+import { filter, firstValueFrom, map, Observable, Subject, switchMap } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { DrawerService } from "../drawer/drawer.service";
+
 import { SimpleConfigurableDialogComponent } from "./simple-dialog/simple-configurable-dialog/simple-configurable-dialog.component";
-import { SimpleDialogOptions, Translation } from "./simple-dialog/types";
+import { SimpleDialogOptions } from "./simple-dialog/types";
 
 /**
  * The default `BlockScrollStrategy` does not work well with virtual scrolling.
@@ -48,53 +42,74 @@ class CustomBlockScrollStrategy implements ScrollStrategy {
   detach() {}
 }
 
+export const IS_DRAWER_TOKEN = new InjectionToken<boolean>("IS_DRAWER");
+
+export abstract class DialogRef<R = unknown, C = unknown>
+  implements Pick<CdkDialogRef<R, C>, "close" | "closed" | "disableClose" | "componentInstance">
+{
+  abstract close(result?: R, options?: DialogCloseOptions): void;
+  abstract closed: Observable<R | undefined>;
+  abstract disableClose: boolean | undefined;
+  /**
+   * @deprecated
+   * Does not work with drawer dialogs.
+   **/
+  abstract componentInstance: C | null;
+}
+
+class DrawerDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
+  private _closed = new Subject<R | undefined>();
+  closed = this._closed.asObservable();
+  disableClose = false;
+
+  /** The portal containing the drawer */
+  portal?: Portal<unknown>;
+
+  constructor(private drawerService: DrawerService) {}
+
+  close(result?: R, _options?: DialogCloseOptions): void {
+    if (this.disableClose) {
+      return;
+    }
+    this.drawerService.close(this.portal!);
+    this._closed.next(result);
+    this._closed.complete();
+  }
+
+  componentInstance: C | null = null;
+}
+
 @Injectable()
-export class DialogService extends Dialog implements OnDestroy {
-  private _destroy$ = new Subject<void>();
+export class DialogService {
+  private dialog = inject(CdkDialog);
+  private drawerService = inject(DrawerService);
+  private injector = inject(Injector);
+  private router = inject(Router, { optional: true });
+  private authService = inject(AuthService, { optional: true });
+  private i18nService = inject(I18nService);
 
   private backDropClasses = ["tw-fixed", "tw-bg-black", "tw-bg-opacity-30", "tw-inset-0"];
-
   private defaultScrollStrategy = new CustomBlockScrollStrategy();
+  private activeDrawer: DrawerDialogRef<any, any> | null = null;
 
-  constructor(
-    /** Parent class constructor */
-    _overlay: Overlay,
-    _injector: Injector,
-    @Optional() @Inject(DEFAULT_DIALOG_CONFIG) _defaultOptions: DialogConfig,
-    @Optional() @SkipSelf() _parentDialog: Dialog,
-    _overlayContainer: OverlayContainer,
-    @Inject(DIALOG_SCROLL_STRATEGY) scrollStrategy: any,
-
-    /** Not in parent class */
-    @Optional() router: Router,
-    @Optional() authService: AuthService,
-
-    protected i18nService: I18nService,
-  ) {
-    super(_overlay, _injector, _defaultOptions, _parentDialog, _overlayContainer, scrollStrategy);
-
+  constructor() {
+    /** TODO: This logic should exist outside of `libs/components`. */
     /** Close all open dialogs if the vault locks */
-    if (router && authService) {
-      router.events
+    if (this.router && this.authService) {
+      this.router.events
         .pipe(
           filter((event) => event instanceof NavigationEnd),
-          switchMap(() => authService.getAuthStatus()),
+          switchMap(() => this.authService!.getAuthStatus()),
           filter((v) => v !== AuthenticationStatus.Unlocked),
-          takeUntil(this._destroy$),
+          takeUntilDestroyed(),
         )
         .subscribe(() => this.closeAll());
     }
   }
 
-  override ngOnDestroy(): void {
-    this._destroy$.next();
-    this._destroy$.complete();
-    super.ngOnDestroy();
-  }
-
-  override open<R = unknown, D = unknown, C = unknown>(
+  open<R = unknown, D = unknown, C = any>(
     componentOrTemplateRef: ComponentType<C> | TemplateRef<C>,
-    config?: DialogConfig<D, DialogRef<R, C>>,
+    config?: DialogConfig<D, CdkDialogRef<R, C>>,
   ): DialogRef<R, C> {
     config = {
       backdropClass: this.backDropClasses,
@@ -102,7 +117,44 @@ export class DialogService extends Dialog implements OnDestroy {
       ...config,
     };
 
-    return super.open(componentOrTemplateRef, config);
+    return this.dialog.open(componentOrTemplateRef, config);
+  }
+
+  /** Opens a dialog in the side drawer */
+  openDrawer<R = unknown, D = unknown, C = unknown>(
+    component: ComponentType<C>,
+    config?: DialogConfig<D, DialogRef<R, C>>,
+  ): DialogRef<R, C> {
+    this.activeDrawer?.close();
+    this.activeDrawer = new DrawerDialogRef(this.drawerService);
+    const portal = new ComponentPortal(
+      component,
+      null,
+      Injector.create({
+        providers: [
+          {
+            provide: DIALOG_DATA,
+            useValue: config?.data,
+          },
+          {
+            provide: CdkDialogRef,
+            useValue: this.activeDrawer,
+          },
+          {
+            provide: DialogRef,
+            useValue: this.activeDrawer,
+          },
+          {
+            provide: IS_DRAWER_TOKEN,
+            useValue: true,
+          },
+        ],
+        parent: this.injector,
+      }),
+    );
+    this.activeDrawer.portal = portal;
+    this.drawerService.open(portal);
+    return this.activeDrawer;
   }
 
   /**
@@ -113,8 +165,7 @@ export class DialogService extends Dialog implements OnDestroy {
    */
   async openSimpleDialog(simpleDialogOptions: SimpleDialogOptions): Promise<boolean> {
     const dialogRef = this.openSimpleDialogRef(simpleDialogOptions);
-
-    return firstValueFrom(dialogRef.closed);
+    return firstValueFrom(dialogRef.closed.pipe(map((v: boolean | undefined) => !!v)));
   }
 
   /**
@@ -134,20 +185,8 @@ export class DialogService extends Dialog implements OnDestroy {
     });
   }
 
-  protected translate(translation: string | Translation, defaultKey?: string): string {
-    if (translation == null && defaultKey == null) {
-      return null;
-    }
-
-    if (translation == null) {
-      return this.i18nService.t(defaultKey);
-    }
-
-    // Translation interface use implies we must localize.
-    if (typeof translation === "object") {
-      return this.i18nService.t(translation.key, ...(translation.placeholders ?? []));
-    }
-
-    return translation;
+  /** Close all open dialogs */
+  closeAll(): void {
+    return this.dialog.closeAll();
   }
 }
