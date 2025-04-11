@@ -90,6 +90,7 @@ export class Organization {
    */
   userIsManagedByOrganization: boolean;
   useRiskInsights: boolean;
+  useAdminSponsoredFamilies: boolean;
 
   constructor(obj?: OrganizationData) {
     if (obj == null) {
@@ -148,6 +149,7 @@ export class Organization {
     this.allowAdminAccessToAllCollectionItems = obj.allowAdminAccessToAllCollectionItems;
     this.userIsManagedByOrganization = obj.userIsManagedByOrganization;
     this.useRiskInsights = obj.useRiskInsights;
+    this.useAdminSponsoredFamilies = obj.useAdminSponsoredFamilies;
   }
 
   get canAccess() {
