@@ -56,6 +56,11 @@ describe("Firefox Relay forwarder", () => {
 
         const result = FirefoxRelay.forwarder.createForwardingEmail.body(null, context);
 
+        expect(context.website).toHaveBeenCalledWith(null, { maxLength: 255 });
+        expect(context.generatedBy).toHaveBeenCalledWith(null, {
+          extractHostname: true,
+          maxLength: 64,
+        });
         expect(result).toEqual({
           enabled: true,
           generated_for: "website",

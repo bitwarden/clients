@@ -33,8 +33,8 @@ const createForwardingEmail = Object.freeze({
   body(request: IntegrationRequest, context: ForwarderContext<FirefoxRelaySettings>) {
     return {
       enabled: true,
-      generated_for: context.website(request),
-      description: context.generatedBy(request),
+      generated_for: context.website(request, { maxLength: 255 }),
+      description: context.generatedBy(request, { extractHostname: true, maxLength: 64 }),
     };
   },
   hasJsonPayload(response: Response) {
