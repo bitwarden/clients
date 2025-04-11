@@ -11,7 +11,7 @@ export function ActionButton({
   theme,
   handleClick,
 }: {
-  buttonText: string | TemplateResult<1>;
+  buttonText: string | TemplateResult;
   disabled?: boolean;
   theme: Theme;
   handleClick: (e: Event) => void;
