@@ -35,7 +35,7 @@ const defaultSettings = Object.freeze({
 const createForwardingEmail = Object.freeze({
   url(request: IntegrationRequest, context: ForwarderContext<SimpleLoginSettings>) {
     const endpoint = context.baseUrl() + "/api/alias/random/new";
-    const hostname = context.website(request);
+    const hostname = context.domain(request);
     const url = hostname !== "" ? `${endpoint}?hostname=${hostname}` : endpoint;
 
     return url;
