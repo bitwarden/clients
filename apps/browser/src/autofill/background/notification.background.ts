@@ -611,13 +611,13 @@ export default class NotificationBackground {
       try {
         await this.cipherService.createWithServer(cipher);
         await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
-          username: queueMessage?.username && String(queueMessage?.username),
-          cipherId: cipher?.id && String(cipher?.id),
+          username: queueMessage?.username && String(queueMessage.username),
+          cipherId: cipher?.id && String(cipher.id),
         });
         await BrowserApi.tabSendMessage(tab, { command: "addedCipher" });
       } catch (error) {
         await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
-          error: error?.message && String(error?.message),
+          error: error?.message && String(error.message),
         });
       }
     }
@@ -674,8 +674,8 @@ export default class NotificationBackground {
       await this.cipherService.updateWithServer(cipher);
 
       await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
-        username: cipherView?.login?.username && String(cipherView?.login?.username),
-        cipherId: cipherView?.id && String(cipherView?.id),
+        username: cipherView?.login?.username && String(cipherView.login.username),
+        cipherId: cipherView?.id && String(cipherView.id),
         task: taskData,
       });
 
@@ -692,7 +692,7 @@ export default class NotificationBackground {
       }
     } catch (error) {
       await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
-        error: error?.message && String(error?.message),
+        error: error?.message && String(error.message),
       });
     }
   }
