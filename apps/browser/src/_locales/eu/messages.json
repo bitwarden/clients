@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "Pribatutasun politika"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Zure pasahitza ezin da izan zure pasahitzaren pistaren berdina."
   },

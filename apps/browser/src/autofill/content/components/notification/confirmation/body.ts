@@ -1,12 +1,12 @@
 import createEmotion from "@emotion/css/create-instance";
-import { html } from "lit";
+import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { themes } from "../constants/styles";
-import { PartyHorn, Warning } from "../icons";
+import { themes } from "../../constants/styles";
+import { PartyHorn, Keyhole, Warning } from "../../icons";
 
-import { NotificationConfirmationMessage } from "./confirmation-message";
+import { NotificationConfirmationMessage } from "./message";
 
 export const componentClassPrefix = "notification-confirmation-body";
 
@@ -14,31 +14,41 @@ const { css } = createEmotion({
   key: componentClassPrefix,
 });
 
-export function NotificationConfirmationBody({
-  buttonText,
-  error,
-  confirmationMessage,
-  theme,
-  handleOpenVault,
-}: {
-  error?: string;
+export type NotificationConfirmationBodyProps = {
   buttonText: string;
   confirmationMessage: string;
+  error?: string;
+  messageDetails?: string;
+  tasksAreComplete?: boolean;
   theme: Theme;
   handleOpenVault: (e: Event) => void;
-}) {
-  const IconComponent = !error ? PartyHorn : Warning;
+};
+
+export function NotificationConfirmationBody({
+  buttonText,
+  confirmationMessage,
+  error,
+  messageDetails,
+  tasksAreComplete,
+  theme,
+  handleOpenVault,
+}: NotificationConfirmationBodyProps) {
+  const IconComponent = tasksAreComplete ? Keyhole : !error ? PartyHorn : Warning;
+
+  const showConfirmationMessage = confirmationMessage || buttonText || messageDetails;
+
   return html`
     <div class=${notificationConfirmationBodyStyles({ theme })}>
       <div class=${iconContainerStyles(error)}>${IconComponent({ theme })}</div>
-      ${confirmationMessage && buttonText
+      ${showConfirmationMessage
         ? NotificationConfirmationMessage({
-            handleClick: handleOpenVault,
-            confirmationMessage,
-            theme,
             buttonText,
+            message: confirmationMessage,
+            messageDetails,
+            theme,
+            handleClick: handleOpenVault,
           })
-        : null}
+        : nothing}
     </div>
   `;
 }

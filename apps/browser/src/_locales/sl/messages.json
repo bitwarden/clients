@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "Pravilnik o zasebnosti"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Namig za geslo ne sme biti enak geslu."
   },

@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "Patakaran sa Privacy"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Hindi pwedeng maging pareho ang password hint at password mo."
   },

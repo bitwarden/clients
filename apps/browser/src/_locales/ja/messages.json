@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "プライバシーポリシー"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "新しいパスワードを現在のパスワードと同じにすることはできません。"
+  },
   "hintEqualsPassword": {
     "message": "パスワードのヒントをパスワードと同じにすることはできません。"
   },
@@ -2505,14 +2508,14 @@
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
-    "message": "Illustration of a list of logins that are at-risk."
+    "message": "危険な状態にあるログイン情報の一覧表示の例"
   },
   "generatePasswordSlideDesc": {
     "message": "Bitwarden の自動入力メニューで、強力で一意なパスワードをすぐに生成しましょう。",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
   "generatePasswordSlideImgAltPeriod": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
+    "message": "Bitwarden の自動入力メニューで、生成されたパスワードが表示されている例"
   },
   "updateInBitwarden": {
     "message": "Bitwarden 上のデータを更新"
@@ -2522,7 +2525,7 @@
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
   "updateInBitwardenSlideImgAltPeriod": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
+    "message": "ユーザーにログイン情報を更新するよう促す Bitwarden の通知例"
   },
   "turnOnAutofill": {
     "message": "自動入力をオンにする"
@@ -4244,7 +4247,7 @@
     }
   },
   "viewItemTitleWithField": {
-    "message": "View item - $ITEMNAME$ - $FIELD$",
+    "message": "アイテムを表示 - $ITEMNAME$ - $FIELD$",
     "description": "Title for a link that opens a view for an item.",
     "placeholders": {
       "itemname": {
@@ -4268,7 +4271,7 @@
     }
   },
   "autofillTitleWithField": {
-    "message": "Autofill - $ITEMNAME$ - $FIELD$",
+    "message": "自動入力 - $ITEMNAME$ - $FIELD$",
     "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
@@ -5142,30 +5145,30 @@
     "message": "危険なパスワードの変更"
   },
   "introCarouselLabel": {
-    "message": "Welcome to Bitwarden"
+    "message": "Bitwarden へようこそ"
   },
   "securityPrioritized": {
-    "message": "Security, prioritized"
+    "message": "セキュリティが優先"
   },
   "securityPrioritizedBody": {
-    "message": "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you."
+    "message": "ログイン情報、カード、ID を安全な保管庫に保存します。 Bitwarden はゼロ知識、エンドツーエンドの暗号化を使用して、あなたにとって重要なものを保護します。"
   },
   "quickLogin": {
-    "message": "Quick and easy login"
+    "message": "すばやく簡単にログイン"
   },
   "quickLoginBody": {
-    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+    "message": "生体認証によるロック解除と自動入力を設定すると、文字を一切入力することなく各種アカウントにログインすることができます。"
   },
   "secureUser": {
-    "message": "Level up your logins"
+    "message": "ログインをレベルアップ"
   },
   "secureUserBody": {
-    "message": "Use the generator to create and save strong, unique passwords for all your accounts."
+    "message": "パスワード生成機能を使用すると、すべてのアカウントで強力な一意のパスワードを作成して保存できます。"
   },
   "secureDevices": {
-    "message": "Your data, when and where you need it"
+    "message": "必要なデータを、いつでもどこでも"
   },
   "secureDevicesBody": {
-    "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
+    "message": "Bitwarden のモバイル、ブラウザ、デスクトップアプリでは、保存できるパスワード数やデバイス数に制限はありません。"
   }
 }

@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "Personvernerklæring"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Passordhintet ditt kan ikke være det samme som passordet ditt."
   },

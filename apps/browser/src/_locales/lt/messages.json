@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "Privatumo politika"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Jūsų slaptažodžio užuomina negali būti tokia pati kaip Jūsų slaptažodis."
   },

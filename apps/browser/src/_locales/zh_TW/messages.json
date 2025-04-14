@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "隱私權政策"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "密碼提示不能與您的密碼相同。"
   },
