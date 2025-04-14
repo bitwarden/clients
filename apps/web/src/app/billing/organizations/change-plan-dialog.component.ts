@@ -480,7 +480,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   protected get canRestartSubscription(): boolean {
-    return this.sub.subscription.status === "canceled";
+    return !!this.sub?.subscription && this.sub.subscription.status === "canceled";
   }
 
   get upgradeRequiresPaymentMethod() {
@@ -861,6 +861,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         this.organizationId,
         updatePaymentMethodRequest,
       );
+
+      if (!!this.sub?.subscription && this.sub.subscription.status === "unpaid") {
+        return;
+      }
     }
 
     // Backfill pub/priv key if necessary
