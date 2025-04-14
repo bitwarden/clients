@@ -52,12 +52,16 @@ export class UserApiLoginStrategy extends LoginStrategy {
     return authResult;
   }
 
-  protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {
+  protected override async setMasterKey(
+    response: IdentityTokenResponse,
+    userId: UserId,
+  ): Promise<null> {
     if (response.apiUseKeyConnector) {
       const env = await firstValueFrom(this.environmentService.environment$);
       const keyConnectorUrl = env.getKeyConnectorUrl();
       await this.keyConnectorService.setMasterKeyFromUrl(keyConnectorUrl, userId);
     }
+    return null;
   }
 
   protected override async setUserKey(

@@ -1,7 +1,8 @@
 import { Observable } from "rxjs";
 
+import { KdfType } from "@bitwarden/key-management";
+
 import { Organization } from "../../../admin-console/models/domain/organization";
-import { IdentityTokenResponse } from "../../../auth/models/response/identity-token.response";
 import { UserId } from "../../../types/guid";
 
 export abstract class KeyConnectorService {
@@ -14,9 +15,13 @@ export abstract class KeyConnectorService {
   abstract migrateUser(keyConnectorUrl: string, userId: UserId): Promise<void>;
 
   abstract convertNewSsoUserToKeyConnector(
-    tokenResponse: IdentityTokenResponse,
     orgId: string,
     userId: UserId,
+    keyConnectorUrl: string,
+    kdf: KdfType,
+    kdfIterations: number,
+    kdfMemory?: number,
+    kdfParallelism?: number,
   ): Promise<void>;
 
   abstract setUsesKeyConnector(enabled: boolean, userId: UserId): Promise<void>;

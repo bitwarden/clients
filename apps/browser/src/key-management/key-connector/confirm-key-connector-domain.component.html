@@ -1,0 +1,47 @@
+<header>
+  <div class="left"></div>
+  <div class="center">
+    <span class="title">{{ "confirmKeyConnectorDomain" | i18n }}</span>
+  </div>
+  <div class="right"></div>
+</header>
+
+<main tabindex="-1">
+  <div class="box">
+    @if (loading) {
+      <div class="box-content">
+        <div class="box-content-row">
+          <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
+        </div>
+      </div>
+    } @else {
+      <div class="box-content">
+        <div class="box-content-row" appBoxRow>
+          <p class="tw-mt-2 tw-mb-1">{{ "keyConnectorDomain" | i18n }}:</p>
+          <p class="tw-text-muted tw-mb-2">{{ keyConnectorUrl }}</p>
+        </div>
+        <div class="box-content-row">
+          <button
+            bitButton
+            type="button"
+            buttonType="primary"
+            class="tw-mb-2"
+            [bitAction]="confirm"
+            [block]="true"
+          >
+            {{ "confirm" | i18n }}
+          </button>
+          <button
+            bitButton
+            type="button"
+            buttonType="secondary"
+            [bitAction]="cancel"
+            [block]="true"
+          >
+            {{ "cancel" | i18n }}
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</main>

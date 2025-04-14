@@ -296,7 +296,12 @@ export abstract class LoginStrategy {
       await this.tokenService.setTwoFactorToken(userEmail, response.twoFactorToken);
     }
 
-    await this.setMasterKey(response, userId);
+    const masterKeyResult = await this.setMasterKey(response, userId);
+    if (masterKeyResult != null) {
+      result.requiresKeyConnectorDomainConfirmation =
+        masterKeyResult.requiresKeyConnectorDomainConfirmation;
+    }
+
     await this.setUserKey(response, userId);
     await this.setPrivateKey(response, userId);
 
@@ -306,7 +311,19 @@ export abstract class LoginStrategy {
   }
 
   // The keys comes from different sources depending on the login strategy
-  protected abstract setMasterKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
+  protected abstract setMasterKey(
+    response: IdentityTokenResponse,
+    userId: UserId,
+  ): Promise<{
+    requiresKeyConnectorDomainConfirmation: {
+      kdf: KdfType;
+      kdfIterations: number;
+      kdfMemory?: number;
+      kdfParallelism?: number;
+      keyConnectorUrl: string;
+      organizationId: string;
+    };
+  } | null>;
 
   protected abstract setUserKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
 

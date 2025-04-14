@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { KdfType } from "@bitwarden/key-management";
+
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
 import { TwoFactorProviderType } from "../../enums/two-factor-provider-type";
@@ -23,6 +25,14 @@ export class AuthResult {
   email: string;
   requiresEncryptionKeyMigration: boolean;
   requiresDeviceVerification: boolean;
+  requiresKeyConnectorDomainConfirmation?: {
+    kdf: KdfType;
+    kdfIterations: number;
+    kdfMemory?: number;
+    kdfParallelism?: number;
+    keyConnectorUrl: string;
+    organizationId: string;
+  };
 
   get requiresCaptcha() {
     return !Utils.isNullOrWhitespace(this.captchaSiteKey);

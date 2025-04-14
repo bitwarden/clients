@@ -34,6 +34,7 @@ import { KeyConnectorService } from "@bitwarden/common/key-management/key-connec
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -44,6 +45,7 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legac
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
+import { ConfirmKeyConnectorDomainCommand } from "../../key-management/confirm-key-connector-domain.command";
 import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";
 
@@ -76,6 +78,7 @@ export class LoginCommand {
     protected logoutCallback: () => Promise<void>,
     protected kdfConfigService: KdfConfigService,
     protected ssoUrlService: SsoUrlService,
+    protected i18nService: I18nService,
   ) {}
 
   async run(email: string, password: string, options: OptionValues) {
@@ -354,6 +357,25 @@ export class LoginCommand {
           "In order to log in with SSO from the CLI, you must first log in" +
             " through the web vault to set your master password.",
         );
+      }
+
+      if (response.requiresKeyConnectorDomainConfirmation != null) {
+        const command = new ConfirmKeyConnectorDomainCommand(
+          response.userId,
+          response.requiresKeyConnectorDomainConfirmation.organizationId,
+          response.requiresKeyConnectorDomainConfirmation.keyConnectorUrl,
+          response.requiresKeyConnectorDomainConfirmation.kdf,
+          response.requiresKeyConnectorDomainConfirmation.kdfIterations,
+          response.requiresKeyConnectorDomainConfirmation.kdfMemory,
+          response.requiresKeyConnectorDomainConfirmation.kdfParallelism,
+          this.keyConnectorService,
+          this.logoutCallback,
+          this.i18nService,
+        );
+        const confirmResponse = await command.run();
+        if (!confirmResponse.success) {
+          return confirmResponse;
+        }
       }
 
       // Run full sync before handling success response or password reset flows (to get Master Password Policies)

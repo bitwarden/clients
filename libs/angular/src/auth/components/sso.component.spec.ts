@@ -1,14 +1,14 @@
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
-import { MockProxy, mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Observable, of } from "rxjs";
 
 import {
   FakeKeyConnectorUserDecryptionOption as KeyConnectorUserDecryptionOption,
-  LoginStrategyServiceAbstraction,
   FakeTrustedDeviceUserDecryptionOption as TrustedDeviceUserDecryptionOption,
   FakeUserDecryptionOptions as UserDecryptionOptions,
+  LoginStrategyServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -30,8 +30,10 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+import { KdfType } from "@bitwarden/key-management";
 
 import { SsoComponent } from "./sso.component";
+
 // test component that extends the SsoComponent
 @Component({})
 class TestSsoComponent extends SsoComponent {}
@@ -294,6 +296,41 @@ describe("SsoComponent", () => {
         expect(mockLoginStrategyService.logIn).toHaveBeenCalledTimes(1);
         expect(mockOnSuccessfulLoginTwoFactorNavigate).toHaveBeenCalledTimes(1);
         expect(mockRouter.navigate).not.toHaveBeenCalled();
+        expect(mockLogService.error).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("Key Connector scenarios", () => {
+      it("navigates to the confirm key connector domain route when the auth result requires key connector domain confirmation", async () => {
+        const authResult = new AuthResult();
+        authResult.userId = userId;
+        authResult.requiresKeyConnectorDomainConfirmation = {
+          organizationId: orgIdFromState,
+          keyConnectorUrl: "https://key-connector-url.bitwarden.com",
+          kdf: KdfType.Argon2id,
+          kdfIterations: 10,
+          kdfMemory: 64,
+          kdfParallelism: 4,
+        };
+
+        mockLoginStrategyService.logIn.mockResolvedValue(authResult);
+
+        await _component.logIn(code, codeVerifier, orgIdFromState);
+        expect(mockLoginStrategyService.logIn).toHaveBeenCalledTimes(1);
+
+        expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
+        expect(mockRouter.navigate).toHaveBeenCalledWith(["confirm-key-connector-domain"], {
+          queryParams: {
+            organizationId: orgIdFromState,
+            keyConnectorUrl: "https://key-connector-url.bitwarden.com",
+            kdf: KdfType.Argon2id,
+            kdfIterations: 10,
+            kdfMemory: 64,
+            kdfParallelism: 4,
+            userId: userId,
+          },
+        });
+
         expect(mockLogService.error).not.toHaveBeenCalled();
       });
     });
