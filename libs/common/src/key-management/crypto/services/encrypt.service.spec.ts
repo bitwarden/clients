@@ -156,6 +156,22 @@ describe("EncryptService", () => {
       );
     });
 
+    it("encrypts data with provided Aes256Cbc key and returns correct encbuffer", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(32, 0));
+      const iv = makeStaticByteArray(16, 80);
+      const cipherText = makeStaticByteArray(20, 150);
+      cryptoFunctionService.randomBytes.mockResolvedValue(iv as CsprngArray);
+      cryptoFunctionService.aesEncrypt.mockResolvedValue(cipherText);
+
+      const actual = await encryptService.encryptToBytes(plainValue, key);
+      const expectedBytes = new Uint8Array(1 + iv.byteLength + cipherText.byteLength);
+      expectedBytes.set([EncryptionType.AesCbc256_B64]);
+      expectedBytes.set(iv, 1);
+      expectedBytes.set(cipherText, 1 + iv.byteLength);
+
+      expect(actual.buffer).toEqualBuffer(expectedBytes);
+    });
+
     it("encrypts data with provided Aes256Cbc_HmacSha256 key and returns correct encbuffer", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64, 0));
       const iv = makeStaticByteArray(16, 80);
