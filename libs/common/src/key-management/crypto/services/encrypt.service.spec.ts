@@ -308,7 +308,7 @@ describe("EncryptService", () => {
 
     it("returns null if key is AesCbc256 but encstring is AesCbc256_HMAC", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(32, 0));
-      const encString = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "data");
+      const encString = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "data", "iv", "mac");
 
       const actual = await encryptService.decryptToUtf8(encString, key);
       expect(actual).toBeNull();
@@ -317,7 +317,7 @@ describe("EncryptService", () => {
 
     it("returns null if macs don't match", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64, 0));
-      const encString = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "data");
+      const encString = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "data", "iv", "mac");
       cryptoFunctionService.aesDecryptFastParameters.mockReturnValue({
         macData: makeStaticByteArray(32, 0),
         macKey: makeStaticByteArray(32, 0),
