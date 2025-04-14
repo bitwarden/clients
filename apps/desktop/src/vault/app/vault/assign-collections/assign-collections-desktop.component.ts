@@ -17,7 +17,7 @@ import {
   templateUrl: "./assign-collections-desktop.component.html",
   imports: [AssignCollectionsComponent, PluralizePipe, DialogModule, ButtonModule, JslibModule],
 })
-export class AssignCollectionsWebComponent {
+export class AssignCollectionsDesktopComponent {
   protected editableItemCount: number;
 
   constructor(
@@ -31,7 +31,7 @@ export class AssignCollectionsWebComponent {
 
   static open(dialogService: DialogService, config: DialogConfig<CollectionAssignmentParams>) {
     return dialogService.open<CollectionAssignmentResult, CollectionAssignmentParams>(
-      AssignCollectionsWebComponent,
+      AssignCollectionsDesktopComponent,
       config,
     );
   }

@@ -48,7 +48,7 @@ import { SearchBarService } from "../../../app/layout/search/search-bar.service"
 import { invokeMenu, RendererMenuItem } from "../../../utils";
 
 import { AddEditComponent } from "./add-edit.component";
-import { AssignCollectionsWebComponent } from "./assign-collections";
+import { AssignCollectionsDesktopComponent } from "./assign-collections";
 import { AttachmentsComponent } from "./attachments.component";
 import { CollectionsComponent } from "./collections.component";
 import { CredentialGeneratorDialogComponent } from "./credential-generator-dialog.component";
@@ -594,7 +594,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     const availableCollections = this.getAvailableCollections(cipher);
 
-    const dialog = AssignCollectionsWebComponent.open(this.dialogService, {
+    const dialog = AssignCollectionsDesktopComponent.open(this.dialogService, {
       data: {
         ciphers: [cipher],
         organizationId: cipher.organizationId as OrganizationId,

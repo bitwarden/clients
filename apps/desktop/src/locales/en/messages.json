@@ -3644,6 +3644,24 @@
   "nothingSelected": {
     "message": "You have not selected anything."
   },
+  "itemsMovedToOrg": {
+    "message": "Items moved to $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Item moved to $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
   "movedItemsToOrg": {
     "message": "Selected items moved to $ORGNAME$",
     "placeholders": {
@@ -3651,9 +3669,6 @@
         "content": "$1",
         "example": "Company Name"
       }
-    },
-    "personalItemTransferWarningSingular": {
-      "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
     },
     "personalItemsTransferWarningPlural": {
       "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
