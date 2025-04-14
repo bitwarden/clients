@@ -6,8 +6,6 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { OptionSelectionButton } from "../buttons/option-selection-button";
 import { Option } from "../common-types";
-import { selectedFolder as selectedFolderSignal } from "../signals/selected-folder";
-import { selectedVault as selectedVaultSignal } from "../signals/selected-vault";
 
 import { optionItemIconWidth } from "./option-item";
 import { OptionItems, optionsMenuItemMaxWidth } from "./option-items";
@@ -83,9 +81,6 @@ export class OptionSelection extends LitElement {
     this.showMenu = false;
     this.selection = selectedOption;
     this.selectedSignal?.set(selectedOption.value);
-    const selectedFolder = selectedFolderSignal.get();
-    const selectedVault = selectedVaultSignal.get();
-    console.log("selectedFolder", selectedFolder, "Selected vault", selectedVault);
     // Any side-effects that should occur from the selection
     this.handleSelectionUpdate?.(selectedOption.value);
   };

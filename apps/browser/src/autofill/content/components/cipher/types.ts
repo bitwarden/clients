@@ -30,13 +30,6 @@ type BaseCipherData<CipherTypeValue> = {
   icon: WebsiteIconData;
 };
 
-export type NotificationFoldersAndCollections = {
-  id: string;
-  name: string;
-  type: "folder" | "collection";
-  organizationId?: string;
-};
-
 export type CipherData = BaseCipherData<CipherType> & {
   accountCreationFieldType?: string;
   login?: {

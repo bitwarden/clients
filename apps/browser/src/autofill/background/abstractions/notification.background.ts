@@ -2,7 +2,7 @@ import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
-import { NotificationFoldersAndCollections } from "../../content/components/cipher/types";
+import { CollectionView } from "../../content/components/common-types";
 import { NotificationQueueMessageTypes } from "../../enums/notification-queue-message-type.enum";
 import AutofillPageDetails from "../../models/autofill-page-details";
 
@@ -95,10 +95,10 @@ type NotificationBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   unlockCompleted: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgGetFolderData: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<FolderView[]>;
-  bgGetFolderAndCollectionData: ({
+  bgGetCollectionData: ({
     message,
     sender,
-  }: BackgroundOnMessageHandlerParams) => Promise<NotificationFoldersAndCollections[]>;
+  }: BackgroundOnMessageHandlerParams) => Promise<CollectionView[]>;
   bgCloseNotificationBar: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgAdjustNotificationBar: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgAddLogin: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;

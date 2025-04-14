@@ -3,9 +3,10 @@ import { html } from "lit";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { Option, OrgView, FolderView } from "../common-types";
+import { Option, OrgView, FolderView, CollectionView } from "../common-types";
 import { Business, Family, Folder, User } from "../icons";
 import { ButtonRow } from "../rows/button-row";
+import { selectedCollection as selectedCollectionSignal } from "../signals/selected-collection";
 import { selectedFolder as selectedFolderSignal } from "../signals/selected-folder";
 import { selectedVault as selectedVaultSignal } from "../signals/selected-vault";
 
@@ -31,10 +32,12 @@ export type NotificationButtonRowProps = {
   };
   folders?: FolderView[];
   organizations?: OrgView[];
+  collections?: CollectionView[];
 };
 
 export function NotificationButtonRow({
   folders,
+  collections,
   organizations,
   primaryButton,
   theme,
@@ -77,6 +80,21 @@ export function NotificationButtonRow({
       )
     : [];
 
+  const collectionOptions: Option[] = collections?.length
+    ? collections.reduce<Option[]>(
+        (options, { id, name }: any) => [
+          ...options,
+          {
+            icon: Folder,
+            text: name,
+            value: id === null ? "0" : id,
+            default: id === null,
+          },
+        ],
+        [],
+      )
+    : [];
+
   return html`
     ${ButtonRow({
       theme,
@@ -92,13 +110,23 @@ export function NotificationButtonRow({
               },
             ]
           : []),
-        ...(folderOptions.length > 1
+        ...(folderOptions.length > 1 && !collectionOptions.length
           ? [
               {
                 id: "folder",
                 label: "Folder", // @TODO localize
                 options: folderOptions,
                 selectedSignal: selectedFolderSignal,
+              },
+            ]
+          : []),
+        ...(collectionOptions.length
+          ? [
+              {
+                id: "collection",
+                label: "Collection", // @TODO localize
+                options: collectionOptions,
+                selectedSignal: selectedCollectionSignal,
               },
             ]
           : []),

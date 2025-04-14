@@ -5,11 +5,8 @@ import { ConsoleLogService } from "@bitwarden/common/platform/services/console-l
 import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
-import {
-  NotificationCipherData,
-  NotificationFoldersAndCollections,
-} from "../content/components/cipher/types";
-import { OrgView } from "../content/components/common-types";
+import { NotificationCipherData } from "../content/components/cipher/types";
+import { CollectionView, OrgView } from "../content/components/common-types";
 import { NotificationConfirmationContainer } from "../content/components/notification/confirmation/container";
 import { NotificationContainer } from "../content/components/notification/container";
 import { selectedFolder as selectedFolderSignal } from "../content/components/signals/selected-folder";
@@ -146,21 +143,24 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
       new Promise<OrgView[]>((resolve) =>
         sendPlatformMessage({ command: "bgGetOrgData" }, resolve),
       ),
-      new Promise<NotificationFoldersAndCollections[]>((resolve) =>
-        sendPlatformMessage({ command: "bgGetFolderAndCollectionData", orgId }, resolve),
+      new Promise<FolderView[]>((resolve) =>
+        sendPlatformMessage({ command: "bgGetFolderData" }, resolve),
       ),
       new Promise<NotificationCipherData[]>((resolve) =>
         sendPlatformMessage({ command: "bgGetDecryptedCiphers" }, resolve),
       ),
-    ]).then(([organizations, folders, ciphers]) => {
+      new Promise<CollectionView[]>((resolve) =>
+        sendPlatformMessage({ command: "bgGetCollectionData", orgId }, resolve),
+      ),
+    ]).then(([organizations, folders, ciphers, collections]) => {
       notificationBarIframeInitData = {
         ...notificationBarIframeInitData,
+        organizations,
         folders,
         ciphers,
-        organizations,
+        collections,
       };
 
-      console.log(notificationBarIframeInitData);
       // @TODO use context to avoid prop drilling
       return render(
         NotificationContainer({

@@ -37,10 +37,8 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { openAddEditVaultItemPopout } from "../../vault/popup/utils/vault-popout-window";
-import {
-  NotificationCipherData,
-  NotificationFoldersAndCollections,
-} from "../content/components/cipher/types";
+import { NotificationCipherData } from "../content/components/cipher/types";
+import { CollectionView } from "../content/components/common-types";
 import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
 
@@ -80,7 +78,7 @@ export default class NotificationBackground {
     bgGetEnableAddedLoginPrompt: () => this.getEnableAddedLoginPrompt(),
     bgGetExcludedDomains: () => this.getExcludedDomains(),
     bgGetFolderData: () => this.getFolderData(),
-    bgGetFolderAndCollectionData: ({ message }) => this.getFolderAndCollectionsData(message),
+    bgGetCollectionData: ({ message }) => this.getCollectionData(message),
     bgGetOrgData: () => this.getOrgData(),
     bgNeverSave: ({ sender }) => this.saveNever(sender.tab),
     bgOpenVault: ({ message, sender }) => this.openVault(message, sender.tab),
@@ -742,36 +740,16 @@ export default class NotificationBackground {
     return await firstValueFrom(this.folderService.folderViews$(activeUserId));
   }
 
-  private async getFolderAndCollectionsData(
+  private async getCollectionData(
     message: NotificationBackgroundExtensionMessage,
-  ): Promise<NotificationFoldersAndCollections[]> {
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(getOptionalUserId),
-    );
-
-    if (!message?.orgId || message.orgId === "0") {
-      const folders = (await firstValueFrom(this.folderService.folderViews$(activeUserId)))
-        .map((folder) => ({
-          id: folder.id,
-          name: folder.name,
-          type: "folder" as const,
-        }))
-        .sort((f) => (f.id === null || f.id === "0" ? -1 : 1));
-      console.log("folders", folders);
-      return folders;
-    }
-
+  ): Promise<CollectionView[]> {
     const collections = (await this.collectionService.getAllDecrypted())
       .filter((collection) => collection.organizationId === message?.orgId)
       .map((collection) => ({
         id: collection.id,
         name: collection.name,
         organizationId: collection.organizationId,
-        type: "collection" as const,
       }));
-
-    console.log("collections", collections);
-
     return collections;
   }
 
