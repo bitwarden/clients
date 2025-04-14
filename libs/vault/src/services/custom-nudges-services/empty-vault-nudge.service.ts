@@ -10,7 +10,7 @@ import { DefaultSingleNudgeService } from "../default-single-nudge.service";
 import { VaultNudgeType } from "../vault-nudges.service";
 
 /**
- * Custom Nudge Service Checking Nudge Status For Welcome Nudge For Empty Vault
+ * Custom Nudge Service Checking Nudge Status For Empty Vault
  */
 @Injectable({
   providedIn: "root",
@@ -28,6 +28,9 @@ export class EmptyVaultNudgeService extends DefaultSingleNudgeService {
       this.collectionService.decryptedCollections$,
     ]).pipe(
       switchMap(([dismissed, ciphers, orgs, collections]) => {
+        if (orgs == null || orgs.length === 0) {
+          return dismissed ? of(false) : of(ciphers == null || ciphers.length === 0);
+        }
         const orgIds = new Set(orgs.map((org) => org.id));
         const canCreateCollections = orgs.filter((org) => {
           return org.canCreateNewCollections;
@@ -38,13 +41,10 @@ export class EmptyVaultNudgeService extends DefaultSingleNudgeService {
           }
         });
         // Do not show nudge when
-        // user has previously dismissed
-        // user belongs to an organization and then cannot create collections || manage collections
-        if (
-          dismissed ||
-          (orgs.length !== 0 &&
-            (managedCollections.length === 0 || canCreateCollections.length === 0))
-        ) {
+        // user has previously dismissed nudge
+        // OR
+        // user belongs to an organization and cannot create collections || manage collections
+        if (dismissed || managedCollections.length === 0 || canCreateCollections.length === 0) {
           return of(false);
         }
         return of(ciphers == null || ciphers.length === 0);
