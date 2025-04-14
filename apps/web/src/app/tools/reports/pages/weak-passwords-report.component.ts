@@ -18,8 +18,8 @@ import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/se
 
 import { CipherReportComponent } from "./cipher-report.component";
 
-type ReportScore = { label: string; badgeVariant: BadgeVariant };
-type ReportResult = CipherView & { score: number; reportValue: ReportScore };
+type ReportScore = { label: string; badgeVariant: BadgeVariant; sortOrder: number };
+type ReportResult = CipherView & { score: number; reportValue: ReportScore; scoreKey: number };
 
 @Component({
   selector: "app-weak-passwords-report",
@@ -110,7 +110,12 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
 
       if (result.score != null && result.score <= 2) {
         const scoreValue = this.scoreKey(result.score);
-        const row = { ...ciph, score: result.score, reportValue: scoreValue } as ReportResult;
+        const row = {
+          ...ciph,
+          score: result.score,
+          reportValue: scoreValue,
+          scoreKey: scoreValue.sortOrder,
+        } as ReportResult;
         this.weakPasswordCiphers.push(row);
       }
     });
@@ -129,13 +134,13 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
   private scoreKey(score: number): ReportScore {
     switch (score) {
       case 4:
-        return { label: "strong", badgeVariant: "success" };
+        return { label: "strong", badgeVariant: "success", sortOrder: 1 };
       case 3:
-        return { label: "good", badgeVariant: "primary" };
+        return { label: "good", badgeVariant: "primary", sortOrder: 2 };
       case 2:
-        return { label: "weak", badgeVariant: "warning" };
+        return { label: "weak", badgeVariant: "warning", sortOrder: 3 };
       default:
-        return { label: "veryWeak", badgeVariant: "danger" };
+        return { label: "veryWeak", badgeVariant: "danger", sortOrder: 4 };
     }
   }
 }

@@ -56,6 +56,9 @@ export enum FeatureFlag {
   VaultBulkManagementAction = "vault-bulk-management-action",
   SecurityTasks = "security-tasks",
   CipherKeyEncryption = "cipher-key-encryption",
+
+  /* Platform */
+  IpcChannelFramework = "ipc-channel-framework",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -120,6 +123,9 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UserKeyRotationV2]: FALSE,
   [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
   [FeatureFlag.PM17987_BlockType0]: FALSE,
+
+  /* Platform */
+  [FeatureFlag.IpcChannelFramework]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
