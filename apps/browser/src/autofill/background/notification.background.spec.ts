@@ -739,7 +739,6 @@ describe("NotificationBackground", () => {
 
           accountService.activeAccount$ = activeAccountSubject;
         });
-        //
 
         it("skips saving the cipher if the notification queue does not have a tab that is related to the sender", async () => {
           const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 2 } });
