@@ -24,9 +24,8 @@ export class HasItemsNudgeService extends DefaultSingleNudgeService {
         const thirtyDays = new Date(new Date().getTime() - 30 * 24 * 60 * 60 * 1000);
         const profileCreationDate = new Date(userProfile.creationDate);
         const isRecentAcct = profileCreationDate >= thirtyDays;
-        const isDismissed = dismissed;
 
-        if (!isRecentAcct || isDismissed) {
+        if (!isRecentAcct || dismissed) {
           return of(false);
         } else {
           return this.cipherService
