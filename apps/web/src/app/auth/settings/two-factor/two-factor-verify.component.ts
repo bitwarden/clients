@@ -99,6 +99,7 @@ export class TwoFactorVerifyComponent {
       case -1 as TwoFactorProviderType:
         return this.i18nService.t("recoveryCodeTitle");
       case TwoFactorProviderType.Duo:
+      case TwoFactorProviderType.OrganizationDuo:
         return "Duo";
       case TwoFactorProviderType.Email:
         return this.i18nService.t("emailTitle");
