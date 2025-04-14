@@ -38,8 +38,8 @@
         <div class="tw-flex tw-items-center tw-justify-center">
           <p class="tw-pr-2">{{ "settingsVaultOptions" | i18n }}</p>
           <!--
-            Currently the notification only has 1 item, so we are hardcoding the value to 1.
-            Will make this dynamic in the future when nudges are added
+            Currently can be only 1 item for notification.
+            Will make this dynamic when more nudges are added
           -->
           <span
             *ngIf="hasVaultNudgeFlag && (showVaultBadge$ | async)"
