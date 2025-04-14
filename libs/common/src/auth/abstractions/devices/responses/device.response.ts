@@ -15,8 +15,8 @@ export class DeviceResponse extends BaseResponse {
   creationDate: string;
   revisionDate: string;
   isTrusted: boolean;
-  encryptedUserKey: string;
-  encryptedPublicKey: string;
+  encryptedUserKey: string | null;
+  encryptedPublicKey: string | null;
 
   devicePendingAuthRequest: DevicePendingAuthRequest | null;
 
