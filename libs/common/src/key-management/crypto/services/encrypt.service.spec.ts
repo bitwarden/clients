@@ -262,7 +262,7 @@ describe("EncryptService", () => {
 
     it("decrypts data with provided key for AesCbc256_HmacSha256", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64, 0));
-      const encString = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "data");
+      const encString = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "data", "iv", "mac");
       cryptoFunctionService.aesDecryptFastParameters.mockReturnValue({
         macData: makeStaticByteArray(32, 0),
         macKey: makeStaticByteArray(32, 0),
