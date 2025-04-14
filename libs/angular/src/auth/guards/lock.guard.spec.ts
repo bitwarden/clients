@@ -182,18 +182,6 @@ describe("lockGuard", () => {
     expect(messagingService.send).toHaveBeenCalledWith("logout");
   });
 
-  it("should send the user to migrate-legacy-encryption if they are a legacy user on a web client", async () => {
-    const { router } = setup({
-      authStatus: AuthenticationStatus.Locked,
-      canLock: true,
-      isLegacyUser: true,
-      clientType: ClientType.Web,
-    });
-
-    await router.navigate(["lock"]);
-    expect(router.url).toBe("/migrate-legacy-encryption");
-  });
-
   it("should allow navigation to the lock route when device trust is supported, the user has a MP, and the user is coming from the login-initiated page", async () => {
     const { router } = setup({
       authStatus: AuthenticationStatus.Locked,
