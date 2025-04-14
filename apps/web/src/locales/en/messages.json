@@ -4543,6 +4543,9 @@
   "updateEncryptionKeyExportWarning": {
     "message": "Any encrypted exports that you have saved will also become invalid."
   },
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
+  },
   "subscription": {
     "message": "Subscription"
   },

@@ -225,7 +225,7 @@ export class LoginCommand {
       }
       if (response.requiresEncryptionKeyMigration) {
         return Response.error(
-          "Encryption key migration required. Please login through the web vault to update your encryption key.",
+          "Legacy encryption is no longer supported. Please contact support to recover your account.",
         );
       }
       if (response.captchaSiteKey) {
