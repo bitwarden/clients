@@ -14,6 +14,7 @@ export enum VaultNudgeType {
    * Add future nudges here
    */
   EmptyVaultNudge = "empty-vault-nudge",
+  EmptyVaultBadge = "empty-vault-badge",
   HasVaultItems = "has-vault-items",
   IntroCarouselDismissal = "intro-carousel-dismissal",
 }

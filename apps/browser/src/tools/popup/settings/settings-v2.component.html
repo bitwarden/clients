@@ -29,7 +29,11 @@
       </a>
     </bit-item>
     <bit-item>
-      <a bit-item-content routerLink="/vault-settings">
+      <a
+        bit-item-content
+        routerLink="/vault-settings"
+        (click)="dismissVaultBadge(VaultNudgeType.EmptyVaultBadge)"
+      >
         <i slot="start" class="bwi bwi-vault" aria-hidden="true"></i>
         <div class="tw-flex tw-items-center tw-justify-center">
           <p class="tw-pr-2">{{ "settingsVaultOptions" | i18n }}</p>
@@ -38,7 +42,7 @@
             Will make this dynamic in the future when nudges are added
           -->
           <span
-            *ngIf="hasVaultNudgeFlag && (showEmptyVaultNudge$ | async)"
+            *ngIf="hasVaultNudgeFlag && (showVaultBadge$ | async)"
             bitBadge
             variant="notification"
             >1</span
