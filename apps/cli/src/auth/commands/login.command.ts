@@ -35,6 +35,7 @@ import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/a
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -77,6 +78,7 @@ export class LoginCommand {
     protected logoutCallback: () => Promise<void>,
     protected kdfConfigService: KdfConfigService,
     protected ssoUrlService: SsoUrlService,
+    protected i18nService: I18nService,
   ) {}
 
   async run(email: string, password: string, options: OptionValues) {
@@ -224,9 +226,7 @@ export class LoginCommand {
         );
       }
       if (response.requiresEncryptionKeyMigration) {
-        return Response.error(
-          "Legacy encryption is no longer supported. Please contact support to recover your account.",
-        );
+        return Response.error(this.i18nService.t("legacyEncryptionUnsupported"));
       }
       if (response.captchaSiteKey) {
         const credentials = new PasswordLoginCredentials(email, password);
