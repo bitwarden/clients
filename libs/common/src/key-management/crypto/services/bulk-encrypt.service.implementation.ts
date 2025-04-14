@@ -12,6 +12,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { getClassInitializer } from "@bitwarden/common/platform/services/cryptography/get-class-initializer";
 
+import { DefaultFeatureFlagValue, FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ServerConfig } from "../../../platform/abstractions/config/server-config";
 import { buildDecryptMessage, buildSetConfigMessage } from "../types/worker-command.type";
 
@@ -24,6 +25,7 @@ export class BulkEncryptServiceImplementation implements BulkEncryptService {
   private workers: Worker[] = [];
   private timeout: any;
   private currentServerConfig: ServerConfig | undefined = undefined;
+  protected useSDKForDecryption: boolean = DefaultFeatureFlagValue[FeatureFlag.UseSDKForDecryption];
 
   private clear$ = new Subject<void>();
 
@@ -48,7 +50,7 @@ export class BulkEncryptServiceImplementation implements BulkEncryptService {
       return [];
     }
 
-    if (typeof window === "undefined") {
+    if (typeof window === "undefined" || this.useSDKForDecryption) {
       this.logService.info("Window not available in BulkEncryptService, decrypting sequentially");
       const results = [];
       for (let i = 0; i < items.length; i++) {
