@@ -149,27 +149,6 @@
       }
     }
   },
-  "atRiskMembersWithCount": {
-    "message": "At-risk members ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "atRiskMembersDescription": {
-    "message": "These members are logging into applications with weak, exposed, or reused passwords."
-  },
-  "atRiskMembersDescriptionWithApp": {
-    "message": "These members are logging into $APPNAME$ with weak, exposed, or reused passwords.",
-    "placeholders": {
-      "appname": {
-        "content": "$1",
-        "example": "Salesforce"
-      }
-    }
-  },
   "totalMembers": {
     "message": "Total members"
   },
@@ -3345,6 +3324,12 @@
   "externalIdDesc": {
     "message": "External ID is an unencrypted reference used by the Bitwarden Directory Connector and API."
   },
+  "ssoExternalId": {
+    "message": "SSO External ID"
+  },
+  "ssoExternalIdDesc": {
+    "message": "SSO External ID is an unencrypted reference between Bitwarden and your configured SSO provider."
+  },
   "nestCollectionUnder": {
     "message": "Nest collection under"
   },
@@ -5706,6 +5691,9 @@
   },
   "webAuthnSuccess": {
     "message": "WebAuthn verified successfully! You may close this tab."
+  },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
   },
   "hintEqualsPassword": {
     "message": "Your password hint cannot be the same as your password."
@@ -9305,9 +9293,6 @@
   "sdksDesc": {
     "message": "Use Bitwarden Secrets Manager SDK in the following programming languages to build your own applications."
   },
-  "singleSignOn": {
-    "message": "Single sign-on"
-  },
   "ssoDescStart": {
     "message": "Configure",
     "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
@@ -10607,5 +10592,14 @@
   },
   "cannotCreateCollection": {
     "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
+  },
+  "businessUnit": {
+    "message": "Business Unit"
+  },
+  "businessUnits": {
+    "message": "Business Units"
+  },
+  "newBusinessUnit": {
+    "message": "New business unit"
   }
 }

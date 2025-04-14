@@ -10,7 +10,7 @@ import {
   NotificationFoldersAndCollections,
 } from "../content/components/cipher/types";
 import { OrgView } from "../content/components/common-types";
-import { NotificationConfirmationContainer } from "../content/components/notification/confirmation-container";
+import { NotificationConfirmationContainer } from "../content/components/notification/confirmation/container";
 import { NotificationContainer } from "../content/components/notification/container";
 import { selectedFolder as selectedFolderSignal } from "../content/components/signals/selected-folder";
 import { selectedVault as selectedVaultSignal } from "../content/components/signals/selected-vault";
@@ -64,6 +64,9 @@ function getI18n() {
     loginSaveSuccessDetails: chrome.i18n.getMessage("loginSaveSuccessDetails"),
     loginUpdateSuccess: chrome.i18n.getMessage("loginUpdateSuccess"),
     loginUpdateSuccessDetails: chrome.i18n.getMessage("loginUpdatedSuccessDetails"),
+    loginUpdateTaskSuccess: chrome.i18n.getMessage("loginUpdateTaskSuccess"),
+    loginUpdateTaskSuccessAdditional: chrome.i18n.getMessage("loginUpdateTaskSuccessAdditional"),
+    nextSecurityTaskAction: chrome.i18n.getMessage("nextSecurityTaskAction"),
     newItem: chrome.i18n.getMessage("newItem"),
     never: chrome.i18n.getMessage("never"),
     notificationAddDesc: chrome.i18n.getMessage("notificationAddDesc"),
@@ -379,6 +382,7 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
       error,
       username: username ?? i18n.typeLogin,
       handleOpenVault: (e) => cipherId && openViewVaultItemPopout(e, cipherId),
+      handleOpenTasks: () => {},
     }),
     document.body,
   );

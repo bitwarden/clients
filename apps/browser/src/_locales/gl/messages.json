@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "Política de Privacidade"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "A pista do contrasinal non pode ser o contrasinal."
   },
