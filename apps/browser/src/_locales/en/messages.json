@@ -5169,6 +5169,9 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
   "introCarouselLabel": {
     "message": "Welcome to Bitwarden"
   },

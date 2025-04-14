@@ -30,7 +30,9 @@
   >
     <bit-no-items [icon]="vaultIcon">
       <ng-container slot="title">{{ "yourVaultIsEmpty" | i18n }}</ng-container>
-      <ng-container slot="description">{{ "autofillSuggestionsTip" | i18n }}</ng-container>
+      <ng-container slot="description">
+        <p bitTypography="body2" class="tw-mx-6">{{ "emptyVaultDescription" | i18n }}</p>
+      </ng-container>
       <app-new-item-dropdown
         slot="button"
         [initialValues]="newItemItemValues$ | async"
