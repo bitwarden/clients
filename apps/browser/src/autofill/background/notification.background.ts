@@ -650,8 +650,11 @@ export default class NotificationBackground {
       return;
     }
     const cipher = await this.cipherService.encrypt(cipherView, userId);
+
+    const shouldGetTasks = await this.getNotificationFlag();
+
     try {
-      const tasks = await this.getSecurityTasks(userId);
+      const tasks = shouldGetTasks ? await this.getSecurityTasks(userId) : [];
       const updatedCipherTask = tasks.find((task) => task.cipherId === cipherView?.id);
       const cipherHasTask = !!updatedCipherTask?.id;
 
