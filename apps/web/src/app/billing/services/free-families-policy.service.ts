@@ -59,8 +59,8 @@ export class FreeFamiliesPolicyService {
       return false;
     }
     const { belongToOneEnterpriseOrgs, isFreeFamilyPolicyEnabled } = orgStatus;
-    const canManageSponsorships = organizations.filter((org) => org.canManageSponsorships);
-    return canManageSponsorships && !(belongToOneEnterpriseOrgs && isFreeFamilyPolicyEnabled);
+    const hasSponsorshipOrgs = organizations.some((org) => org.canManageSponsorships);
+    return hasSponsorshipOrgs && !(belongToOneEnterpriseOrgs && isFreeFamilyPolicyEnabled);
   }
 
   checkEnterpriseOrganizationsAndFetchPolicy(): Observable<EnterpriseOrgStatus> {

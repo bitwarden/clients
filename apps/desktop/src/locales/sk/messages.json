@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Z dôvodu podnikovej politiky máte obmedzené ukladanie položiek do osobného trezora. Zmeňte možnosť vlastníctvo na organizáciu a vyberte si z dostupných zbierok."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Nové heslo nemôže byť rovnaké ako súčasné heslo."
+  },
   "hintEqualsPassword": {
     "message": "Nápoveď k heslu nemôže byť rovnaká ako heslo."
   },

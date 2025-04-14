@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Devido a uma política empresarial, está impedido de guardar itens no seu cofre pessoal. Altere a opção Propriedade para uma organização e escolha entre as coleções disponíveis."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "A sua nova palavra-passe não pode ser igual à sua palavra-passe atual."
+  },
   "hintEqualsPassword": {
     "message": "A dica da sua palavra-passe não pode ser igual à sua palavra-passe."
   },

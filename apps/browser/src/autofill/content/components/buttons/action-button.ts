@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import { html } from "lit";
+import { html, TemplateResult } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
@@ -11,7 +11,7 @@ export function ActionButton({
   theme,
   handleClick,
 }: {
-  buttonText: string;
+  buttonText: string | TemplateResult;
   disabled?: boolean;
   theme: Theme;
   handleClick: (e: Event) => void;
@@ -63,4 +63,9 @@ const actionButtonStyles = ({ disabled, theme }: { disabled: boolean; theme: The
       color: ${themes[theme].text.contrast};
     }
   `}
+
+  svg {
+    width: fit-content;
+    height: 16px;
+  }
 `;
