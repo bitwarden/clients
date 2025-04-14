@@ -1059,6 +1059,9 @@
   "newNotification": {
     "message": "New notification"
   },
+  "settingsWithNotification": {
+    "message": "Settings: New notification"
+  },
   "loginSaveSuccessDetails": {
     "message": "$USERNAME$ saved to Bitwarden.",
       "placeholders": {

@@ -26,6 +26,7 @@ export { VaultBerryComponent } from "./components/berry/berry.component";
 export * as VaultIcons from "./icons";
 export * from "./notifications";
 export * from "./services/vault-nudges.service";
+export * from "./services/custom-nudges-services";
 
 export { DefaultSshImportPromptService } from "./services/default-ssh-import-prompt.service";
 export { SshImportPromptService } from "./services/ssh-import-prompt.service";
