@@ -588,25 +588,21 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
   };
 
-  private async emailIsValid(): Promise<boolean> {
-    return this.formGroup.controls.email.valid;
-  }
-
   /**
    * Validates the email and displays any validation errors.
    * @returns true if the email is valid, false otherwise.
    */
-  protected async validateEmail(): Promise<boolean> {
+  protected validateEmail(): boolean {
     this.formGroup.controls.email.markAsTouched();
     this.formGroup.controls.email.updateValueAndValidity({ onlySelf: true, emitEvent: true });
-    return this.emailIsValid();
+    return this.formGroup.controls.email.valid;
   }
 
   /**
    * Persist the entered email address and the user's choice to remember it to state.
    */
   private async persistEmailIfValid(): Promise<void> {
-    if (await this.emailIsValid()) {
+    if (this.formGroup.controls.email.valid) {
       const email = this.formGroup.value.email;
       const rememberEmail = this.formGroup.value.rememberEmail ?? false;
       if (!email) {
