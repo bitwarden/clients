@@ -950,7 +950,7 @@
     "message": "הסיסמה הועתקה"
   },
   "uri": {
-    "message": "כתובת"
+    "message": "URI"
   },
   "uriPosition": {
     "message": "כתובת $POSITION$",
@@ -2296,6 +2296,9 @@
   },
   "privacyPolicy": {
     "message": "מדיניות הפרטיות"
+  },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "לא ניתן להשתמש בסיסמה בתור רמז לסיסמה."
   },
   "hintEqualsPassword": {
     "message": "רמז הסיסמה שלך לא יכול להיות זהה לסיסמה שלך."

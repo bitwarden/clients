@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "Chính sách quyền riêng tư"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Lời nhắc mật khẩu không được giống mật khẩu của bạn"
   },
