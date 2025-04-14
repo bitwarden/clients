@@ -2297,8 +2297,11 @@
   "privacyPolicy": {
     "message": "Політика приватності"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Новий пароль повинен відрізнятися від поточного."
+  },
   "hintEqualsPassword": {
-    "message": "Підказка для пароля не може бути такою самою, як ваш пароль."
+    "message": "Підказка повинна відрізнятися від пароля."
   },
   "ok": {
     "message": "Ok"
@@ -2505,14 +2508,14 @@
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
-    "message": "Illustration of a list of logins that are at-risk."
+    "message": "Ілюстрація списку ризикованих записів."
   },
   "generatePasswordSlideDesc": {
     "message": "Швидко згенеруйте надійний, унікальний пароль через меню автозаповнення Bitwarden на сайті з ризикованим паролем.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
   "generatePasswordSlideImgAltPeriod": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
+    "message": "Ілюстрація меню автозаповнення Bitwarden, що показує згенерований пароль."
   },
   "updateInBitwarden": {
     "message": "Оновити в Bitwarden"
@@ -2522,7 +2525,7 @@
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
   "updateInBitwardenSlideImgAltPeriod": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
+    "message": "Ілюстрація сповіщення Bitwarden, що спонукає користувача оновити пароль."
   },
   "turnOnAutofill": {
     "message": "Увімкніть автозаповнення"
@@ -2978,7 +2981,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "message": "Будуть експортовані лише записи особистого сховища, включно з вкладеннями, пов'язані з $EMAIL$. Записи сховища організації не експортуватимуться.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4244,7 +4247,7 @@
     }
   },
   "viewItemTitleWithField": {
-    "message": "View item - $ITEMNAME$ - $FIELD$",
+    "message": "Перегляд запису – $ITEMNAME$ – $FIELD$",
     "description": "Title for a link that opens a view for an item.",
     "placeholders": {
       "itemname": {
@@ -4268,7 +4271,7 @@
     }
   },
   "autofillTitleWithField": {
-    "message": "Autofill - $ITEMNAME$ - $FIELD$",
+    "message": "Автозаповнення – $ITEMNAME$ – $FIELD$",
     "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
@@ -5142,30 +5145,30 @@
     "message": "Змінити ризикований пароль"
   },
   "introCarouselLabel": {
-    "message": "Welcome to Bitwarden"
+    "message": "Вітаємо в Bitwarden"
   },
   "securityPrioritized": {
-    "message": "Security, prioritized"
+    "message": "Безпека понад усе"
   },
   "securityPrioritizedBody": {
-    "message": "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you."
+    "message": "Зберігайте записи входу, картки та посвідчення в захищеному сховищі. Для захисту ваших даних Bitwarden використовує наскрізне шифрування з нульовим рівнем доступу."
   },
   "quickLogin": {
-    "message": "Quick and easy login"
+    "message": "Швидкий і легкий вхід"
   },
   "quickLoginBody": {
-    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+    "message": "Налаштуйте біометричне розблокування та автозаповнення, щоб миттєво входити в облікові записи."
   },
   "secureUser": {
-    "message": "Level up your logins"
+    "message": "Вдоскональте свої паролі"
   },
   "secureUserBody": {
-    "message": "Use the generator to create and save strong, unique passwords for all your accounts."
+    "message": "Використовуйте генератор, щоб створювати й зберігати надійні, унікальні паролі для всіх облікових записів."
   },
   "secureDevices": {
-    "message": "Your data, when and where you need it"
+    "message": "Ваші дані завжди з вами"
   },
   "secureDevicesBody": {
-    "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
+    "message": "Зберігайте скільки завгодно паролів на необмеженій кількості пристроїв, використовуючи Bitwarden для мобільних пристроїв, браузерів та комп'ютерів."
   }
 }

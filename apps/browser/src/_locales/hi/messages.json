@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "प्राइवेसी पोलिसी"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "आपका पासवर्ड संकेत आपके पासवर्ड के समान नहीं हो सकता है।"
   },

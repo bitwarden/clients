@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "Kebijakan Privasi"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Petunjuk kata sandi Anda tidak boleh sama dengan kata sandi Anda."
   },

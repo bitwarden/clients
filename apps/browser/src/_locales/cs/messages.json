@@ -2297,6 +2297,9 @@
   "privacyPolicy": {
     "message": "Zásady ochrany osobních údajů"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Vaše nové heslo nemůže být stejné jako Vaše současné heslo."
+  },
   "hintEqualsPassword": {
     "message": "Nápověda k Vašemu heslu nemůže být stejná jako Vaše heslo."
   },
