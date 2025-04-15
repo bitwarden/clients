@@ -246,4 +246,28 @@ export class PasswordLoginStrategy extends LoginStrategy {
     const [authResult] = await this.startLogIn();
     return authResult;
   }
+
+  /**
+   * Override to handle the WeakMasterPassword reason if no other reason is set.
+   * This provides a centralized place to handle weak password detection.
+   */
+  override async processForceSetPasswordReason(
+    authResult: AuthResult,
+    userId: UserId,
+  ): Promise<void> {
+    // First use the base implementation to handle any existing reasons
+    await super.processForceSetPasswordReason(authResult, userId);
+
+    // If the authResult already has a ForceSetPasswordReason, we don't need to check for weak password
+    if (authResult.forcePasswordReset !== ForceSetPasswordReason.None) {
+      return;
+    }
+
+    // If we have a cached weak password reason from login/logInTwoFactor, apply it now
+    const cachedReason = this.cache.value.forcePasswordResetReason;
+    if (cachedReason !== ForceSetPasswordReason.None) {
+      await this.masterPasswordService.setForceSetPasswordReason(cachedReason, userId);
+      authResult.forcePasswordReset = cachedReason;
+    }
+  }
 }
