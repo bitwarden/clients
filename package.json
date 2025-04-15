@@ -82,7 +82,7 @@
     "@typescript-eslint/rule-tester": "8.22.0",
     "@typescript-eslint/utils": "8.22.0",
     "@webcomponents/custom-elements": "1.6.0",
-    "@yao-pkg/pkg": "5.16.1",
+    "@yao-pkg/pkg": "6.4.0",
     "angular-eslint": "18.4.3",
     "autoprefixer": "10.4.20",
     "babel-loader": "9.2.1",
