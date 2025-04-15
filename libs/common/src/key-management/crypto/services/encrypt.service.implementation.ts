@@ -41,7 +41,11 @@ export class EncryptServiceImplementation implements EncryptService {
   onServerConfigChange(newConfig: ServerConfig): void {
     const oldFlagValue = this.useSDKForDecryption;
     this.useSDKForDecryption = getFeatureFlagValue(newConfig, FeatureFlag.UseSDKForDecryption);
-    this.logService.debug("[EncryptService] Updated sdk decryption flag", old, this.useSDKForDecryption);
+    this.logService.debug(
+      "[EncryptService] Updated sdk decryption flag",
+      oldFlagValue,
+      this.useSDKForDecryption,
+    );
   }
 
   async encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString> {
