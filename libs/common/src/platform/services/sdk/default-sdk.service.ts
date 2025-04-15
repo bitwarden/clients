@@ -69,7 +69,7 @@ export class DefaultSdkService implements SdkService {
     private userAgent: string | null = null,
   ) {}
 
-  userClient$(userId: UserId): Observable<Rc<BitwardenClient> | undefined> {
+  userClient$(userId: UserId): Observable<Rc<BitwardenClient>> {
     return this.sdkClientOverrides.pipe(
       takeWhile((clients) => clients[userId] !== UnsetClient, false),
       map((clients) => {
@@ -86,6 +86,7 @@ export class DefaultSdkService implements SdkService {
 
         return this.internalClient$(userId);
       }),
+      takeWhile((client) => client !== undefined, false),
       throwIfEmpty(() => new UserNotLoggedInError(userId)),
     );
   }
@@ -110,7 +111,7 @@ export class DefaultSdkService implements SdkService {
    * @param userId The user id for which to create the client
    * @returns An observable that emits the client for the user
    */
-  private internalClient$(userId: UserId): Observable<Rc<BitwardenClient> | undefined> {
+  private internalClient$(userId: UserId): Observable<Rc<BitwardenClient>> {
     const cached = this.sdkClientCache.get(userId);
     if (cached !== undefined) {
       return cached;

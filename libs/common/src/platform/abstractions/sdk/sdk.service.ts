@@ -39,7 +39,7 @@ export abstract class SdkService {
    *
    * @param userId The user id for which to retrieve the client
    */
-  abstract userClient$(userId: UserId): Observable<Rc<BitwardenClient> | undefined>;
+  abstract userClient$(userId: UserId): Observable<Rc<BitwardenClient>>;
 
   /**
    * This method is used during/after an authentication procedure to set a new client for a specific user.
