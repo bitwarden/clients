@@ -1098,6 +1098,31 @@
     "message": "Login bijgewerkt",
     "description": "Message displayed when login details are successfully updated."
   },
+  "loginUpdateTaskSuccess": {
+    "message": "Goed gedaan! Je hebt stappen genomen om jou en $ORGANIZATION$ veiliger te maken.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Bedankt voor het veiliger maken van $ORGANIZATION$. Je moet nog $TASK_COUNT$ wachtwoorden bijwerken.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Volgend wachtwoord veranderen",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
   "saveFailure": {
     "message": "Fout bij opslaan",
     "description": "Error message shown when the system fails to save login details."

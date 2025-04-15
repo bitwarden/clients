@@ -1672,7 +1672,7 @@
     "message": "无障碍 Cookie 已保存！"
   },
   "noAccessibilityCookieSaved": {
-    "message": "无障碍 Cookie 未保存！"
+    "message": "未保存任何无障碍 Cookie！"
   },
   "warning": {
     "message": "警告",
@@ -2916,7 +2916,7 @@
     "message": "然后继续创建您的账户。"
   },
   "noEmail": {
-    "message": "没收到电子邮件吗？"
+    "message": "没有收到电子邮件吗？"
   },
   "goBack": {
     "message": "返回"
@@ -3434,7 +3434,7 @@
     "message": "文本 Send"
   },
   "ssoError": {
-    "message": "找不到用于 SSO 登录的可用端口。"
+    "message": "未找到用于 SSO 登录的空闲端口。"
   },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "生物识别解锁不可用，因为需要先使用 PIN 或密码解锁。"

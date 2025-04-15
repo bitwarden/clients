@@ -174,7 +174,7 @@ describe("DefaultSetPasswordJitService", () => {
       }
 
       keyService.userKey$.mockReturnValue(of(userKey));
-      encryptService.rsaEncrypt.mockResolvedValue(userKeyEncString);
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(userKeyEncString);
 
       organizationUserApiService.putOrganizationUserResetPasswordEnrollment.mockResolvedValue(
         undefined,
@@ -216,7 +216,7 @@ describe("DefaultSetPasswordJitService", () => {
       // Assert
       expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
       expect(organizationApiService.getKeys).toHaveBeenCalledWith(orgId);
-      expect(encryptService.rsaEncrypt).toHaveBeenCalledWith(userKey.key, orgPublicKey);
+      expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(userKey, orgPublicKey);
       expect(
         organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
       ).toHaveBeenCalled();
