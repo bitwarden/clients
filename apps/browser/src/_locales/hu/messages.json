@@ -1098,6 +1098,31 @@
     "message": "A bejelentkezés frissítésre került.",
     "description": "Message displayed when login details are successfully updated."
   },
+  "loginUpdateTaskSuccess": {
+    "message": "Remek munka! Megtettük a lépéseket, hogy magunk és $ORGANIZATION$ biztonságosabbá váljon.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Köszönet $ORGANIZATION$ biztonságosabbá válásához. További $TASK_COUNT$ frissítendő jelszó van még.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Következő jelszó megváltoztatása",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
   "saveFailure": {
     "message": "Hiba történt a bejelentkezés mentésekor.",
     "description": "Error message shown when the system fails to save login details."
