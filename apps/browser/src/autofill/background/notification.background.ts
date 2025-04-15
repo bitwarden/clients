@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, switchMap } from "rxjs";
+import { firstValueFrom, switchMap, map } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -22,16 +22,21 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { TaskService } from "@bitwarden/common/vault/tasks";
+import { SecurityTaskType } from "@bitwarden/common/vault/tasks/enums";
+import { SecurityTask } from "@bitwarden/common/vault/tasks/models/security-task";
 
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -70,6 +75,8 @@ export default class NotificationBackground {
     bgChangedPassword: ({ message, sender }) => this.changedPassword(message, sender),
     bgCloseNotificationBar: ({ message, sender }) =>
       this.handleCloseNotificationBarMessage(message, sender),
+    bgOpenAtRisksPasswords: ({ message, sender }) =>
+      this.handleOpenAtRisksPasswordsMessage(message, sender),
     bgGetActiveUserServerConfig: () => this.getActiveUserServerConfig(),
     bgGetDecryptedCiphers: () => this.getNotificationCipherData(),
     bgGetEnableChangedPasswordPrompt: () => this.getEnableChangedPasswordPrompt(),
@@ -106,6 +113,8 @@ export default class NotificationBackground {
     private policyService: PolicyService,
     private themeStateService: ThemeStateService,
     private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
+    private taskService: TaskService,
+    protected messagingService: MessagingService,
   ) {}
 
   init() {
@@ -154,17 +163,20 @@ export default class NotificationBackground {
       firstValueFrom(this.domainSettingsService.showFavicons$),
       firstValueFrom(this.environmentService.environment$),
     ]);
+
     const iconsServerUrl = env.getIconsUrl();
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
+
     const decryptedCiphers = await this.cipherService.getAllDecryptedForUrl(
-      currentTab.url,
+      currentTab?.url,
       activeUserId,
     );
 
     return decryptedCiphers.map((view) => {
       const { id, name, reprompt, favorite, login } = view;
+
       return {
         id,
         name,
@@ -599,13 +611,13 @@ export default class NotificationBackground {
       try {
         await this.cipherService.createWithServer(cipher);
         await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
-          username: String(queueMessage?.username),
-          cipherId: String(cipher?.id),
+          username: queueMessage?.username && String(queueMessage.username),
+          cipherId: cipher?.id && String(cipher.id),
         });
         await BrowserApi.tabSendMessage(tab, { command: "addedCipher" });
       } catch (error) {
         await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
-          error: String(error.message),
+          error: error?.message && String(error.message),
         });
       }
     }
@@ -638,15 +650,49 @@ export default class NotificationBackground {
       return;
     }
     const cipher = await this.cipherService.encrypt(cipherView, userId);
+
+    const shouldGetTasks = await this.getNotificationFlag();
+
     try {
+      const tasks = shouldGetTasks ? await this.getSecurityTasks(userId) : [];
+      const updatedCipherTask = tasks.find((task) => task.cipherId === cipherView?.id);
+      const cipherHasTask = !!updatedCipherTask?.id;
+
+      let taskOrgName: string;
+      if (cipherHasTask && updatedCipherTask?.organizationId) {
+        const userOrgs = await this.getOrgData();
+        taskOrgName = userOrgs.find(({ id }) => id === updatedCipherTask.organizationId)?.name;
+      }
+
+      const taskData = cipherHasTask
+        ? {
+            remainingTasksCount: tasks.length - 1,
+            orgName: taskOrgName,
+          }
+        : undefined;
+
       await this.cipherService.updateWithServer(cipher);
+
       await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
-        username: String(cipherView?.login?.username),
-        cipherId: String(cipherView?.id),
+        username: cipherView?.login?.username && String(cipherView.login.username),
+        cipherId: cipherView?.id && String(cipherView.id),
+        task: taskData,
       });
+
+      // If the cipher had a security task, mark it as complete
+      if (cipherHasTask) {
+        // guard against multiple (redundant) security tasks per cipher
+        await Promise.all(
+          tasks.map((task) => {
+            if (task.cipherId === cipherView?.id) {
+              return this.taskService.markAsComplete(task.id, userId);
+            }
+          }),
+        );
+      }
     } catch (error) {
       await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
-        error: String(error?.message),
+        error: error?.message && String(error.message),
       });
     }
   }
@@ -697,6 +743,32 @@ export default class NotificationBackground {
       );
     }
     return null;
+  }
+
+  private async getSecurityTasks(userId: UserId) {
+    let tasks: SecurityTask[] = [];
+
+    if (userId) {
+      tasks = await firstValueFrom(
+        this.taskService.tasksEnabled$(userId).pipe(
+          switchMap((tasksEnabled) => {
+            if (!tasksEnabled) {
+              return [];
+            }
+
+            return this.taskService
+              .pendingTasks$(userId)
+              .pipe(
+                map((tasks) =>
+                  tasks.filter(({ type }) => type === SecurityTaskType.UpdateAtRiskCredential),
+                ),
+              );
+          }),
+        ),
+      );
+    }
+
+    return tasks;
   }
 
   /**
@@ -817,6 +889,41 @@ export default class NotificationBackground {
     await BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar", {
       fadeOutNotification: !!message.fadeOutNotification,
     });
+  }
+
+  /**
+   * Sends a message to the background to open the
+   * at-risk passwords extension view. Triggers
+   * notification closure as a side-effect.
+   *
+   * @param message - The extension message
+   * @param sender - The contextual sender of the message
+   */
+  private async handleOpenAtRisksPasswordsMessage(
+    message: NotificationBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    const browserAction = BrowserApi.getBrowserAction();
+
+    try {
+      // Set route of the popup before attempting to open it.
+      // If the vault is locked, this won't have an effect as the auth guards will
+      // redirect the user to the login page.
+      await browserAction.setPopup({ popup: "popup/index.html#/at-risk-passwords" });
+
+      await Promise.all([
+        this.messagingService.send(VaultMessages.OpenAtRiskPasswords),
+        BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar", {
+          fadeOutNotification: !!message.fadeOutNotification,
+        }),
+      ]);
+    } finally {
+      // Reset the popup route to the default route so any subsequent
+      // popup openings will not open to the at-risk-passwords page.
+      await browserAction.setPopup({
+        popup: "popup/index.html#/",
+      });
+    }
   }
 
   /**

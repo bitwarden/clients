@@ -35,7 +35,38 @@ export abstract class EncryptService {
     key: SymmetricCryptoKey,
     decryptTrace?: string,
   ): Promise<Uint8Array | null>;
+
+  /**
+   * Encapsulates a symmetric key with an asymmetric public key
+   * Note: This does not establish sender authenticity
+   * @param sharedKey - The symmetric key that is to be shared
+   * @param encapsulationKey - The encapsulation key (public key) of the receiver that the key is shared with
+   */
+  abstract encapsulateKeyUnsigned(
+    sharedKey: SymmetricCryptoKey,
+    encapsulationKey: Uint8Array,
+  ): Promise<EncString>;
+  /**
+   * Decapsulates a shared symmetric key with an asymmetric private key
+   * Note: This does not establish sender authenticity
+   * @param encryptedSharedKey - The encrypted shared symmetric key
+   * @param decapsulationKey - The key to decapsulate with (private key)
+   */
+  abstract decapsulateKeyUnsigned(
+    encryptedSharedKey: EncString,
+    decapsulationKey: Uint8Array,
+  ): Promise<SymmetricCryptoKey>;
+  /**
+   * @deprecated Use encapsulateKeyUnsigned instead
+   * @param data - The data to encrypt
+   * @param publicKey - The public key to encrypt with
+   */
   abstract rsaEncrypt(data: Uint8Array, publicKey: Uint8Array): Promise<EncString>;
+  /**
+   * @deprecated Use decapsulateKeyUnsigned instead
+   * @param data - The ciphertext to decrypt
+   * @param privateKey - The privateKey to decrypt with
+   */
   abstract rsaDecrypt(data: EncString, privateKey: Uint8Array): Promise<Uint8Array>;
   /**
    * @deprecated Replaced by BulkEncryptService, remove once the feature is tested and the featureflag PM-4154-multi-worker-encryption-service is removed

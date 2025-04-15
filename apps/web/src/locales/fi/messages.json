@@ -3323,6 +3323,12 @@
   "externalIdDesc": {
     "message": "Ulkoinen ID on Bitwarden Directory Connectin ja API:n käyttämä salaamaton viite."
   },
+  "ssoExternalId": {
+    "message": "SSO External ID"
+  },
+  "ssoExternalIdDesc": {
+    "message": "SSO External ID is an unencrypted reference between Bitwarden and your configured SSO provider."
+  },
   "nestCollectionUnder": {
     "message": "Sijoita kokoelma seuraavan alle:"
   },
@@ -5685,6 +5691,9 @@
   "webAuthnSuccess": {
     "message": "WebAuthn-todennus onnistui! Voit sulkea välilehden."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Salasanavihjeesi ei voi olla sama kuin salasanasi."
   },
@@ -5879,6 +5888,9 @@
   },
   "fingerprint": {
     "message": "Sormenjälki"
+  },
+  "fingerprintPhrase": {
+    "message": "Fingerprint phrase:"
   },
   "removeUsers": {
     "message": "Poista käyttäjiä"
@@ -10330,6 +10342,33 @@
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
   },
+  "rotationCompletedTitle": {
+    "message": "Key rotation successful"
+  },
+  "rotationCompletedDesc": {
+    "message": "Your master password and encryption keys have been updated. Your other devices have been logged out."
+  },
+  "trustUserEmergencyAccess": {
+    "message": "Trust and confirm user"
+  },
+  "trustOrganization": {
+    "message": "Trust organization"
+  },
+  "trust": {
+    "message": "Trust"
+  },
+  "doNotTrust": {
+    "message": "Do not trust"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+  },
+  "orgTrustWarning": {
+    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "trustUser": {
+    "message": "Trust user"
+  },
   "sshKeyWrongPassword": {
     "message": "Syöttämäsi salasana on virheellinen."
   },
@@ -10499,6 +10538,30 @@
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
   },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "Fingerprint phrase for $NUM_USERS$ contacts for which you have enabled emergency access.",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "Fingerprint phrase for the organization $ORG_NAME$ for which you have enabled account recovery.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "Rotating your encryption keys will require you to trust keys of any organizations that can recover your account, and any contacts that you have enabled emergency access for. To continue, make sure you can verify the following:"
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "Untrusted encryption keys"
+  },
   "changeAtRiskPassword": {
     "message": "Vaihda vaarantunut salasana"
   },
@@ -10528,5 +10591,14 @@
   },
   "cannotCreateCollection": {
     "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
+  },
+  "businessUnit": {
+    "message": "Business Unit"
+  },
+  "businessUnits": {
+    "message": "Business Units"
+  },
+  "newBusinessUnit": {
+    "message": "New business unit"
   }
 }
