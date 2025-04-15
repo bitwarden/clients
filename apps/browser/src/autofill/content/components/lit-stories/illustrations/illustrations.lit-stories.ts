@@ -11,7 +11,7 @@ type Args = {
 };
 
 export default {
-  title: "Components/Icons",
+  title: "Components/Illustrations",
   argTypes: {
     theme: { control: "select", options: [...Object.values(ThemeTypes)] },
     size: { control: "number", min: 10, max: 100, step: 1 },
@@ -40,5 +40,5 @@ const createIllustrationStory = (illustrationName: keyof typeof Illustrations): 
 };
 
 export const KeyholeIllustration = createIllustrationStory("Keyhole");
-export const PartyHornIllustration = createIllustrationStory("PartyHorn");
+export const CelebrateIllustration = createIllustrationStory("Celebrate");
 export const WarningIllustration = createIllustrationStory("Warning");
