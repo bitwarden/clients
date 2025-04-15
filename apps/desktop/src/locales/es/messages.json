@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Debido a una política de organización, tiene restringido el guardar elementos a su caja fuerte personal. Cambie la configuración de propietario a organización y elija entre las colecciones disponibles."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "La pista para la contraseña no puede ser igual que la contraseña."
   },

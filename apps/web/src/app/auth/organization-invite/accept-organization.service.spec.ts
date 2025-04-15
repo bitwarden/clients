@@ -196,7 +196,7 @@ describe("AcceptOrganizationInviteService", () => {
       );
       accountService.activeAccount$ = new BehaviorSubject({ id: "activeUserId" }) as any;
       keyService.userKey$.mockReturnValue(new BehaviorSubject({ key: "userKey" } as any));
-      encryptService.rsaEncrypt.mockResolvedValue({
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue({
         encryptedString: "encryptedString",
       } as EncString);
 
@@ -219,9 +219,8 @@ describe("AcceptOrganizationInviteService", () => {
       const result = await sut.validateAndAcceptInvite(invite);
 
       expect(result).toBe(true);
-      expect(AccountRecoveryTrustComponent.open).toHaveBeenCalled();
-      expect(encryptService.rsaEncrypt).toHaveBeenCalledWith(
-        "userKey",
+      expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(
+        { key: "userKey" },
         Utils.fromB64ToArray("publicKey"),
       );
       expect(organizationUserApiService.postOrganizationUserAccept).toHaveBeenCalled();

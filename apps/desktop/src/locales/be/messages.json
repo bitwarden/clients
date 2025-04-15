@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "У адпаведнасці з палітыкай прадпрыемства вам забаронена захоўваць элементы ў асабістым сховішчы. Змяніце параметры ўласнасці на арганізацыю і выберыце з даступных калекцый."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Падказка для пароля не можа супадаць з паролем."
   },
