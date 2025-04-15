@@ -4,7 +4,7 @@ import { html } from "lit";
 import { IconProps } from "../common-types";
 import { buildIconColorRule, ruleNames, themes } from "../constants/styles";
 
-export function Family({ color, disabled, theme }: IconProps) {
+export function Users({ color, disabled, theme }: IconProps) {
   const shapeColor = disabled ? themes[theme].secondary["300"] : color || themes[theme].text.main;
 
   return html`
