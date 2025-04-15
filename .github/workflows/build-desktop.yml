@@ -237,8 +237,8 @@ jobs:
           TARGET: musl
         run: |
           rustup target add x86_64-unknown-linux-musl
-          npm run build -- --release --target x86_64-unknown-linux-musl
-          cargo build --bin desktop_proxy --release --target x86_64-unknown-linux-musl
+          node build.js --target=x86_64-unknown-linux-musl --release
+
 
       - name: Build application
         run: npm run dist:lin
@@ -386,14 +386,10 @@ jobs:
           curl https://sh.rustup.rs -sSf | sh -s -- -y
           . "$HOME/.cargo/env" 
           rustup target add aarch64-unknown-linux-musl
-          npm run build -- --release --target aarch64-unknown-linux-musl
-          cargo build --bin desktop_proxy --release --target aarch64-unknown-linux-musl
+          node build.js --target=aarch64-unknown-linux-musl --release
 
       - name: Build application
-        env:
-          DEBUG: electron-builder
-        run: |
-          npm run dist:lin:arm64
+        run: npm run dist:lin:arm64
 
       - name: Upload tar.gz artifact
         uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
