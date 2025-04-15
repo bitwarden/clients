@@ -57,6 +57,7 @@ export const AngleUpIcon = createIconStory("AngleUp");
 export const BrandIcon = createIconStory("BrandIconContainer");
 export const BusinessIcon = createIconStory("Business");
 export const CloseIcon = createIconStory("Close");
+export const CollectionIcon = createIconStory("Collection");
 export const ExclamationTriangleIcon = createIconStory("ExclamationTriangle");
 export const ExternalLinkIcon = createIconStory("ExternalLink");
 export const FolderIcon = createIconStory("Folder");
