@@ -198,7 +198,7 @@ export class EncryptServiceImplementation implements EncryptService {
     decryptContext: string = "no context",
   ): Promise<Uint8Array | null> {
     if (this.useSDKForDecryption) {
-      this.logService.debug("decrypting bytes with SDK");
+      this.logService.debug("[EncryptService] Decrypting bytes with SDK");
       if (
         encThing.encryptionType == null ||
         encThing.ivBytes == null ||
@@ -212,9 +212,9 @@ export class EncryptServiceImplementation implements EncryptService {
         encThing.dataBytes,
         encThing.macBytes,
       ).buffer;
-      return PureCrypto.symmetric_decrypt_array_buffer(buffer, key.key);
+      return PureCrypto.symmetric_decrypt_array_buffer(buffer, key.toEncoded());
     }
-    this.logService.debug("decrypting bytes with javascript");
+    this.logService.debug("[EncryptService] Decrypting bytes with javascript");
 
     if (key == null) {
       throw new Error("No encryption key provided.");
