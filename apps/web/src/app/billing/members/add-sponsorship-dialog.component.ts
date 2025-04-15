@@ -2,7 +2,6 @@ import { DialogRef } from "@angular/cdk/dialog";
 import { Component } from "@angular/core";
 import {
   AbstractControl,
-  AsyncValidatorFn,
   FormBuilder,
   FormControl,
   FormGroup,
@@ -64,13 +63,7 @@ export class AddSponsorshipDialogComponent {
     this.sponsorshipForm = this.formBuilder.group<RequestSponsorshipForm>({
       sponsorshipEmail: new FormControl<string | null>("", {
         validators: [Validators.email, Validators.required],
-        asyncValidators: [
-          this.notAllowedValueAsync(
-            () =>
-              firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.email ?? ""))),
-            true,
-          ),
-        ],
+        asyncValidators: [this.validateNotCurrentUserEmail.bind(this)],
         updateOn: "change",
       }),
       sponsorshipNote: new FormControl<string | null>("", {}),
@@ -117,31 +110,26 @@ export class AddSponsorshipDialogComponent {
     return this.sponsorshipForm.controls.sponsorshipNote;
   }
 
-  private notAllowedValueAsync(
-    getValue: () => Promise<string>,
-    caseSensitive = false,
-  ): AsyncValidatorFn {
-    return async (control: AbstractControl): Promise<ValidationErrors | null> => {
-      const value = control.value;
-      if (!value) {
-        return null;
-      }
-
-      const notAllowedValue = await getValue();
-      if (!notAllowedValue) {
-        return null;
-      }
-
-      const valueToCompare = caseSensitive ? value : value.toLowerCase();
-      const notAllowedValueToCompare = caseSensitive
-        ? notAllowedValue
-        : notAllowedValue.toLowerCase();
-
-      if (valueToCompare === notAllowedValueToCompare) {
-        return { notAllowedValue: true };
-      }
-
+  private async validateNotCurrentUserEmail(
+    control: AbstractControl,
+  ): Promise<ValidationErrors | null> {
+    const value = control.value;
+    if (!value) {
       return null;
-    };
+    }
+
+    const currentUserEmail = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.email ?? "")),
+    );
+
+    if (!currentUserEmail) {
+      return null;
+    }
+
+    if (value.toLowerCase() === currentUserEmail.toLowerCase()) {
+      return { notCurrentUserEmail: true };
+    }
+
+    return null;
   }
 }
