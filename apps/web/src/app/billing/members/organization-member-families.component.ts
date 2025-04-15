@@ -13,7 +13,7 @@ export class OrganizationMemberFamiliesComponent implements OnInit, OnDestroy {
   tabIndex = 0;
   loading = false;
 
-  @Input() memberFamilies: SponsoredFamily[];
+  @Input() memberFamilies: SponsoredFamily[] = [];
 
   private _destroy = new Subject<void>();
 

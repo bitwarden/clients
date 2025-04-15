@@ -1,8 +1,9 @@
 import { inject } from "@angular/core";
 import { ActivatedRouteSnapshot, CanActivateFn } from "@angular/router";
-import { firstValueFrom, switchMap } from "rxjs";
+import { firstValueFrom, switchMap, filter } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { getById } from "@bitwarden/common/platform/misc";
@@ -18,6 +19,7 @@ export const canAccessSponsoredFamilies: CanActivateFn = async (route: Activated
     getUserId,
     switchMap((userId) => organizationService.organizations$(userId)),
     getById(route.params.organizationId),
+    filter((org): org is Organization => org !== undefined),
   );
 
   return await firstValueFrom(freeFamiliesPolicyService.showSponsoredFamiliesDropdown$(org));
