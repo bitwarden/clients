@@ -39,9 +39,9 @@ export class EncryptServiceImplementation implements EncryptService {
 
   // Handle updating private properties to turn on/off feature flags.
   onServerConfigChange(newConfig: ServerConfig): void {
-    const old = this.useSDKForDecryption;
+    const oldFlagValue = this.useSDKForDecryption;
     this.useSDKForDecryption = getFeatureFlagValue(newConfig, FeatureFlag.UseSDKForDecryption);
-    this.logService.debug("updated sdk decryption flag", old, this.useSDKForDecryption);
+    this.logService.debug("[EncryptService] Updated sdk decryption flag", old, this.useSDKForDecryption);
   }
 
   async encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString> {
@@ -112,7 +112,7 @@ export class EncryptServiceImplementation implements EncryptService {
       if (encString == null || encString.encryptedString == null) {
         throw new Error("encString is null or undefined");
       }
-      return PureCrypto.symmetric_decrypt(encString.encryptedString, key.key);
+      return PureCrypto.symmetric_decrypt(encString.encryptedString, key.toEncoded());
     }
     this.logService.debug("decrypting with javascript");
 
