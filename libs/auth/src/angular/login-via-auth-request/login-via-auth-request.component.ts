@@ -809,11 +809,6 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
   }
 
   private async handleSuccessfulLoginNavigation(userId: UserId) {
-    if (this.flow === Flow.StandardAuthRequest) {
-      // Only need to set remembered email on standard login with auth req flow
-      await this.loginEmailService.saveEmailSettings();
-    }
-
     await this.loginSuccessHandlerService.run(userId);
     await this.router.navigate(["vault"]);
   }

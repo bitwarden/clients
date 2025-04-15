@@ -260,6 +260,7 @@ import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.s
 import { BrowserApi } from "../platform/browser/browser-api";
 import { flagEnabled } from "../platform/flags";
 import { IpcBackgroundService } from "../platform/ipc/ipc-background.service";
+import { IpcContentScriptManagerService } from "../platform/ipc/ipc-content-script-manager.service";
 import { UpdateBadge } from "../platform/listeners/update-badge";
 /* eslint-disable no-restricted-imports */
 import { ChromeMessageSender } from "../platform/messaging/chrome-message.sender";
@@ -404,6 +405,7 @@ export default class MainBackground {
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
   taskService: TaskService;
 
+  ipcContentScriptManagerService: IpcContentScriptManagerService;
   ipcService: IpcService;
 
   onUpdatedRan: boolean;
@@ -1183,6 +1185,17 @@ export default class MainBackground {
       this.authService,
       () => this.generatePasswordToClipboard(),
     );
+
+    this.taskService = new DefaultTaskService(
+      this.stateProvider,
+      this.apiService,
+      this.organizationService,
+      this.configService,
+      this.authService,
+      this.notificationsService,
+      messageListener,
+    );
+
     this.notificationBackground = new NotificationBackground(
       this.accountService,
       this.authService,
@@ -1197,6 +1210,8 @@ export default class MainBackground {
       this.policyService,
       this.themeStateService,
       this.userNotificationSettingsService,
+      this.taskService,
+      this.messagingService,
     );
 
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(
@@ -1301,18 +1316,9 @@ export default class MainBackground {
       this.configService,
     );
 
-    this.taskService = new DefaultTaskService(
-      this.stateProvider,
-      this.apiService,
-      this.organizationService,
-      this.configService,
-      this.authService,
-      this.notificationsService,
-      messageListener,
-    );
-
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
 
+    this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
     this.ipcService = new IpcBackgroundService(this.logService);
   }
 

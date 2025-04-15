@@ -2434,7 +2434,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         cipherId: cipherView.id,
         cipherType: addNewCipherType,
       });
-      await BrowserApi.sendMessage("inlineAutofillMenuRefreshAddEditCipher");
     } catch (error) {
       this.logService.error("Error building cipher and opening add/edit vault item popout", error);
     }

@@ -95,10 +95,13 @@ export class CriticalApplicationsComponent implements OnInit {
   }
 
   goToAllAppsTab = async () => {
-    await this.router.navigate([`organizations/${this.organizationId}/risk-insights`], {
-      queryParams: { tabIndex: RiskInsightsTabType.AllApps },
-      queryParamsHandling: "merge",
-    });
+    await this.router.navigate(
+      [`organizations/${this.organizationId}/access-intelligence/risk-insights`],
+      {
+        queryParams: { tabIndex: RiskInsightsTabType.AllApps },
+        queryParamsHandling: "merge",
+      },
+    );
   };
 
   unmarkAsCriticalApp = async (hostname: string) => {
