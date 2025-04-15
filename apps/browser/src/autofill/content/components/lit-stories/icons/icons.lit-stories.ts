@@ -66,3 +66,4 @@ export const PartyHornIcon = createIconStory("PartyHorn");
 export const PencilSquareIcon = createIconStory("PencilSquare");
 export const ShieldIcon = createIconStory("Shield");
 export const UserIcon = createIconStory("User");
+export const CollectionIcon = createIconStory("Collection");
