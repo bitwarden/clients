@@ -90,7 +90,7 @@ and behavior across the different clients and platforms.
 Currently the primary usage of the CL is in the web-based clients, namely _web_, _browser_, and
 _desktop_.
 
-**Roll out status:** The web vault and browser extension are transitioned to use the component
+**Rollout status:** The web vault and browser extension are transitioned to use the component
 library. We are currently working on the desktop application, which has the CL available for use but
 is not fully migrated.
 
@@ -156,13 +156,15 @@ what would be helpful to you if you were consuming this component for the first 
 
    - What is the component intended to be used for?
    - How to import and use it? What inputs and slots are available?
+   - Are there other usage guidelines, such as pointing out similar components and when to use each?
+     Do's and don'ts, such as keeping content succint?
    - Any accessibility or other implementation considerations?
-   - Does it need to be used with any other existing components?
+   - Does it need to be used in conjunction with any other existing components?
 
 4. Add stories to the `*.stories.ts` file
    - Default normal use case, including variants if applicable
    - Other common use cases / patterns
-   - Edge cases
+   - Edge cases (examples below, not a comprehensive list):
      - Long text -- does it truncate, ellipse, wrap, scroll, etc?
      - Disabled state?
      - What would it look like with an icon?
