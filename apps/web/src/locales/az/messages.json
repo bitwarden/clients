@@ -10593,12 +10593,12 @@
     "message": "Ödənişsiz təşkilatların ən çox 2 kolleksiyası ola bilər. Daha çox kolleksiya əlavə etmək üçün ödənişli bir plana yüksəldin."
   },
   "businessUnit": {
-    "message": "Business Unit"
+    "message": "Biznes vahidi"
   },
   "businessUnits": {
-    "message": "Business Units"
+    "message": "Biznes vahidləri"
   },
   "newBusinessUnit": {
-    "message": "New business unit"
+    "message": "Yeni biznes vahidi"
   }
 }

@@ -6864,11 +6864,11 @@
     "message": "Надійний пароль згенеровано! Обов'язково оновіть свій пароль на вебсайті."
   },
   "useGeneratorHelpTextPartOne": {
-    "message": "Скористатися генератором",
+    "message": "Скористайтеся генератором,",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
-    "message": "для створення надійного, унікального пароля",
+    "message": "щоб створити надійний, унікальний пароль",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "service": {

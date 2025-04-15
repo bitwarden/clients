@@ -2912,7 +2912,7 @@
     "message": "付款方式"
   },
   "noPaymentMethod": {
-    "message": "无付款方式。"
+    "message": "没有付款方式。"
   },
   "addPaymentMethod": {
     "message": "添加付款方式"
@@ -2924,10 +2924,10 @@
     "message": "账单"
   },
   "noUnpaidInvoices": {
-    "message": "无未支付的账单。"
+    "message": "没有未支付的账单。"
   },
   "noPaidInvoices": {
-    "message": "无已支付的账单。"
+    "message": "没有已支付的账单。"
   },
   "paid": {
     "message": "已支付",
@@ -2942,7 +2942,7 @@
     "description": "Payment/credit transactions."
   },
   "noTransactions": {
-    "message": "无交易记录。"
+    "message": "没有交易记录。"
   },
   "chargeNoun": {
     "message": "费用",
@@ -3968,7 +3968,7 @@
     "message": "然后继续创建您的账户。"
   },
   "noEmail": {
-    "message": "没收到电子邮件吗？"
+    "message": "没有收到电子邮件吗？"
   },
   "goBack": {
     "message": "返回"
@@ -8956,7 +8956,7 @@
     "message": "选择要分配的集合"
   },
   "noCollectionsAssigned": {
-    "message": "没有分配任何集合"
+    "message": "未分配任何集合"
   },
   "successfullyAssignedCollections": {
     "message": "成功分配了集合"
@@ -10593,12 +10593,12 @@
     "message": "免费组织最多拥有 2 个集合。要添加更多集合，请升级到付费计划。"
   },
   "businessUnit": {
-    "message": "Business Unit"
+    "message": "业务单元"
   },
   "businessUnits": {
-    "message": "Business Units"
+    "message": "业务单元"
   },
   "newBusinessUnit": {
-    "message": "New business unit"
+    "message": "新增业务单元"
   }
 }
