@@ -981,6 +981,7 @@ jobs:
           APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
           CSC_FOR_PULL_REQUEST: true
+          DEBUG: electron-osx-sign
         run: npm run pack:mac:with-extension
 
       - name: Upload .zip artifact
