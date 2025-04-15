@@ -25,7 +25,7 @@ export class BitIconComponent {
     this.innerHtml = this.domSanitizer.bypassSecurityTrustHtml(svg);
   }
 
-  @Input() ariaLabel: string;
+  @Input() ariaLabel: string | undefined = undefined;
 
   constructor(private domSanitizer: DomSanitizer) {}
 }
