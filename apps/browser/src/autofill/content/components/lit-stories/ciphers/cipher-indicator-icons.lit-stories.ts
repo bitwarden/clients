@@ -12,7 +12,7 @@ type Args = {
 };
 
 export default {
-  title: "Components/Ciphers/Cipher Indicator Icon",
+  title: "Components/Ciphers/Cipher Indicator Icons",
   argTypes: {
     showBusinessIcon: { control: "boolean" },
     showFamilyIcon: { control: "boolean" },
