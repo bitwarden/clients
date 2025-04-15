@@ -38,11 +38,22 @@ export class MockSdkService implements SdkService {
     throw new Error("Not supported in mock service");
   }
 
+  /**
+   * Returns the non-user scoped client mock.
+   * This is what is returned by the `client$` observable.
+   */
   get client(): DeepMockProxy<BitwardenClient> {
     return this._client$.value;
   }
 
   readonly simulate = {
+    /**
+     * Simulates a user login, and returns a user-scoped mock for the user.
+     * This will be return by the `userClient$` observable.
+     *
+     * @param userId The userId to simulate login for.
+     * @returns A user-scoped mock for the user.
+     */
     userLogin: (userId: UserId) => {
       const client = mockDeep<BitwardenClient>();
       this.userClients$.next({
@@ -51,6 +62,13 @@ export class MockSdkService implements SdkService {
       });
       return client;
     },
+
+    /**
+     * Simulates a user logout, and disposes the user-scoped mock for the user.
+     * This will remove the user-scoped mock from the `userClient$` observable.
+     *
+     * @param userId The userId to simulate logout for.
+     */
     userLogout: (userId: UserId) => {
       const clients = this.userClients$.value;
       clients[userId]?.markForDisposal();
