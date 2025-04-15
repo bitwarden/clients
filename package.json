@@ -118,6 +118,7 @@
     "json5": "2.2.3",
     "lint-staged": "15.4.1",
     "mini-css-extract-plugin": "2.9.2",
+    "nx": "20.8.0",
     "postcss": "8.5.1",
     "postcss-loader": "8.1.1",
     "prettier": "3.4.2",
