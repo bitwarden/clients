@@ -53,6 +53,7 @@ const createIconStory = (iconName: keyof typeof Icons): StoryObj<Args> => {
 };
 
 export const AngleDownIcon = createIconStory("AngleDown");
+export const AngleUpIcon = createIconStory("AngleUp");
 export const BusinessIcon = createIconStory("Business");
 export const BrandIcon = createIconStory("BrandIconContainer");
 export const CloseIcon = createIconStory("Close");
