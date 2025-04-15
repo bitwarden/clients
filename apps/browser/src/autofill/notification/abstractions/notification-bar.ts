@@ -11,8 +11,12 @@ const NotificationTypes = {
 
 type NotificationType = (typeof NotificationTypes)[keyof typeof NotificationTypes];
 
+type NotificationTaskInfo = {
+  orgName: string;
+  remainingTasksCount: number;
+};
+
 type NotificationBarIframeInitData = {
-  applyRedesign?: boolean;
   ciphers?: NotificationCipherData[];
   folders?: FolderView[];
   importType?: string;
@@ -39,6 +43,7 @@ type NotificationBarWindowMessageHandlers = {
 };
 
 export {
+  NotificationTaskInfo,
   NotificationTypes,
   NotificationType,
   NotificationBarIframeInitData,
