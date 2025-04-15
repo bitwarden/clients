@@ -168,11 +168,13 @@ jobs:
         uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
         with:
           name: jest-coverage
+          path: ./jest-coverage
 
       - name: Download rust coverage
         uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
         with:
           name: rust-coverage
+          path: ./rust-coverage
 
       - name: Upload coverage to codecov.io
         uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
