@@ -38,7 +38,7 @@ export class MockSdkService implements SdkService {
     throw new Error("Not supported in mock service");
   }
 
-  get clientMock(): DeepMockProxy<BitwardenClient> {
+  get client(): DeepMockProxy<BitwardenClient> {
     return this._client$.value;
   }
 

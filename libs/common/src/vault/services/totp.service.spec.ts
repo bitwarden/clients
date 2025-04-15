@@ -12,7 +12,7 @@ describe("TotpService", () => {
 
   beforeEach(() => {
     sdkService = new MockSdkService();
-    sdkService.clientMock.vault
+    sdkService.client.vault
       .mockDeep()
       .totp.mockDeep()
       .generate_totp.mockReturnValueOnce({

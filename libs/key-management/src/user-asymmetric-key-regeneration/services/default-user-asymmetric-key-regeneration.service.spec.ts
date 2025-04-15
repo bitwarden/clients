@@ -31,10 +31,10 @@ function setupVerificationResponse(
     userKeyEncryptedPrivateKey: "userKeyEncryptedPrivateKey",
   };
 
-  sdkService.clientMock.crypto
+  sdkService.client.crypto
     .mockDeep()
     .verify_asymmetric_keys.mockReturnValue(mockVerificationResponse);
-  sdkService.clientMock.crypto.mockDeep().make_key_pair.mockReturnValue(mockKeyPairResponse);
+  sdkService.client.crypto.mockDeep().make_key_pair.mockReturnValue(mockKeyPairResponse);
 }
 
 function setupUserKeyValidation(
