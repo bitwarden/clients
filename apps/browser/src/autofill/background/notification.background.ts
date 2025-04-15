@@ -43,8 +43,8 @@ import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { openAddEditVaultItemPopout } from "../../vault/popup/utils/vault-popout-window";
 import {
-  CipherIndicatorIconType,
-  CipherIndicatorIconTypes,
+  OrganizationCategory,
+  OrganizationCategories,
   NotificationCipherData,
 } from "../content/components/cipher/types";
 import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
@@ -184,23 +184,23 @@ export default class NotificationBackground {
     );
 
     return decryptedCiphers.map((view) => {
-
       const { id, name, reprompt, favorite, login, organizationId } = view;
 
       const organizationType = organizationId
         ? organizations.find((org) => org.id === organizationId)?.productTierType
         : null;
 
-      const cipherIndicatorIcons: CipherIndicatorIconType[] = [];
+      const organizationCategories: OrganizationCategory[] = [];
+
       if (
         [ProductTierType.Teams, ProductTierType.Enterprise, ProductTierType.TeamsStarter].includes(
           organizationType,
         )
       ) {
-        cipherIndicatorIcons.push(CipherIndicatorIconTypes.business);
+        organizationCategories.push(OrganizationCategories.business);
       }
       if ([ProductTierType.Families, ProductTierType.Free].includes(organizationType)) {
-        cipherIndicatorIcons.push(CipherIndicatorIconTypes.families);
+        organizationCategories.push(OrganizationCategories.family);
       }
 
       return {
@@ -209,7 +209,7 @@ export default class NotificationBackground {
         type: CipherType.Login,
         reprompt,
         favorite,
-        ...(cipherIndicatorIcons.length ? { cipherIndicatorIcons } : {}),
+        ...(organizationCategories.length ? { organizationCategories } : {}),
         icon: buildCipherIcon(iconsServerUrl, view, showFavicons),
         login: login && {
           username: login.username,

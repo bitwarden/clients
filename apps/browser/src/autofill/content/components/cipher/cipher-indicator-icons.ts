@@ -6,26 +6,26 @@ import { Theme } from "@bitwarden/common/platform/enums";
 import { themes } from "../../../content/components/constants/styles";
 import { Business, Family } from "../../../content/components/icons";
 
-import { CipherIndicatorIconType, CipherIndicatorIconTypes } from "./types";
+import { OrganizationCategories, OrganizationCategory } from "./types";
 
 const cipherIndicatorIconsMap: Record<
-  CipherIndicatorIconType,
+  OrganizationCategory,
   (args: { color: string; theme: Theme }) => TemplateResult
 > = {
-  [CipherIndicatorIconTypes.business]: Business,
-  [CipherIndicatorIconTypes.families]: Family,
+  [OrganizationCategories.business]: Business,
+  [OrganizationCategories.family]: Family,
 };
 
 export function CipherInfoIndicatorIcons({
-  cipherIndicatorIcons = [],
+  organizationCategories = [],
   theme,
 }: {
-  cipherIndicatorIcons?: CipherIndicatorIconType[];
+  organizationCategories?: OrganizationCategory[];
   theme: Theme;
 }) {
   return html`
     <span class=${cipherInfoIndicatorIconsStyles}>
-      ${cipherIndicatorIcons.map((name) =>
+      ${organizationCategories.map((name) =>
         cipherIndicatorIconsMap[name]?.({ color: themes[theme].text.muted, theme }),
       )}
     </span>

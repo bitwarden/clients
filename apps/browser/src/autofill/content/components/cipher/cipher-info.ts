@@ -8,10 +8,9 @@ import { themes, typography } from "../../../content/components/constants/styles
 import { CipherInfoIndicatorIcons } from "./cipher-indicator-icons";
 import { NotificationCipherData } from "./types";
 
-// @TODO support other cipher types (card, identity, notes, etc)
 export function CipherInfo({ cipher, theme }: { cipher: NotificationCipherData; theme: Theme }) {
-  const { name, login, cipherIndicatorIcons } = cipher;
-  const hasIndicatorIcons = cipherIndicatorIcons?.length;
+  const { name, login, organizationCategories } = cipher;
+  const hasIndicatorIcons = organizationCategories?.length;
 
   return html`
     <div>
@@ -21,7 +20,7 @@ export function CipherInfo({ cipher, theme }: { cipher: NotificationCipherData; 
           hasIndicatorIcons
             ? CipherInfoIndicatorIcons({
                 theme,
-                cipherIndicatorIcons,
+                organizationCategories,
               })
             : nothing,
         ]}
