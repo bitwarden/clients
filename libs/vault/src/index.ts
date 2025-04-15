@@ -28,6 +28,8 @@ export * from "./services/vault-nudges.service";
 
 export { DefaultSshImportPromptService } from "./services/default-ssh-import-prompt.service";
 export { SshImportPromptService } from "./services/ssh-import-prompt.service";
+export { SpotlightComponent } from "./components/spotlight/spotlight.component";
 
 export * from "./abstractions/change-login-password.service";
 export * from "./services/default-change-login-password.service";
+export * from "./services/custom-nudges-services";
