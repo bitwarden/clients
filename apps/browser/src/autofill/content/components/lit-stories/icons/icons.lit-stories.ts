@@ -14,7 +14,7 @@ type Args = {
 };
 
 export default {
-  title: "Components/Icons/Icons",
+  title: "Components/Illustrations",
   argTypes: {
     iconLink: { control: "text" },
     color: { control: "color" },
@@ -62,8 +62,6 @@ export const ExclamationTriangleIcon = createIconStory("ExclamationTriangle");
 export const ExternalLinkIcon = createIconStory("ExternalLink");
 export const FolderIcon = createIconStory("Folder");
 export const GlobeIcon = createIconStory("Globe");
-export const KeyholeIcon = createIconStory("Keyhole");
-export const PartyHornIcon = createIconStory("PartyHorn");
 export const PencilSquareIcon = createIconStory("PencilSquare");
 export const ShieldIcon = createIconStory("Shield");
 export const UserIcon = createIconStory("User");

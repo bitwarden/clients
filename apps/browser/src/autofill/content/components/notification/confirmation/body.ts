@@ -4,7 +4,7 @@ import { html, nothing } from "lit";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { themes } from "../../constants/styles";
-import { PartyHorn, Keyhole, Warning } from "../../icons";
+import { PartyHorn, Keyhole, Warning } from "../../illustrations";
 
 import { NotificationConfirmationMessage } from "./message";
 
