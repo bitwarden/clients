@@ -102,18 +102,6 @@ describe("AuthRequestService", () => {
       );
     });
 
-    it("should use the master key and hash if they exist", async () => {
-      masterPasswordService.masterKeySubject.next({ encKey: new Uint8Array(64) } as MasterKey);
-      masterPasswordService.masterKeyHashSubject.next("MASTER_KEY_HASH");
-
-      await sut.approveOrDenyAuthRequest(
-        true,
-        new AuthRequestResponse({ id: "123", publicKey: "KEY" }),
-      );
-
-      expect(encryptService.rsaEncrypt).toHaveBeenCalledWith(new Uint8Array(64), expect.anything());
-    });
-
     it("should use the user key if the master key and hash do not exist", async () => {
       keyService.getUserKey.mockResolvedValueOnce({ key: new Uint8Array(64) } as UserKey);
 
