@@ -3,6 +3,8 @@ import { Subject } from "rxjs";
 
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
+import { SponsoredFamily } from "./types/sponsored-family.types";
+
 @Component({
   selector: "app-organization-member-families",
   templateUrl: "organization-member-families.component.html",
@@ -11,7 +13,7 @@ export class OrganizationMemberFamiliesComponent implements OnInit, OnDestroy {
   tabIndex = 0;
   loading = false;
 
-  @Input() memberFamilies: any;
+  @Input() memberFamilies: SponsoredFamily[];
 
   private _destroy = new Subject<void>();
 

@@ -11,6 +11,7 @@ import {
   AddSponsorshipDialogComponent,
   AddSponsorshipDialogResult,
 } from "./add-sponsorship-dialog.component";
+import { SponsoredFamily } from "./types/sponsored-family.types";
 
 @Component({
   selector: "app-free-bitwarden-families",
@@ -18,7 +19,7 @@ import {
 })
 export class FreeBitwardenFamiliesComponent implements OnInit {
   tabIndex = 0;
-  sponsoredFamilies: any[] = [];
+  sponsoredFamilies: SponsoredFamily[] = [];
 
   constructor(
     private router: Router,

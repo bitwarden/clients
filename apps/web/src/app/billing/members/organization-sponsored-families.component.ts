@@ -3,6 +3,8 @@ import { Subject } from "rxjs";
 
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
+import { SponsoredFamily } from "./types/sponsored-family.types";
+
 @Component({
   selector: "app-organization-sponsored-families",
   templateUrl: "organization-sponsored-families.component.html",
@@ -11,8 +13,8 @@ export class OrganizationSponsoredFamiliesComponent implements OnInit, OnDestroy
   loading = false;
   tabIndex = 0;
 
-  @Input() sponsoredFamilies: any;
-  @Output() removeSponsorshipEvent = new EventEmitter();
+  @Input() sponsoredFamilies: SponsoredFamily[];
+  @Output() removeSponsorshipEvent = new EventEmitter<SponsoredFamily>();
 
   private _destroy = new Subject<void>();
 
@@ -26,7 +28,7 @@ export class OrganizationSponsoredFamiliesComponent implements OnInit, OnDestroy
     return this.platformUtilsService.isSelfHost();
   }
 
-  remove(sponsorship: any) {
+  remove(sponsorship: SponsoredFamily) {
     this.removeSponsorshipEvent.emit(sponsorship);
   }
 
