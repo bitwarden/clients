@@ -2,7 +2,7 @@ import { take } from "rxjs";
 
 import { TotpResponse } from "@bitwarden/sdk-internal";
 
-import { MockSdkService } from "../../platform/services/sdk/mock-sdk.service";
+import { MockSdkService } from "../../platform/spec/mock-sdk.service";
 
 import { TotpService } from "./totp.service";
 

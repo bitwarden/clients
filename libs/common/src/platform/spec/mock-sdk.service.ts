@@ -9,9 +9,9 @@ import {
 
 import { BitwardenClient } from "@bitwarden/sdk-internal";
 
-import { UserId } from "../../../types/guid";
-import { SdkService, UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
-import { Rc } from "../../misc/reference-counting/rc";
+import { UserId } from "../../types/guid";
+import { SdkService, UserNotLoggedInError } from "../abstractions/sdk/sdk.service";
+import { Rc } from "../misc/reference-counting/rc";
 
 import { DeepMockProxy, mockDeep } from "./mock-deep";
 
