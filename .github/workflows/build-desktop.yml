@@ -201,7 +201,7 @@ jobs:
         if: ${{ inputs.sdk_branch != '' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}
@@ -348,7 +348,7 @@ jobs:
         if: ${{ inputs.sdk_branch != '' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}
@@ -383,8 +383,6 @@ jobs:
           PKG_CONFIG_ALL_STATIC: true
           TARGET: musl
         run: |
-          curl https://sh.rustup.rs -sSf | sh -s -- -y
-          . "$HOME/.cargo/env" 
           rustup target add aarch64-unknown-linux-musl
           node build.js --target=aarch64-unknown-linux-musl --release
 
@@ -469,7 +467,7 @@ jobs:
         if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}
@@ -805,7 +803,7 @@ jobs:
         if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}
@@ -995,7 +993,7 @@ jobs:
         if: ${{ inputs.sdk_branch != '' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}
@@ -1244,7 +1242,7 @@ jobs:
         if: ${{ inputs.sdk_branch != '' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}
@@ -1525,7 +1523,7 @@ jobs:
         if: ${{ inputs.sdk_branch != '' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}
