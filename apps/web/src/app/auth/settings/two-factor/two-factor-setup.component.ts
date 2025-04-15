@@ -32,7 +32,10 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { DialogRef, DialogService } from "@bitwarden/components";
+import { DialogRef, DialogService, ItemModule } from "@bitwarden/components";
+
+import { LooseComponentsModule } from "../../../shared/loose-components.module";
+import { SharedModule } from "../../../shared/shared.module";
 
 import { TwoFactorRecoveryComponent } from "./two-factor-recovery.component";
 import { TwoFactorSetupAuthenticatorComponent } from "./two-factor-setup-authenticator.component";
@@ -45,6 +48,8 @@ import { TwoFactorVerifyComponent } from "./two-factor-verify.component";
 @Component({
   selector: "app-two-factor-setup",
   templateUrl: "two-factor-setup.component.html",
+  standalone: true,
+  imports: [ItemModule, LooseComponentsModule, SharedModule],
 })
 export class TwoFactorSetupComponent implements OnInit, OnDestroy {
   @ViewChild("yubikeyTemplate", { read: ViewContainerRef, static: true })

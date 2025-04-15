@@ -10,6 +10,8 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 
 import { makeStaticByteArray } from "../../../../spec";
+import { DefaultFeatureFlagValue, FeatureFlag } from "../../../enums/feature-flag.enum";
+import { ServerConfig } from "../../../platform/abstractions/config/server-config";
 
 import { EncryptServiceImplementation } from "./encrypt.service.implementation";
 
@@ -26,17 +28,65 @@ describe("EncryptService", () => {
     encryptService = new EncryptServiceImplementation(cryptoFunctionService, logService, true);
   });
 
+  describe("onServerConfigChange", () => {
+    const newConfig = mock<ServerConfig>();
+
+    afterEach(() => {
+      jest.resetAllMocks();
+    });
+
+    it("updates internal flag with default value when not present in config", () => {
+      encryptService.onServerConfigChange(newConfig);
+
+      expect((encryptService as any).blockType0).toBe(
+        DefaultFeatureFlagValue[FeatureFlag.PM17987_BlockType0],
+      );
+    });
+
+    test.each([true, false])("updates internal flag with value in config", (expectedValue) => {
+      newConfig.featureStates = { [FeatureFlag.PM17987_BlockType0]: expectedValue };
+
+      encryptService.onServerConfigChange(newConfig);
+
+      expect((encryptService as any).blockType0).toBe(expectedValue);
+    });
+  });
+
   describe("encrypt", () => {
     it("throws if no key is provided", () => {
       return expect(encryptService.encrypt(null, null)).rejects.toThrow(
         "No encryption key provided.",
       );
     });
-    it("returns null if no data is provided", async () => {
-      const key = mock<SymmetricCryptoKey>();
+
+    it("throws if type 0 key is provided with flag turned on", async () => {
+      (encryptService as any).blockType0 = true;
+      const key = new SymmetricCryptoKey(makeStaticByteArray(32));
+      const mock32Key = mock<SymmetricCryptoKey>();
+      mock32Key.key = makeStaticByteArray(32);
+
+      await expect(encryptService.encrypt(null!, key)).rejects.toThrow(
+        "Type 0 encryption is not supported.",
+      );
+      await expect(encryptService.encrypt(null!, mock32Key)).rejects.toThrow(
+        "Type 0 encryption is not supported.",
+      );
+
+      const plainValue = "data";
+      await expect(encryptService.encrypt(plainValue, key)).rejects.toThrow(
+        "Type 0 encryption is not supported.",
+      );
+      await expect(encryptService.encrypt(plainValue, mock32Key)).rejects.toThrow(
+        "Type 0 encryption is not supported.",
+      );
+    });
+
+    it("returns null if no data is provided with valid key", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
       const actual = await encryptService.encrypt(null, key);
       expect(actual).toBeNull();
     });
+
     it("creates an EncString for Aes256Cbc", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(32));
       const plainValue = "data";
@@ -53,6 +103,7 @@ describe("EncryptService", () => {
       expect(Utils.fromB64ToArray(result.data).length).toEqual(4);
       expect(Utils.fromB64ToArray(result.iv).length).toEqual(16);
     });
+
     it("creates an EncString for Aes256Cbc_HmacSha256_B64", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
       const plainValue = "data";
@@ -87,6 +138,21 @@ describe("EncryptService", () => {
     it("throws if no key is provided", () => {
       return expect(encryptService.encryptToBytes(plainValue, null)).rejects.toThrow(
         "No encryption key",
+      );
+    });
+
+    it("throws if type 0 key provided with flag turned on", async () => {
+      (encryptService as any).blockType0 = true;
+      const key = new SymmetricCryptoKey(makeStaticByteArray(32));
+      const mock32Key = mock<SymmetricCryptoKey>();
+      mock32Key.key = makeStaticByteArray(32);
+
+      await expect(encryptService.encryptToBytes(plainValue, key)).rejects.toThrow(
+        "Type 0 encryption is not supported.",
+      );
+
+      await expect(encryptService.encryptToBytes(plainValue, mock32Key)).rejects.toThrow(
+        "Type 0 encryption is not supported.",
       );
     });
 

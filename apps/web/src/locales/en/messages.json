@@ -149,27 +149,6 @@
       }
     }
   },
-  "atRiskMembersWithCount": {
-    "message": "At-risk members ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "atRiskMembersDescription": {
-    "message": "These members are logging into applications with weak, exposed, or reused passwords."
-  },
-  "atRiskMembersDescriptionWithApp": {
-    "message": "These members are logging into $APPNAME$ with weak, exposed, or reused passwords.",
-    "placeholders": {
-      "appname": {
-        "content": "$1",
-        "example": "Salesforce"
-      }
-    }
-  },
   "totalMembers": {
     "message": "Total members"
   },
@@ -9313,9 +9292,6 @@
   },
   "sdksDesc": {
     "message": "Use Bitwarden Secrets Manager SDK in the following programming languages to build your own applications."
-  },
-  "singleSignOn": {
-    "message": "Single sign-on"
   },
   "ssoDescStart": {
     "message": "Configure",

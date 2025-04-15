@@ -30,6 +30,7 @@ import { EncryptService } from "../abstractions/encrypt.service";
 
 export class EncryptServiceImplementation implements EncryptService {
   protected useSDKForDecryption: boolean = DefaultFeatureFlagValue[FeatureFlag.UseSDKForDecryption];
+  private blockType0: boolean = DefaultFeatureFlagValue[FeatureFlag.PM17987_BlockType0];
 
   constructor(
     protected cryptoFunctionService: CryptoFunctionService,
@@ -46,11 +47,18 @@ export class EncryptServiceImplementation implements EncryptService {
       oldFlagValue,
       this.useSDKForDecryption,
     );
+    this.blockType0 = getFeatureFlagValue(newConfig, FeatureFlag.PM17987_BlockType0);
   }
 
   async encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString> {
     if (key == null) {
       throw new Error("No encryption key provided.");
+    }
+
+    if (this.blockType0) {
+      if (key.encType === EncryptionType.AesCbc256_B64 || key.key.byteLength < 64) {
+        throw new Error("Type 0 encryption is not supported.");
+      }
     }
 
     if (plainValue == null) {
@@ -82,6 +90,12 @@ export class EncryptServiceImplementation implements EncryptService {
   async encryptToBytes(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncArrayBuffer> {
     if (key == null) {
       throw new Error("No encryption key provided.");
+    }
+
+    if (this.blockType0) {
+      if (key.encType === EncryptionType.AesCbc256_B64 || key.key.byteLength < 64) {
+        throw new Error("Type 0 encryption is not supported.");
+      }
     }
 
     const innerKey = key.inner();

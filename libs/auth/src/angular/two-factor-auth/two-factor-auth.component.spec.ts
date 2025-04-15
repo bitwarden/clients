@@ -254,19 +254,6 @@ describe("TwoFactorAuthComponent", () => {
         );
       });
 
-      it("calls loginEmailService.clearValues() when login is successful", async () => {
-        // Arrange
-        mockLoginStrategyService.logInTwoFactor.mockResolvedValue(new AuthResult());
-        // spy on loginEmailService.clearValues
-        const clearValuesSpy = jest.spyOn(mockLoginEmailService, "clearValues");
-
-        // Act
-        await component.submit(token, remember);
-
-        // Assert
-        expect(clearValuesSpy).toHaveBeenCalled();
-      });
-
       describe("Set Master Password scenarios", () => {
         beforeEach(() => {
           const authResult = new AuthResult();
