@@ -5,6 +5,7 @@ import { Observable } from "rxjs";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
+import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 
 import {
@@ -81,4 +82,10 @@ export abstract class LoginStrategyServiceAbstraction {
    * Sends a token request to the server with the provided device verification OTP.
    */
   logInNewDeviceVerification: (deviceVerificationOtp: string) => Promise<AuthResult>;
+  /**
+   * Processes the ForceSetPasswordReason from an AuthResult and sets it into state.
+   * @param authResult - The authentication result
+   * @param userId - The user ID
+   */
+  processForceSetPasswordReason: (authResult: AuthResult, userId: UserId) => Promise<void>;
 }
