@@ -12,7 +12,11 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { getClassInitializer } from "@bitwarden/common/platform/services/cryptography/get-class-initializer";
 
-import { DefaultFeatureFlagValue, FeatureFlag } from "../../../enums/feature-flag.enum";
+import {
+  DefaultFeatureFlagValue,
+  FeatureFlag,
+  getFeatureFlagValue,
+} from "../../../enums/feature-flag.enum";
 import { ServerConfig } from "../../../platform/abstractions/config/server-config";
 import { buildDecryptMessage, buildSetConfigMessage } from "../types/worker-command.type";
 
@@ -65,6 +69,7 @@ export class BulkEncryptServiceImplementation implements BulkEncryptService {
 
   onServerConfigChange(newConfig: ServerConfig): void {
     this.currentServerConfig = newConfig;
+    this.useSDKForDecryption = getFeatureFlagValue(newConfig, FeatureFlag.UseSDKForDecryption);
     this.updateWorkerServerConfigs(newConfig);
   }
 
