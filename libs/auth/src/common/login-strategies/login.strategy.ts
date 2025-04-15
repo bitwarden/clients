@@ -318,6 +318,25 @@ export abstract class LoginStrategy {
     return false;
   }
 
+  /**
+   * Processes the AuthResult to extract any ForceSetPasswordReason flags and sets them into state.
+   * This is called by LoginStrategyService.processForceSetPasswordReason and can be overridden by
+   * subclasses to add additional ForceSetPasswordReason handling.
+   *
+   * @param authResult - The authentication result
+   * @param userId - The user ID
+   */
+  async processForceSetPasswordReason(authResult: AuthResult, userId: UserId): Promise<void> {
+    if (authResult.forcePasswordReset === ForceSetPasswordReason.None) {
+      return;
+    }
+
+    await this.masterPasswordService.setForceSetPasswordReason(
+      authResult.forcePasswordReset,
+      userId,
+    );
+  }
+
   protected async createKeyPairForOldAccount(userId: UserId) {
     try {
       const userKey = await this.keyService.getUserKeyWithLegacySupport(userId);
