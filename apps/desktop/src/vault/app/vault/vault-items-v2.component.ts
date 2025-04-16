@@ -35,7 +35,6 @@ export class VaultItemsV2Component extends BaseVaultItemsComponent {
         if (searchText) {
           this.searchText = searchText;
         }
-        this.search(200).catch((error) => {});
       });
   }
 
