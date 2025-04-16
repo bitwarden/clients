@@ -244,7 +244,7 @@
     "message": "Chave do autenticador"
   },
   "autofillOptions": {
-    "message": "Opções de autopreenchimento"
+    "message": "Opções de preenchimento automático"
   },
   "websiteUri": {
     "message": "Site (URI)"
@@ -297,7 +297,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Preenchimento automático ao carregar a página?"
+    "message": "Preencher automaticamente ao carregar a página?"
   },
   "number": {
     "message": "Número"
@@ -6174,13 +6174,13 @@
     "message": "Ativar preenchimento automático"
   },
   "activateAutofillPolicyDesc": {
-    "message": "Ative o autopreenchimento na configuração de carregamento de página na extensão do navegador para todos os membros existentes e novos."
+    "message": "Ative a configuração de preenchimento automático ao carregamento de página na extensão do navegador para todos os membros existentes e novos."
   },
   "experimentalFeature": {
     "message": "Sites comprometidos ou não confiáveis podem tomar vantagem do autopreenchimento ao carregar a página."
   },
   "learnMoreAboutAutofill": {
-    "message": "Saiba mais sobre preenchimento automático"
+    "message": "Saiba mais sobre o preenchimento automático"
   },
   "selectType": {
     "message": "Selecionar Tipo de SSO"
@@ -10049,7 +10049,7 @@
     "message": "Use caixas de seleção se gostaria de preencher automaticamente a caixa de seleção de um formulário, como um e-mail de lembrança"
   },
   "linkedHelpText": {
-    "message": "Use um campo vinculado quando estiver enfrentando problemas com o auto-preenchimento para um site específico."
+    "message": "Use um campo vinculado quando estiver enfrentando problemas com o preenchimento automático em um site específico."
   },
   "linkedLabelHelpText": {
     "message": "Digite o Id html do campo, nome, nome aria-label, ou marcador de posição"

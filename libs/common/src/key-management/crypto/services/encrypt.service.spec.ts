@@ -412,7 +412,8 @@ describe("EncryptService", () => {
   });
 
   describe("rsa", () => {
-    const data = makeStaticByteArray(10, 100);
+    const data = makeStaticByteArray(64, 100);
+    const testKey = new SymmetricCryptoKey(data);
     const encryptedData = makeStaticByteArray(10, 150);
     const publicKey = makeStaticByteArray(10, 200);
     const privateKey = makeStaticByteArray(10, 250);
@@ -422,22 +423,26 @@ describe("EncryptService", () => {
       return new EncString(EncryptionType.Rsa2048_OaepSha1_B64, Utils.fromBufferToB64(data));
     }
 
-    describe("rsaEncrypt", () => {
+    describe("encapsulateKeyUnsigned", () => {
       it("throws if no data is provided", () => {
-        return expect(encryptService.rsaEncrypt(null, publicKey)).rejects.toThrow("No data");
+        return expect(encryptService.encapsulateKeyUnsigned(null, publicKey)).rejects.toThrow(
+          "No sharedKey provided for encapsulation",
+        );
       });
 
       it("throws if no public key is provided", () => {
-        return expect(encryptService.rsaEncrypt(data, null)).rejects.toThrow("No public key");
+        return expect(encryptService.encapsulateKeyUnsigned(testKey, null)).rejects.toThrow(
+          "No public key",
+        );
       });
 
       it("encrypts data with provided key", async () => {
         cryptoFunctionService.rsaEncrypt.mockResolvedValue(encryptedData);
 
-        const actual = await encryptService.rsaEncrypt(data, publicKey);
+        const actual = await encryptService.encapsulateKeyUnsigned(testKey, publicKey);
 
         expect(cryptoFunctionService.rsaEncrypt).toBeCalledWith(
-          expect.toEqualBuffer(data),
+          expect.toEqualBuffer(testKey.key),
           expect.toEqualBuffer(publicKey),
           "sha1",
         );
@@ -447,13 +452,17 @@ describe("EncryptService", () => {
       });
     });
 
-    describe("rsaDecrypt", () => {
+    describe("decapsulateKeyUnsigned", () => {
       it("throws if no data is provided", () => {
-        return expect(encryptService.rsaDecrypt(null, privateKey)).rejects.toThrow("No data");
+        return expect(encryptService.decapsulateKeyUnsigned(null, privateKey)).rejects.toThrow(
+          "No data",
+        );
       });
 
       it("throws if no private key is provided", () => {
-        return expect(encryptService.rsaDecrypt(encString, null)).rejects.toThrow("No private key");
+        return expect(encryptService.decapsulateKeyUnsigned(encString, null)).rejects.toThrow(
+          "No private key",
+        );
       });
 
       it.each([EncryptionType.AesCbc256_B64, EncryptionType.AesCbc256_HmacSha256_B64])(
@@ -461,16 +470,16 @@ describe("EncryptService", () => {
         async (encType) => {
           encString.encryptionType = encType;
 
-          await expect(encryptService.rsaDecrypt(encString, privateKey)).rejects.toThrow(
-            "Invalid encryption type",
-          );
+          await expect(
+            encryptService.decapsulateKeyUnsigned(encString, privateKey),
+          ).rejects.toThrow("Invalid encryption type");
         },
       );
 
       it("decrypts data with provided key", async () => {
         cryptoFunctionService.rsaDecrypt.mockResolvedValue(data);
 
-        const actual = await encryptService.rsaDecrypt(makeEncString(data), privateKey);
+        const actual = await encryptService.decapsulateKeyUnsigned(makeEncString(data), privateKey);
 
         expect(cryptoFunctionService.rsaDecrypt).toBeCalledWith(
           expect.toEqualBuffer(data),
@@ -478,7 +487,7 @@ describe("EncryptService", () => {
           "sha1",
         );
 
-        expect(actual).toEqualBuffer(data);
+        expect(actual.key).toEqualBuffer(data);
       });
     });
   });

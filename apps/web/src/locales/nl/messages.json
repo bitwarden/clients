@@ -6,7 +6,7 @@
     "message": "Belangrijke applicaties"
   },
   "noCriticalAppsAtRisk": {
-    "message": "Geen belangrijke applicaties lopen risico"
+    "message": "Geen kritische applicaties in gevaar"
   },
   "accessIntelligence": {
     "message": "Toegangsintelligentie"

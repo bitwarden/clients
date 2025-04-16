@@ -7028,7 +7028,7 @@
     }
   },
   "forwarderNoDomain": {
-    "message": "Nederīgs $SERVICENAME$ domēna vārds.",
+    "message": "Nederīgs $SERVICENAME$ domēns.",
     "description": "Displayed when the domain is empty or domain authorization failed at the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -10593,12 +10593,12 @@
     "message": "Apvienībās, kuras izmanto Bitwarden bez maksas, var būt līdz 2 krājumiem. Jāpāriet uz maksas plānu, lai pievienotu vairāk krājumu."
   },
   "businessUnit": {
-    "message": "Business Unit"
+    "message": "Uzņēmējdarbības vienība"
   },
   "businessUnits": {
-    "message": "Business Units"
+    "message": "Uzņēmējdarbības vienības"
   },
   "newBusinessUnit": {
-    "message": "New business unit"
+    "message": "Jauna uzņēmējdarbības vienība"
   }
 }

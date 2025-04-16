@@ -10593,12 +10593,12 @@
     "message": "Безплатните организации могат да имат не повече от 2 колекции. Надградете до платен план, ако искате да имате повече колекции."
   },
   "businessUnit": {
-    "message": "Business Unit"
+    "message": "Бизнес единица"
   },
   "businessUnits": {
-    "message": "Business Units"
+    "message": "Бизнес единици"
   },
   "newBusinessUnit": {
-    "message": "New business unit"
+    "message": "Нова бизнес единица"
   }
 }

@@ -1098,6 +1098,31 @@
     "message": "Prihlasovacie údaje aktualizované",
     "description": "Message displayed when login details are successfully updated."
   },
+  "loginUpdateTaskSuccess": {
+    "message": "Skvelá práca! Podnikli ste kroky, aby ste vy a $ORGANIZATION$ boli bezpečnejší.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Ďakujeme, že ste pre $ORGANIZATION$ zabezpečili väčšiu bezpečnosť. Máte ďalšie ($TASK_COUNT$) heslá na aktualizáciu.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Zmeniť ďalšie heslo",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
   "saveFailure": {
     "message": "Chyba pri ukladaní",
     "description": "Error message shown when the system fails to save login details."
