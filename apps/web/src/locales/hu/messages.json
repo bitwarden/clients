@@ -3323,6 +3323,12 @@
   "externalIdDesc": {
     "message": "A külső azonosító a Bitwarden tárkapcsoló és API által nem titkosított referencia."
   },
+  "ssoExternalId": {
+    "message": "SSO külső azonosító"
+  },
+  "ssoExternalIdDesc": {
+    "message": "Az SSO külső azonosító egy titkosítatlan hivatkozás a Bitwarden és az jelenleg konfigurált SSO szolgáltató között."
+  },
   "nestCollectionUnder": {
     "message": "Gyűjtemény beágyazása:"
   },
@@ -5685,6 +5691,9 @@
   "webAuthnSuccess": {
     "message": "A WebAuthn sikeresen ellenőrzésre került.! A fül már bezárható."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Az új jelszó nem lehet azonos a jelenlegi jelszóval."
+  },
   "hintEqualsPassword": {
     "message": "A jelszavas tipp nem lehet azonos a jelszóval."
   },
@@ -5879,6 +5888,9 @@
   },
   "fingerprint": {
     "message": "Ujjlenyomat"
+  },
+  "fingerprintPhrase": {
+    "message": "Ujjlenyomat kifejezés:"
   },
   "removeUsers": {
     "message": "Felhasználók eltávolítása"
@@ -10330,6 +10342,33 @@
   "organizationNameMaxLength": {
     "message": "A szervezet neve nem haladhatja meg az 50 karaktert."
   },
+  "rotationCompletedTitle": {
+    "message": "A kulcsforgatás sikeres volt."
+  },
+  "rotationCompletedDesc": {
+    "message": "A mesterjelszó és a titkosítási kulcsok frissítésre kerültek. A többi eszköz kijelentkeztetésre került."
+  },
+  "trustUserEmergencyAccess": {
+    "message": "Bizalom és megerősítés a felhasználónál"
+  },
+  "trustOrganization": {
+    "message": "Bizalom a szervezetnél"
+  },
+  "trust": {
+    "message": "Bizalom"
+  },
+  "doNotTrust": {
+    "message": "Nincs bizalom"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "A ióka biztonság érdekében csak akkor erősítsük meg, ha vészhelyzeti hozzáférést biztosítottunk ehhez a felhasználóhoz és az ujjlenyomata megegyezik a fiókban megjelenítettekkel."
+  },
+  "orgTrustWarning": {
+    "message": "A fiók biztonsága érdekében csak akkor folytassuk, ha tagja vagyunk ennek a szervezetnek, engedélyezve van a fiók helyreállítása és az alább megjelenített ujjlenyomat megegyezik a szervezet ujjlenyomatával."
+  },
+  "trustUser": {
+    "message": "Bizalom a felhasználónál"
+  },
   "sshKeyWrongPassword": {
     "message": "A megadott jelszó helytelen."
   },
@@ -10499,6 +10538,30 @@
   "assignedExceedsAvailable": {
     "message": "A hozzárendelt helyek száma meghaladja a rendelkezésre álló helyek számát."
   },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "Ujjlenyomat kifejezés $NUM_USERS$ kapcsolathoz, amelyeknél engedélyeztük a vészhelyzeti hozzáférést.",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "Ujjlenyomat kifejezés $ORG_NAME$ szervezethez, amelyhez engedélyeztük a fiók helyreállítást.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "A titkosítási kulcsok forgatásához meg kell bízni minden olyan szervezet kulcsában, amely vissza tudja állítani fiókját és minden olyan kapcslatban, amelyhez engedélyeztük a vészhelyzeti hozzáférést. A folytatáshoz győződjünk meg arról, hogy ellenőrizhetjük a következőket:"
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "Megbízhatatlan titkosítási kulcsok"
+  },
   "changeAtRiskPassword": {
     "message": "Kockázatos jelszó megváltoztatása"
   },
@@ -10528,5 +10591,14 @@
   },
   "cannotCreateCollection": {
     "message": "Az ingyenes szervezeteknek legfeljebb 2 gyűjteményük lehet. Térjünk át egy fizetett csomagra további gyűjtemények hozzáadásához."
+  },
+  "businessUnit": {
+    "message": "Üzleti egység"
+  },
+  "businessUnits": {
+    "message": "Üzleti egységek"
+  },
+  "newBusinessUnit": {
+    "message": "Új üzleti egység"
   }
 }

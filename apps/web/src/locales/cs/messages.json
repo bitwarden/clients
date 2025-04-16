@@ -3323,6 +3323,12 @@
   "externalIdDesc": {
     "message": "Externí ID je nešifrovaná reference použitá adresářovým konektorem Bitwardenu a API."
   },
+  "ssoExternalId": {
+    "message": "Externí SSO ID"
+  },
+  "ssoExternalIdDesc": {
+    "message": "Externí SSO ID je nešifrovaná reference mezi Bitwardenem a Vaším nastaveným poskytovatelem SSO."
+  },
   "nestCollectionUnder": {
     "message": "Vnořit kolekci pod"
   },
@@ -5685,6 +5691,9 @@
   "webAuthnSuccess": {
     "message": "WebAuthn byl úspěšně ověřen! Můžete zavřít tuto kartu."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Vaše nové heslo nemůže být stejné jako Vaše současné heslo."
+  },
   "hintEqualsPassword": {
     "message": "Nápověda k Vašemu heslu nemůže být stejná jako Vaše heslo."
   },
@@ -5879,6 +5888,9 @@
   },
   "fingerprint": {
     "message": "Otisk prstu"
+  },
+  "fingerprintPhrase": {
+    "message": "Fráze otisku prstu:"
   },
   "removeUsers": {
     "message": "Odebrat uživatele"
@@ -10330,6 +10342,33 @@
   "organizationNameMaxLength": {
     "message": "Název organizace nesmí přesáhnout 50 znaků."
   },
+  "rotationCompletedTitle": {
+    "message": "Úspěšná rotace klíče"
+  },
+  "rotationCompletedDesc": {
+    "message": "Vaše hlavní heslo a šifrovací klíče byly aktualizovány. Vaše další zařízení byla odhlášena."
+  },
+  "trustUserEmergencyAccess": {
+    "message": "Důvěřovat a potvrdit uživatele"
+  },
+  "trustOrganization": {
+    "message": "Důvěřovat organizaci"
+  },
+  "trust": {
+    "message": "Důvěřovat"
+  },
+  "doNotTrust": {
+    "message": "Nedůvěřovat"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Pro zabezpečení Vašeho účtu potvrďte jen v případě, že jste tomuto uživateli udělili nouzový přístup a jeho otisk prstu odpovídá tomu, co je zobrazeno v jeho účtu."
+  },
+  "orgTrustWarning": {
+    "message": "Pro zabezpečení Vašeho účtu pokračujte jen v případě, že jste členem této organizace, máte povoleno obnovení účtu a zobrazený otisk prstu níže odpovídá otisku prstu organizace."
+  },
+  "trustUser": {
+    "message": "Důvěřovat uživateli"
+  },
   "sshKeyWrongPassword": {
     "message": "Zadané heslo není správné."
   },
@@ -10499,6 +10538,30 @@
   "assignedExceedsAvailable": {
     "message": "Přiřazení uživatelé překračují dostupné uživatele."
   },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "Fráze otisku prstu pro $NUM_USERS$ kontaktů, pro které jste povolili nouzový přístup.",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "Fráze otisku prstu pro organizaci $ORG_NAME$ , pro kterou jste povolili obnovení účtu.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "Rotace šifrovacích klíčů bude vyžadovat důvěru klíčů všech organizací, které mohou obnovit Váš účet, a všechny kontakty, pro které můžete povolit nouzový přístup. Chcete-li pokračovat, ujistěte se, že můžete ověřit následující:"
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "Nedůvěryhodné šifrovací klíče"
+  },
   "changeAtRiskPassword": {
     "message": "Změnit ohrožené heslo"
   },
@@ -10528,5 +10591,14 @@
   },
   "cannotCreateCollection": {
     "message": "Bezplatné organizace mohou mít až 2 kolekce. Chcete-li přidat více kolekcí, přejděte na placený tarif."
+  },
+  "businessUnit": {
+    "message": "Obchodní jednotka"
+  },
+  "businessUnits": {
+    "message": "Obchodní jednotky"
+  },
+  "newBusinessUnit": {
+    "message": "Nová obchodní jednotka"
   }
 }
