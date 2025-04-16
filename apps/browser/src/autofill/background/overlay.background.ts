@@ -661,6 +661,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     return this.inlineMenuFido2Credentials.has(credentialId);
   }
 
+  /**
+   *
+   * @TODO this should handle two cases—TOTP field and TOTP field "set" (mutli-input)
+   *
+   * Currently, other visible fields on the form may interfere with the display of the TOTP inline menu
+   *
+   * @returns boolean
+   */
   private isTotpFieldForCurrentField(): boolean {
     if (!this.focusedFieldData) {
       return false;
@@ -1110,6 +1118,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   /**
    * Triggers autofill for the selected cipher in the inline menu list. Also places
    * the selected cipher at the top of the list of ciphers.
+   *
+   * @TODO TOTP should be handled here whenever the TOTP inline menu is present.
    *
    * @param inlineMenuCipherId - Cipher ID corresponding to the inlineMenuCiphers map. Does not correspond to the actual cipher's ID.
    * @param usePasskey - Identifies whether the cipher has a FIDO2 credential
