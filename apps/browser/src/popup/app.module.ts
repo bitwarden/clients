@@ -21,7 +21,6 @@ import {
   FormFieldModule,
   ToastModule,
 } from "@bitwarden/components";
-import { VaultBerryComponent } from "@bitwarden/vault";
 
 import { AccountComponent } from "../auth/popup/account-switching/account.component";
 import { CurrentAccountComponent } from "../auth/popup/account-switching/current-account.component";
@@ -88,7 +87,6 @@ import "../platform/popup/locales";
     CurrentAccountComponent,
     FormFieldModule,
     ExtensionAnonLayoutWrapperComponent,
-    VaultBerryComponent,
   ],
   declarations: [
     AppComponent,

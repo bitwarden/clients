@@ -11,7 +11,7 @@
             [ngClass]="rla.isActive ? 'tw-font-bold tw-text-primary-600' : 'tw-text-muted'"
             title="{{ button.label | i18n }}"
             [routerLink]="button.page"
-            [appA11yTitle]="buttonTitle(button.label) | i18n"
+            [appA11yTitle]="buttonTitle(button)"
             routerLinkActive
             #rla="routerLinkActive"
             ariaCurrentWhenActive="page"
@@ -32,11 +32,11 @@
               {{ button.label | i18n }}
             </span>
           </button>
-          <div
-            *ngIf="showNotification(button.label)"
-            class="tw-absolute tw-top-1.5 tw-left-[calc(50%+5px)]"
-          >
-            <app-vault-berry></app-vault-berry>
+          <div *ngIf="button.showBerry" class="tw-absolute tw-top-1.5 tw-left-[calc(50%+5px)]">
+            <div
+              data-testid="vault-berry"
+              class="tw-bg-notification-600 tw-size-2.5 tw-rounded-full"
+            ></div>
           </div>
         </li>
       </ul>

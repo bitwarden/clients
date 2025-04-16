@@ -1,17 +1,38 @@
 import { Component } from "@angular/core";
-import { Observable } from "rxjs";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { RouterOutlet } from "@angular/router";
+import { combineLatest, map } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { HasNudgeService } from "@bitwarden/vault";
+
+import { PopupTabNavigationComponent } from "../platform/popup/layout/popup-tab-navigation.component";
 
 @Component({
   selector: "app-tabs-v2",
   templateUrl: "./tabs-v2.component.html",
+  standalone: true,
   providers: [HasNudgeService],
+  imports: [RouterOutlet, PopupTabNavigationComponent],
 })
 export class TabsV2Component {
-  showBerry$: Observable<boolean>;
+  showBerry = false;
 
-  constructor(private readonly hasNudgeService: HasNudgeService) {
-    this.showBerry$ = this.hasNudgeService.shouldShowNudge$();
+  constructor(
+    private readonly hasNudgeService: HasNudgeService,
+    private readonly configService: ConfigService,
+  ) {
+    combineLatest([
+      this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge),
+      this.hasNudgeService.shouldShowNudge$(),
+    ])
+      .pipe(
+        takeUntilDestroyed(),
+        map(([onboardingFeatureEnabled, showNudge]) => {
+          this.showBerry = showNudge && onboardingFeatureEnabled;
+        }),
+      )
+      .subscribe();
   }
 }
