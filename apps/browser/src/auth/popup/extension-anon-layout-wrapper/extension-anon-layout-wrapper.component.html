@@ -9,7 +9,7 @@
       *ngIf="showLogo"
       class="tw-inline-flex"
       [icon]="logo"
-      ariaLabel="Bitwarden logo"
+      [ariaLabel]="'appLogoLabel' | i18n"
     ></bit-icon>
 
     <ng-container slot="end">
