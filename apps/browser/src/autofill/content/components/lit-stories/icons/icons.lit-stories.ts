@@ -14,7 +14,7 @@ type Args = {
 };
 
 export default {
-  title: "Components/Icons/Icons",
+  title: "Components/Icons",
   argTypes: {
     iconLink: { control: "text" },
     color: { control: "color" },
@@ -53,16 +53,16 @@ const createIconStory = (iconName: keyof typeof Icons): StoryObj<Args> => {
 };
 
 export const AngleDownIcon = createIconStory("AngleDown");
-export const BusinessIcon = createIconStory("Business");
+export const AngleUpIcon = createIconStory("AngleUp");
 export const BrandIcon = createIconStory("BrandIconContainer");
+export const BusinessIcon = createIconStory("Business");
 export const CloseIcon = createIconStory("Close");
+export const CollectionIcon = createIconStory("Collection");
 export const ExclamationTriangleIcon = createIconStory("ExclamationTriangle");
 export const ExternalLinkIcon = createIconStory("ExternalLink");
-export const FamilyIcon = createIconStory("Family");
 export const FolderIcon = createIconStory("Folder");
 export const GlobeIcon = createIconStory("Globe");
-export const KeyholeIcon = createIconStory("Keyhole");
-export const PartyHornIcon = createIconStory("PartyHorn");
 export const PencilSquareIcon = createIconStory("PencilSquare");
 export const ShieldIcon = createIconStory("Shield");
 export const UserIcon = createIconStory("User");
+export const UsersIcon = createIconStory("Users");

@@ -29,11 +29,14 @@ type NotificationBarIframeInitData = {
 };
 
 type NotificationBarWindowMessage = {
-  cipherId?: string;
   command: string;
+  data?: {
+    cipherId?: string;
+    task?: NotificationTaskInfo;
+    username?: string;
+  };
   error?: string;
   initData?: NotificationBarIframeInitData;
-  username?: string;
 };
 
 type NotificationBarWindowMessageHandlers = {
