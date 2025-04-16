@@ -264,6 +264,6 @@ export const memberAccessWithoutAccessDetailsReportsMock: MemberAccessResponse[]
     totalItemCount: 20,
     userGuid: "5678",
     usesKeyConnector: false,
-    accessDetails: [],
+    accessDetails: [] as MemberAccessDetails[],
   } as MemberAccessResponse,
 ];
