@@ -5,46 +5,13 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList creates the build sav
   class="inline-menu-list-container theme_light"
 >
   <div
-    class="save-login inline-menu-list-message"
-  />
-  <div
     class="inline-menu-list-button-container"
   >
     <button
-      aria-label=""
-      class="add-new-item-button inline-menu-list-button inline-menu-list-action"
-      id="new-item-button"
+      aria-label=", opensInANewWindow"
+      class="save-login inline-menu-list-button inline-menu-list-action"
       tabindex="-1"
-    >
-      <svg
-        aria-hidden="true"
-        fill="none"
-        height="17"
-        width="17"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <g
-          clip-path="url(#a)"
-        >
-          <path
-            clip-rule="evenodd"
-            d="M9.607 7.15h5.35c.322 0 .627.133.847.362a1.213 1.213 0 0 1 .002 1.68c-.221.23-.527.363-.85.363H9.607v5.652c0 .312-.12.613-.336.839a1.176 1.176 0 0 1-1.696.003 1.21 1.21 0 0 1-.34-.842V9.555H1.888a1.173 1.173 0 0 1-.847-.361A1.193 1.193 0 0 1 .7 8.352a1.219 1.219 0 0 1 .336-.838 1.175 1.175 0 0 1 .85-.364h5.349V1.635c0-.31.118-.611.336-.84A1.176 1.176 0 0 1 9.268.795c.222.228.34.533.34.841V7.15Z"
-            fill="#175DDC"
-            fill-rule="evenodd"
-          />
-        </g>
-        <defs>
-          <clippath
-            id="a"
-          >
-            <path
-              d="M.421.421h16v16h-16z"
-              fill="#fff"
-            />
-          </clippath>
-        </defs>
-      </svg>
-    </button>
+    />
   </div>
 </div>
 `;

@@ -15,7 +15,6 @@ import {
 } from "../../../auth/models/request/update-devices-trust.request";
 import { AppIdService } from "../../../platform/abstractions/app-id.service";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
-import { CryptoFunctionService } from "../../../platform/abstractions/crypto-function.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { LogService } from "../../../platform/abstractions/log.service";
@@ -28,6 +27,7 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import { DEVICE_TRUST_DISK_LOCAL, StateProvider, UserKeyDefinition } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { UserKey, DeviceKey } from "../../../types/key";
+import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
 import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 import { DeviceTrustServiceAbstraction } from "../abstractions/device-trust.service.abstraction";
 
@@ -161,7 +161,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
       deviceKeyEncryptedDevicePrivateKey,
     ] = await Promise.all([
       // Encrypt user key with the DevicePublicKey
-      this.encryptService.rsaEncrypt(userKey.key, devicePublicKey),
+      this.encryptService.encapsulateKeyUnsigned(userKey, devicePublicKey),
 
       // Encrypt devicePublicKey with user key
       this.encryptService.encrypt(devicePublicKey, userKey),
@@ -204,7 +204,8 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     }
 
     const devices = await this.devicesApiService.getDevices();
-    return await Promise.all(
+    const devicesToUntrust: string[] = [];
+    const rotatedData = await Promise.all(
       devices.data
         .filter((device) => device.isTrusted)
         .map(async (device) => {
@@ -213,6 +214,13 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
             deviceWithKeys.encryptedPublicKey,
             oldUserKey,
           );
+
+          if (!publicKey) {
+            // Device was trusted but encryption is broken. This should be untrusted
+            devicesToUntrust.push(device.id);
+            return null;
+          }
+
           const newEncryptedPublicKey = await this.encryptService.encrypt(publicKey, newUserKey);
           const newEncryptedUserKey = await this.encryptService.rsaEncrypt(
             newUserKey.key,
@@ -229,8 +237,14 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
           request.encryptedUserKey = newRotateableKeySet.encryptedUserKey.encryptedString;
           request.deviceId = device.id;
           return request;
-        }),
+        })
+        .filter((otherDeviceKeysUpdateRequest) => otherDeviceKeysUpdateRequest != null),
     );
+    if (rotatedData.length > 0) {
+      this.logService.info("[Device trust rotation] Distrusting devices that failed to decrypt.");
+      await this.devicesApiService.untrustDevices(devicesToUntrust);
+    }
+    return rotatedData;
   }
 
   async rotateDevicesTrust(
@@ -271,8 +285,8 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     );
 
     // Encrypt the brand new user key with the now-decrypted public key for the device
-    const encryptedNewUserKey = await this.encryptService.rsaEncrypt(
-      newUserKey.key,
+    const encryptedNewUserKey = await this.encryptService.encapsulateKeyUnsigned(
+      newUserKey,
       decryptedDevicePublicKey,
     );
 
@@ -387,12 +401,12 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
       );
 
       // Attempt to decrypt encryptedUserDataKey with devicePrivateKey
-      const userKey = await this.encryptService.rsaDecrypt(
+      const userKey = await this.encryptService.decapsulateKeyUnsigned(
         new EncString(encryptedUserKey.encryptedString),
         devicePrivateKey,
       );
 
-      return new SymmetricCryptoKey(userKey) as UserKey;
+      return userKey as UserKey;
       // FIXME: Remove when updating file. Eslint update
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {

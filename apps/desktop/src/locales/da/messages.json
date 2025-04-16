@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Grundet en virksomhedspolitik forhindres du i at gemme emner i din personlige boks. Skift ejerskabsindstillingen til en organisation, og vælg blandt de tilgængelige samlinger."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Adgangskodetip og adgangskoden må ikke være identiske."
   },
