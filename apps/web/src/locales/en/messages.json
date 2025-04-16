@@ -6357,6 +6357,15 @@
   "membersWithSponsoredFamilies": {
     "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
   },
+  "organizationHasMember": {
+    "message": "A sponsorship cannot be sent to $EMAIL$ because they are a member of your organization.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
   "badToken": {
     "message": "The link is no longer valid. Please have the sponsor resend the offer."
   },
@@ -6409,7 +6418,7 @@
     "message": "Account redeemed"
   },
   "revokeAccount": {
-    "message": "Revoke account $NAME$",
+    "message": "Revoke account NAME$",
     "placeholders": {
       "name": {
         "content": "$1",

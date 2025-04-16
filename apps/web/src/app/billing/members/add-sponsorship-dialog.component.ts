@@ -1,5 +1,5 @@
-import { DialogRef } from "@angular/cdk/dialog";
-import { Component } from "@angular/core";
+import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
+import { Component, Inject } from "@angular/core";
 import {
   AbstractControl,
   FormBuilder,
@@ -10,10 +10,9 @@ import {
   ValidationErrors,
   Validators,
 } from "@angular/forms";
-import { firstValueFrom, map } from "rxjs";
 
+import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ButtonModule, DialogModule, DialogService, FormFieldModule } from "@bitwarden/components";
 
@@ -38,6 +37,10 @@ enum AddSponsorshipDialogAction {
   Canceled = "canceled",
 }
 
+interface AddSponsorshipDialogParams {
+  organizationId: string;
+}
+
 @Component({
   templateUrl: "add-sponsorship-dialog.component.html",
   standalone: true,
@@ -53,25 +56,29 @@ enum AddSponsorshipDialogAction {
 export class AddSponsorshipDialogComponent {
   sponsorshipForm: FormGroup<RequestSponsorshipForm>;
   loading = false;
+  organizationId: string;
 
   constructor(
     private dialogRef: DialogRef<AddSponsorshipDialogResult>,
     private formBuilder: FormBuilder,
-    private accountService: AccountService,
     private i18nService: I18nService,
+    private organizationUserApiService: OrganizationUserApiService,
+    @Inject(DIALOG_DATA) protected dialogParams: AddSponsorshipDialogParams,
   ) {
+    this.organizationId = this.dialogParams?.organizationId;
+
     this.sponsorshipForm = this.formBuilder.group<RequestSponsorshipForm>({
       sponsorshipEmail: new FormControl<string | null>("", {
         validators: [Validators.email, Validators.required],
-        asyncValidators: [this.validateNotCurrentUserEmail.bind(this)],
+        asyncValidators: [this.isOrganizationMember.bind(this)],
         updateOn: "change",
       }),
       sponsorshipNote: new FormControl<string | null>("", {}),
     });
   }
 
-  static open(dialogService: DialogService): DialogRef<AddSponsorshipDialogResult> {
-    return dialogService.open<AddSponsorshipDialogResult>(AddSponsorshipDialogComponent);
+  static open(dialogService: DialogService, config: DialogConfig<AddSponsorshipDialogParams>) {
+    return dialogService.open<AddSponsorshipDialogResult>(AddSponsorshipDialogComponent, config);
   }
 
   protected async save() {
@@ -110,24 +117,21 @@ export class AddSponsorshipDialogComponent {
     return this.sponsorshipForm.controls.sponsorshipNote;
   }
 
-  private async validateNotCurrentUserEmail(
-    control: AbstractControl,
-  ): Promise<ValidationErrors | null> {
+  private async isOrganizationMember(control: AbstractControl): Promise<ValidationErrors | null> {
     const value = control.value;
-    if (!value) {
-      return null;
-    }
 
-    const currentUserEmail = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.email ?? "")),
+    const users = await this.organizationUserApiService.getAllMiniUserDetails(this.organizationId);
+
+    const userExists = users.data.some(
+      (member) => member.email.toLowerCase() === value.toLowerCase(),
     );
 
-    if (!currentUserEmail) {
-      return null;
-    }
-
-    if (value.toLowerCase() === currentUserEmail.toLowerCase()) {
-      return { notCurrentUserEmail: true };
+    if (userExists) {
+      return {
+        isOrganizationMember: {
+          message: this.i18nService.t("organizationHasMember", value),
+        },
+      };
     }
 
     return null;

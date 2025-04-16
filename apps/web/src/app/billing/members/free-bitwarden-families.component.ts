@@ -1,7 +1,7 @@
 import { DialogRef } from "@angular/cdk/dialog";
 import { Component, OnInit } from "@angular/core";
-import { Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { ActivatedRoute, Router } from "@angular/router";
+import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { DialogService } from "@bitwarden/components";
 
@@ -20,20 +20,29 @@ import { SponsoredFamily } from "./types/sponsored-family.types";
 export class FreeBitwardenFamiliesComponent implements OnInit {
   tabIndex = 0;
   sponsoredFamilies: SponsoredFamily[] = [];
+  organizationId: string;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private dialogService: DialogService,
     private freeFamiliesPolicyService: FreeFamiliesPolicyService,
   ) {}
 
   async ngOnInit() {
     await this.preventAccessToFreeFamiliesPage();
+
+    this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+      this.organizationId = params.organizationId;
+    });
   }
 
   async addSponsorship() {
     const addSponsorshipDialogRef: DialogRef<AddSponsorshipDialogResult> =
-      AddSponsorshipDialogComponent.open(this.dialogService);
+      AddSponsorshipDialogComponent.open(this.dialogService, {
+        data: { organizationId: this.organizationId },
+      });
 
     const dialogRef = await firstValueFrom(addSponsorshipDialogRef.closed);
 
