@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Dahil sa isang patakaran sa enterprise, pinaghihigpitan ka mula sa pag-save ng mga item sa iyong vault. Baguhin ang pagpipilian sa pagmamay ari sa isang organisasyon at pumili mula sa mga magagamit na koleksyon."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Ang iyong password hint ay hindi maaaring pareho sa iyong password."
   },

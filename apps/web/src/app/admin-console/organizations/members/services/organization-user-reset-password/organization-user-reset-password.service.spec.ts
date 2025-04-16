@@ -89,7 +89,7 @@ describe("OrganizationUserResetPasswordService", () => {
         }),
       );
 
-      encryptService.rsaEncrypt.mockResolvedValue(
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(
         new EncString(EncryptionType.Rsa2048_OaepSha1_B64, "mockEncryptedUserKey"),
       );
     });
@@ -111,7 +111,10 @@ describe("OrganizationUserResetPasswordService", () => {
 
     it("should rsa encrypt the user key", async () => {
       await sut.buildRecoveryKey(mockOrgId, mockUserKey, mockPublicKeys);
-      expect(encryptService.rsaEncrypt).toHaveBeenCalledWith(expect.anything(), expect.anything());
+      expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+      );
     });
 
     it("should throw an error if the public key is not trusted", async () => {
@@ -199,7 +202,7 @@ describe("OrganizationUserResetPasswordService", () => {
           publicKey: Utils.fromUtf8ToArray("test-public-key"),
         }),
       );
-      encryptService.rsaEncrypt.mockResolvedValue(
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(
         new EncString(EncryptionType.Rsa2048_OaepSha1_B64, "mockEncryptedUserKey"),
       );
     });

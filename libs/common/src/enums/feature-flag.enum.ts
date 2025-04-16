@@ -34,11 +34,13 @@ export enum FeatureFlag {
   PM15179_AddExistingOrgsFromProviderPortal = "pm-15179-add-existing-orgs-from-provider-portal",
   PM12276_BreadcrumbEventLogs = "pm-12276-breadcrumbing-for-business-features",
   PM18794_ProviderPaymentMethod = "pm-18794-provider-payment-method",
+  PM17772_AdminInitiatedSponsorships = "pm-17772-admin-initiated-sponsorships",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   UserKeyRotationV2 = "userkey-rotation-v2",
   PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
+  PM17987_BlockType0 = "pm-17987-block-type-0",
 
   /* Tools */
   ItemShare = "item-share",
@@ -56,6 +58,9 @@ export enum FeatureFlag {
   SecurityTasks = "security-tasks",
   CipherKeyEncryption = "cipher-key-encryption",
   PM18520_UpdateDesktopCipherForm = "pm-18520-desktop-cipher-forms",
+
+  /* Platform */
+  IpcChannelFramework = "ipc-channel-framework",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -115,11 +120,16 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM15179_AddExistingOrgsFromProviderPortal]: FALSE,
   [FeatureFlag.PM12276_BreadcrumbEventLogs]: FALSE,
   [FeatureFlag.PM18794_ProviderPaymentMethod]: FALSE,
+  [FeatureFlag.PM17772_AdminInitiatedSponsorships]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
   [FeatureFlag.UserKeyRotationV2]: FALSE,
   [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
+  [FeatureFlag.PM17987_BlockType0]: FALSE,
+
+  /* Platform */
+  [FeatureFlag.IpcChannelFramework]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
