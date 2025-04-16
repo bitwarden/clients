@@ -1266,9 +1266,9 @@ jobs:
           if-no-files-found: error
 
       - name: Create secrets for Fastlane
-        if: |
-          github.event_name != 'pull_request_target'
-          && (inputs.testflight_distribute || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
+        # if: |
+        #   github.event_name != 'pull_request_target'
+        #   && (inputs.testflight_distribute || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
         run: |
           brew install gsed
 
