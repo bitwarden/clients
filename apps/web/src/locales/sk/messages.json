@@ -3323,6 +3323,12 @@
   "externalIdDesc": {
     "message": "Externé Id sa môže použiť na previazanie tohto zdroja s externým systémom - napríklad s užívateľským adresárom."
   },
+  "ssoExternalId": {
+    "message": "SSO External ID"
+  },
+  "ssoExternalIdDesc": {
+    "message": "SSO External ID is an unencrypted reference between Bitwarden and your configured SSO provider."
+  },
   "nestCollectionUnder": {
     "message": "Zaradiť zbierku pod"
   },
@@ -5685,6 +5691,9 @@
   "webAuthnSuccess": {
     "message": "WebAuthn bol úspešne overený! Túto kartu môžete zavrieť."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Nápoveda pre heslo nemôže byť rovnaká ako heslo."
   },
@@ -5879,6 +5888,9 @@
   },
   "fingerprint": {
     "message": "Odtlačok prsta"
+  },
+  "fingerprintPhrase": {
+    "message": "Fráza odtlačku prsta:"
   },
   "removeUsers": {
     "message": "Odstrániť používateľov"
@@ -10330,6 +10342,33 @@
   "organizationNameMaxLength": {
     "message": "Meno organizácie nemôže mať viac ako 50 znakov."
   },
+  "rotationCompletedTitle": {
+    "message": "Obnova kľúča úspešná"
+  },
+  "rotationCompletedDesc": {
+    "message": "Vaše hlavné heslo a šifrovacie kľúče boli aktualizované. Vaše ostatné zariadenia boli odhlásené."
+  },
+  "trustUserEmergencyAccess": {
+    "message": "Dôverovať a povoliť používateľa"
+  },
+  "trustOrganization": {
+    "message": "Dôverovať organizácii"
+  },
+  "trust": {
+    "message": "Dôverovať"
+  },
+  "doNotTrust": {
+    "message": "Nedôverovať"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Pre bezpečnosť vášho konta stačí overiť, ze ste tomuto používateľovi udelili núdzový pristúp a že odtlačok sa zhoduje s odtlačkom zobrazenom v používateľovom konte"
+  },
+  "orgTrustWarning": {
+    "message": "Pre bezpečnosť vášho konta pokračujte iba ak ste členom organizácie, mate povolenú obnovu konta a odtlačok sa zhoduje s odtlačkom organizácie."
+  },
+  "trustUser": {
+    "message": "Dôverovať používateľovi"
+  },
   "sshKeyWrongPassword": {
     "message": "Zadané heslo je nesprávne."
   },
@@ -10499,6 +10538,30 @@
   "assignedExceedsAvailable": {
     "message": "Počet pridelených sedení presahuje počet dostupných sedení."
   },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "Fráza odtlačku kontaktu $NUM_USERS$ pre ktorý(é) ste povolili núdzový prístup.",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "Fráza odtlačku organizácie $ORG_NAME$ pre ktorú(é) ste povolili obnovu konta.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "Obnovenie šifrovacieho kľúča vyžaduje aby ste dôverovali organizáciám ktoré môžu obnoviť vaše konto a kontaktom pre ktoré ste povolili núdzový pristúp. Ak chcete pokračovať, uistite sa že ste overili nasledujúce:"
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "Nedôveryhodné šifrovacie kľúče"
+  },
   "changeAtRiskPassword": {
     "message": "Zmeniť ohrozené heslo"
   },
@@ -10528,5 +10591,14 @@
   },
   "cannotCreateCollection": {
     "message": "Bezplatné organizácie môžu mat maximálne dve zbierky. Ak chcete pridať viac zbierok povýšte na platené predplatné."
+  },
+  "businessUnit": {
+    "message": "Business Unit"
+  },
+  "businessUnits": {
+    "message": "Business Units"
+  },
+  "newBusinessUnit": {
+    "message": "New business unit"
   }
 }

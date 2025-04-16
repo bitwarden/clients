@@ -656,7 +656,11 @@
       class="primary"
       (click)="restore()"
       appA11yTitle="{{ 'restore' | i18n }}"
-      *ngIf="(limitItemDeletion$ | async) ? (canRestoreCipher$ | async) : cipher.isDeleted"
+      *ngIf="
+        (limitItemDeletion$ | async)
+          ? (canRestoreCipher$ | async) && cipher.isDeleted
+          : cipher.isDeleted
+      "
     >
       <i class="bwi bwi-undo bwi-fw bwi-lg" aria-hidden="true"></i>
     </button>
