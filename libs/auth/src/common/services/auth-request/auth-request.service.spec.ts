@@ -117,7 +117,7 @@ describe("AuthRequestService", () => {
       );
 
       expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(
-        new Uint8Array(32),
+        new SymmetricCryptoKey(new Uint8Array(32)),
         expect.anything(),
       );
     });
