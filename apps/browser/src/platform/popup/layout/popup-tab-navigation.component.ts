@@ -24,39 +24,9 @@ export type NavButton = {
   },
 })
 export class PopupTabNavigationComponent {
-  @Input() showBerry = false;
+  @Input() navButtons: NavButton[] = [];
 
   constructor(private i18nService: I18nService) {}
-
-  get navButtons() {
-    return [
-      {
-        label: "vault",
-        page: "/tabs/vault",
-        iconKey: "lock",
-        iconKeyActive: "lock-f",
-      },
-      {
-        label: "generator",
-        page: "/tabs/generator",
-        iconKey: "generate",
-        iconKeyActive: "generate-f",
-      },
-      {
-        label: "send",
-        page: "/tabs/send",
-        iconKey: "send",
-        iconKeyActive: "send-f",
-      },
-      {
-        label: "settings",
-        page: "/tabs/settings",
-        iconKey: "cog",
-        iconKeyActive: "cog-f",
-        showBerry: this.showBerry,
-      },
-    ];
-  }
 
   buttonTitle(navButton: NavButton) {
     const labelText = this.i18nService.t(navButton.label);

@@ -39,25 +39,56 @@ export default {
 
 type Story = StoryObj<PopupTabNavigationComponent>;
 
+const navButtons = (showBerry = false) => [
+  {
+    label: "vault",
+    page: "/tabs/vault",
+    iconKey: "lock",
+    iconKeyActive: "lock-f",
+  },
+  {
+    label: "generator",
+    page: "/tabs/generator",
+    iconKey: "generate",
+    iconKeyActive: "generate-f",
+  },
+  {
+    label: "send",
+    page: "/tabs/send",
+    iconKey: "send",
+    iconKeyActive: "send-f",
+  },
+  {
+    label: "settings",
+    page: "/tabs/settings",
+    iconKey: "cog",
+    iconKeyActive: "cog-f",
+    showBerry: showBerry,
+  },
+];
+
 export const Default: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <popup-tab-navigation>
+      <popup-tab-navigation [navButtons]="navButtons">
         <router-outlet></router-outlet>
       </popup-tab-navigation>`,
   }),
+  args: {
+    navButtons: navButtons(),
+  },
 };
 
 export const WithBerry: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <popup-tab-navigation [showBerry]="showBerry">
+      <popup-tab-navigation [navButtons]="navButtons">
         <router-outlet></router-outlet>
       </popup-tab-navigation>`,
   }),
   args: {
-    showBerry: true,
+    navButtons: navButtons(true),
   },
 };

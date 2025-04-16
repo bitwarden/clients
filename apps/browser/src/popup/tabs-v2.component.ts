@@ -7,7 +7,10 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { HasNudgeService } from "@bitwarden/vault";
 
-import { PopupTabNavigationComponent } from "../platform/popup/layout/popup-tab-navigation.component";
+import {
+  NavButton,
+  PopupTabNavigationComponent,
+} from "../platform/popup/layout/popup-tab-navigation.component";
 
 @Component({
   selector: "app-tabs-v2",
@@ -18,6 +21,36 @@ import { PopupTabNavigationComponent } from "../platform/popup/layout/popup-tab-
 })
 export class TabsV2Component {
   showBerry = false;
+
+  get navButtons(): NavButton[] {
+    return [
+      {
+        label: "vault",
+        page: "/tabs/vault",
+        iconKey: "lock",
+        iconKeyActive: "lock-f",
+      },
+      {
+        label: "generator",
+        page: "/tabs/generator",
+        iconKey: "generate",
+        iconKeyActive: "generate-f",
+      },
+      {
+        label: "send",
+        page: "/tabs/send",
+        iconKey: "send",
+        iconKeyActive: "send-f",
+      },
+      {
+        label: "settings",
+        page: "/tabs/settings",
+        iconKey: "cog",
+        iconKeyActive: "cog-f",
+        showBerry: this.showBerry,
+      },
+    ];
+  }
 
   constructor(
     private readonly hasNudgeService: HasNudgeService,
