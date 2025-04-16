@@ -153,6 +153,10 @@ describe("EncryptService", () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(32));
       const mock32Key = mock<SymmetricCryptoKey>();
       mock32Key.key = makeStaticByteArray(32);
+      mock32Key.inner.mockReturnValue({
+        type: 0,
+        encryptionKey: mock32Key.key,
+      });
 
       await expect(encryptService.encryptToBytes(plainValue, key)).rejects.toThrow(
         "Type 0 encryption is not supported.",
