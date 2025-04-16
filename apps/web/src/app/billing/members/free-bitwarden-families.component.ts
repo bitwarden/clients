@@ -11,7 +11,7 @@ import {
   AddSponsorshipDialogComponent,
   AddSponsorshipDialogResult,
 } from "./add-sponsorship-dialog.component";
-import { SponsoredFamily } from "./types/sponsored-family.types";
+import { SponsoredFamily } from "./types/sponsored-family";
 
 @Component({
   selector: "app-free-bitwarden-families",

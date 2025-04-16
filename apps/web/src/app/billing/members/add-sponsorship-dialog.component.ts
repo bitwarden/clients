@@ -127,7 +127,7 @@ export class AddSponsorshipDialogComponent {
     }
 
     if (value.toLowerCase() === currentUserEmail.toLowerCase()) {
-      return { notCurrentUserEmail: true };
+      return { currentUserEmail: true };
     }
 
     return null;

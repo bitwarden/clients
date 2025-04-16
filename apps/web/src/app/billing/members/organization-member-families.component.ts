@@ -3,7 +3,7 @@ import { Subject } from "rxjs";
 
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-import { SponsoredFamily } from "./types/sponsored-family.types";
+import { SponsoredFamily } from "./types/sponsored-family";
 
 @Component({
   selector: "app-organization-member-families",
