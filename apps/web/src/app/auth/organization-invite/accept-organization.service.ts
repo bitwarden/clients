@@ -202,7 +202,7 @@ export class AcceptOrganizationInviteService {
       const activeUserId = (await firstValueFrom(this.accountService.activeAccount$)).id;
       const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
       // RSA Encrypt user's encKey.key with organization public key
-      const encryptedKey = await this.encryptService.rsaEncrypt(userKey.key, publicKey);
+      const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(userKey, publicKey);
 
       // Add reset password key to accept request
       request.resetPasswordKey = encryptedKey.encryptedString;

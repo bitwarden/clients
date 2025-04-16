@@ -130,7 +130,9 @@ describe("EmergencyAccessService", () => {
 
         keyService.getUserKey.mockResolvedValueOnce(mockUserKey);
 
-        encryptService.rsaEncrypt.mockResolvedValueOnce(mockUserPublicKeyEncryptedUserKey);
+        encryptService.encapsulateKeyUnsigned.mockResolvedValueOnce(
+          mockUserPublicKeyEncryptedUserKey,
+        );
 
         emergencyAccessApiService.postEmergencyAccessConfirm.mockResolvedValueOnce();
 
@@ -160,7 +162,9 @@ describe("EmergencyAccessService", () => {
 
       const mockDecryptedGrantorUserKey = new Uint8Array(64);
       keyService.getPrivateKey.mockResolvedValue(new Uint8Array(64));
-      encryptService.rsaDecrypt.mockResolvedValueOnce(mockDecryptedGrantorUserKey);
+      encryptService.decapsulateKeyUnsigned.mockResolvedValueOnce(
+        new SymmetricCryptoKey(mockDecryptedGrantorUserKey),
+      );
 
       const mockMasterKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray) as MasterKey;
 
@@ -253,7 +257,7 @@ describe("EmergencyAccessService", () => {
         publicKey: Utils.fromUtf8ToB64("trustedPublicKey"),
       } as UserKeyResponse);
 
-      encryptService.rsaEncrypt.mockImplementation((plainValue, publicKey) => {
+      encryptService.encapsulateKeyUnsigned.mockImplementation((plainValue, publicKey) => {
         return Promise.resolve(
           new EncString(EncryptionType.Rsa2048_OaepSha1_B64, "Encrypted: " + plainValue),
         );

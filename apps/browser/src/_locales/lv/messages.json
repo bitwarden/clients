@@ -1098,6 +1098,31 @@
     "message": "Pieteikšanās vienums atjaunināts",
     "description": "Message displayed when login details are successfully updated."
   },
+  "loginUpdateTaskSuccess": {
+    "message": "Lielisks darbs! Tu attiecīgi rīkojies, lai padarītu savi un $ORGANIZATION$ drošāku.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Paldies par $ORGANIZATION$ padarīšanu drošāku! Tev ir vēl $TASK_COUNT$ paroļu, ko atjaunināt.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Mainīt nākamo paroli",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
   "saveFailure": {
     "message": "Kļūda saglabāšanas laikā",
     "description": "Error message shown when the system fails to save login details."

@@ -105,12 +105,7 @@
     "__chrome__sandbox": "sandbox allow-scripts; script-src 'self'"
   },
   "sandbox": {
-    "pages": [
-      "overlay/menu-button.html",
-      "overlay/menu-list.html",
-      "overlay/button.html",
-      "overlay/list.html"
-    ]
+    "pages": ["overlay/menu-button.html", "overlay/menu-list.html"]
   },
   "__firefox__sandbox": null,
   "commands": {
@@ -167,8 +162,6 @@
         "overlay/menu-button.html",
         "overlay/menu-list.html",
         "overlay/menu.html",
-        "overlay/button.html",
-        "overlay/list.html",
         "popup/fonts/*"
       ],
       "matches": ["<all_urls>"]

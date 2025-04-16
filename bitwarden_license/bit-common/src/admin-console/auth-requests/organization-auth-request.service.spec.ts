@@ -7,6 +7,7 @@ import {
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationAuthRequestApiService } from "./organization-auth-request-api.service";
@@ -124,8 +125,10 @@ describe("OrganizationAuthRequestService", () => {
       );
 
       const encryptedUserKey = new EncString("encryptedUserKey");
-      encryptService.rsaDecrypt.mockResolvedValue(new Uint8Array(32));
-      encryptService.rsaEncrypt.mockResolvedValue(encryptedUserKey);
+      encryptService.decapsulateKeyUnsigned.mockResolvedValue(
+        new SymmetricCryptoKey(new Uint8Array(32)),
+      );
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(encryptedUserKey);
 
       const mockPendingAuthRequest = new PendingAuthRequestView();
       mockPendingAuthRequest.id = "requestId1";
@@ -166,8 +169,10 @@ describe("OrganizationAuthRequestService", () => {
       );
 
       const encryptedUserKey = new EncString("encryptedUserKey");
-      encryptService.rsaDecrypt.mockResolvedValue(new Uint8Array(32));
-      encryptService.rsaEncrypt.mockResolvedValue(encryptedUserKey);
+      encryptService.decapsulateKeyUnsigned.mockResolvedValue(
+        new SymmetricCryptoKey(new Uint8Array(32)),
+      );
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(encryptedUserKey);
 
       const mockPendingAuthRequest = new PendingAuthRequestView();
       mockPendingAuthRequest.id = "requestId1";
