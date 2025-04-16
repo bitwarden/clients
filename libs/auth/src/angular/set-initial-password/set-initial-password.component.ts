@@ -1,13 +1,15 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -33,6 +35,7 @@ import {
 export class SetInitialPasswordComponent implements OnInit {
   protected InputPasswordFlow = InputPasswordFlow;
   protected email: string;
+  protected forceSetPasswordReason: ForceSetPasswordReason;
   protected masterPasswordPolicyOptions: MasterPasswordPolicyOptions;
   protected orgId: string;
   protected orgSsoIdentifier: string;
@@ -45,6 +48,7 @@ export class SetInitialPasswordComponent implements OnInit {
     private accountService: AccountService,
     private activatedRoute: ActivatedRoute,
     private i18nService: I18nService,
+    private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private policyApiService: PolicyApiServiceAbstraction,
     private router: Router,
@@ -55,12 +59,16 @@ export class SetInitialPasswordComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.email = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.email)),
-    );
-
     await this.syncService.fullSync(true);
     this.syncLoading = false;
+
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    this.userId = activeAccount?.id;
+    this.email = activeAccount?.email;
+
+    this.forceSetPasswordReason = await firstValueFrom(
+      this.masterPasswordService.forceSetPasswordReason$(this.userId),
+    );
 
     await this.handleQueryParams();
   }
