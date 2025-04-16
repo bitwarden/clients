@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Kritische Anwendungen"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "Keine kritischen Anwendungen gefährdet"
+  },
   "accessIntelligence": {
     "message": "Zugriff auf Informationen"
   },
@@ -99,7 +102,7 @@
     "message": "Anwendung"
   },
   "atRiskPasswords": {
-    "message": "Risikoreiche Passwörter"
+    "message": "Gefährdete Passwörter"
   },
   "requestPasswordChange": {
     "message": "Passwortänderung anfordern"
@@ -111,10 +114,10 @@
     "message": "Anwendungen suchen"
   },
   "atRiskMembers": {
-    "message": "Risikoreiche Mitglieder"
+    "message": "Gefährdete Mitglieder"
   },
   "atRiskMembersWithCount": {
-    "message": "Risikoreiche Mitglieder ($COUNT$)",
+    "message": "Gefährdete Mitglieder ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -123,7 +126,7 @@
     }
   },
   "atRiskApplicationsWithCount": {
-    "message": "Risikoreiche Anwendungen ($COUNT$)",
+    "message": "Gefährdete Anwendungen ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -150,7 +153,7 @@
     "message": "Mitglieder insgesamt"
   },
   "atRiskApplications": {
-    "message": "Risikoreiche Anwendungen"
+    "message": "Gefährdete Anwendungen"
   },
   "totalApplications": {
     "message": "Anwendungen insgesamt"
@@ -197,6 +200,9 @@
   },
   "notes": {
     "message": "Notizen"
+  },
+  "privateNote": {
+    "message": "Private Notiz"
   },
   "note": {
     "message": "Notiz"
@@ -422,6 +428,9 @@
   "dragToSort": {
     "message": "Zum Sortieren ziehen"
   },
+  "dragToReorder": {
+    "message": "Ziehen zum Umsortieren"
+  },
   "cfTypeText": {
     "message": "Text"
   },
@@ -463,6 +472,19 @@
   },
   "editFolder": {
     "message": "Ordner bearbeiten"
+  },
+  "editWithName": {
+    "message": "$ITEM$: $NAME$ bearbeiten",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "login"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Neuer Ordner"
@@ -857,9 +879,6 @@
   "filter": {
     "message": "Filter"
   },
-  "moveSelectedToOrg": {
-    "message": "Auswahl in Organisation verschieben"
-  },
   "deleteSelected": {
     "message": "Auswahl löschen"
   },
@@ -911,15 +930,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Ausgewählte Einträge in $ORGNAME$ verschoben",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1025,6 +1035,9 @@
   },
   "no": {
     "message": "Nein"
+  },
+  "location": {
+    "message": "Standort"
   },
   "loginOrCreateNewAccount": {
     "message": "Sie müssen sich anmelden oder ein neues Konto erstellen, um auf den Tresor zugreifen zu können."
@@ -1161,13 +1174,22 @@
   "logInToBitwarden": {
     "message": "Bei Bitwarden anmelden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Gib den an deine E-Mail-Adresse gesendeten Code ein"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Gib den Code aus deiner Authenticator-App ein"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Drücke zum Authentifizieren auf deinen YubiKey"
+  },
   "authenticationTimeout": {
     "message": "Authentifizierungs-Timeout"
   },
   "authenticationSessionTimedOut": {
     "message": "Die Authentifizierungssitzung ist abgelaufen. Bitte starte den Anmeldeprozess neu."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Verifiziere deine Identität"
   },
   "weDontRecognizeThisDevice": {
@@ -1251,12 +1273,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Gib deine E-Mail-Adresse ein und dein Passwort-Hinweis wird dir zugesandt"
-  },
-  "passwordHint": {
-    "message": "Passwort-Hinweis"
-  },
-  "enterEmailToGetHint": {
-    "message": "Geben Sie die E-Mail Adresse Ihres Kontos ein, um einen Hinweis auf ihr Master-Passwort zu erhalten."
   },
   "getMasterPasswordHint": {
     "message": "Hinweis zum Master-Passwort erhalten"
@@ -1419,18 +1435,6 @@
       }
     }
   },
-  "enterVerificationCodeApp": {
-    "message": "Geben Sie den 6-stelligen Verifizierungscode aus Ihrer Authentifizierungs-App ein."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Geben Sie den 6-stelligen Verifizierungscode der an $EMAIL$ gesendet wurde an.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Bestätigungsmail wurde an $EMAIL$ gesendet.",
     "placeholders": {
@@ -1440,17 +1444,15 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Angemeldet bleiben"
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Für 30 Tage auf diesem Gerät nicht mehr fragen"
   },
-  "sendVerificationCodeEmailAgain": {
-    "message": "E-Mail mit Bestätigungscode erneut versenden"
+  "selectAnotherMethod": {
+    "message": "Wähle eine andere Methode",
+    "description": "Select another two-step login method"
   },
-  "useAnotherTwoStepMethod": {
-    "message": "Verwenden sie eine andere Zwei-Faktor-Anmelde-Methode"
-  },
-  "insertYubiKey": {
-    "message": "Stecken Sie Ihren YubiKey in einen USB-Port Ihres Computers und berühren Sie dessen Knopf."
+  "useYourRecoveryCode": {
+    "message": "Verwende deinen Wiederherstellungscode"
   },
   "insertU2f": {
     "message": "Stecken Sie Ihren Sicherheitsschlüssel in einen USB-Port des Computers. Falls dieser einen Knopf hat, drücken Sie ihn."
@@ -1466,6 +1468,9 @@
   },
   "twoStepOptions": {
     "message": "Optionen für Zwei-Faktor-Authentifizierung"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Zwei-Faktor-Authentifizierungsmethode auswählen"
   },
   "recoveryCodeDesc": {
     "message": "Zugang zu allen Zwei-Faktor-Anbietern verloren? Benutze deinen Wiederherstellungscode, um alle Zwei-Faktor-Anbieter in deinem Konto zu deaktivieren."
@@ -1509,6 +1514,9 @@
   "webAuthnMigrated": {
     "message": "(Von FIDO migriert)"
   },
+  "openInNewTab": {
+    "message": "In neuem Tab öffnen"
+  },
   "emailTitle": {
     "message": "E-Mail"
   },
@@ -1526,9 +1534,6 @@
   },
   "moveToOrgDesc": {
     "message": "Wähle eine Organisation aus, in die du diesen Eintrag verschieben möchtest. Das Verschieben in eine Organisation überträgt das Eigentum an diese Organisation. Du bist nicht mehr der direkte Eigentümer dieses Eintrags, sobald er verschoben wurde."
-  },
-  "moveManyToOrgDesc": {
-    "message": "Wähle eine Organisation aus, in die du diese Einträge verschieben möchtest. Das Verschieben in eine Organisation überträgt das Eigentum der Einträge an diese Organisation. Du bist nicht mehr der direkte Eigentümer dieser Einträge, sobald sie verschoben wurden."
   },
   "collectionsDesc": {
     "message": "Bearbeite die Sammlungen, mit denen dieser Eintrag geteilt wird. Nur Organisationsmitglieder mit Zugriff auf diese Sammlungen werden diesen Eintrag sehen können."
@@ -1560,23 +1565,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "Du hast $COUNT$ Eintrag/Einträge ausgewählt. $MOVEABLE_COUNT$ Eintrag/Einträge kann/können in eine Organisation verschoben werden, $NONMOVEABLE_COUNT$ nicht.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },
@@ -2162,6 +2150,9 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Durch die Aktivierung der Zwei-Faktor-Authentifizierung kannst du dich dauerhaft aus deinem Bitwarden-Konto aussperren. Ein Wiederherstellungscode ermöglicht es dir, auf dein Konto zuzugreifen, falls du deinen normalen Zwei-Faktor-Anbieter nicht mehr verwenden kannst (z.B. wenn du dein Gerät verlierst). Der Bitwarden-Support kann dir nicht helfen, wenn du den Zugang zu deinem Konto verlierst. Wir empfehlen dir, den Wiederherstellungscode aufzuschreiben oder auszudrucken und an einem sicheren Ort aufzubewahren."
   },
+  "yourSingleUseRecoveryCode": {
+    "message": "Dein einmal benutzbarer Wiederherstellungscode kann benutzt werden, um die Zwei-Faktor-Authentifizierung auszuschalten, wenn du Zugang zu deinen Zwei-Faktor-Anbietern verlierst. Bitwarden empfiehlt dir, den Wiederherstellungscode aufzuschreiben und an einem sicheren Ort aufzubewahren."
+  },
   "viewRecoveryCode": {
     "message": "Wiederherstellungscode anzeigen"
   },
@@ -2220,6 +2211,9 @@
   },
   "revokeAccess": {
     "message": "Zugriff widerrufen"
+  },
+  "revoke": {
+    "message": "Widerrufen"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Dieser Zwei-Faktor-Authentifizierungsanbieter ist für dein Konto aktiviert."
@@ -3329,6 +3323,12 @@
   "externalIdDesc": {
     "message": "Die externe ID ist eine unverschlüsselte Referenz, die vom Bitwarden Directory Connector und der API verwendet wird."
   },
+  "ssoExternalId": {
+    "message": "SSO External ID"
+  },
+  "ssoExternalIdDesc": {
+    "message": "SSO External ID is an unencrypted reference between Bitwarden and your configured SSO provider."
+  },
   "nestCollectionUnder": {
     "message": "Sammlung verschachteln unter"
   },
@@ -4078,6 +4078,12 @@
   "updateBrowserDesc": {
     "message": "Du verwendest einen nicht unterstützten Webbrowser. Der Web-Tresor funktioniert möglicherweise nicht richtig."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "Du hast eine ausstehende Anmeldeanfrage von einem anderen Gerät."
+  },
+  "reviewLoginRequest": {
+    "message": "Anmeldeanfrage überprüfen"
+  },
   "freeTrialEndPromptCount": {
     "message": "Deine kostenlose Testversion endet in $COUNT$ Tagen.",
     "placeholders": {
@@ -4171,6 +4177,9 @@
   },
   "recoverAccountTwoStepDesc": {
     "message": "Falls du nicht mit deinen normalen Zwei-Faktor-Anmeldemethoden auf dein Konto zugreifen kannst, nutze deinen Zwei-Faktor-Wiederherstellungscode, um alle Zwei-Faktor-Anbieter für dein Konto zu deaktivieren."
+  },
+  "logInBelowUsingYourSingleUseRecoveryCode": {
+    "message": "Melde dich unten mit deinem einmal benutzbaren Wiederherstellungscode an. Dadurch werden alle Zwei-Faktor-Anbieter deines Kontos deaktiviert."
   },
   "recoverAccountTwoStep": {
     "message": "Zwei-Faktor-Authentifizierung wiederherstellen"
@@ -4463,6 +4472,58 @@
   "encryptionKeyUpdateCannotProceed": {
     "message": "Aktualisierung des Verschlüsselungsschlüssels kann nicht fortgesetzt werden"
   },
+  "editFieldLabel": {
+    "message": "$LABEL$ bearbeiten",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButton": {
+    "message": "$LABEL$ umsortieren. Verwende die Pfeiltasten, um den Eintrag nach oben oder unten zu verschieben.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderFieldUp": {
+    "message": "$LABEL$ nach oben verschoben, Position $INDEX$ von $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ nach unten verschoben, Position $INDEX$ von $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "Beim Aktualisieren deines Verschlüsselungsschlüssels konnten deine Ordner nicht entschlüsselt werden. Um mit der Aktualisierung fortzufahren, müssen deine Ordner gelöscht werden. Es werden keine Tresor-Einträge gelöscht, wenn du fortfährst."
   },
@@ -4733,6 +4794,15 @@
   },
   "masterPassPolicyDesc": {
     "message": "Mindestanforderungen für die Stärke des Master-Passworts festlegen."
+  },
+  "passwordStrengthScore": {
+    "message": "Bewertung der Passwortstärke $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "twoStepLoginPolicyTitle": {
     "message": "Zwei-Faktor-Authentifizierung verlangen"
@@ -5014,11 +5084,39 @@
   "requireSsoExemption": {
     "message": "Organisationseigentümer und Administratoren sind von der Durchsetzung dieser Richtlinie ausgenommen."
   },
+  "limitSendViews": {
+    "message": "Ansichten begrenzen"
+  },
+  "limitSendViewsHint": {
+    "message": "Nach Erreichen des Limits kann niemand mehr dieses Send sehen.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ Ansichten übrig",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "sendDetails": {
+    "message": "Send-Details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Zu teilender Text"
+  },
   "sendTypeFile": {
     "message": "Datei"
   },
   "sendTypeText": {
     "message": "Text"
+  },
+  "sendPasswordDescV3": {
+    "message": "Füge ein optionales Passwort hinzu, mit dem Empfänger auf dieses Send zugreifen können.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
     "message": "Neues Send",
@@ -5044,19 +5142,15 @@
     "message": "Send löschen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "deleteSendConfirmation": {
-    "message": "Bist du sicher, dass du dieses Send löschen möchtest?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "whatTypeOfSend": {
-    "message": "Welche Art von Send ist das?",
+  "deleteSendPermanentConfirmation": {
+    "message": "Bist du sicher, dass du dieses Send dauerhaft löschen möchtest?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
     "message": "Löschdatum"
   },
-  "deletionDateDesc": {
-    "message": "Das Send wird am angegebenen Datum zur angegebenen Uhrzeit dauerhaft gelöscht.",
+  "deletionDateDescV2": {
+    "message": "Das Send wird an diesem Datum dauerhaft gelöscht.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5068,21 +5162,6 @@
   },
   "maxAccessCount": {
     "message": "Maximale Zugriffsanzahl"
-  },
-  "maxAccessCountDesc": {
-    "message": "Falls aktiviert, können Benutzer nicht mehr auf dieses Send zugreifen, sobald die maximale Zugriffsanzahl erreicht ist.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Aktuelle Zugriffsanzahl"
-  },
-  "sendPasswordDesc": {
-    "message": "Optional ein Passwort verlangen, damit Benutzer auf dieses Send zugreifen können.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Private Notizen zu diesem Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
     "message": "Deaktiviert"
@@ -5110,13 +5189,6 @@
   "removePasswordConfirmation": {
     "message": "Bist du sicher, dass du das Passwort entfernen möchtest?"
   },
-  "hideEmail": {
-    "message": "Meine E-Mail-Adresse vor den Empfängern ausblenden."
-  },
-  "disableThisSend": {
-    "message": "Dieses Send deaktivieren, damit niemand darauf zugreifen kann.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "Alle Sends"
   },
@@ -5126,6 +5198,9 @@
   },
   "pendingDeletion": {
     "message": "Ausstehende Löschung"
+  },
+  "hideTextByDefault": {
+    "message": "Text standardmäßig ausblenden"
   },
   "expired": {
     "message": "Abgelaufen"
@@ -5348,13 +5423,6 @@
     "message": "Benutzern nicht gestatten, ihre E-Mail-Adresse vor Empfängern zu verstecken, wenn sie ein Send erstellen oder bearbeiten.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendOptionsPolicyInEffect": {
-    "message": "Die folgenden Organisationsrichtlinien sind derzeit gültig:"
-  },
-  "sendDisableHideEmailInEffect": {
-    "message": "Benutzer dürfen ihre E-Mail-Adresse beim Erstellen oder Bearbeiten eines Sends nicht vor den Empfängern verstecken.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "modifiedPolicyId": {
     "message": "Richtlinie $ID$ geändert.",
     "placeholders": {
@@ -5453,27 +5521,6 @@
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Persönliches Eigentum für Organisationsbenutzer deaktivieren"
-  },
-  "textHiddenByDefault": {
-    "message": "Beim Zugriff auf dieses Send den Text standardmäßig ausblenden",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Ein eigener Name, um dieses Send zu beschreiben.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Der Text, den du versenden möchtest."
-  },
-  "sendFileDesc": {
-    "message": "Die Datei, die du versenden möchtest."
-  },
-  "copySendLinkOnSave": {
-    "message": "Den Link zum Teilen dieses Sends beim Speichern in meine Zwischenablage kopieren."
-  },
-  "sendLinkLabel": {
-    "message": "Send-Link",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "send": {
     "message": "Send",
@@ -5623,17 +5670,29 @@
   "dateParsingError": {
     "message": "Es gab einen Fehler beim Speichern deiner Lösch- und Verfallsdaten."
   },
+  "hideYourEmail": {
+    "message": "Verberge deine E-Mail-Adresse vor Betrachtern."
+  },
   "webAuthnFallbackMsg": {
     "message": "Um deine 2FA zu verifizieren, klicke bitte unten auf den Button."
   },
   "webAuthnAuthenticate": {
     "message": "WebAuthn authentifizieren"
   },
+  "readSecurityKey": {
+    "message": "Sicherheitsschlüssel auslesen"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Warte auf Sicherheitsschlüssel-Interaktion..."
+  },
   "webAuthnNotSupported": {
     "message": "WebAuthn wird in diesem Browser nicht unterstützt."
   },
   "webAuthnSuccess": {
     "message": "WebAuthn erfolgreich verifiziert! Du kannst diesen Tab nun schließen."
+  },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Dein neues Passwort darf nicht dasselbe sein wie dein aktuelles Passwort."
   },
   "hintEqualsPassword": {
     "message": "Dein Passwort-Hinweis darf nicht identisch mit deinem Passwort sein."
@@ -5829,6 +5888,9 @@
   },
   "fingerprint": {
     "message": "Fingerabdruck"
+  },
+  "fingerprintPhrase": {
+    "message": "Fingerabdruck-Phrase:"
   },
   "removeUsers": {
     "message": "Benutzer entfernen"
@@ -6667,6 +6729,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Nur die einzelnen Tresor-Einträge einschließlich Anhängen von $EMAIL$ werden exportiert. Tresor-Einträge der Organisation werden nicht berücksichtigt",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultDesc": {
     "message": "Nur der mit $ORGANIZATION$ verbundene Organisationstresor wird exportiert. Einträge in persönlichen Tresoren oder anderen Organisationen werden nicht berücksichtigt.",
     "placeholders": {
@@ -6922,6 +6993,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ hat deine Anfrage abgelehnt. Bitte wende dich an deinen Dienstanbieter für Unterstützung.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ hat deine Anfrage abgelehnt: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Maskierte E-Mail-Konto-ID für $SERVICENAME$ konnte nicht abgerufen werden.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -7145,11 +7240,14 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Fehler beim Verbinden mit dem Duo-Dienst. Verwende eine andere Zwei-Faktor-Authentifizierungsmethode oder kontaktiere Duo für Hilfe."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Starte DUO und folge den Schritten, um die Anmeldung abzuschließen."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Für dein Konto ist die DUO Zwei-Faktor-Authentifizierung erforderlich."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Die Duo-Zwei-Faktor-Authentifizierung ist für dein Konto erforderlich. Folge den Schritten unten, um die Anmeldung abzuschließen."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Folge den Schritten unten, um die Anmeldung abzuschließen."
   },
   "launchDuo": {
     "message": "DUO starten"
@@ -7171,12 +7269,6 @@
   },
   "numberOfUsers": {
     "message": "Anzahl der Benutzer"
-  },
-  "loggingInAs": {
-    "message": "Anmelden als"
-  },
-  "notYou": {
-    "message": "Nicht du?"
   },
   "pickAnAvatarColor": {
     "message": "Wähle eine Profilbild-Farbe"
@@ -8301,9 +8393,6 @@
   "requestAdminApproval": {
     "message": "Admin-Genehmigung anfragen"
   },
-  "approveWithMasterPassword": {
-    "message": "Mit Master-Passwort genehmigen"
-  },
   "trustedDeviceEncryption": {
     "message": "Vertrauenswürdige Geräteverschlüsselung"
   },
@@ -8518,9 +8607,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Deine Anfrage wurde an deinen Administrator gesendet."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Nach einer Genehmigung wirst du benachrichtigt."
-  },
   "troubleLoggingIn": {
     "message": "Probleme beim Anmelden?"
   },
@@ -8634,8 +8720,8 @@
   "limitCollectionDeletionDesc": {
     "message": "Das Löschen von Sammlungen auf Eigentümer und Administratoren beschränken"
   },
-  "limitItemDeletionDesc": {
-    "message": "Löschung von Einträgen auf Mitglieder mit der \"Darf verwalten\"-Berechtigung beschränken"
+  "limitItemDeletionDescription": {
+    "message": "Die Löschung von Einträgen auf Mitglieder mit den Berechtigungen zur Verwaltung von Sammlungen beschränken"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Besitzer und Administratoren können alle Sammlungen und Einträge verwalten"
@@ -9246,6 +9332,21 @@
   "deviceManagementDesc": {
     "message": "Konfiguriere die Geräteverwaltung für Bitwarden mithilfe der Implementierungsanleitung für deine Plattform."
   },
+  "deviceIdMissing": {
+    "message": "Geräte-ID fehlt"
+  },
+  "deviceTypeMissing": {
+    "message": "Gerätetyp fehlt"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Geräteerstellungsdatum fehlt"
+  },
+  "desktopRequired": {
+    "message": "Desktop-Rechner erforderlich"
+  },
+  "reopenLinkOnDesktop": {
+    "message": "Öffne diesen Link aus deiner E-Mail auf einem Desktop-Rechner."
+  },
   "integrationCardTooltip": {
     "message": "$INTEGRATION$-Implementierungsanleitung starten.",
     "placeholders": {
@@ -9739,8 +9840,14 @@
   "learnMoreAboutApi": {
     "message": "Erfahre mehr über die API von Bitwarden"
   },
+  "fileSend": {
+    "message": "Datei-Send"
+  },
   "fileSends": {
     "message": "Datei-Sends"
+  },
+  "textSend": {
+    "message": "Text-Send"
   },
   "textSends": {
     "message": "Text-Sends"
@@ -9974,10 +10081,6 @@
   "specialCharactersDescription": {
     "message": "Sonderzeichen einschließen",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Anhang hinzufügen"
@@ -10239,6 +10342,95 @@
   "organizationNameMaxLength": {
     "message": "Der Name der Organisation darf 50 Zeichen nicht überschreiten."
   },
+  "rotationCompletedTitle": {
+    "message": "Schlüsselrotation erfolgreich"
+  },
+  "rotationCompletedDesc": {
+    "message": "Dein Master-Passwort und Verschlüsselungsschlüssel wurden aktualisiert. Deine anderen Geräte wurden abgemeldet."
+  },
+  "trustUserEmergencyAccess": {
+    "message": "Benutzer vertrauen und bestätigen"
+  },
+  "trustOrganization": {
+    "message": "Organisation vertrauen"
+  },
+  "trust": {
+    "message": "Vertrauen"
+  },
+  "doNotTrust": {
+    "message": "Nicht vertrauen"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Bestätige zur Sicherheit deines Kontos nur, wenn du den Notfallzugriff diesem Benutzer gewährt hast und sein Fingerabdruck mit dem übereinstimmt, was in seinem Konto angezeigt wird"
+  },
+  "orgTrustWarning": {
+    "message": "Fahre zur Sicherheit deines Kontos nur fort, wenn du ein Mitglied dieser Organisation bist, die Kontowiederherstellung aktiviert hast und der unten angezeigte Fingerabdruck mit dem Fingerabdruck der Organisation übereinstimmt."
+  },
+  "trustUser": {
+    "message": "Benutzer vertrauen"
+  },
+  "sshKeyWrongPassword": {
+    "message": "Dein eingegebenes Passwort ist falsch."
+  },
+  "importSshKey": {
+    "message": "Importieren"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Passwort bestätigen"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Gib das Passwort für den SSH-Schlüssel ein."
+  },
+  "enterSshKeyPassword": {
+    "message": "Passwort eingeben"
+  },
+  "invalidSshKey": {
+    "message": "Der SSH-Schlüssel ist ungültig"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Der SSH-Schlüsseltyp wird nicht unterstützt"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Schlüssel aus Zwischenablage importieren"
+  },
+  "sshKeyImported": {
+    "message": "SSH-Schlüssel erfolgreich importiert"
+  },
+  "copySSHPrivateKey": {
+    "message": "Privaten Schlüssel kopieren"
+  },
+  "openingExtension": {
+    "message": "Bitwarden-Browser-Erweiterung wird geöffnet"
+  },
+  "somethingWentWrong": {
+    "message": "Etwas ist schiefgelaufen..."
+  },
+  "openingExtensionError": {
+    "message": "Wir hatten Probleme beim Öffnen der Bitwarden-Browser-Erweiterung. Klick auf den Button, um sie jetzt zu öffnen."
+  },
+  "openExtension": {
+    "message": "Erweiterung öffnen"
+  },
+  "doNotHaveExtension": {
+    "message": "Du hast die Bitwarden-Browser-Erweiterung nicht?"
+  },
+  "installExtension": {
+    "message": "Erweiterung installieren"
+  },
+  "openedExtension": {
+    "message": "Browser-Erweiterung geöffnet"
+  },
+  "openedExtensionViewAtRiskPasswords": {
+    "message": "Die Bitwarden Browser-Erweiterung wurde erfolgreich geöffnet. Du kannst jetzt deine gefährdeten Passwörter überprüfen."
+  },
+  "openExtensionManuallyPart1": {
+    "message": "Wir hatten Probleme beim Öffnen der Bitwarden-Browser-Erweiterung. Öffne das Bitwarden-Symbol",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openExtensionManuallyPart2": {
+    "message": "in der Symbolleiste.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
   "resellerRenewalWarningMsg": {
     "message": "Dein Abonnement wird bald verlängert. Um einen ununterbrochenen Betrieb zu gewährleisten, kontaktiere $RESELLER$ um deine Verlängerung vor dem $RENEWAL_DATE$ zu bestätigen.",
     "placeholders": {
@@ -10345,5 +10537,68 @@
   },
   "assignedExceedsAvailable": {
     "message": "Die zugewiesenen Plätze überschreiten die verfügbaren Plätze."
+  },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "Fingerabdruck-Phrase für $NUM_USERS$ Kontakte, für die du den Notfallzugriff aktiviert hast.",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "Fingerabdruck-Phrase für die Organisation $ORG_NAME$, für die du die Kontowiederherstellung aktiviert hast.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "Die Rotation deiner Verschlüsselungsschlüssel erfordert, den Schlüsseln aller Organisationen, die dein Konto wiederherstellen können, sowie aller Kontakte, für die du den Notfallzugriff aktiviert hast, zu vertrauen. Um fortzufahren, stelle sicher, dass du Folgendes bestätigen kannst:"
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "Nicht vertrauenswürdige Verschlüsselungsschlüssel"
+  },
+  "changeAtRiskPassword": {
+    "message": "Gefährdetes Passwort ändern"
+  },
+  "removeUnlockWithPinPolicyTitle": {
+    "message": "Entsperren mit PIN entfernen"
+  },
+  "removeUnlockWithPinPolicyDesc": {
+    "message": "Mitgliedern nicht erlauben, ihr Konto mit einer PIN zu entsperren."
+  },
+  "limitedEventLogs": {
+    "message": "$PRODUCT_TYPE$-Abos haben keinen Zugriff auf echte Ereignisprotokolle",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Erhalte vollen Zugriff auf Ereignisprotokolle von Organisationen durch ein Upgrade auf ein Teams- oder Enterprise-Abo."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Upgrade für echte Ereignisprotokolldaten"
+  },
+  "upgradeEventLogMessage": {
+    "message": "Diese Ereignisse sind nur Beispiele und spiegeln keine realen Ereignisse in deiner Bitwarden-Organisation wider."
+  },
+  "cannotCreateCollection": {
+    "message": "Kostenlose Organisationen können bis zu 2 Sammlungen haben. Upgrade auf ein kostenpflichtiges Abo, um mehr Sammlungen hinzuzufügen."
+  },
+  "businessUnit": {
+    "message": "Business Unit"
+  },
+  "businessUnits": {
+    "message": "Business Units"
+  },
+  "newBusinessUnit": {
+    "message": "New business unit"
   }
 }

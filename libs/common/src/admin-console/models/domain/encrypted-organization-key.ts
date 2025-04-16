@@ -31,8 +31,10 @@ export class EncryptedOrganizationKey implements BaseEncryptedOrganizationKey {
   constructor(private key: string) {}
 
   async decrypt(encryptService: EncryptService, privateKey: UserPrivateKey) {
-    const decValue = await encryptService.rsaDecrypt(this.encryptedOrganizationKey, privateKey);
-    return new SymmetricCryptoKey(decValue) as OrgKey;
+    return (await encryptService.decapsulateKeyUnsigned(
+      this.encryptedOrganizationKey,
+      privateKey,
+    )) as OrgKey;
   }
 
   get encryptedOrganizationKey() {
@@ -58,6 +60,9 @@ export class ProviderEncryptedOrganizationKey implements BaseEncryptedOrganizati
       new EncString(this.key),
       providerKeys[this.providerId],
     );
+    if (decValue == null) {
+      throw new Error("Failed to decrypt organization key");
+    }
     return new SymmetricCryptoKey(decValue) as OrgKey;
   }
 

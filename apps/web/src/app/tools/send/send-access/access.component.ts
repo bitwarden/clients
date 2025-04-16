@@ -5,8 +5,8 @@ import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 
 import { AnonLayoutWrapperDataService } from "@bitwarden/auth/angular";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -39,7 +39,6 @@ import { SendAccessTextComponent } from "./send-access-text.component";
     NoItemsModule,
   ],
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class AccessComponent implements OnInit {
   protected send: SendAccessView;
   protected sendType = SendType;

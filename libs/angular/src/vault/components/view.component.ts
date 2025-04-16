@@ -11,7 +11,17 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { filter, firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  of,
+  switchMap,
+  tap,
+} from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
@@ -41,15 +51,27 @@ import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.v
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { TotpInfo } from "@bitwarden/common/vault/services/totp.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
-const BroadcasterSubscriptionId = "ViewComponent";
+const BroadcasterSubscriptionId = "BaseViewComponent";
 
 @Directive()
 export class ViewComponent implements OnDestroy, OnInit {
-  @Input() cipherId: string;
+  /** Observable of cipherId$ that will update each time the `Input` updates */
+  private _cipherId$ = new BehaviorSubject<string>(null);
+
+  @Input()
+  set cipherId(value: string) {
+    this._cipherId$.next(value);
+  }
+
+  get cipherId(): string {
+    return this._cipherId$.getValue();
+  }
+
   @Input() collectionId: string;
   @Output() onEditCipher = new EventEmitter<CipherView>();
   @Output() onCloneCipher = new EventEmitter<CipherView>();
@@ -58,6 +80,7 @@ export class ViewComponent implements OnDestroy, OnInit {
   @Output() onRestoredCipher = new EventEmitter<CipherView>();
 
   canDeleteCipher$: Observable<boolean>;
+  canRestoreCipher$: Observable<boolean>;
   cipher: CipherView;
   showPassword: boolean;
   showPasswordCount: boolean;
@@ -66,21 +89,18 @@ export class ViewComponent implements OnDestroy, OnInit {
   showPrivateKey: boolean;
   canAccessPremium: boolean;
   showPremiumRequiredTotp: boolean;
-  totpCode: string;
-  totpCodeFormatted: string;
-  totpDash: number;
-  totpSec: number;
-  totpLow: boolean;
   fieldType = FieldType;
   checkPasswordPromise: Promise<number>;
   folder: FolderView;
   cipherType = CipherType;
 
-  private totpInterval: any;
   private previousCipherId: string;
   private passwordReprompted = false;
 
-  private destroyed$ = new Subject<void>();
+  /**
+   * Represents TOTP information including display formatting and timing
+   */
+  protected totpInfo$: Observable<TotpInfo> | undefined;
 
   get fido2CredentialCreationDateValue(): string {
     const dateCreated = this.i18nService.t("dateCreated");
@@ -127,13 +147,30 @@ export class ViewComponent implements OnDestroy, OnInit {
         switch (message.command) {
           case "syncCompleted":
             if (message.successfully) {
-              await this.load();
               this.changeDetectorRef.detectChanges();
             }
             break;
         }
       });
     });
+
+    // Set up the subscription to the activeAccount$ and cipherId$ observables
+    combineLatest([this.accountService.activeAccount$.pipe(getUserId), this._cipherId$])
+      .pipe(
+        tap(() => this.cleanUp()),
+        switchMap(([userId, cipherId]) => {
+          const cipher$ = this.cipherService.cipherViews$(userId).pipe(
+            map((ciphers) => ciphers?.find((c) => c.id === cipherId)),
+            filter((cipher) => !!cipher),
+          );
+          return combineLatest([of(userId), cipher$]);
+        }),
+      )
+      .subscribe(([userId, cipher]) => {
+        this.cipher = cipher;
+
+        void this.constructCipherDetails(userId);
+      });
   }
 
   ngOnDestroy() {
@@ -141,66 +178,8 @@ export class ViewComponent implements OnDestroy, OnInit {
     this.cleanUp();
   }
 
-  async load() {
-    this.cleanUp();
-
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    // Grab individual cipher from `cipherViews$` for the most up-to-date information
-    this.cipherService
-      .cipherViews$(activeUserId)
-      .pipe(
-        map((ciphers) => ciphers?.find((c) => c.id === this.cipherId)),
-        filter((cipher) => !!cipher),
-        takeUntil(this.destroyed$),
-      )
-      .subscribe((cipher) => {
-        this.cipher = cipher;
-      });
-
-    this.canAccessPremium = await firstValueFrom(
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
-    );
-    this.showPremiumRequiredTotp =
-      this.cipher.login.totp && !this.canAccessPremium && !this.cipher.organizationUseTotp;
-    this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher, [
-      this.collectionId as CollectionId,
-    ]);
-
-    if (this.cipher.folderId) {
-      this.folder = await (
-        await firstValueFrom(this.folderService.folderViews$(activeUserId))
-      ).find((f) => f.id == this.cipher.folderId);
-    }
-
-    if (
-      this.cipher.type === CipherType.Login &&
-      this.cipher.login.totp &&
-      (this.cipher.organizationUseTotp || this.canAccessPremium)
-    ) {
-      await this.totpUpdateCode();
-      const interval = this.totpService.getTimeInterval(this.cipher.login.totp);
-      await this.totpTick(interval);
-
-      this.totpInterval = setInterval(async () => {
-        await this.totpTick(interval);
-      }, 1000);
-    }
-
-    if (this.previousCipherId !== this.cipherId) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.eventCollectionService.collect(EventType.Cipher_ClientViewed, this.cipherId);
-    }
-    this.previousCipherId = this.cipherId;
-  }
-
   async edit() {
-    if (await this.promptPassword()) {
-      this.onEditCipher.emit(this.cipher);
-      return true;
-    }
-
-    return false;
+    this.onEditCipher.emit(this.cipher);
   }
 
   async clone() {
@@ -521,57 +500,68 @@ export class ViewComponent implements OnDestroy, OnInit {
   }
 
   private cleanUp() {
-    this.totpCode = null;
     this.cipher = null;
     this.folder = null;
     this.showPassword = false;
     this.showCardNumber = false;
     this.showCardCode = false;
     this.passwordReprompted = false;
-    this.destroyed$.next();
-    if (this.totpInterval) {
-      clearInterval(this.totpInterval);
-    }
   }
 
-  private async totpUpdateCode() {
-    if (
-      this.cipher == null ||
-      this.cipher.type !== CipherType.Login ||
-      this.cipher.login.totp == null
-    ) {
-      if (this.totpInterval) {
-        clearInterval(this.totpInterval);
-      }
-      return;
+  /**
+   * When a cipher is viewed, construct all details for the view that are not directly
+   * available from the cipher object itself.
+   */
+  private async constructCipherDetails(userId: UserId) {
+    this.canAccessPremium = await firstValueFrom(
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(userId),
+    );
+    this.showPremiumRequiredTotp =
+      this.cipher.login.totp && !this.canAccessPremium && !this.cipher.organizationUseTotp;
+    this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher, [
+      this.collectionId as CollectionId,
+    ]);
+    this.canRestoreCipher$ = this.cipherAuthorizationService.canRestoreCipher$(this.cipher);
+
+    if (this.cipher.folderId) {
+      this.folder = await (
+        await firstValueFrom(this.folderService.folderViews$(userId))
+      ).find((f) => f.id == this.cipher.folderId);
     }
 
-    this.totpCode = await this.totpService.getCode(this.cipher.login.totp);
-    if (this.totpCode != null) {
-      if (this.totpCode.length > 4) {
-        const half = Math.floor(this.totpCode.length / 2);
-        this.totpCodeFormatted =
-          this.totpCode.substring(0, half) + " " + this.totpCode.substring(half);
-      } else {
-        this.totpCodeFormatted = this.totpCode;
-      }
-    } else {
-      this.totpCodeFormatted = null;
-      if (this.totpInterval) {
-        clearInterval(this.totpInterval);
-      }
-    }
-  }
+    const canGenerateTotp =
+      this.cipher.type === CipherType.Login &&
+      this.cipher.login.totp &&
+      (this.cipher.organizationUseTotp || this.canAccessPremium);
 
-  private async totpTick(intervalSeconds: number) {
-    const epoch = Math.round(new Date().getTime() / 1000.0);
-    const mod = epoch % intervalSeconds;
+    this.totpInfo$ = canGenerateTotp
+      ? this.totpService.getCode$(this.cipher.login.totp).pipe(
+          map((response) => {
+            const epoch = Math.round(new Date().getTime() / 1000.0);
+            const mod = epoch % response.period;
 
-    this.totpSec = intervalSeconds - mod;
-    this.totpDash = +(Math.round(((78.6 / intervalSeconds) * mod + "e+2") as any) + "e-2");
-    this.totpLow = this.totpSec <= 7;
-    if (mod === 0) {
-      await this.totpUpdateCode();
+            // Format code
+            const totpCodeFormatted =
+              response.code.length > 4
+                ? `${response.code.slice(0, Math.floor(response.code.length / 2))} ${response.code.slice(Math.floor(response.code.length / 2))}`
+                : response.code;
+
+            return {
+              totpCode: response.code,
+              totpCodeFormatted,
+              totpDash: +(Math.round(((78.6 / response.period) * mod + "e+2") as any) + "e-2"),
+              totpSec: response.period - mod,
+              totpLow: response.period - mod <= 7,
+            } as TotpInfo;
+          }),
+        )
+      : undefined;
+
+    if (this.previousCipherId !== this.cipherId) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.eventCollectionService.collect(EventType.Cipher_ClientViewed, this.cipherId);
     }
+    this.previousCipherId = this.cipherId;
   }
 }

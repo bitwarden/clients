@@ -1,4 +1,3 @@
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -7,14 +6,19 @@ import { mock } from "jest-mock-extended";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService } from "@bitwarden/components";
+import { TaskService } from "@bitwarden/common/vault/tasks";
+import { DialogService, DialogRef, DIALOG_DATA } from "@bitwarden/components";
+import { ChangeLoginPasswordService } from "@bitwarden/vault";
 
 import { EmergencyViewDialogComponent } from "./emergency-view-dialog.component";
 
@@ -51,8 +55,34 @@ describe("EmergencyViewDialogComponent", () => {
         { provide: DialogRef, useValue: { close } },
         { provide: DIALOG_DATA, useValue: { cipher: mockCipher } },
         { provide: AccountService, useValue: accountService },
+        { provide: TaskService, useValue: mock<TaskService>() },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(EmergencyViewDialogComponent, {
+        remove: {
+          providers: [
+            { provide: PlatformUtilsService, useValue: PlatformUtilsService },
+            {
+              provide: ChangeLoginPasswordService,
+              useValue: ChangeLoginPasswordService,
+            },
+            { provide: ConfigService, useValue: ConfigService },
+            { provide: CipherService, useValue: mock<CipherService>() },
+          ],
+        },
+        add: {
+          providers: [
+            { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
+            {
+              provide: ChangeLoginPasswordService,
+              useValue: mock<ChangeLoginPasswordService>(),
+            },
+            { provide: ConfigService, useValue: mock<ConfigService>() },
+            { provide: CipherService, useValue: mock<CipherService>() },
+          ],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(EmergencyViewDialogComponent);
     component = fixture.componentInstance;

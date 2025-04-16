@@ -1,13 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, switchMap, map } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
+import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   ExtensionCommand,
   ExtensionCommandType,
@@ -15,27 +16,37 @@ import {
 } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums/product-tier-type.enum";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { TaskService } from "@bitwarden/common/vault/tasks";
+import { SecurityTaskType } from "@bitwarden/common/vault/tasks/enums";
+import { SecurityTask } from "@bitwarden/common/vault/tasks/models/security-task";
 
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { openAddEditVaultItemPopout } from "../../vault/popup/utils/vault-popout-window";
-import { NotificationCipherData } from "../content/components/cipher/types";
+import {
+  OrganizationCategory,
+  OrganizationCategories,
+  NotificationCipherData,
+} from "../content/components/cipher/types";
 import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
 
@@ -63,45 +74,52 @@ export default class NotificationBackground {
     ExtensionCommand.AutofillIdentity,
   ]);
   private readonly extensionMessageHandlers: NotificationBackgroundExtensionMessageHandlers = {
-    unlockCompleted: ({ message, sender }) => this.handleUnlockCompleted(message, sender),
-    bgGetFolderData: () => this.getFolderData(),
-    bgCloseNotificationBar: ({ message, sender }) =>
-      this.handleCloseNotificationBarMessage(message, sender),
+    bgAddLogin: ({ message, sender }) => this.addLogin(message, sender),
     bgAdjustNotificationBar: ({ message, sender }) =>
       this.handleAdjustNotificationBarMessage(message, sender),
-    bgAddLogin: ({ message, sender }) => this.addLogin(message, sender),
     bgChangedPassword: ({ message, sender }) => this.changedPassword(message, sender),
-    bgRemoveTabFromNotificationQueue: ({ sender }) =>
-      this.removeTabFromNotificationQueue(sender.tab),
-    bgSaveCipher: ({ message, sender }) => this.handleSaveCipherMessage(message, sender),
-    bgNeverSave: ({ sender }) => this.saveNever(sender.tab),
-    collectPageDetailsResponse: ({ message }) =>
-      this.handleCollectPageDetailsResponseMessage(message),
-    bgUnlockPopoutOpened: ({ message, sender }) => this.unlockVault(message, sender.tab),
-    checkNotificationQueue: ({ sender }) => this.checkNotificationQueue(sender.tab),
-    bgReopenUnlockPopout: ({ sender }) => this.openUnlockPopout(sender.tab),
+    bgCloseNotificationBar: ({ message, sender }) =>
+      this.handleCloseNotificationBarMessage(message, sender),
+    bgOpenAtRisksPasswords: ({ message, sender }) =>
+      this.handleOpenAtRisksPasswordsMessage(message, sender),
+    bgGetActiveUserServerConfig: () => this.getActiveUserServerConfig(),
+    bgGetDecryptedCiphers: () => this.getNotificationCipherData(),
     bgGetEnableChangedPasswordPrompt: () => this.getEnableChangedPasswordPrompt(),
     bgGetEnableAddedLoginPrompt: () => this.getEnableAddedLoginPrompt(),
     bgGetExcludedDomains: () => this.getExcludedDomains(),
-    bgGetActiveUserServerConfig: () => this.getActiveUserServerConfig(),
+    bgGetFolderData: () => this.getFolderData(),
+    bgGetOrgData: () => this.getOrgData(),
+    bgNeverSave: ({ sender }) => this.saveNever(sender.tab),
+    bgOpenVault: ({ message, sender }) => this.openVault(message, sender.tab),
+    bgRemoveTabFromNotificationQueue: ({ sender }) =>
+      this.removeTabFromNotificationQueue(sender.tab),
+    bgReopenUnlockPopout: ({ sender }) => this.openUnlockPopout(sender.tab),
+    bgSaveCipher: ({ message, sender }) => this.handleSaveCipherMessage(message, sender),
+    bgUnlockPopoutOpened: ({ message, sender }) => this.unlockVault(message, sender.tab),
+    checkNotificationQueue: ({ sender }) => this.checkNotificationQueue(sender.tab),
+    collectPageDetailsResponse: ({ message }) =>
+      this.handleCollectPageDetailsResponseMessage(message),
     getWebVaultUrlForNotification: () => this.getWebVaultUrl(),
     notificationRefreshFlagValue: () => this.getNotificationFlag(),
-    bgGetDecryptedCiphers: () => this.getNotificationCipherData(),
+    unlockCompleted: ({ message, sender }) => this.handleUnlockCompleted(message, sender),
   };
 
   constructor(
+    private accountService: AccountService,
+    private authService: AuthService,
     private autofillService: AutofillService,
     private cipherService: CipherService,
-    private authService: AuthService,
-    private policyService: PolicyService,
-    private folderService: FolderService,
-    private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
+    private configService: ConfigService,
     private domainSettingsService: DomainSettingsService,
     private environmentService: EnvironmentService,
+    private folderService: FolderService,
     private logService: LogService,
+    private organizationService: OrganizationService,
+    private policyService: PolicyService,
     private themeStateService: ThemeStateService,
-    private configService: ConfigService,
-    private accountService: AccountService,
+    private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
+    private taskService: TaskService,
+    protected messagingService: MessagingService,
   ) {}
 
   init() {
@@ -150,23 +168,48 @@ export default class NotificationBackground {
       firstValueFrom(this.domainSettingsService.showFavicons$),
       firstValueFrom(this.environmentService.environment$),
     ]);
+
     const iconsServerUrl = env.getIconsUrl();
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
+
     const decryptedCiphers = await this.cipherService.getAllDecryptedForUrl(
-      currentTab.url,
+      currentTab?.url,
       activeUserId,
     );
 
+    const organizations = await firstValueFrom(
+      this.organizationService.organizations$(activeUserId),
+    );
+
     return decryptedCiphers.map((view) => {
-      const { id, name, reprompt, favorite, login } = view;
+      const { id, name, reprompt, favorite, login, organizationId } = view;
+
+      const organizationType = organizationId
+        ? organizations.find((org) => org.id === organizationId)?.productTierType
+        : null;
+
+      const organizationCategories: OrganizationCategory[] = [];
+
+      if (
+        [ProductTierType.Teams, ProductTierType.Enterprise, ProductTierType.TeamsStarter].includes(
+          organizationType,
+        )
+      ) {
+        organizationCategories.push(OrganizationCategories.business);
+      }
+      if ([ProductTierType.Families, ProductTierType.Free].includes(organizationType)) {
+        organizationCategories.push(OrganizationCategories.family);
+      }
+
       return {
         id,
         name,
         type: CipherType.Login,
         reprompt,
         favorite,
+        ...(organizationCategories.length ? { organizationCategories } : {}),
         icon: buildCipherIcon(iconsServerUrl, view, showFavicons),
         login: login && {
           username: login.username,
@@ -594,11 +637,14 @@ export default class NotificationBackground {
       const cipher = await this.cipherService.encrypt(newCipher, activeUserId);
       try {
         await this.cipherService.createWithServer(cipher);
-        await BrowserApi.tabSendMessage(tab, { command: "saveCipherAttemptCompleted" });
+        await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
+          username: queueMessage?.username && String(queueMessage.username),
+          cipherId: cipher?.id && String(cipher.id),
+        });
         await BrowserApi.tabSendMessage(tab, { command: "addedCipher" });
       } catch (error) {
         await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
-          error: String(error.message),
+          error: error?.message && String(error.message),
         });
       }
     }
@@ -630,15 +676,50 @@ export default class NotificationBackground {
       await BrowserApi.tabSendMessage(tab, { command: "editedCipher" });
       return;
     }
-
     const cipher = await this.cipherService.encrypt(cipherView, userId);
+
+    const shouldGetTasks = await this.getNotificationFlag();
+
     try {
-      // We've only updated the password, no need to broadcast editedCipher message
+      const tasks = shouldGetTasks ? await this.getSecurityTasks(userId) : [];
+      const updatedCipherTask = tasks.find((task) => task.cipherId === cipherView?.id);
+      const cipherHasTask = !!updatedCipherTask?.id;
+
+      let taskOrgName: string;
+      if (cipherHasTask && updatedCipherTask?.organizationId) {
+        const userOrgs = await this.getOrgData();
+        taskOrgName = userOrgs.find(({ id }) => id === updatedCipherTask.organizationId)?.name;
+      }
+
+      const taskData = cipherHasTask
+        ? {
+            remainingTasksCount: tasks.length - 1,
+            orgName: taskOrgName,
+          }
+        : undefined;
+
       await this.cipherService.updateWithServer(cipher);
-      await BrowserApi.tabSendMessage(tab, { command: "saveCipherAttemptCompleted" });
+
+      await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
+        username: cipherView?.login?.username && String(cipherView.login.username),
+        cipherId: cipherView?.id && String(cipherView.id),
+        task: taskData,
+      });
+
+      // If the cipher had a security task, mark it as complete
+      if (cipherHasTask) {
+        // guard against multiple (redundant) security tasks per cipher
+        await Promise.all(
+          tasks.map((task) => {
+            if (task.cipherId === cipherView?.id) {
+              return this.taskService.markAsComplete(task.id, userId);
+            }
+          }),
+        );
+      }
     } catch (error) {
       await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
-        error: String(error.message),
+        error: error?.message && String(error.message),
       });
     }
   }
@@ -663,6 +744,16 @@ export default class NotificationBackground {
     await this.openAddEditVaultItemPopout(senderTab, { cipherId: cipherView.id });
   }
 
+  private async openVault(
+    message: NotificationBackgroundExtensionMessage,
+    senderTab: chrome.tabs.Tab,
+  ) {
+    if (!message.cipherId) {
+      await this.openAddEditVaultItemPopout(senderTab);
+    }
+    await this.openAddEditVaultItemPopout(senderTab, { cipherId: message.cipherId });
+  }
+
   private async folderExists(folderId: string, userId: UserId) {
     if (Utils.isNullOrWhitespace(folderId) || folderId === "null") {
       return false;
@@ -679,6 +770,32 @@ export default class NotificationBackground {
       );
     }
     return null;
+  }
+
+  private async getSecurityTasks(userId: UserId) {
+    let tasks: SecurityTask[] = [];
+
+    if (userId) {
+      tasks = await firstValueFrom(
+        this.taskService.tasksEnabled$(userId).pipe(
+          switchMap((tasksEnabled) => {
+            if (!tasksEnabled) {
+              return [];
+            }
+
+            return this.taskService
+              .pendingTasks$(userId)
+              .pipe(
+                map((tasks) =>
+                  tasks.filter(({ type }) => type === SecurityTaskType.UpdateAtRiskCredential),
+                ),
+              );
+          }),
+        ),
+      );
+    }
+
+    return tasks;
   }
 
   /**
@@ -725,8 +842,33 @@ export default class NotificationBackground {
 
   private async removeIndividualVault(): Promise<boolean> {
     return await firstValueFrom(
-      this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+        ),
+      ),
     );
+  }
+
+  /**
+   * Returns the first value found from the organization service organizations$ observable.
+   */
+  private async getOrgData() {
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    const organizations = await firstValueFrom(
+      this.organizationService.organizations$(activeUserId),
+    );
+    return organizations.map((org) => {
+      const { id, name, productTierType } = org;
+      return {
+        id,
+        name,
+        productTierType,
+      };
+    });
   }
 
   /**
@@ -774,6 +916,41 @@ export default class NotificationBackground {
     await BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar", {
       fadeOutNotification: !!message.fadeOutNotification,
     });
+  }
+
+  /**
+   * Sends a message to the background to open the
+   * at-risk passwords extension view. Triggers
+   * notification closure as a side-effect.
+   *
+   * @param message - The extension message
+   * @param sender - The contextual sender of the message
+   */
+  private async handleOpenAtRisksPasswordsMessage(
+    message: NotificationBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    const browserAction = BrowserApi.getBrowserAction();
+
+    try {
+      // Set route of the popup before attempting to open it.
+      // If the vault is locked, this won't have an effect as the auth guards will
+      // redirect the user to the login page.
+      await browserAction.setPopup({ popup: "popup/index.html#/at-risk-passwords" });
+
+      await Promise.all([
+        this.messagingService.send(VaultMessages.OpenAtRiskPasswords),
+        BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar", {
+          fadeOutNotification: !!message.fadeOutNotification,
+        }),
+      ]);
+    } finally {
+      // Reset the popup route to the default route so any subsequent
+      // popup openings will not open to the at-risk-passwords page.
+      await browserAction.setPopup({
+        popup: "popup/index.html#/",
+      });
+    }
   }
 
   /**

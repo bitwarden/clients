@@ -1,4 +1,3 @@
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
@@ -12,6 +11,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -19,8 +19,10 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { TaskService } from "@bitwarden/common/vault/tasks";
+import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { ChangeLoginPasswordService } from "@bitwarden/vault";
 
 import { ViewCipherDialogParams, ViewCipherDialogResult, ViewComponent } from "./view.component";
 
@@ -81,8 +83,30 @@ describe("ViewComponent", () => {
             canDeleteCipher$: jest.fn().mockReturnValue(true),
           },
         },
+        { provide: TaskService, useValue: mock<TaskService>() },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(ViewComponent, {
+        remove: {
+          providers: [
+            { provide: PlatformUtilsService, useValue: PlatformUtilsService },
+            {
+              provide: ChangeLoginPasswordService,
+              useValue: ChangeLoginPasswordService,
+            },
+          ],
+        },
+        add: {
+          providers: [
+            { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
+            {
+              provide: ChangeLoginPasswordService,
+              useValue: mock<ChangeLoginPasswordService>(),
+            },
+          ],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(ViewComponent);
     component = fixture.componentInstance;

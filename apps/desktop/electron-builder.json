@@ -255,7 +255,8 @@
         "polkit": {
           "action-prefix": "com.bitwarden.Bitwarden"
         }
-      }
+      },
+      "u2f-devices"
     ],
     "stagePackages": ["default"]
   },

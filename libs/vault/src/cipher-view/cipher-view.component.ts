@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, OnDestroy } from "@angular/core";
-import { firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
+import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -12,11 +12,18 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { isCardExpired } from "@bitwarden/common/autofill/utils";
-import { CollectionId } from "@bitwarden/common/types/guid";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherId, CollectionId, EmergencyAccessId, UserId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { CalloutModule, SearchModule } from "@bitwarden/components";
+import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
+import { AnchorLinkDirective, CalloutModule, SearchModule } from "@bitwarden/components";
+
+import { ChangeLoginPasswordService } from "../abstractions/change-login-password.service";
 
 import { AdditionalOptionsComponent } from "./additional-options/additional-options.component";
 import { AttachmentsV2ViewComponent } from "./attachments/attachments-v2-view.component";
@@ -48,12 +55,16 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
     ViewIdentitySectionsComponent,
     LoginCredentialsViewComponent,
     AutofillOptionsViewComponent,
+    AnchorLinkDirective,
   ],
 })
 export class CipherViewComponent implements OnChanges, OnDestroy {
   @Input({ required: true }) cipher: CipherView | null = null;
 
-  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+  // Required for fetching attachment data when viewed from cipher via emergency access
+  @Input() emergencyAccessId?: EmergencyAccessId;
+
+  activeUserId$ = getUserId(this.accountService.activeAccount$);
 
   /**
    * Optional list of collections the cipher is assigned to. If none are provided, they will be fetched using the
@@ -68,12 +79,19 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
   folder$: Observable<FolderView | undefined> | undefined;
   private destroyed$: Subject<void> = new Subject();
   cardIsExpired: boolean = false;
+  hadPendingChangePasswordTask: boolean = false;
+  isSecurityTasksEnabled$ = this.configService.getFeatureFlag$(FeatureFlag.SecurityTasks);
 
   constructor(
     private organizationService: OrganizationService,
     private collectionService: CollectionService,
     private folderService: FolderService,
     private accountService: AccountService,
+    private defaultTaskService: TaskService,
+    private platformUtilsService: PlatformUtilsService,
+    private changeLoginPasswordService: ChangeLoginPasswordService,
+    private configService: ConfigService,
+    private cipherService: CipherService,
   ) {}
 
   async ngOnChanges() {
@@ -137,7 +155,16 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
       );
     }
 
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const userId = await firstValueFrom(this.activeUserId$);
+
+    // Show Tasks for Manage and Edit permissions
+    // Using cipherService to see if user has access to cipher in a non-AC context to address with Edit Except Password permissions
+    const allCiphers = await firstValueFrom(this.cipherService.ciphers$(userId));
+    const cipherServiceCipher = allCiphers[this.cipher?.id as CipherId];
+
+    if (cipherServiceCipher?.edit && cipherServiceCipher?.viewPassword) {
+      await this.checkPendingChangePasswordTasks(userId);
+    }
 
     if (this.cipher.organizationId && userId) {
       this.organization$ = this.organizationService
@@ -147,15 +174,33 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
     }
 
     if (this.cipher.folderId) {
-      const activeUserId = await firstValueFrom(this.activeUserId$);
-
-      if (!activeUserId) {
-        return;
-      }
-
       this.folder$ = this.folderService
-        .getDecrypted$(this.cipher.folderId, activeUserId)
+        .getDecrypted$(this.cipher.folderId, userId)
         .pipe(takeUntil(this.destroyed$));
     }
   }
+
+  async checkPendingChangePasswordTasks(userId: UserId): Promise<void> {
+    if (!(await firstValueFrom(this.isSecurityTasksEnabled$))) {
+      return;
+    }
+
+    const tasks = await firstValueFrom(this.defaultTaskService.pendingTasks$(userId));
+
+    this.hadPendingChangePasswordTask = tasks?.some((task) => {
+      return (
+        task.cipherId === this.cipher?.id && task.type === SecurityTaskType.UpdateAtRiskCredential
+      );
+    });
+  }
+
+  launchChangePassword = async () => {
+    if (this.cipher != null) {
+      const url = await this.changeLoginPasswordService.getChangePasswordUrl(this.cipher);
+      if (url == null) {
+        return;
+      }
+      this.platformUtilsService.launchUri(url);
+    }
+  };
 }

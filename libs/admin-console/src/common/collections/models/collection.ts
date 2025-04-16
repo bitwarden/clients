@@ -39,11 +39,10 @@ export class Collection extends Domain {
   }
 
   decrypt(orgKey: OrgKey): Promise<CollectionView> {
-    return this.decryptObj(
+    return this.decryptObj<Collection, CollectionView>(
+      this,
       new CollectionView(this),
-      {
-        name: null,
-      },
+      ["name"],
       this.organizationId,
       orgKey,
     );

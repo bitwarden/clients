@@ -543,10 +543,6 @@
     "message": "Sonderzeichen einschließen",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Anzahl der Wörter"
   },
@@ -652,6 +648,15 @@
   "logInToBitwarden": {
     "message": "Bei Bitwarden anmelden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Gib den an deine E-Mail-Adresse gesendeten Code ein"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Gib den Code aus deiner Authenticator-App ein"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Drücke zum Authentifizieren auf deinen YubiKey"
+  },
   "logInWithPasskey": {
     "message": "Mit Passkey anmelden"
   },
@@ -704,6 +709,15 @@
   "masterPassHintLabel": {
     "message": "Master-Passwort-Hinweis"
   },
+  "passwordStrengthScore": {
+    "message": "Bewertung der Passwortstärke $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Organisation beitreten"
   },
@@ -733,12 +747,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Gib deine E-Mail-Adresse ein und dein Passwort-Hinweis wird dir zugesandt"
-  },
-  "passwordHint": {
-    "message": "Passwort-Hinweis"
-  },
-  "enterEmailToGetHint": {
-    "message": "Gib die E-Mail-Adresse deines Kontos ein, um den Hinweis für dein Master-Passwort zu erhalten."
   },
   "getMasterPasswordHint": {
     "message": "Hinweis zum Master-Passwort zusenden"
@@ -816,23 +824,14 @@
   "webauthnCancelOrTimeout": {
     "message": "Die Authentifizierung wurde abgebrochen oder hat zu lange gedauert. Bitte versuche es erneut."
   },
+  "openInNewTab": {
+    "message": "In neuem Tab öffnen"
+  },
   "invalidVerificationCode": {
     "message": "Ungültiger Verifizierungscode"
   },
   "continue": {
     "message": "Weiter"
-  },
-  "enterVerificationCodeApp": {
-    "message": "Gib den 6-stelligen Verifizierungscode aus deiner Authentifizierungs-App ein."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Gib den 6-stelligen Verifizierungscode ein, der an $EMAIL$ gesendet wurde.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Verifizierungsmail wurde an $EMAIL$ gesendet.",
@@ -843,17 +842,15 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Angemeldet bleiben"
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Für 30 Tage auf diesem Gerät nicht mehr fragen"
   },
-  "sendVerificationCodeEmailAgain": {
-    "message": "E-Mail mit Bestätigungscode erneut versenden"
+  "selectAnotherMethod": {
+    "message": "Wähle eine andere Methode",
+    "description": "Select another two-step login method"
   },
-  "useAnotherTwoStepMethod": {
-    "message": "Eine andere Zwei-Faktor-Anmeldemethode verwenden"
-  },
-  "insertYubiKey": {
-    "message": "Stecke deinen YubiKey in einen USB-Anschluss deines Computers, dann berühre den Button."
+  "useYourRecoveryCode": {
+    "message": "Verwende deinen Wiederherstellungscode"
   },
   "insertU2f": {
     "message": "Stecke deinen Sicherheitsschlüssel in einen USB-Anschluss deines Computers. Falls er einen Knopf hat, drücke diesen."
@@ -885,7 +882,7 @@
     "message": "Nutze Duo Security, um dich mit der Duo-Mobile-App, SMS, per Anruf oder U2F-Sicherheitsschlüssel bei deiner Organisation zu verifizieren.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Verifiziere deine Identität"
   },
   "weDontRecognizeThisDevice": {
@@ -918,11 +915,11 @@
   "twoStepOptions": {
     "message": "Optionen für Zwei-Faktor-Authentifizierung"
   },
+  "selectTwoStepLoginMethod": {
+    "message": "Zwei-Faktor-Authentifizierungsmethode auswählen"
+  },
   "selfHostedEnvironment": {
     "message": "Selbst gehostete Umgebung"
-  },
-  "selfHostedEnvironmentFooter": {
-    "message": "Bitte gib die Basis-URL deiner selbst gehosteten Bitwarden-Installation an."
   },
   "selfHostedBaseUrlHint": {
     "message": "Gib die Basis-URL deiner vor Ort gehosteten Bitwarden-Installation an. Beispiel: https://bitwarden.company.com"
@@ -935,9 +932,6 @@
   },
   "customEnvironment": {
     "message": "Benutzerdefinierte Umgebung"
-  },
-  "customEnvironmentFooter": {
-    "message": "Für fortgeschrittene Benutzer. Du kannst die Basis-URL der jeweiligen Dienste unabhängig voneinander festlegen."
   },
   "baseUrl": {
     "message": "Server-URL"
@@ -978,6 +972,9 @@
   },
   "no": {
     "message": "Nein"
+  },
+  "location": {
+    "message": "Standort"
   },
   "overwritePassword": {
     "message": "Passwort ersetzen"
@@ -1775,6 +1772,9 @@
   "requirePasswordOnStart": {
     "message": "Passwort oder PIN beim Start der App verlangen"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Ein Passwort beim Starten der App verlangen"
+  },
   "recommendedForSecurity": {
     "message": "Aus Sicherheitsgründen empfohlen."
   },
@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Aufgrund einer Unternehmensrichtlinie darfst du keine Einträge in deinem persönlichen Tresor speichern. Ändere die Eigentümer-Option in eine Organisation und wähle aus den verfügbaren Sammlungen."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Dein neues Passwort darf nicht dasselbe sein wie dein aktuelles Passwort."
+  },
   "hintEqualsPassword": {
     "message": "Dein Passwort-Hinweis darf nicht identisch mit deinem Passwort sein."
   },
@@ -2243,6 +2246,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "WebAuthn authentifizieren"
+  },
+  "readSecurityKey": {
+    "message": "Sicherheitsschlüssel auslesen"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Warte auf Sicherheitsschlüssel-Interaktion..."
   },
   "hideEmail": {
     "message": "Meine E-Mail-Adresse vor den Empfängern ausblenden."
@@ -2460,6 +2469,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Nur die einzelnen Tresor-Einträge einschließlich Anhängen von $EMAIL$ werden exportiert. Tresor-Einträge der Organisation werden nicht berücksichtigt",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Tresor der Organisation wird exportiert"
   },
@@ -2640,6 +2658,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ hat deine Anfrage abgelehnt. Bitte wende dich an deinen Dienstanbieter für Unterstützung.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ hat deine Anfrage abgelehnt: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Maskierte E-Mail-Konto-ID für $SERVICENAME$ konnte nicht abgerufen werden.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -2718,14 +2760,8 @@
   "loginWithMasterPassword": {
     "message": "Mit Master-Passwort anmelden"
   },
-  "loggingInAs": {
-    "message": "Anmelden als"
-  },
   "rememberEmail": {
     "message": "E-Mail-Adresse merken"
-  },
-  "notYou": {
-    "message": "Nicht du?"
   },
   "newAroundHere": {
     "message": "Neu hier?"
@@ -2966,9 +3002,6 @@
   "requestAdminApproval": {
     "message": "Admin-Genehmigung anfragen"
   },
-  "approveWithMasterPassword": {
-    "message": "Mit Master-Passwort genehmigen"
-  },
   "region": {
     "message": "Region"
   },
@@ -2993,9 +3026,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Deine Anfrage wurde an deinen Administrator gesendet."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Nach einer Genehmigung wirst du benachrichtigt."
   },
   "troubleLoggingIn": {
     "message": "Probleme beim Anmelden?"
@@ -3173,11 +3203,14 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Fehler beim Verbinden mit dem Duo-Dienst. Verwende eine andere Zwei-Faktor-Authentifizierungsmethode oder kontaktiere Duo für Hilfe."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Starte DUO und folge den Schritten, um die Anmeldung abzuschließen."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Für dein Konto ist die DUO Zwei-Faktor-Authentifizierung erforderlich."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Die Duo-Zwei-Faktor-Authentifizierung ist für dein Konto erforderlich. Folge den Schritten unten, um die Anmeldung abzuschließen."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Folge den Schritten unten, um die Anmeldung abzuschließen."
   },
   "launchDuo": {
     "message": "Duo im Browser starten"
@@ -3436,14 +3469,29 @@
   "sshkeyApprovalTitle": {
     "message": "Verwendung des SSH-Schlüssels bestätigen"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Warnung: Agent-Weiterleitung"
+  },
+  "agentForwardingWarningText": {
+    "message": "Diese Anfrage kommt von einem entfernten Gerät, bei dem du angemeldet bist"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "fragt den Zugriff an für"
   },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "um"
+  },
+  "sshActionLogin": {
+    "message": "sich bei einem Server zu authentifizieren"
+  },
+  "sshActionSign": {
+    "message": "eine Nachricht zu signieren"
+  },
+  "sshActionGitSign": {
+    "message": "einen Git-Commit zu signieren"
+  },
   "unknownApplication": {
     "message": "Eine Anwendung"
-  },
-  "sshKeyPasswordUnsupported": {
-    "message": "Das Importieren passwortgeschützter SSH-Schlüssel wird noch nicht unterstützt"
   },
   "invalidSshKey": {
     "message": "Der SSH-Schlüssel ist ungültig"
@@ -3454,7 +3502,7 @@
   "importSshKeyFromClipboard": {
     "message": "Schlüssel aus Zwischenablage importieren"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH-Schlüssel erfolgreich importiert"
   },
   "fileSavedToDevice": {
@@ -3496,19 +3544,28 @@
   "changeAcctEmail": {
     "message": "E-Mail-Adresse des Kontos ändern"
   },
-  "organizationUpgradeRequired": {
-    "message": "Organisations-Upgrade erforderlich"
+  "allowScreenshots": {
+    "message": "Bildschirmaufnahme erlauben"
   },
-  "upgradeOrganization": {
-    "message": "Organisation upgraden"
+  "allowScreenshotsDesc": {
+    "message": "Erlaube der Bitwarden Desktop-Anwendung in Screenshots festgehalten und in Remote Desktop-Sitzungen angezeigt zu werden. Das Deaktivieren dieser Option verhindert den Zugriff über einige externe Monitore."
   },
-  "upgradeOrganizationDesc": {
-    "message": "Diese Funktion ist für kostenlose Organisationen nicht verfügbar. Wechsle zu einem kostenpflichtigen Abonnement, um weitere Funktionen freizuschalten."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Bestätigungsfenster noch sichtbar"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Bitte bestätige, dass das Fenster noch sichtbar ist."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Aktualisierung der Erweiterung notwendig"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Die von dir verwendete Browser-Erweiterung ist veraltet. Bitte aktualisiere sie oder deaktiviere die Fingerabdrucküberprüfung der Browser-Integration in den Einstellungen der Desktop-App."
+  },
+  "changeAtRiskPassword": {
+    "message": "Gefährdetes Passwort ändern"
+  },
+  "move": {
+    "message": "Verschieben"
   }
 }

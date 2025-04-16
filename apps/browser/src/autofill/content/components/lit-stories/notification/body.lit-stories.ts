@@ -12,10 +12,11 @@ type Args = {
   ciphers: NotificationCipherData[];
   notificationType: NotificationType;
   theme: Theme;
+  handleEditOrUpdateAction: (e: Event) => void;
 };
 
 export default {
-  title: "Components/Notifications/Notification Body",
+  title: "Components/Notifications/Body",
   argTypes: {
     ciphers: { control: "object" },
     theme: { control: "select", options: [...Object.values(ThemeTypes)] },

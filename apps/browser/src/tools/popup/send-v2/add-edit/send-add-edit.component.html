@@ -16,6 +16,9 @@
     <button bitButton type="submit" form="sendForm" buttonType="primary" #submitBtn>
       {{ "save" | i18n }}
     </button>
+    <button bitButton type="button" buttonType="secondary" popupBackAction>
+      {{ "cancel" | i18n }}
+    </button>
     <button
       *ngIf="config?.mode !== 'add'"
       type="button"

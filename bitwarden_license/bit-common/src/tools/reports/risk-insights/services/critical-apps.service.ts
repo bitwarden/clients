@@ -62,6 +62,9 @@ export class CriticalAppsService {
   // Save the selected critical apps for a given organization
   async setCriticalApps(orgId: string, selectedUrls: string[]) {
     const key = await this.keyService.getOrgKey(orgId);
+    if (key == null) {
+      throw new Error("Organization key not found");
+    }
 
     // only save records that are not already in the database
     const newEntries = await this.filterNewEntries(orgId as OrganizationId, selectedUrls);
@@ -129,6 +132,10 @@ export class CriticalAppsService {
       from(this.keyService.getOrgKey(orgId)),
     ).pipe(
       switchMap(([response, key]) => {
+        if (key == null) {
+          throw new Error("Organization key not found");
+        }
+
         const results = response.map(async (r: PasswordHealthReportApplicationsResponse) => {
           const encrypted = new EncString(r.uri);
           const uri = await this.encryptService.decryptToUtf8(encrypted, key);

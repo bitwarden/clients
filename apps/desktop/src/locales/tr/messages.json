@@ -543,10 +543,6 @@
     "message": "Özel karakterleri dahil et",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Kelime sayısı"
   },
@@ -652,6 +648,15 @@
   "logInToBitwarden": {
     "message": "Bitwarden'a giriş yapın"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "E-posta adresinize gönderilen kodu girin"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Kimlik doğrulama uygulamanızdaki kodu girin"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
   "logInWithPasskey": {
     "message": "Geçiş anahtarıyla giriş yap"
   },
@@ -704,6 +709,15 @@
   "masterPassHintLabel": {
     "message": "Ana parola ipucu"
   },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Kuruluşa katıl"
   },
@@ -733,12 +747,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Hesabınızın e-posta adresini girdiğinizde parola ipucunuz size gönderilecektir"
-  },
-  "passwordHint": {
-    "message": "Parola ipucu"
-  },
-  "enterEmailToGetHint": {
-    "message": "Ana parola ipucunu almak için hesabınızın e-posta adresini girin."
   },
   "getMasterPasswordHint": {
     "message": "Ana parola ipucunu al"
@@ -816,23 +824,14 @@
   "webauthnCancelOrTimeout": {
     "message": "Kimlik doğrulama iptal edildi ve çok uzun sürdü. Lütfen yeniden deneyin."
   },
+  "openInNewTab": {
+    "message": "Yeni sekmede aç"
+  },
   "invalidVerificationCode": {
     "message": "Geçersiz doğrulama kodu"
   },
   "continue": {
     "message": "Devam Et"
-  },
-  "enterVerificationCodeApp": {
-    "message": "Kimlik doğrulayıcı uygulamanızdaki 6 haneli doğrulama kodunu girin."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "$EMAIL$ adresine e-postalanan 6 haneli doğrulama kodunu girin.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Doğrulama e-postası $EMAIL$ 'e gönderildi.",
@@ -843,17 +842,15 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Beni hatırla"
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
   },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Doğrulama kodunu yeniden e-postala"
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
   },
-  "useAnotherTwoStepMethod": {
-    "message": "Başka bir iki aşamalı giriş yöntemini kullan"
-  },
-  "insertYubiKey": {
-    "message": "YubiKey'i bilgisayarınızın USB portuna takın, ardından düğmesine dokunun."
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertU2f": {
     "message": "Güvenlik anahtarınızı bilgisayarınızın USB portuna takın. Bir düğmesi varsa dokunun."
@@ -885,7 +882,7 @@
     "message": "Kuruluşunuzun Duo Security doğrulaması için Duo Mobile uygulaması, SMS, telefon görüşmesi veya U2F güvenlik anahtarını kullanın.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Kimliğinizi doğrulayın"
   },
   "weDontRecognizeThisDevice": {
@@ -918,11 +915,11 @@
   "twoStepOptions": {
     "message": "İki aşamalı giriş seçenekleri"
   },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
+  },
   "selfHostedEnvironment": {
     "message": "Şirket içinde barındırılan ortam"
-  },
-  "selfHostedEnvironmentFooter": {
-    "message": "Kurum içi barındırılan Bitwarden kurulumunuzun taban URL'sini belirtin."
   },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
@@ -935,9 +932,6 @@
   },
   "customEnvironment": {
     "message": "Özel ortam"
-  },
-  "customEnvironmentFooter": {
-    "message": "Üst düzey kullanıcılar için. Her servisin taban URL'sini bağımsız olarak belirleyebilirsiniz."
   },
   "baseUrl": {
     "message": "Sunucu URL'si"
@@ -978,6 +972,9 @@
   },
   "no": {
     "message": "Hayır"
+  },
+  "location": {
+    "message": "Konum"
   },
   "overwritePassword": {
     "message": "Parolanın üzerine yaz"
@@ -1775,6 +1772,9 @@
   "requirePasswordOnStart": {
     "message": "Uygulamayı başlatırken parola veya PIN iste"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Uygulamayı başlatırken parola iste"
+  },
   "recommendedForSecurity": {
     "message": "Güvenliğiniz için önerilir."
   },
@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Bir kuruluş ilkesi nedeniyle kişisel kasanıza hesap kaydetmeniz kısıtlanmış. Sahip seçeneğini bir kuruluş olarak değiştirin ve mevcut koleksiyonlar arasından seçim yapın."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Parola ipucunuz parolanızla aynı olamaz."
   },
@@ -2243,6 +2246,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "WebAuthn ile doğrula"
+  },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
   },
   "hideEmail": {
     "message": "E-posta adresimi alıcılardan gizle."
@@ -2460,6 +2469,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Yalnızca $EMAIL$ ile ilişkili kişisel kasadaki kayıtlar ve dosyalar dışa aktarılacaktır. Kuruluş kasasındaki kayıtlar dahil edilmeyecektir",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Kuruluş kasasını dışa aktarma"
   },
@@ -2640,6 +2658,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Unable to obtain $SERVICENAME$ masked email account ID.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -2718,14 +2760,8 @@
   "loginWithMasterPassword": {
     "message": "Ana parola ile giriş yap"
   },
-  "loggingInAs": {
-    "message": "Giriş yapılan kullanıcı:"
-  },
   "rememberEmail": {
     "message": "E-postayı hatırla"
-  },
-  "notYou": {
-    "message": "Siz değil misiniz?"
   },
   "newAroundHere": {
     "message": "Buralarda yeni misiniz?"
@@ -2966,9 +3002,6 @@
   "requestAdminApproval": {
     "message": "Yönetici onayı iste"
   },
-  "approveWithMasterPassword": {
-    "message": "Ana parola ile onayla"
-  },
   "region": {
     "message": "Bölge"
   },
@@ -2993,9 +3026,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "İsteğiniz yöneticinize gönderildi."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Onaylandıktan sonra bilgilendirileceksiniz."
   },
   "troubleLoggingIn": {
     "message": "Giriş yaparken sorun mu yaşıyorsunuz?"
@@ -3173,11 +3203,14 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Duo'yu açın ve girişi tamamlamak için adımları izleyin."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Hesabınız için Duo iki adımlı giriş gereklidir."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
   },
   "launchDuo": {
     "message": "Duo'yu tarayıcıda aç"
@@ -3436,14 +3469,29 @@
   "sshkeyApprovalTitle": {
     "message": "Confirm SSH key usage"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Warning: Agent Forwarding"
+  },
+  "agentForwardingWarningText": {
+    "message": "This request comes from a remote device that you are logged into"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "is requesting access to"
   },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "in order to"
+  },
+  "sshActionLogin": {
+    "message": "authenticate to a server"
+  },
+  "sshActionSign": {
+    "message": "sign a message"
+  },
+  "sshActionGitSign": {
+    "message": "sign a git commit"
+  },
   "unknownApplication": {
     "message": "An application"
-  },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
   },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
@@ -3454,7 +3502,7 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
@@ -3496,19 +3544,28 @@
   "changeAcctEmail": {
     "message": "Hesap e-postasını değiştir"
   },
-  "organizationUpgradeRequired": {
-    "message": "Organization upgrade required"
+  "allowScreenshots": {
+    "message": "Ekran kaydına izin ver"
   },
-  "upgradeOrganization": {
-    "message": "Upgrade organization"
+  "allowScreenshotsDesc": {
+    "message": "Allow the Bitwarden desktop application to be captured in screenshots and viewed in remote desktop sessions. Disabling this will prevent access on some external displays."
   },
-  "upgradeOrganizationDesc": {
-    "message": "This feature is not available for free organizations. Switch to a paid plan to unlock more features."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Confirm window still visible"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Please confirm that the window is still visible."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Uzantıyı güncellemeniz gerekiyor"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Kullandığınız tarayı uzantısı eskimiş. Lütfen uzantıyı güncelleyin veya masaüstü uygulamasının ayarlarından parmak izi doğrulaması için tarayıcı entegrasyonunu kapatın."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Taşı"
   }
 }
