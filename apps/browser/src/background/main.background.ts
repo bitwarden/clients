@@ -1419,7 +1419,7 @@ export default class MainBackground {
           this.taskService.listenForTaskNotifications();
         }
 
-        if (await this.configService.getFeatureFlag(FeatureFlag.SecurityTasks)) {
+        if (await this.configService.getFeatureFlag(FeatureFlag.EndUserNotifications)) {
           this.endUserNotificationService.listenForEndUserNotifications();
         }
         resolve();

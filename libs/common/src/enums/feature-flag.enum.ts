@@ -56,6 +56,7 @@ export enum FeatureFlag {
   VaultBulkManagementAction = "vault-bulk-management-action",
   SecurityTasks = "security-tasks",
   CipherKeyEncryption = "cipher-key-encryption",
+  EndUserNotifications = "pm-10609-end-user-notifications",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -107,6 +108,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.VaultBulkManagementAction]: FALSE,
   [FeatureFlag.SecurityTasks]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
+  [FeatureFlag.EndUserNotifications]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM9112_DeviceApprovalPersistence]: FALSE,
