@@ -3,7 +3,7 @@ export { AngleUp } from "./angle-up";
 export { BrandIconContainer } from "./brand-icon-container";
 export { Business } from "./business";
 export { Close } from "./close";
-export { Collection } from "./collection";
+export { CollectionShared } from "./collection-shared";
 export { ExclamationTriangle } from "./exclamation-triangle";
 export { ExternalLink } from "./external-link";
 export { Family } from "./family";
