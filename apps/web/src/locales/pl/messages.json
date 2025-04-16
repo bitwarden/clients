@@ -3323,6 +3323,12 @@
   "externalIdDesc": {
     "message": "Zewnętrzny identyfikator może zostać użyty jako odniesienie lub połączenie tego zasobu z zewnętrznym systemem, takim jak katalog użytkowników."
   },
+  "ssoExternalId": {
+    "message": "Zewnętrzny identyfikator SSO"
+  },
+  "ssoExternalIdDesc": {
+    "message": "Zewnętrzny identyfikator SSO jest niezaszyfrowanym odniesieniem między Bitwarden a Twoim skonfigurowanym dostawcą SSO."
+  },
   "nestCollectionUnder": {
     "message": "Zagnieźdź kolekcję pod"
   },
@@ -5685,6 +5691,9 @@
   "webAuthnSuccess": {
     "message": "Uwierzytelnianie WebAuthn zostało zweryfikowane! Możesz zamknąć tę kartę."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Twoje nowe hasło nie może być takie samo jak Twoje aktualne hasło."
+  },
   "hintEqualsPassword": {
     "message": "Podpowiedź do hasła nie może być taka sama jak hasło."
   },
@@ -5879,6 +5888,9 @@
   },
   "fingerprint": {
     "message": "Unikalny identyfikator konta"
+  },
+  "fingerprintPhrase": {
+    "message": "Fraza odcisku palca:"
   },
   "removeUsers": {
     "message": "Usuń użytkowników"
@@ -10330,6 +10342,33 @@
   "organizationNameMaxLength": {
     "message": "Nazwa organizacji nie może przekraczać 50 znaków."
   },
+  "rotationCompletedTitle": {
+    "message": "Rotacja klucza powiodło się"
+  },
+  "rotationCompletedDesc": {
+    "message": "Twoje hasło główne i klucze szyfrowania zostały zaktualizowane. Twoje inne urządzenia zostały wylogowane."
+  },
+  "trustUserEmergencyAccess": {
+    "message": "Zaufaj i potwierdź użytkownika"
+  },
+  "trustOrganization": {
+    "message": "Zaufaj organizacji"
+  },
+  "trust": {
+    "message": "Zaufaj"
+  },
+  "doNotTrust": {
+    "message": "Nie ufaj"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Dla bezpieczeństwa Twojego konta potwierdź tylko, jeśli przyznano temu użytkownikowi dostęp awaryjny i jego odcisk palca pasuje do tego, co widnieje na jego koncie"
+  },
+  "orgTrustWarning": {
+    "message": "Dla zapewnienia bezpieczeństwa konta kontynuuj tylko wtedy, gdy jesteś członkiem tej organizacji, włączono odzyskiwanie konta, a odcisk palca wyświetlany poniżej pasuje do odcisku palca organizacji."
+  },
+  "trustUser": {
+    "message": "Zaufaj użytkownikowi"
+  },
   "sshKeyWrongPassword": {
     "message": "Wprowadzone hasło jest nieprawidłowe."
   },
@@ -10499,6 +10538,30 @@
   "assignedExceedsAvailable": {
     "message": "Przydzielone miejsca przekraczają dostępne miejsca."
   },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "Fraza odcisku palca dla $NUM_USERS$ kontaktów, dla których włączono dostęp awaryjny.",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "Fraza odcisku palca dla organizacji $ORG_NAME$ dla której włączyłeś odzyskiwanie konta.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "Rotacja kluczy szyfrowania będzie wymagała zaufanych kluczy każdej organizacji, która może odzyskać Twoje konto oraz wszystkich kontaktów, które mają udostępniony dostęp awaryjny. Aby kontynuować, upewnij się, że możesz zweryfikować następujące elementy:"
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "Niezaufane klucze szyfrowania"
+  },
   "changeAtRiskPassword": {
     "message": "Zmień hasło zagrożone"
   },
@@ -10528,5 +10591,14 @@
   },
   "cannotCreateCollection": {
     "message": "Darmowe organizacje mogą posiadać maksymalnie 2 kolekcje. Aby dodać więcej kolekcji, przejdź na plan płatny."
+  },
+  "businessUnit": {
+    "message": "Jednostka Biznesowa"
+  },
+  "businessUnits": {
+    "message": "Jednostki Biznesowe"
+  },
+  "newBusinessUnit": {
+    "message": "Nowa jednostka biznesowa"
   }
 }
