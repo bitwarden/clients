@@ -4,7 +4,7 @@ import { html, TemplateResult } from "lit";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { themes } from "../../../content/components/constants/styles";
-import { Business, Users } from "../../../content/components/icons";
+import { Business, Family } from "../../../content/components/icons";
 
 import { OrganizationCategories, OrganizationCategory } from "./types";
 
@@ -13,7 +13,7 @@ const cipherIndicatorIconsMap: Record<
   (args: { color: string; theme: Theme }) => TemplateResult
 > = {
   [OrganizationCategories.business]: Business,
-  [OrganizationCategories.family]: Users,
+  [OrganizationCategories.family]: Family,
 };
 
 export function CipherInfoIndicatorIcons({
