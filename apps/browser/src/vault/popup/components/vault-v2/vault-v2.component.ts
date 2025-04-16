@@ -19,7 +19,6 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -93,7 +92,6 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   VaultNudgeType = VaultNudgeType;
   cipherType = CipherType;
-  hasVaultNudgeFlag: boolean = false;
   showEmptyVaultNudge$: Observable<boolean> = new Observable();
   showHasItemsVaultNudge$: Observable<boolean> = new Observable();
   activeUserId: UserId | null = null;
@@ -146,7 +144,6 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private dialogService: DialogService,
     private vaultCopyButtonsService: VaultPopupCopyButtonsService,
     private introCarouselService: IntroCarouselService,
-    private configService: ConfigService,
     private vaultNudgesService: VaultNudgesService,
     private router: Router,
   ) {
@@ -187,20 +184,16 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   async ngOnInit() {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    this.hasVaultNudgeFlag = await this.configService.getFeatureFlag(
-      FeatureFlag.PM8851_BrowserOnboardingNudge,
+
+    this.showEmptyVaultNudge$ = this.vaultNudgesService.showNudge$(
+      VaultNudgeType.EmptyVaultNudge,
+      this.activeUserId,
     );
-    if (this.hasVaultNudgeFlag) {
-      this.showEmptyVaultNudge$ = this.vaultNudgesService.showNudge$(
-        VaultNudgeType.EmptyVaultNudge,
-        this.activeUserId,
-      );
-      this.showHasItemsVaultNudge$ = this.vaultNudgesService.showNudge$(
-        VaultNudgeType.HasVaultItems,
-        this.activeUserId,
-      );
-      await this.introCarouselService.setIntroCarouselDismissed();
-    }
+    this.showHasItemsVaultNudge$ = this.vaultNudgesService.showNudge$(
+      VaultNudgeType.HasVaultItems,
+      this.activeUserId,
+    );
+    await this.introCarouselService.setIntroCarouselDismissed();
 
     this.cipherService
       .failedToDecryptCiphers$(this.activeUserId)

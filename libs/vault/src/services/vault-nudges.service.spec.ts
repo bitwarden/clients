@@ -2,6 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
@@ -15,6 +16,10 @@ describe("Vault Nudges Service", () => {
   let fakeStateProvider: FakeStateProvider;
 
   let testBed: TestBed;
+  const mockConfigService = {
+    getFeatureFlag$: jest.fn().mockReturnValue(of(true)),
+    getFeatureFlag: jest.fn().mockReturnValue(true),
+  };
 
   beforeEach(async () => {
     fakeStateProvider = new FakeStateProvider(mockAccountServiceWith("user-id" as UserId));
@@ -32,6 +37,7 @@ describe("Vault Nudges Service", () => {
           provide: StateProvider,
           useValue: fakeStateProvider,
         },
+        { provide: ConfigService, useValue: mockConfigService },
         {
           provide: HasItemsNudgeService,
           useValue: mock<HasItemsNudgeService>(),

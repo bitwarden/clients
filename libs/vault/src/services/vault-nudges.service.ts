@@ -1,5 +1,8 @@
 import { inject, Injectable } from "@angular/core";
+import { of, switchMap } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserKeyDefinition, VAULT_NUDGES_DISK } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
@@ -48,6 +51,7 @@ export class VaultNudgesService {
    * @private
    */
   private defaultNudgeService = inject(DefaultSingleNudgeService);
+  private configService = inject(ConfigService);
 
   private getNudgeService(nudge: VaultNudgeType): SingleNudgeService {
     return this.customNudgeServices[nudge] ?? this.defaultNudgeService;
@@ -59,7 +63,14 @@ export class VaultNudgesService {
    * @param userId
    */
   showNudge$(nudge: VaultNudgeType, userId: UserId) {
-    return this.getNudgeService(nudge).shouldShowNudge$(nudge, userId);
+    return this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge).pipe(
+      switchMap((hasVaultNudgeFlag) => {
+        if (!hasVaultNudgeFlag) {
+          return of(false);
+        }
+        return this.getNudgeService(nudge).shouldShowNudge$(nudge, userId);
+      }),
+    );
   }
 
   /**
@@ -67,7 +78,12 @@ export class VaultNudgesService {
    * @param nudge
    * @param userId
    */
-  dismissNudge(nudge: VaultNudgeType, userId: UserId) {
-    return this.getNudgeService(nudge).setNudgeStatus(nudge, true, userId);
+  async dismissNudge(nudge: VaultNudgeType, userId: UserId) {
+    const hasVaultNudgeFlag = await this.configService.getFeatureFlag(
+      FeatureFlag.PM8851_BrowserOnboardingNudge,
+    );
+    if (hasVaultNudgeFlag) {
+      await this.getNudgeService(nudge).setNudgeStatus(nudge, true, userId);
+    }
   }
 }
