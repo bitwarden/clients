@@ -126,9 +126,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
   }
 
   async ngOnChanges() {
-    await super.load();
-
-    if (this.cipher.decryptionFailure) {
+    if (this.cipher?.decryptionFailure) {
       DecryptionFailureDialogComponent.open(this.dialogService, {
         cipherIds: [this.cipherId as CipherId],
       });

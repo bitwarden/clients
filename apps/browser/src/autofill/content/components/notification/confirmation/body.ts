@@ -4,7 +4,7 @@ import { html, nothing } from "lit";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { themes } from "../../constants/styles";
-import { PartyHorn, Keyhole, Warning } from "../../icons";
+import { Celebrate, Keyhole, Warning } from "../../illustrations";
 
 import { NotificationConfirmationMessage } from "./message";
 
@@ -33,7 +33,7 @@ export function NotificationConfirmationBody({
   theme,
   handleOpenVault,
 }: NotificationConfirmationBodyProps) {
-  const IconComponent = tasksAreComplete ? Keyhole : !error ? PartyHorn : Warning;
+  const IconComponent = tasksAreComplete ? Keyhole : !error ? Celebrate : Warning;
 
   const showConfirmationMessage = confirmationMessage || buttonText || messageDetails;
 

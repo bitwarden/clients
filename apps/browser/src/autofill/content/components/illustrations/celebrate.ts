@@ -5,16 +5,10 @@ import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { IconProps } from "../common-types";
 
 // This icon has static multi-colors for each theme
-export function PartyHorn({ theme }: IconProps) {
+export function Celebrate({ theme }: IconProps) {
   if (theme === ThemeTypes.Dark) {
     return html`
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="50"
-        height="50"
-        viewBox="0 0 50 50"
-        fill="none"
-      >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" fill="none">
         <path
           d="M32.6273 37.2714L3.88045 49.2492C2.98525 49.6222 1.95344 49.4181 1.26769 48.7323C0.581933 48.0466 0.377816 47.0148 0.750816 46.1196L12.7287 17.3728C13.622 15.2288 15.9911 14.1069 18.2158 14.7743L19.0257 15.0173C26.6887 17.3161 32.6839 23.3113 34.9828 30.9743L35.2257 31.7842C35.8931 34.0089 34.7712 36.3781 32.6273 37.2714Z"
           fill="#FFBF00"
@@ -142,7 +136,7 @@ export function PartyHorn({ theme }: IconProps) {
   }
 
   return html`
-    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50" fill="none">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" fill="none">
       <path
         d="M32.6275 37.2714L3.88069 49.2492C2.98549 49.6222 1.95368 49.4181 1.26793 48.7323C0.582178 48.0466 0.37806 47.0148 0.751061 46.1196L12.7289 17.3728C13.6222 15.2288 15.9914 14.1069 18.216 14.7743L19.026 15.0173C26.6889 17.3161 32.6841 23.3113 34.983 30.9743L35.226 31.7842C35.8934 34.0089 34.7714 36.3781 32.6275 37.2714Z"
         fill="#FFBF00"
