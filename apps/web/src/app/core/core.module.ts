@@ -54,6 +54,7 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
@@ -61,7 +62,6 @@ import {
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import {
   EnvironmentService,
   Urls,
@@ -75,6 +75,7 @@ import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sd
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 // eslint-disable-next-line no-restricted-imports -- Needed for DI
 import {
   UnsupportedWebPushConnectionService,
@@ -122,9 +123,11 @@ import { WebSsoComponentService } from "../auth/core/services/login/web-sso-comp
 import { AcceptOrganizationInviteService } from "../auth/organization-invite/accept-organization.service";
 import { HtmlStorageService } from "../core/html-storage.service";
 import { I18nService } from "../core/i18n.service";
+import { WebFileDownloadService } from "../core/web-file-download.service";
 import { WebLockComponentService } from "../key-management/lock/services/web-lock-component.service";
 import { WebProcessReloadService } from "../key-management/services/web-process-reload.service";
 import { WebBiometricsService } from "../key-management/web-biometric.service";
+import { WebIpcService } from "../platform/ipc/web-ipc.service";
 import { WebEnvironmentService } from "../platform/web-environment.service";
 import { WebMigrationRunner } from "../platform/web-migration-runner";
 import { WebSdkLoadService } from "../platform/web-sdk-load.service";
@@ -135,7 +138,6 @@ import { InitService } from "./init.service";
 import { ENV_URLS } from "./injection-tokens";
 import { ModalService } from "./modal.service";
 import { RouterService } from "./router.service";
-import { WebFileDownloadService } from "./web-file-download.service";
 import { WebPlatformUtilsService } from "./web-platform-utils.service";
 
 /**
@@ -367,6 +369,11 @@ const safeProviders: SafeProvider[] = [
     provide: LoginDecryptionOptionsService,
     useClass: WebLoginDecryptionOptionsService,
     deps: [MessagingService, RouterService, AcceptOrganizationInviteService],
+  }),
+  safeProvider({
+    provide: IpcService,
+    useClass: WebIpcService,
+    deps: [],
   }),
   safeProvider({
     provide: SshImportPromptService,

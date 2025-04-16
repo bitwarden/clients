@@ -62,14 +62,15 @@ const optionItemStyles = css`
 `;
 
 const optionItemIconContainerStyles = css`
+  display: flex;
   flex-grow: 1;
   flex-shrink: 1;
-  width: ${optionItemIconWidth}px;
-  height: ${optionItemIconWidth}px;
+  max-width: ${optionItemIconWidth}px;
+  max-height: ${optionItemIconWidth}px;
 
   > svg {
     width: 100%;
-    height: fit-content;
+    height: auto;
   }
 `;
 

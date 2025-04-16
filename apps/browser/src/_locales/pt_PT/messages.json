@@ -1098,6 +1098,31 @@
     "message": "Credencial atualizada",
     "description": "Message displayed when login details are successfully updated."
   },
+  "loginUpdateTaskSuccess": {
+    "message": "Excelente trabalho! Tomou as medidas necessárias para o tornar a si e à sua $ORGANIZATION$ mais seguros.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Obrigado por tornar a $ORGANIZATION$ mais segura. Tem mais $TASK_COUNT$ palavras-passe para atualizar.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Alterar a palavra-passe seguinte",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
   "saveFailure": {
     "message": "Erro ao guardar",
     "description": "Error message shown when the system fails to save login details."
@@ -2296,6 +2321,9 @@
   },
   "privacyPolicy": {
     "message": "Política de privacidade"
+  },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "A sua nova palavra-passe não pode ser igual à sua palavra-passe atual."
   },
   "hintEqualsPassword": {
     "message": "A dica da sua palavra-passe não pode ser igual à sua palavra-passe."
@@ -5140,5 +5168,32 @@
   },
   "changeAtRiskPassword": {
     "message": "Alterar palavra-passe em risco"
+  },
+  "introCarouselLabel": {
+    "message": "Bem-vindo ao Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Segurança, com prioridade"
+  },
+  "securityPrioritizedBody": {
+    "message": "Guarde credenciais, cartões e identidades no seu cofre seguro. O Bitwarden utiliza encriptação de ponto a ponto e conhecimento zero para proteger o que é importante para si."
+  },
+  "quickLogin": {
+    "message": "Início de sessão rápido e fácil"
+  },
+  "quickLoginBody": {
+    "message": "Configure o desbloqueio biométrico e o preenchimento automático para iniciar sessão nas suas contas sem escrever uma única letra."
+  },
+  "secureUser": {
+    "message": "Eleve o nível das suas credenciais"
+  },
+  "secureUserBody": {
+    "message": "Utilize o gerador para criar e guardar palavras-passe fortes e únicas para todas as suas contas."
+  },
+  "secureDevices": {
+    "message": "Os seus dados, quando e onde precisar"
+  },
+  "secureDevicesBody": {
+    "message": "Guarde palavras-passe ilimitadas em dispositivos ilimitados com as apps Bitwarden para telemóvel, navegador e computador."
   }
 }
