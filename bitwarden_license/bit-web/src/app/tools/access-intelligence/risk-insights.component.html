@@ -8,6 +8,7 @@
       {{ "reviewAtRiskPasswords" | i18n }}
     </div>
     <div
+      *ngIf="dataLastUpdated$ | async"
       class="tw-bg-primary-100 tw-rounded-lg tw-w-full tw-px-8 tw-py-4 tw-my-4 tw-flex tw-items-center"
     >
       <i

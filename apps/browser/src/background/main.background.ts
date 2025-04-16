@@ -1186,6 +1186,17 @@ export default class MainBackground {
       this.authService,
       () => this.generatePasswordToClipboard(),
     );
+
+    this.taskService = new DefaultTaskService(
+      this.stateProvider,
+      this.apiService,
+      this.organizationService,
+      this.configService,
+      this.authService,
+      this.notificationsService,
+      messageListener,
+    );
+
     this.notificationBackground = new NotificationBackground(
       this.accountService,
       this.authService,
@@ -1201,6 +1212,8 @@ export default class MainBackground {
       this.policyService,
       this.themeStateService,
       this.userNotificationSettingsService,
+      this.taskService,
+      this.messagingService,
     );
 
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(
@@ -1303,16 +1316,6 @@ export default class MainBackground {
       this.organizationService,
       this.accountService,
       this.configService,
-    );
-
-    this.taskService = new DefaultTaskService(
-      this.stateProvider,
-      this.apiService,
-      this.organizationService,
-      this.configService,
-      this.authService,
-      this.notificationsService,
-      messageListener,
     );
 
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
