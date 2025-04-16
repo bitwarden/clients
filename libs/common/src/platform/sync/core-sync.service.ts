@@ -105,14 +105,14 @@ export abstract class CoreSyncService implements SyncService {
           if (remoteFolder != null) {
             await this.folderService.upsert(new FolderData(remoteFolder), userId);
             this.messageSender.send("syncedUpsertedFolder", { folderId: notification.id });
-            return this.syncCompleted(true);
+            return this.syncCompleted(true, userId);
           }
         }
       } catch (e) {
         this.logService.error(e);
       }
     }
-    return this.syncCompleted(false);
+    return this.syncCompleted(false, userId);
   }
 
   async syncDeleteFolder(notification: SyncFolderNotification, userId: UserId): Promise<boolean> {
@@ -123,10 +123,10 @@ export abstract class CoreSyncService implements SyncService {
     if (authStatus >= AuthenticationStatus.Locked) {
       await this.folderService.delete(notification.id, userId);
       this.messageSender.send("syncedDeletedFolder", { folderId: notification.id });
-      this.syncCompleted(true);
+      this.syncCompleted(true, userId);
       return true;
     }
-    return this.syncCompleted(false);
+    return this.syncCompleted(false, userId);
   }
 
   async syncUpsertCipher(
@@ -183,18 +183,18 @@ export abstract class CoreSyncService implements SyncService {
           if (remoteCipher != null) {
             await this.cipherService.upsert(new CipherData(remoteCipher));
             this.messageSender.send("syncedUpsertedCipher", { cipherId: notification.id });
-            return this.syncCompleted(true);
+            return this.syncCompleted(true, userId);
           }
         }
       } catch (e) {
         if (e != null && e.statusCode === 404 && isEdit) {
           await this.cipherService.delete(notification.id, userId);
           this.messageSender.send("syncedDeletedCipher", { cipherId: notification.id });
-          return this.syncCompleted(true);
+          return this.syncCompleted(true, userId);
         }
       }
     }
-    return this.syncCompleted(false);
+    return this.syncCompleted(false, userId);
   }
 
   async syncDeleteCipher(notification: SyncCipherNotification, userId: UserId): Promise<boolean> {
@@ -204,9 +204,9 @@ export abstract class CoreSyncService implements SyncService {
     if (authStatus >= AuthenticationStatus.Locked) {
       await this.cipherService.delete(notification.id, userId);
       this.messageSender.send("syncedDeletedCipher", { cipherId: notification.id });
-      return this.syncCompleted(true);
+      return this.syncCompleted(true, userId);
     }
-    return this.syncCompleted(false);
+    return this.syncCompleted(false, userId);
   }
 
   async syncUpsertSend(notification: SyncSendNotification, isEdit: boolean): Promise<boolean> {
@@ -234,14 +234,15 @@ export abstract class CoreSyncService implements SyncService {
           if (remoteSend != null) {
             await this.sendService.upsert(new SendData(remoteSend));
             this.messageSender.send("syncedUpsertedSend", { sendId: notification.id });
-            return this.syncCompleted(true);
+            return this.syncCompleted(true, activeUserId);
           }
         }
       } catch (e) {
         this.logService.error(e);
       }
     }
-    return this.syncCompleted(false);
+    // TODO: Update syncCompleted userId when send service allows modification of non-active users
+    return this.syncCompleted(false, undefined);
   }
 
   async syncDeleteSend(notification: SyncSendNotification): Promise<boolean> {
@@ -249,10 +250,11 @@ export abstract class CoreSyncService implements SyncService {
     if (await this.stateService.getIsAuthenticated()) {
       await this.sendService.delete(notification.id);
       this.messageSender.send("syncedDeletedSend", { sendId: notification.id });
-      this.syncCompleted(true);
+      // TODO: Update syncCompleted userId when send service allows modification of non-active users
+      this.syncCompleted(true, undefined);
       return true;
     }
-    return this.syncCompleted(false);
+    return this.syncCompleted(false, undefined);
   }
 
   // Helpers
@@ -262,9 +264,9 @@ export abstract class CoreSyncService implements SyncService {
     this.messageSender.send("syncStarted");
   }
 
-  protected syncCompleted(successfully: boolean): boolean {
+  protected syncCompleted(successfully: boolean, userId: UserId | undefined): boolean {
     this.syncInProgress = false;
-    this.messageSender.send("syncCompleted", { successfully: successfully });
+    this.messageSender.send("syncCompleted", { successfully: successfully, userId });
     return successfully;
   }
 }

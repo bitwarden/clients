@@ -649,7 +649,7 @@
     "message": "Σύνδεση στο Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Εισάγετε τον κωδικό που στάλθηκε στο email σας"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
     "message": "Enter the code from your authenticator app"
@@ -2071,6 +2071,9 @@
   },
   "personalOwnershipSubmitError": {
     "message": "Λόγω μιας επιχειρηματικής πολιτικής, περιορίζεστε από την αποθήκευση αντικειμένων στο ατομικό σας θησαυ/κιό. Αλλάξτε την επιλογή ιδιοκτησίας σε έναν οργανισμό και επιλέξτε από τις διαθέσιμες συλλογές."
+  },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
   },
   "hintEqualsPassword": {
     "message": "Η υπόδειξη κωδικού πρόσβασης, δεν μπορεί να είναι η ίδια με τον κωδικό πρόσβασης σας."

@@ -239,6 +239,7 @@ export class ImportService implements ImportServiceAbstraction {
         return new PadlockCsvImporter();
       case "keepass2xml":
         return new KeePass2XmlImporter();
+      case "edgecsv":
       case "chromecsv":
       case "operacsv":
       case "vivaldicsv":

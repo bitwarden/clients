@@ -1,0 +1,26 @@
+<bit-dialog dialogSize="large">
+  <span bitDialogTitle>
+    <strong> {{ "userkeyRotationDisclaimerTitle" | i18n }} </strong>
+  </span>
+  <span bitDialogContent>
+    {{ "userkeyRotationDisclaimerDescription" | i18n }}
+    <ul class="tw-mt-2 tw-mb-0 tw-pl-4">
+      <li *ngIf="params.orgName != null">
+        {{ "userkeyRotationDisclaimerAccountRecoveryOrgsText" | i18n: params.orgName }}
+      </li>
+      <li *ngIf="params.numberOfEmergencyAccessUsers > 0">
+        {{
+          "userkeyRotationDisclaimerEmergencyAccessText" | i18n: params.numberOfEmergencyAccessUsers
+        }}
+      </li>
+    </ul>
+  </span>
+  <ng-container bitDialogFooter>
+    <a bitButton target="_blank" rel="noreferrer" buttonType="primary" (click)="submit()">
+      {{ "continue" | i18n }}
+    </a>
+    <button bitButton type="button" buttonType="secondary" bitDialogClose>
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

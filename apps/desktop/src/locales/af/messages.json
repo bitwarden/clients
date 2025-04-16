@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Weens ’n ondernemingsbeleid mag u geen wagwoorde in u persoonlike kluis bewaar nie. Verander die eienaarskap na ’n organisasie en kies uit ’n van die beskikbare versamelings."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "U wagwoordwenk kan nie dieselfde as u wagwoord wees nie."
   },
