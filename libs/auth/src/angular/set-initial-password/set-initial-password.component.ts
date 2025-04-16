@@ -11,10 +11,11 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
-import { ToastService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import {
   InputPasswordComponent,
@@ -47,8 +48,10 @@ export class SetInitialPasswordComponent implements OnInit {
   constructor(
     private accountService: AccountService,
     private activatedRoute: ActivatedRoute,
+    private dialogService: DialogService,
     private i18nService: I18nService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    private messagingService: MessagingService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private policyApiService: PolicyApiServiceAbstraction,
     private router: Router,
@@ -133,5 +136,18 @@ export class SetInitialPasswordComponent implements OnInit {
     this.submitting = false;
 
     await this.router.navigate(["vault"]);
+  }
+
+  protected async logout() {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "logOut" },
+      content: { key: "logOutConfirmation" },
+      acceptButtonText: { key: "logOut" },
+      type: "warning",
+    });
+
+    if (confirmed) {
+      this.messagingService.send("logout");
+    }
   }
 }
