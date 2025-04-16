@@ -129,13 +129,6 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Check out Server repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          path: server
-          repository: bitwarden/server
-          ref: ${{ github.event.pull_request.head.sha && 'main' || github.ref }}
-
       - name: Check Branch to Publish
         env:
           PUBLISH_BRANCHES: "main,rc,hotfix-rc-web"
@@ -156,7 +149,7 @@ jobs:
           VERSION=$( jq -r ".version" package.json)
           jq --arg version "$VERSION+${GITHUB_SHA:0:7}" '.version = $version' package.json > package.json.tmp
           mv package.json.tmp package.json
-      
+
       ########## Set up Docker ##########
       - name: Set up Docker
         uses: docker/setup-docker-action@b60f85385d03ac8acfca6d9996982511d8620a19 # v4.3.0
@@ -300,7 +293,7 @@ jobs:
       - name: Log out of Docker
         run: docker logout $_AZ_REGISTRY
 
-  
+
   crowdin-push:
     name: Crowdin Push
     if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
