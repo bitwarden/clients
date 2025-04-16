@@ -43,26 +43,23 @@ const createIconStory = (iconName: keyof typeof Icons): StoryObj<Args> => {
     render: (args) => Template(args, Icons[iconName]),
   } as StoryObj<Args>;
 
-  if (iconName !== "BrandIconContainer") {
-    story.argTypes = {
-      iconLink: { table: { disable: true } },
-    };
-  }
+  story.argTypes = {
+    iconLink: { table: { disable: true } },
+  };
 
   return story;
 };
 
 export const AngleDownIcon = createIconStory("AngleDown");
 export const AngleUpIcon = createIconStory("AngleUp");
-export const BrandIcon = createIconStory("BrandIconContainer");
 export const BusinessIcon = createIconStory("Business");
 export const CloseIcon = createIconStory("Close");
-export const CollectionIcon = createIconStory("Collection");
+export const CollectionSharedIcon = createIconStory("CollectionShared");
 export const ExclamationTriangleIcon = createIconStory("ExclamationTriangle");
 export const ExternalLinkIcon = createIconStory("ExternalLink");
+export const FamilyIcon = createIconStory("Family");
 export const FolderIcon = createIconStory("Folder");
 export const GlobeIcon = createIconStory("Globe");
 export const PencilSquareIcon = createIconStory("PencilSquare");
 export const ShieldIcon = createIconStory("Shield");
 export const UserIcon = createIconStory("User");
-export const UsersIcon = createIconStory("Users");

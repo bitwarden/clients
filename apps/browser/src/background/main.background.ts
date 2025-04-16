@@ -245,7 +245,6 @@ import WebRequestBackground from "../autofill/background/web-request.background"
 import { CipherContextMenuHandler } from "../autofill/browser/cipher-context-menu-handler";
 import { ContextMenuClickedHandler } from "../autofill/browser/context-menu-clicked-handler";
 import { MainContextMenuHandler } from "../autofill/browser/main-context-menu-handler";
-import LegacyOverlayBackground from "../autofill/deprecated/background/overlay.background.deprecated";
 import { Fido2Background as Fido2BackgroundAbstraction } from "../autofill/fido2/background/abstractions/fido2.background";
 import { Fido2Background } from "../autofill/fido2/background/fido2.background";
 import {
@@ -1716,44 +1715,25 @@ export default class MainBackground {
       return;
     }
 
-    const inlineMenuPositioningImprovementsEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.InlineMenuPositioningImprovements,
+    this.overlayBackground = new OverlayBackground(
+      this.logService,
+      this.cipherService,
+      this.autofillService,
+      this.authService,
+      this.environmentService,
+      this.domainSettingsService,
+      this.autofillSettingsService,
+      this.i18nService,
+      this.platformUtilsService,
+      this.vaultSettingsService,
+      this.fido2ActiveRequestManager,
+      this.inlineMenuFieldQualificationService,
+      this.themeStateService,
+      this.totpService,
+      this.accountService,
+      () => this.generatePassword(),
+      (password) => this.addPasswordToHistory(password),
     );
-
-    if (!inlineMenuPositioningImprovementsEnabled) {
-      this.overlayBackground = new LegacyOverlayBackground(
-        this.cipherService,
-        this.autofillService,
-        this.authService,
-        this.environmentService,
-        this.domainSettingsService,
-        this.autofillSettingsService,
-        this.i18nService,
-        this.platformUtilsService,
-        this.themeStateService,
-        this.accountService,
-      );
-    } else {
-      this.overlayBackground = new OverlayBackground(
-        this.logService,
-        this.cipherService,
-        this.autofillService,
-        this.authService,
-        this.environmentService,
-        this.domainSettingsService,
-        this.autofillSettingsService,
-        this.i18nService,
-        this.platformUtilsService,
-        this.vaultSettingsService,
-        this.fido2ActiveRequestManager,
-        this.inlineMenuFieldQualificationService,
-        this.themeStateService,
-        this.totpService,
-        this.accountService,
-        () => this.generatePassword(),
-        (password) => this.addPasswordToHistory(password),
-      );
-    }
 
     this.tabsBackground = new TabsBackground(
       this,
