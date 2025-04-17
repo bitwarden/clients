@@ -25,7 +25,7 @@ export class HasItemsNudgeService extends DefaultSingleNudgeService {
         const profileCreationDate = new Date(userProfile.creationDate);
         const isRecentAcct = profileCreationDate >= thirtyDays;
 
-        if (!isRecentAcct || !nudgeStatus.showBadge || !nudgeStatus.showSpotlight) {
+        if (!isRecentAcct || !nudgeStatus.showSpotlight) {
           return of(nudgeStatus);
         } else {
           return this.cipherService.cipherViews$(userId).pipe(
