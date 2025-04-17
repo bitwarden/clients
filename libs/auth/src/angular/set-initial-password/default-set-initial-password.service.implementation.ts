@@ -60,9 +60,9 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       }
     }
 
-    const protectedUserKey = await this.makeProtectedUserKey(masterKey, userId);
-    if (protectedUserKey == null) {
-      throw new Error("protectedUserKey not found. Could not set password.");
+    const masterKeyEncryptedUserKey = await this.makeProtectedUserKey(masterKey, userId);
+    if (masterKeyEncryptedUserKey == null) {
+      throw new Error("masterKeyEncryptedUserKey not found. Could not set password.");
     }
 
     const forceSetPasswordReason = await firstValueFrom(
@@ -99,11 +99,11 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         // Existing key pair
         keyPair = [
           existingUserPublicKeyB64,
-          await this.encryptService.encrypt(existingUserPrivateKey, protectedUserKey[0]),
+          await this.encryptService.encrypt(existingUserPrivateKey, masterKeyEncryptedUserKey[0]),
         ];
       } else {
         // New key pair
-        keyPair = await this.keyService.makeKeyPair(protectedUserKey[0]);
+        keyPair = await this.keyService.makeKeyPair(masterKeyEncryptedUserKey[0]);
       }
 
       keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
@@ -111,7 +111,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
 
     const request = new SetPasswordRequest(
       serverMasterKeyHash,
-      protectedUserKey[1].encryptedString,
+      masterKeyEncryptedUserKey[1].encryptedString,
       hint,
       orgSsoIdentifier,
       keysRequest,
@@ -125,7 +125,12 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
 
     // User now has a password so update account decryption options in state
-    await this.updateAccountDecryptionProperties(masterKey, kdfConfig, protectedUserKey, userId);
+    await this.updateAccountDecryptionProperties(
+      masterKey,
+      kdfConfig,
+      masterKeyEncryptedUserKey,
+      userId,
+    );
 
     /**
      * Set the private key only for new JIT provisioned users in MP encryption orgs.
