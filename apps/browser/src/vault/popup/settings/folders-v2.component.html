@@ -1,13 +1,7 @@
 <popup-page>
   <popup-header slot="header" [pageTitle]="'folders' | i18n" showBackButton>
     <ng-container slot="end">
-      <button
-        bitButton
-        [buttonSize]="'small'"
-        buttonType="primary"
-        type="button"
-        (click)="openAddEditFolderDialog()"
-      >
+      <button bitButton buttonType="primary" type="button" (click)="openAddEditFolderDialog()">
         <i class="bwi bwi-plus-f" aria-hidden="true"></i>
         {{ "new" | i18n }}
       </button>
