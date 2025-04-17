@@ -49,7 +49,7 @@
         "./github/workflows/release-web.yml",
       ],
       commitMessagePrefix: "[deps] BRE:",
-      addLabels: ["hold"]
+      addLabels: ["hold"],
     },
     {
       // Disable major and minor updates for TypeScript and Zone.js because they are managed by Angular.
