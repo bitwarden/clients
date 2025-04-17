@@ -9,6 +9,11 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { HasItemsNudgeService, EmptyVaultNudgeService } from "./custom-nudges-services";
 import { DefaultSingleNudgeService, SingleNudgeService } from "./default-single-nudge.service";
 
+export type NudgeStatus = {
+  showBadge: boolean;
+  showSpotlight: boolean;
+};
+
 /**
  * Enum to list the various nudge types, to be used by components/badges to show/hide the nudge
  */
@@ -17,19 +22,16 @@ export enum VaultNudgeType {
    * Add future nudges here
    */
   EmptyVaultNudge = "empty-vault-nudge",
-  EmptyVaultBadge = "empty-vault-badge",
   HasVaultItems = "has-vault-items",
   IntroCarouselDismissal = "intro-carousel-dismissal",
 }
 
-export const VAULT_NUDGE_DISMISSED_DISK_KEY = new UserKeyDefinition<VaultNudgeType[]>(
-  VAULT_NUDGES_DISK,
-  "vaultNudgeDismissed",
-  {
-    deserializer: (nudgeDismissed) => nudgeDismissed,
-    clearOn: [], // Do not clear dismissals
-  },
-);
+export const VAULT_NUDGE_DISMISSED_DISK_KEY = new UserKeyDefinition<
+  Partial<Record<VaultNudgeType, NudgeStatus>>
+>(VAULT_NUDGES_DISK, "vaultNudgeDismissed", {
+  deserializer: (nudge) => nudge,
+  clearOn: [], // Do not clear dismissals
+});
 
 @Injectable({
   providedIn: "root",
@@ -66,7 +68,7 @@ export class VaultNudgesService {
     return this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge).pipe(
       switchMap((hasVaultNudgeFlag) => {
         if (!hasVaultNudgeFlag) {
-          return of(false);
+          return of({ showBadge: false, showSpotlight: false } as NudgeStatus);
         }
         return this.getNudgeService(nudge).shouldShowNudge$(nudge, userId);
       }),
@@ -78,12 +80,15 @@ export class VaultNudgesService {
    * @param nudge
    * @param userId
    */
-  async dismissNudge(nudge: VaultNudgeType, userId: UserId) {
+  async dismissNudge(nudge: VaultNudgeType, userId: UserId, onlyBadge: boolean = false) {
     const hasVaultNudgeFlag = await this.configService.getFeatureFlag(
       FeatureFlag.PM8851_BrowserOnboardingNudge,
     );
     if (hasVaultNudgeFlag) {
-      await this.getNudgeService(nudge).setNudgeStatus(nudge, true, userId);
+      const dismissedStatus = onlyBadge
+        ? { showBadge: false, showSpotlight: true }
+        : { showBadge: false, showSpotlight: false };
+      await this.getNudgeService(nudge).setNudgeStatus(nudge, dismissedStatus, userId);
     }
   }
 }

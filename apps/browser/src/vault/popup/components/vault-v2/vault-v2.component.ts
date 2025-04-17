@@ -25,6 +25,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { ButtonModule, DialogService, Icons, NoItemsModule } from "@bitwarden/components";
 import {
   DecryptionFailureDialogComponent,
+  NudgeStatus,
   SpotlightComponent,
   VaultIcons,
   VaultNudgesService,
@@ -92,8 +93,8 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   VaultNudgeType = VaultNudgeType;
   cipherType = CipherType;
-  showEmptyVaultNudge$: Observable<boolean> = new Observable();
-  showHasItemsVaultNudge$: Observable<boolean> = new Observable();
+  showEmptyVaultNudge$: Observable<NudgeStatus> = new Observable();
+  showHasItemsVaultNudge$: Observable<NudgeStatus> = new Observable();
   activeUserId: UserId | null = null;
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;

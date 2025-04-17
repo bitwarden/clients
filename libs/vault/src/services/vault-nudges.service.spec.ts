@@ -51,34 +51,34 @@ describe("Vault Nudges Service", () => {
   });
 
   describe("DefaultSingleNudgeService", () => {
-    it("should return shouldShowNudge === false when IntroCaourselDismissal dismissed is true", async () => {
+    it("should return shouldShowNudge === false when EmptyVaultNudge dismissed is true", async () => {
       const service = testBed.inject(DefaultSingleNudgeService);
 
       await service.setNudgeStatus(
-        VaultNudgeType.IntroCarouselDismissal,
-        true,
+        VaultNudgeType.EmptyVaultNudge,
+        { showBadge: false, showSpotlight: false },
         "user-id" as UserId,
       );
 
       const result = await firstValueFrom(
-        service.shouldShowNudge$(VaultNudgeType.IntroCarouselDismissal, "user-id" as UserId),
+        service.shouldShowNudge$(VaultNudgeType.EmptyVaultNudge, "user-id" as UserId),
       );
-      expect(result).toBe(false);
+      expect(result).toEqual({ showBadge: false, showSpotlight: false });
     });
 
-    it("should return shouldShowNudge === true when IntroCaourselDismissal dismissed is false", async () => {
+    it("should return shouldShowNudge === true when EmptyVaultNudge dismissed is false", async () => {
       const service = testBed.inject(DefaultSingleNudgeService);
 
       await service.setNudgeStatus(
-        VaultNudgeType.IntroCarouselDismissal,
-        false,
+        VaultNudgeType.EmptyVaultNudge,
+        { showBadge: true, showSpotlight: true },
         "user-id" as UserId,
       );
 
       const result = await firstValueFrom(
-        service.shouldShowNudge$(VaultNudgeType.IntroCarouselDismissal, "user-id" as UserId),
+        service.shouldShowNudge$(VaultNudgeType.EmptyVaultNudge, "user-id" as UserId),
       );
-      expect(result).toBe(true);
+      expect(result).toEqual({ showBadge: true, showSpotlight: true });
     });
   });
 

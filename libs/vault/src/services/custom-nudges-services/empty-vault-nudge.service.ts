@@ -7,7 +7,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { DefaultSingleNudgeService } from "../default-single-nudge.service";
-import { VaultNudgeType } from "../vault-nudges.service";
+import { NudgeStatus, VaultNudgeType } from "../vault-nudges.service";
 
 /**
  * Custom Nudge Service Checking Nudge Status For Empty Vault
@@ -20,16 +20,21 @@ export class EmptyVaultNudgeService extends DefaultSingleNudgeService {
   organizationService = inject(OrganizationService);
   collectionService = inject(CollectionService);
 
-  shouldShowNudge$(nudgeType: VaultNudgeType, userId: UserId): Observable<boolean> {
+  shouldShowNudge$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
     return combineLatest([
       this.isDismissed$(nudgeType, userId),
       this.cipherService.cipherViews$(userId),
       this.organizationService.organizations$(userId),
       this.collectionService.decryptedCollections$,
     ]).pipe(
-      switchMap(([dismissed, ciphers, orgs, collections]) => {
+      switchMap(([nudgeStatus, ciphers, orgs, collections]) => {
         if (orgs == null || orgs.length === 0) {
-          return dismissed ? of(false) : of(ciphers == null || ciphers.length === 0);
+          return !nudgeStatus.showBadge || !nudgeStatus.showSpotlight
+            ? of(nudgeStatus)
+            : of({
+                showSpotlight: ciphers == null || ciphers.length === 0,
+                showBadge: ciphers == null || ciphers.length === 0,
+              });
         }
         const orgIds = new Set(orgs.map((org) => org.id));
         const canCreateCollections = orgs.filter((org) => {
@@ -44,10 +49,18 @@ export class EmptyVaultNudgeService extends DefaultSingleNudgeService {
         // user has previously dismissed nudge
         // OR
         // user belongs to an organization and cannot create collections || manage collections
-        if (dismissed || managedCollections.length === 0 || canCreateCollections.length === 0) {
-          return of(false);
+        if (
+          !nudgeStatus.showBadge ||
+          !nudgeStatus.showSpotlight ||
+          managedCollections.length === 0 ||
+          canCreateCollections.length === 0
+        ) {
+          return of(nudgeStatus);
         }
-        return of(ciphers == null || ciphers.length === 0);
+        return of({
+          showSpotlight: ciphers == null || ciphers.length === 0,
+          showBadge: ciphers == null || ciphers.length === 0,
+        });
       }),
     );
   }

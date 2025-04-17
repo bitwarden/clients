@@ -32,7 +32,7 @@
       <a
         bit-item-content
         routerLink="/vault-settings"
-        (click)="dismissBadge(VaultNudgeType.EmptyVaultBadge)"
+        (click)="dismissBadge(VaultNudgeType.EmptyVaultNudge)"
       >
         <i slot="start" class="bwi bwi-vault" aria-hidden="true"></i>
         <div class="tw-flex tw-items-center tw-justify-center">
@@ -41,7 +41,9 @@
             Currently can be only 1 item for notification.
             Will make this dynamic when more nudges are added
           -->
-          <span *ngIf="showVaultBadge$ | async" bitBadge variant="notification">1</span>
+          <span *ngIf="(showVaultBadge$ | async)?.showBadge" bitBadge variant="notification"
+            >1</span
+          >
         </div>
 
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
