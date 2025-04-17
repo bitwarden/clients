@@ -3,6 +3,10 @@ const child_process = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const process = require("process");
+const args = process.argv.slice(2); // Get arguments passed to the script
+const mode = args.includes("--release") ? "release" : "debug";
+const targetArg = args.find(arg => arg.startsWith("--target="));
+const target = targetArg ? targetArg.split("=")[1] : null;
 
 let crossPlatform = process.argv.length > 2 && process.argv[2] === "cross-platform";
 
@@ -18,10 +22,17 @@ function buildProxyBin(target, release = true) {
     return child_process.execSync(`cargo build --bin desktop_proxy ${releaseArg} ${targetArg}`, {stdio: 'inherit', cwd: path.join(__dirname, "proxy")});
 }
 
-if (!crossPlatform) {
-    console.log("Building native modules in debug mode for the native architecture");
-    buildNapiModule(false, false);
-    buildProxyBin(false, false);
+if (!crossPlatform && !target) {
+    console.log(`Building native modules in ${mode} mode for the native architecture`);
+    buildNapiModule(false, mode === "release");
+    buildProxyBin(false, mode === "release");
+    return;
+}
+
+if (target) {
+    console.log(`Building for target: ${target} in ${mode} mode`);
+    buildNapiModule(target, mode === "release");
+    buildProxyBin(target, mode === "release");
     return;
 }
 
@@ -47,7 +58,8 @@ switch (process.platform) {
 
     default:
         targets = [
-            ['x86_64-unknown-linux-musl', 'x64']
+            ['x86_64-unknown-linux-musl', 'x64'],
+            ['aarch64-unknown-linux-musl', 'arm64']
         ];
 
         process.env["PKG_CONFIG_ALLOW_CROSS"] = "1";

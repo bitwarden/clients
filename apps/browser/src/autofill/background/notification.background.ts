@@ -16,6 +16,7 @@ import {
 } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums/product-tier-type.enum";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -41,7 +42,11 @@ import { SecurityTask } from "@bitwarden/common/vault/tasks/models/security-task
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { openAddEditVaultItemPopout } from "../../vault/popup/utils/vault-popout-window";
-import { NotificationCipherData } from "../content/components/cipher/types";
+import {
+  OrganizationCategory,
+  OrganizationCategories,
+  NotificationCipherData,
+} from "../content/components/cipher/types";
 import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
 
@@ -174,8 +179,29 @@ export default class NotificationBackground {
       activeUserId,
     );
 
+    const organizations = await firstValueFrom(
+      this.organizationService.organizations$(activeUserId),
+    );
+
     return decryptedCiphers.map((view) => {
-      const { id, name, reprompt, favorite, login } = view;
+      const { id, name, reprompt, favorite, login, organizationId } = view;
+
+      const organizationType = organizationId
+        ? organizations.find((org) => org.id === organizationId)?.productTierType
+        : null;
+
+      const organizationCategories: OrganizationCategory[] = [];
+
+      if (
+        [ProductTierType.Teams, ProductTierType.Enterprise, ProductTierType.TeamsStarter].includes(
+          organizationType,
+        )
+      ) {
+        organizationCategories.push(OrganizationCategories.business);
+      }
+      if ([ProductTierType.Families, ProductTierType.Free].includes(organizationType)) {
+        organizationCategories.push(OrganizationCategories.family);
+      }
 
       return {
         id,
@@ -183,6 +209,7 @@ export default class NotificationBackground {
         type: CipherType.Login,
         reprompt,
         favorite,
+        ...(organizationCategories.length ? { organizationCategories } : {}),
         icon: buildCipherIcon(iconsServerUrl, view, showFavicons),
         login: login && {
           username: login.username,
