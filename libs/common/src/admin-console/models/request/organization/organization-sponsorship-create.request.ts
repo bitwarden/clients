@@ -6,4 +6,5 @@ export class OrganizationSponsorshipCreateRequest {
   sponsoredEmail: string;
   planSponsorshipType: PlanSponsorshipType;
   friendlyName: string;
+  notes?: string;
 }

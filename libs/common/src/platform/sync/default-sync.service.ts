@@ -3,9 +3,9 @@
 import { firstValueFrom, map } from "rxjs";
 
 import {
-  CollectionService,
   CollectionData,
   CollectionDetailsResponse,
+  CollectionService,
 } from "@bitwarden/admin-console/common";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -107,7 +107,7 @@ export class DefaultSyncService extends CoreSyncService {
     this.syncStarted();
     const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
     if (authStatus === AuthenticationStatus.LoggedOut) {
-      return this.syncCompleted(false);
+      return this.syncCompleted(false, userId);
     }
 
     const now = new Date();
@@ -116,14 +116,14 @@ export class DefaultSyncService extends CoreSyncService {
       needsSync = await this.needsSyncing(forceSync);
     } catch (e) {
       if (allowThrowOnError) {
-        this.syncCompleted(false);
+        this.syncCompleted(false, userId);
         throw e;
       }
     }
 
     if (!needsSync) {
       await this.setLastSync(now, userId);
-      return this.syncCompleted(false);
+      return this.syncCompleted(false, userId);
     }
 
     try {
@@ -139,13 +139,13 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncPolicies(response.policies, response.profile.id);
 
       await this.setLastSync(now, userId);
-      return this.syncCompleted(true);
+      return this.syncCompleted(true, userId);
     } catch (e) {
       if (allowThrowOnError) {
-        this.syncCompleted(false);
+        this.syncCompleted(false, userId);
         throw e;
       } else {
-        return this.syncCompleted(false);
+        return this.syncCompleted(false, userId);
       }
     }
   }

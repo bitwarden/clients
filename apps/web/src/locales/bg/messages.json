@@ -1435,18 +1435,6 @@
       }
     }
   },
-  "enterVerificationCodeApp": {
-    "message": "Въведете шестцифрения код за потвърждение от приложението за удостоверяване."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Въведете шестцифрения код за потвърждение, който е бил изпратен на $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Писмото за потвърждение е изпратено на $EMAIL$.",
     "placeholders": {
@@ -1456,17 +1444,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Запомняне"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Не ме питайте отново на това устройство за 30 дни"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Повторно изпращане на писмото за потвърждение"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Използвайте друг начин на двустепенно удостоверяване"
   },
   "selectAnotherMethod": {
     "message": "Изберете друг метод",
@@ -1474,9 +1453,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Използване на код за възстановяване"
-  },
-  "insertYubiKey": {
-    "message": "Поставете устройството на YubiKey в USB порт на компютъра и натиснете бутона на устройството."
   },
   "insertU2f": {
     "message": "Поставете устройството за удостоверяване в USB порт на компютъра. Ако на устройството има бутон, натиснете го."
@@ -3346,6 +3322,12 @@
   },
   "externalIdDesc": {
     "message": "Външните идентификатори указват връзката на този елемент с друга система, напр. директорийна услуга с потребители и групи."
+  },
+  "ssoExternalId": {
+    "message": "Външен ИД за еднократно удостоверяване"
+  },
+  "ssoExternalIdDesc": {
+    "message": "Външният ИД за еднократно удостоверяване е нешифрована връзка между Битуорден и настроеният доставчик на еднократно удостоверяване."
   },
   "nestCollectionUnder": {
     "message": "Влагане на колекцията под"
@@ -5709,6 +5691,9 @@
   "webAuthnSuccess": {
     "message": "<strong>Успешно удостоверяване чрез WebAuthn!</strong><br>Можете да затворите този раздел."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Новата парола не може да бъде същата като текущата."
+  },
   "hintEqualsPassword": {
     "message": "Подсказването за паролата не може да съвпада с нея."
   },
@@ -5903,6 +5888,9 @@
   },
   "fingerprint": {
     "message": "Отпечатък"
+  },
+  "fingerprintPhrase": {
+    "message": "Уникална фраза:"
   },
   "removeUsers": {
     "message": "Премахване на потребителите"
@@ -7251,9 +7239,6 @@
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Грешка при свързването с услугата на Duo. Използвайте друг метод за двустепенно удостоверяване или се свържете с Duo за съдействие."
-  },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Стартирайте DUO и следвайте инструкциите, за да завършите вписването."
   },
   "duoRequiredByOrgForAccount": {
     "message": "Вашата регистрация изисква двустепенно удостоверяване чрез DUO."
@@ -8735,8 +8720,8 @@
   "limitCollectionDeletionDesc": {
     "message": "Ограничаване на изтриването на колекции, така че да може да се извършва само от собствениците и администраторите"
   },
-  "limitItemDeletionDesc": {
-    "message": "Ограничаване на изтриването на елементи, така че да може да се извършва само от членове с правомощие за управление"
+  "limitItemDeletionDescription": {
+    "message": "Ограничаване на изтриването на елементи, така че да може да се извършва само от членове с правомощия за управление на колекции"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Собствениците и администраторите могат да управляват всички колекции и елементи"
@@ -10357,6 +10342,33 @@
   "organizationNameMaxLength": {
     "message": "Името на организацията не може да бъде по-дълго от 50 знака."
   },
+  "rotationCompletedTitle": {
+    "message": "Успешна промяна на ключа"
+  },
+  "rotationCompletedDesc": {
+    "message": "Вашата главна парола и шифриращи ключове бяха променени. Бяхте отписан(а) на другите си устройства."
+  },
+  "trustUserEmergencyAccess": {
+    "message": "Даване на доверие и потвърждаване на потребителя"
+  },
+  "trustOrganization": {
+    "message": "Даване на доверие на организацията"
+  },
+  "trust": {
+    "message": "Даване на доверие"
+  },
+  "doNotTrust": {
+    "message": "Да не се дава доверие"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "С оглед на сигурността на акаунта Ви, потвърдете само, ако сте дали на този потребител достъп за спешни случаи и ако отпечатъкът му съвпада с това, което се вижда в акаунта му"
+  },
+  "orgTrustWarning": {
+    "message": "С оглед на сигурността на акаунта Ви, продължете само, ако сте член на тази организация, ако възстановяването на акаунта Ви е включено и ако отпечатъкът показан по-долу съвпада с този на организацията."
+  },
+  "trustUser": {
+    "message": "Даване на доверие на потребителя"
+  },
   "sshKeyWrongPassword": {
     "message": "Въведената парола е неправилна."
   },
@@ -10526,6 +10538,30 @@
   "assignedExceedsAvailable": {
     "message": "Назначените места превишават наличния брой."
   },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "Уникална фраза за $NUM_USERS$ контакти, за които сте включили достъпа за спешни случаи.",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "Уникална фраза за организацията $ORG_NAME$, за която сте включили възстановяването на акаунти.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "Промяната на шифроващите ключове ще изисква да се доверите на ключовете на всяка организация, която може да възстанови акаунта Ви, и на всички контакти, на които сте дали достъп за спешни случаи. За да продължите, уверете се, че можете да потвърдите следното:"
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "Недоверени шифроващи ключове"
+  },
   "changeAtRiskPassword": {
     "message": "Промяна на парола в риск"
   },
@@ -10555,5 +10591,14 @@
   },
   "cannotCreateCollection": {
     "message": "Безплатните организации могат да имат не повече от 2 колекции. Надградете до платен план, ако искате да имате повече колекции."
+  },
+  "businessUnit": {
+    "message": "Бизнес единица"
+  },
+  "businessUnits": {
+    "message": "Бизнес единици"
+  },
+  "newBusinessUnit": {
+    "message": "Нова бизнес единица"
   }
 }

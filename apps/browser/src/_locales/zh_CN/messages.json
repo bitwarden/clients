@@ -219,7 +219,7 @@
     "message": "复制自定义字段名称"
   },
   "noMatchingLogins": {
-    "message": "无匹配的登录项目"
+    "message": "没有匹配的登录"
   },
   "noCards": {
     "message": "无支付卡"
@@ -1003,7 +1003,7 @@
     "message": "搜索类型"
   },
   "noneFolder": {
-    "message": "默认文件夹",
+    "message": "无文件夹",
     "description": "This is the folder for uncategorized items"
   },
   "enableAddLoginNotification": {
@@ -1019,7 +1019,7 @@
     "message": "在密码库中找不到匹配项目时询问添加一个。适用于所有已登录的账户。"
   },
   "showCardsInVaultViewV2": {
-    "message": "在密码库视图中将支付卡始终显示为自动填充建议"
+    "message": "在密码库视图中始终将支付卡显示为自动填充建议"
   },
   "showCardsCurrentTab": {
     "message": "在标签页上显示支付卡"
@@ -1028,7 +1028,7 @@
     "message": "在标签页上列出支付卡项目，以便于自动填充。"
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "在密码库视图中将身份始终显示为自动填充建议"
+    "message": "在密码库视图中始终将身份显示为自动填充建议"
   },
   "showIdentitiesCurrentTab": {
     "message": "在标签页上显示身份"
@@ -1097,6 +1097,31 @@
   "loginUpdateSuccess": {
     "message": "登录已更新",
     "description": "Message displayed when login details are successfully updated."
+  },
+  "loginUpdateTaskSuccess": {
+    "message": "干得好！您采取了使您和 $ORGANIZATION$ 更加安全的措施。",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "感谢您使 $ORGANIZATION$ 更加安全。您还有 $TASK_COUNT$ 个密码需要更新。",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "更改下一个密码",
+    "description": "Message prompting user to undertake completion of another security task."
   },
   "saveFailure": {
     "message": "保存时出错",
@@ -1188,16 +1213,16 @@
     "message": "此密码将用于导出和导入此文件"
   },
   "accountRestrictedOptionDescription": {
-    "message": "使用衍生自您账户的用户名和主密码的账户加密密钥，以加密此导出并限制只能导入到当前的 Bitwarden 账户。"
+    "message": "使用衍生自您账户用户名和主密码的加密密钥以加密此导出，并限制只能导入到当前 Bitwarden 账户。"
   },
   "passwordProtectedOptionDescription": {
-    "message": "设置一个文件密码用来加密此导出，并使用此密码解密以导入到任意 Bitwarden 账户。"
+    "message": "设置一个文件密码以加密此导出，并使用此密码解密以导入到任意 Bitwarden 账户。"
   },
   "exportTypeHeading": {
     "message": "导出类型"
   },
   "accountRestricted": {
-    "message": "账户受限"
+    "message": "账户限制"
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "「文件密码」与「确认文件密码」不一致。"
@@ -1391,23 +1416,11 @@
   "premiumRequiredDesc": {
     "message": "使用此功能需要高级会员资格。"
   },
-  "enterVerificationCodeApp": {
-    "message": "请输入您的验证器 App 中的 6 位数验证码。"
-  },
   "authenticationTimeout": {
     "message": "身份验证超时"
   },
   "authenticationSessionTimedOut": {
     "message": "身份验证会话超时。请重新启动登录过程。"
-  },
-  "enterVerificationCodeEmail": {
-    "message": "请输入发送给 $EMAIL$ 的 6 位数验证码。",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "验证邮件已发送到 $EMAIL$。",
@@ -1418,17 +1431,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "记住我"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "30 天内在此设备上不再询问"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "再次发送验证码电子邮件"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "使用其他两步登录方式"
   },
   "selectAnotherMethod": {
     "message": "选择其他方式",
@@ -1437,17 +1441,8 @@
   "useYourRecoveryCode": {
     "message": "使用您的恢复代码"
   },
-  "insertYubiKey": {
-    "message": "将您的 YubiKey 插入计算机的 USB 端口，然后触摸其按钮。"
-  },
   "insertU2f": {
     "message": "将您的安全密钥插入计算机的 USB 端口。如果它有按钮，请触摸它。"
-  },
-  "webAuthnNewTab": {
-    "message": "要开始 WebAuthn 2FA 验证，请点击下面的按钮打开一个新标签页，并按照新标签页中提供的说明操作。"
-  },
-  "webAuthnNewTabOpen": {
-    "message": "打开新标签页"
   },
   "openInNewTab": {
     "message": "在新标签页中打开"
@@ -1477,7 +1472,7 @@
     "message": "选择两步登录方式"
   },
   "recoveryCodeDesc": {
-    "message": "无法访问您所有的双重身份提供程序吗？请使用您的恢复代码来关闭您账户中所有的双重身份提供程序。"
+    "message": "无法访问您所有的双重身份提供程序吗？请使用您的恢复代码来停用您账户中所有的双重身份提供程序。"
   },
   "recoveryCodeTitle": {
     "message": "恢复代码"
@@ -1578,7 +1573,7 @@
     "message": "适用于所有已登录的账户。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "关闭您浏览器内置的密码管理器设置以避免冲突。"
+    "message": "停用您浏览器内置的密码管理器设置以避免冲突。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
     "message": "编辑浏览器设置。"
@@ -1617,7 +1612,7 @@
     "message": "登录项目的默认自动填充设置"
   },
   "defaultAutoFillOnPageLoadDesc": {
-    "message": "您可以从项目编辑视图中为单个登录项目关闭页面加载时自动填充。"
+    "message": "您可以从项目编辑视图中为单个登录项目停用页面加载时自动填充。"
   },
   "itemAutoFillOnPageLoad": {
     "message": "页面加载时自动填充（如果选项中已设置）"
@@ -2310,7 +2305,7 @@
     "message": "随时。"
   },
   "byContinuingYouAgreeToThe": {
-    "message": "若继续，代表您同意"
+    "message": "若继续，表示您同意"
   },
   "and": {
     "message": "和"
@@ -2326,6 +2321,9 @@
   },
   "privacyPolicy": {
     "message": "隐私政策"
+  },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "您的新密码不能与当前密码相同。"
   },
   "hintEqualsPassword": {
     "message": "您的密码提示不能与您的密码相同。"
@@ -2534,15 +2532,15 @@
     "message": "您的组织密码存在风险，因为它们过于简单、被重复使用和/或已暴露。",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "存在风险的登录列表示意图"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "存在风险的登录列表示意图。"
   },
   "generatePasswordSlideDesc": {
     "message": "在存在风险的网站上，使用 Bitwarden 自动填充菜单快速生成强大且唯一的密码。",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Bitwarden 自动填充菜单显示生成的密码示意图"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "显示生成的密码的 Bitwarden 自动填充菜单示意图。"
   },
   "updateInBitwarden": {
     "message": "在 Bitwarden 中更新"
@@ -2551,14 +2549,14 @@
     "message": "然后，Bitwarden 会提示您更新密码管理器中的密码。",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "提示用户更新登录的 Bitwarden 通知示意图"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "提示用户更新登录的 Bitwarden 通知示意图。"
   },
   "turnOnAutofill": {
-    "message": "开启自动填充"
+    "message": "启用自动填充"
   },
   "turnedOnAutofill": {
-    "message": "已开启自动填充"
+    "message": "已启用自动填充"
   },
   "dismiss": {
     "message": "忽略"
@@ -2852,7 +2850,7 @@
     "message": "选择文件夹..."
   },
   "noFoldersFound": {
-    "message": "找不到文件夹",
+    "message": "未找到任何文件夹",
     "description": "Used as a message within the notification bar when no folders are found"
   },
   "orgPermissionsUpdatedMustSetPassword": {
@@ -3336,13 +3334,13 @@
     "message": "通知已发送到您的设备。"
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the"
+    "message": "解锁您设备上的 Bitwarden 或通过"
   },
   "notificationSentDeviceAnchor": {
     "message": "网页 App"
   },
   "notificationSentDevicePart2": {
-    "message": "在批准前，请确保指纹短语与下面的相匹配。"
+    "message": "批准前，请确保指纹短语与下面的相匹配。"
   },
   "aNotificationWasSentToYourDevice": {
     "message": "通知已发送到您的设备"
@@ -3372,7 +3370,7 @@
     "message": "识别到弱密码且其出现在数据泄露中。请使用一个强且唯一的密码以保护您的账户。确定要使用这个密码吗？"
   },
   "checkForBreaches": {
-    "message": "检查已知的数据泄露是否包含此密码。"
+    "message": "检查已知的数据泄露是否包含此密码"
   },
   "important": {
     "message": "重要："
@@ -3390,7 +3388,7 @@
     }
   },
   "autofillPageLoadPolicyActivated": {
-    "message": "您的组织策略已开启页面加载时自动填充。"
+    "message": "您的组织策略已启用页面加载时自动填充。"
   },
   "howToAutofill": {
     "message": "如何自动填充"
@@ -3662,7 +3660,7 @@
     "message": "别名域"
   },
   "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "具有主密码重新提示的项目无法在页面加载时自动填充。页面加载时的自动填充功能已关闭。",
+    "message": "具有主密码重新提示的项目无法在页面加载时自动填充。页面加载时的自动填充功能已停用。",
     "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
   },
   "autofillOnPageLoadSetToDefault": {
@@ -3670,7 +3668,7 @@
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "turnOffMasterPasswordPromptToEditField": {
-    "message": "关闭主密码重新提示以编辑此字段",
+    "message": "停用主密码重新提示以编辑此字段",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
@@ -3764,7 +3762,7 @@
     "description": "Screen reader text for announcing when the overlay opens on the page"
   },
   "turnOn": {
-    "message": "开启"
+    "message": "启用"
   },
   "ignore": {
     "message": "忽略"
@@ -3848,14 +3846,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "与 Duo 服务连接时出错。请使用其他两步登录方式或联系 Duo 寻求帮助。"
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "启动 DUO 并按照步骤完成登录。"
-  },
   "duoRequiredForAccount": {
     "message": "您的账户要求使用 Duo 两步登录。"
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "弹出扩展以完成登录。"
   },
   "popoutExtension": {
     "message": "弹出扩展"
@@ -3962,13 +3954,13 @@
     "message": "此应用程序已存在一个通行密钥。"
   },
   "noPasskeysFoundForThisApplication": {
-    "message": "没有找到此应用程序的通行密钥。"
+    "message": "未找到此应用程序的通行密钥。"
   },
   "noMatchingPasskeyLogin": {
-    "message": "不存在匹配此站点的登录项目。"
+    "message": "您没有匹配此站点的登录。"
   },
   "noMatchingLoginsForSite": {
-    "message": "此站点没有匹配的登录项目"
+    "message": "此站点没有匹配的登录"
   },
   "searchSavePasskeyNewLogin": {
     "message": "搜索或将通行密钥保存为一个新的登录"
@@ -5118,7 +5110,7 @@
     "message": "是的，我可以正常访问我的电子邮箱"
   },
   "turnOnTwoStepLogin": {
-    "message": "开启两步登录"
+    "message": "启用两步登录"
   },
   "changeAcctEmail": {
     "message": "更改账户电子邮箱"
@@ -5176,5 +5168,32 @@
   },
   "changeAtRiskPassword": {
     "message": "更改有风险的密码"
+  },
+  "introCarouselLabel": {
+    "message": "欢迎使用 Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "安全优先"
+  },
+  "securityPrioritizedBody": {
+    "message": "将登录、支付卡和身份保存到您的安全密码库。Bitwarden 使用零知识、端到端的加密来保护您的重要信息。"
+  },
+  "quickLogin": {
+    "message": "快速便捷的登录"
+  },
+  "quickLoginBody": {
+    "message": "设置生物识别解锁和自动填充，无需输入任何字符即可登录您的账户。"
+  },
+  "secureUser": {
+    "message": "提升您的登录体验"
+  },
+  "secureUserBody": {
+    "message": "使用生成器创建并保存强大且唯一的密码，以保护您的所有账户。"
+  },
+  "secureDevices": {
+    "message": "随时随地在您需要时获取您的数据"
+  },
+  "secureDevicesBody": {
+    "message": "使用 Bitwarden 移动端、浏览器和桌面 App 在无限制的设备上保存无限数量的密码。"
   }
 }

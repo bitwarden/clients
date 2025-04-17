@@ -33,7 +33,7 @@
     "message": "Уведомленные участники"
   },
   "revokeMembers": {
-    "message": "Отзыв пользователей"
+    "message": "Отозвать пользователей"
   },
   "restoreMembers": {
     "message": "Восстановление пользователей"
@@ -315,7 +315,7 @@
     "message": "Код безопасности / CVV"
   },
   "identityName": {
-    "message": "Имя"
+    "message": "Название личности"
   },
   "company": {
     "message": "Компания"
@@ -1435,18 +1435,6 @@
       }
     }
   },
-  "enterVerificationCodeApp": {
-    "message": "Введите 6-значный код подтверждения из вашего приложения-аутентификатора."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Введите 6-значный код подтверждения, который был отправлен на $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Отправлено письмо подтверждения на $EMAIL$.",
     "placeholders": {
@@ -1456,17 +1444,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Запомнить меня"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Не спрашивать на этом устройстве в течение 30 дней"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Отправить код подтверждения еще раз"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Использовать другой метод двухэтапной аутентификации"
   },
   "selectAnotherMethod": {
     "message": "Выбрать другой способ",
@@ -1474,9 +1453,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Использовать код восстановления"
-  },
-  "insertYubiKey": {
-    "message": "Вставьте свой YubiKey в USB-порт компьютера и нажмите его кнопку."
   },
   "insertU2f": {
     "message": "Вставьте ключ безопасности в USB-порт компьютера. Если у ключа есть кнопка, нажмите ее."
@@ -3346,6 +3322,12 @@
   },
   "externalIdDesc": {
     "message": "Внешний ID - это незашифрованная ссылка, используемая Bitwarden Directory Connector и API."
+  },
+  "ssoExternalId": {
+    "message": "Внешний ID SSO"
+  },
+  "ssoExternalIdDesc": {
+    "message": "Внешний ID SSO - это незашифрованная ссылка между Bitwarden и вашим настроенным провайдером SSO."
   },
   "nestCollectionUnder": {
     "message": "Разместить коллекцию под:"
@@ -5709,6 +5691,9 @@
   "webAuthnSuccess": {
     "message": "<strong>WebAuthn успешно прошел верификацию!</strong><br>Вы можете закрыть эту вкладку."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Ваш новый пароль не может быть таким же, как текущий."
+  },
   "hintEqualsPassword": {
     "message": "Подсказка для пароля не может совпадать с паролем."
   },
@@ -5903,6 +5888,9 @@
   },
   "fingerprint": {
     "message": "Отпечаток"
+  },
+  "fingerprintPhrase": {
+    "message": "Фраза отпечатка:"
   },
   "removeUsers": {
     "message": "Удалить пользователей"
@@ -7251,9 +7239,6 @@
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Ошибка при подключении к сервису Duo. Используйте другой метод двухэтапной аутентификации или обратитесь за помощью в Duo."
-  },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Запустите Duo и следуйте шагам для завершения авторизации."
   },
   "duoRequiredByOrgForAccount": {
     "message": "Для вашего аккаунта требуется двухэтапная аутентификация Duo."
@@ -8735,8 +8720,8 @@
   "limitCollectionDeletionDesc": {
     "message": "Ограничить удаление коллекций владельцам и администраторам"
   },
-  "limitItemDeletionDesc": {
-    "message": "Ограничить удаление элементов для пользователей с разрешением 'Может управлять'"
+  "limitItemDeletionDescription": {
+    "message": "Ограничить удаление элементов для пользователей с правами на управление коллекцией"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Владельцы и администраторы могут управлять всеми коллекциями и элементами"
@@ -10357,6 +10342,33 @@
   "organizationNameMaxLength": {
     "message": "Название организации не может превышать 50 символов."
   },
+  "rotationCompletedTitle": {
+    "message": "Успешная ротация ключа"
+  },
+  "rotationCompletedDesc": {
+    "message": "Ваш мастер-пароль и ключи шифрования обновлены. Остальные устройства были разлогинены."
+  },
+  "trustUserEmergencyAccess": {
+    "message": "Удостоверить и подтвердить пользователя"
+  },
+  "trustOrganization": {
+    "message": "Доверенная организация"
+  },
+  "trust": {
+    "message": "Доверять"
+  },
+  "doNotTrust": {
+    "message": "Не доверять"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "В целях обеспечения безопасности вашего аккаунта подтверждайте только в том случае, если вы предоставили этому пользователю экстренный доступ и его отпечаток совпадает с отображаемым в его аккаунте"
+  },
+  "orgTrustWarning": {
+    "message": "В целях обеспечения безопасности вашего аккаунта продолжайте только в том случае, если вы являетесь членом этой организации, у вас включено восстановление аккаунта, а отображаемый ниже отпечаток совпадает с отпечатком организации."
+  },
+  "trustUser": {
+    "message": "Доверенный пользователь"
+  },
   "sshKeyWrongPassword": {
     "message": "Введенный пароль неверен."
   },
@@ -10526,6 +10538,30 @@
   "assignedExceedsAvailable": {
     "message": "Количество назначенных мест превышает количество доступных."
   },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "Фраза отпечатка для контактов $NUM_USERS$, которым вы разрешили экстренный доступ.",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "Фраза отпечатка для организации $ORG_NAME$, которой вы разрешили восстановление аккаунта.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "При ротации ключей шифрования вам придется доверить ключи всем организациям, которые могут восстановить ваш аккаунт, и всем контактам, для которых вы включили экстренный доступ. Для продолжения убедитесь, что вы можете проверить следующее:"
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "Недоверенные ключи шифрования"
+  },
   "changeAtRiskPassword": {
     "message": "Изменить пароль, подверженный риску"
   },
@@ -10555,5 +10591,14 @@
   },
   "cannotCreateCollection": {
     "message": "В бесплатных организациях может быть до 2 коллекций. Перейдите на платный план, чтобы добавить больше коллекций."
+  },
+  "businessUnit": {
+    "message": "Бизнес-единица"
+  },
+  "businessUnits": {
+    "message": "Бизнес-единицы"
+  },
+  "newBusinessUnit": {
+    "message": "Новая бизнес-единица"
   }
 }
