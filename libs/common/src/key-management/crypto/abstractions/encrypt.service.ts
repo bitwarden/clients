@@ -41,11 +41,11 @@ export abstract class EncryptService {
   /**
    * Wraps a symmetric key with another symmetric key
    * @param keyToBeWrapped - The symmetric key to wrap
-   * @param wrappingkey - The symmetric key to wrap the encapsulated key with
+   * @param wrappingKey - The symmetric key to wrap the encapsulated key with
    */
   abstract wrapSymmetricKey(
     keyToBeWrapped: SymmetricCryptoKey,
-    wrappingkey: SymmetricCryptoKey,
+    wrappingKey: SymmetricCryptoKey,
   ): Promise<EncString>;
 
   abstract rsaEncrypt(data: Uint8Array, publicKey: Uint8Array): Promise<EncString>;
