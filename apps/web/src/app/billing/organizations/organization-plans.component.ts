@@ -34,7 +34,12 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
-import { PaymentMethodType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import {
+  PaymentMethodType,
+  PlanSponsorshipType,
+  PlanType,
+  ProductTierType,
+} from "@bitwarden/common/billing/enums";
 import { TaxInformation } from "@bitwarden/common/billing/models/domain";
 import { ExpandedTaxInfoUpdateRequest } from "@bitwarden/common/billing/models/request/expanded-tax-info-update.request";
 import { PreviewOrganizationInvoiceRequest } from "@bitwarden/common/billing/models/request/preview-organization-invoice.request";
@@ -83,6 +88,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   @Input() showFree = true;
   @Input() showCancel = false;
   @Input() acceptingSponsorship = false;
+  @Input() planSponsorshipType?: PlanSponsorshipType;
   @Input() currentPlan: PlanResponse;
 
   selectedFile: File;
@@ -682,11 +688,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   private refreshSalesTax(): void {
-    if (this.formGroup.controls.plan.value == PlanType.Free) {
-      this.estimatedTax = 0;
-      return;
-    }
-
     if (!this.taxComponent.validate()) {
       return;
     }
@@ -696,6 +697,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       passwordManager: {
         additionalStorage: this.formGroup.controls.additionalStorage.value,
         plan: this.formGroup.controls.plan.value,
+        sponsoredPlan: this.planSponsorshipType,
         seats: this.formGroup.controls.additionalSeats.value,
       },
       taxInformation: {
