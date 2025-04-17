@@ -19,7 +19,13 @@ export class WebCommunicationProvider implements CommunicationBackend {
         return;
       }
 
-      await this.queue.enqueue({ ...message.message, source: "BrowserBackground" });
+      void this.queue.enqueue(
+        new IncomingMessage(
+          message.message.payload,
+          message.message.destination,
+          "BrowserBackground",
+        ),
+      );
     });
   }
 
