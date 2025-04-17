@@ -196,14 +196,13 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     }
 
     const orgPublicKey = Utils.fromB64ToArray(organizationKeys.publicKey);
-
-    // RSA Encrypt user key with organization public key
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
     if (userKey == null) {
       throw new Error("userKey not found. Could not handle reset password auto enroll.");
     }
 
+    // RSA encrypt user key with organization public key
     const orgPublicKeyEncryptedUserKey = await this.encryptService.rsaEncrypt(
       userKey.key,
       orgPublicKey,
