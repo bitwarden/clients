@@ -1,28 +1,22 @@
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { RouterOutlet } from "@angular/router";
 import { combineLatest, map } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { HasNudgeService } from "@bitwarden/vault";
 
-import {
-  NavButton,
-  PopupTabNavigationComponent,
-} from "../platform/popup/layout/popup-tab-navigation.component";
+import { NavButton } from "../platform/popup/layout/popup-tab-navigation.component";
 
 @Component({
   selector: "app-tabs-v2",
   templateUrl: "./tabs-v2.component.html",
-  standalone: true,
   providers: [HasNudgeService],
-  imports: [RouterOutlet, PopupTabNavigationComponent],
 })
 export class TabsV2Component {
-  showBerry = false;
+  navButtons = this.buildNavButtons();
 
-  get navButtons(): NavButton[] {
+  buildNavButtons(showBerry = false): NavButton[] {
     return [
       {
         label: "vault",
@@ -47,7 +41,7 @@ export class TabsV2Component {
         page: "/tabs/settings",
         iconKey: "cog",
         iconKeyActive: "cog-f",
-        showBerry: this.showBerry,
+        showBerry,
       },
     ];
   }
@@ -63,7 +57,7 @@ export class TabsV2Component {
       .pipe(
         takeUntilDestroyed(),
         map(([onboardingFeatureEnabled, showNudge]) => {
-          this.showBerry = showNudge && onboardingFeatureEnabled;
+          this.navButtons = this.buildNavButtons(showNudge && onboardingFeatureEnabled);
         }),
       )
       .subscribe();

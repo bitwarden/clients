@@ -6,7 +6,6 @@ import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import {
@@ -363,16 +362,6 @@ export default {
           useFactory: () => {
             return {
               sends$: () => {
-                return { pipe: () => ({}) };
-              },
-            };
-          },
-        },
-        {
-          provide: ConfigService,
-          useFactory: () => {
-            return {
-              getFeatureFlag$: () => {
                 return { pipe: () => ({}) };
               },
             };
