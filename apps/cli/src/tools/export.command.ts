@@ -2,13 +2,14 @@
 // @ts-strict-ignore
 import { OptionValues } from "commander";
 import * as inquirer from "inquirer";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   ExportFormat,
@@ -26,14 +27,18 @@ export class ExportCommand {
     private exportService: VaultExportServiceAbstraction,
     private policyService: PolicyService,
     private eventCollectionService: EventCollectionService,
-    private configService: ConfigService,
+    private accountService: AccountService,
   ) {}
 
   async run(options: OptionValues): Promise<Response> {
-    if (
-      options.organizationid == null &&
-      (await this.policyService.policyAppliesToUser(PolicyType.DisablePersonalVaultExport))
-    ) {
+    const policyApplies$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policyAppliesToUser$(PolicyType.DisablePersonalVaultExport, userId),
+      ),
+    );
+
+    if (options.organizationid == null && (await firstValueFrom(policyApplies$))) {
       return Response.badRequest(
         "One or more organization policies prevents you from exporting your personal vault.",
       );
@@ -46,13 +51,6 @@ export class ExportCommand {
     // Any other case => returns the options.format
     const format =
       password && options.format == "json" ? "encrypted_json" : (options.format ?? "csv");
-
-    if (
-      format == "zip" &&
-      !(await this.configService.getFeatureFlag(FeatureFlag.ExportAttachments))
-    ) {
-      return Response.badRequest("Exporting attachments is not supported in this environment.");
-    }
 
     if (!this.isSupportedExportFormat(format)) {
       return Response.badRequest(

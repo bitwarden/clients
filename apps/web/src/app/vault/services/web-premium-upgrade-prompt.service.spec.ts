@@ -1,10 +1,9 @@
-import { DialogRef } from "@angular/cdk/dialog";
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { lastValueFrom, of } from "rxjs";
 
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { DialogService } from "@bitwarden/components";
+import { DialogRef, DialogService } from "@bitwarden/components";
 
 import { VaultItemDialogResult } from "../components/vault-item-dialog/vault-item-dialog.component";
 

@@ -833,18 +833,6 @@
   "continue": {
     "message": "Magpatuloy"
   },
-  "enterVerificationCodeApp": {
-    "message": "Ipasok ang 6 na digit na code ng pagpapatunay mula sa iyong authenticator app."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Ipasok ang 6 digit verification code na ipinadala sa $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Email ng pagpapatunay na ipinadala sa $EMAIL$.",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Tandaan mo ako"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Ipadala muli ang email ng verification code"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Gamitin ang isa pang two-step na paraan ng pag-login"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "Ipasok ang iyong YubiKey sa USB port ng iyong computer, pagkatapos ay hawakan ang pindutan nito."
   },
   "insertU2f": {
     "message": "Ipasok ang iyong key ng seguridad sa USB port ng iyong computer. Kung may butones ito, hawakan ito."
@@ -2096,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Dahil sa isang patakaran sa enterprise, pinaghihigpitan ka mula sa pag-save ng mga item sa iyong vault. Baguhin ang pagpipilian sa pagmamay ari sa isang organisasyon at pumili mula sa mga magagamit na koleksyon."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Ang iyong password hint ay hindi maaaring pareho sa iyong password."
   },
@@ -2483,6 +2462,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3215,9 +3203,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
   },
@@ -3579,5 +3564,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }
