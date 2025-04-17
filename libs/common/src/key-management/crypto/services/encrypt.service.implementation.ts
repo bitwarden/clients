@@ -55,7 +55,7 @@ export class EncryptServiceImplementation implements EncryptService {
     wrappingKey: SymmetricCryptoKey,
   ): Promise<EncString> {
     if (privateKeyPkcs8 == null) {
-      throw new Error("No private key provided for encapsulation.");
+      throw new Error("No private key provided for wrapping.");
     }
 
     if (wrappingKey == null) {
