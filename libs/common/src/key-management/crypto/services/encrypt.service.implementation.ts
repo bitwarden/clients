@@ -70,7 +70,7 @@ export class EncryptServiceImplementation implements EncryptService {
     wrappingKey: SymmetricCryptoKey,
   ): Promise<EncString> {
     if (encapsulationKeySpki == null) {
-      throw new Error("No encapsulation key provided for encapsulation.");
+      throw new Error("No encapsulation key provided for wrapping.");
     }
 
     if (wrappingKey == null) {
