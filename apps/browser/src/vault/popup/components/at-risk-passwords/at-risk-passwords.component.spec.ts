@@ -12,6 +12,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -76,6 +77,7 @@ describe("AtRiskPasswordsComponent", () => {
   const mockAtRiskPasswordPageService = mock<AtRiskPasswordPageService>();
   const mockChangeLoginPasswordService = mock<ChangeLoginPasswordService>();
   const mockDialogService = mock<DialogService>();
+  const mockConfigService = mock<ConfigService>();
 
   beforeEach(async () => {
     mockTasks$ = new BehaviorSubject<SecurityTask[]>([
@@ -114,6 +116,7 @@ describe("AtRiskPasswordsComponent", () => {
     setInlineMenuVisibility.mockClear();
     mockToastService.showToast.mockClear();
     mockDialogService.open.mockClear();
+    mockConfigService.getFeatureFlag.mockClear();
     mockAtRiskPasswordPageService.isCalloutDismissed.mockReturnValue(calloutDismissed$);
 
     await TestBed.configureTestingModule({
@@ -155,6 +158,7 @@ describe("AtRiskPasswordsComponent", () => {
           },
         },
         { provide: ToastService, useValue: mockToastService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     })
       .overrideModule(JslibModule, {
