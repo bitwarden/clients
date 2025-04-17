@@ -2182,6 +2182,15 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "An organization policy has blocked importing items into your individual vault."
   },
+  "personalDetails": {
+    "message": "Personal details"
+  },
+  "identification": {
+    "message": "Identification"
+  },
+  "contactInfo": {
+    "message": "Contact information"
+  },
   "allSends": {
     "message": "All Sends",
     "description": "'Sends' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."

@@ -143,7 +143,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
   activeFilter: VaultFilter = new VaultFilter();
   activeUserId: UserId | null = null;
   cipher: CipherView | null = new CipherView();
-  collections: CollectionView[] = [];
+  collections: CollectionView[] | null = null;
   config: CipherFormConfig | null = null;
 
   protected canAccessAttachments$ = this.accountService.activeAccount$.pipe(
@@ -381,6 +381,10 @@ export class VaultV2Component implements OnInit, OnDestroy {
     }
     this.cipherId = cipher.id;
     this.cipher = cipher;
+    this.collections =
+      this.vaultFilterComponent?.collections.fullList.filter((c) =>
+        cipher.collectionIds.includes(c.id),
+      ) ?? null;
     this.action = "view";
     await this.go().catch(() => {});
   }
@@ -547,7 +551,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
     this.cipherId = null;
     await this.buildFormConfig("add");
     this.action = "add";
-    this.prefillNewCipherFromFilter();
+    this.prefillCipherFromFilter();
     await this.go().catch(() => {});
   }
 
@@ -760,12 +764,11 @@ export class VaultV2Component implements OnInit, OnDestroy {
     });
   }
 
-  private prefillNewCipherFromFilter() {
+  private prefillCipherFromFilter() {
     if (this.activeFilter.selectedCollectionId != null && this.vaultFilterComponent != null) {
       const collections = this.vaultFilterComponent.collections.fullList.filter(
         (c) => c.id === this.activeFilter.selectedCollectionId,
       );
-      this.collections = collections;
       if (collections.length > 0) {
         this.addOrganizationId = collections[0].organizationId;
         this.addCollectionIds = [this.activeFilter.selectedCollectionId];
