@@ -39,7 +39,7 @@ const createForwardingEmail = Object.freeze({
   body(request: IntegrationRequest, context: ForwarderContext<AddyIoSettings>) {
     return {
       domain: context.emailDomain(),
-      description: context.generatedBy(request),
+      description: context.generatedBy(request, { extractHostname: true, maxLength: 200 }),
     };
   },
   hasJsonPayload(response: Response) {
