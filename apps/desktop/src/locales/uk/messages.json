@@ -2072,8 +2072,11 @@
   "personalOwnershipSubmitError": {
     "message": "Згідно з політикою компанії, вам заборонено зберігати записи в особистому сховищі. Змініть опцію власника на організацію та виберіть серед доступних збірок."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Новий пароль повинен відрізнятися від поточного."
+  },
   "hintEqualsPassword": {
-    "message": "Підказка для пароля не може бути такою самою, як ваш пароль."
+    "message": "Підказка повинна відрізнятися від пароля."
   },
   "personalOwnershipPolicyInEffect": {
     "message": "Політика організації впливає на ваші параметри власності."
@@ -2467,7 +2470,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "message": "Будуть експортовані лише записи особистого сховища, включно з вкладеннями, пов'язані з $EMAIL$. Записи сховища організації не експортуватимуться.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3563,6 +3566,6 @@
     "message": "Змінити ризикований пароль"
   },
   "move": {
-    "message": "Move"
+    "message": "Перемістити"
   }
 }

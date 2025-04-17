@@ -250,6 +250,7 @@
         "napi-derive",
         "node-forge",
         "node-ipc",
+        "nx",
         "oo7",
         "oslog",
         "pin-project",
