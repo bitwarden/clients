@@ -84,6 +84,7 @@ type NotificationBackgroundExtensionMessage = {
   tab?: chrome.tabs.Tab;
   sender?: string;
   notificationType?: string;
+  organizationId?: string;
   fadeOutNotification?: boolean;
 };
 
