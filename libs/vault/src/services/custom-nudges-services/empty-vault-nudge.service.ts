@@ -28,12 +28,13 @@ export class EmptyVaultNudgeService extends DefaultSingleNudgeService {
       this.collectionService.decryptedCollections$,
     ]).pipe(
       switchMap(([nudgeStatus, ciphers, orgs, collections]) => {
+        const cipherStatus = ciphers != null && ciphers.length > 0;
         if (orgs == null || orgs.length === 0) {
           return !nudgeStatus.showBadge || !nudgeStatus.showSpotlight
             ? of(nudgeStatus)
             : of({
-                showSpotlight: ciphers == null || ciphers.length === 0,
-                showBadge: ciphers == null || ciphers.length === 0,
+                showSpotlight: cipherStatus,
+                showBadge: cipherStatus,
               });
         }
         const orgIds = new Set(orgs.map((org) => org.id));
@@ -58,8 +59,8 @@ export class EmptyVaultNudgeService extends DefaultSingleNudgeService {
           return of(nudgeStatus);
         }
         return of({
-          showSpotlight: ciphers == null || ciphers.length === 0,
-          showBadge: ciphers == null || ciphers.length === 0,
+          showSpotlight: cipherStatus,
+          showBadge: cipherStatus,
         });
       }),
     );
