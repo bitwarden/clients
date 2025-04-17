@@ -22,7 +22,7 @@ export class EmptyVaultNudgeService extends DefaultSingleNudgeService {
 
   shouldShowNudge$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
     return combineLatest([
-      this.isDismissed$(nudgeType, userId),
+      this.getNudgeStatus$(nudgeType, userId),
       this.cipherService.cipherViews$(userId),
       this.organizationService.organizations$(userId),
       this.collectionService.decryptedCollections$,

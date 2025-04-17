@@ -19,7 +19,10 @@ export class HasItemsNudgeService extends DefaultSingleNudgeService {
   apiService = inject(ApiService);
 
   shouldShowNudge$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
-    return combineLatest([this.apiService.getProfile(), this.isDismissed$(nudgeType, userId)]).pipe(
+    return combineLatest([
+      this.apiService.getProfile(),
+      this.getNudgeStatus$(nudgeType, userId),
+    ]).pipe(
       switchMap(([userProfile, nudgeStatus]) => {
         const thirtyDays = new Date(new Date().getTime() - 30 * 24 * 60 * 60 * 1000);
         const profileCreationDate = new Date(userProfile.creationDate);

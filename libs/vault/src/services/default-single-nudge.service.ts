@@ -28,7 +28,7 @@ export interface SingleNudgeService {
 export class DefaultSingleNudgeService implements SingleNudgeService {
   stateProvider = inject(StateProvider);
 
-  protected isDismissed$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
+  protected getNudgeStatus$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
     return this.stateProvider
       .getUser(userId, VAULT_NUDGE_DISMISSED_DISK_KEY)
       .state$.pipe(
@@ -37,7 +37,7 @@ export class DefaultSingleNudgeService implements SingleNudgeService {
   }
 
   shouldShowNudge$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
-    return this.isDismissed$(nudgeType, userId);
+    return this.getNudgeStatus$(nudgeType, userId);
   }
 
   async setNudgeStatus(
