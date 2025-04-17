@@ -2,15 +2,6 @@
 #![allow(non_snake_case)]
 #![allow(non_camel_case_types)]
 
-mod pa;
-
-use pa::{
-    DWORD, EXPERIMENTAL_PCWEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
-    EXPERIMENTAL_PCWEBAUTHN_PLUGIN_OPERATION_REQUEST,
-    EXPERIMENTAL_PWEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE,
-    EXPERIMENTAL_PWEBAUTHN_PLUGIN_OPERATION_RESPONSE,
-    EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE, PBYTE,
-};
 use std::ffi::c_uchar;
 use std::ptr;
 use windows::Win32::Foundation::*;
@@ -18,15 +9,65 @@ use windows::Win32::System::Com::*;
 use windows::Win32::System::LibraryLoader::*;
 use windows_core::*;
 
+// constants
 const AUTHENTICATOR_NAME: &str = "Bitwarden Desktop Authenticator";
 //const AAGUID: &str = "d548826e-79b4-db40-a3d8-11116f7e8349";
 const CLSID: &str = "0f7dc5d9-69ce-4652-8572-6877fd695062";
 const RPID: &str = "bitwarden.com";
 
-/// Returns the current Windows WebAuthN version.
-pub fn get_version_number() -> u32 {
-    unsafe { pa::WebAuthNGetApiVersionNumber() }
+// types
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct EXPERIMENTAL_WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST {
+    pub transactionId: GUID,
+    pub cbRequestSignature: DWORD,
+    pub pbRequestSignature: *mut byte,
 }
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct EXPERIMENTAL_WEBAUTHN_PLUGIN_OPERATION_REQUEST {
+    pub hWnd: HWND,
+    pub transactionId: GUID,
+    pub cbRequestSignature: DWORD,
+    pub pbRequestSignature: *mut byte,
+    pub cbEncodedRequest: DWORD,
+    pub pbEncodedRequest: *mut byte,
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE {
+    pub cbOpSignPubKey: DWORD,
+    pub pbOpSignPubKey: PBYTE,
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct EXPERIMENTAL_WEBAUTHN_PLUGIN_OPERATION_RESPONSE {
+    pub cbEncodedResponse: DWORD,
+    pub pbEncodedResponse: *mut byte,
+}
+
+// aliases
+type DWORD = u32;
+type BYTE = u8;
+type byte = u8;
+pub type PBYTE = *mut BYTE;
+
+type EXPERIMENTAL_PCWEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST =
+    *const EXPERIMENTAL_WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST;
+pub type EXPERIMENTAL_PCWEBAUTHN_PLUGIN_OPERATION_REQUEST =
+    *const EXPERIMENTAL_WEBAUTHN_PLUGIN_OPERATION_REQUEST;
+pub type EXPERIMENTAL_PWEBAUTHN_PLUGIN_OPERATION_RESPONSE =
+    *mut EXPERIMENTAL_WEBAUTHN_PLUGIN_OPERATION_RESPONSE;
+pub type EXPERIMENTAL_PWEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE =
+    *mut EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE;
+
+/// Returns the current Windows WebAuthN version.
+//pub fn get_version_number() -> u32 {
+//    unsafe { pa::WebAuthNGetApiVersionNumber() }
+//}
 
 /// Handles initialization and registration for the Bitwarden desktop app as a
 /// plugin authenticator with Windows.
