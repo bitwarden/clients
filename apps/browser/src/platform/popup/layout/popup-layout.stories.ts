@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, importProvidersFrom } from "@angular/core";
-import { RouterModule } from "@angular/router";
+import { ActivatedRoute, RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -16,6 +16,7 @@ import {
   I18nMockService,
   IconButtonModule,
   ItemModule,
+  LinkModule,
   NoItemsModule,
   SearchModule,
   SectionComponent,
@@ -315,6 +316,7 @@ export default {
         PopupPageComponent,
         PopupFooterComponent,
         CommonModule,
+        LinkModule,
         RouterModule,
         ExtensionContainerComponent,
         MockBannerComponent,
@@ -340,6 +342,7 @@ export default {
               generator: "Generator",
               send: "Send",
               settings: "Settings",
+              labelWithNotification: (label: string) => `${label}: New Notification`,
             });
           },
         },
@@ -365,6 +368,23 @@ export default {
                 return { pipe: () => ({}) };
               },
             };
+          },
+        },
+        {
+          provide: I18nService,
+          useValue: {
+            t: (key: string, label?: string) =>
+              key === "labelWithNotification" && label ? `${label} - New Notification` : key,
+          },
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              data: {
+                title: "Test Title",
+              },
+            },
           },
         },
       ],
@@ -398,17 +418,64 @@ export default {
 
 type Story = StoryObj<PopupPageComponent>;
 
-export const PopupTabNavigation: Story = {
+type PopupTabNavigationStory = StoryObj<PopupTabNavigationComponent>;
+
+const navButtons = (showBerry = false) => [
+  {
+    label: "vault",
+    page: "/tabs/vault",
+    iconKey: "lock",
+    iconKeyActive: "lock-f",
+  },
+  {
+    label: "generator",
+    page: "/tabs/generator",
+    iconKey: "generate",
+    iconKeyActive: "generate-f",
+  },
+  {
+    label: "send",
+    page: "/tabs/send",
+    iconKey: "send",
+    iconKeyActive: "send-f",
+  },
+  {
+    label: "settings",
+    page: "/tabs/settings",
+    iconKey: "cog",
+    iconKeyActive: "cog-f",
+    showBerry: showBerry,
+  },
+];
+
+export const DefaultPopupTabNavigation: PopupTabNavigationStory = {
   render: (args) => ({
     props: args,
-    template: /* HTML */ `
+    template: /*html*/ `
       <extension-container>
-        <popup-tab-navigation>
+        <popup-tab-navigation [navButtons]="navButtons">
           <router-outlet></router-outlet>
         </popup-tab-navigation>
-      </extension-container>
-    `,
+      </extension-container>`,
   }),
+  args: {
+    navButtons: navButtons(),
+  },
+};
+
+export const PopupTabNavigationWithBerry: PopupTabNavigationStory = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <extension-container>
+        <popup-tab-navigation [navButtons]="navButtons">
+          <router-outlet></router-outlet>
+        </popup-tab-navigation>
+      </extension-container>`,
+  }),
+  args: {
+    navButtons: navButtons(true),
+  },
 };
 
 export const PopupPage: Story = {

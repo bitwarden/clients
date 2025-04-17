@@ -1,5 +1,4 @@
 import { Component } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { combineLatest, map } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -14,8 +13,6 @@ import { NavButton } from "../platform/popup/layout/popup-tab-navigation.compone
   providers: [HasNudgeService],
 })
 export class TabsV2Component {
-  navButtons = this.buildNavButtons();
-
   buildNavButtons(showBerry = false): NavButton[] {
     return [
       {
@@ -49,17 +46,14 @@ export class TabsV2Component {
   constructor(
     private readonly hasNudgeService: HasNudgeService,
     private readonly configService: ConfigService,
-  ) {
-    combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge),
-      this.hasNudgeService.shouldShowNudge$(),
-    ])
-      .pipe(
-        takeUntilDestroyed(),
-        map(([onboardingFeatureEnabled, showNudge]) => {
-          this.navButtons = this.buildNavButtons(showNudge && onboardingFeatureEnabled);
-        }),
-      )
-      .subscribe();
-  }
+  ) {}
+
+  protected navButtons$ = combineLatest([
+    this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge),
+    this.hasNudgeService.shouldShowNudge$(),
+  ]).pipe(
+    map(([onboardingFeatureEnabled, showNudge]) => {
+      return this.buildNavButtons(showNudge && onboardingFeatureEnabled);
+    }),
+  );
 }
