@@ -236,10 +236,8 @@ jobs:
           PKG_CONFIG_ALL_STATIC: true
           TARGET: musl
         run: |
-          curl https://sh.rustup.rs -sSf | sh -s -- -y
-          . "$HOME/.cargo/env"
           rustup target add x86_64-unknown-linux-musl
-          node build.js cross-platform
+          node build.js --target=x86_64-unknown-linux-musl --release
 
       - name: Build application
         run: npm run dist:lin
