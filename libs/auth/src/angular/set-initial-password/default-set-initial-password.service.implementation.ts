@@ -65,9 +65,49 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       throw new Error("protectedUserKey not found. Could not set password.");
     }
 
-    // Since this is an existing JIT provisioned user in a MP encryption org setting first password,
-    // they will not already have a user asymmetric key pair so we must create it for them.
-    const [keyPair, keysRequest] = await this.makeKeyPairAndRequest(protectedUserKey);
+    const forceSetPasswordReason = await firstValueFrom(
+      this.masterPasswordService.forceSetPasswordReason$(userId),
+    );
+
+    let keyPair: [string, EncString] | null = null;
+    let keysRequest: KeysRequest | null = null;
+
+    if (
+      forceSetPasswordReason !=
+      ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission
+    ) {
+      /**
+       * If inside this block, this is a JIT provisioned user in a MP encryption org setting an initial password.
+       * Therefore they will not already have a user asymmetric key pair, and we must create it for them.
+       *
+       * Sidenote: In the TDE case the user already has a user asymmetric key pair, so we skip this block
+       * because we don't want to re-create one.
+       */
+
+      // Extra safety check (see description on https://github.com/bitwarden/clients/pull/10180):
+      //   In case we have have a local private key and are not sure whether it has been posed to the server,
+      //   we post the local private key instead of generating a new one
+      const existingUserPrivateKey = (await firstValueFrom(
+        this.keyService.userPrivateKey$(userId),
+      )) as Uint8Array;
+
+      const existingUserPublicKey = await firstValueFrom(this.keyService.userPublicKey$(userId));
+
+      if (existingUserPrivateKey != null && existingUserPublicKey != null) {
+        const existingUserPublicKeyB64 = Utils.fromBufferToB64(existingUserPublicKey);
+
+        // Existing key pair
+        keyPair = [
+          existingUserPublicKeyB64,
+          await this.encryptService.encrypt(existingUserPrivateKey, protectedUserKey[0]),
+        ];
+      } else {
+        // New key pair
+        keyPair = await this.keyService.makeKeyPair(protectedUserKey[0]);
+      }
+
+      keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
+    }
 
     const request = new SetPasswordRequest(
       serverMasterKeyHash,
@@ -87,7 +127,17 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     // User now has a password so update account decryption options in state
     await this.updateAccountDecryptionProperties(masterKey, kdfConfig, protectedUserKey, userId);
 
-    await this.keyService.setPrivateKey(keyPair[1].encryptedString, userId);
+    /**
+     * Set the private key only for new JIT provisioned users in MP encryption orgs.
+     * (Existing TDE users will have their private key set on sync or on login.)
+     */
+    if (
+      keyPair != null &&
+      forceSetPasswordReason !=
+        ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission
+    ) {
+      await this.keyService.setPrivateKey(keyPair[1].encryptedString, userId);
+    }
 
     await this.masterPasswordService.setMasterKeyHash(localMasterKeyHash, userId);
 
@@ -111,18 +161,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     }
 
     return protectedUserKey;
-  }
-
-  private async makeKeyPairAndRequest(
-    protectedUserKey: [UserKey, EncString],
-  ): Promise<[[string, EncString], KeysRequest]> {
-    const keyPair = await this.keyService.makeKeyPair(protectedUserKey[0]);
-    if (keyPair == null) {
-      throw new Error("keyPair not found. Could not set password.");
-    }
-    const keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
-
-    return [keyPair, keysRequest];
   }
 
   private async updateAccountDecryptionProperties(

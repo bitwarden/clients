@@ -71,10 +71,6 @@ export class SetInitialPasswordComponent implements OnInit {
     this.userId = activeAccount?.id;
     this.email = activeAccount?.email;
 
-    this.forceSetPasswordReason = await firstValueFrom(
-      this.masterPasswordService.forceSetPasswordReason$(this.userId),
-    );
-
     await this.handleQueryParams();
   }
 
@@ -107,18 +103,16 @@ export class SetInitialPasswordComponent implements OnInit {
   protected async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
     this.submitting = true;
 
-    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-
     const credentials: SetInitialPasswordCredentials = {
       ...passwordInputResult,
       orgSsoIdentifier: this.orgSsoIdentifier,
       orgId: this.orgId,
       resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
-      userId,
+      userId: this.userId,
     };
 
     try {
-      await this.setInitialPasswordService.setPassword(credentials);
+      await this.setInitialPasswordService.setPassword(credentials, this.userId);
     } catch (e) {
       this.validationService.showError(e);
       this.submitting = false;
