@@ -59,6 +59,7 @@ export function NotificationContainer({
             ciphers,
             notificationType: type,
             theme,
+            i18n,
           })
         : null}
       ${NotificationFooter({
