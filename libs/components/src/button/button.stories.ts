@@ -24,19 +24,19 @@ export const Primary: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-    <div class="tw-flex tw-gap-4 tw-mb-6">
-      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [block]="block">Button</button>
-      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [block]="block" class="tw-test-hover">Button:hover</button>
-      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
-      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [block]="block" class="tw-test-hover tw-test-focus-visible">Button:hover:focus-visible</button>
-      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [block]="block" class="tw-test-active">Button:active</button>
+    <div class="tw-flex tw-gap-4 tw-mb-6 tw-items-center">
+      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [buttonSize]="buttonSize" [block]="block">Button</button>
+      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [buttonSize]="buttonSize" [block]="block" class="tw-test-hover">Button:hover</button>
+      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [buttonSize]="buttonSize" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
+      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [buttonSize]="buttonSize" [block]="block" class="tw-test-hover tw-test-focus-visible">Button:hover:focus-visible</button>
+      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [buttonSize]="buttonSize" [block]="block" class="tw-test-active">Button:active</button>
     </div>
-    <div class="tw-flex tw-gap-4">
-      <a href="#" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [block]="block">Anchor</a>
-      <a href="#" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [block]="block" class="tw-test-hover">Anchor:hover</a>
-      <a href="#" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [block]="block" class="tw-test-focus-visible">Anchor:focus-visible</a>
-      <a href="#" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [block]="block" class="tw-test-hover tw-test-focus-visible">Anchor:hover:focus-visible</a>
-      <a href="#" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [block]="block" class="tw-test-active">Anchor:active</a>
+    <div class="tw-flex tw-gap-4 tw-items-center">
+      <a href="#" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [buttonSize]="buttonSize" [block]="block">Anchor</a>
+      <a href="#" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [buttonSize]="buttonSize" [block]="block" class="tw-test-hover">Anchor:hover</a>
+      <a href="#" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [buttonSize]="buttonSize" [block]="block" class="tw-test-focus-visible">Anchor:focus-visible</a>
+      <a href="#" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [buttonSize]="buttonSize" [block]="block" class="tw-test-hover tw-test-focus-visible">Anchor:hover:focus-visible</a>
+      <a href="#" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [buttonSize]="buttonSize" [block]="block" class="tw-test-active">Anchor:active</a>
     </div>
     `,
   }),
@@ -56,6 +56,22 @@ export const Danger: Story = {
   ...Primary,
   args: {
     buttonType: "danger",
+  },
+};
+
+export const Small: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+    <div class="tw-flex tw-gap-4 tw-mb-6 tw-items-center">
+      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'primary'" [buttonSize]="buttonSize" [block]="block">Primary small</button>
+      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'secondary'" [buttonSize]="buttonSize" [block]="block">Secondary small</button>
+      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'danger'" [buttonSize]="buttonSize" [block]="block">Danger small</button>
+    </div>
+    `,
+  }),
+  args: {
+    buttonSize: "small",
   },
 };
 

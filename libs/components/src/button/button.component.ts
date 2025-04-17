@@ -1,12 +1,10 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass } from "@angular/common";
-import { Input, HostBinding, Component, model, computed } from "@angular/core";
+import { Input, HostBinding, Component, model, computed, input } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
 
-import { ButtonLikeAbstraction, ButtonType } from "../shared/button-like.abstraction";
+import { ButtonLikeAbstraction, ButtonType, ButtonSize } from "../shared/button-like.abstraction";
 
 const focusRing = [
   "focus-visible:tw-ring-2",
@@ -14,6 +12,11 @@ const focusRing = [
   "focus-visible:tw-ring-primary-600",
   "focus-visible:tw-z-10",
 ];
+
+const buttonSizeStyles: Record<ButtonSize, string[]> = {
+  small: ["tw-py-1", "tw-px-3", "tw-text-sm"],
+  default: ["tw-py-1.5", "tw-px-3"],
+};
 
 const buttonStyles: Record<ButtonType, string[]> = {
   primary: [
@@ -59,8 +62,6 @@ export class ButtonComponent implements ButtonLikeAbstraction {
   @HostBinding("class") get classList() {
     return [
       "tw-font-semibold",
-      "tw-py-1.5",
-      "tw-px-3",
       "tw-rounded-full",
       "tw-transition",
       "tw-border-2",
@@ -85,7 +86,8 @@ export class ButtonComponent implements ButtonLikeAbstraction {
               "disabled:hover:tw-no-underline",
             ]
           : [],
-      );
+      )
+      .concat(buttonSizeStyles[this.nonNullButtonSize()]);
   }
 
   protected disabledAttr = computed(() => {
@@ -106,6 +108,8 @@ export class ButtonComponent implements ButtonLikeAbstraction {
   });
 
   @Input() buttonType: ButtonType;
+  buttonSize = input<ButtonSize>("default");
+  nonNullButtonSize = computed(() => this.buttonSize() ?? "default");
 
   private _block = false;
 
