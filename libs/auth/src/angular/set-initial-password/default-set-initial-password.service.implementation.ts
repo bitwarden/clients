@@ -195,7 +195,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       throw new Error(this.i18nService.t("resetPasswordOrgKeysError"));
     }
 
-    const publicKey = Utils.fromB64ToArray(organizationKeys.publicKey);
+    const orgPublicKey = Utils.fromB64ToArray(organizationKeys.publicKey);
 
     // RSA Encrypt user key with organization public key
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
@@ -204,11 +204,14 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       throw new Error("userKey not found. Could not handle reset password auto enroll.");
     }
 
-    const encryptedUserKey = await this.encryptService.rsaEncrypt(userKey.key, publicKey);
+    const orgPublicKeyEncryptedUserKey = await this.encryptService.rsaEncrypt(
+      userKey.key,
+      orgPublicKey,
+    );
 
     const resetRequest = new OrganizationUserResetPasswordEnrollmentRequest();
     resetRequest.masterPasswordHash = masterKeyHash;
-    resetRequest.resetPasswordKey = encryptedUserKey.encryptedString;
+    resetRequest.resetPasswordKey = orgPublicKeyEncryptedUserKey.encryptedString;
 
     await this.organizationUserApiService.putOrganizationUserResetPasswordEnrollment(
       orgId,
