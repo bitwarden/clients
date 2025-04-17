@@ -201,7 +201,7 @@ jobs:
         if: ${{ inputs.sdk_branch != '' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}
@@ -298,6 +298,103 @@ jobs:
           if-no-files-found: error
 
 
+  linux-arm64:
+    name: Linux ARM64 Build
+    # Note, before updating the ubuntu version of the workflow, ensure the snap base image
+    # is equal or greater than the new version. Otherwise there might be GLIBC version issues.
+    # The snap base for desktop is defined in `apps/desktop/electron-builder.json`
+    # We intentionally keep this runner on the oldest supported OS in GitHub Actions
+    # for maximum compatibility across GLIBC versions
+    runs-on: ubuntu-22.04-arm
+    needs: setup
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
+      NODE_OPTIONS: --max_old_space_size=4096
+    defaults:
+      run:
+        working-directory: apps/desktop
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{  github.event.pull_request.head.sha }}
+
+      - name: Set up Node
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+          node-version: ${{ env._NODE_VERSION }}
+
+      - name: Set up environment
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install pkg-config libxss-dev rpm musl-dev musl-tools flatpak flatpak-builder
+
+      - name: Print environment
+        run: |
+          node --version
+          npm --version
+          snap --version
+          snapcraft --version || echo 'snapcraft unavailable'
+
+      - name: Install Node dependencies
+        run: npm ci
+        working-directory: ./
+
+      - name: Download SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override SDK
+        if: ${{ inputs.sdk_branch != '' }}
+        working-directory: ./
+        run: |
+          ls -l ../
+          npm link ../sdk-internal
+
+      - name: Cache Native Module
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        id: cache
+        with:
+          path: |
+            apps/desktop/desktop_native/napi/*.node
+            apps/desktop/desktop_native/dist/*
+            ${{ env.RUNNER_TEMP }}/.cargo/registry
+            ${{ env.RUNNER_TEMP }}/.cargo/git
+          key: rust-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
+
+      - name: Build Native Module
+        if: steps.cache.outputs.cache-hit != 'true'
+        working-directory: apps/desktop/desktop_native
+        env:
+          PKG_CONFIG_ALLOW_CROSS: true
+          PKG_CONFIG_ALL_STATIC: true
+          TARGET: musl
+        run: |
+          rustup target add aarch64-unknown-linux-musl
+          node build.js --target=aarch64-unknown-linux-musl --release
+
+      - name: Build application
+        run: npm run dist:lin:arm64
+
+      - name: Upload tar.gz artifact
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        with:
+          name: bitwarden_${{ env._PACKAGE_VERSION }}_arm64.tar.gz
+          path: apps/desktop/dist/bitwarden_desktop_arm64.tar.gz
+          if-no-files-found: error
+
   windows:
     name: Windows Build
     runs-on: windows-2022
@@ -369,7 +466,7 @@ jobs:
         if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}
@@ -705,7 +802,7 @@ jobs:
         if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}
@@ -895,7 +992,7 @@ jobs:
         if: ${{ inputs.sdk_branch != '' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}
@@ -1144,7 +1241,7 @@ jobs:
         if: ${{ inputs.sdk_branch != '' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}
@@ -1425,7 +1522,7 @@ jobs:
         if: ${{ inputs.sdk_branch != '' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}

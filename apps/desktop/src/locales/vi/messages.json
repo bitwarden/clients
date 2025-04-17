@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Do chính sách doanh nghiệp, bạn bị hạn chế lưu các mục vào kho cá nhân của mình. Thay đổi tùy chọn quyền sở hữu thành một tổ chức và chọn từ các bộ sưu tập có sẵn."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Gợi ý mật khẩu không được trùng với mật khẩu của bạn."
   },
