@@ -145,7 +145,7 @@ export type IconButtonSize = "default" | "small";
 
 const sizes: Record<IconButtonSize, string[]> = {
   default: ["tw-px-2.5", "tw-py-1.5"],
-  small: ["tw-leading-none", "tw-text-base", "tw-p-1"],
+  small: ["tw-leading-none", "tw-text-base", "tw-p-1.5"],
 };
 
 @Component({
