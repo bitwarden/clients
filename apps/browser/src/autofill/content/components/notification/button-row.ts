@@ -120,7 +120,7 @@ export function NotificationButtonRow({
               },
             ]
           : []),
-        ...(collectionOptions.length
+        ...(collectionOptions.length > 1
           ? [
               {
                 id: "collection",

@@ -752,10 +752,29 @@ export default class NotificationBackground {
     message: NotificationBackgroundExtensionMessage,
     senderTab: chrome.tabs.Tab,
   ) {
-    if (!message.cipherId) {
-      await this.openAddEditVaultItemPopout(senderTab);
+    const { cipherId, organizationId } = message;
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getOptionalUserId));
+    if (cipherId) {
+      await this.openAddEditVaultItemPopout(senderTab, { cipherId });
+      return;
     }
-    await this.openAddEditVaultItemPopout(senderTab, { cipherId: message?.cipherId });
+
+    const queueItem = this.notificationQueue.find((item) => item.tab.id === senderTab.id);
+
+    if (queueItem?.type === NotificationQueueMessageType.AddLogin) {
+      const cipherView = this.convertAddLoginQueueMessageToCipherView(queueItem);
+      cipherView.organizationId = organizationId;
+
+      if (userId) {
+        await this.cipherService.setAddEditCipherInfo({ cipher: cipherView }, userId);
+      }
+
+      await this.openAddEditVaultItemPopout(senderTab);
+      this.removeTabFromNotificationQueue(senderTab);
+      return;
+    }
+
+    await this.openAddEditVaultItemPopout(senderTab);
   }
 
   private async folderExists(folderId: string, userId: UserId) {
@@ -1008,6 +1027,7 @@ export default class NotificationBackground {
     cipherView.folderId = folderId;
     cipherView.type = CipherType.Login;
     cipherView.login = loginView;
+    cipherView.organizationId = null;
 
     return cipherView;
   }
