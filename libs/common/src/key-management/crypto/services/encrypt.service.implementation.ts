@@ -81,18 +81,18 @@ export class EncryptServiceImplementation implements EncryptService {
   }
 
   async wrapSymmetricKey(
-    encapsulatedKey: SymmetricCryptoKey,
-    key: SymmetricCryptoKey,
+    keyToBeWrapped: SymmetricCryptoKey,
+    wrappingKey: SymmetricCryptoKey,
   ): Promise<EncString> {
-    if (encapsulatedKey == null) {
-      throw new Error("No encapsulated key provided for encapsulation.");
+    if (keyToBeWrapped == null) {
+      throw new Error("No keyToBeWrapped provided for wrapping.");
     }
 
-    if (key == null) {
-      throw new Error("No encryption key provided for encapsulation.");
+    if (wrappingKey == null) {
+      throw new Error("No wrappingKey provided for wrapping.");
     }
 
-    return await this.encryptUint8Array(encapsulatedKey.key, key);
+    return await this.encryptUint8Array(keyToBeWrapped.key, wrappingKey);
   }
 
   private async encryptUint8Array(
