@@ -148,6 +148,16 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     if (userId == null) {
       throw new Error("User ID is required.");
     }
+
+    // Don't overwrite AdminForcePasswordReset with other reasons
+    const currentReason = await firstValueFrom(this.forceSetPasswordReason$(userId));
+    if (
+      currentReason === ForceSetPasswordReason.AdminForcePasswordReset &&
+      reason !== ForceSetPasswordReason.None
+    ) {
+      return; // Don't override admin reset with other reasons
+    }
+
     await this.stateProvider.getUser(userId, FORCE_SET_PASSWORD_REASON).update((_) => reason);
   }
 
