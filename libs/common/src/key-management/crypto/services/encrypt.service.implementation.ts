@@ -74,7 +74,7 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     if (wrappingKey == null) {
-      throw new Error("No encryption key provided for encapsulation.");
+      throw new Error("No warppingKey provided for wrapping.");
     }
 
     return await this.encryptUint8Array(encapsulationKeySpki, wrappingKey);
