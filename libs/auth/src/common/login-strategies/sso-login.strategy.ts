@@ -4,6 +4,7 @@ import { firstValueFrom, Observable, map, BehaviorSubject } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/sso-token.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
@@ -354,5 +355,73 @@ export class SsoLoginStrategy extends LoginStrategy {
     return {
       sso: this.cache.value,
     };
+  }
+
+  /**
+   * Override to handle SSO-specific ForceSetPasswordReason flags.
+   * This includes TdeOffboarding, TdeUserWithoutPasswordHasPasswordResetPermission,
+   * and SsoNewJitProvisionedUser cases.
+   */
+  override async processForceSetPasswordReason(
+    authResult: AuthResult,
+    userId: UserId,
+  ): Promise<void> {
+    // First use the base implementation to handle any existing reasons
+    await super.processForceSetPasswordReason(authResult, userId);
+
+    // If a reason is already set by the base implementation, don't evaluate SSO-specific reasons
+    // since they are less important than admin reset
+    const currentReason = await firstValueFrom(
+      this.masterPasswordService.forceSetPasswordReason$(userId),
+    );
+    if (currentReason !== ForceSetPasswordReason.None) {
+      return;
+    }
+
+    // Check for TDE-related conditions
+    const userDecryptionOptions = await firstValueFrom(
+      this.userDecryptionOptionsService.userDecryptionOptions$,
+    );
+
+    if (!userDecryptionOptions) {
+      return;
+    }
+
+    // Check for TDE offboarding - user is being offboarded from TDE and needs to set a password
+    if (userDecryptionOptions.trustedDeviceOption?.isTdeOffboarding) {
+      await this.masterPasswordService.setForceSetPasswordReason(
+        ForceSetPasswordReason.TdeOffboarding,
+        userId,
+      );
+      authResult.forcePasswordReset = ForceSetPasswordReason.TdeOffboarding;
+      return;
+    }
+
+    // Check if user has permission to set password but hasn't yet
+    if (
+      !userDecryptionOptions.hasMasterPassword &&
+      userDecryptionOptions.trustedDeviceOption?.hasManageResetPasswordPermission
+    ) {
+      await this.masterPasswordService.setForceSetPasswordReason(
+        ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
+        userId,
+      );
+      authResult.forcePasswordReset =
+        ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission;
+      return;
+    }
+
+    // Check for new SSO JIT provisioned user
+    if (
+      !userDecryptionOptions.hasMasterPassword &&
+      !userDecryptionOptions.keyConnectorOption?.keyConnectorUrl &&
+      !userDecryptionOptions.trustedDeviceOption
+    ) {
+      await this.masterPasswordService.setForceSetPasswordReason(
+        ForceSetPasswordReason.SsoNewJitProvisionedUser,
+        userId,
+      );
+      authResult.forcePasswordReset = ForceSetPasswordReason.SsoNewJitProvisionedUser;
+    }
   }
 }
