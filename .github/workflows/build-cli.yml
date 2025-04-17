@@ -87,6 +87,7 @@ jobs:
         os:
          [
           { base: "linux", distro: "ubuntu-22.04", target_suffix: "" },
+          { base: "linux", distro: "ubuntu-22.04-arm", target_suffix: "-arm64" },
           { base: "mac", distro: "macos-13", target_suffix: "" },
           { base: "mac", distro: "macos-14", target_suffix: "-arm64" }
          ]
@@ -130,7 +131,7 @@ jobs:
         if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}
@@ -306,7 +307,7 @@ jobs:
         if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}

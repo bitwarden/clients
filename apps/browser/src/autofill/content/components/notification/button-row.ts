@@ -4,7 +4,7 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { Option, OrgView, FolderView, CollectionView } from "../common-types";
-import { Business, Users, Folder, User, Collection } from "../icons";
+import { Business, Family, Folder, User, CollectionShared } from "../icons";
 import { ButtonRow } from "../rows/button-row";
 import { selectedCollection as selectedCollectionSignal } from "../signals/selected-collection";
 import { selectedFolder as selectedFolderSignal } from "../signals/selected-folder";
@@ -14,7 +14,7 @@ function getVaultIconByProductTier(productTierType?: ProductTierType): Option["i
   switch (productTierType) {
     case ProductTierType.Free:
     case ProductTierType.Families:
-      return Users;
+      return Family;
     case ProductTierType.Teams:
     case ProductTierType.Enterprise:
     case ProductTierType.TeamsStarter:
@@ -85,7 +85,7 @@ export function NotificationButtonRow({
         (options, { id, name }: any) => [
           ...options,
           {
-            icon: Collection,
+            icon: CollectionShared,
             text: name,
             value: id === null ? "0" : id,
             default: id === null,
