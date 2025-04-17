@@ -8,6 +8,7 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -56,6 +57,7 @@ export class SetInitialPasswordComponent implements OnInit {
     private policyApiService: PolicyApiServiceAbstraction,
     private router: Router,
     private setInitialPasswordService: SetInitialPasswordService,
+    private ssoLoginService: SsoLoginServiceAbstraction,
     private syncService: SyncService,
     private toastService: ToastService,
     private validationService: ValidationService,
@@ -79,10 +81,12 @@ export class SetInitialPasswordComponent implements OnInit {
   private async handleQueryParams() {
     const qParams = await firstValueFrom(this.activatedRoute.queryParams);
 
-    if (qParams.identifier != null) {
-      try {
-        this.orgSsoIdentifier = qParams.identifier;
+    this.orgSsoIdentifier =
+      qParams.identifier ??
+      (await this.ssoLoginService.getActiveUserOrganizationSsoIdentifier(this.userId));
 
+    if (this.orgSsoIdentifier != null) {
+      try {
         const autoEnrollStatus = await this.organizationApiService.getAutoEnrollStatus(
           this.orgSsoIdentifier,
         );
