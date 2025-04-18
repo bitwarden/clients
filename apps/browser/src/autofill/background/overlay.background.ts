@@ -680,7 +680,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
     const pageDetail = pageDetailsMap.get(frameId);
     return (
-      pageDetail?.details?.fields?.every((field) =>
+      pageDetail?.details?.fields?.some((field) =>
         this.inlineMenuFieldQualificationService.isTotpField(field),
       ) || false
     );
