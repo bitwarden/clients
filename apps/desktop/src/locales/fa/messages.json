@@ -833,18 +833,6 @@
   "continue": {
     "message": "ادامه"
   },
-  "enterVerificationCodeApp": {
-    "message": "کد ۶ رقمی تأیید را از برنامه احراز هویت وارد کنید."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "کد ۶ رقمی تأیید را که به $EMAIL$ ایمیل شده را وارد کنید.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "ایمیل تأیید به $EMAIL$ ارسال شد.",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "مرا به خاطر بسپار"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "ارسال دوباره ایمیل کد تأیید"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "استفاده از روش ورود دو مرحله‌ای دیگر"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "YubiKey خود را وارد پورت USB رایانه کنید، بعد دکمه آن را بفشارید."
   },
   "insertU2f": {
     "message": "کلید امنیتی خود را وارد پورت USB رایانه کنید، اگر دکمه‌ای دارد آن را بفشارید."
@@ -2096,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "به دلیل سیاست پرمیوم، برای ذخیره موارد در گاوصندوق شخصی خود محدود شده اید. گزینه مالکیت را به یک سازمان تغییر دهید و مجموعه های موجود را انتخاب کنید."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "اشاره به کلمه عبور شما نمی‌تواند همان کلمه عبور شما باشد."
   },
@@ -2483,6 +2462,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "فقط موارد شخصی گاوصندوق مرتبط با $EMAIL$ برون ریزی خواهند شد. موارد گاوصندوق سازمان شامل نخواهد شد. فقط اطلاعات مورد گاوصندوق برون ریزی خواهد شد و شامل تاریخچه کلمه عبور مرتبط یا پیوست نمی‌شود.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3215,9 +3203,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
   },
@@ -3579,5 +3564,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }

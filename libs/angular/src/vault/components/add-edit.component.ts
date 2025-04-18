@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { DatePipe } from "@angular/common";
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { concatMap, firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
+import { concatMap, firstValueFrom, map, Observable, Subject, switchMap, takeUntil } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
@@ -193,9 +193,12 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.policyService
-      .policyAppliesToActiveUser$(PolicyType.PersonalOwnership)
+    this.accountService.activeAccount$
       .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+        ),
         concatMap(async (policyAppliesToActiveUser) => {
           this.personalOwnershipPolicyAppliesToActiveUser = policyAppliesToActiveUser;
           await this.init();
@@ -419,10 +422,15 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const cipher = await this.encryptCipher(activeUserId);
+
     try {
       this.formPromise = this.saveCipher(cipher);
-      await this.formPromise;
-      this.cipher.id = cipher.id;
+      const savedCipher = await this.formPromise;
+
+      // Reset local cipher from the saved cipher returned from the server
+      this.cipher = await savedCipher.decrypt(
+        await this.cipherService.getKeyForCipherKeyDecryption(savedCipher, activeUserId),
+      );
       this.toastService.showToast({
         variant: "success",
         title: null,

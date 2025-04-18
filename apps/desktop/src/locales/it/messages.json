@@ -833,18 +833,6 @@
   "continue": {
     "message": "Continua"
   },
-  "enterVerificationCodeApp": {
-    "message": "Inserisci il codice di verifica a 6 cifre dalla tua app di autenticazione."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Inserisci il codice di verifica a 6 cifre inviato a $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Email di verifica inviata a $EMAIL$.",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Ricordami"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Non chiedere più su questo dispositivo per 30 giorni"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Invia email con codice di verifica di nuovo"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Usa un altro metodo di verifica in due passaggi"
   },
   "selectAnotherMethod": {
     "message": "Seleziona un altro metodo",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Usa il tuo codice di recupero"
-  },
-  "insertYubiKey": {
-    "message": "Inserisci la tua YubiKey nella porta USB del computer e premi il suo pulsante."
   },
   "insertU2f": {
     "message": "Inserisci la tua chiave di sicurezza nella porta USB del tuo computer. Se dispone di un pulsante, premilo."
@@ -2096,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "A causa di una politica aziendale, non puoi salvare elementi nella tua cassaforte personale. Cambia l'opzione di proprietà in un'organizzazione e scegli tra le raccolte disponibili."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Il suggerimento per la password non può essere uguale alla tua password."
   },
@@ -2483,6 +2462,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "Solo gli elementi della cassaforte personale associati a $EMAIL$ saranno esportati. Gli elementi della cassaforte dell'organizzazione non saranno inclusi. Solo le informazioni sugli elementi della cassaforte saranno esportate e non includeranno gli allegati.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3215,9 +3203,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Errore di connessione con il servizio Duo. Utilizza un metodo di login in due passaggi diverso o contatta Duo per assistenza."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Avvia Duo e segui i passaggi per finire di accedere."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Per il tuo account è richiesta la verifica in due passaggi Duo."
   },
@@ -3579,5 +3564,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Modifica la password non sicura o esposta"
+  },
+  "move": {
+    "message": "Move"
   }
 }

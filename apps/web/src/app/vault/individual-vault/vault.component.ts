@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef } from "@angular/cdk/dialog";
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
@@ -14,6 +13,7 @@ import {
   Subject,
 } from "rxjs";
 import {
+  catchError,
   concatMap,
   debounceTime,
   filter,
@@ -24,7 +24,6 @@ import {
   take,
   takeUntil,
   tap,
-  catchError,
 } from "rxjs/operators";
 
 import {
@@ -65,7 +64,8 @@ import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-repromp
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
-import { DialogService, Icons, ToastService } from "@bitwarden/components";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
+import { DialogRef, DialogService, Icons, ToastService } from "@bitwarden/components";
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
@@ -139,7 +139,6 @@ const SearchTextDebounceInterval = 200;
     VaultFilterModule,
     VaultItemsModule,
     SharedModule,
-    DecryptionFailureDialogComponent,
   ],
   providers: [
     RoutedVaultFilterService,
@@ -349,9 +348,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
       concatMap(async ([ciphers, filter, searchText]) => {
-        const failedCiphers = await firstValueFrom(
-          this.cipherService.failedToDecryptCiphers$(activeUserId),
-        );
+        const failedCiphers =
+          (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
         const filterFunction = createFilterFunction(filter);
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
@@ -473,6 +471,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     firstSetup$
       .pipe(
         switchMap(() => this.cipherService.failedToDecryptCiphers$(activeUserId)),
+        filterOutNullish(),
         map((ciphers) => ciphers.filter((c) => !c.isDeleted)),
         filter((ciphers) => ciphers.length > 0),
         take(1),
@@ -529,6 +528,10 @@ export class VaultComponent implements OnInit, OnDestroy {
           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
           this.performingInitialLoad = false;
           this.refreshing = false;
+
+          // Explicitly mark for check to ensure the view is updated
+          // Some sources are not always emitted within the Angular zone (e.g. ciphers updated via WS notifications)
+          this.changeDetectorRef.markForCheck();
         },
       );
   }

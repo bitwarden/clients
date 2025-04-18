@@ -833,18 +833,6 @@
   "continue": {
     "message": "Fortsätt"
   },
-  "enterVerificationCodeApp": {
-    "message": "Ange den 6-siffriga verifieringskoden från din autentiseringsapp."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Ange den 6-siffriga verifieringskoden som har skickats till $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Verifieringsmeddelande har skickats till $EMAIL$.",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Kom ihåg mig"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Skicka e-postmeddelandet med verifieringskoden igen"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Använd en annan metod för tvåstegsverifiering"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "Anslut din YubiKey till datorns USB-port och tryck sedan på dess knapp."
   },
   "insertU2f": {
     "message": "Anslut din säkerhetsnyckel till datorns USB-port. Om den har en knapp, tryck på den."
@@ -2096,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "På grund av en av företagets policyer är du begränsad från att spara objekt till ditt personliga valv. Ändra ägarskap till en organisation och välj från tillgängliga samlingar."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Din lösenordsledtråd får inte vara samma som ditt lösenord."
   },
@@ -2483,6 +2462,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "Endast de personliga valvobjekten som är associerade med $EMAIL$ kommer att exporteras. Organisationers valv kommer inte att inkluderas. Endast information om valv kommer att exporteras och kommer inte att innehålla tillhörande bilagor.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3215,9 +3203,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Starta Duo och följ stegen för att slutföra inloggningen."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Duo tvåstegsverifiering krävs för ditt konto."
   },
@@ -3579,5 +3564,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }

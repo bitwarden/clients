@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { importProvidersFrom, signal } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
 import { action } from "@storybook/addon-actions";
 import {
   applicationConfig,
@@ -29,7 +30,7 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
-import { AsyncActionsModule, ButtonModule, ToastService } from "@bitwarden/components";
+import { AsyncActionsModule, ButtonModule, ItemModule, ToastService } from "@bitwarden/components";
 import {
   CipherFormConfig,
   CipherFormGenerationService,
@@ -131,7 +132,7 @@ export default {
   component: CipherFormComponent,
   decorators: [
     moduleMetadata({
-      imports: [CipherFormModule, AsyncActionsModule, ButtonModule],
+      imports: [CipherFormModule, AsyncActionsModule, ButtonModule, ItemModule],
       providers: [
         {
           provide: CipherFormService,
@@ -225,6 +226,14 @@ export default {
             getFeatureFlag: () => Promise.resolve(false),
           },
         },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              queryParams: {},
+            },
+          },
+        },
       ],
     }),
     componentWrapperDecorator(
@@ -246,7 +255,7 @@ export default {
 
 type Story = StoryObj<CipherFormComponent>;
 
-export const Default: Story = {
+export const Add: Story = {
   render: (args) => {
     return {
       props: {
@@ -254,15 +263,28 @@ export const Default: Story = {
         ...args,
       },
       template: /*html*/ `
-        <vault-cipher-form [config]="config" (cipherSaved)="onSave($event)" formId="test-form" [submitBtn]="submitBtn"></vault-cipher-form>
-        <button type="submit" form="test-form" bitButton buttonType="primary" #submitBtn>Submit</button>
+        <vault-cipher-form [config]="config" (cipherSaved)="onSave($event)" formId="test-form"></vault-cipher-form>
       `,
     };
   },
 };
 
 export const Edit: Story = {
-  ...Default,
+  render: (args) => {
+    return {
+      props: {
+        onSave: actionsData.onSave,
+        ...args,
+      },
+      template: /*html*/ `
+        <vault-cipher-form [config]="config" (cipherSaved)="onSave($event)" formId="test-form" [submitBtn]="submitBtn">
+          <bit-item slot="attachment-button">
+            <button bit-item-content type="button">Attachments</button>
+          </bit-item>
+        </vault-cipher-form>
+      `,
+    };
+  },
   args: {
     config: {
       ...defaultConfig,
@@ -273,7 +295,7 @@ export const Edit: Story = {
 };
 
 export const PartialEdit: Story = {
-  ...Default,
+  ...Add,
   args: {
     config: {
       ...defaultConfig,
@@ -284,7 +306,7 @@ export const PartialEdit: Story = {
 };
 
 export const Clone: Story = {
-  ...Default,
+  ...Add,
   args: {
     config: {
       ...defaultConfig,
@@ -294,8 +316,27 @@ export const Clone: Story = {
   },
 };
 
+export const WithSubmitButton: Story = {
+  render: (args) => {
+    return {
+      props: {
+        onSave: actionsData.onSave,
+        ...args,
+      },
+      template: /*html*/ `
+      <div class="tw-p-4">
+        <vault-cipher-form [config]="config" (cipherSaved)="onSave($event)" formId="test-form" [submitBtn]="submitBtn"></vault-cipher-form>
+      </div>
+      <div class="tw-p-4">
+        <button type="submit" form="test-form" bitButton buttonType="primary" #submitBtn>Submit</button>
+      </div>
+      `,
+    };
+  },
+};
+
 export const NoPersonalOwnership: Story = {
-  ...Default,
+  ...Add,
   args: {
     config: {
       ...defaultConfig,

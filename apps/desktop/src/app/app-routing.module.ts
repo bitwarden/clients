@@ -6,7 +6,6 @@ import {
   DesktopDefaultOverlayPosition,
   EnvironmentSelectorComponent,
 } from "@bitwarden/angular/auth/components/environment-selector.component";
-import { unauthUiRefreshSwap } from "@bitwarden/angular/auth/functions/unauth-ui-refresh-route-swap";
 import {
   authGuard,
   lockGuard,
@@ -52,7 +51,6 @@ import {
 import { AccessibilityCookieComponent } from "../auth/accessibility-cookie.component";
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
 import { SetPasswordComponent } from "../auth/set-password.component";
-import { TwoFactorComponentV1 } from "../auth/two-factor-v1.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import { VaultComponent } from "../vault/app/vault/vault.component";
@@ -76,28 +74,6 @@ const routes: Routes = [
     children: [], // Children lets us have an empty component.
     canActivate: [redirectGuard({ loggedIn: "/vault", loggedOut: "/login", locked: "/lock" })],
   },
-  ...unauthUiRefreshSwap(
-    TwoFactorComponentV1,
-    AnonLayoutWrapperComponent,
-    {
-      path: "2fa",
-    },
-    {
-      path: "2fa",
-      canActivate: [unauthGuardFn(), TwoFactorAuthGuard],
-      children: [
-        {
-          path: "",
-          component: TwoFactorAuthComponent,
-        },
-      ],
-      data: {
-        pageTitle: {
-          key: "verifyYourIdentity",
-        },
-      } satisfies RouteDataProperties & AnonLayoutWrapperData,
-    },
-  ),
   {
     path: "authentication-timeout",
     component: AnonLayoutWrapperComponent,
@@ -359,6 +335,21 @@ const routes: Routes = [
             key: "finishJoiningThisOrganizationBySettingAMasterPassword",
           },
         } satisfies AnonLayoutWrapperData,
+      },
+      {
+        path: "2fa",
+        canActivate: [unauthGuardFn(), TwoFactorAuthGuard],
+        children: [
+          {
+            path: "",
+            component: TwoFactorAuthComponent,
+          },
+        ],
+        data: {
+          pageTitle: {
+            key: "verifyYourIdentity",
+          },
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
     ],
   },

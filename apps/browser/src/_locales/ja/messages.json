@@ -1098,6 +1098,31 @@
     "message": "ログイン情報が更新されました",
     "description": "Message displayed when login details are successfully updated."
   },
+  "loginUpdateTaskSuccess": {
+    "message": "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Thank you for making $ORGANIZATION$ more secure. You have $TASK_COUNT$ more passwords to update.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Change next password",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
   "saveFailure": {
     "message": "保存エラー",
     "description": "Error message shown when the system fails to save login details."
@@ -1391,23 +1416,11 @@
   "premiumRequiredDesc": {
     "message": "この機能を使うにはプレミアム会員になってください。"
   },
-  "enterVerificationCodeApp": {
-    "message": "認証アプリに表示された6桁の認証コードを入力してください。"
-  },
   "authenticationTimeout": {
     "message": "認証のタイムアウト"
   },
   "authenticationSessionTimedOut": {
     "message": "認証セッションの有効期限が切れました。ログインプロセスを再開してください。"
-  },
-  "enterVerificationCodeEmail": {
-    "message": "$EMAIL$に送信された6桁の認証コードを入力してください。",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "$EMAIL$に認証コードを送信しました。",
@@ -1418,17 +1431,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "情報を保存する"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "このデバイスで30日間再表示しない"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "確認コードをメールで再送"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "他の2段階認証方法を使用"
   },
   "selectAnotherMethod": {
     "message": "別の方法を選択",
@@ -1437,17 +1441,8 @@
   "useYourRecoveryCode": {
     "message": "リカバリーコードを使用する"
   },
-  "insertYubiKey": {
-    "message": " YubiKey を USB ポートに挿入し、ボタンをタッチしてください。"
-  },
   "insertU2f": {
     "message": "セキュリティキーを USB ポートに挿入し、ボタンがある場合はボタンをタッチしてください。"
-  },
-  "webAuthnNewTab": {
-    "message": "WebAuthn 2FA 認証を開始するには、下のボタンをクリックして新しいタブを開き、新しいタブの指示に従ってください。"
-  },
-  "webAuthnNewTabOpen": {
-    "message": "新しいタブを開く"
   },
   "openInNewTab": {
     "message": "新しいタブで開く"
@@ -2327,6 +2322,9 @@
   "privacyPolicy": {
     "message": "プライバシーポリシー"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "新しいパスワードを現在のパスワードと同じにすることはできません。"
+  },
   "hintEqualsPassword": {
     "message": "パスワードのヒントをパスワードと同じにすることはできません。"
   },
@@ -2534,14 +2532,14 @@
     "message": "組織で使用するパスワードが脆弱である、または再利用されているか流出しており、危険な状態です。",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
+  "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "危険な状態にあるログイン情報の一覧表示の例"
   },
   "generatePasswordSlideDesc": {
     "message": "Bitwarden の自動入力メニューで、強力で一意なパスワードをすぐに生成しましょう。",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
+  "generatePasswordSlideImgAltPeriod": {
     "message": "Bitwarden の自動入力メニューで、生成されたパスワードが表示されている例"
   },
   "updateInBitwarden": {
@@ -2551,7 +2549,7 @@
     "message": "続いて、 Bitwarden がパスワードマネージャーに保存されたパスワードを更新するよう促します。",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
+  "updateInBitwardenSlideImgAltPeriod": {
     "message": "ユーザーにログイン情報を更新するよう促す Bitwarden の通知例"
   },
   "turnOnAutofill": {
@@ -3000,6 +2998,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "$EMAIL$ に関連付けられた個人の保管庫アイテムのみがエクスポートされます。組織の保管庫アイテムは含まれません。 保管庫アイテム情報のみがエクスポートされ、関連する添付ファイルはエクスポートされません。",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "$EMAIL$ に関連付けられた個人用保管庫のアイテムのみが、添付ファイルを含めてエクスポートされます。組織用保管庫のアイテムは含まれません。",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3839,14 +3846,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Duo サービスへの接続中にエラーが発生しました。異なる二段階ログイン方法を使用するか、Duo に連絡してください。"
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "ログインを完了するには DUO を起動し手順に従ってください。"
-  },
   "duoRequiredForAccount": {
     "message": "アカウントには Duo 二段階認証が必要です。"
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "ログインを完了するために拡張機能を開きます。"
   },
   "popoutExtension": {
     "message": "拡張機能のポップアップ"
@@ -4270,6 +4271,20 @@
       }
     }
   },
+  "viewItemTitleWithField": {
+    "message": "アイテムを表示 - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "autofillTitle": {
     "message": "自動入力 - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
@@ -4277,6 +4292,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "autofillTitleWithField": {
+    "message": "自動入力 - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
       }
     }
   },
@@ -5066,7 +5095,7 @@
     "message": "後で再通知"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "新しいメールアドレス $EMAIL$ はあなたが管理しているものですか？",
+    "message": "メールアドレス $EMAIL$ は、確実にアクセスできるものですか？",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5139,5 +5168,32 @@
   },
   "changeAtRiskPassword": {
     "message": "危険なパスワードの変更"
+  },
+  "introCarouselLabel": {
+    "message": "Bitwarden へようこそ"
+  },
+  "securityPrioritized": {
+    "message": "セキュリティが優先"
+  },
+  "securityPrioritizedBody": {
+    "message": "ログイン情報、カード、ID を安全な保管庫に保存します。 Bitwarden はゼロ知識、エンドツーエンドの暗号化を使用して、あなたにとって重要なものを保護します。"
+  },
+  "quickLogin": {
+    "message": "すばやく簡単にログイン"
+  },
+  "quickLoginBody": {
+    "message": "生体認証によるロック解除と自動入力を設定すると、文字を一切入力することなく各種アカウントにログインすることができます。"
+  },
+  "secureUser": {
+    "message": "ログインをレベルアップ"
+  },
+  "secureUserBody": {
+    "message": "パスワード生成機能を使用すると、すべてのアカウントで強力な一意のパスワードを作成して保存できます。"
+  },
+  "secureDevices": {
+    "message": "必要なデータを、いつでもどこでも"
+  },
+  "secureDevicesBody": {
+    "message": "Bitwarden のモバイル、ブラウザ、デスクトップアプリでは、保存できるパスワード数やデバイス数に制限はありません。"
   }
 }
