@@ -101,6 +101,10 @@ type NotificationBackgroundExtensionMessageHandlers = {
   bgChangedPassword: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgRemoveTabFromNotificationQueue: ({ sender }: BackgroundSenderParam) => void;
   bgSaveCipher: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
+  bgOpenViewVaultItemPopout: ({
+    message,
+    sender,
+  }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgOpenVault: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgNeverSave: ({ sender }: BackgroundSenderParam) => Promise<void>;
   bgUnlockPopoutOpened: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;

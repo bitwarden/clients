@@ -12,6 +12,7 @@ import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/ac
 import {
   ExtensionCommand,
   ExtensionCommandType,
+  NOOP_COMMAND_SUFFIX,
   NOTIFICATION_BAR_LIFESPAN_MS,
 } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -41,7 +42,10 @@ import { SecurityTask } from "@bitwarden/common/vault/tasks/models/security-task
 
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { openAddEditVaultItemPopout } from "../../vault/popup/utils/vault-popout-window";
+import {
+  openAddEditVaultItemPopout,
+  openViewVaultItemPopout,
+} from "../../vault/popup/utils/vault-popout-window";
 import {
   OrganizationCategory,
   OrganizationCategories,
@@ -67,6 +71,7 @@ import { OverlayBackgroundExtensionMessage } from "./abstractions/overlay.backgr
 export default class NotificationBackground {
   private openUnlockPopout = openUnlockPopout;
   private openAddEditVaultItemPopout = openAddEditVaultItemPopout;
+  private openViewVaultItemPopout = openViewVaultItemPopout;
   private notificationQueue: NotificationQueueMessageItem[] = [];
   private allowedRetryCommands: Set<ExtensionCommandType> = new Set([
     ExtensionCommand.AutofillLogin,
@@ -91,6 +96,7 @@ export default class NotificationBackground {
     bgGetOrgData: () => this.getOrgData(),
     bgNeverSave: ({ sender }) => this.saveNever(sender.tab),
     bgOpenVault: ({ message, sender }) => this.openVault(message, sender.tab),
+    bgOpenViewVaultItemPopout: ({ message, sender }) => this.viewItem(message, sender.tab),
     bgRemoveTabFromNotificationQueue: ({ sender }) =>
       this.removeTabFromNotificationQueue(sender.tab),
     bgReopenUnlockPopout: ({ sender }) => this.openUnlockPopout(sender.tab),
@@ -752,6 +758,16 @@ export default class NotificationBackground {
       await this.openAddEditVaultItemPopout(senderTab);
     }
     await this.openAddEditVaultItemPopout(senderTab, { cipherId: message.cipherId });
+  }
+
+  private async viewItem(
+    message: NotificationBackgroundExtensionMessage,
+    senderTab: chrome.tabs.Tab,
+  ) {
+    await this.openViewVaultItemPopout(senderTab, {
+      cipherId: message.cipherId,
+      action: NOOP_COMMAND_SUFFIX,
+    });
   }
 
   private async folderExists(folderId: string, userId: UserId) {

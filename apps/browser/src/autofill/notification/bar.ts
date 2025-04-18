@@ -349,7 +349,7 @@ function handleSaveCipherAttemptCompletedMessage(message: NotificationBarWindowM
 function openViewVaultItemPopout(e: Event, cipherId: string) {
   e.preventDefault();
   sendPlatformMessage({
-    command: "bgOpenVault",
+    command: "bgOpenViewVaultItem",
     cipherId,
   });
 }
