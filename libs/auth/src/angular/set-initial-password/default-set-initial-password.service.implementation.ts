@@ -51,6 +51,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       orgSsoIdentifier,
       orgId,
       resetPasswordAutoEnroll,
+      forceSetPasswordReason,
       userId,
     } = credentials;
 
@@ -64,10 +65,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     if (masterKeyEncryptedUserKey == null) {
       throw new Error("masterKeyEncryptedUserKey not found. Could not set password.");
     }
-
-    const forceSetPasswordReason = await firstValueFrom(
-      this.masterPasswordService.forceSetPasswordReason$(userId),
-    );
 
     let keyPair: [string, EncString] | null = null;
     let keysRequest: KeysRequest | null = null;

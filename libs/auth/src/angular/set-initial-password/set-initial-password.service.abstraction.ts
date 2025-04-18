@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 import { PBKDF2KdfConfig } from "@bitwarden/key-management";
@@ -13,6 +14,7 @@ export interface SetInitialPasswordCredentials {
   orgSsoIdentifier: string;
   orgId: string;
   resetPasswordAutoEnroll: boolean;
+  forceSetPasswordReason: ForceSetPasswordReason;
   userId: UserId;
 }
 
@@ -31,5 +33,5 @@ export abstract class SetInitialPasswordService {
    * @throws If any property on the `credentials` object is null or undefined, or if a protectedUserKey
    *         or newKeyPair could not be created.
    */
-  setPassword: (credentials: SetInitialPasswordCredentials, userId: UserId) => Promise<void>;
+  setPassword: (credentials: SetInitialPasswordCredentials) => Promise<void>;
 }
