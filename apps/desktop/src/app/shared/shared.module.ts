@@ -2,9 +2,11 @@ import { A11yModule } from "@angular/cdk/a11y";
 import { DragDropModule } from "@angular/cdk/drag-drop";
 import { OverlayModule } from "@angular/cdk/overlay";
 import { ScrollingModule } from "@angular/cdk/scrolling";
-import { CommonModule, DatePipe } from "@angular/common";
+import { DatePipe } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { BrowserModule } from "@angular/platform-browser";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 
@@ -14,8 +16,8 @@ import { ServicesModule } from "../services/services.module";
 @NgModule({
   imports: [
     A11yModule,
-    CommonModule,
-    DatePipe,
+    BrowserAnimationsModule,
+    BrowserModule,
     DragDropModule,
     FormsModule,
     JslibModule,
@@ -27,7 +29,8 @@ import { ServicesModule } from "../services/services.module";
   declarations: [AvatarComponent],
   exports: [
     A11yModule,
-    CommonModule,
+    BrowserAnimationsModule,
+    BrowserModule,
     DatePipe,
     DragDropModule,
     FormsModule,

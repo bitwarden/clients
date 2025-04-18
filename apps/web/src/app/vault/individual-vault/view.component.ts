@@ -30,9 +30,9 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { CipherViewComponent } from "@bitwarden/vault";
-import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 
 import { SharedModule } from "../../shared/shared.module";
+import { WebVaultPremiumUpgradePromptService } from "../../vault/services/web-premium-upgrade-prompt.service";
 
 export interface ViewCipherDialogParams {
   cipher: CipherView;

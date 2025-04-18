@@ -52,12 +52,12 @@ import {
   DecryptionFailureDialogComponent,
   DefaultChangeLoginPasswordService,
 } from "@bitwarden/vault";
+
+import { SharedModule } from "../../../shared/shared.module";
 import {
   VaultItemDialogResult,
   WebVaultPremiumUpgradePromptService,
-} from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
-
-import { SharedModule } from "../../../shared/shared.module";
+} from "../../../vault/services/web-premium-upgrade-prompt.service";
 import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/services/routed-vault-filter.service";
 import { RoutedVaultFilterModel } from "../../individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 import { WebCipherFormGenerationService } from "../../services/web-cipher-form-generation.service";

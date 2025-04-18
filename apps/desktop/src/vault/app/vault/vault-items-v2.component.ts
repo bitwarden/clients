@@ -31,10 +31,8 @@ export class VaultItemsV2Component extends BaseVaultItemsComponent {
 
     this.searchBarService.searchText$
       .pipe(distinctUntilChanged(), takeUntilDestroyed())
-      .subscribe((searchText: string | null) => {
-        if (searchText) {
-          this.searchText = searchText;
-        }
+      .subscribe((searchText) => {
+        this.searchText = searchText!;
       });
   }
 

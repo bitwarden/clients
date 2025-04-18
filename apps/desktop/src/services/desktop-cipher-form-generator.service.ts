@@ -4,7 +4,7 @@ import { firstValueFrom } from "rxjs";
 import { DialogService } from "@bitwarden/components";
 import { CipherFormGenerationService } from "@bitwarden/vault";
 
-import { CredentialGeneratorDialogComponent } from "../vault/app/vault/credential-generator-dialog-v2.component";
+import { CredentialGeneratorDialogComponent } from "../vault/app/vault/credential-generator-dialog.component";
 
 @Injectable()
 export class DesktopCredentialGenerationService implements CipherFormGenerationService {
@@ -14,14 +14,12 @@ export class DesktopCredentialGenerationService implements CipherFormGenerationS
     return this.generateCredential("password");
   }
 
-  async generateUsername(uri: string): Promise<string> {
-    return this.generateCredential("username", uri);
+  async generateUsername(): Promise<string> {
+    return this.generateCredential("username");
   }
 
-  async generateCredential(type: "password" | "username", uri?: string): Promise<string> {
-    const dialogRef = CredentialGeneratorDialogComponent.open(this.dialogService, {
-      data: { type, uri },
-    });
+  async generateCredential(type: "password" | "username"): Promise<string> {
+    const dialogRef = CredentialGeneratorDialogComponent.open(this.dialogService, { type });
 
     const result = await firstValueFrom(dialogRef.closed);
 
