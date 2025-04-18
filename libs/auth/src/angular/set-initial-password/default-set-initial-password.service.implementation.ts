@@ -41,7 +41,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
   ) {}
 
-  async setPassword(credentials: SetInitialPasswordCredentials): Promise<void> {
+  async setInitialPassword(credentials: SetInitialPasswordCredentials): Promise<void> {
     const {
       masterKey,
       serverMasterKeyHash,

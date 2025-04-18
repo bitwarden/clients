@@ -117,7 +117,7 @@ export class SetInitialPasswordComponent implements OnInit {
     };
 
     try {
-      await this.setInitialPasswordService.setPassword(credentials);
+      await this.setInitialPasswordService.setInitialPassword(credentials);
     } catch (e) {
       this.validationService.showError(e);
       this.submitting = false;

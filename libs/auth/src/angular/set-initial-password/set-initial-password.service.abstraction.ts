@@ -33,5 +33,5 @@ export abstract class SetInitialPasswordService {
    * @throws If any property on the `credentials` object is null or undefined, or if a protectedUserKey
    *         or newKeyPair could not be created.
    */
-  setPassword: (credentials: SetInitialPasswordCredentials) => Promise<void>;
+  setInitialPassword: (credentials: SetInitialPasswordCredentials) => Promise<void>;
 }
