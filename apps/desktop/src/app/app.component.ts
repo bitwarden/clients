@@ -418,9 +418,14 @@ export class AppComponent implements OnInit, OnDestroy {
               this.modalService.closeAll();
               await this.router.navigate(["lock"]);
             } else if (forcedPasswordReset) {
+              // AuthGuard will handle routing to update-temp-password based on state
+              this.messagingService.send("unlocked");
+              this.loading = true;
+              await this.syncService.fullSync(false);
+              this.loading = false;
               // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
               // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              this.router.navigate(["update-temp-password"]);
+              this.router.navigate(["vault"]);
             } else {
               this.messagingService.send("unlocked");
               this.loading = true;

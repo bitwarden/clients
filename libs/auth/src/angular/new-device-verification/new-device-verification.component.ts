@@ -136,11 +136,7 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
         return;
       }
 
-      if (authResult.forcePasswordReset) {
-        await this.router.navigate(["/update-temp-password"]);
-        return;
-      }
-
+      // AuthGuard will handle routing to update-temp-password based on state
       this.loginSuccessHandlerService.run(authResult.userId);
 
       // If verification succeeds, navigate to vault
