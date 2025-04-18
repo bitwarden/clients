@@ -28,12 +28,9 @@ async function run(context) {
       console.log("### Autofill extension not found - skipping");
     } else {
       if (!fse.existsSync(path.join(appPath, "Contents/PlugIns"))) {
-        console.log("Creating Contents/Plugins");
         fse.mkdirSync(path.join(appPath, "Contents/PlugIns"));
       }
       fse.copySync(extensionPath, path.join(appPath, "Contents/PlugIns/autofill-extension.appex"));
-      let copied = fse.existsSync(path.join(appPath, "Contents/PlugIns/autofill-extension.appex"));
-      console.log(`Autofill copied: ${copied}, ${path.join(appPath, "Contents/PlugIns/autofill-extension.appex")}`);
       shouldResign = true;
     }
   }

@@ -3,7 +3,6 @@ const child = require("child_process");
 const { exit } = require("process");
 
 const fse = require("fs-extra");
-const { build } = require("electron-builder");
 
 const paths = {
   macosBuild: "./macos/build",
@@ -67,6 +66,9 @@ async function buildMacOs() {
     configuration,
     "CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO",
     "OTHER_CODE_SIGN_FLAGS='--timestamp'",
+
+    // While these arguments are defined in the `configuration` file above, xcodebuild has a bug in it currently that requires these arguments
+    // be explicitly defined in this call.
     `CODE_SIGN_IDENTITY=${codeSignIdentity}`,
     `PROVISIONING_PROFILE_SPECIFIER=${provisioningProfileSpecifier}`,
   ]);
