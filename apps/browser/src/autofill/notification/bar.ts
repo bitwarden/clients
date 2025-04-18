@@ -259,7 +259,7 @@ function handleCloseNotification(e: Event) {
 function handleSaveAction(e: Event) {
   const selectedVault = selectedVaultSignal.get();
   if (selectedVault.length > 1) {
-    openViewVaultItemPopout(e, { organizationId: selectedVault });
+    openAddEditVaultItemPopout(e, { organizationId: selectedVault });
     handleCloseNotification(e);
     return;
   }
@@ -363,13 +363,13 @@ function handleSaveCipherAttemptCompletedMessage(message: NotificationBarWindowM
   );
 }
 
-function openViewVaultItemPopout(
+function openAddEditVaultItemPopout(
   e: Event,
   options: { cipherId?: string; organizationId?: string },
 ) {
   e.preventDefault();
   sendPlatformMessage({
-    command: "bgOpenVault",
+    command: "bgOpenAddEditVaultItemPopout",
     ...options,
   });
 }
@@ -393,7 +393,7 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
       error,
       username: username ?? i18n.typeLogin,
       task,
-      handleOpenVault: (e) => cipherId && openViewVaultItemPopout(e, { cipherId }),
+      handleOpenVault: (e) => cipherId && openAddEditVaultItemPopout(e, { cipherId }),
       handleOpenTasks: () => sendPlatformMessage({ command: "bgOpenAtRisksPasswords" }),
     }),
     document.body,

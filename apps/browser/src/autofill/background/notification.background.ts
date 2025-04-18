@@ -93,7 +93,8 @@ export default class NotificationBackground {
     bgGetCollectionData: ({ message }) => this.getCollectionData(message),
     bgGetOrgData: () => this.getOrgData(),
     bgNeverSave: ({ sender }) => this.saveNever(sender.tab),
-    bgOpenVault: ({ message, sender }) => this.openVault(message, sender.tab),
+    bgOpenAddEditVaultItemPopout: ({ message, sender }) =>
+      this.openAddEditVaultItem(message, sender.tab),
     bgRemoveTabFromNotificationQueue: ({ sender }) =>
       this.removeTabFromNotificationQueue(sender.tab),
     bgReopenUnlockPopout: ({ sender }) => this.openUnlockPopout(sender.tab),
@@ -748,7 +749,7 @@ export default class NotificationBackground {
     await this.openAddEditVaultItemPopout(senderTab, { cipherId: cipherView?.id });
   }
 
-  private async openVault(
+  private async openAddEditVaultItem(
     message: NotificationBackgroundExtensionMessage,
     senderTab: chrome.tabs.Tab,
   ) {
