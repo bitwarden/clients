@@ -9,6 +9,8 @@ export default {
   runCommand: <C extends Command>(params: RunCommandParams<C>): Promise<RunCommandResult<C>> =>
     ipcRenderer.invoke("autofill.runCommand", params),
 
+  startServer: () => ipcRenderer.send("autofill.startServer"),
+
   listenPasskeyRegistration: (
     fn: (
       clientId: number,
