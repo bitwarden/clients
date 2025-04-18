@@ -203,8 +203,8 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     }
 
     // RSA encrypt user key with organization public key
-    const orgPublicKeyEncryptedUserKey = await this.encryptService.rsaEncrypt(
-      userKey.key,
+    const orgPublicKeyEncryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(
+      userKey,
       orgPublicKey,
     );
 
