@@ -220,7 +220,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.exportForm.controls.vaultSelector.valueChanges
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([value]) => {
+      .subscribe((value) => {
         this.organizationId = value !== "myVault" ? value : undefined;
 
         this.formatOptions = this.formatOptions.filter((option) => option.value !== "zip");
