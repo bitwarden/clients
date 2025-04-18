@@ -28,6 +28,7 @@ import {
   SsoComponentService,
   DefaultSsoComponentService,
   TwoFactorAuthDuoComponentService,
+  SetInitialPasswordService,
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
@@ -136,6 +137,7 @@ import { NativeMessagingService } from "../../services/native-messaging.service"
 import { SearchBarService } from "../layout/search/search-bar.service";
 
 import { DesktopFileDownloadService } from "./desktop-file-download.service";
+import { DesktopSetInitialPasswordService } from "./desktop-set-initial-password.service";
 import { DesktopSetPasswordJitService } from "./desktop-set-password-jit.service";
 import { InitService } from "./init.service";
 import { NativeMessagingManifestService } from "./native-messaging-manifest.service";
@@ -379,6 +381,22 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SetPasswordJitService,
     useClass: DesktopSetPasswordJitService,
+    deps: [
+      ApiService,
+      MasterPasswordApiService,
+      KeyService,
+      EncryptService,
+      I18nServiceAbstraction,
+      KdfConfigService,
+      InternalMasterPasswordServiceAbstraction,
+      OrganizationApiServiceAbstraction,
+      OrganizationUserApiService,
+      InternalUserDecryptionOptionsServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: SetInitialPasswordService,
+    useClass: DesktopSetInitialPasswordService,
     deps: [
       ApiService,
       MasterPasswordApiService,
