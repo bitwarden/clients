@@ -77,7 +77,7 @@ export class AddCreditDialogComponent implements OnInit {
   async ngOnInit() {
     if (this.organizationId != null) {
       if (this.creditAmount == null) {
-        this.creditAmount = "20.00";
+        this.creditAmount = "0.00";
       }
       this.ppButtonCustomField = "organization_id:" + this.organizationId;
       const userId = await firstValueFrom(
