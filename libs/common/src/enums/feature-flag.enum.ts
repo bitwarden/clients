@@ -24,7 +24,6 @@ export enum FeatureFlag {
   EnableNewCardCombinedExpiryAutofill = "enable-new-card-combined-expiry-autofill",
   GenerateIdentityFillScriptRefactor = "generate-identity-fill-script-refactor",
   IdpAutoSubmitLogin = "idp-auto-submit-login",
-  InlineMenuPositioningImprovements = "inline-menu-positioning-improvements",
   NotificationRefresh = "notification-refresh",
   UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
@@ -47,7 +46,6 @@ export enum FeatureFlag {
   CriticalApps = "pm-14466-risk-insights-critical-application",
   EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
-  ExportAttachments = "export-attachments",
 
   /* Vault */
   PM8851_BrowserOnboardingNudge = "pm-8851-browser-onboarding-nudge",
@@ -90,7 +88,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnableNewCardCombinedExpiryAutofill]: FALSE,
   [FeatureFlag.GenerateIdentityFillScriptRefactor]: FALSE,
   [FeatureFlag.IdpAutoSubmitLogin]: FALSE,
-  [FeatureFlag.InlineMenuPositioningImprovements]: FALSE,
   [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
@@ -100,7 +97,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.CriticalApps]: FALSE,
   [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
-  [FeatureFlag.ExportAttachments]: FALSE,
 
   /* Vault */
   [FeatureFlag.PM8851_BrowserOnboardingNudge]: FALSE,
