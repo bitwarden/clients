@@ -1099,7 +1099,7 @@
     "description": "Message displayed when login details are successfully updated."
   },
   "loginUpdateTaskSuccess": {
-    "message": "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
+    "message": "Əhsən sizə! Özünüzü və $ORGANIZATION$ təşkilatını daha güvənli etmək üçün addımlar atdınız.",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -1108,7 +1108,7 @@
     "description": "Shown to user after login is updated."
   },
   "loginUpdateTaskSuccessAdditional": {
-    "message": "Thank you for making $ORGANIZATION$ more secure. You have $TASK_COUNT$ more passwords to update.",
+    "message": "$ORGANIZATION$ təşkilatını daha güvənli hala gətirdiyiniz üçün təşəkkürlər. Daha $TASK_COUNT$ parolunuz güncəllənməlidir.",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -1120,7 +1120,7 @@
     "description": "Shown to user after login is updated."
   },
   "nextSecurityTaskAction": {
-    "message": "Change next password",
+    "message": "Növbəti parolu dəyişdir",
     "description": "Message prompting user to undertake completion of another security task."
   },
   "saveFailure": {
@@ -4928,8 +4928,8 @@
     "message": "Parol yenidən yaradıldı",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Giriş Bitwarden-də saxlanılsın?",
+  "saveToBitwarden": {
+    "message": "\"Bitwarden\"də saxla",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
