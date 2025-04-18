@@ -5,44 +5,12 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { HasNudgeService } from "@bitwarden/vault";
 
-import { NavButton } from "../platform/popup/layout/popup-tab-navigation.component";
-
 @Component({
   selector: "app-tabs-v2",
   templateUrl: "./tabs-v2.component.html",
   providers: [HasNudgeService],
 })
 export class TabsV2Component {
-  buildNavButtons(showBerry = false): NavButton[] {
-    return [
-      {
-        label: "vault",
-        page: "/tabs/vault",
-        iconKey: "lock",
-        iconKeyActive: "lock-f",
-      },
-      {
-        label: "generator",
-        page: "/tabs/generator",
-        iconKey: "generate",
-        iconKeyActive: "generate-f",
-      },
-      {
-        label: "send",
-        page: "/tabs/send",
-        iconKey: "send",
-        iconKeyActive: "send-f",
-      },
-      {
-        label: "settings",
-        page: "/tabs/settings",
-        iconKey: "cog",
-        iconKeyActive: "cog-f",
-        showBerry,
-      },
-    ];
-  }
-
   constructor(
     private readonly hasNudgeService: HasNudgeService,
     private readonly configService: ConfigService,
@@ -53,7 +21,33 @@ export class TabsV2Component {
     this.hasNudgeService.shouldShowNudge$(),
   ]).pipe(
     map(([onboardingFeatureEnabled, showNudge]) => {
-      return this.buildNavButtons(showNudge && onboardingFeatureEnabled);
+      return [
+        {
+          label: "vault",
+          page: "/tabs/vault",
+          iconKey: "lock",
+          iconKeyActive: "lock-f",
+        },
+        {
+          label: "generator",
+          page: "/tabs/generator",
+          iconKey: "generate",
+          iconKeyActive: "generate-f",
+        },
+        {
+          label: "send",
+          page: "/tabs/send",
+          iconKey: "send",
+          iconKeyActive: "send-f",
+        },
+        {
+          label: "settings",
+          page: "/tabs/settings",
+          iconKey: "cog",
+          iconKeyActive: "cog-f",
+          showBerry: onboardingFeatureEnabled && showNudge,
+        },
+      ];
     }),
   );
 }

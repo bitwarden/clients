@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, importProvidersFrom } from "@angular/core";
-import { ActivatedRoute, RouterModule } from "@angular/router";
+import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -16,7 +16,6 @@ import {
   I18nMockService,
   IconButtonModule,
   ItemModule,
-  LinkModule,
   NoItemsModule,
   SearchModule,
   SectionComponent,
@@ -316,7 +315,6 @@ export default {
         PopupPageComponent,
         PopupFooterComponent,
         CommonModule,
-        LinkModule,
         RouterModule,
         ExtensionContainerComponent,
         MockBannerComponent,
@@ -368,23 +366,6 @@ export default {
                 return { pipe: () => ({}) };
               },
             };
-          },
-        },
-        {
-          provide: I18nService,
-          useValue: {
-            t: (key: string, label?: string) =>
-              key === "labelWithNotification" && label ? `${label} - New Notification` : key,
-          },
-        },
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              data: {
-                title: "Test Title",
-              },
-            },
           },
         },
       ],
