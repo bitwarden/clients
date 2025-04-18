@@ -10,11 +10,26 @@ import {
   ValidationErrors,
   Validators,
 } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ButtonModule, DialogModule, DialogService, FormFieldModule } from "@bitwarden/components";
+import {
+  ButtonModule,
+  DialogModule,
+  DialogService,
+  FormFieldModule,
+  ToastService,
+} from "@bitwarden/components";
 
 interface RequestSponsorshipForm {
   sponsorshipEmail: FormControl<string | null>;
@@ -63,6 +78,10 @@ export class AddSponsorshipDialogComponent {
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
     private organizationUserApiService: OrganizationUserApiService,
+    private organizationService: OrganizationService,
+    private accountService: AccountService,
+    private organizationApiService: OrganizationApiServiceAbstraction,
+    private toastService: ToastService,
     @Inject(DIALOG_DATA) protected dialogParams: AddSponsorshipDialogParams,
   ) {
     this.organizationId = this.dialogParams?.organizationId;
@@ -85,8 +104,18 @@ export class AddSponsorshipDialogComponent {
     if (this.sponsorshipForm.invalid) {
       return;
     }
-
     this.loading = true;
+    const isSeatAvailable = await this.checkSeatAvailability(this.organizationId);
+    if (!isSeatAvailable) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("notEnoughSeatsAvailable"),
+      });
+      this.loading = false;
+      return;
+    }
+
     // TODO: This is a mockup implementation - needs to be updated with actual API integration
     await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
 
@@ -135,5 +164,44 @@ export class AddSponsorshipDialogComponent {
     }
 
     return null;
+  }
+
+  private async calculateOccupiedSeatCount(organizationId: string): Promise<number> {
+    const allUsers = await this.organizationUserApiService.getAllUsers(organizationId);
+    const activeUsers = allUsers.data.filter((user) =>
+      [
+        OrganizationUserStatusType.Invited,
+        OrganizationUserStatusType.Accepted,
+        OrganizationUserStatusType.Confirmed,
+      ].includes(user.status),
+    );
+    return activeUsers.length;
+  }
+
+  private async getOrganizationDetails(organizationId: string) {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const organization = await firstValueFrom(
+      this.organizationService.organizations$(userId).pipe(getOrganizationById(organizationId)),
+    );
+
+    return organization;
+  }
+
+  private async checkSeatAvailability(organizationId: string): Promise<boolean> {
+    const organization = await this.getOrganizationDetails(organizationId);
+
+    if (!organization.seats) {
+      return false;
+    }
+
+    const occupiedSeats = await this.calculateOccupiedSeatCount(organizationId);
+
+    const subscription = await this.organizationApiService.getSubscription(this.organizationId);
+    if (subscription?.maxAutoscaleSeats == null) {
+      return true;
+    }
+
+    const maxAvailableSeats = subscription.maxAutoscaleSeats - occupiedSeats;
+    return maxAvailableSeats >= 1;
   }
 }

@@ -10592,5 +10592,8 @@
   },
   "cannotCreateCollection": {
     "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
-  }
+  },
+   "notEnoughSeatsAvailable": {
+     "message": "There are not enough available seats to cover the sponsorship."
+   }
 }
