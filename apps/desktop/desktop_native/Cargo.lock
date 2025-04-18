@@ -987,6 +987,7 @@ dependencies = [
  "base64",
  "desktop_core",
  "hex",
+ "log",
  "napi",
  "napi-build",
  "napi-derive",
