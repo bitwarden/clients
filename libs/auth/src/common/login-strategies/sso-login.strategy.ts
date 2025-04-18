@@ -358,19 +358,18 @@ export class SsoLoginStrategy extends LoginStrategy {
   }
 
   /**
-   * Override to handle SSO-specific ForceSetPasswordReason flags.
-   * This includes TdeOffboarding, TdeUserWithoutPasswordHasPasswordResetPermission,
+   * Override to handle SSO-specific ForceSetPasswordReason flags,
+   * including TdeOffboarding, TdeUserWithoutPasswordHasPasswordResetPermission,
    * and SsoNewJitProvisionedUser cases.
    */
   override async processForceSetPasswordReason(
     authResult: AuthResult,
     userId: UserId,
   ): Promise<void> {
-    // First use the base implementation to handle any existing reasons
+    // handle any existing reasons
     await super.processForceSetPasswordReason(authResult, userId);
 
     // If a reason is already set by the base implementation, don't evaluate SSO-specific reasons
-    // since they are less important than admin reset
     const currentReason = await firstValueFrom(
       this.masterPasswordService.forceSetPasswordReason$(userId),
     );

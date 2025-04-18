@@ -255,7 +255,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
     authResult: AuthResult,
     userId: UserId,
   ): Promise<void> {
-    // First use the base implementation to handle any existing reasons
+    // handle any existing reasons
     await super.processForceSetPasswordReason(authResult, userId);
 
     // If the authResult already has a ForceSetPasswordReason, we don't need to check for weak password

@@ -320,8 +320,6 @@ export abstract class LoginStrategy {
 
   /**
    * Processes the AuthResult to extract any ForceSetPasswordReason flags and sets them into state.
-   * This is called by LoginStrategyService.processForceSetPasswordReason and can be overridden by
-   * subclasses to add additional ForceSetPasswordReason handling.
    *
    * @param authResult - The authentication result
    * @param userId - The user ID
