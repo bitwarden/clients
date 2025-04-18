@@ -1059,23 +1059,27 @@
   "notificationAddSave": {
     "message": "Save"
   },
+  "notificationViewAria":{
+    "message": "View Login, opens in new window",
+    "description": "Aria label for the view button in notification bar confirmation message"
+  },
   "loginSaveSuccessDetails": {
-    "message": "$USERNAME$ saved to Bitwarden.",
+    "message": "$ITEMNAME$ saved to Bitwarden.",
       "placeholders": {
-        "username": {
+        "itemName": {
           "content": "$1"
         }
       },
-      "description": "Shown to user after login is saved."
+      "description": "Shown to user after item is saved."
   },
   "loginUpdatedSuccessDetails": {
-    "message": "$USERNAME$ updated in Bitwarden.",
+    "message": "$ITEMNAME$ updated in Bitwarden.",
       "placeholders": {
-        "username": {
+        "itemName": {
           "content": "$1"
         }
       },
-      "description": "Shown to user after login is updated."
+      "description": "Shown to user after item is updated."
   },
   "saveAsNewLoginAction": {
     "message": "Save as new login",

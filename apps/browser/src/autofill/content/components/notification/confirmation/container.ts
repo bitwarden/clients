@@ -20,14 +20,14 @@ import { NotificationConfirmationFooter } from "./footer";
 
 export type NotificationConfirmationContainerProps = NotificationBarIframeInitData & {
   handleCloseNotification: (e: Event) => void;
-  handleOpenVault: (e: Event) => void;
+  handleOpenVault: () => void;
   handleOpenTasks: (e: Event) => void;
 } & {
   error?: string;
   i18n: { [key: string]: string };
+  itemName: string;
   task?: NotificationTaskInfo;
   type: NotificationType;
-  username: string;
 };
 
 export function NotificationConfirmationContainer({
@@ -36,13 +36,13 @@ export function NotificationConfirmationContainer({
   handleOpenVault,
   handleOpenTasks,
   i18n,
+  itemName,
   task,
   theme = ThemeTypes.Light,
   type,
-  username,
 }: NotificationConfirmationContainerProps) {
   const headerMessage = getHeaderMessage(i18n, type, error);
-  const confirmationMessage = getConfirmationMessage(i18n, username, type, error);
+  const confirmationMessage = getConfirmationMessage(i18n, itemName, type, error);
   const buttonText = error ? i18n.newItem : i18n.view;
 
   let messageDetails: string | undefined;
@@ -71,6 +71,7 @@ export function NotificationConfirmationContainer({
       })}
       ${NotificationConfirmationBody({
         buttonText,
+        i18n,
         confirmationMessage,
         tasksAreComplete,
         messageDetails,
@@ -106,13 +107,13 @@ const notificationContainerStyles = (theme: Theme) => css`
 
 function getConfirmationMessage(
   i18n: { [key: string]: string },
-  username: string,
+  itemName: string,
   type?: NotificationType,
   error?: string,
 ) {
-  const loginSaveSuccessDetails = chrome.i18n.getMessage("loginSaveSuccessDetails", [username]);
+  const loginSaveSuccessDetails = chrome.i18n.getMessage("loginSaveSuccessDetails", [itemName]);
   const loginUpdatedSuccessDetails = chrome.i18n.getMessage("loginUpdatedSuccessDetails", [
-    username,
+    itemName,
   ]);
 
   if (error) {

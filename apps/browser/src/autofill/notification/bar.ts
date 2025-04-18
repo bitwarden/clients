@@ -70,6 +70,7 @@ function getI18n() {
     notificationEdit: chrome.i18n.getMessage("edit"),
     notificationUnlock: chrome.i18n.getMessage("notificationUnlock"),
     notificationUnlockDesc: chrome.i18n.getMessage("notificationUnlockDesc"),
+    notificationViewAria: chrome.i18n.getMessage("notificationViewAria"),
     saveAction: chrome.i18n.getMessage("notificationAddSave"),
     saveAsNewLoginAction: chrome.i18n.getMessage("saveAsNewLoginAction"),
     saveFailure: chrome.i18n.getMessage("saveFailure"),
@@ -346,10 +347,9 @@ function handleSaveCipherAttemptCompletedMessage(message: NotificationBarWindowM
   );
 }
 
-function openViewVaultItemPopout(e: Event, cipherId: string) {
-  e.preventDefault();
+function openViewVaultItemPopout(cipherId: string) {
   sendPlatformMessage({
-    command: "bgOpenViewVaultItem",
+    command: "bgOpenViewVaultItemPopout",
     cipherId,
   });
 }
@@ -357,7 +357,7 @@ function openViewVaultItemPopout(e: Event, cipherId: string) {
 function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
   const { theme, type } = notificationBarIframeInitData;
   const { error, data } = message;
-  const { username, cipherId, task } = data || {};
+  const { cipherId, task } = data || {};
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
 
@@ -371,9 +371,9 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
       handleCloseNotification,
       i18n,
       error,
-      username: username ?? i18n.typeLogin,
+      itemName: i18n.typeLogin,
       task,
-      handleOpenVault: (e) => cipherId && openViewVaultItemPopout(e, cipherId),
+      handleOpenVault: () => cipherId && openViewVaultItemPopout(cipherId),
       handleOpenTasks: () => sendPlatformMessage({ command: "bgOpenAtRisksPasswords" }),
     }),
     document.body,

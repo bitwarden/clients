@@ -7,14 +7,16 @@ import { themes, typography } from "../../constants/styles";
 
 export type NotificationConfirmationMessageProps = {
   buttonText?: string;
+  i18n: { [key: string]: string };
   message?: string;
   messageDetails?: string;
-  handleClick: (e: Event) => void;
+  handleClick: () => void;
   theme: Theme;
 };
 
 export function NotificationConfirmationMessage({
   buttonText,
+  i18n,
   message,
   messageDetails,
   handleClick,
@@ -31,13 +33,15 @@ export function NotificationConfirmationMessage({
               ${message || nothing}
               ${buttonText
                 ? html`
-                    <a
+                    <button
                       title=${buttonText}
                       class=${notificationConfirmationButtonTextStyles(theme)}
                       @click=${handleClick}
+                      type="button"
+                      aria-label=${i18n.notificationViewAria}
                     >
                       ${buttonText}
-                    </a>
+                    </button>
                   `
                 : nothing}
             </span>
@@ -70,6 +74,7 @@ const notificationConfirmationMessageStyles = (theme: Theme) => css`
 const notificationConfirmationButtonTextStyles = (theme: Theme) => css`
   ${baseTextStyles}
 
+  all: unset;
   color: ${themes[theme].primary[600]};
   font-weight: 700;
   cursor: pointer;

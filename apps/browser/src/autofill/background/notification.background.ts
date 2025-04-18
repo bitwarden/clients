@@ -12,7 +12,6 @@ import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/ac
 import {
   ExtensionCommand,
   ExtensionCommandType,
-  NOOP_COMMAND_SUFFIX,
   NOTIFICATION_BAR_LIFESPAN_MS,
 } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -764,10 +763,15 @@ export default class NotificationBackground {
     message: NotificationBackgroundExtensionMessage,
     senderTab: chrome.tabs.Tab,
   ) {
-    await this.openViewVaultItemPopout(senderTab, {
-      cipherId: message.cipherId,
-      action: NOOP_COMMAND_SUFFIX,
-    });
+    await Promise.all([
+      this.openViewVaultItemPopout(senderTab, {
+        cipherId: message.cipherId,
+        action: null,
+      }),
+      BrowserApi.tabSendMessageData(senderTab, "closeNotificationBar", {
+        fadeOutNotification: !!message.fadeOutNotification,
+      }),
+    ]);
   }
 
   private async folderExists(folderId: string, userId: UserId) {
