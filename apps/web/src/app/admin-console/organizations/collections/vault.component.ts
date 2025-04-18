@@ -77,7 +77,6 @@ import {
   DecryptionFailureDialogComponent,
   PasswordRepromptService,
 } from "@bitwarden/vault";
-import { VaultItemDialogResult } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 
 import { BillingNotificationService } from "../../../billing/services/billing-notification.service";
 import {
@@ -108,6 +107,7 @@ import {
 } from "../../../vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 import { VaultFilter } from "../../../vault/individual-vault/vault-filter/shared/models/vault-filter.model";
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
+import { VaultItemDialogResult } from "../../../vault/services/web-premium-upgrade-prompt.service";
 import { GroupApiService, GroupView } from "../core";
 import { openEntityEventsDialog } from "../manage/entity-events.component";
 import {

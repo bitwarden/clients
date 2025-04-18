@@ -27,13 +27,13 @@ import {
   CipherFormConfigService,
   PasswordRepromptService,
 } from "@bitwarden/vault";
-import { VaultItemDialogResult } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 
 import {
   VaultItemDialogComponent,
   VaultItemDialogMode,
 } from "../../../vault/components/vault-item-dialog/vault-item-dialog.component";
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
+import { VaultItemDialogResult } from "../../../vault/services/web-premium-upgrade-prompt.service";
 
 @Directive()
 export class CipherReportComponent implements OnDestroy {

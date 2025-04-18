@@ -78,7 +78,6 @@ import {
   DefaultCipherFormConfigService,
   PasswordRepromptService,
 } from "@bitwarden/vault";
-import { VaultItemDialogResult } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 
 import { getNestedCollectionTree } from "../../admin-console/organizations/collections";
 import {
@@ -90,6 +89,7 @@ import { BillingNotificationService } from "../../billing/services/billing-notif
 import { TrialFlowService } from "../../billing/services/trial-flow.service";
 import { FreeTrial } from "../../billing/types/free-trial";
 import { SharedModule } from "../../shared/shared.module";
+import { VaultItemDialogResult } from "../../vault/services/web-premium-upgrade-prompt.service";
 import { AssignCollectionsWebComponent } from "../components/assign-collections";
 import {
   VaultItemDialogComponent,
