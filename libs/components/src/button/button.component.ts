@@ -107,7 +107,7 @@ export class ButtonComponent implements ButtonLikeAbstraction {
     return this.showLoadingStyle() || (this.disabledAttr() && this.loading() === false);
   });
 
-  @Input() buttonType: ButtonType;
+  @Input() buttonType: ButtonType = "primary";
 
   buttonSize = input<ButtonSize>("default");
   nonNullButtonSize = computed(() => this.buttonSize() ?? "default");
