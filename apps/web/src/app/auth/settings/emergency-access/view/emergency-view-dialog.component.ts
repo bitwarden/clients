@@ -1,21 +1,32 @@
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { EmergencyAccessId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
-import { CipherViewComponent, DefaultTaskService, TaskService } from "@bitwarden/vault";
+import {
+  DIALOG_DATA,
+  DialogRef,
+  ButtonModule,
+  DialogModule,
+  DialogService,
+} from "@bitwarden/components";
+import {
+  ChangeLoginPasswordService,
+  CipherViewComponent,
+  DefaultChangeLoginPasswordService,
+} from "@bitwarden/vault";
 
 import { WebViewPasswordHistoryService } from "../../../../vault/services/web-view-password-history.service";
 
 export interface EmergencyViewDialogParams {
   /** The cipher being viewed. */
   cipher: CipherView;
+  emergencyAccessId: EmergencyAccessId;
 }
 
 /** Stubbed class, premium upgrade is not applicable for emergency viewing */
@@ -33,7 +44,7 @@ class PremiumUpgradePromptNoop implements PremiumUpgradePromptService {
   providers: [
     { provide: ViewPasswordHistoryService, useClass: WebViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: PremiumUpgradePromptNoop },
-    { provide: TaskService, useClass: DefaultTaskService },
+    { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
   ],
 })
 export class EmergencyViewDialogComponent {
@@ -53,6 +64,10 @@ export class EmergencyViewDialogComponent {
 
   get cipher(): CipherView {
     return this.params.cipher;
+  }
+
+  get emergencyAccessId(): EmergencyAccessId {
+    return this.params.emergencyAccessId;
   }
 
   cancel = () => {

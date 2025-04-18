@@ -46,6 +46,7 @@ export const regularImportOptions = [
   { id: "ascendocsv", name: "Ascendo DataVault (csv)" },
   { id: "meldiumcsv", name: "Meldium (csv)" },
   { id: "passkeepcsv", name: "PassKeep (csv)" },
+  { id: "edgecsv", name: "Edge (csv)" },
   { id: "operacsv", name: "Opera (csv)" },
   { id: "vivaldicsv", name: "Vivaldi (csv)" },
   { id: "gnomejson", name: "GNOME Passwords and Keys/Seahorse (json)" },

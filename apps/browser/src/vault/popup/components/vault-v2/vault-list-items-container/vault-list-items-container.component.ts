@@ -206,11 +206,14 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
   /**
    * Resolved i18n key to use for suggested cipher items
    */
-  cipherItemTitleKey = this.currentURIIsBlocked$.pipe(
-    map((uriIsBlocked) =>
-      this.primaryActionAutofill && !uriIsBlocked ? "autofillTitle" : "viewItemTitle",
-    ),
-  );
+  cipherItemTitleKey = (cipher: CipherView) =>
+    this.currentURIIsBlocked$.pipe(
+      map((uriIsBlocked) => {
+        const hasUsername = cipher.login?.username != null;
+        const key = this.primaryActionAutofill && !uriIsBlocked ? "autofillTitle" : "viewItemTitle";
+        return hasUsername ? `${key}WithField` : key;
+      }),
+    );
 
   /**
    * Option to show the autofill button for each item.
@@ -244,6 +247,12 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
    */
   @Input({ transform: booleanAttribute })
   disableSectionMargin: boolean = false;
+
+  /**
+   * Remove the description margin
+   */
+  @Input({ transform: booleanAttribute })
+  disableDescriptionMargin: boolean = false;
 
   /**
    * The tooltip text for the organization icon for ciphers that belong to an organization.

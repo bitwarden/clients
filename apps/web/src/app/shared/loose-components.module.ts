@@ -9,10 +9,10 @@ import { LayoutComponent, NavigationModule } from "@bitwarden/components";
 
 import { OrganizationLayoutComponent } from "../admin-console/organizations/layouts/organization-layout.component";
 import { EventsComponent as OrgEventsComponent } from "../admin-console/organizations/manage/events.component";
+import { OrganizationTrustComponent } from "../admin-console/organizations/manage/organization-trust.component";
 import { UserConfirmComponent as OrgUserConfirmComponent } from "../admin-console/organizations/manage/user-confirm.component";
 import { VerifyRecoverDeleteOrgComponent } from "../admin-console/organizations/manage/verify-recover-delete-org.component";
 import { AcceptFamilySponsorshipComponent } from "../admin-console/organizations/sponsorships/accept-family-sponsorship.component";
-import { HintComponent } from "../auth/hint.component";
 import { RecoverDeleteComponent } from "../auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "../auth/recover-two-factor.component";
 import { RemovePasswordComponent } from "../auth/remove-password.component";
@@ -24,7 +24,6 @@ import { DangerZoneComponent } from "../auth/settings/account/danger-zone.compon
 import { DeauthorizeSessionsComponent } from "../auth/settings/account/deauthorize-sessions.component";
 import { DeleteAccountDialogComponent } from "../auth/settings/account/delete-account-dialog.component";
 import { ProfileComponent } from "../auth/settings/account/profile.component";
-import { EmergencyAccessAttachmentsComponent } from "../auth/settings/emergency-access/attachments/emergency-access-attachments.component";
 import { EmergencyAccessConfirmComponent } from "../auth/settings/emergency-access/confirm/emergency-access-confirm.component";
 import { EmergencyAccessAddEditComponent } from "../auth/settings/emergency-access/emergency-access-add-edit.component";
 import { EmergencyAccessComponent } from "../auth/settings/emergency-access/emergency-access.component";
@@ -34,18 +33,7 @@ import { ApiKeyComponent } from "../auth/settings/security/api-key.component";
 import { ChangeKdfModule } from "../auth/settings/security/change-kdf/change-kdf.module";
 import { SecurityKeysComponent } from "../auth/settings/security/security-keys.component";
 import { SecurityComponent } from "../auth/settings/security/security.component";
-import { TwoFactorRecoveryComponent } from "../auth/settings/two-factor/two-factor-recovery.component";
-import { TwoFactorSetupAuthenticatorComponent } from "../auth/settings/two-factor/two-factor-setup-authenticator.component";
-import { TwoFactorSetupDuoComponent } from "../auth/settings/two-factor/two-factor-setup-duo.component";
-import { TwoFactorSetupEmailComponent } from "../auth/settings/two-factor/two-factor-setup-email.component";
-import { TwoFactorSetupWebAuthnComponent } from "../auth/settings/two-factor/two-factor-setup-webauthn.component";
-import { TwoFactorSetupYubiKeyComponent } from "../auth/settings/two-factor/two-factor-setup-yubikey.component";
-import { TwoFactorSetupComponent } from "../auth/settings/two-factor/two-factor-setup.component";
-import { TwoFactorVerifyComponent } from "../auth/settings/two-factor/two-factor-verify.component";
 import { UserVerificationModule } from "../auth/shared/components/user-verification";
-import { SsoComponentV1 } from "../auth/sso-v1.component";
-import { TwoFactorOptionsComponentV1 } from "../auth/two-factor-options-v1.component";
-import { TwoFactorComponentV1 } from "../auth/two-factor-v1.component";
 import { UpdatePasswordComponent } from "../auth/update-password.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { VerifyEmailTokenComponent } from "../auth/verify-email-token.component";
@@ -69,15 +57,14 @@ import { WeakPasswordsReportComponent as OrgWeakPasswordsReportComponent } from 
 /* eslint no-restricted-imports: "error" */
 import { PremiumBadgeComponent } from "../vault/components/premium-badge.component";
 import { AddEditCustomFieldsComponent } from "../vault/individual-vault/add-edit-custom-fields.component";
-import { AddEditComponent } from "../vault/individual-vault/add-edit.component";
-import { AttachmentsComponent } from "../vault/individual-vault/attachments.component";
 import { FolderAddEditComponent } from "../vault/individual-vault/folder-add-edit.component";
 import { OrganizationBadgeModule } from "../vault/individual-vault/organization-badge/organization-badge.module";
 import { PipesModule } from "../vault/individual-vault/pipes/pipes.module";
-import { AddEditComponent as OrgAddEditComponent } from "../vault/org-vault/add-edit.component";
-import { AttachmentsComponent as OrgAttachmentsComponent } from "../vault/org-vault/attachments.component";
 import { PurgeVaultComponent } from "../vault/settings/purge-vault.component";
 
+import { FreeBitwardenFamiliesComponent } from "./../billing/members/free-bitwarden-families.component";
+import { OrganizationMemberFamiliesComponent } from "./../billing/members/organization-member-families.component";
+import { OrganizationSponsoredFamiliesComponent } from "./../billing/members/organization-sponsored-families.component";
 import { EnvironmentSelectorModule } from "./../components/environment-selector/environment-selector.module";
 import { AccountFingerprintComponent } from "./components/account-fingerprint/account-fingerprint.component";
 import { SharedModule } from "./shared.module";
@@ -109,32 +96,27 @@ import { SharedModule } from "./shared.module";
   declarations: [
     AcceptFamilySponsorshipComponent,
     AccountComponent,
-    AddEditComponent,
     AddEditCustomFieldsComponent,
     AddEditCustomFieldsComponent,
     ApiKeyComponent,
-    AttachmentsComponent,
     ChangeEmailComponent,
     DeauthorizeSessionsComponent,
     DeleteAccountDialogComponent,
     DomainRulesComponent,
     EmergencyAccessAddEditComponent,
-    EmergencyAccessAttachmentsComponent,
     EmergencyAccessComponent,
     EmergencyAccessConfirmComponent,
     EmergencyAccessTakeoverComponent,
     EmergencyAccessViewComponent,
     FolderAddEditComponent,
     FrontendLayoutComponent,
-    HintComponent,
-    OrgAddEditComponent,
-    OrgAttachmentsComponent,
     OrgEventsComponent,
     OrgExposedPasswordsReportComponent,
     OrgInactiveTwoFactorReportComponent,
     OrgReusedPasswordsReportComponent,
     OrgUnsecuredWebsitesReportComponent,
     OrgUserConfirmComponent,
+    OrganizationTrustComponent,
     OrgWeakPasswordsReportComponent,
     PreferencesComponent,
     PremiumBadgeComponent,
@@ -149,18 +131,10 @@ import { SharedModule } from "./shared.module";
     SelectableAvatarComponent,
     SetPasswordComponent,
     SponsoredFamiliesComponent,
+    OrganizationSponsoredFamiliesComponent,
+    OrganizationMemberFamiliesComponent,
+    FreeBitwardenFamiliesComponent,
     SponsoringOrgRowComponent,
-    TwoFactorComponentV1,
-    SsoComponentV1,
-    TwoFactorSetupAuthenticatorComponent,
-    TwoFactorSetupDuoComponent,
-    TwoFactorSetupEmailComponent,
-    TwoFactorOptionsComponentV1,
-    TwoFactorRecoveryComponent,
-    TwoFactorSetupComponent,
-    TwoFactorVerifyComponent,
-    TwoFactorSetupWebAuthnComponent,
-    TwoFactorSetupYubiKeyComponent,
     UpdatePasswordComponent,
     UpdateTempPasswordComponent,
     VerifyEmailTokenComponent,
@@ -170,34 +144,29 @@ import { SharedModule } from "./shared.module";
     UserVerificationModule,
     PremiumBadgeComponent,
     AccountComponent,
-    AddEditComponent,
     AddEditCustomFieldsComponent,
     AddEditCustomFieldsComponent,
     ApiKeyComponent,
-    AttachmentsComponent,
     ChangeEmailComponent,
     DeauthorizeSessionsComponent,
     DeleteAccountDialogComponent,
     DomainRulesComponent,
     DynamicAvatarComponent,
     EmergencyAccessAddEditComponent,
-    EmergencyAccessAttachmentsComponent,
     EmergencyAccessComponent,
     EmergencyAccessConfirmComponent,
     EmergencyAccessTakeoverComponent,
     EmergencyAccessViewComponent,
     FolderAddEditComponent,
     FrontendLayoutComponent,
-    HintComponent,
-    OrgAddEditComponent,
     OrganizationLayoutComponent,
-    OrgAttachmentsComponent,
     OrgEventsComponent,
     OrgExposedPasswordsReportComponent,
     OrgInactiveTwoFactorReportComponent,
     OrgReusedPasswordsReportComponent,
     OrgUnsecuredWebsitesReportComponent,
     OrgUserConfirmComponent,
+    OrganizationTrustComponent,
     OrgWeakPasswordsReportComponent,
     PreferencesComponent,
     PremiumBadgeComponent,
@@ -212,17 +181,10 @@ import { SharedModule } from "./shared.module";
     SelectableAvatarComponent,
     SetPasswordComponent,
     SponsoredFamiliesComponent,
+    OrganizationSponsoredFamiliesComponent,
+    OrganizationMemberFamiliesComponent,
+    FreeBitwardenFamiliesComponent,
     SponsoringOrgRowComponent,
-    TwoFactorComponentV1,
-    SsoComponentV1,
-    TwoFactorSetupAuthenticatorComponent,
-    TwoFactorSetupDuoComponent,
-    TwoFactorSetupEmailComponent,
-    TwoFactorOptionsComponentV1,
-    TwoFactorSetupComponent,
-    TwoFactorVerifyComponent,
-    TwoFactorSetupWebAuthnComponent,
-    TwoFactorSetupYubiKeyComponent,
     UpdateTempPasswordComponent,
     UpdatePasswordComponent,
     UserLayoutComponent,

@@ -31,7 +31,7 @@ export type VaultFilterSection = {
   };
   action: (filterNode: TreeNode<VaultFilterType>) => Promise<void>;
   edit?: {
-    text: string;
+    filterName: string;
     action: (filter: VaultFilterType) => void;
   };
   add?: {

@@ -1,4 +1,5 @@
 @import "@angular/cdk/a11y-prebuilt.css";
+@import "@angular/cdk/text-field-prebuilt.css";
 @import "./reset.css";
 @import "./popover/popover.component.css";
 @import "./toast/toast.tokens.css";
@@ -115,88 +116,6 @@
   --color-marketing-logo: 255 255 255;
 
   --tw-ring-offset-color: #1f242e;
-}
-
-.theme_nord {
-  --color-transparent-hover: rgb(255 255 255 / 0.12);
-
-  --color-background: 67 76 94;
-  --color-background-alt: 59 66 82;
-  --color-background-alt2: 76 86 106;
-  --color-background-alt3: 76 86 106;
-  --color-background-alt4: 67 76 94;
-
-  --color-primary-300: 108 153 166;
-  --color-primary-600: 136 192 208;
-  --color-primary-700: 160 224 242;
-
-  --color-secondary-100: 76 86 106;
-  --color-secondary-300: 94 105 125;
-  --color-secondary-600: 216 222 233;
-  --color-secondary-700: 255 255 255;
-
-  --color-success-600: 163 190 140;
-  --color-success-700: 144 170 122;
-
-  --color-danger-600: 228 129 139;
-  --color-danger-700: 191 97 106;
-
-  --color-warning-600: 235 203 139;
-  --color-warning-700: 210 181 121;
-
-  --color-info-600: 129 161 193;
-  --color-info-700: 94 129 172;
-
-  --color-text-main: 229 233 240;
-  --color-text-muted: 216 222 233;
-  --color-text-contrast: 46 52 64;
-  --color-text-alt2: 255 255 255;
-  --color-text-code: 219 177 211;
-
-  --color-marketing-logo: 255 255 255;
-
-  --tw-ring-offset-color: #434c5e;
-}
-
-.theme_solarized {
-  --color-transparent-hover: rgb(255 255 255 / 0.12);
-
-  --color-background: 0 43 54;
-  --color-background-alt: 7 54 66;
-  --color-background-alt2: 31 72 87;
-  --color-background-alt3: 31 72 87;
-  --color-background-alt4: 0 43 54;
-
-  --color-primary-300: 42 161 152;
-  --color-primary-600: 133 153 0;
-  --color-primary-700: 192 203 123;
-
-  --color-secondary-100: 31 72 87;
-  --color-secondary-300: 101 123 131;
-  --color-secondary-600: 131 148 150;
-  --color-secondary-700: 238 232 213;
-
-  --color-success-600: 133 153 0;
-  --color-success-700: 192 203 123;
-
-  --color-danger-600: 220 50 47;
-  --color-danger-700: 223 135 134;
-
-  --color-warning-600: 181 137 0;
-  --color-warning-700: 220 189 92;
-
-  --color-info-600: 133 153 0;
-  --color-info-700: 192 203 123;
-
-  --color-text-main: 253 246 227;
-  --color-text-muted: 147 161 161;
-  --color-text-contrast: 0 0 0;
-  --color-text-alt2: 255 255 255;
-  --color-text-code: 240 141 199;
-
-  --color-marketing-logo: 255 255 255;
-
-  --tw-ring-offset-color: #002b36;
 }
 
 /**

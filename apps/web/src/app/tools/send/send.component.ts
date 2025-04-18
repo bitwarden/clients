@@ -1,12 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef } from "@angular/cdk/dialog";
 import { Component, NgZone, OnInit, OnDestroy } from "@angular/core";
 import { lastValueFrom } from "rxjs";
 
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -17,6 +17,7 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendId } from "@bitwarden/common/types/guid";
 import {
+  DialogRef,
   DialogService,
   NoItemsModule,
   SearchModule,
@@ -74,6 +75,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     dialogService: DialogService,
     toastService: ToastService,
     private addEditFormConfigService: DefaultSendFormConfigService,
+    accountService: AccountService,
   ) {
     super(
       sendService,
@@ -87,6 +89,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
       sendApiService,
       dialogService,
       toastService,
+      accountService,
     );
   }
 

@@ -8,11 +8,15 @@ import { InternalPolicyService } from "@bitwarden/common/admin-console/abstracti
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/reset-password-policy-options";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 // FIXME: remove `src` and fix import
@@ -38,6 +42,8 @@ describe("WebLoginComponentService", () => {
   let passwordGenerationService: MockProxy<PasswordGenerationServiceAbstraction>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let ssoLoginService: MockProxy<SsoLoginServiceAbstraction>;
+  const mockUserId = Utils.newGuid() as UserId;
+  let accountService: FakeAccountService;
 
   beforeEach(() => {
     acceptOrganizationInviteService = mock<AcceptOrganizationInviteService>();
@@ -50,6 +56,7 @@ describe("WebLoginComponentService", () => {
     passwordGenerationService = mock<PasswordGenerationServiceAbstraction>();
     platformUtilsService = mock<PlatformUtilsService>();
     ssoLoginService = mock<SsoLoginServiceAbstraction>();
+    accountService = mockAccountServiceWith(mockUserId);
 
     TestBed.configureTestingModule({
       providers: [
@@ -65,6 +72,7 @@ describe("WebLoginComponentService", () => {
         { provide: PasswordGenerationServiceAbstraction, useValue: passwordGenerationService },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: SsoLoginServiceAbstraction, useValue: ssoLoginService },
+        { provide: AccountService, useValue: accountService },
       ],
     });
     service = TestBed.inject(WebLoginComponentService);

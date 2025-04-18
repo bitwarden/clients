@@ -28,11 +28,11 @@ import {
 
 import { HeaderModule } from "../../../../layouts/header/header.module";
 import { SharedModule } from "../../../../shared";
-import { CollectionDialogTabType } from "../../../../vault/components/collection-dialog";
 import {
   All,
   RoutedVaultFilterModel,
 } from "../../../../vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
+import { CollectionDialogTabType } from "../../shared/components/collection-dialog";
 
 @Component({
   standalone: true,
