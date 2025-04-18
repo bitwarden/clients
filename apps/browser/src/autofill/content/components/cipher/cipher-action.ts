@@ -19,13 +19,13 @@ export function CipherAction({
     ? BadgeButton({
         buttonAction: handleAction,
         // @TODO localize
-        buttonText: "Update item",
+        buttonText: "Update",
         theme,
       })
     : EditButton({
         buttonAction: handleAction,
         // @TODO localize
-        buttonText: "Edit item",
+        buttonText: "Edit",
         theme,
       });
 }

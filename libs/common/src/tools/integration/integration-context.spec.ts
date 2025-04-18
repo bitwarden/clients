@@ -189,6 +189,33 @@ describe("IntegrationContext", () => {
 
       expect(result).toBe("");
     });
+
+    it("extracts the hostname when extractHostname is true", () => {
+      const context = new IntegrationContext(EXAMPLE_META, null, i18n);
+
+      const result = context.website(
+        { website: "https://www.example.com/path" },
+        { extractHostname: true },
+      );
+
+      expect(result).toBe("www.example.com");
+    });
+
+    it("falls back to the full URL when Utils.getHost cannot extract the hostname", () => {
+      const context = new IntegrationContext(EXAMPLE_META, null, i18n);
+
+      const result = context.website({ website: "invalid-url" }, { extractHostname: true });
+
+      expect(result).toBe("invalid-url");
+    });
+
+    it("truncates the website to maxLength", () => {
+      const context = new IntegrationContext(EXAMPLE_META, null, i18n);
+
+      const result = context.website({ website: "www.example.com" }, { maxLength: 3 });
+
+      expect(result).toBe("www");
+    });
   });
 
   describe("generatedBy", () => {
@@ -210,6 +237,16 @@ describe("IntegrationContext", () => {
 
       expect(result).toBe("result");
       expect(i18n.t).toHaveBeenCalledWith("forwarderGeneratedByWithWebsite", "www.example.com");
+    });
+
+    it("truncates generated text to maxLength", () => {
+      const context = new IntegrationContext(EXAMPLE_META, null, i18n);
+      i18n.t.mockReturnValue("This is the result text");
+
+      const result = context.generatedBy({ website: null }, { maxLength: 4 });
+
+      expect(result).toBe("This");
+      expect(i18n.t).toHaveBeenCalledWith("forwarderGeneratedBy", "");
     });
   });
 });

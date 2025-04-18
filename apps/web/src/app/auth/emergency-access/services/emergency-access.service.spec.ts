@@ -11,6 +11,7 @@ import { UserKeyResponse } from "@bitwarden/common/models/response/user-key.resp
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
@@ -40,6 +41,9 @@ describe("EmergencyAccessService", () => {
   let logService: MockProxy<LogService>;
   let emergencyAccessService: EmergencyAccessService;
   let configService: ConfigService;
+
+  const mockNewUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
+  const mockTrustedPublicKeys = [Utils.fromUtf8ToArray("trustedPublicKey")];
 
   beforeAll(() => {
     emergencyAccessApiService = mock<EmergencyAccessApiService>();
@@ -126,7 +130,9 @@ describe("EmergencyAccessService", () => {
 
         keyService.getUserKey.mockResolvedValueOnce(mockUserKey);
 
-        encryptService.rsaEncrypt.mockResolvedValueOnce(mockUserPublicKeyEncryptedUserKey);
+        encryptService.encapsulateKeyUnsigned.mockResolvedValueOnce(
+          mockUserPublicKeyEncryptedUserKey,
+        );
 
         emergencyAccessApiService.postEmergencyAccessConfirm.mockResolvedValueOnce();
 
@@ -156,7 +162,9 @@ describe("EmergencyAccessService", () => {
 
       const mockDecryptedGrantorUserKey = new Uint8Array(64);
       keyService.getPrivateKey.mockResolvedValue(new Uint8Array(64));
-      encryptService.rsaDecrypt.mockResolvedValueOnce(mockDecryptedGrantorUserKey);
+      encryptService.decapsulateKeyUnsigned.mockResolvedValueOnce(
+        new SymmetricCryptoKey(mockDecryptedGrantorUserKey),
+      );
 
       const mockMasterKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray) as MasterKey;
 
@@ -226,10 +234,6 @@ describe("EmergencyAccessService", () => {
   });
 
   describe("getRotatedData", () => {
-    const mockRandomBytes = new Uint8Array(64) as CsprngArray;
-    const mockOriginalUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
-    const mockNewUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
-
     const allowedStatuses = [
       EmergencyAccessStatusType.Confirmed,
       EmergencyAccessStatusType.RecoveryInitiated,
@@ -250,10 +254,10 @@ describe("EmergencyAccessService", () => {
       emergencyAccessApiService.getEmergencyAccessTrusted.mockResolvedValue(mockEmergencyAccess);
       apiService.getUserPublicKey.mockResolvedValue({
         userId: "mockUserId",
-        publicKey: "mockPublicKey",
+        publicKey: Utils.fromUtf8ToB64("trustedPublicKey"),
       } as UserKeyResponse);
 
-      encryptService.rsaEncrypt.mockImplementation((plainValue, publicKey) => {
+      encryptService.encapsulateKeyUnsigned.mockImplementation((plainValue, publicKey) => {
         return Promise.resolve(
           new EncString(EncryptionType.Rsa2048_OaepSha1_B64, "Encrypted: " + plainValue),
         );
@@ -262,17 +266,32 @@ describe("EmergencyAccessService", () => {
 
     it("Only returns emergency accesses with allowed statuses", async () => {
       const result = await emergencyAccessService.getRotatedData(
-        mockOriginalUserKey,
         mockNewUserKey,
+        mockTrustedPublicKeys,
         "mockUserId" as UserId,
       );
 
       expect(result).toHaveLength(allowedStatuses.length);
     });
 
+    it("Throws if emergency access public key is not trusted", async () => {
+      apiService.getUserPublicKey.mockResolvedValue({
+        userId: "mockUserId",
+        publicKey: Utils.fromUtf8ToB64("untrustedPublicKey"),
+      } as UserKeyResponse);
+
+      await expect(
+        emergencyAccessService.getRotatedData(
+          mockNewUserKey,
+          mockTrustedPublicKeys,
+          "mockUserId" as UserId,
+        ),
+      ).rejects.toThrow("Public key for user is not trusted.");
+    });
+
     it("throws if new user key is null", async () => {
       await expect(
-        emergencyAccessService.getRotatedData(mockOriginalUserKey, null, "mockUserId" as UserId),
+        emergencyAccessService.getRotatedData(null, mockTrustedPublicKeys, "mockUserId" as UserId),
       ).rejects.toThrow("New user key is required for rotation.");
     });
   });

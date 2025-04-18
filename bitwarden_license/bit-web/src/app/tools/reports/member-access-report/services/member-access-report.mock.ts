@@ -229,3 +229,41 @@ export const memberAccessReportsMock: MemberAccessResponse[] = [
     ],
   } as MemberAccessResponse,
 ];
+
+export const memberAccessWithoutAccessDetailsReportsMock: MemberAccessResponse[] = [
+  {
+    userName: "Alice Smith",
+    email: "asmith@email.com",
+    twoFactorEnabled: true,
+    accountRecoveryEnabled: true,
+    groupsCount: 2,
+    collectionsCount: 4,
+    totalItemCount: 20,
+    userGuid: "1234",
+    usesKeyConnector: false,
+    accessDetails: [
+      {
+        groupId: "",
+        collectionId: "c1",
+        collectionName: new EncString("Collection 1"),
+        groupName: "Alice Group 1",
+        itemCount: 10,
+        readOnly: false,
+        hidePasswords: false,
+        manage: false,
+      } as MemberAccessDetails,
+    ],
+  } as MemberAccessResponse,
+  {
+    userName: "Robert Brown",
+    email: "rbrown@email.com",
+    twoFactorEnabled: false,
+    accountRecoveryEnabled: false,
+    groupsCount: 2,
+    collectionsCount: 4,
+    totalItemCount: 20,
+    userGuid: "5678",
+    usesKeyConnector: false,
+    accessDetails: [] as MemberAccessDetails[],
+  } as MemberAccessResponse,
+];
