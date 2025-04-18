@@ -62,6 +62,9 @@ import { OrganizationBadgeModule } from "../vault/individual-vault/organization-
 import { PipesModule } from "../vault/individual-vault/pipes/pipes.module";
 import { PurgeVaultComponent } from "../vault/settings/purge-vault.component";
 
+import { FreeBitwardenFamiliesComponent } from "./../billing/members/free-bitwarden-families.component";
+import { OrganizationMemberFamiliesComponent } from "./../billing/members/organization-member-families.component";
+import { OrganizationSponsoredFamiliesComponent } from "./../billing/members/organization-sponsored-families.component";
 import { EnvironmentSelectorModule } from "./../components/environment-selector/environment-selector.module";
 import { AccountFingerprintComponent } from "./components/account-fingerprint/account-fingerprint.component";
 import { SharedModule } from "./shared.module";
@@ -128,6 +131,9 @@ import { SharedModule } from "./shared.module";
     SelectableAvatarComponent,
     SetPasswordComponent,
     SponsoredFamiliesComponent,
+    OrganizationSponsoredFamiliesComponent,
+    OrganizationMemberFamiliesComponent,
+    FreeBitwardenFamiliesComponent,
     SponsoringOrgRowComponent,
     UpdatePasswordComponent,
     UpdateTempPasswordComponent,
@@ -175,6 +181,9 @@ import { SharedModule } from "./shared.module";
     SelectableAvatarComponent,
     SetPasswordComponent,
     SponsoredFamiliesComponent,
+    OrganizationSponsoredFamiliesComponent,
+    OrganizationMemberFamiliesComponent,
+    FreeBitwardenFamiliesComponent,
     SponsoringOrgRowComponent,
     UpdateTempPasswordComponent,
     UpdatePasswordComponent,
