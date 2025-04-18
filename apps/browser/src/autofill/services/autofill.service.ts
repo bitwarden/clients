@@ -941,6 +941,7 @@ export default class AutofillService implements AutofillServiceInterface {
         const isFillableTotpField =
           options.allowTotpAutofill &&
           ["number", "text"].some((t) => t === field.type) &&
+          ["number", "tel", "text"].some((t) => t === field.type) &&
           (AutofillService.fieldIsFuzzyMatch(field, [
             ...AutoFillConstants.TotpFieldNames,
             ...AutoFillConstants.AmbiguousTotpFieldNames,
@@ -950,6 +951,7 @@ export default class AutofillService implements AutofillServiceInterface {
         const isFillableUsernameField =
           !options.skipUsernameOnlyFill &&
           ["tel", "email", "text"].some((t) => t === field.type) &&
+          ["email", "tel", "text"].some((t) => t === field.type) &&
           AutofillService.fieldIsFuzzyMatch(field, AutoFillConstants.UsernameFieldNames);
 
         // Prefer more uniquely keyworded fields first.
