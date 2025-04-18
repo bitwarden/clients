@@ -12,6 +12,7 @@ on:
       - 'cf-pages'
     paths:
       - 'apps/web/**'
+      - 'apps/bitwarden_license/bit-web/**'
       - 'libs/**'
       - '*'
       - '!*.md'
@@ -24,6 +25,7 @@ on:
       - 'hotfix-rc-web'
     paths:
       - 'apps/web/**'
+      - 'apps/bitwarden_license/bit-web/**'
       - 'libs/**'
       - '*'
       - '!*.md'
