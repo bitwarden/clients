@@ -5,24 +5,23 @@
 name: Build Desktop
 
 on:
-  # pull_request:
-  #   types: [opened, synchronize]
-  #   branches-ignore:
-  #     - 'l10n_master'
-  #     - 'cf-pages'
-  #   paths:
-  #     - 'apps/desktop/**'
-  #     - 'libs/**'
-  #     - '*'
-  #     - '!*.md'
-  #     - '!*.txt'
-  #     - '.github/workflows/build-desktop.yml'
+  pull_request:
+    types: [opened, synchronize]
+    branches-ignore:
+      - 'l10n_master'
+      - 'cf-pages'
+    paths:
+      - 'apps/desktop/**'
+      - 'libs/**'
+      - '*'
+      - '!*.md'
+      - '!*.txt'
+      - '.github/workflows/build-desktop.yml'
   push:
     branches:
       - 'main'
       - 'rc'
       - 'hotfix-rc-desktop'
-      - 'nathan/fix-autofill-signing'
     paths:
       - 'apps/desktop/**'
       - 'libs/**'
@@ -688,8 +687,6 @@ jobs:
 
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
-          security find-identity -v -p codesigning
-
       - name: Set up provisioning profiles
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
@@ -875,8 +872,8 @@ jobs:
           security unlock-keychain -p $KEYCHAIN_PASSWORD build.keychain
           security set-keychain-settings -lut 1200 build.keychain
 
-          # security import "$HOME/certificates/bitwarden-desktop-key.p12" -k build.keychain -P "" \
-          #   -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+          security import "$HOME/certificates/bitwarden-desktop-key.p12" -k build.keychain -P "" \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
           security import "$HOME/certificates/devid-app-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
@@ -884,11 +881,14 @@ jobs:
           security import "$HOME/certificates/devid-installer-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
-          # security import "$HOME/certificates/appstore-app-cert.p12" -k build.keychain -P "" \
-          #   -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+          security import "$HOME/certificates/appstore-app-cert.p12" -k build.keychain -P "" \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
-          # security import "$HOME/certificates/appstore-installer-cert.p12" -k build.keychain -P "" \
-          #   -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+          security import "$HOME/certificates/appstore-installer-cert.p12" -k build.keychain -P "" \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+
+          security import "$HOME/certificates/macdev-cert.p12" -k build.keychain -P "" \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
@@ -989,8 +989,7 @@ jobs:
           APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
           CSC_FOR_PULL_REQUEST: true
-          DEBUG: electron-osx-sign
-        run: npm run pack:mac:with-extension
+        run: npm run pack:mac
 
       - name: Upload .zip artifact
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
@@ -1138,14 +1137,14 @@ jobs:
           security unlock-keychain -p $KEYCHAIN_PASSWORD build.keychain
           security set-keychain-settings -lut 1200 build.keychain
 
-          # security import "$HOME/certificates/bitwarden-desktop-key.p12" -k build.keychain -P "" \
-          #   -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+          security import "$HOME/certificates/bitwarden-desktop-key.p12" -k build.keychain -P "" \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
-          # security import "$HOME/certificates/devid-app-cert.p12" -k build.keychain -P "" \
-          #   -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+          security import "$HOME/certificates/devid-app-cert.p12" -k build.keychain -P "" \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
-          # security import "$HOME/certificates/devid-installer-cert.p12" -k build.keychain -P "" \
-          #   -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+          security import "$HOME/certificates/devid-installer-cert.p12" -k build.keychain -P "" \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
           security import "$HOME/certificates/appstore-app-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
@@ -1153,8 +1152,8 @@ jobs:
           security import "$HOME/certificates/appstore-installer-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
-          # security import "$HOME/certificates/macdev-cert.p12" -k build.keychain -P "" \
-          #   -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+          security import "$HOME/certificates/macdev-cert.p12" -k build.keychain -P "" \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
@@ -1254,9 +1253,8 @@ jobs:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
-          DEBUG: electron-osx-sign*
           CSC_FOR_PULL_REQUEST: true
-        run: npm run pack:mac:mas:with-extension
+        run: npm run pack:mac:mas
 
       - name: Upload .pkg artifact
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
@@ -1266,9 +1264,9 @@ jobs:
           if-no-files-found: error
 
       - name: Create secrets for Fastlane
-        # if: |
-        #   github.event_name != 'pull_request_target'
-        #   && (inputs.testflight_distribute || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
+        if: |
+          github.event_name != 'pull_request_target'
+          && (inputs.testflight_distribute || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
         run: |
           brew install gsed
 
@@ -1284,9 +1282,9 @@ jobs:
 
       - name: Deploy to TestFlight
         id: testflight-deploy
-        # if: |
-        #   github.event_name != 'pull_request_target'
-        #   && (inputs.testflight_distribute || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
+        if: |
+          github.event_name != 'pull_request_target'
+          && (inputs.testflight_distribute || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
