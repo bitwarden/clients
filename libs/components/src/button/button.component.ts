@@ -108,6 +108,7 @@ export class ButtonComponent implements ButtonLikeAbstraction {
   });
 
   @Input() buttonType: ButtonType;
+
   buttonSize = input<ButtonSize>("default");
   nonNullButtonSize = computed(() => this.buttonSize() ?? "default");
 
