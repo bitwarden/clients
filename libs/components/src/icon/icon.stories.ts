@@ -26,5 +26,9 @@ export const Default: Story = {
       mapping: GenericIcons,
       control: { type: "select" },
     },
+    ariaLabel: {
+      control: "text",
+      description: "the text used by a screen reader to describe the icon",
+    },
   },
 };

@@ -4,7 +4,10 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import { MemberAccessReportApiService } from "./member-access-report-api.service";
-import { memberAccessReportsMock } from "./member-access-report.mock";
+import {
+  memberAccessReportsMock,
+  memberAccessWithoutAccessDetailsReportsMock,
+} from "./member-access-report.mock";
 import { MemberAccessReportService } from "./member-access-report.service";
 describe("ImportService", () => {
   const mockOrganizationId = "mockOrgId" as OrganizationId;
@@ -108,6 +111,35 @@ describe("ImportService", () => {
             accountRecovery: "memberAccessReportAuthenticationEnabledFalse",
             group: "Group 4",
             totalItems: "5",
+          }),
+        ]),
+      );
+    });
+
+    it("should generate user report export items and include users with no access", async () => {
+      reportApiService.getMemberAccessData.mockImplementation(() =>
+        Promise.resolve(memberAccessWithoutAccessDetailsReportsMock),
+      );
+      const result =
+        await memberAccessReportService.generateUserReportExportItems(mockOrganizationId);
+
+      expect(result).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            email: "asmith@email.com",
+            name: "Alice Smith",
+            twoStepLogin: "memberAccessReportTwoFactorEnabledTrue",
+            accountRecovery: "memberAccessReportAuthenticationEnabledTrue",
+            group: "Alice Group 1",
+            totalItems: "10",
+          }),
+          expect.objectContaining({
+            email: "rbrown@email.com",
+            name: "Robert Brown",
+            twoStepLogin: "memberAccessReportTwoFactorEnabledFalse",
+            accountRecovery: "memberAccessReportAuthenticationEnabledFalse",
+            group: "memberAccessReportNoGroup",
+            totalItems: "0",
           }),
         ]),
       );

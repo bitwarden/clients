@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Dėl įmonės politikos jums neleidžiama saugoti daiktų asmeninėje saugykloje. Pakeiskite nuosavybės parinktį į organizaciją ir pasirinkite iš galimų rinkinių."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Jūsų slaptažodžio užuomina negali būti lygi jūsų slaptažodžiui."
   },

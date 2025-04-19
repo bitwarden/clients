@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Due to an enterprise policy, you are restricted from saving items to your individual vault. Change the ownership option to an organisation and choose from available collections."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Your password hint cannot be the same as your password."
   },

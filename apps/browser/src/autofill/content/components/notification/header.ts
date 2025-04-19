@@ -49,7 +49,7 @@ const notificationHeaderStyles = ({
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  background-color: ${themes[theme].background};
+  background-color: ${themes[theme].background.DEFAULT};
   padding: 12px 16px 8px 16px;
   white-space: nowrap;
 
