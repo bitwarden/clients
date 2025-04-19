@@ -76,7 +76,6 @@ const moduleRules = [
   },
   {
     test: /\.[cm]?js$/,
-    exclude: /node_modules\/(?!@bitwarden)/,
     use: [
       {
         loader: "babel-loader",
@@ -91,9 +90,6 @@ const moduleRules = [
   {
     test: /\.[jt]sx?$/,
     loader: "@ngtools/webpack",
-    options: {
-      jitMode: ENV === "development",
-    },
   },
   {
     test: /argon2(-simd)?\.wasm$/,
@@ -163,7 +159,6 @@ const plugins = [
     tsConfigPath: "tsconfig.json",
     entryModule: "src/popup/app.module#AppModule",
     sourceMap: true,
-    jitMode: ENV === "development",
   }),
   new webpack.ProvidePlugin({
     process: "process/browser.js",
