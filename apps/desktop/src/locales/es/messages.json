@@ -833,18 +833,6 @@
   "continue": {
     "message": "Continuar"
   },
-  "enterVerificationCodeApp": {
-    "message": "Introduce el código de verificación de 6 dígitos de tu aplicación autenticadora."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Introduce el código de verificación de 6 dígitos que fue enviado a $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Correo de verificación enviado a $EMAIL$.",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Recordarme"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Reenviar código de verificación por correo electrónico"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Utilizar otro método de autenticación en dos pasos"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "Inserta tu YubiKey en el puerto USB de tu equipo y posteriormente pulsa su botón."
   },
   "insertU2f": {
     "message": "Inserta tu llave de seguridad en el puerto USB de tu equipo. Si tiene un botón, púlsalo."
@@ -2096,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Debido a una política de organización, tiene restringido el guardar elementos a su caja fuerte personal. Cambie la configuración de propietario a organización y elija entre las colecciones disponibles."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "La pista para la contraseña no puede ser igual que la contraseña."
   },
@@ -2483,6 +2462,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "Solo los elementos individuales de la caja fuerte asociados con $EMAIL$ serán exportados. No se incluirán los elementos de la caja fuerte de la organización. Solo la información de los elementos de la caja fuerte será exportada y no se incluirán los archivos adjuntos asociados.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3215,9 +3203,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Inicia Duo y sigue los pasos para terminar de iniciar sesión."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Se requiere el inicio de sesión en dos pasos de Duo para tu cuenta."
   },
@@ -3579,5 +3564,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }

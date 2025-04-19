@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject, OnDestroy } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import {
@@ -37,7 +36,13 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import {
   GroupApiService,
@@ -120,6 +125,7 @@ export class MemberDialogComponent implements OnDestroy {
     emails: [""],
     type: OrganizationUserType.User,
     externalId: this.formBuilder.control({ value: "", disabled: true }),
+    ssoExternalId: this.formBuilder.control({ value: "", disabled: true }),
     accessSecretsManager: false,
     access: [[] as AccessItemValue[]],
     groups: [[] as AccessItemValue[]],
@@ -149,6 +155,22 @@ export class MemberDialogComponent implements OnDestroy {
   protected accountDeprovisioningEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
     FeatureFlag.AccountDeprovisioning,
   );
+
+  protected isExternalIdVisible$ = this.configService
+    .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
+    .pipe(
+      map((isEnabled) => {
+        return !isEnabled || !!this.formGroup.get("externalId")?.value;
+      }),
+    );
+
+  protected isSsoExternalIdVisible$ = this.configService
+    .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
+    .pipe(
+      map((isEnabled) => {
+        return isEnabled && !!this.formGroup.get("ssoExternalId")?.value;
+      }),
+    );
 
   private destroy$ = new Subject<void>();
 
@@ -397,6 +419,7 @@ export class MemberDialogComponent implements OnDestroy {
     this.formGroup.patchValue({
       type: userDetails.type,
       externalId: userDetails.externalId,
+      ssoExternalId: userDetails.ssoExternalId,
       access: accessSelections,
       accessSecretsManager: userDetails.accessSecretsManager,
       groups: groupAccessSelections,

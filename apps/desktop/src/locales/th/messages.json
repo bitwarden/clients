@@ -833,18 +833,6 @@
   "continue": {
     "message": "ดำเนินการต่อไป"
   },
-  "enterVerificationCodeApp": {
-    "message": "ป้อนรหัสยืนยัน 6 หลักจากคุณแอป authenticator"
-  },
-  "enterVerificationCodeEmail": {
-    "message": "ป้อนรหัสยืนยัน 6 หลักที่ส่งทางอีเมล $EMAIL$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "ส่งอีเมลยืนยันไปที่ $EMAIL$ แล้ว",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "จดจำการเข้าระบบของฉัน"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "ส่งอีเมล์ยืนยันรหัสอีกครั้ง"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "ใช้วิธีลงชื่อเข้าใช้แบบสองขั้นตอนวิธีอื่น"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "เสียบ YubiKey ของคุณเข้ากับพอร์ต USB ของคอมพิวเตอร์ จากนั้นแตะปุ่ม"
   },
   "insertU2f": {
     "message": "เสียบคีย์ความปลอดภัยเข้ากับพอร์ต USB ของคอมพิวเตอร์ หากมีปุ่ม ให้แตะปุ่มนั้น"
@@ -2096,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Due to an enterprise policy, you are restricted from saving items to your individual vault. Change the ownership option to an organization and choose from available collections."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Your password hint cannot be the same as your password."
   },
@@ -2483,6 +2462,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3215,9 +3203,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
   },
@@ -3579,5 +3564,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }
