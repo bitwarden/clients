@@ -178,12 +178,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
 
     // login with the new account
     try {
-      const credentials = new PasswordLoginCredentials(
-        this.email,
-        passwordInputResult.newPassword,
-        captchaBypassToken,
-        null,
-      );
+      const credentials = new PasswordLoginCredentials(this.email, passwordInputResult.newPassword);
 
       const authenticationResult = await this.loginStrategyService.logIn(credentials);
 
