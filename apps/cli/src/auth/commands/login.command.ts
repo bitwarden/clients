@@ -298,7 +298,6 @@ export class LoginCommand {
 
         response = await this.loginStrategyService.logInTwoFactor(
           new TokenTwoFactorRequest(selectedProvider.type, twoFactorToken),
-          null,
         );
       }
 
