@@ -474,7 +474,6 @@ describe("LoginStrategy", () => {
       cache.tokenRequest = new PasswordTokenRequest(
         email,
         masterPasswordHash,
-        "",
         new TokenTwoFactorRequest(),
       );
 
@@ -506,7 +505,6 @@ describe("LoginStrategy", () => {
 
       await passwordLoginStrategy.logInTwoFactor(
         new TokenTwoFactorRequest(twoFactorProviderType, twoFactorToken, twoFactorRemember),
-        "",
       );
 
       expect(apiService.postIdentityToken).toHaveBeenCalledWith(
