@@ -262,14 +262,11 @@ describe("PasswordLoginStrategy", () => {
     apiService.postIdentityToken.mockResolvedValueOnce(
       identityTokenResponseFactory(masterPasswordPolicy),
     );
-    const secondResult = await passwordLoginStrategy.logInTwoFactor(
-      {
-        provider: TwoFactorProviderType.Authenticator,
-        token: "123456",
-        remember: false,
-      },
-      "",
-    );
+    const secondResult = await passwordLoginStrategy.logInTwoFactor({
+      provider: TwoFactorProviderType.Authenticator,
+      token: "123456",
+      remember: false,
+    });
 
     // First login attempt should not save the force password reset options
     expect(firstResult.forcePasswordReset).toEqual(ForceSetPasswordReason.None);
