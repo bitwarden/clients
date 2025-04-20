@@ -22,7 +22,10 @@ import {
   PasswordLoginCredentials,
 } from "../../../common";
 import { AnonLayoutWrapperDataService } from "../../anon-layout/anon-layout-wrapper-data.service";
-import { InputPasswordComponent } from "../../input-password/input-password.component";
+import {
+  InputPasswordComponent,
+  InputPasswordFlow,
+} from "../../input-password/input-password.component";
 import { PasswordInputResult } from "../../input-password/password-input-result";
 
 import { RegistrationFinishService } from "./registration-finish.service";
@@ -35,6 +38,8 @@ import { RegistrationFinishService } from "./registration-finish.service";
 })
 export class RegistrationFinishComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+
+  InputPasswordFlow = InputPasswordFlow;
 
   loading = true;
   submitting = false;
@@ -173,7 +178,12 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
 
     // login with the new account
     try {
-      const credentials = new PasswordLoginCredentials(this.email, passwordInputResult.password);
+      const credentials = new PasswordLoginCredentials(
+        this.email,
+        passwordInputResult.newPassword,
+        captchaBypassToken,
+        null,
+      );
 
       const authenticationResult = await this.loginStrategyService.logIn(credentials);
 

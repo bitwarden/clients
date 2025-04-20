@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Erakundeko politika bat dela eta, ezin dituzu elementuak zure kutxa gotor pertsonalean gorde. Aldatu jabe aukera erakunde aukera batera, eta aukeratu bilduma erabilgarrien artean."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Zure pasahitza ezin da izan zure pasahitzaren pistaren berdina."
   },

@@ -665,7 +665,7 @@
     "message": "Glabātava ir aizslēgta. Jāapliecina sava identitāte, lai turpinātu."
   },
   "yourVaultIsLockedV2": {
-    "message": "Glabātava ir slēgta"
+    "message": "Glabātava ir aizslēgta"
   },
   "yourAccountIsLocked": {
     "message": "Konts ir slēgts"
@@ -1097,6 +1097,31 @@
   "loginUpdateSuccess": {
     "message": "Pieteikšanās vienums atjaunināts",
     "description": "Message displayed when login details are successfully updated."
+  },
+  "loginUpdateTaskSuccess": {
+    "message": "Lielisks darbs! Tu attiecīgi rīkojies, lai padarītu savi un $ORGANIZATION$ drošāku.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Paldies par $ORGANIZATION$ padarīšanu drošāku! Tev ir vēl $TASK_COUNT$ paroļu, ko atjaunināt.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Mainīt nākamo paroli",
+    "description": "Message prompting user to undertake completion of another security task."
   },
   "saveFailure": {
     "message": "Kļūda saglabāšanas laikā",
@@ -2296,6 +2321,9 @@
   },
   "privacyPolicy": {
     "message": "Privātuma nosacījumi"
+  },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Jaunā parole nevar būt tāda pati kā pašreizējā."
   },
   "hintEqualsPassword": {
     "message": "Paroles norāde nedrīkst būt tāda pati kā parole."
@@ -5139,6 +5167,33 @@
     "message": "Lai izmantotu atslēgšanu ar biometriju, lūgums atjaunināt darbvirsmas lietotni vai atspējot atslēgšanu ar pirkstu nospiedumu darbvirsmas iestatījumos."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "Mainīt riskam pakļautu paroli"
+  },
+  "introCarouselLabel": {
+    "message": "Laipni lūdzam Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Drošība pirmajā vietā"
+  },
+  "securityPrioritizedBody": {
+    "message": "Pieteikšanās vienumu, karšu un identitāšu glabāšana savā drošajā glabātavā. Bitwarden izmanto nulles zināšanu pilnīgu šifrēšanu, lai aizsargātu to, kas Tev ir svarīgs."
+  },
+  "quickLogin": {
+    "message": "Ātra un vienkārša pieteikšanās"
+  },
+  "quickLoginBody": {
+    "message": "Iestati biometrisko atslēgšanu un automātiski aizpildi, lai pieteiktos savos kontos bez neviena burta ievadīšanas."
+  },
+  "secureUser": {
+    "message": "Uzlabo savu pieteikšanos"
+  },
+  "secureUserBody": {
+    "message": "Veidotājs ir izmantojams, lai izveidotu un saglabātu spēcīgas, neatkārtojamas paroles visiem Taviem kontiem."
+  },
+  "secureDevices": {
+    "message": "Tavi dati, kad un kur vien tie ir nepieciešami"
+  },
+  "secureDevicesBody": {
+    "message": "Neierobežotu paroļu skaitu var saglabāt neierobežotā ierīdžu daudzumā ar Bitwarden viedtālruņa, pārlūka un darbvirsmas lietotni."
   }
 }

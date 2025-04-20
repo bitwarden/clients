@@ -35,5 +35,6 @@ const closeButtonStyles = (theme: Theme) => css`
   > svg {
     width: 20px;
     height: 20px;
+    vertical-align: middle;
   }
 `;

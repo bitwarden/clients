@@ -1098,6 +1098,31 @@
     "message": "Sessão atualizada",
     "description": "Message displayed when login details are successfully updated."
   },
+  "loginUpdateTaskSuccess": {
+    "message": "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Thank you for making $ORGANIZATION$ more secure. You have $TASK_COUNT$ more passwords to update.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Change next password",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
   "saveFailure": {
     "message": "Erro ao salvar",
     "description": "Error message shown when the system fails to save login details."
@@ -2296,6 +2321,9 @@
   },
   "privacyPolicy": {
     "message": "Política de Privacidade"
+  },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Sua nova senha não pode ser a mesma que a sua atual."
   },
   "hintEqualsPassword": {
     "message": "Sua dica de senha não pode ser o mesmo que sua senha."
@@ -5140,5 +5168,32 @@
   },
   "changeAtRiskPassword": {
     "message": "Alterar senhas vulneráveis"
+  },
+  "introCarouselLabel": {
+    "message": "Bem-vindo(a) ao Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Segurança em primeiro lugar"
+  },
+  "securityPrioritizedBody": {
+    "message": "Guarde suas senhas, cartões e documentos no seu cofre seguro. Bitwarden usa criptografia ponta-a-ponta de zero-knowledge, protegendo o que é valioso para você."
+  },
+  "quickLogin": {
+    "message": "Login rápido e fácil"
+  },
+  "quickLoginBody": {
+    "message": "Ative o desbloqueio por biometria e o autopreenchimento para acessar suas contas sem digitar uma única letra."
+  },
+  "secureUser": {
+    "message": "Melhore seus logins de nível"
+  },
+  "secureUserBody": {
+    "message": "Use o gerador de senhas para criar e salvar senhas fortes e únicas para todas as suas contas."
+  },
+  "secureDevices": {
+    "message": "Seus dados, quando e onde precisar"
+  },
+  "secureDevicesBody": {
+    "message": "Guarde quantas senhas quiser e acesse de qualquer lugar com o Bitwarden. No seu celular, navegador e computador."
   }
 }

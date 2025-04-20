@@ -186,11 +186,11 @@ describe("WebRegistrationFinishService", () => {
       masterKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as MasterKey;
       passwordInputResult = {
         masterKey: masterKey,
-        masterKeyHash: "masterKeyHash",
+        serverMasterKeyHash: "serverMasterKeyHash",
         localMasterKeyHash: "localMasterKeyHash",
         kdfConfig: DEFAULT_KDF_CONFIG,
         hint: "hint",
-        password: "password",
+        newPassword: "newPassword",
       };
 
       userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
@@ -231,7 +231,7 @@ describe("WebRegistrationFinishService", () => {
         expect.objectContaining({
           email,
           emailVerificationToken: emailVerificationToken,
-          masterPasswordHash: passwordInputResult.masterKeyHash,
+          masterPasswordHash: passwordInputResult.serverMasterKeyHash,
           masterPasswordHint: passwordInputResult.hint,
           userSymmetricKey: userKeyEncString.encryptedString,
           userAsymmetricKeys: {
@@ -267,7 +267,7 @@ describe("WebRegistrationFinishService", () => {
         expect.objectContaining({
           email,
           emailVerificationToken: undefined,
-          masterPasswordHash: passwordInputResult.masterKeyHash,
+          masterPasswordHash: passwordInputResult.serverMasterKeyHash,
           masterPasswordHint: passwordInputResult.hint,
           userSymmetricKey: userKeyEncString.encryptedString,
           userAsymmetricKeys: {
@@ -308,7 +308,7 @@ describe("WebRegistrationFinishService", () => {
         expect.objectContaining({
           email,
           emailVerificationToken: undefined,
-          masterPasswordHash: passwordInputResult.masterKeyHash,
+          masterPasswordHash: passwordInputResult.serverMasterKeyHash,
           masterPasswordHint: passwordInputResult.hint,
           userSymmetricKey: userKeyEncString.encryptedString,
           userAsymmetricKeys: {
@@ -351,7 +351,7 @@ describe("WebRegistrationFinishService", () => {
         expect.objectContaining({
           email,
           emailVerificationToken: undefined,
-          masterPasswordHash: passwordInputResult.masterKeyHash,
+          masterPasswordHash: passwordInputResult.serverMasterKeyHash,
           masterPasswordHint: passwordInputResult.hint,
           userSymmetricKey: userKeyEncString.encryptedString,
           userAsymmetricKeys: {
@@ -396,7 +396,7 @@ describe("WebRegistrationFinishService", () => {
         expect.objectContaining({
           email,
           emailVerificationToken: undefined,
-          masterPasswordHash: passwordInputResult.masterKeyHash,
+          masterPasswordHash: passwordInputResult.serverMasterKeyHash,
           masterPasswordHint: passwordInputResult.hint,
           userSymmetricKey: userKeyEncString.encryptedString,
           userAsymmetricKeys: {
