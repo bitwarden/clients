@@ -1,4 +1,5 @@
 import { enableProdMode } from "@angular/core";
+import { loadTranslations } from "@angular/localize";
 import { platformBrowserDynamic } from "@angular/platform-browser-dynamic";
 
 import "bootstrap";
@@ -11,4 +12,17 @@ if (process.env.NODE_ENV === "production") {
   enableProdMode();
 }
 
-void platformBrowserDynamic().bootstrapModule(AppModule);
+void initLanguage("sv-se").then(() => {
+  return platformBrowserDynamic().bootstrapModule(AppModule);
+});
+
+async function initLanguage(locale: string): Promise<void> {
+  if (locale === "en") {
+    return;
+  }
+
+  const json = await fetch("/locales/messages." + locale + ".json").then((r) => r.json());
+
+  loadTranslations(json.translations);
+  $localize.locale = locale;
+}

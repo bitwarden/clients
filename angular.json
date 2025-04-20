@@ -18,16 +18,25 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-builders/custom-webpack:browser",
           "options": {
+            "customWebpackConfig": {
+              "path": "./apps/web/webpack.i18n.js"
+            },
             "outputPath": "dist/web",
             "index": "apps/web/src/index.html",
-            "main": "apps/web/src/app/main.ts",
-            "polyfills": "apps/web/src/app/polyfills.ts",
+            "main": "apps/web/src/main.ts",
+            "polyfills": "apps/web/src/polyfills.ts",
             "tsConfig": "apps/web/tsconfig.json",
             "assets": ["apps/web/src/favicon.ico"],
             "styles": [],
             "scripts": []
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-builders/custom-webpack:extract-i18n",
+          "options": {
+            "buildTarget": "web:build"
           }
         }
       }

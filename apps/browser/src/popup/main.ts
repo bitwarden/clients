@@ -1,4 +1,5 @@
 import { enableProdMode } from "@angular/core";
+import { loadTranslations } from "@angular/localize";
 import { platformBrowserDynamic } from "@angular/platform-browser-dynamic";
 
 import { PopupSizeService } from "../platform/popup/layout/popup-size.service";
@@ -22,8 +23,17 @@ if (process.env.ENV === "production") {
   enableProdMode();
 }
 
-function init() {
-  void platformBrowserDynamic().bootstrapModule(AppModule);
-}
+void initLanguage("sv-se").then(() => {
+  return platformBrowserDynamic().bootstrapModule(AppModule);
+});
 
-init();
+async function initLanguage(locale: string): Promise<void> {
+  if (locale === "en") {
+    return;
+  }
+
+  const json = await fetch("/_locales/messages." + locale + ".json").then((r) => r.json());
+
+  loadTranslations(json.translations);
+  $localize.locale = locale;
+}

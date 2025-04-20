@@ -1,3 +1,5 @@
+import "@angular/localize/init";
+import { loadTranslations } from "@angular/localize";
 import { render } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
@@ -18,6 +20,19 @@ import {
   NotificationBarIframeInitData,
   NotificationType,
 } from "./abstractions/notification-bar";
+
+async function initLanguage(locale: string): Promise<void> {
+  if (locale === "en") {
+    return;
+  }
+
+  const json = await fetch("/_locales/messages." + locale + ".json").then((r) => r.json());
+
+  loadTranslations(json.translations);
+  $localize.locale = locale;
+}
+
+void initLanguage("sv-se");
 
 const logService = new ConsoleLogService(false);
 let notificationBarIframeInitData: NotificationBarIframeInitData = {};
@@ -50,6 +65,7 @@ function applyNotificationBarStyle() {
 }
 
 function getI18n() {
+  const a = 5;
   return {
     appName: chrome.i18n.getMessage("appName"),
     close: chrome.i18n.getMessage("close"),
@@ -65,7 +81,7 @@ function getI18n() {
     never: chrome.i18n.getMessage("never"),
     notificationAddDesc: chrome.i18n.getMessage("notificationAddDesc"),
     notificationAddSave: chrome.i18n.getMessage("notificationAddSave"),
-    notificationChangeDesc: chrome.i18n.getMessage("notificationChangeDesc"),
+    notificationChangeDesc: $localize`Test translated message in content script with <a href="/settings">link</a> ${a}`,
     notificationChangeSave: chrome.i18n.getMessage("notificationChangeSave"),
     notificationEdit: chrome.i18n.getMessage("edit"),
     notificationUnlock: chrome.i18n.getMessage("notificationUnlock"),
@@ -116,7 +132,7 @@ const findElementById = <ElementType extends HTMLElement>(
 function setElementText(template: HTMLTemplateElement, elementId: string, text: string): void {
   const element = template.content.getElementById(elementId);
   if (element) {
-    element.textContent = text;
+    element.innerHTML = text;
   }
 }
 

@@ -80,7 +80,7 @@ const moduleRules = [
       {
         loader: "babel-loader",
         options: {
-          configFile: "../../babel.config.json",
+          configFile: "../../babel2.config.json",
         },
       },
     ],

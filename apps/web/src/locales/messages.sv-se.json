@@ -1,0 +1,10 @@
+{
+  "locale": "sv-Se",
+  "translations": {
+    "4606963464835766483": "Uppdaterad {$ICU}",
+    "2002272803511843863": "{VAR_PLURAL, plural, =0 {precis nu} =1 {en minut sedan} other {för {INTERPOLATION} minuter sedan}}",
+    "1150463724722084961": "Detta är en flytande länk till {$START_LINK}Inställningar{$CLOSE_LINK} med text före och efter.",
+    "5010897546053474360": "En fras som vi verkligen {$START_TAG_STRONG}behöver{$CLOSE_TAG_STRONG} framhäva!",
+    "email": "E-postadress"
+  }
+}
