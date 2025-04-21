@@ -361,6 +361,8 @@ export class SsoLoginStrategy extends LoginStrategy {
    * Override to handle SSO-specific ForceSetPasswordReason flags,
    * including TdeOffboarding, TdeUserWithoutPasswordHasPasswordResetPermission,
    * and SsoNewJitProvisionedUser cases.
+   * @param authResult - The authentication result
+   * @param userId - The user ID
    */
   override async processForceSetPasswordReason(
     authResult: AuthResult,

@@ -320,7 +320,6 @@ export abstract class LoginStrategy {
 
   /**
    * Processes the AuthResult to extract any ForceSetPasswordReason flags and sets them into state.
-   *
    * @param authResult - The authentication result
    * @param userId - The user ID
    */

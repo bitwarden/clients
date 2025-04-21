@@ -155,7 +155,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
       currentReason === ForceSetPasswordReason.AdminForcePasswordReset &&
       reason !== ForceSetPasswordReason.None
     ) {
-      return; // Don't override admin reset with other reasons
+      return;
     }
 
     await this.stateProvider.getUser(userId, FORCE_SET_PASSWORD_REASON).update((_) => reason);
