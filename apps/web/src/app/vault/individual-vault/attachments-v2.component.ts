@@ -3,7 +3,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
-import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogRef, DIALOG_DATA, DialogService } from "@bitwarden/components";
 import { CipherAttachmentsComponent } from "@bitwarden/vault";
 
@@ -11,6 +11,7 @@ import { SharedModule } from "../../shared/shared.module";
 
 export interface AttachmentsDialogParams {
   cipherId: CipherId;
+  organizationId?: OrganizationId;
 }
 
 /**
@@ -37,6 +38,7 @@ export interface AttachmentDialogCloseResult {
 })
 export class AttachmentsV2Component {
   cipherId: CipherId;
+  organizationId?: OrganizationId;
   attachmentFormId = CipherAttachmentsComponent.attachmentFormID;
 
   /**
@@ -49,6 +51,7 @@ export class AttachmentsV2Component {
     @Inject(DIALOG_DATA) public params: AttachmentsDialogParams,
   ) {
     this.cipherId = params.cipherId;
+    this.organizationId = params.organizationId;
   }
 
   /**
