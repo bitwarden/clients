@@ -411,6 +411,8 @@ export class SsoLoginStrategy extends LoginStrategy {
     }
 
     // Check for new SSO JIT provisioned user
+    // If a user logs in via SSO but has no master password and no alternative encryption methods
+    // Then they must be a newly provisioned user who needs to set up their encryption
     if (
       !userDecryptionOptions.hasMasterPassword &&
       !userDecryptionOptions.keyConnectorOption?.keyConnectorUrl &&
