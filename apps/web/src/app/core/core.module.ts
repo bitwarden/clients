@@ -33,9 +33,7 @@ import {
   SetPasswordJitService,
   SsoComponentService,
   LoginDecryptionOptionsService,
-  TwoFactorAuthComponentService,
   TwoFactorAuthDuoComponentService,
-  DefaultTwoFactorAuthComponentService,
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
@@ -271,11 +269,6 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LockComponentService,
     useClass: WebLockComponentService,
-    deps: [],
-  }),
-  safeProvider({
-    provide: TwoFactorAuthComponentService,
-    useClass: DefaultTwoFactorAuthComponentService,
     deps: [],
   }),
   safeProvider({
