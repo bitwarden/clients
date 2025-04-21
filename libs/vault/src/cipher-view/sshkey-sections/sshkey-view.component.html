@@ -5,7 +5,14 @@
   <bit-card class="[&_bit-form-field:last-of-type]:tw-mb-0">
     <bit-form-field>
       <bit-label>{{ "sshPrivateKey" | i18n }}</bit-label>
-      <input readonly bitInput [value]="sshKey.privateKey" aria-readonly="true" type="password" />
+      <input
+        readonly
+        bitInput
+        [value]="sshKey.privateKey"
+        aria-readonly="true"
+        type="password"
+        data-testid="private-key"
+      />
       <button
         bitSuffix
         type="button"
@@ -24,7 +31,13 @@
     </bit-form-field>
     <bit-form-field>
       <bit-label>{{ "sshPublicKey" | i18n }}</bit-label>
-      <input readonly bitInput [value]="sshKey.publicKey" aria-readonly="true" />
+      <input
+        readonly
+        bitInput
+        [value]="sshKey.publicKey"
+        aria-readonly="true"
+        data-testid="public-key"
+      />
       <button
         bitIconButton="bwi-clone"
         bitSuffix
@@ -36,7 +49,13 @@
     </bit-form-field>
     <bit-form-field>
       <bit-label>{{ "sshFingerprint" | i18n }}</bit-label>
-      <input readonly bitInput [value]="sshKey.keyFingerprint" aria-readonly="true" />
+      <input
+        readonly
+        bitInput
+        [value]="sshKey.keyFingerprint"
+        aria-readonly="true"
+        data-testid="fingerprint"
+      />
       <button
         bitIconButton="bwi-clone"
         bitSuffix

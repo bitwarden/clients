@@ -18,6 +18,7 @@ base64 = { workspace = true }
 hex = { workspace = true }
 anyhow = { workspace = true }
 desktop_core = { path = "../core" }
+log = { workspace = true }
 napi = { workspace = true, features = ["async"] }
 napi-derive = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
@@ -28,6 +29,7 @@ tokio-stream = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
 windows-registry = { workspace = true }
+windows_plugin_authenticator = { path = "../windows_plugin_authenticator" }
 
 [build-dependencies]
 napi-build = { workspace = true }

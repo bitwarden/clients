@@ -1,0 +1,32 @@
+<bit-dialog
+  dialogSize="large"
+  [loading]="loading"
+  [title]="'trustUser' | i18n"
+  [subtitle]="params.name"
+>
+  <ng-container bitDialogContent>
+    <bit-callout type="warning">{{ "emergencyAccessTrustWarning" | i18n }}</bit-callout>
+    <p bitTypography="body1">
+      {{ "fingerprintEnsureIntegrityVerify" | i18n }}
+      <a
+        bitLink
+        href="https://bitwarden.com/help/fingerprint-phrase/"
+        target="_blank"
+        rel="noopener"
+      >
+        {{ "learnMore" | i18n }}</a
+      >
+    </p>
+    <p bitTypography="body1">
+      <code>{{ fingerprint }}</code>
+    </p>
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <button buttonType="primary" bitButton bitFormButton type="button" (click)="submit()">
+      <span>{{ "trust" | i18n }}</span>
+    </button>
+    <button bitButton bitFormButton buttonType="secondary" type="button" bitDialogClose>
+      {{ "doNotTrust" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

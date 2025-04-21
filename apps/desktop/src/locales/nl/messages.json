@@ -833,18 +833,6 @@
   "continue": {
     "message": "Doorgaan"
   },
-  "enterVerificationCodeApp": {
-    "message": "Voer de 6-cijferige verificatiecode uit je authenticatie-app in."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Voer de 6-cijferige verificatiecode in die via e-mail is verstuurd naar $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "E-mail met verificatiecode is verzonden naar $EMAIL$.",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Mijn gegevens onthouden"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "30 dagen niet meer vragen op dit apparaat"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "E-mail met verificatiecode opnieuw versturen"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Gebruik een andere methode voor tweestapsaanmelding"
   },
   "selectAnotherMethod": {
     "message": "Kies een andere methode",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Gebruik je herstelcode"
-  },
-  "insertYubiKey": {
-    "message": "Plaats je YubiKey in de USB-poort van je computer en druk op de knop."
   },
   "insertU2f": {
     "message": "Plaats je beveilingssleutel in de USB-poort van je computer. Als het een knop heeft, druk deze dan in."
@@ -2096,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Wegens bedrijfsbeleid mag je geen wachtwoorden opslaan in je persoonlijke kluis. Verander het eigenaarschap naar een organisatie en kies uit een van de beschikbare collecties."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Je nieuwe wachtwoord moet anders zijn dan je huidige wachtwoord."
+  },
   "hintEqualsPassword": {
     "message": "Je wachtwoordhint moet anders zijn dan je wachtwoord."
   },
@@ -2483,6 +2462,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "Alleen de individuele kluisitems geassocieerd met $EMAIL$ worden geëxporteerd. Kluisitems van de organisatie worden niet meegenomen. Alleen informatie over kluisitem wordt geëxporteerd en bevat geen bijlagen.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Exporteert alleen de persoonlijke kluis-items, inclusief attachments, gerelateerd aan $EMAIL$. Geen kluis-items van de organisatie",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3215,9 +3203,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Fout bij het verbinden met de Duo-service. Gebruik een andere tweestapsaanmeldingsmethode of neem contact op met Duo voor hulp."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Start Duo en volg de stappen om in te loggen."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Jouw account vereist Duo-tweestapsaanmelding."
   },
@@ -3579,5 +3564,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Risicovol wachtwoord wijzigen"
+  },
+  "move": {
+    "message": "Verplaatsen"
   }
 }

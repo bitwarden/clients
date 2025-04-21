@@ -1098,6 +1098,31 @@
     "message": "Credencial atualizada",
     "description": "Message displayed when login details are successfully updated."
   },
+  "loginUpdateTaskSuccess": {
+    "message": "Excelente trabalho! Tomou as medidas necessárias para o tornar a si e à sua $ORGANIZATION$ mais seguros.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Obrigado por tornar a $ORGANIZATION$ mais segura. Tem mais $TASK_COUNT$ palavras-passe para atualizar.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Alterar a palavra-passe seguinte",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
   "saveFailure": {
     "message": "Erro ao guardar",
     "description": "Error message shown when the system fails to save login details."
@@ -1391,23 +1416,11 @@
   "premiumRequiredDesc": {
     "message": "É necessária uma subscrição Premium para utilizar esta funcionalidade."
   },
-  "enterVerificationCodeApp": {
-    "message": "Introduza o código de verificação de 6 dígitos da sua aplicação de autenticação."
-  },
   "authenticationTimeout": {
     "message": "Tempo limite de autenticação"
   },
   "authenticationSessionTimedOut": {
     "message": "A sessão de autenticação expirou. Por favor, reinicie o processo de início de sessão."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Introduza o código de verificação de 6 dígitos que foi enviado por e-mail para $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "E-mail de verificação enviado para $EMAIL$.",
@@ -1418,17 +1431,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Memorizar"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Não voltar a perguntar neste dispositivo durante 30 dias"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Enviar e-mail com o código de verificação novamente"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Utilizar outro método de verificação de dois passos"
   },
   "selectAnotherMethod": {
     "message": "Selecionar outro método",
@@ -1437,17 +1441,8 @@
   "useYourRecoveryCode": {
     "message": "Utilize o seu código de recuperação"
   },
-  "insertYubiKey": {
-    "message": "Introduza a sua YubiKey na porta USB do seu computador, depois toque no botão da mesma."
-  },
   "insertU2f": {
     "message": "Introduza a sua chave de segurança na porta USB do seu computador. Se tiver um botão, toque no mesmo."
-  },
-  "webAuthnNewTab": {
-    "message": "Para iniciar a verificação do WebAuthn 2FA, clique no botão abaixo para abrir um novo separador e siga as instruções fornecidas no novo separador."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Abrir novo separador"
   },
   "openInNewTab": {
     "message": "Abrir num novo separador"
@@ -2327,6 +2322,9 @@
   "privacyPolicy": {
     "message": "Política de privacidade"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "A sua nova palavra-passe não pode ser igual à sua palavra-passe atual."
+  },
   "hintEqualsPassword": {
     "message": "A dica da sua palavra-passe não pode ser igual à sua palavra-passe."
   },
@@ -2534,15 +2532,15 @@
     "message": "As palavras-passe da sua organização estão em risco porque são fracas, reutilizadas e/ou expostas.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Ilustração de uma lista de credenciais que estão em risco"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Ilustração de uma lista de credenciais que estão em risco."
   },
   "generatePasswordSlideDesc": {
     "message": "Gira rapidamente uma palavra-passe forte e única com o menu de preenchimento automático do Bitwarden no site em risco.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Ilustração do menu de preenchimento automático do Bitwarden com uma palavra-passe gerada"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Ilustração do menu de preenchimento automático do Bitwarden com uma palavra-passe gerada."
   },
   "updateInBitwarden": {
     "message": "Atualização no Bitwarden"
@@ -2551,8 +2549,8 @@
     "message": "O Bitwarden pedir-lhe-á então para atualizar a palavra-passe no gestor de palavras-passe.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Ilustração de uma notificação do Bitwarden a pedir ao utilizador que atualize a credencial"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Ilustração de uma notificação do Bitwarden a pedir ao utilizador que atualize a credencial."
   },
   "turnOnAutofill": {
     "message": "Ativar o preenchimento automático"
@@ -3000,6 +2998,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "Apenas os itens de cofre individuais associados a $EMAIL$ serão exportados. Os itens do cofre da organização não serão incluídos. Apenas serão exportadas as informações do item do cofre e não serão incluídos os anexos associados.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Apenas os itens individuais do cofre, incluindo os anexos associados a $EMAIL$, serão exportados. Os itens do cofre da organização não serão incluídos",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3839,14 +3846,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Erro ao ligar ao serviço Duo. Utilize um método de verificação de dois passos diferente ou contacte o Duo para obter assistência."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Inicie o Duo e siga os passos para concluir o início de sessão."
-  },
   "duoRequiredForAccount": {
     "message": "A verificação de dois passos Duo é necessária para a sua conta."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Abra a extensão para concluir o início de sessão."
   },
   "popoutExtension": {
     "message": "Extensão popout"
@@ -4270,6 +4271,20 @@
       }
     }
   },
+  "viewItemTitleWithField": {
+    "message": "Ver item - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "autofillTitle": {
     "message": "Preencher automaticamente - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
@@ -4277,6 +4292,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "autofillTitleWithField": {
+    "message": "Preencher automaticamente - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
       }
     }
   },
@@ -5139,5 +5168,32 @@
   },
   "changeAtRiskPassword": {
     "message": "Alterar palavra-passe em risco"
+  },
+  "introCarouselLabel": {
+    "message": "Bem-vindo ao Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Segurança, com prioridade"
+  },
+  "securityPrioritizedBody": {
+    "message": "Guarde credenciais, cartões e identidades no seu cofre seguro. O Bitwarden utiliza encriptação de ponto a ponto e conhecimento zero para proteger o que é importante para si."
+  },
+  "quickLogin": {
+    "message": "Início de sessão rápido e fácil"
+  },
+  "quickLoginBody": {
+    "message": "Configure o desbloqueio biométrico e o preenchimento automático para iniciar sessão nas suas contas sem escrever uma única letra."
+  },
+  "secureUser": {
+    "message": "Eleve o nível das suas credenciais"
+  },
+  "secureUserBody": {
+    "message": "Utilize o gerador para criar e guardar palavras-passe fortes e únicas para todas as suas contas."
+  },
+  "secureDevices": {
+    "message": "Os seus dados, quando e onde precisar"
+  },
+  "secureDevicesBody": {
+    "message": "Guarde palavras-passe ilimitadas em dispositivos ilimitados com as apps Bitwarden para telemóvel, navegador e computador."
   }
 }

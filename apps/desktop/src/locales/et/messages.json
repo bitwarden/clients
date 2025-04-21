@@ -833,18 +833,6 @@
   "continue": {
     "message": "Jätka"
   },
-  "enterVerificationCodeApp": {
-    "message": "Sisesta autentimise rakendusest 6 kohaline number."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Sisesta 6 kohaline number, mis saadeti e-posti aadressile $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Kinnituskood saadeti e-posti aadressile $EMAIL$.",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Jäta mind meelde"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Saada kinnituskood uuesti e-postile"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Kasuta teist kaheastmelist sisselogimise meetodit"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "Sisesta oma YubiKey arvuti USB porti ja kliki sellele nupule."
   },
   "insertU2f": {
     "message": "Sisesta oma turvaline võti arvuti USB porti. Kui sellel on nupp, siis vajuta seda."
@@ -2096,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Ettevõtte poliitika tõttu ei saa sa andmeid oma personaalsesse Hoidlasse salvestada. Vali Omanikuks organisatsioon ja vali mõni saadavaolevatest Kogumikest."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Parooli vihje ei saa olla sama mis parool ise."
   },
@@ -2483,6 +2462,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "Ainult e-postiga $EMAIL$ seonduvad kirjed eksporditakse. Organisatsiooni kirjeid ei kaasata. Samuti ei kaasata organisatsiooniga seonduvaid manuseid.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3215,9 +3203,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Duo teenustega ühendamine ebaõnnestus. Kasuta teist kahe-astmelise sisselogimise meetodit või kontakteeru Duoga."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Käivita Duo ja järgi juhiseid, et lõpetada sisselogimine."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Duo kahe-astmeline sisselogimine on sinu kontol nõutud."
   },
@@ -3579,5 +3564,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "move": {
+    "message": "Move"
   }
 }

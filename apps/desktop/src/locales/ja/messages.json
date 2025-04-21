@@ -429,10 +429,10 @@
     "message": "名前は必須項目です。"
   },
   "addedItem": {
-    "message": "追加されたアイテム"
+    "message": "追加しました"
   },
   "editedItem": {
-    "message": "編集されたアイテム"
+    "message": "保存しました"
   },
   "deleteItem": {
     "message": "アイテムの削除"
@@ -447,7 +447,7 @@
     "message": "このアイテムを削除してもよろしいですか?"
   },
   "deletedItem": {
-    "message": "削除しました"
+    "message": "ごみ箱に移動しました"
   },
   "overwritePasswordConfirmation": {
     "message": "現在のパスワードを上書きしてもよろしいですか?"
@@ -595,7 +595,7 @@
     "message": "添付ファイルの追加"
   },
   "deletedAttachment": {
-    "message": "削除された添付ファイル"
+    "message": "添付ファイルを削除しました"
   },
   "deleteAttachmentConfirmation": {
     "message": "この添付ファイルを削除してよろしいですか？"
@@ -833,18 +833,6 @@
   "continue": {
     "message": "続行"
   },
-  "enterVerificationCodeApp": {
-    "message": "認証アプリに表示された6桁の認証コードを入力してください。"
-  },
-  "enterVerificationCodeEmail": {
-    "message": "$EMAIL$ に送信された6桁の認証コードを入力してください。",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "$EMAIL$ に認証コードを送信しました。",
     "placeholders": {
@@ -854,17 +842,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "情報を保存する"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "このデバイスで30日間再表示しない"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "確認コードをメールで再送"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "他の2段階認証方法を使用"
   },
   "selectAnotherMethod": {
     "message": "別の方法を選択",
@@ -872,9 +851,6 @@
   },
   "useYourRecoveryCode": {
     "message": "リカバリーコードを使用する"
-  },
-  "insertYubiKey": {
-    "message": "YubiKey を USB ポートに挿入し、ボタンをタッチしてください。"
   },
   "insertU2f": {
     "message": "セキュリティキーを USB ポートに挿入し、ボタンがある場合はボタンをタッチしてください。"
@@ -2096,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "組織のポリシーにより、個人保管庫へのアイテムの保存が制限されています。 所有権を組織に変更し、利用可能なコレクションから選択してください。"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "新しいパスワードを現在のパスワードと同じにすることはできません。"
+  },
   "hintEqualsPassword": {
     "message": "パスワードのヒントをパスワードと同じにすることはできません。"
   },
@@ -2483,6 +2462,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "$EMAIL$ に関連付けられた個人の保管庫アイテムのみがエクスポートされます。組織の保管庫アイテムは含まれません。 保管庫アイテム情報のみがエクスポートされ、関連する添付ファイルはエクスポートされません。",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "$EMAIL$ に関連付けられた個人用保管庫のアイテムのみが、添付ファイルを含めてエクスポートされます。組織用保管庫のアイテムは含まれません。",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3215,9 +3203,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Duo サービスへの接続中にエラーが発生しました。異なる二段階ログイン方法を使用するか、Duo に連絡してください。"
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "ログインを完了するには Duo を起動し手順に従ってください。"
-  },
   "duoRequiredByOrgForAccount": {
     "message": "アカウントには Duo 二段階認証が必要です。"
   },
@@ -3539,7 +3524,7 @@
     "message": "後で再通知"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "新しいメールアドレス $EMAIL$ はあなたが管理しているものですか？",
+    "message": "メールアドレス $EMAIL$ は、確実にアクセスできるものですか？",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3579,5 +3564,8 @@
   },
   "changeAtRiskPassword": {
     "message": "危険なパスワードの変更"
+  },
+  "move": {
+    "message": "移動"
   }
 }

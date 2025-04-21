@@ -2,7 +2,6 @@ import { NgModule } from "@angular/core";
 import { Route, RouterModule, Routes } from "@angular/router";
 
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
-import { unauthUiRefreshSwap } from "@bitwarden/angular/auth/functions/unauth-ui-refresh-route-swap";
 import {
   authGuard,
   lockGuard,
@@ -59,13 +58,11 @@ import { LoginViaWebAuthnComponent } from "./auth/login/login-via-webauthn/login
 import { AcceptOrganizationComponent } from "./auth/organization-invite/accept-organization.component";
 import { RecoverDeleteComponent } from "./auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "./auth/recover-two-factor.component";
-import { RemovePasswordComponent } from "./auth/remove-password.component";
 import { SetPasswordComponent } from "./auth/set-password.component";
 import { AccountComponent } from "./auth/settings/account/account.component";
 import { EmergencyAccessComponent } from "./auth/settings/emergency-access/emergency-access.component";
 import { EmergencyAccessViewComponent } from "./auth/settings/emergency-access/view/emergency-access-view.component";
 import { SecurityRoutingModule } from "./auth/settings/security/security-routing.module";
-import { TwoFactorComponentV1 } from "./auth/two-factor-v1.component";
 import { UpdatePasswordComponent } from "./auth/update-password.component";
 import { UpdateTempPasswordComponent } from "./auth/update-temp-password.component";
 import { VerifyEmailTokenComponent } from "./auth/verify-email-token.component";
@@ -75,6 +72,7 @@ import { CompleteTrialInitiationComponent } from "./billing/trial-initiation/com
 import { freeTrialTextResolver } from "./billing/trial-initiation/complete-trial-initiation/resolver/free-trial-text.resolver";
 import { EnvironmentSelectorComponent } from "./components/environment-selector/environment-selector.component";
 import { RouteDataProperties } from "./core";
+import { RemovePasswordComponent } from "./key-management/key-connector/remove-password.component";
 import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";
 import { UserLayoutComponent } from "./layouts/user-layout.component";
 import { RequestSMAccessComponent } from "./secrets-manager/secrets-manager-landing/request-sm-access.component";
@@ -378,51 +376,28 @@ const routes: Routes = [
           },
         ],
       },
-      ...unauthUiRefreshSwap(
-        TwoFactorComponentV1,
-        TwoFactorAuthComponent,
-        {
-          path: "2fa",
-          canActivate: [unauthGuardFn()],
-          children: [
-            {
-              path: "",
-              component: TwoFactorComponentV1,
-            },
-            {
-              path: "",
-              component: EnvironmentSelectorComponent,
-              outlet: "environment-selector",
-            },
-          ],
-          data: {
-            pageTitle: {
-              key: "verifyYourIdentity",
-            },
-          } satisfies RouteDataProperties & AnonLayoutWrapperData,
-        },
-        {
-          path: "2fa",
-          canActivate: [unauthGuardFn(), TwoFactorAuthGuard],
-          children: [
-            {
-              path: "",
-              component: TwoFactorAuthComponent,
-            },
-            {
-              path: "",
-              component: EnvironmentSelectorComponent,
-              outlet: "environment-selector",
-            },
-          ],
-          data: {
-            pageTitle: {
-              key: "verifyYourIdentity",
-            },
-            titleAreaMaxWidth: "md",
-          } satisfies RouteDataProperties & AnonLayoutWrapperData,
-        },
-      ),
+      {
+        path: "2fa",
+        component: TwoFactorAuthComponent,
+        canActivate: [unauthGuardFn(), TwoFactorAuthGuard],
+        children: [
+          {
+            path: "",
+            component: TwoFactorAuthComponent,
+          },
+          {
+            path: "",
+            component: EnvironmentSelectorComponent,
+            outlet: "environment-selector",
+          },
+        ],
+        data: {
+          pageTitle: {
+            key: "verifyYourIdentity",
+          },
+          titleAreaMaxWidth: "md",
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+      },
       {
         path: "lock",
         canActivate: [deepLinkGuard(), lockGuard()],

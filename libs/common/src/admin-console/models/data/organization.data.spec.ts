@@ -59,6 +59,7 @@ describe("ORGANIZATIONS state", () => {
         userIsManagedByOrganization: false,
         useRiskInsights: false,
         useOrganizationDomains: false,
+        useAdminSponsoredFamilies: false,
       },
     };
     const result = sut.deserializer(JSON.parse(JSON.stringify(expectedResult)));
