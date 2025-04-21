@@ -111,15 +111,13 @@ function getConfirmationMessage(
   type?: NotificationType,
   error?: string,
 ) {
-  const loginSaveSuccessDetails = chrome.i18n.getMessage("loginSaveSuccessDetails", [itemName]);
-  const loginUpdatedSuccessDetails = chrome.i18n.getMessage("loginUpdatedSuccessDetails", [
-    itemName,
-  ]);
+  const loginSaveConfirmation = chrome.i18n.getMessage("loginSaveConfirmation", [itemName]);
+  const loginUpdatedConfirmation = chrome.i18n.getMessage("loginUpdatedConfirmation", [itemName]);
 
   if (error) {
     return i18n.saveFailureDetails;
   }
-  return type === "add" ? loginSaveSuccessDetails : loginUpdatedSuccessDetails;
+  return type === "add" ? loginSaveConfirmation : loginUpdatedConfirmation;
 }
 
 function getHeaderMessage(

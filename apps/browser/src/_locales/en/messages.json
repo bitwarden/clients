@@ -1063,7 +1063,7 @@
     "message": "View Login, opens in new window",
     "description": "Aria label for the view button in notification bar confirmation message"
   },
-  "loginSaveSuccessDetails": {
+  "loginSaveConfirmation": {
     "message": "$ITEMNAME$ saved to Bitwarden.",
     "placeholders": {
       "itemName": {
@@ -1072,7 +1072,7 @@
     },
     "description": "Shown to user after item is saved."
   },
-  "loginUpdatedSuccessDetails": {
+  "loginUpdatedConfirmation": {
     "message": "$ITEMNAME$ updated in Bitwarden.",
     "placeholders": {
       "itemName": {
@@ -1107,24 +1107,24 @@
   },
   "loginUpdateTaskSuccess": {
     "message": "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
-    "placeholders": {
-      "organization": {
-        "content": "$1"
-      }
-    },
-    "description": "Shown to user after login is updated."
+      "placeholders": {
+        "organization": {
+          "content": "$1"
+        }
+      },
+      "description": "Shown to user after login is updated."
   },
   "loginUpdateTaskSuccessAdditional": {
     "message": "Thank you for making $ORGANIZATION$ more secure. You have $TASK_COUNT$ more passwords to update.",
-    "placeholders": {
-      "organization": {
-        "content": "$1"
+      "placeholders": {
+        "organization": {
+          "content": "$1"
+        },
+        "task_count": {
+          "content": "$2"
+        }
       },
-      "task_count": {
-        "content": "$2"
-      }
-    },
-    "description": "Shown to user after login is updated."
+      "description": "Shown to user after login is updated."
   },
   "nextSecurityTaskAction": {
     "message": "Change next password",
@@ -2497,8 +2497,8 @@
         "example": "Acme Corp"
       },
       "count": {
-        "content": "$2",
-        "example": "2"
+          "content": "$2",
+          "example": "2"
       }
     }
   },
