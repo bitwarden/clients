@@ -87,7 +87,7 @@ export class ButtonComponent implements ButtonLikeAbstraction {
             ]
           : [],
       )
-      .concat(buttonSizeStyles[this.nonNullButtonSize()]);
+      .concat(buttonSizeStyles[this.nonNullSize()]);
   }
 
   protected disabledAttr = computed(() => {
@@ -110,16 +110,16 @@ export class ButtonComponent implements ButtonLikeAbstraction {
   @Input() buttonType: ButtonType = "secondary";
 
   /**
-   * NOTE: Use `nonNullButtonSize` to access the correct value of the `buttonSize` property
+   * NOTE: Use `nonNullSize` to access the value of the `size` property
    */
-  buttonSize = input<ButtonSize>("default");
+  size = input<ButtonSize>("default");
 
   /**
-   * Ensures "default" is used when `undefined` or `null` is passed in
+   * Ensures "default" is used when `undefined/null/empty string` is passed in
    *
-   * Use this value when accessing the `buttonSize` input
+   * Use this value when accessing the `size` input property
    */
-  nonNullButtonSize = computed(() => this.buttonSize() ?? "default");
+  readonly nonNullSize = computed(() => this.size() || "default");
 
   private _block = false;
 
