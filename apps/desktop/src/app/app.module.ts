@@ -10,7 +10,6 @@ import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe"
 import { CalloutModule, DialogModule } from "@bitwarden/components";
 import { DecryptionFailureDialogComponent } from "@bitwarden/vault";
 
-import { AccessibilityCookieComponent } from "../auth/accessibility-cookie.component";
 import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { LoginModule } from "../auth/login/login.module";
 import { SetPasswordComponent } from "../auth/set-password.component";

@@ -48,7 +48,6 @@ import {
   VaultIcons,
 } from "@bitwarden/vault";
 
-import { AccessibilityCookieComponent } from "../auth/accessibility-cookie.component";
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
 import { SetPasswordComponent } from "../auth/set-password.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
@@ -137,7 +136,6 @@ const routes: Routes = [
     component: VaultComponent,
     canActivate: [authGuard, NewDeviceVerificationNoticeGuard],
   },
-  { path: "accessibility-cookie", component: AccessibilityCookieComponent },
   { path: "set-password", component: SetPasswordComponent },
   {
     path: "send",
