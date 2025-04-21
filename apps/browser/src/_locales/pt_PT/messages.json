@@ -1098,6 +1098,31 @@
     "message": "Credencial atualizada",
     "description": "Message displayed when login details are successfully updated."
   },
+  "loginUpdateTaskSuccess": {
+    "message": "Excelente trabalho! Tomou as medidas necessárias para o tornar a si e à sua $ORGANIZATION$ mais seguros.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Obrigado por tornar a $ORGANIZATION$ mais segura. Tem mais $TASK_COUNT$ palavras-passe para atualizar.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Alterar a palavra-passe seguinte",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
   "saveFailure": {
     "message": "Erro ao guardar",
     "description": "Error message shown when the system fails to save login details."

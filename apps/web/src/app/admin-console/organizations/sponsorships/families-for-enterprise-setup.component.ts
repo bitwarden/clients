@@ -43,6 +43,8 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
     value.plan = PlanType.FamiliesAnnually;
     value.productTier = ProductTierType.Families;
     value.acceptingSponsorship = true;
+    value.planSponsorshipType = PlanSponsorshipType.FamiliesForEnterprise;
+
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil
     value.onSuccess.subscribe(this.onOrganizationCreateSuccess.bind(this));
   }

@@ -14,7 +14,9 @@
       }
     </span>
     @if (!hasError) {
-      <ng-content select="bit-hint"></ng-content>
+      <span class="[&_bit-hint]:tw-mt-0 tw-leading-none">
+        <ng-content select="bit-hint"></ng-content>
+      </span>
     }
   </span>
 </label>

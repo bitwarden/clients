@@ -1098,6 +1098,31 @@
     "message": "Логин обновлен",
     "description": "Message displayed when login details are successfully updated."
   },
+  "loginUpdateTaskSuccess": {
+    "message": "Отличная работа! Вы предприняли шаги, чтобы сделать себя и $ORGANIZATION$ более защищенными.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Спасибо, что сделали $ORGANIZATION$ более защищенной. У вас есть еще $TASK_COUNT$ паролей для обновления.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Изменить следующий пароль",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
   "saveFailure": {
     "message": "Ошибка при сохранении",
     "description": "Error message shown when the system fails to save login details."
@@ -1772,7 +1797,7 @@
     "message": "Полное имя"
   },
   "identityName": {
-    "message": "Имя"
+    "message": "Название личности"
   },
   "company": {
     "message": "Компания"

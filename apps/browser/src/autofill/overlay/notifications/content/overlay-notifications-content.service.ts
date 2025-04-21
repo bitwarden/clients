@@ -135,9 +135,13 @@ export class OverlayNotificationsContentService
    * @private
    */
   private handleSaveCipherAttemptCompletedMessage(message: NotificationsExtensionMessage) {
+    // destructure error out of data
+    const { error, ...otherData } = message?.data || {};
+
     this.sendMessageToNotificationBarIframe({
       command: "saveCipherAttemptCompleted",
-      error: message.data?.error,
+      data: Object.keys(otherData).length ? otherData : undefined,
+      error,
     });
   }
 
