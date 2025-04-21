@@ -26,10 +26,10 @@ import { PopOutComponent } from "../../../platform/popup/components/pop-out.comp
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
-export const SendStates = {
+export const SendStates = Object.freeze({
   Empty: 0,
   NoResults: 1,
-};
+} as const);
 
 type SendState = (typeof SendStates)[keyof typeof SendStates];
 
