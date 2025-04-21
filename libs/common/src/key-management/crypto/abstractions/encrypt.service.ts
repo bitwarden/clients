@@ -22,6 +22,7 @@ export abstract class EncryptService {
 
   /**
    * Wraps a decapsulation key (Private key) with a symmetric key
+   * @see {@link https://en.wikipedia.org/wiki/Key_wrap}
    * @param decapsulationKeyPcks8 - The private key in PKCS8 format
    * @param wrappingKey - The symmetric key to wrap the private key with
    */
@@ -31,6 +32,7 @@ export abstract class EncryptService {
   ): Promise<EncString>;
   /**
    * Wraps an encapsulation key (Public key) with a symmetric key
+   * @see {@link https://en.wikipedia.org/wiki/Key_wrap}
    * @param encapsulationKeySpki - The public key in SPKI format
    * @param wrappingKey - The symmetric key to wrap the public key with
    */
@@ -40,6 +42,7 @@ export abstract class EncryptService {
   ): Promise<EncString>;
   /**
    * Wraps a symmetric key with another symmetric key
+   * @see {@link https://en.wikipedia.org/wiki/Key_wrap}
    * @param keyToBeWrapped - The symmetric key to wrap
    * @param wrappingKey - The symmetric key to wrap the encapsulated key with
    */
@@ -78,6 +81,7 @@ export abstract class EncryptService {
   /**
    * Encapsulates a symmetric key with an asymmetric public key
    * Note: This does not establish sender authenticity
+   * @see {@link https://en.wikipedia.org/wiki/Key_encapsulation_mechanism}
    * @param sharedKey - The symmetric key that is to be shared
    * @param encapsulationKey - The encapsulation key (public key) of the receiver that the key is shared with
    */
@@ -88,6 +92,7 @@ export abstract class EncryptService {
   /**
    * Decapsulates a shared symmetric key with an asymmetric private key
    * Note: This does not establish sender authenticity
+   * @see {@link https://en.wikipedia.org/wiki/Key_encapsulation_mechanism}
    * @param encryptedSharedKey - The encrypted shared symmetric key
    * @param decapsulationKey - The key to decapsulate with (private key)
    */
@@ -96,13 +101,13 @@ export abstract class EncryptService {
     decapsulationKey: Uint8Array,
   ): Promise<SymmetricCryptoKey>;
   /**
-   * @deprecated Use encapsulateKeyUnsigned instead
+   * @deprecated Use @see {@link encapsulateKeyUnsigned} instead
    * @param data - The data to encrypt
    * @param publicKey - The public key to encrypt with
    */
   abstract rsaEncrypt(data: Uint8Array, publicKey: Uint8Array): Promise<EncString>;
   /**
-   * @deprecated Use decapsulateKeyUnsigned instead
+   * @deprecated Use @see {@link decapsulateKeyUnsigned} instead
    * @param data - The ciphertext to decrypt
    * @param privateKey - The privateKey to decrypt with
    */
