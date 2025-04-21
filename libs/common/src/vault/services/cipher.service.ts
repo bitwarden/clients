@@ -1130,10 +1130,11 @@ export class CipherService implements CipherServiceAbstraction {
     try {
       cipherResponse = admin
         ? await this.apiService.deleteCipherAttachmentAdmin(id, attachmentId)
-        : (cipherResponse = await this.apiService.deleteCipherAttachment(id, attachmentId));
+        : await this.apiService.deleteCipherAttachment(id, attachmentId);
     } catch (e) {
       return Promise.reject((e as ErrorResponse).getSingleMessage());
     }
+
     const cipherData = CipherData.fromJSON(cipherResponse?.cipher);
 
     return await this.deleteAttachment(id, cipherData.revisionDate, attachmentId, userId);

@@ -682,7 +682,7 @@ export class ApiService implements ApiServiceAbstraction {
       "/ciphers/" + id + "/attachment/" + attachmentId + "/admin",
       null,
       true,
-      false,
+      true,
     );
   }
 
