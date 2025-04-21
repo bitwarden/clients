@@ -231,7 +231,9 @@ describe("WebAuthnLoginStrategy", () => {
     const mockUserKey = new SymmetricCryptoKey(mockUserKeyArray) as UserKey;
 
     encryptService.decryptToBytes.mockResolvedValue(mockPrfPrivateKey);
-    encryptService.rsaDecrypt.mockResolvedValue(mockUserKeyArray);
+    encryptService.decapsulateKeyUnsigned.mockResolvedValue(
+      new SymmetricCryptoKey(mockUserKeyArray),
+    );
 
     // Act
     await webAuthnLoginStrategy.logIn(webAuthnCredentials);
@@ -249,8 +251,8 @@ describe("WebAuthnLoginStrategy", () => {
       idTokenResponse.userDecryptionOptions.webAuthnPrfOption.encryptedPrivateKey,
       webAuthnCredentials.prfKey,
     );
-    expect(encryptService.rsaDecrypt).toHaveBeenCalledTimes(1);
-    expect(encryptService.rsaDecrypt).toHaveBeenCalledWith(
+    expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledTimes(1);
+    expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledWith(
       idTokenResponse.userDecryptionOptions.webAuthnPrfOption.encryptedUserKey,
       mockPrfPrivateKey,
     );
@@ -278,7 +280,7 @@ describe("WebAuthnLoginStrategy", () => {
 
     // Assert
     expect(encryptService.decryptToBytes).not.toHaveBeenCalled();
-    expect(encryptService.rsaDecrypt).not.toHaveBeenCalled();
+    expect(encryptService.decapsulateKeyUnsigned).not.toHaveBeenCalled();
     expect(keyService.setUserKey).not.toHaveBeenCalled();
   });
 
@@ -330,7 +332,7 @@ describe("WebAuthnLoginStrategy", () => {
 
     apiService.postIdentityToken.mockResolvedValue(idTokenResponse);
 
-    encryptService.rsaDecrypt.mockResolvedValue(null);
+    encryptService.decapsulateKeyUnsigned.mockResolvedValue(null);
 
     // Act
     await webAuthnLoginStrategy.logIn(webAuthnCredentials);

@@ -1255,6 +1255,7 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       OrganizationApiServiceAbstraction,
       SyncService,
+      ConfigService,
     ],
   }),
   safeProvider({
@@ -1470,7 +1471,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LoginSuccessHandlerService,
     useClass: DefaultLoginSuccessHandlerService,
-    deps: [SyncService, UserAsymmetricKeysRegenerationService],
+    deps: [SyncService, UserAsymmetricKeysRegenerationService, LoginEmailService],
   }),
   safeProvider({
     provide: TaskService,

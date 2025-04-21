@@ -233,7 +233,7 @@ export class Utils {
     if (Utils.isNode) {
       return Buffer.from(utfStr, "utf8").toString("base64");
     } else {
-      return decodeURIComponent(escape(Utils.global.btoa(utfStr)));
+      return BufferLib.from(utfStr, "utf8").toString("base64");
     }
   }
 
@@ -245,7 +245,7 @@ export class Utils {
     if (Utils.isNode) {
       return Buffer.from(b64Str, "base64").toString("utf8");
     } else {
-      return decodeURIComponent(escape(Utils.global.atob(b64Str)));
+      return BufferLib.from(b64Str, "base64").toString("utf8");
     }
   }
 

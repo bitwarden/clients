@@ -19,10 +19,17 @@ import {
   SymmetricCryptoKey,
 } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 
+import {
+  DefaultFeatureFlagValue,
+  FeatureFlag,
+  getFeatureFlagValue,
+} from "../../../enums/feature-flag.enum";
 import { ServerConfig } from "../../../platform/abstractions/config/server-config";
 import { EncryptService } from "../abstractions/encrypt.service";
 
 export class EncryptServiceImplementation implements EncryptService {
+  private blockType0: boolean = DefaultFeatureFlagValue[FeatureFlag.PM17987_BlockType0];
+
   constructor(
     protected cryptoFunctionService: CryptoFunctionService,
     protected logService: LogService,
@@ -31,12 +38,18 @@ export class EncryptServiceImplementation implements EncryptService {
 
   // Handle updating private properties to turn on/off feature flags.
   onServerConfigChange(newConfig: ServerConfig): void {
-    return;
+    this.blockType0 = getFeatureFlagValue(newConfig, FeatureFlag.PM17987_BlockType0);
   }
 
   async encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString> {
     if (key == null) {
       throw new Error("No encryption key provided.");
+    }
+
+    if (this.blockType0) {
+      if (key.inner().type === EncryptionType.AesCbc256_B64 || key.key.byteLength < 64) {
+        throw new Error("Type 0 encryption is not supported.");
+      }
     }
 
     if (plainValue == null) {
@@ -127,6 +140,12 @@ export class EncryptServiceImplementation implements EncryptService {
       throw new Error("No encryption key provided.");
     }
 
+    if (this.blockType0) {
+      if (key.inner().type === EncryptionType.AesCbc256_B64 || key.key.byteLength < 64) {
+        throw new Error("Type 0 encryption is not supported.");
+      }
+    }
+
     const innerKey = key.inner();
     if (innerKey.type === EncryptionType.AesCbc256_HmacSha256_B64) {
       const encValue = await this.aesEncrypt(plainValue, innerKey);
@@ -162,7 +181,7 @@ export class EncryptServiceImplementation implements EncryptService {
     if (encString.encryptionType !== innerKey.type) {
       this.logDecryptError(
         "Key encryption type does not match payload encryption type",
-        key.encType,
+        innerKey.type,
         encString.encryptionType,
         decryptContext,
       );
@@ -186,7 +205,7 @@ export class EncryptServiceImplementation implements EncryptService {
       if (!macsEqual) {
         this.logMacFailed(
           "decryptToUtf8 MAC comparison failed. Key or payload has changed.",
-          key.encType,
+          innerKey.type,
           encString.encryptionType,
           decryptContext,
         );
@@ -229,7 +248,7 @@ export class EncryptServiceImplementation implements EncryptService {
     if (encThing.encryptionType !== inner.type) {
       this.logDecryptError(
         "Encryption key type mismatch",
-        key.encType,
+        inner.type,
         encThing.encryptionType,
         decryptContext,
       );
@@ -238,19 +257,23 @@ export class EncryptServiceImplementation implements EncryptService {
 
     if (inner.type === EncryptionType.AesCbc256_HmacSha256_B64) {
       if (encThing.macBytes == null) {
-        this.logDecryptError("Mac missing", key.encType, encThing.encryptionType, decryptContext);
+        this.logDecryptError("Mac missing", inner.type, encThing.encryptionType, decryptContext);
         return null;
       }
 
       const macData = new Uint8Array(encThing.ivBytes.byteLength + encThing.dataBytes.byteLength);
       macData.set(new Uint8Array(encThing.ivBytes), 0);
       macData.set(new Uint8Array(encThing.dataBytes), encThing.ivBytes.byteLength);
-      const computedMac = await this.cryptoFunctionService.hmac(macData, key.macKey, "sha256");
+      const computedMac = await this.cryptoFunctionService.hmac(
+        macData,
+        inner.authenticationKey,
+        "sha256",
+      );
       const macsMatch = await this.cryptoFunctionService.compare(encThing.macBytes, computedMac);
       if (!macsMatch) {
         this.logMacFailed(
           "MAC comparison failed. Key or payload has changed.",
-          key.encType,
+          inner.type,
           encThing.encryptionType,
           decryptContext,
         );
@@ -260,55 +283,35 @@ export class EncryptServiceImplementation implements EncryptService {
       return await this.cryptoFunctionService.aesDecrypt(
         encThing.dataBytes,
         encThing.ivBytes,
-        key.encKey,
+        inner.encryptionKey,
         "cbc",
       );
     } else if (inner.type === EncryptionType.AesCbc256_B64) {
       return await this.cryptoFunctionService.aesDecrypt(
         encThing.dataBytes,
         encThing.ivBytes,
-        key.encKey,
+        inner.encryptionKey,
         "cbc",
       );
     }
   }
 
-  async rsaEncrypt(data: Uint8Array, publicKey: Uint8Array): Promise<EncString> {
-    if (data == null) {
-      throw new Error("No data provided for encryption.");
+  async encapsulateKeyUnsigned(
+    sharedKey: SymmetricCryptoKey,
+    encapsulationKey: Uint8Array,
+  ): Promise<EncString> {
+    if (sharedKey == null) {
+      throw new Error("No sharedKey provided for encapsulation");
     }
-
-    if (publicKey == null) {
-      throw new Error("No public key provided for encryption.");
-    }
-    const encrypted = await this.cryptoFunctionService.rsaEncrypt(data, publicKey, "sha1");
-    return new EncString(EncryptionType.Rsa2048_OaepSha1_B64, Utils.fromBufferToB64(encrypted));
+    return await this.rsaEncrypt(sharedKey.toEncoded(), encapsulationKey);
   }
 
-  async rsaDecrypt(data: EncString, privateKey: Uint8Array): Promise<Uint8Array> {
-    if (data == null) {
-      throw new Error("[Encrypt service] rsaDecrypt: No data provided for decryption.");
-    }
-
-    let algorithm: "sha1" | "sha256";
-    switch (data.encryptionType) {
-      case EncryptionType.Rsa2048_OaepSha1_B64:
-      case EncryptionType.Rsa2048_OaepSha1_HmacSha256_B64:
-        algorithm = "sha1";
-        break;
-      case EncryptionType.Rsa2048_OaepSha256_B64:
-      case EncryptionType.Rsa2048_OaepSha256_HmacSha256_B64:
-        algorithm = "sha256";
-        break;
-      default:
-        throw new Error("Invalid encryption type.");
-    }
-
-    if (privateKey == null) {
-      throw new Error("[Encrypt service] rsaDecrypt: No private key provided for decryption.");
-    }
-
-    return this.cryptoFunctionService.rsaDecrypt(data.dataBytes, privateKey, algorithm);
+  async decapsulateKeyUnsigned(
+    encryptedSharedKey: EncString,
+    decapsulationKey: Uint8Array,
+  ): Promise<SymmetricCryptoKey> {
+    const keyBytes = await this.rsaDecrypt(encryptedSharedKey, decapsulationKey);
+    return new SymmetricCryptoKey(keyBytes);
   }
 
   /**
@@ -378,5 +381,43 @@ export class EncryptServiceImplementation implements EncryptService {
     if (this.logMacFailures) {
       this.logDecryptError(msg, keyEncType, dataEncType, decryptContext);
     }
+  }
+
+  async rsaEncrypt(data: Uint8Array, publicKey: Uint8Array): Promise<EncString> {
+    if (data == null) {
+      throw new Error("No data provided for encryption.");
+    }
+
+    if (publicKey == null) {
+      throw new Error("No public key provided for encryption.");
+    }
+    const encrypted = await this.cryptoFunctionService.rsaEncrypt(data, publicKey, "sha1");
+    return new EncString(EncryptionType.Rsa2048_OaepSha1_B64, Utils.fromBufferToB64(encrypted));
+  }
+
+  async rsaDecrypt(data: EncString, privateKey: Uint8Array): Promise<Uint8Array> {
+    if (data == null) {
+      throw new Error("[Encrypt service] rsaDecrypt: No data provided for decryption.");
+    }
+
+    let algorithm: "sha1" | "sha256";
+    switch (data.encryptionType) {
+      case EncryptionType.Rsa2048_OaepSha1_B64:
+      case EncryptionType.Rsa2048_OaepSha1_HmacSha256_B64:
+        algorithm = "sha1";
+        break;
+      case EncryptionType.Rsa2048_OaepSha256_B64:
+      case EncryptionType.Rsa2048_OaepSha256_HmacSha256_B64:
+        algorithm = "sha256";
+        break;
+      default:
+        throw new Error("Invalid encryption type.");
+    }
+
+    if (privateKey == null) {
+      throw new Error("[Encrypt service] rsaDecrypt: No private key provided for decryption.");
+    }
+
+    return this.cryptoFunctionService.rsaDecrypt(data.dataBytes, privateKey, algorithm);
   }
 }
