@@ -416,7 +416,7 @@ describe("deviceTrustService", () => {
           .mockResolvedValue(mockUserKey);
 
         cryptoSvcRsaEncryptSpy = jest
-          .spyOn(encryptService, "rsaEncrypt")
+          .spyOn(encryptService, "encapsulateKeyUnsigned")
           .mockResolvedValue(mockDevicePublicKeyEncryptedUserKey);
 
         encryptServiceEncryptSpy = jest
@@ -449,8 +449,8 @@ describe("deviceTrustService", () => {
         expect(cryptoSvcRsaEncryptSpy).toHaveBeenCalledTimes(1);
 
         // RsaEncrypt must be called w/ a user key array buffer of 64 bytes
-        const userKeyKey: Uint8Array = cryptoSvcRsaEncryptSpy.mock.calls[0][0];
-        expect(userKeyKey.byteLength).toBe(64);
+        const userKey = cryptoSvcRsaEncryptSpy.mock.calls[0][0];
+        expect(userKey.key.byteLength).toBe(64);
 
         expect(encryptServiceEncryptSpy).toHaveBeenCalledTimes(2);
 
@@ -610,7 +610,7 @@ describe("deviceTrustService", () => {
           mockUserId,
           mockEncryptedDevicePrivateKey,
           mockEncryptedUserKey,
-          mockDeviceKey,
+          null,
         );
 
         expect(result).toBeNull();
@@ -621,8 +621,8 @@ describe("deviceTrustService", () => {
           .spyOn(encryptService, "decryptToBytes")
           .mockResolvedValue(new Uint8Array(userKeyBytesLength));
         const rsaDecryptSpy = jest
-          .spyOn(encryptService, "rsaDecrypt")
-          .mockResolvedValue(new Uint8Array(userKeyBytesLength));
+          .spyOn(encryptService, "decapsulateKeyUnsigned")
+          .mockResolvedValue(new SymmetricCryptoKey(new Uint8Array(userKeyBytesLength)));
 
         const result = await deviceTrustService.decryptUserKeyWithDeviceKey(
           mockUserId,
@@ -863,9 +863,9 @@ describe("deviceTrustService", () => {
           });
 
           // Mock the encryption of the new user key with the decrypted public key
-          encryptService.rsaEncrypt.mockImplementationOnce((data, publicKey) => {
-            expect(data.byteLength).toBe(64); // New key should also be 64 bytes
-            expect(new Uint8Array(data)[0]).toBe(FakeNewUserKeyMarker); // New key should have the first byte be '1';
+          encryptService.encapsulateKeyUnsigned.mockImplementationOnce((data, publicKey) => {
+            expect(data.key.byteLength).toBe(64); // New key should also be 64 bytes
+            expect(new Uint8Array(data.key)[0]).toBe(FakeNewUserKeyMarker); // New key should have the first byte be '1';
 
             expect(new Uint8Array(publicKey)[0]).toBe(FakeDecryptedPublicKeyMarker);
             return Promise.resolve(new EncString("4.ZW5jcnlwdGVkdXNlcg=="));

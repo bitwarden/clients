@@ -1098,6 +1098,31 @@
     "message": "登录已更新",
     "description": "Message displayed when login details are successfully updated."
   },
+  "loginUpdateTaskSuccess": {
+    "message": "干得好！您采取了使您和 $ORGANIZATION$ 更加安全的措施。",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "感谢您使 $ORGANIZATION$ 更加安全。您还有 $TASK_COUNT$ 个密码需要更新。",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "更改下一个密码",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
   "saveFailure": {
     "message": "保存时出错",
     "description": "Error message shown when the system fails to save login details."
@@ -2825,7 +2850,7 @@
     "message": "选择文件夹..."
   },
   "noFoldersFound": {
-    "message": "找不到文件夹",
+    "message": "未找到任何文件夹",
     "description": "Used as a message within the notification bar when no folders are found"
   },
   "orgPermissionsUpdatedMustSetPassword": {
@@ -3929,7 +3954,7 @@
     "message": "此应用程序已存在一个通行密钥。"
   },
   "noPasskeysFoundForThisApplication": {
-    "message": "没有找到此应用程序的通行密钥。"
+    "message": "未找到此应用程序的通行密钥。"
   },
   "noMatchingPasskeyLogin": {
     "message": "您没有匹配此站点的登录。"
