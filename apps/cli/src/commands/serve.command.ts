@@ -52,7 +52,12 @@ export class ServeCommand {
 
     server.use(router.routes()).use(router.allowedMethods());
 
-    if (hostname.startsWith("unix://")) {
+    if (hostname.startsWith("fd+listening://")) {
+      const fd = parseInt(hostname.slice("fd+listening://".length));
+      server.listen({ fd }, () => {
+        this.serviceContainer.logService.info("Listening on " + hostname);
+      });
+    } else if (hostname.startsWith("unix://")) {
       const socketPath = hostname.slice("unix://".length);
       server.listen(socketPath, () => {
         this.serviceContainer.logService.info("Listening on " + hostname);
