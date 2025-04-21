@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Din cauza unei politici a întreprinderii, nu vă puteți salva elemente în seiful individual. Schimbați opțiunea de proprietate la o organizație și alegeți din colecțiile disponibile."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Indiciul dvs. de parolă nu poate fi același cu parola dvs."
   },

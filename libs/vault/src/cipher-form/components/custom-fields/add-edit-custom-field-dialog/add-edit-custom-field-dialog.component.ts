@@ -25,6 +25,7 @@ export type AddEditCustomFieldDialogData = {
   cipherType: CipherType;
   /** When provided, dialog will display edit label variants */
   editLabelConfig?: { index: number; label: string };
+  disallowHiddenField?: boolean;
 };
 
 @Component({
@@ -68,6 +69,9 @@ export class AddEditCustomFieldDialogComponent {
     this.variant = data.editLabelConfig ? "edit" : "add";
 
     this.fieldTypeOptions = this.fieldTypeOptions.filter((option) => {
+      if (this.data.disallowHiddenField && option.value === FieldType.Hidden) {
+        return false;
+      }
       // Filter out the Linked field type for Secure Notes
       if (this.data.cipherType === CipherType.SecureNote) {
         return option.value !== FieldType.Linked;

@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "בשל מדיניות ארגונית, אתה מוגבל מלשמור פריטים לכספת האישית שלך. שנה את אפשרות הבעלות לארגון ובחר מאוספים זמינים."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "רמז הסיסמה שלך לא יכול להיות אותו הדבר כמו הסיסמה שלך."
   },

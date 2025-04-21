@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Yrityskäytännön johdosta kohteiden tallennus henkilökohtaiseen holviin ei ole mahdollista. Muuta omistusasetus organisaatiolle ja valitse käytettävissä olevista kokoelmista."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Salasanavihjeesi ei voi olla sama kuin salasanasi."
   },
