@@ -15,6 +15,9 @@ export class DeviceResponse extends BaseResponse {
   creationDate: string;
   revisionDate: string;
   isTrusted: boolean;
+  encryptedUserKey: string | null;
+  encryptedPublicKey: string | null;
+
   devicePendingAuthRequest: DevicePendingAuthRequest | null;
 
   constructor(response: any) {
@@ -27,6 +30,8 @@ export class DeviceResponse extends BaseResponse {
     this.creationDate = this.getResponseProperty("CreationDate");
     this.revisionDate = this.getResponseProperty("RevisionDate");
     this.isTrusted = this.getResponseProperty("IsTrusted");
+    this.encryptedUserKey = this.getResponseProperty("EncryptedUserKey");
+    this.encryptedPublicKey = this.getResponseProperty("EncryptedPublicKey");
     this.devicePendingAuthRequest = this.getResponseProperty("DevicePendingAuthRequest");
   }
 }
