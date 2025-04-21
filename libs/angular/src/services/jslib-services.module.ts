@@ -273,6 +273,10 @@ import {
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import {
+  DefaultEndUserNotificationService,
+  EndUserNotificationService,
+} from "@bitwarden/common/vault/notifications";
+import {
   CipherAuthorizationService,
   DefaultCipherAuthorizationService,
 } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -308,12 +312,7 @@ import {
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
-import {
-  DefaultEndUserNotificationService,
-  EndUserNotificationService,
-  NewDeviceVerificationNoticeService,
-  PasswordRepromptService,
-} from "@bitwarden/vault";
+import { NewDeviceVerificationNoticeService, PasswordRepromptService } from "@bitwarden/vault";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -1507,7 +1506,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: EndUserNotificationService,
     useClass: DefaultEndUserNotificationService,
-    deps: [StateProvider, ApiServiceAbstraction, NotificationsService],
+    deps: [
+      StateProvider,
+      ApiServiceAbstraction,
+      NotificationsService,
+      AuthServiceAbstraction,
+      LogService,
+    ],
   }),
   safeProvider({
     provide: DeviceTrustToastServiceAbstraction,
