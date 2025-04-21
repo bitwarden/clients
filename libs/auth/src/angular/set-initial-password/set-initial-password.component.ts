@@ -28,6 +28,7 @@ import { PasswordInputResult } from "../input-password/password-input-result";
 import {
   SetInitialPasswordService,
   SetInitialPasswordCredentials,
+  SetInitialPasswordUserType,
 } from "./set-initial-password.service.abstraction";
 
 @Component({
@@ -39,6 +40,7 @@ export class SetInitialPasswordComponent implements OnInit {
   protected InputPasswordFlow = InputPasswordFlow;
   protected email: string;
   protected forceSetPasswordReason: ForceSetPasswordReason;
+  protected userType: SetInitialPasswordUserType;
   protected masterPasswordPolicyOptions: MasterPasswordPolicyOptions;
   protected orgId: string;
   protected orgSsoIdentifier: string;
@@ -73,14 +75,20 @@ export class SetInitialPasswordComponent implements OnInit {
     this.userId = activeAccount?.id;
     this.email = activeAccount?.email;
 
+    await this.determineUserType();
+    await this.handleQueryParams();
+  }
+
+  private async determineUserType() {
     this.forceSetPasswordReason = await firstValueFrom(
       this.masterPasswordService.forceSetPasswordReason$(this.userId),
     );
 
     if (
-      this.forceSetPasswordReason !==
+      this.forceSetPasswordReason ===
       ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission
     ) {
+      this.userType = SetInitialPasswordUserType.TRUSTED_DEVICE_ORG_USER;
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
         pageTitle: {
           key: "setMasterPassword",
@@ -90,6 +98,7 @@ export class SetInitialPasswordComponent implements OnInit {
         },
       });
     } else {
+      this.userType = SetInitialPasswordUserType.MASTER_PASSWORD_ORG_USER;
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
         pageTitle: {
           key: "joinOrganization",
@@ -99,8 +108,6 @@ export class SetInitialPasswordComponent implements OnInit {
         },
       });
     }
-
-    await this.handleQueryParams();
   }
 
   private async handleQueryParams() {
@@ -137,7 +144,7 @@ export class SetInitialPasswordComponent implements OnInit {
       orgSsoIdentifier: this.orgSsoIdentifier,
       orgId: this.orgId,
       resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
-      forceSetPasswordReason: this.forceSetPasswordReason,
+      userType: this.userType,
       userId: this.userId,
     };
 
@@ -149,10 +156,7 @@ export class SetInitialPasswordComponent implements OnInit {
       return;
     }
 
-    if (
-      this.forceSetPasswordReason !==
-      ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission
-    ) {
+    if (this.userType === SetInitialPasswordUserType.MASTER_PASSWORD_ORG_USER) {
       this.toastService.showToast({
         variant: "success",
         title: null,

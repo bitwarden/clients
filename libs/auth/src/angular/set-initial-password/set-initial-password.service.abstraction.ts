@@ -1,9 +1,23 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 import { PBKDF2KdfConfig } from "@bitwarden/key-management";
+
+export enum SetInitialPasswordUserType {
+  /**
+   * A new user being "just-in-time" provisioned into a master-password-encryption org
+   */
+  MASTER_PASSWORD_ORG_USER,
+  /**
+   * Could be either:
+   *  1. A new user being "just-in-time" provisioned into a trusted-device-encryption org
+   *     with a role that requires a master password
+   *  2. An existing user in a trusted-device-encryption org whose role was upgraded to one
+   *     that requires a master password
+   */
+  TRUSTED_DEVICE_ORG_USER,
+}
 
 export interface SetInitialPasswordCredentials {
   masterKey: MasterKey;
@@ -14,7 +28,7 @@ export interface SetInitialPasswordCredentials {
   orgSsoIdentifier: string;
   orgId: string;
   resetPasswordAutoEnroll: boolean;
-  forceSetPasswordReason: ForceSetPasswordReason;
+  userType: SetInitialPasswordUserType;
   userId: UserId;
 }
 

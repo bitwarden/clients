@@ -25,6 +25,7 @@ import { PBKDF2KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-ma
 import {
   SetInitialPasswordService,
   SetInitialPasswordCredentials,
+  SetInitialPasswordUserType,
 } from "./set-initial-password.service.abstraction";
 
 export class DefaultSetInitialPasswordService implements SetInitialPasswordService {
@@ -51,7 +52,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       orgSsoIdentifier,
       orgId,
       resetPasswordAutoEnroll,
-      forceSetPasswordReason,
+      userType,
       userId,
     } = credentials;
 
@@ -69,10 +70,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     let keyPair: [string, EncString] | null = null;
     let keysRequest: KeysRequest | null = null;
 
-    if (
-      forceSetPasswordReason !=
-      ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission
-    ) {
+    if (userType === SetInitialPasswordUserType.MASTER_PASSWORD_ORG_USER) {
       /**
        * If inside this block, this is a JIT provisioned user in a MP encryption org setting an initial password.
        * Therefore they will not already have a user asymmetric key pair, and we must create it for them.
@@ -133,11 +131,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
      * Set the private key only for new JIT provisioned users in MP encryption orgs.
      * (Existing TDE users will have their private key set on sync or on login.)
      */
-    if (
-      keyPair != null &&
-      forceSetPasswordReason !=
-        ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission
-    ) {
+    if (keyPair != null && userType === SetInitialPasswordUserType.MASTER_PASSWORD_ORG_USER) {
       await this.keyService.setPrivateKey(keyPair[1].encryptedString, userId);
     }
 
