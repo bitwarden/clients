@@ -118,8 +118,6 @@ export class LockComponent implements OnInit, OnDestroy {
   showPassword = false;
   private enforcedMasterPasswordOptions?: MasterPasswordPolicyOptions = undefined;
 
-  forcePasswordResetRoute = "update-temp-password";
-
   formGroup: FormGroup | null = null;
 
   // Desktop properties:
@@ -597,8 +595,6 @@ export class LockComponent implements OnInit, OnDestroy {
             ForceSetPasswordReason.WeakMasterPassword,
             userId,
           );
-          await this.router.navigate([this.forcePasswordResetRoute]);
-          return;
         }
       } catch (e) {
         // Do not prevent unlock if there is an error evaluating policies
