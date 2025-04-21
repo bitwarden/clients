@@ -43,6 +43,18 @@ describe("EncryptService", () => {
       expect(encString.encryptionType).toEqual(EncryptionType.AesCbc256_HmacSha256_B64);
       expect(encString.data).toEqual(Utils.fromBufferToB64(makeStaticByteArray(64, 0)));
     });
+    it("fails if key toBeWrapped is null", async () => {
+      const wrappingKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+      await expect(encryptService.wrapSymmetricKey(null, wrappingKey)).rejects.toThrow(
+        "No keyToBeWrapped provided for wrapping.",
+      );
+    });
+    it("fails if wrapping key is null", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      await expect(encryptService.wrapSymmetricKey(key, null)).rejects.toThrow(
+        "No wrappingKey provided for wrapping.",
+      );
+    });
   });
 
   describe("wrapDecapsulationKey", () => {
@@ -59,6 +71,18 @@ describe("EncryptService", () => {
       expect(encString.encryptionType).toEqual(EncryptionType.AesCbc256_HmacSha256_B64);
       expect(encString.data).toEqual(Utils.fromBufferToB64(makeStaticByteArray(64, 0)));
     });
+    it("fails if decapsulation key is null", async () => {
+      const wrappingKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+      await expect(encryptService.wrapDecapsulationKey(null, wrappingKey)).rejects.toThrow(
+        "No decapsulation key provided for wrapping.",
+      );
+    });
+    it("fails if wrapping key is null", async () => {
+      const decapsulationKey = makeStaticByteArray(64);
+      await expect(encryptService.wrapDecapsulationKey(decapsulationKey, null)).rejects.toThrow(
+        "No wrappingKey provided for wrapping.",
+      );
+    });
   });
 
   describe("wrapEncapsulationKey", () => {
@@ -74,6 +98,18 @@ describe("EncryptService", () => {
       );
       expect(encString.encryptionType).toEqual(EncryptionType.AesCbc256_HmacSha256_B64);
       expect(encString.data).toEqual(Utils.fromBufferToB64(makeStaticByteArray(64, 0)));
+    });
+    it("fails if encapsulation key is null", async () => {
+      const wrappingKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+      await expect(encryptService.wrapEncapsulationKey(null, wrappingKey)).rejects.toThrow(
+        "No encapsulation key provided for wrapping.",
+      );
+    });
+    it("fails if wrapping key is null", async () => {
+      const encapsulationKey = makeStaticByteArray(64);
+      await expect(encryptService.wrapEncapsulationKey(encapsulationKey, null)).rejects.toThrow(
+        "No wrappingKey provided for wrapping.",
+      );
     });
   });
 
