@@ -17,6 +17,7 @@
         </bit-item-action>
         <bit-item-action>
           <app-delete-attachment
+            [admin]="!!organizationId"
             [cipherId]="cipher.id"
             [attachment]="attachment"
             (onDeletionSuccess)="removeAttachment(attachment)"

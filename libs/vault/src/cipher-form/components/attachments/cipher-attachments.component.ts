@@ -128,6 +128,7 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
         this.organizationId,
       );
       this.cipher = organizationCiphers.find((c) => c.id == this.cipherId);
+      this.cipherDomain = await this.cipherService.encrypt(this.cipher, this.activeUserId);
     } else {
       this.cipherDomain = await this.cipherService.get(this.cipherId, this.activeUserId);
       this.cipher = await this.cipherDomain.decrypt(
@@ -200,6 +201,7 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
         this.cipherDomain,
         file,
         this.activeUserId,
+        !!this.organizationId,
       );
 
       // re-decrypt the cipher to update the attachments

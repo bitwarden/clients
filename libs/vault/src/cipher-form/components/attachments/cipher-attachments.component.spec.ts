@@ -30,6 +30,7 @@ import { DeleteAttachmentComponent } from "./delete-attachment/delete-attachment
 class MockDownloadAttachmentComponent {
   @Input() attachment: AttachmentView;
   @Input() cipher: CipherView;
+  @Input() admin: boolean = false;
 }
 
 describe("CipherAttachmentsComponent", () => {
@@ -234,7 +235,12 @@ describe("CipherAttachmentsComponent", () => {
       it("calls `saveAttachmentWithServer`", async () => {
         await component.submit();
 
-        expect(saveAttachmentWithServer).toHaveBeenCalledWith(cipherDomain, file, mockUserId);
+        expect(saveAttachmentWithServer).toHaveBeenCalledWith(
+          cipherDomain,
+          file,
+          mockUserId,
+          false,
+        );
       });
 
       it("resets form and input values", async () => {
