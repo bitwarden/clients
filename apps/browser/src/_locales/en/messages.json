@@ -192,7 +192,7 @@
     "message": "Copy",
     "description": "Copy to clipboard"
   },
-  "fill":{
+  "fill": {
     "message": "Fill",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
@@ -1059,27 +1059,27 @@
   "notificationAddSave": {
     "message": "Save"
   },
-  "notificationViewAria":{
+  "notificationViewAria": {
     "message": "View Login, opens in new window",
     "description": "Aria label for the view button in notification bar confirmation message"
   },
   "loginSaveSuccessDetails": {
     "message": "$ITEMNAME$ saved to Bitwarden.",
-      "placeholders": {
-        "itemName": {
-          "content": "$1"
-        }
-      },
-      "description": "Shown to user after item is saved."
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after item is saved."
   },
   "loginUpdatedSuccessDetails": {
     "message": "$ITEMNAME$ updated in Bitwarden.",
-      "placeholders": {
-        "itemName": {
-          "content": "$1"
-        }
-      },
-      "description": "Shown to user after item is updated."
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after item is updated."
   },
   "saveAsNewLoginAction": {
     "message": "Save as new login",
@@ -1107,24 +1107,24 @@
   },
   "loginUpdateTaskSuccess": {
     "message": "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
-      "placeholders": {
-        "organization": {
-          "content": "$1"
-        }
-      },
-      "description": "Shown to user after login is updated."
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
   },
   "loginUpdateTaskSuccessAdditional": {
     "message": "Thank you for making $ORGANIZATION$ more secure. You have $TASK_COUNT$ more passwords to update.",
-      "placeholders": {
-        "organization": {
-          "content": "$1"
-        },
-        "task_count": {
-          "content": "$2"
-        }
+    "placeholders": {
+      "organization": {
+        "content": "$1"
       },
-      "description": "Shown to user after login is updated."
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
   },
   "nextSecurityTaskAction": {
     "message": "Change next password",
@@ -2497,8 +2497,8 @@
         "example": "Acme Corp"
       },
       "count": {
-          "content": "$2",
-          "example": "2"
+        "content": "$2",
+        "example": "2"
       }
     }
   },
