@@ -109,6 +109,9 @@ export class ButtonComponent implements ButtonLikeAbstraction {
 
   @Input() buttonType: ButtonType = "secondary";
 
+  /**
+   * NOTE: Use `nonNullButtonSize` to access the correct value of the `buttonSize` property
+   */
   buttonSize = input<ButtonSize>("default");
 
   /**
