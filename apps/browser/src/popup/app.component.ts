@@ -1,9 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, inject } from "@angular/core";
+import { ChangeDetectorRef, Component, inject, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
-import { Subject, takeUntil, firstValueFrom, concatMap, filter, tap } from "rxjs";
+import { concatMap, filter, firstValueFrom, map, Subject, takeUntil, tap } from "rxjs";
 
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { LogoutReason } from "@bitwarden/auth/common";
@@ -13,6 +13,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -71,8 +72,25 @@ export class AppComponent implements OnInit, OnDestroy {
     private biometricStateService: BiometricStateService,
     private biometricsService: BiometricsService,
     private deviceTrustToastService: DeviceTrustToastService,
+    private sdkService: SdkService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
+  }
+
+  /* eslint-disable no-console */
+  async testSdkProxy() {
+    const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
+    await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        map(async (clientRc) => {
+          using clientRef = clientRc.take();
+          const client = clientRef.value;
+
+          const ciphers = await client.store().print_the_ciphers();
+          console.log("Ciphers2: ", ciphers);
+        }),
+      ),
+    );
   }
 
   async ngOnInit() {
@@ -200,6 +218,10 @@ export class AppComponent implements OnInit, OnDestroy {
       .subscribe((state) => {
         this.routerAnimations = state;
       });
+
+    this.testSdkProxy().catch((e) => {
+      console.error("Error in testSdkProxy()", e);
+    });
   }
 
   ngOnDestroy(): void {

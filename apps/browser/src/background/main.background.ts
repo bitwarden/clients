@@ -756,19 +756,6 @@ export default class MainBackground {
       this.stateProvider,
     );
 
-    const sdkClientFactory = flagEnabled("sdk")
-      ? new DefaultSdkClientFactory()
-      : new NoopSdkClientFactory();
-    this.sdkLoadService = new BrowserSdkLoadService(this.logService);
-    this.sdkService = new DefaultSdkService(
-      sdkClientFactory,
-      this.environmentService,
-      this.platformUtilsService,
-      this.accountService,
-      this.kdfConfigService,
-      this.keyService,
-    );
-
     this.passwordStrengthService = new PasswordStrengthService();
 
     this.passwordGenerationService = legacyPasswordGenerationServiceFactory(
@@ -875,6 +862,20 @@ export default class MainBackground {
       this.stateProvider,
     );
     this.folderApiService = new FolderApiService(this.folderService, this.apiService);
+
+    const sdkClientFactory = flagEnabled("sdk")
+      ? new DefaultSdkClientFactory()
+      : new NoopSdkClientFactory();
+    this.sdkLoadService = new BrowserSdkLoadService(this.logService);
+    this.sdkService = new DefaultSdkService(
+      sdkClientFactory,
+      this.environmentService,
+      this.platformUtilsService,
+      this.accountService,
+      this.kdfConfigService,
+      this.keyService,
+      this.cipherService,
+    );
 
     this.userVerificationService = new UserVerificationService(
       this.keyService,

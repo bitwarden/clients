@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { Cipher as SdkCipher } from "@bitwarden/sdk-internal";
+
 import { Decryptable } from "../../../platform/interfaces/decryptable.interface";
 import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
@@ -333,5 +335,83 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     }
 
     return domain;
+  }
+
+  // TODO: These are just test implementations with some fields, a full and tested implementation is needed
+  // Related: https://github.com/bitwarden/clients/pull/14206/files
+
+  toSdkCipher(): SdkCipher {
+    const sdkCipher: SdkCipher = {
+      id: this.id,
+      organizationId: this.organizationId,
+      folderId: this.folderId,
+      collectionIds: this.collectionIds || [],
+      key: this.key?.toJSON(),
+      name: this.name.toJSON(),
+      notes: this.notes?.toJSON(),
+      type: this.type,
+      favorite: this.favorite,
+      organizationUseTotp: this.organizationUseTotp,
+      edit: this.edit,
+      permissions: this.permissions,
+      viewPassword: this.viewPassword,
+      localData: this.localData
+        ? {
+            lastUsedDate: this.localData.lastUsedDate
+              ? new Date(this.localData.lastUsedDate).toISOString()
+              : undefined,
+            lastLaunched: this.localData.lastLaunched
+              ? new Date(this.localData.lastLaunched).toISOString()
+              : undefined,
+          }
+        : undefined,
+      attachments: undefined,
+      fields: undefined,
+      passwordHistory: undefined,
+      revisionDate: this.revisionDate?.toISOString(),
+      creationDate: this.creationDate?.toISOString(),
+      deletedDate: this.deletedDate?.toISOString(),
+      reprompt: this.reprompt,
+      // Initialize all cipher-type-specific properties as undefined
+      login: undefined,
+      identity: undefined,
+      card: undefined,
+      secureNote: undefined,
+      sshKey: undefined,
+    };
+
+    return sdkCipher;
+  }
+
+  static fromSdkCipher(obj: SdkCipher): Cipher {
+    const cipher = new Cipher();
+    cipher.id = obj.id;
+    cipher.organizationId = obj.organizationId;
+    cipher.folderId = obj.folderId;
+    cipher.name = EncString.fromJSON(obj.name);
+    cipher.notes = EncString.fromJSON(obj.notes);
+    cipher.type = obj.type;
+    cipher.favorite = obj.favorite;
+    cipher.organizationUseTotp = obj.organizationUseTotp;
+    cipher.edit = obj.edit;
+    cipher.viewPassword = obj.viewPassword;
+    cipher.permissions = undefined;
+    cipher.localData = {
+      lastUsedDate: obj.localData?.lastUsedDate
+        ? new Date(obj.localData.lastUsedDate).getTime()
+        : null,
+      lastLaunched: obj.localData?.lastLaunched
+        ? new Date(obj.localData.lastLaunched).getTime()
+        : null,
+    };
+    cipher.attachments = undefined;
+    cipher.fields = undefined;
+    cipher.passwordHistory = undefined;
+    cipher.revisionDate = obj.revisionDate ? new Date(obj.revisionDate) : null;
+    cipher.creationDate = obj.creationDate ? new Date(obj.creationDate) : null;
+    cipher.deletedDate = obj.deletedDate ? new Date(obj.deletedDate) : null;
+    cipher.reprompt = obj.reprompt;
+
+    return cipher;
   }
 }
