@@ -31,8 +31,6 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
-import { OrganizationTrustComponent } from "../../admin-console/organizations/manage/organization-trust.component";
-
 import { OrganizationInvite } from "./organization-invite";
 
 // We're storing the organization invite for 2 reasons:
@@ -189,15 +187,6 @@ export class AcceptOrganizationInviteService {
       }
 
       const publicKey = Utils.fromB64ToArray(response.publicKey);
-      const dialogRef = OrganizationTrustComponent.open(this.dialogService, {
-        name: invite.organizationName,
-        orgId: invite.organizationId,
-        publicKey,
-      });
-      const result = await firstValueFrom(dialogRef.closed);
-      if (result !== true) {
-        throw new Error("Organization not trusted, aborting user key rotation");
-      }
 
       const activeUserId = (await firstValueFrom(this.accountService.activeAccount$)).id;
       const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
