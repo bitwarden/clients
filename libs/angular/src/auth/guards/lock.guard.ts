@@ -56,9 +56,7 @@ export function lockGuard(): CanActivateFn {
       return false;
     }
 
-    // If legacy user on web, redirect to migration page
     if (await keyService.isLegacyUser()) {
-      // Log out legacy users on other clients
       messagingService.send("logout");
       return false;
     }
