@@ -323,10 +323,6 @@ const routes: Routes = [
       {
         path: "set-initial-password",
         component: SetInitialPasswordComponent,
-        data: {
-          pageTitle: "Set Initial Password",
-          pageSubtitle: "subtitle",
-        } satisfies AnonLayoutWrapperData,
       },
       {
         path: "set-password-jit",

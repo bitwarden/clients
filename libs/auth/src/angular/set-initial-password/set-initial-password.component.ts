@@ -18,6 +18,7 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
 import {
   InputPasswordComponent,
   InputPasswordFlow,
@@ -49,6 +50,7 @@ export class SetInitialPasswordComponent implements OnInit {
   constructor(
     private accountService: AccountService,
     private activatedRoute: ActivatedRoute,
+    private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private dialogService: DialogService,
     private i18nService: I18nService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -70,6 +72,33 @@ export class SetInitialPasswordComponent implements OnInit {
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     this.userId = activeAccount?.id;
     this.email = activeAccount?.email;
+
+    this.forceSetPasswordReason = await firstValueFrom(
+      this.masterPasswordService.forceSetPasswordReason$(this.userId),
+    );
+
+    if (
+      this.forceSetPasswordReason !==
+      ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission
+    ) {
+      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+        pageTitle: {
+          key: "setMasterPassword",
+        },
+        pageSubtitle: {
+          key: "orgPermissionsUpdatedMustSetPassword",
+        },
+      });
+    } else {
+      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+        pageTitle: {
+          key: "joinOrganization",
+        },
+        pageSubtitle: {
+          key: "finishJoiningThisOrganizationBySettingAMasterPassword",
+        },
+      });
+    }
 
     await this.handleQueryParams();
   }
@@ -103,16 +132,12 @@ export class SetInitialPasswordComponent implements OnInit {
   protected async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
     this.submitting = true;
 
-    const forceSetPasswordReason = await firstValueFrom(
-      this.masterPasswordService.forceSetPasswordReason$(this.userId),
-    );
-
     const credentials: SetInitialPasswordCredentials = {
       ...passwordInputResult,
       orgSsoIdentifier: this.orgSsoIdentifier,
       orgId: this.orgId,
       resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
-      forceSetPasswordReason,
+      forceSetPasswordReason: this.forceSetPasswordReason,
       userId: this.userId,
     };
 
@@ -125,7 +150,7 @@ export class SetInitialPasswordComponent implements OnInit {
     }
 
     if (
-      forceSetPasswordReason !==
+      this.forceSetPasswordReason !==
       ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission
     ) {
       this.toastService.showToast({
