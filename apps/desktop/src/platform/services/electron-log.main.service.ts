@@ -7,6 +7,7 @@ import log from "electron-log/main";
 
 import { LogLevelType } from "@bitwarden/common/platform/enums/log-level-type.enum";
 import { ConsoleLogService as BaseLogService } from "@bitwarden/common/platform/services/console-log.service";
+import { logging } from "@bitwarden/desktop-napi";
 
 import { isDev } from "../../utils";
 
@@ -30,6 +31,29 @@ export class ElectronLogMainService extends BaseLogService {
     ipcMain.handle("ipc.log", (_event, { level, message, optionalParams }) => {
       this.write(level, message, ...optionalParams);
     });
+
+    logging.initNapiLog((error, level, message) => this.writeNapiLog(level, message));
+  }
+
+  private writeNapiLog(level: logging.LogLevel, message: string) {
+    let levelType: LogLevelType;
+
+    switch (level) {
+      case logging.LogLevel.Debug:
+        levelType = LogLevelType.Debug;
+        break;
+      case logging.LogLevel.Warn:
+        levelType = LogLevelType.Warning;
+        break;
+      case logging.LogLevel.Error:
+        levelType = LogLevelType.Error;
+        break;
+      default:
+        levelType = LogLevelType.Info;
+        break;
+    }
+
+    this.write(levelType, "[NAPI] " + message);
   }
 
   write(level: LogLevelType, message?: any, ...optionalParams: any[]) {
