@@ -68,11 +68,11 @@ export class EncryptServiceImplementation implements EncryptService {
     wrappingKey: SymmetricCryptoKey,
   ): Promise<EncString> {
     if (privateKeyPkcs8 == null) {
-      throw new Error("No private key provided for encapsulation.");
+      throw new Error("No private key provided for wrapping.");
     }
 
     if (wrappingKey == null) {
-      throw new Error("No encryption key provided for encapsulation.");
+      throw new Error("No wrappingKey key provided for wrapping.");
     }
 
     return await this.encryptUint8Array(privateKeyPkcs8, wrappingKey);
@@ -83,29 +83,29 @@ export class EncryptServiceImplementation implements EncryptService {
     wrappingKey: SymmetricCryptoKey,
   ): Promise<EncString> {
     if (encapsulationKeySpki == null) {
-      throw new Error("No encapsulation key provided for encapsulation.");
+      throw new Error("No encapsulation key provided for wrapping.");
     }
 
     if (wrappingKey == null) {
-      throw new Error("No encryption key provided for encapsulation.");
+      throw new Error("No warppingKey provided for wrapping.");
     }
 
     return await this.encryptUint8Array(encapsulationKeySpki, wrappingKey);
   }
 
   async wrapSymmetricKey(
-    encapsulatedKey: SymmetricCryptoKey,
-    key: SymmetricCryptoKey,
+    keyToBeWrapped: SymmetricCryptoKey,
+    wrappingKey: SymmetricCryptoKey,
   ): Promise<EncString> {
-    if (encapsulatedKey == null) {
-      throw new Error("No encapsulated key provided for encapsulation.");
+    if (keyToBeWrapped == null) {
+      throw new Error("No keyToBeWrapped provided for wrapping.");
     }
 
-    if (key == null) {
-      throw new Error("No encryption key provided for encapsulation.");
+    if (wrappingKey == null) {
+      throw new Error("No wrappingKey provided for wrapping.");
     }
 
-    return await this.encryptUint8Array(encapsulatedKey.key, key);
+    return await this.encryptUint8Array(keyToBeWrapped.key, wrappingKey);
   }
 
   private async encryptUint8Array(
