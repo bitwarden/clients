@@ -110,6 +110,12 @@ export class ButtonComponent implements ButtonLikeAbstraction {
   @Input() buttonType: ButtonType = "secondary";
 
   buttonSize = input<ButtonSize>("default");
+
+  /**
+   * Ensures "default" is used when `undefined` or `null` is passed in
+   *
+   * Use this value when accessing the `buttonSize` input
+   */
   nonNullButtonSize = computed(() => this.buttonSize() ?? "default");
 
   private _block = false;
