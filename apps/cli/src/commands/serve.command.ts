@@ -50,11 +50,17 @@ export class ServeCommand {
 
     this.serveConfigurator.configureRouter(router);
 
-    server
-      .use(router.routes())
-      .use(router.allowedMethods())
-      .listen(port, hostname === "all" ? null : hostname, () => {
+    server.use(router.routes()).use(router.allowedMethods());
+
+    if (hostname.startsWith("unix://")) {
+      const socketPath = hostname.slice("unix://".length);
+      server.listen(socketPath, () => {
+        this.serviceContainer.logService.info("Listening on " + hostname);
+      });
+    } else {
+      server.listen(port, hostname === "all" ? null : hostname, () => {
         this.serviceContainer.logService.info("Listening on " + hostname + ":" + port);
       });
+    }
   }
 }
