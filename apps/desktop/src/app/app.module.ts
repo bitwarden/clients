@@ -55,7 +55,6 @@ import { SharedModule } from "./shared/shared.module";
     NavComponent,
   ],
   declarations: [
-    AccessibilityCookieComponent,
     AccountSwitcherComponent,
     AddEditComponent,
     AddEditCustomFieldsComponent,
