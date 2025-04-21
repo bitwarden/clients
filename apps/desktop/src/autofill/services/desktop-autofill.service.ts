@@ -297,7 +297,7 @@ export class DesktopAutofillService implements OnDestroy {
       }
     });
 
-    ipc.autofill.startServer();
+    ipc.autofill.ready();
   }
 
   private convertRegistrationRequest(
