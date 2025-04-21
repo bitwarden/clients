@@ -79,7 +79,6 @@ describe("lockGuard", () => {
           { path: "", component: EmptyComponent },
           { path: "lock", component: EmptyComponent, canActivate: [lockGuard()] },
           { path: "non-lock-route", component: EmptyComponent },
-          { path: "migrate-legacy-encryption", component: EmptyComponent },
         ]),
       ],
       providers: [
