@@ -97,7 +97,7 @@
       <bit-nav-item
         [text]="'policies' | i18n"
         route="settings/policies"
-        *ngIf="organization.canManagePolicies"
+        *ngIf="canShowPoliciesTab$ | async"
       ></bit-nav-item>
       <bit-nav-item
         [text]="'twoStepLogin' | i18n"
