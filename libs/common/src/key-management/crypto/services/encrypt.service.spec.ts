@@ -543,6 +543,12 @@ describe("EncryptService", () => {
         expect(actual).toEqual(encString);
         expect(actual.dataBytes).toEqualBuffer(encryptedData);
       });
+
+      it("throws if no data was provided", () => {
+        return expect(encryptService.rsaEncrypt(null, new Uint8Array(32))).rejects.toThrow(
+          "No data provided for encryption",
+        );
+      });
     });
 
     describe("decapsulateKeyUnsigned", () => {
