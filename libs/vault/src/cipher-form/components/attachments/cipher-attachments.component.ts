@@ -28,7 +28,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { CipherId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, Guid, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
@@ -82,6 +82,9 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
   /** The `id` of the cipher in context */
   @Input({ required: true }) cipherId: CipherId;
 
+  /** The `id` of the organization that owns the cipher in context */
+  @Input() organizationId: Guid;
+
   /** An optional submit button, whose loading/disabled state will be tied to the form state. */
   @Input() submitBtn?: ButtonComponent;
 
@@ -120,10 +123,17 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
 
   async ngOnInit(): Promise<void> {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    this.cipherDomain = await this.cipherService.get(this.cipherId, this.activeUserId);
-    this.cipher = await this.cipherDomain.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, this.activeUserId),
-    );
+    if (this.organizationId) {
+      const organizationCiphers = await this.cipherService.getAllFromApiForOrganization(
+        this.organizationId,
+      );
+      this.cipher = organizationCiphers.find((c) => c.id == this.cipherId);
+    } else {
+      this.cipherDomain = await this.cipherService.get(this.cipherId, this.activeUserId);
+      this.cipher = await this.cipherDomain.decrypt(
+        await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, this.activeUserId),
+      );
+    }
 
     // Update the initial state of the submit button
     if (this.submitBtn) {

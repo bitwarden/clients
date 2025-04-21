@@ -637,6 +637,15 @@ export class ApiService implements ApiServiceAbstraction {
     return new AttachmentResponse(r);
   }
 
+  async getAttachmentDataAdmin(
+    cipherId: string,
+    attachmentId: string,
+  ): Promise<AttachmentResponse> {
+    const path = "/ciphers/" + cipherId + "/attachment/" + attachmentId + "/admin";
+    const r = await this.send("GET", path, null, true, true);
+    return new AttachmentResponse(r);
+  }
+
   async postCipherAttachment(
     id: string,
     request: AttachmentRequest,

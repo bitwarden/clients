@@ -10,6 +10,7 @@
       <ng-container slot="end">
         <bit-item-action>
           <app-download-attachment
+            [admin]="!!organizationId"
             [cipher]="cipher"
             [attachment]="attachment"
           ></app-download-attachment>
