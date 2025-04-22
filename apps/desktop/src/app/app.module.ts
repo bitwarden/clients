@@ -4,6 +4,7 @@ import "zone.js";
 import "../platform/app/locales";
 
 import { NgModule } from "@angular/core";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
 import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
@@ -44,6 +45,8 @@ import { SharedModule } from "./shared/shared.module";
 
 @NgModule({
   imports: [
+    BrowserAnimationsModule,
+
     SharedModule,
     AppRoutingModule,
     VaultFilterModule,

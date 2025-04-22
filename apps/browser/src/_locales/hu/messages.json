@@ -4928,8 +4928,8 @@
     "message": "A jelszó generálásra került.",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Bejelentkezés mentése a Bitwardenbe?",
+  "saveToBitwarden": {
+    "message": "Mentés a Bitwardenbe",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
