@@ -38,37 +38,39 @@ export class AutofocusDirective implements AfterContentChecked {
 
   /**
    * Using AfterContentChecked is a hack to ensure we only focus once. This is because
-   * the element may not be in the DOM when the directive is created, and we want to
-   * wait until it is in the DOM.
+   * the element may not be in the DOM, or not be focusable when the directive is
+   * created, and we want to wait until it is.
    *
    * Note: This might break in the future since it relies on Angular change detection
    * to trigger after the element becomes visible.
    */
   ngAfterContentChecked() {
-    // We only want to focus the element on initial render.
-    if (this.focused) {
+    // We only want to focus the element on initial render and it's not a mobile browser
+    if (this.focused || !this.autofocus || Utils.isMobileBrowser) {
       return;
     }
 
-    // Wait until the element is visible before attempting to focus it. `checkVisibility` might
-    // not be available everywhere so fallback to focusing immediately if it's missing.
-    // https://developer.mozilla.org/en-US/docs/Web/API/Element/checkVisibility
     const el = this.getElement();
-    if (el && (el.checkVisibility == null || el.checkVisibility({ visibilityProperty: true }))) {
-      this.focused = true;
+    if (el == null) {
+      return;
+    }
 
-      if (!Utils.isMobileBrowser && this.autofocus) {
-        if (this.ngZone.isStable) {
-          this.focus();
-        } else {
-          this.ngZone.onStable.pipe(take(1)).subscribe(this.focus.bind(this));
-        }
-      }
+    if (this.ngZone.isStable) {
+      this.focus();
+    } else {
+      this.ngZone.onStable.pipe(take(1)).subscribe(this.focus.bind(this));
     }
   }
 
+  /**
+   * Attempt to focus the element. If successful we set focused to true to prevent further focus
+   * attempts.
+   */
   private focus() {
-    this.getElement().focus();
+    const el = this.getElement();
+
+    el.focus();
+    this.focused = el === document.activeElement;
   }
 
   private getElement() {
