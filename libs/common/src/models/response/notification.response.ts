@@ -1,3 +1,5 @@
+import { NotificationViewResponse as EndUserNotificationResponse } from "@bitwarden/common/vault/notifications/models";
+
 import { NotificationType } from "../../enums";
 
 import { BaseResponse } from "./base.response";
@@ -56,6 +58,10 @@ export class NotificationResponse extends BaseResponse {
         break;
       case NotificationType.SyncOrganizationCollectionSettingChanged:
         this.payload = new OrganizationCollectionSettingChangedPushNotification(payload);
+        break;
+      case NotificationType.Notification:
+      case NotificationType.NotificationStatus:
+        this.payload = new EndUserNotificationResponse(payload);
         break;
       default:
         break;

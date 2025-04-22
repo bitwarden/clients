@@ -12,12 +12,13 @@ on:
       - 'cf-pages'
     paths:
       - 'apps/cli/**'
+      - 'bitwarden_license/bit-cli/**'
+      - 'bitwarden_license/bit-common/**'
       - 'libs/**'
       - '*'
       - '!*.md'
       - '!*.txt'
       - '.github/workflows/build-cli.yml'
-      - 'bitwarden_license/bit-cli/**'
   push:
     branches:
       - 'main'
@@ -25,12 +26,13 @@ on:
       - 'hotfix-rc-cli'
     paths:
       - 'apps/cli/**'
+      - 'bitwarden_license/bit-cli/**'
+      - 'bitwarden_license/bit-common/**'
       - 'libs/**'
       - '*'
       - '!*.md'
       - '!*.txt'
       - '.github/workflows/build-cli.yml'
-      - 'bitwarden_license/bit-cli/**'
   workflow_call:
     inputs: {}
   workflow_dispatch:

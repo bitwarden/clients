@@ -4928,8 +4928,8 @@
     "message": "Palavra-passe gerada novamente",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Guardar credencial no Bitwarden?",
+  "saveToBitwarden": {
+    "message": "Guardar no Bitwarden",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
