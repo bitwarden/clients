@@ -137,6 +137,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
   userHasPremiumAccess = false;
   activeFilter: VaultFilter = new VaultFilter();
   activeUserId: UserId | null = null;
+  cipherRepromptId: string | null = null;
   cipher: CipherView | null = new CipherView();
   collections: CollectionView[] | null = null;
   config: CipherFormConfig | null = null;
@@ -349,7 +350,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
   }
 
   async viewCipher(cipher: CipherView) {
-    if (!(await this.canNavigateAway("view", cipher))) {
+    if (await this.shouldReprompt(cipher, "view")) {
       return;
     }
     this.cipherId = cipher.id;
@@ -491,7 +492,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
     invokeMenu(menu);
   }
 
-  async shouldReprompt(cipher: CipherView, action: "edit" | "clone"): Promise<boolean> {
+  async shouldReprompt(cipher: CipherView, action: "edit" | "clone" | "view"): Promise<boolean> {
     return !(await this.canNavigateAway(action, cipher)) || !(await this.passwordReprompt(cipher));
   }
 
@@ -717,7 +718,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
         if (
           cipher.reprompt !== CipherRepromptType.None &&
           this.passwordRepromptService.protectedFields().includes(aType) &&
-          !(await this.passwordRepromptService.showPasswordPrompt())
+          !(await this.passwordReprompt(cipher))
         ) {
           return;
         }
@@ -768,9 +769,17 @@ export class VaultV2Component implements OnInit, OnDestroy {
   }
 
   private async passwordReprompt(cipher: CipherView) {
-    return (
-      cipher.reprompt === CipherRepromptType.None ||
-      (await this.passwordRepromptService.showPasswordPrompt())
-    );
+    if (cipher.reprompt === CipherRepromptType.None) {
+      this.cipherRepromptId = null;
+      return true;
+    }
+    if (this.cipherRepromptId === cipher.id) {
+      return true;
+    }
+    const repromptResult = await this.passwordRepromptService.showPasswordPrompt();
+    if (repromptResult) {
+      this.cipherRepromptId = cipher.id;
+    }
+    return repromptResult;
   }
 }
