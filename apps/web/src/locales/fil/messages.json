@@ -4072,8 +4072,8 @@
   "updateBrowser": {
     "message": "Update sa browser"
   },
-  "generatingRiskInsights": {
-    "message": "Generating your risk insights..."
+  "generatingYourRiskInsights": {
+    "message": "Generating your Risk Insights..."
   },
   "updateBrowserDesc": {
     "message": "Gumagamit ka ng isang hindi suportado na web browser. Ang web vault ay maaaring hindi gumana nang maayos."
@@ -6305,6 +6305,21 @@
   "sponsoredFamilies": {
     "message": "Libreng Mga Pamilya ng Bitwarden"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Sponsored families"
+  },
+  "noSponsoredFamilies": {
+    "message": "No sponsored families"
+  },
+  "noSponsoredFamiliesDescription": {
+    "message": "Sponsored non-member families plans will display here"
+  },
+  "sponsorFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Ikaw at ang iyong pamilya ay karapat dapat para sa Free Bitwarden Families. Tubusin gamit ang iyong personal na email upang mapanatili ang iyong data na ligtas kahit na wala ka sa trabaho."
   },
@@ -6319,6 +6334,18 @@
   },
   "sponsoredFamiliesSharedCollections": {
     "message": "Ibinahagi ang mga koleksyon para sa mga lihim ng Pamilya"
+  },
+  "memberFamilies": {
+    "message": "Member families"
+  },
+  "noMemberFamilies": {
+    "message": "No member families"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Members who have redeemed family plans will display here"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
   },
   "badToken": {
     "message": "Hindi na valid ang link. Paki resend na lang sa sponsor ang offer."
@@ -7982,6 +8009,9 @@
   },
   "inviteMember": {
     "message": "Mag imbita ng miyembro"
+  },
+  "addSponsorship": {
+    "message": "Add sponsorship"
   },
   "needsConfirmation": {
     "message": "Kailangan ng kumpirmasyon"

@@ -56,6 +56,7 @@ export enum FeatureFlag {
   SecurityTasks = "security-tasks",
   CipherKeyEncryption = "cipher-key-encryption",
   PM18520_UpdateDesktopCipherForm = "pm-18520-desktop-cipher-forms",
+  EndUserNotifications = "pm-10609-end-user-notifications",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -107,6 +108,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SecurityTasks]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
   [FeatureFlag.PM18520_UpdateDesktopCipherForm]: FALSE,
+  [FeatureFlag.EndUserNotifications]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM9112_DeviceApprovalPersistence]: FALSE,

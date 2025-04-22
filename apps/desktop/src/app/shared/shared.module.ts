@@ -5,7 +5,6 @@ import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule, DatePipe } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 
@@ -14,9 +13,8 @@ import { ServicesModule } from "../services/services.module";
 
 @NgModule({
   imports: [
-    A11yModule,
-    BrowserAnimationsModule,
     CommonModule,
+    A11yModule,
     DragDropModule,
     FormsModule,
     JslibModule,
@@ -26,20 +24,7 @@ import { ServicesModule } from "../services/services.module";
     ServicesModule,
   ],
   declarations: [AvatarComponent],
-  exports: [
-    A11yModule,
-    BrowserAnimationsModule,
-    CommonModule,
-    DatePipe,
-    DragDropModule,
-    FormsModule,
-    JslibModule,
-    OverlayModule,
-    ReactiveFormsModule,
-    ScrollingModule,
-    ServicesModule,
-    AvatarComponent,
-  ],
+  exports: [CommonModule, A11yModule, DatePipe, DragDropModule, FormsModule, JslibModule],
   providers: [DatePipe],
 })
 export class SharedModule {}
