@@ -4928,8 +4928,8 @@
     "message": "비밀번호가 재생성되었습니다.",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Bitwarden에 로그인을 저장하시겠습니까?",
+  "saveToBitwarden": {
+    "message": "Save to Bitwarden",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {

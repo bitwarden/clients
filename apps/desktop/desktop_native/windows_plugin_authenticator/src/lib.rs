@@ -2,15 +2,6 @@
 #![allow(non_snake_case)]
 #![allow(non_camel_case_types)]
 
-mod pa;
-
-use pa::{
-    DWORD, EXPERIMENTAL_PCWEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
-    EXPERIMENTAL_PCWEBAUTHN_PLUGIN_OPERATION_REQUEST,
-    EXPERIMENTAL_PWEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE,
-    EXPERIMENTAL_PWEBAUTHN_PLUGIN_OPERATION_RESPONSE,
-    EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE, PBYTE,
-};
 use std::ffi::c_uchar;
 use std::ptr;
 use windows::Win32::Foundation::*;
@@ -23,10 +14,52 @@ const AUTHENTICATOR_NAME: &str = "Bitwarden Desktop Authenticator";
 const CLSID: &str = "0f7dc5d9-69ce-4652-8572-6877fd695062";
 const RPID: &str = "bitwarden.com";
 
-/// Returns the current Windows WebAuthN version.
-pub fn get_version_number() -> u32 {
-    unsafe { pa::WebAuthNGetApiVersionNumber() }
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct EXPERIMENTAL_WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST {
+    pub transactionId: GUID,
+    pub cbRequestSignature: Dword,
+    pub pbRequestSignature: *mut byte,
 }
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct EXPERIMENTAL_WEBAUTHN_PLUGIN_OPERATION_REQUEST {
+    pub hWnd: HWND,
+    pub transactionId: GUID,
+    pub cbRequestSignature: Dword,
+    pub pbRequestSignature: *mut byte,
+    pub cbEncodedRequest: Dword,
+    pub pbEncodedRequest: *mut byte,
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE {
+    pub cbOpSignPubKey: Dword,
+    pub pbOpSignPubKey: PByte,
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct EXPERIMENTAL_WEBAUTHN_PLUGIN_OPERATION_RESPONSE {
+    pub cbEncodedResponse: Dword,
+    pub pbEncodedResponse: *mut byte,
+}
+
+type Dword = u32;
+type Byte = u8;
+type byte = u8;
+pub type PByte = *mut Byte;
+
+type EXPERIMENTAL_PCWEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST =
+    *const EXPERIMENTAL_WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST;
+pub type EXPERIMENTAL_PCWEBAUTHN_PLUGIN_OPERATION_REQUEST =
+    *const EXPERIMENTAL_WEBAUTHN_PLUGIN_OPERATION_REQUEST;
+pub type EXPERIMENTAL_PWEBAUTHN_PLUGIN_OPERATION_RESPONSE =
+    *mut EXPERIMENTAL_WEBAUTHN_PLUGIN_OPERATION_RESPONSE;
+pub type EXPERIMENTAL_PWEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE =
+    *mut EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE;
 
 /// Handles initialization and registration for the Bitwarden desktop app as a
 /// plugin authenticator with Windows.
@@ -123,9 +156,9 @@ fn add_authenticator() -> std::result::Result<(), String> {
         pbAuthenticatorInfo: authenticator_info_bytes.as_mut_ptr(),
     };
 
-    let plugin_signing_public_key_byte_count: DWORD = 0;
+    let plugin_signing_public_key_byte_count: Dword = 0;
     let mut plugin_signing_public_key: c_uchar = 0;
-    let plugin_signing_public_key_ptr: PBYTE = &mut plugin_signing_public_key;
+    let plugin_signing_public_key_ptr: PByte = &mut plugin_signing_public_key;
 
     let mut add_response = EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE {
         cbOpSignPubKey: plugin_signing_public_key_byte_count,
