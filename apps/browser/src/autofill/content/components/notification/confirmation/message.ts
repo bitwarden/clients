@@ -35,15 +35,17 @@ export function NotificationConfirmationMessage({
               ${message || nothing}
               ${buttonText
                 ? html`
-                    <button
+                    <a
                       title=${buttonText}
                       class=${notificationConfirmationButtonTextStyles(theme)}
                       @click=${handleClick}
-                      type="button"
+                      @keydown=${(e: KeyboardEvent) => handleButtonKeyDown(e, handleClick)}
                       aria-label=${buttonAria}
+                      tabindex="0"
+                      role="button"
                     >
                       ${buttonText}
-                    </button>
+                    </a>
                   `
                 : nothing}
             </span>
@@ -76,7 +78,6 @@ const notificationConfirmationMessageStyles = (theme: Theme) => css`
 const notificationConfirmationButtonTextStyles = (theme: Theme) => css`
   ${baseTextStyles}
 
-  all: unset;
   color: ${themes[theme].primary[600]};
   font-weight: 700;
   cursor: pointer;
@@ -88,3 +89,10 @@ const AdditionalMessageStyles = ({ theme }: { theme: Theme }) => css`
   font-size: 14px;
   color: ${themes[theme].text.muted};
 `;
+
+function handleButtonKeyDown(event: KeyboardEvent, handleClick: () => void) {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    handleClick();
+  }
+}
