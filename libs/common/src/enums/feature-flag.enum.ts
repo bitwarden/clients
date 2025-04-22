@@ -46,7 +46,6 @@ export enum FeatureFlag {
   CriticalApps = "pm-14466-risk-insights-critical-application",
   EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
-  ExportAttachments = "export-attachments",
 
   /* Vault */
   PM8851_BrowserOnboardingNudge = "pm-8851-browser-onboarding-nudge",
@@ -56,6 +55,7 @@ export enum FeatureFlag {
   VaultBulkManagementAction = "vault-bulk-management-action",
   SecurityTasks = "security-tasks",
   CipherKeyEncryption = "cipher-key-encryption",
+  EndUserNotifications = "pm-10609-end-user-notifications",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -97,7 +97,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.CriticalApps]: FALSE,
   [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
-  [FeatureFlag.ExportAttachments]: FALSE,
 
   /* Vault */
   [FeatureFlag.PM8851_BrowserOnboardingNudge]: FALSE,
@@ -107,6 +106,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.VaultBulkManagementAction]: FALSE,
   [FeatureFlag.SecurityTasks]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
+  [FeatureFlag.EndUserNotifications]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM9112_DeviceApprovalPersistence]: FALSE,
