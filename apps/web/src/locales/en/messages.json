@@ -6318,10 +6318,10 @@
   "sponsoredBitwardenFamilies": {
     "message": "Sponsored families"
   },
-  "noSponsoredFamilies": {
+  "noSponsoredFamiliesMgs": {
     "message": "No sponsored families"
   },
-  "noSponsoredFamiliesDescription": {
+  "nosponsoredFamiliesDesc":{
     "message": "Sponsored non-member families plans will display here"
   },
   "sponsorFreeBitwardenFamilies": {
@@ -6342,8 +6342,8 @@
   "sponsoredFamiliesPremiumAccess": {
     "message": "Premium access for up to 6 users"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Shared collections for Family secrets"
+  "sponsoredFamiliesSharedCollectionsMgs": {
+    "message": "Shared collections for family members"
   },
   "memberFamilies": {
     "message": "Member families"

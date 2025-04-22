@@ -10,18 +10,12 @@ import {
   ValidationErrors,
   Validators,
 } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { PlanSponsorshipType } from "@bitwarden/common/billing/enums";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   ButtonModule,
@@ -30,6 +24,7 @@ import {
   FormFieldModule,
   ToastService,
 } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 interface RequestSponsorshipForm {
   sponsorshipEmail: FormControl<string | null>;
@@ -38,13 +33,6 @@ interface RequestSponsorshipForm {
 
 export interface AddSponsorshipDialogResult {
   action: AddSponsorshipDialogAction;
-  value: Partial<AddSponsorshipFormValue> | null;
-}
-
-interface AddSponsorshipFormValue {
-  sponsorshipEmail: string;
-  sponsorshipNote: string;
-  status: string;
 }
 
 enum AddSponsorshipDialogAction {
@@ -72,16 +60,17 @@ export class AddSponsorshipDialogComponent {
   sponsorshipForm: FormGroup<RequestSponsorshipForm>;
   loading = false;
   organizationId: string;
+  formPromise: Promise<void>;
 
   constructor(
     private dialogRef: DialogRef<AddSponsorshipDialogResult>,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
     private organizationUserApiService: OrganizationUserApiService,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
-    private organizationApiService: OrganizationApiServiceAbstraction,
     private toastService: ToastService,
+    private apiService: ApiService,
+    private encryptService: EncryptService,
+    private keyService: KeyService,
     @Inject(DIALOG_DATA) protected dialogParams: AddSponsorshipDialogParams,
   ) {
     this.organizationId = this.dialogParams?.organizationId;
@@ -105,37 +94,52 @@ export class AddSponsorshipDialogComponent {
       return;
     }
     this.loading = true;
-    const isSeatAvailable = await this.checkSeatAvailability(this.organizationId);
-    if (!isSeatAvailable) {
+
+    try {
+      const orgKey = await this.keyService.getOrgKey(this.organizationId);
+      const encryptedNotes = await this.encryptService.encrypt(
+        this.sponsorshipForm.value.sponsorshipNote,
+        orgKey,
+      );
+      this.formPromise = this.apiService.postCreateSponsorship(this.organizationId, {
+        sponsoredEmail: this.sponsorshipForm.value.sponsorshipEmail,
+        planSponsorshipType: PlanSponsorshipType.FamiliesForEnterprise,
+        friendlyName: this.sponsorshipForm.value.sponsorshipEmail,
+        notes: encryptedNotes.encryptedString,
+      });
+
+      await this.formPromise;
+
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("sponsorshipCreated"),
+      });
+      this.formPromise = null;
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.resetForm();
+    } catch (e) {
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t("notEnoughSeatsAvailable"),
+        message: e?.message,
       });
-      this.loading = false;
-      return;
     }
 
-    // TODO: This is a mockup implementation - needs to be updated with actual API integration
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
-
-    const formValue = this.sponsorshipForm.getRawValue();
-    const dialogValue: Partial<AddSponsorshipFormValue> = {
-      status: "Sent",
-      sponsorshipEmail: formValue.sponsorshipEmail ?? "",
-      sponsorshipNote: formValue.sponsorshipNote ?? "",
-    };
+    this.loading = false;
 
     this.dialogRef.close({
       action: AddSponsorshipDialogAction.Saved,
-      value: dialogValue,
     });
+  }
 
-    this.loading = false;
+  private async resetForm() {
+    this.sponsorshipForm.reset();
   }
 
   protected close = () => {
-    this.dialogRef.close({ action: AddSponsorshipDialogAction.Canceled, value: null });
+    this.dialogRef.close({ action: AddSponsorshipDialogAction.Canceled });
   };
 
   get sponsorshipEmailControl() {
@@ -164,44 +168,5 @@ export class AddSponsorshipDialogComponent {
     }
 
     return null;
-  }
-
-  private async calculateOccupiedSeatCount(organizationId: string): Promise<number> {
-    const allUsers = await this.organizationUserApiService.getAllUsers(organizationId);
-    const activeUsers = allUsers.data.filter((user) =>
-      [
-        OrganizationUserStatusType.Invited,
-        OrganizationUserStatusType.Accepted,
-        OrganizationUserStatusType.Confirmed,
-      ].includes(user.status),
-    );
-    return activeUsers.length;
-  }
-
-  private async getOrganizationDetails(organizationId: string) {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    const organization = await firstValueFrom(
-      this.organizationService.organizations$(userId).pipe(getOrganizationById(organizationId)),
-    );
-
-    return organization;
-  }
-
-  private async checkSeatAvailability(organizationId: string): Promise<boolean> {
-    const organization = await this.getOrganizationDetails(organizationId);
-
-    if (!organization.seats) {
-      return false;
-    }
-
-    const occupiedSeats = await this.calculateOccupiedSeatCount(organizationId);
-
-    const subscription = await this.organizationApiService.getSubscription(this.organizationId);
-    if (subscription?.maxAutoscaleSeats == null) {
-      return true;
-    }
-
-    const maxAvailableSeats = subscription.maxAutoscaleSeats - occupiedSeats;
-    return maxAvailableSeats >= 1;
   }
 }
