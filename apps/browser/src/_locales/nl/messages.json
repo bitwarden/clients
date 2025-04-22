@@ -4928,8 +4928,8 @@
     "message": "Wachtwoord opnieuw gegenereerd",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Login opslaan in Bitwarden?",
+  "saveToBitwarden": {
+    "message": "Opslaan in Bitwarden",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {

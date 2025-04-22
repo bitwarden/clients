@@ -4928,8 +4928,8 @@
     "message": "Vygenerované nové heslo",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Uložiť prihlasovacie údaje do Bitwardenu?",
+  "saveToBitwarden": {
+    "message": "Uložiť do Bitwardenu",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
