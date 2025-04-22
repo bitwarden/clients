@@ -63,29 +63,6 @@ describe("KdfConfigService", () => {
     }
   });
 
-  it("getKdfConfig(): should get KdfConfig of active user", async () => {
-    const kdfConfig: KdfConfig = new PBKDF2KdfConfig(500_000);
-    await fakeStateProvider.setUserState(KDF_CONFIG, kdfConfig, mockUserId);
-    await expect(sutKdfConfigService.getKdfConfig()).resolves.toEqual(kdfConfig);
-  });
-
-  it("getKdfConfig(): should throw error KdfConfig can only be retrieved when there is active user", async () => {
-    fakeAccountService.activeAccountSubject.next(null);
-    try {
-      await sutKdfConfigService.getKdfConfig();
-    } catch (e) {
-      expect(e).toEqual(new Error("KdfConfig can only be retrieved when there is active user"));
-    }
-  });
-
-  it("getKdfConfig(): should throw error KdfConfig for active user account state is null", async () => {
-    try {
-      await sutKdfConfigService.getKdfConfig();
-    } catch (e) {
-      expect(e).toEqual(new Error("KdfConfig for active user account state is null"));
-    }
-  });
-
   it("getKdfConfig$(UserId): should get KdfConfig of provided user", async () => {
     await expect(firstValueFrom(sutKdfConfigService.getKdfConfig$(mockUserId))).resolves.toBeNull();
     const kdfConfig: KdfConfig = new PBKDF2KdfConfig(500_000);
@@ -111,5 +88,24 @@ describe("KdfConfigService", () => {
     } catch (e) {
       expect(e).toEqual(new Error("userId cannot be null"));
     }
+  });
+
+  describe("getKdfConfig", () => {
+    it("throws error if userId is null", async () => {
+      await expect(sutKdfConfigService.getKdfConfig(null as unknown as UserId)).rejects.toThrow(
+        "userId cannot be null",
+      );
+    });
+
+    it("throws if target user doesn't have a KkfConfig", async () => {
+      const errorMessage = "KdfConfig for user " + mockUserId + " is null";
+      await expect(sutKdfConfigService.getKdfConfig(mockUserId)).rejects.toThrow(errorMessage);
+    });
+
+    it("returns KdfConfig of target user", async () => {
+      const kdfConfig: KdfConfig = new PBKDF2KdfConfig(500_000);
+      await fakeStateProvider.setUserState(KDF_CONFIG, kdfConfig, mockUserId);
+      await expect(sutKdfConfigService.getKdfConfig(mockUserId)).resolves.toEqual(kdfConfig);
+    });
   });
 });
