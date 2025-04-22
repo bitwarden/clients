@@ -360,6 +360,15 @@ export class VaultComponent implements OnInit, OnDestroy {
             this.editCipher(cipher);
           }),
       });
+      if (cipher.canAssignToCollections) {
+        menu.push({
+          label: this.i18nService.t("assignToCollections"),
+          click: () =>
+            this.functionWithChangeDetection(async () => {
+              await this.shareCipher(cipher);
+            }),
+        });
+      }
       if (!cipher.organizationId) {
         menu.push({
           label: this.i18nService.t("clone"),
