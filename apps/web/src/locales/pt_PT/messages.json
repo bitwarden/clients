@@ -4072,7 +4072,7 @@
   "updateBrowser": {
     "message": "Atualizar navegador"
   },
-  "generatingRiskInsights": {
+  "generatingYourRiskInsights": {
     "message": "A gerar as suas perceções de riscos..."
   },
   "updateBrowserDesc": {
@@ -6305,6 +6305,21 @@
   "sponsoredFamilies": {
     "message": "Plano Familiar gratuito Bitwarden"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Planos familiares patrocinados"
+  },
+  "noSponsoredFamilies": {
+    "message": "Sem planos familiares patrocinados"
+  },
+  "noSponsoredFamiliesDescription": {
+    "message": "Os planos familiares patrocinados de não membros serão apresentados aqui"
+  },
+  "sponsorFreeBitwardenFamilies": {
+    "message": "Os membros da sua organização são elegíveis para o plano Familiar Bitwarden gratuito. Pode patrocinar planos Familiares Bitwarden gratuitos para empregados que não sejam membros da sua organização Bitwarden. O patrocínio de um não membro requer um lugar disponível na sua organização."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "Quando remover um patrocínio ativo, ficará disponível um lugar na sua organização após a data de renovação da organização patrocinada."
+  },
   "sponsoredFamiliesEligible": {
     "message": "O utilizador e a sua família são elegíveis para o plano Familiar gratuito Bitwarden. Resgate com o seu e-mail pessoal para manter os seus dados seguros mesmo quando não estiver no trabalho."
   },
@@ -6319,6 +6334,18 @@
   },
   "sponsoredFamiliesSharedCollections": {
     "message": "Coleções partilhadas para segredos familiares"
+  },
+  "memberFamilies": {
+    "message": "Membros do plano familiar"
+  },
+  "noMemberFamilies": {
+    "message": "Sem membros do plano familiar"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Os membros que tenham resgatado planos familiares serão apresentados aqui"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Os membros da sua organização são elegíveis para os planos Familiares Bitwarden gratuitos. Aqui pode ver os membros que patrocinaram uma organização Familiar."
   },
   "badToken": {
     "message": "O link já não é válido. Peça ao patrocinador para reenviar a oferta."
@@ -7982,6 +8009,9 @@
   },
   "inviteMember": {
     "message": "Convidar membro"
+  },
+  "addSponsorship": {
+    "message": "Adicionar patrocínio"
   },
   "needsConfirmation": {
     "message": "Precisa de confirmação"

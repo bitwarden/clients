@@ -1,4 +1,4 @@
-import { NotificationId } from "@bitwarden/common/types/guid";
+import { NotificationId, SecurityTaskId } from "@bitwarden/common/types/guid";
 
 export class NotificationView {
   id: NotificationId;
@@ -6,6 +6,7 @@ export class NotificationView {
   title: string;
   body: string;
   date: Date;
+  taskId?: SecurityTaskId;
   readDate: Date | null;
   deletedDate: Date | null;
 
@@ -15,6 +16,7 @@ export class NotificationView {
     this.title = obj.title;
     this.body = obj.body;
     this.date = obj.date;
+    this.taskId = obj.taskId;
     this.readDate = obj.readDate;
     this.deletedDate = obj.deletedDate;
   }

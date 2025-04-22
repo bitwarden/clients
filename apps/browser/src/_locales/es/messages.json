@@ -380,7 +380,7 @@
     "message": "Editar carpeta"
   },
   "editFolderWithName": {
-    "message": "Edit folder: $FOLDERNAME$",
+    "message": "Editar carpeta: $FOLDERNAME$",
     "placeholders": {
       "foldername": {
         "content": "$1",
@@ -872,7 +872,7 @@
     "message": "Enter the code sent to your email"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Introduce el código de tu aplicación de autenticación"
   },
   "pressYourYubiKeyToAuthenticate": {
     "message": "Press your YubiKey to authenticate"
@@ -1445,7 +1445,7 @@
     "message": "Inserta tu llave de seguridad en el puerto USB de tu equipo. Si tiene un botón, púlsalo."
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "Abrir en nueva pestaña"
   },
   "webAuthnAuthenticate": {
     "message": "Autenticar WebAuthn"
@@ -1663,7 +1663,7 @@
     "message": "Arrastrar para ordenar"
   },
   "dragToReorder": {
-    "message": "Drag to reorder"
+    "message": "Arrastra para reordenar"
   },
   "cfTypeText": {
     "message": "Texto"
@@ -3614,10 +3614,10 @@
     }
   },
   "singleFieldNeedsAttention": {
-    "message": "1 field needs your attention."
+    "message": "1 campo necesita tu atención."
   },
   "multipleFieldsNeedAttention": {
-    "message": "$COUNT$ fields need your attention.",
+    "message": "Los campos $COUNT$ necesitan tu atención.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4081,7 +4081,7 @@
     "message": "Cuenta activa"
   },
   "bitwardenAccount": {
-    "message": "Bitwarden account"
+    "message": "Cuenta de Bitwarden"
   },
   "availableAccounts": {
     "message": "Cuentas disponibles"
@@ -4179,7 +4179,7 @@
     "description": "Notification message for when saving credentials has succeeded."
   },
   "passwordSaved": {
-    "message": "Password saved!",
+    "message": "¡Contraseña guardada!",
     "description": "Notification message for when saving credentials has succeeded."
   },
   "updateCipherAttemptSuccess": {
@@ -4515,10 +4515,10 @@
     "message": "Autofill options"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Página web (URI)"
   },
   "websiteUriCount": {
-    "message": "Website (URI) $COUNT$",
+    "message": "Página web (URI) $COUNT$",
     "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -4589,7 +4589,7 @@
     "message": "Activar animaciones"
   },
   "showAnimations": {
-    "message": "Show animations"
+    "message": "Mostrar animaciones"
   },
   "addAccount": {
     "message": "Añadir cuenta"
@@ -4661,10 +4661,10 @@
     "message": "Enter the the field's html id, name, aria-label, or placeholder."
   },
   "editField": {
-    "message": "Edit field"
+    "message": "Editar campo"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Editar $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4828,16 +4828,16 @@
     "message": "Enterprise policy requirements have been applied to this setting"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "Clave privada"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "Clave pública"
   },
   "sshFingerprint": {
     "message": "Fingerprint"
   },
   "sshKeyAlgorithm": {
-    "message": "Key type"
+    "message": "Tipo de clave"
   },
   "sshKeyAlgorithmED25519": {
     "message": "ED25519"
@@ -4928,8 +4928,8 @@
     "message": "Contraseña generada",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "¿Guardar inicio de sesión en Bitwarden?",
+  "saveToBitwarden": {
+    "message": "Guardar en Bitwarden",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
@@ -5080,7 +5080,7 @@
     "message": "Beta"
   },
   "importantNotice": {
-    "message": "Important notice"
+    "message": "Aviso importante"
   },
   "setupTwoStepLogin": {
     "message": "Set up two-step login"
@@ -5092,10 +5092,10 @@
     "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
   },
   "remindMeLater": {
-    "message": "Remind me later"
+    "message": "Recuérdame más tarde"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "message": "¿Tienes acceso fiable a tu correo electrónico, $EMAIL$?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5104,7 +5104,7 @@
     }
   },
   "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
+    "message": "No, no lo tengo"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
     "message": "Sí, puedo acceder a mi correo electrónico de forma fiable"
@@ -5125,16 +5125,16 @@
     "message": "Extraancho"
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "La contraseña introducida es incorrecta."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "Importar"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "Confirmar contraseña"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Enter the password for the SSH key."
+    "message": "Introduce la contraseña para la clave SSH."
   },
   "enterSshKeyPassword": {
     "message": "Enter password"

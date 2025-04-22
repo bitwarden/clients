@@ -4072,8 +4072,8 @@
   "updateBrowser": {
     "message": "Mettre à jour le navigateur"
   },
-  "generatingRiskInsights": {
-    "message": "Génération de vos connaissances en matière de risque..."
+  "generatingYourRiskInsights": {
+    "message": "Génération de vos Aperçus de Risque..."
   },
   "updateBrowserDesc": {
     "message": "Vous utilisez un navigateur non supporté. Le coffre web pourrait ne pas fonctionner correctement."
@@ -6305,6 +6305,21 @@
   "sponsoredFamilies": {
     "message": "Bitwarden Familles gratuit"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Familles parrainées"
+  },
+  "noSponsoredFamilies": {
+    "message": "Aucune famille parrainée"
+  },
+  "noSponsoredFamiliesDescription": {
+    "message": "Les abonnements des familles non membres parrainées apparaîtront ici"
+  },
+  "sponsorFreeBitwardenFamilies": {
+    "message": "Les membres de votre organisation sont éligibles pour les Familles Gratuites de Bitwarden. Vous pouvez parrainer Familles Gratuites de Bitwarden pour les employés qui ne sont pas membres de votre organisation Bitwarden. Parrainer un non-membre nécessite un siège disponible au sein de votre organisation."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "Lorsque vous supprimez un parrainage actif, une licence au sein de votre organisation sera disponible après la date de renouvellement de l'organisation parrainée."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Vous et votre famille êtes éligibles à Bitwarden Familles gratuitement. Réclamez-le avec votre courriel personnel pour sécuriser vos données, même lorsque vous n'êtes pas au travail."
   },
@@ -6319,6 +6334,18 @@
   },
   "sponsoredFamiliesSharedCollections": {
     "message": "Collections partagées pour les secrets de la famille"
+  },
+  "memberFamilies": {
+    "message": "Familles de membre"
+  },
+  "noMemberFamilies": {
+    "message": "Familles de non-membre"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Les membres qui ont réclamé des plans familiaux s'afficheront ici"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Les membres de votre organisation sont éligibles à l'abonnement aux Familles Gratuites de Bitwarden. Vous pouvez voir ici les membres qui ont parrainé une organisation Familles."
   },
   "badToken": {
     "message": "Le lien n'est plus valide. Merci de demander à votre parrain de renvoyer l'offre."
@@ -7982,6 +8009,9 @@
   },
   "inviteMember": {
     "message": "Inviter un membre"
+  },
+  "addSponsorship": {
+    "message": "Ajouter un parrainage"
   },
   "needsConfirmation": {
     "message": "Confirmation nécessaire"

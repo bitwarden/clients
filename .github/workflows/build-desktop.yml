@@ -92,6 +92,7 @@ jobs:
         id: retrieve-version
         run: |
           PKG_VERSION=$(jq -r .version src/package.json)
+          echo "Setting version number to $PKG_VERSION"
           echo "package_version=$PKG_VERSION" >> $GITHUB_OUTPUT
 
       - name: Increment Version
@@ -725,6 +726,11 @@ jobs:
             --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
             --output none
 
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+            --name bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            --file $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            --output none
+
       - name: Get certificates
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
@@ -783,6 +789,15 @@ jobs:
         run: |
           cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
             $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
+
+          mkdir -p $HOME/Library/MobileDevice/Provisioning\ Profiles
+          export APP_UUID=`grep UUID -A1 -a $HOME/secrets/bitwarden_desktop_appstore.provisionprofile | grep -io "[-A-Z0-9]\{36\}"`
+          export AUTOFILL_UUID=`grep UUID -A1 -a $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile | grep -io "[-A-Z0-9]\{36\}"`
+
+          cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+            $HOME/Library/MobileDevice/Provisioning\ Profiles/$APP_UUID.provisionprofile
+          cp $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            $HOME/Library/MobileDevice/Provisioning\ Profiles/$AUTOFILL_UUID.provisionprofile
 
       - name: Increment version
         shell: pwsh
@@ -914,8 +929,13 @@ jobs:
           mkdir -p $HOME/secrets
 
           az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
-            --name bitwarden_desktop_appstore.provisionprofile \
-            --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+            --name bitwarden_desktop_developer_id.provisionprofile \
+            --file $HOME/secrets/bitwarden_desktop_developer_id.provisionprofile \
+            --output none
+
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+            --name bitwarden_desktop_autofill_developer_id.provisionprofile \
+            --file $HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile \
             --output none
 
       - name: Get certificates
@@ -958,21 +978,21 @@ jobs:
           security import "$HOME/certificates/devid-installer-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
-          security import "$HOME/certificates/appstore-app-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security import "$HOME/certificates/appstore-installer-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security import "$HOME/certificates/macdev-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
       - name: Set up provisioning profiles
         run: |
-          cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
-            $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
+          cp $HOME/secrets/bitwarden_desktop_developer_id.provisionprofile \
+            $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_developer_id.provisionprofile
+
+          mkdir -p $HOME/Library/MobileDevice/Provisioning\ Profiles
+          export APP_UUID=`grep UUID -A1 -a $HOME/secrets/bitwarden_desktop_developer_id.provisionprofile | grep -io "[-A-Z0-9]\{36\}"`
+          export AUTOFILL_UUID=`grep UUID -A1 -a $HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile | grep -io "[-A-Z0-9]\{36\}"`
+
+          cp $HOME/secrets/bitwarden_desktop_developer_id.provisionprofile \
+            $HOME/Library/MobileDevice/Provisioning\ Profiles/$APP_UUID.provisionprofile
+          cp $HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile \
+            $HOME/Library/MobileDevice/Provisioning\ Profiles/$AUTOFILL_UUID.provisionprofile
 
       - name: Increment version
         shell: pwsh
@@ -1020,7 +1040,9 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: node build.js cross-platform
+        run: |
+          rustup target add aarch64-apple-darwin
+          node build.js cross-platform
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
@@ -1167,6 +1189,11 @@ jobs:
             --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
             --output none
 
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+            --name bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            --file $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            --output none
+
       - name: Get certificates
         run: |
           mkdir -p $HOME/certificates
@@ -1201,19 +1228,10 @@ jobs:
           security import "$HOME/certificates/bitwarden-desktop-key.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
-          security import "$HOME/certificates/devid-app-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security import "$HOME/certificates/devid-installer-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
           security import "$HOME/certificates/appstore-app-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
           security import "$HOME/certificates/appstore-installer-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security import "$HOME/certificates/macdev-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
@@ -1222,6 +1240,15 @@ jobs:
         run: |
           cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
             $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
+
+          mkdir -p $HOME/Library/MobileDevice/Provisioning\ Profiles
+          export APP_UUID=`grep UUID -A1 -a $HOME/secrets/bitwarden_desktop_appstore.provisionprofile | grep -io "[-A-Z0-9]\{36\}"`
+          export AUTOFILL_UUID=`grep UUID -A1 -a $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile | grep -io "[-A-Z0-9]\{36\}"`
+
+          cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+            $HOME/Library/MobileDevice/Provisioning\ Profiles/$APP_UUID.provisionprofile
+          cp $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            $HOME/Library/MobileDevice/Provisioning\ Profiles/$AUTOFILL_UUID.provisionprofile
 
       - name: Increment version
         shell: pwsh
@@ -1269,7 +1296,9 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: node build.js cross-platform
+        run: |
+          rustup target add aarch64-apple-darwin
+          node build.js cross-platform
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
@@ -1377,226 +1406,6 @@ jobs:
             }
         env:
           BUILD_NUMBER: ${{ needs.setup.outputs.build_number }}
-
-
-  macos-package-dev:
-    name: MacOS Package Dev Release Asset
-    runs-on: macos-13
-    if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-    needs:
-      - browser-build
-      - macos-build
-      - setup
-    env:
-      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
-      _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
-      NODE_OPTIONS: --max_old_space_size=4096
-    defaults:
-      run:
-        working-directory: apps/desktop
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          ref: ${{  github.event.pull_request.head.sha }}
-
-      - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
-        with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
-          node-version: ${{ env._NODE_VERSION }}
-
-      - name: Set up Node-gyp
-        run: python3 -m pip install setuptools
-
-      - name: Print environment
-        run: |
-          node --version
-          npm --version
-          echo "GitHub ref: $GITHUB_REF"
-          echo "GitHub event: $GITHUB_EVENT"
-
-      - name: Get Build Cache
-        id: build-cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
-        with:
-          path: apps/desktop/build
-          key: ${{ runner.os }}-${{ github.run_id }}-build
-
-      - name: Setup Safari Cache
-        id: safari-cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
-        with:
-          path: apps/browser/dist/Safari
-          key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
-
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
-        with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
-
-      - name: Download Provisioning Profiles secrets
-        env:
-          ACCOUNT_NAME: bitwardenci
-          CONTAINER_NAME: profiles
-        run: |
-          mkdir -p $HOME/secrets
-
-          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
-            --name bitwarden_desktop_appstore.provisionprofile \
-            --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
-            --output none
-
-      - name: Get certificates
-        run: |
-          mkdir -p $HOME/certificates
-
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/bitwarden-desktop-key |
-            jq -r .value | base64 -d > $HOME/certificates/bitwarden-desktop-key.p12
-
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-app-cert |
-            jq -r .value | base64 -d > $HOME/certificates/appstore-app-cert.p12
-
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-installer-cert |
-            jq -r .value | base64 -d > $HOME/certificates/appstore-installer-cert.p12
-
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-app-cert |
-            jq -r .value | base64 -d > $HOME/certificates/devid-app-cert.p12
-
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-installer-cert |
-            jq -r .value | base64 -d > $HOME/certificates/devid-installer-cert.p12
-
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
-            jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
-
-      - name: Set up keychain
-        env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: |
-          security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p $KEYCHAIN_PASSWORD build.keychain
-          security set-keychain-settings -lut 1200 build.keychain
-
-          security import "$HOME/certificates/bitwarden-desktop-key.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security import "$HOME/certificates/devid-app-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security import "$HOME/certificates/devid-installer-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security import "$HOME/certificates/appstore-app-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security import "$HOME/certificates/appstore-installer-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security import "$HOME/certificates/macdev-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
-
-      - name: Set up provisioning profiles
-        run: |
-          cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
-            $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
-
-      - name: Increment version
-        shell: pwsh
-        env:
-          BUILD_NUMBER: ${{ needs.setup.outputs.build_number }}
-        run: |
-          $package = Get-Content -Raw -Path electron-builder.json | ConvertFrom-Json
-          $package | Add-Member -MemberType NoteProperty -Name buildVersion -Value "$env:BUILD_NUMBER"
-          $package | ConvertTo-Json -Depth 32 | Set-Content -Path electron-builder.json
-          Write-Output "### MacOS Dev build number: $env:BUILD_NUMBER"
-
-      - name: Install Node dependencies
-        run: npm ci
-        working-directory: ./
-
-      - name: Download SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' }}
-        uses: bitwarden/gh-actions/download-artifacts@main
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: build-wasm-internal.yml
-          workflow_conclusion: success
-          branch: ${{ inputs.sdk_branch }}
-          artifacts: sdk-internal
-          repo: bitwarden/sdk-internal
-          path: ../sdk-internal
-          if_no_artifact_found: fail
-
-      - name: Override SDK
-        if: ${{ inputs.sdk_branch != '' }}
-        working-directory: ./
-        run: |
-          ls -l ../
-          npm link ../sdk-internal
-
-      - name: Cache Native Module
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
-        id: cache
-        with:
-          path: |
-            apps/desktop/desktop_native/napi/*.node
-            apps/desktop/desktop_native/dist/*
-          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
-
-      - name: Build Native Module
-        if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: apps/desktop/desktop_native
-        run: node build.js cross-platform
-
-      - name: Build
-        if: steps.build-cache.outputs.cache-hit != 'true'
-        run: npm run build
-
-      - name: Download Browser artifact
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
-        with:
-          path: ${{ github.workspace }}/browser-build-artifacts
-
-      - name: Unzip Safari artifact
-        run: |
-          SAFARI_DIR=$(find $GITHUB_WORKSPACE/browser-build-artifacts -name 'dist-safari-*.zip')
-          echo $SAFARI_DIR
-          unzip $SAFARI_DIR/dist-safari.zip -d $GITHUB_WORKSPACE/browser-build-artifacts
-
-      - name: Load Safari extension for App Store
-        run: |
-          mkdir PlugIns
-          cp -r $GITHUB_WORKSPACE/browser-build-artifacts/Safari/masdev/build/Release/safari.appex PlugIns/safari.appex
-
-      - name: Set up private auth key
-        run: |
-          mkdir ~/private_keys
-          cat << EOF > ~/private_keys/AuthKey_6TV9MKN3GP.p8
-          ${{ secrets.APP_STORE_CONNECT_AUTH_KEY }}
-          EOF
-
-      - name: Build dev application for App Store
-        env:
-          APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
-          APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
-        run: npm run pack:mac:masdev
-
-      - name: Zip masdev asset
-        run: |
-          cd dist/mas-dev-universal
-          zip -r Bitwarden-${{ env._PACKAGE_VERSION }}-masdev-universal.zip Bitwarden.app
-
-      - name: Upload masdev artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
-        with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-masdev-universal.zip
-          path: apps/desktop/dist/mas-dev-universal/Bitwarden-${{ env._PACKAGE_VERSION }}-masdev-universal.zip
-          if-no-files-found: error
-
 
   crowdin-push:
     name: Crowdin Push
