@@ -4072,7 +4072,7 @@
   "updateBrowser": {
     "message": "Aktualizuj przeglądarkę"
   },
-  "generatingRiskInsights": {
+  "generatingYourRiskInsights": {
     "message": "Generowanie informacji o ryzyku..."
   },
   "updateBrowserDesc": {
@@ -6305,6 +6305,21 @@
   "sponsoredFamilies": {
     "message": "Darmowy plan rodzinny"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Rodziny sponsorowane"
+  },
+  "noSponsoredFamilies": {
+    "message": "Brak sponsorowanych rodzin"
+  },
+  "noSponsoredFamiliesDescription": {
+    "message": "Sponsorowane plany rodzin niebędących członkami będą wyświetlane tutaj"
+  },
+  "sponsorFreeBitwardenFamilies": {
+    "message": "Członkowie Twojej organizacji kwalifikują się do Free Bitwarden Families. Możesz sponsorować Free Bitwarden Families dla pracowników, którzy nie są członkami Twojej organizacji Bitwarden. Sponsorowanie osoby niebędącej członkiem wymaga dostępnego miejsca w Twojej organizacji."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "Gdy aktywny sponsoring zostanie usunięty, miejsce w organizacji stanie się dostępne po dacie odnowienia sponsorowanej organizacji."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Ty i Twoja rodzina kwalifikujecie się do darmowego planu rodzinnego. Wykorzystaj swój osobisty adres e-mail, aby zabezpieczyć swoje dane nawet wtedy, gdy nie jesteś w pracy."
   },
@@ -6319,6 +6334,18 @@
   },
   "sponsoredFamiliesSharedCollections": {
     "message": "Udostępnione kolekcje dla sekretów rodziny"
+  },
+  "memberFamilies": {
+    "message": "Rodziny członków"
+  },
+  "noMemberFamilies": {
+    "message": "Brak rodzin członków"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Tutaj wyświetlą się członkowie, którzy wykupili plany rodzinne"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Członkowie Twojej organizacji kwalifikują się do Free Bitwarden Families. Tutaj możesz zobaczyć członków, którzy sponsorowali organizację rodzinną."
   },
   "badToken": {
     "message": "Link nie jest już ważny. Poproś sponsora o ponowne wysłanie oferty."
@@ -7982,6 +8009,9 @@
   },
   "inviteMember": {
     "message": "Zaproś członka"
+  },
+  "addSponsorship": {
+    "message": "Dodaj sponsorowanie"
   },
   "needsConfirmation": {
     "message": "Wymaga potwierdzenia"
