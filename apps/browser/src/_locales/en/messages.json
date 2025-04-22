@@ -1060,7 +1060,12 @@
     "message": "Save"
   },
   "notificationViewAria": {
-    "message": "View Login, opens in new window",
+    "message": "View $ITEMNAME$, opens in new window",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
   "loginSaveConfirmation": {

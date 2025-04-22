@@ -71,7 +71,7 @@ export function NotificationConfirmationContainer({
       })}
       ${NotificationConfirmationBody({
         buttonText,
-        i18n,
+        itemName,
         confirmationMessage,
         tasksAreComplete,
         messageDetails,

@@ -7,7 +7,7 @@ import { themes, typography } from "../../constants/styles";
 
 export type NotificationConfirmationMessageProps = {
   buttonText?: string;
-  i18n: { [key: string]: string };
+  itemName: string;
   message?: string;
   messageDetails?: string;
   handleClick: () => void;
@@ -16,12 +16,14 @@ export type NotificationConfirmationMessageProps = {
 
 export function NotificationConfirmationMessage({
   buttonText,
-  i18n,
+  itemName,
   message,
   messageDetails,
   handleClick,
   theme,
 }: NotificationConfirmationMessageProps) {
+  const buttonAria = chrome.i18n.getMessage("notificationViewAria", [itemName]);
+
   return html`
     <div>
       ${message || buttonText
@@ -38,7 +40,7 @@ export function NotificationConfirmationMessage({
                       class=${notificationConfirmationButtonTextStyles(theme)}
                       @click=${handleClick}
                       type="button"
-                      aria-label=${i18n.notificationViewAria}
+                      aria-label=${buttonAria}
                     >
                       ${buttonText}
                     </button>

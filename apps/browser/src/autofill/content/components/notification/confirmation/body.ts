@@ -16,7 +16,7 @@ const { css } = createEmotion({
 
 export type NotificationConfirmationBodyProps = {
   buttonText: string;
-  i18n: { [key: string]: string };
+  itemName: string;
   confirmationMessage: string;
   error?: string;
   messageDetails?: string;
@@ -27,7 +27,7 @@ export type NotificationConfirmationBodyProps = {
 
 export function NotificationConfirmationBody({
   buttonText,
-  i18n,
+  itemName,
   confirmationMessage,
   error,
   messageDetails,
@@ -45,7 +45,7 @@ export function NotificationConfirmationBody({
       ${showConfirmationMessage
         ? NotificationConfirmationMessage({
             buttonText,
-            i18n,
+            itemName,
             message: confirmationMessage,
             messageDetails,
             theme,

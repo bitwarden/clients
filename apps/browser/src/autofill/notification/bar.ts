@@ -357,7 +357,7 @@ function openViewVaultItemPopout(cipherId: string) {
 function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
   const { theme, type } = notificationBarIframeInitData;
   const { error, data } = message;
-  const { cipherId, task } = data || {};
+  const { cipherId, task, itemName } = data || {};
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
 
@@ -371,7 +371,7 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
       handleCloseNotification,
       i18n,
       error,
-      itemName: i18n.typeLogin,
+      itemName: itemName,
       task,
       handleOpenVault: () => cipherId && openViewVaultItemPopout(cipherId),
       handleOpenTasks: () => sendPlatformMessage({ command: "bgOpenAtRisksPasswords" }),
