@@ -51,7 +51,7 @@ export class AutofocusDirective implements AfterContentChecked {
     }
 
     // Wait until the element is visible before attempting to focus it. `checkVisibility` might
-    // not be available everywhere so fallback to focusing when it's missing.
+    // not be available everywhere so fallback to focusing immediately if it's missing.
     // https://developer.mozilla.org/en-US/docs/Web/API/Element/checkVisibility
     const el = this.getElement();
     if (el && (el.checkVisibility == null || el.checkVisibility({ visibilityProperty: true }))) {
