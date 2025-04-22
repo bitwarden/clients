@@ -148,10 +148,9 @@ describe("EncryptService", () => {
       (encryptService as any).blockType0 = true;
       const key = new SymmetricCryptoKey(makeStaticByteArray(32));
       const mock32Key = mock<SymmetricCryptoKey>();
-      mock32Key.key = makeStaticByteArray(32);
       mock32Key.inner.mockReturnValue({
         type: 0,
-        encryptionKey: mock32Key.key,
+        encryptionKey: makeStaticByteArray(32),
       });
 
       await expect(encryptService.encrypt(null!, key)).rejects.toThrow(
@@ -234,10 +233,9 @@ describe("EncryptService", () => {
       (encryptService as any).blockType0 = true;
       const key = new SymmetricCryptoKey(makeStaticByteArray(32));
       const mock32Key = mock<SymmetricCryptoKey>();
-      mock32Key.key = makeStaticByteArray(32);
       mock32Key.inner.mockReturnValue({
         type: 0,
-        encryptionKey: mock32Key.key,
+        encryptionKey: makeStaticByteArray(32),
       });
 
       await expect(encryptService.encryptToBytes(plainValue, key)).rejects.toThrow(
@@ -535,7 +533,7 @@ describe("EncryptService", () => {
         const actual = await encryptService.encapsulateKeyUnsigned(testKey, publicKey);
 
         expect(cryptoFunctionService.rsaEncrypt).toBeCalledWith(
-          expect.toEqualBuffer(testKey.key),
+          expect.toEqualBuffer(testKey.toEncoded()),
           expect.toEqualBuffer(publicKey),
           "sha1",
         );
@@ -586,7 +584,7 @@ describe("EncryptService", () => {
           "sha1",
         );
 
-        expect(actual.key).toEqualBuffer(data);
+        expect(actual.toEncoded()).toEqualBuffer(data);
       });
     });
   });
