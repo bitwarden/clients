@@ -3,6 +3,7 @@ import { Component, OnInit, OnDestroy } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
 import { BehaviorSubject, firstValueFrom, map, Observable } from "rxjs";
 
+import { autofill } from "desktop_native/napi";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BitwardenShield } from "@bitwarden/auth/angular";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -12,6 +13,7 @@ import {
   compareCredentialIds,
   parseCredentialId,
 } from "@bitwarden/common/platform/services/fido2/credential-id-utils";
+import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -93,8 +95,8 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
             const credentialId = cipher.login.hasFido2Credentials
               ? parseCredentialId(cipher.login.fido2Credentials[0]?.credentialId)
               : new Uint8Array();
-            if (!cipher.login || !cipher.login.hasUris) {
-              return false;
+            if (this.eligibleFido2Credential(cipher, lastRegistrationRequest)) {
+              return true;
             }
 
             return (
@@ -113,14 +115,9 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
             const credentialId = cipher.login.hasFido2Credentials
               ? Array.from(parseCredentialId(cipher.login.fido2Credentials[0]?.credentialId))
               : [];
-            if (!cipher.login || !cipher.login.hasUris) {
-              return false;
+            if (this.eligibleFido2Credential(cipher, lastRegistrationRequest)) {
+              return true;
             }
-
-            return (
-              cipher.login.matchesUri(rpid, equivalentDomains) &&
-              !lastRegistrationRequest.excludedCredentials.includes(credentialId)
-            );
           });
           this.ciphersSubject.next(relevantCiphers);
         }
@@ -130,6 +127,31 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
 
   async ngOnDestroy() {
     await this.accountService.setShowHeader(true);
+  }
+
+  /* Check that a credential is a valid Fido2 credential for the URL and not be in the bin. */
+  invalidFido2Credential(cipher: CipherView) {
+    return !cipher.login || !cipher.login.hasUris || cipher.deletedDate;
+  }
+
+  /* Determines whether a cipher contains a FIDO2 credential that is eligible for registration. */
+  eligibleFido2Credential(
+    cipher: CipherView,
+    lastRegistrationRequest: autofill.PasskeyRegistrationRequest,
+  ) {
+    return (
+      (cipher.login.fido2Credentials.some((passkey) => {
+        const passkeyUserHandle = Fido2Utils.stringToBuffer(passkey.userHandle) || new Uint8Array();
+        compareCredentialIds(passkeyUserHandle, new Uint8Array(lastRegistrationRequest.userHandle));
+      }) ||
+        this.cipherMatchesUserName(cipher, lastRegistrationRequest.userName)) &&
+      !this.invalidFido2Credential(cipher)
+    );
+  }
+
+  /* Check if cipher's username matches the form input. */
+  cipherMatchesUserName(cipher: CipherView, userName: string): boolean {
+    return cipher.login.username === userName;
   }
 
   async addPasskeyToCipher(cipher: CipherView) {
