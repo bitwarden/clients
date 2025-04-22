@@ -4928,8 +4928,8 @@
     "message": "Ο κωδικός επαναδημιουργήθηκε",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Αποθήκευση σύνδεσης στο Bitwarden;",
+  "saveToBitwarden": {
+    "message": "Save to Bitwarden",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {

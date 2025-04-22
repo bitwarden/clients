@@ -4072,7 +4072,7 @@
   "updateBrowser": {
     "message": "Aktualizovat prohlížeč"
   },
-  "generatingRiskInsights": {
+  "generatingYourRiskInsights": {
     "message": "Generování poznatků o rizicích..."
   },
   "updateBrowserDesc": {
@@ -6305,6 +6305,21 @@
   "sponsoredFamilies": {
     "message": "Bitwarden pro rodinu zdarma"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Sponzorované rodiny"
+  },
+  "noSponsoredFamilies": {
+    "message": "Žádné sponzorované rodiny"
+  },
+  "noSponsoredFamiliesDescription": {
+    "message": "Zde se zobrazí sponzorované plány rodin, které nejsou členy"
+  },
+  "sponsorFreeBitwardenFamilies": {
+    "message": "Členové vaší organizace mají nárok na bezplatné rodiny Bitwarden. Můžete sponzorovat zdarma rodiny Bitwarden pro zaměstnance, kteří nejsou členy Vaší organizace Bitwarden. Sponzorování nečlena vyžaduje dostupné místo ve Vaší organizaci."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "Pokud odeberete aktivní sponzorství, bude po datu obnovení sponzorované organizace k dispozici volný uživatel ve Vaší organizaci."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Vy a Vaše rodina máte nárok na Bitwarden pro rodinu zdarma. Nárok můžete uplatnit Vaším osobním e-mailem, abyste zajistili bezpečnost Vašich dat, i když nejste v práci."
   },
@@ -6319,6 +6334,18 @@
   },
   "sponsoredFamiliesSharedCollections": {
     "message": "Sdílené kolekce pro tajné klíče rodiny"
+  },
+  "memberFamilies": {
+    "message": "Rodiny členů"
+  },
+  "noMemberFamilies": {
+    "message": "Žádné rodiny členů"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Zde se zobrazí členové, kteří využili rodinné plány"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Členové Vaší organizace mají nárok na bezplatné rodiny Bitwarden. Zde můžete vidět členy, kteří sponzorovali organizaci rodin."
   },
   "badToken": {
     "message": "Odkaz již není platný. Požádejte sponzora o opakované odeslání nabídky."
@@ -7982,6 +8009,9 @@
   },
   "inviteMember": {
     "message": "Pozvat uživatele"
+  },
+  "addSponsorship": {
+    "message": "Přidat sponzorství"
   },
   "needsConfirmation": {
     "message": "Vyžaduje potvrzení"

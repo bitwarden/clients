@@ -1059,6 +1059,19 @@
   "notificationAddSave": {
     "message": "Save"
   },
+  "newNotification": {
+    "message": "New notification"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: New notification",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
   "loginSaveSuccessDetails": {
     "message": "$USERNAME$ saved to Bitwarden.",
       "placeholders": {
