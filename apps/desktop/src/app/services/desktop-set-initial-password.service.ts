@@ -4,8 +4,10 @@ import {
   DefaultSetInitialPasswordService,
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
+  SetInitialPasswordUserType,
 } from "@bitwarden/auth/angular";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { UserId } from "@bitwarden/common/types/guid";
 
 export class DesktopSetInitialPasswordService
   extends DefaultSetInitialPasswordService
@@ -13,8 +15,12 @@ export class DesktopSetInitialPasswordService
 {
   messagingService = inject(MessagingService);
 
-  override async setInitialPassword(credentials: SetInitialPasswordCredentials) {
-    await super.setInitialPassword(credentials);
+  override async setInitialPassword(
+    credentials: SetInitialPasswordCredentials,
+    userType: SetInitialPasswordUserType,
+    userId: UserId,
+  ) {
+    await super.setInitialPassword(credentials, userType, userId);
 
     this.messagingService.send("redrawMenu");
   }

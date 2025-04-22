@@ -130,7 +130,7 @@ export class SetInitialPasswordComponent implements OnInit {
       } catch {
         this.toastService.showToast({
           variant: "error",
-          title: null,
+          title: "",
           message: this.i18nService.t("errorOccurred"),
         });
       }
@@ -140,46 +140,81 @@ export class SetInitialPasswordComponent implements OnInit {
   protected async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
     this.submitting = true;
 
-    if (this.userType === SetInitialPasswordUserType.OFFBOARDED_TRUSTED_DEVICE_ORG_USER) {
-      await this.setInitialPasswordService.setInitialPasswordTdeOffboarding(
-        passwordInputResult,
-        this.userId,
-      );
-    } else {
-      const credentials: SetInitialPasswordCredentials = {
-        ...passwordInputResult,
-        orgSsoIdentifier: this.orgSsoIdentifier,
-        orgId: this.orgId,
-        resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
-        userType: this.userType,
-        userId: this.userId,
-      };
-
+    if (
+      this.userType === SetInitialPasswordUserType.MASTER_PASSWORD_ORG_USER ||
+      this.userType === SetInitialPasswordUserType.TRUSTED_DEVICE_ORG_USER
+    ) {
       try {
-        await this.setInitialPasswordService.setInitialPassword(credentials);
+        const credentials: SetInitialPasswordCredentials = {
+          masterKey: passwordInputResult.masterKey,
+          serverMasterKeyHash: passwordInputResult.serverMasterKeyHash,
+          localMasterKeyHash: passwordInputResult.localMasterKeyHash,
+          kdfConfig: passwordInputResult.kdfConfig,
+          hint: passwordInputResult.hint,
+          orgSsoIdentifier: this.orgSsoIdentifier,
+          orgId: this.orgId,
+          resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
+        };
+
+        await this.setInitialPasswordService.setInitialPassword(
+          credentials,
+          this.userType,
+          this.userId,
+        );
+
+        if (this.userType === SetInitialPasswordUserType.MASTER_PASSWORD_ORG_USER) {
+          this.toastService.showToast({
+            variant: "success",
+            title: "",
+            message: this.i18nService.t("accountSuccessfullyCreated"),
+          });
+
+          this.toastService.showToast({
+            variant: "success",
+            title: "",
+            message: this.i18nService.t("inviteAccepted"),
+          });
+        }
+
+        if (this.userType === SetInitialPasswordUserType.TRUSTED_DEVICE_ORG_USER) {
+          this.toastService.showToast({
+            variant: "success",
+            title: "",
+            message: this.i18nService.t("masterPasswordSuccessfullySet"),
+          });
+        }
+
+        this.submitting = false;
+        await this.router.navigate(["vault"]);
       } catch (e) {
         this.validationService.showError(e);
         this.submitting = false;
-        return;
       }
 
-      if (this.userType === SetInitialPasswordUserType.MASTER_PASSWORD_ORG_USER) {
-        this.toastService.showToast({
-          variant: "success",
-          title: null,
-          message: this.i18nService.t("accountSuccessfullyCreated"),
-        });
+      return;
+    }
+
+    if (this.userType === SetInitialPasswordUserType.OFFBOARDED_TRUSTED_DEVICE_ORG_USER) {
+      try {
+        await this.setInitialPasswordService.setInitialPasswordTdeOffboarding(
+          passwordInputResult,
+          this.userId,
+        );
 
         this.toastService.showToast({
           variant: "success",
-          title: null,
-          message: this.i18nService.t("inviteAccepted"),
+          title: "",
+          message: this.i18nService.t("masterPasswordSuccessfullySet"),
         });
+
+        this.submitting = false;
+        // TODO-rr-bw: logout user?
+      } catch (e) {
+        this.validationService.showError(e);
+        this.submitting = false;
       }
 
-      this.submitting = false;
-
-      await this.router.navigate(["vault"]);
+      return;
     }
   }
 

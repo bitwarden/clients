@@ -35,12 +35,10 @@ export interface SetInitialPasswordCredentials {
   orgSsoIdentifier: string;
   orgId: string;
   resetPasswordAutoEnroll: boolean;
-  userType: SetInitialPasswordUserType;
-  userId: UserId;
 }
 
 /**
- * Handles setting a password for an existing authed user.
+ * Handles setting an initial password for an existing authed user.
  */
 export abstract class SetInitialPasswordService {
   /**
@@ -50,7 +48,11 @@ export abstract class SetInitialPasswordService {
    * @throws If any property on the `credentials` object is null or undefined, or if a
    *         masterKeyEncryptedUserKey or newKeyPair could not be created.
    */
-  setInitialPassword: (credentials: SetInitialPasswordCredentials) => Promise<void>;
+  setInitialPassword: (
+    credentials: SetInitialPasswordCredentials,
+    userType: SetInitialPasswordUserType,
+    userId: UserId,
+  ) => Promise<void>;
 
   setInitialPasswordTdeOffboarding: (
     passwordInputResult: PasswordInputResult,

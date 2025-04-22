@@ -6053,6 +6053,9 @@
   "add": {
     "message": "Add"
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
+  },
   "updatedMasterPassword": {
     "message": "Master password saved"
   },

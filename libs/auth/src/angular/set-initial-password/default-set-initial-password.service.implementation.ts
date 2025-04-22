@@ -45,7 +45,11 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
   ) {}
 
-  async setInitialPassword(credentials: SetInitialPasswordCredentials): Promise<void> {
+  async setInitialPassword(
+    credentials: SetInitialPasswordCredentials,
+    userType: SetInitialPasswordUserType,
+    userId: UserId,
+  ): Promise<void> {
     const {
       masterKey,
       serverMasterKeyHash,
@@ -55,14 +59,16 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       orgSsoIdentifier,
       orgId,
       resetPasswordAutoEnroll,
-      userType,
-      userId,
     } = credentials;
 
     for (const [key, value] of Object.entries(credentials)) {
       if (value == null) {
         throw new Error(`${key} not found. Could not set password.`);
       }
+    }
+
+    if (userId == null || userType == null) {
+      throw new Error("userId and/or userType not found. Could not set password.");
     }
 
     const masterKeyEncryptedUserKey = await this.makeProtectedUserKey(masterKey, userId);
@@ -158,6 +164,8 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     request.masterPasswordHint = passwordInputResult.hint;
 
     await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
+
+    await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
   }
 
   private async makeProtectedUserKey(
