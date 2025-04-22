@@ -11,15 +11,15 @@ export class DesktopCredentialGenerationService implements CipherFormGenerationS
   private dialogService = inject(DialogService);
 
   async generatePassword(): Promise<string> {
-    return this.generateCredential("password");
+    return await this.generateCredential("password");
   }
 
-  async generateUsername(): Promise<string> {
-    return this.generateCredential("username");
+  async generateUsername(uri: string): Promise<string> {
+    return await this.generateCredential("username", uri);
   }
 
-  async generateCredential(type: "password" | "username"): Promise<string> {
-    const dialogRef = CredentialGeneratorDialogComponent.open(this.dialogService, { type });
+  async generateCredential(type: "password" | "username", uri?: string): Promise<string> {
+    const dialogRef = CredentialGeneratorDialogComponent.open(this.dialogService, { type, uri });
 
     const result = await firstValueFrom(dialogRef.closed);
 
