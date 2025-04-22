@@ -3,22 +3,6 @@ import { html } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
-import { buildSvgDomElement } from "../../../../utils";
-import {
-  logoIcon,
-  logoLockedIcon,
-  globeIcon,
-  creditCardIcon,
-  idCardIcon,
-  lockIcon,
-  plusIcon,
-  viewCipherIcon,
-  passkeyIcon,
-  circleCheckIcon,
-  spinnerIcon,
-  keyIcon,
-  refreshIcon,
-} from "../../../../utils/svg-icons";
 import * as Icons from "../../icons";
 
 type Args = {
@@ -79,31 +63,3 @@ export const GlobeIcon = createIconStory("Globe");
 export const PencilSquareIcon = createIconStory("PencilSquare");
 export const ShieldIcon = createIconStory("Shield");
 export const UserIcon = createIconStory("User");
-
-const AutofillIconTemplate = (autofillIcon: string) => html`${buildSvgDomElement(autofillIcon)}`;
-
-const createAutofillIconStory = (autofillIcon: string): StoryObj<Args> => {
-  const story = {
-    render: () => AutofillIconTemplate(autofillIcon),
-  } as StoryObj<Args>;
-
-  story.argTypes = {
-    iconLink: { table: { disable: true } },
-  };
-
-  return story;
-};
-
-export const LogoAutofillIcon = createAutofillIconStory(logoIcon);
-export const LogoLockedAutofillIcon = createAutofillIconStory(logoLockedIcon);
-export const GlobeAutofillIcon = createAutofillIconStory(globeIcon);
-export const CreditCardAutofillIcon = createAutofillIconStory(creditCardIcon);
-export const IdCardAutofillIcon = createAutofillIconStory(idCardIcon);
-export const LockAutofillIcon = createAutofillIconStory(lockIcon);
-export const PlusAutofillIcon = createAutofillIconStory(plusIcon);
-export const ViewCipherAutofillIcon = createAutofillIconStory(viewCipherIcon);
-export const PasskeyAutofillIcon = createAutofillIconStory(passkeyIcon);
-export const CircleCheckAutofillIcon = createAutofillIconStory(circleCheckIcon);
-export const SpinnerAutofillIcon = createAutofillIconStory(spinnerIcon);
-export const KeyAutofillIcon = createAutofillIconStory(keyIcon);
-export const RefreshAutofillIcon = createAutofillIconStory(refreshIcon);
