@@ -178,6 +178,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
     private accountService: AccountService,
     private cipherService: CipherService,
     private formConfigService: CipherFormConfigService,
+    private premiumUpgradePromptService: PremiumUpgradePromptService,
   ) {}
 
   async ngOnInit() {
@@ -390,6 +391,10 @@ export class VaultV2Component implements OnInit, OnDestroy {
   }
 
   async openAttachmentsDialog() {
+    if (!this.userHasPremiumAccess) {
+      await this.premiumUpgradePromptService.promptForPremium();
+      return;
+    }
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
       cipherId: this.cipherId as CipherId,
     });
