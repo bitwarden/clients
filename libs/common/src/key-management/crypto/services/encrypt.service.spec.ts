@@ -31,6 +31,88 @@ describe("EncryptService", () => {
     encryptService = new EncryptServiceImplementation(cryptoFunctionService, logService, true);
   });
 
+  describe("wrapSymmetricKey", () => {
+    it("roundtrip encrypts and decrypts a symmetric key", async () => {
+      cryptoFunctionService.aesEncrypt.mockResolvedValue(makeStaticByteArray(64, 0));
+      cryptoFunctionService.randomBytes.mockResolvedValue(makeStaticByteArray(16) as CsprngArray);
+      cryptoFunctionService.hmac.mockResolvedValue(makeStaticByteArray(32));
+
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const wrappingKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const encString = await encryptService.wrapSymmetricKey(key, wrappingKey);
+      expect(encString.encryptionType).toEqual(EncryptionType.AesCbc256_HmacSha256_B64);
+      expect(encString.data).toEqual(Utils.fromBufferToB64(makeStaticByteArray(64, 0)));
+    });
+    it("fails if key toBeWrapped is null", async () => {
+      const wrappingKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+      await expect(encryptService.wrapSymmetricKey(null, wrappingKey)).rejects.toThrow(
+        "No keyToBeWrapped provided for wrapping.",
+      );
+    });
+    it("fails if wrapping key is null", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      await expect(encryptService.wrapSymmetricKey(key, null)).rejects.toThrow(
+        "No wrappingKey provided for wrapping.",
+      );
+    });
+  });
+
+  describe("wrapDecapsulationKey", () => {
+    it("roundtrip encrypts and decrypts a decapsulation key", async () => {
+      cryptoFunctionService.aesEncrypt.mockResolvedValue(makeStaticByteArray(64, 0));
+      cryptoFunctionService.randomBytes.mockResolvedValue(makeStaticByteArray(16) as CsprngArray);
+      cryptoFunctionService.hmac.mockResolvedValue(makeStaticByteArray(32));
+
+      const wrappingKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const encString = await encryptService.wrapDecapsulationKey(
+        makeStaticByteArray(64),
+        wrappingKey,
+      );
+      expect(encString.encryptionType).toEqual(EncryptionType.AesCbc256_HmacSha256_B64);
+      expect(encString.data).toEqual(Utils.fromBufferToB64(makeStaticByteArray(64, 0)));
+    });
+    it("fails if decapsulation key is null", async () => {
+      const wrappingKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+      await expect(encryptService.wrapDecapsulationKey(null, wrappingKey)).rejects.toThrow(
+        "No decapsulation key provided for wrapping.",
+      );
+    });
+    it("fails if wrapping key is null", async () => {
+      const decapsulationKey = makeStaticByteArray(64);
+      await expect(encryptService.wrapDecapsulationKey(decapsulationKey, null)).rejects.toThrow(
+        "No wrappingKey provided for wrapping.",
+      );
+    });
+  });
+
+  describe("wrapEncapsulationKey", () => {
+    it("roundtrip encrypts and decrypts an encapsulationKey key", async () => {
+      cryptoFunctionService.aesEncrypt.mockResolvedValue(makeStaticByteArray(64, 0));
+      cryptoFunctionService.randomBytes.mockResolvedValue(makeStaticByteArray(16) as CsprngArray);
+      cryptoFunctionService.hmac.mockResolvedValue(makeStaticByteArray(32));
+
+      const wrappingKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const encString = await encryptService.wrapEncapsulationKey(
+        makeStaticByteArray(64),
+        wrappingKey,
+      );
+      expect(encString.encryptionType).toEqual(EncryptionType.AesCbc256_HmacSha256_B64);
+      expect(encString.data).toEqual(Utils.fromBufferToB64(makeStaticByteArray(64, 0)));
+    });
+    it("fails if encapsulation key is null", async () => {
+      const wrappingKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+      await expect(encryptService.wrapEncapsulationKey(null, wrappingKey)).rejects.toThrow(
+        "No encapsulation key provided for wrapping.",
+      );
+    });
+    it("fails if wrapping key is null", async () => {
+      const encapsulationKey = makeStaticByteArray(64);
+      await expect(encryptService.wrapEncapsulationKey(encapsulationKey, null)).rejects.toThrow(
+        "No wrappingKey provided for wrapping.",
+      );
+    });
+  });
+
   describe("onServerConfigChange", () => {
     const newConfig = mock<ServerConfig>();
 
@@ -460,6 +542,12 @@ describe("EncryptService", () => {
 
         expect(actual).toEqual(encString);
         expect(actual.dataBytes).toEqualBuffer(encryptedData);
+      });
+
+      it("throws if no data was provided", () => {
+        return expect(encryptService.rsaEncrypt(null, new Uint8Array(32))).rejects.toThrow(
+          "No data provided for encryption",
+        );
       });
     });
 
