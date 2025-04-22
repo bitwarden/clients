@@ -188,6 +188,7 @@ export class VaultPopupListFiltersService {
       key: "vault-filters",
       initialValue: {},
       deserializer: (v) => v,
+      persistNavigation: true,
     });
 
     this.deserializeFilters(cachedFilters());

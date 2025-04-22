@@ -1,14 +1,18 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, Input } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { IconModule, LinkModule } from "@bitwarden/components";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Icon, IconModule, LinkModule } from "@bitwarden/components";
 
-import { GeneratorActive, GeneratorInactive } from "./icons/generator";
-import { SendActive, SendInactive } from "./icons/send";
-import { SettingsActive, SettingsInactive } from "./icons/settings";
-import { VaultInactive, VaultActive } from "./icons/vault";
+export type NavButton = {
+  label: string;
+  page: string;
+  icon: Icon;
+  iconActive: Icon;
+  showBerry?: boolean;
+};
 
 @Component({
   selector: "popup-tab-navigation",
@@ -20,30 +24,12 @@ import { VaultInactive, VaultActive } from "./icons/vault";
   },
 })
 export class PopupTabNavigationComponent {
-  navButtons = [
-    {
-      label: "vault",
-      page: "/tabs/vault",
-      iconKey: VaultInactive,
-      iconKeyActive: VaultActive,
-    },
-    {
-      label: "generator",
-      page: "/tabs/generator",
-      iconKey: GeneratorInactive,
-      iconKeyActive: GeneratorActive,
-    },
-    {
-      label: "send",
-      page: "/tabs/send",
-      iconKey: SendInactive,
-      iconKeyActive: SendActive,
-    },
-    {
-      label: "settings",
-      page: "/tabs/settings",
-      iconKey: SettingsInactive,
-      iconKeyActive: SettingsActive,
-    },
-  ];
+  @Input() navButtons: NavButton[] = [];
+
+  constructor(private i18nService: I18nService) {}
+
+  buttonTitle(navButton: NavButton) {
+    const labelText = this.i18nService.t(navButton.label);
+    return navButton.showBerry ? this.i18nService.t("labelWithNotification", labelText) : labelText;
+  }
 }

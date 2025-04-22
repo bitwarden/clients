@@ -104,6 +104,22 @@ describe("DesktopLockComponentService", () => {
     });
   });
 
+  describe("popOutBrowserExtension", () => {
+    it("throws platform not supported error", () => {
+      expect(() => service.popOutBrowserExtension()).toThrow(
+        "Method not supported on this platform.",
+      );
+    });
+  });
+
+  describe("closeBrowserExtensionPopout", () => {
+    it("throws platform not supported error", () => {
+      expect(() => service.closeBrowserExtensionPopout()).toThrow(
+        "Method not supported on this platform.",
+      );
+    });
+  });
+
   describe("isWindowVisible", () => {
     it("returns the window visibility", async () => {
       isWindowVisibleMock.mockReturnValue(true);
