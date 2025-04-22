@@ -4,6 +4,8 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 import { PBKDF2KdfConfig } from "@bitwarden/key-management";
 
+import { PasswordInputResult } from "../input-password/password-input-result";
+
 export enum SetInitialPasswordUserType {
   /**
    * A new user being "just-in-time" provisioned into a master-password-encryption org
@@ -17,6 +19,11 @@ export enum SetInitialPasswordUserType {
    *     that requires a master password
    */
   TRUSTED_DEVICE_ORG_USER,
+  /**
+   * A user in an org that recently offboarded from trusted device encryption and is now in
+   * a master password encryption org
+   */
+  OFFBOARDED_TRUSTED_DEVICE_ORG_USER,
 }
 
 export interface SetInitialPasswordCredentials {
@@ -33,19 +40,20 @@ export interface SetInitialPasswordCredentials {
 }
 
 /**
- * This service handles setting a password for a "just-in-time" provisioned user.
- *
- * A "just-in-time" (JIT) provisioned user is a user who does not have a registered account at the
- * time they first click "Login with SSO". Once they click "Login with SSO" we register the account on
- * the fly ("just-in-time").
+ * Handles setting a password for an existing authed user.
  */
 export abstract class SetInitialPasswordService {
   /**
-   * Sets the password for a JIT provisioned user.
+   * Sets an initial password for an existing authed user
    *
-   * @param credentials An object of the credentials needed to set the password for a JIT provisioned user
-   * @throws If any property on the `credentials` object is null or undefined, or if a protectedUserKey
-   *         or newKeyPair could not be created.
+   * @param credentials An object of the credentials needed to set the initial password
+   * @throws If any property on the `credentials` object is null or undefined, or if a
+   *         masterKeyEncryptedUserKey or newKeyPair could not be created.
    */
   setInitialPassword: (credentials: SetInitialPasswordCredentials) => Promise<void>;
+
+  setInitialPasswordTdeOffboarding: (
+    passwordInputResult: PasswordInputResult,
+    userId: UserId,
+  ) => Promise<void>;
 }

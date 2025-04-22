@@ -76,7 +76,10 @@ export class SetInitialPasswordComponent implements OnInit {
     this.email = activeAccount?.email;
 
     await this.determineUserType();
-    await this.handleQueryParams();
+
+    if (this.userType !== SetInitialPasswordUserType.OFFBOARDED_TRUSTED_DEVICE_ORG_USER) {
+      await this.handleQueryParams();
+    }
   }
 
   private async determineUserType() {
@@ -84,28 +87,26 @@ export class SetInitialPasswordComponent implements OnInit {
       this.masterPasswordService.forceSetPasswordReason$(this.userId),
     );
 
-    if (
+    if (this.forceSetPasswordReason === ForceSetPasswordReason.TdeOffboarding) {
+      this.userType = SetInitialPasswordUserType.OFFBOARDED_TRUSTED_DEVICE_ORG_USER;
+      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+        pageTitle: { key: "setMasterPassword" },
+        pageSubtitle: { key: "tdeDisabledMasterPasswordRequired" },
+      });
+    } else if (
       this.forceSetPasswordReason ===
       ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission
     ) {
       this.userType = SetInitialPasswordUserType.TRUSTED_DEVICE_ORG_USER;
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageTitle: {
-          key: "setMasterPassword",
-        },
-        pageSubtitle: {
-          key: "orgPermissionsUpdatedMustSetPassword",
-        },
+        pageTitle: { key: "setMasterPassword" },
+        pageSubtitle: { key: "orgPermissionsUpdatedMustSetPassword" },
       });
     } else {
       this.userType = SetInitialPasswordUserType.MASTER_PASSWORD_ORG_USER;
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageTitle: {
-          key: "joinOrganization",
-        },
-        pageSubtitle: {
-          key: "finishJoiningThisOrganizationBySettingAMasterPassword",
-        },
+        pageTitle: { key: "joinOrganization" },
+        pageSubtitle: { key: "finishJoiningThisOrganizationBySettingAMasterPassword" },
       });
     }
   }
@@ -139,40 +140,47 @@ export class SetInitialPasswordComponent implements OnInit {
   protected async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
     this.submitting = true;
 
-    const credentials: SetInitialPasswordCredentials = {
-      ...passwordInputResult,
-      orgSsoIdentifier: this.orgSsoIdentifier,
-      orgId: this.orgId,
-      resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
-      userType: this.userType,
-      userId: this.userId,
-    };
+    if (this.userType === SetInitialPasswordUserType.OFFBOARDED_TRUSTED_DEVICE_ORG_USER) {
+      await this.setInitialPasswordService.setInitialPasswordTdeOffboarding(
+        passwordInputResult,
+        this.userId,
+      );
+    } else {
+      const credentials: SetInitialPasswordCredentials = {
+        ...passwordInputResult,
+        orgSsoIdentifier: this.orgSsoIdentifier,
+        orgId: this.orgId,
+        resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
+        userType: this.userType,
+        userId: this.userId,
+      };
 
-    try {
-      await this.setInitialPasswordService.setInitialPassword(credentials);
-    } catch (e) {
-      this.validationService.showError(e);
+      try {
+        await this.setInitialPasswordService.setInitialPassword(credentials);
+      } catch (e) {
+        this.validationService.showError(e);
+        this.submitting = false;
+        return;
+      }
+
+      if (this.userType === SetInitialPasswordUserType.MASTER_PASSWORD_ORG_USER) {
+        this.toastService.showToast({
+          variant: "success",
+          title: null,
+          message: this.i18nService.t("accountSuccessfullyCreated"),
+        });
+
+        this.toastService.showToast({
+          variant: "success",
+          title: null,
+          message: this.i18nService.t("inviteAccepted"),
+        });
+      }
+
       this.submitting = false;
-      return;
+
+      await this.router.navigate(["vault"]);
     }
-
-    if (this.userType === SetInitialPasswordUserType.MASTER_PASSWORD_ORG_USER) {
-      this.toastService.showToast({
-        variant: "success",
-        title: null,
-        message: this.i18nService.t("accountSuccessfullyCreated"),
-      });
-
-      this.toastService.showToast({
-        variant: "success",
-        title: null,
-        message: this.i18nService.t("inviteAccepted"),
-      });
-    }
-
-    this.submitting = false;
-
-    await this.router.navigate(["vault"]);
   }
 
   protected async logout() {
