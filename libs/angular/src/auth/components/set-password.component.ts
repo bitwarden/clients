@@ -178,7 +178,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
         const existingUserPublicKeyB64 = Utils.fromBufferToB64(existingUserPublicKey);
         newKeyPair = [
           existingUserPublicKeyB64,
-          await this.encryptService.encrypt(existingUserPrivateKey, userKey[0]),
+          await this.encryptService.wrapDecapsulationKey(existingUserPrivateKey, userKey[0]),
         ];
       } else {
         newKeyPair = await this.keyService.makeKeyPair(userKey[0]);

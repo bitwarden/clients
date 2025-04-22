@@ -4928,8 +4928,8 @@
     "message": "Паролата е прегенерирана",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Запазване на данните за вписване в Битуорден?",
+  "saveToBitwarden": {
+    "message": "Запазване в Битуорден",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
