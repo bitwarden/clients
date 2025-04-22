@@ -24,7 +24,20 @@ import { ServicesModule } from "../services/services.module";
     ServicesModule,
   ],
   declarations: [AvatarComponent],
-  exports: [CommonModule, A11yModule, DatePipe, DragDropModule, FormsModule, JslibModule],
+  exports: [
+    CommonModule,
+    A11yModule,
+    DatePipe,
+    DragDropModule,
+    FormsModule,
+    JslibModule,
+    OverlayModule,
+    ReactiveFormsModule,
+    ScrollingModule,
+    ServicesModule,
+    AvatarComponent,
+  ],
+
   providers: [DatePipe],
 })
 export class SharedModule {}
