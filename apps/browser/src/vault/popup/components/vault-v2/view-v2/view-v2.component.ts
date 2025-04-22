@@ -29,7 +29,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
@@ -46,6 +46,7 @@ import {
   CipherViewComponent,
   CopyCipherFieldService,
   DefaultChangeLoginPasswordService,
+  PasswordRepromptService,
 } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
@@ -113,6 +114,7 @@ export class ViewV2Component {
   protected showFooter$: Observable<boolean>;
 
   constructor(
+    private passwordRepromptService: PasswordRepromptService,
     private route: ActivatedRoute,
     private router: Router,
     private i18nService: I18nService,
@@ -283,7 +285,10 @@ export class ViewV2Component {
    * @param senderTabId
    * @private
    */
-  private async _handleLoadAction(loadAction: LoadAction, senderTabId?: number): Promise<void> {
+  private async _handleLoadAction(
+    loadAction: LoadAction,
+    senderTabId?: number,
+  ): Promise<void | boolean> {
     let actionSuccess = false;
 
     // Both vaultPopupAutofillService and copyCipherFieldService will perform password re-prompting internally.
@@ -291,6 +296,12 @@ export class ViewV2Component {
     switch (loadAction) {
       case "show-autofill-button":
         // This action simply shows the cipher view, no need to do anything.
+        if (
+          this.cipher.reprompt !== CipherRepromptType.None &&
+          !(await this.passwordRepromptService.showPasswordPrompt())
+        ) {
+          await closeViewVaultItemPopout(`${VaultPopoutType.viewVaultItem}_${this.cipher.id}`);
+        }
         return;
       case "autofill":
         actionSuccess = await this.vaultPopupAutofillService.doAutofill(this.cipher, false);

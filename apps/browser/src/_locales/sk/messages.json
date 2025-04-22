@@ -973,7 +973,7 @@
     "message": "Pridaná položka"
   },
   "editedItem": {
-    "message": "Upravená položka"
+    "message": "Položka upravená"
   },
   "deleteItemConfirmation": {
     "message": "Naozaj chcete odstrániť túto položku?"
@@ -1097,6 +1097,31 @@
   "loginUpdateSuccess": {
     "message": "Prihlasovacie údaje aktualizované",
     "description": "Message displayed when login details are successfully updated."
+  },
+  "loginUpdateTaskSuccess": {
+    "message": "Skvelá práca! Podnikli ste kroky, aby ste vy a $ORGANIZATION$ boli bezpečnejší.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Ďakujeme, že ste pre $ORGANIZATION$ zabezpečili väčšiu bezpečnosť. Máte ďalšie ($TASK_COUNT$) heslá na aktualizáciu.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Zmeniť ďalšie heslo",
+    "description": "Message prompting user to undertake completion of another security task."
   },
   "saveFailure": {
     "message": "Chyba pri ukladaní",
@@ -1391,23 +1416,11 @@
   "premiumRequiredDesc": {
     "message": "Pre použitie tejto funkcie je potrebné prémiové členstvo."
   },
-  "enterVerificationCodeApp": {
-    "message": "Zadajte 6-miestny verifikačný kód z vašej overovacej aplikácie."
-  },
   "authenticationTimeout": {
     "message": "Časový limit overenia"
   },
   "authenticationSessionTimedOut": {
     "message": "Relácia overovania skončila. Znovu spustite proces prihlásenia."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Zadajte 6-miestny verifikačný kód, ktorý vám bol zaslaný emailom",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Overovací e-mail odoslaný na $EMAIL$.",
@@ -1418,17 +1431,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Zapamätať si ma"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Nepýtať sa znova na tomto zariadení 30 dní"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Znovu zaslať overovací kód emailom"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Použiť inú dvojstupňovú metódu prihlásenia"
   },
   "selectAnotherMethod": {
     "message": "Vyberte iný spôsob",
@@ -1437,17 +1441,8 @@
   "useYourRecoveryCode": {
     "message": "Použiť obnovovací kód"
   },
-  "insertYubiKey": {
-    "message": "Vložte váš YubiKey do USB portu počítača a stlačte jeho tlačidlo."
-  },
   "insertU2f": {
     "message": "Vložte váš bezpečnostný kľúč do USB portu počítača. Ak má tlačidlo, stlačte ho."
-  },
-  "webAuthnNewTab": {
-    "message": "V overovaní cez WebAuthn 2FA pokračujte na ďalšej záložke."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Otvoriť v novej karte"
   },
   "openInNewTab": {
     "message": "Otvoriť v novej karte"
@@ -2327,6 +2322,9 @@
   "privacyPolicy": {
     "message": "Zásady ochrany osobných údajov"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Nové heslo nemôže byť rovnaké ako súčasné heslo."
+  },
   "hintEqualsPassword": {
     "message": "Nápoveď k heslu nemôže byť rovnaká ako heslo."
   },
@@ -2534,15 +2532,15 @@
     "message": "Heslá vašej organizácie sú v ohrození, pretože sú slabé, opakovane používané a/alebo uniknuté.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Príklady zoznamu prihlásení, ktoré sú ohrozené"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Príklady zoznamu prihlásení, ktoré sú ohrozené."
   },
   "generatePasswordSlideDesc": {
     "message": "Rýchlo generujte silné, jedinečné heslo pomocu ponuky automatického vypĺňania Bitwardenu na ohrozených stránkach.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Príklad ponuky automatického vypĺňania Bitwardenu zobrazujúca vygenerované heslo"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Príklad ponuky automatického vypĺňania Bitwardenu zobrazujúca vygenerované heslo."
   },
   "updateInBitwarden": {
     "message": "Aktualizovať v Bitwardene"
@@ -2551,8 +2549,8 @@
     "message": "Bitwarden vás vyzve na aktualizáciu hesla v správcovi hesiel.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Príklad upozornenia Bitwardenu na aktualizovanie prihlasovacích údajov"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Príklad upozornenia Bitwardenu na aktualizovanie prihlasovacích údajov."
   },
   "turnOnAutofill": {
     "message": "Zapnúť automatické vypĺňanie"
@@ -3848,14 +3846,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Chyba pri pripájaní k službe Duo. Použite inú metódu dvojstupňového prihlásenia alebo kontaktujte Duo a požiadajte o pomoc."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Spustite DUO a postupujte podľa pokynov na dokončenie prihlásenia."
-  },
   "duoRequiredForAccount": {
     "message": "Pre váš účet je potrebné dvojstupňové prihlásenie Duo."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Ak chcete dokončiť prihlásenie, otvorte rozšírenie."
   },
   "popoutExtension": {
     "message": "Zobraziť rozšírenie v novom okne"
@@ -4936,8 +4928,8 @@
     "message": "Vygenerované nové heslo",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Uložiť prihlasovacie údaje do Bitwardenu?",
+  "saveToBitwarden": {
+    "message": "Uložiť do Bitwardenu",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
@@ -5176,5 +5168,32 @@
   },
   "changeAtRiskPassword": {
     "message": "Zmeniť rizikové heslá"
+  },
+  "introCarouselLabel": {
+    "message": "Vitajte v Bitwardene"
+  },
+  "securityPrioritized": {
+    "message": "Bezpečnosť na prvom mieste"
+  },
+  "securityPrioritizedBody": {
+    "message": "Ukladajte prihlasovacie údaje, karty a identity do zabezpečeného trezoru. Bitwarden používa šifrovanie s nulovou znalosťou od začiatku do konca na ochranu toho, čo je pre vás dôležité."
+  },
+  "quickLogin": {
+    "message": "Rýchle a jednoduché prihlásenie"
+  },
+  "quickLoginBody": {
+    "message": "Nastavte si odomykanie biometrickými údajmi a automatické vypĺňanie na prihlasovanie do účtov bez zadávania jediného písmena."
+  },
+  "secureUser": {
+    "message": "Posuňte prihlasovanie na vyššiu úroveň"
+  },
+  "secureUserBody": {
+    "message": "Pomocou generátora vytvorte a uložte silné a jedinečné heslá pre všetky svoje účty."
+  },
+  "secureDevices": {
+    "message": "Vaše údaje, kedykoľvek a kdekoľvek ich potrebujete"
+  },
+  "secureDevicesBody": {
+    "message": "Ukladajte neobmedzený počet hesiel na neobmedzenom počte zariadení pomocou mobilných aplikácií, prehliadačov a desktopových aplikácií Bitwardenu."
   }
 }

@@ -1,6 +1,12 @@
 @let usePlaceHolderEvents = !organization?.useEvents && (isBreadcrumbEventLogsEnabled$ | async);
 <app-header>
-  <span bitBadge variant="primary" slot="title-suffix" *ngIf="usePlaceHolderEvents">
+  <span
+    bitBadge
+    variant="primary"
+    slot="title-suffix"
+    class="tw-ml-2 tw-mt-1.5 tw-inline-flex tw-items-center"
+    *ngIf="usePlaceHolderEvents"
+  >
     {{ "upgrade" | i18n }}
   </span>
 </app-header>

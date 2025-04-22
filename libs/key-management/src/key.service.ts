@@ -17,11 +17,11 @@ import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/mod
 import { ProfileProviderOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/response/profile-provider.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -232,7 +232,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     const newUserKey = await this.keyGenerationService.createKey(512);
-    return this.buildProtectedSymmetricKey(masterKey, newUserKey.key);
+    return this.buildProtectedSymmetricKey(masterKey, newUserKey);
   }
 
   /**
@@ -306,11 +306,16 @@ export class DefaultKeyService implements KeyServiceAbstraction {
    * TODO: Move to MasterPasswordService
    */
   async makeMasterKey(password: string, email: string, KdfConfig: KdfConfig): Promise<MasterKey> {
-    return (await this.keyGenerationService.deriveKeyFromPassword(
+    const start = new Date().getTime();
+    const masterKey = (await this.keyGenerationService.deriveKeyFromPassword(
       password,
       email,
       KdfConfig,
     )) as MasterKey;
+    const end = new Date().getTime();
+    this.logService.info(`[KeyService] Deriving master key took ${end - start}ms`);
+
+    return masterKey;
   }
 
   async encryptUserKeyWithMasterKey(
@@ -318,7 +323,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     userKey?: UserKey,
   ): Promise<[UserKey, EncString]> {
     userKey ||= await this.getUserKey();
-    return await this.buildProtectedSymmetricKey(masterKey, userKey.key);
+    return await this.buildProtectedSymmetricKey(masterKey, userKey);
   }
 
   // TODO: move to MasterPasswordService
@@ -428,7 +433,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     const newSymKey = await this.keyGenerationService.createKey(512);
-    return this.buildProtectedSymmetricKey(key, newSymKey.key);
+    return this.buildProtectedSymmetricKey(key, newSymKey);
   }
 
   private async clearOrgKeys(userId: UserId): Promise<void> {
@@ -488,7 +493,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       throw new Error("No public key found.");
     }
 
-    const encShareKey = await this.encryptService.rsaEncrypt(shareKey.key, publicKey);
+    const encShareKey = await this.encryptService.encapsulateKeyUnsigned(shareKey, publicKey);
     return [encShareKey, shareKey as T];
   }
 
@@ -542,7 +547,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
     const keyPair = await this.cryptoFunctionService.rsaGenerateKeyPair(2048);
     const publicB64 = Utils.fromBufferToB64(keyPair[0]);
-    const privateEnc = await this.encryptService.encrypt(keyPair[1], key);
+    const privateEnc = await this.encryptService.wrapDecapsulationKey(keyPair[1], key);
     return [publicB64, privateEnc];
   }
 
@@ -815,18 +820,21 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
   private async buildProtectedSymmetricKey<T extends SymmetricCryptoKey>(
     encryptionKey: SymmetricCryptoKey,
-    newSymKey: Uint8Array,
+    newSymKey: SymmetricCryptoKey,
   ): Promise<[T, EncString]> {
     let protectedSymKey: EncString;
     if (encryptionKey.key.byteLength === 32) {
       const stretchedEncryptionKey = await this.keyGenerationService.stretchKey(encryptionKey);
-      protectedSymKey = await this.encryptService.encrypt(newSymKey, stretchedEncryptionKey);
+      protectedSymKey = await this.encryptService.wrapSymmetricKey(
+        newSymKey,
+        stretchedEncryptionKey,
+      );
     } else if (encryptionKey.key.byteLength === 64) {
-      protectedSymKey = await this.encryptService.encrypt(newSymKey, encryptionKey);
+      protectedSymKey = await this.encryptService.wrapSymmetricKey(newSymKey, encryptionKey);
     } else {
       throw new Error("Invalid key size.");
     }
-    return [new SymmetricCryptoKey(newSymKey) as T, protectedSymKey];
+    return [newSymKey as T, protectedSymKey];
   }
 
   userKey$(userId: UserId): Observable<UserKey | null> {
@@ -963,11 +971,11 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return this.stateProvider.getUser(userId, USER_ENCRYPTED_PROVIDER_KEYS).state$.pipe(
       // Convert each value in the record to it's own decryption observable
       convertValues(async (_, value) => {
-        const decrypted = await this.encryptService.rsaDecrypt(
+        const decapsulatedKey = await this.encryptService.decapsulateKeyUnsigned(
           new EncString(value),
           userPrivateKey,
         );
-        return new SymmetricCryptoKey(decrypted) as ProviderKey;
+        return decapsulatedKey as ProviderKey;
       }),
       // switchMap since there are no side effects
       switchMap((encryptedProviderKeys) => {
