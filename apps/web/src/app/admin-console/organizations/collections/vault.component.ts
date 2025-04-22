@@ -90,6 +90,7 @@ import { AssignCollectionsWebComponent } from "../../../vault/components/assign-
 import {
   VaultItemDialogComponent,
   VaultItemDialogMode,
+  VaultItemDialogResult,
 } from "../../../vault/components/vault-item-dialog/vault-item-dialog.component";
 import { VaultItemEvent } from "../../../vault/components/vault-items/vault-item-event";
 import { VaultItemsModule } from "../../../vault/components/vault-items/vault-items.module";
@@ -107,7 +108,6 @@ import {
 } from "../../../vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 import { VaultFilter } from "../../../vault/individual-vault/vault-filter/shared/models/vault-filter.model";
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
-import { VaultItemDialogResult } from "../../../vault/services/web-premium-upgrade-prompt.service";
 import { GroupApiService, GroupView } from "../core";
 import { openEntityEventsDialog } from "../manage/entity-events.component";
 import {

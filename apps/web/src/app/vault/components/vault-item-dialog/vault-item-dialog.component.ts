@@ -54,10 +54,7 @@ import {
 } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared/shared.module";
-import {
-  VaultItemDialogResult,
-  WebVaultPremiumUpgradePromptService,
-} from "../../../vault/services/web-premium-upgrade-prompt.service";
+import { WebVaultPremiumUpgradePromptService } from "../../../vault/services/web-premium-upgrade-prompt.service";
 import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/services/routed-vault-filter.service";
 import { RoutedVaultFilterModel } from "../../individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 import { WebCipherFormGenerationService } from "../../services/web-cipher-form-generation.service";
@@ -96,6 +93,28 @@ export interface VaultItemDialogParams {
    * Function to restore a cipher from the trash.
    */
   restore?: (c: CipherView) => Promise<boolean>;
+}
+
+export enum VaultItemDialogResult {
+  /**
+   * A cipher was saved (created or updated).
+   */
+  Saved = "saved",
+
+  /**
+   * A cipher was deleted.
+   */
+  Deleted = "deleted",
+
+  /**
+   * The dialog was closed to navigate the user the premium upgrade page.
+   */
+  PremiumUpgrade = "premiumUpgrade",
+
+  /**
+   * A cipher was restored
+   */
+  Restored = "restored",
 }
 
 @Component({

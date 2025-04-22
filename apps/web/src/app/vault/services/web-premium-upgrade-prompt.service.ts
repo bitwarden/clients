@@ -5,27 +5,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogRef, DialogService } from "@bitwarden/components";
 
-export enum VaultItemDialogResult {
-  /**
-   * A cipher was saved (created or updated).
-   */
-  Saved = "saved",
-
-  /**
-   * A cipher was deleted.
-   */
-  Deleted = "deleted",
-
-  /**
-   * The dialog was closed to navigate the user the premium upgrade page.
-   */
-  PremiumUpgrade = "premiumUpgrade",
-
-  /**
-   * A cipher was restored
-   */
-  Restored = "restored",
-}
+import { VaultItemDialogResult } from "../components/vault-item-dialog/vault-item-dialog.component";
 
 /**
  * This service is used to prompt the user to upgrade to premium.

@@ -31,9 +31,9 @@ import {
 import {
   VaultItemDialogComponent,
   VaultItemDialogMode,
+  VaultItemDialogResult,
 } from "../../../vault/components/vault-item-dialog/vault-item-dialog.component";
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
-import { VaultItemDialogResult } from "../../../vault/services/web-premium-upgrade-prompt.service";
 
 @Directive()
 export class CipherReportComponent implements OnDestroy {
