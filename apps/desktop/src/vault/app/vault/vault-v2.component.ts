@@ -68,13 +68,11 @@ import { DesktopCredentialGenerationService } from "../../../services/desktop-ci
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { invokeMenu, RendererMenuItem } from "../../../utils";
 
-import { AddEditComponent } from "./add-edit.component";
 import { FolderAddEditComponent } from "./folder-add-edit.component";
 import { ItemFooterComponent } from "./item-footer.component";
 import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultItemsV2Component } from "./vault-items-v2.component";
-import { ViewComponent } from "./view.component";
 
 const BroadcasterSubscriptionId = "VaultComponent";
 
@@ -116,15 +114,12 @@ const BroadcasterSubscriptionId = "VaultComponent";
   ],
 })
 export class VaultV2Component implements OnInit, OnDestroy {
-  @ViewChild(ViewComponent) viewComponent: ViewComponent | null = null;
-  @ViewChild(AddEditComponent) addEditComponent: AddEditComponent | null = null;
   @ViewChild(VaultItemsV2Component, { static: true })
   vaultItemsComponent: VaultItemsV2Component | null = null;
   @ViewChild(VaultFilterComponent, { static: true })
   vaultFilterComponent: VaultFilterComponent | null = null;
   @ViewChild("folderAddEdit", { read: ViewContainerRef, static: true })
   folderAddEditModalRef: ViewContainerRef | null = null;
-  @ViewChild("footer") footer: ItemFooterComponent | null = null;
 
   action: CipherFormMode | "view" | null = null;
   cipherId: string | null = null;
@@ -236,53 +231,30 @@ export class VaultV2Component implements OnInit, OnDestroy {
                 this.showingModal = false;
                 break;
               case "copyUsername": {
-                const uComponent = this.addEditComponent ?? this.viewComponent;
-                const uCipher = uComponent?.cipher ?? null;
-                if (
-                  this.cipherId &&
-                  uCipher &&
-                  uCipher.id === this.cipherId &&
-                  uCipher.login &&
-                  uCipher.login.username
-                ) {
-                  this.copyValue(uCipher, uCipher.login.username, "username", "Username");
+                if (this.cipher?.login?.username) {
+                  this.copyValue(this.cipher, this.cipher?.login?.username, "username", "Username");
                 }
                 break;
               }
               case "copyPassword": {
-                const pComponent = this.addEditComponent ?? this.viewComponent;
-                const pCipher = pComponent?.cipher ?? null;
-                if (
-                  this.cipherId &&
-                  pCipher &&
-                  pCipher.id === this.cipherId &&
-                  pCipher.login &&
-                  pCipher.login.password &&
-                  pCipher.viewPassword
-                ) {
-                  this.copyValue(pCipher, pCipher.login.password, "password", "Password");
+                if (this.cipher?.login?.password && this.cipher.viewPassword) {
+                  this.copyValue(this.cipher, this.cipher.login.password, "password", "Password");
                   await this.eventCollectionService
-                    .collect(EventType.Cipher_ClientCopiedPassword, pCipher.id)
+                    .collect(EventType.Cipher_ClientCopiedPassword, this.cipher.id)
                     .catch(() => {});
                 }
                 break;
               }
               case "copyTotp": {
-                const tComponent = this.addEditComponent ?? this.viewComponent;
-                const tCipher = tComponent?.cipher ?? null;
                 if (
-                  this.cipherId &&
-                  tCipher &&
-                  tCipher.id === this.cipherId &&
-                  tCipher.login &&
-                  tCipher.login.hasTotp &&
-                  this.userHasPremiumAccess
+                  this.cipher?.login?.hasTotp &&
+                  (this.cipher.organizationUseTotp || this.userHasPremiumAccess)
                 ) {
                   const value = await firstValueFrom(
-                    this.totpService.getCode$(tCipher.login.totp),
+                    this.totpService.getCode$(this.cipher.login.totp),
                   ).catch(() => null);
                   if (value) {
-                    this.copyValue(tCipher, value.code, "verificationCodeTotp", "TOTP");
+                    this.copyValue(this.cipher, value.code, "verificationCodeTotp", "TOTP");
                   }
                 }
                 break;
