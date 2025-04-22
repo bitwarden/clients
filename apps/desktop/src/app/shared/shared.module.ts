@@ -37,7 +37,6 @@ import { ServicesModule } from "../services/services.module";
     ServicesModule,
     AvatarComponent,
   ],
-
   providers: [DatePipe],
 })
 export class SharedModule {}
