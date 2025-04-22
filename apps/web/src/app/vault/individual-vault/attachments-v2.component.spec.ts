@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock } from "jest-mock-extended";
 
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -34,6 +36,8 @@ describe("AttachmentsV2Component", () => {
         { provide: CipherService, useValue: mock<CipherService>() },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: AccountService, useValue: mock<AccountService>() },
+        { provide: ApiService, useValue: mock<ApiService>() },
+        { provide: OrganizationService, useValue: mock<OrganizationService>() },
       ],
     }).compileComponents();
 
