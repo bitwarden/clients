@@ -340,6 +340,7 @@ export default {
               generator: "Generator",
               send: "Send",
               settings: "Settings",
+              labelWithNotification: (label: string) => `${label}: New Notification`,
             });
           },
         },
@@ -398,17 +399,64 @@ export default {
 
 type Story = StoryObj<PopupPageComponent>;
 
-export const PopupTabNavigation: Story = {
+type PopupTabNavigationStory = StoryObj<PopupTabNavigationComponent>;
+
+const navButtons = (showBerry = false) => [
+  {
+    label: "vault",
+    page: "/tabs/vault",
+    iconKey: "lock",
+    iconKeyActive: "lock-f",
+  },
+  {
+    label: "generator",
+    page: "/tabs/generator",
+    iconKey: "generate",
+    iconKeyActive: "generate-f",
+  },
+  {
+    label: "send",
+    page: "/tabs/send",
+    iconKey: "send",
+    iconKeyActive: "send-f",
+  },
+  {
+    label: "settings",
+    page: "/tabs/settings",
+    iconKey: "cog",
+    iconKeyActive: "cog-f",
+    showBerry: showBerry,
+  },
+];
+
+export const DefaultPopupTabNavigation: PopupTabNavigationStory = {
   render: (args) => ({
     props: args,
-    template: /* HTML */ `
+    template: /*html*/ `
       <extension-container>
-        <popup-tab-navigation>
+        <popup-tab-navigation [navButtons]="navButtons">
           <router-outlet></router-outlet>
         </popup-tab-navigation>
-      </extension-container>
-    `,
+      </extension-container>`,
   }),
+  args: {
+    navButtons: navButtons(),
+  },
+};
+
+export const PopupTabNavigationWithBerry: PopupTabNavigationStory = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <extension-container>
+        <popup-tab-navigation [navButtons]="navButtons">
+          <router-outlet></router-outlet>
+        </popup-tab-navigation>
+      </extension-container>`,
+  }),
+  args: {
+    navButtons: navButtons(true),
+  },
 };
 
 export const PopupPage: Story = {
