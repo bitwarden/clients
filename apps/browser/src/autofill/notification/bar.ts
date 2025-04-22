@@ -371,7 +371,7 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
       handleCloseNotification,
       i18n,
       error,
-      itemName: itemName,
+      itemName: itemName ?? i18n.typeLogin,
       task,
       handleOpenVault: () => cipherId && openViewVaultItemPopout(cipherId),
       handleOpenTasks: () => sendPlatformMessage({ command: "bgOpenAtRisksPasswords" }),
