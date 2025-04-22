@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angula
 import { Router } from "@angular/router";
 import {
   BehaviorSubject,
+  filter,
   firstValueFrom,
   interval,
   mergeMap,
@@ -11,6 +12,7 @@ import {
   switchMap,
   take,
   takeUntil,
+  tap,
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -88,6 +90,7 @@ const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
 })
 export class LockComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  protected loading = true;
 
   activeAccount: Account | null = null;
 
@@ -121,6 +124,9 @@ export class LockComponent implements OnInit, OnDestroy {
   forcePasswordResetRoute = "update-temp-password";
 
   formGroup: FormGroup | null = null;
+
+  // Browser extension properties:
+  private shouldClosePopout = false;
 
   // Desktop properties:
   private deferFocus: boolean | null = null;
@@ -228,22 +234,22 @@ export class LockComponent implements OnInit, OnDestroy {
   private listenForActiveAccountChanges() {
     this.accountService.activeAccount$
       .pipe(
-        switchMap((account) => {
-          return this.handleActiveAccountChange(account);
+        tap((account) => {
+          this.loading = true;
+          this.activeAccount = account;
+          this.resetDataOnActiveAccountChange();
+        }),
+        filter((account): account is Account => account != null),
+        switchMap(async (account) => {
+          await this.handleActiveAccountChange(account);
+          this.loading = false;
         }),
         takeUntil(this.destroy$),
       )
       .subscribe();
   }
 
-  private async handleActiveAccountChange(activeAccount: Account | null) {
-    this.activeAccount = activeAccount;
-
-    this.resetDataOnActiveAccountChange();
-
-    if (activeAccount == null) {
-      return;
-    }
+  private async handleActiveAccountChange(activeAccount: Account) {
     // this account may be unlocked, prevent any prompts so we can redirect to vault
     if (await this.keyService.hasUserKeyInMemory(activeAccount.id)) {
       return;
@@ -300,16 +306,12 @@ export class LockComponent implements OnInit, OnDestroy {
     // desktop and extension.
     if (this.clientType === "desktop") {
       if (autoPromptBiometrics) {
+        this.loading = false;
         await this.desktopAutoPromptBiometrics();
       }
     }
 
     if (this.clientType === "browser") {
-      // Firefox closes the popup when unfocused, so this would block all unlock methods
-      if (this.platformUtilsService.getDevice() === DeviceType.FirefoxExtension) {
-        return;
-      }
-
       if (
         this.unlockOptions?.biometrics.enabled &&
         autoPromptBiometrics &&
@@ -323,6 +325,12 @@ export class LockComponent implements OnInit, OnDestroy {
           isNaN(lastProcessReload.getTime()) ||
           Date.now() - lastProcessReload.getTime() > AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY
         ) {
+          // Firefox extension closes the popup when unfocused during biometric unlock, pop out the window to prevent infinite loop.
+          if (this.platformUtilsService.getDevice() === DeviceType.FirefoxExtension) {
+            await this.lockComponentService.popOutBrowserExtension();
+            this.shouldClosePopout = true;
+          }
+          this.loading = false;
           await this.unlockViaBiometrics();
         }
       }
@@ -636,6 +644,13 @@ export class LockComponent implements OnInit, OnDestroy {
     if (this.clientType != null) {
       const successRoute = clientTypeToSuccessRouteRecord[this.clientType];
       await this.router.navigate([successRoute]);
+    }
+
+    if (
+      this.shouldClosePopout &&
+      this.platformUtilsService.getDevice() === DeviceType.FirefoxExtension
+    ) {
+      this.lockComponentService.closeBrowserExtensionPopout();
     }
   }
 

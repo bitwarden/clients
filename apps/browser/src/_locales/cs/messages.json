@@ -4928,8 +4928,8 @@
     "message": "Heslo bylo znovu vygenerováno",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Uložit přihlášení do Bitwardenu?",
+  "saveToBitwarden": {
+    "message": "Uložit do Bitwardenu",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
