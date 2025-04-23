@@ -118,7 +118,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private accountService: AccountService,
     private cipherService: CipherService,
-    private folderService: FolderService
+    private folderService: FolderService,
   ) {}
 
   async ngOnInit() {
@@ -695,7 +695,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async editFolder(folderId: string) {
-    const folderView =  await firstValueFrom(
+    const folderView = await firstValueFrom(
       this.folderService.getDecrypted$(folderId, this.activeUserId),
     );
 
@@ -703,7 +703,6 @@ export class VaultComponent implements OnInit, OnDestroy {
       editFolderConfig: {
         folder: {
           ...folderView,
-          name: folderView.name,
         },
       },
     });
