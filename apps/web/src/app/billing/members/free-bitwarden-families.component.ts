@@ -105,6 +105,7 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
           notes: decryptedNote,
           statusMessage: statusMessage || "",
           statusClass: statusClass || "tw-text-success",
+          status: statusMessage || "",
         };
 
         return new OrganizationSponsorshipInvitesResponse(newFamily);
@@ -139,7 +140,7 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
     await this.apiService.postResendSponsorshipOffer(sponsorship.sponsoringOrganizationUserId);
     this.toastService.showToast({
       variant: "success",
-      title: null,
+      title: undefined,
       message: this.i18nService.t("emailSent"),
     });
   }
@@ -171,7 +172,7 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
 
     this.toastService.showToast({
       variant: "success",
-      title: null,
+      title: undefined,
       message: this.i18nService.t("reclaimedFreePlan"),
     });
 
@@ -194,7 +195,7 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
      * RevokeWhenExpired
      */
 
-    let statusMessage = "loading";
+    let statusMessage = this.i18nService.t("loading");
     let statusClass: "tw-text-success" | "tw-text-danger" = "tw-text-success";
 
     if (toDelete && validUntil) {
@@ -204,36 +205,32 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
         formatDate(validUntil, "MM/dd/yyyy", locale),
       );
       statusClass = "tw-text-danger";
-      return { statusMessage, statusClass };
     } else if (toDelete) {
       // They want to delete and we don't have a valid until date so we can
       // this should only happen on a self-hosted install
       statusMessage = this.i18nService.t("requestRemoved");
       statusClass = "tw-text-danger";
-      return { statusMessage, statusClass };
     } else if (validUntil) {
       // They don't want to delete and they have a valid until date
       // that means they are actively sponsoring someone
       statusMessage = this.i18nService.t("active");
       statusClass = "tw-text-success";
-      return { statusMessage, statusClass };
     } else if (selfHosted && lastSyncDate) {
       // We are on a self-hosted install and it has been synced but we have not gotten
       // a valid until date so we can't know if they are actively sponsoring someone
       statusMessage = this.i18nService.t("sent");
       statusClass = "tw-text-success";
-      return { statusMessage, statusClass };
     } else if (!selfHosted) {
       // We are in cloud and all other status checks have been false therefore we have
       // sent the request but it hasn't been accepted yet
       statusMessage = this.i18nService.t("sent");
       statusClass = "tw-text-success";
-      return { statusMessage, statusClass };
     } else {
       // We are on a self-hosted install and we have not synced yet
       statusMessage = this.i18nService.t("requested");
       statusClass = "tw-text-success";
-      return { statusMessage, statusClass };
     }
+
+    return { statusMessage, statusClass };
   }
 }

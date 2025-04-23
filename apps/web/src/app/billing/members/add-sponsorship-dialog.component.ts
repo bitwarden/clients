@@ -89,7 +89,7 @@ export class AddSponsorshipDialogComponent {
     return dialogService.open<AddSponsorshipDialogResult>(AddSponsorshipDialogComponent, {
       ...config,
       data: config.data,
-    } as DialogConfig<AddSponsorshipDialogParams, DialogRef<AddSponsorshipDialogResult>>);
+    } as unknown as DialogConfig<unknown, DialogRef<AddSponsorshipDialogResult, unknown>>);
   }
 
   protected async save() {
@@ -120,7 +120,7 @@ export class AddSponsorshipDialogComponent {
 
       this.toastService.showToast({
         variant: "success",
-        title: null,
+        title: undefined,
         message: this.i18nService.t("sponsorshipCreated"),
       });
       this.formPromise = null;
