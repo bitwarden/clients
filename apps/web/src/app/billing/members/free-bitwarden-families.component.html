@@ -8,13 +8,13 @@
 <bit-container>
   <ng-container>
     <p bitTypography="body1">
-      {{ "sponsorFreeBitwardenFamilies" | i18n }}
+      {{ "sponsorshipFreeBitwardenFamilies" | i18n }}
     </p>
     <div bitTypography="body1">
       {{ "sponsoredFamiliesInclude" | i18n }}:
       <ul class="tw-list-outside">
         <li>{{ "sponsoredFamiliesPremiumAccess" | i18n }}</li>
-        <li>{{ "sponsoredFamiliesSharedCollectionsMgs" | i18n }}</li>
+        <li>{{ "sponsoredFamiliesSharedCollectionsMessage" | i18n }}</li>
       </ul>
     </div>
 
@@ -87,8 +87,8 @@
     } @else if (!loading()) {
       <div class="tw-my-5 tw-py-5 tw-flex tw-flex-col tw-items-center">
         <img class="tw-w-32" src="./../../../images/search.svg" alt="Search" />
-        <h4 class="mt-3" bitTypography="h4">{{ "noSponsoredFamiliesMgs" | i18n }}</h4>
-        <p bitTypography="body2">{{ "nosponsoredFamiliesDesc" | i18n }}</p>
+        <h4 class="mt-3" bitTypography="h4">{{ "noSponsoredFamiliesMessage" | i18n }}</h4>
+        <p bitTypography="body2">{{ "nosponsoredFamiliesDetails" | i18n }}</p>
       </div>
     }
 

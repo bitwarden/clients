@@ -167,7 +167,7 @@ export class AddSponsorshipDialogComponent {
     if (userExists) {
       return {
         isOrganizationMember: {
-          message: this.i18nService.t("organizationHasMember", value),
+          message: this.i18nService.t("organizationHasMemberMessage", value),
         },
       };
     }

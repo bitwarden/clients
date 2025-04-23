@@ -6312,14 +6312,14 @@
   "sponsoredBitwardenFamilies": {
     "message": "Sponsored families"
   },
-  "noSponsoredFamiliesMgs": {
+  "noSponsoredFamiliesMessage": {
     "message": "No sponsored families"
   },
-  "nosponsoredFamiliesDesc":{
+  "nosponsoredFamiliesDetails": {
     "message": "Sponsored non-member families plans will display here"
   },
-  "sponsorFreeBitwardenFamilies": {
-    "message": "Members of your organization are eligible to for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  "sponsorshipFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
@@ -6336,7 +6336,7 @@
   "sponsoredFamiliesPremiumAccess": {
     "message": "Premium access for up to 6 users"
   },
-  "sponsoredFamiliesSharedCollectionsMgs": {
+  "sponsoredFamiliesSharedCollectionsMessage": {
     "message": "Shared collections for family members"
   },
   "memberFamilies": {
@@ -6351,7 +6351,7 @@
   "membersWithSponsoredFamilies": {
     "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
   },
-  "organizationHasMember": {
+  "organizationHasMemberMessage": {
     "message": "A sponsorship cannot be sent to $EMAIL$ because they are a member of your organization.",
     "placeholders": {
       "email": {
@@ -10646,8 +10646,5 @@
   },
   "newBusinessUnit": {
     "message": "New business unit"
-  },
-   "notEnoughSeatsAvailable": {
-     "message": "There are not enough available seats to cover the sponsorship."
-   }
+  }
 }
