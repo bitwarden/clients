@@ -6411,7 +6411,7 @@
   "redeemedAccount": {
     "message": "Account redeemed"
   },
-  "revokeAccount": {
+  "revokeAccountMessage": {
     "message": "Revoke account NAME$",
     "placeholders": {
       "name": {
