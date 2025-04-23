@@ -5,6 +5,10 @@
 use windows::Win32::System::Com::*;
 use windows_core::*;
 
+/// Used when creating and asserting credentials.
+/// Header File Name: _EXPERIMENTAL_WEBAUTHN_PLUGIN_OPERATION_REQUEST
+/// Header File Usage: EXPERIMENTAL_PluginMakeCredential()
+///                    EXPERIMENTAL_PluginGetAssertion()
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ExperimentalWebAuthnPluginOperationRequest {
@@ -16,6 +20,10 @@ pub struct ExperimentalWebAuthnPluginOperationRequest {
     pub encoded_request_pointer: *mut u8,
 }
 
+/// Used as a response when creating and asserting credentials.
+/// Header File Name: _EXPERIMENTAL_WEBAUTHN_PLUGIN_OPERATION_RESPONSE
+/// Header File Usage: EXPERIMENTAL_PluginMakeCredential()
+///                    EXPERIMENTAL_PluginGetAssertion()
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ExperimentalWebAuthnPluginOperationResponse {
@@ -23,6 +31,9 @@ pub struct ExperimentalWebAuthnPluginOperationResponse {
     pub encoded_response_pointer: *mut u8,
 }
 
+/// Used to cancel an operation.
+/// Header File Name: _EXPERIMENTAL_WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST
+/// Header File Usage: EXPERIMENTAL_PluginCancelOperation()
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ExperimentalWebAuthnPluginCancelOperationRequest {
