@@ -29,7 +29,7 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
   tabIndex = 0;
   sponsoredFamilies: OrganizationSponsorshipInvitesResponse[] = [];
 
-  organizationId: string;
+  organizationId = "";
 
   private locale: string = "";
 
@@ -52,9 +52,9 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
     this.locale = await firstValueFrom(this.i18nService.locale$);
 
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      this.organizationId = params.organizationId;
+      this.organizationId = params.organizationId || "";
     });
-    this.organizationId = this.route.snapshot.params.organizationId;
+    this.organizationId = this.route.snapshot.params.organizationId || "";
 
     this.loading.set(true);
 
@@ -64,19 +64,33 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
   }
 
   async loadSponsorships() {
-    const [response, key] = await Promise.all([
+    if (!this.organizationId) {
+      return;
+    }
+
+    const [response, orgKey] = await Promise.all([
       this.organizationSponsorshipApiService.getOrganizationSponsorship(this.organizationId),
       this.keyService.getOrgKey(this.organizationId),
     ]);
+
+    if (!orgKey) {
+      this.logService.error("Organization key not found");
+      return;
+    }
 
     const organizationFamilies = response.data;
 
     this.sponsoredFamilies = await Promise.all(
       organizationFamilies.map(async (family) => {
-        const decryptedNote = await this.encryptService.decryptToUtf8(
-          new EncString(family.notes),
-          key,
-        );
+        let decryptedNote = "";
+        try {
+          decryptedNote = await this.encryptService.decryptToUtf8(
+            new EncString(family.notes),
+            orgKey,
+          );
+        } catch (e) {
+          this.logService.error(e);
+        }
 
         const { statusMessage, statusClass } = this.setStatus(
           this.isSelfHosted,
@@ -89,8 +103,8 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
         const newFamily = {
           ...family,
           notes: decryptedNote,
-          statusMessage,
-          statusClass,
+          statusMessage: statusMessage || undefined,
+          statusClass: statusClass || undefined,
         };
 
         return new OrganizationSponsorshipInvitesResponse(newFamily);

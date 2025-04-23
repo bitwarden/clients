@@ -60,7 +60,7 @@ export class AddSponsorshipDialogComponent {
   sponsorshipForm: FormGroup<RequestSponsorshipForm>;
   loading = false;
   organizationId: string;
-  formPromise: Promise<void>;
+  formPromise: Promise<void> | null = null;
 
   constructor(
     private dialogRef: DialogRef<AddSponsorshipDialogResult>,
@@ -86,7 +86,9 @@ export class AddSponsorshipDialogComponent {
   }
 
   static open(dialogService: DialogService, config: DialogConfig<AddSponsorshipDialogParams>) {
-    return dialogService.open<AddSponsorshipDialogResult>(AddSponsorshipDialogComponent, config);
+    return dialogService.open<AddSponsorshipDialogResult>(AddSponsorshipDialogComponent, {
+      ...config,
+    });
   }
 
   protected async save() {
@@ -97,14 +99,19 @@ export class AddSponsorshipDialogComponent {
 
     try {
       const orgKey = await this.keyService.getOrgKey(this.organizationId);
-      const encryptedNotes = await this.encryptService.encrypt(
-        this.sponsorshipForm.value.sponsorshipNote,
-        orgKey,
-      );
+      if (!orgKey) {
+        throw new Error("Organization key not found");
+      }
+
+      const notes = this.sponsorshipForm.value.sponsorshipNote || "";
+      const email = this.sponsorshipForm.value.sponsorshipEmail || "";
+
+      const encryptedNotes = await this.encryptService.encrypt(notes, orgKey);
+
       this.formPromise = this.apiService.postCreateSponsorship(this.organizationId, {
-        sponsoredEmail: this.sponsorshipForm.value.sponsorshipEmail,
+        sponsoredEmail: email,
         planSponsorshipType: PlanSponsorshipType.FamiliesForEnterprise,
-        friendlyName: this.sponsorshipForm.value.sponsorshipEmail,
+        friendlyName: email,
         notes: encryptedNotes.encryptedString,
       });
 
@@ -116,14 +123,12 @@ export class AddSponsorshipDialogComponent {
         message: this.i18nService.t("sponsorshipCreated"),
       });
       this.formPromise = null;
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.resetForm();
+      await this.resetForm();
     } catch (e) {
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("errorOccurred"),
-        message: e?.message,
+        message: e?.message || this.i18nService.t("unexpectedError"),
       });
     }
 

@@ -8,7 +8,7 @@ export class OrganizationSponsorshipInvitesResponse extends BaseResponse {
   planSponsorshipType: PlanSponsorshipType;
   lastSyncDate?: Date;
   validUntil?: Date;
-  toDelete: boolean;
+  toDelete = false;
   isAdminInitiated: boolean;
   notes: string;
   statusMessage?: string;
@@ -22,6 +22,7 @@ export class OrganizationSponsorshipInvitesResponse extends BaseResponse {
     this.planSponsorshipType = this.getResponseProperty("planSponsorshipType");
     this.lastSyncDate = this.getResponseProperty("lastSyncDate");
     this.validUntil = this.getResponseProperty("validUntil");
+    this.toDelete = this.getResponseProperty("toDelete") ?? false;
     this.isAdminInitiated = this.getResponseProperty("isAdminInitiated");
     this.notes = this.getResponseProperty("notes");
     this.statusMessage = this.getResponseProperty("statusMessage");
