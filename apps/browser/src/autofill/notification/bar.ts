@@ -7,7 +7,7 @@ import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view
 import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
 import { NotificationCipherData } from "../content/components/cipher/types";
 import { OrgView } from "../content/components/common-types";
-import { NotificationConfirmationContainer } from "../content/components/notification/confirmation-container";
+import { NotificationConfirmationContainer } from "../content/components/notification/confirmation/container";
 import { NotificationContainer } from "../content/components/notification/container";
 import { buildSvgDomElement } from "../utils";
 import { circleCheckIcon } from "../utils/svg-icons";
@@ -58,6 +58,9 @@ function getI18n() {
     loginSaveSuccessDetails: chrome.i18n.getMessage("loginSaveSuccessDetails"),
     loginUpdateSuccess: chrome.i18n.getMessage("loginUpdateSuccess"),
     loginUpdateSuccessDetails: chrome.i18n.getMessage("loginUpdatedSuccessDetails"),
+    loginUpdateTaskSuccess: chrome.i18n.getMessage("loginUpdateTaskSuccess"),
+    loginUpdateTaskSuccessAdditional: chrome.i18n.getMessage("loginUpdateTaskSuccessAdditional"),
+    nextSecurityTaskAction: chrome.i18n.getMessage("nextSecurityTaskAction"),
     newItem: chrome.i18n.getMessage("newItem"),
     never: chrome.i18n.getMessage("never"),
     notificationAddDesc: chrome.i18n.getMessage("notificationAddDesc"),
@@ -353,7 +356,8 @@ function openViewVaultItemPopout(e: Event, cipherId: string) {
 
 function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
   const { theme, type } = notificationBarIframeInitData;
-  const { error, username, cipherId } = message;
+  const { error, data } = message;
+  const { username, cipherId, task } = data || {};
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
 
@@ -368,7 +372,9 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
       i18n,
       error,
       username: username ?? i18n.typeLogin,
+      task,
       handleOpenVault: (e) => cipherId && openViewVaultItemPopout(e, cipherId),
+      handleOpenTasks: () => sendPlatformMessage({ command: "bgOpenAtRisksPasswords" }),
     }),
     document.body,
   );
@@ -507,10 +513,6 @@ function setNotificationBarTheme() {
   const theme = getTheme(globalThis, notificationBarIframeInitData.theme);
 
   document.documentElement.classList.add(`theme_${theme}`);
-
-  if (notificationBarIframeInitData.applyRedesign) {
-    document.body.classList.add("notification-bar-redesign");
-  }
 }
 
 function postMessageToParent(message: NotificationBarWindowMessage) {

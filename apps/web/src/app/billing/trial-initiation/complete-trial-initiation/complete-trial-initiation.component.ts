@@ -6,7 +6,11 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, Subject, switchMap, takeUntil } from "rxjs";
 
-import { PasswordInputResult, RegistrationFinishService } from "@bitwarden/auth/angular";
+import {
+  InputPasswordFlow,
+  PasswordInputResult,
+  RegistrationFinishService,
+} from "@bitwarden/auth/angular";
 import { LoginStrategyServiceAbstraction, PasswordLoginCredentials } from "@bitwarden/auth/common";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -46,6 +50,8 @@ export type InitiationPath =
 })
 export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   @ViewChild("stepper", { static: false }) verticalStepper: VerticalStepperComponent;
+
+  InputPasswordFlow = InputPasswordFlow;
 
   /** Password Manager or Secrets Manager */
   product: ProductType;
@@ -363,7 +369,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.logIn(passwordInputResult.password, captchaToken);
+    await this.logIn(passwordInputResult.newPassword, captchaToken);
 
     this.submitting = false;
 

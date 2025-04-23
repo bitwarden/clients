@@ -6,7 +6,7 @@
     "message": "Belangrijke applicaties"
   },
   "noCriticalAppsAtRisk": {
-    "message": "Geen belangrijke applicaties lopen risico"
+    "message": "Geen kritische applicaties in gevaar"
   },
   "accessIntelligence": {
     "message": "Toegangsintelligentie"
@@ -1435,18 +1435,6 @@
       }
     }
   },
-  "enterVerificationCodeApp": {
-    "message": "Voer de 6-cijferige verificatiecode uit je authenticatie-app in."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Voer de 6-cijferige verificatiecode in die via e-mail is verstuurd naar $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "E-mail met verificatiecode verzonden naar $EMAIL$.",
     "placeholders": {
@@ -1456,17 +1444,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Mijn gegevens onthouden"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "30 dagen niet meer vragen op dit apparaat"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "E-mail met verificatiecode opnieuw versturen"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Gebruik een andere methode voor tweestapsaanmelding"
   },
   "selectAnotherMethod": {
     "message": "Kies een andere methode",
@@ -1474,9 +1453,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Gebruik je herstelcode"
-  },
-  "insertYubiKey": {
-    "message": "Plaats je YubiKey in de USB-poort van je computer en druk op de knop."
   },
   "insertU2f": {
     "message": "Steek je beveilingssleutel in de USB-poort van je computer. Als het een knop heeft, druk deze dan in."
@@ -3347,6 +3323,12 @@
   "externalIdDesc": {
     "message": "Je kunt het externe ID gebruiken als referentie of om een koppeling te leggen tussen deze bron en een extern systeem zoals een directory met gebruikers."
   },
+  "ssoExternalId": {
+    "message": "SSO extern ID"
+  },
+  "ssoExternalIdDesc": {
+    "message": "SSO Extern ID is een niet-versleutelde referentie tussen Bitwarden en je geconfigureerde SSO-provider."
+  },
   "nestCollectionUnder": {
     "message": "Plaats collectie onder"
   },
@@ -4090,7 +4072,7 @@
   "updateBrowser": {
     "message": "Webbrowser bijwerken"
   },
-  "generatingRiskInsights": {
+  "generatingYourRiskInsights": {
     "message": "Je risico-inzichten genereren..."
   },
   "updateBrowserDesc": {
@@ -5709,6 +5691,9 @@
   "webAuthnSuccess": {
     "message": "WebAuthn met succes geverifieerd! Je kunt dit tabblad sluiten."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Je nieuwe wachtwoord moet anders zijn dan je huidige wachtwoord."
+  },
   "hintEqualsPassword": {
     "message": "Je wachtwoordhint moet anders zijn dan je wachtwoord."
   },
@@ -5903,6 +5888,9 @@
   },
   "fingerprint": {
     "message": "Vingerafdruk"
+  },
+  "fingerprintPhrase": {
+    "message": "Vingerafdrukzin:"
   },
   "removeUsers": {
     "message": "Gebruikers verwijderen"
@@ -6317,6 +6305,21 @@
   "sponsoredFamilies": {
     "message": "Gratis Bitwarden Families"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Gesponsorde families"
+  },
+  "noSponsoredFamilies": {
+    "message": "Geen gesponsorde families"
+  },
+  "noSponsoredFamiliesDescription": {
+    "message": "Sponsored non-member families plans will display here"
+  },
+  "sponsorFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Jij en je familie komen in aanmerking voor gratis Bitwarden Families. Verzilver met je persoonlijke e-mail om je gegevens veilig te houden, zelfs als je niet op het werk bent."
   },
@@ -6331,6 +6334,18 @@
   },
   "sponsoredFamiliesSharedCollections": {
     "message": "Gedeelde collecties voor familiegeheimen"
+  },
+  "memberFamilies": {
+    "message": "Member families"
+  },
+  "noMemberFamilies": {
+    "message": "No member families"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Members who have redeemed family plans will display here"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
   },
   "badToken": {
     "message": "De link is niet langer geldig. Zorg ervoor dat de sponsors de uitnodiging opnieuw versturen."
@@ -7252,9 +7267,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Fout bij het verbinden met de Duo-service. Gebruik een andere tweestapsaanmeldingsmethode of neem contact op met Duo voor hulp."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Start DUO en volg de stappen om in te loggen."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "DUO tweestapsaanmelding is vereist voor jouw account."
   },
@@ -7998,6 +8010,9 @@
   "inviteMember": {
     "message": "Lid uitnodigen"
   },
+  "addSponsorship": {
+    "message": "Sponsoring toevoegen"
+  },
   "needsConfirmation": {
     "message": "Bevestiging nodig"
   },
@@ -8735,8 +8750,8 @@
   "limitCollectionDeletionDesc": {
     "message": "Verwijderen van collecties beperken tot eigenaren en managers"
   },
-  "limitItemDeletionDesc": {
-    "message": "Beperk het verwijderen van items tot leden met het recht Kan beheren"
+  "limitItemDeletionDescription": {
+    "message": "Beperk het verwijderen van items tot leden met recht om collecties te beheren"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Eigenaren en beheerders kunnen alle collecties en items beheren"
@@ -10357,6 +10372,33 @@
   "organizationNameMaxLength": {
     "message": "Organisatienaam mag niet langer zijn dan 50 tekens."
   },
+  "rotationCompletedTitle": {
+    "message": "Sleutelrotatie geslaagd"
+  },
+  "rotationCompletedDesc": {
+    "message": "Je hoofdwachtwoord en encryptiesleutels zijn bijgewerkt. Je andere apparaten zijn uitgelogd."
+  },
+  "trustUserEmergencyAccess": {
+    "message": "Gebruiker vertrouwen en bevestigen"
+  },
+  "trustOrganization": {
+    "message": "Organisatie vertrouwen"
+  },
+  "trust": {
+    "message": "Vertrouwen"
+  },
+  "doNotTrust": {
+    "message": "Niet vertrouwen"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Bevestig, voor de veiligheid van je account, alleen als je noodtoegang hebt verleend aan deze gebruiker en de vingerafdruk voldoet aan wat er in hun account wordt weergegeven"
+  },
+  "orgTrustWarning": {
+    "message": "Ga, voor de veiligheid van je account, alleen verder als je lid bent van deze organisatie, accountherstel hebt ingeschakeld en de hieronder weergegeven vingerafdruk overeenkomt met de vingerafdruk van de organisatie."
+  },
+  "trustUser": {
+    "message": "Gebruiker vertrouwen"
+  },
   "sshKeyWrongPassword": {
     "message": "Het door jou ingevoerde wachtwoord is onjuist."
   },
@@ -10526,6 +10568,30 @@
   "assignedExceedsAvailable": {
     "message": "Meer toegewezen dan beschikbare plaatsen."
   },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "Vingerafdrukzin voor $NUM_USERS$ contacten waarvoor je noodtoegang hebt ingeschakeld.",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "Vingerafdrukzin voor de organisatie $ORG_NAME$ waarvoor je accountherstel hebt ingeschakeld.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "Het roteren van je encryptiesleutels vereist dat je sleutels vertrouwt van alle organisaties die je account kunnen herstellen en alle contacten waarvoor je noodtoegang hebt ingeschakeld. Zorg ervoor dat je het volgende kunt verifiëren:"
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "Niet-vertrouwde encryptiesleutels"
+  },
   "changeAtRiskPassword": {
     "message": "Risicovol wachtwoord wijzigen"
   },
@@ -10555,5 +10621,14 @@
   },
   "cannotCreateCollection": {
     "message": "Gratis organisaties kunnen maximaal twee collecties hebben. Upgrade naar een betaald abonnement voor het toevoegen van meer collecties."
+  },
+  "businessUnit": {
+    "message": "Bedrijfseenheid"
+  },
+  "businessUnits": {
+    "message": "Bedrijfseenheden"
+  },
+  "newBusinessUnit": {
+    "message": "Nieuwe bedrijfseenheid"
   }
 }

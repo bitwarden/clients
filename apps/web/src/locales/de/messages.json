@@ -1435,18 +1435,6 @@
       }
     }
   },
-  "enterVerificationCodeApp": {
-    "message": "Geben Sie den 6-stelligen Verifizierungscode aus Ihrer Authentifizierungs-App ein."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Geben Sie den 6-stelligen Verifizierungscode der an $EMAIL$ gesendet wurde an.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Bestätigungsmail wurde an $EMAIL$ gesendet.",
     "placeholders": {
@@ -1456,17 +1444,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Angemeldet bleiben"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Für 30 Tage auf diesem Gerät nicht mehr fragen"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "E-Mail mit Bestätigungscode erneut versenden"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Verwenden sie eine andere Zwei-Faktor-Anmelde-Methode"
   },
   "selectAnotherMethod": {
     "message": "Wähle eine andere Methode",
@@ -1474,9 +1453,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Verwende deinen Wiederherstellungscode"
-  },
-  "insertYubiKey": {
-    "message": "Stecken Sie Ihren YubiKey in einen USB-Port Ihres Computers und berühren Sie dessen Knopf."
   },
   "insertU2f": {
     "message": "Stecken Sie Ihren Sicherheitsschlüssel in einen USB-Port des Computers. Falls dieser einen Knopf hat, drücken Sie ihn."
@@ -3347,6 +3323,12 @@
   "externalIdDesc": {
     "message": "Die externe ID ist eine unverschlüsselte Referenz, die vom Bitwarden Directory Connector und der API verwendet wird."
   },
+  "ssoExternalId": {
+    "message": "SSO External ID"
+  },
+  "ssoExternalIdDesc": {
+    "message": "SSO External ID is an unencrypted reference between Bitwarden and your configured SSO provider."
+  },
   "nestCollectionUnder": {
     "message": "Sammlung verschachteln unter"
   },
@@ -4090,8 +4072,8 @@
   "updateBrowser": {
     "message": "Browser aktualisieren"
   },
-  "generatingRiskInsights": {
-    "message": "Dein Risiko-Überblick wird generiert..."
+  "generatingYourRiskInsights": {
+    "message": "Generating your Risk Insights..."
   },
   "updateBrowserDesc": {
     "message": "Du verwendest einen nicht unterstützten Webbrowser. Der Web-Tresor funktioniert möglicherweise nicht richtig."
@@ -5709,6 +5691,9 @@
   "webAuthnSuccess": {
     "message": "WebAuthn erfolgreich verifiziert! Du kannst diesen Tab nun schließen."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Dein neues Passwort darf nicht dasselbe sein wie dein aktuelles Passwort."
+  },
   "hintEqualsPassword": {
     "message": "Dein Passwort-Hinweis darf nicht identisch mit deinem Passwort sein."
   },
@@ -5903,6 +5888,9 @@
   },
   "fingerprint": {
     "message": "Fingerabdruck"
+  },
+  "fingerprintPhrase": {
+    "message": "Fingerabdruck-Phrase:"
   },
   "removeUsers": {
     "message": "Benutzer entfernen"
@@ -6317,6 +6305,21 @@
   "sponsoredFamilies": {
     "message": "Kostenloses Bitwarden Families"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Sponsored families"
+  },
+  "noSponsoredFamilies": {
+    "message": "No sponsored families"
+  },
+  "noSponsoredFamiliesDescription": {
+    "message": "Sponsored non-member families plans will display here"
+  },
+  "sponsorFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Du und deine Familie haben Anspruch auf Free Bitwarden Families. Mit deiner persönlichen E-Mail-Adresse einlösen, um deine Daten zu schützen, auch wenn du nicht am Arbeitsplatz bist."
   },
@@ -6331,6 +6334,18 @@
   },
   "sponsoredFamiliesSharedCollections": {
     "message": "Gemeinsame Sammlungen für Familiengeheimnisse"
+  },
+  "memberFamilies": {
+    "message": "Member families"
+  },
+  "noMemberFamilies": {
+    "message": "No member families"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Members who have redeemed family plans will display here"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
   },
   "badToken": {
     "message": "Der Link ist nicht mehr gültig. Bitte lasse dir vom Sponsor das Angebot erneut senden."
@@ -6742,7 +6757,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "message": "Nur die einzelnen Tresor-Einträge einschließlich Anhängen von $EMAIL$ werden exportiert. Tresor-Einträge der Organisation werden nicht berücksichtigt",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -7251,9 +7266,6 @@
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Fehler beim Verbinden mit dem Duo-Dienst. Verwende eine andere Zwei-Faktor-Authentifizierungsmethode oder kontaktiere Duo für Hilfe."
-  },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Starte DUO und folge den Schritten, um die Anmeldung abzuschließen."
   },
   "duoRequiredByOrgForAccount": {
     "message": "Für dein Konto ist die DUO Zwei-Faktor-Authentifizierung erforderlich."
@@ -7998,6 +8010,9 @@
   "inviteMember": {
     "message": "Mitglied einladen"
   },
+  "addSponsorship": {
+    "message": "Add sponsorship"
+  },
   "needsConfirmation": {
     "message": "Bestätigung erforderlich"
   },
@@ -8735,8 +8750,8 @@
   "limitCollectionDeletionDesc": {
     "message": "Das Löschen von Sammlungen auf Eigentümer und Administratoren beschränken"
   },
-  "limitItemDeletionDesc": {
-    "message": "Löschung von Einträgen auf Mitglieder mit der \"Darf verwalten\"-Berechtigung beschränken"
+  "limitItemDeletionDescription": {
+    "message": "Die Löschung von Einträgen auf Mitglieder mit den Berechtigungen zur Verwaltung von Sammlungen beschränken"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Besitzer und Administratoren können alle Sammlungen und Einträge verwalten"
@@ -10357,6 +10372,33 @@
   "organizationNameMaxLength": {
     "message": "Der Name der Organisation darf 50 Zeichen nicht überschreiten."
   },
+  "rotationCompletedTitle": {
+    "message": "Schlüsselrotation erfolgreich"
+  },
+  "rotationCompletedDesc": {
+    "message": "Dein Master-Passwort und Verschlüsselungsschlüssel wurden aktualisiert. Deine anderen Geräte wurden abgemeldet."
+  },
+  "trustUserEmergencyAccess": {
+    "message": "Benutzer vertrauen und bestätigen"
+  },
+  "trustOrganization": {
+    "message": "Organisation vertrauen"
+  },
+  "trust": {
+    "message": "Vertrauen"
+  },
+  "doNotTrust": {
+    "message": "Nicht vertrauen"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Bestätige zur Sicherheit deines Kontos nur, wenn du den Notfallzugriff diesem Benutzer gewährt hast und sein Fingerabdruck mit dem übereinstimmt, was in seinem Konto angezeigt wird"
+  },
+  "orgTrustWarning": {
+    "message": "Fahre zur Sicherheit deines Kontos nur fort, wenn du ein Mitglied dieser Organisation bist, die Kontowiederherstellung aktiviert hast und der unten angezeigte Fingerabdruck mit dem Fingerabdruck der Organisation übereinstimmt."
+  },
+  "trustUser": {
+    "message": "Benutzer vertrauen"
+  },
   "sshKeyWrongPassword": {
     "message": "Dein eingegebenes Passwort ist falsch."
   },
@@ -10526,6 +10568,30 @@
   "assignedExceedsAvailable": {
     "message": "Die zugewiesenen Plätze überschreiten die verfügbaren Plätze."
   },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "Fingerabdruck-Phrase für $NUM_USERS$ Kontakte, für die du den Notfallzugriff aktiviert hast.",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "Fingerabdruck-Phrase für die Organisation $ORG_NAME$, für die du die Kontowiederherstellung aktiviert hast.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "Die Rotation deiner Verschlüsselungsschlüssel erfordert, den Schlüsseln aller Organisationen, die dein Konto wiederherstellen können, sowie aller Kontakte, für die du den Notfallzugriff aktiviert hast, zu vertrauen. Um fortzufahren, stelle sicher, dass du Folgendes bestätigen kannst:"
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "Nicht vertrauenswürdige Verschlüsselungsschlüssel"
+  },
   "changeAtRiskPassword": {
     "message": "Gefährdetes Passwort ändern"
   },
@@ -10555,5 +10621,14 @@
   },
   "cannotCreateCollection": {
     "message": "Kostenlose Organisationen können bis zu 2 Sammlungen haben. Upgrade auf ein kostenpflichtiges Abo, um mehr Sammlungen hinzuzufügen."
+  },
+  "businessUnit": {
+    "message": "Business Unit"
+  },
+  "businessUnits": {
+    "message": "Business Units"
+  },
+  "newBusinessUnit": {
+    "message": "New business unit"
   }
 }
