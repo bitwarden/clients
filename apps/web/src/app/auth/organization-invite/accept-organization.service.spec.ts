@@ -92,6 +92,9 @@ describe("AcceptOrganizationInviteService", () => {
         "orgPublicKey",
         { encryptedString: "string" } as EncString,
       ]);
+      encryptService.wrapDecapsulationKey.mockResolvedValue({
+        encryptedString: "string",
+      } as EncString);
       encryptService.encrypt.mockResolvedValue({ encryptedString: "string" } as EncString);
       const invite = createOrgInvite({ initOrganization: true });
 
