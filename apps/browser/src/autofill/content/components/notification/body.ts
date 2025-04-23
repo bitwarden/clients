@@ -17,12 +17,14 @@ const { css } = createEmotion({
 
 export function NotificationBody({
   ciphers = [],
+  i18n,
   notificationType,
   theme = ThemeTypes.Light,
   handleEditOrUpdateAction,
 }: {
   ciphers?: NotificationCipherData[];
   customClasses?: string[];
+  i18n: { [key: string]: string };
   notificationType?: NotificationType;
   theme: Theme;
   handleEditOrUpdateAction: (e: Event) => void;
@@ -37,6 +39,7 @@ export function NotificationBody({
           theme,
           children: CipherItem({
             cipher,
+            i18n,
             notificationType,
             theme,
             handleAction: handleEditOrUpdateAction,

@@ -7,6 +7,7 @@ import { CipherAction } from "../../cipher/cipher-action";
 
 type Args = {
   handleAction?: (e: Event) => void;
+  i18n: { [key: string]: string };
   notificationType: typeof NotificationTypes.Change | typeof NotificationTypes.Add;
   theme: Theme;
 };

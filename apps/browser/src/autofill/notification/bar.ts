@@ -53,6 +53,7 @@ function getI18n() {
   return {
     appName: chrome.i18n.getMessage("appName"),
     close: chrome.i18n.getMessage("close"),
+    collection: chrome.i18n.getMessage("collection"),
     folder: chrome.i18n.getMessage("folder"),
     loginSaveSuccess: chrome.i18n.getMessage("loginSaveSuccess"),
     loginSaveSuccessDetails: chrome.i18n.getMessage("loginSaveSuccessDetails"),
@@ -63,10 +64,11 @@ function getI18n() {
     nextSecurityTaskAction: chrome.i18n.getMessage("nextSecurityTaskAction"),
     newItem: chrome.i18n.getMessage("newItem"),
     never: chrome.i18n.getMessage("never"),
+    myVault: chrome.i18n.getMessage("myVault"),
     notificationAddDesc: chrome.i18n.getMessage("notificationAddDesc"),
     notificationAddSave: chrome.i18n.getMessage("notificationAddSave"),
     notificationChangeDesc: chrome.i18n.getMessage("notificationChangeDesc"),
-    notificationChangeSave: chrome.i18n.getMessage("notificationChangeSave"),
+    notificationUpdate: chrome.i18n.getMessage("notificationChangeSave"),
     notificationEdit: chrome.i18n.getMessage("edit"),
     notificationUnlock: chrome.i18n.getMessage("notificationUnlock"),
     notificationUnlockDesc: chrome.i18n.getMessage("notificationUnlockDesc"),
@@ -78,6 +80,7 @@ function getI18n() {
     typeLogin: chrome.i18n.getMessage("typeLogin"),
     updateLoginAction: chrome.i18n.getMessage("updateLoginAction"),
     updateLoginPrompt: chrome.i18n.getMessage("updateLoginPrompt"),
+    vault: chrome.i18n.getMessage("vault"),
     view: chrome.i18n.getMessage("view"),
   };
 }
@@ -200,7 +203,7 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
     const changeTemplate = document.getElementById("template-change") as HTMLTemplateElement;
 
     const changeButton = findElementById<HTMLSelectElement>(changeTemplate, "change-save");
-    changeButton.textContent = i18n.notificationChangeSave;
+    changeButton.textContent = i18n.notificationUpdate;
 
     const changeEditButton = findElementById<HTMLButtonElement>(changeTemplate, "change-edit");
     changeEditButton.textContent = i18n.notificationEdit;
