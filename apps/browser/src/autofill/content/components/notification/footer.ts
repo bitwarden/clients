@@ -38,6 +38,7 @@ export function NotificationFooter({
         ? NotificationButtonRow({
             folders,
             organizations,
+            i18n,
             primaryButton: {
               handlePrimaryButtonClick: handleSaveAction,
               text: primaryButtonText,

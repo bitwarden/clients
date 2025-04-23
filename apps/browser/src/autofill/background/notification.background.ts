@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, switchMap, map } from "rxjs";
+import { firstValueFrom, switchMap, map, of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -780,7 +780,7 @@ export default class NotificationBackground {
         this.taskService.tasksEnabled$(userId).pipe(
           switchMap((tasksEnabled) => {
             if (!tasksEnabled) {
-              return [];
+              return of([]);
             }
 
             return this.taskService
