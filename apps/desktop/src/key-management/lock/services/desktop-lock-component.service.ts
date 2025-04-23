@@ -27,6 +27,14 @@ export class DesktopLockComponentService implements LockComponentService {
     return null;
   }
 
+  popOutBrowserExtension(): Promise<void> {
+    throw new Error("Method not supported on this platform.");
+  }
+
+  closeBrowserExtensionPopout(): void {
+    throw new Error("Method not supported on this platform.");
+  }
+
   async isWindowVisible(): Promise<boolean> {
     return ipc.platform.isWindowVisible();
   }

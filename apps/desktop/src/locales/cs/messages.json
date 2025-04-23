@@ -2072,6 +2072,9 @@
   "personalOwnershipSubmitError": {
     "message": "Z důvodu podnikových zásad nemůžete ukládat položky do svého osobního trezoru. Změňte vlastnictví položky na organizaci a poté si vyberte z dostupných kolekcí."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Vaše nové heslo nemůže být stejné jako Vaše současné heslo."
+  },
   "hintEqualsPassword": {
     "message": "Nápověda k Vašemu heslu nemůže být stejná jako Vaše heslo."
   },

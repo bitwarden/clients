@@ -429,10 +429,10 @@
     "message": "名前は必須項目です。"
   },
   "addedItem": {
-    "message": "追加されたアイテム"
+    "message": "追加しました"
   },
   "editedItem": {
-    "message": "編集されたアイテム"
+    "message": "保存しました"
   },
   "deleteItem": {
     "message": "アイテムの削除"
@@ -447,7 +447,7 @@
     "message": "このアイテムを削除してもよろしいですか?"
   },
   "deletedItem": {
-    "message": "削除しました"
+    "message": "ごみ箱に移動しました"
   },
   "overwritePasswordConfirmation": {
     "message": "現在のパスワードを上書きしてもよろしいですか?"
@@ -595,7 +595,7 @@
     "message": "添付ファイルの追加"
   },
   "deletedAttachment": {
-    "message": "削除された添付ファイル"
+    "message": "添付ファイルを削除しました"
   },
   "deleteAttachmentConfirmation": {
     "message": "この添付ファイルを削除してよろしいですか？"
@@ -2071,6 +2071,9 @@
   },
   "personalOwnershipSubmitError": {
     "message": "組織のポリシーにより、個人保管庫へのアイテムの保存が制限されています。 所有権を組織に変更し、利用可能なコレクションから選択してください。"
+  },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "新しいパスワードを現在のパスワードと同じにすることはできません。"
   },
   "hintEqualsPassword": {
     "message": "パスワードのヒントをパスワードと同じにすることはできません。"
@@ -3563,6 +3566,6 @@
     "message": "危険なパスワードの変更"
   },
   "move": {
-    "message": "Move"
+    "message": "移動"
   }
 }

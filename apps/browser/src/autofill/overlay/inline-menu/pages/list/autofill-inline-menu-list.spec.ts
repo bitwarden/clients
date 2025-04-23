@@ -1089,12 +1089,12 @@ describe("AutofillInlineMenuList", () => {
     });
 
     describe("displaying the save login view", () => {
-      let buildSaveLoginInlineMenuListSpy: jest.SpyInstance;
+      let buildSaveLoginInlineMenuSpy: jest.SpyInstance;
 
       beforeEach(() => {
-        buildSaveLoginInlineMenuListSpy = jest.spyOn(
+        buildSaveLoginInlineMenuSpy = jest.spyOn(
           autofillInlineMenuList as any,
-          "buildSaveLoginInlineMenuList",
+          "buildSaveLoginInlineMenu",
         );
       });
 
@@ -1108,7 +1108,7 @@ describe("AutofillInlineMenuList", () => {
 
         postWindowMessage({ command: "showSaveLoginInlineMenuList" });
 
-        expect(buildSaveLoginInlineMenuListSpy).not.toHaveBeenCalled();
+        expect(buildSaveLoginInlineMenuSpy).not.toHaveBeenCalled();
       });
 
       it("builds the save login item view", async () => {
@@ -1117,7 +1117,7 @@ describe("AutofillInlineMenuList", () => {
 
         postWindowMessage({ command: "showSaveLoginInlineMenuList" });
 
-        expect(buildSaveLoginInlineMenuListSpy).toHaveBeenCalled();
+        expect(buildSaveLoginInlineMenuSpy).toHaveBeenCalled();
       });
     });
 

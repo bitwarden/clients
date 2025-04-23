@@ -1098,6 +1098,31 @@
     "message": "登录已更新",
     "description": "Message displayed when login details are successfully updated."
   },
+  "loginUpdateTaskSuccess": {
+    "message": "干得好！您采取了使您和 $ORGANIZATION$ 更加安全的措施。",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "感谢您使 $ORGANIZATION$ 更加安全。您还有 $TASK_COUNT$ 个密码需要更新。",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "更改下一个密码",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
   "saveFailure": {
     "message": "保存时出错",
     "description": "Error message shown when the system fails to save login details."
@@ -1188,16 +1213,16 @@
     "message": "此密码将用于导出和导入此文件"
   },
   "accountRestrictedOptionDescription": {
-    "message": "使用衍生自您账户的用户名和主密码的账户加密密钥，以加密此导出并限制只能导入到当前的 Bitwarden 账户。"
+    "message": "使用衍生自您账户用户名和主密码的加密密钥以加密此导出，并限制只能导入到当前 Bitwarden 账户。"
   },
   "passwordProtectedOptionDescription": {
-    "message": "设置一个文件密码用来加密此导出，并使用此密码解密以导入到任意 Bitwarden 账户。"
+    "message": "设置一个文件密码以加密此导出，并使用此密码解密以导入到任意 Bitwarden 账户。"
   },
   "exportTypeHeading": {
     "message": "导出类型"
   },
   "accountRestricted": {
-    "message": "账户受限"
+    "message": "账户限制"
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "「文件密码」与「确认文件密码」不一致。"
@@ -2280,7 +2305,7 @@
     "message": "随时。"
   },
   "byContinuingYouAgreeToThe": {
-    "message": "若继续，代表您同意"
+    "message": "若继续，表示您同意"
   },
   "and": {
     "message": "和"
@@ -2296,6 +2321,9 @@
   },
   "privacyPolicy": {
     "message": "隐私政策"
+  },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "您的新密码不能与当前密码相同。"
   },
   "hintEqualsPassword": {
     "message": "您的密码提示不能与您的密码相同。"
@@ -2822,7 +2850,7 @@
     "message": "选择文件夹..."
   },
   "noFoldersFound": {
-    "message": "找不到文件夹",
+    "message": "未找到任何文件夹",
     "description": "Used as a message within the notification bar when no folders are found"
   },
   "orgPermissionsUpdatedMustSetPassword": {
@@ -3342,7 +3370,7 @@
     "message": "识别到弱密码且其出现在数据泄露中。请使用一个强且唯一的密码以保护您的账户。确定要使用这个密码吗？"
   },
   "checkForBreaches": {
-    "message": "检查已知的数据泄露是否包含此密码。"
+    "message": "检查已知的数据泄露是否包含此密码"
   },
   "important": {
     "message": "重要："
@@ -3926,7 +3954,7 @@
     "message": "此应用程序已存在一个通行密钥。"
   },
   "noPasskeysFoundForThisApplication": {
-    "message": "没有找到此应用程序的通行密钥。"
+    "message": "未找到此应用程序的通行密钥。"
   },
   "noMatchingPasskeyLogin": {
     "message": "您没有匹配此站点的登录。"
@@ -4900,8 +4928,8 @@
     "message": "密码已重新生成",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "将登录保存到 Bitwarden 吗？",
+  "saveToBitwarden": {
+    "message": "保存到 Bitwarden",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {

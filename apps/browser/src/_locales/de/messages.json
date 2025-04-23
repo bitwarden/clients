@@ -1098,6 +1098,31 @@
     "message": "Zugangsdaten aktualisiert",
     "description": "Message displayed when login details are successfully updated."
   },
+  "loginUpdateTaskSuccess": {
+    "message": "Gut gemacht! Du hast die Schritte unternommen, um dich und $ORGANIZATION$ sicherer zu machen.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Vielen Dank, dass du $ORGANIZATION$ sicherer gemacht hast. Du hast $TASK_COUNT$ weitere Passwörter zum Aktualisieren.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Nächstes Passwort ändern",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
   "saveFailure": {
     "message": "Fehler beim Speichern",
     "description": "Error message shown when the system fails to save login details."
@@ -2296,6 +2321,9 @@
   },
   "privacyPolicy": {
     "message": "Datenschutzbestimmungen"
+  },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Dein neues Passwort darf nicht dasselbe sein wie dein aktuelles Passwort."
   },
   "hintEqualsPassword": {
     "message": "Dein Passwort-Hinweis darf nicht identisch mit deinem Passwort sein."
@@ -4900,8 +4928,8 @@
     "message": "Passwort neu generiert",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Zugangsdaten in Bitwarden speichern?",
+  "saveToBitwarden": {
+    "message": "Save to Bitwarden",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
@@ -5166,6 +5194,6 @@
     "message": "Deine Daten, wann und wo du sie brauchst"
   },
   "secureDevicesBody": {
-    "message": "Speicher eine unbegrenzte Anzahl von Passwörter auf unbegrenzt vielen Geräten mit Bitwarden-Apps für Smartphones, Browser und Desktop."
+    "message": "Speicher eine unbegrenzte Anzahl von Passwörtern auf unbegrenzt vielen Geräten mit Bitwarden-Apps für Smartphones, Browser und Desktop."
   }
 }

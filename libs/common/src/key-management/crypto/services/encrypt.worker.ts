@@ -9,7 +9,6 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import { ConsoleLogService } from "../../../platform/services/console-log.service";
 import { ContainerService } from "../../../platform/services/container.service";
 import { getClassInitializer } from "../../../platform/services/cryptography/get-class-initializer";
-import { WebCryptoFunctionService } from "../../../platform/services/web-crypto-function.service";
 import {
   DECRYPT_COMMAND,
   SET_CONFIG_COMMAND,
@@ -17,6 +16,7 @@ import {
 } from "../types/worker-command.type";
 
 import { EncryptServiceImplementation } from "./encrypt.service.implementation";
+import { WebCryptoFunctionService } from "./web-crypto-function.service";
 
 const workerApi: Worker = self as any;
 
