@@ -4928,8 +4928,8 @@
     "message": "Parole pārizveidota",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Saglabāt pieteikšanās vienumu Bitwarden?",
+  "saveToBitwarden": {
+    "message": "Saglabāt Bitwarden",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {

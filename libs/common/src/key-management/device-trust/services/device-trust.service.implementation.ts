@@ -164,10 +164,10 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
       this.encryptService.encapsulateKeyUnsigned(userKey, devicePublicKey),
 
       // Encrypt devicePublicKey with user key
-      this.encryptService.encrypt(devicePublicKey, userKey),
+      this.encryptService.wrapEncapsulationKey(devicePublicKey, userKey),
 
       // Encrypt devicePrivateKey with deviceKey
-      this.encryptService.encrypt(devicePrivateKey, deviceKey),
+      this.encryptService.wrapDecapsulationKey(devicePrivateKey, deviceKey),
     ]);
 
     // Send encrypted keys to server
@@ -290,7 +290,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     );
 
     // Re-encrypt the device public key with the new user key
-    const encryptedDevicePublicKey = await this.encryptService.encrypt(
+    const encryptedDevicePublicKey = await this.encryptService.wrapEncapsulationKey(
       decryptedDevicePublicKey,
       newUserKey,
     );
