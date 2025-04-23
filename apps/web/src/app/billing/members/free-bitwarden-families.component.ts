@@ -103,8 +103,8 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
         const newFamily = {
           ...family,
           notes: decryptedNote,
-          statusMessage: statusMessage || undefined,
-          statusClass: statusClass || undefined,
+          statusMessage: statusMessage || "",
+          statusClass: statusClass || "tw-text-success",
         };
 
         return new OrganizationSponsorshipInvitesResponse(newFamily);

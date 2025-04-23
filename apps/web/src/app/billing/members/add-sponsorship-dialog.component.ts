@@ -88,7 +88,8 @@ export class AddSponsorshipDialogComponent {
   static open(dialogService: DialogService, config: DialogConfig<AddSponsorshipDialogParams>) {
     return dialogService.open<AddSponsorshipDialogResult>(AddSponsorshipDialogComponent, {
       ...config,
-    });
+      data: config.data,
+    } as DialogConfig<AddSponsorshipDialogParams, DialogRef<AddSponsorshipDialogResult>>);
   }
 
   protected async save() {
@@ -124,7 +125,7 @@ export class AddSponsorshipDialogComponent {
       });
       this.formPromise = null;
       await this.resetForm();
-    } catch (e) {
+    } catch (e: any) {
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("errorOccurred"),
