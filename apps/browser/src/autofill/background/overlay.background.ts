@@ -670,16 +670,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (!this.focusedFieldData) {
       return false;
     }
-    const { tabId, frameId } = this.focusedFieldData;
-    const pageDetailsMap = this.pageDetailsForTab[tabId];
-    if (!pageDetailsMap || !pageDetailsMap.has(frameId)) {
+    const totpFields = this.getTotpFields();
+    if (!totpFields) {
       return false;
     }
-    const pageDetail = pageDetailsMap.get(frameId);
     return (
-      pageDetail?.details?.fields?.some((field) =>
-        this.inlineMenuFieldQualificationService.isTotpField(field),
-      ) || false
+      totpFields.length > 0 &&
+      this.focusedFieldData?.accountCreationFieldType === InlineMenuAccountCreationFieldType.Totp
     );
   }
 
@@ -1684,7 +1681,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       !this.focusedFieldMatchesFillType(
         focusedFieldData?.inlineMenuFillType,
         previousFocusedFieldData,
-      )
+      ) ||
+      // a TOTP field was just focused to - or unfocused from — a non-TOTP field
+      // may want to generalize this logic if cipher inline menu types exceed [general cipher, TOTP]
+      [focusedFieldData, previousFocusedFieldData].filter(
+        (fd) => fd.accountCreationFieldType === InlineMenuAccountCreationFieldType.Totp,
+      ).length === 1
     ) {
       const updateAllCipherTypes = !this.focusedFieldMatchesFillType(
         CipherType.Login,
