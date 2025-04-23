@@ -2,10 +2,6 @@
 // @ts-strict-ignore
 import { getQsParam } from "./common";
 
-// FIXME: Remove when updating file. Eslint update
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-require("./sso.scss");
-
 window.addEventListener("load", () => {
   const code = getQsParam("code");
   const state = getQsParam("state");
