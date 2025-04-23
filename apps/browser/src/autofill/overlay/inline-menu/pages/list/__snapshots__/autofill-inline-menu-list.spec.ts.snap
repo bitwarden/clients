@@ -38,6 +38,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the inline menu with 
         aria-hidden="true"
         fill="none"
         height="16"
+        viewBox="0 0 16 16"
         width="16"
         xmlns="http://www.w3.org/2000/svg"
       >
@@ -73,6 +74,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the inline menu with 
         aria-hidden="true"
         fill="none"
         height="16"
+        viewBox="0 0 16 16"
         width="16"
         xmlns="http://www.w3.org/2000/svg"
       >
@@ -108,6 +110,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the inline menu with 
         aria-hidden="true"
         fill="none"
         height="16"
+        viewBox="0 0 16 16"
         width="16"
         xmlns="http://www.w3.org/2000/svg"
       >
@@ -143,6 +146,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the inline menu with 
         aria-hidden="true"
         fill="none"
         height="16"
+        viewBox="0 0 16 16"
         width="16"
         xmlns="http://www.w3.org/2000/svg"
       >
@@ -184,15 +188,12 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
               aria-hidden="true"
               fill="none"
               height="24"
+              viewBox="0 0 24 24"
               width="24"
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M13.25 9.313c0-.518.42-.938.938-.938h3.124a.937.937 0 1 1 0 1.875h-3.125a.937.937 0 0 1-.937-.938ZM14.188 11.5a.937.937 0 1 0 0 1.876h1.874a.938.938 0 0 0 0-1.875h-1.875ZM10.75 9.625a1.875 1.875 0 1 1-3.75 0 1.875 1.875 0 0 1 3.75 0Z"
-                fill="#1B2029"
-              />
-              <path
-                d="M12 14.442c0-.387-.08-.769-.238-1.126a2.936 2.936 0 0 0-.677-.954 3.145 3.145 0 0 0-1.014-.638 3.294 3.294 0 0 0-2.392 0c-.379.148-.724.365-1.014.638-.29.273-.52.597-.677.954-.157.357-.238.74-.238 1.126 0 .446.362.809.809.809h4.632a.809.809 0 0 0 .809-.81Z"
+                d="M13.25 9.313c0-.518.42-.938.938-.938h3.124a.937.937 0 1 1 0 1.875h-3.125a.937.937 0 0 1-.937-.938Zm.938 2.188a.937.937 0 1 0 0 1.875h1.874a.938.938 0 0 0 0-1.875h-1.875ZM10.75 9.625a1.875 1.875 0 1 1-3.75 0 1.875 1.875 0 0 1 3.75 0ZM12 14.442c0-.387-.08-.769-.238-1.126-.157-.357-.387-.681-.677-.954s-.635-.49-1.014-.638a3.294 3.294 0 0 0-2.392 0c-.379.148-.724.365-1.014.638-.29.273-.52.597-.677.954-.157.357-.238.74-.238 1.126 0 .446.362.808.809.808h4.632a.809.809 0 0 0 .809-.808Z"
                 fill="#1B2029"
               />
               <path
@@ -229,6 +230,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -262,6 +264,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
         aria-hidden="true"
         fill="none"
         height="16"
+        viewBox="0 0 16 16"
         width="16"
         xmlns="http://www.w3.org/2000/svg"
       >
@@ -327,6 +330,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -389,6 +393,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -437,6 +442,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -477,6 +483,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
               aria-hidden="true"
               fill="none"
               height="24"
+              viewBox="0 0 24 24"
               width="24"
               xmlns="http://www.w3.org/2000/svg"
             >
@@ -514,6 +521,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -577,6 +585,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -640,6 +649,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -756,6 +766,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -831,6 +842,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -893,6 +905,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -941,6 +954,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -981,6 +995,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
               aria-hidden="true"
               fill="none"
               height="24"
+              viewBox="0 0 24 24"
               width="24"
               xmlns="http://www.w3.org/2000/svg"
             >
@@ -1018,6 +1033,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -1081,6 +1097,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -1144,6 +1161,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -1219,6 +1237,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -1281,6 +1300,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -1329,6 +1349,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -1369,6 +1390,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
               aria-hidden="true"
               fill="none"
               height="24"
+              viewBox="0 0 24 24"
               width="24"
               xmlns="http://www.w3.org/2000/svg"
             >
@@ -1406,6 +1428,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -1469,6 +1492,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -1532,6 +1556,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -1601,6 +1626,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
                 aria-hidden="true"
                 fill="none"
                 height="16"
+                viewBox="0 0 16 16"
                 width="16"
                 xmlns="http://www.w3.org/2000/svg"
               >
@@ -1624,6 +1650,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -1678,6 +1705,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
                 aria-hidden="true"
                 fill="none"
                 height="16"
+                viewBox="0 0 16 16"
                 width="16"
                 xmlns="http://www.w3.org/2000/svg"
               >
@@ -1701,6 +1729,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -1755,6 +1784,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
                 aria-hidden="true"
                 fill="none"
                 height="16"
+                viewBox="0 0 16 16"
                 width="16"
                 xmlns="http://www.w3.org/2000/svg"
               >
@@ -1784,6 +1814,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -1850,6 +1881,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -1913,6 +1945,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -1976,6 +2009,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -2010,6 +2044,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
       aria-hidden="true"
       fill="none"
       height="16"
+      viewBox="0 0 16 16"
       width="16"
       xmlns="http://www.w3.org/2000/svg"
     >
@@ -2136,6 +2171,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -2247,6 +2283,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
             aria-hidden="true"
             fill="none"
             height="24"
+            viewBox="0 0 24 24"
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -2293,6 +2330,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the locked inline men
         aria-hidden="true"
         fill="none"
         height="16"
+        viewBox="0 0 16 16"
         width="16"
         xmlns="http://www.w3.org/2000/svg"
       >
@@ -2329,6 +2367,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the password generato
         aria-hidden="true"
         fill="none"
         height="24"
+        viewBox="0 0 24 24"
         width="24"
         xmlns="http://www.w3.org/2000/svg"
       >
@@ -2474,6 +2513,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the password generato
         aria-hidden="true"
         fill="none"
         height="24"
+        viewBox="0 0 24 24"
         width="24"
         xmlns="http://www.w3.org/2000/svg"
       >
