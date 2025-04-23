@@ -133,8 +133,8 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Get Latest Core Version
-        id: get-core
+      - name: Get Latest Server Version
+        id: latest-server-version
         uses: bitwarden/gh-actions/get-release-version@main
         with:
           repository: bitwarden/server
@@ -143,7 +143,7 @@ jobs:
       - name: Set Server Ref
         id: set-server-ref
         run: |
-          SERVER_REF="${{ steps.get-core.outputs.version }}"
+          SERVER_REF="${{ steps.latest-server-version.outputs.version }}"
           echo "Latest server release version: $SERVER_REF"
           if [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
             SERVER_REF="$GITHUB_REF"
