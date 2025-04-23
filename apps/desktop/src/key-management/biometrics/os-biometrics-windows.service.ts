@@ -1,5 +1,7 @@
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { EncryptionType } from "@bitwarden/common/platform/enums";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { biometrics, passwords } from "@bitwarden/desktop-napi";
@@ -218,7 +220,13 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
     symmetricKey: SymmetricCryptoKey,
     clientKeyPartB64: string | undefined,
   ): biometrics.KeyMaterial {
-    const key = symmetricKey?.macKeyB64 ?? symmetricKey?.keyB64;
+    let key = null;
+    const innerKey = symmetricKey.inner();
+    if (innerKey.type === EncryptionType.AesCbc256_HmacSha256_B64) {
+      key = Utils.fromBufferToB64(innerKey.authenticationKey);
+    } else {
+      key = Utils.fromBufferToB64(innerKey.encryptionKey);
+    }
 
     const result = {
       osKeyPartB64: key,

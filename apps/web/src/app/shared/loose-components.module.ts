@@ -15,7 +15,6 @@ import { VerifyRecoverDeleteOrgComponent } from "../admin-console/organizations/
 import { AcceptFamilySponsorshipComponent } from "../admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { RecoverDeleteComponent } from "../auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "../auth/recover-two-factor.component";
-import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
 import { AccountComponent } from "../auth/settings/account/account.component";
 import { ChangeAvatarDialogComponent } from "../auth/settings/account/change-avatar-dialog.component";
@@ -42,6 +41,7 @@ import { SponsoredFamiliesComponent } from "../billing/settings/sponsored-famili
 import { SponsoringOrgRowComponent } from "../billing/settings/sponsoring-org-row.component";
 import { DynamicAvatarComponent } from "../components/dynamic-avatar.component";
 import { SelectableAvatarComponent } from "../components/selectable-avatar.component";
+import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import { FrontendLayoutComponent } from "../layouts/frontend-layout.component";
 import { HeaderModule } from "../layouts/header/header.module";
 import { ProductSwitcherModule } from "../layouts/product-switcher/product-switcher.module";

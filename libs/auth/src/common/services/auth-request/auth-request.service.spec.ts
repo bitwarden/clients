@@ -106,7 +106,9 @@ describe("AuthRequestService", () => {
     });
 
     it("should use the master key and hash if they exist", async () => {
-      masterPasswordService.masterKeySubject.next({ encKey: new Uint8Array(64) } as MasterKey);
+      masterPasswordService.masterKeySubject.next(
+        new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
+      );
       masterPasswordService.masterKeyHashSubject.next("MASTER_KEY_HASH");
 
       await sut.approveOrDenyAuthRequest(
@@ -115,7 +117,7 @@ describe("AuthRequestService", () => {
       );
 
       expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(
-        { encKey: new Uint8Array(64) },
+        new SymmetricCryptoKey(new Uint8Array(32)),
         expect.anything(),
       );
     });

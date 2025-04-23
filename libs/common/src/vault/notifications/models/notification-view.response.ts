@@ -1,5 +1,5 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
-import { NotificationId } from "@bitwarden/common/types/guid";
+import { NotificationId, SecurityTaskId } from "@bitwarden/common/types/guid";
 
 export class NotificationViewResponse extends BaseResponse {
   id: NotificationId;
@@ -7,6 +7,7 @@ export class NotificationViewResponse extends BaseResponse {
   title: string;
   body: string;
   date: Date;
+  taskId?: SecurityTaskId;
   readDate: Date;
   deletedDate: Date;
 
@@ -17,6 +18,7 @@ export class NotificationViewResponse extends BaseResponse {
     this.title = this.getResponseProperty("Title");
     this.body = this.getResponseProperty("Body");
     this.date = this.getResponseProperty("Date");
+    this.taskId = this.getResponseProperty("TaskId");
     this.readDate = this.getResponseProperty("ReadDate");
     this.deletedDate = this.getResponseProperty("DeletedDate");
   }

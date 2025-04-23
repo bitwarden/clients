@@ -4072,7 +4072,7 @@
   "updateBrowser": {
     "message": "Böngésző frissítése"
   },
-  "generatingRiskInsights": {
+  "generatingYourRiskInsights": {
     "message": "A kockázati betekintések generálása..."
   },
   "updateBrowserDesc": {
@@ -6305,6 +6305,21 @@
   "sponsoredFamilies": {
     "message": "Díjmentes Bitwarden családi csomag"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Szponzorált családok"
+  },
+  "noSponsoredFamilies": {
+    "message": "Nincsenek szponzorált családok."
+  },
+  "noSponsoredFamiliesDescription": {
+    "message": "A szponzorált, nem-tag családok csomagjai itt jelennek meg."
+  },
+  "sponsorFreeBitwardenFamilies": {
+    "message": "A szervezet tagjai jogosultak a Free Bitwarden Families programra. Ingyenes Bitwarden Családokat szponzorálhat olyan alkalmazottak számára, akik nem tagjai Bitwarden szervezetének. A nem-tag szponzorálásához a szervezeten belül rendelkezésre álló hely szükséges."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "Amikor eltávolítunk egy aktív szponzorációt, a szponzorált szervezet megújítási dátuma után elérhető lesz egy hely a szervezeten belül."
+  },
   "sponsoredFamiliesEligible": {
     "message": "A felhasználó és családja jogosult az ingyenes Bitwarden családok programra. Váltsuk ezt be személyes email címmel, hogy az adatok biztonságban legyenek még akkor is, amikor éppen nem dolgozunk."
   },
@@ -6319,6 +6334,18 @@
   },
   "sponsoredFamiliesSharedCollections": {
     "message": "Megosztott gyűjtemények a családi titkoknak"
+  },
+  "memberFamilies": {
+    "message": "Tag családok"
+  },
+  "noMemberFamilies": {
+    "message": "Nincsenek tag családok."
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Itt jelennek meg azok a tagok, akik beváltották a családi csomagokat."
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "A szervezet tagjai jogosultak a Free Bitwarden Families programra. Itt láthatjuk azokat a tagokat, akik szponzoráltak egy Családok szervezetet."
   },
   "badToken": {
     "message": "A hivatkozás már nem érvényes. Kérjük a szponzortól az ajánlat újraküldését."
@@ -7982,6 +8009,9 @@
   },
   "inviteMember": {
     "message": "Tag meghívása"
+  },
+  "addSponsorship": {
+    "message": "Szponzorálás hozzáadása"
   },
   "needsConfirmation": {
     "message": "Jóváhagyás szükséges"

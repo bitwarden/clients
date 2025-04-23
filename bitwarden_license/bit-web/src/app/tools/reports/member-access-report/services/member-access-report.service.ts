@@ -65,6 +65,26 @@ export class MemberAccessReportService {
     }
 
     const exportItems = memberAccessReports.flatMap((report) => {
+      // to include users without access details
+      // which means a user has no groups, collections or items
+      if (report.accessDetails.length === 0) {
+        return [
+          {
+            email: report.email,
+            name: report.userName,
+            twoStepLogin: report.twoFactorEnabled
+              ? this.i18nService.t("memberAccessReportTwoFactorEnabledTrue")
+              : this.i18nService.t("memberAccessReportTwoFactorEnabledFalse"),
+            accountRecovery: report.accountRecoveryEnabled
+              ? this.i18nService.t("memberAccessReportAuthenticationEnabledTrue")
+              : this.i18nService.t("memberAccessReportAuthenticationEnabledFalse"),
+            group: this.i18nService.t("memberAccessReportNoGroup"),
+            collection: this.i18nService.t("memberAccessReportNoCollection"),
+            collectionPermission: this.i18nService.t("memberAccessReportNoCollectionPermission"),
+            totalItems: "0",
+          },
+        ];
+      }
       const userDetails = report.accessDetails.map((detail) => {
         const collectionName = collectionNameMap.get(detail.collectionName.encryptedString);
         return {

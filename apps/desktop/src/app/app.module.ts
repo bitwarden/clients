@@ -4,6 +4,7 @@ import "zone.js";
 import "../platform/app/locales";
 
 import { NgModule } from "@angular/core";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
 import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
@@ -13,11 +14,11 @@ import { DecryptionFailureDialogComponent } from "@bitwarden/vault";
 import { AccessibilityCookieComponent } from "../auth/accessibility-cookie.component";
 import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { LoginModule } from "../auth/login/login.module";
-import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { SshAgentService } from "../autofill/services/ssh-agent.service";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
+import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import { AddEditCustomFieldsComponent } from "../vault/app/vault/add-edit-custom-fields.component";
 import { AddEditComponent } from "../vault/app/vault/add-edit.component";
 import { AttachmentsComponent } from "../vault/app/vault/attachments.component";
@@ -44,6 +45,8 @@ import { SharedModule } from "./shared/shared.module";
 
 @NgModule({
   imports: [
+    BrowserAnimationsModule,
+
     SharedModule,
     AppRoutingModule,
     VaultFilterModule,

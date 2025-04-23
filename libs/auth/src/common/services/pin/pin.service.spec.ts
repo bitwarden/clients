@@ -170,7 +170,7 @@ describe("PinService", () => {
         await sut.createPinKeyEncryptedUserKey(mockPin, mockUserKey, mockUserId);
 
         // Assert
-        expect(encryptService.encrypt).toHaveBeenCalledWith(mockUserKey.key, mockPinKey);
+        expect(encryptService.wrapSymmetricKey).toHaveBeenCalledWith(mockUserKey, mockPinKey);
       });
     });
 
