@@ -4072,8 +4072,8 @@
   "updateBrowser": {
     "message": "Aggiorna browser"
   },
-  "generatingRiskInsights": {
-    "message": "Generazione delle tue informazioni sui rischi..."
+  "generatingYourRiskInsights": {
+    "message": "Generating your Risk Insights..."
   },
   "updateBrowserDesc": {
     "message": "Stai utilizzando un browser non supportato. La cassaforte web potrebbe non funzionare correttamente."
@@ -6305,6 +6305,21 @@
   "sponsoredFamilies": {
     "message": "Bitwarden Families gratis"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Sponsored families"
+  },
+  "noSponsoredFamilies": {
+    "message": "No sponsored families"
+  },
+  "noSponsoredFamiliesDescription": {
+    "message": "Sponsored non-member families plans will display here"
+  },
+  "sponsorFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Tu e la tua famiglia siete idonei per Bitwarden Families gratis. Riscatta con la tua email personale per mantenere i tuoi dati al sicuro anche quando non sei a lavoro."
   },
@@ -6319,6 +6334,18 @@
   },
   "sponsoredFamiliesSharedCollections": {
     "message": "Raccolte condivise per segreti di famiglia"
+  },
+  "memberFamilies": {
+    "message": "Member families"
+  },
+  "noMemberFamilies": {
+    "message": "No member families"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Members who have redeemed family plans will display here"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
   },
   "badToken": {
     "message": "Il link non è più valido. Chiedi allo sponsor di inviare l'offerta di nuovo."
@@ -7982,6 +8009,9 @@
   },
   "inviteMember": {
     "message": "Invita membro"
+  },
+  "addSponsorship": {
+    "message": "Add sponsorship"
   },
   "needsConfirmation": {
     "message": "Necessitano conferma"

@@ -3324,10 +3324,10 @@
     "message": "Externé Id sa môže použiť na previazanie tohto zdroja s externým systémom - napríklad s užívateľským adresárom."
   },
   "ssoExternalId": {
-    "message": "SSO External ID"
+    "message": "Externé ID SSO"
   },
   "ssoExternalIdDesc": {
-    "message": "SSO External ID is an unencrypted reference between Bitwarden and your configured SSO provider."
+    "message": "Externé ID SSO je nešifrovaný odkaz medzi Bitwardenom a nakonfigurovaným poskytovateľom SSO."
   },
   "nestCollectionUnder": {
     "message": "Zaradiť zbierku pod"
@@ -4072,7 +4072,7 @@
   "updateBrowser": {
     "message": "Aktualizovať prehliadač"
   },
-  "generatingRiskInsights": {
+  "generatingYourRiskInsights": {
     "message": "Generuje sa váš prehľad o rizikách..."
   },
   "updateBrowserDesc": {
@@ -5692,7 +5692,7 @@
     "message": "WebAuthn bol úspešne overený! Túto kartu môžete zavrieť."
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
-    "message": "Your new password cannot be the same as your current password."
+    "message": "Nové heslo nemôže byť rovnaké ako súčasné heslo."
   },
   "hintEqualsPassword": {
     "message": "Nápoveda pre heslo nemôže byť rovnaká ako heslo."
@@ -6305,6 +6305,21 @@
   "sponsoredFamilies": {
     "message": "Bitwarden pre Rodiny zadarmo"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Sponsored families"
+  },
+  "noSponsoredFamilies": {
+    "message": "No sponsored families"
+  },
+  "noSponsoredFamiliesDescription": {
+    "message": "Sponsored non-member families plans will display here"
+  },
+  "sponsorFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Vy a vaša rodina máte bezplatne k dispozícii Bitwarden pre Rodiny. Uplatnite si túto možnosť s vaším osobným emailom aby ste mali dáta v bezpečí aj keď nie ste v práci."
   },
@@ -6319,6 +6334,18 @@
   },
   "sponsoredFamiliesSharedCollections": {
     "message": "Zdieľané zbierky pre Rodinné heslá"
+  },
+  "memberFamilies": {
+    "message": "Member families"
+  },
+  "noMemberFamilies": {
+    "message": "No member families"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Members who have redeemed family plans will display here"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
   },
   "badToken": {
     "message": "The link is no longer valid. Please have the sponsor resend the offer."
@@ -7982,6 +8009,9 @@
   },
   "inviteMember": {
     "message": "Pozvať člena"
+  },
+  "addSponsorship": {
+    "message": "Add sponsorship"
   },
   "needsConfirmation": {
     "message": "Potrebné potvrdenie"
@@ -10593,12 +10623,12 @@
     "message": "Bezplatné organizácie môžu mat maximálne dve zbierky. Ak chcete pridať viac zbierok povýšte na platené predplatné."
   },
   "businessUnit": {
-    "message": "Business Unit"
+    "message": "Organizačná jednotka"
   },
   "businessUnits": {
-    "message": "Business Units"
+    "message": "Organizačné jednotky"
   },
   "newBusinessUnit": {
-    "message": "New business unit"
+    "message": "Nová organizačná jednotka"
   }
 }

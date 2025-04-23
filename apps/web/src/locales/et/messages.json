@@ -4072,8 +4072,8 @@
   "updateBrowser": {
     "message": "Uuenda brauserit"
   },
-  "generatingRiskInsights": {
-    "message": "Generating your risk insights..."
+  "generatingYourRiskInsights": {
+    "message": "Generating your Risk Insights..."
   },
   "updateBrowserDesc": {
     "message": "Kasutad brauserit, mida ei toetata. Veebihoidla ei pruugi hästi töötada."
@@ -6305,6 +6305,21 @@
   "sponsoredFamilies": {
     "message": "Tasuta Bitwarden Families pakett"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Sponsored families"
+  },
+  "noSponsoredFamilies": {
+    "message": "No sponsored families"
+  },
+  "noSponsoredFamiliesDescription": {
+    "message": "Sponsored non-member families plans will display here"
+  },
+  "sponsorFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Sina ja su pere olete valitud tasuta Bitwarden Families paketi saamiseks. Lunasta see läbi oma emaili, et hoida oma andmed ohutus kohas isegi kui sa ei ole tööl."
   },
@@ -6319,6 +6334,18 @@
   },
   "sponsoredFamiliesSharedCollections": {
     "message": "Jagatud kogumikud pere saladuste talletamiseks"
+  },
+  "memberFamilies": {
+    "message": "Member families"
+  },
+  "noMemberFamilies": {
+    "message": "No member families"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Members who have redeemed family plans will display here"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
   },
   "badToken": {
     "message": "See link ei ole enam aktiivne. Uue lingi saamiseks kontakteeruge oma sponsoriga, et ta saadaks pakkumise uuesti."
@@ -7982,6 +8009,9 @@
   },
   "inviteMember": {
     "message": "Invite member"
+  },
+  "addSponsorship": {
+    "message": "Add sponsorship"
   },
   "needsConfirmation": {
     "message": "Needs confirmation"
