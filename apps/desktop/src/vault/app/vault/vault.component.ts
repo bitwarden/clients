@@ -23,18 +23,17 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
   AddEditFolderDialogComponent,
@@ -117,9 +116,9 @@ export class VaultComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private toastService: ToastService,
-    private configService: ConfigService,
     private accountService: AccountService,
     private cipherService: CipherService,
+    private folderService: FolderService
   ) {}
 
   async ngOnInit() {
@@ -695,12 +694,16 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.messagingService.send("newFolder");
   }
 
-  async editFolder(folder: FolderView) {
+  async editFolder(folderId: string) {
+    const folderView =  await firstValueFrom(
+      this.folderService.getDecrypted$(folderId, this.activeUserId),
+    );
+
     const dialogRef = AddEditFolderDialogComponent.open(this.dialogService, {
       editFolderConfig: {
         folder: {
-          ...folder,
-          name: folder.name,
+          ...folderView,
+          name: folderView.name,
         },
       },
     });

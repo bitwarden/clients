@@ -60,7 +60,7 @@
       [activeFilter]="activeFilter"
       (onFilterChange)="applyVaultFilter($event)"
       (onAddFolder)="addFolder()"
-      (onEditFolder)="editFolder($event)"
+      (onEditFolder)="editFolder($event.id)"
     ></app-vault-filter>
     <app-nav class="nav"></app-nav>
   </div>
