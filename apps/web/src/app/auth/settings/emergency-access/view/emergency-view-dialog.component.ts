@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { EmergencyAccessId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -20,8 +21,6 @@ import {
   CipherViewComponent,
   DefaultChangeLoginPasswordService,
 } from "@bitwarden/vault";
-
-import { WebViewPasswordHistoryService } from "../../../../vault/services/web-view-password-history.service";
 
 export interface EmergencyViewDialogParams {
   /** The cipher being viewed. */
@@ -42,7 +41,7 @@ class PremiumUpgradePromptNoop implements PremiumUpgradePromptService {
   standalone: true,
   imports: [ButtonModule, CipherViewComponent, DialogModule, CommonModule, JslibModule],
   providers: [
-    { provide: ViewPasswordHistoryService, useClass: WebViewPasswordHistoryService },
+    { provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: PremiumUpgradePromptNoop },
     { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
   ],
