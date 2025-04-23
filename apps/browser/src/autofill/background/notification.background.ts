@@ -207,7 +207,8 @@ export default class NotificationBackground {
     };
 
     const changeItem = this.notificationQueue.find(
-      (message): message is AddChangePasswordQueueMessage => message.type === "change",
+      (message): message is AddChangePasswordQueueMessage =>
+        message.type === NotificationQueueMessageType.ChangePassword,
     );
 
     if (changeItem) {
