@@ -32,7 +32,10 @@ export class DefaultSingleNudgeService implements SingleNudgeService {
     return this.stateProvider
       .getUser(userId, VAULT_NUDGE_DISMISSED_DISK_KEY)
       .state$.pipe(
-        map((nudges) => nudges?.[nudgeType] ?? { showBadge: true, showSpotlight: true }),
+        map(
+          (nudges) =>
+            nudges?.[nudgeType] ?? { hasBadgeDismissed: false, hasSpotlightDismissed: false },
+        ),
       );
   }
 

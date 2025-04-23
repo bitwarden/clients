@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { combineLatest, map, Observable, of, switchMap } from "rxjs";
+import { combineLatest, Observable, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -20,25 +20,22 @@ export class HasItemsNudgeService extends DefaultSingleNudgeService {
 
   shouldShowNudge$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
     return combineLatest([
-      this.apiService.getProfile(),
+      this.cipherService.cipherViews$(userId),
       this.getNudgeStatus$(nudgeType, userId),
     ]).pipe(
-      switchMap(([userProfile, nudgeStatus]) => {
+      switchMap(async ([ciphers, nudgeStatus]) => {
+        const userProfile = await this.apiService.getProfile();
         const thirtyDays = new Date(new Date().getTime() - 30 * 24 * 60 * 60 * 1000);
         const profileCreationDate = new Date(userProfile.creationDate);
         const isRecentAcct = profileCreationDate >= thirtyDays;
 
-        if (!isRecentAcct || !nudgeStatus.showSpotlight) {
-          return of(nudgeStatus);
+        if (!isRecentAcct || nudgeStatus.hasSpotlightDismissed) {
+          return nudgeStatus;
         } else {
-          return this.cipherService.cipherViews$(userId).pipe(
-            map((ciphers) => {
-              return {
-                showBadge: ciphers != null && ciphers.length > 0,
-                showSpotlight: ciphers != null && ciphers.length > 0,
-              };
-            }),
-          );
+          return {
+            hasBadgeDismissed: ciphers == null || ciphers.length === 0,
+            hasSpotlightDismissed: ciphers == null || ciphers.length === 0,
+          };
         }
       }),
     );

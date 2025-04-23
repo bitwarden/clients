@@ -10,8 +10,8 @@ import { HasItemsNudgeService, EmptyVaultNudgeService } from "./custom-nudges-se
 import { DefaultSingleNudgeService, SingleNudgeService } from "./default-single-nudge.service";
 
 export type NudgeStatus = {
-  showBadge: boolean;
-  showSpotlight: boolean;
+  hasBadgeDismissed: boolean;
+  hasSpotlightDismissed: boolean;
 };
 
 /**
@@ -68,7 +68,7 @@ export class VaultNudgesService {
     return this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge).pipe(
       switchMap((hasVaultNudgeFlag) => {
         if (!hasVaultNudgeFlag) {
-          return of({ showBadge: false, showSpotlight: false } as NudgeStatus);
+          return of({ hasBadgeDismissed: true, hasSpotlightDismissed: true } as NudgeStatus);
         }
         return this.getNudgeService(nudge).shouldShowNudge$(nudge, userId);
       }),
@@ -86,8 +86,8 @@ export class VaultNudgesService {
     );
     if (hasVaultNudgeFlag) {
       const dismissedStatus = onlyBadge
-        ? { showBadge: false, showSpotlight: true }
-        : { showBadge: false, showSpotlight: false };
+        ? { hasBadgeDismissed: true, hasSpotlightDismissed: false }
+        : { hasBadgeDismissed: true, hasSpotlightDismissed: true };
       await this.getNudgeService(nudge).setNudgeStatus(nudge, dismissedStatus, userId);
     }
   }

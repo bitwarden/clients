@@ -48,6 +48,8 @@ export class SettingsV2Component implements OnInit {
   }
 
   async dismissBadge(type: VaultNudgeType) {
-    await this.vaultNudgesService.dismissNudge(type, this.activeUserId as UserId, true);
+    if (!(await firstValueFrom(this.showVaultBadge$)).hasBadgeDismissed) {
+      await this.vaultNudgesService.dismissNudge(type, this.activeUserId as UserId, true);
+    }
   }
 }

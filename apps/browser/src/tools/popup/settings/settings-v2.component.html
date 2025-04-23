@@ -41,7 +41,10 @@
             Currently can be only 1 item for notification.
             Will make this dynamic when more nudges are added
           -->
-          <span *ngIf="(showVaultBadge$ | async)?.showBadge" bitBadge variant="notification"
+          <span
+            *ngIf="!(showVaultBadge$ | async)?.hasBadgeDismissed"
+            bitBadge
+            variant="notification"
             >1</span
           >
         </div>

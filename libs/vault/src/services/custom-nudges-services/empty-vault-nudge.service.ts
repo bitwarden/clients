@@ -30,37 +30,33 @@ export class EmptyVaultNudgeService extends DefaultSingleNudgeService {
       switchMap(([nudgeStatus, ciphers, orgs, collections]) => {
         const cipherStatus = ciphers != null && ciphers.length > 0;
         if (orgs == null || orgs.length === 0) {
-          return !nudgeStatus.showBadge || !nudgeStatus.showSpotlight
+          return nudgeStatus.hasBadgeDismissed || nudgeStatus.hasSpotlightDismissed
             ? of(nudgeStatus)
             : of({
-                showSpotlight: cipherStatus,
-                showBadge: cipherStatus,
+                hasSpotlightDismissed: cipherStatus,
+                hasBadgeDismissed: cipherStatus,
               });
         }
         const orgIds = new Set(orgs.map((org) => org.id));
-        const canCreateCollections = orgs.filter((org) => {
-          return org.canCreateNewCollections;
-        });
-        const managedCollections = collections.filter((collection) => {
-          if (orgIds.has(collection.organizationId) && collection.manage) {
-            return of(true);
-          }
-        });
+        const canCreateCollections = orgs.some((org) => org.canCreateNewCollections);
+        const hasManageCollections = collections.some(
+          (c) => c.manage && orgIds.has(c.organizationId),
+        );
         // Do not show nudge when
         // user has previously dismissed nudge
         // OR
         // user belongs to an organization and cannot create collections || manage collections
         if (
-          !nudgeStatus.showBadge ||
-          !nudgeStatus.showSpotlight ||
-          managedCollections.length === 0 ||
-          canCreateCollections.length === 0
+          nudgeStatus.hasBadgeDismissed ||
+          nudgeStatus.hasSpotlightDismissed ||
+          hasManageCollections ||
+          canCreateCollections
         ) {
           return of(nudgeStatus);
         }
         return of({
-          showSpotlight: cipherStatus,
-          showBadge: cipherStatus,
+          hasSpotlightDismissed: cipherStatus,
+          hasBadgeDismissed: cipherStatus,
         });
       }),
     );

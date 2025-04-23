@@ -45,7 +45,7 @@ export class TabsV2Component {
           page: "/tabs/settings",
           iconKey: "cog",
           iconKeyActive: "cog-f",
-          showBerry: onboardingFeatureEnabled && showNudge,
+          showBerry: onboardingFeatureEnabled && !showNudge.hasSpotlightDismissed,
         },
       ];
     }),
