@@ -222,7 +222,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  async dismissEmptyVaultNudge(type: VaultNudgeType) {
+  async dismissVaultNudgeSpotlight(type: VaultNudgeType) {
     await this.vaultNudgesService.dismissNudge(type, this.activeUserId as UserId);
   }
 

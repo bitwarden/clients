@@ -42,7 +42,7 @@
         [subtitle]="'emptyVaultNudgeBody' | i18n"
         [buttonText]="'emptyVaultNudgeButton' | i18n"
         (onButtonClick)="navigateToImport()"
-        (onDismiss)="dismissEmptyVaultNudge(VaultNudgeType.EmptyVaultNudge)"
+        (onDismiss)="dismissVaultNudgeSpotlight(VaultNudgeType.EmptyVaultNudge)"
       >
       </bit-spotlight>
     </ng-container>
@@ -51,7 +51,7 @@
         <bit-spotlight
           [title]="'hasItemsVaultNudgeTitle' | i18n"
           [subtitle]="'hasItemsVaultNudgeBody' | i18n"
-          (onDismiss)="dismissEmptyVaultNudge(VaultNudgeType.HasVaultItems)"
+          (onDismiss)="dismissVaultNudgeSpotlight(VaultNudgeType.HasVaultItems)"
         >
         </bit-spotlight>
       </div>
