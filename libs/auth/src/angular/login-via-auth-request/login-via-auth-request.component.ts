@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { IsActiveMatchOptions, Router, RouterModule } from "@angular/router";
-import { firstValueFrom, map } from "rxjs";
+import { concat, firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -178,7 +178,15 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
   private async initStandardAuthRequestFlow(): Promise<void> {
     this.flow = Flow.StandardAuthRequest;
 
-    this.email = (await firstValueFrom(this.loginEmailService.loginEmail$)) || undefined;
+    // For a standard flow, we can get the user's email from two different places:
+    // 1. The loginEmailService, which is the email that the user is trying to log in with. This is cleared
+    // when the user logs in successfully.  We can use this when the user is using Login with Device.
+    // 2. With TDE Login with Another Device, the user is already logged in and we just need to get
+    // a decryption key, so we can use the active account's email.
+    const activeAccountEmail$ = this.accountService.activeAccount$.pipe(map((a) => a?.email));
+    this.email =
+      (await firstValueFrom(concat(this.loginEmailService.loginEmail$, activeAccountEmail$))) ||
+      undefined;
 
     if (!this.email) {
       await this.handleMissingEmail();

@@ -284,7 +284,6 @@ export class LoginDecryptionOptionsComponent implements OnInit {
   }
 
   protected async approveFromOtherDevice() {
-    await this.loginEmailService.setLoginEmail(this.email);
     await this.router.navigate(["/login-with-device"]);
   }
 
@@ -297,7 +296,6 @@ export class LoginDecryptionOptionsComponent implements OnInit {
   }
 
   protected async requestAdminApproval() {
-    await this.loginEmailService.setLoginEmail(this.email);
     await this.router.navigate(["/admin-approval-requested"]);
   }
 
