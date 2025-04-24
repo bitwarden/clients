@@ -160,51 +160,42 @@ export default class NotificationBackground {
 
   /**
    *
-   * Gets the current active tab and retrieves all decrypted ciphers
-   * for the tab's URL. It constructs and returns an array of `NotificationCipherData` objects.
+   * Gets the current active tab and retrieves the relevant decrypted cipher
+   * for the tab's URL. It constructs and returns an array of `NotificationCipherData` objects or a singular object.
    * If no active tab or URL is found, it returns an empty array.
    *
    * @returns {Promise<NotificationCipherData[]>}
    */
 
   async getNotificationCipherData(): Promise<NotificationCipherData[]> {
-    const [currentTab, showFavicons, env] = await Promise.all([
+    const [currentTab, showFavicons, env, activeUserId] = await Promise.all([
       BrowserApi.getTabFromCurrentWindow(),
       firstValueFrom(this.domainSettingsService.showFavicons$),
       firstValueFrom(this.environmentService.environment$),
+      firstValueFrom(this.accountService.activeAccount$.pipe(getOptionalUserId)),
+    ]);
+
+    const [decryptedCiphers, organizations] = await Promise.all([
+      this.cipherService.getAllDecryptedForUrl(currentTab?.url, activeUserId),
+      firstValueFrom(this.organizationService.organizations$(activeUserId)),
     ]);
 
     const iconsServerUrl = env.getIconsUrl();
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(getOptionalUserId),
-    );
 
-    const decryptedCiphers = await this.cipherService.getAllDecryptedForUrl(
-      currentTab?.url,
-      activeUserId,
-    );
-
-    const organizations = await firstValueFrom(
-      this.organizationService.organizations$(activeUserId),
-    );
-
-    return decryptedCiphers.map((view) => {
+    const toNotificationData = (view: CipherView): NotificationCipherData => {
       const { id, name, reprompt, favorite, login, organizationId } = view;
 
-      const organizationType = organizationId
-        ? organizations.find((org) => org.id === organizationId)?.productTierType
-        : null;
+      const type = organizations.find((org) => org.id === organizationId)?.productTierType;
 
       const organizationCategories: OrganizationCategory[] = [];
-
       if (
         [ProductTierType.Teams, ProductTierType.Enterprise, ProductTierType.TeamsStarter].includes(
-          organizationType,
+          type,
         )
       ) {
         organizationCategories.push(OrganizationCategories.business);
       }
-      if ([ProductTierType.Families, ProductTierType.Free].includes(organizationType)) {
+      if ([ProductTierType.Families, ProductTierType.Free].includes(type)) {
         organizationCategories.push(OrganizationCategories.family);
       }
 
@@ -216,11 +207,21 @@ export default class NotificationBackground {
         favorite,
         ...(organizationCategories.length ? { organizationCategories } : {}),
         icon: buildCipherIcon(iconsServerUrl, view, showFavicons),
-        login: login && {
-          username: login.username,
-        },
+        login: login && { username: login.username },
       };
-    });
+    };
+
+    const changeItem = this.notificationQueue.find(
+      (message): message is AddChangePasswordQueueMessage =>
+        message.type === NotificationQueueMessageType.ChangePassword,
+    );
+
+    if (changeItem) {
+      const cipherView = await this.getDecryptedCipherById(changeItem.cipherId, activeUserId);
+      return [toNotificationData(cipherView)];
+    }
+
+    return decryptedCiphers.map(toNotificationData);
   }
 
   /**
