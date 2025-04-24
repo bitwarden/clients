@@ -4928,8 +4928,8 @@
     "message": "Parola yeniden üretildi",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Hesap Bitwarden'a kaydedilsin mi?",
+  "saveToBitwarden": {
+    "message": "Bitwarden’a kaydet",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {

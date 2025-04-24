@@ -6,5 +6,5 @@
  * Used by the `AutofocusDirective` and `A11yGridDirective`.
  */
 export abstract class FocusableElement {
-  getFocusTarget: () => HTMLElement;
+  getFocusTarget: () => HTMLElement | undefined;
 }

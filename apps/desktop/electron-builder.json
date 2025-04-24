@@ -33,7 +33,7 @@
     "gatekeeperAssess": false,
     "hardenedRuntime": true,
     "entitlements": "resources/entitlements.mac.plist",
-    "entitlementsInherit": "resources/entitlements.mac.plist",
+    "entitlementsInherit": "resources/entitlements.mac.inherit.plist",
     "extendInfo": {
       "ITSAppUsesNonExemptEncryption": false,
       "CFBundleLocalizations": [
@@ -67,6 +67,7 @@
       ],
       "CFBundleDevelopmentRegion": "en"
     },
+    "provisioningProfile": "bitwarden_desktop_developer_id.provisionprofile",
     "singleArchFiles": "node_modules/@bitwarden/desktop-napi/desktop_napi.darwin-*.node",
     "extraFiles": [
       {
@@ -78,7 +79,11 @@
         "to": "MacOS/desktop_proxy.inherit"
       }
     ],
-    "signIgnore": ["MacOS/desktop_proxy", "MacOS/desktop_proxy.inherit"],
+    "signIgnore": [
+      "MacOS/desktop_proxy",
+      "MacOS/desktop_proxy.inherit",
+      "Contents/Plugins/autofill-extension.appex"
+    ],
     "target": ["dmg", "zip"]
   },
   "win": {
@@ -137,7 +142,8 @@
     "extendInfo": {
       "LSMinimumSystemVersion": "12",
       "ElectronTeamID": "LTZ2PFU5D6"
-    }
+    },
+    "provisioningProfile": "bitwarden_desktop_appstore.provisionprofile"
   },
   "nsisWeb": {
     "oneClick": false,
