@@ -12,7 +12,12 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant, DialogService } from "@bitwarden/components";
-import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  CipherFormConfig,
+  CipherFormConfigService,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
+import { VaultItemDialogResult } from "@bitwarden/web-vault/app/vault/components/vault-item-dialog/vault-item-dialog.component";
 
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
@@ -66,60 +71,101 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
     this.findWeakPasswords(allCiphers);
   }
 
-  protected findWeakPasswords(ciphers: CipherView[]): void {
-    ciphers.forEach((ciph) => {
-      const { type, login, isDeleted, edit, viewPassword } = ciph;
-      if (
-        type !== CipherType.Login ||
-        login.password == null ||
-        login.password === "" ||
-        isDeleted ||
-        (!this.organization && !edit) ||
-        !viewPassword
-      ) {
+  protected async refresh(
+    result: VaultItemDialogResult,
+    cipher: CipherView,
+    formConfig: CipherFormConfig,
+  ) {
+    if (result === VaultItemDialogResult.Deleted) {
+      // remove the cipher from the list
+      this.ciphers = this.ciphers.filter((c) => c.id !== cipher.id);
+      this.filterCiphersByOrg(this.ciphers);
+    }
+
+    if (result == VaultItemDialogResult.Saved) {
+      // update the cipher views
+      const updatedCipherView = formConfig.updatedCipherView;
+      const updatedReportResult = this.determineWeakPasswordScore(updatedCipherView);
+      const index = this.ciphers.findIndex((c) => c.id === updatedCipherView.id);
+
+      if (updatedReportResult == null) {
+        // the password is no longer weak
+        // remove the cipher from the list
+        this.ciphers.splice(index, 1);
+        this.filterCiphersByOrg(this.ciphers);
         return;
       }
 
-      const hasUserName = this.isUserNameNotEmpty(ciph);
-      let userInput: string[] = [];
-      if (hasUserName) {
-        const atPosition = login.username.indexOf("@");
-        if (atPosition > -1) {
-          userInput = userInput
-            .concat(
-              login.username
-                .substr(0, atPosition)
-                .trim()
-                .toLowerCase()
-                .split(/[^A-Za-z0-9]/),
-            )
-            .filter((i) => i.length >= 3);
-        } else {
-          userInput = login.username
-            .trim()
-            .toLowerCase()
-            .split(/[^A-Za-z0-9]/)
-            .filter((i) => i.length >= 3);
-        }
+      if (index > -1) {
+        // update the existing cipher
+        this.ciphers[index] = updatedReportResult;
+        this.filterCiphersByOrg(this.ciphers);
       }
-      const result = this.passwordStrengthService.getPasswordStrength(
-        login.password,
-        null,
-        userInput.length > 0 ? userInput : null,
-      );
+    }
+  }
 
-      if (result.score != null && result.score <= 2) {
-        const scoreValue = this.scoreKey(result.score);
-        const row = {
-          ...ciph,
-          score: result.score,
-          reportValue: scoreValue,
-          scoreKey: scoreValue.sortOrder,
-        } as ReportResult;
+  protected findWeakPasswords(ciphers: CipherView[]): void {
+    ciphers.forEach((ciph) => {
+      const row = this.determineWeakPasswordScore(ciph);
+      if (row != null) {
         this.weakPasswordCiphers.push(row);
       }
     });
     this.filterCiphersByOrg(this.weakPasswordCiphers);
+  }
+
+  protected determineWeakPasswordScore(ciph: CipherView): ReportResult | null {
+    const { type, login, isDeleted, edit, viewPassword } = ciph;
+    if (
+      type !== CipherType.Login ||
+      login.password == null ||
+      login.password === "" ||
+      isDeleted ||
+      (!this.organization && !edit) ||
+      !viewPassword
+    ) {
+      return;
+    }
+
+    const hasUserName = this.isUserNameNotEmpty(ciph);
+    let userInput: string[] = [];
+    if (hasUserName) {
+      const atPosition = login.username.indexOf("@");
+      if (atPosition > -1) {
+        userInput = userInput
+          .concat(
+            login.username
+              .substr(0, atPosition)
+              .trim()
+              .toLowerCase()
+              .split(/[^A-Za-z0-9]/),
+          )
+          .filter((i) => i.length >= 3);
+      } else {
+        userInput = login.username
+          .trim()
+          .toLowerCase()
+          .split(/[^A-Za-z0-9]/)
+          .filter((i) => i.length >= 3);
+      }
+    }
+    const result = this.passwordStrengthService.getPasswordStrength(
+      login.password,
+      null,
+      userInput.length > 0 ? userInput : null,
+    );
+
+    if (result.score != null && result.score <= 2) {
+      const scoreValue = this.scoreKey(result.score);
+      return {
+        ...ciph,
+        score: result.score,
+        reportValue: scoreValue,
+        scoreKey: scoreValue.sortOrder,
+      } as ReportResult;
+    }
+
+    return null;
   }
 
   protected canManageCipher(c: CipherView): boolean {
