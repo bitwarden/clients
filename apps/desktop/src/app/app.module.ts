@@ -28,6 +28,7 @@ import { PasswordHistoryComponent } from "../vault/app/vault/password-history.co
 import { ShareComponent } from "../vault/app/vault/share.component";
 import { VaultFilterModule } from "../vault/app/vault/vault-filter/vault-filter.module";
 import { VaultItemsComponent } from "../vault/app/vault/vault-items.component";
+import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 import { VaultComponent } from "../vault/app/vault/vault.component";
 import { ViewCustomFieldsComponent } from "../vault/app/vault/view-custom-fields.component";
 import { ViewComponent } from "../vault/app/vault/view.component";
@@ -55,9 +56,9 @@ import { SharedModule } from "./shared/shared.module";
     CalloutModule,
     DeleteAccountComponent,
     UserVerificationComponent,
-    DecryptionFailureDialogComponent,
     NavComponent,
     AssignCollectionsComponent,
+    VaultV2Component,
   ],
   declarations: [
     AccessibilityCookieComponent,
@@ -66,7 +67,6 @@ import { SharedModule } from "./shared/shared.module";
     AddEditCustomFieldsComponent,
     AppComponent,
     AttachmentsComponent,
-    VaultItemsComponent,
     CollectionsComponent,
     ColorPasswordPipe,
     ColorPasswordCountPipe,
@@ -81,9 +81,10 @@ import { SharedModule } from "./shared/shared.module";
     ShareComponent,
     UpdateTempPasswordComponent,
     VaultComponent,
+    VaultItemsComponent,
     VaultTimeoutInputComponent,
-    ViewComponent,
     ViewCustomFieldsComponent,
+    ViewComponent,
   ],
   providers: [SshAgentService],
   bootstrap: [AppComponent],

@@ -192,7 +192,7 @@
     "message": "Copy",
     "description": "Copy to clipboard"
   },
-  "fill":{
+  "fill": {
     "message": "Fill",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
@@ -1062,6 +1062,15 @@
   "notificationAddSave": {
     "message": "Save"
   },
+  "notificationViewAria": {
+    "message": "View $ITEMNAME$, opens in new window",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Aria label for the view button in notification bar confirmation message"
+  },
   "newNotification": {
     "message": "New notification"
   },
@@ -1075,23 +1084,23 @@
       }
     }
   },
-  "loginSaveSuccessDetails": {
-    "message": "$USERNAME$ saved to Bitwarden.",
-      "placeholders": {
-        "username": {
-          "content": "$1"
-        }
-      },
-      "description": "Shown to user after login is saved."
+  "loginSaveConfirmation": {
+    "message": "$ITEMNAME$ saved to Bitwarden.",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after item is saved."
   },
-  "loginUpdatedSuccessDetails": {
-    "message": "$USERNAME$ updated in Bitwarden.",
-      "placeholders": {
-        "username": {
-          "content": "$1"
-        }
-      },
-      "description": "Shown to user after login is updated."
+  "loginUpdatedConfirmation": {
+    "message": "$ITEMNAME$ updated in Bitwarden.",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after item is updated."
   },
   "saveAsNewLoginAction": {
     "message": "Save as new login",
