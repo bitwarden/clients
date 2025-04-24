@@ -422,17 +422,8 @@
   "folder": {
     "message": "Folder"
   },
-  "newCustomField": {
-    "message": "New custom field"
-  },
   "value": {
     "message": "Value"
-  },
-  "dragToSort": {
-    "message": "Drag to sort"
-  },
-  "dragToReorder": {
-    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Text"
