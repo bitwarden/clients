@@ -71,9 +71,9 @@ export const Small: Story = {
     props: args,
     template: /*html*/ `
     <div class="tw-flex tw-gap-4 tw-mb-6 tw-items-center">
-      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'primary'" size="small" [block]="block">Primary small</button>
-      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'secondary'" size="small" [block]="block">Secondary small</button>
-      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'danger'" size="small" [block]="block">Danger small</button>
+      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'primary'" [size]="size" [block]="block">Primary small</button>
+      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'secondary'" [size]="size" [block]="block">Secondary small</button>
+      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'danger'" [size]="size" [block]="block">Danger small</button>
     </div>
     `,
   }),
