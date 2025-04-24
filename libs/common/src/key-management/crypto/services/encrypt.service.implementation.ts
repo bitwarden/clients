@@ -116,6 +116,12 @@ export class EncryptServiceImplementation implements EncryptService {
       throw new Error("No encryption key provided.");
     }
 
+    if (this.blockType0) {
+      if (key.inner().type === EncryptionType.AesCbc256_B64 || key.key.byteLength < 64) {
+        throw new Error("Type 0 encryption is not supported.");
+      }
+    }
+
     if (plainValue == null) {
       return Promise.resolve(null);
     }
