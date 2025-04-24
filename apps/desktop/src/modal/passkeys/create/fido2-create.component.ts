@@ -1,9 +1,9 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
+import { autofill } from "desktop_native/napi";
 import { BehaviorSubject, firstValueFrom, map, Observable } from "rxjs";
 
-import { autofill } from "desktop_native/napi";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BitwardenShield } from "@bitwarden/auth/angular";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -112,9 +112,6 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
           this.ciphersSubject.next(excludedCiphers);
         } else {
           const relevantCiphers = ciphers.filter((cipher) => {
-            const credentialId = cipher.login.hasFido2Credentials
-              ? Array.from(parseCredentialId(cipher.login.fido2Credentials[0]?.credentialId))
-              : [];
             if (this.eligibleFido2Credential(cipher, lastRegistrationRequest)) {
               return true;
             }
@@ -151,7 +148,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
 
   /* Check if cipher's username matches the form input. */
   cipherMatchesUserName(cipher: CipherView, userName: string): boolean {
-    return cipher.login.username === userName;
+    return cipher.login.username === userName && !cipher.login.fido2Credentials;
   }
 
   async addPasskeyToCipher(cipher: CipherView) {
