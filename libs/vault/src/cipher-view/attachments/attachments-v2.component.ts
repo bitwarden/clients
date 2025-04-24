@@ -4,10 +4,16 @@ import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
 import { CipherId } from "@bitwarden/common/types/guid";
-import { DialogRef, DIALOG_DATA, DialogService } from "@bitwarden/components";
-import { CipherAttachmentsComponent } from "@bitwarden/vault";
+import {
+  ButtonModule,
+  DialogModule,
+  DialogService,
+  DIALOG_DATA,
+  DialogRef,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-import { SharedModule } from "../../shared/shared.module";
+import { CipherAttachmentsComponent } from "../../cipher-form/components/attachments/cipher-attachments.component";
 
 export interface AttachmentsDialogParams {
   cipherId: CipherId;
@@ -33,7 +39,7 @@ export interface AttachmentDialogCloseResult {
   selector: "app-vault-attachments-v2",
   templateUrl: "attachments-v2.component.html",
   standalone: true,
-  imports: [CommonModule, SharedModule, CipherAttachmentsComponent],
+  imports: [ButtonModule, CommonModule, DialogModule, I18nPipe, CipherAttachmentsComponent],
 })
 export class AttachmentsV2Component {
   cipherId: CipherId;
