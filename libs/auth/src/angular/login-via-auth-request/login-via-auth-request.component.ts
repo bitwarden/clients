@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { IsActiveMatchOptions, Router, RouterModule } from "@angular/router";
-import { concat, firstValueFrom, map } from "rxjs";
+import { concat, filter, firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -185,8 +185,11 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     // a decryption key, so we can use the active account's email.
     const activeAccountEmail$ = this.accountService.activeAccount$.pipe(map((a) => a?.email));
     this.email =
-      (await firstValueFrom(concat(this.loginEmailService.loginEmail$, activeAccountEmail$))) ||
-      undefined;
+      (await firstValueFrom(
+        concat(this.loginEmailService.loginEmail$, activeAccountEmail$).pipe(
+          filter((email) => email != null),
+        ),
+      )) || undefined;
 
     if (!this.email) {
       await this.handleMissingEmail();
