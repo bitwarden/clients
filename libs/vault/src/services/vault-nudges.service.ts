@@ -6,7 +6,11 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { UserKeyDefinition, VAULT_NUDGES_DISK } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { HasItemsNudgeService, EmptyVaultNudgeService } from "./custom-nudges-services";
+import {
+  HasItemsNudgeService,
+  EmptyVaultNudgeService,
+  DownloadBitwardenNudgeService,
+} from "./custom-nudges-services";
 import { DefaultSingleNudgeService, SingleNudgeService } from "./default-single-nudge.service";
 
 export type NudgeStatus = {
@@ -43,9 +47,10 @@ export class VaultNudgesService {
    * Each nudge type can have its own service to determine when to show the nudge
    * @private
    */
-  private customNudgeServices: any = {
+  private customNudgeServices: Partial<Record<VaultNudgeType, SingleNudgeService>> = {
     [VaultNudgeType.HasVaultItems]: inject(HasItemsNudgeService),
     [VaultNudgeType.EmptyVaultNudge]: inject(EmptyVaultNudgeService),
+    [VaultNudgeType.DownloadBitwarden]: inject(DownloadBitwardenNudgeService),
   };
 
   /**

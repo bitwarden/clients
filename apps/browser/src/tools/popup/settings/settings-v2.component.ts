@@ -33,6 +33,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 export class SettingsV2Component implements OnInit {
   VaultNudgeType = VaultNudgeType;
   showVaultBadge$: Observable<NudgeStatus> = new Observable();
+  downloadBitwardenNudgeStatus$: Observable<NudgeStatus> = new Observable();
   activeUserId: UserId | null = null;
 
   constructor(
@@ -41,6 +42,12 @@ export class SettingsV2Component implements OnInit {
   ) {}
   async ngOnInit() {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    this.downloadBitwardenNudgeStatus$ = this.vaultNudgesService.showNudge$(
+      VaultNudgeType.DownloadBitwarden,
+      this.activeUserId,
+    );
+
     this.showVaultBadge$ = this.vaultNudgesService.showNudge$(
       VaultNudgeType.EmptyVaultNudge,
       this.activeUserId,
