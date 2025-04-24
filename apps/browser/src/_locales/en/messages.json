@@ -1073,7 +1073,7 @@
   },
   "notificationEditTooltip": {
     "message": "Edit before saving",
-    "description": "Tool tip and Aria label for edit button on cipher item"
+    "description": "Tooltip and Aria label for edit button on cipher item"
   },
   "newNotification": {
     "message": "New notification"
