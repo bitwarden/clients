@@ -30,10 +30,12 @@ export interface GeneratorDialogResult {
   generatedValue?: string;
 }
 
-export enum GeneratorDialogAction {
-  Selected = "selected",
-  Canceled = "canceled",
-}
+export const GeneratorDialogActions = {
+  Selected: "selected",
+  Canceled: "canceled",
+} as const;
+
+type GeneratorDialogAction = (typeof GeneratorDialogActions)[keyof typeof GeneratorDialogActions];
 
 @Component({
   selector: "app-vault-generator-dialog",
@@ -81,7 +83,7 @@ export class VaultGeneratorDialogComponent {
    * Close the dialog without selecting a value.
    */
   protected close = () => {
-    this.dialogRef.close({ action: GeneratorDialogAction.Canceled });
+    this.dialogRef.close({ action: GeneratorDialogActions.Canceled });
   };
 
   /**
@@ -89,7 +91,7 @@ export class VaultGeneratorDialogComponent {
    */
   protected selectValue = () => {
     this.dialogRef.close({
-      action: GeneratorDialogAction.Selected,
+      action: GeneratorDialogActions.Selected,
       generatedValue: this.generatedValue,
     });
   };

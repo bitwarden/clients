@@ -1,4 +1,4 @@
-import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { ProductTierTypes } from "@bitwarden/common/billing/enums";
 
 export const mockFolderData = [
   {
@@ -43,26 +43,26 @@ export const mockOrganizationData = [
   {
     id: "unique-id1",
     name: "Acme, inc",
-    productTierType: ProductTierType.Teams,
+    productTierType: ProductTierTypes.Teams,
   },
   {
     id: "unique-id2",
     name: "A Really Long Business Name That Just Kinda Goes On For A Really Long Time",
-    productTierType: ProductTierType.TeamsStarter,
+    productTierType: ProductTierTypes.TeamsStarter,
   },
   {
     id: "unique-id3",
     name: "Family Vault",
-    productTierType: ProductTierType.Families,
+    productTierType: ProductTierTypes.Families,
   },
   {
     id: "unique-id4",
     name: "Family Vault Trial",
-    productTierType: ProductTierType.Free,
+    productTierType: ProductTierTypes.Free,
   },
   {
     id: "unique-id5",
     name: "Exciting Enterprises, LLC",
-    productTierType: ProductTierType.Enterprise,
+    productTierType: ProductTierTypes.Enterprise,
   },
 ];

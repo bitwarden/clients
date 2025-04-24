@@ -2,7 +2,10 @@
 // @ts-strict-ignore
 import "@webcomponents/custom-elements";
 import "lit/polyfill-support.js";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import {
+  AuthenticationStatuses,
+  AuthenticationStatusValue,
+} from "@bitwarden/common/auth/enums/authentication-status";
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import { buildSvgDomElement } from "../../../../utils";
@@ -15,7 +18,7 @@ import {
 import { AutofillInlineMenuPageElement } from "../shared/autofill-inline-menu-page-element";
 
 export class AutofillInlineMenuButton extends AutofillInlineMenuPageElement {
-  private authStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
+  private authStatus: AuthenticationStatusValue = AuthenticationStatuses.LoggedOut;
   private readonly buttonElement: HTMLButtonElement;
   private readonly logoIconElement: HTMLElement;
   private readonly logoLockedIconElement: HTMLElement;
@@ -84,12 +87,12 @@ export class AutofillInlineMenuButton extends AutofillInlineMenuPageElement {
    *
    * @param authStatus - The authentication status of the user
    */
-  private updateAuthStatus(authStatus: AuthenticationStatus) {
+  private updateAuthStatus(authStatus: AuthenticationStatusValue) {
     this.authStatus = authStatus;
 
     this.buttonElement.innerHTML = "";
     const iconElement =
-      this.authStatus === AuthenticationStatus.Unlocked
+      this.authStatus === AuthenticationStatuses.Unlocked
         ? this.logoIconElement
         : this.logoLockedIconElement;
     this.buttonElement.append(iconElement);

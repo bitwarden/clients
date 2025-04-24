@@ -1,8 +1,8 @@
 import { Meta, StoryObj } from "@storybook/web-components";
 
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
-import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
+import { CipherTypes } from "@bitwarden/common/vault/enums";
+import { CipherRepromptTypes } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 
 import { NotificationTypes } from "../../../../notification/abstractions/notification-bar";
 import { NotificationContainer, NotificationContainerProps } from "../../notification/container";
@@ -20,9 +20,9 @@ export default {
       {
         id: "1",
         name: "Example Cipher",
-        type: CipherType.Login,
+        type: CipherTypes.Login,
         favorite: false,
-        reprompt: CipherRepromptType.None,
+        reprompt: CipherRepromptTypes.None,
         icon: {
           imageEnabled: true,
           image: "",

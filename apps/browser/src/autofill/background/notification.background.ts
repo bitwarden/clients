@@ -7,7 +7,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { AuthenticationStatuses } from "@bitwarden/common/auth/enums/authentication-status";
 import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   ExtensionCommand,
@@ -16,7 +16,10 @@ import {
 } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
-import { ProductTierType } from "@bitwarden/common/billing/enums/product-tier-type.enum";
+import {
+  ProductTierTypes,
+  ProductTierTypeValue,
+} from "@bitwarden/common/billing/enums/product-tier-type.enum";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -29,7 +32,7 @@ import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-stat
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherTypes } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -198,20 +201,28 @@ export default class NotificationBackground {
       const organizationCategories: OrganizationCategory[] = [];
 
       if (
-        [ProductTierType.Teams, ProductTierType.Enterprise, ProductTierType.TeamsStarter].includes(
-          organizationType,
-        )
+        (
+          [
+            ProductTierTypes.Teams,
+            ProductTierTypes.Enterprise,
+            ProductTierTypes.TeamsStarter,
+          ] as ProductTierTypeValue[]
+        ).includes(organizationType)
       ) {
         organizationCategories.push(OrganizationCategories.business);
       }
-      if ([ProductTierType.Families, ProductTierType.Free].includes(organizationType)) {
+      if (
+        ([ProductTierTypes.Families, ProductTierTypes.Free] as ProductTierTypeValue[]).includes(
+          organizationType,
+        )
+      ) {
         organizationCategories.push(OrganizationCategories.family);
       }
 
       return {
         id,
         name,
-        type: CipherType.Login,
+        type: CipherTypes.Login,
         reprompt,
         favorite,
         ...(organizationCategories.length ? { organizationCategories } : {}),
@@ -337,7 +348,7 @@ export default class NotificationBackground {
     sender: chrome.runtime.MessageSender,
   ) {
     const authStatus = await this.getAuthStatus();
-    if (authStatus === AuthenticationStatus.LoggedOut) {
+    if (authStatus === AuthenticationStatuses.LoggedOut) {
       return;
     }
 
@@ -350,7 +361,7 @@ export default class NotificationBackground {
 
     const addLoginIsEnabled = await this.getEnableAddedLoginPrompt();
 
-    if (authStatus === AuthenticationStatus.Locked) {
+    if (authStatus === AuthenticationStatuses.Locked) {
       if (addLoginIsEnabled) {
         await this.pushAddLoginToQueue(loginDomain, loginInfo, sender.tab, true);
       }
@@ -431,7 +442,7 @@ export default class NotificationBackground {
       return;
     }
 
-    if ((await this.getAuthStatus()) < AuthenticationStatus.Unlocked) {
+    if ((await this.getAuthStatus()) < AuthenticationStatuses.Unlocked) {
       await this.pushChangePasswordToQueue(
         null,
         loginDomain,
@@ -499,7 +510,7 @@ export default class NotificationBackground {
     }
 
     const currentAuthStatus = await this.getAuthStatus();
-    if (currentAuthStatus !== AuthenticationStatus.Locked || this.notificationQueue.length) {
+    if (currentAuthStatus !== AuthenticationStatuses.Locked || this.notificationQueue.length) {
       return;
     }
 
@@ -559,7 +570,7 @@ export default class NotificationBackground {
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    if ((await this.getAuthStatus()) < AuthenticationStatus.Unlocked) {
+    if ((await this.getAuthStatus()) < AuthenticationStatuses.Unlocked) {
       await BrowserApi.tabSendMessageData(sender.tab, "addToLockedVaultPendingNotifications", {
         commandToRetry: {
           message: {
@@ -784,7 +795,7 @@ export default class NotificationBackground {
 
   private async getDecryptedCipherById(cipherId: string, userId: UserId) {
     const cipher = await this.cipherService.get(cipherId, userId);
-    if (cipher != null && cipher.type === CipherType.Login) {
+    if (cipher != null && cipher.type === CipherTypes.Login) {
       return await cipher.decrypt(
         await this.cipherService.getKeyForCipherKeyDecryption(cipher, userId),
       );
@@ -1009,7 +1020,7 @@ export default class NotificationBackground {
     const cipherView = new CipherView();
     cipherView.name = (Utils.getHostname(message.uri) || message.domain).replace(/^www\./, "");
     cipherView.folderId = folderId;
-    cipherView.type = CipherType.Login;
+    cipherView.type = CipherTypes.Login;
     cipherView.login = loginView;
 
     return cipherView;

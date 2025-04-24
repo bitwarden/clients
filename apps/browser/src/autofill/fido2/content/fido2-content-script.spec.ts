@@ -6,7 +6,7 @@ import { createPortSpyMock } from "../../../autofill/spec/autofill-mocks";
 import { triggerPortOnDisconnectEvent } from "../../../autofill/spec/testing-utils";
 import { Fido2PortName } from "../enums/fido2-port-name.enum";
 
-import { InsecureCreateCredentialParams, MessageType } from "./messaging/message";
+import { InsecureCreateCredentialParams, MessageTypes } from "./messaging/message";
 import { MessageWithMetadata, Messenger } from "./messaging/messenger";
 
 jest.mock("../../../autofill/utils", () => ({
@@ -71,7 +71,7 @@ describe("Fido2 Content Script", () => {
 
   it("handles a FIDO2 credential creation request message from the window message listener, formats the message and sends the formatted message to the extension background", async () => {
     const message = mock<MessageWithMetadata>({
-      type: MessageType.CredentialCreationRequest,
+      type: MessageTypes.CredentialCreationRequest,
       data: mock<InsecureCreateCredentialParams>(),
     });
     const mockResult = { credentialId: "mock" } as CreateCredentialResult;
@@ -92,14 +92,14 @@ describe("Fido2 Content Script", () => {
       requestId: expect.any(String),
     });
     expect(response).toEqual({
-      type: MessageType.CredentialCreationResponse,
+      type: MessageTypes.CredentialCreationResponse,
       result: mockResult,
     });
   });
 
   it("handles a FIDO2 credential get request message from the window message listener, formats the message and sends the formatted message to the extension background", async () => {
     const message = mock<MessageWithMetadata>({
-      type: MessageType.CredentialGetRequest,
+      type: MessageTypes.CredentialGetRequest,
       data: mock<InsecureCreateCredentialParams>(),
     });
 
@@ -121,7 +121,7 @@ describe("Fido2 Content Script", () => {
 
   it("removes the abort handler when the FIDO2 request is complete", async () => {
     const message = mock<MessageWithMetadata>({
-      type: MessageType.CredentialCreationRequest,
+      type: MessageTypes.CredentialCreationRequest,
       data: mock<InsecureCreateCredentialParams>(),
     });
     const abortController = new AbortController();
@@ -138,16 +138,14 @@ describe("Fido2 Content Script", () => {
 
   it("sends an extension message to abort the FIDO2 request when the abort controller is signaled", async () => {
     const message = mock<MessageWithMetadata>({
-      type: MessageType.CredentialCreationRequest,
+      type: MessageTypes.CredentialCreationRequest,
       data: mock<InsecureCreateCredentialParams>(),
     });
     const abortController = new AbortController();
     const abortSpy = jest.spyOn(abortController.signal, "addEventListener");
-    jest
-      .spyOn(chrome.runtime, "sendMessage")
-      .mockImplementationOnce(async (extensionId: string, message: unknown, options: any) => {
-        abortController.abort();
-      });
+    jest.spyOn(chrome.runtime, "sendMessage").mockImplementationOnce(async () => {
+      abortController.abort();
+    });
 
     // FIXME: Remove when updating file. Eslint update
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -165,7 +163,7 @@ describe("Fido2 Content Script", () => {
   it("rejects credential requests and returns an error result", async () => {
     const errorMessage = "Test error";
     const message = mock<MessageWithMetadata>({
-      type: MessageType.CredentialCreationRequest,
+      type: MessageTypes.CredentialCreationRequest,
       data: mock<InsecureCreateCredentialParams>(),
     });
     const abortController = new AbortController();

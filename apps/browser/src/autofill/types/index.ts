@@ -1,6 +1,6 @@
 import { VaultTimeout, VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
 import { Region } from "@bitwarden/common/platform/abstractions/environment.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherTypes } from "@bitwarden/common/vault/enums";
 
 export type UserSettings = {
   avatarColor: string | null;
@@ -54,4 +54,7 @@ export type FormFieldElement = FillableFormFieldElement | HTMLSpanElement;
 
 export type FormElementWithAttribute = FormFieldElement & Record<string, string | null | undefined>;
 
-export type AutofillCipherTypeId = CipherType.Login | CipherType.Card | CipherType.Identity;
+export type AutofillCipherTypeId =
+  | typeof CipherTypes.Login
+  | typeof CipherTypes.Card
+  | typeof CipherTypes.Identity;

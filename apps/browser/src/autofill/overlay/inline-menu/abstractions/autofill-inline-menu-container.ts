@@ -1,4 +1,4 @@
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { AuthenticationStatusValue } from "@bitwarden/common/auth/enums/authentication-status";
 
 import { InlineMenuCipherData } from "../../../background/abstractions/overlay.background";
 
@@ -10,7 +10,7 @@ export type AutofillInlineMenuContainerMessage = {
 export type InitAutofillInlineMenuElementMessage = AutofillInlineMenuContainerMessage & {
   iframeUrl: string;
   pageTitle: string;
-  authStatus: AuthenticationStatus;
+  authStatus: AuthenticationStatusValue;
   styleSheetUrl: string;
   theme: string;
   translations: Record<string, string>;

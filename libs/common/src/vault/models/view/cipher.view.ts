@@ -4,8 +4,8 @@ import { View } from "../../../models/view/view";
 import { InitializerMetadata } from "../../../platform/interfaces/initializer-metadata.interface";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { DeepJsonify } from "../../../types/deep-jsonify";
-import { CipherType, LinkedIdType } from "../../enums";
-import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
+import { CipherTypes, CipherTypeValue, LinkedIdType } from "../../enums";
+import { CipherRepromptTypes, CipherRepromptTypeValue } from "../../enums/cipher-reprompt-type";
 import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 import { LocalData } from "../data/local.data";
 import { Cipher } from "../domain/cipher";
@@ -27,7 +27,7 @@ export class CipherView implements View, InitializerMetadata {
   folderId: string = null;
   name: string = null;
   notes: string = null;
-  type: CipherType = null;
+  type: CipherTypeValue = null;
   favorite = false;
   organizationUseTotp = false;
   permissions: CipherPermissionsApi = new CipherPermissionsApi();
@@ -46,7 +46,7 @@ export class CipherView implements View, InitializerMetadata {
   revisionDate: Date = null;
   creationDate: Date = null;
   deletedDate: Date = null;
-  reprompt: CipherRepromptType = CipherRepromptType.None;
+  reprompt: CipherRepromptTypeValue = CipherRepromptTypes.None;
 
   /**
    * Flag to indicate if the cipher decryption failed.
@@ -73,20 +73,20 @@ export class CipherView implements View, InitializerMetadata {
     this.creationDate = c.creationDate;
     this.deletedDate = c.deletedDate;
     // Old locally stored ciphers might have reprompt == null. If so set it to None.
-    this.reprompt = c.reprompt ?? CipherRepromptType.None;
+    this.reprompt = c.reprompt ?? CipherRepromptTypes.None;
   }
 
   private get item() {
     switch (this.type) {
-      case CipherType.Login:
+      case CipherTypes.Login:
         return this.login;
-      case CipherType.SecureNote:
+      case CipherTypes.SecureNote:
         return this.secureNote;
-      case CipherType.Card:
+      case CipherTypes.Card:
         return this.card;
-      case CipherType.Identity:
+      case CipherTypes.Identity:
         return this.identity;
-      case CipherType.SshKey:
+      case CipherTypes.SshKey:
         return this.sshKey;
       default:
         break;
@@ -123,7 +123,7 @@ export class CipherView implements View, InitializerMetadata {
   }
 
   get passwordRevisionDisplayDate(): Date {
-    if (this.type !== CipherType.Login || this.login == null) {
+    if (this.type !== CipherTypes.Login || this.login == null) {
       return null;
     } else if (this.login.password == null || this.login.password === "") {
       return null;
@@ -156,7 +156,7 @@ export class CipherView implements View, InitializerMetadata {
    * Determines if the cipher can be launched in a new browser tab.
    */
   get canLaunch(): boolean {
-    return this.type === CipherType.Login && this.login.canLaunch;
+    return this.type === CipherTypes.Login && this.login.canLaunch;
   }
 
   linkedFieldValue(id: LinkedIdType) {
@@ -201,19 +201,19 @@ export class CipherView implements View, InitializerMetadata {
     });
 
     switch (obj.type) {
-      case CipherType.Card:
+      case CipherTypes.Card:
         view.card = CardView.fromJSON(obj.card);
         break;
-      case CipherType.Identity:
+      case CipherTypes.Identity:
         view.identity = IdentityView.fromJSON(obj.identity);
         break;
-      case CipherType.Login:
+      case CipherTypes.Login:
         view.login = LoginView.fromJSON(obj.login);
         break;
-      case CipherType.SecureNote:
+      case CipherTypes.SecureNote:
         view.secureNote = SecureNoteView.fromJSON(obj.secureNote);
         break;
-      case CipherType.SshKey:
+      case CipherTypes.SshKey:
         view.sshKey = SshKeyView.fromJSON(obj.sshKey);
         break;
       default:

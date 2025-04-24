@@ -1,5 +1,5 @@
 /**
- * @deprecated prefer the `ThemeTypes` constants and `Theme` type over unsafe enum types
+ * @deprecated instead use `ThemeTypes` constants and `Theme` type over unsafe typescript enums
  **/
 export enum ThemeType {
   System = "system",

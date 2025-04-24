@@ -29,7 +29,7 @@ import {
 
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
-import { AtRiskCarouselDialogResult } from "../at-risk-carousel-dialog/at-risk-carousel-dialog.component";
+import { AtRiskCarouselDialogResults } from "../at-risk-carousel-dialog/at-risk-carousel-dialog.component";
 
 import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
 import { AtRiskPasswordsComponent } from "./at-risk-passwords.component";
@@ -325,7 +325,7 @@ describe("AtRiskPasswordsComponent", () => {
     it("should mark the carousel as dismissed when the user dismisses it", async () => {
       mockAtRiskPasswordPageService.isGettingStartedDismissed.mockReturnValue(of(false));
       mockDialogService.open.mockReturnValue({
-        closed: of(AtRiskCarouselDialogResult.Dismissed),
+        closed: of(AtRiskCarouselDialogResults.Dismissed),
       } as any);
       await component.ngOnInit();
       expect(mockDialogService.open).toHaveBeenCalled();

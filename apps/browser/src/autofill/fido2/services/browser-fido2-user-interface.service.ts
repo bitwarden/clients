@@ -17,7 +17,7 @@ import {
 } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { AuthenticationStatuses } from "@bitwarden/common/auth/enums/authentication-status";
 import { UserRequestedFallbackAbortReason } from "@bitwarden/common/platform/abstractions/fido2/fido2-client.service.abstraction";
 import {
   Fido2UserInterfaceService as Fido2UserInterfaceServiceAbstraction,
@@ -309,7 +309,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   }
 
   async ensureUnlockedVault(): Promise<void> {
-    if ((await this.authService.getAuthStatus()) !== AuthenticationStatus.Unlocked) {
+    if ((await this.authService.getAuthStatus()) !== AuthenticationStatuses.Unlocked) {
       await this.connect();
     }
   }

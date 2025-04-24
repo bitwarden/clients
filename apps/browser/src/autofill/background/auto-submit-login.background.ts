@@ -8,7 +8,7 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { AuthenticationStatuses } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -266,7 +266,7 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
    * @param tabId - The ID of the tab to inject the script into.
    */
   private injectAutoSubmitLoginScript = async (tabId: number) => {
-    if ((await this.getAuthStatus()) === AuthenticationStatus.Unlocked) {
+    if ((await this.getAuthStatus()) === AuthenticationStatuses.Unlocked) {
       await this.scriptInjectorService.inject({
         tabId: tabId,
         injectDetails: {

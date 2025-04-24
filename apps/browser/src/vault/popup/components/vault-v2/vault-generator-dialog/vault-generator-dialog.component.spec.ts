@@ -12,7 +12,7 @@ import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 
 import {
-  GeneratorDialogAction,
+  GeneratorDialogActions,
   GeneratorDialogParams,
   GeneratorDialogResult,
   VaultGeneratorDialogComponent,
@@ -129,7 +129,7 @@ describe("VaultGeneratorDialogComponent", () => {
     fixture.debugElement.query(By.css("[data-testid='select-button']")).nativeElement.click();
 
     expect(mockDialogRef.close).toHaveBeenCalledWith({
-      action: GeneratorDialogAction.Selected,
+      action: GeneratorDialogActions.Selected,
       generatedValue: "test-password",
     });
   });
@@ -137,7 +137,7 @@ describe("VaultGeneratorDialogComponent", () => {
   it("should close with canceled action when dismissed", () => {
     fixture.debugElement.query(By.css("popup-header")).componentInstance.backAction();
     expect(mockDialogRef.close).toHaveBeenCalledWith({
-      action: GeneratorDialogAction.Canceled,
+      action: GeneratorDialogActions.Canceled,
     });
   });
 });

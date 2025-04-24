@@ -7,7 +7,7 @@ import { Router, RouterLink } from "@angular/router";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherTypes, CipherTypeValue } from "@bitwarden/common/vault/enums";
 import { ButtonModule, DialogService, MenuModule, NoItemsModule } from "@bitwarden/components";
 import { AddEditFolderDialogComponent } from "@bitwarden/vault";
 
@@ -28,7 +28,7 @@ export interface NewItemInitialValues {
   imports: [NoItemsModule, JslibModule, CommonModule, ButtonModule, RouterLink, MenuModule],
 })
 export class NewItemDropdownV2Component implements OnInit {
-  cipherType = CipherType;
+  cipherType = CipherTypes;
   private tab?: chrome.tabs.Tab;
   /**
    * Optional initial values to pass to the add cipher form
@@ -44,14 +44,14 @@ export class NewItemDropdownV2Component implements OnInit {
     this.tab = await BrowserApi.getTabFromCurrentWindow();
   }
 
-  buildQueryParams(type: CipherType): AddEditQueryParams {
+  buildQueryParams(type: CipherTypeValue): AddEditQueryParams {
     const poppedOut = BrowserPopupUtils.inPopout(window);
 
     const loginDetails: { uri?: string; name?: string } = {};
 
     // When a Login Cipher is created and the extension is not popped out,
     // pass along the uri and name
-    if (!poppedOut && type === CipherType.Login && this.tab) {
+    if (!poppedOut && type === CipherTypes.Login && this.tab) {
       loginDetails.uri = this.tab.url;
       loginDetails.name = Utils.getHostname(this.tab.url);
     }

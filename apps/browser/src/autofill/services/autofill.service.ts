@@ -16,7 +16,7 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { AuthenticationStatuses } from "@bitwarden/common/auth/enums/authentication-status";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   AutofillOverlayVisibility,
@@ -40,8 +40,8 @@ import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
-import { FieldType, CipherType } from "@bitwarden/common/vault/enums";
-import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
+import { FieldTypes, CipherTypes, CipherTypeValue } from "@bitwarden/common/vault/enums";
+import { CipherRepromptTypes } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
@@ -234,7 +234,7 @@ export default class AutofillService implements AutofillServiceInterface {
     // if not guarded by an active account check (e.g. the user is logged in)
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
-    const accountIsUnlocked = authStatus === AuthenticationStatus.Unlocked;
+    const accountIsUnlocked = authStatus === AuthenticationStatuses.Unlocked;
     let autoFillOnPageLoadIsEnabled = false;
 
     const injectedScripts = [await this.getBootstrapAutofillContentScript(activeAccount)];
@@ -483,7 +483,7 @@ export default class AutofillService implements AutofillServiceInterface {
 
         // Skip getting the TOTP code for clipboard in these cases
         if (
-          options.cipher.type !== CipherType.Login ||
+          options.cipher.type !== CipherTypes.Login ||
           totp !== null ||
           !options.cipher.login.totp ||
           (!canAccessPremium && !options.cipher.organizationUseTotp)
@@ -554,7 +554,7 @@ export default class AutofillService implements AutofillServiceInterface {
       }
     }
 
-    if (cipher == null || (cipher.reprompt === CipherRepromptType.Password && !fromCommand)) {
+    if (cipher == null || (cipher.reprompt === CipherRepromptTypes.Password && !fromCommand)) {
       return null;
     }
 
@@ -597,7 +597,7 @@ export default class AutofillService implements AutofillServiceInterface {
   async isPasswordRepromptRequired(cipher: CipherView, tab: chrome.tabs.Tab): Promise<boolean> {
     const userHasMasterPasswordAndKeyHash =
       await this.userVerificationService.hasMasterPasswordAndMasterKeyHash();
-    if (cipher.reprompt === CipherRepromptType.Password && userHasMasterPasswordAndKeyHash) {
+    if (cipher.reprompt === CipherRepromptTypes.Password && userHasMasterPasswordAndKeyHash) {
       if (!this.isDebouncingPasswordRepromptPopout()) {
         await this.openVaultItemPasswordRepromptPopout(tab, {
           cipherId: cipher.id,
@@ -620,7 +620,7 @@ export default class AutofillService implements AutofillServiceInterface {
   async doAutoFillActiveTab(
     pageDetails: PageDetail[],
     fromCommand: boolean,
-    cipherType?: CipherType,
+    cipherType?: CipherTypeValue,
   ): Promise<string | null> {
     if (!pageDetails[0]?.details?.fields?.length) {
       return null;
@@ -632,7 +632,7 @@ export default class AutofillService implements AutofillServiceInterface {
       return null;
     }
 
-    if (!cipherType || cipherType === CipherType.Login) {
+    if (!cipherType || cipherType === CipherTypes.Login) {
       return await this.doAutoFillOnTab(pageDetails, tab, fromCommand);
     }
 
@@ -646,7 +646,7 @@ export default class AutofillService implements AutofillServiceInterface {
       return null;
     }
 
-    if (cipherType === CipherType.Card) {
+    if (cipherType === CipherTypes.Card) {
       cacheKey = "cardCiphers";
       cipher = await this.cipherService.getNextCardCipher(activeUserId);
     } else {
@@ -654,7 +654,11 @@ export default class AutofillService implements AutofillServiceInterface {
       cipher = await this.cipherService.getNextIdentityCipher(activeUserId);
     }
 
-    if (!cipher || !cacheKey || (cipher.reprompt === CipherRepromptType.Password && !fromCommand)) {
+    if (
+      !cipher ||
+      !cacheKey ||
+      (cipher.reprompt === CipherRepromptTypes.Password && !fromCommand)
+    ) {
       return null;
     }
 
@@ -761,12 +765,12 @@ export default class AutofillService implements AutofillServiceInterface {
         if (matchingIndex > -1) {
           const matchingField: FieldView = fields[matchingIndex];
           let val: string;
-          if (matchingField.type === FieldType.Linked) {
+          if (matchingField.type === FieldTypes.Linked) {
             // Assumption: Linked Field is not being used to autofill a boolean value
             val = options.cipher.linkedFieldValue(matchingField.linkedId) as string;
           } else {
             val = matchingField.value;
-            if (val == null && matchingField.type === FieldType.Boolean) {
+            if (val == null && matchingField.type === FieldTypes.Boolean) {
               val = "false";
             }
           }
@@ -778,7 +782,7 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     switch (options.cipher.type) {
-      case CipherType.Login:
+      case CipherTypes.Login:
         fillScript = await this.generateLoginFillScript(
           fillScript,
           pageDetails,
@@ -786,7 +790,7 @@ export default class AutofillService implements AutofillServiceInterface {
           options,
         );
         break;
-      case CipherType.Card:
+      case CipherTypes.Card:
         fillScript = await this.generateCardFillScript(
           fillScript,
           pageDetails,
@@ -794,7 +798,7 @@ export default class AutofillService implements AutofillServiceInterface {
           options,
         );
         break;
-      case CipherType.Identity:
+      case CipherTypes.Identity:
         fillScript = await this.generateIdentityFillScript(
           fillScript,
           pageDetails,

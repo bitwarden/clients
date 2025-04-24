@@ -10,7 +10,7 @@ import {
   AUTOFILL_TRIGGER_FORM_FIELD_SUBMIT,
   AUTOFILL_OVERLAY_HANDLE_SCROLL,
 } from "@bitwarden/common/autofill/constants";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherTypes } from "@bitwarden/common/vault/enums";
 
 import {
   FocusedFieldData,
@@ -24,7 +24,7 @@ import { AutofillFieldQualifier, AutofillFieldQualifierType } from "../enums/aut
 import {
   AutofillOverlayElement,
   InlineMenuAccountCreationFieldType,
-  InlineMenuFillType,
+  InlineMenuFillTypes,
   MAX_SUB_FRAME_DEPTH,
   RedirectFocusDirection,
 } from "../enums/autofill-overlay.enum";
@@ -244,7 +244,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const password =
       this.userFilledFields["newPassword"]?.value || this.userFilledFields["password"]?.value;
 
-    if (addNewCipherType === CipherType.Login) {
+    if (addNewCipherType === CipherTypes.Login) {
       const login: NewLoginCipherData = {
         username: this.userFilledFields["username"]?.value || "",
         password: password || "",
@@ -257,7 +257,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    if (addNewCipherType === CipherType.Card) {
+    if (addNewCipherType === CipherTypes.Card) {
       const card: NewCardCipherData = {
         cardholderName: this.userFilledFields["cardholderName"]?.value || "",
         number: this.userFilledFields["cardNumber"]?.value || "",
@@ -272,7 +272,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    if (addNewCipherType === CipherType.Identity) {
+    if (addNewCipherType === CipherTypes.Identity) {
       const identity: NewIdentityCipherData = {
         title: this.userFilledFields["identityTitle"]?.value || "",
         firstName: this.userFilledFields["identityFirstName"]?.value || "",
@@ -413,7 +413,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   ) {
     if (
       !elementIsFillableFormField(formFieldElement) ||
-      autofillFieldData.inlineMenuFillType === CipherType.Card
+      autofillFieldData.inlineMenuFillType === CipherTypes.Card
     ) {
       return;
     }
@@ -788,18 +788,18 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     if (!autofillFieldData.fieldQualifier) {
       switch (autofillFieldData.inlineMenuFillType) {
-        case CipherType.Login:
-        case InlineMenuFillType.CurrentPasswordUpdate:
+        case CipherTypes.Login:
+        case InlineMenuFillTypes.CurrentPasswordUpdate:
           this.qualifyUserFilledField(autofillFieldData, this.loginFieldQualifiers);
           break;
-        case InlineMenuFillType.AccountCreationUsername:
-        case InlineMenuFillType.PasswordGeneration:
+        case InlineMenuFillTypes.AccountCreationUsername:
+        case InlineMenuFillTypes.PasswordGeneration:
           this.qualifyUserFilledField(autofillFieldData, this.accountCreationFieldQualifiers);
           break;
-        case CipherType.Card:
+        case CipherTypes.Card:
           this.qualifyUserFilledField(autofillFieldData, this.cardFieldQualifiers);
           break;
-        case CipherType.Identity:
+        case CipherTypes.Identity:
           this.qualifyUserFilledField(autofillFieldData, this.identityFieldQualifiers);
           break;
       }
@@ -1059,7 +1059,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
         pageDetails,
       )
     ) {
-      autofillFieldData.inlineMenuFillType = CipherType.Card;
+      autofillFieldData.inlineMenuFillType = CipherTypes.Card;
       return false;
     }
 
@@ -1080,7 +1080,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
         pageDetails,
       )
     ) {
-      autofillFieldData.inlineMenuFillType = CipherType.Identity;
+      autofillFieldData.inlineMenuFillType = CipherTypes.Identity;
       return false;
     }
 
@@ -1093,7 +1093,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param autofillFieldData - Autofill field data captured from the form field element.
    */
   private async setQualifiedLoginFillType(autofillFieldData: AutofillField) {
-    autofillFieldData.inlineMenuFillType = CipherType.Login;
+    autofillFieldData.inlineMenuFillType = CipherTypes.Login;
     autofillFieldData.showPasskeys = autofillFieldData.autoCompleteType.includes("webauthn");
 
     this.qualifyAccountCreationFieldType(autofillFieldData);
@@ -1106,18 +1106,18 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private setQualifiedAccountCreationFillType(autofillFieldData: AutofillField) {
     if (this.inlineMenuFieldQualificationService.isNewPasswordField(autofillFieldData)) {
-      autofillFieldData.inlineMenuFillType = InlineMenuFillType.PasswordGeneration;
+      autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
       this.qualifyAccountCreationFieldType(autofillFieldData);
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isUpdateCurrentPasswordField(autofillFieldData)) {
-      autofillFieldData.inlineMenuFillType = InlineMenuFillType.CurrentPasswordUpdate;
+      autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.CurrentPasswordUpdate;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isUsernameField(autofillFieldData)) {
-      autofillFieldData.inlineMenuFillType = InlineMenuFillType.AccountCreationUsername;
+      autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.AccountCreationUsername;
       this.qualifyAccountCreationFieldType(autofillFieldData);
     }
   }

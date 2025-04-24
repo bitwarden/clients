@@ -1,9 +1,9 @@
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { AuthenticationStatusValue } from "@bitwarden/common/auth/enums/authentication-status";
 
 export type AutofillInlineMenuButtonMessage = { command: string; colorScheme?: string };
 
 export type UpdateAuthStatusMessage = AutofillInlineMenuButtonMessage & {
-  authStatus: AuthenticationStatus;
+  authStatus: AuthenticationStatusValue;
 };
 
 export type InitAutofillInlineMenuButtonMessage = UpdateAuthStatusMessage & {

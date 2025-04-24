@@ -2,11 +2,11 @@ import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { AuthenticationStatuses } from "@bitwarden/common/auth/enums/authentication-status";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherTypes, CipherTypeValue } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { AutofillCipherTypeId } from "../types";
@@ -28,7 +28,7 @@ export class CipherContextMenuHandler {
 
     const authStatus = await this.authService.getAuthStatus();
     await MainContextMenuHandler.removeAll();
-    if (authStatus !== AuthenticationStatus.Unlocked) {
+    if (authStatus !== AuthenticationStatuses.Unlocked) {
       // Should I pass in the auth status or even have two separate methods for this
       // on MainContextMenuHandler
       await this.mainContextMenuHandler.noAccess();
@@ -48,8 +48,8 @@ export class CipherContextMenuHandler {
     }
 
     const ciphers = await this.cipherService.getAllDecryptedForUrl(url, activeUserId, [
-      CipherType.Card,
-      CipherType.Identity,
+      CipherTypes.Card,
+      CipherTypes.Identity,
     ]);
     ciphers.sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
 
@@ -67,21 +67,21 @@ export class CipherContextMenuHandler {
         };
       },
       {
-        [CipherType.Login]: [],
-        [CipherType.Card]: [],
-        [CipherType.Identity]: [],
+        [CipherTypes.Login]: [],
+        [CipherTypes.Card]: [],
+        [CipherTypes.Identity]: [],
       },
     );
 
-    if (groupedCiphers[CipherType.Login].length === 0) {
+    if (groupedCiphers[CipherTypes.Login].length === 0) {
       await this.mainContextMenuHandler.noLogins();
     }
 
-    if (groupedCiphers[CipherType.Identity].length === 0) {
+    if (groupedCiphers[CipherTypes.Identity].length === 0) {
       await this.mainContextMenuHandler.noIdentities();
     }
 
-    if (groupedCiphers[CipherType.Card].length === 0) {
+    if (groupedCiphers[CipherTypes.Card].length === 0) {
       await this.mainContextMenuHandler.noCards();
     }
 
@@ -97,18 +97,26 @@ export class CipherContextMenuHandler {
   private async updateForCipher(cipher: CipherView) {
     if (
       cipher == null ||
-      !new Set([CipherType.Login, CipherType.Card, CipherType.Identity]).has(cipher.type)
+      !new Set([
+        CipherTypes.Login,
+        CipherTypes.Card,
+        CipherTypes.Identity,
+      ] as CipherTypeValue[]).has(cipher.type)
     ) {
       return;
     }
 
     let title = cipher.name;
 
-    if (cipher.type === CipherType.Login && !Utils.isNullOrEmpty(title) && cipher.login?.username) {
+    if (
+      cipher.type === CipherTypes.Login &&
+      !Utils.isNullOrEmpty(title) &&
+      cipher.login?.username
+    ) {
       title += ` (${cipher.login.username})`;
     }
 
-    if (cipher.type === CipherType.Card && cipher.card?.subTitle) {
+    if (cipher.type === CipherTypes.Card && cipher.card?.subTitle) {
       title += ` ${cipher.card.subTitle}`;
     }
 

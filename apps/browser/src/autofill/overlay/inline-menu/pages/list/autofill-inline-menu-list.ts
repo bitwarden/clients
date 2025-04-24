@@ -5,9 +5,12 @@ import "lit/polyfill-support.js";
 
 import { FocusableElement } from "tabbable";
 
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import {
+  AuthenticationStatuses,
+  AuthenticationStatusValue,
+} from "@bitwarden/common/auth/enums/authentication-status";
 import { EVENTS, UPDATE_PASSKEYS_HEADINGS_ON_SCROLL } from "@bitwarden/common/autofill/constants";
-import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
+import { CipherRepromptTypeValue, CipherTypes } from "@bitwarden/common/vault/enums";
 
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
 import { InlineMenuFillTypes } from "../../../../enums/autofill-overlay.enum";
@@ -53,7 +56,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private lastPasskeysListItemHeight: number;
   private ciphersListHeight: number;
   private isPasskeyAuthInProgress = false;
-  private authStatus: AuthenticationStatus;
+  private authStatus: AuthenticationStatusValue;
   private readonly showCiphersPerPage = 6;
   private readonly headingBorderClass = "inline-menu-list-heading--bordered";
   private readonly inlineMenuListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers =
@@ -113,7 +116,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
     this.shadowDom.append(linkElement, this.inlineMenuListContainer);
 
-    if (authStatus !== AuthenticationStatus.Unlocked) {
+    if (authStatus !== AuthenticationStatuses.Unlocked) {
       this.buildLockedInlineMenu();
       return;
     }
@@ -210,7 +213,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Handles the show save login inline menu list message that is triggered from the background script.
    */
   private handleShowSaveLoginInlineMenuList() {
-    if (this.authStatus === AuthenticationStatus.Unlocked) {
+    if (this.authStatus === AuthenticationStatuses.Unlocked) {
       this.resetInlineMenuContainer();
       this.buildSaveLoginInlineMenu();
     }
@@ -422,7 +425,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private handleUpdateAutofillInlineMenuGeneratedPassword(
     message: UpdateAutofillInlineMenuGeneratedPasswordMessage,
   ) {
-    if (this.authStatus !== AuthenticationStatus.Unlocked || !message.generatedPassword) {
+    if (this.authStatus !== AuthenticationStatuses.Unlocked || !message.generatedPassword) {
       return;
     }
 
@@ -455,7 +458,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     const isTotpField =
-      this.inlineMenuFillType === CipherType.Login &&
+      this.inlineMenuFillType === CipherTypes.Login &&
       ciphers.some((cipher) => cipher.login?.totpField);
 
     if (isTotpField) {
@@ -615,7 +618,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     let addNewCipherType = this.inlineMenuFillType;
 
     if (this.showInlineMenuAccountCreation) {
-      addNewCipherType = CipherType.Login;
+      addNewCipherType = CipherTypes.Login;
     }
 
     this.postMessageToParent({
@@ -1105,8 +1108,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
       const svgElement = buildSvgDomElement(`
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 29 29">
-          <circle fill="none" cx="14.5" cy="14.5" r="12.5" 
-                  stroke-width="3" stroke-dasharray="78.5" 
+          <circle fill="none" cx="14.5" cy="14.5" r="12.5"
+                  stroke-width="3" stroke-dasharray="78.5"
                   stroke-dashoffset="78.5" transform="rotate(-90 14.5 14.5)"></circle>
           <circle fill="none" cx="14.5" cy="14.5" r="14" stroke-width="1"></circle>
       </svg>
@@ -1247,7 +1250,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private buildTotpElement(
     totpCode: string,
     username: string,
-    reprompt: CipherRepromptType,
+    reprompt: CipherRepromptTypeValue,
   ): HTMLDivElement | null {
     if (!totpCode) {
       return null;
@@ -1614,21 +1617,21 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Identifies if the current focused field is filled by a login cipher.
    */
   private isFilledByLoginCipher = () => {
-    return this.inlineMenuFillType === CipherType.Login;
+    return this.inlineMenuFillType === CipherTypes.Login;
   };
 
   /**
    * Identifies if the current focused field is filled by a card cipher.
    */
   private isFilledByCardCipher = () => {
-    return this.inlineMenuFillType === CipherType.Card;
+    return this.inlineMenuFillType === CipherTypes.Card;
   };
 
   /**
    * Identifies if the current focused field is filled by an identity cipher.
    */
   private isFilledByIdentityCipher = () => {
-    return this.inlineMenuFillType === CipherType.Identity;
+    return this.inlineMenuFillType === CipherTypes.Identity;
   };
 
   /**

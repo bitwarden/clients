@@ -19,7 +19,7 @@ provides flexibility and accessibility while supporting various notification typ
 | ------------------ | --------------------------------------------------- | ------------ | -------------------------------------------------------------- |
 | `handleAction`     | `(e: Event) => void`                                | No           | Function to execute when an action is triggered.               |
 | `notificationType` | `NotificationTypes.Change \| NotificationTypes.Add` | Yes          | Specifies the type of notification associated with the action. |
-| `theme`            | `Theme`                                             | Yes          | The theme to style the component. Must match the `Theme` enum. |
+| `theme`            | `Theme`                                             | Yes          | The theme to style the component. Must match the `Theme` type. |
 
 ## Installation and Setup
 
@@ -30,7 +30,7 @@ provides flexibility and accessibility while supporting various notification typ
 2. Pass the required props when rendering the component:
    - `handleAction`: Optional function to handle the triggered action.
    - `notificationType`: Mandatory type from `NotificationTypes` to define the action context.
-   - `theme`: The styling theme (must be a valid `Theme` enum value).
+   - `theme`: The styling theme (must be a valid `Theme` value).
 
 ## Accessibility (WCAG) Compliance
 

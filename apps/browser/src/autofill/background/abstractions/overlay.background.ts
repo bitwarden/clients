@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
+import { CipherTypeValue } from "@bitwarden/common/vault/enums";
+import { CipherRepromptTypeValue } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { InlineMenuFillTypes } from "../../enums/autofill-overlay.enum";
@@ -109,7 +109,7 @@ export type NewIdentityCipherData = {
 };
 
 export type OverlayAddNewItemMessage = {
-  addNewCipherType?: CipherType;
+  addNewCipherType?: CipherTypeValue;
   login?: NewLoginCipherData;
   card?: NewCardCipherData;
   identity?: NewIdentityCipherData;
@@ -159,15 +159,15 @@ export type OverlayPortMessage = {
   command: string;
   direction?: string;
   inlineMenuCipherId?: string;
-  addNewCipherType?: CipherType;
+  addNewCipherType?: CipherTypeValue;
   usePasskey?: boolean;
 };
 
 export type InlineMenuCipherData = {
   id: string;
   name: string;
-  type: CipherType;
-  reprompt: CipherRepromptType;
+  type: CipherTypeValue;
+  reprompt: CipherRepromptTypeValue;
   favorite: boolean;
   icon: WebsiteIconData;
   accountCreationFieldType?: string;

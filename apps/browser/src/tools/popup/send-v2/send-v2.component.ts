@@ -26,10 +26,12 @@ import { PopOutComponent } from "../../../platform/popup/components/pop-out.comp
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
-export enum SendState {
-  Empty,
-  NoResults,
-}
+export const SendStates = Object.freeze({
+  Empty: 0,
+  NoResults: 1,
+} as const);
+
+type SendState = (typeof SendStates)[keyof typeof SendStates];
 
 @Component({
   templateUrl: "send-v2.component.html",
@@ -53,7 +55,7 @@ export enum SendState {
 })
 export class SendV2Component implements OnInit, OnDestroy {
   sendType = SendType;
-  sendState = SendState;
+  sendState = SendStates;
 
   protected listState: SendState | null = null;
   protected sends$ = this.sendItemsService.filteredAndSortedSends$;
@@ -84,12 +86,12 @@ export class SendV2Component implements OnInit, OnDestroy {
         }
 
         if (emptyList) {
-          this.listState = SendState.Empty;
+          this.listState = SendStates.Empty;
           return;
         }
 
         if (noFilteredResults) {
-          this.listState = SendState.NoResults;
+          this.listState = SendStates.NoResults;
           return;
         }
 

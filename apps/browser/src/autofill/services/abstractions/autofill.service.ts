@@ -4,7 +4,7 @@ import { Observable } from "rxjs";
 
 import { UriMatchStrategySetting } from "@bitwarden/common/models/domain/domain-service";
 import { CommandDefinition } from "@bitwarden/common/platform/messaging";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherTypeValue } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { AutofillMessageCommand } from "../../enums/autofill-message.enums";
@@ -84,7 +84,7 @@ export abstract class AutofillService {
   doAutoFillActiveTab: (
     pageDetails: PageDetail[],
     fromCommand: boolean,
-    cipherType?: CipherType,
+    cipherType?: CipherTypeValue,
   ) => Promise<string | null>;
   setAutoFillOnPageLoadOrgPolicy: () => Promise<void>;
   isPasswordRepromptRequired: (cipher: CipherView, tab: chrome.tabs.Tab) => Promise<boolean>;

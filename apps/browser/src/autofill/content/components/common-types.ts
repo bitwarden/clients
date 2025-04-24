@@ -1,6 +1,6 @@
 import { TemplateResult } from "lit";
 
-import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { ProductTierTypeValue } from "@bitwarden/common/billing/enums";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 export type IconProps = {
@@ -24,5 +24,5 @@ export type FolderView = {
 export type OrgView = {
   id: string;
   name: string;
-  productTierType?: ProductTierType;
+  productTierType?: ProductTierTypeValue;
 };

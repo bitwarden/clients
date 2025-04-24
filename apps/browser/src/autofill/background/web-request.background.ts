@@ -4,7 +4,7 @@ import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { AuthenticationStatuses } from "@bitwarden/common/auth/enums/authentication-status";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -69,7 +69,7 @@ export default class WebRequestBackground {
     }
 
     const authStatus = await firstValueFrom(this.authService.authStatusFor$(activeUserId));
-    if (authStatus < AuthenticationStatus.Unlocked) {
+    if (authStatus < AuthenticationStatuses.Unlocked) {
       error();
       return;
     }

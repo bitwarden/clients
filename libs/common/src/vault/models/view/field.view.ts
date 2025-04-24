@@ -3,13 +3,13 @@
 import { Jsonify } from "type-fest";
 
 import { View } from "../../../models/view/view";
-import { FieldType, LinkedIdType } from "../../enums";
+import { FieldTypeValue, LinkedIdType } from "../../enums";
 import { Field } from "../domain/field";
 
 export class FieldView implements View {
   name: string = null;
   value: string = null;
-  type: FieldType = null;
+  type: FieldTypeValue = null;
   newField = false; // Marks if the field is new and hasn't been saved
   showValue = false;
   showCount = false;

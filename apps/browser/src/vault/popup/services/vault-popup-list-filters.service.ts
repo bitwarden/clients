@@ -33,7 +33,7 @@ import {
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherTypes, CipherTypeValue } from "@bitwarden/common/vault/enums";
 import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -53,7 +53,7 @@ export interface CachedFilterState {
   organizationId?: string;
   collectionId?: string;
   folderId?: string;
-  cipherType?: CipherType | null;
+  cipherType?: CipherTypeValue | null;
 }
 
 /** All available cipher filters */
@@ -61,7 +61,7 @@ export type PopupListFilter = {
   organization: Organization | null;
   collection: CollectionView | null;
   folder: FolderView | null;
-  cipherType: CipherType | null;
+  cipherType: CipherTypeValue | null;
 };
 
 /** Delimiter that denotes a level of nesting  */
@@ -252,29 +252,29 @@ export class VaultPopupListFiltersService {
   /**
    * All available cipher types
    */
-  readonly cipherTypes: ChipSelectOption<CipherType>[] = [
+  readonly cipherTypes: ChipSelectOption<CipherTypeValue>[] = [
     {
-      value: CipherType.Login,
+      value: CipherTypes.Login,
       label: this.i18nService.t("typeLogin"),
       icon: "bwi-globe",
     },
     {
-      value: CipherType.Card,
+      value: CipherTypes.Card,
       label: this.i18nService.t("typeCard"),
       icon: "bwi-credit-card",
     },
     {
-      value: CipherType.Identity,
+      value: CipherTypes.Identity,
       label: this.i18nService.t("typeIdentity"),
       icon: "bwi-id-card",
     },
     {
-      value: CipherType.SecureNote,
+      value: CipherTypes.SecureNote,
       label: this.i18nService.t("note"),
       icon: "bwi-sticky-note",
     },
     {
-      value: CipherType.SshKey,
+      value: CipherTypes.SshKey,
       label: this.i18nService.t("typeSshKey"),
       icon: "bwi-key",
     },

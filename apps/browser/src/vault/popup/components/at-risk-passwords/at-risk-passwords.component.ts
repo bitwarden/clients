@@ -54,7 +54,7 @@ import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-he
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
 import {
   AtRiskCarouselDialogComponent,
-  AtRiskCarouselDialogResult,
+  AtRiskCarouselDialogResults,
 } from "../at-risk-carousel-dialog/at-risk-carousel-dialog.component";
 
 import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
@@ -194,7 +194,7 @@ export class AtRiskPasswordsComponent implements OnInit {
       const ref = AtRiskCarouselDialogComponent.open(this.dialogService);
 
       const result = await firstValueFrom(ref.closed);
-      if (result === AtRiskCarouselDialogResult.Dismissed) {
+      if (result === AtRiskCarouselDialogResults.Dismissed) {
         await this.atRiskPasswordPageService.dismissGettingStarted(userId);
       }
     }

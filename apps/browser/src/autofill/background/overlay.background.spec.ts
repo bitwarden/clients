@@ -2,7 +2,10 @@ import { mock, MockProxy, mockReset } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import {
+  AuthenticationStatuses,
+  AuthenticationStatusValue,
+} from "@bitwarden/common/auth/enums/authentication-status";
 import {
   AutofillOverlayVisibility,
   SHOW_AUTOFILL_BUTTON,
@@ -21,7 +24,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { ThemeType } from "@bitwarden/common/platform/enums";
+import { ThemeTypes, Theme } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CloudEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
 import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/services/fido2/fido2-active-request-manager";
@@ -35,7 +38,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
-import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
+import { CipherRepromptTypes, CipherTypes } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 
@@ -45,7 +48,7 @@ import {
   AutofillOverlayElement,
   AutofillOverlayPort,
   InlineMenuAccountCreationFieldType,
-  InlineMenuFillType,
+  InlineMenuFillTypes,
   MAX_SUB_FRAME_DEPTH,
   RedirectFocusDirection,
 } from "../enums/autofill-overlay.enum";
@@ -95,7 +98,7 @@ describe("OverlayBackground", () => {
   let cipherService: MockProxy<CipherService>;
   let autofillService: MockProxy<AutofillService>;
   let configService: MockProxy<ConfigService>;
-  let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
+  let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatusValue>;
   let authService: MockProxy<AuthService>;
   let environmentMock$: BehaviorSubject<CloudEnvironment>;
   let environmentService: MockProxy<EnvironmentService>;
@@ -106,7 +109,7 @@ describe("OverlayBackground", () => {
   let enablePasskeysMock$: BehaviorSubject<boolean>;
   let vaultSettingsServiceMock: MockProxy<VaultSettingsService>;
   let fido2ActiveRequestManager: Fido2ActiveRequestManager;
-  let selectedThemeMock$: BehaviorSubject<ThemeType>;
+  let selectedThemeMock$: BehaviorSubject<Theme>;
   let inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
   let themeStateService: MockProxy<ThemeStateService>;
   let totpService: MockProxy<TotpService>;
@@ -164,7 +167,9 @@ describe("OverlayBackground", () => {
       getAllDecryptedForUrl: jest.fn().mockResolvedValue([]),
     });
     autofillService = mock<AutofillService>();
-    activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
+    activeAccountStatusMock$ = new BehaviorSubject(
+      AuthenticationStatuses.Unlocked as AuthenticationStatusValue,
+    );
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
     environmentMock$ = new BehaviorSubject(
@@ -176,7 +181,9 @@ describe("OverlayBackground", () => {
     );
     environmentService = mock<EnvironmentService>();
     environmentService.environment$ = environmentMock$;
-    inlineMenuVisibilityMock$ = new BehaviorSubject(AutofillOverlayVisibility.OnFieldFocus);
+    inlineMenuVisibilityMock$ = new BehaviorSubject(
+      AutofillOverlayVisibility.OnFieldFocus as InlineMenuVisibilitySetting,
+    );
     autofillSettingsService = mock<AutofillSettingsService>();
     autofillSettingsService.inlineMenuVisibility$ = inlineMenuVisibilityMock$;
     i18nService = mock<I18nService>();
@@ -185,7 +192,7 @@ describe("OverlayBackground", () => {
     vaultSettingsServiceMock = mock<VaultSettingsService>();
     vaultSettingsServiceMock.enablePasskeys$ = enablePasskeysMock$;
     fido2ActiveRequestManager = new Fido2ActiveRequestManager();
-    selectedThemeMock$ = new BehaviorSubject(ThemeType.Light);
+    selectedThemeMock$ = new BehaviorSubject(ThemeTypes.Light);
     inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
     themeStateService = mock<ThemeStateService>();
     themeStateService.selectedTheme$ = selectedThemeMock$;
@@ -669,7 +676,7 @@ describe("OverlayBackground", () => {
           });
 
           it("skips updating the inline menu list if the focused field has a value and the user status is not unlocked", async () => {
-            activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+            activeAccountStatusMock$.next(AuthenticationStatuses.Locked);
             tabsSendMessageSpy.mockImplementation((_tab, message, _options) => {
               if (message.command === "checkFocusedFieldHasValue") {
                 return Promise.resolve(true);
@@ -751,28 +758,28 @@ describe("OverlayBackground", () => {
       id: "id-1",
       localData: { lastUsedDate: 222 },
       name: "name-1",
-      type: CipherType.Login,
+      type: CipherTypes.Login,
       login: { username: "username-1", password: "password", uri: url },
     });
     const cardCipher = mock<CipherView>({
       id: "id-2",
       localData: { lastUsedDate: 222 },
       name: "name-2",
-      type: CipherType.Card,
+      type: CipherTypes.Card,
       card: { subTitle: "subtitle-2" },
     });
     const loginCipher2 = mock<CipherView>({
       id: "id-3",
       localData: { lastUsedDate: 222 },
       name: "name-3",
-      type: CipherType.Login,
+      type: CipherTypes.Login,
       login: { username: "username-3", uri: url },
     });
     const identityCipher = mock<CipherView>({
       id: "id-4",
       localData: { lastUsedDate: 222 },
       name: "name-4",
-      type: CipherType.Identity,
+      type: CipherTypes.Identity,
       identity: {
         username: "username",
         firstName: "Test",
@@ -784,7 +791,7 @@ describe("OverlayBackground", () => {
       id: "id-5",
       localData: { lastUsedDate: 222 },
       name: "name-5",
-      type: CipherType.Login,
+      type: CipherTypes.Login,
       login: {
         username: "username-5",
         password: "password",
@@ -801,12 +808,12 @@ describe("OverlayBackground", () => {
     });
 
     beforeEach(async () => {
-      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+      activeAccountStatusMock$.next(AuthenticationStatuses.Unlocked);
       await initOverlayElementPorts();
     });
 
     it("skips updating the overlay ciphers if the user's auth status is not unlocked", async () => {
-      activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+      activeAccountStatusMock$.next(AuthenticationStatuses.Locked);
 
       await overlayBackground.updateOverlayCiphers();
 
@@ -851,8 +858,8 @@ describe("OverlayBackground", () => {
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
       expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId, [
-        CipherType.Card,
-        CipherType.Identity,
+        CipherTypes.Card,
+        CipherTypes.Identity,
       ]);
       expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
@@ -893,8 +900,8 @@ describe("OverlayBackground", () => {
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
       expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId, [
-        CipherType.Card,
-        CipherType.Identity,
+        CipherTypes.Card,
+        CipherTypes.Identity,
       ]);
       expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
@@ -937,7 +944,7 @@ describe("OverlayBackground", () => {
             },
             name: "name-1",
             reprompt: loginCipher1.reprompt,
-            type: CipherType.Login,
+            type: CipherTypes.Login,
           },
         ],
       });
@@ -946,7 +953,7 @@ describe("OverlayBackground", () => {
     it("updates the inline menu list with card ciphers", async () => {
       overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
         tabId: tab.id,
-        inlineMenuFillType: CipherType.Card,
+        inlineMenuFillType: CipherTypes.Card,
       });
       cipherService.getAllDecryptedForUrl.mockResolvedValue([loginCipher1, cardCipher]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
@@ -974,7 +981,7 @@ describe("OverlayBackground", () => {
             card: cardCipher.card.subTitle,
             name: cardCipher.name,
             reprompt: cardCipher.reprompt,
-            type: CipherType.Card,
+            type: CipherTypes.Card,
           },
         ],
       });
@@ -1011,7 +1018,7 @@ describe("OverlayBackground", () => {
               id: "inline-menu-cipher-1",
               name: identityCipher.name,
               reprompt: identityCipher.reprompt,
-              type: CipherType.Identity,
+              type: CipherTypes.Identity,
               identity: {
                 fullName: `${identityCipher.identity.firstName} ${identityCipher.identity.lastName}`,
                 username: identityCipher.identity.username,
@@ -1025,7 +1032,7 @@ describe("OverlayBackground", () => {
         overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
           tabId: tab.id,
           accountCreationFieldType: "text",
-          inlineMenuFillType: InlineMenuFillType.AccountCreationUsername,
+          inlineMenuFillType: InlineMenuFillTypes.AccountCreationUsername,
         });
         cipherService.getAllDecryptedForUrl.mockResolvedValue([loginCipher1, identityCipher]);
         cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
@@ -1052,7 +1059,7 @@ describe("OverlayBackground", () => {
               id: "inline-menu-cipher-0",
               name: identityCipher.name,
               reprompt: identityCipher.reprompt,
-              type: CipherType.Identity,
+              type: CipherTypes.Identity,
               identity: {
                 fullName: `${identityCipher.identity.firstName} ${identityCipher.identity.lastName}`,
                 username: identityCipher.identity.username,
@@ -1075,7 +1082,7 @@ describe("OverlayBackground", () => {
               },
               name: loginCipher1.name,
               reprompt: loginCipher1.reprompt,
-              type: CipherType.Login,
+              type: CipherTypes.Login,
             },
           ],
         });
@@ -1090,7 +1097,7 @@ describe("OverlayBackground", () => {
           id: "id-5",
           localData: { lastUsedDate: 222 },
           name: "name-5",
-          type: CipherType.Identity,
+          type: CipherTypes.Identity,
           identity: {
             username: "",
             email: "",
@@ -1124,7 +1131,7 @@ describe("OverlayBackground", () => {
               id: "inline-menu-cipher-1",
               name: identityCipher.name,
               reprompt: identityCipher.reprompt,
-              type: CipherType.Identity,
+              type: CipherTypes.Identity,
               identity: {
                 fullName: `${identityCipher.identity.firstName} ${identityCipher.identity.lastName}`,
                 username: identityCipher.identity.email,
@@ -1164,7 +1171,7 @@ describe("OverlayBackground", () => {
       );
       overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
         tabId: tab.id,
-        inlineMenuFillType: CipherType.Login,
+        inlineMenuFillType: CipherTypes.Login,
         showPasskeys: true,
       });
       cipherService.getAllDecryptedForUrl.mockResolvedValue([loginCipher1, passkeyCipher]);
@@ -1180,7 +1187,7 @@ describe("OverlayBackground", () => {
           {
             id: "inline-menu-cipher-0",
             name: passkeyCipher.name,
-            type: CipherType.Login,
+            type: CipherTypes.Login,
             reprompt: passkeyCipher.reprompt,
             favorite: passkeyCipher.favorite,
             icon: {
@@ -1202,7 +1209,7 @@ describe("OverlayBackground", () => {
           {
             id: "inline-menu-cipher-0",
             name: passkeyCipher.name,
-            type: CipherType.Login,
+            type: CipherTypes.Login,
             reprompt: passkeyCipher.reprompt,
             favorite: passkeyCipher.favorite,
             icon: {
@@ -1221,7 +1228,7 @@ describe("OverlayBackground", () => {
           {
             id: "inline-menu-cipher-1",
             name: loginCipher1.name,
-            type: CipherType.Login,
+            type: CipherTypes.Login,
             reprompt: loginCipher1.reprompt,
             favorite: loginCipher1.favorite,
             icon: {
@@ -1252,7 +1259,7 @@ describe("OverlayBackground", () => {
       );
       overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
         tabId: tab.id,
-        inlineMenuFillType: CipherType.Login,
+        inlineMenuFillType: CipherTypes.Login,
         showPasskeys: true,
       });
       cipherService.getAllDecryptedForUrl.mockResolvedValue([loginCipher1, passkeyCipher]);
@@ -1269,7 +1276,7 @@ describe("OverlayBackground", () => {
           {
             id: "inline-menu-cipher-0",
             name: passkeyCipher.name,
-            type: CipherType.Login,
+            type: CipherTypes.Login,
             reprompt: passkeyCipher.reprompt,
             favorite: passkeyCipher.favorite,
             icon: {
@@ -1288,7 +1295,7 @@ describe("OverlayBackground", () => {
           {
             id: "inline-menu-cipher-1",
             name: loginCipher1.name,
-            type: CipherType.Login,
+            type: CipherTypes.Login,
             reprompt: loginCipher1.reprompt,
             favorite: loginCipher1.favorite,
             icon: {
@@ -1320,7 +1327,7 @@ describe("OverlayBackground", () => {
       );
       overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
         tabId: tab.id,
-        inlineMenuFillType: CipherType.Login,
+        inlineMenuFillType: CipherTypes.Login,
         showPasskeys: true,
       });
       cipherService.getAllDecryptedForUrl.mockResolvedValue([loginCipher1, passkeyCipher]);
@@ -1336,7 +1343,7 @@ describe("OverlayBackground", () => {
           {
             id: "inline-menu-cipher-0",
             name: passkeyCipher.name,
-            type: CipherType.Login,
+            type: CipherTypes.Login,
             reprompt: passkeyCipher.reprompt,
             favorite: passkeyCipher.favorite,
             icon: {
@@ -1355,7 +1362,7 @@ describe("OverlayBackground", () => {
           {
             id: "inline-menu-cipher-1",
             name: loginCipher1.name,
-            type: CipherType.Login,
+            type: CipherTypes.Login,
             reprompt: loginCipher1.reprompt,
             favorite: loginCipher1.favorite,
             icon: {
@@ -1383,7 +1390,7 @@ describe("OverlayBackground", () => {
         {
           command: "updateFocusedFieldData",
           focusedFieldData: createFocusedFieldDataMock({
-            inlineMenuFillType: InlineMenuFillType.CurrentPasswordUpdate,
+            inlineMenuFillType: InlineMenuFillTypes.CurrentPasswordUpdate,
           }),
         },
         mock<chrome.runtime.MessageSender>({ tab }),
@@ -1401,7 +1408,7 @@ describe("OverlayBackground", () => {
             {
               id: "inline-menu-cipher-0",
               name: loginCipher1.name,
-              type: CipherType.Login,
+              type: CipherTypes.Login,
               reprompt: loginCipher1.reprompt,
               favorite: loginCipher1.favorite,
               icon: {
@@ -1420,7 +1427,7 @@ describe("OverlayBackground", () => {
             {
               id: "inline-menu-cipher-1",
               name: loginCipher2.name,
-              type: CipherType.Login,
+              type: CipherTypes.Login,
               reprompt: loginCipher2.reprompt,
               favorite: loginCipher2.favorite,
               icon: {
@@ -1501,7 +1508,10 @@ describe("OverlayBackground", () => {
         openAddEditVaultItemPopoutSpy = jest
           .spyOn(overlayBackground as any, "openAddEditVaultItemPopout")
           .mockImplementation();
-        overlayBackground["currentAddNewItemData"] = { sender, addNewCipherType: CipherType.Login };
+        overlayBackground["currentAddNewItemData"] = {
+          sender,
+          addNewCipherType: CipherTypes.Login,
+        };
       });
 
       it("will not open the add edit popout window if the message does not have a login cipher provided", () => {
@@ -1517,7 +1527,7 @@ describe("OverlayBackground", () => {
         sendMockExtensionMessage(
           {
             command: "autofillOverlayAddNewVaultItem",
-            addNewCipherType: CipherType.Login,
+            addNewCipherType: CipherTypes.Login,
             login: {
               uri: "https://tacos.com",
               hostname: "",
@@ -1537,7 +1547,7 @@ describe("OverlayBackground", () => {
         sendMockExtensionMessage(
           {
             command: "autofillOverlayAddNewVaultItem",
-            addNewCipherType: CipherType.Login,
+            addNewCipherType: CipherTypes.Login,
             login: {
               uri: "https://tacos.com",
               hostname: "",
@@ -1555,12 +1565,12 @@ describe("OverlayBackground", () => {
       });
 
       it("creates a new card cipher", async () => {
-        overlayBackground["currentAddNewItemData"].addNewCipherType = CipherType.Card;
+        overlayBackground["currentAddNewItemData"].addNewCipherType = CipherTypes.Card;
 
         sendMockExtensionMessage(
           {
             command: "autofillOverlayAddNewVaultItem",
-            addNewCipherType: CipherType.Card,
+            addNewCipherType: CipherTypes.Card,
             card: {
               cardholderName: "cardholderName",
               number: "4242424242424242",
@@ -1581,14 +1591,14 @@ describe("OverlayBackground", () => {
 
       describe("creating a new identity cipher", () => {
         beforeEach(() => {
-          overlayBackground["currentAddNewItemData"].addNewCipherType = CipherType.Identity;
+          overlayBackground["currentAddNewItemData"].addNewCipherType = CipherTypes.Identity;
         });
 
         it("populates an identity cipher view and creates it", async () => {
           sendMockExtensionMessage(
             {
               command: "autofillOverlayAddNewVaultItem",
-              addNewCipherType: CipherType.Identity,
+              addNewCipherType: CipherTypes.Identity,
               identity: {
                 title: "title",
                 firstName: "firstName",
@@ -1621,7 +1631,7 @@ describe("OverlayBackground", () => {
           sendMockExtensionMessage(
             {
               command: "autofillOverlayAddNewVaultItem",
-              addNewCipherType: CipherType.Identity,
+              addNewCipherType: CipherTypes.Identity,
               identity: {
                 firstName: "",
                 lastName: "",
@@ -1640,7 +1650,7 @@ describe("OverlayBackground", () => {
           sendMockExtensionMessage(
             {
               command: "autofillOverlayAddNewVaultItem",
-              addNewCipherType: CipherType.Identity,
+              addNewCipherType: CipherTypes.Identity,
               identity: {
                 firstName: "",
                 lastName: "",
@@ -1659,7 +1669,7 @@ describe("OverlayBackground", () => {
           sendMockExtensionMessage(
             {
               command: "autofillOverlayAddNewVaultItem",
-              addNewCipherType: CipherType.Identity,
+              addNewCipherType: CipherTypes.Identity,
               identity: {
                 firstName: "",
                 lastName: "",
@@ -1693,7 +1703,7 @@ describe("OverlayBackground", () => {
             overlayBackground as any,
             "buildLoginCipherView",
           );
-          const addNewCipherType = CipherType.Login;
+          const addNewCipherType = CipherTypes.Login;
           const topLevelLoginCipherData = {
             uri: "https://top-frame-test.com",
             hostname: "top-frame-test.com",
@@ -1741,7 +1751,7 @@ describe("OverlayBackground", () => {
             overlayBackground as any,
             "buildLoginCipherView",
           );
-          const addNewCipherType = CipherType.Login;
+          const addNewCipherType = CipherTypes.Login;
           const loginCipherData = {
             uri: "https://tacos.com",
             hostname: "tacos.com",
@@ -1779,8 +1789,8 @@ describe("OverlayBackground", () => {
             overlayBackground as any,
             "buildCardCipherView",
           );
-          overlayBackground["currentAddNewItemData"].addNewCipherType = CipherType.Card;
-          const addNewCipherType = CipherType.Card;
+          overlayBackground["currentAddNewItemData"].addNewCipherType = CipherTypes.Card;
+          const addNewCipherType = CipherTypes.Card;
           const cardCipherData = {
             cardholderName: "cardholderName",
             number: "",
@@ -1821,8 +1831,8 @@ describe("OverlayBackground", () => {
             overlayBackground as any,
             "buildIdentityCipherView",
           );
-          overlayBackground["currentAddNewItemData"].addNewCipherType = CipherType.Identity;
-          const addNewCipherType = CipherType.Identity;
+          overlayBackground["currentAddNewItemData"].addNewCipherType = CipherTypes.Identity;
+          const addNewCipherType = CipherTypes.Identity;
           const identityCipherData = {
             title: "title",
             firstName: "firstName",
@@ -1924,7 +1934,7 @@ describe("OverlayBackground", () => {
           [
             "inline-menu-cipher-0",
             mock<CipherView>({
-              type: CipherType.Login,
+              type: CipherTypes.Login,
               login: {
                 username: "username1",
                 password: "password1",
@@ -1980,7 +1990,7 @@ describe("OverlayBackground", () => {
 
       it("triggers an update of the identity ciphers present on a login field", async () => {
         await initOverlayElementPorts();
-        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+        activeAccountStatusMock$.next(AuthenticationStatuses.Unlocked);
         const tab = createChromeTabMock({ id: 2 });
         overlayBackground["focusedFieldData"] = createFocusedFieldDataMock();
         overlayBackground["isInlineMenuButtonVisible"] = true;
@@ -2009,7 +2019,7 @@ describe("OverlayBackground", () => {
         const focusedFieldData = createFocusedFieldDataMock({
           tabId: tab.id,
           frameId: sender.frameId,
-          inlineMenuFillType: CipherType.Login,
+          inlineMenuFillType: CipherTypes.Login,
         });
         sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
         await flushPromises();
@@ -2017,7 +2027,7 @@ describe("OverlayBackground", () => {
         const newFocusedFieldData = createFocusedFieldDataMock({
           tabId: tab.id,
           frameId: sender.frameId,
-          inlineMenuFillType: CipherType.Card,
+          inlineMenuFillType: CipherTypes.Card,
         });
         sendMockExtensionMessage(
           { command: "updateFocusedFieldData", focusedFieldData: newFocusedFieldData },
@@ -2035,7 +2045,7 @@ describe("OverlayBackground", () => {
 
         beforeEach(async () => {
           await initOverlayElementPorts();
-          activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+          activeAccountStatusMock$.next(AuthenticationStatuses.Unlocked);
           overlayBackground["focusedFieldData"] = createFocusedFieldDataMock();
           overlayBackground["isInlineMenuButtonVisible"] = true;
           focusedFieldData = createFocusedFieldDataMock({
@@ -2045,7 +2055,7 @@ describe("OverlayBackground", () => {
         });
 
         it("displays the password generator when the focused field is for password generation", async () => {
-          focusedFieldData.inlineMenuFillType = InlineMenuFillType.PasswordGeneration;
+          focusedFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
 
           sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
           await flushPromises();
@@ -2058,7 +2068,7 @@ describe("OverlayBackground", () => {
         });
 
         it("displays the password generator when the focused field is for login and the field has an account creation type of password", async () => {
-          focusedFieldData.inlineMenuFillType = CipherType.Login;
+          focusedFieldData.inlineMenuFillType = CipherTypes.Login;
           focusedFieldData.accountCreationFieldType = InlineMenuAccountCreationFieldType.Password;
 
           sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
@@ -2080,7 +2090,7 @@ describe("OverlayBackground", () => {
 
         beforeEach(async () => {
           await initOverlayElementPorts();
-          activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+          activeAccountStatusMock$.next(AuthenticationStatuses.Unlocked);
           overlayBackground["focusedFieldData"] = createFocusedFieldDataMock();
           overlayBackground["isInlineMenuButtonVisible"] = true;
           focusedFieldData = createFocusedFieldDataMock({
@@ -2103,7 +2113,7 @@ describe("OverlayBackground", () => {
         });
 
         it("shows the save login menu when the focused field type is for password generation and the field is filled", async () => {
-          focusedFieldData.inlineMenuFillType = InlineMenuFillType.PasswordGeneration;
+          focusedFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
 
           sendMockExtensionMessage(
             { command: "updateFocusedFieldData", focusedFieldData, focusedFieldHasValue: true },
@@ -2117,7 +2127,7 @@ describe("OverlayBackground", () => {
         });
 
         it("shows the save login menu when the focused field type is for a login cipher and the field is filled", async () => {
-          focusedFieldData.inlineMenuFillType = CipherType.Login;
+          focusedFieldData.inlineMenuFillType = CipherTypes.Login;
 
           sendMockExtensionMessage(
             { command: "updateFocusedFieldData", focusedFieldData, focusedFieldHasValue: true },
@@ -2755,7 +2765,7 @@ describe("OverlayBackground", () => {
 
         expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
           command: "updateInlineMenuButtonAuthStatus",
-          authStatus: AuthenticationStatus.Unlocked,
+          authStatus: AuthenticationStatuses.Unlocked,
         });
       });
 
@@ -2768,7 +2778,7 @@ describe("OverlayBackground", () => {
       });
 
       it("focuses the most recently focused field if a retry command is present in the message", async () => {
-        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+        activeAccountStatusMock$.next(AuthenticationStatuses.Unlocked);
         getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(createChromeTabMock({ id: 1 }));
         sendMockExtensionMessage({
           command: "unlockCompleted",
@@ -2851,7 +2861,7 @@ describe("OverlayBackground", () => {
     beforeEach(async () => {
       sender = mock<chrome.runtime.MessageSender>({ tab: createChromeTabMock({ id: 1 }) });
       portKeyForTabSpy[sender.tab.id] = portKey;
-      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+      activeAccountStatusMock$.next(AuthenticationStatuses.Unlocked);
       await initOverlayElementPorts();
       buttonMessageConnectorSpy.sender = sender;
       openUnlockPopoutSpy.mockImplementation();
@@ -2859,7 +2869,7 @@ describe("OverlayBackground", () => {
 
     describe("autofillInlineMenuButtonClicked message handler", () => {
       it("opens the unlock vault popout if the user auth status is not unlocked", async () => {
-        activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+        activeAccountStatusMock$.next(AuthenticationStatuses.Locked);
 
         sendPortMessage(buttonMessageConnectorSpy, {
           command: "autofillInlineMenuButtonClicked",
@@ -3151,7 +3161,7 @@ describe("OverlayBackground", () => {
     beforeEach(async () => {
       sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
       portKeyForTabSpy[sender.tab.id] = portKey;
-      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+      activeAccountStatusMock$.next(AuthenticationStatuses.Unlocked);
       await initOverlayElementPorts();
       listMessageConnectorSpy.sender = sender;
       openUnlockPopoutSpy.mockImplementation();
@@ -3185,7 +3195,7 @@ describe("OverlayBackground", () => {
 
     describe("unlockVault message handler", () => {
       it("opens the unlock vault popout", async () => {
-        activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+        activeAccountStatusMock$.next(AuthenticationStatuses.Locked);
 
         sendPortMessage(listMessageConnectorSpy, { command: "unlockVault", portKey });
         await flushPromises();
@@ -3224,8 +3234,8 @@ describe("OverlayBackground", () => {
 
       it("ignores the fill request if a master password reprompt is required", async () => {
         const cipher = mock<CipherView>({
-          reprompt: CipherRepromptType.Password,
-          type: CipherType.Login,
+          reprompt: CipherRepromptTypes.Password,
+          type: CipherTypes.Login,
         });
         overlayBackground["inlineMenuCiphers"] = new Map([["inline-menu-cipher-1", cipher]]);
         overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
@@ -3409,7 +3419,7 @@ describe("OverlayBackground", () => {
           {
             command: "updateFocusedFieldData",
             focusedFieldData: createFocusedFieldDataMock({
-              inlineMenuFillType: InlineMenuFillType.CurrentPasswordUpdate,
+              inlineMenuFillType: InlineMenuFillTypes.CurrentPasswordUpdate,
             }),
           },
           sender,
@@ -3461,13 +3471,13 @@ describe("OverlayBackground", () => {
         sendPortMessage(listMessageConnectorSpy, {
           command: "addNewVaultItem",
           portKey,
-          addNewCipherType: CipherType.Login,
+          addNewCipherType: CipherTypes.Login,
         });
         await flushPromises();
 
         expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(sender.tab, {
           command: "addNewVaultItemFromOverlay",
-          addNewCipherType: CipherType.Login,
+          addNewCipherType: CipherTypes.Login,
         });
       });
 
@@ -3479,13 +3489,13 @@ describe("OverlayBackground", () => {
         sendPortMessage(listMessageConnectorSpy, {
           command: "addNewVaultItem",
           portKey,
-          addNewCipherType: CipherType.Login,
+          addNewCipherType: CipherTypes.Login,
         });
         await flushPromises();
 
         expect(tabsSendMessageSpy).toHaveBeenCalledWith(sender.tab, {
           command: "addNewVaultItemFromOverlay",
-          addNewCipherType: CipherType.Login,
+          addNewCipherType: CipherTypes.Login,
         });
       });
     });
@@ -3607,7 +3617,7 @@ describe("OverlayBackground", () => {
 
     describe("fillGeneratedPassword", () => {
       const focusedFieldData = createFocusedFieldDataMock({
-        inlineMenuFillType: InlineMenuFillType.PasswordGeneration,
+        inlineMenuFillType: InlineMenuFillTypes.PasswordGeneration,
       });
 
       beforeEach(() => {
@@ -3774,9 +3784,9 @@ describe("OverlayBackground", () => {
     });
 
     it("generates a password for the password generator view", async () => {
-      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+      activeAccountStatusMock$.next(AuthenticationStatuses.Unlocked);
       const focusedFieldData = createFocusedFieldDataMock({
-        inlineMenuFillType: CipherType.Login,
+        inlineMenuFillType: CipherTypes.Login,
         accountCreationFieldType: InlineMenuAccountCreationFieldType.Password,
       });
       sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData });
@@ -3795,7 +3805,7 @@ describe("OverlayBackground", () => {
     beforeEach(async () => {
       sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
       portKeyForTabSpy[sender.tab.id] = portKey;
-      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+      activeAccountStatusMock$.next(AuthenticationStatuses.Unlocked);
       await initOverlayElementPorts();
       listMessageConnectorSpy.sender = sender;
       openUnlockPopoutSpy.mockImplementation();

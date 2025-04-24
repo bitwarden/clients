@@ -10,9 +10,12 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 import { DarkImageSourceDirective, VaultCarouselModule } from "@bitwarden/vault";
 
-export enum AtRiskCarouselDialogResult {
-  Dismissed = "dismissed",
-}
+export const AtRiskCarouselDialogResults = {
+  Dismissed: "dismissed",
+} as const;
+
+type AtRiskCarouselDialogResult =
+  (typeof AtRiskCarouselDialogResults)[keyof typeof AtRiskCarouselDialogResults];
 
 @Component({
   selector: "vault-at-risk-carousel-dialog",
@@ -33,7 +36,7 @@ export class AtRiskCarouselDialogComponent {
   protected dismissBtnEnabled = signal(false);
 
   protected async dismiss() {
-    this.dialogRef.close(AtRiskCarouselDialogResult.Dismissed);
+    this.dialogRef.close(AtRiskCarouselDialogResults.Dismissed);
   }
 
   protected onSlideChange(slideIndex: number) {

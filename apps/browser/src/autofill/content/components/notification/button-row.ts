@@ -1,20 +1,20 @@
 import { html } from "lit";
 
-import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { ProductTierTypes, ProductTierTypeValue } from "@bitwarden/common/billing/enums";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { Option, OrgView, FolderView } from "../common-types";
 import { Business, Family, Folder, User } from "../icons";
 import { ButtonRow } from "../rows/button-row";
 
-function getVaultIconByProductTier(productTierType?: ProductTierType): Option["icon"] {
+function getVaultIconByProductTier(productTierType?: ProductTierTypeValue): Option["icon"] {
   switch (productTierType) {
-    case ProductTierType.Free:
-    case ProductTierType.Families:
+    case ProductTierTypes.Free:
+    case ProductTierTypes.Families:
       return Family;
-    case ProductTierType.Teams:
-    case ProductTierType.Enterprise:
-    case ProductTierType.TeamsStarter:
+    case ProductTierTypes.Teams:
+    case ProductTierTypes.Enterprise:
+    case ProductTierTypes.TeamsStarter:
       return Business;
     default:
       return User;

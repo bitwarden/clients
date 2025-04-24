@@ -4,7 +4,10 @@ import { firstValueFrom, startWith, Subscription } from "rxjs";
 import { pairwise } from "rxjs/operators";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import {
+  AuthenticationStatuses,
+  AuthenticationStatusValue,
+} from "@bitwarden/common/auth/enums/authentication-status";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/abstractions/fido2/fido2-active-request-manager.abstraction";
@@ -87,8 +90,8 @@ export class Fido2Background implements Fido2BackgroundInterface {
    *
    * @param authStatus - The current authentication status.
    */
-  private async handleAuthStatusUpdate(authStatus: AuthenticationStatus) {
-    if (authStatus === AuthenticationStatus.LoggedOut) {
+  private async handleAuthStatusUpdate(authStatus: AuthenticationStatusValue) {
+    if (authStatus === AuthenticationStatuses.LoggedOut) {
       return;
     }
 
@@ -132,7 +135,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
     previousEnablePasskeysSetting: boolean,
     enablePasskeys: boolean,
   ) {
-    if ((await this.getAuthStatus()) === AuthenticationStatus.LoggedOut) {
+    if ((await this.getAuthStatus()) === AuthenticationStatuses.LoggedOut) {
       return;
     }
 

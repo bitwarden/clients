@@ -25,7 +25,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherTypes } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { InitContextMenuItems } from "./abstractions/main-context-menu-handler";
@@ -284,7 +284,7 @@ export class MainContextMenuHandler {
 
       if (
         !cipher ||
-        (cipher.type === CipherType.Login &&
+        (cipher.type === CipherTypes.Login &&
           (!Utils.isNullOrEmpty(cipher.login?.username) ||
             !Utils.isNullOrEmpty(cipher.login?.password) ||
             !Utils.isNullOrEmpty(cipher.login?.totp)))
@@ -294,7 +294,7 @@ export class MainContextMenuHandler {
 
       if (
         !cipher ||
-        (cipher.type === CipherType.Login && !Utils.isNullOrEmpty(cipher.login?.password))
+        (cipher.type === CipherTypes.Login && !Utils.isNullOrEmpty(cipher.login?.password))
       ) {
         if (cipher?.viewPassword ?? true) {
           await createChildItem(COPY_PASSWORD_ID);
@@ -303,7 +303,7 @@ export class MainContextMenuHandler {
 
       if (
         !cipher ||
-        (cipher.type === CipherType.Login && !Utils.isNullOrEmpty(cipher.login?.username))
+        (cipher.type === CipherTypes.Login && !Utils.isNullOrEmpty(cipher.login?.username))
       ) {
         await createChildItem(COPY_USERNAME_ID);
       }
@@ -316,11 +316,11 @@ export class MainContextMenuHandler {
         await createChildItem(COPY_VERIFICATION_CODE_ID);
       }
 
-      if ((!cipher || cipher.type === CipherType.Card) && optionId !== CREATE_LOGIN_ID) {
+      if ((!cipher || cipher.type === CipherTypes.Card) && optionId !== CREATE_LOGIN_ID) {
         await createChildItem(AUTOFILL_CARD_ID);
       }
 
-      if ((!cipher || cipher.type === CipherType.Identity) && optionId !== CREATE_LOGIN_ID) {
+      if ((!cipher || cipher.type === CipherTypes.Identity) && optionId !== CREATE_LOGIN_ID) {
         await createChildItem(AUTOFILL_IDENTITY_ID);
       }
     } catch (error) {

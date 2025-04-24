@@ -25,8 +25,8 @@ import { DomainSettingsService } from "@bitwarden/common/autofill/services/domai
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
-import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
+import { SecureNoteTypes, CipherTypes } from "@bitwarden/common/vault/enums";
+import { CipherRepromptTypes } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
@@ -191,7 +191,7 @@ export class Fido2Component implements OnInit, OnDestroy {
               this.accountService.activeAccount$.pipe(getUserId),
             );
             this.ciphers = (await this.cipherService.getAllDecrypted(activeUserId)).filter(
-              (cipher) => cipher.type === CipherType.Login && !cipher.isDeleted,
+              (cipher) => cipher.type === CipherTypes.Login && !cipher.isDeleted,
             );
 
             this.displayedCiphers = this.ciphers.filter(
@@ -349,7 +349,7 @@ export class Fido2Component implements OnInit, OnDestroy {
     if (data?.type === BrowserFido2MessageTypes.ConfirmNewCredentialRequest) {
       await this.router.navigate(["/add-cipher"], {
         queryParams: {
-          type: CipherType.Login.toString(),
+          type: CipherTypes.Login.toString(),
           name: data.credentialName || data.rpId,
           uri: this.url,
           uilocation: "popout",
@@ -428,7 +428,7 @@ export class Fido2Component implements OnInit, OnDestroy {
     this.cipher = new CipherView();
     this.cipher.name = name;
 
-    this.cipher.type = CipherType.Login;
+    this.cipher.type = CipherTypes.Login;
     this.cipher.login = new LoginView();
     this.cipher.login.username = username;
     this.cipher.login.uris = [new LoginUriView()];
@@ -436,8 +436,8 @@ export class Fido2Component implements OnInit, OnDestroy {
     this.cipher.card = new CardView();
     this.cipher.identity = new IdentityView();
     this.cipher.secureNote = new SecureNoteView();
-    this.cipher.secureNote.type = SecureNoteType.Generic;
-    this.cipher.reprompt = CipherRepromptType.None;
+    this.cipher.secureNote.type = SecureNoteTypes.Generic;
+    this.cipher.reprompt = CipherRepromptTypes.None;
   }
 
   private async createNewCipher(name: string, username: string) {

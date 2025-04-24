@@ -1,7 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
-import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
+import { FieldTypes, SecureNoteTypes, CipherTypes } from "@bitwarden/common/vault/enums";
+import {
+  CipherRepromptTypes,
+  CipherRepromptTypeValue,
+} from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
@@ -37,18 +40,18 @@ export class BitwardenCsvImporter extends BaseImporter implements Importer {
       const cipher = new CipherView();
       cipher.favorite =
         !this.organization && this.getValueOrDefault(value.favorite, "0") !== "0" ? true : false;
-      cipher.type = CipherType.Login;
+      cipher.type = CipherTypes.Login;
       cipher.notes = this.getValueOrDefault(value.notes);
       cipher.name = this.getValueOrDefault(value.name, "--");
       try {
         cipher.reprompt = parseInt(
-          this.getValueOrDefault(value.reprompt, CipherRepromptType.None.toString()),
+          this.getValueOrDefault(value.reprompt, CipherRepromptTypes.None.toString()),
           10,
-        );
+        ) as CipherRepromptTypeValue;
       } catch (e) {
         // eslint-disable-next-line
         console.error("Unable to parse reprompt value", e);
-        cipher.reprompt = CipherRepromptType.None;
+        cipher.reprompt = CipherRepromptTypes.None;
       }
 
       if (!this.isNullOrWhitespace(value.fields)) {
@@ -70,7 +73,7 @@ export class BitwardenCsvImporter extends BaseImporter implements Importer {
           const field = new FieldView();
           field.name = fields[i].substr(0, delimPosition);
           field.value = null;
-          field.type = FieldType.Text;
+          field.type = FieldTypes.Text;
           if (fields[i].length > delimPosition + 2) {
             field.value = fields[i].substr(delimPosition + 2);
           }
@@ -81,12 +84,12 @@ export class BitwardenCsvImporter extends BaseImporter implements Importer {
       const valueType = value.type != null ? value.type.toLowerCase() : null;
       switch (valueType) {
         case "note":
-          cipher.type = CipherType.SecureNote;
+          cipher.type = CipherTypes.SecureNote;
           cipher.secureNote = new SecureNoteView();
-          cipher.secureNote.type = SecureNoteType.Generic;
+          cipher.secureNote.type = SecureNoteTypes.Generic;
           break;
         default: {
-          cipher.type = CipherType.Login;
+          cipher.type = CipherTypes.Login;
           cipher.login = new LoginView();
           cipher.login.totp = this.getValueOrDefault(value.login_totp || value.totp);
           cipher.login.username = this.getValueOrDefault(value.login_username || value.username);

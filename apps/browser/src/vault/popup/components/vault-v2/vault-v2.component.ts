@@ -21,7 +21,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherTypes } from "@bitwarden/common/vault/enums";
 import { ButtonModule, DialogService, Icons, NoItemsModule } from "@bitwarden/components";
 import { DecryptionFailureDialogComponent, VaultIcons } from "@bitwarden/vault";
 
@@ -47,11 +47,13 @@ import { VaultPageService } from "./vault-page.service";
 
 import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
 
-enum VaultState {
-  Empty,
-  NoResults,
-  DeactivatedOrg,
-}
+const VaultStates = {
+  Empty: 0,
+  NoResults: 1,
+  DeactivatedOrg: 2,
+} as const;
+
+type VaultState = (typeof VaultStates)[keyof typeof VaultStates];
 
 @Component({
   selector: "app-vault",
@@ -80,7 +82,7 @@ enum VaultState {
 export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(CdkVirtualScrollableElement) virtualScrollElement?: CdkVirtualScrollableElement;
 
-  cipherType = CipherType;
+  cipherType = CipherTypes;
 
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
@@ -118,7 +120,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   protected deactivatedIcon = VaultIcons.DeactivatedOrg;
   protected noResultsIcon = Icons.NoResults;
 
-  protected VaultStateEnum = VaultState;
+  protected VaultStateEnum = VaultStates;
   protected showNewCustomizationSettingsCallout = false;
 
   constructor(
@@ -142,14 +144,14 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
       .subscribe(([emptyVault, noResults, deactivatedOrg]) => {
         switch (true) {
           case emptyVault:
-            this.vaultState = VaultState.Empty;
+            this.vaultState = VaultStates.Empty;
             break;
           case deactivatedOrg:
             // The deactivated org state takes precedence over the no results state
-            this.vaultState = VaultState.DeactivatedOrg;
+            this.vaultState = VaultStates.DeactivatedOrg;
             break;
           case noResults:
-            this.vaultState = VaultState.NoResults;
+            this.vaultState = VaultStates.NoResults;
             break;
           default:
             this.vaultState = null;

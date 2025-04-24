@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherTypeValue } from "@bitwarden/common/vault/enums";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
@@ -90,7 +90,7 @@ async function openVaultItemPasswordRepromptPopout(
  */
 async function openAddEditVaultItemPopout(
   senderTab: chrome.tabs.Tab,
-  cipherOptions: { cipherId?: string; cipherType?: CipherType } = {},
+  cipherOptions: { cipherId?: string; cipherType?: CipherTypeValue } = {},
 ) {
   const { cipherId, cipherType } = cipherOptions;
   const { url, windowId } = senderTab;
