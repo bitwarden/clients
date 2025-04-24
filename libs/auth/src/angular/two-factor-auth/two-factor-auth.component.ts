@@ -362,7 +362,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
         break;
       case TwoFactorProviderType.WebAuthn:
         this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-          pageSubtitle: this.i18nService.t("followTheStepsBelowToFinishLoggingIn"),
+          pageSubtitle: this.i18nService.t("followTheStepsBelowToFinishLoggingInWithSecurityKey"),
           pageIcon: TwoFactorAuthWebAuthnIcon,
         });
         break;

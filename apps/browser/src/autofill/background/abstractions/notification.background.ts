@@ -111,6 +111,10 @@ type NotificationBackgroundExtensionMessageHandlers = {
     message,
     sender,
   }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  bgOpenViewVaultItemPopout: ({
+    message,
+    sender,
+  }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgNeverSave: ({ sender }: BackgroundSenderParam) => Promise<void>;
   bgUnlockPopoutOpened: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgReopenUnlockPopout: ({ sender }: BackgroundSenderParam) => Promise<void>;

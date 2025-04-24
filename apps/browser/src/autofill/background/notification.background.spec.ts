@@ -826,6 +826,7 @@ describe("NotificationBackground", () => {
           notificationBackground["notificationQueue"] = [queueMessage];
           const cipherView = mock<CipherView>({
             id: "testId",
+            name: "testItemName",
             login: { username: "testUser" },
           });
           getDecryptedCipherByIdSpy.mockResolvedValueOnce(cipherView);
@@ -847,8 +848,9 @@ describe("NotificationBackground", () => {
             sender.tab,
             "saveCipherAttemptCompleted",
             {
-              username: cipherView.login.username,
+              itemName: "testItemName",
               cipherId: cipherView.id,
+              task: undefined,
             },
           );
         });
@@ -902,7 +904,7 @@ describe("NotificationBackground", () => {
           const cipherView = mock<CipherView>({
             id: mockCipherId,
             organizationId: mockOrgId,
-            login: { username: "testUser" },
+            name: "Test Item",
           });
           getDecryptedCipherByIdSpy.mockResolvedValueOnce(cipherView);
 
@@ -924,11 +926,11 @@ describe("NotificationBackground", () => {
             "saveCipherAttemptCompleted",
             {
               cipherId: "testId",
+              itemName: "Test Item",
               task: {
                 orgName: "Org Name, LLC",
                 remainingTasksCount: 1,
               },
-              username: "testUser",
             },
           );
         });
@@ -1077,6 +1079,7 @@ describe("NotificationBackground", () => {
           notificationBackground["notificationQueue"] = [queueMessage];
           const cipherView = mock<CipherView>({
             id: "testId",
+            name: "testName",
             login: { username: "test", password: "password" },
           });
           folderExistsSpy.mockResolvedValueOnce(false);
@@ -1100,8 +1103,8 @@ describe("NotificationBackground", () => {
             sender.tab,
             "saveCipherAttemptCompleted",
             {
-              username: cipherView.login.username,
               cipherId: cipherView.id,
+              itemName: cipherView.name,
             },
           );
           expect(tabSendMessageSpy).toHaveBeenCalledWith(sender.tab, { command: "addedCipher" });

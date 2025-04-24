@@ -41,6 +41,7 @@ export function NotificationFooter({
             collections,
             folders,
             organizations,
+            i18n,
             primaryButton: {
               handlePrimaryButtonClick: handleSaveAction,
               text: primaryButtonText,
