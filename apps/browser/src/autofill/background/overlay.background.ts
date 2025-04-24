@@ -662,7 +662,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * If any fields match TOTP field, return true. (TOTP fields can have multiple inputs)
+   * When focused field data contains account creation field type of totp
+   * and there are totp fields in the current frame for page details return true
    *
    * @returns boolean
    */
@@ -1401,7 +1402,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const pageDetailsMap = this.pageDetailsForTab[currentTabId];
     const pageDetails = pageDetailsMap?.get(currentFrameId);
 
-    const fields = pageDetails.details.fields;
+    const fields = pageDetails?.details?.fields || [];
     const totpFields = fields.filter((f) =>
       this.inlineMenuFieldQualificationService.isTotpField(f),
     );
@@ -1685,7 +1686,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       // a TOTP field was just focused to - or unfocused from — a non-TOTP field
       // may want to generalize this logic if cipher inline menu types exceed [general cipher, TOTP]
       [focusedFieldData, previousFocusedFieldData].filter(
-        (fd) => fd.accountCreationFieldType === InlineMenuAccountCreationFieldType.Totp,
+        (fd) => fd?.accountCreationFieldType === InlineMenuAccountCreationFieldType.Totp,
       ).length === 1
     ) {
       const updateAllCipherTypes = !this.focusedFieldMatchesFillType(
