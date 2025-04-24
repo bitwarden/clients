@@ -1071,7 +1071,7 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
-  "notificationEditToolTip": {
+  "notificationEditTooltip": {
     "message": "Edit before saving",
     "description": "Tool tip and Aria label for edit button on cipher item"
   },
