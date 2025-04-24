@@ -34,6 +34,10 @@ export enum FeatureFlag {
   PM18794_ProviderPaymentMethod = "pm-18794-provider-payment-method",
   PM17772_AdminInitiatedSponsorships = "pm-17772-admin-initiated-sponsorships",
 
+  /* Data Insights and Reporting */
+  CriticalApps = "pm-14466-risk-insights-critical-application",
+  EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
+
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   UserKeyRotationV2 = "userkey-rotation-v2",
@@ -42,8 +46,6 @@ export enum FeatureFlag {
 
   /* Tools */
   ItemShare = "item-share",
-  CriticalApps = "pm-14466-risk-insights-critical-application",
-  EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
 
   /* Vault */
@@ -54,6 +56,7 @@ export enum FeatureFlag {
   VaultBulkManagementAction = "vault-bulk-management-action",
   SecurityTasks = "security-tasks",
   CipherKeyEncryption = "cipher-key-encryption",
+  PM18520_UpdateDesktopCipherForm = "pm-18520-desktop-cipher-forms",
   EndUserNotifications = "pm-10609-end-user-notifications",
 
   /* Platform */
@@ -90,10 +93,12 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
 
-  /* Tools */
-  [FeatureFlag.ItemShare]: FALSE,
+  /* Data Insights and Reporting */
   [FeatureFlag.CriticalApps]: FALSE,
   [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
+
+  /* Tools */
+  [FeatureFlag.ItemShare]: FALSE,
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
 
   /* Vault */
@@ -104,6 +109,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.VaultBulkManagementAction]: FALSE,
   [FeatureFlag.SecurityTasks]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
+  [FeatureFlag.PM18520_UpdateDesktopCipherForm]: FALSE,
   [FeatureFlag.EndUserNotifications]: FALSE,
 
   /* Auth */
