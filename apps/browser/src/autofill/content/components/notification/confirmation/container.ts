@@ -20,14 +20,14 @@ import { NotificationConfirmationFooter } from "./footer";
 
 export type NotificationConfirmationContainerProps = NotificationBarIframeInitData & {
   handleCloseNotification: (e: Event) => void;
-  handleOpenVault: (e: Event) => void;
+  handleOpenVault: () => void;
   handleOpenTasks: (e: Event) => void;
 } & {
   error?: string;
   i18n: { [key: string]: string };
+  itemName: string;
   task?: NotificationTaskInfo;
   type: NotificationType;
-  username: string;
 };
 
 export function NotificationConfirmationContainer({
@@ -36,13 +36,13 @@ export function NotificationConfirmationContainer({
   handleOpenVault,
   handleOpenTasks,
   i18n,
+  itemName,
   task,
   theme = ThemeTypes.Light,
   type,
-  username,
 }: NotificationConfirmationContainerProps) {
   const headerMessage = getHeaderMessage(i18n, type, error);
-  const confirmationMessage = getConfirmationMessage(i18n, username, type, error);
+  const confirmationMessage = getConfirmationMessage(i18n, itemName, type, error);
   const buttonText = error ? i18n.newItem : i18n.view;
 
   let messageDetails: string | undefined;
@@ -71,6 +71,7 @@ export function NotificationConfirmationContainer({
       })}
       ${NotificationConfirmationBody({
         buttonText,
+        itemName,
         confirmationMessage,
         tasksAreComplete,
         messageDetails,
@@ -106,19 +107,17 @@ const notificationContainerStyles = (theme: Theme) => css`
 
 function getConfirmationMessage(
   i18n: { [key: string]: string },
-  username: string,
+  itemName: string,
   type?: NotificationType,
   error?: string,
 ) {
-  const loginSaveSuccessDetails = chrome.i18n.getMessage("loginSaveSuccessDetails", [username]);
-  const loginUpdatedSuccessDetails = chrome.i18n.getMessage("loginUpdatedSuccessDetails", [
-    username,
-  ]);
+  const loginSaveConfirmation = chrome.i18n.getMessage("loginSaveConfirmation", [itemName]);
+  const loginUpdatedConfirmation = chrome.i18n.getMessage("loginUpdatedConfirmation", [itemName]);
 
   if (error) {
     return i18n.saveFailureDetails;
   }
-  return type === "add" ? loginSaveSuccessDetails : loginUpdatedSuccessDetails;
+  return type === "add" ? loginSaveConfirmation : loginUpdatedConfirmation;
 }
 
 function getHeaderMessage(

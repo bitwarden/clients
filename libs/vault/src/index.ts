@@ -19,11 +19,13 @@ export { PasswordHistoryViewComponent } from "./components/password-history-view
 export { NewDeviceVerificationNoticePageOneComponent } from "./components/new-device-verification-notice/new-device-verification-notice-page-one.component";
 export { NewDeviceVerificationNoticePageTwoComponent } from "./components/new-device-verification-notice/new-device-verification-notice-page-two.component";
 export { DecryptionFailureDialogComponent } from "./components/decryption-failure-dialog/decryption-failure-dialog.component";
+export { openPasswordHistoryDialog } from "./components/password-history/password-history.component";
 export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.component";
 export * from "./components/carousel";
 
 export * as VaultIcons from "./icons";
 export * from "./services/vault-nudges.service";
+export * from "./services/custom-nudges-services";
 
 export { DefaultSshImportPromptService } from "./services/default-ssh-import-prompt.service";
 export { SshImportPromptService } from "./services/ssh-import-prompt.service";
