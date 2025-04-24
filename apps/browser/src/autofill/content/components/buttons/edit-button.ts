@@ -21,6 +21,7 @@ export function EditButton({
     <button
       type="button"
       title=${buttonText}
+      aria-label=${buttonText}
       class=${editButtonStyles({ disabled, theme })}
       @click=${(event: Event) => {
         if (!disabled) {
