@@ -70,7 +70,7 @@ function getI18n() {
     notificationChangeDesc: chrome.i18n.getMessage("notificationChangeDesc"),
     notificationUpdate: chrome.i18n.getMessage("notificationChangeSave"),
     notificationEdit: chrome.i18n.getMessage("edit"),
-    notificationEditToolTip: chrome.i18n.getMessage("notificationEditToolTip"),
+    notificationEditTooltip: chrome.i18n.getMessage("notificationEditTooltip"),
     notificationUnlock: chrome.i18n.getMessage("notificationUnlock"),
     notificationUnlockDesc: chrome.i18n.getMessage("notificationUnlockDesc"),
     notificationViewAria: chrome.i18n.getMessage("notificationViewAria"),
