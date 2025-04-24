@@ -9,6 +9,7 @@ import {
   firstValueFrom,
   map,
   Observable,
+  of,
   shareReplay,
   startWith,
   switchMap,
@@ -93,8 +94,14 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   VaultNudgeType = VaultNudgeType;
   cipherType = CipherType;
-  showEmptyVaultNudge$: Observable<NudgeStatus> = new Observable();
-  showHasItemsVaultNudge$: Observable<NudgeStatus> = new Observable();
+  showEmptyVaultNudge$: Observable<NudgeStatus> = of({
+    hasBadgeDismissed: true,
+    hasSpotlightDismissed: true,
+  });
+  showHasItemsVaultNudge$: Observable<NudgeStatus> = of({
+    hasBadgeDismissed: true,
+    hasSpotlightDismissed: true,
+  });
   activeUserId: UserId | null = null;
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
