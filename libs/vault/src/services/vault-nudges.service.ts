@@ -70,7 +70,7 @@ export class VaultNudgesService {
         if (!hasVaultNudgeFlag) {
           return of({ hasBadgeDismissed: true, hasSpotlightDismissed: true } as NudgeStatus);
         }
-        return this.getNudgeService(nudge).shouldShowNudge$(nudge, userId);
+        return this.getNudgeService(nudge).nudgeStatus$(nudge, userId);
       }),
     );
   }

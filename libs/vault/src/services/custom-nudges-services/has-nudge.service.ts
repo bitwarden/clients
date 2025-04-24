@@ -26,7 +26,7 @@ export class HasNudgeService extends DefaultSingleNudgeService {
   /**
    * Returns an observable that emits true if any of the provided nudge types are present
    */
-  shouldShowNudge$(): Observable<NudgeStatus> {
+  nudgeStatus$(): Observable<NudgeStatus> {
     return this.accountService.activeAccount$.pipe(
       switchMap((activeAccount) => {
         const userId: UserId | undefined = activeAccount?.id;
@@ -35,7 +35,7 @@ export class HasNudgeService extends DefaultSingleNudgeService {
         }
 
         const nudgeObservables: Observable<NudgeStatus>[] = this.nudgeTypes.map((nudge) =>
-          super.shouldShowNudge$(nudge, userId),
+          super.nudgeStatus$(nudge, userId),
         );
 
         return combineLatest(nudgeObservables).pipe(

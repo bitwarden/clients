@@ -14,7 +14,7 @@ import {
  * Base interface for handling a nudge's status
  */
 export interface SingleNudgeService {
-  shouldShowNudge$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus>;
+  nudgeStatus$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus>;
 
   setNudgeStatus(nudgeType: VaultNudgeType, newStatus: NudgeStatus, userId: UserId): Promise<void>;
 }
@@ -39,7 +39,7 @@ export class DefaultSingleNudgeService implements SingleNudgeService {
       );
   }
 
-  shouldShowNudge$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
+  nudgeStatus$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
     return this.getNudgeStatus$(nudgeType, userId);
   }
 

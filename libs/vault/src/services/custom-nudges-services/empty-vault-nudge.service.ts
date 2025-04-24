@@ -20,7 +20,7 @@ export class EmptyVaultNudgeService extends DefaultSingleNudgeService {
   organizationService = inject(OrganizationService);
   collectionService = inject(CollectionService);
 
-  shouldShowNudge$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
+  nudgeStatus$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
     return combineLatest([
       this.getNudgeStatus$(nudgeType, userId),
       this.cipherService.cipherViews$(userId),

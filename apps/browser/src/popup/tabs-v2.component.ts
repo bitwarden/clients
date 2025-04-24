@@ -18,7 +18,7 @@ export class TabsV2Component {
 
   protected navButtons$ = combineLatest([
     this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge),
-    this.hasNudgeService.shouldShowNudge$(),
+    this.hasNudgeService.nudgeStatus$(),
   ]).pipe(
     map(([onboardingFeatureEnabled, showNudge]) => {
       return [
