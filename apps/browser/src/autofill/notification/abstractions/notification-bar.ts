@@ -33,7 +33,7 @@ type NotificationBarWindowMessage = {
   data?: {
     cipherId?: string;
     task?: NotificationTaskInfo;
-    username?: string;
+    itemName?: string;
   };
   error?: string;
   initData?: NotificationBarIframeInitData;

@@ -69,6 +69,9 @@ import { DialogRef, DialogService, Icons, ToastService } from "@bitwarden/compon
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
+  AttachmentDialogCloseResult,
+  AttachmentDialogResult,
+  AttachmentsV2Component,
   CipherFormConfig,
   CollectionAssignmentResult,
   DecryptionFailureDialogComponent,
@@ -96,11 +99,6 @@ import { VaultItem } from "../components/vault-items/vault-item";
 import { VaultItemEvent } from "../components/vault-items/vault-item-event";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
 
-import {
-  AttachmentDialogCloseResult,
-  AttachmentDialogResult,
-  AttachmentsV2Component,
-} from "./attachments-v2.component";
 import {
   BulkDeleteDialogResult,
   openBulkDeleteDialog,

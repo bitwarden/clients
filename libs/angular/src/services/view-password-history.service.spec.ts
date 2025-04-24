@@ -3,17 +3,16 @@ import { TestBed } from "@angular/core/testing";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
+import { openPasswordHistoryDialog } from "@bitwarden/vault";
 
-import { openPasswordHistoryDialog } from "../individual-vault/password-history.component";
+import { VaultViewPasswordHistoryService } from "./view-password-history.service";
 
-import { WebViewPasswordHistoryService } from "./web-view-password-history.service";
-
-jest.mock("../individual-vault/password-history.component", () => ({
+jest.mock("@bitwarden/vault", () => ({
   openPasswordHistoryDialog: jest.fn(),
 }));
 
-describe("WebViewPasswordHistoryService", () => {
-  let service: WebViewPasswordHistoryService;
+describe("VaultViewPasswordHistoryService", () => {
+  let service: VaultViewPasswordHistoryService;
   let dialogService: DialogService;
 
   beforeEach(async () => {
@@ -23,13 +22,13 @@ describe("WebViewPasswordHistoryService", () => {
 
     await TestBed.configureTestingModule({
       providers: [
-        WebViewPasswordHistoryService,
+        VaultViewPasswordHistoryService,
         { provide: DialogService, useValue: mockDialogService },
         Overlay,
       ],
     }).compileComponents();
 
-    service = TestBed.inject(WebViewPasswordHistoryService);
+    service = TestBed.inject(VaultViewPasswordHistoryService);
     dialogService = TestBed.inject(DialogService);
   });
 
