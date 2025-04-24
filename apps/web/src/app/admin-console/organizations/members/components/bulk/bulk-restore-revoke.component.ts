@@ -46,11 +46,6 @@ export class BulkRestoreRevokeComponent {
   }
 
   get bulkTitle() {
-    const titleKey = this.isRevoking ? "revokeUsers" : "restoreUsers";
-    return this.i18nService.t(titleKey);
-  }
-
-  get bulkMemberTitle() {
     const titleKey = this.isRevoking ? "revokeMembers" : "restoreMembers";
     return this.i18nService.t(titleKey);
   }

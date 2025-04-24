@@ -5893,15 +5893,6 @@
   "fingerprintPhrase": {
     "message": "Fingerprint phrase:"
   },
-  "removeUsers": {
-    "message": "Remove users"
-  },
-  "revokeUsers": {
-    "message": "Revoke users"
-  },
-  "restoreUsers": {
-    "message": "Restore users"
-  },
   "error": {
     "message": "Error"
   },
