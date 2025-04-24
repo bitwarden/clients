@@ -108,11 +108,12 @@ export class AddSponsorshipDialogComponent {
       const email = this.sponsorshipForm.value.sponsorshipEmail || "";
 
       const encryptedNotes = await this.encryptService.encrypt(notes, orgKey);
-
+      const isAdminInitiated = true;
       this.formPromise = this.apiService.postCreateSponsorship(this.organizationId, {
         sponsoredEmail: email,
         planSponsorshipType: PlanSponsorshipType.FamiliesForEnterprise,
         friendlyName: email,
+        isAdminInitiated,
         notes: encryptedNotes.encryptedString,
       });
 
