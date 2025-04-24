@@ -1,0 +1,20 @@
+<div role="tablist" class="tw-p-5">
+  @for (step of steps; track $index; let isLast = $last) {
+    <bit-vertical-step-content
+      [disabled]="isStepDisabled($index)"
+      [selected]="selectedIndex === $index"
+      [step]="step"
+      [stepNumber]="$index + 1"
+      (onSelectStep)="selectStepByIndex($index)"
+    >
+      @if (selectedIndex === $index) {
+        <div [ngTemplateOutlet]="selected ? selected.content : null"></div>
+      }
+      @if (!isLast && !(selectedIndex === $index)) {
+        <div
+          class="tw-ms-8 tw-h-6 tw-border-0 tw-border-l tw-border-solid tw-border-secondary-300"
+        ></div>
+      }
+    </bit-vertical-step-content>
+  }
+</div>
