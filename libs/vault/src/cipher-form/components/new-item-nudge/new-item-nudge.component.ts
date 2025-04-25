@@ -7,7 +7,9 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/sdk-internal";
-import { SpotlightComponent, VaultNudgesService, VaultNudgeType } from "@bitwarden/vault";
+import { VaultNudgesService, VaultNudgeType } from "@bitwarden/vault";
+
+import { SpotlightComponent } from "../../../components/spotlight/spotlight.component";
 
 @Component({
   selector: "vault-new-item-nudge",
