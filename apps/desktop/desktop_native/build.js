@@ -72,5 +72,5 @@ if (process.platform === "linux") {
 
 platformTargets.forEach(([target, _]) => {
     buildNapiModule(target);
-    buildProxyBin(target, true);
+    buildProxyBin(target);
 });
