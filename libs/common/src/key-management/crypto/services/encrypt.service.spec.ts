@@ -58,10 +58,9 @@ describe("EncryptService", () => {
     it("fails if type 0 key is provided with flag turned on", async () => {
       (encryptService as any).blockType0 = true;
       const mock32Key = mock<SymmetricCryptoKey>();
-      mock32Key.key = makeStaticByteArray(32);
       mock32Key.inner.mockReturnValue({
         type: 0,
-        encryptionKey: mock32Key.key,
+        encryptionKey: makeStaticByteArray(32),
       });
 
       await expect(encryptService.wrapSymmetricKey(mock32Key, mock32Key)).rejects.toThrow(
@@ -99,10 +98,9 @@ describe("EncryptService", () => {
     it("throws if type 0 key is provided with flag turned on", async () => {
       (encryptService as any).blockType0 = true;
       const mock32Key = mock<SymmetricCryptoKey>();
-      mock32Key.key = makeStaticByteArray(32);
       mock32Key.inner.mockReturnValue({
         type: 0,
-        encryptionKey: mock32Key.key,
+        encryptionKey: makeStaticByteArray(32),
       });
 
       await expect(
@@ -140,10 +138,9 @@ describe("EncryptService", () => {
     it("throws if type 0 key is provided with flag turned on", async () => {
       (encryptService as any).blockType0 = true;
       const mock32Key = mock<SymmetricCryptoKey>();
-      mock32Key.key = makeStaticByteArray(32);
       mock32Key.inner.mockReturnValue({
         type: 0,
-        encryptionKey: mock32Key.key,
+        encryptionKey: makeStaticByteArray(32),
       });
 
       await expect(
