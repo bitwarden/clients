@@ -1,6 +1,9 @@
 {
   "allApplications": {
-    "message": "All applications"
+    "message": "Kõik rakendused"
+  },
+  "appLogoLabel": {
+    "message": "Bitwardeni logo"
   },
   "criticalApplications": {
     "message": "Critical applications"
@@ -21,7 +24,7 @@
     "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
   "dataLastUpdated": {
-    "message": "Data last updated: $DATE$",
+    "message": "Viimati uuendatud: $DATE$",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -30,19 +33,19 @@
     }
   },
   "notifiedMembers": {
-    "message": "Notified members"
+    "message": "Teavitatud liikmed"
   },
   "revokeMembers": {
-    "message": "Revoke members"
+    "message": "Lõpeta liikmesus"
   },
   "restoreMembers": {
-    "message": "Restore members"
+    "message": "Taasta liikmesus"
   },
   "cannotRestoreAccessError": {
-    "message": "Cannot restore organization access"
+    "message": "Ei õnnestunud taastada ligipääsu organisatsioonile"
   },
   "allApplicationsWithCount": {
-    "message": "All applications ($COUNT$)",
+    "message": "Kõik rakendused ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -51,7 +54,7 @@
     }
   },
   "createNewLoginItem": {
-    "message": "Create new login item"
+    "message": "Loo uus kirje"
   },
   "criticalApplicationsWithCount": {
     "message": "Critical applications ($COUNT$)",
@@ -63,7 +66,7 @@
     }
   },
   "notifiedMembersWithCount": {
-    "message": "Notified members ($COUNT$)",
+    "message": "Teavitatud liikmed ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -312,7 +315,7 @@
     "message": "Kaardi turvakood (CVV)"
   },
   "securityCodeSlashCVV": {
-    "message": "Security code / CVV"
+    "message": "Kaardi turvakood / CVV"
   },
   "identityName": {
     "message": "Identiteedi nimi"
@@ -429,7 +432,7 @@
     "message": "Lohista sorteerimiseks"
   },
   "dragToReorder": {
-    "message": "Drag to reorder"
+    "message": "Järjekorra muutmiseks lohista"
   },
   "cfTypeText": {
     "message": "Tekst"
@@ -441,7 +444,7 @@
     "message": "Boolean"
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "Märkeruut"
   },
   "cfTypeLinked": {
     "message": "Seotud",
@@ -487,7 +490,7 @@
     }
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Uus kaust"
   },
   "folderName": {
     "message": "Folder name"
@@ -838,25 +841,25 @@
     "message": "Copy address"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Kopeeri telefoninumber"
   },
   "copyEmail": {
-    "message": "Copy email"
+    "message": "Kopeeri e-posti aadress"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "Kopeeri firma nimi"
   },
   "copySSN": {
-    "message": "Copy Social Security number"
+    "message": "Kopeeri isikukood"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "Kopeeri passi number"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "Kopeeri litsentsi number"
   },
   "copyName": {
-    "message": "Copy name"
+    "message": "Kopeeri nimi"
   },
   "me": {
     "message": "Mina"
@@ -1037,7 +1040,7 @@
     "message": "Ei"
   },
   "location": {
-    "message": "Location"
+    "message": "Asukoht"
   },
   "loginOrCreateNewAccount": {
     "message": "Logi sisse või loo uus konto."
@@ -1064,13 +1067,13 @@
     "message": "Kasuta teist logimismeetodit"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Logi sisse pääsuvõtmega"
   },
   "useSingleSignOn": {
     "message": "Use single sign-on"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Tere tulemast tagasi"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Vigane pääsuvõti. Palun proovi uuesti."
@@ -1154,7 +1157,7 @@
     "message": "Konto loomine"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Esimest korda siin?"
   },
   "setAStrongPassword": {
     "message": "Määra tugev parool"
@@ -1172,16 +1175,16 @@
     "message": "Logi sisse"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Logi sisse Bitwardenisse"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Sisesta oma emailile saadetud kood"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Sisesta kood oma autentimisrakendusest"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Autentimiseks vajuta nuppu oma YubiKey'l"
   },
   "authenticationTimeout": {
     "message": "Authentication timeout"
@@ -1190,25 +1193,25 @@
     "message": "The authentication session timed out. Please restart the login process."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Kinnitage oma Identiteet"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Me ei tunne seda seadet. Enda identiteedi kinnitamiseks palun sisesta oma emailile saadetud kood."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Jätka sisse logimist"
   },
   "whatIsADevice": {
-    "message": "What is a device?"
+    "message": "Mis asi on seade?"
   },
   "aDeviceIs": {
-    "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
+    "message": "Seade on ainulaadne Bitwardeni rakendus, kus sa oled sisse logitud. Rakenduse uuesti installimine, andmete kustutamine või küpsiste kustutamine võib tekitada olukorra, kus üks seade esineb mitu korda."
   },
   "logInInitiated": {
     "message": "Sisselogimine käivitatud"
   },
   "logInRequestSent": {
-    "message": "Request sent"
+    "message": "Päring saadetud"
   },
   "submit": {
     "message": "Kinnita"
@@ -1263,16 +1266,16 @@
     "message": "Seaded"
   },
   "accountEmail": {
-    "message": "Account email"
+    "message": "Konto e-maili aadress"
   },
   "requestHint": {
-    "message": "Request hint"
+    "message": "Küsi vihjet"
   },
   "requestPasswordHint": {
-    "message": "Request password hint"
+    "message": "Küsi parooli vihjet"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
-    "message": "Enter your account email address and your password hint will be sent to you"
+    "message": "Sisesta oma e-maili aadress ja sulle saadetakse sinna parooli vihje"
   },
   "getMasterPasswordHint": {
     "message": "Tuleta ülemparooli vihjega meelde"
@@ -1330,7 +1333,7 @@
     "message": "Sinu hoidla on lukus."
   },
   "yourAccountIsLocked": {
-    "message": "Your account is locked"
+    "message": "Sinu konto on lukustatud"
   },
   "uuid": {
     "message": "UUID"
@@ -1397,7 +1400,7 @@
     "message": "Unlock Bitwarden on your device or on the "
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "Kas sa püüad praegu oma kontole sisse logida?"
   },
   "accessAttemptBy": {
     "message": "Access attempt by $EMAIL$",
@@ -1409,13 +1412,13 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Kinnita juurdepääs"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Keeldu juurdepääsu andmast"
   },
   "notificationSentDeviceAnchor": {
-    "message": "web app"
+    "message": "veebirakendus"
   },
   "notificationSentDevicePart2": {
     "message": "Make sure the Fingerprint phrase matches the one below before approving."
@@ -1424,7 +1427,7 @@
     "message": "Unlock Bitwarden on your device. Make sure the Fingerprint phrase matches the one below before approving."
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "A notification was sent to your device"
+    "message": "Sinu seadmele saadeti teavitus"
   },
   "versionNumber": {
     "message": "Versioon $VERSION_NUMBER$",
@@ -1445,14 +1448,14 @@
     }
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "Ära küsi 30 päeva jooksul uuesti"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Vali teine meetod",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "Kasuta taastamise koodi"
   },
   "insertU2f": {
     "message": "Sisesta oma turvaline võti arvuti USB porti. Kui sellel on nupp, siis vajuta seda."
@@ -1470,7 +1473,7 @@
     "message": "Kaheastmelise sisselogimise valikud"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "Vali kaheastmelise sisselogimise meetod"
   },
   "recoveryCodeDesc": {
     "message": "Sul ei ole ligipääsu ühelegi kaheastmelise kinnitamise teenusele? Kasuta taastamise koodi, et kaheastmeline kinnitamine oma kontol välja lülitada."
@@ -1515,7 +1518,7 @@
     "message": "(pärineb FIDO'lt)"
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "Ava uuel vahelehel"
   },
   "emailTitle": {
     "message": "E-post"
@@ -1682,7 +1685,7 @@
     "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
-    "message": "Avoid ambiguous characters",
+    "message": "Väldi raskesti eristatavaid tähti ja sümboleid",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "length": {
@@ -3913,7 +3916,7 @@
     "message": "Device Type"
   },
   "ipAddress": {
-    "message": "IP Address"
+    "message": "IP aadress"
   },
   "confirmLogIn": {
     "message": "Confirm login"
@@ -7275,6 +7278,9 @@
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
   },
   "launchDuo": {
     "message": "Launch Duo"

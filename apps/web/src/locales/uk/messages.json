@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Всі програми"
   },
+  "appLogoLabel": {
+    "message": "Логотип Bitwarden"
+  },
   "criticalApplications": {
     "message": "Критичні програми"
   },
@@ -3324,10 +3327,10 @@
     "message": "Зовнішній ID – це незашифроване посилання, призначене для використання Bitwarden Directory Connector і API."
   },
   "ssoExternalId": {
-    "message": "SSO External ID"
+    "message": "Зовнішній ID SSO"
   },
   "ssoExternalIdDesc": {
-    "message": "SSO External ID is an unencrypted reference between Bitwarden and your configured SSO provider."
+    "message": "Зовнішній ID SSO – це незашифроване посилання між Bitwarden і вашим налаштованим провайдером SSO."
   },
   "nestCollectionUnder": {
     "message": "Розмістити збірку під"
@@ -4073,7 +4076,7 @@
     "message": "Оновити браузер"
   },
   "generatingYourRiskInsights": {
-    "message": "Generating your Risk Insights..."
+    "message": "Генерується інформація щодо ризиків..."
   },
   "updateBrowserDesc": {
     "message": "Ви використовуєте непідтримуваний браузер. Вебсховище може працювати неправильно."
@@ -5692,7 +5695,7 @@
     "message": "WebAuthn успішно підтверджено! Ви можете закрити цю вкладку."
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
-    "message": "Your new password cannot be the same as your current password."
+    "message": "Новий пароль повинен відрізнятися від поточного."
   },
   "hintEqualsPassword": {
     "message": "Підказка повинна відрізнятися від пароля."
@@ -5890,7 +5893,7 @@
     "message": "Цифровий відбиток"
   },
   "fingerprintPhrase": {
-    "message": "Fingerprint phrase:"
+    "message": "Фраза відбитка:"
   },
   "removeUsers": {
     "message": "Вилучити користувачів"
@@ -6306,19 +6309,19 @@
     "message": "Bitwarden Families безплатно"
   },
   "sponsoredBitwardenFamilies": {
-    "message": "Sponsored families"
+    "message": "Спонсоровані родини"
   },
   "noSponsoredFamilies": {
-    "message": "No sponsored families"
+    "message": "Немає спонсорованих родин"
   },
   "noSponsoredFamiliesDescription": {
-    "message": "Sponsored non-member families plans will display here"
+    "message": "Тут буде показано спонсоровані плани родин, які не є учасниками"
   },
   "sponsorFreeBitwardenFamilies": {
-    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+    "message": "Учасники вашої організації мають право на безплатний план Bitwarden Families. Ви можете спонсорувати безплатні плани Bitwarden Families для співробітників, які не є учасниками вашої організації Bitwarden. Для спонсорування користувачів, які не є учасниками організації, необхідні вільні місця в межах вашої організації."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
-    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+    "message": "Якщо вилучити активне спонсорство, місце у вашій організації стане доступним після дати оновлення спонсорованої організації."
   },
   "sponsoredFamiliesEligible": {
     "message": "Ви та ваша сім'я маєте право на Bitwarden Families безплатно. Активуйте доступ з особистою електронною адресою, щоб зберігати свої дані захищеними навіть коли ви не на роботі."
@@ -6336,16 +6339,16 @@
     "message": "Спільні збірки для обміну паролями"
   },
   "memberFamilies": {
-    "message": "Member families"
+    "message": "Родини учасників"
   },
   "noMemberFamilies": {
-    "message": "No member families"
+    "message": "Родини, які не є учасниками"
   },
   "noMemberFamiliesDescription": {
-    "message": "Members who have redeemed family plans will display here"
+    "message": "Тут показуватимуться учасники, які скористалися родинним планом"
   },
   "membersWithSponsoredFamilies": {
-    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
+    "message": "Учасники вашої організації мають право на безплатний план Bitwarden Families. Тут ви можете переглянути учасників, які спонсорують родинну організацію."
   },
   "badToken": {
     "message": "Посилання більше не дійсне. Попросіть спонсора повторно надіслати пропозицію."
@@ -6757,7 +6760,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "message": "Будуть експортовані лише записи особистого сховища включно з вкладеннями, пов'язані з $EMAIL$. Записи сховища організації не експортуватимуться.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -7275,6 +7278,9 @@
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Виконайте наведені нижче кроки, щоб завершити вхід."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Виконайте наведені нижче кроки, щоб завершити вхід за допомогою ключа безпеки."
   },
   "launchDuo": {
     "message": "Запустити Duo"
@@ -8011,7 +8017,7 @@
     "message": "Запросити учасника"
   },
   "addSponsorship": {
-    "message": "Add sponsorship"
+    "message": "Додати спонсорство"
   },
   "needsConfirmation": {
     "message": "Потребує підтвердження"
@@ -8751,7 +8757,7 @@
     "message": "Дозволити видалення збірок лише власникам та адміністраторам"
   },
   "limitItemDeletionDescription": {
-    "message": "Limit item deletion to members with the Manage collection permissions"
+    "message": "Обмежити видалення записів для учасників, які мають дозвіл на керування збірками"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Власники та адміністратори можуть керувати всіма збірками та записами"
@@ -10373,31 +10379,31 @@
     "message": "Назва організації не може перевищувати 50 символів."
   },
   "rotationCompletedTitle": {
-    "message": "Key rotation successful"
+    "message": "Оновлення ключа пройшло успішно"
   },
   "rotationCompletedDesc": {
-    "message": "Your master password and encryption keys have been updated. Your other devices have been logged out."
+    "message": "Ваш головний пароль і ключі шифрування оновлено. Сеанси на всіх інших пристроях завершено."
   },
   "trustUserEmergencyAccess": {
-    "message": "Trust and confirm user"
+    "message": "Підтвердити й довіряти користувачу"
   },
   "trustOrganization": {
-    "message": "Trust organization"
+    "message": "Довіряти організації"
   },
   "trust": {
-    "message": "Trust"
+    "message": "Довіряти"
   },
   "doNotTrust": {
-    "message": "Do not trust"
+    "message": "Не довіряти"
   },
   "emergencyAccessTrustWarning": {
-    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+    "message": "Щоб захистити свій обліковий запис, підтверджуйте лише якщо ви надали цьому користувачу екстрений доступ, і його цифровий відбиток збігається з показаним в його обліковому записі."
   },
   "orgTrustWarning": {
-    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+    "message": "Щоб захистити свій обліковий запис, продовжуйте лише якщо ви є учасником цієї організації, маєте ввімкнене відновлення облікового запису, і показаний нижче цифровий відбиток збігається з відбитком організації."
   },
   "trustUser": {
-    "message": "Trust user"
+    "message": "Довіряти користувачу"
   },
   "sshKeyWrongPassword": {
     "message": "Ви ввели неправильний пароль."
@@ -10569,7 +10575,7 @@
     "message": "Призначені місця перевищують доступні місця."
   },
   "userkeyRotationDisclaimerEmergencyAccessText": {
-    "message": "Fingerprint phrase for $NUM_USERS$ contacts for which you have enabled emergency access.",
+    "message": "Фраза відбитка для контактів ($NUM_USERS$), яким ви активували екстрений доступ.",
     "placeholders": {
       "num_users": {
         "content": "$1",
@@ -10578,7 +10584,7 @@
     }
   },
   "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
-    "message": "Fingerprint phrase for the organization $ORG_NAME$ for which you have enabled account recovery.",
+    "message": "Фраза відбитка для організації $ORG_NAME$, якій ви активували відновлення облікового запису.",
     "placeholders": {
       "org_name": {
         "content": "$1",
@@ -10587,10 +10593,10 @@
     }
   },
   "userkeyRotationDisclaimerDescription": {
-    "message": "Rotating your encryption keys will require you to trust keys of any organizations that can recover your account, and any contacts that you have enabled emergency access for. To continue, make sure you can verify the following:"
+    "message": "Оновлення ваших ключів шифрування потребуватиме довіри ключам будь-яких організацій, які можуть відновлювати ваш обліковий запис, а також будь-яких контактів, яким ви активували екстрений доступ. Щоб продовжити, переконайтеся, що ви можете перевірити зазначене нижче:"
   },
   "userkeyRotationDisclaimerTitle": {
-    "message": "Untrusted encryption keys"
+    "message": "Недовірені ключі шифрування"
   },
   "changeAtRiskPassword": {
     "message": "Змінити ризикований пароль"
@@ -10623,12 +10629,12 @@
     "message": "Безплатні організації можуть мати до 2 збірок. Передплатіть тарифний план, щоб додати більше збірок."
   },
   "businessUnit": {
-    "message": "Business Unit"
+    "message": "Бізнес-підрозділ"
   },
   "businessUnits": {
-    "message": "Business Units"
+    "message": "Бізнес-підрозділи"
   },
   "newBusinessUnit": {
-    "message": "New business unit"
+    "message": "Новий бізнес-підрозділ"
   }
 }
