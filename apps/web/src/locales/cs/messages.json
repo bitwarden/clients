@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Všechny aplikace"
   },
+  "appLogoLabel": {
+    "message": "Logo Bitwarden"
+  },
   "criticalApplications": {
     "message": "Kritické aplikace"
   },
@@ -7275,6 +7278,9 @@
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Postupujte podle kroků níže pro dokončení přihlášení."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Postupujte podle následujících kroků pro dokončení přihlášení Vaším bezpečnostním klíčem."
   },
   "launchDuo": {
     "message": "Spustit Duo"

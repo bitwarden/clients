@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Visas lietotnes"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden logotips"
+  },
   "criticalApplications": {
     "message": "Kritiskās lietotnes"
   },
@@ -2812,7 +2815,7 @@
     "message": "Izvēlētais maksājumu veids tiks izmantots jebkuru neapmaksātu abonementu apmaksai."
   },
   "paymentChargedWithTrial": {
-    "message": "Pašreizējā plānā ir iekļauts bezmaksas 7 dienu izmēģinājuma laiks. Izvēlētais apmaksas veids netiks izmantots līdz izmēģinājuma beigā. Norēķini notiks katru $INTERVAL$. To var atcelt jebkurā brīdī."
+    "message": "Pašreizējā plānā ir iekļauts bezmaksas 7 dienu izmēģinājuma laiks. Izvēlētais apmaksas veids netiks izmantots līdz izmēģinājuma beigām. To var atcelt jebkurā brīdī."
   },
   "paymentInformation": {
     "message": "Maksājuma informācija"
@@ -2842,7 +2845,7 @@
     "message": "Tiek gaidīta atcelšana"
   },
   "subscriptionPendingCanceled": {
-    "message": "Abonements ir atzīmēts atcelšanai pašreizējā norēķinu perioda beigās."
+    "message": "Abonements ir atzīmēts atcelšanai pašreizējā norēķinu laika posma beigās."
   },
   "reinstateSubscription": {
     "message": "Atjaunot abonementu"
@@ -7275,6 +7278,9 @@
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Jāseko zemāk esošajām norādēm, lai pabeigtu pieteikšanos."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Jāizpilda zemāk esošās darbības, lai pabeigtu pieteikšanos ar savu drošības atslēgu."
   },
   "launchDuo": {
     "message": "Palaist DUO"

@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Todas as aplicações"
   },
+  "appLogoLabel": {
+    "message": "Logótipo do Bitwarden"
+  },
   "criticalApplications": {
     "message": "Aplicações críticas"
   },
@@ -441,7 +444,7 @@
     "message": "Booleano"
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "Caixa de verificação"
   },
   "cfTypeLinked": {
     "message": "Associado",
@@ -7275,6 +7278,9 @@
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Siga os passos abaixo para concluir o início de sessão."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Siga os passos abaixo para concluir o início de sessão com a sua chave de segurança."
   },
   "launchDuo": {
     "message": "Iniciar o DUO"
