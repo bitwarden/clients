@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const child_process = require("child_process");
 const fs = require("fs");
-const { platform } = require("os");
 const path = require("path");
 const process = require("process");
 
