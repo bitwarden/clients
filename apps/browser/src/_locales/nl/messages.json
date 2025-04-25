@@ -2,6 +2,9 @@
   "appName": {
     "message": "Bitwarden"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden-logo"
+  },
   "extName": {
     "message": "Bitwarden - wachtwoordbeheerder",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
@@ -883,6 +886,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Volg de onderstaande stappen om het inloggen af te ronden."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Volg onderstaande stappen om in te loggen met je beveiligingssleutel."
+  },
   "restartRegistration": {
     "message": "Registratie herstarten"
   },
@@ -1056,23 +1062,49 @@
   "notificationAddSave": {
     "message": "Ja, nu opslaan"
   },
-  "loginSaveSuccessDetails": {
-    "message": "$USERNAME$ opgeslagen in Bitwarden.",
+  "notificationViewAria": {
+    "message": "$ITEMNAME$ bekijken, opent in nieuw venster",
     "placeholders": {
-      "username": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is saved."
+    "description": "Aria label for the view button in notification bar confirmation message"
   },
-  "loginUpdatedSuccessDetails": {
-    "message": "$USERNAME$ bijgewerkt in Bitwarden.",
+  "notificationEditTooltip": {
+    "message": "Bewerken voor opslaan",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "Nieuwe melding"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: Nieuwe melding",
+    "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
-      "username": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "loginSaveConfirmation": {
+    "message": "$ITEMNAME$ opgeslagen in Bitwarden.",
+    "placeholders": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is updated."
+    "description": "Shown to user after item is saved."
+  },
+  "loginUpdatedConfirmation": {
+    "message": "$ITEMNAME$ bijgewerkt in Bitwarden.",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after item is updated."
   },
   "saveAsNewLoginAction": {
     "message": "Opslaan als nieuwe login",
@@ -1082,12 +1114,12 @@
     "message": "Login bijwerken",
     "description": "Button text for updating an existing login entry."
   },
-  "saveLoginPrompt": {
-    "message": "Login opslaan?",
+  "saveLogin": {
+    "message": "Login opslaan",
     "description": "Prompt asking the user if they want to save their login details."
   },
-  "updateLoginPrompt": {
-    "message": "Bestaande login bijwerken?",
+  "updateLogin": {
+    "message": "Bestaande login bijwerken",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
