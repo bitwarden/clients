@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Све апликације"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden лого"
+  },
   "criticalApplications": {
     "message": "Критичне апликације"
   },
@@ -3324,10 +3327,10 @@
     "message": "Спољни ид се може користити као референца или за повезивање овог ресурса са спољним системом као што је корисничка фасцикла."
   },
   "ssoExternalId": {
-    "message": "SSO External ID"
+    "message": "SSO Спољни ИД"
   },
   "ssoExternalIdDesc": {
-    "message": "SSO External ID is an unencrypted reference between Bitwarden and your configured SSO provider."
+    "message": "SSO Спољни ИД је неуредна референца између Bitwarden-а и вашег конфигурисаног SSO провајдера."
   },
   "nestCollectionUnder": {
     "message": "Постави колекцију испод"
@@ -4073,7 +4076,7 @@
     "message": "Ажурирајте Претраживач"
   },
   "generatingYourRiskInsights": {
-    "message": "Generating your Risk Insights..."
+    "message": "Генерисање прегледа вашег ризика..."
   },
   "updateBrowserDesc": {
     "message": "Користите неподржани веб прегледач. Веб сеф можда неће правилно функционисати."
@@ -6866,10 +6869,10 @@
     "message": "„Ухвати све“ е-порука"
   },
   "catchallEmailDesc": {
-    "message": "Use your domain's configured catch-all inbox."
+    "message": "Користите подешено catch-all пријемно сандуче вашег домена."
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Користи овај имејл"
   },
   "random": {
     "message": "Случајно",
@@ -7275,6 +7278,9 @@
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
   },
   "launchDuo": {
     "message": "Покренути DUO"
@@ -8799,7 +8805,7 @@
     "message": "УРЛ Сервера"
   },
   "selfHostBaseUrl": {
-    "message": "Self-host server URL",
+    "message": "УРЛ сервера који се самостално хостује",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
   "alreadyHaveAccount": {
@@ -9372,7 +9378,7 @@
     "message": "Недостаје датум креације уређаја"
   },
   "desktopRequired": {
-    "message": "Desktop required"
+    "message": "Desktop је потребан"
   },
   "reopenLinkOnDesktop": {
     "message": "Reopen this link from your email on a desktop."
