@@ -263,12 +263,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "계정 이메일 주소를 입력하세요. 그 주소로 비밀번호 힌트가 전송될 것 입니다."
   },
-  "passwordHint": {
-    "message": "비밀번호 힌트"
-  },
-  "enterEmailToGetHint": {
-    "message": "마스터 비밀번호 힌트를 받으려면 계정의 이메일 주소를 입력하세요."
-  },
   "getMasterPasswordHint": {
     "message": "마스터 비밀번호 힌트 얻기"
   },
@@ -385,6 +379,15 @@
   "editFolder": {
     "message": "폴더 편집"
   },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
     "message": "새 폴더"
   },
@@ -479,22 +482,6 @@
   "length": {
     "message": "길이"
   },
-  "uppercase": {
-    "message": "대문자 (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "소문자 (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "숫자 (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "특수 문자 (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "포함",
     "description": "Card header for password generator include block"
@@ -526,10 +513,6 @@
   "specialCharactersDescription": {
     "message": "특수 문자 포함",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "단어 수"
@@ -669,8 +652,8 @@
   "browserNotSupportClipboard": {
     "message": "사용하고 있는 웹 브라우저가 쉬운 클립보드 복사를 지원하지 않습니다. 직접 복사하세요."
   },
-  "verifyIdentity": {
-    "message": "신원 확인"
+  "verifyYourIdentity": {
+    "message": "Verify your identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
@@ -921,6 +904,9 @@
   "no": {
     "message": "아니오"
   },
+  "location": {
+    "message": "Location"
+  },
   "unexpectedError": {
     "message": "예기치 못한 오류가 발생했습니다."
   },
@@ -1070,6 +1056,81 @@
   "notificationAddSave": {
     "message": "예, 지금 저장하겠습니다."
   },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ saved to Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ updated in Bitwarden.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Save as new login",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Update login",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Save login?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Update existing login?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Login saved",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Login updated",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "loginUpdateTaskSuccess": {
+    "message": "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Thank you for making $ORGANIZATION$ more secure. You have $TASK_COUNT$ more passwords to update.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Change next password",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
+  "saveFailure": {
+    "message": "Error saving",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "description": "Detailed error message shown when saving login details fails."
+  },
   "enableChangedPasswordNotification": {
     "message": "현재 로그인으로 업데이트할 건지 묻기"
   },
@@ -1132,10 +1193,6 @@
   "light": {
     "message": "밝은 테마",
     "description": "Light color"
-  },
-  "solarizedDark": {
-    "message": "Solarized Dark",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
     "message": "~(으)로부터 내보내기"
@@ -1359,23 +1416,11 @@
   "premiumRequiredDesc": {
     "message": "이 기능을 사용하려면 프리미엄 멤버십이 필요합니다."
   },
-  "enterVerificationCodeApp": {
-    "message": "인증 앱에서 6자리 인증 코드를 입력하세요."
-  },
   "authenticationTimeout": {
     "message": "인증 시간 초과"
   },
   "authenticationSessionTimedOut": {
     "message": "인증 세션 시간이 초과 되었습니다. 다시 로그인을 시작해주세요."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "$EMAIL$ 주소로 전송된 6자리 인증 코드를 입력하세요.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "$EMAIL$ 주소로 인증 이메일을 보냈습니다.",
@@ -1386,17 +1431,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "기억하기"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "인증 코드 이메일 다시 보내기"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "다른 2단계 인증 사용"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -1405,17 +1441,8 @@
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
   },
-  "insertYubiKey": {
-    "message": "YubiKey를 컴퓨터의 USB 포트에 삽입하고 이 버튼을 누르세요."
-  },
   "insertU2f": {
     "message": "보안 키를 컴퓨터의 USB 포트에 삽입하고 버튼이 있는 경우 누르세요."
-  },
-  "webAuthnNewTab": {
-    "message": "새 탭에서 WebAuthn 2단계 인증을 계속하세요."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "새 탭 열기"
   },
   "openInNewTab": {
     "message": "Open in new tab"
@@ -1486,9 +1513,6 @@
   "selfHostedEnvironment": {
     "message": "자체 호스팅 환경"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "온-프레미스 Bitwarden이 호스팅되고 있는 서버의 기본 URL을 지정하세요."
-  },
   "selfHostedBaseUrlHint": {
     "message": "온-프레미스 Bitwarden이 호스팅되고 있는 서버의 기본 URL을 지정하세요. 예: https://bitwarden.company.com"
   },
@@ -1500,9 +1524,6 @@
   },
   "customEnvironment": {
     "message": "사용자 지정 환경"
-  },
-  "customEnvironmentFooter": {
-    "message": "고급 사용자 전용 설정입니다. 각 서비스의 기본 URL을 개별적으로 지정할 수 있습니다."
   },
   "baseUrl": {
     "message": "서버 URL"
@@ -1640,6 +1661,9 @@
   },
   "dragToSort": {
     "message": "드래그하여 정렬"
+  },
+  "dragToReorder": {
+    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "텍스트"
@@ -2298,6 +2322,9 @@
   "privacyPolicy": {
     "message": "개인 정보 보호 정책"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "비밀번호 힌트는 비밀번호와 같을 수 없습니다."
   },
@@ -2505,15 +2532,15 @@
     "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Illustration of a list of logins that are at-risk"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
   },
   "generatePasswordSlideDesc": {
     "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
   },
   "updateInBitwarden": {
     "message": "Update in Bitwarden"
@@ -2522,8 +2549,8 @@
     "message": "Bitwarden will then prompt you to update the password in the password manager.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
   },
   "turnOnAutofill": {
     "message": "Turn on autofill"
@@ -2978,6 +3005,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "조직 보관함을 내보내는 중"
   },
@@ -3243,15 +3279,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "설정이 편집되었습니다"
-  },
-  "environmentEditedClick": {
-    "message": "여기를 클릭하세요."
-  },
-  "environmentEditedReset": {
-    "message": "사전 구성된 설정으로 재설정하려면"
-  },
   "serverVersion": {
     "message": "서버 버전"
   },
@@ -3282,12 +3309,6 @@
   "loginWithMasterPassword": {
     "message": "마스터 비밀번호로 로그인"
   },
-  "loggingInAs": {
-    "message": "다음으로 로그인 중"
-  },
-  "notYou": {
-    "message": "본인이 아닌가요?"
-  },
   "newAroundHere": {
     "message": "새로 찾아오셨나요?"
   },
@@ -3296,9 +3317,6 @@
   },
   "loginWithDevice": {
     "message": "기기로 로그인"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "기기로 로그인하려면 Bitwarden 모바일 앱 설정에서 설정해야 합니다. 다른 방식이 필요하신가요?"
   },
   "fingerprintPhraseHeader": {
     "message": "지문 구절"
@@ -3311,9 +3329,6 @@
   },
   "viewAllLogInOptions": {
     "message": "모든 로그인 방식 보기"
-  },
-  "viewAllLoginOptionsV1": {
-    "message": "모든 로그인 옵션 보기"
   },
   "notificationSentDevice": {
     "message": "기기에 알림이 전송되었습니다."
@@ -3456,9 +3471,6 @@
   "requestAdminApproval": {
     "message": "관리자 인증 필요"
   },
-  "approveWithMasterPassword": {
-    "message": "마스터 비밀번호로 승인"
-  },
   "ssoIdentifierRequired": {
     "message": "조직의 SSO 식별자가 필요합니다"
   },
@@ -3504,9 +3516,6 @@
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "요청이 관리자에게 전송되었습니다."
-  },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "승인되면 알림을 받게 됩니다."
   },
   "troubleLoggingIn": {
     "message": "로그인에 문제가 있나요?"
@@ -3837,14 +3846,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Duo 서비스 연결 중 오류가 발생했습니다. 다른 2단계 로그인 방법을 사용하거나 Duo에 문의하여 도움을 받으세요."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "듀오를 실행하고 단계를 따라 로그인을 완료하세요"
-  },
   "duoRequiredForAccount": {
     "message": "계정에 Duo 2단계 로그인이 필요합니다."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "확장 프로그램을 실행하여 로그인을 완료합니다."
   },
   "popoutExtension": {
     "message": "확장 프로그램을 새 창에서 열기"
@@ -4077,6 +4080,9 @@
   "activeAccount": {
     "message": "계정 활성화"
   },
+  "bitwardenAccount": {
+    "message": "Bitwarden account"
+  },
   "availableAccounts": {
     "message": "사용 가능한 계정"
   },
@@ -4265,6 +4271,20 @@
       }
     }
   },
+  "viewItemTitleWithField": {
+    "message": "View item - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "autofillTitle": {
     "message": "자동 완성 - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
@@ -4272,6 +4292,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "autofillTitleWithField": {
+    "message": "Autofill - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
       }
     }
   },
@@ -4665,6 +4699,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$을 위로 이동했습니다. 위치: $INDEX$ / $LENGTH$",
     "placeholders": {
@@ -4724,15 +4761,6 @@
   },
   "nothingSelected": {
     "message": "아무것도 선택하지 않았습니다."
-  },
-  "movedItemsToOrg": {
-    "message": "선택한 항목이 $ORGNAME$(으)로 이동됨",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
   },
   "itemsMovedToOrg": {
     "message": "항목들이 $ORGNAME$로 이동했습니다",
@@ -4900,8 +4928,8 @@
     "message": "비밀번호가 재생성되었습니다.",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Bitwarden에 로그인을 저장하시겠습니까?",
+  "saveToBitwarden": {
+    "message": "Save to Bitwarden",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
@@ -5096,6 +5124,33 @@
   "extraWide": {
     "message": "매우 넓게"
   },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "보기 권한만 있는 컬렉션은 제거할 수 없습니다: $COLLECTIONS$",
     "placeholders": {
@@ -5110,5 +5165,35 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
+  },
+  "introCarouselLabel": {
+    "message": "Welcome to Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Security, prioritized"
+  },
+  "securityPrioritizedBody": {
+    "message": "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you."
+  },
+  "quickLogin": {
+    "message": "Quick and easy login"
+  },
+  "quickLoginBody": {
+    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+  },
+  "secureUser": {
+    "message": "Level up your logins"
+  },
+  "secureUserBody": {
+    "message": "Use the generator to create and save strong, unique passwords for all your accounts."
+  },
+  "secureDevices": {
+    "message": "Your data, when and where you need it"
+  },
+  "secureDevicesBody": {
+    "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
   }
 }

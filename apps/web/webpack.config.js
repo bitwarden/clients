@@ -81,6 +81,7 @@ const moduleRules = [
         loader: "babel-loader",
         options: {
           configFile: "../../babel.config.json",
+          cacheDirectory: NODE_ENV !== "production",
         },
       },
     ],
@@ -141,7 +142,7 @@ const plugins = [
   new HtmlWebpackPlugin({
     template: "./src/connectors/duo-redirect.html",
     filename: "duo-redirect-connector.html",
-    chunks: ["connectors/duo-redirect"],
+    chunks: ["connectors/duo-redirect", "styles"],
   }),
   new HtmlWebpackPlugin({
     template: "./src/404.html",
@@ -349,6 +350,20 @@ const webpackConfig = {
     styles: ["./src/scss/styles.scss", "./src/scss/tailwind.css"],
     theme_head: "./src/theme.ts",
   },
+  cache:
+    NODE_ENV === "production"
+      ? false
+      : {
+          type: "filesystem",
+          allowCollectingMemory: true,
+          cacheDirectory: path.resolve(__dirname, "../../node_modules/.cache/webpack"),
+          buildDependencies: {
+            config: [__filename],
+          },
+        },
+  snapshot: {
+    unmanagedPaths: [path.resolve(__dirname, "../../node_modules/@bitwarden/")],
+  },
   optimization: {
     splitChunks: {
       cacheGroups: {
@@ -361,6 +376,7 @@ const webpackConfig = {
         },
       },
     },
+    minimize: NODE_ENV === "production",
     minimizer: [
       new TerserPlugin({
         terserOptions: {

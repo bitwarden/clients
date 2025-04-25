@@ -117,7 +117,6 @@ describe("OverlayBackground", () => {
   let getFrameDetailsSpy: jest.SpyInstance;
   let tabsSendMessageSpy: jest.SpyInstance;
   let tabSendMessageDataSpy: jest.SpyInstance;
-  let sendMessageSpy: jest.SpyInstance;
   let getTabFromCurrentWindowIdSpy: jest.SpyInstance;
   let getTabSpy: jest.SpyInstance;
   let openUnlockPopoutSpy: jest.SpyInstance;
@@ -190,7 +189,9 @@ describe("OverlayBackground", () => {
     inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
     themeStateService = mock<ThemeStateService>();
     themeStateService.selectedTheme$ = selectedThemeMock$;
-    totpService = mock<TotpService>();
+    totpService = mock<TotpService>({
+      getCode$: jest.fn().mockReturnValue(of(undefined)),
+    });
     overlayBackground = new OverlayBackground(
       logService,
       cipherService,
@@ -226,7 +227,6 @@ describe("OverlayBackground", () => {
     tabSendMessageDataSpy = jest
       .spyOn(BrowserApi, "tabSendMessageData")
       .mockImplementation(() => Promise.resolve());
-    sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage");
     getTabFromCurrentWindowIdSpy = jest.spyOn(BrowserApi, "getTabFromCurrentWindowId");
     getTabSpy = jest.spyOn(BrowserApi, "getTab");
     openUnlockPopoutSpy = jest.spyOn(overlayBackground as any, "openUnlockPopout");
@@ -967,7 +967,7 @@ describe("OverlayBackground", () => {
             icon: {
               fallbackImage: "",
               icon: "bwi-credit-card",
-              image: undefined,
+              image: null,
               imageEnabled: true,
             },
             id: "inline-menu-cipher-0",
@@ -1005,7 +1005,7 @@ describe("OverlayBackground", () => {
               icon: {
                 fallbackImage: "",
                 icon: "bwi-id-card",
-                image: undefined,
+                image: null,
                 imageEnabled: true,
               },
               id: "inline-menu-cipher-1",
@@ -1046,7 +1046,7 @@ describe("OverlayBackground", () => {
               icon: {
                 fallbackImage: "",
                 icon: "bwi-id-card",
-                image: undefined,
+                image: null,
                 imageEnabled: true,
               },
               id: "inline-menu-cipher-0",
@@ -1118,7 +1118,7 @@ describe("OverlayBackground", () => {
               icon: {
                 fallbackImage: "",
                 icon: "bwi-id-card",
-                image: undefined,
+                image: null,
                 imageEnabled: true,
               },
               id: "inline-menu-cipher-1",
@@ -1551,7 +1551,6 @@ describe("OverlayBackground", () => {
         await flushPromises();
 
         expect(cipherService.setAddEditCipherInfo).toHaveBeenCalled();
-        expect(sendMessageSpy).toHaveBeenCalledWith("inlineAutofillMenuRefreshAddEditCipher");
         expect(openAddEditVaultItemPopoutSpy).toHaveBeenCalled();
       });
 
@@ -1577,7 +1576,6 @@ describe("OverlayBackground", () => {
         await flushPromises();
 
         expect(cipherService.setAddEditCipherInfo).toHaveBeenCalled();
-        expect(sendMessageSpy).toHaveBeenCalledWith("inlineAutofillMenuRefreshAddEditCipher");
         expect(openAddEditVaultItemPopoutSpy).toHaveBeenCalled();
       });
 
@@ -1616,7 +1614,6 @@ describe("OverlayBackground", () => {
           await flushPromises();
 
           expect(cipherService.setAddEditCipherInfo).toHaveBeenCalled();
-          expect(sendMessageSpy).toHaveBeenCalledWith("inlineAutofillMenuRefreshAddEditCipher");
           expect(openAddEditVaultItemPopoutSpy).toHaveBeenCalled();
         });
 

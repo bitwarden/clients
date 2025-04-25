@@ -27,6 +27,7 @@ import {
   ClEAR_VIEW_CACHE_COMMAND,
   POPUP_VIEW_CACHE_KEY,
   SAVE_VIEW_CACHE_COMMAND,
+  ViewCacheState,
 } from "../../services/popup-view-cache-background.service";
 
 /**
@@ -42,8 +43,8 @@ export class PopupViewCacheService implements ViewCacheService {
   private messageSender = inject(MessageSender);
   private router = inject(Router);
 
-  private _cache: Record<string, string>;
-  private get cache(): Record<string, string> {
+  private _cache: Record<string, ViewCacheState>;
+  private get cache(): Record<string, ViewCacheState> {
     if (!this._cache) {
       throw new Error("Dirty View Cache not initialized");
     }
@@ -65,7 +66,9 @@ export class PopupViewCacheService implements ViewCacheService {
         /** Skip the first navigation triggered by `popupRouterCacheGuard` */
         skip(1),
       )
-      .subscribe(() => this.clearState());
+      .subscribe(() => {
+        return this.clearState(true);
+      });
   }
 
   /**
@@ -77,13 +80,20 @@ export class PopupViewCacheService implements ViewCacheService {
       key,
       injector = inject(Injector),
       initialValue,
+      persistNavigation,
     } = options;
-    const cachedValue = this.cache[key] ? deserializer(JSON.parse(this.cache[key])) : initialValue;
+    const cachedValue = this.cache[key]
+      ? deserializer(JSON.parse(this.cache[key].value))
+      : initialValue;
     const _signal = signal(cachedValue);
+
+    const viewCacheOptions = {
+      ...(persistNavigation && { persistNavigation }),
+    };
 
     effect(
       () => {
-        this.updateState(key, JSON.stringify(_signal()));
+        this.updateState(key, JSON.stringify(_signal()), viewCacheOptions);
       },
       { injector },
     );
@@ -115,15 +125,24 @@ export class PopupViewCacheService implements ViewCacheService {
     return control;
   }
 
-  private updateState(key: string, value: string) {
+  private updateState(key: string, value: string, options: ViewCacheState["options"]) {
     this.messageSender.send(SAVE_VIEW_CACHE_COMMAND, {
       key,
       value,
+      options,
     });
   }
 
-  private clearState() {
-    this._cache = {}; // clear local cache
-    this.messageSender.send(ClEAR_VIEW_CACHE_COMMAND, {});
+  private clearState(routeChange: boolean = false) {
+    if (routeChange) {
+      // Only keep entries with `persistNavigation`
+      this._cache = Object.fromEntries(
+        Object.entries(this._cache).filter(([, { options }]) => options?.persistNavigation),
+      );
+    } else {
+      // Clear all entries
+      this._cache = {};
+    }
+    this.messageSender.send(ClEAR_VIEW_CACHE_COMMAND, { routeChange: routeChange });
   }
 }

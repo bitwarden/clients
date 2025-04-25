@@ -5,13 +5,19 @@
   <bit-card>
     <div
       class="tw-border-secondary-300 [&_bit-form-field:last-of-type]:tw-mb-0"
-      *ngFor="let field of cipher.fields; let last = last"
+      *ngFor="let field of cipher.fields; let last = last; let i = index"
       [ngClass]="{ 'tw-mb-4': !last }"
       data-testid="custom-field"
     >
       <bit-form-field *ngIf="field.type === fieldType.Text" [disableReadOnlyBorder]="last">
         <bit-label [appTextDrag]="field.value">{{ field.name }}</bit-label>
-        <input readonly bitInput type="text" [value]="field.value" aria-readonly="true" />
+        <textarea
+          readonly
+          bitInput
+          [value]="field.value"
+          aria-readonly="true"
+          vaultAutosizeReadOnlyTextArea
+        ></textarea>
         <button
           bitIconButton="bwi-clone"
           bitSuffix
@@ -31,23 +37,22 @@
           type="password"
           [value]="field.value"
           aria-readonly="true"
-          [ngClass]="{ 'tw-hidden': hiddenFieldRevealed }"
           class="tw-font-mono"
+          *ngIf="!revealedHiddenFields.includes(i)"
         />
-        <!-- Use a wrapping span to "recreate" a readonly input as close as possible -->
-        <span
-          *ngIf="hiddenFieldRevealed"
-          role="textbox"
-          tabindex="0"
-          data-testid="field-value-color"
+        <!-- `type="password"` is only available for inputs, but textarea should show the entire field when visible. -->
+        <textarea
+          *ngIf="revealedHiddenFields.includes(i)"
+          readonly
+          bitInput
+          type="password"
+          [value]="field.value"
           aria-readonly="true"
-          [attr.aria-label]="field.value"
-          aria-labelledby="field-label"
-        >
-          <bit-color-password class="tw-font-mono" [password]="field.value"></bit-color-password>
-        </span>
+          class="tw-font-mono"
+          vaultAutosizeReadOnlyTextArea
+        ></textarea>
         <button
-          *ngIf="canViewPassword && hiddenFieldRevealed"
+          *ngIf="canViewPassword && revealedHiddenFields.includes(i)"
           bitIconButton="bwi-numbered-list"
           bitSuffix
           type="button"
@@ -65,7 +70,7 @@
           bitIconButton
           bitPasswordInputToggle
           *ngIf="canViewPassword"
-          (toggledChange)="logHiddenEvent($event)"
+          (toggledChange)="toggleHiddenField($event, i)"
         ></button>
         <button
           bitIconButton="bwi-clone"

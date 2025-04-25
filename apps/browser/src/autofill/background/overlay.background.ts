@@ -707,13 +707,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     };
 
     if (cipher.type === CipherType.Login) {
-      const totpCode = await this.totpService.getCode(cipher.login?.totp);
-      const totpCodeTimeInterval = this.totpService.getTimeInterval(cipher.login?.totp);
+      const totpResponse = cipher.login?.totp
+        ? await firstValueFrom(this.totpService.getCode$(cipher.login.totp))
+        : undefined;
+
       inlineMenuData.login = {
         username: cipher.login.username,
-        totp: totpCode,
+        totp: totpResponse?.code,
         totpField: this.isTotpFieldForCurrentField(),
-        totpCodeTimeInterval: totpCodeTimeInterval,
+        totpCodeTimeInterval: totpResponse?.period,
         passkey: hasPasskey
           ? {
               rpName: cipher.login.fido2Credentials[0].rpName,
@@ -1131,9 +1133,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.updateLastUsedInlineMenuCipher(inlineMenuCipherId, cipher);
 
       if (cipher.login?.totp) {
-        this.platformUtilsService.copyToClipboard(
-          await this.totpService.getCode(cipher.login.totp),
-        );
+        const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
+
+        if (totpResponse?.code) {
+          this.platformUtilsService.copyToClipboard(totpResponse.code);
+        } else {
+          this.logService.error("Failed to get TOTP code for inline menu cipher");
+        }
       }
       return;
     }
@@ -1846,7 +1852,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
   /**
    * Verifies whether the save login inline menu view should be shown. This requires that
-   * the login data on the page contains a username and either a current or new password.
+   * the login data on the page contains either a current or new password.
    *
    * @param tab - The tab to check for login data
    */
@@ -1863,7 +1869,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     return (
       (this.shouldShowInlineMenuAccountCreation() ||
         this.focusedFieldMatchesFillType(InlineMenuFillType.PasswordGeneration)) &&
-      !!(loginData.username && (loginData.password || loginData.newPassword))
+      !!(loginData.password || loginData.newPassword)
     );
   }
 
@@ -2094,6 +2100,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.closeInlineMenu(sender);
+
     await this.openViewVaultItemPopout(sender.tab, {
       cipherId: cipher.id,
       action: SHOW_AUTOFILL_BUTTON,
@@ -2150,7 +2157,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         "passwordRegenerated",
         "passwords",
         "regeneratePassword",
-        "saveLoginToBitwarden",
+        "saveToBitwarden",
         "toggleBitwardenVaultOverlay",
         "totpCodeAria",
         "totpSecondsSpanAria",
@@ -2427,7 +2434,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         cipherId: cipherView.id,
         cipherType: addNewCipherType,
       });
-      await BrowserApi.sendMessage("inlineAutofillMenuRefreshAddEditCipher");
     } catch (error) {
       this.logService.error("Error building cipher and opening add/edit vault item popout", error);
     }

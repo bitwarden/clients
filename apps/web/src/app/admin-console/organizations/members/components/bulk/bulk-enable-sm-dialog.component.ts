@@ -1,12 +1,17 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService, TableDataSource, ToastService } from "@bitwarden/components";
+import {
+  DialogRef,
+  DIALOG_DATA,
+  DialogService,
+  TableDataSource,
+  ToastService,
+} from "@bitwarden/components";
 
 import { OrganizationUserView } from "../../../core";
 

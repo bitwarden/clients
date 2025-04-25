@@ -1,7 +1,19 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, OnInit, signal } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { combineLatest, firstValueFrom, map, of, shareReplay, startWith, switchMap } from "rxjs";
+import {
+  combineLatest,
+  concat,
+  concatMap,
+  firstValueFrom,
+  map,
+  of,
+  shareReplay,
+  startWith,
+  switchMap,
+  take,
+} from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -11,10 +23,15 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { EndUserNotificationService } from "@bitwarden/common/vault/notifications";
+import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
   BadgeModule,
   ButtonModule,
@@ -28,10 +45,7 @@ import {
 import {
   ChangeLoginPasswordService,
   DefaultChangeLoginPasswordService,
-  filterOutNullish,
   PasswordRepromptService,
-  SecurityTaskType,
-  TaskService,
   VaultCarouselModule,
 } from "@bitwarden/vault";
 
@@ -82,6 +96,9 @@ export class AtRiskPasswordsComponent implements OnInit {
   private changeLoginPasswordService = inject(ChangeLoginPasswordService);
   private platformUtilsService = inject(PlatformUtilsService);
   private dialogService = inject(DialogService);
+  private endUserNotificationService = inject(EndUserNotificationService);
+  private configService = inject(ConfigService);
+  private destroyRef = inject(DestroyRef);
 
   /**
    * The cipher that is currently being launched. Used to show a loading spinner on the badge button.
@@ -181,6 +198,36 @@ export class AtRiskPasswordsComponent implements OnInit {
         await this.atRiskPasswordPageService.dismissGettingStarted(userId);
       }
     }
+
+    if (await this.configService.getFeatureFlag(FeatureFlag.EndUserNotifications)) {
+      this.markTaskNotificationsAsRead();
+    }
+  }
+
+  private markTaskNotificationsAsRead() {
+    this.activeUserData$
+      .pipe(
+        switchMap(({ tasks, userId }) => {
+          return this.endUserNotificationService.unreadNotifications$(userId).pipe(
+            take(1),
+            map((notifications) => {
+              return notifications.filter((notification) => {
+                return tasks.some((task) => task.id === notification.taskId);
+              });
+            }),
+            concatMap((unreadTaskNotifications) => {
+              // TODO: Investigate creating a bulk endpoint to mark notifications as read
+              return concat(
+                ...unreadTaskNotifications.map((n) =>
+                  this.endUserNotificationService.markAsRead(n.id, userId),
+                ),
+              );
+            }),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
 
   async viewCipher(cipher: CipherView) {
@@ -223,4 +270,13 @@ export class AtRiskPasswordsComponent implements OnInit {
       this.launchingCipher.set(null);
     }
   };
+
+  /**
+   * This page can be the first page the user sees when the extension launches,
+   * which can conflict with the `PopupRouterCacheService`. This replaces the
+   * built-in back button behavior so the user always navigates to the vault.
+   */
+  protected async navigateToVault() {
+    await this.router.navigate(["/tabs/vault"]);
+  }
 }

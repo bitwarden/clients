@@ -24,6 +24,8 @@ import {
   ColorPasswordModule,
 } from "@bitwarden/components";
 
+import { VaultAutosizeReadOnlyTextArea } from "../../directives/readonly-textarea.directive";
+
 @Component({
   selector: "app-custom-fields-v2",
   templateUrl: "custom-fields-v2.component.html",
@@ -40,6 +42,7 @@ import {
     TypographyModule,
     CheckboxModule,
     ColorPasswordModule,
+    VaultAutosizeReadOnlyTextArea,
   ],
 })
 export class CustomFieldV2Component implements OnInit {
@@ -47,10 +50,8 @@ export class CustomFieldV2Component implements OnInit {
   fieldType = FieldType;
   fieldOptions: any;
 
-  /**
-   * Indicates whether the hidden field is visible
-   */
-  hiddenFieldRevealed: boolean = false;
+  /** Indexes of hidden fields that are revealed */
+  revealedHiddenFields: number[] = [];
 
   /**
    * Indicates whether the hidden field count should be shown
@@ -79,8 +80,12 @@ export class CustomFieldV2Component implements OnInit {
     this.showHiddenValueCount = !this.showHiddenValueCount;
   }
 
-  async logHiddenEvent(hiddenFieldVisible: boolean) {
-    this.hiddenFieldRevealed = hiddenFieldVisible;
+  async toggleHiddenField(hiddenFieldVisible: boolean, index: number) {
+    if (hiddenFieldVisible) {
+      this.revealedHiddenFields.push(index);
+    } else {
+      this.revealedHiddenFields = this.revealedHiddenFields.filter((i) => i !== index);
+    }
 
     if (hiddenFieldVisible) {
       await this.eventCollectionService.collect(

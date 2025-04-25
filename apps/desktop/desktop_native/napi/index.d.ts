@@ -51,22 +51,6 @@ export declare namespace sshagent {
     publicKey: string
     keyFingerprint: string
   }
-  export const enum SshKeyImportStatus {
-    /** ssh key was parsed correctly and will be returned in the result */
-    Success = 0,
-    /** ssh key was parsed correctly but is encrypted and requires a password */
-    PasswordRequired = 1,
-    /** ssh key was parsed correctly, and a password was provided when calling the import, but it was incorrect */
-    WrongPassword = 2,
-    /** ssh key could not be parsed, either due to an incorrect / unsupported format (pkcs#8) or key type (ecdsa), or because the input is not an ssh key */
-    ParsingError = 3,
-    /** ssh key type is not supported (e.g. ecdsa) */
-    UnsupportedKeyType = 4
-  }
-  export interface SshKeyImportResult {
-    status: SshKeyImportStatus
-    sshKey?: SshKey
-  }
   export interface SshUiRequest {
     cipherId?: string
     isList: boolean
@@ -79,7 +63,6 @@ export declare namespace sshagent {
   export function isRunning(agentState: SshAgentState): boolean
   export function setKeys(agentState: SshAgentState, newKeys: Array<PrivateKey>): void
   export function lock(agentState: SshAgentState): void
-  export function importKey(encodedKey: string, password: string): SshKeyImportResult
   export function clearKeys(agentState: SshAgentState): void
   export class SshAgentState {   }
 }
@@ -135,6 +118,10 @@ export declare namespace autofill {
     Required = 'required',
     Discouraged = 'discouraged'
   }
+  export interface Position {
+    x: number
+    y: number
+  }
   export interface PasskeyRegistrationRequest {
     rpId: string
     userName: string
@@ -142,6 +129,7 @@ export declare namespace autofill {
     clientDataHash: Array<number>
     userVerification: UserVerification
     supportedAlgorithms: Array<number>
+    windowXy: Position
   }
   export interface PasskeyRegistrationResponse {
     rpId: string
@@ -151,12 +139,20 @@ export declare namespace autofill {
   }
   export interface PasskeyAssertionRequest {
     rpId: string
+    clientDataHash: Array<number>
+    userVerification: UserVerification
+    allowedCredentials: Array<Array<number>>
+    windowXy: Position
+  }
+  export interface PasskeyAssertionWithoutUserInterfaceRequest {
+    rpId: string
     credentialId: Array<number>
     userName: string
     userHandle: Array<number>
     recordIdentifier?: string
     clientDataHash: Array<number>
     userVerification: UserVerification
+    windowXy: Position
   }
   export interface PasskeyAssertionResponse {
     rpId: string
@@ -173,7 +169,7 @@ export declare namespace autofill {
      * @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
      * @param callback This function will be called whenever a message is received from a client.
      */
-    static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void): Promise<IpcServer>
+    static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void, assertionWithoutUserInterfaceCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void): Promise<IpcServer>
     /** Return the path to the IPC server. */
     getPath(): string
     /** Stop the IPC server. */
@@ -185,4 +181,17 @@ export declare namespace autofill {
 }
 export declare namespace crypto {
   export function argon2(secret: Buffer, salt: Buffer, iterations: number, memory: number, parallelism: number): Promise<Buffer>
+}
+export declare namespace passkey_authenticator {
+  export function register(): void
+}
+export declare namespace logging {
+  export const enum LogLevel {
+    Trace = 0,
+    Debug = 1,
+    Info = 2,
+    Warn = 3,
+    Error = 4
+  }
+  export function initNapiLog(jsLogFn: (err: Error | null, arg0: LogLevel, arg1: string) => any): void
 }

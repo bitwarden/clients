@@ -7,10 +7,10 @@ import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
-import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { WebAuthnLoginAssertionResponseRequest } from "@bitwarden/common/auth/services/webauthn-login/request/webauthn-login-assertion-response.request";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
@@ -231,7 +231,9 @@ describe("WebAuthnLoginStrategy", () => {
     const mockUserKey = new SymmetricCryptoKey(mockUserKeyArray) as UserKey;
 
     encryptService.decryptToBytes.mockResolvedValue(mockPrfPrivateKey);
-    encryptService.rsaDecrypt.mockResolvedValue(mockUserKeyArray);
+    encryptService.decapsulateKeyUnsigned.mockResolvedValue(
+      new SymmetricCryptoKey(mockUserKeyArray),
+    );
 
     // Act
     await webAuthnLoginStrategy.logIn(webAuthnCredentials);
@@ -249,8 +251,8 @@ describe("WebAuthnLoginStrategy", () => {
       idTokenResponse.userDecryptionOptions.webAuthnPrfOption.encryptedPrivateKey,
       webAuthnCredentials.prfKey,
     );
-    expect(encryptService.rsaDecrypt).toHaveBeenCalledTimes(1);
-    expect(encryptService.rsaDecrypt).toHaveBeenCalledWith(
+    expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledTimes(1);
+    expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledWith(
       idTokenResponse.userDecryptionOptions.webAuthnPrfOption.encryptedUserKey,
       mockPrfPrivateKey,
     );
@@ -278,7 +280,7 @@ describe("WebAuthnLoginStrategy", () => {
 
     // Assert
     expect(encryptService.decryptToBytes).not.toHaveBeenCalled();
-    expect(encryptService.rsaDecrypt).not.toHaveBeenCalled();
+    expect(encryptService.decapsulateKeyUnsigned).not.toHaveBeenCalled();
     expect(keyService.setUserKey).not.toHaveBeenCalled();
   });
 
@@ -330,7 +332,7 @@ describe("WebAuthnLoginStrategy", () => {
 
     apiService.postIdentityToken.mockResolvedValue(idTokenResponse);
 
-    encryptService.rsaDecrypt.mockResolvedValue(null);
+    encryptService.decapsulateKeyUnsigned.mockResolvedValue(null);
 
     // Act
     await webAuthnLoginStrategy.logIn(webAuthnCredentials);
