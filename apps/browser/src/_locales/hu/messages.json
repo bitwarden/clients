@@ -1072,7 +1072,7 @@
     "description": "Aria label for the view button in notification bar confirmation message"
   },
   "notificationEditTooltip": {
-    "message": "Edit before saving",
+    "message": "Szerkesztés mentés előtt",
     "description": "Tooltip and Aria label for edit button on cipher item"
   },
   "newNotification": {
@@ -1089,7 +1089,7 @@
     }
   },
   "loginSaveConfirmation": {
-    "message": "$USERNAME$ mentésre került a Bitwardenben.",
+    "message": "$ITEMNAME$ mentésre került a Bitwardenben.",
     "placeholders": {
       "itemName": {
         "content": "$1"
@@ -1098,7 +1098,7 @@
     "description": "Shown to user after item is saved."
   },
   "loginUpdatedConfirmation": {
-    "message": "$USERNAME$ frissítésre került a Bitwardenben.",
+    "message": "$ITEMNAME$ frissítésre került a Bitwardenben.",
     "placeholders": {
       "itemName": {
         "content": "$1"
@@ -1115,11 +1115,11 @@
     "description": "Button text for updating an existing login entry."
   },
   "saveLogin": {
-    "message": "Save login",
+    "message": "Bejelentkezés mentése",
     "description": "Prompt asking the user if they want to save their login details."
   },
   "updateLogin": {
-    "message": "Update existing login",
+    "message": "Létező bejelentkezés frissítése",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {

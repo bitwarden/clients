@@ -1072,7 +1072,7 @@
     "description": "Aria label for the view button in notification bar confirmation message"
   },
   "notificationEditTooltip": {
-    "message": "Edit before saving",
+    "message": "Upravit před uložením",
     "description": "Tooltip and Aria label for edit button on cipher item"
   },
   "newNotification": {
@@ -1089,7 +1089,7 @@
     }
   },
   "loginSaveConfirmation": {
-    "message": "$USERNAME$ - uloženo do Bitwardenu.",
+    "message": "$ITEMNAME$ - uloženo do Bitwardenu.",
     "placeholders": {
       "itemName": {
         "content": "$1"
@@ -1115,11 +1115,11 @@
     "description": "Button text for updating an existing login entry."
   },
   "saveLogin": {
-    "message": "Save login",
+    "message": "Uložit přihlašovací údaje",
     "description": "Prompt asking the user if they want to save their login details."
   },
   "updateLogin": {
-    "message": "Update existing login",
+    "message": "Aktualizovat existující přihlašovací údaje",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
