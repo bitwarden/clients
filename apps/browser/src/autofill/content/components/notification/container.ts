@@ -59,6 +59,7 @@ export function NotificationContainer({
             ciphers,
             notificationType: type,
             theme,
+            i18n,
           })
         : null}
       ${NotificationFooter({
@@ -95,9 +96,9 @@ const notificationContainerStyles = (theme: Theme) => css`
 function getHeaderMessage(i18n: { [key: string]: string }, type?: NotificationType) {
   switch (type) {
     case NotificationTypes.Add:
-      return i18n.saveAsNewLoginAction;
+      return i18n.saveLogin;
     case NotificationTypes.Change:
-      return i18n.updateLoginPrompt;
+      return i18n.updateLogin;
     case NotificationTypes.Unlock:
       return "";
     default:

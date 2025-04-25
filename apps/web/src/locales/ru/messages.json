@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Все приложения"
   },
+  "appLogoLabel": {
+    "message": "Логотип Bitwarden"
+  },
   "criticalApplications": {
     "message": "Критичные приложения"
   },
@@ -4072,8 +4075,8 @@
   "updateBrowser": {
     "message": "Обновить браузер"
   },
-  "generatingRiskInsights": {
-    "message": "Генерирование информации о рисках..."
+  "generatingYourRiskInsights": {
+    "message": "Генерация информации о рисках..."
   },
   "updateBrowserDesc": {
     "message": "Вы используете неподдерживаемый браузер. Веб-хранилище может работать некорректно."
@@ -6305,6 +6308,21 @@
   "sponsoredFamilies": {
     "message": "Бесплатный план Bitwarden Families"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Спонсируемые семьи"
+  },
+  "noSponsoredFamilies": {
+    "message": "Нет спонсируемых семей"
+  },
+  "noSponsoredFamiliesDescription": {
+    "message": "Sponsored non-member families plans will display here"
+  },
+  "sponsorFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Вам и вашей семье доступен бесплатный план Bitwarden Families. Используйте свой личный адрес электронной почты, чтобы защитить данные даже тогда, когда вы не на работе."
   },
@@ -6319,6 +6337,18 @@
   },
   "sponsoredFamiliesSharedCollections": {
     "message": "Общие коллекции для семейных секретов"
+  },
+  "memberFamilies": {
+    "message": "Члены семей"
+  },
+  "noMemberFamilies": {
+    "message": "Нет членов семей"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Members who have redeemed family plans will display here"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
   },
   "badToken": {
     "message": "Ссылка больше не действительна. Пожалуйста, попросите спонсора повторно отправить предложение."
@@ -7249,6 +7279,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Следуйте указаниям ниже, чтобы завершить авторизацию."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Выполните следующие шаги, чтобы завершить авторизацию с помощью ключа безопасности."
+  },
   "launchDuo": {
     "message": "Запустить Duo"
   },
@@ -7982,6 +8015,9 @@
   },
   "inviteMember": {
     "message": "Пригласить участника"
+  },
+  "addSponsorship": {
+    "message": "Добавить спонсорство"
   },
   "needsConfirmation": {
     "message": "Требуется подтверждение"

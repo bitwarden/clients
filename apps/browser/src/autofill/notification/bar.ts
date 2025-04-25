@@ -53,31 +53,36 @@ function getI18n() {
   return {
     appName: chrome.i18n.getMessage("appName"),
     close: chrome.i18n.getMessage("close"),
+    collection: chrome.i18n.getMessage("collection"),
     folder: chrome.i18n.getMessage("folder"),
     loginSaveSuccess: chrome.i18n.getMessage("loginSaveSuccess"),
-    loginSaveSuccessDetails: chrome.i18n.getMessage("loginSaveSuccessDetails"),
+    loginSaveConfirmation: chrome.i18n.getMessage("loginSaveConfirmation"),
     loginUpdateSuccess: chrome.i18n.getMessage("loginUpdateSuccess"),
-    loginUpdateSuccessDetails: chrome.i18n.getMessage("loginUpdatedSuccessDetails"),
+    loginUpdateConfirmation: chrome.i18n.getMessage("loginUpdatedConfirmation"),
     loginUpdateTaskSuccess: chrome.i18n.getMessage("loginUpdateTaskSuccess"),
     loginUpdateTaskSuccessAdditional: chrome.i18n.getMessage("loginUpdateTaskSuccessAdditional"),
     nextSecurityTaskAction: chrome.i18n.getMessage("nextSecurityTaskAction"),
     newItem: chrome.i18n.getMessage("newItem"),
     never: chrome.i18n.getMessage("never"),
+    myVault: chrome.i18n.getMessage("myVault"),
     notificationAddDesc: chrome.i18n.getMessage("notificationAddDesc"),
     notificationAddSave: chrome.i18n.getMessage("notificationAddSave"),
     notificationChangeDesc: chrome.i18n.getMessage("notificationChangeDesc"),
-    notificationChangeSave: chrome.i18n.getMessage("notificationChangeSave"),
+    notificationUpdate: chrome.i18n.getMessage("notificationChangeSave"),
     notificationEdit: chrome.i18n.getMessage("edit"),
+    notificationEditTooltip: chrome.i18n.getMessage("notificationEditTooltip"),
     notificationUnlock: chrome.i18n.getMessage("notificationUnlock"),
     notificationUnlockDesc: chrome.i18n.getMessage("notificationUnlockDesc"),
+    notificationViewAria: chrome.i18n.getMessage("notificationViewAria"),
     saveAction: chrome.i18n.getMessage("notificationAddSave"),
     saveAsNewLoginAction: chrome.i18n.getMessage("saveAsNewLoginAction"),
     saveFailure: chrome.i18n.getMessage("saveFailure"),
     saveFailureDetails: chrome.i18n.getMessage("saveFailureDetails"),
-    saveLoginPrompt: chrome.i18n.getMessage("saveLoginPrompt"),
+    saveLogin: chrome.i18n.getMessage("saveLogin"),
     typeLogin: chrome.i18n.getMessage("typeLogin"),
     updateLoginAction: chrome.i18n.getMessage("updateLoginAction"),
-    updateLoginPrompt: chrome.i18n.getMessage("updateLoginPrompt"),
+    updateLogin: chrome.i18n.getMessage("updateLogin"),
+    vault: chrome.i18n.getMessage("vault"),
     view: chrome.i18n.getMessage("view"),
   };
 }
@@ -200,7 +205,7 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
     const changeTemplate = document.getElementById("template-change") as HTMLTemplateElement;
 
     const changeButton = findElementById<HTMLSelectElement>(changeTemplate, "change-save");
-    changeButton.textContent = i18n.notificationChangeSave;
+    changeButton.textContent = i18n.notificationUpdate;
 
     const changeEditButton = findElementById<HTMLButtonElement>(changeTemplate, "change-edit");
     changeEditButton.textContent = i18n.notificationEdit;
@@ -346,10 +351,9 @@ function handleSaveCipherAttemptCompletedMessage(message: NotificationBarWindowM
   );
 }
 
-function openViewVaultItemPopout(e: Event, cipherId: string) {
-  e.preventDefault();
+function openViewVaultItemPopout(cipherId: string) {
   sendPlatformMessage({
-    command: "bgOpenVault",
+    command: "bgOpenViewVaultItemPopout",
     cipherId,
   });
 }
@@ -357,7 +361,7 @@ function openViewVaultItemPopout(e: Event, cipherId: string) {
 function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
   const { theme, type } = notificationBarIframeInitData;
   const { error, data } = message;
-  const { username, cipherId, task } = data || {};
+  const { cipherId, task, itemName } = data || {};
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
 
@@ -371,9 +375,9 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
       handleCloseNotification,
       i18n,
       error,
-      username: username ?? i18n.typeLogin,
+      itemName: itemName ?? i18n.typeLogin,
       task,
-      handleOpenVault: (e) => cipherId && openViewVaultItemPopout(e, cipherId),
+      handleOpenVault: () => cipherId && openViewVaultItemPopout(cipherId),
       handleOpenTasks: () => sendPlatformMessage({ command: "bgOpenAtRisksPasswords" }),
     }),
     document.body,

@@ -10,6 +10,7 @@ import { NotificationBody } from "../../notification/body";
 
 type Args = {
   ciphers: NotificationCipherData[];
+  i18n: { [key: string]: string };
   notificationType: NotificationType;
   theme: Theme;
   handleEditOrUpdateAction: (e: Event) => void;
