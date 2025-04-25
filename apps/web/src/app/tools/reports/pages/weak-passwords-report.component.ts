@@ -72,8 +72,8 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
   protected async refresh(result: VaultItemDialogResult, cipher: CipherView) {
     if (result === VaultItemDialogResult.Deleted) {
       // remove the cipher from the list
-      this.ciphers = this.ciphers.filter((c) => c.id !== cipher.id);
-      this.filterCiphersByOrg(this.ciphers);
+      this.weakPasswordCiphers = this.weakPasswordCiphers.filter((c) => c.id !== cipher.id);
+      this.filterCiphersByOrg(this.weakPasswordCiphers);
       return;
     }
 
@@ -90,15 +90,15 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
       if (updatedReportResult == null) {
         // the password is no longer weak
         // remove the cipher from the list
-        this.ciphers.splice(index, 1);
-        this.filterCiphersByOrg(this.ciphers);
+        this.weakPasswordCiphers.splice(index, 1);
+        this.filterCiphersByOrg(this.weakPasswordCiphers);
         return;
       }
 
       if (index > -1) {
         // update the existing cipher
-        this.ciphers[index] = updatedReportResult;
-        this.filterCiphersByOrg(this.ciphers);
+        this.weakPasswordCiphers[index] = updatedReportResult;
+        this.filterCiphersByOrg(this.weakPasswordCiphers);
       }
     }
   }
