@@ -243,6 +243,12 @@ jobs:
       - name: Build application
         run: npm run dist:lin
 
+      - name: List target directory
+        run: ls -R apps/desktop/desktop_native/target
+
+      - name: List dist directory
+        run: ls -R apps/desktop/desktop_native/dist
+
       - name: Upload .deb artifact
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
@@ -388,6 +394,12 @@ jobs:
 
       - name: Build application
         run: npm run dist:lin:arm64
+
+      - name: List target directory
+        run: ls -R apps/desktop/desktop_native/target
+
+      - name: List dist directory
+        run: ls -R apps/desktop/desktop_native/dist
 
       - name: Upload tar.gz artifact
         uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
