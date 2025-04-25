@@ -925,13 +925,19 @@ export default class NotificationBackground {
   private async getCollectionData(
     message: NotificationBackgroundExtensionMessage,
   ): Promise<CollectionView[]> {
-    const collections = (await this.collectionService.getAllDecrypted())
-      .filter((collection) => collection.organizationId === message?.orgId)
-      .map((collection) => ({
-        id: collection.id,
-        name: collection.name,
-        organizationId: collection.organizationId,
-      }));
+    const collections = (await this.collectionService.getAllDecrypted()).reduce<CollectionView[]>(
+      (acc, collection) => {
+        if (collection.organizationId === message?.orgId) {
+          acc.push({
+            id: collection.id,
+            name: collection.name,
+            organizationId: collection.organizationId,
+          });
+        }
+        return acc;
+      },
+      [],
+    );
     return collections;
   }
 
@@ -961,6 +967,7 @@ export default class NotificationBackground {
     const organizations = await firstValueFrom(
       this.organizationService.organizations$(activeUserId),
     );
+
     return organizations.map((org) => {
       const { id, name, productTierType } = org;
       return {
