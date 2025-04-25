@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { firstValueFrom, Observable } from "rxjs";
+import { combineLatest, firstValueFrom, from, map, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -11,6 +11,7 @@ import { BadgeComponent, ItemModule } from "@bitwarden/components";
 import { NudgeStatus, VaultNudgesService, VaultNudgeType } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
+import { AutofillBrowserSettingsService } from "../../../autofill/services/autofill-browser-settings.service";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
@@ -33,17 +34,30 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 export class SettingsV2Component implements OnInit {
   VaultNudgeType = VaultNudgeType;
   showVaultBadge$: Observable<NudgeStatus> = new Observable();
+  showAutofillBadge$: Observable<NudgeStatus> = new Observable();
   activeUserId: UserId | null = null;
 
   constructor(
     private readonly vaultNudgesService: VaultNudgesService,
     private readonly accountService: AccountService,
+    private readonly autofillBrowserSettingsService: AutofillBrowserSettingsService,
   ) {}
   async ngOnInit() {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     this.showVaultBadge$ = this.vaultNudgesService.showNudge$(
       VaultNudgeType.EmptyVaultNudge,
       this.activeUserId,
+    );
+    this.showAutofillBadge$ = combineLatest([
+      this.vaultNudgesService.showNudge$(VaultNudgeType.AutofillNudge, this.activeUserId),
+      from(this.autofillBrowserSettingsService.browserAutofillSettingCurrentlyOverridden()),
+    ]).pipe(
+      map(([nudgeStatus, isOverridden]) => {
+        if (isOverridden) {
+          return { hasBadgeDismissed: true, hasSpotlightDismissed: true };
+        }
+        return nudgeStatus;
+      }),
     );
   }
 

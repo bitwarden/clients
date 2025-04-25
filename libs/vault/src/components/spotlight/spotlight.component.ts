@@ -19,11 +19,13 @@ export class SpotlightComponent {
   @Input() buttonText?: string;
   // Wheter the component can be dismissed, if true, the component will not show a close button
   @Input() persistent = false;
+  // Optional icon to display on the button
+  @Input() buttonIcon: string | null = null;
   @Output() onDismiss = new EventEmitter<void>();
-  @Output() onButtonClick = new EventEmitter<void>();
+  @Output() onButtonClick = new EventEmitter();
 
-  handleButtonClick(): void {
-    this.onButtonClick.emit();
+  handleButtonClick(event: MouseEvent): void {
+    this.onButtonClick.emit(event);
   }
 
   handleDismiss(): void {

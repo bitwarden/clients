@@ -11,9 +11,11 @@ import {
   FormControl,
 } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { Observable, combineLatest, firstValueFrom, from, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   AutofillOverlayVisibility,
   BrowserClientVendors,
@@ -53,7 +55,14 @@ import {
   SelectModule,
   TypographyModule,
 } from "@bitwarden/components";
+import {
+  NudgeStatus,
+  SpotlightComponent,
+  VaultNudgesService,
+  VaultNudgeType,
+} from "@bitwarden/vault";
 
+import { AutofillBrowserSettingsService } from "../../../autofill/services/autofill-browser-settings.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
@@ -81,6 +90,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     SelectModule,
     TypographyModule,
     ReactiveFormsModule,
+    SpotlightComponent,
   ],
 })
 export class AutofillComponent implements OnInit {
@@ -100,6 +110,7 @@ export class AutofillComponent implements OnInit {
   protected browserClientIsUnknown: boolean;
   protected autofillOnPageLoadFromPolicy$ =
     this.autofillSettingsService.activateAutofillOnPageLoadFromPolicy$;
+  protected autofillNudgeStatus$: Observable<NudgeStatus> = new Observable();
 
   protected autofillOnPageLoadForm = new FormGroup({
     autofillOnPageLoad: new FormControl(),
@@ -142,6 +153,9 @@ export class AutofillComponent implements OnInit {
     private configService: ConfigService,
     private formBuilder: FormBuilder,
     private destroyRef: DestroyRef,
+    private vaultNudgesService: VaultNudgesService,
+    private accountService: AccountService,
+    private autofillBrowserSettingsService: AutofillBrowserSettingsService,
   ) {
     this.autofillOnPageLoadOptions = [
       { name: this.i18nService.t("autoFillOnPageLoadYes"), value: true },
@@ -305,6 +319,43 @@ export class AutofillComponent implements OnInit {
 
     this.showIdentitiesCurrentTab = await firstValueFrom(
       this.vaultSettingsService.showIdentitiesCurrentTab$,
+    );
+
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    this.autofillNudgeStatus$ = combineLatest([
+      this.vaultNudgesService.showNudge$(VaultNudgeType.AutofillNudge, activeUserId),
+      from(this.autofillBrowserSettingsService.browserAutofillSettingCurrentlyOverridden()),
+    ]).pipe(
+      map(([nudgeStatus, isOverridden]) => {
+        if (isOverridden) {
+          return { hasBadgeDismissed: true, hasSpotlightDismissed: true };
+        }
+        return nudgeStatus;
+      }),
+    );
+  }
+
+  get spotlightButtonIcon() {
+    const browserClientVendor = this.getBrowserClientVendor();
+    if (browserClientVendor === BrowserClientVendors.Unknown) {
+      return "bwi-external-link";
+    }
+    return null;
+  }
+
+  get spotlightButtonText() {
+    const browserClientVendor = this.getBrowserClientVendor();
+    if (browserClientVendor === BrowserClientVendors.Unknown) {
+      return this.i18nService.t("turnOffAutofill");
+    }
+    return this.i18nService.t("turnOffBrowserAutofill", browserClientVendor);
+  }
+
+  async dismissSpotlight() {
+    await this.vaultNudgesService.dismissNudge(
+      VaultNudgeType.AutofillNudge,
+      await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
     );
   }
 

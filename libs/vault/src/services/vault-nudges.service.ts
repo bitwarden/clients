@@ -6,7 +6,11 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { UserKeyDefinition, VAULT_NUDGES_DISK } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { HasItemsNudgeService, EmptyVaultNudgeService } from "./custom-nudges-services";
+import {
+  HasItemsNudgeService,
+  EmptyVaultNudgeService,
+  AutofillNudgeService,
+} from "./custom-nudges-services";
 import { DefaultSingleNudgeService, SingleNudgeService } from "./default-single-nudge.service";
 
 export type NudgeStatus = {
@@ -24,6 +28,7 @@ export enum VaultNudgeType {
   EmptyVaultNudge = "empty-vault-nudge",
   HasVaultItems = "has-vault-items",
   IntroCarouselDismissal = "intro-carousel-dismissal",
+  AutofillNudge = "autofill-nudge",
 }
 
 export const VAULT_NUDGE_DISMISSED_DISK_KEY = new UserKeyDefinition<
@@ -45,6 +50,7 @@ export class VaultNudgesService {
   private customNudgeServices: any = {
     [VaultNudgeType.HasVaultItems]: inject(HasItemsNudgeService),
     [VaultNudgeType.EmptyVaultNudge]: inject(EmptyVaultNudgeService),
+    [VaultNudgeType.AutofillNudge]: inject(AutofillNudgeService),
   };
 
   /**
@@ -73,6 +79,16 @@ export class VaultNudgesService {
         return this.getNudgeService(nudge).nudgeStatus$(nudge, userId);
       }),
     );
+  }
+
+  async undismissNudge(nudge: VaultNudgeType, userId: UserId) {
+    const hasVaultNudgeFlag = await this.configService.getFeatureFlag(
+      FeatureFlag.PM8851_BrowserOnboardingNudge,
+    );
+    if (hasVaultNudgeFlag) {
+      const undismissedStatus = { hasBadgeDismissed: false, hasSpotlightDismissed: false };
+      await this.getNudgeService(nudge).setNudgeStatus(nudge, undismissedStatus, userId);
+    }
   }
 
   /**

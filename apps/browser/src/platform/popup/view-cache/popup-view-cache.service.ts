@@ -82,7 +82,7 @@ export class PopupViewCacheService implements ViewCacheService {
       initialValue,
       persistNavigation,
     } = options;
-    const cachedValue = this.cache[key]
+    const cachedValue = this.cache[key]?.value
       ? deserializer(JSON.parse(this.cache[key].value))
       : initialValue;
     const _signal = signal(cachedValue);

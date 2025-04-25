@@ -52,9 +52,9 @@ export const Persistent: Story = {
   },
 };
 
-export const WithCustomButton: Story = {
+export const WithButtonIcon: Story = {
   args: {
-    buttonText: "Custom Button",
+    buttonIcon: "bwi bwi-external-link",
   },
   render: (args) => ({
     props: args,
@@ -62,19 +62,9 @@ export const WithCustomButton: Story = {
       <bit-spotlight
         [title]="title"
         [subtitle]="subtitle"
-      >
-        <button
-          class="tw-w-full"
-          bit-item-content
-          bitButton
-          type="button"
-          buttonType="primary"
-          (click)="handleButtonClick()"
-        >
-          External Link
-           <i slot="end" class="bwi bwi-external-link ml-2" aria-hidden="true"></i>
-        </button>
-      </bit-spotlight>
+        buttonText="External Link"
+        buttonIcon="bwi-external-link"
+      ></bit-spotlight>
     `,
   }),
 };
