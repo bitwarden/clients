@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Kaikki sovellukset"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden-logo"
+  },
   "criticalApplications": {
     "message": "Kriittiset sovellukset"
   },
@@ -7276,6 +7279,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Follow the steps below to finish logging in."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
+  },
   "launchDuo": {
     "message": "Avaa Duo"
   },
@@ -9363,10 +9369,10 @@
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
   "deviceIdMissing": {
-    "message": "Device ID is missing"
+    "message": "Laitteen ID puuttuu"
   },
   "deviceTypeMissing": {
-    "message": "Device type is missing"
+    "message": "Laitteen tyyppi puuttuu"
   },
   "deviceCreationDateMissing": {
     "message": "Laitteen luontipäivä puuttuu"
@@ -10255,7 +10261,7 @@
     "message": "Muistuta myöhemmin"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "message": "Onko sinulla luotettava pääsy sähköpostiisi, $EMAIL$?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -10264,10 +10270,10 @@
     }
   },
   "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
+    "message": "Ei ole"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
+    "message": "Kyllä, voin käyttää sähköpostiani luotettavasti"
   },
   "turnOnTwoStepLogin": {
     "message": "Ota kaksivaiheinen kirjautuminen käyttöön"
@@ -10379,16 +10385,16 @@
     "message": "Your master password and encryption keys have been updated. Your other devices have been logged out."
   },
   "trustUserEmergencyAccess": {
-    "message": "Trust and confirm user"
+    "message": "Luota ja vahvista käyttäjä"
   },
   "trustOrganization": {
-    "message": "Trust organization"
+    "message": "Luota organisaatioon"
   },
   "trust": {
-    "message": "Trust"
+    "message": "Luota"
   },
   "doNotTrust": {
-    "message": "Do not trust"
+    "message": "Älä luota"
   },
   "emergencyAccessTrustWarning": {
     "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
@@ -10397,7 +10403,7 @@
     "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
   },
   "trustUser": {
-    "message": "Trust user"
+    "message": "Luota käyttäjään"
   },
   "sshKeyWrongPassword": {
     "message": "Syöttämäsi salasana on virheellinen."

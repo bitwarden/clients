@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Wszystkie aplikacje"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden logo"
+  },
   "criticalApplications": {
     "message": "Krytyczne aplikacje"
   },
@@ -7275,6 +7278,9 @@
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Wykonaj poniższe kroki, by dokończyć logowanie"
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Wykonaj poniższe kroki, aby zakończyć logowanie za pomocą klucza bezpieczeństwa."
   },
   "launchDuo": {
     "message": "Uruchom DUO"
