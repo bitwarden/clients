@@ -85,7 +85,7 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
       );
       // update the cipher views
       const updatedReportResult = this.determineWeakPasswordScore(updatedCipherView);
-      const index = this.ciphers.findIndex((c) => c.id === updatedCipherView.id);
+      const index = this.weakPasswordCiphers.findIndex((c) => c.id === updatedCipherView.id);
 
       if (updatedReportResult == null) {
         // the password is no longer weak
