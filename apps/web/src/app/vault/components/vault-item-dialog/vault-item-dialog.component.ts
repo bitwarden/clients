@@ -502,16 +502,13 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     if (config.originalCipher == null) {
       return;
     }
-
-    return await this.getCipherViewFromCipher(config.originalCipher);
-  }
-
-  private async getCipherViewFromCipher(cipher: Cipher) {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    return await cipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
+    return await config.originalCipher.decrypt(
+      await this.cipherService.getKeyForCipherKeyDecryption(config.originalCipher, activeUserId),
     );
   }
+
+  private async getCipherViewFromCipher(cipher: Cipher) {}
 
   private updateTitle() {
     let partOne: string;
