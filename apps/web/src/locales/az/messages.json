@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Bütün tətbiqlər"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden loqosu"
+  },
   "criticalApplications": {
     "message": "Kritik tətbiqlər"
   },
@@ -3315,13 +3318,13 @@
     "message": "Bir üzv ləğv edildikdə, artıq həmin üzv təşkilat datasına müraciət edə bilmir. Üzv müraciətini daha tez bərpa etmək üçün, Ləğv edilənlər vərəqinə gedin."
   },
   "removeUserConfirmationKeyConnector": {
-    "message": "Xəbərdarlıq! Bu istifadəçi, şifrələmələrini idarə etmək üçün Açar Bağlayıcı tələb edir. Bu istifadəçini təşkilatınızdan silsəniz, hesabı birdəfəlik sıradan çıxarılacaq. Bu əməliyyatın geri dönüşü yoxdur. Davam etmək istəyirsiniz?"
+    "message": "Xəbərdarlıq! Bu istifadəçi, şifrələmələrini idarə etmək üçün Key Connector tələb edir. Bu istifadəçini təşkilatınızdan silsəniz, hesabı birdəfəlik sıradan çıxarılacaq. Bu əməliyyatın geri dönüşü yoxdur. Davam etmək istəyirsiniz?"
   },
   "externalId": {
     "message": "Xarici kimlik"
   },
   "externalIdDesc": {
-    "message": "Xarici kimlik, referans olaraq və ya bu mənbəni istifadəçi kataloqu kimi xarici bir sistemə bağlamaq üçün istifadə edilir."
+    "message": "Xarici kimlik, Bitwarden Directory Connector və API tərəfindən istifadə edilən şifrələnməmiş istinaddır."
   },
   "ssoExternalId": {
     "message": "SSO Xarici Kimlik"
@@ -4073,7 +4076,7 @@
     "message": "Brauzeri güncəllə"
   },
   "generatingYourRiskInsights": {
-    "message": "Generating your Risk Insights..."
+    "message": "Risk Təhlilləriniz yaradılır..."
   },
   "updateBrowserDesc": {
     "message": "Dəstəklənməyən bir veb brauzer istifadə edirsiniz. Veb seyf düzgün işləməyə bilər."
@@ -6306,19 +6309,19 @@
     "message": "Ödənişsiz Bitwarden Ailələri"
   },
   "sponsoredBitwardenFamilies": {
-    "message": "Sponsored families"
+    "message": "Sponsorlu ailələr"
   },
   "noSponsoredFamilies": {
-    "message": "No sponsored families"
+    "message": "Sponsorlu ailələr yoxdur"
   },
   "noSponsoredFamiliesDescription": {
-    "message": "Sponsored non-member families plans will display here"
+    "message": "Sponsorlu üzv olmayan ailələr planı burada görünəcək"
   },
   "sponsorFreeBitwardenFamilies": {
-    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+    "message": "Təşkilatınızın üzvləri Ödənişsiz Bitwarden Ailələr planından yararlana bilər. Bitwarden təşkilatınızın üzvü olmayan işçilər üçün \"Ödənişsiz Bitwarden Ailələr\"ə sponsor ola bilərsiniz. Üzv olmayan birinə sponsorluq etmək üçün təşkilatınızda mövcud yer olmalıdır."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
-    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+    "message": "Aktiv bir sponsorluğu ləğv etdiyiniz zaman, sponsorlu təşkilatınızın yenilənmə tarixindən sonra təşkilatınızda bir yer mövcud olacaq."
   },
   "sponsoredFamiliesEligible": {
     "message": "Siz və ailəniz Ödənişsiz Bitwarden Ailələri üçün uyğunsunuz. İşdə olmadığınız vaxtlarda belə datanızı güvənli saxlamaq üçün özəl e-poçtunuzu istifadə edin."
@@ -6336,16 +6339,16 @@
     "message": "Ailə sirləri üçün paylaşılan kolleksiyalar"
   },
   "memberFamilies": {
-    "message": "Member families"
+    "message": "Üzv ailələr"
   },
   "noMemberFamilies": {
-    "message": "No member families"
+    "message": "Üzv olan ailə yoxdur"
   },
   "noMemberFamiliesDescription": {
-    "message": "Members who have redeemed family plans will display here"
+    "message": "Ailə planlarını götürən üzvlər burada görünəcək"
   },
   "membersWithSponsoredFamilies": {
-    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
+    "message": "Təşkilatınızın üzvləri Ödənişsiz Bitwarden Ailələr planından yararlana bilər. Burada Ailələr təşkilatına sponsorluq edən üzvləri görə bilərsiniz."
   },
   "badToken": {
     "message": "Keçid, artıq etibarlı deyil. Lütfən sponsorun təklifi yenidən göndərməsini təmin edin."
@@ -6441,10 +6444,10 @@
     "message": "Sponsorluq silindi"
   },
   "ssoKeyConnectorError": {
-    "message": "Açar bağlayıcı xətası: Açar Bağlayıcının mövcud olduğuna və düzgün işlədiyinə əmin olun."
+    "message": "Key Connector xətası: \"Key Connector\"un mövcud olduğuna və düzgün işlədiyinə əmin olun."
   },
   "keyConnectorUrl": {
-    "message": "Açar Bağlayıcı URL-si"
+    "message": "Key Connector URL-si"
   },
   "sendVerificationCode": {
     "message": "Doğrulama kodunu e-poçtunuza göndərin"
@@ -6513,7 +6516,7 @@
     "message": "Kimlik doğrulandıqdan sonra üzvlər, ana parollarını istifadə edərək seyf datalarının şifrəsini aça biləcək."
   },
   "keyConnector": {
-    "message": "Açar Bağlayıcı"
+    "message": "Key Connector"
   },
   "memberDecryptionKeyConnectorDescStart": {
     "message": "SSO ilə Girişi, self-hosted şifrə açma açar serverinizə bağlayın. Bu seçimi istifadə edərək, üzvlərin seyf datasının şifrəsini açmaq üçün ana parollarını istifadə etməsinə ehtiyac qalmayacaq.",
@@ -6524,11 +6527,11 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "memberDecryptionKeyConnectorDescEnd": {
-    "message": "Açar Bağlayıcı şifrə açmanı quraşdırmaq üçün tələb olunur. Quraşdırma üzrə kömək üçün Bitwarden Dəstək ilə əlaqə saxlayın.",
+    "message": "Key Connector şifrə açmanı quraşdırmaq üçün tələb olunur. Quraşdırma üzrə kömək üçün Bitwarden Dəstək ilə əlaqə saxlayın.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "keyConnectorPolicyRestriction": {
-    "message": "\"SSO və Açar Bağlayıcı Şifrə Açma ilə Giriş\" fəaldır. Bu siyasət yalnız Sahiblər və Adminlər üçün etibarlıdır."
+    "message": "\"SSO və Key Connector Şifrə Açma ilə Giriş\" fəaldır. Bu siyasət yalnız sahiblər və adminlər üçün etibarlıdır."
   },
   "enabledSso": {
     "message": "SSO fəaldır"
@@ -6537,16 +6540,16 @@
     "message": "SSO sıradan çıxarılıb"
   },
   "enabledKeyConnector": {
-    "message": "Açar Bağlayıcı fəaldır"
+    "message": "Key Connector aktivdir"
   },
   "disabledKeyConnector": {
-    "message": "Açar Bağlayıcı sıradan çıxarılıb"
+    "message": "Key Connector deaktivdir"
   },
   "keyConnectorWarning": {
-    "message": "Açar Bağlayıcı qurulduqdan sonra, Üzv şifrə açma seçimləri dəyişdirilə bilməz."
+    "message": "Üzvlər \"Key Connector\"u istifadə etməyə başladıqdan sonra, təşkilatınız ana parol ilə şifrə açma proseduruna geri qaytarıla bilməz. Yalnız bir açar serverini deploy və idarə etmə üçün uyğun olduqda davam edin."
   },
   "migratedKeyConnector": {
-    "message": "Açar Bağlayıcıya daşındı"
+    "message": "\"Key Connector\"a daşındı"
   },
   "paymentSponsored": {
     "message": "Lütfən təşkilatla əlaqələndirmək üçün bir ödəniş metodu təqdim edin. Narahat olmayın, əlavə özəllikləri seçmədiyiniz və ya sponsorluğunuz bitmədiyi müddətcə sizdən heç bir ödəniş tutulmayacaq. "
@@ -6567,10 +6570,10 @@
     "message": "Test"
   },
   "keyConnectorTestSuccess": {
-    "message": "Uğurlu! Açar Bağlayıcı əlçatandır."
+    "message": "Uğurlu! Key Connector əlçatandır."
   },
   "keyConnectorTestFail": {
-    "message": "Açar Bağlayıcıya müraciət edilə bilmir. URL-ni yoxlayın."
+    "message": "\"Key Connector\"a müraciət edilə bilmir. URL-ni yoxlayın."
   },
   "sponsorshipTokenHasExpired": {
     "message": "Sponsorluq təklifinin müddəti bitdi."
@@ -7275,6 +7278,9 @@
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Giriş prosesini tamamlamaq üçün aşağıdakı addımları izləyin."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
   },
   "launchDuo": {
     "message": "DUO-nu başlat"
@@ -8011,7 +8017,7 @@
     "message": "Üzv dəvət et"
   },
   "addSponsorship": {
-    "message": "Add sponsorship"
+    "message": "Sponsorluq əlavə et"
   },
   "needsConfirmation": {
     "message": "Təsdiqləmə lazımdır"
