@@ -85,7 +85,7 @@
         ></button>
       </bit-form-field>
       <div
-        *ngIf="showHiddenValueCount && hiddenFieldRevealed"
+        *ngIf="showHiddenValueCount && revealedHiddenFields.includes(i)"
         [ngClass]="{ 'tw-mt-3': true, 'tw-mb-2': true }"
       >
         <bit-color-password [password]="field.value" [showCount]="true"></bit-color-password>
