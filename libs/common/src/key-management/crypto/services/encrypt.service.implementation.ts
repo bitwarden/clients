@@ -117,7 +117,7 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     if (this.blockType0) {
-      if (key.inner().type === EncryptionType.AesCbc256_B64 || key.key.byteLength < 64) {
+      if (key.inner().type === EncryptionType.AesCbc256_B64) {
         throw new Error("Type 0 encryption is not supported.");
       }
     }
