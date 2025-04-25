@@ -25,7 +25,7 @@ export function CipherAction({
       })
     : EditButton({
         buttonAction: handleAction,
-        buttonText: i18n.notificationEdit,
+        buttonText: i18n.notificationEditTooltip,
         theme,
       });
 }

@@ -124,12 +124,8 @@ export class CipherService implements CipherServiceAbstraction {
    * decryption is in progress. The latest decrypted ciphers will be emitted once decryption is complete.
    */
   cipherViews$ = perUserCache$((userId: UserId): Observable<CipherView[] | null> => {
-    return combineLatest([
-      this.encryptedCiphersState(userId).state$,
-      this.localData$(userId),
-      this.keyService.cipherDecryptionKeys$(userId, true),
-    ]).pipe(
-      filter(([ciphers, keys]) => ciphers != null && keys != null), // Skip if ciphers haven't been loaded yor synced yet
+    return combineLatest([this.encryptedCiphersState(userId).state$, this.localData$(userId)]).pipe(
+      filter(([ciphers]) => ciphers != null), // Skip if ciphers haven't been loaded yor synced yet
       switchMap(() => this.getAllDecrypted(userId)),
     );
   }, this.clearCipherViewsForUser$);
