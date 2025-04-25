@@ -30,7 +30,7 @@
         ></button>
       </bit-form-field>
       <bit-form-field *ngIf="field.type === fieldType.Hidden" [disableReadOnlyBorder]="last">
-        <bit-label id="field-label" [appTextDrag]="field.value">{{ field.name }}</bit-label>
+        <bit-label [appTextDrag]="field.value">{{ field.name }}</bit-label>
         <input
           readonly
           bitInput
@@ -58,11 +58,12 @@
           type="button"
           data-testid="toggle-hidden-field-value-count"
           [appA11yTitle]="
-            (showHiddenValueCount ? 'hideCharacterCount' : 'showCharacterCount') | i18n
+            (showHiddenValueCountFields.includes(i) ? 'hideCharacterCount' : 'showCharacterCount')
+              | i18n
           "
-          [attr.aria-expanded]="showHiddenValueCount"
+          [attr.aria-expanded]="showHiddenValueCountFields.includes(i)"
           appStopClick
-          (click)="togglePasswordCount()"
+          (click)="toggleCharacterCount(i)"
         ></button>
         <button
           bitSuffix
@@ -85,7 +86,7 @@
         ></button>
       </bit-form-field>
       <div
-        *ngIf="showHiddenValueCount && revealedHiddenFields.includes(i)"
+        *ngIf="showHiddenValueCountFields.includes(i) && revealedHiddenFields.includes(i)"
         [ngClass]="{ 'tw-mt-3': true, 'tw-mb-2': true }"
       >
         <bit-color-password [password]="field.value" [showCount]="true"></bit-color-password>

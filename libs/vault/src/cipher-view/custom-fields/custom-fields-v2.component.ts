@@ -54,9 +54,9 @@ export class CustomFieldV2Component implements OnInit {
   revealedHiddenFields: number[] = [];
 
   /**
-   * Indicates whether the hidden field count should be shown
+   * Indicates whether the hidden field's character count should be shown
    */
-  showHiddenValueCount: boolean = false;
+  showHiddenValueCountFields: number[] = [];
 
   constructor(
     private i18nService: I18nService,
@@ -76,8 +76,13 @@ export class CustomFieldV2Component implements OnInit {
     return this.cipher.viewPassword;
   }
 
-  togglePasswordCount() {
-    this.showHiddenValueCount = !this.showHiddenValueCount;
+  toggleCharacterCount(index: number) {
+    const fieldIndex = this.showHiddenValueCountFields.indexOf(index);
+    if (fieldIndex > -1) {
+      this.showHiddenValueCountFields.splice(fieldIndex, 1);
+    } else {
+      this.showHiddenValueCountFields.push(index);
+    }
   }
 
   async toggleHiddenField(hiddenFieldVisible: boolean, index: number) {
