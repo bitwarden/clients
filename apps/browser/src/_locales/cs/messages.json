@@ -2,6 +2,9 @@
   "appName": {
     "message": "Bitwarden"
   },
+  "appLogoLabel": {
+    "message": "Logo Bitwarden"
+  },
   "extName": {
     "message": "Bitwarden - Správce hesel",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
@@ -883,6 +886,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Postupujte podle kroků níže pro dokončení přihlášení."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Postupujte podle následujících kroků pro dokončení přihlášení Vaším bezpečnostním klíčem."
+  },
   "restartRegistration": {
     "message": "Restartovat registraci"
   },
@@ -1056,23 +1062,49 @@
   "notificationAddSave": {
     "message": "Uložit"
   },
-  "loginSaveSuccessDetails": {
-    "message": "$USERNAME$ uloženo do Bitwardenu.",
+  "notificationViewAria": {
+    "message": "Zobrazit $ITEMNAME$, otevře se v novém okně",
     "placeholders": {
-      "username": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is saved."
+    "description": "Aria label for the view button in notification bar confirmation message"
   },
-  "loginUpdatedSuccessDetails": {
-    "message": "$USERNAME$ aktualizováno v Bitwardenu.",
+  "notificationEditTooltip": {
+    "message": "Edit before saving",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "Nové oznámení"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: Nové oznámení",
+    "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
-      "username": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "loginSaveConfirmation": {
+    "message": "$USERNAME$ - uloženo do Bitwardenu.",
+    "placeholders": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is updated."
+    "description": "Shown to user after item is saved."
+  },
+  "loginUpdatedConfirmation": {
+    "message": "$ITEMNAME$ - aktualizováno v Bitwardenu.",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after item is updated."
   },
   "saveAsNewLoginAction": {
     "message": "Uložit jako nové přihlašovací údaje",
@@ -1082,12 +1114,12 @@
     "message": "Aktualizovat přihlašovací údaje",
     "description": "Button text for updating an existing login entry."
   },
-  "saveLoginPrompt": {
-    "message": "Uložit přihlašovací údaje?",
+  "saveLogin": {
+    "message": "Save login",
     "description": "Prompt asking the user if they want to save their login details."
   },
-  "updateLoginPrompt": {
-    "message": "Aktualizovat existující přihlašovací údaje?",
+  "updateLogin": {
+    "message": "Update existing login",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {

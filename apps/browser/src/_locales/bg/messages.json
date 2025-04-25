@@ -2,6 +2,9 @@
   "appName": {
     "message": "Битуорден (Bitwarden)"
   },
+  "appLogoLabel": {
+    "message": "Лого на Битуорден"
+  },
   "extName": {
     "message": "Bitwarden — управител на пароли",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
@@ -883,6 +886,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Следвайте стъпките по-долу, за да завършите вписването."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Следвайте стъпките по-долу, за да завършите вписването си чрез устройството за удостоверяване."
+  },
   "restartRegistration": {
     "message": "Рестартиране на регистрацията"
   },
@@ -1056,23 +1062,49 @@
   "notificationAddSave": {
     "message": "Да, нека се запише сега"
   },
-  "loginSaveSuccessDetails": {
-    "message": "Запазено в Битуорден: $USERNAME$.",
+  "notificationViewAria": {
+    "message": "Преглед на $ITEMNAME$, отваря се в нов прозорец",
     "placeholders": {
-      "username": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is saved."
+    "description": "Aria label for the view button in notification bar confirmation message"
   },
-  "loginUpdatedSuccessDetails": {
-    "message": "Обновено в Битуорден: $USERNAME$.",
+  "notificationEditTooltip": {
+    "message": "Edit before saving",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "Ново известие"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: Ново известие",
+    "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
-      "username": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "loginSaveConfirmation": {
+    "message": "Запазено в Битуорден: $ITEMNAME$.",
+    "placeholders": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is updated."
+    "description": "Shown to user after item is saved."
+  },
+  "loginUpdatedConfirmation": {
+    "message": "Обновено в Битуорден: $ITEMNAME$.",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after item is updated."
   },
   "saveAsNewLoginAction": {
     "message": "Запазване като нов елемент за вписване",
@@ -1082,12 +1114,12 @@
     "message": "Обновяване на данните за вписване",
     "description": "Button text for updating an existing login entry."
   },
-  "saveLoginPrompt": {
-    "message": "Запазване на данните за вписване?",
+  "saveLogin": {
+    "message": "Save login",
     "description": "Prompt asking the user if they want to save their login details."
   },
-  "updateLoginPrompt": {
-    "message": "Да се обновят ли текущите данни за вписване?",
+  "updateLogin": {
+    "message": "Update existing login",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {

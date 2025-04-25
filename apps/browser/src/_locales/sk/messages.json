@@ -2,6 +2,9 @@
   "appName": {
     "message": "Bitwarden"
   },
+  "appLogoLabel": {
+    "message": "Logo Bitwarden"
+  },
   "extName": {
     "message": "Bitwarden – Bezplatný správca hesiel",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
@@ -883,6 +886,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Na dokončenie prihlásenia postupujte podľa pokynov."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Podľa nasledujúcich krokov dokončite prihlásenie pomocou bezpečnostného kľúča."
+  },
   "restartRegistration": {
     "message": "Zopakovať registráciu"
   },
@@ -1056,23 +1062,49 @@
   "notificationAddSave": {
     "message": "Uložiť"
   },
-  "loginSaveSuccessDetails": {
-    "message": "$USERNAME$ uložené do Bitwarden.",
+  "notificationViewAria": {
+    "message": "Zobraziť $ITEMNAME$, otvorí sa v novom okne",
     "placeholders": {
-      "username": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is saved."
+    "description": "Aria label for the view button in notification bar confirmation message"
   },
-  "loginUpdatedSuccessDetails": {
-    "message": "$USERNAME$ aktualizované v Bitwarden.",
+  "notificationEditTooltip": {
+    "message": "Edit before saving",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "Nové upozornenie"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: Nové upozornenie",
+    "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
-      "username": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "loginSaveConfirmation": {
+    "message": "$ITEMNAME$ uložené do Bitwarden.",
+    "placeholders": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is updated."
+    "description": "Shown to user after item is saved."
+  },
+  "loginUpdatedConfirmation": {
+    "message": "$ITEMNAME$ aktualizované v Bitwarden.",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after item is updated."
   },
   "saveAsNewLoginAction": {
     "message": "Uložiť ako nové prihlasovacie údaje",
@@ -1082,12 +1114,12 @@
     "message": "Aktualizovať prihlasovacie údaje",
     "description": "Button text for updating an existing login entry."
   },
-  "saveLoginPrompt": {
-    "message": "Uložiť prihlasovacie údaje?",
+  "saveLogin": {
+    "message": "Save login",
     "description": "Prompt asking the user if they want to save their login details."
   },
-  "updateLoginPrompt": {
-    "message": "Aktualizovať existujúce prihlasovacie údaje?",
+  "updateLogin": {
+    "message": "Update existing login",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
@@ -4649,7 +4681,7 @@
     "message": "Textové polia používajte pre také údaje, ako sú bezpečnostné otázky"
   },
   "hiddenHelpText": {
-    "message": "Skryté polia požívajte pre citlivé údaje ako je heslo"
+    "message": "Skryté polia požívajte pre citlivé údaje, ako je heslo"
   },
   "checkBoxHelpText": {
     "message": "Ak chcete automaticky vyplniť začiarkávacie políčko formulára, napríklad zapamätať e-mail, použite začiarkávacie políčka"
