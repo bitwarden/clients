@@ -3,7 +3,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 /**
@@ -110,9 +109,6 @@ type BaseCipherFormConfig = {
 
   /** True when the config is built within the context of the Admin Console */
   isAdminConsole?: true;
-
-  /* updated CipherView */
-  updatedCipherView?: CipherView;
 };
 
 /**

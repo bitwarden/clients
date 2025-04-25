@@ -207,7 +207,7 @@ export class CipherReportComponent implements OnDestroy {
 
     // If the dialog was closed by deleting the cipher, refresh the report.
     if (result === VaultItemDialogResult.Deleted || result === VaultItemDialogResult.Saved) {
-      await this.refresh(result, cipher, formConfig);
+      await this.refresh(result, cipher);
     }
   }
 
@@ -215,11 +215,7 @@ export class CipherReportComponent implements OnDestroy {
     this.allCiphers = [];
   }
 
-  protected async refresh(
-    result: VaultItemDialogResult,
-    cipher: CipherView,
-    formConfig: CipherFormConfig,
-  ) {
+  protected async refresh(result: VaultItemDialogResult, cipher: CipherView) {
     await this.load();
   }
 
