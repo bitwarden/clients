@@ -497,7 +497,7 @@ describe("keyService", () => {
       const output = new Uint8Array(64);
       output.set(encryptedPrivateKey.dataBytes);
       output.set(
-        key.key.subarray(0, 64 - encryptedPrivateKey.dataBytes.length),
+        key.toEncoded().subarray(0, 64 - encryptedPrivateKey.dataBytes.length),
         encryptedPrivateKey.dataBytes.length,
       );
       return output;
@@ -827,7 +827,7 @@ describe("keyService", () => {
         masterPasswordService.masterKeyHashSubject.next(storedMasterKeyHash);
 
         cryptoFunctionService.pbkdf2
-          .calledWith(masterKey.key, masterPassword as string, "sha256", 2)
+          .calledWith(masterKey.inner().encryptionKey, masterPassword as string, "sha256", 2)
           .mockResolvedValue(Utils.fromB64ToArray(mockReturnedHash));
 
         const actualDidMatch = await keyService.compareKeyHash(

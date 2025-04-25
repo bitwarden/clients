@@ -7,12 +7,13 @@ import {
   NotificationType,
   NotificationTypes,
 } from "../../../notification/abstractions/notification-bar";
-import { OrgView, FolderView } from "../common-types";
+import { OrgView, FolderView, CollectionView } from "../common-types";
 import { spacing, themes } from "../constants/styles";
 
 import { NotificationButtonRow } from "./button-row";
 
 export type NotificationFooterProps = {
+  collections?: CollectionView[];
   folders?: FolderView[];
   i18n: { [key: string]: string };
   notificationType?: NotificationType;
@@ -22,6 +23,7 @@ export type NotificationFooterProps = {
 };
 
 export function NotificationFooter({
+  collections,
   folders,
   i18n,
   notificationType,
@@ -36,8 +38,10 @@ export function NotificationFooter({
     <div class=${notificationFooterStyles({ theme })}>
       ${!isChangeNotification
         ? NotificationButtonRow({
+            collections,
             folders,
             organizations,
+            i18n,
             primaryButton: {
               handlePrimaryButtonClick: handleSaveAction,
               text: primaryButtonText,
