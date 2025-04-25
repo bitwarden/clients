@@ -33,7 +33,8 @@
   <ng-container slot="above-scroll-area">
     <ng-container
       *ngIf="
-        vaultState === VaultStateEnum.Empty && !(showEmptyVaultNudge$ | async).hasSpotlightDismissed
+        vaultState === VaultStateEnum.Empty &&
+        (showEmptyVaultNudge$ | async)?.hasSpotlightDismissed === false
       "
     >
       <bit-spotlight
@@ -46,7 +47,10 @@
       </bit-spotlight>
     </ng-container>
     <ng-container *ngIf="vaultState !== VaultStateEnum.Empty">
-      <div class="tw-mb-4" *ngIf="!(showHasItemsVaultNudge$ | async).hasSpotlightDismissed">
+      <div
+        class="tw-mb-4"
+        *ngIf="(showHasItemsVaultNudge$ | async)?.hasSpotlightDismissed === false"
+      >
         <bit-spotlight
           [title]="'hasItemsVaultNudgeTitle' | i18n"
           [subtitle]="'hasItemsVaultNudgeBody' | i18n"
