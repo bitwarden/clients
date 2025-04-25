@@ -9,21 +9,21 @@
 html {
   overflow: hidden;
 
-  &.body-sm {
-    height: 500px;
-  }
+  // &.body-sm {
+  //   height: 500px;
+  // }
 
-  &.body-xs {
-    height: 400px;
-  }
+  // &.body-xs {
+  //   height: 400px;
+  // }
 
-  &.body-xxs {
-    height: 300px;
-  }
+  // &.body-xxs {
+  //   height: 300px;
+  // }
 
-  &.body-3xs {
-    height: 240px;
-  }
+  // &.body-3xs {
+  //   height: 240px;
+  // }
 }
 
 html,
@@ -36,7 +36,7 @@ body {
 
 body {
   width: 380px;
-  height: 600px;
+  height: 600px !important;
   position: relative;
   min-height: 100vh;
   overflow: hidden;
@@ -49,19 +49,19 @@ body {
   }
 
   &.body-sm {
-    height: 500px;
+    height: 500px !important;
   }
 
   &.body-xs {
-    height: 400px;
+    height: 400px !important;
   }
 
   &.body-xxs {
-    height: 300px;
+    height: 300px !important;
   }
 
   &.body-3xs {
-    height: 240px;
+    height: 240px !important;
   }
 
   &.body-full {
