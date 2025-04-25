@@ -508,8 +508,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     );
   }
 
-  private async getCipherViewFromCipher(cipher: Cipher) {}
-
   private updateTitle() {
     let partOne: string;
 
