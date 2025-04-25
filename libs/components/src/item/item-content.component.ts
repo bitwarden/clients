@@ -25,7 +25,8 @@ import { TypographyModule } from "../typography";
        * y-axis padding should be kept in sync with `item-action.component.ts`'s `top` and `bottom` units.
        * we want this to be the same height as the `item-action`'s `:after` element
        */
-      "fvw-target tw-outline-none tw-text-main hover:tw-text-main tw-no-underline hover:tw-no-underline tw-text-base tw-py-2 tw-px-4 bit-compact:tw-py-1.5 bit-compact:tw-px-2 tw-bg-transparent tw-w-full tw-border-none tw-flex tw-gap-4 tw-items-center tw-justify-between",
+      "tw-outline-none tw-text-main hover:tw-text-main tw-no-underline hover:tw-no-underline tw-text-base tw-py-2 tw-px-4 bit-compact:tw-py-1.5 bit-compact:tw-px-2 tw-bg-transparent tw-w-full tw-border-none tw-flex tw-gap-4 tw-items-center tw-justify-between",
+    "data-fvw-target": "",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

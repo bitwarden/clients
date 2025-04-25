@@ -56,7 +56,8 @@
         <ng-container *ngTemplateOutlet="prefixContent"></ng-container>
       </div>
       <div
-        class="default-content tw-w-full tw-relative tw-py-2 has-[bit-select]:tw-p-0 has-[bit-multi-select]:tw-p-0 has-[input:read-only:not([hidden])]:tw-bg-secondary-100 has-[textarea:read-only:not([hidden])]:tw-bg-secondary-100"
+        class="tw-w-full tw-relative tw-py-2 has-[bit-select]:tw-p-0 has-[bit-multi-select]:tw-p-0 has-[input:read-only:not([hidden])]:tw-bg-secondary-100 has-[textarea:read-only:not([hidden])]:tw-bg-secondary-100"
+        data-default-content
         [ngClass]="[
           prefixHasChildren() ? '' : 'tw-rounded-l-lg tw-pl-3',
           suffixHasChildren() ? '' : 'tw-rounded-r-lg tw-pr-3',
@@ -96,7 +97,8 @@
         <ng-container *ngTemplateOutlet="prefixContent"></ng-container>
       </div>
       <div
-        class="default-content tw-w-full tw-pb-0 tw-relative [&>*]:tw-p-0 [&>*::selection]:tw-bg-primary-700 [&>*::selection]:tw-text-contrast"
+        class="tw-w-full tw-pb-0 tw-relative [&>*]:tw-p-0 [&>*::selection]:tw-bg-primary-700 [&>*::selection]:tw-text-contrast"
+        data-default-content
       >
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
       </div>
