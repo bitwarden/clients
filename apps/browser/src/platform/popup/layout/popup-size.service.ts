@@ -50,16 +50,33 @@ export class PopupSizeService {
       PopupSizeService.setStyle(width);
       localStorage.setItem(PopupSizeService.LocalStorageKey, width);
     });
+  }
 
+  async setHeight() {
     const isInChromeTab = await BrowserPopupUtils.isInTab();
+
+    /**
+     * To support both browser default zoom and system default zoom, we need to take into account
+     * the full screen height. When system default zoom is >100%, window.innerHeight still outputs
+     * a height equivalent to what it would be at 100%. So if the screen height is smaller than the
+     * max possible extension height, we should use that to set our extension height. Otherwise, we
+     * want to use the window.innerHeight to support browser zoom.
+     */
+    const MAX_EXT_HEIGHT = 600;
+    const extensionInnerHeight = window.innerHeight;
+    const screenAvailHeight = window.screen.availHeight;
+    const availHeight =
+      screenAvailHeight < MAX_EXT_HEIGHT ? screenAvailHeight : extensionInnerHeight;
 
     if (!BrowserPopupUtils.inPopup(window) || isInChromeTab) {
       window.document.body.classList.add("body-full");
-    } else if (window.innerHeight < 400) {
+    } else if (availHeight < 300) {
+      window.document.body.classList.add("body-3xs");
+    } else if (availHeight < 400) {
       window.document.body.classList.add("body-xxs");
-    } else if (window.innerHeight < 500) {
+    } else if (availHeight < 500) {
       window.document.body.classList.add("body-xs");
-    } else if (window.innerHeight < 600) {
+    } else if (availHeight < 600) {
       window.document.body.classList.add("body-sm");
     }
   }
