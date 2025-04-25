@@ -20,6 +20,8 @@ function buildProxyBin(target, release = true) {
     const targetArg = target ? `--target ${target}` : "";
     const releaseArg = release ? "--release" : "";
     return child_process.execSync(`cargo build --bin desktop_proxy ${releaseArg} ${targetArg}`, {stdio: 'inherit', cwd: path.join(__dirname, "proxy")});
+    const ext = process.platform === "win32" ? ".exe" : "";
+    fs.copyFileSync(path.join(__dirname, "target", target, "release", `desktop_proxy${ext}`), path.join(__dirname, "dist", `desktop_proxy.${process.platform}-${nodeArch}${ext}`));
 }
 
 if (!crossPlatform && !target) {
@@ -74,7 +76,4 @@ fs.mkdirSync(path.join(__dirname, "dist"), { recursive: true });
 targets.forEach(([target, nodeArch]) => {
     buildNapiModule(target);
     buildProxyBin(target);
-
-    const ext = process.platform === "win32" ? ".exe" : "";
-    fs.copyFileSync(path.join(__dirname, "target", target, "release", `desktop_proxy${ext}`), path.join(__dirname, "dist", `desktop_proxy.${process.platform}-${nodeArch}${ext}`));
 });
