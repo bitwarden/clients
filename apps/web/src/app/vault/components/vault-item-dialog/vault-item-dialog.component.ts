@@ -363,7 +363,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       this.formConfig.mode = "edit";
       this.formConfig.initialValues = null;
     }
-
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     let cipher = await this.cipherService.get(cipherView.id, activeUserId);
 
