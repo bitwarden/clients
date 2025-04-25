@@ -8,6 +8,22 @@
 
 html {
   overflow: hidden;
+
+  &.body-sm {
+    height: 500px;
+  }
+
+  &.body-xs {
+    height: 400px;
+  }
+
+  &.body-xxs {
+    height: 300px;
+  }
+
+  &.body-3xs {
+    height: 240px;
+  }
 }
 
 html,
