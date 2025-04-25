@@ -364,7 +364,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       this.formConfig.initialValues = null;
     }
 
-    // NOTE: cipherService returns cached data not the updated data
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     let cipher = await this.cipherService.get(cipherView.id, activeUserId);
 
@@ -383,7 +382,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
     // Store the updated cipher so any following edits use the most up to date cipher
     this.formConfig.originalCipher = cipher;
-    this.formConfig.updatedCipherView = await this.getCipherViewFromCipher(cipher);
     this._cipherModified = true;
     await this.changeMode("view");
   }
