@@ -1,5 +1,6 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 
 // Must mock modules before importing
@@ -26,22 +27,26 @@ describe("ExtensionTwoFactorAuthEmailComponentService", () => {
 
   let dialogService: MockProxy<DialogService>;
   let window: MockProxy<Window>;
+  let configService: MockProxy<ConfigService>;
 
   beforeEach(() => {
     jest.clearAllMocks();
 
     dialogService = mock<DialogService>();
     window = mock<Window>();
+    configService = mock<ConfigService>();
 
     extensionTwoFactorAuthEmailComponentService = new ExtensionTwoFactorAuthEmailComponentService(
       dialogService,
       window,
+      configService,
     );
   });
 
   describe("openPopoutIfApprovedForEmail2fa", () => {
     it("should open a popout if the user confirms the warning to popout the extension when in the popup", async () => {
       // Arrange
+      configService.getFeatureFlag.mockResolvedValue(false);
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
       jest.spyOn(BrowserPopupUtils, "inPopup").mockReturnValue(true);
@@ -61,6 +66,7 @@ describe("ExtensionTwoFactorAuthEmailComponentService", () => {
 
     it("should not open a popout if the user cancels the warning to popout the extension when in the popup", async () => {
       // Arrange
+      configService.getFeatureFlag.mockResolvedValue(false);
       dialogService.openSimpleDialog.mockResolvedValue(false);
 
       jest.spyOn(BrowserPopupUtils, "inPopup").mockReturnValue(true);
@@ -80,12 +86,23 @@ describe("ExtensionTwoFactorAuthEmailComponentService", () => {
 
     it("should not open a popout if not in the popup", async () => {
       // Arrange
+      configService.getFeatureFlag.mockResolvedValue(false);
       jest.spyOn(BrowserPopupUtils, "inPopup").mockReturnValue(false);
 
       // Act
       await extensionTwoFactorAuthEmailComponentService.openPopoutIfApprovedForEmail2fa();
 
       // Assert
+      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+      expect(openTwoFactorAuthEmailPopout).not.toHaveBeenCalled();
+    });
+
+    it("does not prompt or open a popout if the feature flag is enabled", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+      jest.spyOn(BrowserPopupUtils, "inPopup").mockReturnValue(true);
+
+      await extensionTwoFactorAuthEmailComponentService.openPopoutIfApprovedForEmail2fa();
+
       expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
       expect(openTwoFactorAuthEmailPopout).not.toHaveBeenCalled();
     });
