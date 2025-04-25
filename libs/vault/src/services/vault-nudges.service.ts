@@ -6,7 +6,11 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { UserKeyDefinition, VAULT_NUDGES_DISK } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { HasItemsNudgeService, EmptyVaultNudgeService } from "./custom-nudges-services";
+import {
+  HasItemsNudgeService,
+  EmptyVaultNudgeService,
+  NewItemNudgeService,
+} from "./custom-nudges-services";
 import { DefaultSingleNudgeService, SingleNudgeService } from "./default-single-nudge.service";
 
 export type NudgeStatus = {
@@ -23,7 +27,11 @@ export enum VaultNudgeType {
    */
   EmptyVaultNudge = "empty-vault-nudge",
   HasVaultItems = "has-vault-items",
-  IntroCarouselDismissal = "intro-carousel-dismissal",
+  newLoginItemDismiss = "new-login-item-dismiss",
+  newCardItemDismiss = "new-card-item-dismiss",
+  newIdentityItemDismiss = "new-identity-item-dismiss",
+  newNoteItemDismiss = "new-note-item-dismiss",
+  newSshItemDismiss = "new-ssh-item-dismiss",
 }
 
 export const VAULT_NUDGE_DISMISSED_DISK_KEY = new UserKeyDefinition<
@@ -45,6 +53,11 @@ export class VaultNudgesService {
   private customNudgeServices: any = {
     [VaultNudgeType.HasVaultItems]: inject(HasItemsNudgeService),
     [VaultNudgeType.EmptyVaultNudge]: inject(EmptyVaultNudgeService),
+    [VaultNudgeType.newLoginItemDismiss]: inject(NewItemNudgeService),
+    [VaultNudgeType.newCardItemDismiss]: inject(NewItemNudgeService),
+    [VaultNudgeType.newIdentityItemDismiss]: inject(NewItemNudgeService),
+    [VaultNudgeType.newNoteItemDismiss]: inject(NewItemNudgeService),
+    [VaultNudgeType.newSshItemDismiss]: inject(NewItemNudgeService),
   };
 
   /**
