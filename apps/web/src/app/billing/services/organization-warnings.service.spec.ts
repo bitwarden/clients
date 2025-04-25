@@ -11,9 +11,6 @@ import { DialogService, SimpleDialogOptions } from "@bitwarden/components";
 
 import { OrganizationWarningsService } from "./organization-warnings.service";
 
-
-
-
 describe("OrganizationWarningsService", () => {
   let dialogService: MockProxy<DialogService>;
   let i18nService: MockProxy<I18nService>;
