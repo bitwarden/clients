@@ -81,6 +81,16 @@ export class VaultNudgesService {
     );
   }
 
+  async undismissNudge(nudge: VaultNudgeType, userId: UserId) {
+    const hasVaultNudgeFlag = await this.configService.getFeatureFlag(
+      FeatureFlag.PM8851_BrowserOnboardingNudge,
+    );
+    if (hasVaultNudgeFlag) {
+      const undismissedStatus = { hasBadgeDismissed: false, hasSpotlightDismissed: false };
+      await this.getNudgeService(nudge).setNudgeStatus(nudge, undismissedStatus, userId);
+    }
+  }
+
   /**
    * Dismiss a nudge for the user so that it is not shown again
    * @param nudge

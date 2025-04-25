@@ -323,6 +323,8 @@ export class AutofillComponent implements OnInit {
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
+    // await this.vaultNudgesService.undismissNudge(VaultNudgeType.AutofillNudge, activeUserId);
+
     this.autofillNudgeStatus$ = combineLatest([
       this.vaultNudgesService.showNudge$(VaultNudgeType.AutofillNudge, activeUserId),
       from(this.autofillBrowserSettingsService.browserAutofillSettingCurrentlyOverridden()),
@@ -511,6 +513,10 @@ export class AutofillComponent implements OnInit {
     }
 
     await BrowserApi.updateDefaultBrowserAutofillSettings(!this.defaultBrowserAutofillDisabled);
+    await this.vaultNudgesService.dismissNudge(
+      VaultNudgeType.AutofillNudge,
+      await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
+    );
   }
 
   private handleOverrideDialogAccept = async () => {

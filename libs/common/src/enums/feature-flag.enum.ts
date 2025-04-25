@@ -103,7 +103,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
 
   /* Vault */
-  [FeatureFlag.PM8851_BrowserOnboardingNudge]: FALSE,
+  [FeatureFlag.PM8851_BrowserOnboardingNudge]: true,
   [FeatureFlag.PM9111ExtensionPersistAddEditForm]: FALSE,
   [FeatureFlag.NewDeviceVerificationTemporaryDismiss]: FALSE,
   [FeatureFlag.NewDeviceVerificationPermanentDismiss]: FALSE,
@@ -140,9 +140,9 @@ export function getFeatureFlagValue<Flag extends FeatureFlag>(
   serverConfig: ServerConfig | null,
   flag: Flag,
 ) {
-  if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
-    return DefaultFeatureFlagValue[flag];
-  }
+  // if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
+  return DefaultFeatureFlagValue[flag];
+  // }
 
   return serverConfig.featureStates[flag] as FeatureFlagValueType<Flag>;
 }
