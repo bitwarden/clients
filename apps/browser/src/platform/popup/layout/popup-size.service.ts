@@ -64,10 +64,10 @@ export class PopupSizeService {
      */
     const MAX_EXT_HEIGHT = 600;
     const extensionInnerHeight = window.innerHeight;
-    const screenAvailHeight = window.screen.availHeight;
     // Use a 100px offset when calculating screen height to account for browser container elements
+    const screenAvailHeight = window.screen.availHeight - 100;
     const availHeight =
-      screenAvailHeight < MAX_EXT_HEIGHT - 100 ? screenAvailHeight - 100 : extensionInnerHeight;
+      screenAvailHeight < MAX_EXT_HEIGHT ? screenAvailHeight : extensionInnerHeight;
 
     if (!BrowserPopupUtils.inPopup(window) || isInChromeTab) {
       window.document.body.classList.add("body-full");
