@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "所有应用程序"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden logo"
+  },
   "criticalApplications": {
     "message": "关键应用程序"
   },
@@ -2425,7 +2428,7 @@
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
   "orgsReportsDesc": {
-    "message": "点击下面的报告来验证和消除您组织帐户中的安全漏洞。",
+    "message": "点击下面的报告，找出并消除您的组织账户中的安全漏洞。",
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
   "unsecuredWebsitesReport": {
@@ -6306,19 +6309,19 @@
     "message": "免费 Bitwarden 家庭"
   },
   "sponsoredBitwardenFamilies": {
-    "message": "Sponsored families"
+    "message": "赞助的家庭"
   },
   "noSponsoredFamilies": {
-    "message": "No sponsored families"
+    "message": "没有赞助的家庭"
   },
   "noSponsoredFamiliesDescription": {
-    "message": "Sponsored non-member families plans will display here"
+    "message": "已赞助的非成员家庭计划将显示在这里"
   },
   "sponsorFreeBitwardenFamilies": {
-    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+    "message": "您的组织成员有资格获得免费的 Bitwarden 家庭版计划。您可以为不是您的 Bitwarden 组织成员的员工赞助免费 Bitwarden 家庭。赞助非成员需要您的组织内有可用的席位。"
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
-    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+    "message": "当您移除某个活动赞助时，该赞助席位将在被赞助组织的续费日期后释放给您的组织使用。"
   },
   "sponsoredFamiliesEligible": {
     "message": "您和您的家人有资格获得免费的 Bitwarden 家庭版计划。使用您的个人电子邮箱兑换，即使您不在工作中，也能确保您的数据安全。"
@@ -6336,16 +6339,16 @@
     "message": "用于家庭机密的共享集合"
   },
   "memberFamilies": {
-    "message": "Member families"
+    "message": "成员家庭"
   },
   "noMemberFamilies": {
-    "message": "No member families"
+    "message": "没有成员家庭"
   },
   "noMemberFamiliesDescription": {
-    "message": "Members who have redeemed family plans will display here"
+    "message": "已兑换家庭计划的成员将在这里显示"
   },
   "membersWithSponsoredFamilies": {
-    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
+    "message": "您的组织成员有资格获得免费的 Bitwarden 家庭版计划。在这里，您可以看到已赞助了家庭组织的成员。"
   },
   "badToken": {
     "message": "链接已失效。请让赞助方重新发送邀请。"
@@ -7276,6 +7279,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "按照以下步骤完成登录。"
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "请按照下面的步骤，使用您的安全密钥完成登录。"
+  },
   "launchDuo": {
     "message": "启动 Duo"
   },
@@ -8011,7 +8017,7 @@
     "message": "邀请成员"
   },
   "addSponsorship": {
-    "message": "Add sponsorship"
+    "message": "添加赞助"
   },
   "needsConfirmation": {
     "message": "需要确认"

@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Összes alkalmazás"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden logó"
+  },
   "criticalApplications": {
     "message": "Kritikus alkalmazások"
   },
@@ -7275,6 +7278,9 @@
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Kövessük az alábbi lépéseket a bejelentkezés befejezéséhez."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Kövessük az alábbi lépéseket a biztonsági kulccsal bejelentkezés befejezéséhez."
   },
   "launchDuo": {
     "message": "Duo indítása"
