@@ -64,6 +64,12 @@ if (target) {
 let platformTargets = Object.entries(rustTargetsMap).filter(([_, { platform: p }]) => p === process.platform);
 console.log("Cross building native modules for the targets: ", platformTargets.map(([target, _]) => target).join(", "));
 
+// When building for Linux, we need to set some environment variables to allow cross-compilation
+if (process.platform === "linux") {
+    process.env["PKG_CONFIG_ALLOW_CROSS"] = "1";
+    process.env["PKG_CONFIG_ALL_STATIC"] = "1";
+}
+
 platformTargets.forEach(([target, _]) => {
     buildNapiModule(target);
     buildProxyBin(target, true);
