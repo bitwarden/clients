@@ -5,6 +5,7 @@ import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CardComponent, TypographyModule } from "@bitwarden/components";
 import { VaultNudgesService, VaultNudgeType } from "@bitwarden/vault";
 
@@ -35,9 +36,7 @@ export class DownloadBitwardenComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-    if (userId) {
-      await this.vaultNudgeService.dismissNudge(VaultNudgeType.DownloadBitwarden, userId);
-    }
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.vaultNudgeService.dismissNudge(VaultNudgeType.DownloadBitwarden, userId);
   }
 }

@@ -72,7 +72,7 @@
         <div class="tw-flex tw-items-center tw-justify-center">
           <p class="tw-pr-2">{{ "downloadBitwardenOnAllDevices" | i18n }}</p>
           <span
-            *ngIf="!(downloadBitwardenNudgeStatus$ | async)?.hasBadgeDismissed"
+            *ngIf="(downloadBitwardenNudgeStatus$ | async)?.hasBadgeDismissed === false"
             bitBadge
             variant="notification"
             >1
