@@ -1,4 +1,5 @@
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { ExportedVault } from "../types";
 
@@ -13,23 +14,29 @@ export class VaultExportService implements VaultExportServiceAbstraction {
   ) {}
 
   /** Creates an export of an individual vault (My vault). Based on the provided format it will either be unencrypted, encrypted or password protected
+   * @param userId The userId of the account requesting the export
    * @param format The format of the export
    * @param password An optional password if the export should be password-protected
    * @returns The exported vault
    * @throws Error if the format is csv and a password is provided
    */
-  async getExport(format: ExportFormat = "csv", password: string = ""): Promise<ExportedVault> {
+  async getExport(
+    userId: UserId,
+    format: ExportFormat = "csv",
+    password: string = "",
+  ): Promise<ExportedVault> {
     if (!Utils.isNullOrWhitespace(password)) {
       if (format == "csv") {
         throw new Error("CSV does not support password protected export");
       }
 
-      return this.individualVaultExportService.getPasswordProtectedExport(password);
+      return this.individualVaultExportService.getPasswordProtectedExport(userId, password);
     }
-    return this.individualVaultExportService.getExport(format);
+    return this.individualVaultExportService.getExport(userId, format);
   }
 
   /** Creates an export of an organizational vault. Based on the provided format it will either be unencrypted, encrypted or password protected
+   * @param userId The userId of the account requesting the export
    * @param organizationId The organization id
    * @param format The format of the export
    * @param password The password to protect the export
@@ -42,6 +49,7 @@ export class VaultExportService implements VaultExportServiceAbstraction {
    * @throws Error if the organization policies prevent the export
    */
   async getOrganizationExport(
+    userId: UserId,
     organizationId: string,
     format: ExportFormat,
     password: string,
@@ -53,6 +61,7 @@ export class VaultExportService implements VaultExportServiceAbstraction {
       }
 
       return this.organizationVaultExportService.getPasswordProtectedExport(
+        userId,
         organizationId,
         password,
         onlyManagedCollections,
@@ -60,6 +69,7 @@ export class VaultExportService implements VaultExportServiceAbstraction {
     }
 
     return this.organizationVaultExportService.getOrganizationExport(
+      userId,
       organizationId,
       format,
       onlyManagedCollections,

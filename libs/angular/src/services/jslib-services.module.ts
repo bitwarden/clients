@@ -847,7 +847,6 @@ const safeProviders: SafeProvider[] = [
       EncryptService,
       CryptoFunctionServiceAbstraction,
       KdfConfigService,
-      AccountServiceAbstraction,
       ApiServiceAbstraction,
     ],
   }),
@@ -863,7 +862,6 @@ const safeProviders: SafeProvider[] = [
       CryptoFunctionServiceAbstraction,
       CollectionService,
       KdfConfigService,
-      AccountServiceAbstraction,
     ],
   }),
   safeProvider({
