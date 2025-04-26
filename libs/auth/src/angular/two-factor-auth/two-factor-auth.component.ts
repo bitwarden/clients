@@ -143,6 +143,13 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   DuoLaunchAction = DuoLaunchAction;
 
   webAuthInNewTab = false;
+  /**
+   * For the loginSuccessHandlerService to determine the default route after successful authentication.
+   * We track this since the loginStrategyService clears the cache on a successful auth result
+   * but, to determine the success route we need to know the authType which is cleared by the
+   * loginStrategyService.clearCache() method.
+   */
+  successRoute: string | undefined = undefined;
 
   private authenticationSessionTimeoutRoute = "authentication-timeout";
 
@@ -333,6 +340,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     });
 
     try {
+      this.successRoute = await this.determineDefaultSuccessRoute();
       this.formPromise = this.loginStrategyService.logInTwoFactor(
         new TokenTwoFactorRequest(this.selectedProviderType, tokenValue, rememberValue),
         "", // TODO: PM-15162 - deprecate captchaResponse
@@ -500,9 +508,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const defaultSuccessRoute = await this.determineDefaultSuccessRoute();
-
-    await this.router.navigate([defaultSuccessRoute], {
+    await this.router.navigate([this.successRoute], {
       queryParams: {
         identifier: this.orgSsoIdentifier,
       },
