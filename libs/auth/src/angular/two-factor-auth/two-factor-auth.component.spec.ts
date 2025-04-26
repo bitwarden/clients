@@ -342,6 +342,9 @@ describe("TwoFactorAuthComponent", () => {
     describe("submit", () => {
       const token = "testToken";
       const remember = false;
+      const currentAuthTypeSubject = new BehaviorSubject<AuthenticationType>(
+        AuthenticationType.Sso,
+      );
 
       describe("Trusted Device Encryption scenarios", () => {
         describe("Given Trusted Device Encryption is enabled and user needs to set a master password", () => {
@@ -356,6 +359,7 @@ describe("TwoFactorAuthComponent", () => {
           });
 
           it("navigates to the login-initiated route and sets correct flag when user doesn't have a MP and key connector isn't enabled", async () => {
+            mockLoginStrategyService.currentAuthType$ = currentAuthTypeSubject.asObservable();
             // Act
             await component.submit(token, remember);
 
@@ -382,6 +386,7 @@ describe("TwoFactorAuthComponent", () => {
           });
 
           it("navigates to the login-initiated route when login is successful", async () => {
+            mockLoginStrategyService.currentAuthType$ = currentAuthTypeSubject.asObservable();
             await component.submit(token, remember);
 
             expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
