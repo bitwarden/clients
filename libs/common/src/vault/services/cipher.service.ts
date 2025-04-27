@@ -124,12 +124,8 @@ export class CipherService implements CipherServiceAbstraction {
    * decryption is in progress. The latest decrypted ciphers will be emitted once decryption is complete.
    */
   cipherViews$ = perUserCache$((userId: UserId): Observable<CipherView[] | null> => {
-    return combineLatest([
-      this.encryptedCiphersState(userId).state$,
-      this.localData$(userId),
-      this.keyService.cipherDecryptionKeys$(userId, true),
-    ]).pipe(
-      filter(([ciphers, keys]) => ciphers != null && keys != null), // Skip if ciphers haven't been loaded yor synced yet
+    return combineLatest([this.encryptedCiphersState(userId).state$, this.localData$(userId)]).pipe(
+      filter(([ciphers]) => ciphers != null), // Skip if ciphers haven't been loaded yor synced yet
       switchMap(() => this.getAllDecrypted(userId)),
     );
   }, this.clearCipherViewsForUser$);
@@ -266,7 +262,7 @@ export class CipherService implements CipherServiceAbstraction {
         key,
       ).then(async () => {
         if (model.key != null) {
-          attachment.key = await this.encryptService.encrypt(model.key.key, key);
+          attachment.key = await this.encryptService.wrapSymmetricKey(model.key, key);
         }
         encAttachments.push(attachment);
       });
@@ -1820,8 +1816,8 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     // Then, we have to encrypt the cipher key with the proper key.
-    cipher.key = await this.encryptService.encrypt(
-      decryptedCipherKey.key,
+    cipher.key = await this.encryptService.wrapSymmetricKey(
+      decryptedCipherKey,
       keyForCipherKeyEncryption,
     );
 

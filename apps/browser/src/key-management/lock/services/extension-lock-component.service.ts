@@ -14,6 +14,8 @@ import {
 import { LockComponentService, UnlockOptions } from "@bitwarden/key-management-ui";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
+import { BrowserApi } from "../../../platform/browser/browser-api";
+import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 import { BrowserRouterService } from "../../../platform/popup/services/browser-router.service";
 
 export class ExtensionLockComponentService implements LockComponentService {
@@ -35,6 +37,18 @@ export class ExtensionLockComponentService implements LockComponentService {
     }
 
     return biometricsError.description;
+  }
+
+  async popOutBrowserExtension(): Promise<void> {
+    if (!BrowserPopupUtils.inPopout(global.window) && !BrowserPopupUtils.inSidebar(global.window)) {
+      await BrowserPopupUtils.openCurrentPagePopout(global.window);
+    }
+  }
+
+  closeBrowserExtensionPopout(): void {
+    if (BrowserPopupUtils.inPopout(global.window)) {
+      BrowserApi.closePopup(global.window);
+    }
   }
 
   async isWindowVisible(): Promise<boolean> {
