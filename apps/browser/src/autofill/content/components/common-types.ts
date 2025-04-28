@@ -26,3 +26,9 @@ export type OrgView = {
   name: string;
   productTierType?: ProductTierType;
 };
+
+export type CollectionView = {
+  id: string;
+  name: string;
+  organizationId: string;
+};

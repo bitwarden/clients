@@ -23,7 +23,6 @@ import { FakeGlobalState } from "@bitwarden/common/spec/fake-state";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-import { AccountRecoveryTrustComponent } from "@bitwarden/key-management-ui";
 
 import { I18nService } from "../../core/i18n.service";
 
@@ -93,6 +92,9 @@ describe("AcceptOrganizationInviteService", () => {
         "orgPublicKey",
         { encryptedString: "string" } as EncString,
       ]);
+      encryptService.wrapDecapsulationKey.mockResolvedValue({
+        encryptedString: "string",
+      } as EncString);
       encryptService.encrypt.mockResolvedValue({ encryptedString: "string" } as EncString);
       const invite = createOrgInvite({ initOrganization: true });
 
@@ -199,13 +201,6 @@ describe("AcceptOrganizationInviteService", () => {
       encryptService.encapsulateKeyUnsigned.mockResolvedValue({
         encryptedString: "encryptedString",
       } as EncString);
-
-      jest.mock(
-        "../../../../../../libs/key-management-ui/src/trust/account-recovery-trust.component",
-      );
-      AccountRecoveryTrustComponent.open = jest.fn().mockReturnValue({
-        closed: new BehaviorSubject(true),
-      });
 
       await globalState.update(() => invite);
 

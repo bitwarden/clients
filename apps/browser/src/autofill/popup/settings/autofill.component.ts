@@ -92,7 +92,6 @@ export class AutofillComponent implements OnInit {
   protected defaultBrowserAutofillDisabled: boolean = false;
   protected inlineMenuVisibility: InlineMenuVisibilitySetting =
     AutofillOverlayVisibility.OnFieldFocus;
-  protected inlineMenuPositioningImprovementsEnabled: boolean = false;
   protected blockBrowserInjectionsByDomainEnabled: boolean = false;
   protected browserClientVendor: BrowserClientVendor = BrowserClientVendors.Unknown;
   protected disablePasswordManagerURI: DisablePasswordManagerUri =
@@ -180,21 +179,17 @@ export class AutofillComponent implements OnInit {
       this.autofillSettingsService.inlineMenuVisibility$,
     );
 
-    this.inlineMenuPositioningImprovementsEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.InlineMenuPositioningImprovements,
-    );
-
     this.blockBrowserInjectionsByDomainEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.BlockBrowserInjectionsByDomain,
     );
 
-    this.showInlineMenuIdentities =
-      this.inlineMenuPositioningImprovementsEnabled &&
-      (await firstValueFrom(this.autofillSettingsService.showInlineMenuIdentities$));
+    this.showInlineMenuIdentities = await firstValueFrom(
+      this.autofillSettingsService.showInlineMenuIdentities$,
+    );
 
-    this.showInlineMenuCards =
-      this.inlineMenuPositioningImprovementsEnabled &&
-      (await firstValueFrom(this.autofillSettingsService.showInlineMenuCards$));
+    this.showInlineMenuCards = await firstValueFrom(
+      this.autofillSettingsService.showInlineMenuCards$,
+    );
 
     this.enableInlineMenuOnIconSelect =
       this.inlineMenuVisibility === AutofillOverlayVisibility.OnButtonClick;

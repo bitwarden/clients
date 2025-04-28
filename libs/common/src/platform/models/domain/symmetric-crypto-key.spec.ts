@@ -2,7 +2,7 @@ import { makeStaticByteArray } from "../../../../spec";
 import { EncryptionType } from "../../enums";
 import { Utils } from "../../misc/utils";
 
-import { SymmetricCryptoKey } from "./symmetric-crypto-key";
+import { Aes256CbcHmacKey, SymmetricCryptoKey } from "./symmetric-crypto-key";
 
 describe("SymmetricCryptoKey", () => {
   it("errors if no key", () => {
@@ -19,13 +19,7 @@ describe("SymmetricCryptoKey", () => {
       const cryptoKey = new SymmetricCryptoKey(key);
 
       expect(cryptoKey).toEqual({
-        encKey: key,
-        encKeyB64: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
-        encType: EncryptionType.AesCbc256_B64,
-        key: key,
         keyB64: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
-        macKey: null,
-        macKeyB64: undefined,
         innerKey: {
           type: EncryptionType.AesCbc256_B64,
           encryptionKey: key,
@@ -38,14 +32,8 @@ describe("SymmetricCryptoKey", () => {
       const cryptoKey = new SymmetricCryptoKey(key);
 
       expect(cryptoKey).toEqual({
-        encKey: key.slice(0, 32),
-        encKeyB64: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
-        encType: EncryptionType.AesCbc256_HmacSha256_B64,
-        key: key,
         keyB64:
           "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+Pw==",
-        macKey: key.slice(32, 64),
-        macKeyB64: "ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8=",
         innerKey: {
           type: EncryptionType.AesCbc256_HmacSha256_B64,
           encryptionKey: key.slice(0, 32),
@@ -86,8 +74,8 @@ describe("SymmetricCryptoKey", () => {
 
     expect(actual).toEqual({
       type: EncryptionType.AesCbc256_HmacSha256_B64,
-      encryptionKey: key.encKey,
-      authenticationKey: key.macKey,
+      encryptionKey: key.inner().encryptionKey,
+      authenticationKey: (key.inner() as Aes256CbcHmacKey).authenticationKey,
     });
   });
 
@@ -95,7 +83,7 @@ describe("SymmetricCryptoKey", () => {
     const key = new SymmetricCryptoKey(makeStaticByteArray(32));
     const actual = key.toEncoded();
 
-    expect(actual).toEqual(key.encKey);
+    expect(actual).toEqual(key.inner().encryptionKey);
   });
 
   it("toEncoded returns encoded key for AesCbc256_HmacSha256_B64", () => {

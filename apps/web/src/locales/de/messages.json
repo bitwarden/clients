@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Alle Anwendungen"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden-Logo"
+  },
   "criticalApplications": {
     "message": "Kritische Anwendungen"
   },
@@ -3324,10 +3327,10 @@
     "message": "Die externe ID ist eine unverschlüsselte Referenz, die vom Bitwarden Directory Connector und der API verwendet wird."
   },
   "ssoExternalId": {
-    "message": "SSO External ID"
+    "message": "Externe SSO-ID"
   },
   "ssoExternalIdDesc": {
-    "message": "SSO External ID is an unencrypted reference between Bitwarden and your configured SSO provider."
+    "message": "Die externe SSO-ID ist eine unverschlüsselte Referenz zwischen Bitwarden und deinem konfigurierten SSO-Anbieter."
   },
   "nestCollectionUnder": {
     "message": "Sammlung verschachteln unter"
@@ -4072,7 +4075,7 @@
   "updateBrowser": {
     "message": "Browser aktualisieren"
   },
-  "generatingRiskInsights": {
+  "generatingYourRiskInsights": {
     "message": "Dein Risiko-Überblick wird generiert..."
   },
   "updateBrowserDesc": {
@@ -6305,6 +6308,21 @@
   "sponsoredFamilies": {
     "message": "Kostenloses Bitwarden Families"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Gesponserte Familien"
+  },
+  "noSponsoredFamilies": {
+    "message": "Keine gesponserten Familien"
+  },
+  "noSponsoredFamiliesDescription": {
+    "message": "Gesponserte Families-Tarife von Nicht-Mitgliedern werden hier angezeigt"
+  },
+  "sponsorFreeBitwardenFamilies": {
+    "message": "Mitglieder deiner Organisation sind für den kostenlosen Bitwarden Families-Tarif berechtigt. Du kannst kostenlose Bitwarden Families-Tarife für Mitarbeiter sponsern, die kein Mitglied deiner Bitwarden Organisation sind. Das Sponsoring eines Nicht-Mitglieds erfordert einen verfügbaren Benutzerplatz in deiner Organisation."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "Wenn du ein aktives Sponsoring entfernst, steht dir nach dem Verlängerungsdatum der gesponserten Organisation ein Benutzerplatz in deiner Organisation zur Verfügung."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Du und deine Familie haben Anspruch auf Free Bitwarden Families. Mit deiner persönlichen E-Mail-Adresse einlösen, um deine Daten zu schützen, auch wenn du nicht am Arbeitsplatz bist."
   },
@@ -6319,6 +6337,18 @@
   },
   "sponsoredFamiliesSharedCollections": {
     "message": "Gemeinsame Sammlungen für Familiengeheimnisse"
+  },
+  "memberFamilies": {
+    "message": "Mitgliederfamilien"
+  },
+  "noMemberFamilies": {
+    "message": "Keine Mitgliederfamilien"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Mitglieder, die Families-Tarife eingelöst haben, werden hier angezeigt"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Mitglieder deiner Organisation sind für den kostenlosen Bitwarden Families-Tarif berechtigt. Hier kannst du Mitglieder sehen, die eine Familien-Organisation gesponsert haben."
   },
   "badToken": {
     "message": "Der Link ist nicht mehr gültig. Bitte lasse dir vom Sponsor das Angebot erneut senden."
@@ -7249,6 +7279,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Folge den Schritten unten, um die Anmeldung abzuschließen."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Folge den Schritten unten, um die Anmeldung mit deinem Sicherheitsschlüssel abzuschließen."
+  },
   "launchDuo": {
     "message": "DUO starten"
   },
@@ -7982,6 +8015,9 @@
   },
   "inviteMember": {
     "message": "Mitglied einladen"
+  },
+  "addSponsorship": {
+    "message": "Sponsoring hinzufügen"
   },
   "needsConfirmation": {
     "message": "Bestätigung erforderlich"
@@ -10343,7 +10379,7 @@
     "message": "Der Name der Organisation darf 50 Zeichen nicht überschreiten."
   },
   "rotationCompletedTitle": {
-    "message": "Schlüsselrotation erfolgreich"
+    "message": "Schlüsselerneuerung erfolgreich"
   },
   "rotationCompletedDesc": {
     "message": "Dein Master-Passwort und Verschlüsselungsschlüssel wurden aktualisiert. Deine anderen Geräte wurden abgemeldet."
@@ -10557,7 +10593,7 @@
     }
   },
   "userkeyRotationDisclaimerDescription": {
-    "message": "Die Rotation deiner Verschlüsselungsschlüssel erfordert, den Schlüsseln aller Organisationen, die dein Konto wiederherstellen können, sowie aller Kontakte, für die du den Notfallzugriff aktiviert hast, zu vertrauen. Um fortzufahren, stelle sicher, dass du Folgendes bestätigen kannst:"
+    "message": "Die Erneuerung deiner Verschlüsselungsschlüssel erfordert, den Schlüsseln aller Organisationen zu vertrauen, die dein Konto wiederherstellen können, sowie aller Kontakte, für die du den Notfallzugriff aktiviert hast. Um fortzufahren, stelle sicher, dass du Folgendes bestätigen kannst:"
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Nicht vertrauenswürdige Verschlüsselungsschlüssel"
@@ -10593,12 +10629,12 @@
     "message": "Kostenlose Organisationen können bis zu 2 Sammlungen haben. Upgrade auf ein kostenpflichtiges Abo, um mehr Sammlungen hinzuzufügen."
   },
   "businessUnit": {
-    "message": "Business Unit"
+    "message": "Geschäftsbereich"
   },
   "businessUnits": {
-    "message": "Business Units"
+    "message": "Geschäftsbereiche"
   },
   "newBusinessUnit": {
-    "message": "New business unit"
+    "message": "Neuer Geschäftsbereich"
   }
 }
