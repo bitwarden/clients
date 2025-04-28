@@ -861,7 +861,10 @@ export default class MainBackground {
 
     this.cipherEncryptionService = new DefaultCipherEncryptionService(
       this.sdkService,
+      this.configService,
       this.logService,
+      this.encryptService,
+      this.keyService,
     );
 
     this.cipherService = new CipherService(
@@ -1053,7 +1056,6 @@ export default class MainBackground {
       this.kdfConfigService,
       this.accountService,
       this.apiService,
-      this.configService,
       this.cipherEncryptionService,
     );
 

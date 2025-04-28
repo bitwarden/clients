@@ -31,7 +31,6 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -41,9 +40,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
-import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { OrgKey } from "@bitwarden/common/types/key";
+import { CipherId, CollectionId, UserId } from "@bitwarden/common/types/guid";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -466,14 +463,20 @@ export class ViewComponent implements OnDestroy, OnInit {
 
     try {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      const decBuf = await this.getDecryptedBuffer(response, attachment, activeUserId);
+      const ciphersData = await firstValueFrom(this.cipherService.ciphers$(activeUserId));
+      const cipherDomain = new Cipher(ciphersData[this.cipher.id as CipherId]);
+      const decBuf = await this.cipherEncryptionService.getDecryptedAttachmentBuffer(
+        cipherDomain,
+        attachment,
+        response,
+        activeUserId,
+      );
+
       this.fileDownloadService.download({
         fileName: attachment.fileName,
         blobData: decBuf,
       });
-      // FIXME: Remove when updating file. Eslint update
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) {
+    } catch {
       this.toastService.showToast({
         variant: "error",
         title: null,
@@ -566,42 +569,5 @@ export class ViewComponent implements OnDestroy, OnInit {
       this.eventCollectionService.collect(EventType.Cipher_ClientViewed, this.cipherId);
     }
     this.previousCipherId = this.cipherId;
-  }
-
-  private async getDecryptedBuffer(
-    response: Response,
-    attachment: AttachmentView,
-    userId: UserId,
-  ): Promise<Uint8Array> {
-    const useSdkDecryption = await this.configService.getFeatureFlag(
-      FeatureFlag.PM19941MigrateCipherDomainToSdk,
-    );
-
-    if (useSdkDecryption) {
-      const ciphersData = await firstValueFrom(this.cipherService.ciphers$(userId));
-      const cipherDomain = new Cipher(ciphersData[this.cipher.id as CipherId]);
-      const attachmentDomain = cipherDomain.attachments?.find((a) => a.id === attachment.id);
-
-      const encArrayBuf = new Uint8Array(await response.arrayBuffer());
-      return await this.cipherEncryptionService.decryptAttachmentContent(
-        cipherDomain,
-        attachmentDomain,
-        encArrayBuf,
-        userId,
-      );
-    }
-
-    const encBuf = await EncArrayBuffer.fromResponse(response);
-    const key =
-      attachment.key != null
-        ? attachment.key
-        : await firstValueFrom(
-            this.keyService
-              .orgKeys$(userId)
-              .pipe(
-                map((orgKeys) => orgKeys[this.cipher.organizationId as OrganizationId] as OrgKey),
-              ),
-          );
-    return await this.encryptService.decryptToBytes(encBuf, key);
   }
 }

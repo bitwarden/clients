@@ -1,13 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Directive, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -16,9 +15,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { OrgKey } from "@bitwarden/common/types/key";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
@@ -200,7 +197,12 @@ export class AttachmentsComponent implements OnInit {
 
     try {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      const decBuf = await this.getDecryptedBuffer(response, attachment, activeUserId);
+      const decBuf = await this.cipherEncryptionService.getDecryptedAttachmentBuffer(
+        this.cipherDomain,
+        attachment,
+        response,
+        activeUserId,
+      );
 
       this.fileDownloadService.download({
         fileName: attachment.fileName,
@@ -276,7 +278,13 @@ export class AttachmentsComponent implements OnInit {
           const activeUserId = await firstValueFrom(
             this.accountService.activeAccount$.pipe(getUserId),
           );
-          const decBuf = await this.getDecryptedBuffer(response, attachment, activeUserId);
+
+          const decBuf = await this.cipherEncryptionService.getDecryptedAttachmentBuffer(
+            this.cipherDomain,
+            attachment,
+            response,
+            activeUserId,
+          );
 
           this.cipherDomain = await this.cipherService.saveAttachmentRawWithServer(
             this.cipherDomain,
@@ -339,40 +347,5 @@ export class AttachmentsComponent implements OnInit {
 
   protected async reupload(attachment: AttachmentView) {
     // TODO: This should be removed but is needed since we re-use the same template
-  }
-
-  private async getDecryptedBuffer(
-    response: Response,
-    attachment: AttachmentView,
-    userId: UserId,
-  ): Promise<Uint8Array> {
-    const useSdkDecryption = await this.configService.getFeatureFlag(
-      FeatureFlag.PM19941MigrateCipherDomainToSdk,
-    );
-
-    if (useSdkDecryption) {
-      const attachmentDomain = this.cipherDomain.attachments?.find((a) => a.id === attachment.id);
-
-      const encArrayBuf = new Uint8Array(await response.arrayBuffer());
-      return await this.cipherEncryptionService.decryptAttachmentContent(
-        this.cipherDomain,
-        attachmentDomain,
-        encArrayBuf,
-        userId,
-      );
-    }
-
-    const encBuf = await EncArrayBuffer.fromResponse(response);
-    const key =
-      attachment.key != null
-        ? attachment.key
-        : await firstValueFrom(
-            this.keyService
-              .orgKeys$(userId)
-              .pipe(
-                map((orgKeys) => orgKeys[this.cipher.organizationId as OrganizationId] as OrgKey),
-              ),
-          );
-    return await this.encryptService.decryptToBytes(encBuf, key);
   }
 }

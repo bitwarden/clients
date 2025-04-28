@@ -4,7 +4,6 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -141,29 +140,6 @@ describe("DownloadAttachmentComponent", () => {
       expect(download).toHaveBeenCalledWith({ blobData: undefined, fileName: attachment.fileName });
     });
 
-    it("calls file download service with SDK decryption when SDK flag is enabled", async () => {
-      getFeatureFlag.mockResolvedValue(true);
-      getAttachmentData.mockResolvedValue({ url: "https://www.downloadattachement.com" });
-      fetchMock.mockResolvedValue({
-        status: 200,
-        arrayBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(8)),
-      });
-
-      const cipherEncryptionService = TestBed.inject(CipherEncryptionService);
-      const decryptAttachmentContent = jest
-        .spyOn(cipherEncryptionService, "decryptAttachmentContent")
-        .mockResolvedValue(new Uint8Array());
-
-      await component.download();
-
-      expect(getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.PM19941MigrateCipherDomainToSdk);
-      expect(decryptAttachmentContent).toHaveBeenCalled();
-      expect(download).toHaveBeenCalledWith({
-        blobData: new Uint8Array(),
-        fileName: attachment.fileName,
-      });
-    });
-
     describe("errors", () => {
       it("shows an error toast when fetch fails", async () => {
         getAttachmentData.mockResolvedValue({ url: "https://www.downloadattachement.com" });
@@ -178,10 +154,14 @@ describe("DownloadAttachmentComponent", () => {
         });
       });
 
-      it("shows an error toast when EncArrayBuffer fails", async () => {
+      it("shows an error toast when getDecryptedAttachmentBuffer fails", async () => {
         getAttachmentData.mockResolvedValue({ url: "https://www.downloadattachement.com" });
         fetchMock.mockResolvedValue({ status: 200 });
-        EncArrayBuffer.fromResponse = jest.fn().mockRejectedValue({});
+
+        const cipherEncryptionService = TestBed.inject(
+          CipherEncryptionService,
+        ) as jest.Mocked<CipherEncryptionService>;
+        cipherEncryptionService.getDecryptedAttachmentBuffer.mockRejectedValue(new Error());
 
         await component.download();
 

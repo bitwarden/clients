@@ -7,13 +7,9 @@ import { NEVER, firstValueFrom, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { CipherId, EmergencyAccessId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
@@ -52,10 +48,8 @@ export class DownloadAttachmentComponent {
     private apiService: ApiService,
     private fileDownloadService: FileDownloadService,
     private toastService: ToastService,
-    private encryptService: EncryptService,
     private stateProvider: StateProvider,
     private keyService: KeyService,
-    private configService: ConfigService,
     private cipherService: CipherService,
     private cipherEncryptionService: CipherEncryptionService,
   ) {
@@ -103,7 +97,16 @@ export class DownloadAttachmentComponent {
     }
 
     try {
-      const decBuf = await this.getDecryptedBuffer(response);
+      const userId = await firstValueFrom(this.stateProvider.activeUserId$);
+      const ciphersData = await firstValueFrom(this.cipherService.ciphers$(userId));
+      const cipherDomain = new Cipher(ciphersData[this.cipher.id as CipherId]);
+
+      const decBuf = await this.cipherEncryptionService.getDecryptedAttachmentBuffer(
+        cipherDomain,
+        this.attachment,
+        response,
+        userId,
+      );
 
       this.fileDownloadService.download({
         fileName: this.attachment.fileName,
@@ -119,29 +122,4 @@ export class DownloadAttachmentComponent {
       });
     }
   };
-
-  private async getDecryptedBuffer(response: Response): Promise<Uint8Array> {
-    const useSdkDecryption = await this.configService.getFeatureFlag(
-      FeatureFlag.PM19941MigrateCipherDomainToSdk,
-    );
-
-    if (useSdkDecryption) {
-      const userId = await firstValueFrom(this.stateProvider.activeUserId$);
-      const ciphersData = await firstValueFrom(this.cipherService.ciphers$(userId));
-      const cipherDomain = new Cipher(ciphersData[this.cipher.id as CipherId]);
-      const attachmentDomain = cipherDomain.attachments?.find((a) => a.id === this.attachment.id);
-
-      const encArrayBuf = new Uint8Array(await response.arrayBuffer());
-      return await this.cipherEncryptionService.decryptAttachmentContent(
-        cipherDomain,
-        attachmentDomain,
-        encArrayBuf,
-        userId,
-      );
-    }
-
-    const encBuf = await EncArrayBuffer.fromResponse(response);
-    const key = this.attachment.key != null ? this.attachment.key : this.orgKey;
-    return await this.encryptService.decryptToBytes(encBuf, key);
-  }
 }
