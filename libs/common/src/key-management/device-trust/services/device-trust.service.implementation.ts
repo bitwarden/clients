@@ -221,8 +221,8 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
           }
 
           const newEncryptedPublicKey = await this.encryptService.encrypt(publicKey, newUserKey);
-          const newEncryptedUserKey = await this.encryptService.rsaEncrypt(
-            newUserKey.key,
+          const newEncryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(
+            newUserKey,
             publicKey,
           );
 

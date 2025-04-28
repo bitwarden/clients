@@ -2,6 +2,9 @@
   "appName": {
     "message": "Bitwarden"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden logo"
+  },
   "extName": {
     "message": "Bitwarden 密码管理器",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
@@ -883,6 +886,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "按照以下步骤完成登录。"
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "请按照下面的步骤，使用您的安全密钥完成登录。"
+  },
   "restartRegistration": {
     "message": "重启注册"
   },
@@ -1056,23 +1062,49 @@
   "notificationAddSave": {
     "message": "保存"
   },
-  "loginSaveSuccessDetails": {
-    "message": "$USERNAME$ 已保存到 Bitwarden。",
+  "notificationViewAria": {
+    "message": "在新窗口中查看 $ITEMNAME$",
     "placeholders": {
-      "username": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is saved."
+    "description": "Aria label for the view button in notification bar confirmation message"
   },
-  "loginUpdatedSuccessDetails": {
-    "message": "$USERNAME$ 已在 Bitwarden 中更新。",
+  "notificationEditTooltip": {
+    "message": "保存前编辑",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "新通知"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$：新通知",
+    "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
-      "username": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "loginSaveConfirmation": {
+    "message": "$ITEMNAME$ 已保存到 Bitwarden。",
+    "placeholders": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is updated."
+    "description": "Shown to user after item is saved."
+  },
+  "loginUpdatedConfirmation": {
+    "message": "$ITEMNAME$ 已在 Bitwarden 中更新。",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after item is updated."
   },
   "saveAsNewLoginAction": {
     "message": "保存为新的登录",
@@ -1082,12 +1114,12 @@
     "message": "更新登录",
     "description": "Button text for updating an existing login entry."
   },
-  "saveLoginPrompt": {
-    "message": "保存登录吗？",
+  "saveLogin": {
+    "message": "保存登录",
     "description": "Prompt asking the user if they want to save their login details."
   },
-  "updateLoginPrompt": {
-    "message": "更新现有的登录吗？",
+  "updateLogin": {
+    "message": "更新现有的登录",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
@@ -4424,7 +4456,7 @@
     "message": "所有者：您"
   },
   "linked": {
-    "message": "链接型"
+    "message": "已链接"
   },
   "copySuccessful": {
     "message": "复制成功"

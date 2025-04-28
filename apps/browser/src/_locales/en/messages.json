@@ -1071,6 +1071,10 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
+  "notificationEditTooltip": {
+    "message": "Edit before saving",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
   "newNotification": {
     "message": "New notification"
   },
@@ -1110,12 +1114,12 @@
     "message": "Update login",
     "description": "Button text for updating an existing login entry."
   },
-  "saveLoginPrompt": {
-    "message": "Save login?",
+  "saveLogin": {
+    "message": "Save login",
     "description": "Prompt asking the user if they want to save their login details."
   },
-  "updateLoginPrompt": {
-    "message": "Update existing login?",
+  "updateLogin": {
+    "message": "Update existing login",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
@@ -1128,24 +1132,24 @@
   },
   "loginUpdateTaskSuccess": {
     "message": "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
-      "placeholders": {
-        "organization": {
-          "content": "$1"
-        }
-      },
-      "description": "Shown to user after login is updated."
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
   },
   "loginUpdateTaskSuccessAdditional": {
     "message": "Thank you for making $ORGANIZATION$ more secure. You have $TASK_COUNT$ more passwords to update.",
-      "placeholders": {
-        "organization": {
-          "content": "$1"
-        },
-        "task_count": {
-          "content": "$2"
-        }
+    "placeholders": {
+      "organization": {
+        "content": "$1"
       },
-      "description": "Shown to user after login is updated."
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
   },
   "nextSecurityTaskAction": {
     "message": "Change next password",
@@ -2518,8 +2522,8 @@
         "example": "Acme Corp"
       },
       "count": {
-          "content": "$2",
-          "example": "2"
+        "content": "$2",
+        "example": "2"
       }
     }
   },

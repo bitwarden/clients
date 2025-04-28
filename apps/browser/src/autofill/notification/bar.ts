@@ -6,9 +6,11 @@ import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view
 
 import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
 import { NotificationCipherData } from "../content/components/cipher/types";
-import { OrgView } from "../content/components/common-types";
+import { CollectionView, OrgView } from "../content/components/common-types";
 import { NotificationConfirmationContainer } from "../content/components/notification/confirmation/container";
 import { NotificationContainer } from "../content/components/notification/container";
+import { selectedFolder as selectedFolderSignal } from "../content/components/signals/selected-folder";
+import { selectedVault as selectedVaultSignal } from "../content/components/signals/selected-vault";
 import { buildSvgDomElement } from "../utils";
 import { circleCheckIcon } from "../utils/svg-icons";
 
@@ -41,6 +43,7 @@ function load() {
     applyNotificationBarStyle();
   });
 }
+
 function applyNotificationBarStyle() {
   if (!useComponentBar) {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -70,6 +73,7 @@ function getI18n() {
     notificationChangeDesc: chrome.i18n.getMessage("notificationChangeDesc"),
     notificationUpdate: chrome.i18n.getMessage("notificationChangeSave"),
     notificationEdit: chrome.i18n.getMessage("edit"),
+    notificationEditTooltip: chrome.i18n.getMessage("notificationEditTooltip"),
     notificationUnlock: chrome.i18n.getMessage("notificationUnlock"),
     notificationUnlockDesc: chrome.i18n.getMessage("notificationUnlockDesc"),
     notificationViewAria: chrome.i18n.getMessage("notificationViewAria"),
@@ -77,10 +81,10 @@ function getI18n() {
     saveAsNewLoginAction: chrome.i18n.getMessage("saveAsNewLoginAction"),
     saveFailure: chrome.i18n.getMessage("saveFailure"),
     saveFailureDetails: chrome.i18n.getMessage("saveFailureDetails"),
-    saveLoginPrompt: chrome.i18n.getMessage("saveLoginPrompt"),
+    saveLogin: chrome.i18n.getMessage("saveLogin"),
     typeLogin: chrome.i18n.getMessage("typeLogin"),
     updateLoginAction: chrome.i18n.getMessage("updateLoginAction"),
-    updateLoginPrompt: chrome.i18n.getMessage("updateLoginPrompt"),
+    updateLogin: chrome.i18n.getMessage("updateLogin"),
     vault: chrome.i18n.getMessage("vault"),
     view: chrome.i18n.getMessage("view"),
   };
@@ -139,7 +143,7 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
     document.body.innerHTML = "";
     // Current implementations utilize a require for scss files which creates the need to remove the node.
     document.head.querySelectorAll('link[rel="stylesheet"]').forEach((node) => node.remove());
-
+    const orgId = selectedVaultSignal.get();
     await Promise.all([
       new Promise<OrgView[]>((resolve) =>
         sendPlatformMessage({ command: "bgGetOrgData" }, resolve),
@@ -150,13 +154,18 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
       new Promise<NotificationCipherData[]>((resolve) =>
         sendPlatformMessage({ command: "bgGetDecryptedCiphers" }, resolve),
       ),
-    ]).then(([organizations, folders, ciphers]) => {
+      new Promise<CollectionView[]>((resolve) =>
+        sendPlatformMessage({ command: "bgGetCollectionData", orgId }, resolve),
+      ),
+    ]).then(([organizations, folders, ciphers, collections]) => {
       notificationBarIframeInitData = {
         ...notificationBarIframeInitData,
+        organizations,
         folders,
         ciphers,
-        organizations,
+        collections,
       };
+
       // @TODO use context to avoid prop drilling
       return render(
         NotificationContainer({
@@ -253,9 +262,18 @@ function handleCloseNotification(e: Event) {
 }
 
 function handleSaveAction(e: Event) {
+  const selectedVault = selectedVaultSignal.get();
+  if (selectedVault.length > 1) {
+    openAddEditVaultItemPopout(e, { organizationId: selectedVault });
+    handleCloseNotification(e);
+    return;
+  }
+
   e.preventDefault();
 
-  sendSaveCipherMessage(removeIndividualVault());
+  const selectedFolder = selectedFolderSignal.get();
+
+  sendSaveCipherMessage(removeIndividualVault(), selectedFolder);
   if (removeIndividualVault()) {
     return;
   }
@@ -348,6 +366,17 @@ function handleSaveCipherAttemptCompletedMessage(message: NotificationBarWindowM
     () => sendPlatformMessage({ command: "bgCloseNotificationBar", fadeOutNotification: true }),
     3000,
   );
+}
+
+function openAddEditVaultItemPopout(
+  e: Event,
+  options: { cipherId?: string; organizationId?: string },
+) {
+  e.preventDefault();
+  sendPlatformMessage({
+    command: "bgOpenAddEditVaultItemPopout",
+    ...options,
+  });
 }
 
 function openViewVaultItemPopout(cipherId: string) {
