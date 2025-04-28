@@ -9,6 +9,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -43,7 +44,7 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
     i18nService: I18nService,
     syncService: SyncService,
     cipherFormConfigService: CipherFormConfigService,
-    adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
+    protected adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
   ) {
     super(
       cipherService,
@@ -79,7 +80,15 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
 
     if (result == VaultItemDialogResult.Saved) {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      const updatedCipher = await this.cipherService.get(cipher.id, activeUserId);
+      let updatedCipher = await this.cipherService.get(cipher.id, activeUserId);
+
+      if (this.isAdminConsoleActive) {
+        updatedCipher = await this.adminConsoleCipherFormConfigService.getCipher(
+          cipher.id as CipherId,
+          this.organization,
+        );
+      }
+
       const updatedCipherView = await updatedCipher.decrypt(
         await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, activeUserId),
       );

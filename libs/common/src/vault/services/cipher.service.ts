@@ -765,6 +765,8 @@ export class CipherService implements CipherServiceAbstraction {
     if (orgAdmin) {
       const request = new CipherRequest(cipher);
       response = await this.apiService.putCipherAdmin(cipher.id, request);
+      const data = new CipherData(response, cipher.collectionIds);
+      return new Cipher(data, cipher.localData);
     } else if (cipher.edit) {
       const request = new CipherRequest(cipher);
       response = await this.apiService.putCipher(cipher.id, request);

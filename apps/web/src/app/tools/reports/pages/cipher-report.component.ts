@@ -67,7 +67,7 @@ export class CipherReportComponent implements OnDestroy {
     protected i18nService: I18nService,
     private syncService: SyncService,
     private cipherFormConfigService: CipherFormConfigService,
-    private adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
+    protected adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
   ) {
     this.organizations$ = this.accountService.activeAccount$.pipe(
       getUserId,
