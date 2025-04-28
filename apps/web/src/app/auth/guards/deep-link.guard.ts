@@ -53,6 +53,23 @@ export function deepLinkGuard(): CanActivateFn {
   };
 
   function isValidUrl(url: string | null | undefined): boolean {
-    return !Utils.isNullOrEmpty(url) && !url?.toLocaleLowerCase().includes("/lock");
+    if (Utils.isNullOrEmpty(url)) {
+      return false;
+    }
+    const lowerCaseUrl = url.toLocaleLowerCase();
+
+    // TODO: explain why these lock states are exempted.
+
+    // Login --> Deep link to vault item --> deepLinkGuard catches & saves --> user lands on login page
+    // User logs in via SSO with TDE on untrusted device --> user lands on login-initiated page
+    // User has MP so attempts to unlock via MP --> user goes to lock page
+    // Lock page is guarded by deepLinkGuard. Previously, it would save the login-initiated url
+    // as a deep link which would overwrite the vault item deep link.
+
+    if (lowerCaseUrl.includes("login-initiated") || lowerCaseUrl.includes("lock")) {
+      return false;
+    }
+
+    return true;
   }
 }
