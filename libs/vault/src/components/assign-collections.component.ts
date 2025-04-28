@@ -124,6 +124,12 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     collections: [<SelectItemView[]>[], [Validators.required]],
   });
 
+  /**
+   * Collections that are already assigned to the cipher and are read-only. These cannot be removed.
+   * @protected
+   */
+  protected readOnlyCollectionNames: string[] = [];
+
   protected totalItemCount: number;
   protected editableItemCount: number;
   protected readonlyItemCount: number;
@@ -298,6 +304,8 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     const org = await firstValueFrom(
       this.organizationService.organizations$(userId).pipe(getOrganizationById(organizationId)),
     );
+
+    this.setReadOnlyCollectionNames(this.params.availableCollections);
 
     this.availableCollections = this.params.availableCollections
       .filter((collection) => {
@@ -500,5 +508,9 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     } else {
       await this.cipherService.saveCollectionsWithServer(cipher, userId);
     }
+  }
+
+  private setReadOnlyCollectionNames(collections: CollectionView[]) {
+    this.readOnlyCollectionNames = collections.filter((c) => c.readOnly).map((c) => c.name);
   }
 }

@@ -37,13 +37,16 @@
   </div>
 
   <div class="tw-flex">
-    <bit-form-field class="tw-grow tw-max-w-full">
+    <bit-form-field class="tw-grow tw-max-w-full" disableMargin>
       <bit-label>{{ "selectCollectionsToAssign" | i18n }}</bit-label>
       <bit-multi-select
         class="tw-w-full"
         formControlName="collections"
         [baseItems]="availableCollections"
       ></bit-multi-select>
+      <bit-hint *ngIf="readOnlyCollectionNames.length > 0" data-testid="view-only-hint">
+        {{ "cannotRemoveViewOnlyCollections" | i18n: readOnlyCollectionNames.join(", ") }}
+      </bit-hint>
     </bit-form-field>
   </div>
 </form>
