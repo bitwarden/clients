@@ -7,19 +7,23 @@ import { themes, typography } from "../../constants/styles";
 
 export type NotificationConfirmationMessageProps = {
   buttonText?: string;
+  itemName: string;
   message?: string;
   messageDetails?: string;
-  handleClick: (e: Event) => void;
+  handleClick: () => void;
   theme: Theme;
 };
 
 export function NotificationConfirmationMessage({
   buttonText,
+  itemName,
   message,
   messageDetails,
   handleClick,
   theme,
 }: NotificationConfirmationMessageProps) {
+  const buttonAria = chrome.i18n.getMessage("notificationViewAria", [itemName]);
+
   return html`
     <div>
       ${message || buttonText
@@ -35,6 +39,10 @@ export function NotificationConfirmationMessage({
                       title=${buttonText}
                       class=${notificationConfirmationButtonTextStyles(theme)}
                       @click=${handleClick}
+                      @keydown=${(e: KeyboardEvent) => handleButtonKeyDown(e, handleClick)}
+                      aria-label=${buttonAria}
+                      tabindex="0"
+                      role="button"
                     >
                       ${buttonText}
                     </a>
@@ -81,3 +89,10 @@ const AdditionalMessageStyles = ({ theme }: { theme: Theme }) => css`
   font-size: 14px;
   color: ${themes[theme].text.muted};
 `;
+
+function handleButtonKeyDown(event: KeyboardEvent, handleClick: () => void) {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    handleClick();
+  }
+}
