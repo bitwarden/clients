@@ -300,7 +300,7 @@ describe("MainBiometricsService", function () {
 
       expect(userKey).not.toBeNull();
       expect(userKey!.keyB64).toBe(biometricKey);
-      expect(userKey!.encType).toBe(EncryptionType.AesCbc256_HmacSha256_B64);
+      expect(userKey!.inner().type).toBe(EncryptionType.AesCbc256_HmacSha256_B64);
       expect(osBiometricsService.getBiometricKey).toHaveBeenCalledWith(
         "Bitwarden_biometric",
         `${userId}_user_biometric`,
