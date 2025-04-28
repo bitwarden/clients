@@ -22,7 +22,7 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
   animations: [fadeIn],
   standalone: true,
   host: {
-    "(keydown.esc)": "handleEsc()",
+    "(keydown.esc)": "handleEsc($event)",
   },
   imports: [
     CommonModule,
@@ -87,8 +87,9 @@ export class DialogComponent {
       .flat();
   }
 
-  handleEsc() {
+  handleEsc(event: Event) {
     this.dialogRef?.close();
+    event.stopPropagation();
   }
 
   get width() {
