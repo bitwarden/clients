@@ -17,6 +17,7 @@ export enum FeatureFlag {
 
   /* Auth */
   PM9112_DeviceApprovalPersistence = "pm-9112-device-approval-persistence",
+  PM9115_TwoFactorExtensionDataPersistence = "pm-9115-two-factor-extension-data-persistence",
 
   /* Autofill */
   BlockBrowserInjectionsByDomain = "block-browser-injections-by-domain",
@@ -35,6 +36,10 @@ export enum FeatureFlag {
   PM18794_ProviderPaymentMethod = "pm-18794-provider-payment-method",
   PM17772_AdminInitiatedSponsorships = "pm-17772-admin-initiated-sponsorships",
 
+  /* Data Insights and Reporting */
+  CriticalApps = "pm-14466-risk-insights-critical-application",
+  EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
+
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   UserKeyRotationV2 = "userkey-rotation-v2",
@@ -43,8 +48,6 @@ export enum FeatureFlag {
 
   /* Tools */
   ItemShare = "item-share",
-  CriticalApps = "pm-14466-risk-insights-critical-application",
-  EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
 
   /* Vault */
@@ -52,10 +55,10 @@ export enum FeatureFlag {
   PM9111ExtensionPersistAddEditForm = "pm-9111-extension-persist-add-edit-form",
   NewDeviceVerificationTemporaryDismiss = "new-device-temporary-dismiss",
   NewDeviceVerificationPermanentDismiss = "new-device-permanent-dismiss",
-  VaultBulkManagementAction = "vault-bulk-management-action",
   SecurityTasks = "security-tasks",
   PM19941MigrateCipherDomainToSdk = "pm-19941-migrate-cipher-domain-to-sdk",
   CipherKeyEncryption = "cipher-key-encryption",
+  PM18520_UpdateDesktopCipherForm = "pm-18520-desktop-cipher-forms",
   EndUserNotifications = "pm-10609-end-user-notifications",
 
   /* Platform */
@@ -93,10 +96,12 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
 
-  /* Tools */
-  [FeatureFlag.ItemShare]: FALSE,
+  /* Data Insights and Reporting */
   [FeatureFlag.CriticalApps]: FALSE,
   [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
+
+  /* Tools */
+  [FeatureFlag.ItemShare]: FALSE,
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
 
   /* Vault */
@@ -104,14 +109,15 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM9111ExtensionPersistAddEditForm]: FALSE,
   [FeatureFlag.NewDeviceVerificationTemporaryDismiss]: FALSE,
   [FeatureFlag.NewDeviceVerificationPermanentDismiss]: FALSE,
-  [FeatureFlag.VaultBulkManagementAction]: FALSE,
   [FeatureFlag.SecurityTasks]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
+  [FeatureFlag.PM18520_UpdateDesktopCipherForm]: FALSE,
   [FeatureFlag.EndUserNotifications]: FALSE,
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM9112_DeviceApprovalPersistence]: FALSE,
+  [FeatureFlag.PM9115_TwoFactorExtensionDataPersistence]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,

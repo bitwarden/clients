@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { MasterKey, PinKey } from "@bitwarden/common/types/key";
 import { KdfConfig, PBKDF2KdfConfig, Argon2KdfConfig, KdfType } from "@bitwarden/key-management";
 
 import { CryptoFunctionService } from "../../key-management/crypto/abstractions/crypto-function.service";
@@ -78,10 +79,21 @@ export class KeyGenerationService implements KeyGenerationServiceAbstraction {
     return new SymmetricCryptoKey(key);
   }
 
-  async stretchKey(key: SymmetricCryptoKey): Promise<SymmetricCryptoKey> {
+  async stretchKey(key: MasterKey | PinKey): Promise<SymmetricCryptoKey> {
     const newKey = new Uint8Array(64);
-    const encKey = await this.cryptoFunctionService.hkdfExpand(key.key, "enc", 32, "sha256");
-    const macKey = await this.cryptoFunctionService.hkdfExpand(key.key, "mac", 32, "sha256");
+    // Master key and pin key are always 32 bytes
+    const encKey = await this.cryptoFunctionService.hkdfExpand(
+      key.inner().encryptionKey,
+      "enc",
+      32,
+      "sha256",
+    );
+    const macKey = await this.cryptoFunctionService.hkdfExpand(
+      key.inner().encryptionKey,
+      "mac",
+      32,
+      "sha256",
+    );
 
     newKey.set(new Uint8Array(encKey));
     newKey.set(new Uint8Array(macKey), 32);
