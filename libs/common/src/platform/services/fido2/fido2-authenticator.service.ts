@@ -112,18 +112,8 @@ export class Fido2AuthenticatorService<ParentWindowReference>
       const existingCipherIds = await this.findExcludedCredentials(
         params.excludeCredentialDescriptorList,
       );
-      let cipherOptions: CipherView[];
 
       await userInterfaceSession.ensureUnlockedVault();
-
-      const assertParams = { ...params, rpId: params.rpEntity.id, extensions: {} };
-
-      // Try to find the passkey locally before causing a sync to speed things up
-      // only skip syncing if we found credentials AND all of them have a counter = 0
-      const credentials = await this.findCredential(assertParams, cipherOptions);
-      const masterPasswordRepromptRequired = credentials.some(
-        (cipher) => cipher.reprompt !== CipherRepromptType.None,
-      );
 
       let cipher: CipherView;
       let fido2Credential: Fido2CredentialView;
@@ -134,11 +124,12 @@ export class Fido2AuthenticatorService<ParentWindowReference>
       let response;
 
       if (existingCipherIds.length > 0) {
-        response = await userInterfaceSession.pickCredential({
-          cipherIds: existingCipherIds,
+        response = await userInterfaceSession.confirmNewCredential({
+          credentialName: params.rpEntity.name,
+          userName: params.userEntity.name,
+          userHandle: Fido2Utils.bufferToString(params.userEntity.id),
           userVerification: params.requireUserVerification,
-          assumeUserPresence: false,
-          masterPasswordRepromptRequired,
+          rpId: params.rpEntity.id,
         });
 
         this.logService?.info(

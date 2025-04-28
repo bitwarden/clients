@@ -24,25 +24,47 @@
     </bit-section-header>
   </bit-section>
 
-  <bit-section class="tw-bg-background-alt tw-p-4 tw-flex tw-flex-col tw-grow">
-    <bit-item *ngFor="let c of ciphers$ | async" class="">
-      <button type="button" bit-item-content (click)="addPasskeyToCipher(c)">
-        <app-vault-icon [cipher]="c" slot="start"></app-vault-icon>
-        <button bitLink [title]="c.name" type="button">
-          {{ c.name }}
+  <div *ngIf="containsExcludedCiphers; else displayPasskeys" class="tw-h-full tw-items-start">
+    <bit-section
+      class="tw-flex tw-bg-background-alt tw-flex-col tw-justify-start tw-items-center tw-gap-2 tw-h-full tw-px-5"
+    >
+      <div class="tw-flex tw-items-center tw-flex-col tw-p-12 tw-gap-4">
+        <bit-icon [icon]="fido2PasskeyExistsIcon"></bit-icon>
+        <div class="tw-flex tw-flex-col tw-gap-2">
+          <b>{{ "passkeyAlreadyExists" | i18n }}</b>
+          {{ "applicationDoesNotSupportDuplicates" | i18n }}
+        </div>
+        <button bitButton type="button" buttonType="primary" (click)="closeModal()">Close</button>
+      </div>
+    </bit-section>
+  </div>
+  <ng-template #displayPasskeys>
+    <bit-section class="tw-bg-background-alt tw-p-4 tw-flex tw-flex-col tw-grow">
+      <bit-item *ngFor="let c of ciphers$ | async" class="">
+        <button type="button" bit-item-content (click)="addPasskeyToCipher(c)">
+          <app-vault-icon [cipher]="c" slot="start"></app-vault-icon>
+          <button bitLink [title]="c.name" type="button">
+            {{ c.name }}
+          </button>
+          <span slot="secondary">{{ c.subTitle }}</span>
+          <span bitBadge slot="end">Save</span>
         </button>
-        <span slot="secondary">{{ c.subTitle }}</span>
-        <span bitBadge slot="end">Save</span>
-      </button>
-    </bit-item>
-  </bit-section>
-  <bit-section class="tw-bg-background-alt tw-p-4">
-    <bit-item class="">
-      <button bitLink linkType="primary" type="button" bit-item-content (click)="confirmPasskey()">
-        <a bitLink linkType="primary" class="tw-font-medium tw-text-base">
-          {{ "saveNewPasskey" | i18n }}
-        </a>
-      </button>
-    </bit-item>
-  </bit-section>
+      </bit-item>
+    </bit-section>
+    <bit-section class="tw-bg-background-alt tw-p-4">
+      <bit-item class="">
+        <button
+          bitLink
+          linkType="primary"
+          type="button"
+          bit-item-content
+          (click)="confirmPasskey()"
+        >
+          <a bitLink linkType="primary" class="tw-font-medium tw-text-base">
+            {{ "saveNewPasskey" | i18n }}
+          </a>
+        </button>
+      </bit-item>
+    </bit-section>
+  </ng-template>
 </div>
