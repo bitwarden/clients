@@ -50,7 +50,7 @@ body {
   width: 380px;
   height: 100%;
   position: relative;
-  min-height: 100vh;
+  min-height: inherit;
   overflow: hidden;
   color: $text-color;
   background-color: $background-color;
