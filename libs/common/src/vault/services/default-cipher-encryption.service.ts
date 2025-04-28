@@ -1,26 +1,33 @@
 import { EMPTY, catchError, firstValueFrom, map, of } from "rxjs";
 
+import { KeyService } from "@bitwarden/key-management";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
+import { FeatureFlag } from "../../enums/feature-flag.enum";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
-import { UserId } from "../../types/guid";
+import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
+import { OrganizationId, UserId } from "../../types/guid";
+import { OrgKey } from "../../types/key";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
 import { CipherType } from "../enums";
-import { Attachment } from "../models/domain/attachment";
 import { Cipher } from "../models/domain/cipher";
+import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 import { Fido2CredentialView } from "../models/view/fido2-credential.view";
+import { filterOutNullish } from "../utils/observable-utilities";
 
 export class DefaultCipherEncryptionService implements CipherEncryptionService {
   constructor(
     private sdkService: SdkService,
+    private configService: ConfigService,
     private logService: LogService,
+    private encryptService: EncryptService,
+    private keyService: KeyService,
   ) {}
 
-  /**
-   * {@inheritdoc}
-   */
   async decrypt(cipher: Cipher, userId: UserId): Promise<CipherView> {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
@@ -78,9 +85,6 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     );
   }
 
-  /**
-   * {@inheritdoc}
-   */
   async decryptCipherList(ciphers: Cipher[], userId: UserId): Promise<CipherListView[]> {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
@@ -104,12 +108,45 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     );
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  async decryptAttachmentContent(
+  async getDecryptedAttachmentBuffer(
     cipher: Cipher,
-    attachment: Attachment,
+    attachment: AttachmentView,
+    response: Response,
+    userId: UserId,
+  ): Promise<Uint8Array | null> {
+    const useSdkDecryption = await this.configService.getFeatureFlag(
+      FeatureFlag.PM19941MigrateCipherDomainToSdk,
+    );
+
+    if (useSdkDecryption) {
+      const encryptedContent = await response.arrayBuffer();
+      return this.decryptAttachmentContent(
+        cipher,
+        attachment,
+        new Uint8Array(encryptedContent),
+        userId,
+      );
+    }
+
+    const encBuf = await EncArrayBuffer.fromResponse(response);
+    const key =
+      attachment.key != null
+        ? attachment.key
+        : await firstValueFrom(
+            this.keyService.orgKeys$(userId).pipe(
+              filterOutNullish(),
+              map((orgKeys) => orgKeys[cipher.organizationId as OrganizationId] as OrgKey),
+            ),
+          );
+    return await this.encryptService.decryptToBytes(encBuf, key);
+  }
+
+  /**
+   * Decrypts the content of an attachment using the sdk.
+   */
+  private async decryptAttachmentContent(
+    cipher: Cipher,
+    attachment: AttachmentView,
     encryptedContent: Uint8Array,
     userId: UserId,
   ): Promise<Uint8Array> {
@@ -125,7 +162,11 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
           return ref.value
             .vault()
             .attachments()
-            .decrypt_buffer(cipher.toSdkCipher(), attachment.toSdkAttachment(), encryptedContent);
+            .decrypt_buffer_view(
+              cipher.toSdkCipher(),
+              attachment.toSdkAttachmentView(),
+              encryptedContent,
+            );
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to decrypt cipher buffer: ${error}`);

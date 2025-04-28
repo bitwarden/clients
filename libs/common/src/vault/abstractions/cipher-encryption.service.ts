@@ -1,8 +1,8 @@
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { UserId } from "../../types/guid";
-import { Attachment } from "../models/domain/attachment";
 import { Cipher } from "../models/domain/cipher";
+import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 
 /**
@@ -28,19 +28,19 @@ export abstract class CipherEncryptionService {
    */
   abstract decryptCipherList(ciphers: Cipher[], userId: UserId): Promise<CipherListView[]>;
   /**
-   * Decrypts an array buffer using the SDK for the given userId.
+   * Decrypts an attachment's content from a response object.
    *
    * @param cipher The encrypted cipher object that owns the attachment
-   * @param attachment The encrypted attachment object
-   * @param encryptedContent The encrypted content as a Uint8Array
+   * @param attachment The attachment view object
+   * @param response The response object containing the encrypted content
    * @param userId The user ID whose key will be used for decryption
    *
    * @returns A promise that resolves to the decrypted content
    */
-  abstract decryptAttachmentContent(
+  abstract getDecryptedAttachmentBuffer(
     cipher: Cipher,
-    attachment: Attachment,
-    encryptedContent: Uint8Array,
+    attachment: AttachmentView,
+    response: Response,
     userId: UserId,
-  ): Promise<Uint8Array>;
+  ): Promise<Uint8Array | null>;
 }

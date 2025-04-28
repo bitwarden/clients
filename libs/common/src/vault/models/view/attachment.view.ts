@@ -49,6 +49,20 @@ export class AttachmentView implements View {
   }
 
   /**
+   * Converts the AttachmentView to a SDK AttachmentView.
+   */
+  toSdkAttachmentView(): SdkAttachmentView {
+    return {
+      id: this.id,
+      url: this.url,
+      size: this.size,
+      sizeName: this.sizeName,
+      fileName: this.fileName,
+      key: this.encryptedKey?.toJSON(),
+    };
+  }
+
+  /**
    * Converts the SDK AttachmentView to a AttachmentView.
    */
   static fromSdkAttachmentView(obj: SdkAttachmentView): AttachmentView | undefined {

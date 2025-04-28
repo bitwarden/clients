@@ -48,4 +48,26 @@ describe("AttachmentView", () => {
       });
     });
   });
+
+  describe("toSdkAttachmentView", () => {
+    it("should convert AttachmentView to SdkAttachmentView", () => {
+      const attachmentView = new AttachmentView();
+      attachmentView.id = "id";
+      attachmentView.url = "url";
+      attachmentView.size = "size";
+      attachmentView.sizeName = "sizeName";
+      attachmentView.fileName = "fileName";
+      attachmentView.encryptedKey = new EncString("encKeyB64");
+
+      const result = attachmentView.toSdkAttachmentView();
+      expect(result).toEqual({
+        id: "id",
+        url: "url",
+        size: "size",
+        sizeName: "sizeName",
+        fileName: "fileName",
+        key: "encKeyB64",
+      });
+    });
+  });
 });

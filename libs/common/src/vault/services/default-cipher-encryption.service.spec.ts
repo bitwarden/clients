@@ -1,24 +1,28 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { KeyService } from "@bitwarden/key-management";
 import {
   Fido2Credential,
   Cipher as SdkCipher,
   CipherType as SdkCipherType,
   CipherView as SdkCipherView,
-  Attachment as SdkAttachment,
+  AttachmentView as SdkAttachmentView,
 } from "@bitwarden/sdk-internal";
 
-import { mockEnc } from "../../../spec";
+import { makeSymmetricCryptoKey, mockEnc } from "../../../spec";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { UriMatchStrategy } from "../../models/domain/domain-service";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
+import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
 import { UserId } from "../../types/guid";
 import { CipherRepromptType, CipherType } from "../enums";
 import { CipherPermissionsApi } from "../models/api/cipher-permissions.api";
 import { CipherData } from "../models/data/cipher.data";
-import { Attachment } from "../models/domain/attachment";
 import { Cipher } from "../models/domain/cipher";
+import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 import { Fido2CredentialView } from "../models/view/fido2-credential.view";
 
@@ -76,6 +80,9 @@ describe("DefaultCipherEncryptionService", () => {
   let cipherEncryptionService: DefaultCipherEncryptionService;
   const sdkService = mock<SdkService>();
   const logService = mock<LogService>();
+  const encryptService = mock<EncryptService>();
+  const configService = mock<ConfigService>();
+  const keyService = mock<KeyService>();
   let sdkCipherView: SdkCipherView;
 
   const mockSdkClient = {
@@ -85,7 +92,7 @@ describe("DefaultCipherEncryptionService", () => {
         decrypt_fido2_credentials: jest.fn(),
       }),
       attachments: jest.fn().mockReturnValue({
-        decrypt_buffer: jest.fn(),
+        decrypt_buffer_view: jest.fn(),
       }),
     }),
   };
@@ -103,7 +110,13 @@ describe("DefaultCipherEncryptionService", () => {
 
   beforeEach(() => {
     sdkService.userClient$ = jest.fn((userId: UserId) => of(mockSdk)) as any;
-    cipherEncryptionService = new DefaultCipherEncryptionService(sdkService, logService);
+    cipherEncryptionService = new DefaultCipherEncryptionService(
+      sdkService,
+      configService,
+      logService,
+      encryptService,
+      keyService,
+    );
     cipherObj = new Cipher(cipherData);
 
     jest.spyOn(cipherObj, "toSdkCipher").mockImplementation(() => {
@@ -238,33 +251,68 @@ describe("DefaultCipherEncryptionService", () => {
     });
   });
 
-  describe("decryptAttachmentContent", () => {
-    it("should decrypt attachment content successfully", async () => {
+  describe("getDecryptedAttachmentBuffer", () => {
+    it("should use SDK when feature flag is enabled", async () => {
       const cipher = new Cipher(cipherData);
-      const attachment = new Attachment(cipherData.attachments![0]);
-      const encryptedContent = new Uint8Array([1, 2, 3, 4]);
-      const expectedDecryptedContent = new Uint8Array([5, 6, 7, 8]);
+      const attachment = new AttachmentView(cipher.attachments![0]);
 
+      const mockResponse = {
+        arrayBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(4)),
+      } as unknown as Response;
+
+      const expectedDecryptedContent = new Uint8Array([1, 2, 3, 4]);
+
+      configService.getFeatureFlag.mockResolvedValue(true);
       jest.spyOn(cipher, "toSdkCipher").mockReturnValue({ id: "id" } as SdkCipher);
-      jest.spyOn(attachment, "toSdkAttachment").mockReturnValue({ id: "a1" } as SdkAttachment);
+      jest
+        .spyOn(attachment, "toSdkAttachmentView")
+        .mockReturnValue({ id: "a1" } as SdkAttachmentView);
+      mockSdkClient
+        .vault()
+        .attachments()
+        .decrypt_buffer_view.mockReturnValue(expectedDecryptedContent);
 
-      mockSdkClient.vault().attachments().decrypt_buffer.mockReturnValue(expectedDecryptedContent);
-
-      const result = await cipherEncryptionService.decryptAttachmentContent(
+      const result = await cipherEncryptionService.getDecryptedAttachmentBuffer(
         cipher,
         attachment,
-        encryptedContent,
+        mockResponse,
         userId,
       );
 
       expect(result).toEqual(expectedDecryptedContent);
-      expect(cipher.toSdkCipher).toHaveBeenCalled();
-      expect(attachment.toSdkAttachment).toHaveBeenCalled();
-      expect(mockSdkClient.vault().attachments().decrypt_buffer).toHaveBeenCalledWith(
+      expect(mockResponse.arrayBuffer).toHaveBeenCalled();
+      expect(mockSdkClient.vault().attachments().decrypt_buffer_view).toHaveBeenCalledWith(
         { id: "id" },
         { id: "a1" },
-        encryptedContent,
+        expect.any(Uint8Array),
       );
+    });
+
+    it("should use legacy decryption when feature flag is enabled", async () => {
+      const cipher = new Cipher(cipherData);
+      const attachment = new AttachmentView(cipher.attachments![0]);
+      attachment.key = makeSymmetricCryptoKey(64);
+
+      const mockResponse = {
+        arrayBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(4)),
+      } as unknown as Response;
+      const mockEncBuf = {} as EncArrayBuffer;
+      const expectedDecryptedContent = new Uint8Array([1, 2, 3, 4]);
+
+      configService.getFeatureFlag.mockResolvedValue(false);
+      EncArrayBuffer.fromResponse = jest.fn().mockResolvedValue(mockEncBuf);
+      encryptService.decryptToBytes.mockResolvedValue(expectedDecryptedContent);
+
+      const result = await cipherEncryptionService.getDecryptedAttachmentBuffer(
+        cipher,
+        attachment,
+        mockResponse,
+        userId,
+      );
+
+      expect(result).toEqual(expectedDecryptedContent);
+      expect(EncArrayBuffer.fromResponse).toHaveBeenCalledWith(mockResponse);
+      expect(encryptService.decryptToBytes).toHaveBeenCalledWith(mockEncBuf, attachment.key);
     });
   });
 });
