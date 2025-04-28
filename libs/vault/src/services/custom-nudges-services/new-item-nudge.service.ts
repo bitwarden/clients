@@ -9,7 +9,7 @@ import { DefaultSingleNudgeService } from "../default-single-nudge.service";
 import { NudgeStatus, VaultNudgeType } from "../vault-nudges.service";
 
 /**
- * Custom Nudge Service Checking Nudge Status For Empty Vault
+ * Custom Nudge Service Checking Nudge Status For Vault New Item Types
  */
 @Injectable({
   providedIn: "root",
