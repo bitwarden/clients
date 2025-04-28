@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Všetky aplikácie"
   },
+  "appLogoLabel": {
+    "message": "Logo Bitwarden"
+  },
   "criticalApplications": {
     "message": "Kritické aplikácie"
   },
@@ -6306,19 +6309,19 @@
     "message": "Bitwarden pre Rodiny zadarmo"
   },
   "sponsoredBitwardenFamilies": {
-    "message": "Sponsored families"
+    "message": "Sponzorované rodiny"
   },
   "noSponsoredFamilies": {
-    "message": "No sponsored families"
+    "message": "Žiadne sponzorované rodiny"
   },
   "noSponsoredFamiliesDescription": {
-    "message": "Sponsored non-member families plans will display here"
+    "message": "Tu sa zobrazia sponzorované plány pre Rodiny pre nečlenov"
   },
   "sponsorFreeBitwardenFamilies": {
-    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+    "message": "Členovia vašej organizácie majú nárok na bezplatný plán pre Rodiny. Bezplatný plán pre Rodiny môžete sponzorovať aj pre zamestnancov ktorí nie sú členmi vašej Bitwarden organizácie. Spozorovanie nečlena vyžaduje voľné sedenie v organizácii."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
-    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+    "message": "Keď odoberiete aktívne sponzorstvo, sedenie vo vašej organizácii sa uvoľní po dátume obnovenia sponzorovanej organizácie."
   },
   "sponsoredFamiliesEligible": {
     "message": "Vy a vaša rodina máte bezplatne k dispozícii Bitwarden pre Rodiny. Uplatnite si túto možnosť s vaším osobným emailom aby ste mali dáta v bezpečí aj keď nie ste v práci."
@@ -6336,16 +6339,16 @@
     "message": "Zdieľané zbierky pre Rodinné heslá"
   },
   "memberFamilies": {
-    "message": "Member families"
+    "message": "Členské rodiny"
   },
   "noMemberFamilies": {
-    "message": "No member families"
+    "message": "Nečlenské rodiny"
   },
   "noMemberFamiliesDescription": {
-    "message": "Members who have redeemed family plans will display here"
+    "message": "Tu sa zobrazia členovia ktorí využili rodinne plány"
   },
   "membersWithSponsoredFamilies": {
-    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
+    "message": "Členovia vašej organizácie majú nárok na bezplatný plán pre Rodiny. Tu môžete vidieť členov so sponzorstvom Rodinnej organizácie."
   },
   "badToken": {
     "message": "The link is no longer valid. Please have the sponsor resend the offer."
@@ -7276,6 +7279,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Na dokončenie prihlásenia postupujte podľa pokynov."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
+  },
   "launchDuo": {
     "message": "Spustiť DUO"
   },
@@ -8011,7 +8017,7 @@
     "message": "Pozvať člena"
   },
   "addSponsorship": {
-    "message": "Add sponsorship"
+    "message": "Pridať sponzorstvo"
   },
   "needsConfirmation": {
     "message": "Potrebné potvrdenie"
