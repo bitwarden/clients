@@ -210,9 +210,9 @@
     "@storybook/angular": {
       "zone.js": "$zone.js"
     },
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
-    "@types/react": "18.3.1",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "@types/react": "19.1.2",
     "replacestream": "4.0.3"
   },
   "lint-staged": {
