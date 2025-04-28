@@ -19,11 +19,13 @@ const cipherIconWidth = "24px";
 export function CipherItem({
   cipher,
   handleAction,
+  i18n,
   notificationType,
   theme = ThemeTypes.Light,
 }: {
   cipher: NotificationCipherData;
   handleAction?: (e: Event) => void;
+  i18n: { [key: string]: string };
   notificationType?: NotificationType;
   theme: Theme;
 }) {
@@ -34,7 +36,7 @@ export function CipherItem({
 
   if (notificationType === NotificationTypes.Change || notificationType === NotificationTypes.Add) {
     cipherActionButton = html`<div>
-      ${CipherAction({ handleAction, notificationType, theme })}
+      ${CipherAction({ handleAction, i18n, notificationType, theme })}
     </div>`;
   }
 

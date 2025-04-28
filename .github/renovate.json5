@@ -49,6 +49,7 @@
         "./github/workflows/release-web.yml",
       ],
       commitMessagePrefix: "[deps] BRE:",
+      addLabels: ["hold"],
     },
     {
       // Disable major and minor updates for TypeScript and Zone.js because they are managed by Angular.
@@ -250,6 +251,7 @@
         "napi-derive",
         "node-forge",
         "node-ipc",
+        "nx",
         "oo7",
         "oslog",
         "pin-project",

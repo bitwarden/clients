@@ -1,0 +1,23 @@
+<app-header>
+  <button type="button" (click)="addSponsorship()" bitButton buttonType="primary">
+    <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+    {{ "addSponsorship" | i18n }}
+  </button>
+</app-header>
+
+<bit-tab-group [(selectedIndex)]="tabIndex">
+  <bit-tab [label]="'sponsoredBitwardenFamilies' | i18n">
+    <app-organization-sponsored-families
+      [sponsoredFamilies]="sponsoredFamilies"
+      (removeSponsorshipEvent)="removeSponsorhip($event)"
+    ></app-organization-sponsored-families>
+  </bit-tab>
+
+  <bit-tab [label]="'memberFamilies' | i18n">
+    <app-organization-member-families
+      [memberFamilies]="sponsoredFamilies"
+    ></app-organization-member-families>
+  </bit-tab>
+</bit-tab-group>
+
+<p class="tw-px-4" bitTypography="body2">{{ "sponsoredFamiliesRemoveActiveSponsorship" | i18n }}</p>

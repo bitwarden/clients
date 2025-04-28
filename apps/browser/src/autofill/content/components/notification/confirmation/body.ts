@@ -4,7 +4,7 @@ import { html, nothing } from "lit";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { themes } from "../../constants/styles";
-import { PartyHorn, Keyhole, Warning } from "../../icons";
+import { Celebrate, Keyhole, Warning } from "../../illustrations";
 
 import { NotificationConfirmationMessage } from "./message";
 
@@ -16,16 +16,18 @@ const { css } = createEmotion({
 
 export type NotificationConfirmationBodyProps = {
   buttonText: string;
+  itemName: string;
   confirmationMessage: string;
   error?: string;
   messageDetails?: string;
   tasksAreComplete?: boolean;
   theme: Theme;
-  handleOpenVault: (e: Event) => void;
+  handleOpenVault: () => void;
 };
 
 export function NotificationConfirmationBody({
   buttonText,
+  itemName,
   confirmationMessage,
   error,
   messageDetails,
@@ -33,7 +35,7 @@ export function NotificationConfirmationBody({
   theme,
   handleOpenVault,
 }: NotificationConfirmationBodyProps) {
-  const IconComponent = tasksAreComplete ? Keyhole : !error ? PartyHorn : Warning;
+  const IconComponent = tasksAreComplete ? Keyhole : !error ? Celebrate : Warning;
 
   const showConfirmationMessage = confirmationMessage || buttonText || messageDetails;
 
@@ -43,6 +45,7 @@ export function NotificationConfirmationBody({
       ${showConfirmationMessage
         ? NotificationConfirmationMessage({
             buttonText,
+            itemName,
             message: confirmationMessage,
             messageDetails,
             theme,

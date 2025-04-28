@@ -1,7 +1,11 @@
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { NotificationCipherData } from "../../../autofill/content/components/cipher/types";
-import { FolderView, OrgView } from "../../../autofill/content/components/common-types";
+import {
+  FolderView,
+  OrgView,
+  CollectionView,
+} from "../../../autofill/content/components/common-types";
 
 const NotificationTypes = {
   Add: "add",
@@ -19,6 +23,7 @@ type NotificationTaskInfo = {
 type NotificationBarIframeInitData = {
   ciphers?: NotificationCipherData[];
   folders?: FolderView[];
+  collections?: CollectionView[];
   importType?: string;
   isVaultLocked?: boolean;
   launchTimestamp?: number;
@@ -29,11 +34,14 @@ type NotificationBarIframeInitData = {
 };
 
 type NotificationBarWindowMessage = {
-  cipherId?: string;
   command: string;
+  data?: {
+    cipherId?: string;
+    task?: NotificationTaskInfo;
+    itemName?: string;
+  };
   error?: string;
   initData?: NotificationBarIframeInitData;
-  username?: string;
 };
 
 type NotificationBarWindowMessageHandlers = {

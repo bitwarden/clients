@@ -2849,7 +2849,7 @@
     "message": "Aika"
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Myönnä käyttöoikeus"
   },
   "denyAccess": {
     "message": "Deny access"
@@ -3503,7 +3503,7 @@
     "message": "Tuo avain leikepöydältä"
   },
   "sshKeyImported": {
-    "message": "SSH key imported successfully"
+    "message": "SSH-avain on tuotu"
   },
   "fileSavedToDevice": {
     "message": "Tiedosto tallennettiin laitteelle. Hallitse sitä laitteesi latauksista."
@@ -3524,7 +3524,7 @@
     "message": "Muistuta myöhemmin"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "message": "Onko sinulla luotettava pääsy sähköpostiisi, $EMAIL$?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3533,10 +3533,10 @@
     }
   },
   "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
+    "message": "Ei ole"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
+    "message": "Kyllä, voin käyttää sähköpostiani luotettavasti"
   },
   "turnOnTwoStepLogin": {
     "message": "Ota kaksivaiheinen kirjautuminen käyttöön"
@@ -3566,6 +3566,6 @@
     "message": "Vaihda vaarantunut salasana"
   },
   "move": {
-    "message": "Move"
+    "message": "Siirrä"
   }
 }

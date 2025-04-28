@@ -178,7 +178,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
         const existingUserPublicKeyB64 = Utils.fromBufferToB64(existingUserPublicKey);
         newKeyPair = [
           existingUserPublicKeyB64,
-          await this.encryptService.encrypt(existingUserPrivateKey, userKey[0]),
+          await this.encryptService.wrapDecapsulationKey(existingUserPrivateKey, userKey[0]),
         ];
       } else {
         newKeyPair = await this.keyService.makeKeyPair(userKey[0]);
@@ -211,7 +211,10 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
 
             // RSA Encrypt user key with organization public key
             const userKey = await this.keyService.getUserKey();
-            const encryptedUserKey = await this.encryptService.rsaEncrypt(userKey.key, publicKey);
+            const encryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(
+              userKey,
+              publicKey,
+            );
 
             const resetRequest = new OrganizationUserResetPasswordEnrollmentRequest();
             resetRequest.masterPasswordHash = masterPasswordHash;

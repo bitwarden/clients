@@ -12,6 +12,7 @@ import {
 } from "@bitwarden/auth/angular";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Icon, IconModule, Translation } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
@@ -36,6 +37,7 @@ export interface ExtensionAnonLayoutWrapperData extends AnonLayoutWrapperData {
     AnonLayoutComponent,
     CommonModule,
     CurrentAccountComponent,
+    I18nPipe,
     IconModule,
     PopOutComponent,
     PopupPageComponent,
