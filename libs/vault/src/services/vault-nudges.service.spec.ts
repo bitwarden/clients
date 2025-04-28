@@ -2,6 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -45,6 +46,10 @@ describe("Vault Nudges Service", () => {
         {
           provide: EmptyVaultNudgeService,
           useValue: mock<EmptyVaultNudgeService>(),
+        },
+        {
+          provide: ApiService,
+          useValue: mock<ApiService>(),
         },
       ],
     });
