@@ -56,9 +56,8 @@
       [formControl]="searchControl"
     ></bit-search>
     <button
-      class="tw-rounded-lg"
       type="button"
-      buttonType="secondary"
+      [buttonType]="'primary'"
       bitButton
       *ngIf="isCriticalAppsFeatureEnabled"
       [disabled]="!selectedUrls.size"
