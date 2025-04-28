@@ -8,22 +8,34 @@
 
 html {
   overflow: hidden;
+  min-height: 600px;
+  height: 100%;
 
-  // &.body-sm {
-  //   height: 500px;
-  // }
+  &.body-sm {
+    min-height: 500px;
+  }
 
-  // &.body-xs {
-  //   height: 400px;
-  // }
+  &.body-xs {
+    min-height: 400px;
+  }
 
-  // &.body-xxs {
-  //   height: 300px;
-  // }
+  &.body-xxs {
+    min-height: 300px;
+  }
 
-  // &.body-3xs {
-  //   height: 240px;
-  // }
+  &.body-3xs {
+    min-height: 240px;
+  }
+
+  &.body-full {
+    min-height: unset;
+    width: 100%;
+    height: 100%;
+
+    & body {
+      width: 100%;
+    }
+  }
 }
 
 html,
@@ -36,7 +48,7 @@ body {
 
 body {
   width: 380px;
-  height: 600px !important;
+  height: 100%;
   position: relative;
   min-height: 100vh;
   overflow: hidden;
@@ -46,27 +58,6 @@ body {
   @include themify($themes) {
     color: themed("textColor");
     background-color: themed("backgroundColor");
-  }
-
-  &.body-sm {
-    height: 500px !important;
-  }
-
-  &.body-xs {
-    height: 400px !important;
-  }
-
-  &.body-xxs {
-    height: 300px !important;
-  }
-
-  &.body-3xs {
-    height: 240px !important;
-  }
-
-  &.body-full {
-    width: 100%;
-    height: 100%;
   }
 }
 
