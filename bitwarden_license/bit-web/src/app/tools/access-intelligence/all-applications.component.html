@@ -65,7 +65,7 @@
       [loading]="markingAsCritical"
       (click)="markAppsAsCritical()"
     >
-      <i class="bwi bwi-star-f tw-mr-2"></i>
+      <i class="bwi tw-mr-2" [ngClass]="selectedUrls.size ? 'bwi-star-f' : 'bwi-star'"></i>
       {{ "markAppAsCritical" | i18n }}
     </button>
   </div>
