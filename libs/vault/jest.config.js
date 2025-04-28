@@ -10,7 +10,11 @@ module.exports = {
   displayName: "libs/vault tests",
   preset: "jest-preset-angular",
   setupFilesAfterEnv: ["<rootDir>/test.setup.ts"],
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions?.paths || {}, {
-    prefix: "<rootDir>/",
-  }),
+  moduleNameMapper: pathsToModuleNameMapper(
+    // lets us use @bitwarden/common/spec in tests
+    { "@bitwarden/common/spec": ["../common/spec"], ...(compilerOptions?.paths ?? {}) },
+    {
+      prefix: "<rootDir>/",
+    },
+  ),
 };
