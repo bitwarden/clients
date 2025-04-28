@@ -50,14 +50,16 @@ export class VaultNudgesService {
    * Each nudge type can have its own service to determine when to show the nudge
    * @private
    */
+  private newItemNudgeService = inject(NewItemNudgeService);
+
   private customNudgeServices: any = {
     [VaultNudgeType.HasVaultItems]: inject(HasItemsNudgeService),
     [VaultNudgeType.EmptyVaultNudge]: inject(EmptyVaultNudgeService),
-    [VaultNudgeType.newLoginItemDismiss]: inject(NewItemNudgeService),
-    [VaultNudgeType.newCardItemDismiss]: inject(NewItemNudgeService),
-    [VaultNudgeType.newIdentityItemDismiss]: inject(NewItemNudgeService),
-    [VaultNudgeType.newNoteItemDismiss]: inject(NewItemNudgeService),
-    [VaultNudgeType.newSshItemDismiss]: inject(NewItemNudgeService),
+    [VaultNudgeType.newLoginItemDismiss]: this.newItemNudgeService,
+    [VaultNudgeType.newCardItemDismiss]: this.newItemNudgeService,
+    [VaultNudgeType.newIdentityItemDismiss]: this.newItemNudgeService,
+    [VaultNudgeType.newNoteItemDismiss]: this.newItemNudgeService,
+    [VaultNudgeType.newSshItemDismiss]: this.newItemNudgeService,
   };
 
   /**
