@@ -10,11 +10,27 @@ import * as stories from "./vertical-stepper.stories";
 
 <Controls />
 
-## UI Component
+## Vertical Step
 
-The UI component consists of a couple of elements.
+The `<bit-vertical-step>` component extends the
+[Angular CdkStep](https://material.angular.io/cdk/stepper/api#CdkStep) component
 
-- `bit-table`: The main component that creates a native table element and applies the table styling.
-- `header`: A container for the table header.
-- `body`: A container for the table body.
-- `bitCell`: A cell within the table. Used for both headers and content.
+The following additional Inputs are accepted:
+
+| Input         | Type    | Description                                                    |
+| ------------- | ------- | -------------------------------------------------------------- |
+| `subLabel`    | string  | An optional supplemental label to display below the main label |
+| `applyBorder` | boolean | Show/hide the decorative border connecting the steps           |
+
+In order for the stepper component to work as intended, it's children must be type of
+`VerticalStep[]`.
+
+```html
+<bit-vertical-stepper #stepper>
+  <bit-vertical-step label="This is the label" subLabel="This is the sub label">
+    Your content here
+  </bit-vertical-step>
+  <bit-vertical-step label="Another label"> Your content here </bit-vertical-step>
+  <bit-vertical-step label="The last label"> Your content here </bit-vertical-step>
+</bit-vertical-stepper>
+```
