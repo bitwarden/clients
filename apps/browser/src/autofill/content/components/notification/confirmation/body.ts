@@ -22,7 +22,7 @@ export type NotificationConfirmationBodyProps = {
   messageDetails?: string;
   tasksAreComplete?: boolean;
   theme: Theme;
-  handleOpenVault: () => void;
+  handleOpenVault: (e: Event) => void;
 };
 
 export function NotificationConfirmationBody({

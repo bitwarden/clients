@@ -10,7 +10,7 @@ export type NotificationConfirmationMessageProps = {
   itemName: string;
   message?: string;
   messageDetails?: string;
-  handleClick: () => void;
+  handleClick: (e: Event) => void;
   theme: Theme;
 };
 
@@ -39,7 +39,7 @@ export function NotificationConfirmationMessage({
                       title=${buttonText}
                       class=${notificationConfirmationButtonTextStyles(theme)}
                       @click=${handleClick}
-                      @keydown=${(e: KeyboardEvent) => handleButtonKeyDown(e, handleClick)}
+                      @keydown=${(e: KeyboardEvent) => handleButtonKeyDown(e, () => handleClick(e))}
                       aria-label=${buttonAria}
                       tabindex="0"
                       role="button"
