@@ -263,15 +263,15 @@ function handleCloseNotification(e: Event) {
 
 function handleSaveAction(e: Event) {
   const selectedVault = selectedVaultSignal.get();
+  const selectedFolder = selectedFolderSignal.get();
+
   if (selectedVault.length > 1) {
-    openAddEditVaultItemPopout(e, { organizationId: selectedVault });
+    openAddEditVaultItemPopout(e, { organizationId: selectedVault, folder: selectedFolder });
     handleCloseNotification(e);
     return;
   }
 
   e.preventDefault();
-
-  const selectedFolder = selectedFolderSignal.get();
 
   sendSaveCipherMessage(removeIndividualVault(), selectedFolder);
   if (removeIndividualVault()) {
@@ -370,7 +370,7 @@ function handleSaveCipherAttemptCompletedMessage(message: NotificationBarWindowM
 
 function openAddEditVaultItemPopout(
   e: Event,
-  options: { cipherId?: string; organizationId?: string },
+  options: { cipherId?: string; organizationId?: string; folder?: string },
 ) {
   e.preventDefault();
   sendPlatformMessage({
