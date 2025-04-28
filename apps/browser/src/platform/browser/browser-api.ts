@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Observable } from "rxjs";
 
+import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
+import { BrowserClientVendor } from "@bitwarden/common/autofill/types";
 import { DeviceType } from "@bitwarden/common/enums";
 import { isBrowserSafariApi } from "@bitwarden/platform";
 
@@ -129,6 +131,24 @@ export class BrowserApi {
       active: true,
       windowId: chrome.windows.WINDOW_ID_CURRENT,
     });
+  }
+
+  static getBrowserClientVendor(win: Window): BrowserClientVendor {
+    const device = BrowserPlatformUtilsService.getDevice(win);
+
+    switch (device) {
+      case DeviceType.ChromeExtension:
+      case DeviceType.ChromeBrowser:
+        return BrowserClientVendors.Chrome;
+      case DeviceType.OperaExtension:
+        return BrowserClientVendors.Opera;
+      case DeviceType.EdgeExtension:
+        return BrowserClientVendors.Edge;
+      case DeviceType.VivaldiExtension:
+        return BrowserClientVendors.Vivaldi;
+      default:
+        return BrowserClientVendors.Unknown;
+    }
   }
 
   /**

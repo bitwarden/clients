@@ -1,8 +1,9 @@
-import { Injectable, inject } from "@angular/core";
+import { Injectable } from "@angular/core";
+import { Observable, of, from } from "rxjs";
+import { switchMap } from "rxjs/operators";
 
 import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
 import { BrowserClientVendor } from "@bitwarden/common/autofill/types";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 
@@ -13,37 +14,18 @@ import { BrowserApi } from "../../platform/browser/browser-api";
   providedIn: "root",
 })
 export class AutofillBrowserSettingsService {
-  platformUtilsService = inject(PlatformUtilsService);
-
-  private getBrowserClientVendor(): BrowserClientVendor {
-    if (this.platformUtilsService.isChrome()) {
-      return BrowserClientVendors.Chrome;
+  browserAutofillSettingOverridden$(browserClient: BrowserClientVendor): Observable<boolean> {
+    if (browserClient === BrowserClientVendors.Unknown) {
+      return of(false);
     }
 
-    if (this.platformUtilsService.isOpera()) {
-      return BrowserClientVendors.Opera;
-    }
-
-    if (this.platformUtilsService.isEdge()) {
-      return BrowserClientVendors.Edge;
-    }
-
-    if (this.platformUtilsService.isVivaldi()) {
-      return BrowserClientVendors.Vivaldi;
-    }
-
-    return BrowserClientVendors.Unknown;
-  }
-
-  async browserAutofillSettingCurrentlyOverridden() {
-    if (this.getBrowserClientVendor() === BrowserClientVendors.Unknown) {
-      return false;
-    }
-
-    if (!(await BrowserApi.permissionsGranted(["privacy"]))) {
-      return false;
-    }
-
-    return await BrowserApi.browserAutofillSettingsOverridden();
+    return from(BrowserApi.permissionsGranted(["privacy"])).pipe(
+      switchMap((granted) => {
+        if (!granted) {
+          return of(false);
+        }
+        return from(BrowserApi.browserAutofillSettingsOverridden());
+      }),
+    );
   }
 }

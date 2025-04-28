@@ -11,7 +11,7 @@ import {
   FormControl,
 } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { Observable, combineLatest, firstValueFrom, from, map } from "rxjs";
+import { Observable, firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -179,7 +179,7 @@ export class AutofillComponent implements OnInit {
       { name: i18nService.t("never"), value: UriMatchStrategy.Never },
     ];
 
-    this.browserClientVendor = this.getBrowserClientVendor();
+    this.browserClientVendor = BrowserApi.getBrowserClientVendor(window);
     this.disablePasswordManagerURI = DisablePasswordManagerUris[this.browserClientVendor];
     this.browserShortcutsURI = BrowserShortcutsUris[this.browserClientVendor];
     this.browserClientIsUnknown = this.browserClientVendor === BrowserClientVendors.Unknown;
@@ -187,7 +187,12 @@ export class AutofillComponent implements OnInit {
 
   async ngOnInit() {
     this.canOverrideBrowserAutofillSetting = !this.browserClientIsUnknown;
-    this.defaultBrowserAutofillDisabled = await this.browserAutofillSettingCurrentlyOverridden();
+
+    this.defaultBrowserAutofillDisabled = await firstValueFrom(
+      this.autofillBrowserSettingsService.browserAutofillSettingOverridden$(
+        this.browserClientVendor,
+      ),
+    );
 
     this.inlineMenuVisibility = await firstValueFrom(
       this.autofillSettingsService.inlineMenuVisibility$,
@@ -323,35 +328,30 @@ export class AutofillComponent implements OnInit {
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-    // await this.vaultNudgesService.undismissNudge(VaultNudgeType.AutofillNudge, activeUserId);
-
-    this.autofillNudgeStatus$ = combineLatest([
-      this.vaultNudgesService.showNudge$(VaultNudgeType.AutofillNudge, activeUserId),
-      from(this.autofillBrowserSettingsService.browserAutofillSettingCurrentlyOverridden()),
-    ]).pipe(
-      map(([nudgeStatus, isOverridden]) => {
-        if (isOverridden) {
-          return { hasBadgeDismissed: true, hasSpotlightDismissed: true };
-        }
-        return nudgeStatus;
-      }),
-    );
+    this.autofillNudgeStatus$ = this.vaultNudgesService
+      .showNudge$(VaultNudgeType.AutofillNudge, activeUserId)
+      .pipe(
+        map((nudgeStatus) => {
+          if (this.defaultBrowserAutofillDisabled) {
+            return { hasBadgeDismissed: true, hasSpotlightDismissed: true };
+          }
+          return nudgeStatus;
+        }),
+      );
   }
 
   get spotlightButtonIcon() {
-    const browserClientVendor = this.getBrowserClientVendor();
-    if (browserClientVendor === BrowserClientVendors.Unknown) {
+    if (this.browserClientVendor === BrowserClientVendors.Unknown) {
       return "bwi-external-link";
     }
     return null;
   }
 
   get spotlightButtonText() {
-    const browserClientVendor = this.getBrowserClientVendor();
-    if (browserClientVendor === BrowserClientVendors.Unknown) {
+    if (this.browserClientVendor === BrowserClientVendors.Unknown) {
       return this.i18nService.t("turnOffAutofill");
     }
-    return this.i18nService.t("turnOffBrowserAutofill", browserClientVendor);
+    return this.i18nService.t("turnOffBrowserAutofill", this.browserClientVendor);
   }
 
   async dismissSpotlight() {
@@ -397,26 +397,6 @@ export class AutofillComponent implements OnInit {
     } else {
       this.autofillKeyboardHelperText = this.i18nService.t("autofillLoginShortcutNotSet");
     }
-  }
-
-  private getBrowserClientVendor(): BrowserClientVendor {
-    if (this.platformUtilsService.isChrome()) {
-      return BrowserClientVendors.Chrome;
-    }
-
-    if (this.platformUtilsService.isOpera()) {
-      return BrowserClientVendors.Opera;
-    }
-
-    if (this.platformUtilsService.isEdge()) {
-      return BrowserClientVendors.Edge;
-    }
-
-    if (this.platformUtilsService.isVivaldi()) {
-      return BrowserClientVendors.Vivaldi;
-    }
-
-    return BrowserClientVendors.Unknown;
   }
 
   protected async openURI(event: Event, uri: BrowserShortcutsUri | DisablePasswordManagerUri) {
@@ -475,7 +455,7 @@ export class AutofillComponent implements OnInit {
     if (
       this.inlineMenuVisibility === AutofillOverlayVisibility.Off ||
       !this.canOverrideBrowserAutofillSetting ||
-      (await this.browserAutofillSettingCurrentlyOverridden())
+      this.defaultBrowserAutofillDisabled
     ) {
       return;
     }
@@ -523,18 +503,6 @@ export class AutofillComponent implements OnInit {
     this.defaultBrowserAutofillDisabled = true;
     await this.updateDefaultBrowserAutofillDisabled();
   };
-
-  async browserAutofillSettingCurrentlyOverridden() {
-    if (!this.canOverrideBrowserAutofillSetting) {
-      return false;
-    }
-
-    if (!(await this.privacyPermissionGranted())) {
-      return false;
-    }
-
-    return await BrowserApi.browserAutofillSettingsOverridden();
-  }
 
   async privacyPermissionGranted(): Promise<boolean> {
     return await BrowserApi.permissionsGranted(["privacy"]);

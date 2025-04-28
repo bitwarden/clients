@@ -1,17 +1,20 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { combineLatest, firstValueFrom, from, map, Observable } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
+import { BrowserClientVendor } from "@bitwarden/common/autofill/types";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BadgeComponent, ItemModule } from "@bitwarden/components";
 import { NudgeStatus, VaultNudgesService, VaultNudgeType } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
 import { AutofillBrowserSettingsService } from "../../../autofill/services/autofill-browser-settings.service";
+import { BrowserApi } from "../../../platform/browser/browser-api";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
@@ -36,6 +39,7 @@ export class SettingsV2Component implements OnInit {
   showVaultBadge$: Observable<NudgeStatus> = new Observable();
   showAutofillBadge$: Observable<NudgeStatus> = new Observable();
   activeUserId: UserId | null = null;
+  protected browserClientVendor: BrowserClientVendor = BrowserClientVendors.Unknown;
 
   constructor(
     private readonly vaultNudgesService: VaultNudgesService,
@@ -48,9 +52,12 @@ export class SettingsV2Component implements OnInit {
       VaultNudgeType.EmptyVaultNudge,
       this.activeUserId,
     );
+    this.browserClientVendor = BrowserApi.getBrowserClientVendor(window);
     this.showAutofillBadge$ = combineLatest([
       this.vaultNudgesService.showNudge$(VaultNudgeType.AutofillNudge, this.activeUserId),
-      from(this.autofillBrowserSettingsService.browserAutofillSettingCurrentlyOverridden()),
+      this.autofillBrowserSettingsService.browserAutofillSettingOverridden$(
+        this.browserClientVendor,
+      ),
     ]).pipe(
       map(([nudgeStatus, isOverridden]) => {
         if (isOverridden) {
