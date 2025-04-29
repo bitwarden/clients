@@ -70,7 +70,7 @@ describe("Folder", () => {
 
     beforeEach(() => {
       encryptService = mock<EncryptService>();
-      encryptService.decryptToUtf8.mockImplementation((value) => {
+      encryptService.decryptString.mockImplementation((value) => {
         return Promise.resolve(value.data);
       });
     });
