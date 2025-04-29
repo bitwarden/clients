@@ -12,6 +12,7 @@ export class PendingAuthRequestResponse implements BaseResponse {
   requestDeviceType: string;
   requestIpAddress: string;
   creationDate: Date;
+  fingerprintPhrase: string;
 
   constructor(authRequest: PendingAuthRequestView) {
     this.id = authRequest.id;
@@ -22,5 +23,6 @@ export class PendingAuthRequestResponse implements BaseResponse {
     this.requestDeviceType = authRequest.requestDeviceType;
     this.requestIpAddress = authRequest.requestIpAddress;
     this.creationDate = authRequest.creationDate;
+    this.fingerprintPhrase = authRequest.fingerprintPhrase;
   }
 }

@@ -7,6 +7,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { KeyService } from "@bitwarden/key-management";
 
 import { ServiceContainer } from "../../service-container";
 
@@ -17,6 +18,7 @@ export class ListCommand {
     private organizationAuthRequestService: OrganizationAuthRequestService,
     private organizationService: OrganizationService,
     private accountService: AccountService,
+    private keyService: KeyService,
   ) {}
 
   async run(organizationId: string): Promise<Response> {
@@ -48,6 +50,14 @@ export class ListCommand {
     try {
       const requests =
         await this.organizationAuthRequestService.listPendingRequests(organizationId);
+
+      // Generate fingerprint phrases for each request
+      for (const request of requests) {
+        const publicKeyBuffer = Utils.fromB64ToArray(request.publicKey);
+        const fingerprint = await this.keyService.getFingerprint(request.email, publicKeyBuffer);
+        request.fingerprintPhrase = fingerprint.join("-");
+      }
+
       const res = new ListResponse(requests.map((r) => new PendingAuthRequestResponse(r)));
       return Response.success(res);
     } catch (e) {
@@ -60,6 +70,7 @@ export class ListCommand {
       serviceContainer.organizationAuthRequestService,
       serviceContainer.organizationService,
       serviceContainer.accountService,
+      serviceContainer.keyService,
     );
   }
 }
