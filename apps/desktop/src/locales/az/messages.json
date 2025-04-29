@@ -394,16 +394,16 @@
     "message": "Kimlik doğrulayıcı açarı (TOTP)"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "Kimlik doğrulayıcı açarı"
   },
   "autofillOptions": {
-    "message": "Autofill options"
+    "message": "Avto-doldurma seçimləri"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Veb sayt (URI)"
   },
   "websiteUriCount": {
-    "message": "Website (URI) $COUNT$",
+    "message": "Veb sayt (URI) $COUNT$",
     "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -413,43 +413,43 @@
     }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Veb sayt əlavə edildi"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Veb sayt əlavə et"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Veb saytı sil"
   },
   "owner": {
-    "message": "Owner"
+    "message": "Sahibi"
   },
   "addField": {
-    "message": "Add field"
+    "message": "Xana əlavə et"
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "Xana növü"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "Xana etiketi"
   },
   "add": {
-    "message": "Add"
+    "message": "Əlavə et"
   },
   "textHelpText": {
-    "message": "Use text fields for data like security questions"
+    "message": "Təhlükəsizlik sualları kimi datalar üçün mətn xanalarını istifadə edin"
   },
   "hiddenHelpText": {
-    "message": "Use hidden fields for sensitive data like a password"
+    "message": "Parol kimi həssas datalar üçün gizli xanaları istifadə edin"
   },
   "checkBoxHelpText": {
-    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
+    "message": "\"E-poçtu xatırla\" kimi formun təsdiq qutusunu avto-doldurmaq istəyirsinizsə təsdiq qutularını istifadə edin"
   },
   "linkedHelpText": {
-    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+    "message": "Müəyyən bir veb sayt üçün avto-doldurma problemləri ilə üzləşdikdə əlaqələndirilmiş xana istifadə edin."
   },
   "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+    "message": "Xana üçün bunları daxil edin: kimlik, ad, aria-label və ya placeholder."
   },
   "folder": {
     "message": "Qovluq"
@@ -477,7 +477,7 @@
     "description": "This describes a field that is 'linked' (related) to another field."
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "Təsdiq qutusu"
   },
   "linkedValue": {
     "message": "Əlaqəli dəyər",
@@ -1977,10 +1977,10 @@
     }
   },
   "cardDetails": {
-    "message": "Card details"
+    "message": "Kart detalları"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$ details",
+    "message": "$BRAND$ detalları",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -1989,29 +1989,29 @@
     }
   },
   "learnMoreAboutAuthenticators": {
-    "message": "Learn more about authenticators"
+    "message": "Kimlik doğrulayıcılar haqqında daha ətraflı"
   },
   "copyTOTP": {
-    "message": "Copy Authenticator key (TOTP)"
+    "message": "Kimlik doğrulayıcı açarını kopyala (TOTP)"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "2 addımlı doğrulamanı problemsiz edin"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden, 2 addımlı doğrulama kodlarını saxlaya və doldura bilər. Açarı kopyalayıb bu xanaya yapışdırın."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden, 2 addımlı doğrulama kodlarını saxlaya və doldura bilər. Bu veb saytdakı kimlik doğrulayıcı QR kodunun ekran şəklini çəkmək üçün kamera ikonunu seçin, ya da açarı kopyalayıb bu xanaya yapışdırın."
   },
   "premium": {
     "message": "Premium",
     "description": "Premium membership"
   },
   "cardExpiredTitle": {
-    "message": "Expired card"
+    "message": "Kartın müddəti bitib"
   },
   "cardExpiredMessage": {
-    "message": "If you've renewed it, update the card's information"
+    "message": "Yeniləmisinizsə, kart məlumatlarınızı güncəlləyin"
   },
   "verificationRequired": {
     "message": "Doğrulama tələb olunur",
@@ -2183,13 +2183,13 @@
     "message": "Bir təşkilat siyasəti, elementlərin fərdi seyfinizə köçürülməsini əngəllədi."
   },
   "personalDetails": {
-    "message": "Personal details"
+    "message": "Şəxsi detallar"
   },
   "identification": {
-    "message": "Identification"
+    "message": "İdentifikasiya"
   },
   "contactInfo": {
-    "message": "Contact information"
+    "message": "Əlaqə məlumatları"
   },
   "allSends": {
     "message": "Bütün \"Send\"lər",
@@ -2626,7 +2626,7 @@
     "message": "E-poçt yarat"
   },
   "usernameGenerator": {
-    "message": "Username generator"
+    "message": "İstifadəçi adı yaradıcı"
   },
   "spinboxBoundariesHint": {
     "message": "Dəyər, $MIN$-$MAX$ arasında olmalıdır.",
@@ -3323,7 +3323,7 @@
     "message": "Giriş prosesini tamamlamaq üçün aşağıdakı addımları izləyin."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Follow the steps below to finish logging in with your security key."
+    "message": "Güvənlik açarınızla girişi tamamlamaq üçün aşağıdakı addımları izləyin."
   },
   "launchDuo": {
     "message": "Duo-nu brauzerdə başlat"
@@ -3550,14 +3550,14 @@
     "message": "SSO giriş üçün açıq port tapıla bilmədi."
   },
   "securePasswordGenerated": {
-    "message": "Secure password generated! Don't forget to also update your password on the website."
+    "message": "Güvənli parol yaradıldı! Həmçinin veb saytdakı parolunuzu güncəlləməyi unutmayın."
   },
   "useGeneratorHelpTextPartOne": {
-    "message": "Use the generator",
+    "message": "Yaradıcı istifadə et",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
-    "message": "to create a strong unique password",
+    "message": "Daha unikal parollar yarat",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "biometricsStatusHelptextUnlockNeeded": {
@@ -3639,25 +3639,25 @@
     "message": "İki addımlı girişi qur"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "Element detalları"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "Element adı"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Giriş məlumatları"
   },
   "additionalOptions": {
-    "message": "Additional options"
+    "message": "Əlavə seçimlər"
   },
   "itemHistory": {
-    "message": "Item history"
+    "message": "Element tarixçəsi"
   },
   "lastEdited": {
-    "message": "Last edited"
+    "message": "Son düzəliş"
   },
   "upload": {
-    "message": "Upload"
+    "message": "Yüklə"
   },
   "newDeviceVerificationNoticeContentPage1": {
     "message": "Bitwarden, 2025-ci ilin Fevral ayından etibarən yeni cihazlardan gələn girişləri doğrulamaq üçün hesabınızın e-poçtuna bir kod göndərəcək."

@@ -394,10 +394,10 @@
     "message": "Authenticatiesleutel (TOTP)"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "Authenticatiesleutel"
   },
   "autofillOptions": {
-    "message": "Autofill options"
+    "message": "Instellingen automatisch invullen"
   },
   "websiteUri": {
     "message": "Website (URI)"
@@ -413,43 +413,43 @@
     }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Website toegevoegd"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Website toevoegen"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Website verwijderen"
   },
   "owner": {
-    "message": "Owner"
+    "message": "Eigenaar"
   },
   "addField": {
-    "message": "Add field"
+    "message": "Veld toevoegen"
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "Veldtype"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "Veldlabel"
   },
   "add": {
-    "message": "Add"
+    "message": "Toevoegen"
   },
   "textHelpText": {
-    "message": "Use text fields for data like security questions"
+    "message": "Gebruik tekstvelden voor data zoals beveiligingsvragen"
   },
   "hiddenHelpText": {
-    "message": "Use hidden fields for sensitive data like a password"
+    "message": "Gebruik verborgen velden voor gevoelige gegevens zoals een wachtwoord"
   },
   "checkBoxHelpText": {
-    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
+    "message": "Gebruik aanvinkvakjes als je een formulier automatisch wilt invullen, zoals e-mailadres herinneren"
   },
   "linkedHelpText": {
-    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+    "message": "Gebruik een gekoppeld veld als je problemen ervaart met het automatisch invullen voor een specifieke website."
   },
   "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+    "message": "Html-id, naam, aria-label of placeholder van het veld invullen."
   },
   "folder": {
     "message": "Map"
@@ -477,7 +477,7 @@
     "description": "This describes a field that is 'linked' (related) to another field."
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "Selectievakje"
   },
   "linkedValue": {
     "message": "Gekoppelde waarde",
@@ -1977,10 +1977,10 @@
     }
   },
   "cardDetails": {
-    "message": "Card details"
+    "message": "Kaartgegevens"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$ details",
+    "message": "$BRAND$-gegevens",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -1989,29 +1989,29 @@
     }
   },
   "learnMoreAboutAuthenticators": {
-    "message": "Learn more about authenticators"
+    "message": "Meer informatie over authenticatoren"
   },
   "copyTOTP": {
-    "message": "Copy Authenticator key (TOTP)"
+    "message": "Authenticatie-sleutel (TOTP) kopiëren"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "Maak tweestapsaanmelding naadloos"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden kan tweestapsaanmeldingscodes opslaan en invullen. Kopieer en plak de sleutel in dit veld."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden kan tweestapsaanmeldingscodes opslaan en invullen. Selecteer het camerapictogram om een schermafbeelding van de QR-code van deze website te maken of kopieer en plak de sleutel in dit veld."
   },
   "premium": {
     "message": "Premium",
     "description": "Premium membership"
   },
   "cardExpiredTitle": {
-    "message": "Expired card"
+    "message": "Verlopen kaart"
   },
   "cardExpiredMessage": {
-    "message": "If you've renewed it, update the card's information"
+    "message": "Als je het hebt vernieuwd, werk dan de informatie van de kaart bij"
   },
   "verificationRequired": {
     "message": "Verificatie vereist",
@@ -2183,13 +2183,13 @@
     "message": "Organisatiebeleid heeft het importeren van items in je persoonlijke kluis geblokkeerd."
   },
   "personalDetails": {
-    "message": "Personal details"
+    "message": "Persoonlijke gegevens"
   },
   "identification": {
-    "message": "Identification"
+    "message": "Identificatie"
   },
   "contactInfo": {
-    "message": "Contact information"
+    "message": "Contact informatie"
   },
   "allSends": {
     "message": "Alle Sends",
@@ -2626,7 +2626,7 @@
     "message": "E-mailadres genereren"
   },
   "usernameGenerator": {
-    "message": "Username generator"
+    "message": "Gebruikersnaamgenerator"
   },
   "spinboxBoundariesHint": {
     "message": "Waarde moet tussen $MIN$ en $MAX$ liggen.",
@@ -3550,14 +3550,14 @@
     "message": "Er zijn geen vrije poorten gevonden voor de sso-login."
   },
   "securePasswordGenerated": {
-    "message": "Secure password generated! Don't forget to also update your password on the website."
+    "message": "Veilig wachtwoord aangemaakt! Vergeet niet om je wachtwoord ook op de website bij te werken."
   },
   "useGeneratorHelpTextPartOne": {
-    "message": "Use the generator",
+    "message": "Gebruik de generator",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
-    "message": "to create a strong unique password",
+    "message": "om een sterk uniek wachtwoord te maken",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "biometricsStatusHelptextUnlockNeeded": {
@@ -3639,25 +3639,25 @@
     "message": "Tweestapsaanmelding instellen"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "Itemdetails"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "Itemnaam"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Login referenties"
   },
   "additionalOptions": {
-    "message": "Additional options"
+    "message": "Extra opties"
   },
   "itemHistory": {
-    "message": "Item history"
+    "message": "Itemgeschiedenis"
   },
   "lastEdited": {
-    "message": "Last edited"
+    "message": "Laatst gewijzigd"
   },
   "upload": {
-    "message": "Upload"
+    "message": "Uploaden"
   },
   "newDeviceVerificationNoticeContentPage1": {
     "message": "Vanaf februari 2025 stuurt Bitwarden een code naar het e-mailadres van je account om inloggen op nieuwe apparaten te verifiëren."

@@ -394,16 +394,16 @@
     "message": "Authentifizierungsschlüssel (TOTP)"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "Authenticator-Schlüssel"
   },
   "autofillOptions": {
-    "message": "Autofill options"
+    "message": "Auto-Ausfüllen-Optionen"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Webseite (URI)"
   },
   "websiteUriCount": {
-    "message": "Website (URI) $COUNT$",
+    "message": "Webseite (URI) $COUNT$",
     "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -413,43 +413,43 @@
     }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Webseite hinzugefügt"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Webseite hinzufügen"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Webseite löschen"
   },
   "owner": {
-    "message": "Owner"
+    "message": "Besitzer"
   },
   "addField": {
-    "message": "Add field"
+    "message": "Feld hinzufügen"
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "Feldtyp"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "Feldbezeichnung"
   },
   "add": {
-    "message": "Add"
+    "message": "Hinzufügen"
   },
   "textHelpText": {
-    "message": "Use text fields for data like security questions"
+    "message": "Verwende Textfelder für Daten wie Sicherheitsfragen"
   },
   "hiddenHelpText": {
-    "message": "Use hidden fields for sensitive data like a password"
+    "message": "Verwende versteckte Felder für vertrauliche Daten wie ein Passwort"
   },
   "checkBoxHelpText": {
-    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
+    "message": "Verwende Kontrollkästchen, wenn du das Kontrollkästchen eines Formulars automatisch ausfüllen möchtest, wie eine Erinnerungs-E-Mail"
   },
   "linkedHelpText": {
-    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+    "message": "Verwende ein verknüpftes Feld, wenn du Probleme mit dem automatischen Ausfüllen einer bestimmten Webseite hast."
   },
   "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+    "message": "Gib die HTML-ID des Felds, Name, Aria-Label oder einen Platzhalter ein."
   },
   "folder": {
     "message": "Ordner"
@@ -477,7 +477,7 @@
     "description": "This describes a field that is 'linked' (related) to another field."
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "Kontrollkästchen"
   },
   "linkedValue": {
     "message": "Verknüpfter Wert",
@@ -1977,10 +1977,10 @@
     }
   },
   "cardDetails": {
-    "message": "Card details"
+    "message": "Kartendetails"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$ details",
+    "message": "$BRAND$-Details",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -1989,29 +1989,29 @@
     }
   },
   "learnMoreAboutAuthenticators": {
-    "message": "Learn more about authenticators"
+    "message": "Erfahre mehr über Authenticator-Apps"
   },
   "copyTOTP": {
-    "message": "Copy Authenticator key (TOTP)"
+    "message": "Authenticator-Schlüssel kopieren (TOTP)"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "Zwei-Faktor-Authentifizierung nahtlos gestalten"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden kann Zwei-Faktor-Authentifizierungsscodes speichern und ausfüllen. Kopiere und füge den Schlüssel in dieses Feld ein."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden kann Zwei-Faktor-Authentifizierungsscodes speichern und ausfüllen. Wähle das Kamerasymbol aus, um einen Screenshot des Authenticator-QR-Codes dieser Website zu machen oder kopiere und füge den Schlüssel in dieses Feld ein."
   },
   "premium": {
     "message": "Premium",
     "description": "Premium membership"
   },
   "cardExpiredTitle": {
-    "message": "Expired card"
+    "message": "Abgelaufene Karte"
   },
   "cardExpiredMessage": {
-    "message": "If you've renewed it, update the card's information"
+    "message": "Wenn du die Karte erneuert hast, aktualisiere die Angaben zur Karte"
   },
   "verificationRequired": {
     "message": "Verifizierung erforderlich",
@@ -2183,13 +2183,13 @@
     "message": "Eine Organisationsrichtlinie hat das Importieren von Einträgen in deinen persönlichen Tresor deaktiviert."
   },
   "personalDetails": {
-    "message": "Personal details"
+    "message": "Persönliche Details"
   },
   "identification": {
-    "message": "Identification"
+    "message": "Identifikation"
   },
   "contactInfo": {
-    "message": "Contact information"
+    "message": "Kontaktinformationen"
   },
   "allSends": {
     "message": "Alle Sends",
@@ -2626,7 +2626,7 @@
     "message": "E-Mail generieren"
   },
   "usernameGenerator": {
-    "message": "Username generator"
+    "message": "Benutzernamen-Generator"
   },
   "spinboxBoundariesHint": {
     "message": "Wert muss zwischen $MIN$ und $MAX$ liegen.",
@@ -3550,14 +3550,14 @@
     "message": "Es konnten keine freien Ports für die SSO-Anmeldung gefunden werden."
   },
   "securePasswordGenerated": {
-    "message": "Secure password generated! Don't forget to also update your password on the website."
+    "message": "Sicheres Passwort generiert! Vergiss nicht, auch dein Passwort auf der Website zu aktualisieren."
   },
   "useGeneratorHelpTextPartOne": {
-    "message": "Use the generator",
+    "message": "Verwende den Generator",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
-    "message": "to create a strong unique password",
+    "message": ", um ein starkes einzigartiges Passwort zu erstellen",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "biometricsStatusHelptextUnlockNeeded": {
@@ -3639,25 +3639,25 @@
     "message": "Zwei-Faktor-Authentifizierung einrichten"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "Eintrag-Details"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "Eintrags-Name"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Zugangsdaten"
   },
   "additionalOptions": {
-    "message": "Additional options"
+    "message": "Weitere Optionen"
   },
   "itemHistory": {
-    "message": "Item history"
+    "message": "Eintragsverlauf"
   },
   "lastEdited": {
-    "message": "Last edited"
+    "message": "Zuletzt bearbeitet"
   },
   "upload": {
-    "message": "Upload"
+    "message": "Hochladen"
   },
   "newDeviceVerificationNoticeContentPage1": {
     "message": "Ab Februar 2025 wird Bitwarden einen Code an deine Konto-E-Mail-Adresse senden, um Anmeldungen von neuen Geräten zu verifizieren."
