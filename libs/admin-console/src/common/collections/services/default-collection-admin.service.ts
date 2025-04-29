@@ -116,7 +116,7 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     const promises = collections.map(async (c) => {
       const view = new CollectionAdminView();
       view.id = c.id;
-      view.name = await this.encryptService.decryptToUtf8(new EncString(c.name), orgKey);
+      view.name = await this.encryptService.decryptString(new EncString(c.name), orgKey);
       view.externalId = c.externalId;
       view.organizationId = c.organizationId;
 
@@ -146,7 +146,7 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     }
     const collection = new CollectionRequest();
     collection.externalId = model.externalId;
-    collection.name = (await this.encryptService.encrypt(model.name, key)).encryptedString;
+    collection.name = (await this.encryptService.encryptString(model.name, key)).encryptedString;
     collection.groups = model.groups.map(
       (group) =>
         new SelectionReadOnlyRequest(group.id, group.readOnly, group.hidePasswords, group.manage),
