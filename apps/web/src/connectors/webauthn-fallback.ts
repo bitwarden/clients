@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   titleForLargerScreens.innerText = localeService.t("verifyYourIdentity");
 
   const subtitle = document.getElementById("subtitle");
-  subtitle.innerText = localeService.t("followTheStepsBelowToFinishLoggingIn");
+  subtitle.innerText = localeService.t("followTheStepsBelowToFinishLoggingInWithSecurityKey");
 });
 
 function start() {

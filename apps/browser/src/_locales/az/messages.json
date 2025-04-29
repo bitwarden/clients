@@ -2,6 +2,9 @@
   "appName": {
     "message": "Bitwarden"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden loqosu"
+  },
   "extName": {
     "message": "Bitwarden Parol Meneceri",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
@@ -883,6 +886,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Giriş prosesini tamamlamaq üçün aşağıdakı addımları izləyin."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Güvənlik açarınızla girişi tamamlamaq üçün aşağıdakı addımları izləyin."
+  },
   "restartRegistration": {
     "message": "Qeydiyyatı yenidən başlat"
   },
@@ -1056,23 +1062,49 @@
   "notificationAddSave": {
     "message": "Saxla"
   },
-  "loginSaveSuccessDetails": {
-    "message": "$USERNAME$ Bitwarden-də saxlanıldı.",
+  "notificationViewAria": {
+    "message": "$ITEMNAME$ bax, yeni pəncərədə açılır",
     "placeholders": {
-      "username": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is saved."
+    "description": "Aria label for the view button in notification bar confirmation message"
   },
-  "loginUpdatedSuccessDetails": {
-    "message": "$USERNAME$ Bitwarden-də güncəlləndi.",
+  "notificationEditTooltip": {
+    "message": "Saxlamazdan əvvəl düzəliş et",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "Yeni bildiriş"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: Yeni bildiriş",
+    "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
-      "username": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "loginSaveConfirmation": {
+    "message": "$ITEMNAME$ Bitwarden-də saxlanıldı.",
+    "placeholders": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is updated."
+    "description": "Shown to user after item is saved."
+  },
+  "loginUpdatedConfirmation": {
+    "message": "$ITEMNAME$ Bitwarden-də güncəlləndi.",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after item is updated."
   },
   "saveAsNewLoginAction": {
     "message": "Yeni giriş kimi saxla",
@@ -1082,12 +1114,12 @@
     "message": "Giriş məlumatlarını güncəllə",
     "description": "Button text for updating an existing login entry."
   },
-  "saveLoginPrompt": {
-    "message": "Giriş məlumatları saxlanılsın?",
+  "saveLogin": {
+    "message": "Girişi saxla",
     "description": "Prompt asking the user if they want to save their login details."
   },
-  "updateLoginPrompt": {
-    "message": "Mövcud giriş məlumatları güncəllənsin?",
+  "updateLogin": {
+    "message": "Mövcud giriş məlumatlarını güncəllə",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
@@ -3259,7 +3291,7 @@
     "message": "API açar"
   },
   "ssoKeyConnectorError": {
-    "message": "Açar bağlayıcı xətası: Açar Bağlayıcının mövcud olduğuna və düzgün işlədiyinə əmin olun."
+    "message": "Key connector xətası: \"Key connector\"un mövcud olduğuna və düzgün işlədiyinə əmin olun."
   },
   "premiumSubcriptionRequired": {
     "message": "Premium abunəlik tələb olunur"
