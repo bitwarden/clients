@@ -1,5 +1,4 @@
 {
-  "extends": "../shared/tsconfig",
-  "compilerOptions": {},
+  "extends": "../../tsconfig.base",
   "exclude": ["node_modules", "dist"]
 }
