@@ -434,7 +434,7 @@ describe("PinService", () => {
         .fn()
         .mockResolvedValue(pinKeyEncryptedUserKeyPersistant);
       sut.makePinKey = jest.fn().mockResolvedValue(mockPinKey);
-      encryptService.decryptToBytes.mockResolvedValue(mockUserKey.key);
+      encryptService.decryptToBytes.mockResolvedValue(mockUserKey.toEncoded());
     }
 
     function mockPinEncryptedKeyDataByPinLockType(pinLockType: PinLockType) {

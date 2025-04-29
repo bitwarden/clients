@@ -3,6 +3,8 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -85,6 +87,14 @@ describe("CipherAttachmentsComponent", () => {
         {
           provide: AccountService,
           useValue: accountService,
+        },
+        {
+          provide: ApiService,
+          useValue: mock<ApiService>(),
+        },
+        {
+          provide: OrganizationService,
+          useValue: mock<OrganizationService>(),
         },
       ],
     })
@@ -234,7 +244,21 @@ describe("CipherAttachmentsComponent", () => {
       it("calls `saveAttachmentWithServer`", async () => {
         await component.submit();
 
-        expect(saveAttachmentWithServer).toHaveBeenCalledWith(cipherDomain, file, mockUserId);
+        expect(saveAttachmentWithServer).toHaveBeenCalledWith(
+          cipherDomain,
+          file,
+          mockUserId,
+          false,
+        );
+      });
+
+      it("calls `saveAttachmentWithServer` with isAdmin=true when using admin API", async () => {
+        // Set isAdmin to true to use admin API
+        Object.defineProperty(component, "isAdmin", { value: true });
+
+        await component.submit();
+
+        expect(saveAttachmentWithServer).toHaveBeenCalledWith(cipherDomain, file, mockUserId, true);
       });
 
       it("resets form and input values", async () => {

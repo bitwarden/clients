@@ -6,6 +6,7 @@
     <app-cipher-attachments
       *ngIf="cipherId"
       [cipherId]="cipherId"
+      [organizationId]="organizationId"
       [submitBtn]="submitBtn"
       (onUploadSuccess)="uploadSuccessful()"
       (onRemoveSuccess)="removalSuccessful()"

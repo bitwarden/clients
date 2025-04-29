@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { firstValueFrom, switchMap, map, of } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -50,6 +51,7 @@ import {
   OrganizationCategories,
   NotificationCipherData,
 } from "../content/components/cipher/types";
+import { CollectionView } from "../content/components/common-types";
 import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
 
@@ -92,9 +94,11 @@ export default class NotificationBackground {
     bgGetEnableAddedLoginPrompt: () => this.getEnableAddedLoginPrompt(),
     bgGetExcludedDomains: () => this.getExcludedDomains(),
     bgGetFolderData: () => this.getFolderData(),
+    bgGetCollectionData: ({ message }) => this.getCollectionData(message),
     bgGetOrgData: () => this.getOrgData(),
     bgNeverSave: ({ sender }) => this.saveNever(sender.tab),
-    bgOpenVault: ({ message, sender }) => this.openVault(message, sender.tab),
+    bgOpenAddEditVaultItemPopout: ({ message, sender }) =>
+      this.openAddEditVaultItem(message, sender.tab),
     bgOpenViewVaultItemPopout: ({ message, sender }) => this.viewItem(message, sender.tab),
     bgRemoveTabFromNotificationQueue: ({ sender }) =>
       this.removeTabFromNotificationQueue(sender.tab),
@@ -114,6 +118,7 @@ export default class NotificationBackground {
     private authService: AuthService,
     private autofillService: AutofillService,
     private cipherService: CipherService,
+    private collectionService: CollectionService,
     private configService: ConfigService,
     private domainSettingsService: DomainSettingsService,
     private environmentService: EnvironmentService,
@@ -789,17 +794,37 @@ export default class NotificationBackground {
       userId,
     );
 
-    await this.openAddEditVaultItemPopout(senderTab, { cipherId: cipherView.id });
+    await this.openAddEditVaultItemPopout(senderTab, { cipherId: cipherView?.id });
   }
 
-  private async openVault(
+  private async openAddEditVaultItem(
     message: NotificationBackgroundExtensionMessage,
     senderTab: chrome.tabs.Tab,
   ) {
-    if (!message.cipherId) {
-      await this.openAddEditVaultItemPopout(senderTab);
+    const { cipherId, organizationId, folder } = message;
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getOptionalUserId));
+    if (cipherId) {
+      await this.openAddEditVaultItemPopout(senderTab, { cipherId });
+      return;
     }
-    await this.openAddEditVaultItemPopout(senderTab, { cipherId: message.cipherId });
+
+    const queueItem = this.notificationQueue.find((item) => item.tab.id === senderTab.id);
+
+    if (queueItem?.type === NotificationQueueMessageType.AddLogin) {
+      const cipherView = this.convertAddLoginQueueMessageToCipherView(queueItem);
+      cipherView.organizationId = organizationId;
+      cipherView.folderId = folder;
+
+      if (userId) {
+        await this.cipherService.setAddEditCipherInfo({ cipher: cipherView }, userId);
+      }
+
+      await this.openAddEditVaultItemPopout(senderTab);
+      this.removeTabFromNotificationQueue(senderTab);
+      return;
+    }
+
+    await this.openAddEditVaultItemPopout(senderTab);
   }
 
   private async viewItem(
@@ -898,6 +923,25 @@ export default class NotificationBackground {
     return await firstValueFrom(this.folderService.folderViews$(activeUserId));
   }
 
+  private async getCollectionData(
+    message: NotificationBackgroundExtensionMessage,
+  ): Promise<CollectionView[]> {
+    const collections = (await this.collectionService.getAllDecrypted()).reduce<CollectionView[]>(
+      (acc, collection) => {
+        if (collection.organizationId === message?.orgId) {
+          acc.push({
+            id: collection.id,
+            name: collection.name,
+            organizationId: collection.organizationId,
+          });
+        }
+        return acc;
+      },
+      [],
+    );
+    return collections;
+  }
+
   private async getWebVaultUrl(): Promise<string> {
     const env = await firstValueFrom(this.environmentService.environment$);
     return env.getWebVaultUrl();
@@ -924,6 +968,7 @@ export default class NotificationBackground {
     const organizations = await firstValueFrom(
       this.organizationService.organizations$(activeUserId),
     );
+
     return organizations.map((org) => {
       const { id, name, productTierType } = org;
       return {
@@ -1054,6 +1099,7 @@ export default class NotificationBackground {
     cipherView.folderId = folderId;
     cipherView.type = CipherType.Login;
     cipherView.login = loginView;
+    cipherView.organizationId = null;
 
     return cipherView;
   }
