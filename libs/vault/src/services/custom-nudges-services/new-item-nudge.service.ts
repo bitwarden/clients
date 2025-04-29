@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { combineLatest, Observable, of, switchMap } from "rxjs";
+import { combineLatest, Observable, switchMap } from "rxjs";
 
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -22,9 +22,9 @@ export class NewItemNudgeService extends DefaultSingleNudgeService {
       this.getNudgeStatus$(nudgeType, userId),
       this.cipherService.cipherViews$(userId),
     ]).pipe(
-      switchMap(([nudgeStatus, ciphers]) => {
+      switchMap(async ([nudgeStatus, ciphers]) => {
         if (nudgeStatus.hasSpotlightDismissed) {
-          return of(nudgeStatus);
+          return nudgeStatus;
         }
 
         let currentType: CipherType;
@@ -54,11 +54,11 @@ export class NewItemNudgeService extends DefaultSingleNudgeService {
             hasSpotlightDismissed: true,
             hasBadgeDismissed: true,
           };
-          void this.setNudgeStatus(nudgeType, dismissedStatus, userId);
-          return of(dismissedStatus);
+          await this.setNudgeStatus(nudgeType, dismissedStatus, userId);
+          return dismissedStatus;
         }
 
-        return of(nudgeStatus);
+        return nudgeStatus;
       }),
     );
   }
