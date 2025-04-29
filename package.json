@@ -220,7 +220,7 @@
     "*.ts": "eslint --cache --cache-strategy content --fix"
   },
   "engines": {
-    "node": "~20",
+    "node": "~23",
     "npm": "~10"
   }
 }
