@@ -71,7 +71,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       throw new Error("userId and/or userType not found. Could not set password.");
     }
 
-    const masterKeyEncryptedUserKey = await this.makeProtectedUserKey(masterKey, userId);
+    const masterKeyEncryptedUserKey = await this.makeMasterKeyEncryptedUserKey(masterKey, userId);
     if (masterKeyEncryptedUserKey == null) {
       throw new Error("masterKeyEncryptedUserKey not found. Could not set password.");
     }
@@ -173,27 +173,27 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
   }
 
-  private async makeProtectedUserKey(
+  private async makeMasterKeyEncryptedUserKey(
     masterKey: MasterKey,
     userId: UserId,
   ): Promise<[UserKey, EncString]> {
-    let protectedUserKey: [UserKey, EncString] = null;
+    let masterKeyEncryptedUserKey: [UserKey, EncString] = null;
 
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
     if (userKey == null) {
-      protectedUserKey = await this.keyService.makeUserKey(masterKey);
+      masterKeyEncryptedUserKey = await this.keyService.makeUserKey(masterKey);
     } else {
-      protectedUserKey = await this.keyService.encryptUserKeyWithMasterKey(masterKey);
+      masterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(masterKey);
     }
 
-    return protectedUserKey;
+    return masterKeyEncryptedUserKey;
   }
 
   private async updateAccountDecryptionProperties(
     masterKey: MasterKey,
     kdfConfig: PBKDF2KdfConfig,
-    protectedUserKey: [UserKey, EncString],
+    masterKeyEncryptedUserKey: [UserKey, EncString],
     userId: UserId,
   ) {
     const userDecryptionOpts = await firstValueFrom(
@@ -203,7 +203,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.userDecryptionOptionsService.setUserDecryptionOptions(userDecryptionOpts);
     await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
     await this.masterPasswordService.setMasterKey(masterKey, userId);
-    await this.keyService.setUserKey(protectedUserKey[0], userId);
+    await this.keyService.setUserKey(masterKeyEncryptedUserKey[0], userId);
   }
 
   private async handleResetPasswordAutoEnroll(
