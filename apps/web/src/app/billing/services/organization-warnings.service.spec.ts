@@ -41,6 +41,91 @@ describe("OrganizationWarningsService", () => {
     );
   });
 
+  describe("cache$", () => {
+    it("should only request warnings once for a specific organization and replay the cached result for multiple subscriptions", async () => {
+      const response1 = respond({
+        freeTrial: {
+          remainingTrialDays: 1,
+        },
+      });
+
+      const organization1 = {
+        id: "1",
+        name: "Test",
+      } as Organization;
+
+      const response2 = respond({
+        freeTrial: {
+          remainingTrialDays: 2,
+        },
+      });
+
+      const organization2 = {
+        id: "2",
+        name: "Test",
+      } as Organization;
+
+      organizationBillingApiService.getWarnings.mockImplementation((id) => {
+        if (id === organization1.id) {
+          return response1;
+        }
+
+        if (id === organization2.id) {
+          return response2;
+        }
+
+        return empty();
+      });
+
+      const oneDayRemainingTranslation = "oneDayRemaining";
+      const twoDaysRemainingTranslation = "twoDaysRemaining";
+
+      i18nService.t.mockImplementation((id, p1) => {
+        if (id === "freeTrialEndPromptTomorrowNoOrgName") {
+          return oneDayRemainingTranslation;
+        }
+
+        if (id === "freeTrialEndPromptCount" && p1 === 2) {
+          return twoDaysRemainingTranslation;
+        }
+
+        return "";
+      });
+
+      const organization1Subscription1 = await firstValueFrom(
+        organizationWarningsService.getFreeTrialWarning$(organization1),
+      );
+
+      const organization1Subscription2 = await firstValueFrom(
+        organizationWarningsService.getFreeTrialWarning$(organization1),
+      );
+
+      expect(organization1Subscription1).toEqual({
+        organization: organization1,
+        message: oneDayRemainingTranslation,
+      });
+
+      expect(organization1Subscription2).toEqual(organization1Subscription1);
+
+      const organization2Subscription1 = await firstValueFrom(
+        organizationWarningsService.getFreeTrialWarning$(organization2),
+      );
+
+      const organization2Subscription2 = await firstValueFrom(
+        organizationWarningsService.getFreeTrialWarning$(organization2),
+      );
+
+      expect(organization2Subscription1).toEqual({
+        organization: organization2,
+        message: twoDaysRemainingTranslation,
+      });
+
+      expect(organization2Subscription2).toEqual(organization2Subscription1);
+
+      expect(organizationBillingApiService.getWarnings).toHaveBeenCalledTimes(2);
+    });
+  });
+
   describe("getFreeTrialWarning$", () => {
     it("should not emit a free trial warning when none is included in the warnings response", (done) => {
       const organization = {

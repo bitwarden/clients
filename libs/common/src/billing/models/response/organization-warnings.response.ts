@@ -7,17 +7,17 @@ export class OrganizationWarningsResponse extends BaseResponse {
 
   constructor(response: any) {
     super(response);
-    const freeTrialWarning = this.getResponseProperty("freeTrial");
+    const freeTrialWarning = this.getResponseProperty("FreeTrial");
     if (freeTrialWarning) {
       this.freeTrial = new FreeTrialWarningResponse(freeTrialWarning);
     }
-    const inactiveSubscriptionWarning = this.getResponseProperty("inactiveSubscription");
+    const inactiveSubscriptionWarning = this.getResponseProperty("InactiveSubscription");
     if (inactiveSubscriptionWarning) {
       this.inactiveSubscription = new InactiveSubscriptionWarningResponse(
         inactiveSubscriptionWarning,
       );
     }
-    const resellerWarning = this.getResponseProperty("resellerRenewal");
+    const resellerWarning = this.getResponseProperty("ResellerRenewal");
     if (resellerWarning) {
       this.resellerRenewal = new ResellerRenewalWarningResponse(resellerWarning);
     }
@@ -29,7 +29,7 @@ class FreeTrialWarningResponse extends BaseResponse {
 
   constructor(response: any) {
     super(response);
-    this.remainingTrialDays = this.getResponseProperty("remainingTrialDays");
+    this.remainingTrialDays = this.getResponseProperty("RemainingTrialDays");
   }
 }
 
@@ -38,30 +38,30 @@ class InactiveSubscriptionWarningResponse extends BaseResponse {
 
   constructor(response: any) {
     super(response);
-    this.resolution = this.getResponseProperty("resolution");
+    this.resolution = this.getResponseProperty("Resolution");
   }
 }
 
 class ResellerRenewalWarningResponse extends BaseResponse {
-  type: string;
+  type: "upcoming" | "issued" | "past_due";
   upcoming?: UpcomingRenewal;
   issued?: IssuedRenewal;
   pastDue?: PastDueRenewal;
 
   constructor(response: any) {
     super(response);
-    this.type = this.getResponseProperty("type");
+    this.type = this.getResponseProperty("Type");
     switch (this.type) {
       case "upcoming": {
-        this.upcoming = new UpcomingRenewal(this.getResponseProperty("upcoming"));
+        this.upcoming = new UpcomingRenewal(this.getResponseProperty("Upcoming"));
         break;
       }
       case "issued": {
-        this.issued = new IssuedRenewal(this.getResponseProperty("issued"));
+        this.issued = new IssuedRenewal(this.getResponseProperty("Issued"));
         break;
       }
       case "past_due": {
-        this.pastDue = new PastDueRenewal(this.getResponseProperty("pastDue"));
+        this.pastDue = new PastDueRenewal(this.getResponseProperty("PastDue"));
       }
     }
   }
@@ -72,7 +72,7 @@ class UpcomingRenewal extends BaseResponse {
 
   constructor(response: any) {
     super(response);
-    this.renewalDate = new Date(this.getResponseProperty("renewalDate"));
+    this.renewalDate = new Date(this.getResponseProperty("RenewalDate"));
   }
 }
 
@@ -82,8 +82,8 @@ class IssuedRenewal extends BaseResponse {
 
   constructor(response: any) {
     super(response);
-    this.issuedDate = new Date(this.getResponseProperty("issuedDate"));
-    this.dueDate = new Date(this.getResponseProperty("dueDate"));
+    this.issuedDate = new Date(this.getResponseProperty("IssuedDate"));
+    this.dueDate = new Date(this.getResponseProperty("DueDate"));
   }
 }
 
@@ -92,6 +92,6 @@ class PastDueRenewal extends BaseResponse {
 
   constructor(response: any) {
     super(response);
-    this.suspensionDate = new Date(this.getResponseProperty("suspensionDate"));
+    this.suspensionDate = new Date(this.getResponseProperty("SuspensionDate"));
   }
 }

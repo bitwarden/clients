@@ -1,12 +1,23 @@
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { filter, from, lastValueFrom, map, Observable, shareReplay, switchMap } from "rxjs";
+import {
+  filter,
+  from,
+  lastValueFrom,
+  map,
+  Observable,
+  shareReplay,
+  switchMap,
+  takeWhile,
+} from "rxjs";
+import { take } from "rxjs/operators";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
 import { OrganizationWarningsResponse } from "@bitwarden/common/billing/models/response/organization-warnings.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { openChangePlanDialog } from "@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.component";
 
@@ -29,7 +40,7 @@ export type ResellerRenewalWarning = {
 
 @Injectable({ providedIn: "root" })
 export class OrganizationWarningsService {
-  private cache$ = new Map<string, Observable<OrganizationWarningsResponse>>();
+  private cache$ = new Map<OrganizationId, Observable<OrganizationWarningsResponse>>();
 
   constructor(
     private dialogService: DialogService,
@@ -49,17 +60,19 @@ export class OrganizationWarningsService {
             organization,
             message: this.i18nService.t("freeTrialEndPromptCount", remainingTrialDays),
           };
-        } else if (remainingTrialDays === 1) {
+        }
+
+        if (remainingTrialDays == 1) {
           return {
             organization,
             message: this.i18nService.t("freeTrialEndPromptTomorrowNoOrgName"),
           };
-        } else {
-          return {
-            organization,
-            message: this.i18nService.t("freeTrialEndingTodayWithoutOrgName"),
-          };
         }
+
+        return {
+          organization,
+          message: this.i18nService.t("freeTrialEndingTodayWithoutOrgName"),
+        };
       }),
     );
 
@@ -97,9 +110,6 @@ export class OrganizationWarningsService {
                 format(warning.pastDue!.suspensionDate),
               ),
             };
-          }
-          default: {
-            return null;
           }
         }
       }),
@@ -168,14 +178,14 @@ export class OrganizationWarningsService {
     );
 
   private getResponse$ = (organization: Organization): Observable<OrganizationWarningsResponse> => {
-    const existing = this.cache$.get(organization.id);
+    const existing = this.cache$.get(organization.id as OrganizationId);
     if (existing) {
       return existing;
     }
     const response$ = from(this.organizationBillingApiService.getWarnings(organization.id)).pipe(
       shareReplay({ bufferSize: 1, refCount: false }),
     );
-    this.cache$.set(organization.id, response$);
+    this.cache$.set(organization.id as OrganizationId, response$);
     return response$;
   };
 
@@ -185,6 +195,7 @@ export class OrganizationWarningsService {
   ): Observable<T> =>
     this.getResponse$(organization).pipe(
       map(extract),
-      filter((warning): warning is T => !!warning),
+      takeWhile((warning): warning is T => !!warning),
+      take(1),
     );
 }
