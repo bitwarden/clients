@@ -32,6 +32,9 @@ export class OptionSelection extends LitElement {
   @property({ type: (selectedOption: Option["value"]) => selectedOption })
   handleSelectionUpdate?: (args: any) => void;
 
+  @property({ attribute: false })
+  selectedSignal?: { set: (value: any) => void };
+
   @state()
   private showMenu = false;
 
@@ -77,7 +80,7 @@ export class OptionSelection extends LitElement {
   private handleOptionSelection = (selectedOption: Option) => {
     this.showMenu = false;
     this.selection = selectedOption;
-
+    this.selectedSignal?.set(selectedOption.value);
     // Any side-effects that should occur from the selection
     this.handleSelectionUpdate?.(selectedOption.value);
   };

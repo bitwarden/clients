@@ -9,7 +9,6 @@ import {
   firstValueFrom,
   map,
   Observable,
-  of,
   shareReplay,
   startWith,
   switchMap,
@@ -26,7 +25,6 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { ButtonModule, DialogService, Icons, NoItemsModule } from "@bitwarden/components";
 import {
   DecryptionFailureDialogComponent,
-  NudgeStatus,
   SpotlightComponent,
   VaultIcons,
   VaultNudgesService,
@@ -94,14 +92,18 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   VaultNudgeType = VaultNudgeType;
   cipherType = CipherType;
-  showEmptyVaultNudge$: Observable<NudgeStatus> = of({
-    hasBadgeDismissed: true,
-    hasSpotlightDismissed: true,
-  });
-  showHasItemsVaultNudge$: Observable<NudgeStatus> = of({
-    hasBadgeDismissed: true,
-    hasSpotlightDismissed: true,
-  });
+  private activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
+  showEmptyVaultSpotlight$: Observable<boolean> = this.activeUserId$.pipe(
+    switchMap((userId) =>
+      this.vaultNudgesService.showNudge$(VaultNudgeType.EmptyVaultNudge, userId),
+    ),
+    map((nudgeStatus) => !nudgeStatus.hasSpotlightDismissed),
+  );
+  showHasItemsVaultSpotlight$: Observable<boolean> = this.activeUserId$.pipe(
+    switchMap((userId) => this.vaultNudgesService.showNudge$(VaultNudgeType.HasVaultItems, userId)),
+    map((nudgeStatus) => !nudgeStatus.hasSpotlightDismissed),
+  );
+
   activeUserId: UserId | null = null;
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
@@ -193,14 +195,6 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   async ngOnInit() {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-    this.showEmptyVaultNudge$ = this.vaultNudgesService.showNudge$(
-      VaultNudgeType.EmptyVaultNudge,
-      this.activeUserId,
-    );
-    this.showHasItemsVaultNudge$ = this.vaultNudgesService.showNudge$(
-      VaultNudgeType.HasVaultItems,
-      this.activeUserId,
-    );
     await this.introCarouselService.setIntroCarouselDismissed();
 
     this.cipherService

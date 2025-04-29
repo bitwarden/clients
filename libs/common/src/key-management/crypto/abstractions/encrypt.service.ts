@@ -8,17 +8,99 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 
 export abstract class EncryptService {
   /**
+   * @deprecated
    * Encrypts a string or Uint8Array to an EncString
    * @param plainValue - The value to encrypt
    * @param key - The key to encrypt the value with
    */
   abstract encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString>;
   /**
+   * @deprecated
    * Encrypts a value to a Uint8Array
    * @param plainValue - The value to encrypt
    * @param key - The key to encrypt the value with
    */
   abstract encryptToBytes(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncArrayBuffer>;
+  /**
+   * @deprecated
+   * Decrypts an EncString to a string
+   * @param encString - The EncString to decrypt
+   * @param key - The key to decrypt the EncString with
+   * @param decryptTrace - A string to identify the context of the object being decrypted. This can include: field name, encryption type, cipher id, key type, but should not include
+   * sensitive information like encryption keys or data. This is used for logging when decryption errors occur in order to identify what failed to decrypt
+   * @returns The decrypted string
+   */
+  abstract decryptToUtf8(
+    encString: EncString,
+    key: SymmetricCryptoKey,
+    decryptTrace?: string,
+  ): Promise<string>;
+  /**
+   * @deprecated
+   * Decrypts an Encrypted object to a Uint8Array
+   * @param encThing - The Encrypted object to decrypt
+   * @param key - The key to decrypt the Encrypted object with
+   * @param decryptTrace - A string to identify the context of the object being decrypted. This can include: field name, encryption type, cipher id, key type, but should not include
+   * sensitive information like encryption keys or data. This is used for logging when decryption errors occur in order to identify what failed to decrypt
+   * @returns The decrypted Uint8Array
+   */
+  abstract decryptToBytes(
+    encThing: Encrypted,
+    key: SymmetricCryptoKey,
+    decryptTrace?: string,
+  ): Promise<Uint8Array | null>;
+  /**
+   * @deprecated Replaced by BulkEncryptService, remove once the feature is tested and the featureflag PM-4154-multi-worker-encryption-service is removed
+   * @param items The items to decrypt
+   * @param key The key to decrypt the items with
+   */
+  abstract decryptItems<T extends InitializerMetadata>(
+    items: Decryptable<T>[],
+    key: SymmetricCryptoKey,
+  ): Promise<T[]>;
+
+  /**
+   * Encrypts a string to an EncString
+   * @param plainValue - The value to encrypt
+   * @param key - The key to encrypt the value with
+   */
+  abstract encryptString(plainValue: string, key: SymmetricCryptoKey): Promise<EncString>;
+  /**
+   * Encrypts bytes to an EncString
+   * @param plainValue - The value to encrypt
+   * @param key - The key to encrypt the value with
+   * @deprecated Bytes are not the right abstraction to encrypt in. Use e.g. key wrapping or file encryption instead
+   */
+  abstract encryptBytes(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncString>;
+  /**
+   * Encrypts a value to a Uint8Array
+   * @param plainValue - The value to encrypt
+   * @param key - The key to encrypt the value with
+   */
+  abstract encryptFileData(
+    plainValue: Uint8Array,
+    key: SymmetricCryptoKey,
+  ): Promise<EncArrayBuffer>;
+
+  /**
+   * Decrypts an EncString to a string
+   * @param encString - The EncString containing the encrypted string.
+   * @param key - The key to decrypt the value with
+   */
+  abstract decryptString(encString: EncString, key: SymmetricCryptoKey): Promise<string>;
+  /**
+   * Decrypts an EncString to a Uint8Array
+   * @param encString - The EncString containing the encrypted bytes.
+   * @param key - The key to decrypt the value with
+   * @deprecated Bytes are not the right abstraction to encrypt in. Use e.g. key wrapping or file encryption instead
+   */
+  abstract decryptBytes(encString: EncString, key: SymmetricCryptoKey): Promise<Uint8Array>;
+  /**
+   * Decrypts an EncArrayBuffer to a Uint8Array
+   * @param encBuffer - The EncArrayBuffer containing the encrypted file bytes.
+   * @param key - The key to decrypt the value with
+   */
+  abstract decryptFileData(encBuffer: EncArrayBuffer, key: SymmetricCryptoKey): Promise<Uint8Array>;
 
   /**
    * Wraps a decapsulation key (Private key) with a symmetric key
@@ -52,31 +134,35 @@ export abstract class EncryptService {
   ): Promise<EncString>;
 
   /**
-   * Decrypts an EncString to a string
-   * @param encString - The EncString to decrypt
-   * @param key - The key to decrypt the EncString with
-   * @param decryptTrace - A string to identify the context of the object being decrypted. This can include: field name, encryption type, cipher id, key type, but should not include
-   * sensitive information like encryption keys or data. This is used for logging when decryption errors occur in order to identify what failed to decrypt
-   * @returns The decrypted string
+   * Unwraps a decapsulation key (Private key) with a symmetric key
+   * @see {@link https://en.wikipedia.org/wiki/Key_wrap}
+   * @param decapsulationKeyPcks8 - The private key in PKCS8 format
+   * @param wrappingKey - The symmetric key to wrap the private key with
    */
-  abstract decryptToUtf8(
-    encString: EncString,
-    key: SymmetricCryptoKey,
-    decryptTrace?: string,
-  ): Promise<string>;
+  abstract unwrapDecapsulationKey(
+    wrappedDecapsulationKey: EncString,
+    wrappingKey: SymmetricCryptoKey,
+  ): Promise<Uint8Array>;
   /**
-   * Decrypts an Encrypted object to a Uint8Array
-   * @param encThing - The Encrypted object to decrypt
-   * @param key - The key to decrypt the Encrypted object with
-   * @param decryptTrace - A string to identify the context of the object being decrypted. This can include: field name, encryption type, cipher id, key type, but should not include
-   * sensitive information like encryption keys or data. This is used for logging when decryption errors occur in order to identify what failed to decrypt
-   * @returns The decrypted Uint8Array
+   * Wraps an encapsulation key (Public key) with a symmetric key
+   * @see {@link https://en.wikipedia.org/wiki/Key_wrap}
+   * @param encapsulationKeySpki - The public key in SPKI format
+   * @param wrappingKey - The symmetric key to wrap the public key with
    */
-  abstract decryptToBytes(
-    encThing: Encrypted,
-    key: SymmetricCryptoKey,
-    decryptTrace?: string,
-  ): Promise<Uint8Array | null>;
+  abstract unwrapEncapsulationKey(
+    wrappedEncapsulationKey: EncString,
+    wrappingKey: SymmetricCryptoKey,
+  ): Promise<Uint8Array>;
+  /**
+   * Unwraps a symmetric key with another symmetric key
+   * @see {@link https://en.wikipedia.org/wiki/Key_wrap}
+   * @param keyToBeWrapped - The symmetric key to wrap
+   * @param wrappingKey - The symmetric key to wrap the encapsulated key with
+   */
+  abstract unwrapSymmetricKey(
+    keyToBeUnwrapped: EncString,
+    wrappingKey: SymmetricCryptoKey,
+  ): Promise<SymmetricCryptoKey>;
 
   /**
    * Encapsulates a symmetric key with an asymmetric public key
@@ -100,6 +186,7 @@ export abstract class EncryptService {
     encryptedSharedKey: EncString,
     decapsulationKey: Uint8Array,
   ): Promise<SymmetricCryptoKey>;
+
   /**
    * @deprecated Use @see {@link encapsulateKeyUnsigned} instead
    * @param data - The data to encrypt
@@ -112,15 +199,7 @@ export abstract class EncryptService {
    * @param privateKey - The privateKey to decrypt with
    */
   abstract rsaDecrypt(data: EncString, privateKey: Uint8Array): Promise<Uint8Array>;
-  /**
-   * @deprecated Replaced by BulkEncryptService, remove once the feature is tested and the featureflag PM-4154-multi-worker-encryption-service is removed
-   * @param items The items to decrypt
-   * @param key The key to decrypt the items with
-   */
-  abstract decryptItems<T extends InitializerMetadata>(
-    items: Decryptable<T>[],
-    key: SymmetricCryptoKey,
-  ): Promise<T[]>;
+
   /**
    * Generates a base64-encoded hash of the given value
    * @param value The value to hash

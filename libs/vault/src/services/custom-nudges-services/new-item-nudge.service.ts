@@ -17,7 +17,7 @@ import { NudgeStatus, VaultNudgeType } from "../vault-nudges.service";
 export class NewItemNudgeService extends DefaultSingleNudgeService {
   cipherService = inject(CipherService);
 
-  shouldShowNudge$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
+  nudgeStatus$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
     return combineLatest([
       this.getNudgeStatus$(nudgeType, userId),
       this.cipherService.cipherViews$(userId),
@@ -30,19 +30,19 @@ export class NewItemNudgeService extends DefaultSingleNudgeService {
         let currentType: CipherType;
 
         switch (nudgeType) {
-          case VaultNudgeType.newLoginItemDismiss:
+          case VaultNudgeType.newLoginItemStatus:
             currentType = CipherType.Login;
             break;
-          case VaultNudgeType.newCardItemDismiss:
+          case VaultNudgeType.newCardItemStatus:
             currentType = CipherType.Card;
             break;
-          case VaultNudgeType.newIdentityItemDismiss:
+          case VaultNudgeType.newIdentityItemStatus:
             currentType = CipherType.Identity;
             break;
-          case VaultNudgeType.newNoteItemDismiss:
+          case VaultNudgeType.newNoteItemStatus:
             currentType = CipherType.SecureNote;
             break;
-          case VaultNudgeType.newSshItemDismiss:
+          case VaultNudgeType.newSshItemStatus:
             currentType = CipherType.SshKey;
             break;
         }

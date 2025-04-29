@@ -27,11 +27,11 @@ export enum VaultNudgeType {
    */
   EmptyVaultNudge = "empty-vault-nudge",
   HasVaultItems = "has-vault-items",
-  newLoginItemDismiss = "new-login-item-dismiss",
-  newCardItemDismiss = "new-card-item-dismiss",
-  newIdentityItemDismiss = "new-identity-item-dismiss",
-  newNoteItemDismiss = "new-note-item-dismiss",
-  newSshItemDismiss = "new-ssh-item-dismiss",
+  newLoginItemStatus = "new-login-item-status",
+  newCardItemStatus = "new-card-item-status",
+  newIdentityItemStatus = "new-identity-item-status",
+  newNoteItemStatus = "new-note-item-status",
+  newSshItemStatus = "new-ssh-item-status",
 }
 
 export const VAULT_NUDGE_DISMISSED_DISK_KEY = new UserKeyDefinition<
@@ -45,21 +45,21 @@ export const VAULT_NUDGE_DISMISSED_DISK_KEY = new UserKeyDefinition<
   providedIn: "root",
 })
 export class VaultNudgesService {
+  private newItemNudgeService = inject(NewItemNudgeService);
+
   /**
    * Custom nudge services to use for specific nudge types
    * Each nudge type can have its own service to determine when to show the nudge
    * @private
    */
-  private newItemNudgeService = inject(NewItemNudgeService);
-
   private customNudgeServices: any = {
     [VaultNudgeType.HasVaultItems]: inject(HasItemsNudgeService),
     [VaultNudgeType.EmptyVaultNudge]: inject(EmptyVaultNudgeService),
-    [VaultNudgeType.newLoginItemDismiss]: this.newItemNudgeService,
-    [VaultNudgeType.newCardItemDismiss]: this.newItemNudgeService,
-    [VaultNudgeType.newIdentityItemDismiss]: this.newItemNudgeService,
-    [VaultNudgeType.newNoteItemDismiss]: this.newItemNudgeService,
-    [VaultNudgeType.newSshItemDismiss]: this.newItemNudgeService,
+    [VaultNudgeType.newLoginItemStatus]: this.newItemNudgeService,
+    [VaultNudgeType.newCardItemStatus]: this.newItemNudgeService,
+    [VaultNudgeType.newIdentityItemStatus]: this.newItemNudgeService,
+    [VaultNudgeType.newNoteItemStatus]: this.newItemNudgeService,
+    [VaultNudgeType.newSshItemStatus]: this.newItemNudgeService,
   };
 
   /**
@@ -96,14 +96,9 @@ export class VaultNudgesService {
    * @param userId
    */
   async dismissNudge(nudge: VaultNudgeType, userId: UserId, onlyBadge: boolean = false) {
-    const hasVaultNudgeFlag = await this.configService.getFeatureFlag(
-      FeatureFlag.PM8851_BrowserOnboardingNudge,
-    );
-    if (hasVaultNudgeFlag) {
-      const dismissedStatus = onlyBadge
-        ? { hasBadgeDismissed: true, hasSpotlightDismissed: false }
-        : { hasBadgeDismissed: true, hasSpotlightDismissed: true };
-      await this.getNudgeService(nudge).setNudgeStatus(nudge, dismissedStatus, userId);
-    }
+    const dismissedStatus = onlyBadge
+      ? { hasBadgeDismissed: true, hasSpotlightDismissed: false }
+      : { hasBadgeDismissed: true, hasSpotlightDismissed: true };
+    await this.getNudgeService(nudge).setNudgeStatus(nudge, dismissedStatus, userId);
   }
 }
