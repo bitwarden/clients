@@ -983,7 +983,7 @@
     </div>
     <ng-container bitDialogFooter>
       <button bitButton bitFormButton buttonType="primary" type="submit">
-        {{ "upgrade" | i18n }}
+        {{ sub.subscription.status === "canceled" ? ("restart" | i18n) : ("upgrade" | i18n) }}
       </button>
       <button bitButton buttonType="secondary" type="button" [bitDialogClose]="ResultType.Closed">
         {{ "cancel" | i18n }}

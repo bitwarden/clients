@@ -801,7 +801,7 @@ export default class NotificationBackground {
     message: NotificationBackgroundExtensionMessage,
     senderTab: chrome.tabs.Tab,
   ) {
-    const { cipherId, organizationId } = message;
+    const { cipherId, organizationId, folder } = message;
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getOptionalUserId));
     if (cipherId) {
       await this.openAddEditVaultItemPopout(senderTab, { cipherId });
@@ -813,6 +813,7 @@ export default class NotificationBackground {
     if (queueItem?.type === NotificationQueueMessageType.AddLogin) {
       const cipherView = this.convertAddLoginQueueMessageToCipherView(queueItem);
       cipherView.organizationId = organizationId;
+      cipherView.folderId = folder;
 
       if (userId) {
         await this.cipherService.setAddEditCipherInfo({ cipher: cipherView }, userId);
