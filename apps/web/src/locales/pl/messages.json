@@ -422,17 +422,8 @@
   "folder": {
     "message": "Folder"
   },
-  "newCustomField": {
-    "message": "Nowe pole niestandardowe"
-  },
   "value": {
     "message": "Wartość"
-  },
-  "dragToSort": {
-    "message": "Przeciągnij, aby posortować"
-  },
-  "dragToReorder": {
-    "message": "Przeciągnij, aby zmienić kolejność"
   },
   "cfTypeText": {
     "message": "Tekst"
@@ -10607,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Nie zezwalaj członkom na odblokowanie ich konta za pomocą kodu PIN."
   },
-  "limitedEventLogs": {
-    "message": "Plany $PRODUCT_TYPE$ nie mają dostępu do dzienników rzeczywistych wydarzeń",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Dzienniki zdarzeń nie są przechowywane dla Twojej organizacji. Ulepsz do planu Teams lub Enterprise, aby uzyskać pełny dostęp do dzienników zdarzeń organizacji."
   },
-  "upgradeForFullEvents": {
-    "message": "Uzyskaj pełny dostęp do dzienników zdarzeń organizacji poprzez uaktualnienie do planu Teams lub Enterprise."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Uaktualnij dla rzeczywistych danych dziennika zdarzeń"
+  "upgradeEventLogTitleMessage": {
+    "message": "Ulepsz, aby zobaczyć dzienniki zdarzeń z Twojej organizacji."
   },
   "upgradeEventLogMessage": {
     "message": "Te wydarzenia są tylko przykładami i nie odzwierciedlają rzeczywistych wydarzeń w Twojej organizacji Bitwarden."
@@ -10636,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "Nowa jednostka biznesowa"
+  },
+  "restart": {
+    "message": "Zrestartuj"
   }
 }

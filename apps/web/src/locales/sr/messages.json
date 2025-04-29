@@ -422,17 +422,8 @@
   "folder": {
     "message": "Фасцикла"
   },
-  "newCustomField": {
-    "message": "Ново прилагођено поље"
-  },
   "value": {
     "message": "Вредност"
-  },
-  "dragToSort": {
-    "message": "Превуците за сортирање"
-  },
-  "dragToReorder": {
-    "message": "Превуците да бисте организовали"
   },
   "cfTypeText": {
     "message": "Текст"
@@ -10607,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Do not allow members to unlock their account with a PIN."
   },
-  "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$ планови немају приступ стварним извештајима догађаја",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Добијте потпуни приступ извештајима о догађајима организације надоградњом на Teams или Enterprise."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Надоградите за извештај о реалним догађајима"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "Ови догађаји су само примери и не одражавају стварне догађаје у вашем Bitwarden отганизацији."
@@ -10636,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "New business unit"
+  },
+  "restart": {
+    "message": "Restart"
   }
 }
