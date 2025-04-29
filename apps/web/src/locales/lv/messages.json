@@ -422,17 +422,8 @@
   "folder": {
     "message": "Mape"
   },
-  "newCustomField": {
-    "message": "Jauns pielāgotais lauks"
-  },
   "value": {
     "message": "Vērtība"
-  },
-  "dragToSort": {
-    "message": "Vilkt, lai kārtotu"
-  },
-  "dragToReorder": {
-    "message": "Vilkt, lai pārkārtotu"
   },
   "cfTypeText": {
     "message": "Teksts"
@@ -2108,13 +2099,13 @@
     "message": "Pielāgot"
   },
   "newCustomDomain": {
-    "message": "Jauns pielāgotais domēns"
+    "message": "Jauns pielāgots domēns"
   },
   "newCustomDomainDesc": {
     "message": "Jāievada ar komatiem atdalīts domēnu saraksts. Ir atļauti tikai \"pamata\" domēni. Neievadīt apakšdomēnus. Piemēram, ievadīt \"google.com\" \"www.google.com\" vietā. Ir iespējams ievadīt arī \"androidapp://package.name\", lai saistītu Android lietotni ar citiem tīmekļvietņu domēniem."
   },
   "customDomainX": {
-    "message": "Pielāgotais domēns $INDEX$",
+    "message": "Pielāgots domēns $INDEX$",
     "placeholders": {
       "index": {
         "content": "$1",
@@ -6624,7 +6615,7 @@
     "message": "Papildu konfigurācijā ir iespējams norādīt URL katram pakalpojumam atsevišķi."
   },
   "selfHostedEnvFormInvalid": {
-    "message": "Jāpievieno vai no servera pamata URL vai vismaz viena pielāgota vide."
+    "message": "Jāpievieno vai nu servera pamata URL vai vismaz viena pielāgota vide."
   },
   "apiUrl": {
     "message": "API servera URL"
@@ -10607,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Neļaut dalībniekiem atslēgt savu kontu ar PIN."
   },
-  "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$ plāniem nav piekļuve īstajiem notikumu žurnāliem",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Notikumu žurnāli Tavai apvienībai netiek glabāti. Jāuzlabo uz komandu vai uzņēmējdarbības plānu, lai iegūtu pilnu piekļuvi apvienības notikumu žurnāliem."
   },
-  "upgradeForFullEvents": {
-    "message": "Pilna piekļuve apvienības notikumu žurnāliem ir iegūstama, ja izmanto Komandu vai Uzņēmējdarbības plānu."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Uzlabot, lai piekļūtu īstajiem notikumu žurnāla datiem"
+  "upgradeEventLogTitleMessage": {
+    "message": "Jāuzlabo, lai redzētu savas apvienības notikumu žurnālus."
   },
   "upgradeEventLogMessage": {
     "message": "Šie notikumu ir tikai piemēri, un tie neatspoguļo īstus notikumus Bitwarden apvienībā."
@@ -10636,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "Jauna uzņēmējdarbības vienība"
+  },
+  "restart": {
+    "message": "Palaist no jauna"
   }
 }

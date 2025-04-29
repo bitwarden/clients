@@ -36,31 +36,29 @@ export class EncryptServiceImplementation implements EncryptService {
     protected logMacFailures: boolean,
   ) {}
 
-  // Handle updating private properties to turn on/off feature flags.
-  onServerConfigChange(newConfig: ServerConfig): void {
-    this.blockType0 = getFeatureFlagValue(newConfig, FeatureFlag.PM17987_BlockType0);
+  // Proxy functions; Their implementation are temporary before moving at this level to the SDK
+  async encryptString(plainValue: string, key: SymmetricCryptoKey): Promise<EncString> {
+    return this.encrypt(plainValue, key);
   }
 
-  async encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString> {
-    if (key == null) {
-      throw new Error("No encryption key provided.");
-    }
+  async encryptBytes(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncString> {
+    return this.encrypt(plainValue, key);
+  }
 
-    if (this.blockType0) {
-      if (key.inner().type === EncryptionType.AesCbc256_B64 || key.key.byteLength < 64) {
-        throw new Error("Type 0 encryption is not supported.");
-      }
-    }
+  async encryptFileData(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncArrayBuffer> {
+    return this.encryptToBytes(plainValue, key);
+  }
 
-    if (plainValue == null) {
-      return Promise.resolve(null);
-    }
+  async decryptString(encString: EncString, key: SymmetricCryptoKey): Promise<string> {
+    return this.decryptToUtf8(encString, key);
+  }
 
-    if (typeof plainValue === "string") {
-      return this.encryptUint8Array(Utils.fromUtf8ToArray(plainValue), key);
-    } else {
-      return this.encryptUint8Array(plainValue, key);
-    }
+  async decryptBytes(encString: EncString, key: SymmetricCryptoKey): Promise<Uint8Array> {
+    return this.decryptToBytes(encString, key);
+  }
+
+  async decryptFileData(encBuffer: EncArrayBuffer, key: SymmetricCryptoKey): Promise<Uint8Array> {
+    return this.decryptToBytes(encBuffer, key);
   }
 
   async wrapDecapsulationKey(
@@ -105,7 +103,58 @@ export class EncryptServiceImplementation implements EncryptService {
       throw new Error("No wrappingKey provided for wrapping.");
     }
 
-    return await this.encryptUint8Array(keyToBeWrapped.key, wrappingKey);
+    return await this.encryptUint8Array(keyToBeWrapped.toEncoded(), wrappingKey);
+  }
+
+  async unwrapDecapsulationKey(
+    wrappedDecapsulationKey: EncString,
+    wrappingKey: SymmetricCryptoKey,
+  ): Promise<Uint8Array> {
+    return this.decryptBytes(wrappedDecapsulationKey, wrappingKey);
+  }
+  async unwrapEncapsulationKey(
+    wrappedEncapsulationKey: EncString,
+    wrappingKey: SymmetricCryptoKey,
+  ): Promise<Uint8Array> {
+    return this.decryptBytes(wrappedEncapsulationKey, wrappingKey);
+  }
+  async unwrapSymmetricKey(
+    keyToBeUnwrapped: EncString,
+    wrappingKey: SymmetricCryptoKey,
+  ): Promise<SymmetricCryptoKey> {
+    return new SymmetricCryptoKey(await this.decryptBytes(keyToBeUnwrapped, wrappingKey));
+  }
+
+  async hash(value: string | Uint8Array, algorithm: "sha1" | "sha256" | "sha512"): Promise<string> {
+    const hashArray = await this.cryptoFunctionService.hash(value, algorithm);
+    return Utils.fromBufferToB64(hashArray);
+  }
+
+  // Handle updating private properties to turn on/off feature flags.
+  onServerConfigChange(newConfig: ServerConfig): void {
+    this.blockType0 = getFeatureFlagValue(newConfig, FeatureFlag.PM17987_BlockType0);
+  }
+
+  async encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString> {
+    if (key == null) {
+      throw new Error("No encryption key provided.");
+    }
+
+    if (this.blockType0) {
+      if (key.inner().type === EncryptionType.AesCbc256_B64) {
+        throw new Error("Type 0 encryption is not supported.");
+      }
+    }
+
+    if (plainValue == null) {
+      return Promise.resolve(null);
+    }
+
+    if (typeof plainValue === "string") {
+      return this.encryptUint8Array(Utils.fromUtf8ToArray(plainValue), key);
+    } else {
+      return this.encryptUint8Array(plainValue, key);
+    }
   }
 
   private async encryptUint8Array(
@@ -117,7 +166,7 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     if (this.blockType0) {
-      if (key.inner().type === EncryptionType.AesCbc256_B64 || key.key.byteLength < 64) {
+      if (key.inner().type === EncryptionType.AesCbc256_B64) {
         throw new Error("Type 0 encryption is not supported.");
       }
     }
@@ -147,7 +196,7 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     if (this.blockType0) {
-      if (key.inner().type === EncryptionType.AesCbc256_B64 || key.key.byteLength < 64) {
+      if (key.inner().type === EncryptionType.AesCbc256_B64) {
         throw new Error("Type 0 encryption is not supported.");
       }
     }
@@ -337,11 +386,6 @@ export class EncryptServiceImplementation implements EncryptService {
       results.push(await items[i].decrypt(key));
     }
     return results;
-  }
-
-  async hash(value: string | Uint8Array, algorithm: "sha1" | "sha256" | "sha512"): Promise<string> {
-    const hashArray = await this.cryptoFunctionService.hash(value, algorithm);
-    return Utils.fromBufferToB64(hashArray);
   }
 
   private async aesEncrypt(data: Uint8Array, key: Aes256CbcHmacKey): Promise<EncryptedObject> {
