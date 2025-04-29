@@ -422,17 +422,8 @@
   "folder": {
     "message": "Složka"
   },
-  "newCustomField": {
-    "message": "Nové vlastní pole"
-  },
   "value": {
     "message": "Hodnota"
-  },
-  "dragToSort": {
-    "message": "Přetáhnutím seřadíte"
-  },
-  "dragToReorder": {
-    "message": "Přesuňte tažením"
   },
   "cfTypeText": {
     "message": "Text"
@@ -10607,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Nepovolí členům odemknout svůj účet pomocí PIN."
   },
-  "limitedEventLogs": {
-    "message": "Plány $PRODUCT_TYPE$ nemají přístup k protokolům reálných událostí",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Získejte plný přístup k protokolům událostí organizace aktualizací do týmů nebo plánu Enterprise."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Aktualizovat pro reálná data protokolu událostí"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "Tyto události jsou jen příklady a neodrážejí skutečné události v rámci Vaší organizace Bitwarden."
@@ -10636,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "Nová obchodní jednotka"
+  },
+  "restart": {
+    "message": "Restartovat"
   }
 }
