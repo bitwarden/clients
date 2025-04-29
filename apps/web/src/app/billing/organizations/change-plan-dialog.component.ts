@@ -236,13 +236,16 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
           .organizations$(userId)
           .pipe(getOrganizationById(this.organizationId)),
       );
-      try {
-        const { accountCredit, paymentSource } =
-          await this.billingApiService.getOrganizationPaymentMethod(this.organizationId);
-        this.accountCredit = accountCredit;
-        this.paymentSource = paymentSource;
-      } catch (error) {
-        this.billingNotificationService.handleError(error);
+
+      if (!this.sub?.subscription?.cancelled) {
+        try {
+          const { accountCredit, paymentSource } =
+            await this.billingApiService.getOrganizationPaymentMethod(this.organizationId);
+          this.accountCredit = accountCredit;
+          this.paymentSource = paymentSource;
+        } catch (error) {
+          this.billingNotificationService.handleError(error);
+        }
       }
     }
 
@@ -314,8 +317,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   resolveHeaderName(subscription: OrganizationSubscriptionResponse): string {
     if (subscription.subscription != null) {
-      this.isSubscriptionCanceled = subscription.subscription.cancelled;
-      if (subscription.subscription.cancelled) {
+      this.isSubscriptionCanceled =
+        subscription.subscription.cancelled && this.sub?.plan.productTier !== ProductTierType.Free;
+      if (this.isSubscriptionCanceled) {
         return this.i18nService.t("restartSubscription");
       }
     }
@@ -744,7 +748,11 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
     const doSubmit = async (): Promise<string> => {
       let orgId: string = null;
-      if (this.isSubscriptionCanceled) {
+      if (
+        this.isSubscriptionCanceled ||
+        (this.sub?.subscription?.cancelled &&
+          this.organization.productTierType === ProductTierType.Free)
+      ) {
         await this.restartSubscription();
         orgId = this.organizationId;
       } else {
