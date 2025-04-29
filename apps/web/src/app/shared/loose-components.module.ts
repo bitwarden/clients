@@ -56,7 +56,6 @@ import { UnsecuredWebsitesReportComponent as OrgUnsecuredWebsitesReportComponent
 import { WeakPasswordsReportComponent as OrgWeakPasswordsReportComponent } from "../tools/reports/pages/organizations/weak-passwords-report.component";
 /* eslint no-restricted-imports: "error" */
 import { PremiumBadgeComponent } from "../vault/components/premium-badge.component";
-import { AddEditCustomFieldsComponent } from "../vault/individual-vault/add-edit-custom-fields.component";
 import { FolderAddEditComponent } from "../vault/individual-vault/folder-add-edit.component";
 import { OrganizationBadgeModule } from "../vault/individual-vault/organization-badge/organization-badge.module";
 import { PipesModule } from "../vault/individual-vault/pipes/pipes.module";
@@ -96,8 +95,6 @@ import { SharedModule } from "./shared.module";
   declarations: [
     AcceptFamilySponsorshipComponent,
     AccountComponent,
-    AddEditCustomFieldsComponent,
-    AddEditCustomFieldsComponent,
     ApiKeyComponent,
     ChangeEmailComponent,
     DeauthorizeSessionsComponent,
@@ -144,8 +141,6 @@ import { SharedModule } from "./shared.module";
     UserVerificationModule,
     PremiumBadgeComponent,
     AccountComponent,
-    AddEditCustomFieldsComponent,
-    AddEditCustomFieldsComponent,
     ApiKeyComponent,
     ChangeEmailComponent,
     DeauthorizeSessionsComponent,

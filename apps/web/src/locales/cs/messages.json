@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Všechny aplikace"
   },
+  "appLogoLabel": {
+    "message": "Logo Bitwarden"
+  },
   "criticalApplications": {
     "message": "Kritické aplikace"
   },
@@ -419,17 +422,8 @@
   "folder": {
     "message": "Složka"
   },
-  "newCustomField": {
-    "message": "Nové vlastní pole"
-  },
   "value": {
     "message": "Hodnota"
-  },
-  "dragToSort": {
-    "message": "Přetáhnutím seřadíte"
-  },
-  "dragToReorder": {
-    "message": "Přesuňte tažením"
   },
   "cfTypeText": {
     "message": "Text"
@@ -4072,7 +4066,7 @@
   "updateBrowser": {
     "message": "Aktualizovat prohlížeč"
   },
-  "generatingRiskInsights": {
+  "generatingYourRiskInsights": {
     "message": "Generování poznatků o rizicích..."
   },
   "updateBrowserDesc": {
@@ -6305,6 +6299,21 @@
   "sponsoredFamilies": {
     "message": "Bitwarden pro rodinu zdarma"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Sponzorované rodiny"
+  },
+  "noSponsoredFamilies": {
+    "message": "Žádné sponzorované rodiny"
+  },
+  "noSponsoredFamiliesDescription": {
+    "message": "Zde se zobrazí sponzorované plány rodin, které nejsou členy"
+  },
+  "sponsorFreeBitwardenFamilies": {
+    "message": "Členové vaší organizace mají nárok na bezplatné rodiny Bitwarden. Můžete sponzorovat zdarma rodiny Bitwarden pro zaměstnance, kteří nejsou členy Vaší organizace Bitwarden. Sponzorování nečlena vyžaduje dostupné místo ve Vaší organizaci."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "Pokud odeberete aktivní sponzorství, bude po datu obnovení sponzorované organizace k dispozici volný uživatel ve Vaší organizaci."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Vy a Vaše rodina máte nárok na Bitwarden pro rodinu zdarma. Nárok můžete uplatnit Vaším osobním e-mailem, abyste zajistili bezpečnost Vašich dat, i když nejste v práci."
   },
@@ -6319,6 +6328,18 @@
   },
   "sponsoredFamiliesSharedCollections": {
     "message": "Sdílené kolekce pro tajné klíče rodiny"
+  },
+  "memberFamilies": {
+    "message": "Rodiny členů"
+  },
+  "noMemberFamilies": {
+    "message": "Žádné rodiny členů"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Zde se zobrazí členové, kteří využili rodinné plány"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Členové Vaší organizace mají nárok na bezplatné rodiny Bitwarden. Zde můžete vidět členy, kteří sponzorovali organizaci rodin."
   },
   "badToken": {
     "message": "Odkaz již není platný. Požádejte sponzora o opakované odeslání nabídky."
@@ -7249,6 +7270,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Postupujte podle kroků níže pro dokončení přihlášení."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Postupujte podle následujících kroků pro dokončení přihlášení Vaším bezpečnostním klíčem."
+  },
   "launchDuo": {
     "message": "Spustit Duo"
   },
@@ -7982,6 +8006,9 @@
   },
   "inviteMember": {
     "message": "Pozvat uživatele"
+  },
+  "addSponsorship": {
+    "message": "Přidat sponzorství"
   },
   "needsConfirmation": {
     "message": "Vyžaduje potvrzení"
@@ -10571,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Nepovolí členům odemknout svůj účet pomocí PIN."
   },
-  "limitedEventLogs": {
-    "message": "Plány $PRODUCT_TYPE$ nemají přístup k protokolům reálných událostí",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Získejte plný přístup k protokolům událostí organizace aktualizací do týmů nebo plánu Enterprise."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Aktualizovat pro reálná data protokolu událostí"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "Tyto události jsou jen příklady a neodrážejí skutečné události v rámci Vaší organizace Bitwarden."
@@ -10600,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "Nová obchodní jednotka"
+  },
+  "restart": {
+    "message": "Restartovat"
   }
 }

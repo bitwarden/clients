@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Visas lietotnes"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden logotips"
+  },
   "criticalApplications": {
     "message": "Kritiskās lietotnes"
   },
@@ -419,17 +422,8 @@
   "folder": {
     "message": "Mape"
   },
-  "newCustomField": {
-    "message": "Jauns pielāgotais lauks"
-  },
   "value": {
     "message": "Vērtība"
-  },
-  "dragToSort": {
-    "message": "Vilkt, lai kārtotu"
-  },
-  "dragToReorder": {
-    "message": "Vilkt, lai pārkārtotu"
   },
   "cfTypeText": {
     "message": "Teksts"
@@ -2105,13 +2099,13 @@
     "message": "Pielāgot"
   },
   "newCustomDomain": {
-    "message": "Jauns pielāgotais domēns"
+    "message": "Jauns pielāgots domēns"
   },
   "newCustomDomainDesc": {
     "message": "Jāievada ar komatiem atdalīts domēnu saraksts. Ir atļauti tikai \"pamata\" domēni. Neievadīt apakšdomēnus. Piemēram, ievadīt \"google.com\" \"www.google.com\" vietā. Ir iespējams ievadīt arī \"androidapp://package.name\", lai saistītu Android lietotni ar citiem tīmekļvietņu domēniem."
   },
   "customDomainX": {
-    "message": "Pielāgotais domēns $INDEX$",
+    "message": "Pielāgots domēns $INDEX$",
     "placeholders": {
       "index": {
         "content": "$1",
@@ -2812,7 +2806,7 @@
     "message": "Izvēlētais maksājumu veids tiks izmantots jebkuru neapmaksātu abonementu apmaksai."
   },
   "paymentChargedWithTrial": {
-    "message": "Pašreizējā plānā ir iekļauts bezmaksas 7 dienu izmēģinājuma laiks. Izvēlētais apmaksas veids netiks izmantots līdz izmēģinājuma beigā. Norēķini notiks katru $INTERVAL$. To var atcelt jebkurā brīdī."
+    "message": "Pašreizējā plānā ir iekļauts bezmaksas 7 dienu izmēģinājuma laiks. Izvēlētais apmaksas veids netiks izmantots līdz izmēģinājuma beigām. To var atcelt jebkurā brīdī."
   },
   "paymentInformation": {
     "message": "Maksājuma informācija"
@@ -2842,7 +2836,7 @@
     "message": "Tiek gaidīta atcelšana"
   },
   "subscriptionPendingCanceled": {
-    "message": "Abonements ir atzīmēts atcelšanai pašreizējā norēķinu perioda beigās."
+    "message": "Abonements ir atzīmēts atcelšanai pašreizējā norēķinu laika posma beigās."
   },
   "reinstateSubscription": {
     "message": "Atjaunot abonementu"
@@ -4072,7 +4066,7 @@
   "updateBrowser": {
     "message": "Atjaunināt pārlūku"
   },
-  "generatingRiskInsights": {
+  "generatingYourRiskInsights": {
     "message": "Tiek veidots ieskats par riskiem..."
   },
   "updateBrowserDesc": {
@@ -6305,6 +6299,21 @@
   "sponsoredFamilies": {
     "message": "Bezmaksas Bitwarden ģimenēm"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Sponsored families"
+  },
+  "noSponsoredFamilies": {
+    "message": "No sponsored families"
+  },
+  "noSponsoredFamiliesDescription": {
+    "message": "Sponsored non-member families plans will display here"
+  },
+  "sponsorFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Tu un Tava ģimene esat atbilstīgi bezmaksas Bitwarden Families. Piesakies ar personīgo e-pasta adresi, lai turētu datus drošībā pat tad, kad neesi darbā!"
   },
@@ -6319,6 +6328,18 @@
   },
   "sponsoredFamiliesSharedCollections": {
     "message": "Ģimenes noslēpumu kopīgotie krājumi"
+  },
+  "memberFamilies": {
+    "message": "Member families"
+  },
+  "noMemberFamilies": {
+    "message": "No member families"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Members who have redeemed family plans will display here"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
   },
   "badToken": {
     "message": "Saite vairs nav derīga. Lūdz pabalstītāju atkārtoti nosūtīt piedāvājumu!"
@@ -6594,7 +6615,7 @@
     "message": "Papildu konfigurācijā ir iespējams norādīt URL katram pakalpojumam atsevišķi."
   },
   "selfHostedEnvFormInvalid": {
-    "message": "Jāpievieno vai no servera pamata URL vai vismaz viena pielāgota vide."
+    "message": "Jāpievieno vai nu servera pamata URL vai vismaz viena pielāgota vide."
   },
   "apiUrl": {
     "message": "API servera URL"
@@ -7248,6 +7269,9 @@
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Jāseko zemāk esošajām norādēm, lai pabeigtu pieteikšanos."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Jāizpilda zemāk esošās darbības, lai pabeigtu pieteikšanos ar savu drošības atslēgu."
   },
   "launchDuo": {
     "message": "Palaist DUO"
@@ -7982,6 +8006,9 @@
   },
   "inviteMember": {
     "message": "Uzaicināt dalībnieku"
+  },
+  "addSponsorship": {
+    "message": "Add sponsorship"
   },
   "needsConfirmation": {
     "message": "Nepieciešams apstiprinājums"
@@ -10571,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Neļaut dalībniekiem atslēgt savu kontu ar PIN."
   },
-  "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$ plāniem nav piekļuve īstajiem notikumu žurnāliem",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Notikumu žurnāli Tavai apvienībai netiek glabāti. Jāuzlabo uz komandu vai uzņēmējdarbības plānu, lai iegūtu pilnu piekļuvi apvienības notikumu žurnāliem."
   },
-  "upgradeForFullEvents": {
-    "message": "Pilna piekļuve apvienības notikumu žurnāliem ir iegūstama, ja izmanto Komandu vai Uzņēmējdarbības plānu."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Uzlabot, lai piekļūtu īstajiem notikumu žurnāla datiem"
+  "upgradeEventLogTitleMessage": {
+    "message": "Jāuzlabo, lai redzētu savas apvienības notikumu žurnālus."
   },
   "upgradeEventLogMessage": {
     "message": "Šie notikumu ir tikai piemēri, un tie neatspoguļo īstus notikumus Bitwarden apvienībā."
@@ -10600,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "Jauna uzņēmējdarbības vienība"
+  },
+  "restart": {
+    "message": "Palaist no jauna"
   }
 }

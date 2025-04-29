@@ -69,6 +69,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import {
+  AttachmentDialogResult,
+  AttachmentsV2Component,
   CipherFormConfig,
   CipherFormConfigService,
   CollectionAssignmentResult,
@@ -92,10 +94,6 @@ import {
 } from "../../../vault/components/vault-item-dialog/vault-item-dialog.component";
 import { VaultItemEvent } from "../../../vault/components/vault-items/vault-item-event";
 import { VaultItemsModule } from "../../../vault/components/vault-items/vault-items.module";
-import {
-  AttachmentDialogResult,
-  AttachmentsV2Component,
-} from "../../../vault/individual-vault/attachments-v2.component";
 import {
   BulkDeleteDialogResult,
   openBulkDeleteDialog,
@@ -811,6 +809,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
       cipherId: cipher.id as CipherId,
+      organizationId: cipher.organizationId as OrganizationId,
     });
 
     const result = await firstValueFrom(dialogRef.closed);

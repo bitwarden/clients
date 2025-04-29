@@ -393,6 +393,64 @@
   "authenticatorKeyTotp": {
     "message": "Ключ автентифікації (TOTP)"
   },
+  "authenticatorKey": {
+    "message": "Ключ автентифікації"
+  },
+  "autofillOptions": {
+    "message": "Параметри автозаповнення"
+  },
+  "websiteUri": {
+    "message": "Вебсайт (URI)"
+  },
+  "websiteUriCount": {
+    "message": "Вебсайт (URI) $COUNT$",
+    "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "websiteAdded": {
+    "message": "Вебсайт додано"
+  },
+  "addWebsite": {
+    "message": "Додати вебсайт"
+  },
+  "deleteWebsite": {
+    "message": "Видалити вебсайт"
+  },
+  "owner": {
+    "message": "Власник"
+  },
+  "addField": {
+    "message": "Додати поле"
+  },
+  "fieldType": {
+    "message": "Тип поля"
+  },
+  "fieldLabel": {
+    "message": "Мітка поля"
+  },
+  "add": {
+    "message": "Додати"
+  },
+  "textHelpText": {
+    "message": "Використовуйте текстові поля для даних, як-от секретні запитання"
+  },
+  "hiddenHelpText": {
+    "message": "Використовуйте приховані поля для конфіденційних даних, як-от пароль"
+  },
+  "checkBoxHelpText": {
+    "message": "Використовуйте прапорці, якщо хочете автоматично заповнювати поля, як-от адресу е-пошти"
+  },
+  "linkedHelpText": {
+    "message": "Використовуйте пов'язане поле у разі виникнення проблем з автозаповненням для певного вебсайту."
+  },
+  "linkedLabelHelpText": {
+    "message": "Введіть html-ідентифікатор поля, назву, мітку або заповнювач."
+  },
   "folder": {
     "message": "Тека"
   },
@@ -417,6 +475,9 @@
   "cfTypeLinked": {
     "message": "Пов'язано",
     "description": "This describes a field that is 'linked' (related) to another field."
+  },
+  "cfTypeCheckbox": {
+    "message": "Прапорець"
   },
   "linkedValue": {
     "message": "Пов'язане значення",
@@ -1915,6 +1976,43 @@
       }
     }
   },
+  "cardDetails": {
+    "message": "Подробиці картки"
+  },
+  "cardBrandDetails": {
+    "message": "Подробиці $BRAND$",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "learnMoreAboutAuthenticators": {
+    "message": "Докладніше про програми автентифікації"
+  },
+  "copyTOTP": {
+    "message": "Скопіюйте ключ автентифікації (TOTP)"
+  },
+  "totpHelperTitle": {
+    "message": "Спростіть двоетапну перевірку"
+  },
+  "totpHelper": {
+    "message": "Bitwarden може автоматично заповнювати одноразові коди двоетапної перевірки. Скопіюйте і вставте ключ у це поле."
+  },
+  "totpHelperWithCapture": {
+    "message": "Bitwarden може автоматично заповнювати одноразові коди двоетапної перевірки. Відкрийте камеру, щоб сканувати QR-код на цьому вебсайті, або скопіюйте і вставте ключ у це поле."
+  },
+  "premium": {
+    "message": "Преміум",
+    "description": "Premium membership"
+  },
+  "cardExpiredTitle": {
+    "message": "Протермінована картка"
+  },
+  "cardExpiredMessage": {
+    "message": "Якщо ви її поновили, оновіть інформацію"
+  },
   "verificationRequired": {
     "message": "Потрібне підтвердження",
     "description": "Default title for the user verification dialog."
@@ -2083,6 +2181,15 @@
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "Політика організації заблокувала імпортування записів до вашого особистого сховища."
+  },
+  "personalDetails": {
+    "message": "Особисті дані"
+  },
+  "identification": {
+    "message": "Ідентифікація"
+  },
+  "contactInfo": {
+    "message": "Контактна інформація"
   },
   "allSends": {
     "message": "Усі відправлення",
@@ -2470,7 +2577,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Будуть експортовані лише записи особистого сховища, включно з вкладеннями, пов'язані з $EMAIL$. Записи сховища організації не експортуватимуться.",
+    "message": "Будуть експортовані лише записи особистого сховища включно з вкладеннями, пов'язані з $EMAIL$. Записи сховища організації не експортуватимуться.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2517,6 +2624,9 @@
   },
   "generateEmail": {
     "message": "Генерувати е-пошту"
+  },
+  "usernameGenerator": {
+    "message": "Генератор імені користувача"
   },
   "spinboxBoundariesHint": {
     "message": "Значення має бути між $MIN$ та $MAX$.",
@@ -3212,6 +3322,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Виконайте наведені нижче кроки, щоб завершити вхід."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Виконайте наведені нижче кроки, щоб завершити вхід за допомогою ключа безпеки."
+  },
   "launchDuo": {
     "message": "Запустити Duo в браузері"
   },
@@ -3436,6 +3549,17 @@
   "ssoError": {
     "message": "Не знайдено вільних портів для цього входу SSO."
   },
+  "securePasswordGenerated": {
+    "message": "Надійний пароль згенеровано! Обов'язково оновіть свій пароль на вебсайті."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Скористайтеся генератором,",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "щоб створити надійний, унікальний пароль",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "Біометричне розблокування недоступне, оскільки спочатку потрібно ввести PIN-код або пароль."
   },
@@ -3513,6 +3637,27 @@
   },
   "setupTwoStepLogin": {
     "message": "Налаштувати двоетапну перевірку"
+  },
+  "itemDetails": {
+    "message": "Подробиці запису"
+  },
+  "itemName": {
+    "message": "Назва запису"
+  },
+  "loginCredentials": {
+    "message": "Облікові дані для входу"
+  },
+  "additionalOptions": {
+    "message": "Додаткові налаштування"
+  },
+  "itemHistory": {
+    "message": "Історія запису"
+  },
+  "lastEdited": {
+    "message": "Востаннє редаговано"
+  },
+  "upload": {
+    "message": "Вивантажити"
   },
   "newDeviceVerificationNoticeContentPage1": {
     "message": "Bitwarden надсилатиме код підтвердження на електронну пошту вашого облікового запису під час входу з нових пристроїв, починаючи з лютого 2025 року."

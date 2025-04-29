@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Всички приложения"
   },
+  "appLogoLabel": {
+    "message": "Лого на Битуорден"
+  },
   "criticalApplications": {
     "message": "Важни приложения"
   },
@@ -419,17 +422,8 @@
   "folder": {
     "message": "Папка"
   },
-  "newCustomField": {
-    "message": "Ново допълнително поле"
-  },
   "value": {
     "message": "Стойност"
-  },
-  "dragToSort": {
-    "message": "Подредба чрез влачене"
-  },
-  "dragToReorder": {
-    "message": "Плъзнете за пренареждане"
   },
   "cfTypeText": {
     "message": "Текст"
@@ -4072,7 +4066,7 @@
   "updateBrowser": {
     "message": "Обновяване на браузъра"
   },
-  "generatingRiskInsights": {
+  "generatingYourRiskInsights": {
     "message": "Създаване на Вашата информация относно рисковете…"
   },
   "updateBrowserDesc": {
@@ -6305,6 +6299,21 @@
   "sponsoredFamilies": {
     "message": "Free Bitwarden Families"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Sponsored families"
+  },
+  "noSponsoredFamilies": {
+    "message": "No sponsored families"
+  },
+  "noSponsoredFamiliesDescription": {
+    "message": "Sponsored non-member families plans will display here"
+  },
+  "sponsorFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+  },
   "sponsoredFamiliesEligible": {
     "message": "You and your family are eligible for Free Bitwarden Families. Redeem with your personal email to keep your data secure even when you are not at work."
   },
@@ -6319,6 +6328,18 @@
   },
   "sponsoredFamiliesSharedCollections": {
     "message": "Споделени колекции за семейни тайни"
+  },
+  "memberFamilies": {
+    "message": "Member families"
+  },
+  "noMemberFamilies": {
+    "message": "No member families"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Members who have redeemed family plans will display here"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
   },
   "badToken": {
     "message": "Връзката е с изтекла давност. Помолете спонсора да изпрати отново предложението."
@@ -7249,6 +7270,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Следвайте стъпките по-долу, за да завършите вписването."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Следвайте стъпките по-долу, за да завършите вписването си чрез устройството за удостоверяване."
+  },
   "launchDuo": {
     "message": "Стартиране на DUO"
   },
@@ -7982,6 +8006,9 @@
   },
   "inviteMember": {
     "message": "Покана на член"
+  },
+  "addSponsorship": {
+    "message": "Add sponsorship"
   },
   "needsConfirmation": {
     "message": "Изисква потвърждение"
@@ -10571,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Забраняване на членовете да отключват акаунтите си с ПИН."
   },
-  "limitedEventLogs": {
-    "message": "Плановете от тип „$PRODUCT_TYPE$“ нямат достъп до истинските журнали на събитията",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Получете пълен достъп до журналите на събитията за организациите като надградите до Екипния план или този за Големи организации."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Надградете за достъп до истинските журнали на събитията"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "Тези събития са само за пример и не отразяват истинските събития във Вашата организация."
@@ -10600,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "Нова бизнес единица"
+  },
+  "restart": {
+    "message": "Повторно пускане"
   }
 }
