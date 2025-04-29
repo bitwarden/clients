@@ -163,31 +163,16 @@ export class EncString implements Encrypted {
       return this.decryptedValue;
     }
 
-    let decryptTrace = "provided-key";
     try {
       if (key == null) {
         key = await this.getKeyForDecryption(orgId);
-        decryptTrace = orgId == null ? `domain-orgkey-${orgId}` : "domain-userkey|masterkey";
-        if (orgId != null) {
-          decryptTrace = `domain-orgkey-${orgId}`;
-        } else {
-          const cryptoService = Utils.getContainerService().getKeyService();
-          decryptTrace =
-            (await cryptoService.getUserKey()) == null
-              ? "domain-withlegacysupport-masterkey"
-              : "domain-withlegacysupport-userkey";
-        }
       }
       if (key == null) {
         throw new Error("No key to decrypt EncString with orgId " + orgId);
       }
 
       const encryptService = Utils.getContainerService().getEncryptService();
-      this.decryptedValue = await encryptService.decryptToUtf8(
-        this,
-        key,
-        decryptTrace == null ? context : `${decryptTrace}${context || ""}`,
-      );
+      this.decryptedValue = await encryptService.decryptString(this, key);
       // FIXME: Remove when updating file. Eslint update
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
@@ -206,7 +191,7 @@ export class EncString implements Encrypted {
         throw new Error("No key to decrypt EncString");
       }
 
-      this.decryptedValue = await encryptService.decryptToUtf8(this, key, decryptTrace);
+      this.decryptedValue = await encryptService.decryptString(this, key);
       // FIXME: Remove when updating file. Eslint update
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {

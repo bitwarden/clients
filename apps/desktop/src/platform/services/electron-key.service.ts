@@ -110,7 +110,7 @@ export class ElectronKeyService extends DefaultKeyService {
       // Set a key half if it doesn't exist
       const keyBytes = await this.cryptoFunctionService.randomBytes(32);
       clientKeyHalf = Utils.fromBufferToUtf8(keyBytes) as CsprngString;
-      const encKey = await this.encryptService.encrypt(clientKeyHalf, userKey);
+      const encKey = await this.encryptService.encryptString(clientKeyHalf, userKey);
       await this.biometricStateService.setEncryptedClientKeyHalf(encKey, userId);
     }
 

@@ -47,7 +47,7 @@ export abstract class DownloadCommand {
 
     try {
       const encBuf = await EncArrayBuffer.fromResponse(response);
-      const decBuf = await this.encryptService.decryptToBytes(encBuf, key);
+      const decBuf = await this.encryptService.decryptFileData(encBuf, key);
       if (process.env.BW_SERVE === "true") {
         const res = new FileResponse(Buffer.from(decBuf), fileName);
         return Response.success(res);

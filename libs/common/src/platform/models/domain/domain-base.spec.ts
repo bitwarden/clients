@@ -2,7 +2,6 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { makeEncString, makeSymmetricCryptoKey } from "../../../../spec";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
-import { Utils } from "../../misc/utils";
 
 import Domain from "./domain-base";
 import { EncString } from "./enc-string";
@@ -22,23 +21,12 @@ describe("DomainBase", () => {
   });
 
   function setUpCryptography() {
-    encryptService.encrypt.mockImplementation((value) => {
-      let data: string;
-      if (typeof value === "string") {
-        data = value;
-      } else {
-        data = Utils.fromBufferToUtf8(value);
-      }
+    encryptService.encryptString.mockImplementation((value) =>
+      Promise.resolve(makeEncString(value)),
+    );
 
-      return Promise.resolve(makeEncString(data));
-    });
-
-    encryptService.decryptToUtf8.mockImplementation((value) => {
+    encryptService.decryptString.mockImplementation((value) => {
       return Promise.resolve(value.data);
-    });
-
-    encryptService.decryptToBytes.mockImplementation((value) => {
-      return Promise.resolve(value.dataBytes);
     });
   }
 
@@ -82,7 +70,7 @@ describe("DomainBase", () => {
 
       const domain = new TestDomain();
 
-      domain.encToString = await encryptService.encrypt("string", key);
+      domain.encToString = await encryptService.encryptString("string", key);
 
       const decrypted = await domain["decryptObjWithKey"](["encToString"], key, encryptService);
 
@@ -96,8 +84,8 @@ describe("DomainBase", () => {
 
       const domain = new TestDomain();
 
-      domain.encToString = await encryptService.encrypt("string", key);
-      domain.encString2 = await encryptService.encrypt("string2", key);
+      domain.encToString = await encryptService.encryptString("string", key);
+      domain.encString2 = await encryptService.encryptString("string2", key);
 
       const decrypted = await domain["decryptObjWithKey"](
         ["encToString", "encString2"],
