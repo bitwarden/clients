@@ -81,14 +81,9 @@ export class VaultNudgesService {
    * @param userId
    */
   async dismissNudge(nudge: VaultNudgeType, userId: UserId, onlyBadge: boolean = false) {
-    const hasVaultNudgeFlag = await this.configService.getFeatureFlag(
-      FeatureFlag.PM8851_BrowserOnboardingNudge,
-    );
-    if (hasVaultNudgeFlag) {
-      const dismissedStatus = onlyBadge
-        ? { hasBadgeDismissed: true, hasSpotlightDismissed: false }
-        : { hasBadgeDismissed: true, hasSpotlightDismissed: true };
-      await this.getNudgeService(nudge).setNudgeStatus(nudge, dismissedStatus, userId);
-    }
+    const dismissedStatus = onlyBadge
+      ? { hasBadgeDismissed: true, hasSpotlightDismissed: false }
+      : { hasBadgeDismissed: true, hasSpotlightDismissed: true };
+    await this.getNudgeService(nudge).setNudgeStatus(nudge, dismissedStatus, userId);
   }
 }

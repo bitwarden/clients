@@ -45,12 +45,12 @@ export class DefaultSingleNudgeService implements SingleNudgeService {
 
   async setNudgeStatus(
     nudgeType: VaultNudgeType,
-    dismissed: NudgeStatus,
+    status: NudgeStatus,
     userId: UserId,
   ): Promise<void> {
     await this.stateProvider.getUser(userId, VAULT_NUDGE_DISMISSED_DISK_KEY).update((nudges) => {
       nudges ??= {};
-      nudges[nudgeType] = dismissed;
+      nudges[nudgeType] = status;
       return nudges;
     });
   }
