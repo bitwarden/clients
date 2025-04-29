@@ -91,7 +91,7 @@ const notificationContainerStyles = (theme: Theme) => css`
   }
 
   [class*="${notificationBodyClassPrefix}-"] {
-    margin: ${spacing["3"]} 0 ${spacing["1.5"]} ${spacing["3"]};
+    margin: ${spacing["3"]} 0 0 ${spacing["3"]};
     padding-right: ${spacing["3"]};
   }
 `;
