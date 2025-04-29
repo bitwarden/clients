@@ -845,10 +845,10 @@
     "message": "无缝两步验证"
   },
   "totpHelper": {
-    "message": "Bitwarden 可以存储并填充两步验证码。复制并粘贴密钥到此字段。"
+    "message": "Bitwarden 可以存储并填充两步验证码。将密钥复制并粘贴到此字段。"
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden 可以存储并填充两步验证码。选择相机图标来截取此网站的验证器二维码，或者手动复制并粘贴密钥到此字段。"
+    "message": "Bitwarden 可以存储并填充两步验证码。选择相机图标来拍摄此网站的验证器二维码，或将密钥复制并粘贴到此字段。"
   },
   "learnMoreAboutAuthenticators": {
     "message": "进一步了解验证器"
@@ -2180,7 +2180,7 @@
     "message": "使用此用户名"
   },
   "securePasswordGenerated": {
-    "message": "安全密码生成好了！别忘了也在网站上更新一下您的密码。"
+    "message": "安全的密码生成好了！别忘了在网站上也更新一下您的密码。"
   },
   "useGeneratorHelpTextPartOne": {
     "message": "使用生成器",
@@ -4450,7 +4450,7 @@
     "message": "项目历史记录"
   },
   "lastEdited": {
-    "message": "上次编辑"
+    "message": "最后编辑于"
   },
   "ownerYou": {
     "message": "所有者：您"

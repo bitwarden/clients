@@ -422,17 +422,8 @@
   "folder": {
     "message": "Тека"
   },
-  "newCustomField": {
-    "message": "Нове власне поле"
-  },
   "value": {
     "message": "Значення"
-  },
-  "dragToSort": {
-    "message": "Перетягніть, щоб відсортувати"
-  },
-  "dragToReorder": {
-    "message": "Потягніть, щоб упорядкувати"
   },
   "cfTypeText": {
     "message": "Текст"
@@ -10607,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Не дозволяти учасникам розблокувати свій обліковий запис за допомогою PIN-коду."
   },
-  "limitedEventLogs": {
-    "message": "Тарифні плани $PRODUCT_TYPE$ не мають доступу до реальних журналів подій",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Отримайте повний доступ до журналу подій організації, передплативши тарифний план Teams або Enterprise."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Оновіть тарифний план, щоб переглядати реальні дані журналу подій"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "Ці події є лише зразками. Вони не відображають реальних подій у вашій організації Bitwarden."
@@ -10636,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "Новий бізнес-підрозділ"
+  },
+  "restart": {
+    "message": "Restart"
   }
 }
