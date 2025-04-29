@@ -18,6 +18,7 @@ export type NotificationFooterProps = {
   i18n: { [key: string]: string };
   notificationType?: NotificationType;
   organizations?: OrgView[];
+  personalVaultIsAllowed: boolean;
   theme: Theme;
   handleSaveAction: (e: Event) => void;
 };
@@ -28,6 +29,7 @@ export function NotificationFooter({
   i18n,
   notificationType,
   organizations,
+  personalVaultIsAllowed,
   theme,
   handleSaveAction,
 }: NotificationFooterProps) {
@@ -46,6 +48,7 @@ export function NotificationFooter({
               handlePrimaryButtonClick: handleSaveAction,
               text: primaryButtonText,
             },
+            personalVaultIsAllowed,
             theme,
           })
         : nothing}
