@@ -422,17 +422,8 @@
   "folder": {
     "message": "Папка"
   },
-  "newCustomField": {
-    "message": "Ново допълнително поле"
-  },
   "value": {
     "message": "Стойност"
-  },
-  "dragToSort": {
-    "message": "Подредба чрез влачене"
-  },
-  "dragToReorder": {
-    "message": "Плъзнете за пренареждане"
   },
   "cfTypeText": {
     "message": "Текст"
@@ -10607,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Забраняване на членовете да отключват акаунтите си с ПИН."
   },
-  "limitedEventLogs": {
-    "message": "Плановете от тип „$PRODUCT_TYPE$“ нямат достъп до истинските журнали на събитията",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Получете пълен достъп до журналите на събитията за организациите като надградите до Екипния план или този за Големи организации."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Надградете за достъп до истинските журнали на събитията"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "Тези събития са само за пример и не отразяват истинските събития във Вашата организация."
@@ -10636,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "Нова бизнес единица"
+  },
+  "restart": {
+    "message": "Повторно пускане"
   }
 }

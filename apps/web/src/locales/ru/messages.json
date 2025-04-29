@@ -422,17 +422,8 @@
   "folder": {
     "message": "Папка"
   },
-  "newCustomField": {
-    "message": "Новое пользовательское поле"
-  },
   "value": {
     "message": "Значение"
-  },
-  "dragToSort": {
-    "message": "Перетащите для сортировки"
-  },
-  "dragToReorder": {
-    "message": "Перетащите для изменения порядка"
   },
   "cfTypeText": {
     "message": "Текстовое"
@@ -10607,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Не разрешать пользователям разблокировать свои аккаунты с помощью PIN-кода."
   },
-  "limitedEventLogs": {
-    "message": "Планы $PRODUCT_TYPE$ не имеют доступа к журналам текущих событий",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Логи событий не сохраняются для вашей организации. Перейдите на тариф Teams или Enterprise для получения полного доступа к логам событий организации."
   },
-  "upgradeForFullEvents": {
-    "message": "Получите полный доступ к журналам событий организации, перейдя на план Teams или Enterprise."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Переудите на более высокий тариф для просмотра журнала реальных событий"
+  "upgradeEventLogTitleMessage": {
+    "message": "Измените тариф для просмотра логов событий вашей организации."
   },
   "upgradeEventLogMessage": {
     "message": "Эти события являются лишь примерами и не отражают текущих событий вашей организации Bitwarden."
@@ -10636,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "Новая бизнес-единица"
+  },
+  "restart": {
+    "message": "Перезапустить"
   }
 }
