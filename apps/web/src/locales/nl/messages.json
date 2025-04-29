@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Alle applicaties"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden-logo"
+  },
   "criticalApplications": {
     "message": "Belangrijke applicaties"
   },
@@ -4072,7 +4075,7 @@
   "updateBrowser": {
     "message": "Webbrowser bijwerken"
   },
-  "generatingRiskInsights": {
+  "generatingYourRiskInsights": {
     "message": "Je risico-inzichten genereren..."
   },
   "updateBrowserDesc": {
@@ -6305,6 +6308,21 @@
   "sponsoredFamilies": {
     "message": "Gratis Bitwarden Families"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Gesponsorde families"
+  },
+  "noSponsoredFamilies": {
+    "message": "Geen gesponsorde families"
+  },
+  "noSponsoredFamiliesDescription": {
+    "message": "Gesponsorde niet-lid Familie-plannen worden hier weergegeven"
+  },
+  "sponsorFreeBitwardenFamilies": {
+    "message": "Leden van je organisatie komen in aanmerking voor gratis Bitwarden Familie. Je kunt de gratis Bitwarden Familie sponsoren voor medewerkers die geen lid zijn van je Bitwarden-organisatie. Het sponsoren van een niet-lid vereist een beschikbare zitplaats binnen je organisatie."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "Als je een actieve sponsoring verwijdert, komt er een plaats binnen je organisatie beschikbaar na de verlengingsdatum van de gesponsorde organisatie."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Jij en je familie komen in aanmerking voor gratis Bitwarden Families. Verzilver met je persoonlijke e-mail om je gegevens veilig te houden, zelfs als je niet op het werk bent."
   },
@@ -6319,6 +6337,18 @@
   },
   "sponsoredFamiliesSharedCollections": {
     "message": "Gedeelde collecties voor familiegeheimen"
+  },
+  "memberFamilies": {
+    "message": "Lid-families"
+  },
+  "noMemberFamilies": {
+    "message": "Niet-leden families"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Leden die familieplannen hebben geclaimd worden hier weergegeven"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Leden van jouw organisatie komen in aanmerking voor gratis gebruik van Bitwarden Familie. Hier kunt je leden zien die een Familie-organisatie hebben gesponsord."
   },
   "badToken": {
     "message": "De link is niet langer geldig. Zorg ervoor dat de sponsors de uitnodiging opnieuw versturen."
@@ -7249,6 +7279,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Volg de onderstaande stappen om in te loggen."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Volg onderstaande stappen om in te loggen met je beveiligingssleutel."
+  },
   "launchDuo": {
     "message": "DUO starten"
   },
@@ -7982,6 +8015,9 @@
   },
   "inviteMember": {
     "message": "Lid uitnodigen"
+  },
+  "addSponsorship": {
+    "message": "Sponsoring toevoegen"
   },
   "needsConfirmation": {
     "message": "Bevestiging nodig"
