@@ -8,20 +8,20 @@ import { PasswordInputResult } from "../input-password/password-input-result";
 
 export enum SetInitialPasswordUserType {
   /**
-   * A new user being "just-in-time" provisioned into a master-password-encryption org
+   * A user being "just-in-time" (JIT) provisioned into a master-password-encryption org
    */
-  MASTER_PASSWORD_ORG_USER,
+  JIT_PROVISIONED_MASTER_PASSWORD_ORG_USER,
   /**
-   * Could be either:
-   *  1. A new user being "just-in-time" provisioned into a trusted-device-encryption org
-   *     with a role that requires a master password
-   *  2. An existing user in a trusted-device-encryption org whose role was upgraded to one
-   *     that requires a master password
+   * Could be one of two scenarios:
+   *  1. A user being "just-in-time" (JIT) provisioned into a trusted-device-encryption org
+   *     with a starting role that requires a master password (admin, owner, etc.)
+   *  2. An user in a trusted-device-encryption org whose role was upgraded to one
+   *     that requires a master password (admin, owner, etc.)
    */
-  TRUSTED_DEVICE_ORG_USER,
+  TRUSTED_DEVICE_ORG_USER_ROLE_REQUIRES_MASTER_PASSWORD,
   /**
-   * A user in an org that recently offboarded from trusted device encryption and is now in
-   * a master password encryption org
+   * A user in an org that offboarded from trusted device encryption and is now a
+   * master-password-encryption org
    */
   OFFBOARDED_TRUSTED_DEVICE_ORG_USER,
 }
@@ -39,10 +39,15 @@ export interface SetInitialPasswordCredentials {
 
 /**
  * Handles setting an initial password for an existing authed user.
+ *
+ * To see the different scenarios where an existing authed user needs to set an
+ * initial password, see {@link SetInitialPasswordUserType}
  */
 export abstract class SetInitialPasswordService {
   /**
-   * Sets an initial password for an existing authed user
+   * Sets an initial password for an existing authed user who is either:
+   * - {@link SetInitialPasswordUserType.JIT_PROVISIONED_MASTER_PASSWORD_ORG_USER}
+   * - {@link SetInitialPasswordUserType.TRUSTED_DEVICE_ORG_USER_ROLE_REQUIRES_MASTER_PASSWORD}
    *
    * @param credentials An object of the credentials needed to set the initial password
    * @throws If any property on the `credentials` object is null or undefined, or if a
@@ -54,6 +59,14 @@ export abstract class SetInitialPasswordService {
     userId: UserId,
   ) => Promise<void>;
 
+  /**
+   * Sets an initial password for a user who logs in after their org offboarded from
+   * trusted device encryption and is now a master-password-encryption org:
+   * - {@link SetInitialPasswordUserType.OFFBOARDED_TRUSTED_DEVICE_ORG_USER}
+   *
+   * @param passwordInputResult credentials object received from the `InputPasswordComponent`
+   * @param userId the account `userId`
+   */
   setInitialPasswordTdeOffboarding: (
     passwordInputResult: PasswordInputResult,
     userId: UserId,

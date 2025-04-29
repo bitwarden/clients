@@ -97,13 +97,14 @@ export class SetInitialPasswordComponent implements OnInit {
       this.forceSetPasswordReason ===
       ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission
     ) {
-      this.userType = SetInitialPasswordUserType.TRUSTED_DEVICE_ORG_USER;
+      this.userType =
+        SetInitialPasswordUserType.TRUSTED_DEVICE_ORG_USER_ROLE_REQUIRES_MASTER_PASSWORD;
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
         pageTitle: { key: "setMasterPassword" },
         pageSubtitle: { key: "orgPermissionsUpdatedMustSetPassword" },
       });
     } else {
-      this.userType = SetInitialPasswordUserType.MASTER_PASSWORD_ORG_USER;
+      this.userType = SetInitialPasswordUserType.JIT_PROVISIONED_MASTER_PASSWORD_ORG_USER;
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
         pageTitle: { key: "joinOrganization" },
         pageSubtitle: { key: "finishJoiningThisOrganizationBySettingAMasterPassword" },
@@ -141,8 +142,9 @@ export class SetInitialPasswordComponent implements OnInit {
     this.submitting = true;
 
     if (
-      this.userType === SetInitialPasswordUserType.MASTER_PASSWORD_ORG_USER ||
-      this.userType === SetInitialPasswordUserType.TRUSTED_DEVICE_ORG_USER
+      this.userType === SetInitialPasswordUserType.JIT_PROVISIONED_MASTER_PASSWORD_ORG_USER ||
+      this.userType ===
+        SetInitialPasswordUserType.TRUSTED_DEVICE_ORG_USER_ROLE_REQUIRES_MASTER_PASSWORD
     ) {
       try {
         const credentials: SetInitialPasswordCredentials = {
@@ -162,7 +164,7 @@ export class SetInitialPasswordComponent implements OnInit {
           this.userId,
         );
 
-        if (this.userType === SetInitialPasswordUserType.MASTER_PASSWORD_ORG_USER) {
+        if (this.userType === SetInitialPasswordUserType.JIT_PROVISIONED_MASTER_PASSWORD_ORG_USER) {
           this.toastService.showToast({
             variant: "success",
             title: "",
@@ -176,7 +178,10 @@ export class SetInitialPasswordComponent implements OnInit {
           });
         }
 
-        if (this.userType === SetInitialPasswordUserType.TRUSTED_DEVICE_ORG_USER) {
+        if (
+          this.userType ===
+          SetInitialPasswordUserType.TRUSTED_DEVICE_ORG_USER_ROLE_REQUIRES_MASTER_PASSWORD
+        ) {
           this.toastService.showToast({
             variant: "success",
             title: "",
