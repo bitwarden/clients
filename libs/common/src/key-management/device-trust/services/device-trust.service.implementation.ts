@@ -209,7 +209,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
       devices.data
         .filter((device) => device.isTrusted)
         .map(async (device) => {
-          const publicKey = await this.encryptService.decryptToBytes(
+          const publicKey = await this.encryptService.unwrapEncapsulationKey(
             new EncString(device.encryptedPublicKey),
             oldUserKey,
           );
@@ -220,7 +220,10 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
             return null;
           }
 
-          const newEncryptedPublicKey = await this.encryptService.encrypt(publicKey, newUserKey);
+          const newEncryptedPublicKey = await this.encryptService.wrapEncapsulationKey(
+            publicKey,
+            newUserKey,
+          );
           const newEncryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(
             newUserKey,
             publicKey,
@@ -278,7 +281,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     const currentDeviceKeys = await this.devicesApiService.getDeviceKeys(deviceIdentifier);
 
     // Decrypt the existing device public key with the old user key
-    const decryptedDevicePublicKey = await this.encryptService.decryptToBytes(
+    const decryptedDevicePublicKey = await this.encryptService.unwrapEncapsulationKey(
       currentDeviceKeys.encryptedPublicKey,
       oldUserKey,
     );
@@ -394,7 +397,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
 
     try {
       // attempt to decrypt encryptedDevicePrivateKey with device key
-      const devicePrivateKey = await this.encryptService.decryptToBytes(
+      const devicePrivateKey = await this.encryptService.unwrapDecapsulationKey(
         encryptedDevicePrivateKey,
         deviceKey,
       );
