@@ -112,7 +112,7 @@ describe("Send", () => {
 
     const encryptService = mock<EncryptService>();
     const keyService = mock<KeyService>();
-    encryptService.decryptToBytes
+    encryptService.decryptBytes
       .calledWith(send.key, userKey)
       .mockResolvedValue(makeStaticByteArray(32));
     keyService.makeSendKey.mockResolvedValue("cryptoKey" as any);
