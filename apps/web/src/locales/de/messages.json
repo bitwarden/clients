@@ -422,17 +422,8 @@
   "folder": {
     "message": "Ordner"
   },
-  "newCustomField": {
-    "message": "Neues benutzerdefiniertes Feld"
-  },
   "value": {
     "message": "Wert"
-  },
-  "dragToSort": {
-    "message": "Zum Sortieren ziehen"
-  },
-  "dragToReorder": {
-    "message": "Ziehen zum Umsortieren"
   },
   "cfTypeText": {
     "message": "Text"
@@ -10607,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Mitgliedern nicht erlauben, ihr Konto mit einer PIN zu entsperren."
   },
-  "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$-Abos haben keinen Zugriff auf echte Ereignisprotokolle",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Erhalte vollen Zugriff auf Ereignisprotokolle von Organisationen durch ein Upgrade auf ein Teams- oder Enterprise-Abo."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Upgrade für echte Ereignisprotokolldaten"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "Diese Ereignisse sind nur Beispiele und spiegeln keine realen Ereignisse in deiner Bitwarden-Organisation wider."
@@ -10636,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "Neuer Geschäftsbereich"
+  },
+  "restart": {
+    "message": "Restart"
   }
 }
