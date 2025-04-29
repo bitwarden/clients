@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Alle applicaties"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden-logo"
+  },
   "criticalApplications": {
     "message": "Belangrijke applicaties"
   },
@@ -419,17 +422,8 @@
   "folder": {
     "message": "Map"
   },
-  "newCustomField": {
-    "message": "Nieuw extra veld"
-  },
   "value": {
     "message": "Waarde"
-  },
-  "dragToSort": {
-    "message": "Slepen om te sorteren"
-  },
-  "dragToReorder": {
-    "message": "Sleep om te herschikken"
   },
   "cfTypeText": {
     "message": "Tekst"
@@ -6312,13 +6306,13 @@
     "message": "Geen gesponsorde families"
   },
   "noSponsoredFamiliesDescription": {
-    "message": "Sponsored non-member families plans will display here"
+    "message": "Gesponsorde niet-lid Familie-plannen worden hier weergegeven"
   },
   "sponsorFreeBitwardenFamilies": {
-    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+    "message": "Leden van je organisatie komen in aanmerking voor gratis Bitwarden Familie. Je kunt de gratis Bitwarden Familie sponsoren voor medewerkers die geen lid zijn van je Bitwarden-organisatie. Het sponsoren van een niet-lid vereist een beschikbare zitplaats binnen je organisatie."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
-    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+    "message": "Als je een actieve sponsoring verwijdert, komt er een plaats binnen je organisatie beschikbaar na de verlengingsdatum van de gesponsorde organisatie."
   },
   "sponsoredFamiliesEligible": {
     "message": "Jij en je familie komen in aanmerking voor gratis Bitwarden Families. Verzilver met je persoonlijke e-mail om je gegevens veilig te houden, zelfs als je niet op het werk bent."
@@ -6336,16 +6330,16 @@
     "message": "Gedeelde collecties voor familiegeheimen"
   },
   "memberFamilies": {
-    "message": "Member families"
+    "message": "Lid-families"
   },
   "noMemberFamilies": {
-    "message": "No member families"
+    "message": "Niet-leden families"
   },
   "noMemberFamiliesDescription": {
-    "message": "Members who have redeemed family plans will display here"
+    "message": "Leden die familieplannen hebben geclaimd worden hier weergegeven"
   },
   "membersWithSponsoredFamilies": {
-    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
+    "message": "Leden van jouw organisatie komen in aanmerking voor gratis gebruik van Bitwarden Familie. Hier kunt je leden zien die een Familie-organisatie hebben gesponsord."
   },
   "badToken": {
     "message": "De link is niet langer geldig. Zorg ervoor dat de sponsors de uitnodiging opnieuw versturen."
@@ -7275,6 +7269,9 @@
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Volg de onderstaande stappen om in te loggen."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Volg onderstaande stappen om in te loggen met je beveiligingssleutel."
   },
   "launchDuo": {
     "message": "DUO starten"
@@ -10601,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Leden niet toestaan hun account te ontgrendelen met een pincode."
   },
-  "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$-abonnementen hebben geen toegang tot echte event logs",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Krijg volledige toegang tot event logs van de organisatie door te upgraden naar een Teams- of Enterprise-abonnement."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Upgrade voor echte event log gegevens"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "Deze evenementen zijn alleen voorbeelden en weerspiegelen geen echte evenementen binnen je Bitwarden organisatie."
@@ -10630,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "Nieuwe bedrijfseenheid"
+  },
+  "restart": {
+    "message": "Herstarten"
   }
 }

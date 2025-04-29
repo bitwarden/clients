@@ -55,6 +55,18 @@ describe("EncryptService", () => {
         "No wrappingKey provided for wrapping.",
       );
     });
+    it("fails if type 0 key is provided with flag turned on", async () => {
+      (encryptService as any).blockType0 = true;
+      const mock32Key = mock<SymmetricCryptoKey>();
+      mock32Key.inner.mockReturnValue({
+        type: 0,
+        encryptionKey: makeStaticByteArray(32),
+      });
+
+      await expect(encryptService.wrapSymmetricKey(mock32Key, mock32Key)).rejects.toThrow(
+        "Type 0 encryption is not supported.",
+      );
+    });
   });
 
   describe("wrapDecapsulationKey", () => {
@@ -83,6 +95,18 @@ describe("EncryptService", () => {
         "No wrappingKey provided for wrapping.",
       );
     });
+    it("throws if type 0 key is provided with flag turned on", async () => {
+      (encryptService as any).blockType0 = true;
+      const mock32Key = mock<SymmetricCryptoKey>();
+      mock32Key.inner.mockReturnValue({
+        type: 0,
+        encryptionKey: makeStaticByteArray(32),
+      });
+
+      await expect(
+        encryptService.wrapDecapsulationKey(new Uint8Array(200), mock32Key),
+      ).rejects.toThrow("Type 0 encryption is not supported.");
+    });
   });
 
   describe("wrapEncapsulationKey", () => {
@@ -110,6 +134,18 @@ describe("EncryptService", () => {
       await expect(encryptService.wrapEncapsulationKey(encapsulationKey, null)).rejects.toThrow(
         "No wrappingKey provided for wrapping.",
       );
+    });
+    it("throws if type 0 key is provided with flag turned on", async () => {
+      (encryptService as any).blockType0 = true;
+      const mock32Key = mock<SymmetricCryptoKey>();
+      mock32Key.inner.mockReturnValue({
+        type: 0,
+        encryptionKey: makeStaticByteArray(32),
+      });
+
+      await expect(
+        encryptService.wrapEncapsulationKey(new Uint8Array(200), mock32Key),
+      ).rejects.toThrow("Type 0 encryption is not supported.");
     });
   });
 
@@ -148,10 +184,9 @@ describe("EncryptService", () => {
       (encryptService as any).blockType0 = true;
       const key = new SymmetricCryptoKey(makeStaticByteArray(32));
       const mock32Key = mock<SymmetricCryptoKey>();
-      mock32Key.key = makeStaticByteArray(32);
       mock32Key.inner.mockReturnValue({
         type: 0,
-        encryptionKey: mock32Key.key,
+        encryptionKey: makeStaticByteArray(32),
       });
 
       await expect(encryptService.encrypt(null!, key)).rejects.toThrow(
@@ -234,10 +269,9 @@ describe("EncryptService", () => {
       (encryptService as any).blockType0 = true;
       const key = new SymmetricCryptoKey(makeStaticByteArray(32));
       const mock32Key = mock<SymmetricCryptoKey>();
-      mock32Key.key = makeStaticByteArray(32);
       mock32Key.inner.mockReturnValue({
         type: 0,
-        encryptionKey: mock32Key.key,
+        encryptionKey: makeStaticByteArray(32),
       });
 
       await expect(encryptService.encryptToBytes(plainValue, key)).rejects.toThrow(
@@ -535,7 +569,7 @@ describe("EncryptService", () => {
         const actual = await encryptService.encapsulateKeyUnsigned(testKey, publicKey);
 
         expect(cryptoFunctionService.rsaEncrypt).toBeCalledWith(
-          expect.toEqualBuffer(testKey.key),
+          expect.toEqualBuffer(testKey.toEncoded()),
           expect.toEqualBuffer(publicKey),
           "sha1",
         );
@@ -586,7 +620,7 @@ describe("EncryptService", () => {
           "sha1",
         );
 
-        expect(actual.key).toEqualBuffer(data);
+        expect(actual.toEncoded()).toEqualBuffer(data);
       });
     });
   });

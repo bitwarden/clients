@@ -3,9 +3,12 @@ import { html } from "lit";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { Option, OrgView, FolderView } from "../common-types";
-import { Business, Family, Folder, User } from "../icons";
+import { Option, OrgView, FolderView, CollectionView } from "../common-types";
+import { Business, Family, Folder, User, CollectionShared } from "../icons";
 import { ButtonRow } from "../rows/button-row";
+import { selectedCollection as selectedCollectionSignal } from "../signals/selected-collection";
+import { selectedFolder as selectedFolderSignal } from "../signals/selected-folder";
+import { selectedVault as selectedVaultSignal } from "../signals/selected-vault";
 
 function getVaultIconByProductTier(productTierType?: ProductTierType): Option["icon"] {
   switch (productTierType) {
@@ -22,17 +25,21 @@ function getVaultIconByProductTier(productTierType?: ProductTierType): Option["i
 }
 
 export type NotificationButtonRowProps = {
-  theme: Theme;
+  folders?: FolderView[];
+  i18n: { [key: string]: string };
+  organizations?: OrgView[];
   primaryButton: {
     text: string;
     handlePrimaryButtonClick: (args: any) => void;
   };
-  folders?: FolderView[];
-  organizations?: OrgView[];
+  collections?: CollectionView[];
+  theme: Theme;
 };
 
 export function NotificationButtonRow({
   folders,
+  collections,
+  i18n,
   organizations,
   primaryButton,
   theme,
@@ -40,7 +47,7 @@ export function NotificationButtonRow({
   const currentUserVaultOption: Option = {
     icon: User,
     default: true,
-    text: "My vault", // @TODO localize
+    text: i18n.myVault,
     value: "0",
   };
   const organizationOptions: Option[] = organizations?.length
@@ -75,6 +82,21 @@ export function NotificationButtonRow({
       )
     : [];
 
+  const collectionOptions: Option[] = collections?.length
+    ? collections.reduce<Option[]>(
+        (options, { id, name }: any) => [
+          ...options,
+          {
+            icon: CollectionShared,
+            text: name,
+            value: id === null ? "0" : id,
+            default: id === null,
+          },
+        ],
+        [],
+      )
+    : [];
+
   return html`
     ${ButtonRow({
       theme,
@@ -84,17 +106,29 @@ export function NotificationButtonRow({
           ? [
               {
                 id: "organization",
-                label: "Vault", // @TODO localize
+                label: i18n.vault,
                 options: organizationOptions,
+                selectedSignal: selectedVaultSignal,
               },
             ]
           : []),
-        ...(folderOptions.length > 1
+        ...(folderOptions.length > 1 && !collectionOptions.length
           ? [
               {
                 id: "folder",
-                label: "Folder", // @TODO localize
+                label: i18n.folder,
                 options: folderOptions,
+                selectedSignal: selectedFolderSignal,
+              },
+            ]
+          : []),
+        ...(collectionOptions.length > 1
+          ? [
+              {
+                id: "collection",
+                label: "Collection", // @TODO localize
+                options: collectionOptions,
+                selectedSignal: selectedCollectionSignal,
               },
             ]
           : []),

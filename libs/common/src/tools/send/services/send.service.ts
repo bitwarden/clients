@@ -50,7 +50,7 @@ export class SendService implements InternalSendServiceAbstraction {
     model: SendView,
     file: File | ArrayBuffer,
     password: string,
-    key?: SymmetricCryptoKey,
+    userKey?: SymmetricCryptoKey,
   ): Promise<[Send, EncArrayBuffer]> {
     let fileData: EncArrayBuffer = null;
     const send = new Send();
@@ -62,15 +62,19 @@ export class SendService implements InternalSendServiceAbstraction {
     send.deletionDate = model.deletionDate;
     send.expirationDate = model.expirationDate;
     if (model.key == null) {
+      // Sends use a seed, stored in the URL fragment. This seed is used to derive the key that is used for encryption.
       const key = await this.keyGenerationService.createKeyWithPurpose(
         128,
         this.sendKeyPurpose,
         this.sendKeySalt,
       );
+      // key.material is the seed that can be used to re-derive the key
       model.key = key.material;
       model.cryptoKey = key.derivedKey;
     }
     if (password != null) {
+      // Note: Despite being called key, the passwordKey is not used for encryption.
+      // It is used as a static proof that the client knows the password, and has the encryption key.
       const passwordKey = await this.keyGenerationService.deriveKeyFromPassword(
         password,
         model.key,
@@ -78,11 +82,11 @@ export class SendService implements InternalSendServiceAbstraction {
       );
       send.password = passwordKey.keyB64;
     }
-    if (key == null) {
-      key = await this.keyService.getUserKey();
+    if (userKey == null) {
+      userKey = await this.keyService.getUserKey();
     }
     // Key is not a SymmetricCryptoKey, but key material used to derive the cryptoKey
-    send.key = await this.encryptService.encrypt(model.key, key);
+    send.key = await this.encryptService.encrypt(model.key, userKey);
     send.name = await this.encryptService.encrypt(model.name, model.cryptoKey);
     send.notes = await this.encryptService.encrypt(model.notes, model.cryptoKey);
     if (send.type === SendType.Text) {

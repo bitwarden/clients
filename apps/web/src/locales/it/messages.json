@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Tutte le applicazioni"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden logo"
+  },
   "criticalApplications": {
     "message": "Applicazioni critiche"
   },
@@ -419,17 +422,8 @@
   "folder": {
     "message": "Cartella"
   },
-  "newCustomField": {
-    "message": "Nuovo campo personalizzato"
-  },
   "value": {
     "message": "Valore"
-  },
-  "dragToSort": {
-    "message": "Trascina per ordinare"
-  },
-  "dragToReorder": {
-    "message": "Trascina per riordinare"
   },
   "cfTypeText": {
     "message": "Testo"
@@ -7276,6 +7270,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Segui i passaggi qui sotto per completare l'accesso."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
+  },
   "launchDuo": {
     "message": "Avvia DUO"
   },
@@ -10601,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Non consentire ai membri di sbloccare il proprio account con un PIN."
   },
-  "limitedEventLogs": {
-    "message": "I piani $PRODUCT_TYPE$ non hanno accesso ai registri degli eventi reali",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Ottieni pieno accesso ai registri degli eventi dell'organizzazione aggiornando a un piano Teams o Enterprise."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Aggiorna per i dati del registro eventi reali"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "Questi eventi sono solo esempi e non riflettono eventi reali all'interno della tua organizzazione Bitwarden."
@@ -10630,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "New business unit"
+  },
+  "restart": {
+    "message": "Restart"
   }
 }
