@@ -494,7 +494,11 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   };
 
   get showChangePlanButton() {
-    return this.sub.plan.productTier !== ProductTierType.Enterprise && !this.showChangePlan;
+    return (
+      !this.showChangePlan &&
+      this.sub.plan.productTier !== ProductTierType.Enterprise &&
+      !this.sub.subscription.cancelled
+    );
   }
 
   get canUseBillingSync() {

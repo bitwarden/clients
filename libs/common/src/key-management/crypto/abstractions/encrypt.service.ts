@@ -43,11 +43,12 @@ export abstract class EncryptService {
    * sensitive information like encryption keys or data. This is used for logging when decryption errors occur in order to identify what failed to decrypt
    * @returns The decrypted Uint8Array
    */
-  // abstract decryptToBytes(
-  //   encThing: Encrypted,
-  //   key: SymmetricCryptoKey,
-  //   decryptTrace?: string,
-  // ): Promise<Uint8Array | null>;
+  abstract decryptToBytes(
+    encThing: Encrypted,
+    key: SymmetricCryptoKey,
+    decryptTrace?: string,
+  ): Promise<Uint8Array | null>;
+
   /**
    * @deprecated Replaced by BulkEncryptService, remove once the feature is tested and the featureflag PM-4154-multi-worker-encryption-service is removed
    * @param items The items to decrypt
