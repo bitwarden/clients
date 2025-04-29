@@ -16,6 +16,7 @@ export enum FeatureFlag {
   AccountDeprovisioningBanner = "pm-17120-account-deprovisioning-admin-console-banner",
 
   /* Auth */
+  PM16117_SetInitialPasswordRefactor = "pm-16117-set-initial-password-refactor",
   PM9112_DeviceApprovalPersistence = "pm-9112-device-approval-persistence",
   PM9115_TwoFactorExtensionDataPersistence = "pm-9115-two-factor-extension-data-persistence",
 
@@ -113,6 +114,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EndUserNotifications]: FALSE,
 
   /* Auth */
+  [FeatureFlag.PM16117_SetInitialPasswordRefactor]: FALSE,
   [FeatureFlag.PM9112_DeviceApprovalPersistence]: FALSE,
   [FeatureFlag.PM9115_TwoFactorExtensionDataPersistence]: FALSE,
 
