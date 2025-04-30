@@ -14,7 +14,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { StateProvider } from "@bitwarden/common/platform/state";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -49,13 +49,7 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
     private toastService: ToastService,
     private organizationSponsorshipApiService: OrganizationSponsorshipApiServiceAbstraction,
     private stateProvider: StateProvider,
-  ) {
-    this.organizationKey$ = this.stateProvider.activeUserId$.pipe(
-      switchMap((userId) => this.keyService.orgKeys$(userId)),
-      map((organizationKeysById) => organizationKeysById[this.organizationId as OrganizationId]),
-      takeUntilDestroyed(),
-    );
-  }
+  ) {}
 
   async ngOnInit() {
     this.locale = await firstValueFrom(this.i18nService.locale$);
@@ -63,6 +57,12 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       this.organizationId = params.organizationId || "";
     });
+
+    this.organizationKey$ = this.stateProvider.activeUserId$.pipe(
+      switchMap((userId: UserId) => this.keyService.orgKeys$(userId)),
+      map((organizationKeysById) => organizationKeysById[this.organizationId as OrganizationId]),
+      takeUntilDestroyed(),
+    );
 
     await this.loadSponsorships();
 
