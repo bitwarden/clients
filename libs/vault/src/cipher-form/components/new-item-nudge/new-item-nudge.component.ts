@@ -19,11 +19,11 @@ import { VaultNudgesService, VaultNudgeType } from "../../../services/vault-nudg
 })
 export class NewItemNudgeComponent implements OnInit {
   @Input({ required: true }) configType: CipherType | null = null;
-  protected showNewItemSpotlight: boolean = false;
-  protected activeUserId: UserId | null = null;
-  protected nudgeTitle: string = "";
-  protected nudgeBody: string = "";
-  protected dismissalNudgeType: VaultNudgeType | null = null;
+  activeUserId: UserId | null = null;
+  showNewItemSpotlight: boolean = false;
+  nudgeTitle: string = "";
+  nudgeBody: string = "";
+  dismissalNudgeType: VaultNudgeType | null = null;
 
   constructor(
     private i18nService: I18nService,
@@ -105,7 +105,7 @@ export class NewItemNudgeComponent implements OnInit {
     this.showNewItemSpotlight = false;
   }
 
-  async dismissNewItemNudgeNudge() {
+  async dismissNewItemSpotlight() {
     if (this.dismissalNudgeType && this.activeUserId) {
       await this.vaultNudgesService.dismissNudge(
         this.dismissalNudgeType,
@@ -115,10 +115,7 @@ export class NewItemNudgeComponent implements OnInit {
     }
   }
 
-  private async checkHasSpotlightDismissed(
-    nudgeType: VaultNudgeType,
-    userId: UserId,
-  ): Promise<boolean> {
+  async checkHasSpotlightDismissed(nudgeType: VaultNudgeType, userId: UserId): Promise<boolean> {
     return !(await firstValueFrom(this.vaultNudgesService.showNudge$(nudgeType, userId)))
       .hasSpotlightDismissed;
   }
