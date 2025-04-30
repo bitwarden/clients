@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 
-import { Component, HostBinding, Input } from "@angular/core";
+import { Component, HostBinding, input } from "@angular/core";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
@@ -17,7 +17,7 @@ enum CharacterType {
   template: `@for (character of passwordArray; track $index; let i = $index) {
     <span [class]="getCharacterClass(character)">
       <span>{{ character }}</span>
-      @if (showCount) {
+      @if (showCount()) {
         <span class="tw-whitespace-nowrap tw-text-xs tw-leading-5 tw-text-main">{{ i + 1 }}</span>
       }
     </span>
@@ -25,8 +25,8 @@ enum CharacterType {
   standalone: true,
 })
 export class ColorPasswordComponent {
-  @Input() password: string = null;
-  @Input() showCount = false;
+  password = input<string>("");
+  showCount = input<boolean>(false);
 
   characterStyles: Record<CharacterType, string[]> = {
     [CharacterType.Emoji]: [],
@@ -42,14 +42,14 @@ export class ColorPasswordComponent {
 
   get passwordArray() {
     // Convert to an array to handle cases that strings have special characters, i.e.: emoji.
-    return Array.from(this.password);
+    return Array.from(this.password());
   }
 
   getCharacterClass(character: string) {
     const charType = this.getCharacterType(character);
     const charClass = this.characterStyles[charType];
 
-    if (this.showCount) {
+    if (this.showCount()) {
       return charClass.concat([
         "tw-inline-flex",
         "tw-flex-col",
