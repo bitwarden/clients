@@ -1,6 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-
 import { Component, HostBinding, input } from "@angular/core";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -41,6 +38,9 @@ export class ColorPasswordComponent {
   }
 
   get passwordArray() {
+    if (this.password() == null) {
+      return [];
+    }
     // Convert to an array to handle cases that strings have special characters, i.e.: emoji.
     return Array.from(this.password());
   }
