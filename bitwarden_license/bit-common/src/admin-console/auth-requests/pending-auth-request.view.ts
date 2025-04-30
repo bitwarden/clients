@@ -15,7 +15,6 @@ export class PendingAuthRequestView implements View {
   requestIpAddress: string;
   requestCountryName: string;
   creationDate: Date;
-  fingerprintPhrase: string;
 
   static fromResponse(response: PendingOrganizationAuthRequestResponse): PendingAuthRequestView {
     const view = Object.assign(new PendingAuthRequestView(), response) as PendingAuthRequestView;

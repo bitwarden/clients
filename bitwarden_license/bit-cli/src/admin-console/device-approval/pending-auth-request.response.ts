@@ -1,5 +1,5 @@
-import { PendingAuthRequestView } from "@bitwarden/bit-common/admin-console/auth-requests/";
 import { BaseResponse } from "@bitwarden/cli/models/response/base.response";
+import { PendingAuthRequestWithDetailsView } from "@bitwarden/bit-common/admin-console/auth-requests/";
 
 export class PendingAuthRequestResponse implements BaseResponse {
   object = "auth-request";
@@ -14,7 +14,7 @@ export class PendingAuthRequestResponse implements BaseResponse {
   creationDate: Date;
   fingerprintPhrase: string;
 
-  constructor(authRequest: PendingAuthRequestView) {
+  constructor(authRequest: PendingAuthRequestWithDetailsView) {
     this.id = authRequest.id;
     this.userId = authRequest.userId;
     this.organizationUserId = authRequest.organizationUserId;

@@ -11,6 +11,7 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationAuthRequestApiService } from "./organization-auth-request-api.service";
 import { OrganizationAuthRequestUpdateRequest } from "./organization-auth-request-update.request";
+import { PendingAuthRequestWithDetailsView } from "./pending-auth-request-with-details.view";
 import { PendingAuthRequestView } from "./pending-auth-request.view";
 
 export class OrganizationAuthRequestService {
@@ -23,6 +24,16 @@ export class OrganizationAuthRequestService {
 
   async listPendingRequests(organizationId: string): Promise<PendingAuthRequestView[]> {
     return await this.organizationAuthRequestApiService.listPendingRequests(organizationId);
+  }
+
+  async listPendingRequestsWithDetails(
+    organizationId: string,
+  ): Promise<PendingAuthRequestWithDetailsView[]> {
+    return Promise.all(
+      ((await this.listPendingRequests(organizationId)) ?? []).map(
+        async (r) => await PendingAuthRequestWithDetailsView.fromView(r, this.keyService),
+      ),
+    );
   }
 
   async denyPendingRequests(organizationId: string, ...requestIds: string[]): Promise<void> {
