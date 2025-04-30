@@ -227,5 +227,9 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     await this.vaultNudgesService.dismissNudge(type, this.activeUserId as UserId);
   }
 
+  async navigateToNewLoginItem() {
+    await this.router.navigate(["/add-cipher"]);
+  }
+
   protected readonly FeatureFlag = FeatureFlag;
 }
