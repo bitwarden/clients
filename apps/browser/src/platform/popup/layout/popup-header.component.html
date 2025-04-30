@@ -1,5 +1,5 @@
 <header
-  class="tw-p-3 bit-compact:tw-p-2 tw-pl-4 bit-compact:tw-pl-3 tw-transition-colors tw-duration-200 tw-border-0 tw-border-b tw-border-solid"
+  class="tw-p-1.5 bit-compact:tw-p-1 tw-pl-2 bit-compact:tw-pl-1.5 tw-transition-colors tw-duration-200 tw-border-0 tw-border-b tw-border-solid"
   [ngClass]="{
     'tw-bg-background-alt tw-border-transparent':
       this.background === 'alt' && !pageContentScrolled(),
@@ -8,9 +8,9 @@
   }"
 >
   <div class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-justify-between tw-w-full">
-    <div class="tw-inline-flex tw-items-center tw-gap-2 tw-h-9">
+    <div class="tw-inline-flex tw-items-center tw-gap-1.5 tw-h-5">
       <button
-        class="-tw-ml-1"
+        class="-tw-ml-0.5"
         bitIconButton="bwi-back"
         type="button"
         *ngIf="showBackButton"
@@ -18,12 +18,12 @@
         [attr.aria-label]="'back' | i18n"
         [bitAction]="backAction"
       ></button>
-      <h1 *ngIf="pageTitle" bitTypography="h3" class="!tw-mb-0.5">
+      <h1 *ngIf="pageTitle" bitTypography="h4" class="!tw-mb-0">
         {{ pageTitle }}
       </h1>
       <ng-content></ng-content>
     </div>
-    <div class="tw-inline-flex tw-items-center tw-gap-2 tw-h-9">
+    <div class="tw-inline-flex tw-items-center tw-gap-1.5 tw-h-5">
       <ng-content select="[slot=end]"></ng-content>
     </div>
   </div>
