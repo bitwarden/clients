@@ -393,6 +393,64 @@
   "authenticatorKeyTotp": {
     "message": "验证器密钥 (TOTP)"
   },
+  "authenticatorKey": {
+    "message": "Authenticator key"
+  },
+  "autofillOptions": {
+    "message": "Autofill options"
+  },
+  "websiteUri": {
+    "message": "Website (URI)"
+  },
+  "websiteUriCount": {
+    "message": "Website (URI) $COUNT$",
+    "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "websiteAdded": {
+    "message": "Website added"
+  },
+  "addWebsite": {
+    "message": "Add website"
+  },
+  "deleteWebsite": {
+    "message": "Delete website"
+  },
+  "owner": {
+    "message": "Owner"
+  },
+  "addField": {
+    "message": "Add field"
+  },
+  "fieldType": {
+    "message": "Field type"
+  },
+  "fieldLabel": {
+    "message": "Field label"
+  },
+  "add": {
+    "message": "Add"
+  },
+  "textHelpText": {
+    "message": "Use text fields for data like security questions"
+  },
+  "hiddenHelpText": {
+    "message": "Use hidden fields for sensitive data like a password"
+  },
+  "checkBoxHelpText": {
+    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
+  },
+  "linkedHelpText": {
+    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+  },
+  "linkedLabelHelpText": {
+    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+  },
   "folder": {
     "message": "文件夹"
   },
@@ -417,6 +475,9 @@
   "cfTypeLinked": {
     "message": "链接型",
     "description": "This describes a field that is 'linked' (related) to another field."
+  },
+  "cfTypeCheckbox": {
+    "message": "Checkbox"
   },
   "linkedValue": {
     "message": "链接的值",
@@ -1623,19 +1684,19 @@
     "message": "此密码将用于导出和导入此文件"
   },
   "accountRestrictedOptionDescription": {
-    "message": "使用衍生自您账户的用户名和主密码的账户加密密钥，以加密此导出并限制只能导入到当前的 Bitwarden 账户。"
+    "message": "使用衍生自您账户用户名和主密码的加密密钥以加密此导出，并限制只能导入到当前 Bitwarden 账户。"
   },
   "passwordProtected": {
     "message": "密码保护"
   },
   "passwordProtectedOptionDescription": {
-    "message": "设置一个文件密码用来加密此导出，并使用此密码解密以导入到任意 Bitwarden 账户。"
+    "message": "设置一个文件密码以加密此导出，并使用此密码解密以导入到任意 Bitwarden 账户。"
   },
   "exportTypeHeading": {
     "message": "导出类型"
   },
   "accountRestricted": {
-    "message": "账户受限"
+    "message": "账户限制"
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "「文件密码」与「确认文件密码」不一致。"
@@ -1672,7 +1733,7 @@
     "message": "无障碍 Cookie 已保存！"
   },
   "noAccessibilityCookieSaved": {
-    "message": "无障碍 Cookie 未保存！"
+    "message": "未保存任何无障碍 Cookie！"
   },
   "warning": {
     "message": "警告",
@@ -1915,6 +1976,43 @@
       }
     }
   },
+  "cardDetails": {
+    "message": "Card details"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ details",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "learnMoreAboutAuthenticators": {
+    "message": "Learn more about authenticators"
+  },
+  "copyTOTP": {
+    "message": "Copy Authenticator key (TOTP)"
+  },
+  "totpHelperTitle": {
+    "message": "Make 2-step verification seamless"
+  },
+  "totpHelper": {
+    "message": "Bitwarden 可以存储并填充两步验证码。将密钥复制并粘贴到此字段。"
+  },
+  "totpHelperWithCapture": {
+    "message": "Bitwarden 可以存储并填充两步验证码。选择相机图标来拍摄此网站的验证器二维码，或将密钥复制并粘贴到此字段。"
+  },
+  "premium": {
+    "message": "Premium",
+    "description": "Premium membership"
+  },
+  "cardExpiredTitle": {
+    "message": "Expired card"
+  },
+  "cardExpiredMessage": {
+    "message": "If you've renewed it, update the card's information"
+  },
   "verificationRequired": {
     "message": "需要验证",
     "description": "Default title for the user verification dialog."
@@ -1980,7 +2078,7 @@
     "message": "随时。"
   },
   "byContinuingYouAgreeToThe": {
-    "message": "若继续，代表您同意"
+    "message": "若继续，表示您同意"
   },
   "and": {
     "message": "和"
@@ -2072,6 +2170,9 @@
   "personalOwnershipSubmitError": {
     "message": "由于某个企业策略，您不能将项目保存到您的个人密码库。将所有权选项更改为组织，并从可用的集合中选择。"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "您的新密码不能与当前密码相同。"
+  },
   "hintEqualsPassword": {
     "message": "您的密码提示不能与您的密码相同。"
   },
@@ -2080,6 +2181,15 @@
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "组织策略已阻止将项目导入您的个人密码库。"
+  },
+  "personalDetails": {
+    "message": "Personal details"
+  },
+  "identification": {
+    "message": "Identification"
+  },
+  "contactInfo": {
+    "message": "Contact information"
   },
   "allSends": {
     "message": "所有的 Send",
@@ -2515,6 +2625,9 @@
   "generateEmail": {
     "message": "生成电子邮箱"
   },
+  "usernameGenerator": {
+    "message": "Username generator"
+  },
   "spinboxBoundariesHint": {
     "message": "值必须在 $MIN$ 和 $MAX$ 之间。",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -2913,7 +3026,7 @@
     "message": "然后继续创建您的账户。"
   },
   "noEmail": {
-    "message": "没收到电子邮件吗？"
+    "message": "没有收到电子邮件吗？"
   },
   "goBack": {
     "message": "返回"
@@ -3209,6 +3322,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "按照以下步骤完成登录。"
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "请按照下面的步骤，使用您的安全密钥完成登录。"
+  },
   "launchDuo": {
     "message": "在浏览器中启动 Duo"
   },
@@ -3431,7 +3547,18 @@
     "message": "文本 Send"
   },
   "ssoError": {
-    "message": "找不到用于 SSO 登录的可用端口。"
+    "message": "未找到用于 SSO 登录的空闲端口。"
+  },
+  "securePasswordGenerated": {
+    "message": "安全的密码生成好了！别忘了在网站上也更新一下您的密码。"
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Use the generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "to create a strong unique password",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "生物识别解锁不可用，因为需要先使用 PIN 或密码解锁。"
@@ -3510,6 +3637,27 @@
   },
   "setupTwoStepLogin": {
     "message": "设置两步登录"
+  },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "最后编辑于"
+  },
+  "upload": {
+    "message": "上传"
   },
   "newDeviceVerificationNoticeContentPage1": {
     "message": "从 2025 年 02 月起，当有来自新设备的登录时，Bitwarden 将向您的账户电子邮箱发送验证码。"

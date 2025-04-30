@@ -69,6 +69,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import {
+  AttachmentDialogResult,
+  AttachmentsV2Component,
   CipherFormConfig,
   CipherFormConfigService,
   CollectionAssignmentResult,
@@ -92,10 +94,6 @@ import {
 } from "../../../vault/components/vault-item-dialog/vault-item-dialog.component";
 import { VaultItemEvent } from "../../../vault/components/vault-items/vault-item-event";
 import { VaultItemsModule } from "../../../vault/components/vault-items/vault-items.module";
-import {
-  AttachmentDialogResult,
-  AttachmentsV2Component,
-} from "../../../vault/individual-vault/attachments-v2.component";
 import {
   BulkDeleteDialogResult,
   openBulkDeleteDialog,
@@ -123,7 +121,7 @@ import {
   BulkCollectionsDialogResult,
 } from "./bulk-collections-dialog";
 import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
-import { getNestedCollectionTree } from "./utils";
+import { getNestedCollectionTree, getFlatCollectionTree } from "./utils";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 
@@ -434,23 +432,33 @@ export class VaultComponent implements OnInit, OnDestroy {
         }
 
         this.showAddAccessToggle = false;
-        let collectionsToReturn = [];
+        let searchableCollectionNodes: TreeNode<CollectionAdminView>[] = [];
         if (filter.collectionId === undefined || filter.collectionId === All) {
-          collectionsToReturn = collections.map((c) => c.node);
+          searchableCollectionNodes = collections;
         } else {
           const selectedCollection = ServiceUtils.getTreeNodeObjectFromList(
             collections,
             filter.collectionId,
           );
-          collectionsToReturn = selectedCollection?.children.map((c) => c.node) ?? [];
+          searchableCollectionNodes = selectedCollection?.children ?? [];
         }
 
+        let collectionsToReturn: CollectionAdminView[] = [];
+
         if (await this.searchService.isSearchable(this.userId, searchText)) {
+          // Flatten the tree for searching through all levels
+          const flatCollectionTree: CollectionAdminView[] =
+            getFlatCollectionTree(searchableCollectionNodes);
+
           collectionsToReturn = this.searchPipe.transform(
-            collectionsToReturn,
+            flatCollectionTree,
             searchText,
-            (collection: CollectionAdminView) => collection.name,
-            (collection: CollectionAdminView) => collection.id,
+            (collection) => collection.name,
+            (collection) => collection.id,
+          );
+        } else {
+          collectionsToReturn = searchableCollectionNodes.map(
+            (treeNode: TreeNode<CollectionAdminView>): CollectionAdminView => treeNode.node,
           );
         }
 
@@ -811,6 +819,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
       cipherId: cipher.id as CipherId,
+      organizationId: cipher.organizationId as OrganizationId,
     });
 
     const result = await firstValueFrom(dialogRef.closed);
