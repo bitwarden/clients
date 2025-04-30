@@ -3,7 +3,7 @@ import { formatDate } from "@angular/common";
 import { Component, OnInit, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, map, Observable, Subject, switchMap, takeUntil } from "rxjs";
+import { firstValueFrom, map, Observable, Subject, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationSponsorshipApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-sponsorship-api.service.abstraction";
@@ -49,21 +49,20 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
     private toastService: ToastService,
     private organizationSponsorshipApiService: OrganizationSponsorshipApiServiceAbstraction,
     private stateProvider: StateProvider,
-  ) {}
-
-  async ngOnInit() {
-    this.locale = await firstValueFrom(this.i18nService.locale$);
-
-    this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      this.organizationId = params.organizationId || "";
-    });
-
+  ) {
+    this.organizationId = this.route.snapshot.params.organizationId || "";
     this.organizationKey$ = this.stateProvider.activeUserId$.pipe(
-      switchMap((userId: UserId) => this.keyService.orgKeys$(userId)),
+      switchMap(
+        (userId) =>
+          this.keyService.orgKeys$(userId as UserId) as Observable<Record<OrganizationId, OrgKey>>,
+      ),
       map((organizationKeysById) => organizationKeysById[this.organizationId as OrganizationId]),
       takeUntilDestroyed(),
     );
+  }
 
+  async ngOnInit() {
+    this.locale = await firstValueFrom(this.i18nService.locale$);
     await this.loadSponsorships();
 
     this.loading.set(false);
