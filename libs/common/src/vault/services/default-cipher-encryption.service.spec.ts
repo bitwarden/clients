@@ -363,7 +363,7 @@ describe("DefaultCipherEncryptionService", () => {
 
       configService.getFeatureFlag.mockResolvedValue(false);
       EncArrayBuffer.fromResponse = jest.fn().mockResolvedValue(mockEncBuf);
-      encryptService.decryptToBytes.mockResolvedValue(expectedDecryptedContent);
+      encryptService.decryptFileData.mockResolvedValue(expectedDecryptedContent);
 
       const result = await cipherEncryptionService.getDecryptedAttachmentBuffer(
         cipher,
@@ -374,7 +374,7 @@ describe("DefaultCipherEncryptionService", () => {
 
       expect(result).toEqual(expectedDecryptedContent);
       expect(EncArrayBuffer.fromResponse).toHaveBeenCalledWith(mockResponse);
-      expect(encryptService.decryptToBytes).toHaveBeenCalledWith(mockEncBuf, attachment.key);
+      expect(encryptService.decryptFileData).toHaveBeenCalledWith(mockEncBuf, attachment.key);
     });
   });
 });
