@@ -144,8 +144,8 @@ const disabledStyles: Record<IconButtonType, string[]> = {
 export type IconButtonSize = "default" | "small";
 
 const sizes: Record<IconButtonSize, string[]> = {
-  default: ["tw-px-2.5", "tw-py-1.5"],
-  small: ["tw-leading-none", "tw-text-base", "tw-p-1"],
+  default: ["tw-px-1.5", "tw-py-1"], // Reduced from px-2.5 py-1.5
+  small: ["tw-leading-none", "tw-text-sm", "tw-p-0.5"], // Reduced from text-base p-1
 };
 
 @Component({
