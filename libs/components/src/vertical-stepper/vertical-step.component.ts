@@ -1,6 +1,6 @@
 import { CdkStep } from "@angular/cdk/stepper";
 import { CommonModule } from "@angular/common";
-import { Component, Input } from "@angular/core";
+import { Component, input } from "@angular/core";
 
 @Component({
   selector: "bit-vertical-step",
@@ -10,6 +10,6 @@ import { Component, Input } from "@angular/core";
   imports: [CommonModule],
 })
 export class VerticalStep extends CdkStep {
-  @Input() subLabel = "";
-  @Input() applyBorder = true;
+  subLabel = input();
+  applyBorder = input<boolean>(true);
 }
