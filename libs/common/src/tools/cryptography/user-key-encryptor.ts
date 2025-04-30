@@ -37,7 +37,7 @@ export class UserKeyEncryptor extends UserEncryptor {
     this.assertHasValue("secret", secret);
 
     let packed = this.dataPacker.pack(secret);
-    const encrypted = await this.encryptService.encrypt(packed, this.key);
+    const encrypted = await this.encryptService.encryptString(packed, this.key);
     packed = null;
 
     return encrypted;
@@ -46,7 +46,7 @@ export class UserKeyEncryptor extends UserEncryptor {
   async decrypt<Secret>(secret: EncString): Promise<Jsonify<Secret>> {
     this.assertHasValue("secret", secret);
 
-    let decrypted = await this.encryptService.decryptToUtf8(secret, this.key);
+    let decrypted = await this.encryptService.decryptString(secret, this.key);
     const unpacked = this.dataPacker.unpack<Secret>(decrypted);
     decrypted = null;
 

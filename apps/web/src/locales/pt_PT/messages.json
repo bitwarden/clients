@@ -422,17 +422,8 @@
   "folder": {
     "message": "Pasta"
   },
-  "newCustomField": {
-    "message": "Novo campo personalizado"
-  },
   "value": {
     "message": "Valor"
-  },
-  "dragToSort": {
-    "message": "Arraste para ordenar"
-  },
-  "dragToReorder": {
-    "message": "Arraste para reordenar"
   },
   "cfTypeText": {
     "message": "Texto"
@@ -10607,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Não permitir que os membros desbloqueiem a sua conta com um PIN."
   },
-  "limitedEventLogs": {
-    "message": "Os planos $PRODUCT_TYPE$ não têm acesso a registos de eventos reais",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Os registos de eventos não são armazenados para a sua organização. Atualize para um plano Equipas ou Empresarial para obter acesso total aos registos de eventos da organização."
   },
-  "upgradeForFullEvents": {
-    "message": "Obtenha acesso total aos registos de eventos da organização ao atualizar para um plano Equipas ou Empresarial."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Atualizar para dados de registo de eventos reais"
+  "upgradeEventLogTitleMessage": {
+    "message": "Atualize para ver os registos de eventos da sua organização."
   },
   "upgradeEventLogMessage": {
     "message": "Estes eventos são apenas exemplos e não refletem eventos reais na sua organização Bitwarden."
@@ -10636,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "Nova unidade de negócio"
+  },
+  "restart": {
+    "message": "Reiniciar"
   }
 }

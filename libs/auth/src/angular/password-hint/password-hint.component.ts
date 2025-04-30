@@ -79,7 +79,7 @@ export class PasswordHintComponent implements OnInit {
   };
 
   protected async cancel() {
-    this.loginEmailService.setLoginEmail(this.email);
+    await this.loginEmailService.setLoginEmail(this.email);
     await this.router.navigate(["login"]);
   }
 
