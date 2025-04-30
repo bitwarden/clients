@@ -38,7 +38,7 @@ export const ClearClipboardDelay = {
   FiveMinutes: 300,
 } as const;
 
-/* Context Menu item Ids */
+/* Ids for context menu items and messaging events */
 export const AUTOFILL_CARD_ID = "autofill-card";
 export const AUTOFILL_ID = "autofill";
 export const SHOW_AUTOFILL_BUTTON = "show-autofill-button";
@@ -54,6 +54,7 @@ export const GENERATE_PASSWORD_ID = "generate-password";
 export const NOOP_COMMAND_SUFFIX = "noop";
 export const ROOT_ID = "root";
 export const SEPARATOR_ID = "separator";
+export const UPDATE_PASSWORD = "update-password";
 
 export const NOTIFICATION_BAR_LIFESPAN_MS = 150000; // 150 seconds
 
