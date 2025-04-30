@@ -31,15 +31,6 @@ interface RequestSponsorshipForm {
   sponsorshipNote: FormControl<string | null>;
 }
 
-export interface AddSponsorshipDialogResult {
-  action: AddSponsorshipDialogAction;
-}
-
-enum AddSponsorshipDialogAction {
-  Saved = "saved",
-  Canceled = "canceled",
-}
-
 interface AddSponsorshipDialogParams {
   organizationId: string;
 }
@@ -60,10 +51,9 @@ export class AddSponsorshipDialogComponent {
   sponsorshipForm: FormGroup<RequestSponsorshipForm>;
   loading = false;
   organizationId: string;
-  formPromise: Promise<void> | null = null;
 
   constructor(
-    private dialogRef: DialogRef<AddSponsorshipDialogResult>,
+    private dialogRef: DialogRef,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
     private organizationUserApiService: OrganizationUserApiService,
@@ -86,10 +76,10 @@ export class AddSponsorshipDialogComponent {
   }
 
   static open(dialogService: DialogService, config: DialogConfig<AddSponsorshipDialogParams>) {
-    return dialogService.open<AddSponsorshipDialogResult>(AddSponsorshipDialogComponent, {
+    return dialogService.open(AddSponsorshipDialogComponent, {
       ...config,
       data: config.data,
-    } as unknown as DialogConfig<unknown, DialogRef<AddSponsorshipDialogResult, unknown>>);
+    } as unknown as DialogConfig<unknown, DialogRef>);
   }
 
   protected async save() {
@@ -109,7 +99,7 @@ export class AddSponsorshipDialogComponent {
 
       const encryptedNotes = await this.encryptService.encrypt(notes, orgKey);
       const isAdminInitiated = true;
-      this.formPromise = this.apiService.postCreateSponsorship(this.organizationId, {
+      await this.apiService.postCreateSponsorship(this.organizationId, {
         sponsoredEmail: email,
         planSponsorshipType: PlanSponsorshipType.FamiliesForEnterprise,
         friendlyName: email,
@@ -117,14 +107,11 @@ export class AddSponsorshipDialogComponent {
         notes: encryptedNotes.encryptedString,
       });
 
-      await this.formPromise;
-
       this.toastService.showToast({
         variant: "success",
         title: undefined,
         message: this.i18nService.t("sponsorshipCreated"),
       });
-      this.formPromise = null;
       await this.resetForm();
     } catch (e: any) {
       this.toastService.showToast({
@@ -136,18 +123,12 @@ export class AddSponsorshipDialogComponent {
 
     this.loading = false;
 
-    this.dialogRef.close({
-      action: AddSponsorshipDialogAction.Saved,
-    });
+    this.dialogRef.close();
   }
 
   private async resetForm() {
     this.sponsorshipForm.reset();
   }
-
-  protected close = () => {
-    this.dialogRef.close({ action: AddSponsorshipDialogAction.Canceled });
-  };
 
   get sponsorshipEmailControl() {
     return this.sponsorshipForm.controls.sponsorshipEmail;

@@ -15,17 +15,14 @@ import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
-import {
-  AddSponsorshipDialogComponent,
-  AddSponsorshipDialogResult,
-} from "./add-sponsorship-dialog.component";
+import { AddSponsorshipDialogComponent } from "./add-sponsorship-dialog.component";
 
 @Component({
   selector: "app-free-bitwarden-families",
   templateUrl: "free-bitwarden-families.component.html",
 })
 export class FreeBitwardenFamiliesComponent implements OnInit {
-  loading = signal<boolean>(false);
+  loading = signal<boolean>(true);
   tabIndex = 0;
   sponsoredFamilies: OrganizationSponsorshipInvitesResponse[] = [];
 
@@ -54,9 +51,6 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       this.organizationId = params.organizationId || "";
     });
-    this.organizationId = this.route.snapshot.params.organizationId || "";
-
-    this.loading.set(true);
 
     await this.loadSponsorships();
 
@@ -92,7 +86,7 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
           this.logService.error(e);
         }
 
-        const { statusMessage, statusClass } = this.setStatus(
+        const { statusMessage, statusClass } = this.getStatus(
           this.isSelfHosted,
           family.toDelete,
           family.validUntil,
@@ -114,10 +108,12 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
   }
 
   async addSponsorship() {
-    const addSponsorshipDialogRef: DialogRef<AddSponsorshipDialogResult> =
-      AddSponsorshipDialogComponent.open(this.dialogService, {
+    const addSponsorshipDialogRef: DialogRef = AddSponsorshipDialogComponent.open(
+      this.dialogService,
+      {
         data: { organizationId: this.organizationId },
-      });
+      },
+    );
 
     await firstValueFrom(addSponsorshipDialogRef.closed);
 
@@ -179,13 +175,13 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
     await this.loadSponsorships();
   }
 
-  private setStatus(
+  private getStatus(
     selfHosted: boolean,
     toDelete?: boolean,
     validUntil?: Date,
     lastSyncDate?: Date,
     locale: string = "",
-  ): { statusMessage: string; statusClass: string } {
+  ): { statusMessage: string; statusClass: "tw-text-success" | "tw-text-danger" } {
     /*
      * Possible Statuses:
      * Requested (self-hosted only)
@@ -195,42 +191,49 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
      * RevokeWhenExpired
      */
 
-    let statusMessage = this.i18nService.t("loading");
-    let statusClass: "tw-text-success" | "tw-text-danger" = "tw-text-success";
-
     if (toDelete && validUntil) {
       // They want to delete but there is a valid until date which means there is an active sponsorship
-      statusMessage = this.i18nService.t(
-        "revokeWhenExpired",
-        formatDate(validUntil, "MM/dd/yyyy", locale),
-      );
-      statusClass = "tw-text-danger";
+      return {
+        statusMessage: this.i18nService.t(
+          "revokeWhenExpired",
+          formatDate(validUntil, "MM/dd/yyyy", locale),
+        ),
+        statusClass: "tw-text-danger",
+      };
     } else if (toDelete) {
       // They want to delete and we don't have a valid until date so we can
       // this should only happen on a self-hosted install
-      statusMessage = this.i18nService.t("requestRemoved");
-      statusClass = "tw-text-danger";
+      return {
+        statusMessage: this.i18nService.t("requestRemoved"),
+        statusClass: "tw-text-danger",
+      };
     } else if (validUntil) {
       // They don't want to delete and they have a valid until date
       // that means they are actively sponsoring someone
-      statusMessage = this.i18nService.t("active");
-      statusClass = "tw-text-success";
+      return {
+        statusMessage: this.i18nService.t("active"),
+        statusClass: "tw-text-success",
+      };
     } else if (selfHosted && lastSyncDate) {
       // We are on a self-hosted install and it has been synced but we have not gotten
       // a valid until date so we can't know if they are actively sponsoring someone
-      statusMessage = this.i18nService.t("sent");
-      statusClass = "tw-text-success";
+      return {
+        statusMessage: this.i18nService.t("sent"),
+        statusClass: "tw-text-success",
+      };
     } else if (!selfHosted) {
       // We are in cloud and all other status checks have been false therefore we have
       // sent the request but it hasn't been accepted yet
-      statusMessage = this.i18nService.t("sent");
-      statusClass = "tw-text-success";
+      return {
+        statusMessage: this.i18nService.t("sent"),
+        statusClass: "tw-text-success",
+      };
     } else {
       // We are on a self-hosted install and we have not synced yet
-      statusMessage = this.i18nService.t("requested");
-      statusClass = "tw-text-success";
+      return {
+        statusMessage: this.i18nService.t("requested"),
+        statusClass: "tw-text-success",
+      };
     }
-
-    return { statusMessage, statusClass };
   }
 }
