@@ -17,6 +17,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
@@ -828,6 +829,7 @@ describe("NotificationBackground", () => {
             id: "testId",
             name: "testItemName",
             login: { username: "testUser" },
+            reprompt: CipherRepromptType.None,
           });
           getDecryptedCipherByIdSpy.mockResolvedValueOnce(cipherView);
 
@@ -842,6 +844,7 @@ describe("NotificationBackground", () => {
             message.edit,
             sender.tab,
             "testId",
+            false,
           );
           expect(updateWithServerSpy).toHaveBeenCalled();
           expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
@@ -905,6 +908,7 @@ describe("NotificationBackground", () => {
             id: mockCipherId,
             organizationId: mockOrgId,
             name: "Test Item",
+            reprompt: CipherRepromptType.None,
           });
           getDecryptedCipherByIdSpy.mockResolvedValueOnce(cipherView);
 
@@ -919,6 +923,7 @@ describe("NotificationBackground", () => {
             message.edit,
             sender.tab,
             mockCipherId,
+            false,
           );
           expect(updateWithServerSpy).toHaveBeenCalled();
           expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
@@ -1000,6 +1005,7 @@ describe("NotificationBackground", () => {
             message.edit,
             sender.tab,
             "testId",
+            false,
           );
           expect(editItemSpy).toHaveBeenCalled();
           expect(updateWithServerSpy).not.toHaveBeenCalled();
@@ -1170,7 +1176,7 @@ describe("NotificationBackground", () => {
             newPassword: "newPassword",
           });
           notificationBackground["notificationQueue"] = [queueMessage];
-          const cipherView = mock<CipherView>();
+          const cipherView = mock<CipherView>({ reprompt: CipherRepromptType.None });
           getDecryptedCipherByIdSpy.mockResolvedValueOnce(cipherView);
           const errorMessage = "fetch error";
           updateWithServerSpy.mockImplementation(() => {
