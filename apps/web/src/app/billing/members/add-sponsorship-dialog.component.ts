@@ -17,6 +17,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PlanSponsorshipType } from "@bitwarden/common/billing/enums";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { OrgKey } from "@bitwarden/common/types/key";
 import {
   ButtonModule,
   DialogModule,
@@ -24,7 +25,6 @@ import {
   FormFieldModule,
   ToastService,
 } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
 
 interface RequestSponsorshipForm {
   sponsorshipEmail: FormControl<string | null>;
@@ -33,6 +33,7 @@ interface RequestSponsorshipForm {
 
 interface AddSponsorshipDialogParams {
   organizationId: string;
+  organizationKey: OrgKey;
 }
 
 @Component({
@@ -51,6 +52,7 @@ export class AddSponsorshipDialogComponent {
   sponsorshipForm: FormGroup<RequestSponsorshipForm>;
   loading = false;
   organizationId: string;
+  organizationKey: OrgKey;
 
   constructor(
     private dialogRef: DialogRef,
@@ -60,10 +62,11 @@ export class AddSponsorshipDialogComponent {
     private toastService: ToastService,
     private apiService: ApiService,
     private encryptService: EncryptService,
-    private keyService: KeyService,
+
     @Inject(DIALOG_DATA) protected dialogParams: AddSponsorshipDialogParams,
   ) {
     this.organizationId = this.dialogParams?.organizationId;
+    this.organizationKey = this.dialogParams.organizationKey;
 
     this.sponsorshipForm = this.formBuilder.group<RequestSponsorshipForm>({
       sponsorshipEmail: new FormControl<string | null>("", {
@@ -89,15 +92,10 @@ export class AddSponsorshipDialogComponent {
     this.loading = true;
 
     try {
-      const orgKey = await this.keyService.getOrgKey(this.organizationId);
-      if (!orgKey) {
-        throw new Error("Organization key not found");
-      }
-
       const notes = this.sponsorshipForm.value.sponsorshipNote || "";
       const email = this.sponsorshipForm.value.sponsorshipEmail || "";
 
-      const encryptedNotes = await this.encryptService.encrypt(notes, orgKey);
+      const encryptedNotes = await this.encryptService.encrypt(notes, this.organizationKey);
       const isAdminInitiated = true;
       await this.apiService.postCreateSponsorship(this.organizationId, {
         sponsoredEmail: email,

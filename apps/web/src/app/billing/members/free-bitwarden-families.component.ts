@@ -1,8 +1,9 @@
 import { DialogRef } from "@angular/cdk/dialog";
 import { formatDate } from "@angular/common";
 import { Component, OnInit, signal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, Subject, takeUntil } from "rxjs";
+import { firstValueFrom, map, Observable, Subject, switchMap, takeUntil } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationSponsorshipApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-sponsorship-api.service.abstraction";
@@ -12,6 +13,9 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { StateProvider } from "@bitwarden/common/platform/state";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrgKey } from "@bitwarden/common/types/key";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -27,6 +31,7 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
   sponsoredFamilies: OrganizationSponsorshipInvitesResponse[] = [];
 
   organizationId = "";
+  organizationKey$: Observable<OrgKey>;
 
   private locale: string = "";
 
@@ -43,7 +48,14 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
     private logService: LogService,
     private toastService: ToastService,
     private organizationSponsorshipApiService: OrganizationSponsorshipApiServiceAbstraction,
-  ) {}
+    private stateProvider: StateProvider,
+  ) {
+    this.organizationKey$ = this.stateProvider.activeUserId$.pipe(
+      switchMap((userId) => this.keyService.orgKeys$(userId)),
+      map((organizationKeysById) => organizationKeysById[this.organizationId as OrganizationId]),
+      takeUntilDestroyed(),
+    );
+  }
 
   async ngOnInit() {
     this.locale = await firstValueFrom(this.i18nService.locale$);
@@ -64,7 +76,7 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
 
     const [response, orgKey] = await Promise.all([
       this.organizationSponsorshipApiService.getOrganizationSponsorship(this.organizationId),
-      this.keyService.getOrgKey(this.organizationId),
+      firstValueFrom(this.organizationKey$),
     ]);
 
     if (!orgKey) {
@@ -111,7 +123,10 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
     const addSponsorshipDialogRef: DialogRef = AddSponsorshipDialogComponent.open(
       this.dialogService,
       {
-        data: { organizationId: this.organizationId },
+        data: {
+          organizationId: this.organizationId,
+          organizationKey: await firstValueFrom(this.organizationKey$),
+        },
       },
     );
 
