@@ -83,11 +83,12 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const email = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.email)),
+    const [userId, email] = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => [a?.id, a?.email])),
     );
+
     if (this.kdfConfig == null) {
-      this.kdfConfig = await this.kdfConfigService.getKdfConfig();
+      this.kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
     }
 
     // Create new master key
