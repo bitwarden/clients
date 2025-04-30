@@ -1,5 +1,5 @@
 import { NgIf } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnChanges, OnInit } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -28,7 +28,7 @@ import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-
     ReadOnlyCipherCardComponent,
   ],
 })
-export class ViewIdentitySectionsComponent implements OnInit {
+export class ViewIdentitySectionsComponent implements OnInit, OnChanges {
   @Input({ required: true }) cipher: CipherView | null = null;
 
   showPersonalDetails: boolean = false;
@@ -36,9 +36,17 @@ export class ViewIdentitySectionsComponent implements OnInit {
   showContactDetails: boolean = false;
 
   ngOnInit(): void {
+    this.init();
+  }
+
+  init() {
     this.showPersonalDetails = this.hasPersonalDetails();
     this.showIdentificationDetails = this.hasIdentificationDetails();
     this.showContactDetails = this.hasContactDetails();
+  }
+
+  async ngOnChanges() {
+    this.init();
   }
 
   /** Returns all populated address fields */
