@@ -213,7 +213,7 @@ describe("VaultExportService", () => {
     folderService.folderViews$.mockReturnValue(of(UserFolderViews));
     folderService.folders$.mockReturnValue(of(UserFolders));
     kdfConfigService.getKdfConfig.mockResolvedValue(DEFAULT_KDF_CONFIG);
-    encryptService.encrypt.mockResolvedValue(new EncString("encrypted"));
+    encryptService.encryptString.mockResolvedValue(new EncString("encrypted"));
     apiService.getAttachmentData.mockResolvedValue(attachmentResponse);
 
     exportService = new IndividualVaultExportService(
@@ -318,7 +318,7 @@ describe("VaultExportService", () => {
 
         cipherService.getAllDecrypted.mockResolvedValue([cipherView]);
         folderService.getAllDecryptedFromState.mockResolvedValue([]);
-        encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(255));
+        encryptService.decryptFileData.mockResolvedValue(new Uint8Array(255));
 
         global.fetch = jest.fn(() =>
           Promise.resolve({
@@ -442,7 +442,7 @@ describe("VaultExportService", () => {
       });
 
       it("has a mac property", async () => {
-        encryptService.encrypt.mockResolvedValue(mac);
+        encryptService.encryptString.mockResolvedValue(mac);
         exportedVault = await exportService.getPasswordProtectedExport(password);
         exportString = exportedVault.data;
         exportObject = JSON.parse(exportString);
@@ -451,7 +451,7 @@ describe("VaultExportService", () => {
       });
 
       it("has data property", async () => {
-        encryptService.encrypt.mockResolvedValue(data);
+        encryptService.encryptString.mockResolvedValue(data);
         exportedVault = await exportService.getPasswordProtectedExport(password);
         exportString = exportedVault.data;
         exportObject = JSON.parse(exportString);

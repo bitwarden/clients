@@ -28,8 +28,8 @@ export class BaseVaultExportService {
     const salt = Utils.fromBufferToB64(await this.cryptoFunctionService.randomBytes(16));
     const key = await this.pinService.makePinKey(password, salt, kdfConfig);
 
-    const encKeyValidation = await this.encryptService.encrypt(Utils.newGuid(), key);
-    const encText = await this.encryptService.encrypt(clearText, key);
+    const encKeyValidation = await this.encryptService.encryptString(Utils.newGuid(), key);
+    const encText = await this.encryptService.encryptString(clearText, key);
 
     const jsonDoc: BitwardenPasswordProtectedFileFormat = {
       encrypted: true,
