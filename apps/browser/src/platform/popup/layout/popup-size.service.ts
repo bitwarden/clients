@@ -62,6 +62,10 @@ export class PopupSizeService {
      * render as too tall. So if the screen height is smaller than the max possible extension height,
      * we should use that to set our extension height. Otherwise, we want to use the window.innerHeight
      * to support browser zoom.
+     *
+     * This is basically a workaround for what we consider a bug with browsers reporting the wrong
+     * available innerHeight when system zoom is turned on. If that gets fixed, we can remove the code
+     * checking the screen height.
      */
     const MAX_EXT_HEIGHT = 600;
     const extensionInnerHeight = window.innerHeight;
