@@ -19,7 +19,7 @@ export const Default: StoryObj<VerticalStepperComponent> = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-vertical-stepper #stepper>
+      <bit-vertical-stepper>
         <bit-vertical-step
           label="This is the label"
           subLabel="This is the sub label"
