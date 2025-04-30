@@ -186,7 +186,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
               map((orgKeys) => orgKeys[cipher.organizationId as OrganizationId] as OrgKey),
             ),
           );
-    return await this.encryptService.decryptToBytes(encBuf, key);
+    return await this.encryptService.decryptFileData(encBuf, key);
   }
 
   /**
