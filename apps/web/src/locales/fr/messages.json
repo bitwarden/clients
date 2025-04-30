@@ -422,17 +422,8 @@
   "folder": {
     "message": "Dossier"
   },
-  "newCustomField": {
-    "message": "Nouveau champ personnalisé"
-  },
   "value": {
     "message": "Valeur"
-  },
-  "dragToSort": {
-    "message": "Glissez pour trier"
-  },
-  "dragToReorder": {
-    "message": "Faire glisser pour réorganiser"
   },
   "cfTypeText": {
     "message": "Texte"
@@ -10607,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Ne pas autoriser les membres à déverrouiller leur compte avec un NIP."
   },
-  "limitedEventLogs": {
-    "message": "Les plans $PRODUCT_TYPE$ n'ont pas accès aux journaux d'événements réels",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Obtenez un accès complet aux journaux d'événements de l'organisation en mettant à niveau vers un plan Équipes ou Entreprise."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Mettez à niveau pour les données du journal des événements réels"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "Ces événements sont des exemples et ne reflètent pas les événements réels au sein de votre organisation Bitwarden."
@@ -10636,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "Nouvelle unité d'affaires"
+  },
+  "restart": {
+    "message": "Redémarrer"
   }
 }
