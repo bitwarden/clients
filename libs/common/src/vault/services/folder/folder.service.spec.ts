@@ -47,6 +47,7 @@ describe("Folder Service", () => {
 
     keyService.userKey$.mockReturnValue(new BehaviorSubject("mockOriginalUserKey" as any));
     encryptService.decryptString.mockResolvedValue("DEC");
+    encryptService.decryptToUtf8.mockResolvedValue("DEC");
 
     folderService = new FolderService(
       keyService,
