@@ -464,11 +464,14 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       let updatedCipherView: CipherView;
 
       if (this.formConfig.admin) {
-        const organizaitonCiphers = await this.cipherService.getAllFromApiForOrganization(
-          this.organization?.id,
+        const cipherResponse = await this.apiService.getCipherAdmin(
+          this.formConfig.originalCipher?.id,
         );
-        updatedCipherView = organizaitonCiphers.find(
-          (c) => c.id === this.formConfig.originalCipher?.id,
+        const cipherData = new CipherData(cipherResponse);
+        const cipher = new Cipher(cipherData);
+
+        updatedCipherView = await cipher.decrypt(
+          await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
         );
       } else {
         const updatedCipher = await this.cipherService.get(
