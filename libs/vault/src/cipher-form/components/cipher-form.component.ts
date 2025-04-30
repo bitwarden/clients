@@ -241,6 +241,7 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
 
       if (this.config.mode === "clone") {
         this.updatedCipherView.id = null;
+        this.updatedCipherView.login.fido2Credentials = null;
       }
     } else {
       this.updatedCipherView.type = this.config.cipherType;
