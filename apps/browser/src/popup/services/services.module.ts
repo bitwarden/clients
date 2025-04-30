@@ -37,6 +37,7 @@ import {
   LoginEmailService,
   PinServiceAbstraction,
   SsoUrlService,
+  LogoutService,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -137,11 +138,13 @@ import {
   SshImportPromptService,
 } from "@bitwarden/vault";
 
+import { AccountSwitcherService } from "../../auth/popup/account-switching/services/account-switcher.service";
 import { ForegroundLockService } from "../../auth/popup/accounts/foreground-lock.service";
 import { ExtensionAnonLayoutWrapperDataService } from "../../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 import { ExtensionLoginComponentService } from "../../auth/popup/login/extension-login-component.service";
 import { ExtensionSsoComponentService } from "../../auth/popup/login/extension-sso-component.service";
 import { ExtensionLoginDecryptionOptionsService } from "../../auth/popup/login-decryption-options/extension-login-decryption-options.service";
+import { ExtensionLogoutService } from "../../auth/popup/logout/extension-logout.service";
 import { ExtensionTwoFactorAuthComponentService } from "../../auth/services/extension-two-factor-auth-component.service";
 import { ExtensionTwoFactorAuthDuoComponentService } from "../../auth/services/extension-two-factor-auth-duo-component.service";
 import { ExtensionTwoFactorAuthEmailComponentService } from "../../auth/services/extension-two-factor-auth-email-component.service";
@@ -641,6 +644,11 @@ const safeProviders: SafeProvider[] = [
     provide: ExtensionAnonLayoutWrapperDataService,
     useClass: ExtensionAnonLayoutWrapperDataService,
     deps: [],
+  }),
+  safeProvider({
+    provide: LogoutService,
+    useClass: ExtensionLogoutService,
+    deps: [MessagingServiceAbstraction, AccountSwitcherService],
   }),
   safeProvider({
     provide: CompactModeService,

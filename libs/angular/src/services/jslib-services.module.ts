@@ -34,6 +34,7 @@ import {
   AuthRequestServiceAbstraction,
   DefaultAuthRequestApiService,
   DefaultLoginSuccessHandlerService,
+  DefaultLogoutService,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginApprovalComponentServiceAbstraction,
   LoginEmailService,
@@ -42,6 +43,7 @@ import {
   LoginStrategyServiceAbstraction,
   LoginSuccessHandlerService,
   LogoutReason,
+  LogoutService,
   PinService,
   PinServiceAbstraction,
   UserDecryptionOptionsService,
@@ -1510,6 +1512,11 @@ const safeProviders: SafeProvider[] = [
     provide: MasterPasswordApiServiceAbstraction,
     useClass: MasterPasswordApiService,
     deps: [ApiServiceAbstraction, LogService],
+  }),
+  safeProvider({
+    provide: LogoutService,
+    useClass: DefaultLogoutService,
+    deps: [MessagingServiceAbstraction],
   }),
 ];
 
