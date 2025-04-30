@@ -14,7 +14,7 @@ enum CharacterType {
 
 @Component({
   selector: "bit-color-password",
-  template: `@for (character of passwordArray; track character; let i = $index) {
+  template: `@for (character of passwordArray; track $index; let i = $index) {
     <span [class]="getCharacterClass(character)">
       <span>{{ character }}</span>
       @if (showCount) {
