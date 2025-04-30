@@ -6,6 +6,9 @@ import * as stories from "./vertical-stepper.stories";
 
 # Vertical Stepper
 
+The `<bit-vertical-steppper>` component extends the
+[Angular CdkStepper](https://material.angular.io/cdk/stepper/api#CdkStepper) component
+
 <Primary />
 
 <Controls />
@@ -22,8 +25,8 @@ The following additional Inputs are accepted:
 | `subLabel`    | string  | An optional supplemental label to display below the main label |
 | `applyBorder` | boolean | Show/hide the decorative border connecting the steps           |
 
-In order for the stepper component to work as intended, it's children must be type of
-`VerticalStep[]`.
+In order for the stepper component to work as intended, it's children must be instances of
+`<bit-vertical-step>`.
 
 ```html
 <bit-vertical-stepper #stepper>

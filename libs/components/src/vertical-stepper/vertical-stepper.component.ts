@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CdkStepper } from "@angular/cdk/stepper";
 import { CommonModule } from "@angular/common";
 import { Component, QueryList } from "@angular/core";
