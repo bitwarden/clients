@@ -423,7 +423,13 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
   ): Promise<[CipherView[], CipherView[]] | null> {
     if (await this.configService.getFeatureFlag(FeatureFlag.PM19941MigrateCipherDomainToSdk)) {
-      return this.decryptCiphersWithSdk(ciphers, userId);
+      const decryptStartTime = new Date().getTime();
+      const decrypted = await this.decryptCiphersWithSdk(ciphers, userId);
+      this.logService.info(
+        `[CipherService] Decrypting ${decrypted.length} ciphers took ${new Date().getTime() - decryptStartTime}ms`,
+      );
+      // With SDK, failed ciphers are not returned
+      return [decrypted, []];
     }
 
     const keys = await firstValueFrom(this.keyService.cipherDecryptionKeys$(userId, true));
@@ -1852,28 +1858,12 @@ export class CipherService implements CipherServiceAbstraction {
    * Decrypts the provided ciphers using the SDK.
    * @param ciphers The ciphers to decrypt.
    * @param userId The user ID to use for decryption.
-   * @returns A tuple containing the successful and failed decrypted ciphers.
+   * @returns The decrypted ciphers.
    * @private
    */
-  private async decryptCiphersWithSdk(
-    ciphers: Cipher[],
-    userId: UserId,
-  ): Promise<[CipherView[], CipherView[]]> {
-    const decryptedViews = await Promise.all(
-      ciphers.map((cipher) => this.cipherEncryptionService.decrypt(cipher, userId)),
-    );
+  private async decryptCiphersWithSdk(ciphers: Cipher[], userId: UserId): Promise<CipherView[]> {
+    const decryptedViews = await this.cipherEncryptionService.decryptManyLegacy(ciphers, userId);
 
-    const successful: CipherView[] = [];
-    const failed: CipherView[] = [];
-
-    decryptedViews.forEach((view) => {
-      if (view.decryptionFailure) {
-        failed.push(view);
-      } else {
-        successful.push(view);
-      }
-    });
-
-    return [successful.sort(this.getLocaleSortingFunction()), failed];
+    return decryptedViews.sort(this.getLocaleSortingFunction());
   }
 }

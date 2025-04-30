@@ -8,6 +8,7 @@ import {
   CipherType as SdkCipherType,
   CipherView as SdkCipherView,
   AttachmentView as SdkAttachmentView,
+  CipherListView,
 } from "@bitwarden/sdk-internal";
 
 import { makeSymmetricCryptoKey, mockEnc } from "../../../spec";
@@ -89,10 +90,11 @@ describe("DefaultCipherEncryptionService", () => {
     vault: jest.fn().mockReturnValue({
       ciphers: jest.fn().mockReturnValue({
         decrypt: jest.fn(),
+        decrypt_list: jest.fn(),
         decrypt_fido2_credentials: jest.fn(),
       }),
       attachments: jest.fn().mockReturnValue({
-        decrypt_buffer_view: jest.fn(),
+        decrypt_buffer: jest.fn(),
       }),
     }),
   };
@@ -233,21 +235,84 @@ describe("DefaultCipherEncryptionService", () => {
       );
       expect(Fido2CredentialView.fromSdkFido2CredentialView).toHaveBeenCalledTimes(1);
     });
+  });
 
-    it("should handle decryption failure", async () => {
-      const errorMessage = "Decryption failed";
+  describe("decryptManyLegacy", () => {
+    it("should decrypt multiple ciphers successfully", async () => {
+      const ciphers = [new Cipher(cipherData), new Cipher(cipherData)];
+
+      const expectedViews = [
+        {
+          id: "test-id-1",
+          name: "test-name-1",
+        } as CipherView,
+        {
+          id: "test-id-2",
+          name: "test-name-2",
+        } as CipherView,
+      ];
+
       mockSdkClient
         .vault()
         .ciphers()
-        .decrypt.mockImplementation(() => {
-          throw new Error(errorMessage);
-        });
+        .decrypt.mockReturnValueOnce({ id: "test-id-1", name: "test-name-1" } as SdkCipherView)
+        .mockReturnValueOnce({ id: "test-id-2", name: "test-name-2" } as SdkCipherView);
 
-      const result = await cipherEncryptionService.decrypt(cipherObj, userId);
+      jest
+        .spyOn(CipherView, "fromSdkCipherView")
+        .mockReturnValueOnce(expectedViews[0])
+        .mockReturnValueOnce(expectedViews[1]);
 
-      expect(result).toBeInstanceOf(CipherView);
-      expect(result.decryptionFailure).toBe(true);
-      expect(result.name).toBe("[error: cannot decrypt]");
+      const result = await cipherEncryptionService.decryptManyLegacy(ciphers, userId);
+
+      expect(result).toEqual(expectedViews);
+      expect(mockSdkClient.vault().ciphers().decrypt).toHaveBeenCalledTimes(2);
+      expect(CipherView.fromSdkCipherView).toHaveBeenCalledTimes(2);
+    });
+
+    it("should throw EmptyError when SDK is not available", async () => {
+      sdkService.userClient$ = jest.fn().mockReturnValue(of(null)) as any;
+
+      await expect(
+        cipherEncryptionService.decryptManyLegacy([cipherObj], userId),
+      ).rejects.toThrow();
+
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to decrypt ciphers"),
+      );
+    });
+  });
+
+  describe("decryptMany", () => {
+    it("should decrypt multiple ciphers to list views", async () => {
+      const ciphers = [new Cipher(cipherData), new Cipher(cipherData)];
+
+      const expectedListViews = [
+        { id: "list1", name: "List 1" } as CipherListView,
+        { id: "list2", name: "List 2" } as CipherListView,
+      ];
+
+      mockSdkClient.vault().ciphers().decrypt_list.mockReturnValue(expectedListViews);
+
+      const result = await cipherEncryptionService.decryptMany(ciphers, userId);
+
+      expect(result).toEqual(expectedListViews);
+      expect(mockSdkClient.vault().ciphers().decrypt_list).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ id: cipherData.id }),
+          expect.objectContaining({ id: cipherData.id }),
+        ]),
+      );
+    });
+
+    it("should throw EmptyError when SDK is not available", async () => {
+      sdkService.userClient$ = jest.fn().mockReturnValue(of(null)) as any;
+
+      await expect(cipherEncryptionService.decryptMany([cipherObj], userId)).rejects.toThrow();
+
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to decrypt cipher list"),
+      );
     });
   });
 
@@ -267,10 +332,7 @@ describe("DefaultCipherEncryptionService", () => {
       jest
         .spyOn(attachment, "toSdkAttachmentView")
         .mockReturnValue({ id: "a1" } as SdkAttachmentView);
-      mockSdkClient
-        .vault()
-        .attachments()
-        .decrypt_buffer_view.mockReturnValue(expectedDecryptedContent);
+      mockSdkClient.vault().attachments().decrypt_buffer.mockReturnValue(expectedDecryptedContent);
 
       const result = await cipherEncryptionService.getDecryptedAttachmentBuffer(
         cipher,
@@ -281,7 +343,7 @@ describe("DefaultCipherEncryptionService", () => {
 
       expect(result).toEqual(expectedDecryptedContent);
       expect(mockResponse.arrayBuffer).toHaveBeenCalled();
-      expect(mockSdkClient.vault().attachments().decrypt_buffer_view).toHaveBeenCalledWith(
+      expect(mockSdkClient.vault().attachments().decrypt_buffer).toHaveBeenCalledWith(
         { id: "id" },
         { id: "a1" },
         expect.any(Uint8Array),

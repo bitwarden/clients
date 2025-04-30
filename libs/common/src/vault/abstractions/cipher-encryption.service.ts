@@ -19,14 +19,28 @@ export abstract class CipherEncryptionService {
    */
   abstract decrypt(cipher: Cipher, userId: UserId): Promise<CipherView>;
   /**
-   * Decrypts a list of ciphers using the SDK for the given userId.
+   * Decrypts many ciphers using the SDK for the given userId.
+   *
+   * For bulk decryption, prefer using `decryptMany`, which returns a more efficient
+   * `CipherListView` object.
+   *
+   * @param ciphers The encrypted cipher objects
+   * @param userId The user ID whose key will be used for decryption
+   *
+   * @deprecated Use `decryptMany` for bulk decryption instead.
+   *
+   * @returns A promise that resolves to an array of decrypted cipher views
+   */
+  abstract decryptManyLegacy(ciphers: Cipher[], userId: UserId): Promise<CipherView[]>;
+  /**
+   * Decrypts many ciphers using the SDK for the given userId.
    *
    * @param ciphers The encrypted cipher objects
    * @param userId The user ID whose key will be used for decryption
    *
    * @returns A promise that resolves to an array of decrypted cipher list views
    */
-  abstract decryptCipherList(ciphers: Cipher[], userId: UserId): Promise<CipherListView[]>;
+  abstract decryptMany(ciphers: Cipher[], userId: UserId): Promise<CipherListView[]>;
   /**
    * Decrypts an attachment's content from a response object.
    *

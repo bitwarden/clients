@@ -1,4 +1,4 @@
-import { EMPTY, catchError, firstValueFrom, map, of } from "rxjs";
+import { EMPTY, catchError, firstValueFrom, map } from "rxjs";
 
 import { KeyService } from "@bitwarden/key-management";
 import { CipherListView } from "@bitwarden/sdk-internal";
@@ -51,7 +51,8 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
               .ciphers()
               .decrypt_fido2_credentials(sdkCipherView);
 
-            // TEMPORARY: Manually decrypt the keyValue for Fido2 credentials since don't currently use the SDK for Fido2 Authentication.
+            // TEMPORARY: Manually decrypt the keyValue for Fido2 credentials
+            // since we don't currently use the SDK for Fido2 Authentication.
             const decryptedKeyValue = ref.value
               .vault()
               .ciphers()
@@ -72,20 +73,67 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
           return clientCipherView;
         }),
         catchError((error: unknown) => {
-          this.logService.error(`Failed to decrypt cipher ${cipher.id}: ${error}`);
-
-          // Return failed cipher view
-          const failedView = new CipherView(cipher);
-          failedView.decryptionFailure = true;
-          failedView.name = "[error: cannot decrypt]";
-
-          return of(failedView);
+          this.logService.error(`Failed to decrypt cipher ${error}`);
+          return EMPTY;
         }),
       ),
     );
   }
 
-  async decryptCipherList(ciphers: Cipher[], userId: UserId): Promise<CipherListView[]> {
+  decryptManyLegacy(ciphers: Cipher[], userId: UserId): Promise<CipherView[]> {
+    return firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        map((sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+
+          using ref = sdk.take();
+
+          return ciphers.map((cipher) => {
+            const sdkCipherView = ref.value.vault().ciphers().decrypt(cipher.toSdkCipher());
+            const clientCipherView = CipherView.fromSdkCipherView(sdkCipherView)!;
+
+            // Handle FIDO2 credentials if present
+            if (
+              clientCipherView.type === CipherType.Login &&
+              sdkCipherView.login?.fido2Credentials?.length
+            ) {
+              const fido2CredentialViews = ref.value
+                .vault()
+                .ciphers()
+                .decrypt_fido2_credentials(sdkCipherView);
+
+              // TEMPORARY: Manually decrypt the keyValue for Fido2 credentials
+              // since we don't currently use the SDK for Fido2 Authentication.
+              const decryptedKeyValue = ref.value
+                .vault()
+                .ciphers()
+                .decrypt_fido2_private_key(sdkCipherView);
+
+              clientCipherView.login.fido2Credentials = fido2CredentialViews
+                .map((f) => {
+                  const view = Fido2CredentialView.fromSdkFido2CredentialView(f)!;
+                  return {
+                    ...view,
+                    keyValue: decryptedKeyValue,
+                  };
+                })
+                .filter((view): view is Fido2CredentialView => view !== undefined);
+            }
+
+            return clientCipherView;
+          });
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to decrypt ciphers: ${error}`);
+          return EMPTY;
+        }),
+      ),
+    );
+  }
+
+  async decryptMany(ciphers: Cipher[], userId: UserId): Promise<CipherListView[]> {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         map((sdk) => {
@@ -162,7 +210,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
           return ref.value
             .vault()
             .attachments()
-            .decrypt_buffer_view(
+            .decrypt_buffer(
               cipher.toSdkCipher(),
               attachment.toSdkAttachmentView(),
               encryptedContent,
