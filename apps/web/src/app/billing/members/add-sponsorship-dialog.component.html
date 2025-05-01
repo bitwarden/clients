@@ -34,7 +34,15 @@
     </div>
 
     <ng-container bitDialogFooter>
-      <button bitButton bitFormButton type="button" buttonType="primary" (click)="save()">
+      <button
+        bitButton
+        bitFormButton
+        type="button"
+        buttonType="primary"
+        [loading]="loading"
+        [disabled]="loading"
+        (click)="save()"
+      >
         {{ "save" | i18n }}
       </button>
       <button bitButton type="button" buttonType="secondary" [bitDialogClose]="false">

@@ -7,6 +7,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CardComponent, SearchModule } from "@bitwarden/components";
 import { DangerZoneComponent } from "@bitwarden/web-vault/app/auth/settings/account/danger-zone.component";
 import { OrganizationPlansComponent } from "@bitwarden/web-vault/app/billing";
+import { PaymentComponent } from "@bitwarden/web-vault/app/billing/shared/payment/payment.component";
 import { VerifyBankAccountComponent } from "@bitwarden/web-vault/app/billing/shared/verify-bank-account/verify-bank-account.component";
 import { OssModule } from "@bitwarden/web-vault/app/oss.module";
 
@@ -53,6 +54,7 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     ScrollingModule,
     VerifyBankAccountComponent,
     CardComponent,
+    PaymentComponent,
   ],
   declarations: [
     AcceptProviderComponent,

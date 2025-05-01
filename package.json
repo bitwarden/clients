@@ -121,7 +121,7 @@
     "nx": "20.8.0",
     "postcss": "8.5.1",
     "postcss-loader": "8.1.1",
-    "prettier": "3.4.2",
+    "prettier": "3.5.3",
     "prettier-plugin-tailwindcss": "0.6.11",
     "process": "0.11.10",
     "remark-gfm": "4.0.0",
