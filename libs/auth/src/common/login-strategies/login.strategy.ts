@@ -310,8 +310,8 @@ export abstract class LoginStrategy {
 
   // TODO: update jsdoc
   /**
-   * Processes the AuthResult to extract any ForceSetPasswordReason flags and sets them into state.
-   * @param authResult - The authentication result
+   * Checks if adminForcePasswordReset is true and sets the ForceSetPasswordReason.AdminForcePasswordReset flag in the master password service.
+   * @param adminForcePasswordReset - The admin force password reset flag
    * @param userId - The user ID
    * @returns a promise that resolves to a boolean indicating whether the admin force password reset flag was set
    */
