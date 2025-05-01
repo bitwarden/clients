@@ -286,7 +286,7 @@ export class OrganizationVaultExportService
     ciphers: Cipher[],
   ): Promise<string> {
     const orgKey = await this.keyService.getOrgKey(organizationId);
-    const encKeyValidation = await this.encryptService.encrypt(Utils.newGuid(), orgKey);
+    const encKeyValidation = await this.encryptService.encryptString(Utils.newGuid(), orgKey);
 
     const jsonDoc: BitwardenEncryptedOrgJsonExport = {
       encrypted: true,

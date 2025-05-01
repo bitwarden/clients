@@ -157,7 +157,7 @@ export class IndividualVaultExportService
         attachment.key != null
           ? attachment.key
           : await this.keyService.getOrgKey(cipher.organizationId);
-      return await this.encryptService.decryptToBytes(encBuf, key);
+      return await this.encryptService.decryptFileData(encBuf, key);
     } catch {
       throw new Error("Error decrypting attachment");
     }
@@ -220,7 +220,7 @@ export class IndividualVaultExportService
     await Promise.all(promises);
 
     const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId);
-    const encKeyValidation = await this.encryptService.encrypt(Utils.newGuid(), userKey);
+    const encKeyValidation = await this.encryptService.encryptString(Utils.newGuid(), userKey);
 
     const jsonDoc: BitwardenEncryptedIndividualJsonExport = {
       encrypted: true,
