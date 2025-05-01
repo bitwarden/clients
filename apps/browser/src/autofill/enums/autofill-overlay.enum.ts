@@ -32,6 +32,7 @@ export const InlineMenuAccountCreationFieldType = {
   Text: "text",
   Email: "email",
   Password: "password",
+  Totp: "totp",
 } as const;
 
 export type InlineMenuAccountCreationFieldTypes =
