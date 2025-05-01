@@ -65,6 +65,9 @@ import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-do
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
 import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
+import { PhishingLandingIcon } from "../phishing-detection/images/phishing-landing-icon";
+import { LearnMoreComponent } from "../phishing-detection/pages/learn-more-component";
+import { PhishingWarning } from "../phishing-detection/pages/phishing-warning";
 import BrowserPopupUtils from "../platform/popup/browser-popup-utils";
 import { popupRouterCacheGuard } from "../platform/popup/view-cache/popup-router-cache.service";
 import { CredentialGeneratorHistoryComponent } from "../tools/popup/generator/credential-generator-history.component";
@@ -689,6 +692,32 @@ const routes: Routes = [
     component: TrashComponent,
     canActivate: [authGuard],
     data: { elevation: 2 } satisfies RouteDataProperties,
+  },
+  {
+    path: "security",
+    component: AnonLayoutWrapperComponent,
+    children: [
+      {
+        path: "phishing-warning",
+        children: [
+          {
+            path: "",
+            component: PhishingWarning,
+          },
+          {
+            path: "",
+            component: LearnMoreComponent,
+            outlet: "secondary",
+          },
+        ],
+        data: {
+          pageIcon: PhishingLandingIcon,
+          pageTitle: "Bitwarden blocked it!",
+          pageSubtitle: "Bitwarden blocked a known phishing site from loading.",
+          showReadonlyHostname: true,
+        } satisfies AnonLayoutWrapperData,
+      },
+    ],
   },
 ];
 

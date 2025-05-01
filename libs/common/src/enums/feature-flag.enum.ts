@@ -58,6 +58,7 @@ export enum FeatureFlag {
   SecurityTasks = "security-tasks",
   CipherKeyEncryption = "cipher-key-encryption",
   PM18520_UpdateDesktopCipherForm = "pm-18520-desktop-cipher-forms",
+  PhishingDetection = "phishing-detection",
   EndUserNotifications = "pm-10609-end-user-notifications",
 
   /* Platform */
@@ -120,6 +121,7 @@ export const DefaultFeatureFlagValue = {
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
   [FeatureFlag.PM12276_BreadcrumbEventLogs]: FALSE,
+  [FeatureFlag.PhishingDetection]: FALSE,
   [FeatureFlag.PM18794_ProviderPaymentMethod]: FALSE,
   [FeatureFlag.PM17772_AdminInitiatedSponsorships]: FALSE,
   [FeatureFlag.PM19956_RequireProviderPaymentMethodDuringSetup]: FALSE,

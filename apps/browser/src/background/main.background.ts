@@ -261,6 +261,7 @@ import { InlineMenuFieldQualificationService } from "../autofill/services/inline
 import { SafariApp } from "../browser/safariApp";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
+import { PhishingDetectionService } from "../phishing-detection/background/phishing-detection.service";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { flagEnabled } from "../platform/flags";
 import { IpcBackgroundService } from "../platform/ipc/ipc-background.service";
@@ -1323,6 +1324,14 @@ export default class MainBackground {
     );
 
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
+
+    PhishingDetectionService.initialize(
+      this.configService,
+      this.auditService,
+      this.logService,
+      this.storageService,
+      this.taskSchedulerService,
+    );
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
     this.ipcService = new IpcBackgroundService(this.logService);

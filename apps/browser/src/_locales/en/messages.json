@@ -5248,5 +5248,11 @@
   },
   "hasItemsVaultNudgeBody": {
       "message": "Autofill items for the current page\nFavorite items for easy access\nSearch your vault for something else"
+  },
+  "phishingPageTitle":{
+    "message": "Phishing website"
+  },
+  "closeTab": {
+    "message": "Close tab"
   }
 }
