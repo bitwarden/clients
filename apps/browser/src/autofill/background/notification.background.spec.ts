@@ -858,6 +858,55 @@ describe("NotificationBackground", () => {
           );
         });
 
+        it("prompts the user for master password entry if the notification message type is for ChangePassword and the cipher reprompt is enabled", async () => {
+          const tab = createChromeTabMock({ id: 1, url: "https://example.com" });
+          const sender = mock<chrome.runtime.MessageSender>({ tab });
+          const message: NotificationBackgroundExtensionMessage = {
+            command: "bgSaveCipher",
+            edit: false,
+            folder: "folder-id",
+          };
+          const queueMessage = mock<AddChangePasswordQueueMessage>({
+            type: NotificationQueueMessageType.ChangePassword,
+            tab,
+            domain: "example.com",
+            newPassword: "newPassword",
+          });
+          notificationBackground["notificationQueue"] = [queueMessage];
+          const cipherView = mock<CipherView>({
+            id: "testId",
+            name: "testItemName",
+            login: { username: "testUser" },
+            reprompt: CipherRepromptType.Password,
+          });
+          getDecryptedCipherByIdSpy.mockResolvedValueOnce(cipherView);
+
+          sendMockExtensionMessage(message, sender);
+          await flushPromises();
+
+          expect(editItemSpy).not.toHaveBeenCalled();
+          expect(autofillService.isPasswordRepromptRequired).toHaveBeenCalled();
+          expect(createWithServerSpy).not.toHaveBeenCalled();
+          expect(updatePasswordSpy).toHaveBeenCalledWith(
+            cipherView,
+            queueMessage.newPassword,
+            message.edit,
+            sender.tab,
+            "testId",
+            false,
+          );
+          expect(updateWithServerSpy).not.toHaveBeenCalled();
+          expect(tabSendMessageDataSpy).not.toHaveBeenCalledWith(
+            sender.tab,
+            "saveCipherAttemptCompleted",
+            {
+              itemName: "testItemName",
+              cipherId: cipherView.id,
+              task: undefined,
+            },
+          );
+        });
+
         it("completes password update notification with a security task notice if any are present for the cipher, and dismisses tasks for the updated cipher", async () => {
           const mockCipherId = "testId";
           const mockOrgId = "testOrgId";
