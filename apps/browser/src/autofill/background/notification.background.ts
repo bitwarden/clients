@@ -547,7 +547,7 @@ export default class NotificationBackground {
       return;
     }
 
-    if (!notificationRefreshFlagEnabled) {
+    if (notificationRefreshFlagEnabled) {
       return;
     }
 
