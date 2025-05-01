@@ -30,7 +30,6 @@ import { BulkConfirmDialogComponent } from "./manage/dialogs/bulk-confirm-dialog
 import { BulkRemoveDialogComponent } from "./manage/dialogs/bulk-remove-dialog.component";
 import { EventsComponent } from "./manage/events.component";
 import { MembersComponent } from "./manage/members.component";
-import { UserAddEditComponent } from "./manage/user-add-edit.component";
 import { ProvidersLayoutComponent } from "./providers-layout.component";
 import { ProvidersRoutingModule } from "./providers-routing.module";
 import { ProvidersComponent } from "./providers.component";
@@ -67,7 +66,6 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     MembersComponent,
     SetupComponent,
     SetupProviderComponent,
-    UserAddEditComponent,
     AddEditMemberDialogComponent,
     AddExistingOrganizationDialogComponent,
     CreateClientDialogComponent,
