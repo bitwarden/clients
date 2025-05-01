@@ -16,7 +16,6 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -36,7 +35,6 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { TaskSchedulerService, ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
-import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 import {
   KdfType,
@@ -338,22 +336,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     kdfConfig.validateKdfConfigForPrelogin();
 
     return await this.keyService.makeMasterKey(masterPassword, email, kdfConfig);
-  }
-
-  /**
-   * Processes the ForceSetPasswordReason from an AuthResult and sets it into state.
-   * @param authResult - The authentication result
-   * @param userId - The user ID
-   */
-  async processForceSetPasswordReason(authResult: AuthResult, userId: UserId): Promise<void> {
-    if (authResult.forcePasswordReset === ForceSetPasswordReason.None) {
-      return;
-    }
-
-    await this.masterPasswordService.setForceSetPasswordReason(
-      authResult.forcePasswordReset,
-      userId,
-    );
   }
 
   private async clearCache(): Promise<void> {
