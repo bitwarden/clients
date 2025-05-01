@@ -149,7 +149,8 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
       throw new Error("User ID is required.");
     }
 
-    // Don't overwrite AdminForcePasswordReset with other reasons
+    // Don't overwrite AdminForcePasswordReset with any other reasons other than None
+    // as we must allow a reset when the user has completed admin account recovery
     const currentReason = await firstValueFrom(this.forceSetPasswordReason$(userId));
     if (
       currentReason === ForceSetPasswordReason.AdminForcePasswordReset &&
