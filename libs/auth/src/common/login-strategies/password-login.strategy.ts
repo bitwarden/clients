@@ -124,20 +124,6 @@ export class PasswordLoginStrategy extends LoginStrategy {
 
     const result = await super.logInTwoFactor(twoFactor);
 
-    // 2FA was successful, save the force update password options with the state service if defined
-    const forcePasswordResetReason = this.cache.value.forcePasswordResetReason;
-    if (
-      !result.requiresTwoFactor &&
-      !result.requiresCaptcha &&
-      forcePasswordResetReason != ForceSetPasswordReason.None
-    ) {
-      await this.masterPasswordService.setForceSetPasswordReason(
-        forcePasswordResetReason,
-        result.userId,
-      );
-      result.forcePasswordReset = forcePasswordResetReason;
-    }
-
     return result;
   }
 
@@ -227,7 +213,6 @@ export class PasswordLoginStrategy extends LoginStrategy {
       ForceSetPasswordReason.WeakMasterPassword,
       authResult.userId, // userId is only available on successful login
     );
-    authResult.forcePasswordReset = ForceSetPasswordReason.WeakMasterPassword;
   }
 
   private getMasterPasswordPolicyOptionsFromResponse(
@@ -272,22 +257,28 @@ export class PasswordLoginStrategy extends LoginStrategy {
    * @param userId - The user ID
    */
   override async processForceSetPasswordReason(
-    authResult: AuthResult,
+    adminForcePasswordReset: boolean,
     userId: UserId,
-  ): Promise<void> {
+  ): Promise<boolean> {
     // handle any existing reasons
-    await super.processForceSetPasswordReason(authResult, userId);
+    const adminForcePasswordResetFlagSet = await super.processForceSetPasswordReason(
+      adminForcePasswordReset,
+      userId,
+    );
 
-    // If the authResult already has a ForceSetPasswordReason we don't need to check for weak password
-    if (authResult.forcePasswordReset !== ForceSetPasswordReason.None) {
-      return;
+    // If we are already processing an admin force password reset, don't process other reasons
+    if (adminForcePasswordResetFlagSet) {
+      return false;
     }
 
     // If we have a cached weak password reason from login/logInTwoFactor apply it
     const cachedReason = this.cache.value.forcePasswordResetReason;
     if (cachedReason !== ForceSetPasswordReason.None) {
       await this.masterPasswordService.setForceSetPasswordReason(cachedReason, userId);
-      authResult.forcePasswordReset = cachedReason;
+      return true;
     }
+
+    // If none of the conditions are met, return false
+    return false;
   }
 }

@@ -88,7 +88,6 @@ describe("SsoComponent", () => {
   let mockOnSuccessfulLoginNavigate: jest.Mock;
   let mockOnSuccessfulLoginTwoFactorNavigate: jest.Mock;
   let mockOnSuccessfulLoginChangePasswordNavigate: jest.Mock;
-  let mockOnSuccessfulLoginForceResetNavigate: jest.Mock;
   let mockOnSuccessfulLoginTdeNavigate: jest.Mock;
 
   let mockUserDecryptionOpts: {
@@ -141,7 +140,6 @@ describe("SsoComponent", () => {
     mockOnSuccessfulLoginNavigate = jest.fn();
     mockOnSuccessfulLoginTwoFactorNavigate = jest.fn();
     mockOnSuccessfulLoginChangePasswordNavigate = jest.fn();
-    mockOnSuccessfulLoginForceResetNavigate = jest.fn();
     mockOnSuccessfulLoginTdeNavigate = jest.fn();
 
     mockUserDecryptionOpts = {
@@ -332,38 +330,6 @@ describe("SsoComponent", () => {
       });
     };
 
-    const testForceResetOnSuccessfulLogin = (reasonString: string) => {
-      it(`navigates to the component's defined forcePasswordResetRoute when response.forcePasswordReset is ${reasonString}`, async () => {
-        await _component.logIn(code, codeVerifier, orgIdFromState);
-
-        expect(mockLoginStrategyService.logIn).toHaveBeenCalledTimes(1);
-
-        expect(mockOnSuccessfulLoginForceResetNavigate).not.toHaveBeenCalled();
-
-        expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
-        expect(mockRouter.navigate).toHaveBeenCalledWith([_component.forcePasswordResetRoute], {
-          queryParams: {
-            identifier: orgIdFromState,
-          },
-        });
-        expect(mockLogService.error).not.toHaveBeenCalled();
-      });
-    };
-
-    const testOnSuccessfulLoginForceResetNavigate = (reasonString: string) => {
-      it(`calls onSuccessfulLoginForceResetNavigate instead of router.navigate when response.forcePasswordReset is ${reasonString} and the callback is defined`, async () => {
-        mockOnSuccessfulLoginForceResetNavigate = jest.fn().mockResolvedValue(null);
-        component.onSuccessfulLoginForceResetNavigate = mockOnSuccessfulLoginForceResetNavigate;
-
-        await _component.logIn(code, codeVerifier, orgIdFromState);
-
-        expect(mockLoginStrategyService.logIn).toHaveBeenCalledTimes(1);
-        expect(mockOnSuccessfulLoginForceResetNavigate).toHaveBeenCalledTimes(1);
-        expect(mockRouter.navigate).not.toHaveBeenCalled();
-        expect(mockLogService.error).not.toHaveBeenCalled();
-      });
-    };
-
     describe("Trusted Device Encryption scenarios", () => {
       beforeEach(() => {
         mockConfigService.getFeatureFlag.mockResolvedValue(true); // TDE enabled
@@ -401,29 +367,7 @@ describe("SsoComponent", () => {
         });
       });
 
-      describe("Given Trusted Device Encryption is enabled, user doesn't need to set a MP, and forcePasswordReset is required", () => {
-        [
-          ForceSetPasswordReason.AdminForcePasswordReset,
-          // ForceResetPasswordReason.WeakMasterPassword, -- not possible in SSO flow as set client side
-        ].forEach((forceResetPasswordReason) => {
-          const reasonString = ForceSetPasswordReason[forceResetPasswordReason];
-          let authResult;
-          beforeEach(() => {
-            selectedUserDecryptionOptions.next(
-              mockUserDecryptionOpts.withMasterPasswordAndTrustedDevice,
-            );
-
-            authResult = new AuthResult();
-            authResult.forcePasswordReset = ForceSetPasswordReason.AdminForcePasswordReset;
-            mockLoginStrategyService.logIn.mockResolvedValue(authResult);
-          });
-
-          testForceResetOnSuccessfulLogin(reasonString);
-          testOnSuccessfulLoginForceResetNavigate(reasonString);
-        });
-      });
-
-      describe("Given Trusted Device Encryption is enabled, user doesn't need to set a MP, and forcePasswordReset is not required", () => {
+      describe("Given Trusted Device Encryption is enabled and user doesn't need to set a MP", () => {
         let authResult;
         beforeEach(() => {
           selectedUserDecryptionOptions.next(
@@ -431,7 +375,6 @@ describe("SsoComponent", () => {
           );
 
           authResult = new AuthResult();
-          authResult.forcePasswordReset = ForceSetPasswordReason.None;
           mockLoginStrategyService.logIn.mockResolvedValue(authResult);
         });
 
@@ -494,34 +437,12 @@ describe("SsoComponent", () => {
       });
     });
 
-    describe("Force Master Password Reset scenarios", () => {
-      [
-        ForceSetPasswordReason.AdminForcePasswordReset,
-        // ForceResetPasswordReason.WeakMasterPassword, -- not possible in SSO flow as set client side
-      ].forEach((forceResetPasswordReason) => {
-        const reasonString = ForceSetPasswordReason[forceResetPasswordReason];
-
-        beforeEach(() => {
-          // use standard user with MP because this test is not concerned with password reset.
-          selectedUserDecryptionOptions.next(mockUserDecryptionOpts.withMasterPassword);
-
-          const authResult = new AuthResult();
-          authResult.forcePasswordReset = forceResetPasswordReason;
-          mockLoginStrategyService.logIn.mockResolvedValue(authResult);
-        });
-
-        testForceResetOnSuccessfulLogin(reasonString);
-        testOnSuccessfulLoginForceResetNavigate(reasonString);
-      });
-    });
-
     describe("Success scenarios", () => {
       beforeEach(() => {
         const authResult = new AuthResult();
         authResult.twoFactorProviders = null;
         // use standard user with MP because this test is not concerned with password reset.
         selectedUserDecryptionOptions.next(mockUserDecryptionOpts.withMasterPassword);
-        authResult.forcePasswordReset = ForceSetPasswordReason.None;
         mockLoginStrategyService.logIn.mockResolvedValue(authResult);
       });
 

@@ -364,18 +364,18 @@ export class SsoLoginStrategy extends LoginStrategy {
    * @param userId - The user ID
    */
   override async processForceSetPasswordReason(
-    authResult: AuthResult,
+    adminForcePasswordReset: boolean,
     userId: UserId,
-  ): Promise<void> {
+  ): Promise<boolean> {
     // handle any existing reasons
-    await super.processForceSetPasswordReason(authResult, userId);
-
-    // If a reason is already set by the base implementation, don't evaluate SSO-specific reasons
-    const currentReason = await firstValueFrom(
-      this.masterPasswordService.forceSetPasswordReason$(userId),
+    const adminForcePasswordResetFlagSet = await super.processForceSetPasswordReason(
+      adminForcePasswordReset,
+      userId,
     );
-    if (currentReason !== ForceSetPasswordReason.None) {
-      return;
+
+    // If we are already processing an admin force password reset, don't process other reasons
+    if (adminForcePasswordResetFlagSet) {
+      return false;
     }
 
     // Check for TDE-related conditions
@@ -384,7 +384,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     );
 
     if (!userDecryptionOptions) {
-      return;
+      return false;
     }
 
     // Check for TDE offboarding - user is being offboarded from TDE and needs to set a password
@@ -393,8 +393,7 @@ export class SsoLoginStrategy extends LoginStrategy {
         ForceSetPasswordReason.TdeOffboarding,
         userId,
       );
-      authResult.forcePasswordReset = ForceSetPasswordReason.TdeOffboarding;
-      return;
+      return true;
     }
 
     // Check if user has permission to set password but hasn't yet
@@ -406,9 +405,8 @@ export class SsoLoginStrategy extends LoginStrategy {
         ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
         userId,
       );
-      authResult.forcePasswordReset =
-        ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission;
-      return;
+
+      return true;
     }
 
     // Check for new SSO JIT provisioned user
@@ -423,7 +421,10 @@ export class SsoLoginStrategy extends LoginStrategy {
         ForceSetPasswordReason.SsoNewJitProvisionedUser,
         userId,
       );
-      authResult.forcePasswordReset = ForceSetPasswordReason.SsoNewJitProvisionedUser;
+      return true;
     }
+
+    // If none of the conditions are met, return false
+    return false;
   }
 }

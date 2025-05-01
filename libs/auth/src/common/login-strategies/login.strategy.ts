@@ -277,17 +277,7 @@ export abstract class LoginStrategy {
 
     result.resetMasterPassword = response.resetMasterPassword;
 
-    // Convert boolean to enum and set the state for the master password service to
-    // so we know when we reach the auth guard that we need to guide them properly to admin
-    // password reset.
-    if (response.forcePasswordReset) {
-      result.forcePasswordReset = ForceSetPasswordReason.AdminForcePasswordReset;
-
-      await this.masterPasswordService.setForceSetPasswordReason(
-        ForceSetPasswordReason.AdminForcePasswordReset,
-        userId,
-      );
-    }
+    await this.processForceSetPasswordReason(response.forcePasswordReset, userId);
 
     if (response.twoFactorToken != null) {
       // note: we can read email from access token b/c it was saved in saveAccountInformation
@@ -318,20 +308,29 @@ export abstract class LoginStrategy {
     return false;
   }
 
+  // TODO: update jsdoc
   /**
    * Processes the AuthResult to extract any ForceSetPasswordReason flags and sets them into state.
    * @param authResult - The authentication result
    * @param userId - The user ID
+   * @returns a promise that resolves to a boolean indicating whether the admin force password reset flag was set
    */
-  async processForceSetPasswordReason(authResult: AuthResult, userId: UserId): Promise<void> {
-    if (authResult.forcePasswordReset === ForceSetPasswordReason.None) {
-      return;
+  async processForceSetPasswordReason(
+    adminForcePasswordReset: boolean,
+    userId: UserId,
+  ): Promise<boolean> {
+    if (!adminForcePasswordReset) {
+      return false;
     }
 
+    // set the flag in the master password service so we know when we reach the auth guard
+    // that we need to guide them properly to admin password reset.
     await this.masterPasswordService.setForceSetPasswordReason(
-      authResult.forcePasswordReset,
+      ForceSetPasswordReason.AdminForcePasswordReset,
       userId,
     );
+
+    return true;
   }
 
   protected async createKeyPairForOldAccount(userId: UserId) {
