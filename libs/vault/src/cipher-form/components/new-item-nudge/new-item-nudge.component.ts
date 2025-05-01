@@ -36,73 +36,41 @@ export class NewItemNudgeComponent implements OnInit {
 
     switch (this.configType) {
       case CipherType.Login:
-        if (
-          await this.checkHasSpotlightDismissed(
-            VaultNudgeType.newLoginItemStatus,
-            this.activeUserId,
-          )
-        ) {
-          this.dismissalNudgeType = VaultNudgeType.newLoginItemStatus;
-          this.showNewItemSpotlight = true;
-          this.nudgeTitle = this.i18nService.t("newLoginNudgeTitle");
-          this.nudgeBody = this.i18nService.t("newLoginNudgeBody");
-          return;
-        }
+        this.dismissalNudgeType = VaultNudgeType.newLoginItemStatus;
+        this.nudgeTitle = this.i18nService.t("newLoginNudgeTitle");
+        this.nudgeBody = this.i18nService.t("newLoginNudgeBody");
         break;
 
       case CipherType.Card:
-        if (
-          await this.checkHasSpotlightDismissed(VaultNudgeType.newCardItemStatus, this.activeUserId)
-        ) {
-          this.dismissalNudgeType = VaultNudgeType.newCardItemStatus;
-          this.showNewItemSpotlight = true;
-          this.nudgeTitle = this.i18nService.t("newCardNudgeTitle");
-          this.nudgeBody = this.i18nService.t("newCardNudgeBody");
-          return;
-        }
+        this.dismissalNudgeType = VaultNudgeType.newCardItemStatus;
+        this.nudgeTitle = this.i18nService.t("newCardNudgeTitle");
+        this.nudgeBody = this.i18nService.t("newCardNudgeBody");
         break;
 
       case CipherType.Identity:
-        if (
-          await this.checkHasSpotlightDismissed(
-            VaultNudgeType.newIdentityItemStatus,
-            this.activeUserId,
-          )
-        ) {
-          this.dismissalNudgeType = VaultNudgeType.newIdentityItemStatus;
-          this.showNewItemSpotlight = true;
-          this.nudgeTitle = this.i18nService.t("newIdentityNudgeTitle");
-          this.nudgeBody = this.i18nService.t("newIdentityNudgeBody");
-          return;
-        }
+        this.dismissalNudgeType = VaultNudgeType.newIdentityItemStatus;
+        this.nudgeTitle = this.i18nService.t("newIdentityNudgeTitle");
+        this.nudgeBody = this.i18nService.t("newIdentityNudgeBody");
         break;
 
       case CipherType.SecureNote:
-        if (
-          await this.checkHasSpotlightDismissed(VaultNudgeType.newNoteItemStatus, this.activeUserId)
-        ) {
-          this.dismissalNudgeType = VaultNudgeType.newNoteItemStatus;
-          this.showNewItemSpotlight = true;
-          this.nudgeTitle = this.i18nService.t("newNoteNudgeTitle");
-          this.nudgeBody = this.i18nService.t("newNoteNudgeBody");
-          return;
-        }
+        this.dismissalNudgeType = VaultNudgeType.newNoteItemStatus;
+        this.nudgeTitle = this.i18nService.t("newNoteNudgeTitle");
+        this.nudgeBody = this.i18nService.t("newNoteNudgeBody");
         break;
 
       case CipherType.SshKey:
-        if (
-          await this.checkHasSpotlightDismissed(VaultNudgeType.newSshItemStatus, this.activeUserId)
-        ) {
-          this.dismissalNudgeType = VaultNudgeType.newSshItemStatus;
-          this.showNewItemSpotlight = true;
-          this.nudgeTitle = this.i18nService.t("newSshNudgeTitle");
-          this.nudgeBody = this.i18nService.t("newSshNudgeBody");
-          return;
-        }
+        this.dismissalNudgeType = VaultNudgeType.newSshItemStatus;
+        this.nudgeTitle = this.i18nService.t("newSshNudgeTitle");
+        this.nudgeBody = this.i18nService.t("newSshNudgeBody");
         break;
+      default:
+        throw new Error("Unsupported cipher type");
     }
-
-    this.showNewItemSpotlight = false;
+    this.showNewItemSpotlight = await this.checkHasSpotlightDismissed(
+      this.dismissalNudgeType as VaultNudgeType,
+      this.activeUserId,
+    );
   }
 
   async dismissNewItemSpotlight() {

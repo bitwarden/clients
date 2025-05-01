@@ -80,9 +80,7 @@ describe("NewItemNudgeComponent", () => {
     await component.ngOnInit();
 
     expect(component.showNewItemSpotlight).toBe(false);
-    expect(component.nudgeTitle).toBe("");
-    expect(component.nudgeBody).toBe("");
-    expect(component.dismissalNudgeType).toBe(null);
+    expect(component.dismissalNudgeType).toBe(VaultNudgeType.newIdentityItemStatus);
   });
 
   it("should set showNewItemSpotlight to false when user dismisses spotlight", async () => {
