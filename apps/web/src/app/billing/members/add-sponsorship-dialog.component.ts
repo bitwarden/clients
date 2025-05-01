@@ -78,14 +78,11 @@ export class AddSponsorshipDialogComponent {
     });
   }
 
-  static open(
-    dialogService: DialogService,
-    config: DialogConfig<AddSponsorshipDialogParams>,
-  ): DialogRef {
+  static open(dialogService: DialogService, config: DialogConfig<AddSponsorshipDialogParams>) {
     return dialogService.open(AddSponsorshipDialogComponent, {
       ...config,
       data: config.data,
-    });
+    } as unknown as DialogConfig<unknown, DialogRef>);
   }
 
   protected async save() {
