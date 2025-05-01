@@ -50,7 +50,6 @@ export class SsoComponent implements OnInit {
   protected successRoute = "lock";
   protected trustedDeviceEncRoute = "login-initiated";
   protected changePasswordRoute = "set-password-jit";
-  protected forcePasswordResetRoute = "update-temp-password";
   protected clientId: string;
   protected redirectUri: string;
   protected state: string;
@@ -229,13 +228,6 @@ export class SsoComponent implements OnInit {
       const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
       await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(orgSsoIdentifier, userId);
 
-      // Users enrolled in admin acct recovery can be forced to set a new password after
-      // having the admin set a temp password for them (affects TDE & standard users)
-      if (authResult.forcePasswordReset == ForceSetPasswordReason.AdminForcePasswordReset) {
-        // Weak password is not a valid scenario here b/c we cannot have evaluated a MP yet
-        return await this.handleForcePasswordReset(orgSsoIdentifier);
-      }
-
       // must come after 2fa check since user decryption options aren't available if 2fa is required
       const userDecryptionOpts = await firstValueFrom(
         this.userDecryptionOptionsService.userDecryptionOptions$,
@@ -342,18 +334,6 @@ export class SsoComponent implements OnInit {
     await this.navigateViaCallbackOrRoute(
       this.onSuccessfulLoginChangePasswordNavigate,
       [this.changePasswordRoute],
-      {
-        queryParams: {
-          identifier: orgIdentifier,
-        },
-      },
-    );
-  }
-
-  private async handleForcePasswordReset(orgIdentifier: string) {
-    await this.navigateViaCallbackOrRoute(
-      this.onSuccessfulLoginForceResetNavigate,
-      [this.forcePasswordResetRoute],
       {
         queryParams: {
           identifier: orgIdentifier,
