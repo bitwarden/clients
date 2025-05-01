@@ -11,6 +11,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
+import { VaultItemDialogResult } from "@bitwarden/web-vault/app/vault/components/vault-item-dialog/vault-item-dialog.component";
 
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
@@ -21,6 +22,7 @@ import { CipherReportComponent } from "./cipher-report.component";
   templateUrl: "reused-passwords-report.component.html",
 })
 export class ReusedPasswordsReportComponent extends CipherReportComponent implements OnInit {
+  ciphersToCheckForReusedPasswords: CipherView[] = [];
   passwordUseMap: Map<string, number>;
   disabled = true;
 
@@ -53,12 +55,19 @@ export class ReusedPasswordsReportComponent extends CipherReportComponent implem
   }
 
   async setCiphers() {
-    const allCiphers = await this.getAllCiphers();
+    this.ciphersToCheckForReusedPasswords = await this.getAllCiphers();
+    const reusedPasswordCiphers = await this.checkCiphersForReusedPasswords(
+      this.ciphersToCheckForReusedPasswords,
+    );
+    this.filterCiphersByOrg(reusedPasswordCiphers);
+  }
+
+  protected async checkCiphersForReusedPasswords(ciphers: CipherView[]): Promise<CipherView[]> {
     const ciphersWithPasswords: CipherView[] = [];
     this.passwordUseMap = new Map<string, number>();
     this.filterStatus = [0];
 
-    allCiphers.forEach((ciph) => {
+    ciphers.forEach((ciph) => {
       const { type, login, isDeleted, edit, viewPassword } = ciph;
       if (
         type !== CipherType.Login ||
@@ -83,11 +92,46 @@ export class ReusedPasswordsReportComponent extends CipherReportComponent implem
         this.passwordUseMap.has(c.login.password) && this.passwordUseMap.get(c.login.password) > 1,
     );
 
-    this.filterCiphersByOrg(reusedPasswordCiphers);
+    return reusedPasswordCiphers;
   }
 
   protected canManageCipher(c: CipherView): boolean {
     // this will only ever be false from an organization view
     return true;
+  }
+
+  async determinedUpdatedCipherReportStatus(
+    result: VaultItemDialogResult,
+    updatedCipherView: CipherView,
+  ): Promise<CipherView | null> {
+    if (result === VaultItemDialogResult.Deleted) {
+      this.ciphersToCheckForReusedPasswords = this.ciphersToCheckForReusedPasswords.filter(
+        (c) => c.id !== updatedCipherView.id,
+      );
+      return null;
+    }
+
+    // recalculate the reused passwords after an update
+    // it could be that the password was changed which would affect the reused passwords
+
+    // find the cipher in our list and update it
+    const index = this.ciphersToCheckForReusedPasswords.findIndex(
+      (c) => c.id === updatedCipherView.id,
+    );
+
+    if (index !== -1) {
+      this.ciphersToCheckForReusedPasswords[index] = updatedCipherView;
+    }
+
+    // Re-check the passwords for reused passwords for all ciphers
+    const reusedPasswordCiphers = await this.checkCiphersForReusedPasswords(
+      this.ciphersToCheckForReusedPasswords,
+    );
+
+    // set the updated ciphers list to the filtered reused passwords
+    this.filterCiphersByOrg(reusedPasswordCiphers);
+
+    // return the updated cipher view
+    return updatedCipherView;
   }
 }
