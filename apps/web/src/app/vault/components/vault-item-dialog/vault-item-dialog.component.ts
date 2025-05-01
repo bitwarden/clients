@@ -20,7 +20,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { CipherId, CollectionId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
@@ -441,14 +441,15 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const dialogRef = this.dialogService.open<AttachmentDialogCloseResult, { cipherId: CipherId }>(
-      AttachmentsV2Component,
-      {
-        data: {
-          cipherId: this.formConfig.originalCipher?.id as CipherId,
-        },
+    const dialogRef = this.dialogService.open<
+      AttachmentDialogCloseResult,
+      { cipherId: CipherId; organizationId?: OrganizationId }
+    >(AttachmentsV2Component, {
+      data: {
+        cipherId: this.formConfig.originalCipher?.id as CipherId,
+        organizationId: this.formConfig.originalCipher?.organizationId as OrganizationId,
       },
-    );
+    });
 
     const result = await firstValueFrom(dialogRef.closed);
 

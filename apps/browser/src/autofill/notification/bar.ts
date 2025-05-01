@@ -135,7 +135,11 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
   }
 
   notificationBarIframeInitData = initData;
-  const { isVaultLocked, theme } = notificationBarIframeInitData;
+  const {
+    isVaultLocked,
+    removeIndividualVault: personalVaultDisallowed, // renamed to avoid local method collision
+    theme,
+  } = notificationBarIframeInitData;
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
 
@@ -172,6 +176,7 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
           ...notificationBarIframeInitData,
           type: notificationBarIframeInitData.type as NotificationType,
           theme: resolvedTheme,
+          personalVaultIsAllowed: !personalVaultDisallowed,
           handleCloseNotification,
           handleSaveAction,
           handleEditOrUpdateAction,
@@ -266,7 +271,10 @@ function handleSaveAction(e: Event) {
   const selectedFolder = selectedFolderSignal.get();
 
   if (selectedVault.length > 1) {
-    openAddEditVaultItemPopout(e, { organizationId: selectedVault, folder: selectedFolder });
+    openAddEditVaultItemPopout(e, {
+      organizationId: selectedVault,
+      folder: selectedFolder,
+    });
     handleCloseNotification(e);
     return;
   }
@@ -370,7 +378,11 @@ function handleSaveCipherAttemptCompletedMessage(message: NotificationBarWindowM
 
 function openAddEditVaultItemPopout(
   e: Event,
-  options: { cipherId?: string; organizationId?: string; folder?: string },
+  options: {
+    cipherId?: string;
+    organizationId?: string;
+    folder?: string;
+  },
 ) {
   e.preventDefault();
   sendPlatformMessage({
