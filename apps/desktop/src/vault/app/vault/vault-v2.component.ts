@@ -500,11 +500,9 @@ export class VaultV2Component implements OnInit, OnDestroy {
   }
 
   async buildFormConfig(action: CipherFormMode) {
-    this.config = await this.formConfigService.buildConfig(
-      action,
-      this.cipherId as CipherId,
-      this.addType,
-    );
+    this.config = await this.formConfigService
+      .buildConfig(action, this.cipherId as CipherId, this.addType)
+      .catch(() => null);
   }
 
   async editCipher(cipher: CipherView) {
@@ -515,7 +513,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
     this.cipher = cipher;
     await this.buildFormConfig("edit");
     this.action = "edit";
-    await this.go();
+    await this.go().catch(() => {});
   }
 
   async cloneCipher(cipher: CipherView) {
@@ -526,7 +524,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
     this.cipher = cipher;
     await this.buildFormConfig("clone");
     this.action = "clone";
-    await this.go();
+    await this.go().catch(() => {});
   }
 
   async addCipher(type: CipherType) {
@@ -535,7 +533,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
     await this.buildFormConfig("add");
     this.action = "add";
     this.prefillCipherFromFilter();
-    await this.go();
+    await this.go().catch(() => {});
 
     if (type === CipherType.SshKey) {
       this.toastService.showToast({
@@ -549,7 +547,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
   async savedCipher(cipher: CipherView) {
     this.cipherId = null;
     this.action = "view";
-    await this.vaultItemsComponent?.refresh();
+    await this.vaultItemsComponent?.refresh().catch(() => {});
     this.cipherId = cipher.id;
     this.cipher = cipher;
     if (this.activeUserId) {
@@ -557,7 +555,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
     }
     await this.vaultItemsComponent?.load(this.activeFilter.buildFilter());
     await this.go().catch(() => {});
-    await this.vaultItemsComponent?.refresh();
+    await this.vaultItemsComponent?.refresh().catch(() => {});
   }
 
   async deleteCipher() {
@@ -565,14 +563,14 @@ export class VaultV2Component implements OnInit, OnDestroy {
     this.cipher = null;
     this.action = null;
     await this.go();
-    await this.vaultItemsComponent?.refresh();
+    await this.vaultItemsComponent?.refresh().catch(() => {});
   }
 
   async restoreCipher() {
     this.cipherId = null;
     this.action = null;
     await this.go();
-    await this.vaultItemsComponent?.refresh();
+    await this.vaultItemsComponent?.refresh().catch(() => {});
   }
 
   async cancelCipher(cipher: CipherView) {
