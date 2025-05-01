@@ -28,6 +28,8 @@ import { StateService } from "../abstractions/state.service";
 import { MessageSender } from "../messaging";
 import { StateProvider, SYNC_DISK, UserKeyDefinition } from "../state";
 
+import { SyncOptions } from "./sync.service";
+
 const LAST_SYNC_DATE = new UserKeyDefinition<Date>(SYNC_DISK, "lastSync", {
   deserializer: (d) => (d != null ? new Date(d) : null),
   clearOn: ["logout"],
@@ -55,6 +57,7 @@ export abstract class CoreSyncService implements SyncService {
     protected readonly stateProvider: StateProvider,
   ) {}
 
+  abstract fullSync(forceSync: boolean, syncOptions?: SyncOptions): Promise<boolean>;
   abstract fullSync(forceSync: boolean, allowThrowOnError?: boolean): Promise<boolean>;
 
   async getLastSync(): Promise<Date> {
