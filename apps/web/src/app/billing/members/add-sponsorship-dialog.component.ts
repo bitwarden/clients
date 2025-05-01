@@ -1,4 +1,3 @@
-import { DialogRef } from "@angular/cdk/dialog";
 import { Component } from "@angular/core";
 import {
   AbstractControl,
@@ -15,7 +14,13 @@ import { firstValueFrom, map } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ButtonModule, DialogModule, DialogService, FormFieldModule } from "@bitwarden/components";
+import {
+  ButtonModule,
+  DialogModule,
+  DialogRef,
+  DialogService,
+  FormFieldModule,
+} from "@bitwarden/components";
 
 interface RequestSponsorshipForm {
   sponsorshipEmail: FormControl<string | null>;

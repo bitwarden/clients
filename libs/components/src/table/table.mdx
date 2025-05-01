@@ -142,7 +142,7 @@ dataSource.filter = (data) => data.orgType === "family";
 
 Rudimentary string filtering is supported out of the box with `TableDataSource.simpleStringFilter`.
 It works by converting each entry into a string of it's properties. The provided string is then
-compared against the filter value using a simple `indexOf` check. For convienence, you can also just
+compared against the filter value using a simple `indexOf` check. For convenience, you can also just
 pass a string directly.
 
 ```ts
@@ -153,7 +153,7 @@ dataSource.filter = "search value";
 
 ### Virtual Scrolling
 
-It's heavily adviced to use virtual scrolling if you expect the table to have any significant amount
+It's heavily advised to use virtual scrolling if you expect the table to have any significant amount
 of data. This is done by using the `bit-table-scroll` component instead of the `bit-table`
 component. This component behaves slightly different from the `bit-table` component. Instead of
 using the `*ngFor` directive to render the rows, you provide a `bitRowDef` template that will be
@@ -177,6 +177,14 @@ height and align vertically.
   </ng-template>
 </bit-table-scroll>
 ```
+
+#### Deprecated approach
+
+Before `bit-table-scroll` was introduced, virtual scroll in tables was implemented manually via
+constructs from Angular CDK. This included wrapping the table with a `cdk-virtual-scroll-viewport`
+and targeting with `bit-layout`'s scroll container with the `bitScrollLayout` directive.
+
+This pattern is deprecated in favor of `bit-table-scroll`.
 
 ## Accessibility
 
