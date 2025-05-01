@@ -47,7 +47,9 @@ export class ListCommand {
 
     try {
       const requests =
-        await this.organizationAuthRequestService.listPendingRequestsWithDetails(organizationId);
+        await this.organizationAuthRequestService.listPendingRequestsWithFingerprint(
+          organizationId,
+        );
 
       const res = new ListResponse(requests.map((r) => new PendingAuthRequestResponse(r)));
       return Response.success(res);

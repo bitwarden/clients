@@ -3,17 +3,17 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { PendingAuthRequestView } from "./pending-auth-request.view";
 
-export class PendingAuthRequestWithDetailsView extends PendingAuthRequestView {
+export class PendingAuthRequestWithFingerprintView extends PendingAuthRequestView {
   fingerprintPhrase: string = "";
 
   static async fromView(
     view: PendingAuthRequestView,
     keyService: KeyService,
-  ): Promise<PendingAuthRequestWithDetailsView> {
+  ): Promise<PendingAuthRequestWithFingerprintView> {
     const requestWithDetailsView = Object.assign(
-      new PendingAuthRequestWithDetailsView(),
+      new PendingAuthRequestWithFingerprintView(),
       view,
-    ) as PendingAuthRequestWithDetailsView;
+    ) as PendingAuthRequestWithFingerprintView;
 
     requestWithDetailsView.fingerprintPhrase = (
       await keyService.getFingerprint(

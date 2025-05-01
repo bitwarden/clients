@@ -110,7 +110,7 @@ describe("OrganizationAuthRequestService", () => {
         .mockResolvedValue(fingerprintPhrase);
 
       const result =
-        await organizationAuthRequestService.listPendingRequestsWithDetails(organizationId);
+        await organizationAuthRequestService.listPendingRequestsWithFingerprint(organizationId);
 
       expect(result).toHaveLength(1);
       expect(result).toEqual([
@@ -131,7 +131,7 @@ describe("OrganizationAuthRequestService", () => {
         .mockResolvedValue([]);
 
       const result =
-        await organizationAuthRequestService.listPendingRequestsWithDetails(organizationId);
+        await organizationAuthRequestService.listPendingRequestsWithFingerprint(organizationId);
 
       expect(result).toHaveLength(0);
       expect(keyService.getFingerprint).not.toHaveBeenCalled();
