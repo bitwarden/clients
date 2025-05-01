@@ -3,7 +3,7 @@ import { formatDate } from "@angular/common";
 import { Component, OnInit, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, map, Observable, Subject, switchMap } from "rxjs";
+import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationSponsorshipApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-sponsorship-api.service.abstraction";
@@ -34,8 +34,6 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
   organizationKey$: Observable<OrgKey>;
 
   private locale: string = "";
-
-  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -89,7 +87,7 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
       organizationFamilies.map(async (family) => {
         let decryptedNote = "";
         try {
-          decryptedNote = await this.encryptService.decryptToUtf8(
+          decryptedNote = await this.encryptService.decryptString(
             new EncString(family.notes),
             orgKey,
           );
@@ -134,7 +132,7 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
     await this.loadSponsorships();
   }
 
-  async removeSponsorhip(sponsorship: OrganizationSponsorshipInvitesResponse) {
+  async removeSponsorship(sponsorship: OrganizationSponsorshipInvitesResponse) {
     try {
       await this.doRevokeSponsorship(sponsorship);
     } catch (e) {
