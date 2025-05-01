@@ -1,4 +1,4 @@
-import { Component, HostBinding, input } from "@angular/core";
+import { Component, computed, HostBinding, input } from "@angular/core";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
@@ -11,7 +11,7 @@ enum CharacterType {
 
 @Component({
   selector: "bit-color-password",
-  template: `@for (character of passwordArray; track $index; let i = $index) {
+  template: `@for (character of passwordCharArray(); track $index; let i = $index) {
     <span [class]="getCharacterClass(character)">
       <span>{{ character }}</span>
       @if (showCount()) {
@@ -25,6 +25,11 @@ export class ColorPasswordComponent {
   password = input<string>("");
   showCount = input<boolean>(false);
 
+  passwordCharArray = computed(() => {
+    // // Convert to an array to handle cases that strings have special characters, i.e.: emoji.
+    return (this.password() ?? []) ? Array.from(this.password()) : [];
+  });
+
   characterStyles: Record<CharacterType, string[]> = {
     [CharacterType.Emoji]: [],
     [CharacterType.Letter]: ["tw-text-main"],
@@ -35,14 +40,6 @@ export class ColorPasswordComponent {
   @HostBinding("class")
   get classList() {
     return ["tw-min-w-0", "tw-whitespace-pre-wrap", "tw-break-all"];
-  }
-
-  get passwordArray() {
-    if (this.password() == null) {
-      return [];
-    }
-    // Convert to an array to handle cases that strings have special characters, i.e.: emoji.
-    return Array.from(this.password());
   }
 
   getCharacterClass(character: string) {
