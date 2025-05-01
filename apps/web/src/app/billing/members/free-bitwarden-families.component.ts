@@ -212,40 +212,48 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
         ),
         statusClass: "tw-text-danger",
       };
-    } else if (toDelete) {
+    }
+
+    if (toDelete) {
       // They want to delete and we don't have a valid until date so we can
       // this should only happen on a self-hosted install
       return {
         statusMessage: this.i18nService.t("requestRemoved"),
         statusClass: "tw-text-danger",
       };
-    } else if (validUntil) {
+    }
+
+    if (validUntil) {
       // They don't want to delete and they have a valid until date
       // that means they are actively sponsoring someone
       return {
         statusMessage: this.i18nService.t("active"),
         statusClass: "tw-text-success",
       };
-    } else if (selfHosted && lastSyncDate) {
+    }
+
+    if (selfHosted && lastSyncDate) {
       // We are on a self-hosted install and it has been synced but we have not gotten
       // a valid until date so we can't know if they are actively sponsoring someone
       return {
         statusMessage: this.i18nService.t("sent"),
         statusClass: "tw-text-success",
       };
-    } else if (!selfHosted) {
+    }
+
+    if (!selfHosted) {
       // We are in cloud and all other status checks have been false therefore we have
       // sent the request but it hasn't been accepted yet
       return {
         statusMessage: this.i18nService.t("sent"),
         statusClass: "tw-text-success",
       };
-    } else {
-      // We are on a self-hosted install and we have not synced yet
-      return {
-        statusMessage: this.i18nService.t("requested"),
-        statusClass: "tw-text-success",
-      };
     }
+
+    // We are on a self-hosted install and we have not synced yet
+    return {
+      statusMessage: this.i18nService.t("requested"),
+      statusClass: "tw-text-success",
+    };
   }
 }
