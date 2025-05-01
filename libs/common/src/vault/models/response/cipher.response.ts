@@ -1,10 +1,14 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { BaseResponse } from "../../../models/response/base.response";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CardApi } from "../api/card.api";
+import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 import { FieldApi } from "../api/field.api";
 import { IdentityApi } from "../api/identity.api";
 import { LoginApi } from "../api/login.api";
 import { SecureNoteApi } from "../api/secure-note.api";
+import { SshKeyApi } from "../api/ssh-key.api";
 
 import { AttachmentResponse } from "./attachment.response";
 import { PasswordHistoryResponse } from "./password-history.response";
@@ -21,9 +25,11 @@ export class CipherResponse extends BaseResponse {
   card: CardApi;
   identity: IdentityApi;
   secureNote: SecureNoteApi;
+  sshKey: SshKeyApi;
   favorite: boolean;
   edit: boolean;
   viewPassword: boolean;
+  permissions: CipherPermissionsApi;
   organizationUseTotp: boolean;
   revisionDate: string;
   attachments: AttachmentResponse[];
@@ -49,6 +55,7 @@ export class CipherResponse extends BaseResponse {
     } else {
       this.viewPassword = this.getResponseProperty("ViewPassword");
     }
+    this.permissions = new CipherPermissionsApi(this.getResponseProperty("Permissions"));
     this.organizationUseTotp = this.getResponseProperty("OrganizationUseTotp");
     this.revisionDate = this.getResponseProperty("RevisionDate");
     this.collectionIds = this.getResponseProperty("CollectionIds");
@@ -73,6 +80,11 @@ export class CipherResponse extends BaseResponse {
     const secureNote = this.getResponseProperty("SecureNote");
     if (secureNote != null) {
       this.secureNote = new SecureNoteApi(secureNote);
+    }
+
+    const sshKey = this.getResponseProperty("sshKey");
+    if (sshKey != null) {
+      this.sshKey = new SshKeyApi(sshKey);
     }
 
     const fields = this.getResponseProperty("Fields");

@@ -3,6 +3,19 @@
     {{ "cardExpiredMessage" | i18n }}
   </bit-callout>
 
+  <ng-container *ngIf="isSecurityTasksEnabled$ | async">
+    <bit-callout
+      *ngIf="cipher?.login.uris.length > 0 && hadPendingChangePasswordTask"
+      type="warning"
+      [title]="''"
+    >
+      <i class="bwi bwi-exclamation-triangle tw-text-warning" aria-hidden="true"></i>
+      <a bitLink href="#" appStopClick (click)="launchChangePassword()">
+        {{ "changeAtRiskPassword" | i18n }}
+        <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
+      </a>
+    </bit-callout>
+  </ng-container>
   <!-- HELPER TEXT -->
   <p
     class="tw-text-sm tw-text-muted"
@@ -16,16 +29,29 @@
   <app-item-details-v2
     [cipher]="cipher"
     [organization]="organization$ | async"
-    [collections]="collections$ | async"
+    [collections]="collections"
     [folder]="folder$ | async"
+    [hideOwner]="isAdminConsole"
   >
   </app-item-details-v2>
 
   <!-- LOGIN CREDENTIALS -->
-  <app-login-credentials-view *ngIf="hasLogin" [cipher]="cipher"></app-login-credentials-view>
+  <app-login-credentials-view
+    *ngIf="hasLogin"
+    [cipher]="cipher"
+    [activeUserId]="activeUserId$ | async"
+    [hadPendingChangePasswordTask]="
+      hadPendingChangePasswordTask && (isSecurityTasksEnabled$ | async)
+    "
+    (handleChangePassword)="launchChangePassword()"
+  ></app-login-credentials-view>
 
   <!-- AUTOFILL OPTIONS -->
-  <app-autofill-options-view *ngIf="hasAutofill" [loginUris]="cipher.login.uris">
+  <app-autofill-options-view
+    *ngIf="hasAutofill"
+    [loginUris]="cipher.login.uris"
+    [cipherId]="cipher.id"
+  >
   </app-autofill-options-view>
 
   <!-- CARD DETAILS -->
@@ -34,6 +60,9 @@
   <!-- IDENTITY SECTIONS -->
   <app-view-identity-sections *ngIf="cipher.identity" [cipher]="cipher">
   </app-view-identity-sections>
+
+  <!-- SshKEY SECTIONS -->
+  <app-sshkey-view *ngIf="hasSshKey" [sshKey]="cipher.sshKey"></app-sshkey-view>
 
   <!-- ADDITIONAL OPTIONS -->
   <ng-container *ngIf="cipher.notes">
@@ -47,7 +76,8 @@
 
   <!-- ATTACHMENTS SECTION -->
   <ng-container *ngIf="cipher.attachments">
-    <app-attachments-v2-view [cipher]="cipher"> </app-attachments-v2-view>
+    <app-attachments-v2-view [emergencyAccessId]="emergencyAccessId" [cipher]="cipher">
+    </app-attachments-v2-view>
   </ng-container>
 
   <!-- ITEM HISTORY SECTION -->

@@ -1,6 +1,11 @@
 <app-header></app-header>
 
-<p bitTypography="body1">{{ "scimDescription" | i18n }}</p>
+<p bitTypography="body1">
+  {{ "scimIntegrationDescription" | i18n }}
+  <a bitLink target="_blank" href="https://bitwarden.com/help/about-scim/"
+    ><i class="bwi bwi-question-circle"></i
+  ></a>
+</p>
 
 <div *ngIf="loading">
   <i

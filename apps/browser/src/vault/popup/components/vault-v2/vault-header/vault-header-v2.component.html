@@ -1,0 +1,36 @@
+<div class="tw-flex tw-gap-1 tw-items-center">
+  <div class="tw-flex-1">
+    <app-vault-v2-search></app-vault-v2-search>
+  </div>
+  <div class="tw-relative">
+    <button
+      type="button"
+      bitIconButton="bwi-sliders"
+      [buttonType]="'muted'"
+      [bitDisclosureTriggerFor]="disclosureRef"
+      [appA11yTitle]="'filterVault' | i18n"
+      aria-describedby="filters-applied"
+    ></button>
+    <p
+      class="tw-sr-only"
+      id="filters-applied"
+      *ngIf="buttonSupportingText$ | async as supportingText"
+    >
+      {{ supportingText }}
+    </p>
+    <div
+      *ngIf="showBadge$ | async"
+      class="tw-flex tw-items-center tw-justify-center tw-z-10 tw-absolute tw-rounded-full tw-size-[15px] tw-top-[1px] tw-right-[1px] tw-text-notification-600 tw-text-[8px] tw-border-notification-600 tw-border-[0.5px] tw-border-solid tw-bg-notification-100 tw-leading-normal"
+      data-testid="filter-badge"
+    >
+      {{ numberOfAppliedFilters$ | async }}
+    </div>
+  </div>
+</div>
+<bit-disclosure
+  #disclosureRef
+  [open]="initialDisclosureVisibility$ | async"
+  (openChange)="toggleFilters($event)"
+>
+  <app-vault-list-filters></app-vault-list-filters>
+</bit-disclosure>

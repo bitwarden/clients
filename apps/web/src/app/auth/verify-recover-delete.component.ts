@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -13,7 +15,6 @@ import { ToastService } from "@bitwarden/components";
   selector: "app-verify-recover-delete",
   templateUrl: "verify-recover-delete.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class VerifyRecoverDeleteComponent implements OnInit {
   email: string;
 

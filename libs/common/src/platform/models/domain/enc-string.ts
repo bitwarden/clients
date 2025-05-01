@@ -1,10 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify, Opaque } from "type-fest";
 
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncryptionType, EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE } from "../../enums";
 import { Encrypted } from "../../interfaces/encrypted";
 import { Utils } from "../../misc/utils";
 
 import { SymmetricCryptoKey } from "./symmetric-crypto-key";
+
+export const DECRYPT_ERROR = "[error: cannot decrypt]";
 
 export class EncString implements Encrypted {
   encryptedString?: EncryptedString;
@@ -84,7 +89,6 @@ export class EncString implements Encrypted {
     }
 
     switch (encType) {
-      case EncryptionType.AesCbc128_HmacSha256_B64:
       case EncryptionType.AesCbc256_HmacSha256_B64:
         this.iv = encPieces[0];
         this.data = encPieces[1];
@@ -120,15 +124,14 @@ export class EncString implements Encrypted {
       try {
         encType = parseInt(headerPieces[0], null);
         encPieces = headerPieces[1].split("|");
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         return { encType: NaN, encPieces: [] };
       }
     } else {
       encPieces = encryptedString.split("|");
-      encType =
-        encPieces.length === 3
-          ? EncryptionType.AesCbc128_HmacSha256_B64
-          : EncryptionType.AesCbc256_B64;
+      encType = EncryptionType.AesCbc256_B64;
     }
 
     return {
@@ -151,32 +154,72 @@ export class EncString implements Encrypted {
     return EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE[encType] === encPieces.length;
   }
 
-  async decrypt(orgId: string, key: SymmetricCryptoKey = null): Promise<string> {
+  async decrypt(
+    orgId: string | null,
+    key: SymmetricCryptoKey | null = null,
+    context?: string,
+  ): Promise<string> {
     if (this.decryptedValue != null) {
       return this.decryptedValue;
     }
 
+    let decryptTrace = "provided-key";
     try {
       if (key == null) {
         key = await this.getKeyForDecryption(orgId);
+        decryptTrace = orgId == null ? `domain-orgkey-${orgId}` : "domain-userkey|masterkey";
+        if (orgId != null) {
+          decryptTrace = `domain-orgkey-${orgId}`;
+        } else {
+          const cryptoService = Utils.getContainerService().getKeyService();
+          decryptTrace =
+            (await cryptoService.getUserKey()) == null
+              ? "domain-withlegacysupport-masterkey"
+              : "domain-withlegacysupport-userkey";
+        }
       }
       if (key == null) {
         throw new Error("No key to decrypt EncString with orgId " + orgId);
       }
 
       const encryptService = Utils.getContainerService().getEncryptService();
-      this.decryptedValue = await encryptService.decryptToUtf8(this, key);
+      this.decryptedValue = await encryptService.decryptToUtf8(
+        this,
+        key,
+        decryptTrace == null ? context : `${decryptTrace}${context || ""}`,
+      );
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
-      this.decryptedValue = "[error: cannot decrypt]";
+      this.decryptedValue = DECRYPT_ERROR;
     }
     return this.decryptedValue;
   }
 
+  async decryptWithKey(
+    key: SymmetricCryptoKey,
+    encryptService: EncryptService,
+    decryptTrace: string = "domain-withkey",
+  ): Promise<string> {
+    try {
+      if (key == null) {
+        throw new Error("No key to decrypt EncString");
+      }
+
+      this.decryptedValue = await encryptService.decryptToUtf8(this, key, decryptTrace);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+      this.decryptedValue = DECRYPT_ERROR;
+    }
+
+    return this.decryptedValue;
+  }
   private async getKeyForDecryption(orgId: string) {
-    const cryptoService = Utils.getContainerService().getCryptoService();
+    const keyService = Utils.getContainerService().getKeyService();
     return orgId != null
-      ? await cryptoService.getOrgKey(orgId)
-      : await cryptoService.getUserKeyWithLegacySupport();
+      ? await keyService.getOrgKey(orgId)
+      : await keyService.getUserKeyWithLegacySupport();
   }
 }
 

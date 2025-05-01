@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 /* eslint-disable no-useless-escape */
 import * as path from "path";
 
@@ -6,10 +8,13 @@ import { Observable, of, switchMap } from "rxjs";
 import { getHostname, parse } from "tldts";
 import { Merge } from "type-fest";
 
-import { CryptoService } from "../abstractions/crypto.service";
-import { EncryptService } from "../abstractions/encrypt.service";
+import { KeyService } from "@bitwarden/key-management";
+
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "../abstractions/i18n.service";
 
+// FIXME: Remove when updating file. Eslint update
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const nodeURL = typeof self === "undefined" ? require("url") : null;
 
 declare global {
@@ -18,7 +23,7 @@ declare global {
 }
 
 interface BitwardenContainerService {
-  getCryptoService: () => CryptoService;
+  getKeyService: () => KeyService;
   getEncryptService: () => EncryptService;
 }
 
@@ -228,7 +233,7 @@ export class Utils {
     if (Utils.isNode) {
       return Buffer.from(utfStr, "utf8").toString("base64");
     } else {
-      return decodeURIComponent(escape(Utils.global.btoa(utfStr)));
+      return BufferLib.from(utfStr, "utf8").toString("base64");
     }
   }
 
@@ -240,7 +245,7 @@ export class Utils {
     if (Utils.isNode) {
       return Buffer.from(b64Str, "base64").toString("utf8");
     } else {
-      return decodeURIComponent(escape(Utils.global.atob(b64Str)));
+      return BufferLib.from(b64Str, "base64").toString("utf8");
     }
   }
 
@@ -606,6 +611,8 @@ export class Utils {
       }
 
       return new URL(uriString);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       // Ignore error
     }

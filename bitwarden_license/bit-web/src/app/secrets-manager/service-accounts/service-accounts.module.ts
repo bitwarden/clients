@@ -9,6 +9,7 @@ import { AccessTokenComponent } from "./access/access-tokens.component";
 import { AccessTokenCreateDialogComponent } from "./access/dialogs/access-token-create-dialog.component";
 import { AccessTokenDialogComponent } from "./access/dialogs/access-token-dialog.component";
 import { ExpirationOptionsComponent } from "./access/dialogs/expiration-options.component";
+import { ServiceAccountConfigComponent } from "./config/config.component";
 import { ServiceAccountDeleteDialogComponent } from "./dialog/service-account-delete-dialog.component";
 import { ServiceAccountDialogComponent } from "./dialog/service-account-dialog.component";
 import { ServiceAccountEventsComponent } from "./event-logs/service-accounts-events.component";
@@ -28,6 +29,7 @@ import { ServiceAccountsComponent } from "./service-accounts.component";
     AccessTokenDialogComponent,
     ExpirationOptionsComponent,
     ServiceAccountComponent,
+    ServiceAccountConfigComponent,
     ServiceAccountDeleteDialogComponent,
     ServiceAccountDialogComponent,
     ServiceAccountEventsComponent,

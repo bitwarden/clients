@@ -1,21 +1,11 @@
-<!-- TODO: Colors will be finalized in the extension refresh feature branch -->
-<div
-  class="tw-box-border tw-overflow-auto tw-flex tw-bg-background [&:has(.item-main-content_button:hover,.item-main-content_a:hover)]:tw-bg-primary-300/20 tw-text-main tw-border-solid tw-border-b tw-border-0 [&:not(bit-layout_*)]:tw-rounded-lg tw-mb-1.5"
-  [ngClass]="
-    focusVisibleWithin()
-      ? 'tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-primary-600 tw-border-transparent'
-      : 'tw-border-b-secondary-300 [&:has(.item-main-content_button:hover,.item-main-content_a:hover)]:tw-border-b-transparent'
-  "
->
-  <bit-item-action class="item-main-content tw-block tw-flex-1 tw-overflow-hidden">
-    <ng-content></ng-content>
-  </bit-item-action>
+<bit-item-action class="item-main-content tw-flex tw-flex-1 tw-overflow-hidden">
+  <ng-content></ng-content>
+</bit-item-action>
 
-  <div
-    #endSlot
-    class="tw-p-2 tw-flex tw-gap-1 tw-items-center"
-    [hidden]="endSlot.childElementCount === 0"
-  >
-    <ng-content select="[slot=end]"></ng-content>
-  </div>
+<div
+  #endSlot
+  class="tw-p-2 tw-flex tw-gap-1 tw-items-center"
+  [hidden]="endSlot.childElementCount === 0"
+>
+  <ng-content select="[slot=end]"></ng-content>
 </div>

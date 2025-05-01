@@ -1,11 +1,13 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
 
+import { CollectionAdminView, CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { CollectionView } from "@bitwarden/common/src/vault/models/view/collection.view";
-import { FolderView } from "@bitwarden/common/src/vault/models/view/folder.view";
+import { UserId } from "@bitwarden/common/types/guid";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
-import { CollectionAdminView } from "../../../../core/views/collection-admin.view";
 import {
   CipherTypeFilter,
   CollectionFilter,
@@ -21,16 +23,19 @@ export abstract class VaultFilterService {
   folderTree$: Observable<TreeNode<FolderFilter>>;
   collectionTree$: Observable<TreeNode<CollectionFilter>>;
   cipherTypeTree$: Observable<TreeNode<CipherTypeFilter>>;
-  getCollectionNodeFromTree: (id: string) => Promise<TreeNode<CollectionFilter>>;
-  setCollapsedFilterNodes: (collapsedFilterNodes: Set<string>) => Promise<void>;
-  expandOrgFilter: () => Promise<void>;
-  getOrganizationFilter: () => Observable<Organization>;
-  setOrganizationFilter: (organization: Organization) => void;
-  buildTypeTree: (
+  abstract getCollectionNodeFromTree: (id: string) => Promise<TreeNode<CollectionFilter>>;
+  abstract setCollapsedFilterNodes: (
+    collapsedFilterNodes: Set<string>,
+    userId: UserId,
+  ) => Promise<void>;
+  abstract expandOrgFilter: (userId: UserId) => Promise<void>;
+  abstract getOrganizationFilter: () => Observable<Organization>;
+  abstract setOrganizationFilter: (organization: Organization) => void;
+  abstract buildTypeTree: (
     head: CipherTypeFilter,
     array: CipherTypeFilter[],
   ) => Observable<TreeNode<CipherTypeFilter>>;
   // TODO: Remove this from org vault when collection admin service adopts state management
-  reloadCollections?: (collections: CollectionAdminView[]) => void;
-  clearOrganizationFilter: () => void;
+  abstract reloadCollections?: (collections: CollectionAdminView[]) => void;
+  abstract clearOrganizationFilter: () => void;
 }

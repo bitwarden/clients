@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, Input, OnDestroy, OnInit, Optional } from "@angular/core";
 import { FormGroupDirective } from "@angular/forms";
 import { BehaviorSubject, catchError, filter, of, Subject, switchMap, takeUntil } from "rxjs";
@@ -12,6 +14,7 @@ import { FunctionReturningAwaitable, functionToObservable } from "../utils/funct
  */
 @Directive({
   selector: "[formGroup][bitSubmit]",
+  standalone: true,
 })
 export class BitSubmitDirective implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

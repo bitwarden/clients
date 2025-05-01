@@ -1,7 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
@@ -23,24 +24,11 @@ export class BitwardenCsvImporter extends BaseImporter implements Importer {
       if (this.organization && !this.isNullOrWhitespace(value.collections)) {
         const collections = (value.collections as string).split(",");
         collections.forEach((col) => {
-          let addCollection = true;
-          let collectionIndex = result.collections.length;
-
-          for (let i = 0; i < result.collections.length; i++) {
-            if (result.collections[i].name === col) {
-              addCollection = false;
-              collectionIndex = i;
-              break;
-            }
-          }
-
-          if (addCollection) {
-            const collection = new CollectionView();
-            collection.name = col;
-            result.collections.push(collection);
-          }
-
-          result.collectionRelationships.push([result.ciphers.length, collectionIndex]);
+          // here processFolder is used to create collections
+          // In an Organization folders are converted to collections
+          // see line just before this function terminates
+          // where all folders are turned to collections
+          this.processFolder(result, col);
         });
       } else if (!this.organization) {
         this.processFolder(result, value.folder);
@@ -111,6 +99,10 @@ export class BitwardenCsvImporter extends BaseImporter implements Importer {
 
       result.ciphers.push(cipher);
     });
+
+    if (this.organization) {
+      this.moveFoldersToCollections(result);
+    }
 
     result.success = true;
     return Promise.resolve(result);

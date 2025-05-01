@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { RouterLink } from "@angular/router";
@@ -64,7 +66,7 @@ export class SendListItemsContainerComponent {
   async deleteSend(s: SendView): Promise<boolean> {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "deleteSend" },
-      content: { key: "deleteSendConfirmation" },
+      content: { key: "deleteSendPermanentConfirmation" },
       type: "warning",
     });
 

@@ -1,0 +1,19 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog dialogSize="default" [title]="'twoStepLogin' | i18n" [subtitle]="dialogTitle">
+    <ng-container bitDialogContent>
+      <app-user-verification-form-input
+        formControlName="secret"
+        name="secret"
+        [(invalidSecret)]="invalidSecret"
+      ></app-user-verification-form-input>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button bitButton bitFormButton type="submit" buttonType="primary">
+        {{ "continue" | i18n }}
+      </button>
+      <button bitButton type="button" buttonType="secondary" bitDialogClose>
+        {{ "close" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

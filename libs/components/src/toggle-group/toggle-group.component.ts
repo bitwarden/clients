@@ -12,7 +12,7 @@ let nextId = 0;
 @Component({
   selector: "bit-toggle-group",
   templateUrl: "./toggle-group.component.html",
-  preserveWhitespaces: false,
+  standalone: true,
 })
 export class ToggleGroupComponent<TValue = unknown> {
   private id = nextId++;
@@ -25,7 +25,7 @@ export class ToggleGroupComponent<TValue = unknown> {
   @HostBinding("attr.role") role = "radiogroup";
   @HostBinding("class")
   get classList() {
-    return ["tw-flex"].concat(this.fullWidth ? ["tw-w-full", "[&>*]:tw-grow"] : []);
+    return ["tw-flex"].concat(this.fullWidth ? ["tw-w-full", "[&>*]:tw-flex-1"] : []);
   }
 
   onInputInteraction(value: TValue) {

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -77,7 +79,7 @@ export class PasswordHintComponent implements OnInit {
   };
 
   protected async cancel() {
-    this.loginEmailService.setLoginEmail(this.email);
+    await this.loginEmailService.setLoginEmail(this.email);
     await this.router.navigate(["login"]);
   }
 

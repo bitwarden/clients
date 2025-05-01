@@ -1,4 +1,5 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
+import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
@@ -7,6 +8,7 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
@@ -14,6 +16,14 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherFormContainer } from "../../cipher-form-container";
 
 import { AutofillOptionsComponent } from "./autofill-options.component";
+
+jest.mock("@angular/cdk/drag-drop", () => {
+  const actual = jest.requireActual("@angular/cdk/drag-drop");
+  return {
+    ...actual,
+    moveItemInArray: jest.fn(actual.moveItemInArray),
+  };
+});
 
 describe("AutofillOptionsComponent", () => {
   let component: AutofillOptionsComponent;
@@ -23,10 +33,14 @@ describe("AutofillOptionsComponent", () => {
   let liveAnnouncer: MockProxy<LiveAnnouncer>;
   let domainSettingsService: MockProxy<DomainSettingsService>;
   let autofillSettingsService: MockProxy<AutofillSettingsServiceAbstraction>;
+  let platformUtilsService: MockProxy<PlatformUtilsService>;
+  const getInitialCipherView = jest.fn(() => null);
 
   beforeEach(async () => {
-    cipherFormContainer = mock<CipherFormContainer>();
+    getInitialCipherView.mockClear();
+    cipherFormContainer = mock<CipherFormContainer>({ getInitialCipherView });
     liveAnnouncer = mock<LiveAnnouncer>();
+    platformUtilsService = mock<PlatformUtilsService>();
     domainSettingsService = mock<DomainSettingsService>();
     domainSettingsService.defaultUriMatchStrategy$ = new BehaviorSubject(null);
 
@@ -45,6 +59,7 @@ describe("AutofillOptionsComponent", () => {
         { provide: LiveAnnouncer, useValue: liveAnnouncer },
         { provide: DomainSettingsService, useValue: domainSettingsService },
         { provide: AutofillSettingsServiceAbstraction, useValue: autofillSettingsService },
+        { provide: PlatformUtilsService, useValue: platformUtilsService },
       ],
     }).compileComponents();
 
@@ -103,11 +118,13 @@ describe("AutofillOptionsComponent", () => {
     existingLogin.uri = "https://example.com";
     existingLogin.match = UriMatchStrategy.Exact;
 
-    (cipherFormContainer.originalCipherView as CipherView) = new CipherView();
-    cipherFormContainer.originalCipherView.login = {
+    const cipher = new CipherView();
+    cipher.login = {
       autofillOnPageLoad: true,
       uris: [existingLogin],
     } as LoginView;
+
+    getInitialCipherView.mockReturnValueOnce(cipher);
 
     fixture.detectChanges();
 
@@ -134,11 +151,13 @@ describe("AutofillOptionsComponent", () => {
     existingLogin.uri = "https://example.com";
     existingLogin.match = UriMatchStrategy.Exact;
 
-    (cipherFormContainer.originalCipherView as CipherView) = new CipherView();
-    cipherFormContainer.originalCipherView.login = {
+    const cipher = new CipherView();
+    cipher.login = {
       autofillOnPageLoad: true,
       uris: [existingLogin],
     } as LoginView;
+
+    getInitialCipherView.mockReturnValueOnce(cipher);
 
     fixture.detectChanges();
 
@@ -155,11 +174,13 @@ describe("AutofillOptionsComponent", () => {
     existingLogin.uri = "https://example.com";
     existingLogin.match = UriMatchStrategy.Exact;
 
-    (cipherFormContainer.originalCipherView as CipherView) = new CipherView();
-    cipherFormContainer.originalCipherView.login = {
+    const cipher = new CipherView();
+    cipher.login = {
       autofillOnPageLoad: true,
       uris: [existingLogin],
     } as LoginView;
+
+    getInitialCipherView.mockReturnValueOnce(cipher);
 
     fixture.detectChanges();
 
@@ -242,5 +263,112 @@ describe("AutofillOptionsComponent", () => {
     fixture.detectChanges();
 
     expect(component.autofillOptionsForm.value.uris.length).toEqual(1);
+  });
+
+  describe("Drag & Drop Functionality", () => {
+    beforeEach(() => {
+      // Prevent auto‑adding an empty URI by setting a non‑null initial value.
+      // This overrides the call to initNewCipher.
+
+      // Now clear any existing URIs (including the auto‑added one)
+      component.autofillOptionsForm.controls.uris.clear();
+
+      // Add exactly three URIs that we want to test reordering on.
+      component.addUri({ uri: "https://first.com", matchDetection: null });
+      component.addUri({ uri: "https://second.com", matchDetection: null });
+      component.addUri({ uri: "https://third.com", matchDetection: null });
+      fixture.detectChanges();
+    });
+
+    it("should reorder URI inputs on drop event", () => {
+      // Simulate a drop event that moves the first URI (index 0) to the last position (index 2).
+      const dropEvent: CdkDragDrop<HTMLDivElement> = {
+        previousIndex: 0,
+        currentIndex: 2,
+        container: null,
+        previousContainer: null,
+        isPointerOverContainer: true,
+        item: null,
+        distance: { x: 0, y: 0 },
+      } as any;
+
+      component.onUriItemDrop(dropEvent);
+      fixture.detectChanges();
+
+      expect(moveItemInArray).toHaveBeenCalledWith(
+        component.autofillOptionsForm.controls.uris.controls,
+        0,
+        2,
+      );
+    });
+
+    it("should reorder URI input via keyboard ArrowUp", async () => {
+      // Clear and add exactly two URIs.
+      component.autofillOptionsForm.controls.uris.clear();
+      component.addUri({ uri: "https://first.com", matchDetection: null });
+      component.addUri({ uri: "https://second.com", matchDetection: null });
+      fixture.detectChanges();
+
+      // Simulate pressing ArrowUp on the second URI (index 1)
+      const keyEvent = {
+        key: "ArrowUp",
+        preventDefault: jest.fn(),
+        target: document.createElement("button"),
+      } as unknown as KeyboardEvent;
+
+      // Force requestAnimationFrame to run synchronously
+      jest.spyOn(window, "requestAnimationFrame").mockImplementation((cb: FrameRequestCallback) => {
+        cb(new Date().getTime());
+        return 0;
+      });
+      (liveAnnouncer.announce as jest.Mock).mockResolvedValue(null);
+
+      await component.onUriItemKeydown(keyEvent, 1);
+      fixture.detectChanges();
+
+      expect(moveItemInArray).toHaveBeenCalledWith(
+        component.autofillOptionsForm.controls.uris.controls,
+        1,
+        0,
+      );
+      expect(liveAnnouncer.announce).toHaveBeenCalledWith(
+        "reorderFieldUp websiteUri 1 2",
+        "assertive",
+      );
+    });
+
+    it("should reorder URI input via keyboard ArrowDown", async () => {
+      // Clear and add exactly three URIs.
+      component.autofillOptionsForm.controls.uris.clear();
+      component.addUri({ uri: "https://first.com", matchDetection: null });
+      component.addUri({ uri: "https://second.com", matchDetection: null });
+      component.addUri({ uri: "https://third.com", matchDetection: null });
+      fixture.detectChanges();
+
+      // Simulate pressing ArrowDown on the second URI (index 1)
+      const keyEvent = {
+        key: "ArrowDown",
+        preventDefault: jest.fn(),
+        target: document.createElement("button"),
+      } as unknown as KeyboardEvent;
+
+      jest.spyOn(window, "requestAnimationFrame").mockImplementation((cb: FrameRequestCallback) => {
+        cb(new Date().getTime());
+        return 0;
+      });
+      (liveAnnouncer.announce as jest.Mock).mockResolvedValue(null);
+
+      await component.onUriItemKeydown(keyEvent, 1);
+
+      expect(moveItemInArray).toHaveBeenCalledWith(
+        component.autofillOptionsForm.controls.uris.controls,
+        1,
+        2,
+      );
+      expect(liveAnnouncer.announce).toHaveBeenCalledWith(
+        "reorderFieldDown websiteUri 3 3",
+        "assertive",
+      );
+    });
   });
 });

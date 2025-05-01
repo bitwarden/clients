@@ -73,7 +73,7 @@
         <!-- The `fvw` class passes focus to `this.focusVisibleWithin$` -->
         <!-- The following `class` field should match the `#isButton` class field below -->
         <a
-          class="fvw tw-w-full tw-truncate tw-border-none tw-bg-transparent tw-p-0 tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none [&>:not(.bwi)]:hover:tw-underline"
+          class="fvw tw-w-full tw-truncate tw-border-none tw-bg-transparent tw-p-0 tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none"
           [routerLink]="route"
           [relativeTo]="relativeTo"
           [attr.aria-label]="ariaLabel || text"
@@ -92,7 +92,7 @@
         <!-- Class field should match `#isAnchor` class field above -->
         <button
           type="button"
-          class="fvw tw-w-full tw-truncate tw-border-none tw-bg-transparent tw-p-0 tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none [&>:not(.bwi)]:hover:tw-underline"
+          class="fvw tw-w-full tw-truncate tw-border-none tw-bg-transparent tw-p-0 tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none"
           (click)="mainContentClicked.emit()"
         >
           <ng-container *ngTemplateOutlet="anchorAndButtonContent"></ng-container>

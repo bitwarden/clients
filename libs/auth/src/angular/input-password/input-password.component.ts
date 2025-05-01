@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -9,8 +9,6 @@ import {
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { DEFAULT_KDF_CONFIG } from "@bitwarden/common/auth/models/domain/kdf-config";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -23,13 +21,40 @@ import {
   IconButtonModule,
   InputModule,
   ToastService,
+  Translation,
 } from "@bitwarden/components";
+import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
 
-import { InputsFieldMatch } from "../../../../angular/src/auth/validators/inputs-field-match.validator";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { SharedModule } from "../../../../components/src/shared";
 import { PasswordCalloutComponent } from "../password-callout/password-callout.component";
+import { compareInputs, ValidationGoal } from "../validators/compare-inputs.validator";
 
 import { PasswordInputResult } from "./password-input-result";
+
+/**
+ * Determines which form input elements will be displayed in the UI.
+ */
+export enum InputPasswordFlow {
+  /**
+   * - Input: New password
+   * - Input: Confirm new password
+   * - Input: Hint
+   * - Checkbox: Check for breaches
+   */
+  SetInitialPassword,
+  /**
+   * Everything above, plus:
+   * - Input: Current password (as the first element in the UI)
+   */
+  ChangePassword,
+  /**
+   * Everything above, plus:
+   * - Checkbox: Rotate account encryption key (as the last element in the UI)
+   */
+  ChangePasswordWithOptionalUserKeyRotation,
+}
 
 @Component({
   standalone: true,
@@ -49,44 +74,52 @@ import { PasswordInputResult } from "./password-input-result";
     JslibModule,
   ],
 })
-export class InputPasswordComponent {
+export class InputPasswordComponent implements OnInit {
   @Output() onPasswordFormSubmit = new EventEmitter<PasswordInputResult>();
+  @Output() onSecondaryButtonClick = new EventEmitter<void>();
 
-  @Input({ required: true }) email: string;
-  @Input() buttonText: string;
+  @Input({ required: true }) inputPasswordFlow!: InputPasswordFlow;
+  @Input({ required: true }) email!: string;
+
+  @Input() loading = false;
   @Input() masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
-  @Input() loading: boolean = false;
-  @Input() btnBlock: boolean = true;
 
+  @Input() inlineButtons = false;
+  @Input() primaryButtonText?: Translation;
+  protected primaryButtonTextStr: string = "";
+  @Input() secondaryButtonText?: Translation;
+  protected secondaryButtonTextStr: string = "";
+
+  protected InputPasswordFlow = InputPasswordFlow;
   private minHintLength = 0;
   protected maxHintLength = 50;
   protected minPasswordLength = Utils.minimumPasswordLength;
   protected minPasswordMsg = "";
-  protected passwordStrengthScore: PasswordStrengthScore;
+  protected passwordStrengthScore: PasswordStrengthScore = 0;
   protected showErrorSummary = false;
   protected showPassword = false;
 
-  protected formGroup = this.formBuilder.group(
+  protected formGroup = this.formBuilder.nonNullable.group(
     {
-      password: ["", [Validators.required, Validators.minLength(this.minPasswordLength)]],
-      confirmedPassword: ["", Validators.required],
+      newPassword: ["", [Validators.required, Validators.minLength(this.minPasswordLength)]],
+      confirmNewPassword: ["", Validators.required],
       hint: [
         "", // must be string (not null) because we check length in validation
         [Validators.minLength(this.minHintLength), Validators.maxLength(this.maxHintLength)],
       ],
-      checkForBreaches: true,
+      checkForBreaches: [true],
     },
     {
       validators: [
-        InputsFieldMatch.compareInputs(
-          "match",
-          "password",
-          "confirmedPassword",
+        compareInputs(
+          ValidationGoal.InputsShouldMatch,
+          "newPassword",
+          "confirmNewPassword",
           this.i18nService.t("masterPassDoesntMatch"),
         ),
-        InputsFieldMatch.compareInputs(
-          "doNotMatch",
-          "password",
+        compareInputs(
+          ValidationGoal.InputsShouldNotMatch,
+          "newPassword",
           "hint",
           this.i18nService.t("hintEqualsPassword"),
         ),
@@ -96,13 +129,48 @@ export class InputPasswordComponent {
 
   constructor(
     private auditService: AuditService,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
     private policyService: PolicyService,
     private toastService: ToastService,
   ) {}
+
+  ngOnInit(): void {
+    if (
+      this.inputPasswordFlow === InputPasswordFlow.ChangePassword ||
+      this.inputPasswordFlow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
+    ) {
+      // https://github.com/angular/angular/issues/48794
+      (this.formGroup as FormGroup<any>).addControl(
+        "currentPassword",
+        this.formBuilder.control("", Validators.required),
+      );
+    }
+
+    if (this.inputPasswordFlow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation) {
+      // https://github.com/angular/angular/issues/48794
+      (this.formGroup as FormGroup<any>).addControl(
+        "rotateUserKey",
+        this.formBuilder.control(false),
+      );
+    }
+
+    if (this.primaryButtonText) {
+      this.primaryButtonTextStr = this.i18nService.t(
+        this.primaryButtonText.key,
+        ...(this.primaryButtonText?.placeholders ?? []),
+      );
+    }
+
+    if (this.secondaryButtonText) {
+      this.secondaryButtonTextStr = this.i18nService.t(
+        this.secondaryButtonText.key,
+        ...(this.secondaryButtonText?.placeholders ?? []),
+      );
+    }
+  }
 
   get minPasswordLengthMsg() {
     if (
@@ -127,40 +195,15 @@ export class InputPasswordComponent {
       return;
     }
 
-    const password = this.formGroup.controls.password.value;
+    const newPassword = this.formGroup.controls.newPassword.value;
 
-    // Check if password is breached (if breached, user chooses to accept and continue or not)
-    const passwordIsBreached =
-      this.formGroup.controls.checkForBreaches.value &&
-      (await this.auditService.passwordLeaked(password));
+    const passwordEvaluatedSuccessfully = await this.evaluateNewPassword(
+      newPassword,
+      this.passwordStrengthScore,
+      this.formGroup.controls.checkForBreaches.value,
+    );
 
-    if (passwordIsBreached) {
-      const userAcceptedDialog = await this.dialogService.openSimpleDialog({
-        title: { key: "exposedMasterPassword" },
-        content: { key: "exposedMasterPasswordDesc" },
-        type: "warning",
-      });
-
-      if (!userAcceptedDialog) {
-        return;
-      }
-    }
-
-    // Check if password meets org policy requirements
-    if (
-      this.masterPasswordPolicyOptions != null &&
-      !this.policyService.evaluateMasterPassword(
-        this.passwordStrengthScore,
-        password,
-        this.masterPasswordPolicyOptions,
-      )
-    ) {
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t("masterPasswordPolicyRequirementsNotMet"),
-      });
-
+    if (!passwordEvaluatedSuccessfully) {
       return;
     }
 
@@ -171,27 +214,109 @@ export class InputPasswordComponent {
       throw new Error("Email is required to create master key.");
     }
 
-    const masterKey = await this.cryptoService.makeMasterKey(
-      password,
+    const masterKey = await this.keyService.makeMasterKey(
+      newPassword,
       this.email.trim().toLowerCase(),
       kdfConfig,
     );
 
-    const masterKeyHash = await this.cryptoService.hashMasterKey(password, masterKey);
+    const serverMasterKeyHash = await this.keyService.hashMasterKey(
+      newPassword,
+      masterKey,
+      HashPurpose.ServerAuthorization,
+    );
 
-    const localMasterKeyHash = await this.cryptoService.hashMasterKey(
-      password,
+    const localMasterKeyHash = await this.keyService.hashMasterKey(
+      newPassword,
       masterKey,
       HashPurpose.LocalAuthorization,
     );
 
-    this.onPasswordFormSubmit.emit({
-      masterKey,
-      masterKeyHash,
-      localMasterKeyHash,
-      kdfConfig,
+    const passwordInputResult: PasswordInputResult = {
+      newPassword,
       hint: this.formGroup.controls.hint.value,
-      password,
-    });
+      kdfConfig,
+      masterKey,
+      serverMasterKeyHash,
+      localMasterKeyHash,
+    };
+
+    if (
+      this.inputPasswordFlow === InputPasswordFlow.ChangePassword ||
+      this.inputPasswordFlow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
+    ) {
+      passwordInputResult.currentPassword = this.formGroup.get("currentPassword")?.value;
+    }
+
+    if (this.inputPasswordFlow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation) {
+      passwordInputResult.rotateUserKey = this.formGroup.get("rotateUserKey")?.value;
+    }
+
+    this.onPasswordFormSubmit.emit(passwordInputResult);
   };
+
+  // Returns true if the password passes all checks, false otherwise
+  private async evaluateNewPassword(
+    newPassword: string,
+    passwordStrengthScore: PasswordStrengthScore,
+    checkForBreaches: boolean,
+  ) {
+    // Check if the password is breached, weak, or both
+    const passwordIsBreached =
+      checkForBreaches && (await this.auditService.passwordLeaked(newPassword));
+
+    const passwordWeak = passwordStrengthScore != null && passwordStrengthScore < 3;
+
+    if (passwordIsBreached && passwordWeak) {
+      const userAcceptedDialog = await this.dialogService.openSimpleDialog({
+        title: { key: "weakAndExposedMasterPassword" },
+        content: { key: "weakAndBreachedMasterPasswordDesc" },
+        type: "warning",
+      });
+
+      if (!userAcceptedDialog) {
+        return false;
+      }
+    } else if (passwordWeak) {
+      const userAcceptedDialog = await this.dialogService.openSimpleDialog({
+        title: { key: "weakMasterPasswordDesc" },
+        content: { key: "weakMasterPasswordDesc" },
+        type: "warning",
+      });
+
+      if (!userAcceptedDialog) {
+        return false;
+      }
+    } else if (passwordIsBreached) {
+      const userAcceptedDialog = await this.dialogService.openSimpleDialog({
+        title: { key: "exposedMasterPassword" },
+        content: { key: "exposedMasterPasswordDesc" },
+        type: "warning",
+      });
+
+      if (!userAcceptedDialog) {
+        return false;
+      }
+    }
+
+    // Check if password meets org policy requirements
+    if (
+      this.masterPasswordPolicyOptions != null &&
+      !this.policyService.evaluateMasterPassword(
+        this.passwordStrengthScore,
+        newPassword,
+        this.masterPasswordPolicyOptions,
+      )
+    ) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("masterPasswordPolicyRequirementsNotMet"),
+      });
+
+      return false;
+    }
+
+    return true;
+  }
 }

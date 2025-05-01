@@ -1,12 +1,17 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import {
   AvatarModule,
   BadgeModule,
+  BannerModule,
   ButtonModule,
   I18nMockService,
   IconButtonModule,
@@ -36,11 +41,11 @@ class ExtensionContainerComponent {}
 
 @Component({
   selector: "vault-placeholder",
-  template: `
-    <bit-section disableMargin>
+  template: /*html*/ `
+    <bit-section>
       <bit-item-group aria-label="Mock Vault Items">
         <bit-item *ngFor="let item of data; index as i">
-          <button bit-item-content>
+          <button type="button" bit-item-content>
             <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
             {{ i }} of {{ data.length - 1 }}
             <span slot="secondary">Bar</span>
@@ -48,7 +53,7 @@ class ExtensionContainerComponent {}
 
           <ng-container slot="end">
             <bit-item-action>
-              <button type="button" bitBadge variant="primary">Auto-fill</button>
+              <button type="button" bitBadge variant="primary">Fill</button>
             </bit-item-action>
             <bit-item-action>
               <button type="button" bitIconButton="bwi-clone" aria-label="Copy item"></button>
@@ -75,7 +80,7 @@ class VaultComponent {
 @Component({
   selector: "mock-add-button",
   template: `
-    <button bitButton buttonType="primary" type="button">
+    <button bitButton size="small" buttonType="primary" type="button">
       <i class="bwi bwi-plus-f" aria-hidden="true"></i>
       Add
     </button>
@@ -115,15 +120,23 @@ class MockCurrentAccountComponent {}
 
 @Component({
   selector: "mock-search",
-  template: `
-    <div class="tw-p-4">
-      <bit-search placeholder="Search"> </bit-search>
-    </div>
-  `,
+  template: ` <bit-search placeholder="Search"> </bit-search> `,
   standalone: true,
   imports: [SearchModule],
 })
 class MockSearchComponent {}
+
+@Component({
+  selector: "mock-banner",
+  template: `
+    <bit-banner bannerType="info" [showClose]="false">
+      This is an important note about these ciphers
+    </bit-banner>
+  `,
+  standalone: true,
+  imports: [BannerModule],
+})
+class MockBannerComponent {}
 
 @Component({
   selector: "mock-vault-page",
@@ -264,8 +277,8 @@ class MockSettingsPageComponent {}
       </popup-header>
       <vault-placeholder></vault-placeholder>
       <popup-footer slot="footer">
-        <button bitButton buttonType="primary">Save</button>
-        <button bitButton buttonType="secondary">Cancel</button>
+        <button type="button" bitButton buttonType="primary">Save</button>
+        <button type="button" bitButton buttonType="secondary">Cancel</button>
         <button slot="end" type="button" buttonType="danger" bitIconButton="bwi-trash"></button>
       </popup-footer>
     </popup-page>
@@ -288,6 +301,12 @@ class MockVaultSubpageComponent {}
 export default {
   title: "Browser/Popup Layout",
   component: PopupPageComponent,
+  parameters: {
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-38889&t=k6OTDDPZOTtypRqo-11",
+    },
+  },
   decorators: [
     moduleMetadata({
       imports: [
@@ -298,6 +317,8 @@ export default {
         CommonModule,
         RouterModule,
         ExtensionContainerComponent,
+        MockBannerComponent,
+        MockSearchComponent,
         MockVaultSubpageComponent,
         MockVaultPageComponent,
         MockSendPageComponent,
@@ -315,7 +336,36 @@ export default {
               back: "Back",
               loading: "Loading",
               search: "Search",
+              vault: "Vault",
+              generator: "Generator",
+              send: "Send",
+              settings: "Settings",
+              labelWithNotification: (label: string) => `${label}: New Notification`,
             });
+          },
+        },
+        {
+          provide: PolicyService,
+          useFactory: () => {
+            return {
+              policyAppliesToActiveUser$: () => {
+                return {
+                  pipe: () => ({
+                    subscribe: () => ({}),
+                  }),
+                };
+              },
+            };
+          },
+        },
+        {
+          provide: SendService,
+          useFactory: () => {
+            return {
+              sends$: () => {
+                return { pipe: () => ({}) };
+              },
+            };
           },
         },
       ],
@@ -349,17 +399,64 @@ export default {
 
 type Story = StoryObj<PopupPageComponent>;
 
-export const PopupTabNavigation: Story = {
+type PopupTabNavigationStory = StoryObj<PopupTabNavigationComponent>;
+
+const navButtons = (showBerry = false) => [
+  {
+    label: "vault",
+    page: "/tabs/vault",
+    iconKey: "lock",
+    iconKeyActive: "lock-f",
+  },
+  {
+    label: "generator",
+    page: "/tabs/generator",
+    iconKey: "generate",
+    iconKeyActive: "generate-f",
+  },
+  {
+    label: "send",
+    page: "/tabs/send",
+    iconKey: "send",
+    iconKeyActive: "send-f",
+  },
+  {
+    label: "settings",
+    page: "/tabs/settings",
+    iconKey: "cog",
+    iconKeyActive: "cog-f",
+    showBerry: showBerry,
+  },
+];
+
+export const DefaultPopupTabNavigation: PopupTabNavigationStory = {
   render: (args) => ({
     props: args,
-    template: /* HTML */ `
+    template: /*html*/ `
       <extension-container>
-        <popup-tab-navigation>
+        <popup-tab-navigation [navButtons]="navButtons">
           <router-outlet></router-outlet>
         </popup-tab-navigation>
-      </extension-container>
-    `,
+      </extension-container>`,
   }),
+  args: {
+    navButtons: navButtons(),
+  },
+};
+
+export const PopupTabNavigationWithBerry: PopupTabNavigationStory = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <extension-container>
+        <popup-tab-navigation [navButtons]="navButtons">
+          <router-outlet></router-outlet>
+        </popup-tab-navigation>
+      </extension-container>`,
+  }),
+  args: {
+    navButtons: navButtons(true),
+  },
 };
 
 export const PopupPage: Story = {
@@ -382,6 +479,46 @@ export const PopupPageWithFooter: Story = {
       </extension-container>
     `,
   }),
+};
+
+export const CompactMode: Story = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <div class="tw-flex tw-gap-6 tw-text-main">
+        <div id="regular-example">
+          <p>Relaxed</p>
+          <p class="example-label"></p>
+          <extension-container>
+            <mock-vault-subpage></mock-vault-subpage>
+          </extension-container>
+        </div>
+
+        <div id="compact-example" class="tw-bit-compact">
+          <p>Compact</p>
+          <p class="example-label"></p>
+          <extension-container>
+            <mock-vault-subpage></mock-vault-subpage>
+          </extension-container>
+        </div>
+      </div>
+    `,
+  }),
+  play: async (context) => {
+    const canvasEl = context.canvasElement;
+    const updateLabel = (containerId: string) => {
+      const compact = canvasEl.querySelector(
+        `#${containerId} [data-testid=popup-layout-scroll-region]`,
+      );
+      const label = canvasEl.querySelector(`#${containerId} .example-label`);
+      const percentVisible =
+        100 -
+        Math.round((100 * (compact.scrollHeight - compact.clientHeight)) / compact.scrollHeight);
+      label.textContent = `${percentVisible}% above the fold`;
+    };
+    updateLabel("compact-example");
+    updateLabel("regular-example");
+  },
 };
 
 export const PoppedOut: Story = {
@@ -445,6 +582,44 @@ export const TransparentHeader: Story = {
           <vault-placeholder></vault-placeholder>
         </popup-page>
       </extension-container>
+    `,
+  }),
+};
+
+export const Notice: Story = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <extension-container>
+        <popup-page>
+          <popup-header slot="header" pageTitle="Page Header"></popup-header>
+          <mock-banner slot="full-width-notice"></mock-banner>
+          <mock-search slot="above-scroll-area"></mock-search>
+          <vault-placeholder></vault-placeholder>
+        </popup-page>
+      </extension-container>
+    `,
+  }),
+};
+
+export const WidthOptions: Story = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <div class="tw-flex tw-flex-col tw-gap-4 tw-text-main">
+        <div>Default:</div>
+        <div class="tw-h-[640px] tw-w-[380px] tw-border tw-border-solid tw-border-secondary-300">
+          <mock-vault-page></mock-vault-page>
+        </div>
+        <div>Wide:</div>
+        <div class="tw-h-[640px] tw-w-[480px] tw-border tw-border-solid tw-border-secondary-300">
+          <mock-vault-page></mock-vault-page>
+        </div>
+        <div>Extra wide:</div>
+        <div class="tw-h-[640px] tw-w-[600px] tw-border tw-border-solid tw-border-secondary-300">
+          <mock-vault-page></mock-vault-page>
+        </div>
+      </div>
     `,
   }),
 };

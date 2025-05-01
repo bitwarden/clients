@@ -1,26 +1,35 @@
 import { inject } from "@angular/core";
 import { ActivatedRouteSnapshot, CanActivateFn } from "@angular/router";
+import { firstValueFrom, map } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { ProviderStatusType } from "@bitwarden/common/admin-console/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 export const organizationIsUnmanaged: CanActivateFn = async (route: ActivatedRouteSnapshot) => {
-  const configService = inject(ConfigService);
   const organizationService = inject(OrganizationService);
   const providerService = inject(ProviderService);
+  const accountService = inject(AccountService);
 
-  const consolidatedBillingEnabled = await configService.getFeatureFlag(
-    FeatureFlag.EnableConsolidatedBilling,
-  );
+  const userId = await firstValueFrom(accountService.activeAccount$.pipe(map((a) => a?.id)));
 
-  if (!consolidatedBillingEnabled) {
-    return true;
+  if (!userId) {
+    throw new Error("No user found.");
   }
 
-  const organization = await organizationService.get(route.params.organizationId);
+  const organization = await firstValueFrom(
+    organizationService
+      .organizations$(userId)
+      .pipe(getOrganizationById(route.params.organizationId)),
+  );
+
+  if (!organization) {
+    throw new Error("No organization found.");
+  }
 
   if (!organization.hasProvider) {
     return true;

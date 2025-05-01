@@ -1,3 +1,23 @@
+<bit-banner
+  id="free-trial-banner"
+  class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+  bannerType="premium"
+  icon="bwi-billing"
+  [showClose]="false"
+  *ngIf="freeTrialData?.shownBanner"
+>
+  {{ freeTrialData?.message }}
+  <a
+    bitLink
+    linkType="secondary"
+    (click)="changePayment()"
+    class="tw-cursor-pointer"
+    rel="noreferrer noopener"
+  >
+    {{ "clickHereToAddPaymentMethod" | i18n }}
+  </a>
+</bit-banner>
+
 <app-header *ngIf="organizationId">
   <button
     type="button"
@@ -83,24 +103,6 @@
       <p *ngIf="isUnpaid" bitTypography="body1">
         {{ "paymentChargedWithUnpaidSubscription" | i18n }}
       </p>
-    </bit-section>
-    <bit-section *ngIf="forOrganization">
-      <h2 bitTypography="h2">{{ "taxInformation" | i18n }}</h2>
-      <p bitTypography="body1">{{ "taxInformationDesc" | i18n }}</p>
-      <div *ngIf="!org || loading">
-        <i
-          class="bwi bwi-spinner bwi-spin tw-text-muted"
-          title="{{ 'loading' | i18n }}"
-          aria-hidden="true"
-        ></i>
-        <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-      </div>
-      <form *ngIf="org && !loading" [formGroup]="taxForm" [bitSubmit]="submitTaxInfo">
-        <app-tax-info></app-tax-info>
-        <button bitButton bitFormButton buttonType="primary" type="submit">
-          {{ "save" | i18n }}
-        </button>
-      </form>
     </bit-section>
   </ng-container>
 </bit-container>

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 
@@ -21,6 +23,8 @@ import {
   CheckboxModule,
 } from "@bitwarden/components";
 
+import { VaultAutosizeReadOnlyTextArea } from "../../directives/readonly-textarea.directive";
+
 @Component({
   selector: "app-custom-fields-v2",
   templateUrl: "custom-fields-v2.component.html",
@@ -36,12 +40,16 @@ import {
     SectionHeaderComponent,
     TypographyModule,
     CheckboxModule,
+    VaultAutosizeReadOnlyTextArea,
   ],
 })
 export class CustomFieldV2Component implements OnInit {
   @Input() cipher: CipherView;
   fieldType = FieldType;
   fieldOptions: any;
+
+  /** Indexes of hidden fields that are revealed */
+  revealedHiddenFields: number[] = [];
 
   constructor(
     private i18nService: I18nService,
@@ -57,7 +65,17 @@ export class CustomFieldV2Component implements OnInit {
     return this.i18nService.t(linkedType.i18nKey);
   }
 
-  async logHiddenEvent(hiddenFieldVisible: boolean) {
+  get canViewPassword() {
+    return this.cipher.viewPassword;
+  }
+
+  async toggleHiddenField(hiddenFieldVisible: boolean, index: number) {
+    if (hiddenFieldVisible) {
+      this.revealedHiddenFields.push(index);
+    } else {
+      this.revealedHiddenFields = this.revealedHiddenFields.filter((i) => i !== index);
+    }
+
     if (hiddenFieldVisible) {
       await this.eventCollectionService.collect(
         EventType.Cipher_ClientToggledHiddenFieldVisible,

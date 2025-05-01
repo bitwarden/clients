@@ -1,0 +1,14 @@
+<ng-template #endSlotContent>
+  <ng-content select="[slot=end]"></ng-content>
+</ng-template>
+
+<!-- labels inside a form control (checkbox, radio button) should not truncate -->
+<span [ngClass]="{ 'tw-truncate': !isInsideFormControl }">
+  <ng-content></ng-content>
+  @if (isInsideFormControl) {
+    <ng-container *ngTemplateOutlet="endSlotContent"></ng-container>
+  }
+</span>
+@if (!isInsideFormControl) {
+  <ng-container *ngTemplateOutlet="endSlotContent"></ng-container>
+}

@@ -1,8 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { BehaviorSubject, of } from "rxjs";
 
+import {
+  CollectionAccessSelectionView,
+  CollectionAdminView,
+  Unassigned,
+} from "@bitwarden/admin-console/common";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -10,7 +17,10 @@ import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.servic
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import {
+  Environment,
+  EnvironmentService,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -18,14 +28,10 @@ import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.v
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 
-import {
-  CollectionAccessSelectionView,
-  GroupView,
-} from "../../../admin-console/organizations/core";
+import { GroupView } from "../../../admin-console/organizations/core";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
-import { CollectionAdminView } from "../../core/views/collection-admin.view";
-import { Unassigned } from "../../individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 
 import { VaultItemsComponent } from "./vault-items.component";
 import { VaultItemsModule } from "./vault-items.module";
@@ -51,6 +57,11 @@ export default {
             getIconsUrl() {
               return "";
             },
+            environment$: new BehaviorSubject({
+              getIconsUrl() {
+                return "";
+              },
+            } as Environment).asObservable(),
           } as Partial<EnvironmentService>,
         },
         {
@@ -94,9 +105,23 @@ export default {
         {
           provide: ConfigService,
           useValue: {
-            getFeatureFlag() {
+            getFeatureFlag$() {
               // does not currently affect any display logic, default all to OFF
               return false;
+            },
+          },
+        },
+        {
+          provide: CipherAuthorizationService,
+          useValue: {
+            canDeleteCipher$() {
+              return of(true);
+            },
+            canRestoreCipher$() {
+              return of(true);
+            },
+            canCloneCipher$() {
+              return of(true);
             },
           },
         },
@@ -288,6 +313,7 @@ function createCollectionView(i: number): CollectionAdminView {
   view.id = `collection-${i}`;
   view.name = `Collection ${i}`;
   view.organizationId = organization?.id;
+  view.manage = true;
 
   if (group !== undefined) {
     view.groups = [

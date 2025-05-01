@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 /**
  * MIT License
  *
@@ -48,12 +50,12 @@ function buildRegisterContentScriptsPolyfill() {
         }
 
         if (typeof target[prop as keyof T] !== "function") {
-          return NestedProxy(target[prop as keyof T]);
+          return NestedProxy(target[prop as keyof T] as object);
         }
 
         return (...arguments_: any[]) =>
           new Promise((resolve, reject) => {
-            target[prop as keyof T](...arguments_, (result: any) => {
+            (target[prop as keyof T] as CallableFunction)(...arguments_, (result: any) => {
               if (chrome.runtime.lastError) {
                 reject(new Error(chrome.runtime.lastError.message));
               } else {

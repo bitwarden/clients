@@ -1,6 +1,10 @@
 <div class="tw-mt-5 tw-flex tw-justify-center" *ngIf="loading">
   <div>
-    <img class="tw-mb-4 logo logo-themed" alt="Bitwarden" />
+    <bit-icon
+      class="tw-w-72 tw-block tw-mb-4"
+      [icon]="logo"
+      [ariaLabel]="'appLogoLabel' | i18n"
+    ></bit-icon>
     <p class="tw-text-center">
       <i
         class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
@@ -28,14 +32,8 @@
     >
       {{ "logIn" | i18n }}
     </a>
-    <a
-      bitButton
-      buttonType="primary"
-      [routerLink]="registerRoute$ | async"
-      [queryParams]="{ email: email }"
-      [block]="true"
-    >
+    <button type="button" bitButton buttonType="primary" (click)="register()" [block]="true">
       {{ "createAccount" | i18n }}
-    </a>
+    </button>
   </div>
 </div>

@@ -1,11 +1,14 @@
-import { NgModule } from "@angular/core";
+import { inject, NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { authGuard } from "@bitwarden/angular/auth/guards";
 import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { isEnterpriseOrgGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/is-enterprise-org.guard";
 import { organizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-permissions.guard";
 import { OrganizationLayoutComponent } from "@bitwarden/web-vault/app/admin-console/organizations/layouts/organization-layout.component";
+import { deepLinkGuard } from "@bitwarden/web-vault/app/auth/guards/deep-link.guard";
 
 import { SsoComponent } from "../../auth/sso/sso.component";
 
@@ -16,7 +19,7 @@ const routes: Routes = [
   {
     path: "organizations/:organizationId",
     component: OrganizationLayoutComponent,
-    canActivate: [authGuard, organizationPermissionsGuard()],
+    canActivate: [deepLinkGuard(), authGuard, organizationPermissionsGuard()],
     children: [
       {
         path: "settings",
@@ -26,8 +29,13 @@ const routes: Routes = [
             path: "domain-verification",
             component: DomainVerificationComponent,
             canActivate: [organizationPermissionsGuard((org) => org.canManageDomainVerification)],
-            data: {
-              titleId: "domainVerification",
+            resolve: {
+              titleId: async () => {
+                const configService = inject(ConfigService);
+                return (await configService.getFeatureFlag(FeatureFlag.AccountDeprovisioning))
+                  ? "claimedDomains"
+                  : "domainVerification";
+              },
             },
           },
           {
@@ -75,6 +83,13 @@ const routes: Routes = [
             canActivate: [isEnterpriseOrgGuard()],
           },
         ],
+      },
+      {
+        path: "access-intelligence",
+        loadChildren: () =>
+          import("../../tools/access-intelligence/access-intelligence.module").then(
+            (m) => m.AccessIntelligenceModule,
+          ),
       },
     ],
   },

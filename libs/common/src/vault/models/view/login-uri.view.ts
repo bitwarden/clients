@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { UriMatchStrategy, UriMatchStrategySetting } from "../../../models/domain/domain-service";
@@ -140,6 +142,8 @@ export class LoginUriView implements View {
         try {
           const regex = new RegExp(this.uri, "i");
           return regex.test(targetUri);
+          // FIXME: Remove when updating file. Eslint update
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (e) {
           // Invalid regex
           return false;

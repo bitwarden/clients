@@ -1,3 +1,6 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { DragDropModule } from "@angular/cdk/drag-drop";
 import { NgForOf, NgIf } from "@angular/common";
 import {
   Component,
@@ -41,6 +44,7 @@ import {
     },
   ],
   imports: [
+    DragDropModule,
     FormFieldModule,
     ReactiveFormsModule,
     IconButtonModule,
@@ -73,6 +77,12 @@ export class UriOptionComponent implements ControlValueAccessor {
   ];
 
   /**
+   * Whether the option can be reordered. If false, the reorder button will be hidden.
+   */
+  @Input({ required: true })
+  canReorder: boolean;
+
+  /**
    * Whether the URI can be removed from the form. If false, the remove button will be hidden.
    */
   @Input({ required: true })
@@ -83,6 +93,11 @@ export class UriOptionComponent implements ControlValueAccessor {
    */
   @Input({ required: true })
   set defaultMatchDetection(value: UriMatchStrategySetting) {
+    // The default selection has a value of `null` avoid showing "Default (Default)"
+    if (value === null) {
+      return;
+    }
+
     this.uriMatchOptions[0].label = this.i18nService.t(
       "defaultLabel",
       this.uriMatchOptions.find((o) => o.value === value)?.label,
@@ -93,6 +108,9 @@ export class UriOptionComponent implements ControlValueAccessor {
    * The index of the URI in the form. Used to render the correct label.
    */
   @Input({ required: true }) index: number;
+
+  @Output()
+  onKeydown = new EventEmitter<KeyboardEvent>();
 
   /**
    * Emits when the remove button is clicked and URI should be removed from the form.
@@ -125,6 +143,10 @@ export class UriOptionComponent implements ControlValueAccessor {
   private onChange: any = () => {};
   private onTouched: any = () => {};
 
+  protected handleKeydown(event: KeyboardEvent) {
+    this.onKeydown.emit(event);
+  }
+
   constructor(
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
@@ -149,12 +171,12 @@ export class UriOptionComponent implements ControlValueAccessor {
   }
 
   // NG_VALUE_ACCESSOR implementation
-  writeValue(value: any): void {
+  writeValue(value: { uri: string; matchDetection: UriMatchStrategySetting | null }): void {
     if (value) {
       this.uriForm.setValue(
         {
           uri: value.uri ?? "",
-          matchDetection: value.match ?? null,
+          matchDetection: value.matchDetection ?? null,
         },
         { emitEvent: false },
       );

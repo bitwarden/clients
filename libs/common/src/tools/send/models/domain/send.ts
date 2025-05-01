@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { Utils } from "../../../../platform/misc/utils";
@@ -72,24 +74,21 @@ export class Send extends Domain {
   async decrypt(): Promise<SendView> {
     const model = new SendView(this);
 
-    const cryptoService = Utils.getContainerService().getCryptoService();
+    const keyService = Utils.getContainerService().getKeyService();
+    const encryptService = Utils.getContainerService().getEncryptService();
 
     try {
-      model.key = await cryptoService.decryptToBytes(this.key, null);
-      model.cryptoKey = await cryptoService.makeSendKey(model.key);
+      const sendKeyEncryptionKey = await keyService.getUserKey();
+      // model.key is a seed used to derive a key, not a SymmetricCryptoKey
+      model.key = await encryptService.decryptBytes(this.key, sendKeyEncryptionKey);
+      model.cryptoKey = await keyService.makeSendKey(model.key);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       // TODO: error?
     }
 
-    await this.decryptObj(
-      model,
-      {
-        name: null,
-        notes: null,
-      },
-      null,
-      model.cryptoKey,
-    );
+    await this.decryptObj<Send, SendView>(this, model, ["name", "notes"], null, model.cryptoKey);
 
     switch (this.type) {
       case SendType.File:

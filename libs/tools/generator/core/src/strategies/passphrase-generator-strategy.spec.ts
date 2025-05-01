@@ -98,7 +98,7 @@ describe("Passphrase generation strategy", () => {
       const strategy = new PassphraseGeneratorStrategy(randomizer, null);
 
       const result = await strategy.generate({
-        numWords: 4,
+        numWords: 6,
         capitalize: true,
         includeNumber: true,
         wordSeparator: "!",
@@ -106,7 +106,7 @@ describe("Passphrase generation strategy", () => {
 
       expect(result).toEqual("passphrase");
       expect(randomizer.randomEffLongWords).toHaveBeenCalledWith({
-        numberOfWords: 4,
+        numberOfWords: 6,
         capitalize: true,
         number: true,
         separator: "!",
@@ -135,14 +135,14 @@ describe("Passphrase generation strategy", () => {
       const strategy = new PassphraseGeneratorStrategy(randomizer, null);
 
       const result = await strategy.generate({
-        numWords: 4,
+        numWords: 6,
         includeNumber: true,
         wordSeparator: "!",
       });
 
       expect(result).toEqual("passphrase");
       expect(randomizer.randomEffLongWords).toHaveBeenCalledWith({
-        numberOfWords: 4,
+        numberOfWords: 6,
         capitalize: DefaultPassphraseGenerationOptions.capitalize,
         number: true,
         separator: "!",
@@ -153,14 +153,14 @@ describe("Passphrase generation strategy", () => {
       const strategy = new PassphraseGeneratorStrategy(randomizer, null);
 
       const result = await strategy.generate({
-        numWords: 4,
+        numWords: 6,
         capitalize: true,
         wordSeparator: "!",
       });
 
       expect(result).toEqual("passphrase");
       expect(randomizer.randomEffLongWords).toHaveBeenCalledWith({
-        numberOfWords: 4,
+        numberOfWords: 6,
         capitalize: true,
         number: DefaultPassphraseGenerationOptions.includeNumber,
         separator: "!",
@@ -171,14 +171,14 @@ describe("Passphrase generation strategy", () => {
       const strategy = new PassphraseGeneratorStrategy(randomizer, null);
 
       const result = await strategy.generate({
-        numWords: 4,
+        numWords: 6,
         capitalize: true,
         includeNumber: true,
       });
 
       expect(result).toEqual("passphrase");
       expect(randomizer.randomEffLongWords).toHaveBeenCalledWith({
-        numberOfWords: 4,
+        numberOfWords: 6,
         capitalize: true,
         number: true,
         separator: DefaultPassphraseGenerationOptions.wordSeparator,

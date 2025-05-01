@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import Domain from "../../../platform/models/domain/domain-base";
@@ -59,31 +61,37 @@ export class Identity extends Domain {
     );
   }
 
-  decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<IdentityView> {
-    return this.decryptObj(
+  decrypt(
+    orgId: string,
+    context: string = "No Cipher Context",
+    encKey?: SymmetricCryptoKey,
+  ): Promise<IdentityView> {
+    return this.decryptObj<Identity, IdentityView>(
+      this,
       new IdentityView(),
-      {
-        title: null,
-        firstName: null,
-        middleName: null,
-        lastName: null,
-        address1: null,
-        address2: null,
-        address3: null,
-        city: null,
-        state: null,
-        postalCode: null,
-        country: null,
-        company: null,
-        email: null,
-        phone: null,
-        ssn: null,
-        username: null,
-        passportNumber: null,
-        licenseNumber: null,
-      },
+      [
+        "title",
+        "firstName",
+        "middleName",
+        "lastName",
+        "address1",
+        "address2",
+        "address3",
+        "city",
+        "state",
+        "postalCode",
+        "country",
+        "company",
+        "email",
+        "phone",
+        "ssn",
+        "username",
+        "passportNumber",
+        "licenseNumber",
+      ],
       orgId,
       encKey,
+      "DomainType: Identity; " + context,
     );
   }
 

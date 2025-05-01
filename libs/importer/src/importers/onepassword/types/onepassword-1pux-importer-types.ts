@@ -53,7 +53,7 @@ export interface Item {
   favIndex: number;
   createdAt: number;
   updatedAt: number;
-  trashed?: boolean;
+  state: "active" | "archived";
   categoryUuid: string;
   details: Details;
   overview: Overview;
@@ -88,12 +88,12 @@ export interface SectionsEntity {
   title: string;
   name?: string | null;
   fields?: FieldsEntity[] | null;
+  hideAddAnotherField?: boolean | null;
 }
 export interface FieldsEntity {
   title: string;
   id: string;
   value: Value;
-  indexAtSource: number;
   guarded: boolean;
   multiline: boolean;
   dontGenerate: boolean;
@@ -120,7 +120,7 @@ export interface Value {
 
 export interface Email {
   email_address: string;
-  provider: string;
+  provider: string | null;
 }
 
 export interface Address {
@@ -153,6 +153,8 @@ export interface Overview {
   pbe?: number | null;
   pgrng?: boolean | null;
   tags?: string[] | null;
+  icons?: string | null;
+  watchtowerExclusions?: string | null;
 }
 export interface UrlsEntity {
   label: string;

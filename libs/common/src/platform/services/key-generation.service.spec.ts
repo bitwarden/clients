@@ -1,8 +1,10 @@
 import { mock } from "jest-mock-extended";
 
-import { Argon2KdfConfig, PBKDF2KdfConfig } from "../../auth/models/domain/kdf-config";
+import { PBKDF2KdfConfig, Argon2KdfConfig } from "@bitwarden/key-management";
+
+import { CryptoFunctionService } from "../../key-management/crypto/abstractions/crypto-function.service";
 import { CsprngArray } from "../../types/csprng";
-import { CryptoFunctionService } from "../abstractions/crypto-function.service";
+import { EncryptionType } from "../enums";
 
 import { KeyGenerationService } from "./key-generation.service";
 
@@ -51,7 +53,7 @@ describe("KeyGenerationService", () => {
 
         expect(salt).toEqual(inputSalt);
         expect(material).toEqual(inputMaterial);
-        expect(derivedKey.key.length).toEqual(64);
+        expect(derivedKey.inner().type).toEqual(EncryptionType.AesCbc256_HmacSha256_B64);
       },
     );
   });
@@ -66,7 +68,7 @@ describe("KeyGenerationService", () => {
 
       const key = await sut.deriveKeyFromMaterial(material, salt, purpose);
 
-      expect(key.key.length).toEqual(64);
+      expect(key.inner().type).toEqual(EncryptionType.AesCbc256_HmacSha256_B64);
     });
   });
 
@@ -80,7 +82,7 @@ describe("KeyGenerationService", () => {
 
       const key = await sut.deriveKeyFromPassword(password, salt, kdfConfig);
 
-      expect(key.key.length).toEqual(32);
+      expect(key.inner().type).toEqual(EncryptionType.AesCbc256_B64);
     });
 
     it("should derive a 32 byte key from a password using argon2id", async () => {
@@ -93,7 +95,7 @@ describe("KeyGenerationService", () => {
 
       const key = await sut.deriveKeyFromPassword(password, salt, kdfConfig);
 
-      expect(key.key.length).toEqual(32);
+      expect(key.inner().type).toEqual(EncryptionType.AesCbc256_B64);
     });
   });
 });

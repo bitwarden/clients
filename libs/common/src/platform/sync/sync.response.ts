@@ -1,10 +1,11 @@
+import { CollectionDetailsResponse } from "@bitwarden/admin-console/common";
+
 import { PolicyResponse } from "../../admin-console/models/response/policy.response";
 import { BaseResponse } from "../../models/response/base.response";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
 import { SendResponse } from "../../tools/send/models/response/send.response";
 import { CipherResponse } from "../../vault/models/response/cipher.response";
-import { CollectionDetailsResponse } from "../../vault/models/response/collection.response";
 import { FolderResponse } from "../../vault/models/response/folder.response";
 
 export class SyncResponse extends BaseResponse {

@@ -2,6 +2,7 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { AccessTokenComponent } from "./access/access-tokens.component";
+import { ServiceAccountConfigComponent } from "./config/config.component";
 import { ServiceAccountEventsComponent } from "./event-logs/service-accounts-events.component";
 import { serviceAccountAccessGuard } from "./guards/service-account-access.guard";
 import { ServiceAccountPeopleComponent } from "./people/service-account-people.component";
@@ -39,6 +40,10 @@ const routes: Routes = [
       {
         path: "events",
         component: ServiceAccountEventsComponent,
+      },
+      {
+        path: "config",
+        component: ServiceAccountConfigComponent,
       },
     ],
   },

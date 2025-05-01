@@ -7,4 +7,5 @@ export enum TwoFactorProviderType {
   Remember = 5,
   OrganizationDuo = 6,
   WebAuthn = 7,
+  RecoveryCode = 8,
 }

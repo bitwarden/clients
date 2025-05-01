@@ -3,6 +3,8 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -86,6 +88,14 @@ describe("CipherAttachmentsComponent", () => {
           provide: AccountService,
           useValue: accountService,
         },
+        {
+          provide: ApiService,
+          useValue: mock<ApiService>(),
+        },
+        {
+          provide: OrganizationService,
+          useValue: mock<OrganizationService>(),
+        },
       ],
     })
       .overrideComponent(CipherAttachmentsComponent, {
@@ -103,14 +113,14 @@ describe("CipherAttachmentsComponent", () => {
     fixture = TestBed.createComponent(CipherAttachmentsComponent);
     component = fixture.componentInstance;
     component.cipherId = "5555-444-3333" as CipherId;
-    component.submitBtn = {} as ButtonComponent;
+    component.submitBtn = TestBed.createComponent(ButtonComponent).componentInstance;
     fixture.detectChanges();
   });
 
   it("fetches cipherView using `cipherId`", async () => {
     await component.ngOnInit();
 
-    expect(cipherServiceGet).toHaveBeenCalledWith("5555-444-3333");
+    expect(cipherServiceGet).toHaveBeenCalledWith("5555-444-3333", mockUserId);
     expect(component.cipher).toEqual(cipherView);
   });
 
@@ -134,34 +144,38 @@ describe("CipherAttachmentsComponent", () => {
 
   describe("bitSubmit", () => {
     beforeEach(() => {
-      component.submitBtn.disabled = undefined;
-      component.submitBtn.loading = undefined;
+      component.submitBtn.disabled.set(undefined);
+      component.submitBtn.loading.set(undefined);
     });
 
     it("updates sets initial state of the submit button", async () => {
       await component.ngOnInit();
 
-      expect(component.submitBtn.disabled).toBe(true);
+      expect(component.submitBtn.disabled()).toBe(true);
     });
 
     it("sets submitBtn loading state", () => {
+      jest.useFakeTimers();
+
       component.bitSubmit.loading = true;
 
-      expect(component.submitBtn.loading).toBe(true);
+      jest.runAllTimers();
+
+      expect(component.submitBtn.loading()).toBe(true);
 
       component.bitSubmit.loading = false;
 
-      expect(component.submitBtn.loading).toBe(false);
+      expect(component.submitBtn.loading()).toBe(false);
     });
 
     it("sets submitBtn disabled state", () => {
       component.bitSubmit.disabled = true;
 
-      expect(component.submitBtn.disabled).toBe(true);
+      expect(component.submitBtn.disabled()).toBe(true);
 
       component.bitSubmit.disabled = false;
 
-      expect(component.submitBtn.disabled).toBe(false);
+      expect(component.submitBtn.disabled()).toBe(false);
     });
   });
 
@@ -169,7 +183,7 @@ describe("CipherAttachmentsComponent", () => {
     let file: File;
 
     beforeEach(() => {
-      component.submitBtn.disabled = undefined;
+      component.submitBtn.disabled.set(undefined);
       file = new File([""], "attachment.txt", { type: "text/plain" });
 
       const inputElement = fixture.debugElement.query(By.css("input[type=file]"));
@@ -189,7 +203,7 @@ describe("CipherAttachmentsComponent", () => {
     });
 
     it("updates disabled state of submit button", () => {
-      expect(component.submitBtn.disabled).toBe(false);
+      expect(component.submitBtn.disabled()).toBe(false);
     });
   });
 
@@ -230,7 +244,21 @@ describe("CipherAttachmentsComponent", () => {
       it("calls `saveAttachmentWithServer`", async () => {
         await component.submit();
 
-        expect(saveAttachmentWithServer).toHaveBeenCalledWith(cipherDomain, file, mockUserId);
+        expect(saveAttachmentWithServer).toHaveBeenCalledWith(
+          cipherDomain,
+          file,
+          mockUserId,
+          false,
+        );
+      });
+
+      it("calls `saveAttachmentWithServer` with isAdmin=true when using admin API", async () => {
+        // Set isAdmin to true to use admin API
+        Object.defineProperty(component, "isAdmin", { value: true });
+
+        await component.submit();
+
+        expect(saveAttachmentWithServer).toHaveBeenCalledWith(cipherDomain, file, mockUserId, true);
       });
 
       it("resets form and input values", async () => {

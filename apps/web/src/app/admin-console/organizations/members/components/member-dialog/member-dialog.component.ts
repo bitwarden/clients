@@ -1,4 +1,5 @@
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Inject, OnDestroy } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import {
@@ -13,8 +14,17 @@ import {
   takeUntil,
 } from "rxjs";
 
-import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  CollectionAccessSelectionView,
+  CollectionAdminService,
+  CollectionAdminView,
+  OrganizationUserApiService,
+  CollectionView,
+} from "@bitwarden/admin-console/common";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
@@ -23,17 +33,20 @@ import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permi
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
-import { DialogService, ToastService } from "@bitwarden/components";
-
-import { CollectionAdminService } from "../../../../../vault/core/collection-admin.service";
-import { CollectionAdminView } from "../../../../../vault/core/views/collection-admin.view";
 import {
-  CollectionAccessSelectionView,
-  GroupService,
-  GroupView,
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
+
+import {
+  GroupApiService,
+  GroupDetailsView,
   OrganizationUserAdminView,
   UserAdminService,
 } from "../../../core";
@@ -45,8 +58,10 @@ import {
   convertToSelectionView,
   PermissionMode,
 } from "../../../shared/components/access-selector";
+import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 
 import { commaSeparatedEmails } from "./validators/comma-separated-emails.validator";
+import { inputEmailLimitValidator } from "./validators/input-email-limit.validator";
 import { orgSeatLimitReachedValidator } from "./validators/org-seat-limit-reached.validator";
 
 export enum MemberDialogTab {
@@ -55,16 +70,27 @@ export enum MemberDialogTab {
   Collections = 2,
 }
 
-export interface MemberDialogParams {
-  name: string;
-  organizationId: string;
-  organizationUserId: string;
-  allOrganizationUserEmails: string[];
-  usesKeyConnector: boolean;
+interface CommonMemberDialogParams {
   isOnSecretsManagerStandalone: boolean;
-  initialTab?: MemberDialogTab;
-  numConfirmedMembers: number;
+  organizationId: string;
 }
+
+export interface AddMemberDialogParams extends CommonMemberDialogParams {
+  kind: "Add";
+  occupiedSeatCount: number;
+  allOrganizationUserEmails: string[];
+}
+
+export interface EditMemberDialogParams extends CommonMemberDialogParams {
+  kind: "Edit";
+  name: string;
+  organizationUserId: string;
+  usesKeyConnector: boolean;
+  managedByOrganization?: boolean;
+  initialTab: MemberDialogTab;
+}
+
+export type MemberDialogParams = EditMemberDialogParams | AddMemberDialogParams;
 
 export enum MemberDialogResult {
   Saved = "saved",
@@ -88,6 +114,8 @@ export class MemberDialogComponent implements OnDestroy {
   PermissionMode = PermissionMode;
   showNoMasterPasswordWarning = false;
   isOnSecretsManagerStandalone: boolean;
+  remainingSeats$: Observable<number>;
+  editParams$: Observable<EditMemberDialogParams>;
 
   protected organization$: Observable<Organization>;
   protected collectionAccessItems: AccessItemView[] = [];
@@ -97,6 +125,7 @@ export class MemberDialogComponent implements OnDestroy {
     emails: [""],
     type: OrganizationUserType.User,
     externalId: this.formBuilder.control({ value: "", disabled: true }),
+    ssoExternalId: this.formBuilder.control({ value: "", disabled: true }),
     accessSecretsManager: false,
     access: [[] as AccessItemValue[]],
     groups: [[] as AccessItemValue[]],
@@ -123,35 +152,82 @@ export class MemberDialogComponent implements OnDestroy {
     manageResetPassword: false,
   });
 
+  protected accountDeprovisioningEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
+    FeatureFlag.AccountDeprovisioning,
+  );
+
+  protected isExternalIdVisible$ = this.configService
+    .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
+    .pipe(
+      map((isEnabled) => {
+        return !isEnabled || !!this.formGroup.get("externalId")?.value;
+      }),
+    );
+
+  protected isSsoExternalIdVisible$ = this.configService
+    .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
+    .pipe(
+      map((isEnabled) => {
+        return isEnabled && !!this.formGroup.get("ssoExternalId")?.value;
+      }),
+    );
+
   private destroy$ = new Subject<void>();
 
   get customUserTypeSelected(): boolean {
     return this.formGroup.value.type === OrganizationUserType.Custom;
   }
 
+  isEditDialogParams(
+    params: EditMemberDialogParams | AddMemberDialogParams,
+  ): params is EditMemberDialogParams {
+    return params.kind === "Edit";
+  }
+
   constructor(
     @Inject(DIALOG_DATA) protected params: MemberDialogParams,
     private dialogRef: DialogRef<MemberDialogResult>,
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
     private formBuilder: FormBuilder,
     // TODO: We should really look into consolidating naming conventions for these services
     private collectionAdminService: CollectionAdminService,
-    private groupService: GroupService,
+    private groupService: GroupApiService,
     private userService: UserAdminService,
     private organizationUserApiService: OrganizationUserApiService,
     private dialogService: DialogService,
     private accountService: AccountService,
     organizationService: OrganizationService,
     private toastService: ToastService,
+    private configService: ConfigService,
+    private deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
   ) {
-    this.organization$ = organizationService
-      .get$(this.params.organizationId)
-      .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
+    this.organization$ = accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        organizationService
+          .organizations$(account?.id)
+          .pipe(getOrganizationById(this.params.organizationId))
+          .pipe(shareReplay({ refCount: true, bufferSize: 1 })),
+      ),
+    );
 
-    this.editMode = this.params.organizationUserId != null;
-    this.tabIndex = this.params.initialTab ?? MemberDialogTab.Role;
-    this.title = this.i18nService.t(this.editMode ? "editMember" : "inviteMember");
+    let userDetails$;
+    if (this.isEditDialogParams(this.params)) {
+      this.editMode = true;
+      this.title = this.i18nService.t("editMember");
+      userDetails$ = this.userService.get(
+        this.params.organizationId,
+        this.params.organizationUserId,
+      );
+      this.tabIndex = this.params.initialTab;
+      this.editParams$ = of(this.params);
+    } else {
+      this.editMode = false;
+      this.title = this.i18nService.t("inviteMember");
+      this.editParams$ = of(null);
+      userDetails$ = of(null);
+      this.tabIndex = MemberDialogTab.Role;
+    }
+
     this.isOnSecretsManagerStandalone = this.params.isOnSecretsManagerStandalone;
 
     if (this.isOnSecretsManagerStandalone) {
@@ -163,14 +239,10 @@ export class MemberDialogComponent implements OnDestroy {
     const groups$ = this.organization$.pipe(
       switchMap((organization) =>
         organization.useGroups
-          ? this.groupService.getAll(this.params.organizationId)
-          : of([] as GroupView[]),
+          ? this.groupService.getAllDetails(this.params.organizationId)
+          : of([] as GroupDetailsView[]),
       ),
     );
-
-    const userDetails$ = this.params.organizationUserId
-      ? this.userService.get(this.params.organizationId, this.params.organizationUserId)
-      : of(null);
 
     this.allowAdminAccessToAllCollectionItems$ = this.organization$.pipe(
       map((organization) => {
@@ -250,16 +322,34 @@ export class MemberDialogComponent implements OnDestroy {
 
         this.loading = false;
       });
+
+    this.remainingSeats$ = this.organization$.pipe(
+      map((organization) => {
+        if (!this.isEditDialogParams(this.params)) {
+          return organization.seats - this.params.occupiedSeatCount;
+        }
+
+        return organization.seats;
+      }),
+    );
   }
 
   private setFormValidators(organization: Organization) {
+    if (this.isEditDialogParams(this.params)) {
+      return;
+    }
+
     const emailsControlValidators = [
       Validators.required,
       commaSeparatedEmails,
+      inputEmailLimitValidator(organization, (maxEmailsCount: number) =>
+        this.i18nService.t("tooManyEmails", maxEmailsCount),
+      ),
       orgSeatLimitReachedValidator(
         organization,
         this.params.allOrganizationUserEmails,
         this.i18nService.t("subscriptionUpgrade", organization.seats),
+        this.params.occupiedSeatCount,
       ),
     ];
 
@@ -270,7 +360,7 @@ export class MemberDialogComponent implements OnDestroy {
 
   private loadOrganizationUser(
     userDetails: OrganizationUserAdminView,
-    groups: GroupView[],
+    groups: GroupDetailsView[],
     collections: CollectionAdminView[],
     organization: Organization,
   ) {
@@ -329,6 +419,7 @@ export class MemberDialogComponent implements OnDestroy {
     this.formGroup.patchValue({
       type: userDetails.type,
       externalId: userDetails.externalId,
+      ssoExternalId: userDetails.ssoExternalId,
       access: accessSelections,
       accessSecretsManager: userDetails.accessSecretsManager,
       groups: groupAccessSelections,
@@ -410,14 +501,25 @@ export class MemberDialogComponent implements OnDestroy {
       return;
     }
 
+    const userView = await this.getUserView();
+
+    if (this.isEditDialogParams(this.params)) {
+      await this.handleEditUser(userView, this.params);
+    } else {
+      await this.handleInviteUsers(userView, organization);
+    }
+  };
+
+  private async getUserView(): Promise<OrganizationUserAdminView> {
     const userView = new OrganizationUserAdminView();
-    userView.id = this.params.organizationUserId;
     userView.organizationId = this.params.organizationId;
     userView.type = this.formGroup.value.type;
+
     userView.permissions = this.setRequestPermissions(
       userView.permissions ?? new PermissionsApi(),
       userView.type !== OrganizationUserType.Custom,
     );
+
     userView.collections = this.formGroup.value.access
       .filter((v) => v.type === AccessItemType.Collection)
       .map(convertToSelectionView);
@@ -428,44 +530,40 @@ export class MemberDialogComponent implements OnDestroy {
 
     userView.accessSecretsManager = this.formGroup.value.accessSecretsManager;
 
-    if (this.editMode) {
-      await this.userService.save(userView);
-    } else {
-      userView.id = this.params.organizationUserId;
-      const maxEmailsCount =
-        organization.productTierType === ProductTierType.TeamsStarter ? 10 : 20;
-      const emails = [...new Set(this.formGroup.value.emails.trim().split(/\s*,\s*/))];
-      if (emails.length > maxEmailsCount) {
-        this.formGroup.controls.emails.setErrors({
-          tooManyEmails: { message: this.i18nService.t("tooManyEmails", maxEmailsCount) },
-        });
-        return;
-      }
-      if (
-        organization.hasReseller &&
-        this.params.numConfirmedMembers + emails.length > organization.seats
-      ) {
-        this.formGroup.controls.emails.setErrors({
-          tooManyEmails: { message: this.i18nService.t("seatLimitReachedContactYourProvider") },
-        });
-        return;
-      }
-      await this.userService.invite(emails, userView);
-    }
+    return userView;
+  }
+
+  private async handleEditUser(
+    userView: OrganizationUserAdminView,
+    params: EditMemberDialogParams,
+  ) {
+    userView.id = params.organizationUserId;
+    await this.userService.save(userView);
 
     this.toastService.showToast({
       variant: "success",
       title: null,
-      message: this.i18nService.t(
-        this.editMode ? "editedUserId" : "invitedUsers",
-        this.params.name,
-      ),
+      message: this.i18nService.t("editedUserId", params.name),
+    });
+
+    this.close(MemberDialogResult.Saved);
+  }
+
+  private async handleInviteUsers(userView: OrganizationUserAdminView, organization: Organization) {
+    const emails = [...new Set(this.formGroup.value.emails.trim().split(/\s*,\s*/))];
+
+    await this.userService.invite(emails, userView);
+
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("invitedUsers"),
     });
     this.close(MemberDialogResult.Saved);
-  };
+  }
 
-  delete = async () => {
-    if (!this.editMode) {
+  remove = async () => {
+    if (!this.isEditDialogParams(this.params)) {
       return;
     }
 
@@ -484,7 +582,7 @@ export class MemberDialogComponent implements OnDestroy {
     }
 
     if (this.showNoMasterPasswordWarning) {
-      confirmed = await this.noMasterPasswordConfirmationDialog();
+      confirmed = await this.noMasterPasswordConfirmationDialog(this.params.name);
 
       if (!confirmed) {
         return false;
@@ -505,7 +603,7 @@ export class MemberDialogComponent implements OnDestroy {
   };
 
   revoke = async () => {
-    if (!this.editMode) {
+    if (!this.isEditDialogParams(this.params)) {
       return;
     }
 
@@ -521,7 +619,7 @@ export class MemberDialogComponent implements OnDestroy {
     }
 
     if (this.showNoMasterPasswordWarning) {
-      confirmed = await this.noMasterPasswordConfirmationDialog();
+      confirmed = await this.noMasterPasswordConfirmationDialog(this.params.name);
 
       if (!confirmed) {
         return false;
@@ -543,7 +641,7 @@ export class MemberDialogComponent implements OnDestroy {
   };
 
   restore = async () => {
-    if (!this.editMode) {
+    if (!this.isEditDialogParams(this.params)) {
       return;
     }
 
@@ -561,6 +659,67 @@ export class MemberDialogComponent implements OnDestroy {
     this.close(MemberDialogResult.Restored);
   };
 
+  delete = async () => {
+    if (!this.isEditDialogParams(this.params)) {
+      return;
+    }
+
+    const showWarningDialog = combineLatest([
+      this.organization$,
+      this.deleteManagedMemberWarningService.warningAcknowledged(this.params.organizationId),
+      this.accountDeprovisioningEnabled$,
+    ]).pipe(
+      map(
+        ([organization, acknowledged, featureFlagEnabled]) =>
+          featureFlagEnabled &&
+          organization.canManageUsers &&
+          organization.productTierType === ProductTierType.Enterprise &&
+          !acknowledged,
+      ),
+    );
+
+    if (await firstValueFrom(showWarningDialog)) {
+      const acknowledged = await this.deleteManagedMemberWarningService.showWarning();
+      if (!acknowledged) {
+        return;
+      }
+    }
+
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: {
+        key: "deleteOrganizationUser",
+        placeholders: [this.params.name],
+      },
+      content: {
+        key: "deleteOrganizationUserWarningDesc",
+        placeholders: [this.params.name],
+      },
+      type: "warning",
+      acceptButtonText: { key: "delete" },
+      cancelButtonText: { key: "cancel" },
+    });
+
+    if (!confirmed) {
+      return false;
+    }
+
+    await this.organizationUserApiService.deleteOrganizationUser(
+      this.params.organizationId,
+      this.params.organizationUserId,
+    );
+
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("organizationUserDeleted", this.params.name),
+    });
+
+    if (await firstValueFrom(this.accountDeprovisioningEnabled$)) {
+      await this.deleteManagedMemberWarningService.acknowledgeWarning(this.params.organizationId);
+    }
+    this.close(MemberDialogResult.Deleted);
+  };
+
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
@@ -574,14 +733,14 @@ export class MemberDialogComponent implements OnDestroy {
     this.dialogRef.close(result);
   }
 
-  private noMasterPasswordConfirmationDialog() {
+  private noMasterPasswordConfirmationDialog(username: string) {
     return this.dialogService.openSimpleDialog({
       title: {
         key: "removeOrgUserNoMasterPasswordTitle",
       },
       content: {
         key: "removeOrgUserNoMasterPasswordDesc",
-        placeholders: [this.params.name],
+        placeholders: [username],
       },
       type: "warning",
     });
@@ -594,7 +753,7 @@ function mapCollectionToAccessItemView(
   collection: CollectionAdminView,
   organization: Organization,
   accessSelection?: CollectionAccessSelectionView,
-  group?: GroupView,
+  group?: GroupDetailsView,
 ): AccessItemView {
   return {
     type: AccessItemType.Collection,
@@ -607,7 +766,7 @@ function mapCollectionToAccessItemView(
   };
 }
 
-function mapGroupToAccessItemView(group: GroupView): AccessItemView {
+function mapGroupToAccessItemView(group: GroupDetailsView): AccessItemView {
   return {
     type: AccessItemType.Group,
     id: group.id,

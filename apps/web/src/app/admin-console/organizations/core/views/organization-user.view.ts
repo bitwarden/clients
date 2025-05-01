@@ -1,11 +1,14 @@
-import { OrganizationUserUserDetailsResponse } from "@bitwarden/admin-console/common";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import {
+  OrganizationUserUserDetailsResponse,
+  CollectionAccessSelectionView,
+} from "@bitwarden/admin-console/common";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
 } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
-
-import { CollectionAccessSelectionView } from "./collection-access-selection.view";
 
 export class OrganizationUserView {
   id: string;
@@ -24,6 +27,7 @@ export class OrganizationUserView {
    * True if this organizaztion user has been granted access to Secrets Manager, false otherwise.
    */
   accessSecretsManager: boolean;
+  managedByOrganization: boolean;
 
   collections: CollectionAccessSelectionView[] = [];
   groups: string[] = [];

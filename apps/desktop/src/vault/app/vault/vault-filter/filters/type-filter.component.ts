@@ -6,4 +6,8 @@ import { TypeFilterComponent as BaseTypeFilterComponent } from "@bitwarden/angul
   selector: "app-type-filter",
   templateUrl: "type-filter.component.html",
 })
-export class TypeFilterComponent extends BaseTypeFilterComponent {}
+export class TypeFilterComponent extends BaseTypeFilterComponent {
+  constructor() {
+    super();
+  }
+}

@@ -2,11 +2,12 @@ import {
   FakeAccountService,
   mockAccountServiceWith,
 } from "@bitwarden/common/../spec/fake-account-service";
-import { FakeActiveUserState } from "@bitwarden/common/../spec/fake-state";
+import { FakeSingleUserState } from "@bitwarden/common/../spec/fake-state";
 import { FakeStateProvider } from "@bitwarden/common/../spec/fake-state-provider";
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, ReplaySubject } from "rxjs";
 
+import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -15,10 +16,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { COLLAPSED_GROUPINGS } from "@bitwarden/common/vault/services/key-state/collapsed-groupings.state";
 
@@ -36,13 +35,14 @@ describe("vault filter service", () => {
   let organizations: ReplaySubject<Organization[]>;
   let folderViews: ReplaySubject<FolderView[]>;
   let collectionViews: ReplaySubject<CollectionView[]>;
+  let cipherViews: ReplaySubject<CipherView[]>;
   let personalOwnershipPolicy: ReplaySubject<boolean>;
   let singleOrgPolicy: ReplaySubject<boolean>;
   let stateProvider: FakeStateProvider;
 
   const mockUserId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
-  let collapsedGroupingsState: FakeActiveUserState<string[]>;
+  let collapsedGroupingsState: FakeSingleUserState<string[]>;
 
   beforeEach(() => {
     organizationService = mock<OrganizationService>();
@@ -58,18 +58,20 @@ describe("vault filter service", () => {
     organizations = new ReplaySubject<Organization[]>(1);
     folderViews = new ReplaySubject<FolderView[]>(1);
     collectionViews = new ReplaySubject<CollectionView[]>(1);
+    cipherViews = new ReplaySubject<CipherView[]>(1);
     personalOwnershipPolicy = new ReplaySubject<boolean>(1);
     singleOrgPolicy = new ReplaySubject<boolean>(1);
 
-    organizationService.memberOrganizations$ = organizations;
-    folderService.folderViews$ = folderViews;
+    organizationService.memberOrganizations$.mockReturnValue(organizations);
+    folderService.folderViews$.mockReturnValue(folderViews);
     collectionService.decryptedCollections$ = collectionViews;
-    policyService.policyAppliesToActiveUser$
-      .calledWith(PolicyType.PersonalOwnership)
+    policyService.policyAppliesToUser$
+      .calledWith(PolicyType.PersonalOwnership, mockUserId)
       .mockReturnValue(personalOwnershipPolicy);
-    policyService.policyAppliesToActiveUser$
-      .calledWith(PolicyType.SingleOrg)
+    policyService.policyAppliesToUser$
+      .calledWith(PolicyType.SingleOrg, mockUserId)
       .mockReturnValue(singleOrgPolicy);
+    cipherService.cipherViews$.mockReturnValue(cipherViews);
 
     vaultFilterService = new VaultFilterService(
       organizationService,
@@ -79,22 +81,23 @@ describe("vault filter service", () => {
       i18nService,
       stateProvider,
       collectionService,
+      accountService,
     );
-    collapsedGroupingsState = stateProvider.activeUser.getFake(COLLAPSED_GROUPINGS);
+    collapsedGroupingsState = stateProvider.singleUser.getFake(mockUserId, COLLAPSED_GROUPINGS);
   });
 
   describe("collapsed filter nodes", () => {
     const nodes = new Set(["1", "2"]);
 
     it("should update the collapsedFilterNodes$", async () => {
-      await vaultFilterService.setCollapsedFilterNodes(nodes);
+      await vaultFilterService.setCollapsedFilterNodes(nodes, mockUserId);
 
-      const collapsedGroupingsState = stateProvider.activeUser.getFake(COLLAPSED_GROUPINGS);
-      expect(await firstValueFrom(collapsedGroupingsState.state$)).toEqual(Array.from(nodes));
-      expect(collapsedGroupingsState.nextMock).toHaveBeenCalledWith([
+      const collapsedGroupingsState = stateProvider.singleUser.getFake(
         mockUserId,
-        Array.from(nodes),
-      ]);
+        COLLAPSED_GROUPINGS,
+      );
+      expect(await firstValueFrom(collapsedGroupingsState.state$)).toEqual(Array.from(nodes));
+      expect(collapsedGroupingsState.nextMock).toHaveBeenCalledWith(Array.from(nodes));
     });
 
     it("loads from state on initialization", async () => {
@@ -163,7 +166,7 @@ describe("vault filter service", () => {
           createCipherView("1", "org test id", "folder test id"),
           createCipherView("2", "non matching org id", "non matching folder id"),
         ];
-        cipherService.getAllDecrypted.mockResolvedValue(storedCiphers);
+        cipherViews.next(storedCiphers);
 
         const storedFolders = [
           createFolderView("folder test id", "test"),
@@ -192,6 +195,7 @@ describe("vault filter service", () => {
           createFolderView("Folder 3 Id", "Folder 1/Folder 3"),
         ];
         folderViews.next(storedFolders);
+        cipherViews.next([]);
 
         const result = await firstValueFrom(vaultFilterService.folderTree$);
 

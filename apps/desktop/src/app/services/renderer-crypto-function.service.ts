@@ -1,5 +1,5 @@
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
 
 export class RendererCryptoFunctionService
   extends WebCryptoFunctionService
@@ -19,6 +19,13 @@ export class RendererCryptoFunctionService
     memory: number,
     parallelism: number,
   ): Promise<Uint8Array> {
+    if (typeof password === "string") {
+      password = new TextEncoder().encode(password);
+    }
+    if (typeof salt === "string") {
+      salt = new TextEncoder().encode(salt);
+    }
+
     return await ipc.platform.crypto.argon2(password, salt, iterations, memory, parallelism);
   }
 }

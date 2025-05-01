@@ -1,7 +1,8 @@
+import { Unassigned } from "@bitwarden/admin-console/common";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { All, RoutedVaultFilterModel, Unassigned } from "./routed-vault-filter.model";
+import { All, RoutedVaultFilterModel } from "./routed-vault-filter.model";
 
 export type FilterFunction = (cipher: CipherView) => boolean;
 
@@ -20,6 +21,9 @@ export function createFilterFunction(filter: RoutedVaultFilterModel): FilterFunc
       return false;
     }
     if (filter.type === "note" && cipher.type !== CipherType.SecureNote) {
+      return false;
+    }
+    if (filter.type === "sshKey" && cipher.type !== CipherType.SshKey) {
       return false;
     }
     if (filter.type === "trash" && !cipher.isDeleted) {

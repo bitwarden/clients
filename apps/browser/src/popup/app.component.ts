@@ -1,7 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
 import { Subject, takeUntil, firstValueFrom, concatMap, filter, tap } from "rxjs";
 
+import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -19,10 +23,10 @@ import {
   ToastOptions,
   ToastService,
 } from "@bitwarden/components";
+import { BiometricsService, BiometricStateService } from "@bitwarden/key-management";
 
-import { PopupViewCacheService } from "../platform/popup/view-cache/popup-view-cache.service";
+import { PopupCompactModeService } from "../platform/popup/layout/popup-compact-mode.service";
 import { initPopupClosedListener } from "../platform/services/popup-view-cache-background.service";
-import { BrowserSendStateService } from "../tools/popup/services/browser-send-state.service";
 import { VaultBrowserStateService } from "../vault/services/vault-browser-state.service";
 
 import { routerTransition } from "./app-routing.animations";
@@ -32,12 +36,15 @@ import { DesktopSyncVerificationDialogComponent } from "./components/desktop-syn
   selector: "app-root",
   styles: [],
   animations: [routerTransition],
-  template: ` <div [@routerTransition]="getState(o)">
-    <router-outlet #o="outlet"></router-outlet>
-  </div>`,
+  template: `
+    <div [@routerTransition]="getRouteElevation(outlet)">
+      <router-outlet #outlet="outlet"></router-outlet>
+    </div>
+    <bit-toast-container></bit-toast-container>
+  `,
 })
 export class AppComponent implements OnInit, OnDestroy {
-  private viewCacheService = inject(PopupViewCacheService);
+  private compactModeService = inject(PopupCompactModeService);
 
   private lastActivity: Date;
   private activeUserId: UserId;
@@ -51,7 +58,6 @@ export class AppComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private router: Router,
     private stateService: StateService,
-    private browserSendStateService: BrowserSendStateService,
     private vaultBrowserStateService: VaultBrowserStateService,
     private cipherService: CipherService,
     private changeDetectorRef: ChangeDetectorRef,
@@ -62,11 +68,17 @@ export class AppComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private accountService: AccountService,
     private animationControlService: AnimationControlService,
-  ) {}
+    private biometricStateService: BiometricStateService,
+    private biometricsService: BiometricsService,
+    private deviceTrustToastService: DeviceTrustToastService,
+  ) {
+    this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
+  }
 
   async ngOnInit() {
     initPopupClosedListener();
-    await this.viewCacheService.init();
+
+    this.compactModeService.init();
 
     // Component states must not persist between closing and reopening the popup, otherwise they become dead objects
     // Clear them aggressively to make sure this doesn't occur
@@ -96,7 +108,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.messageListener.allMessages$
       .pipe(
-        tap((msg: any) => {
+        tap(async (msg: any) => {
           if (msg.command === "doneLoggingOut") {
             // TODO: PM-8544 - why do we call logout in the popup after receiving the doneLoggingOut message? Hasn't this already completeted logout?
             this.authService.logOut(async () => {
@@ -106,13 +118,12 @@ export class AppComponent implements OnInit, OnDestroy {
             });
             this.changeDetectorRef.detectChanges();
           } else if (msg.command === "authBlocked" || msg.command === "goHome") {
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.router.navigate(["home"]);
+            await this.router.navigate(["login"]);
           } else if (
             msg.command === "locked" &&
             (msg.userId == null || msg.userId == this.activeUserId)
           ) {
+            await this.biometricsService.setShouldAutopromptNow(false);
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.router.navigate(["lock"]);
@@ -120,13 +131,27 @@ export class AppComponent implements OnInit, OnDestroy {
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.showDialog(msg);
-          } else if (msg.command === "showNativeMessagingFinterprintDialog") {
+          } else if (msg.command === "showNativeMessagingFingerprintDialog") {
             // TODO: Should be refactored to live in another service.
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.showNativeMessagingFingerprintDialog(msg);
+          } else if (msg.command === "showUpdateDesktopAppOrDisableFingerprintDialog") {
+            // TODO: Should be refactored to live in another service.
+            await this.showDialog({
+              title: this.i18nService.t("updateDesktopAppOrDisableFingerprintDialogTitle"),
+              content: this.i18nService.t("updateDesktopAppOrDisableFingerprintDialogMessage"),
+              type: "warning",
+            });
           } else if (msg.command === "showToast") {
             this.toastService._showToast(msg);
+          } else if (msg.command === "reloadProcess") {
+            if (this.platformUtilsService.isSafari()) {
+              window.setTimeout(async () => {
+                await this.biometricStateService.updateLastProcessReload();
+                window.location.reload();
+              }, 2000);
+            }
           } else if (msg.command === "reloadPopup") {
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -157,7 +182,7 @@ export class AppComponent implements OnInit, OnDestroy {
           await this.clearComponentStates();
         }
         if (url.startsWith("/tabs/")) {
-          await this.cipherService.setAddEditCipherInfo(null);
+          await this.cipherService.setAddEditCipherInfo(null, this.activeUserId);
         }
         (window as any).previousPopupUrl = url;
 
@@ -182,23 +207,12 @@ export class AppComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  getState(outlet: RouterOutlet) {
+  getRouteElevation(outlet: RouterOutlet) {
     if (!this.routerAnimations) {
       return;
-    } else if (outlet.activatedRouteData.state === "ciphers") {
-      const routeDirection =
-        (window as any).routeDirection != null ? (window as any).routeDirection : "";
-      return (
-        "ciphers_direction=" +
-        routeDirection +
-        "_" +
-        (outlet.activatedRoute.queryParams as any).value.folderId +
-        "_" +
-        (outlet.activatedRoute.queryParams as any).value.collectionId
-      );
-    } else {
-      return outlet.activatedRouteData.state;
     }
+
+    return outlet.activatedRouteData.elevation;
   }
 
   private async recordActivity() {
@@ -239,8 +253,6 @@ export class AppComponent implements OnInit, OnDestroy {
     await Promise.all([
       this.vaultBrowserStateService.setBrowserGroupingsComponentState(null),
       this.vaultBrowserStateService.setBrowserVaultItemsComponentState(null),
-      this.browserSendStateService.setBrowserSendComponentState(null),
-      this.browserSendStateService.setBrowserSendTypeComponentState(null),
     ]);
   }
 

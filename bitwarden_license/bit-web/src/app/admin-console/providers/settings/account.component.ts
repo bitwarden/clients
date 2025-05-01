@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -8,7 +10,6 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { ProviderUpdateRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-update.request";
 import { ProviderResponse } from "@bitwarden/common/admin-console/models/response/provider/provider.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -20,7 +21,6 @@ import { DialogService, ToastService } from "@bitwarden/components";
   selector: "provider-account",
   templateUrl: "account.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class AccountComponent implements OnDestroy, OnInit {
   selfHosted = false;
   loading = true;
@@ -33,9 +33,6 @@ export class AccountComponent implements OnDestroy, OnInit {
     providerName: ["" as ProviderResponse["name"]],
     providerBillingEmail: ["" as ProviderResponse["billingEmail"], Validators.email],
   });
-  protected enableDeleteProvider$ = this.configService.getFeatureFlag$(
-    FeatureFlag.EnableDeleteProvider,
-  );
 
   constructor(
     private apiService: ApiService,

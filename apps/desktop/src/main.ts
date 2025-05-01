@@ -1,11 +1,16 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import "core-js/proposals/explicit-resource-management";
+
 import * as path from "path";
 
 import { app } from "electron";
 import { Subject, firstValueFrom } from "rxjs";
 
+import { SsoUrlService } from "@bitwarden/auth/common";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { DefaultBiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
+import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -22,9 +27,14 @@ import { DefaultSingleUserStateProvider } from "@bitwarden/common/platform/state
 import { DefaultStateProvider } from "@bitwarden/common/platform/state/implementations/default-state.provider";
 import { StateEventRegistrarService } from "@bitwarden/common/platform/state/state-event-registrar.service";
 import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
+import { DefaultBiometricStateService } from "@bitwarden/key-management";
 /* eslint-enable import/no-restricted-paths */
 
+import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
+import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
+import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
+import { MainBiometricsService } from "./key-management/biometrics/main-biometrics.service";
 import { MenuMain } from "./main/menu/menu.main";
 import { MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
@@ -32,10 +42,11 @@ import { PowerMonitorMain } from "./main/power-monitor.main";
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
-import { BiometricsService, DesktopBiometricsService } from "./platform/main/biometric/index";
+import { NativeAutofillMain } from "./platform/main/autofill/native-autofill.main";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { MainCryptoFunctionService } from "./platform/main/main-crypto-function.service";
+import { VersionMain } from "./platform/main/version.main";
 import { DesktopSettingsService } from "./platform/services/desktop-settings.service";
 import { ElectronLogMainService } from "./platform/services/electron-log.main.service";
 import { ElectronStorageService } from "./platform/services/electron-storage.service";
@@ -54,9 +65,11 @@ export class Main {
   messagingService: MessageSender;
   environmentService: DefaultEnvironmentService;
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
+  mainBiometricsIpcListener: MainBiometricsIPCListener;
   desktopSettingsService: DesktopSettingsService;
   mainCryptoFunctionService: MainCryptoFunctionService;
   migrationRunner: MigrationRunner;
+  ssoUrlService: SsoUrlService;
 
   windowMain: WindowMain;
   messagingMain: MessagingMain;
@@ -67,7 +80,10 @@ export class Main {
   biometricsService: DesktopBiometricsService;
   nativeMessagingMain: NativeMessagingMain;
   clipboardMain: ClipboardMain;
+  nativeAutofillMain: NativeAutofillMain;
   desktopAutofillSettingsService: DesktopAutofillSettingsService;
+  versionMain: VersionMain;
+  sshAgentService: MainSshAgentService;
 
   constructor() {
     // Set paths for portable builds
@@ -121,12 +137,6 @@ export class Main {
     this.mainCryptoFunctionService = new MainCryptoFunctionService();
     this.mainCryptoFunctionService.init();
 
-    const accountService = new AccountServiceImplementation(
-      MessageSender.EMPTY,
-      this.logService,
-      globalStateProvider,
-    );
-
     const stateEventRegistrarService = new StateEventRegistrarService(
       globalStateProvider,
       storageServiceProvider,
@@ -136,6 +146,13 @@ export class Main {
       storageServiceProvider,
       stateEventRegistrarService,
       this.logService,
+    );
+
+    const accountService = new AccountServiceImplementation(
+      MessageSender.EMPTY,
+      this.logService,
+      globalStateProvider,
+      singleUserStateProvider,
     );
 
     const activeUserStateProvider = new DefaultActiveUserStateProvider(
@@ -150,7 +167,11 @@ export class Main {
       new DefaultDerivedStateProvider(),
     );
 
-    this.environmentService = new DefaultEnvironmentService(stateProvider, accountService);
+    this.environmentService = new DefaultEnvironmentService(
+      stateProvider,
+      accountService,
+      process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
+    );
 
     this.migrationRunner = new MigrationRunner(
       this.storageService,
@@ -162,6 +183,15 @@ export class Main {
     this.desktopSettingsService = new DesktopSettingsService(stateProvider);
     const biometricStateService = new DefaultBiometricStateService(stateProvider);
 
+    this.biometricsService = new MainBiometricsService(
+      this.i18nService,
+      this.windowMain,
+      this.logService,
+      this.messagingService,
+      process.platform,
+      biometricStateService,
+    );
+
     this.windowMain = new WindowMain(
       biometricStateService,
       this.logService,
@@ -172,12 +202,19 @@ export class Main {
     );
     this.messagingMain = new MessagingMain(this, this.desktopSettingsService);
     this.updaterMain = new UpdaterMain(this.i18nService, this.windowMain);
-    this.trayMain = new TrayMain(this.windowMain, this.i18nService, this.desktopSettingsService);
 
     const messageSubject = new Subject<Message<Record<string, unknown>>>();
     this.messagingService = MessageSender.combine(
       new SubjectMessageSender(messageSubject), // For local messages
       new ElectronMainMessagingService(this.windowMain),
+    );
+
+    this.trayMain = new TrayMain(
+      this.windowMain,
+      this.i18nService,
+      this.desktopSettingsService,
+      this.messagingService,
+      this.biometricsService,
     );
 
     messageSubject.asObservable().subscribe((message) => {
@@ -190,6 +227,8 @@ export class Main {
       });
     });
 
+    this.versionMain = new VersionMain(this.windowMain);
+
     this.powerMonitorMain = new PowerMonitorMain(this.messagingService, this.logService);
     this.menuMain = new MenuMain(
       this.i18nService,
@@ -198,19 +237,22 @@ export class Main {
       this.windowMain,
       this.updaterMain,
       this.desktopSettingsService,
+      this.versionMain,
     );
 
-    this.biometricsService = new BiometricsService(
-      this.i18nService,
+    this.trayMain = new TrayMain(
       this.windowMain,
-      this.logService,
+      this.i18nService,
+      this.desktopSettingsService,
       this.messagingService,
-      process.platform,
-      biometricStateService,
+      this.biometricsService,
     );
 
     this.desktopCredentialStorageListener = new DesktopCredentialStorageListener(
       "Bitwarden",
+      this.logService,
+    );
+    this.mainBiometricsIpcListener = new MainBiometricsIPCListener(
       this.biometricsService,
       this.logService,
     );
@@ -220,6 +262,7 @@ export class Main {
       this.windowMain,
       app.getPath("userData"),
       app.getPath("exe"),
+      app.getAppPath(),
     );
 
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
@@ -227,16 +270,30 @@ export class Main {
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
 
+    this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
+
     new EphemeralValueStorageService();
-    new SSOLocalhostCallbackService(this.environmentService, this.messagingService);
+
+    this.ssoUrlService = new SsoUrlService();
+    new SSOLocalhostCallbackService(
+      this.environmentService,
+      this.messagingService,
+      this.ssoUrlService,
+    );
+
+    this.nativeAutofillMain = new NativeAutofillMain(this.logService, this.windowMain);
+    void this.nativeAutofillMain.init();
   }
 
   bootstrap() {
     this.desktopCredentialStorageListener.init();
+    this.mainBiometricsIpcListener.init();
     // Run migrations first, then other things
     this.migrationRunner.run().then(
       async () => {
         await this.toggleHardwareAcceleration();
+        // Reset modal mode to make sure main window is displayed correctly
+        await this.desktopSettingsService.resetModalMode();
         await this.windowMain.init();
         await this.i18nService.init();
         await this.messagingMain.init();
@@ -265,13 +322,21 @@ export class Main {
         if (browserIntegrationEnabled || ddgIntegrationEnabled) {
           // Re-register the native messaging host integrations on startup, in case they are not present
           if (browserIntegrationEnabled) {
-            this.nativeMessagingMain.generateManifests().catch(this.logService.error);
+            this.nativeMessagingMain
+              .generateManifests()
+              .catch((err) => this.logService.error("Error while generating manifests", err));
           }
           if (ddgIntegrationEnabled) {
-            this.nativeMessagingMain.generateDdgManifests().catch(this.logService.error);
+            this.nativeMessagingMain
+              .generateDdgManifests()
+              .catch((err) => this.logService.error("Error while generating DDG manifests", err));
           }
 
-          this.nativeMessagingMain.listen();
+          this.nativeMessagingMain
+            .listen()
+            .catch((err) =>
+              this.logService.error("Error while starting native message listener", err),
+            );
         }
 
         app.removeAsDefaultProtocolClient("bitwarden");

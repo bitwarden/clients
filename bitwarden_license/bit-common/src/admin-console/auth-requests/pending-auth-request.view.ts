@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { View } from "@bitwarden/common/models/view/view";
 
 import { PendingOrganizationAuthRequestResponse } from ".";
@@ -11,6 +13,7 @@ export class PendingAuthRequestView implements View {
   requestDeviceIdentifier: string;
   requestDeviceType: string;
   requestIpAddress: string;
+  requestCountryName: string;
   creationDate: Date;
 
   static fromResponse(response: PendingOrganizationAuthRequestResponse): PendingAuthRequestView {

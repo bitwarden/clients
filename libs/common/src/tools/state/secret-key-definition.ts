@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { UserKeyDefinitionOptions, UserKeyDefinition } from "../../platform/state";
 // eslint-disable-next-line -- `StateDefinition` used as an argument
 import { StateDefinition } from "../../platform/state/state-definition";

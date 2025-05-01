@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   Observable,
   combineLatest,
@@ -9,8 +11,9 @@ import {
   switchMap,
 } from "rxjs";
 
+import { KeyService } from "@bitwarden/key-management";
+
 import { ApiService } from "../../abstractions/api.service";
-import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { StateService } from "../../platform/abstractions/state.service";
 import { MessageSender } from "../../platform/messaging";
 import { Utils } from "../../platform/misc/utils";
@@ -27,7 +30,7 @@ export class AuthService implements AuthServiceAbstraction {
   constructor(
     protected accountService: AccountService,
     protected messageSender: MessageSender,
-    protected cryptoService: CryptoService,
+    protected keyService: KeyService,
     protected apiService: ApiService,
     protected stateService: StateService,
     private tokenService: TokenService,
@@ -69,7 +72,7 @@ export class AuthService implements AuthServiceAbstraction {
     }
 
     return combineLatest([
-      this.cryptoService.getInMemoryUserKeyFor$(userId),
+      this.keyService.getInMemoryUserKeyFor$(userId),
       this.tokenService.hasAccessToken$(userId),
     ]).pipe(
       map(([userKey, hasAccessToken]) => {

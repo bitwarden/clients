@@ -1,10 +1,15 @@
-import { firstValueFrom } from "rxjs";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { firstValueFrom, switchMap } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -40,6 +45,7 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
     private configService: ConfigService,
     private platformUtilsService: PlatformUtilsService,
     private policyService: PolicyService,
+    private accountService: AccountService,
   ) {
     this.isSafariBrowser = this.platformUtilsService.isSafari();
   }
@@ -54,8 +60,14 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
       FeatureFlag.IdpAutoSubmitLogin,
     );
     if (featureFlagEnabled) {
-      this.policyService
-        .get$(PolicyType.AutomaticAppLogIn)
+      this.accountService.activeAccount$
+        .pipe(
+          getUserId,
+          switchMap((userId) =>
+            this.policyService.policiesByType$(PolicyType.AutomaticAppLogIn, userId),
+          ),
+          getFirstPolicy,
+        )
         .subscribe(this.handleAutoSubmitLoginPolicySubscription.bind(this));
     }
   }
@@ -84,7 +96,12 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
    */
   private applyPolicyToActiveUser = async (policy: Policy) => {
     const policyAppliesToUser = await firstValueFrom(
-      this.policyService.policyAppliesToActiveUser$(PolicyType.AutomaticAppLogIn),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.AutomaticAppLogIn, userId),
+        ),
+      ),
     );
 
     if (!policyAppliesToUser) {
@@ -234,7 +251,7 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
   ) => {
     if (
       details.tabId === this.currentAutoSubmitHostData.tabId &&
-      this.urlContainsAutoFillParam(details.url)
+      this.urlContainsAutoSubmitHash(details.url)
     ) {
       this.injectAutoSubmitLoginScript(details.tabId).catch((error) =>
         this.logService.error(error),
@@ -277,7 +294,7 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
   private handleWebRequestOnBeforeRedirect = (
     details: chrome.webRequest.WebRedirectionResponseDetails,
   ) => {
-    if (this.isRequestInMainFrame(details) && this.urlContainsAutoFillParam(details.redirectUrl)) {
+    if (this.isRequestInMainFrame(details) && this.urlContainsAutoSubmitHash(details.redirectUrl)) {
       this.validAutoSubmitHosts.add(this.getUrlHost(details.redirectUrl));
       this.validAutoSubmitHosts.add(this.getUrlHost(details.url));
     }
@@ -369,7 +386,7 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
 
   /**
    * Determines if the provided URL is a valid auto-submit host. If the request is occurring
-   * in the main frame, we will check for the presence of the `autofill=1` query parameter.
+   * in the main frame, we will check for the presence of the `autosubmit=1` uri hash.
    * If the request is occurring in a sub frame, the main frame URL should be set as a
    * valid auto-submit host and can be used to validate the request.
    *
@@ -382,7 +399,7 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
   ) => {
     if (this.isRequestInMainFrame(details)) {
       return !!(
-        this.urlContainsAutoFillParam(details.url) ||
+        this.urlContainsAutoSubmitHash(details.url) ||
         this.triggerAutoSubmitAfterRedirectOnSafari(details.url)
       );
     }
@@ -391,14 +408,14 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
   };
 
   /**
-   * Determines if the provided URL contains the `autofill=1` query parameter.
+   * Determines if the provided URL contains the `autosubmit=1` uri hash.
    *
-   * @param url - The URL to check for the `autofill=1` query parameter.
+   * @param url - The URL to check for the `autosubmit=1` uri hash.
    */
-  private urlContainsAutoFillParam = (url: string) => {
+  private urlContainsAutoSubmitHash = (url: string) => {
     try {
       const urlObj = new URL(url);
-      return urlObj.search.indexOf("autofill=1") !== -1;
+      return urlObj.hash.indexOf("autosubmit=1") !== -1;
     } catch {
       return false;
     }

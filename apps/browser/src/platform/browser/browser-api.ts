@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { DeviceType } from "@bitwarden/common/enums";
@@ -58,11 +60,33 @@ export class BrowserApi {
   }
 
   static async createWindow(options: chrome.windows.CreateData): Promise<chrome.windows.Window> {
-    return new Promise((resolve) =>
-      chrome.windows.create(options, (window) => {
-        resolve(window);
-      }),
-    );
+    return new Promise((resolve) => {
+      chrome.windows.create(options, async (newWindow) => {
+        if (!BrowserApi.isSafariApi) {
+          return resolve(newWindow);
+        }
+        // Safari doesn't close the default extension popup when a new window is created so we need to
+        // manually trigger the close by focusing the main window after the new window is created
+        const allWindows = await new Promise<chrome.windows.Window[]>((resolve) => {
+          chrome.windows.getAll({ windowTypes: ["normal"] }, (windows) => resolve(windows));
+        });
+
+        const mainWindow = allWindows.find((window) => window.id !== newWindow.id);
+
+        // No main window found, resolve the new window
+        if (mainWindow == null || !mainWindow.id) {
+          return resolve(newWindow);
+        }
+
+        // Focus the main window to close the extension popup
+        chrome.windows.update(mainWindow.id, { focused: true }, () => {
+          // Refocus the newly created window
+          chrome.windows.update(newWindow.id, { focused: true }, () => {
+            resolve(newWindow);
+          });
+        });
+      });
+    });
   }
 
   /**
@@ -101,7 +125,7 @@ export class BrowserApi {
   }
 
   static async getTabFromCurrentWindowId(): Promise<chrome.tabs.Tab> | null {
-    return await BrowserApi.tabsQueryFirst({
+    return await BrowserApi.tabsQueryFirstCurrentWindowForSafari({
       active: true,
       windowId: chrome.windows.WINDOW_ID_CURRENT,
     });
@@ -129,7 +153,7 @@ export class BrowserApi {
   }
 
   static async getTabFromCurrentWindow(): Promise<chrome.tabs.Tab> | null {
-    return await BrowserApi.tabsQueryFirst({
+    return await BrowserApi.tabsQueryFirstCurrentWindowForSafari({
       active: true,
       currentWindow: true,
     });
@@ -139,6 +163,21 @@ export class BrowserApi {
     return await BrowserApi.tabsQuery({
       active: true,
     });
+  }
+
+  /**
+   * Fetch the currently open browser tab
+   */
+  static async getCurrentTab(): Promise<chrome.tabs.Tab> | null {
+    if (BrowserApi.isManifestVersion(3)) {
+      return await chrome.tabs.getCurrent();
+    }
+
+    return new Promise((resolve) =>
+      chrome.tabs.getCurrent((tab) => {
+        resolve(tab);
+      }),
+    );
   }
 
   static async tabsQuery(options: chrome.tabs.QueryInfo): Promise<chrome.tabs.Tab[]> {
@@ -156,6 +195,51 @@ export class BrowserApi {
     }
 
     return null;
+  }
+
+  /**
+   * Drop-in replacement for {@link BrowserApi.tabsQueryFirst}.
+   *
+   * Safari sometimes returns >1 tabs unexpectedly even when
+   * specificing a `windowId` or `currentWindow: true` query option.
+   *
+   * For all of these calls,
+   * ```
+   * await chrome.tabs.query({active: true, currentWindow: true})
+   * await chrome.tabs.query({active: true, windowId: chrome.windows.WINDOW_ID_CURRENT})
+   * await chrome.tabs.query({active: true, windowId: 10})
+   * ```
+   *
+   * Safari could return:
+   * ```
+   * [
+   *   {windowId: 2, pinned: true, title: "Incorrect tab in another window", …},
+   *   {windowId: 10, title: "Correct tab in foreground", …},
+   * ]
+   * ```
+   *
+   * This function captures the current window ID manually before running the query,
+   * then finds and returns the tab with the matching window ID.
+   *
+   * See the `SafariTabsQuery` tests in `browser-api.spec.ts`.
+   *
+   * This workaround can be removed when Safari fixes this bug.
+   */
+  static async tabsQueryFirstCurrentWindowForSafari(
+    options: chrome.tabs.QueryInfo,
+  ): Promise<chrome.tabs.Tab> | null {
+    if (!BrowserApi.isSafariApi) {
+      return await BrowserApi.tabsQueryFirst(options);
+    }
+
+    const currentWindowId = (await BrowserApi.getCurrentWindow()).id;
+    const tabs = await BrowserApi.tabsQuery(options);
+
+    if (tabs.length <= 1 || currentWindowId == null) {
+      return tabs[0];
+    }
+
+    return tabs.find((t) => t.windowId === currentWindowId) ?? tabs[0];
   }
 
   static tabSendMessageData(
@@ -178,15 +262,17 @@ export class BrowserApi {
     tab: chrome.tabs.Tab,
     obj: T,
     options: chrome.tabs.MessageSendOptions = null,
+    rejectOnError = false,
   ): Promise<TResponse> {
     if (!tab || !tab.id) {
       return;
     }
 
-    return new Promise<TResponse>((resolve) => {
+    return new Promise<TResponse>((resolve, reject) => {
       chrome.tabs.sendMessage(tab.id, obj, options, (response) => {
-        if (chrome.runtime.lastError) {
+        if (chrome.runtime.lastError && rejectOnError) {
           // Some error happened
+          reject();
         }
         resolve(response);
       });
@@ -413,6 +499,12 @@ export class BrowserApi {
    * Handles reloading the extension using the underlying functionality exposed by the browser API.
    */
   static reloadExtension() {
+    // If we do `chrome.runtime.reload` on safari they will send an onInstalled reason of install
+    // and that prompts us to show a new tab, this apparently doesn't happen on sideloaded
+    // extensions and only shows itself production scenarios. See: https://bitwarden.atlassian.net/browse/PM-12298
+    if (this.isSafariApi) {
+      return self.location.reload();
+    }
     return chrome.runtime.reload();
   }
 
@@ -457,7 +549,9 @@ export class BrowserApi {
    *
    * @param permissions - The permissions to check.
    */
-  static async permissionsGranted(permissions: string[]): Promise<boolean> {
+  static async permissionsGranted(
+    permissions: chrome.runtime.ManifestPermissions[],
+  ): Promise<boolean> {
     return new Promise((resolve) =>
       chrome.permissions.contains({ permissions }, (result) => resolve(result)),
     );
@@ -483,10 +577,15 @@ export class BrowserApi {
     win: Window & typeof globalThis,
   ): OperaSidebarAction | FirefoxSidebarAction | null {
     const deviceType = BrowserPlatformUtilsService.getDevice(win);
-    if (deviceType !== DeviceType.FirefoxExtension && deviceType !== DeviceType.OperaExtension) {
-      return null;
+    if (deviceType === DeviceType.FirefoxExtension) {
+      return browser.sidebarAction;
     }
-    return win.opr?.sidebarAction || browser.sidebarAction;
+
+    if (deviceType === DeviceType.OperaExtension) {
+      return win.opr?.sidebarAction;
+    }
+
+    return null;
   }
 
   static captureVisibleTab(): Promise<string> {
@@ -542,7 +641,7 @@ export class BrowserApi {
    * Identifies if the browser autofill settings are overridden by the extension.
    */
   static async browserAutofillSettingsOverridden(): Promise<boolean> {
-    const checkOverrideStatus = (details: chrome.types.ChromeSettingGetResultDetails) =>
+    const checkOverrideStatus = (details: chrome.types.ChromeSettingGetResult<boolean>) =>
       details.levelOfControl === "controlled_by_this_extension" && !details.value;
 
     const autofillAddressOverridden: boolean = await new Promise((resolve) =>
@@ -571,10 +670,10 @@ export class BrowserApi {
    *
    * @param value - Determines whether to enable or disable the autofill settings.
    */
-  static updateDefaultBrowserAutofillSettings(value: boolean) {
-    chrome.privacy.services.autofillAddressEnabled.set({ value });
-    chrome.privacy.services.autofillCreditCardEnabled.set({ value });
-    chrome.privacy.services.passwordSavingEnabled.set({ value });
+  static async updateDefaultBrowserAutofillSettings(value: boolean) {
+    await chrome.privacy.services.autofillAddressEnabled.set({ value });
+    await chrome.privacy.services.autofillCreditCardEnabled.set({ value });
+    await chrome.privacy.services.passwordSavingEnabled.set({ value });
   }
 
   /**

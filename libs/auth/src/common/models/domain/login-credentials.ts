@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
@@ -12,6 +14,7 @@ export class PasswordLoginCredentials {
   constructor(
     public email: string,
     public masterPassword: string,
+    // TODO: PM-15162 - captcha is deprecated as part of UI refresh work
     public captchaToken?: string,
     public twoFactor?: TokenTwoFactorRequest,
   ) {}
@@ -50,9 +53,9 @@ export class AuthRequestLoginCredentials {
     public email: string,
     public accessCode: string,
     public authRequestId: string,
-    public decryptedUserKey: UserKey,
-    public decryptedMasterKey: MasterKey,
-    public decryptedMasterKeyHash: string,
+    public decryptedUserKey: UserKey | null,
+    public decryptedMasterKey: MasterKey | null,
+    public decryptedMasterKeyHash: string | null,
     public twoFactor?: TokenTwoFactorRequest,
   ) {}
 

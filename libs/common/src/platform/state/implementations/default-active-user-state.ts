@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable, map, switchMap, firstValueFrom, timeout, throwError, NEVER } from "rxjs";
 
 import { UserId } from "../../../types/guid";

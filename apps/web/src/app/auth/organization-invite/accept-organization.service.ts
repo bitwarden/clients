@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, firstValueFrom, map } from "rxjs";
 
@@ -13,9 +15,9 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -26,6 +28,8 @@ import {
   ORGANIZATION_INVITE_DISK,
 } from "@bitwarden/common/platform/state";
 import { OrgKey } from "@bitwarden/common/types/key";
+import { DialogService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationInvite } from "./organization-invite";
 
@@ -52,7 +56,7 @@ export class AcceptOrganizationInviteService {
   constructor(
     private readonly apiService: ApiService,
     private readonly authService: AuthService,
-    private readonly cryptoService: CryptoService,
+    private readonly keyService: KeyService,
     private readonly encryptService: EncryptService,
     private readonly policyApiService: PolicyApiServiceAbstraction,
     private readonly policyService: PolicyService,
@@ -61,6 +65,8 @@ export class AcceptOrganizationInviteService {
     private readonly organizationUserApiService: OrganizationUserApiService,
     private readonly i18nService: I18nService,
     private readonly globalStateProvider: GlobalStateProvider,
+    private readonly dialogService: DialogService,
+    private readonly accountService: AccountService,
   ) {
     this.organizationInvitationState = this.globalStateProvider.get(ORGANIZATION_INVITE);
   }
@@ -137,8 +143,8 @@ export class AcceptOrganizationInviteService {
     const request = new OrganizationUserAcceptInitRequest();
     request.token = invite.token;
 
-    const [encryptedOrgKey, orgKey] = await this.cryptoService.makeOrgKey<OrgKey>();
-    const [orgPublicKey, encryptedOrgPrivateKey] = await this.cryptoService.makeKeyPair(orgKey);
+    const [encryptedOrgKey, orgKey] = await this.keyService.makeOrgKey<OrgKey>();
+    const [orgPublicKey, encryptedOrgPrivateKey] = await this.keyService.makeKeyPair(orgKey);
     const collection = await this.encryptService.encrypt(
       this.i18nService.t("defaultCollection"),
       orgKey,
@@ -182,9 +188,10 @@ export class AcceptOrganizationInviteService {
 
       const publicKey = Utils.fromB64ToArray(response.publicKey);
 
+      const activeUserId = (await firstValueFrom(this.accountService.activeAccount$)).id;
+      const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
       // RSA Encrypt user's encKey.key with organization public key
-      const userKey = await this.cryptoService.getUserKey();
-      const encryptedKey = await this.cryptoService.rsaEncrypt(userKey.key, publicKey);
+      const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(userKey, publicKey);
 
       // Add reset password key to accept request
       request.resetPasswordKey = encryptedKey.encryptedString;

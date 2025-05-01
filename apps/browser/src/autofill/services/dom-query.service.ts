@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { EVENTS, MAX_DEEP_QUERY_RECURSION_DEPTH } from "@bitwarden/common/autofill/constants";
 
 import { nodeIsElement, sendExtensionMessage } from "../utils";
@@ -7,6 +9,27 @@ import { DomQueryService as DomQueryServiceInterface } from "./abstractions/dom-
 export class DomQueryService implements DomQueryServiceInterface {
   private pageContainsShadowDom: boolean;
   private useTreeWalkerStrategyFlagSet = true;
+  private ignoredTreeWalkerNodes = new Set([
+    "svg",
+    "script",
+    "noscript",
+    "head",
+    "style",
+    "link",
+    "meta",
+    "title",
+    "base",
+    "img",
+    "picture",
+    "video",
+    "audio",
+    "object",
+    "source",
+    "track",
+    "param",
+    "map",
+    "area",
+  ]);
 
   constructor() {
     void this.init();
@@ -21,6 +44,7 @@ export class DomQueryService implements DomQueryServiceInterface {
    * @param treeWalkerFilter - The filter callback to use for the treeWalker query
    * @param mutationObserver - The MutationObserver to use for observing shadow roots
    * @param forceDeepQueryAttempt - Whether to force a deep query attempt
+   * @param ignoredTreeWalkerNodesOverride - An optional set of node names to ignore when using the treeWalker strategy
    */
   query<T>(
     root: Document | ShadowRoot | Element,
@@ -28,15 +52,28 @@ export class DomQueryService implements DomQueryServiceInterface {
     treeWalkerFilter: CallableFunction,
     mutationObserver?: MutationObserver,
     forceDeepQueryAttempt?: boolean,
+    ignoredTreeWalkerNodesOverride?: Set<string>,
   ): T[] {
+    const ignoredTreeWalkerNodes = ignoredTreeWalkerNodesOverride || this.ignoredTreeWalkerNodes;
+
     if (!forceDeepQueryAttempt && this.pageContainsShadowDomElements()) {
-      return this.queryAllTreeWalkerNodes<T>(root, treeWalkerFilter, mutationObserver);
+      return this.queryAllTreeWalkerNodes<T>(
+        root,
+        treeWalkerFilter,
+        ignoredTreeWalkerNodes,
+        mutationObserver,
+      );
     }
 
     try {
       return this.deepQueryElements<T>(root, queryString, mutationObserver);
     } catch {
-      return this.queryAllTreeWalkerNodes<T>(root, treeWalkerFilter, mutationObserver);
+      return this.queryAllTreeWalkerNodes<T>(
+        root,
+        treeWalkerFilter,
+        ignoredTreeWalkerNodes,
+        mutationObserver,
+      );
     }
   }
 
@@ -157,6 +194,10 @@ export class DomQueryService implements DomQueryServiceInterface {
     root: Document | ShadowRoot | Element,
     returnSingleShadowRoot = false,
   ): ShadowRoot[] {
+    if (!root) {
+      return [];
+    }
+
     const shadowRoots: ShadowRoot[] = [];
     const potentialShadowRoots = root.querySelectorAll(":defined");
     for (let index = 0; index < potentialShadowRoots.length; index++) {
@@ -194,6 +235,8 @@ export class DomQueryService implements DomQueryServiceInterface {
     if ((chrome as any).dom?.openOrClosedShadowRoot) {
       try {
         return (chrome as any).dom.openOrClosedShadowRoot(node);
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         return null;
       }
@@ -207,11 +250,13 @@ export class DomQueryService implements DomQueryServiceInterface {
    * and returns a collection of nodes.
    * @param rootNode
    * @param filterCallback
+   * @param ignoredTreeWalkerNodes
    * @param mutationObserver
    */
   private queryAllTreeWalkerNodes<T>(
     rootNode: Node,
     filterCallback: CallableFunction,
+    ignoredTreeWalkerNodes: Set<string>,
     mutationObserver?: MutationObserver,
   ): T[] {
     const treeWalkerQueryResults: T[] = [];
@@ -220,6 +265,7 @@ export class DomQueryService implements DomQueryServiceInterface {
       rootNode,
       treeWalkerQueryResults,
       filterCallback,
+      ignoredTreeWalkerNodes,
       mutationObserver,
     );
 
@@ -233,15 +279,21 @@ export class DomQueryService implements DomQueryServiceInterface {
    * @param rootNode
    * @param treeWalkerQueryResults
    * @param filterCallback
+   * @param ignoredTreeWalkerNodes
    * @param mutationObserver
    */
   private buildTreeWalkerNodesQueryResults<T>(
     rootNode: Node,
     treeWalkerQueryResults: T[],
     filterCallback: CallableFunction,
+    ignoredTreeWalkerNodes: Set<string>,
     mutationObserver?: MutationObserver,
   ) {
-    const treeWalker = document?.createTreeWalker(rootNode, NodeFilter.SHOW_ELEMENT);
+    const treeWalker = document?.createTreeWalker(rootNode, NodeFilter.SHOW_ELEMENT, (node) =>
+      ignoredTreeWalkerNodes.has(node.nodeName?.toLowerCase())
+        ? NodeFilter.FILTER_REJECT
+        : NodeFilter.FILTER_ACCEPT,
+    );
     let currentNode = treeWalker?.currentNode;
 
     while (currentNode) {
@@ -263,6 +315,7 @@ export class DomQueryService implements DomQueryServiceInterface {
           nodeShadowRoot,
           treeWalkerQueryResults,
           filterCallback,
+          ignoredTreeWalkerNodes,
           mutationObserver,
         );
       }

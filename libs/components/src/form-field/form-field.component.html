@@ -1,17 +1,121 @@
-<label class="tw-mb-1 tw-block tw-font-semibold tw-text-main" [attr.for]="input.labelForId">
-  <ng-content select="bit-label"></ng-content>
-  <span *ngIf="input.required" class="tw-text-xs tw-font-normal"> ({{ "required" | i18n }})</span>
-</label>
-<div class="tw-flex">
-  <div *ngIf="prefixChildren.length" class="tw-flex">
-    <ng-content select="[bitPrefix]"></ng-content>
-  </div>
+<!-- We need to use templates since the content slots are repeated between the readonly and read-write views. -->
+<ng-template #defaultContent>
   <ng-content></ng-content>
-  <div *ngIf="suffixChildren.length" class="tw-flex">
-    <ng-content select="[bitSuffix]"></ng-content>
+</ng-template>
+
+<ng-template #labelContent>
+  <ng-content select="bit-label"></ng-content>
+</ng-template>
+
+<ng-template #prefixContent>
+  <ng-content select="[bitPrefix]"></ng-content>
+</ng-template>
+
+<ng-template #suffixContent>
+  <ng-content select="[bitSuffix]"></ng-content>
+</ng-template>
+
+@if (!readOnly) {
+  <div class="tw-w-full tw-relative tw-group/bit-form-field">
+    <div class="tw-absolute tw-size-full tw-top-0 tw-pointer-events-none tw-z-20">
+      <div class="tw-size-full tw-flex">
+        <div
+          class="tw-min-w-3 tw-border-r-0 group-focus-within/bit-form-field:tw-border-r-0 !tw-rounded-l-lg"
+          [ngClass]="inputBorderClasses"
+        ></div>
+        <div
+          class="tw-px-1 tw-shrink tw-min-w-0 tw-mt-px tw-border-x-0 tw-border-t-0 group-focus-within/bit-form-field:tw-border-x-0 group-focus-within/bit-form-field:tw-border-t-0 tw-hidden group-has-[bit-label]/bit-form-field:tw-block"
+          [ngClass]="inputBorderClasses"
+        >
+          <label
+            class="tw-flex tw-gap-1 tw-text-sm tw-text-muted -tw-translate-y-[0.675rem] tw-mb-0 tw-max-w-full tw-pointer-events-auto"
+            [attr.for]="input.labelForId"
+          >
+            <ng-container *ngTemplateOutlet="labelContent"></ng-container>
+            @if (input.required) {
+              <span class="tw-text-[0.625rem] tw-relative tw-bottom-[-1px]">
+                ({{ "required" | i18n }})</span
+              >
+            }
+          </label>
+        </div>
+        <div
+          class="tw-min-w-3 tw-grow tw-border-l-0 group-focus-within/bit-form-field:tw-border-l-0 !tw-rounded-r-lg"
+          [ngClass]="inputBorderClasses"
+        ></div>
+      </div>
+    </div>
+    <div
+      class="tw-gap-1 tw-bg-background tw-rounded-lg tw-flex tw-min-h-11 [&:not(:has(button:enabled)):has(input:read-only)]:tw-bg-secondary-100 [&:not(:has(button:enabled)):has(textarea:read-only)]:tw-bg-secondary-100"
+    >
+      <div
+        #prefixContainer
+        class="tw-flex tw-items-center tw-gap-1 tw-pl-3 tw-py-2"
+        [hidden]="!prefixHasChildren()"
+      >
+        <ng-container *ngTemplateOutlet="prefixContent"></ng-container>
+      </div>
+      <div
+        class="default-content tw-w-full tw-relative tw-py-2 has-[bit-select]:tw-p-0 has-[bit-multi-select]:tw-p-0 has-[input:read-only:not([hidden])]:tw-bg-secondary-100 has-[textarea:read-only:not([hidden])]:tw-bg-secondary-100"
+        [ngClass]="[
+          prefixHasChildren() ? '' : 'tw-rounded-l-lg tw-pl-3',
+          suffixHasChildren() ? '' : 'tw-rounded-r-lg tw-pr-3',
+        ]"
+      >
+        <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
+      </div>
+      <div
+        #suffixContainer
+        class="tw-flex tw-items-center tw-gap-1 tw-pr-3 tw-py-2"
+        [hidden]="!suffixHasChildren()"
+      >
+        <ng-container *ngTemplateOutlet="suffixContent"></ng-container>
+      </div>
+    </div>
   </div>
-</div>
-<ng-container [ngSwitch]="input.hasError">
-  <ng-content select="bit-hint" *ngSwitchCase="false"></ng-content>
-  <bit-error [error]="input.error" *ngSwitchCase="true"></bit-error>
-</ng-container>
+} @else {
+  <div class="tw-w-full tw-relative">
+    <label
+      class="tw-flex tw-gap-1 tw-text-sm tw-text-muted tw-mb-0 tw-max-w-full"
+      [attr.for]="input.labelForId"
+    >
+      <ng-container *ngTemplateOutlet="labelContent"></ng-container>
+    </label>
+    <div
+      class="tw-gap-1 tw-flex tw-min-h-[1.85rem] tw-border-0 tw-border-solid"
+      [ngClass]="{
+        'tw-border-secondary-300/50 tw-border-b tw-pb-[2px]': !disableReadOnlyBorder,
+        'tw-border-transparent tw-pb-[3px]': disableReadOnlyBorder,
+      }"
+    >
+      <div
+        #prefixContainer
+        [hidden]="!prefixHasChildren()"
+        class="tw-flex tw-items-center tw-gap-1 tw-pl-1"
+      >
+        <ng-container *ngTemplateOutlet="prefixContent"></ng-container>
+      </div>
+      <div
+        class="default-content tw-w-full tw-pb-0 tw-relative [&>*]:tw-p-0 [&>*::selection]:tw-bg-primary-700 [&>*::selection]:tw-text-contrast"
+      >
+        <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
+      </div>
+      <div
+        #suffixContainer
+        [hidden]="!suffixHasChildren()"
+        class="tw-flex tw-items-center tw-gap-1 tw-pr-1"
+      >
+        <ng-container *ngTemplateOutlet="suffixContent"></ng-container>
+      </div>
+    </div>
+  </div>
+}
+
+@switch (input.hasError) {
+  @case (false) {
+    <ng-content select="bit-hint"></ng-content>
+  }
+  @case (true) {
+    <bit-error [error]="input.error"></bit-error>
+  }
+}

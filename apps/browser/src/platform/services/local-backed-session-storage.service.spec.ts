@@ -1,6 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Lazy } from "@bitwarden/common/platform/misc/lazy";
@@ -48,8 +48,14 @@ describe("LocalBackedSessionStorage", () => {
       localStorage.internalStore["session_test"] = encrypted.encryptedString;
       encryptService.decryptToUtf8.mockResolvedValue(JSON.stringify("decrypted"));
       const result = await sut.get("test");
-      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(encrypted, sessionKey);
-      expect(result).toEqual("decrypted");
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(
+        encrypted,
+        sessionKey,
+        "browser-session-key",
+      ),
+        expect(result).toEqual("decrypted");
     });
 
     it("caches the decrypted value when one is stored in local storage", async () => {
@@ -65,8 +71,14 @@ describe("LocalBackedSessionStorage", () => {
       localStorage.internalStore["session_test"] = encrypted.encryptedString;
       encryptService.decryptToUtf8.mockResolvedValue(JSON.stringify("decrypted"));
       const result = await sut.get("test");
-      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(encrypted, sessionKey);
-      expect(result).toEqual("decrypted");
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(
+        encrypted,
+        sessionKey,
+        "browser-session-key",
+      ),
+        expect(result).toEqual("decrypted");
     });
 
     it("caches the decrypted value when one is stored in local storage", async () => {

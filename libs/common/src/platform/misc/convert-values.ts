@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ObservableInput, OperatorFunction, map } from "rxjs";
 
 /**
@@ -6,7 +8,7 @@ import { ObservableInput, OperatorFunction, map } from "rxjs";
  */
 export function convertValues<TKey extends PropertyKey, TInput, TOutput>(
   project: (key: TKey, value: TInput) => ObservableInput<TOutput>,
-): OperatorFunction<Record<TKey, TInput>, Record<TKey, ObservableInput<TOutput>>> {
+): OperatorFunction<Record<TKey, TInput> | null, Record<TKey, ObservableInput<TOutput>>> {
   return map((inputRecord) => {
     if (inputRecord == null) {
       return null;

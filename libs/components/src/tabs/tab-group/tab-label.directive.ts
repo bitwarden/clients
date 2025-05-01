@@ -16,6 +16,7 @@ import { Directive, TemplateRef } from "@angular/core";
  */
 @Directive({
   selector: "[bitTabLabel]",
+  standalone: true,
 })
 export class TabLabelDirective {
   constructor(public templateRef: TemplateRef<unknown>) {}

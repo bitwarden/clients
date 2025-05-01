@@ -30,7 +30,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=2070%3A17207",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-26720&t=b5tDKylm5sWm2yKo-4",
     },
   },
   args: {
@@ -53,7 +53,7 @@ export const Premium: Story = {
     template: `
       <bit-banner [bannerType]="bannerType" (onClose)="onClose($event)" [showClose]=showClose>
         Content Really Long Text Lorem Ipsum Ipsum Ipsum
-        <button bitLink linkType="contrast">Button</button>
+        <button bitLink linkType="secondary">Button</button>
       </bit-banner>
       `,
   }),

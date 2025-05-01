@@ -1,19 +1,42 @@
-import { switchMap, merge, delay, filter, concatMap, map } from "rxjs";
+import { switchMap, delay, filter, concatMap } from "rxjs";
 
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
+import {
+  ScheduledTaskNames,
+  TaskSchedulerService,
+  toScheduler,
+} from "@bitwarden/common/platform/scheduling";
 import {
   POPUP_VIEW_MEMORY,
   KeyDefinition,
   GlobalStateProvider,
 } from "@bitwarden/common/platform/state";
 
-import { BrowserApi } from "../browser/browser-api";
 import { fromChromeEvent } from "../browser/from-chrome-event";
 
 const popupClosedPortName = "new_popup";
 
+export type ViewCacheOptions = {
+  /**
+   * Optional flag to persist the cached value between navigation events.
+   */
+  persistNavigation?: boolean;
+};
+
+export type ViewCacheState = {
+  /**
+   * The cached value
+   */
+  value: string; // JSON value
+
+  /**
+   * Options for managing/clearing the cache
+   */
+  options?: ViewCacheOptions;
+};
+
 /** We cannot use `UserKeyDefinition` because we must be able to store state when there is no active user. */
-export const POPUP_VIEW_CACHE_KEY = KeyDefinition.record<string>(
+export const POPUP_VIEW_CACHE_KEY = KeyDefinition.record<ViewCacheState>(
   POPUP_VIEW_MEMORY,
   "popup-view-cache",
   {
@@ -32,9 +55,15 @@ export const POPUP_ROUTE_HISTORY_KEY = new KeyDefinition<string[]>(
 export const SAVE_VIEW_CACHE_COMMAND = new CommandDefinition<{
   key: string;
   value: string;
+  options: ViewCacheOptions;
 }>("save-view-cache");
 
-export const ClEAR_VIEW_CACHE_COMMAND = new CommandDefinition("clear-view-cache");
+export const ClEAR_VIEW_CACHE_COMMAND = new CommandDefinition<{
+  /**
+   * Flag to indicate the clear request was triggered by a route change in popup.
+   */
+  routeChange: boolean;
+}>("clear-view-cache");
 
 export class PopupViewCacheBackgroundService {
   private popupViewCacheState = this.globalStateProvider.get(POPUP_VIEW_CACHE_KEY);
@@ -43,36 +72,62 @@ export class PopupViewCacheBackgroundService {
   constructor(
     private messageListener: MessageListener,
     private globalStateProvider: GlobalStateProvider,
-  ) {}
+    private readonly taskSchedulerService: TaskSchedulerService,
+  ) {
+    this.taskSchedulerService.registerTaskHandler(
+      ScheduledTaskNames.clearPopupViewCache,
+      async () => {
+        await this.clearState();
+      },
+    );
+  }
 
-  startObservingTabChanges() {
+  startObservingMessages() {
     this.messageListener
       .messages$(SAVE_VIEW_CACHE_COMMAND)
       .pipe(
-        concatMap(async ({ key, value }) =>
+        concatMap(async ({ key, value, options }) =>
           this.popupViewCacheState.update((state) => ({
             ...state,
-            [key]: value,
+            [key]: {
+              value,
+              options,
+            },
           })),
         ),
       )
       .subscribe();
 
-    merge(
-      // on tab changed, excluding extension tabs
-      fromChromeEvent(chrome.tabs.onActivated).pipe(
-        switchMap(([tabInfo]) => BrowserApi.getTab(tabInfo.tabId)),
-        map((tab) => tab.url || tab.pendingUrl),
-        filter((url) => !url.startsWith(chrome.runtime.getURL(""))),
-      ),
+    this.messageListener
+      .messages$(ClEAR_VIEW_CACHE_COMMAND)
+      .pipe(
+        concatMap(({ routeChange }) =>
+          this.popupViewCacheState.update((state) => {
+            if (routeChange && state) {
+              // Only remove keys that are not marked with `persistNavigation`
+              return Object.fromEntries(
+                Object.entries(state).filter(([, { options }]) => options?.persistNavigation),
+              );
+            }
+            return null;
+          }),
+        ),
+      )
+      .subscribe();
 
-      // on popup closed, with 2 minute delay that is cancelled by re-opening the popup
-      fromChromeEvent(chrome.runtime.onConnect).pipe(
+    // on popup closed, with 2 minute delay that is cancelled by re-opening the popup
+    fromChromeEvent(chrome.runtime.onConnect)
+      .pipe(
         filter(([port]) => port.name === popupClosedPortName),
-        switchMap(([port]) => fromChromeEvent(port.onDisconnect).pipe(delay(1000 * 60 * 2))),
-      ),
-    )
-      .pipe(switchMap(() => this.clearState()))
+        switchMap(([port]) =>
+          fromChromeEvent(port.onDisconnect).pipe(
+            delay(
+              1000 * 60 * 2,
+              toScheduler(this.taskSchedulerService, ScheduledTaskNames.clearPopupViewCache),
+            ),
+          ),
+        ),
+      )
       .subscribe();
   }
 

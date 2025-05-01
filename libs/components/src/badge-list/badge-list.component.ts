@@ -1,10 +1,17 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+
 import { Component, Input, OnChanges } from "@angular/core";
 
-import { BadgeVariant } from "../badge";
+import { I18nPipe } from "@bitwarden/ui-common";
+
+import { BadgeModule, BadgeVariant } from "../badge";
 
 @Component({
   selector: "bit-badge-list",
   templateUrl: "badge-list.component.html",
+  standalone: true,
+  imports: [BadgeModule, I18nPipe],
 })
 export class BadgeListComponent implements OnChanges {
   private _maxItems: number;

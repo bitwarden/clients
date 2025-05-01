@@ -25,24 +25,25 @@ import {
   TableModule,
   ToastModule,
   TypographyModule,
+  CopyClickDirective,
+  A11yTitleDirective,
 } from "@bitwarden/components";
 
 import { TwoFactorIconComponent } from "./auth/components/two-factor-icon.component";
+import { NotPremiumDirective } from "./billing/directives/not-premium.directive";
 import { DeprecatedCalloutComponent } from "./components/callout.component";
 import { A11yInvalidDirective } from "./directives/a11y-invalid.directive";
-import { A11yTitleDirective } from "./directives/a11y-title.directive";
 import { ApiActionDirective } from "./directives/api-action.directive";
 import { BoxRowDirective } from "./directives/box-row.directive";
-import { CopyClickDirective } from "./directives/copy-click.directive";
 import { CopyTextDirective } from "./directives/copy-text.directive";
 import { FallbackSrcDirective } from "./directives/fallback-src.directive";
 import { IfFeatureDirective } from "./directives/if-feature.directive";
 import { InputStripSpacesDirective } from "./directives/input-strip-spaces.directive";
 import { InputVerbatimDirective } from "./directives/input-verbatim.directive";
 import { LaunchClickDirective } from "./directives/launch-click.directive";
-import { NotPremiumDirective } from "./directives/not-premium.directive";
 import { StopClickDirective } from "./directives/stop-click.directive";
 import { StopPropDirective } from "./directives/stop-prop.directive";
+import { TextDragDirective } from "./directives/text-drag.directive";
 import { TrueFalseValueDirective } from "./directives/true-false-value.directive";
 import { CreditCardNumberPipe } from "./pipes/credit-card-number.pipe";
 import { PluralizePipe } from "./pipes/pluralize.pipe";
@@ -81,10 +82,12 @@ import { IconComponent } from "./vault/components/icon.component";
     IconModule,
     LinkModule,
     IconModule,
+    TextDragDirective,
+    CopyClickDirective,
+    A11yTitleDirective,
   ],
   declarations: [
     A11yInvalidDirective,
-    A11yTitleDirective,
     ApiActionDirective,
     AutofocusDirective,
     BoxRowDirective,
@@ -103,7 +106,6 @@ import { IconComponent } from "./vault/components/icon.component";
     StopClickDirective,
     StopPropDirective,
     TrueFalseValueDirective,
-    CopyClickDirective,
     LaunchClickDirective,
     UserNamePipe,
     PasswordStrengthComponent,
@@ -150,6 +152,7 @@ import { IconComponent } from "./vault/components/icon.component";
     NoInvoicesComponent,
     ManageTaxInformationComponent,
     TwoFactorIconComponent,
+    TextDragDirective,
   ],
   providers: [
     CreditCardNumberPipe,

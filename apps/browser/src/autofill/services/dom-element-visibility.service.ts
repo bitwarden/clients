@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { AutofillInlineMenuContentService } from "../overlay/inline-menu/abstractions/autofill-inline-menu-content.service";
 import { FillableFormFieldElement, FormFieldElement } from "../types";
 
@@ -6,15 +8,14 @@ import { DomElementVisibilityService as DomElementVisibilityServiceInterface } f
 class DomElementVisibilityService implements DomElementVisibilityServiceInterface {
   private cachedComputedStyle: CSSStyleDeclaration | null = null;
 
-  constructor(private inlineMenuElements?: AutofillInlineMenuContentService) {}
+  constructor(private inlineMenuContentService?: AutofillInlineMenuContentService) {}
 
   /**
-   * Checks if a form field is viewable. This is done by checking if the element is within the
+   * Checks if an element is viewable. This is done by checking if the element is within the
    * viewport bounds, not hidden by CSS, and not hidden behind another element.
-   * @param {FormFieldElement} element
-   * @returns {Promise<boolean>}
+   * @param element
    */
-  async isFormFieldViewable(element: FormFieldElement): Promise<boolean> {
+  async isElementViewable(element: HTMLElement): Promise<boolean> {
     const elementBoundingClientRect = element.getBoundingClientRect();
     if (
       this.isElementOutsideViewportBounds(element, elementBoundingClientRect) ||
@@ -190,7 +191,7 @@ class DomElementVisibilityService implements DomElementVisibilityServiceInterfac
       return true;
     }
 
-    if (this.inlineMenuElements?.isElementInlineMenu(elementAtCenterPoint as HTMLElement)) {
+    if (this.inlineMenuContentService?.isElementInlineMenu(elementAtCenterPoint as HTMLElement)) {
       return true;
     }
 

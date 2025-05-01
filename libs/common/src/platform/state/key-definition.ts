@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { StorageKey } from "../../types/state";
@@ -40,7 +42,7 @@ export type KeyDefinitionOptions<T> = {
    * @param jsonValue The JSON object representation of your state.
    * @returns The fully typed version of your state.
    */
-  readonly deserializer: (jsonValue: Jsonify<T>) => T;
+  readonly deserializer: (jsonValue: Jsonify<T>) => T | null;
   /**
    * The number of milliseconds to wait before cleaning up the state after the last subscriber has unsubscribed.
    * Defaults to 1000ms.

@@ -13,6 +13,7 @@ import { flushPromises, postWindowMessage } from "../../../../spec/testing-utils
 import { AutofillInlineMenuList } from "./autofill-inline-menu-list";
 
 describe("AutofillInlineMenuList", () => {
+  const generatedPassword = "generatedPassword!1";
   globalThis.customElements.define("autofill-inline-menu-list", AutofillInlineMenuList);
   global.ResizeObserver = jest.fn().mockImplementation(() => ({
     observe: jest.fn(),
@@ -83,7 +84,7 @@ describe("AutofillInlineMenuList", () => {
           createInitAutofillInlineMenuListMessageMock({
             authStatus: AuthenticationStatus.Unlocked,
             ciphers: [],
-            filledByCipherType: CipherType.Card,
+            inlineMenuFillType: CipherType.Card,
             portKey,
           }),
         );
@@ -96,7 +97,7 @@ describe("AutofillInlineMenuList", () => {
           createInitAutofillInlineMenuListMessageMock({
             authStatus: AuthenticationStatus.Unlocked,
             ciphers: [],
-            filledByCipherType: CipherType.Identity,
+            inlineMenuFillType: CipherType.Identity,
             portKey,
           }),
         );
@@ -109,7 +110,7 @@ describe("AutofillInlineMenuList", () => {
           createInitAutofillInlineMenuListMessageMock({
             authStatus: AuthenticationStatus.Unlocked,
             ciphers: [],
-            filledByCipherType: undefined,
+            inlineMenuFillType: undefined,
             portKey,
           }),
         );
@@ -139,10 +140,78 @@ describe("AutofillInlineMenuList", () => {
         expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
       });
 
+      it("creates the view for a totp field", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            inlineMenuFillType: CipherType.Login,
+            ciphers: [
+              createAutofillOverlayCipherDataMock(1, {
+                type: CipherType.Login,
+                login: {
+                  totp: "123456",
+                  totpField: true,
+                },
+              }),
+            ],
+          }),
+        );
+
+        await flushPromises();
+
+        const cipherSubtitleElement = autofillInlineMenuList[
+          "inlineMenuListContainer"
+        ].querySelector('[data-testid="totp-code"]');
+
+        expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
+        expect(cipherSubtitleElement).not.toBeNull();
+        expect(cipherSubtitleElement.textContent).toBe("123 456");
+      });
+
+      it("renders correctly when there are multiple TOTP elements with username displayed", async () => {
+        const totpCipher1 = createAutofillOverlayCipherDataMock(1, {
+          type: CipherType.Login,
+          login: {
+            totp: "123456",
+            totpField: true,
+            username: "user1",
+          },
+        });
+
+        const totpCipher2 = createAutofillOverlayCipherDataMock(2, {
+          type: CipherType.Login,
+          login: {
+            totp: "654321",
+            totpField: true,
+            username: "user2",
+          },
+        });
+
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            inlineMenuFillType: CipherType.Login,
+            ciphers: [totpCipher1, totpCipher2],
+          }),
+        );
+
+        await flushPromises();
+        const checkSubtitleElement = (username: string) => {
+          const subtitleElement = autofillInlineMenuList["inlineMenuListContainer"].querySelector(
+            `span.cipher-subtitle[title="${username}"]`,
+          );
+          expect(subtitleElement).not.toBeNull();
+          expect(subtitleElement.textContent).toBe(username);
+        };
+
+        checkSubtitleElement("user1");
+        checkSubtitleElement("user2");
+
+        expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
+      });
+
       it("creates the views for a list of card ciphers", () => {
         postWindowMessage(
           createInitAutofillInlineMenuListMessageMock({
-            filledByCipherType: CipherType.Card,
+            inlineMenuFillType: CipherType.Card,
             ciphers: [
               createAutofillOverlayCipherDataMock(1, {
                 type: CipherType.Card,
@@ -172,7 +241,7 @@ describe("AutofillInlineMenuList", () => {
       it("creates the views for a list of identity ciphers", () => {
         postWindowMessage(
           createInitAutofillInlineMenuListMessageMock({
-            filledByCipherType: CipherType.Card,
+            inlineMenuFillType: CipherType.Card,
             ciphers: [
               createAutofillOverlayCipherDataMock(1, {
                 type: CipherType.Identity,
@@ -228,23 +297,59 @@ describe("AutofillInlineMenuList", () => {
       describe("fill cipher button event listeners", () => {
         beforeEach(() => {
           postWindowMessage(createInitAutofillInlineMenuListMessageMock({ portKey }));
+          jest.spyOn(autofillInlineMenuList as any, "isListHovered").mockReturnValue(true);
         });
 
-        it("allows the user to fill a cipher on click", () => {
-          const fillCipherButton =
-            autofillInlineMenuList["inlineMenuListContainer"].querySelector(".fill-cipher-button");
+        describe("filling a cipher", () => {
+          it("allows the user to fill a cipher on click", () => {
+            const fillCipherButton =
+              autofillInlineMenuList["inlineMenuListContainer"].querySelector(
+                ".fill-cipher-button",
+              );
 
-          fillCipherButton.dispatchEvent(new Event("click"));
+            fillCipherButton.dispatchEvent(new Event("click"));
 
-          expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-            {
-              command: "fillAutofillInlineMenuCipher",
-              inlineMenuCipherId: "1",
-              usePasskey: false,
-              portKey,
-            },
-            "*",
-          );
+            expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+              {
+                command: "fillAutofillInlineMenuCipher",
+                inlineMenuCipherId: "1",
+                usePasskey: false,
+                portKey,
+              },
+              "*",
+            );
+          });
+
+          it("displays an `Authenticating` loader when a passkey cipher is filled", async () => {
+            postWindowMessage(
+              createInitAutofillInlineMenuListMessageMock({
+                ciphers: [
+                  createAutofillOverlayCipherDataMock(1, {
+                    name: "https://example.com",
+                    login: {
+                      username: "username1",
+                      passkey: {
+                        rpName: "https://example.com",
+                        userName: "username1",
+                      },
+                    },
+                  }),
+                ],
+                showPasskeysLabels: true,
+                portKey,
+              }),
+            );
+            await flushPromises();
+
+            const fillCipherButton =
+              autofillInlineMenuList["inlineMenuListContainer"].querySelector(
+                ".fill-cipher-button",
+              );
+
+            fillCipherButton.dispatchEvent(new Event("click"));
+
+            expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
+          });
         });
 
         it("allows the user to move keyboard focus to the next cipher element on ArrowDown", () => {
@@ -438,7 +543,7 @@ describe("AutofillInlineMenuList", () => {
         beforeEach(async () => {
           postWindowMessage(
             createInitAutofillInlineMenuListMessageMock({
-              filledByCipherType: CipherType.Login,
+              inlineMenuFillType: CipherType.Login,
               showInlineMenuAccountCreation: true,
               portKey,
               ciphers: [
@@ -683,6 +788,171 @@ describe("AutofillInlineMenuList", () => {
         });
       });
     });
+
+    describe("the password generator view", () => {
+      it("creates the views for the password generator", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            generatedPassword,
+          }),
+        );
+        await flushPromises();
+
+        expect(autofillInlineMenuList["passwordGeneratorContainer"]).toMatchSnapshot();
+      });
+
+      describe("fill generated password button event listeners", () => {
+        beforeEach(async () => {
+          postWindowMessage(
+            createInitAutofillInlineMenuListMessageMock({ generatedPassword, portKey }),
+          );
+          await flushPromises();
+        });
+
+        it("triggers a fill of the generated password on click", () => {
+          const fillGeneratedPasswordButton = autofillInlineMenuList[
+            "passwordGeneratorContainer"
+          ].querySelector(".fill-generated-password-button");
+
+          fillGeneratedPasswordButton.dispatchEvent(new Event("click"));
+
+          expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+            { command: "fillGeneratedPassword", portKey },
+            "*",
+          );
+        });
+
+        describe("keyup events on the fill generated password button", () => {
+          it("skips acting on keyup events that have the shiftKey pressed in combination", () => {
+            const fillGeneratedPasswordButton = autofillInlineMenuList[
+              "passwordGeneratorContainer"
+            ].querySelector(".fill-generated-password-button");
+
+            fillGeneratedPasswordButton.dispatchEvent(
+              new KeyboardEvent("keyup", { code: "Space", shiftKey: true }),
+            );
+
+            expect(globalThis.parent.postMessage).not.toHaveBeenCalledWith(
+              { command: "fillGeneratedPassword", portKey },
+              "*",
+            );
+          });
+
+          it("triggers a fill of the generated password on keyup of the `Space` key", () => {
+            const fillGeneratedPasswordButton = autofillInlineMenuList[
+              "passwordGeneratorContainer"
+            ].querySelector(".fill-generated-password-button");
+
+            fillGeneratedPasswordButton.dispatchEvent(
+              new KeyboardEvent("keyup", { code: "Space" }),
+            );
+
+            expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+              { command: "fillGeneratedPassword", portKey },
+              "*",
+            );
+          });
+
+          it("focuses the refresh generated password button on `ArrowRight`", () => {
+            const fillGeneratedPasswordButton = autofillInlineMenuList[
+              "passwordGeneratorContainer"
+            ].querySelector(".fill-generated-password-button");
+            const refreshGeneratedPasswordButton = autofillInlineMenuList[
+              "passwordGeneratorContainer"
+            ].querySelector(".refresh-generated-password-button");
+            jest.spyOn(refreshGeneratedPasswordButton as HTMLElement, "focus");
+
+            fillGeneratedPasswordButton.dispatchEvent(
+              new KeyboardEvent("keyup", { code: "ArrowRight" }),
+            );
+
+            expect((refreshGeneratedPasswordButton as HTMLElement).focus).toBeCalled();
+          });
+        });
+      });
+
+      describe("refresh generated password button event listeners", () => {
+        beforeEach(async () => {
+          postWindowMessage(
+            createInitAutofillInlineMenuListMessageMock({ generatedPassword, portKey }),
+          );
+          await flushPromises();
+        });
+
+        it("triggers a refresh of the generated password on click", () => {
+          const refreshGeneratedPasswordButton = autofillInlineMenuList[
+            "passwordGeneratorContainer"
+          ].querySelector(".refresh-generated-password-button");
+
+          refreshGeneratedPasswordButton.dispatchEvent(new Event("click"));
+
+          expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+            { command: "refreshGeneratedPassword", portKey },
+            "*",
+          );
+        });
+
+        describe("keyup events on the refresh generated password button", () => {
+          it("skips acting on keyup events that have the shiftKey pressed in combination", () => {
+            const refreshGeneratedPasswordButton = autofillInlineMenuList[
+              "passwordGeneratorContainer"
+            ].querySelector(".refresh-generated-password-button");
+
+            refreshGeneratedPasswordButton.dispatchEvent(
+              new KeyboardEvent("keyup", { code: "Space", shiftKey: true }),
+            );
+
+            expect(globalThis.parent.postMessage).not.toHaveBeenCalledWith(
+              { command: "refreshGeneratedPassword", portKey },
+              "*",
+            );
+          });
+
+          it("triggers a refresh of the generated password on press of the `Space` key", () => {
+            const refreshGeneratedPasswordButton = autofillInlineMenuList[
+              "passwordGeneratorContainer"
+            ].querySelector(".refresh-generated-password-button");
+
+            refreshGeneratedPasswordButton.dispatchEvent(
+              new KeyboardEvent("keyup", { code: "Space" }),
+            );
+
+            expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+              { command: "refreshGeneratedPassword", portKey },
+              "*",
+            );
+          });
+
+          it("focuses the fill generated password button on `ArrowLeft`", () => {
+            const fillGeneratedPasswordButton = autofillInlineMenuList[
+              "passwordGeneratorContainer"
+            ].querySelector(".fill-generated-password-button");
+            const refreshGeneratedPasswordButton = autofillInlineMenuList[
+              "passwordGeneratorContainer"
+            ].querySelector(".refresh-generated-password-button");
+            jest.spyOn(fillGeneratedPasswordButton as HTMLElement, "focus");
+
+            refreshGeneratedPasswordButton.dispatchEvent(
+              new KeyboardEvent("keyup", { code: "ArrowLeft" }),
+            );
+
+            expect((fillGeneratedPasswordButton as HTMLElement).focus).toBeCalled();
+          });
+        });
+      });
+    });
+
+    it("creates the build save login item view", async () => {
+      postWindowMessage(
+        createInitAutofillInlineMenuListMessageMock({
+          showSaveLoginMenu: true,
+          generatedPassword,
+        }),
+      );
+      await flushPromises();
+
+      expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
+    });
   });
 
   describe("global event listener handlers", () => {
@@ -701,19 +971,35 @@ describe("AutofillInlineMenuList", () => {
     it("does not post a `checkAutofillInlineMenuButtonFocused` message if the inline menu list is currently hovered", () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(false);
       jest
-        .spyOn(autofillInlineMenuList["inlineMenuListContainer"], "matches")
-        .mockReturnValue(true);
+        .spyOn(autofillInlineMenuList["inlineMenuListContainer"], "querySelector")
+        .mockReturnValue(autofillInlineMenuList["inlineMenuListContainer"]);
 
       postWindowMessage({ command: "checkAutofillInlineMenuListFocused" });
 
       expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
     });
 
+    it("triggers a recheck of the list focus state on mouseout", async () => {
+      jest.spyOn(globalThis.document, "removeEventListener");
+      jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(false);
+      jest
+        .spyOn(autofillInlineMenuList["inlineMenuListContainer"], "querySelector")
+        .mockReturnValue(autofillInlineMenuList["inlineMenuListContainer"]);
+      postWindowMessage({ command: "checkAutofillInlineMenuListFocused" });
+      await flushPromises();
+
+      globalThis.document.dispatchEvent(new MouseEvent("mouseout"));
+      expect(globalThis.document.removeEventListener).toHaveBeenCalledWith(
+        "mouseout",
+        autofillInlineMenuList["handleMouseOutEvent"],
+      );
+    });
+
     it("posts a `checkAutofillInlineMenuButtonFocused` message to the parent if the inline menu is not currently focused", () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(false);
       jest
-        .spyOn(autofillInlineMenuList["inlineMenuListContainer"], "matches")
-        .mockReturnValue(false);
+        .spyOn(autofillInlineMenuList["inlineMenuListContainer"], "querySelector")
+        .mockReturnValue(null);
 
       postWindowMessage({ command: "checkAutofillInlineMenuListFocused" });
 
@@ -730,6 +1016,109 @@ describe("AutofillInlineMenuList", () => {
       postWindowMessage({ command: "updateAutofillInlineMenuListCiphers" });
 
       expect(updateCiphersSpy).toHaveBeenCalled();
+    });
+
+    describe("updating the password generator view", () => {
+      let buildPasswordGeneratorSpy: jest.SpyInstance;
+      let buildColorizedPasswordElementSpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        buildPasswordGeneratorSpy = jest.spyOn(
+          autofillInlineMenuList as any,
+          "buildPasswordGenerator",
+        );
+        buildColorizedPasswordElementSpy = jest.spyOn(
+          autofillInlineMenuList as any,
+          "buildColorizedPasswordElement",
+        );
+      });
+
+      it("skips updating the password generator if the user is not authed", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Locked,
+          }),
+        );
+        await flushPromises();
+
+        postWindowMessage({
+          command: "updateAutofillInlineMenuGeneratedPassword",
+          generatedPassword,
+        });
+
+        expect(buildColorizedPasswordElementSpy).not.toHaveBeenCalled();
+      });
+
+      it("skips update the password generator if the message does not contain a password", async () => {
+        postWindowMessage(createInitAutofillInlineMenuListMessageMock());
+        await flushPromises();
+
+        postWindowMessage({ command: "updateAutofillInlineMenuGeneratedPassword" });
+
+        expect(buildColorizedPasswordElementSpy).not.toHaveBeenCalled();
+      });
+
+      it("builds the password generator if the colorized password element is not present", async () => {
+        postWindowMessage(createInitAutofillInlineMenuListMessageMock());
+        await flushPromises();
+
+        postWindowMessage({
+          command: "updateAutofillInlineMenuGeneratedPassword",
+          generatedPassword,
+        });
+
+        expect(buildPasswordGeneratorSpy).toHaveBeenCalled();
+      });
+
+      it("replaces the colorized password element if it is present", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            generatedPassword,
+          }),
+        );
+        await flushPromises();
+
+        postWindowMessage({
+          command: "updateAutofillInlineMenuGeneratedPassword",
+          generatedPassword,
+        });
+
+        expect(buildPasswordGeneratorSpy).toHaveBeenCalledTimes(1);
+        expect(buildColorizedPasswordElementSpy).toHaveBeenCalledTimes(2);
+      });
+    });
+
+    describe("displaying the save login view", () => {
+      let buildSaveLoginInlineMenuSpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        buildSaveLoginInlineMenuSpy = jest.spyOn(
+          autofillInlineMenuList as any,
+          "buildSaveLoginInlineMenu",
+        );
+      });
+
+      it("skips displaying the save login item view if the user is not authenticated", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Locked,
+          }),
+        );
+        await flushPromises();
+
+        postWindowMessage({ command: "showSaveLoginInlineMenuList" });
+
+        expect(buildSaveLoginInlineMenuSpy).not.toHaveBeenCalled();
+      });
+
+      it("builds the save login item view", async () => {
+        postWindowMessage(createInitAutofillInlineMenuListMessageMock());
+        await flushPromises();
+
+        postWindowMessage({ command: "showSaveLoginInlineMenuList" });
+
+        expect(buildSaveLoginInlineMenuSpy).toHaveBeenCalled();
+      });
     });
 
     describe("directing user focus into the inline menu list", () => {

@@ -1,4 +1,11 @@
-import { ProviderStatusType, ProviderUserStatusType, ProviderUserType } from "../../enums";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import {
+  ProviderStatusType,
+  ProviderType,
+  ProviderUserStatusType,
+  ProviderUserType,
+} from "../../enums";
 import { ProviderData } from "../data/provider.data";
 
 export class Provider {
@@ -10,6 +17,7 @@ export class Provider {
   userId: string;
   useEvents: boolean;
   providerStatus: ProviderStatusType;
+  providerType: ProviderType;
 
   constructor(obj?: ProviderData) {
     if (obj == null) {
@@ -24,6 +32,7 @@ export class Provider {
     this.userId = obj.userId;
     this.useEvents = obj.useEvents;
     this.providerStatus = obj.providerStatus;
+    this.providerType = obj.providerType;
   }
 
   get canAccess() {

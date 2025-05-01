@@ -1,8 +1,12 @@
----
+# This workflow will run in the context of the source of the PR.
+# On a PR from a fork, the workflow will not have access to secrets, and so any parts of the build that require secrets will not run.
+# If additional artifacts are needed, the failed "build-browser-target.yml" workflow held up by the check-run should be re-run.
+
 name: Build Browser
 
 on:
   pull_request:
+    types: [opened, synchronize]
     branches-ignore:
       - 'l10n_master'
       - 'cf-pages'
@@ -27,7 +31,11 @@ on:
   workflow_call:
     inputs: {}
   workflow_dispatch:
-    inputs: {}
+    inputs:
+      sdk_branch:
+        description: "Custom SDK branch"
+        required: false
+        type: string
 
 defaults:
   run:
@@ -41,9 +49,12 @@ jobs:
       repo_url: ${{ steps.gen_vars.outputs.repo_url }}
       adj_build_number: ${{ steps.gen_vars.outputs.adj_build_number }}
       node_version: ${{ steps.retrieve-node-version.outputs.node_version }}
+      has_secrets: ${{ steps.check-secrets.outputs.has_secrets }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - name: Check out repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{  github.event.pull_request.head.sha }}
 
       - name: Get Package Version
         id: gen_vars
@@ -62,6 +73,14 @@ jobs:
           NODE_VERSION=${NODE_NVMRC/v/''}
           echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
 
+      - name: Check secrets
+        id: check-secrets
+        env:
+          AZURE_KV_CI_SERVICE_PRINCIPAL: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+        run: |
+          has_secrets=${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL != '' }}
+          echo "has_secrets=$has_secrets" >> $GITHUB_OUTPUT
+
 
   locales-test:
     name: Locales Test
@@ -72,8 +91,10 @@ jobs:
       run:
         working-directory: apps/browser
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - name: Check out repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{  github.event.pull_request.head.sha }}
 
       - name: Testing locales - extName length
         run: |
@@ -100,8 +121,8 @@ jobs:
          fi
 
 
-  build:
-    name: Build
+  build-source:
+    name: Build browser source
     runs-on: ubuntu-22.04
     needs:
       - setup
@@ -110,11 +131,13 @@ jobs:
       _BUILD_NUMBER: ${{ needs.setup.outputs.adj_build_number }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - name: Check out repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Set up Node
-        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -152,96 +175,108 @@ jobs:
 
           zip -r browser-source.zip browser-source
 
-      - name: NPM setup
-        run: npm ci
-        working-directory: browser-source/
-
-      - name: Build
-        run: npm run dist
-        working-directory: browser-source/apps/browser
-
-      - name: Build Manifest v3
-        run: npm run dist:mv3
-        working-directory: browser-source/apps/browser
-
-      - name: Build Chrome Manifest v3 Beta
-        run: npm run dist:chrome:beta
-        working-directory: browser-source/apps/browser
-
-      - name: Gulp
-        run: gulp ci
-        working-directory: browser-source/apps/browser
-
-      - name: Upload Opera artifact
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
-        with:
-          name: dist-opera-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/dist-opera.zip
-          if-no-files-found: error
-
-      - name: Upload Opera MV3 artifact (DO NOT USE FOR PROD)
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
-        with:
-          name: DO-NOT-USE-FOR-PROD-dist-opera-MV3-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/dist-opera-mv3.zip
-          if-no-files-found: error
-
-      - name: Upload Chrome MV3 artifact
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
-        with:
-          name: dist-chrome-MV3-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/dist-chrome-mv3.zip
-          if-no-files-found: error
-
-      - name: Upload Chrome MV3 Beta artifact (DO NOT USE FOR PROD)
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
-        with:
-          name: DO-NOT-USE-FOR-PROD-dist-chrome-MV3-beta-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/dist-chrome-mv3-beta.zip
-          if-no-files-found: error
-
-      - name: Upload Firefox artifact
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
-        with:
-          name: dist-firefox-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/dist-firefox.zip
-          if-no-files-found: error
-
-      - name: Upload Firefox MV3 artifact (DO NOT USE FOR PROD)
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
-        with:
-          name: DO-NOT-USE-FOR-PROD-dist-firefox-MV3-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/dist-firefox-mv3.zip
-          if-no-files-found: error
-
-      - name: Upload Edge artifact
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
-        with:
-          name: dist-edge-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/dist-edge.zip
-          if-no-files-found: error
-
-      - name: Upload Edge MV3 artifact (DO NOT USE FOR PROD)
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
-        with:
-          name: DO-NOT-USE-FOR-PROD-dist-edge-MV3-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/dist-edge-mv3.zip
-          if-no-files-found: error
-
       - name: Upload browser source
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: browser-source-${{ env._BUILD_NUMBER }}.zip
           path: browser-source.zip
           if-no-files-found: error
 
-      - name: Upload coverage artifact
-        if: false
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+
+  build:
+    name: Build
+    runs-on: ubuntu-22.04
+    needs:
+      - setup
+      - locales-test
+      - build-source
+    env:
+      _BUILD_NUMBER: ${{ needs.setup.outputs.adj_build_number }}
+      _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
+    strategy:
+      matrix:
+        include:
+          - name: "chrome"
+            npm_command: "dist:chrome"
+            archive_name: "dist-chrome.zip"
+            artifact_name: "dist-chrome-MV3"
+          - name: "edge"
+            npm_command: "dist:edge"
+            archive_name: "dist-edge.zip"
+            artifact_name: "dist-edge-MV3"
+          - name: "firefox"
+            npm_command: "dist:firefox"
+            archive_name: "dist-firefox.zip"
+            artifact_name: "dist-firefox"
+          - name: "firefox-mv3"
+            npm_command: "dist:firefox:mv3"
+            archive_name: "dist-firefox.zip"
+            artifact_name: "DO-NOT-USE-FOR-PROD-dist-firefox-MV3"
+          - name: "opera-mv3"
+            npm_command: "dist:opera:mv3"
+            archive_name: "dist-opera.zip"
+            artifact_name: "dist-opera-MV3"
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          name: coverage-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/coverage/coverage-${{ env._BUILD_NUMBER }}.zip
+          ref: ${{  github.event.pull_request.head.sha }}
+
+      - name: Set up Node
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+          node-version: ${{ env._NODE_VERSION }}
+
+      - name: Print environment
+        run: |
+          node --version
+          npm --version
+
+      - name: Download browser source
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          name: browser-source-${{ env._BUILD_NUMBER }}.zip
+
+      - name: Unzip browser source artifact
+        run: |
+          unzip browser-source.zip
+          rm browser-source.zip
+
+      - name: NPM setup
+        run: npm ci
+        working-directory: browser-source/
+
+      - name: Download SDK artifacts
+        if: ${{ inputs.sdk_branch != '' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: sdk-internal
+          repo: bitwarden/sdk-internal
+          path: sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override SDK
+        if: ${{ inputs.sdk_branch != '' }}
+        working-directory: browser-source/
+        run: npm link ../sdk-internal
+
+      - name: Build extension
+        run: npm run ${{ matrix.npm_command }}
+        working-directory: browser-source/apps/browser
+
+      - name: Upload extension artifact
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: ${{ matrix.artifact_name }}-${{ env._BUILD_NUMBER }}.zip
+          path: browser-source/apps/browser/dist/${{ matrix.archive_name }}
           if-no-files-found: error
+
 
   build-safari:
     name: Build Safari
@@ -249,15 +284,18 @@ jobs:
     needs:
       - setup
       - locales-test
+    if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     env:
       _BUILD_NUMBER: ${{ needs.setup.outputs.adj_build_number }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - name: Check out repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{  github.event.pull_request.head.sha }}
 
       - name: Set up Node
-        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -340,6 +378,25 @@ jobs:
         run: npm ci
         working-directory: ./
 
+      - name: Download SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override SDK
+        if: ${{ inputs.sdk_branch != '' }}
+        working-directory: ./
+        run: |
+          npm link ../sdk-internal
+
       - name: Build Safari extension
         run: npm run dist:safari
         working-directory: apps/browser
@@ -352,7 +409,7 @@ jobs:
           ls -la
 
       - name: Upload Safari artifact
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: dist-safari-${{ env._BUILD_NUMBER }}.zip
           path: apps/browser/dist/dist-safari.zip
@@ -360,14 +417,16 @@ jobs:
 
   crowdin-push:
     name: Crowdin Push
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     needs:
       - build
       - build-safari
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - name: Check out repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{  github.event.pull_request.head.sha }}
 
       - name: Login to Azure
         uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
@@ -393,6 +452,7 @@ jobs:
           upload_sources: true
           upload_translations: false
 
+
   check-failures:
     name: Check for failures
     if: always()
@@ -400,12 +460,16 @@ jobs:
     needs:
       - setup
       - locales-test
+      - build-source
       - build
       - build-safari
       - crowdin-push
     steps:
       - name: Check if any job failed
-        if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc') && contains(needs.*.result, 'failure')
+        if: |
+          github.event_name != 'pull_request_target'
+          && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-browser')
+          && contains(needs.*.result, 'failure')
         run: exit 1
 
       - name: Login to Azure - Prod Subscription

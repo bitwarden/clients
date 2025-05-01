@@ -1,9 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 
+import { CollectionAccessSelectionView } from "@bitwarden/admin-console/common";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { CollectionAccessSelectionView } from "@bitwarden/web-vault/app/admin-console/organizations/core/views";
 import {
   getPermissionList,
   convertToPermission,
@@ -63,6 +65,26 @@ export class MemberAccessReportService {
     }
 
     const exportItems = memberAccessReports.flatMap((report) => {
+      // to include users without access details
+      // which means a user has no groups, collections or items
+      if (report.accessDetails.length === 0) {
+        return [
+          {
+            email: report.email,
+            name: report.userName,
+            twoStepLogin: report.twoFactorEnabled
+              ? this.i18nService.t("memberAccessReportTwoFactorEnabledTrue")
+              : this.i18nService.t("memberAccessReportTwoFactorEnabledFalse"),
+            accountRecovery: report.accountRecoveryEnabled
+              ? this.i18nService.t("memberAccessReportAuthenticationEnabledTrue")
+              : this.i18nService.t("memberAccessReportAuthenticationEnabledFalse"),
+            group: this.i18nService.t("memberAccessReportNoGroup"),
+            collection: this.i18nService.t("memberAccessReportNoCollection"),
+            collectionPermission: this.i18nService.t("memberAccessReportNoCollectionPermission"),
+            totalItems: "0",
+          },
+        ];
+      }
       const userDetails = report.accessDetails.map((detail) => {
         const collectionName = collectionNameMap.get(detail.collectionName.encryptedString);
         return {
