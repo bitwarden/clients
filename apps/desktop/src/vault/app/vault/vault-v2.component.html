@@ -20,6 +20,7 @@
       (onClone)="cloneCipher($event)"
       (onDelete)="deleteCipher()"
       (onCancel)="cancelCipher($event)"
+      [isSubmitting]="isSubmitting"
     ></app-vault-item-footer>
     <div class="content">
       <div class="inner-content">
@@ -32,6 +33,7 @@
             formId="cipherForm"
             [config]="config"
             (cipherSaved)="savedCipher($event)"
+            [beforeSubmit]="onSubmit"
             [submitBtn]="footer?.submitBtn"
           >
             <bit-item slot="attachment-button">
