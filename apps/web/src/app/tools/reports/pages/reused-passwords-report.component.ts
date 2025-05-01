@@ -112,7 +112,7 @@ export class ReusedPasswordsReportComponent extends CipherReportComponent implem
     }
 
     // recalculate the reused passwords after an update
-    // it could be that the password was changed which would affect the reused passwords
+    // if a password was changed, it could affect reused counts of other ciphers
 
     // find the cipher in our list and update it
     const index = this.ciphersToCheckForReusedPasswords.findIndex(

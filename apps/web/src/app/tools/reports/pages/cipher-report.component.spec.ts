@@ -39,7 +39,6 @@ describe("CipherReportComponent", () => {
   mockCipherService.softDeleteWithServer.mockResolvedValue(undefined);
 
   beforeEach(() => {
-    // mockCipherService = mock<CipherService>();
     mockAccountService = mock<AccountService>();
     mockAccountService.activeAccount$ = of({ id: "user1" } as any);
     mockAdminConsoleCipherFormConfigService = mock<AdminConsoleCipherFormConfigService>();

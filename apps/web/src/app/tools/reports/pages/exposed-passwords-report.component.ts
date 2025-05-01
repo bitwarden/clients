@@ -73,12 +73,6 @@ export class ExposedPasswordsReportComponent extends CipherReportComponent imple
         return;
       }
 
-      // const promise = this.auditService.passwordLeaked(login.password).then((exposedCount) => {
-      //   if (exposedCount > 0) {
-      //     const row = { ...ciph, exposedXTimes: exposedCount } as ReportResult;
-      //     exposedPasswordCiphers.push(row);
-      //   }
-      // });
       const promise = this.isPasswordExposed(ciph).then((result) => {
         if (result) {
           exposedPasswordCiphers.push(result);
