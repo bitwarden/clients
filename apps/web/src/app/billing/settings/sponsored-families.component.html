@@ -13,7 +13,7 @@
       {{ "sponsoredFamiliesInclude" | i18n }}:
       <ul class="tw-list-outside">
         <li>{{ "sponsoredFamiliesPremiumAccess" | i18n }}</li>
-        <li>{{ "sponsoredFamiliesSharedCollections" | i18n }}</li>
+        <li>{{ "sponsoredFamiliesSharedCollectionsMessage" | i18n }}</li>
       </ul>
     </div>
     <form [formGroup]="sponsorshipForm" [bitSubmit]="submit" *ngIf="anyOrgsAvailable$ | async">
