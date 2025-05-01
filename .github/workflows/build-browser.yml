@@ -280,7 +280,7 @@ jobs:
 
   build-safari:
     name: Build Safari
-    runs-on: macos-13
+    runs-on: macos-14
     needs:
       - setup
       - locales-test
