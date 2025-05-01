@@ -71,10 +71,11 @@ export function NotificationConfirmationContainer({
       })}
       ${NotificationConfirmationBody({
         buttonText,
-        itemName,
         confirmationMessage,
-        tasksAreComplete,
+        error,
+        itemName,
         messageDetails,
+        tasksAreComplete,
         theme,
         handleOpenVault,
       })}
