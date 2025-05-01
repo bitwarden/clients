@@ -551,9 +551,9 @@ export class VaultV2Component implements OnInit, OnDestroy {
     this.cipherId = cipher.id;
     this.cipher = cipher;
     if (this.activeUserId) {
-      await this.cipherService.clearCache(this.activeUserId);
+      await this.cipherService.clearCache(this.activeUserId).catch(() => {});
     }
-    await this.vaultItemsComponent?.load(this.activeFilter.buildFilter());
+    await this.vaultItemsComponent?.load(this.activeFilter.buildFilter()).catch(() => {});
     await this.go().catch(() => {});
     await this.vaultItemsComponent?.refresh().catch(() => {});
   }
@@ -562,14 +562,14 @@ export class VaultV2Component implements OnInit, OnDestroy {
     this.cipherId = null;
     this.cipher = null;
     this.action = null;
-    await this.go();
+    await this.go().catch(() => {});
     await this.vaultItemsComponent?.refresh().catch(() => {});
   }
 
   async restoreCipher() {
     this.cipherId = null;
     this.action = null;
-    await this.go();
+    await this.go().catch(() => {});
     await this.vaultItemsComponent?.refresh().catch(() => {});
   }
 
@@ -577,7 +577,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
     this.cipherId = cipher.id;
     this.cipher = cipher;
     this.action = this.cipherId != null ? "view" : null;
-    await this.go();
+    await this.go().catch(() => {});
   }
 
   async applyVaultFilter(vaultFilter: VaultFilter) {
@@ -585,11 +585,10 @@ export class VaultV2Component implements OnInit, OnDestroy {
       this.i18nService.t(this.calculateSearchBarLocalizationString(vaultFilter)),
     );
     this.activeFilter = vaultFilter;
-    await this.vaultItemsComponent?.reload(
-      this.activeFilter.buildFilter(),
-      vaultFilter.status === "trash",
-    );
-    await this.go();
+    await this.vaultItemsComponent
+      ?.reload(this.activeFilter.buildFilter(), vaultFilter.status === "trash")
+      .catch(() => {});
+    await this.go().catch(() => {});
   }
 
   private calculateSearchBarLocalizationString(vaultFilter: VaultFilter): string {
