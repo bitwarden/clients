@@ -6,6 +6,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { FakeStateProvider, mockAccountServiceWith } from "../../../common/spec";
 
@@ -51,6 +52,7 @@ describe("Vault Nudges Service", () => {
           provide: ApiService,
           useValue: mock<ApiService>(),
         },
+        { provide: CipherService, useValue: mock<CipherService>() },
       ],
     });
   });
