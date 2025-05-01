@@ -35,12 +35,15 @@ export class NewItemNudgeComponent implements OnInit {
     this.activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     switch (this.configType) {
-      case CipherType.Login:
+      case CipherType.Login: {
+        const nudgeBodyOne = this.i18nService.t("newLoginNudgeBodyOne");
+        const nudgeBodyBold = this.i18nService.t("newLoginNudgeBodyBold");
+        const nudgeBodyTwo = this.i18nService.t("newLoginNudgeBodyTwo");
         this.dismissalNudgeType = VaultNudgeType.newLoginItemStatus;
         this.nudgeTitle = this.i18nService.t("newLoginNudgeTitle");
-        this.nudgeBody = this.i18nService.t("newLoginNudgeBody");
+        this.nudgeBody = `${nudgeBodyOne} <strong>${nudgeBodyBold}</strong> ${nudgeBodyTwo}`;
         break;
-
+      }
       case CipherType.Card:
         this.dismissalNudgeType = VaultNudgeType.newCardItemStatus;
         this.nudgeTitle = this.i18nService.t("newCardNudgeTitle");
