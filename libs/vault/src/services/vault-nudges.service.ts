@@ -24,6 +24,7 @@ export enum VaultNudgeType {
   EmptyVaultNudge = "empty-vault-nudge",
   HasVaultItems = "has-vault-items",
   IntroCarouselDismissal = "intro-carousel-dismissal",
+  DownloadBitwarden = "download-bitwarden",
 }
 
 export const VAULT_NUDGE_DISMISSED_DISK_KEY = new UserKeyDefinition<

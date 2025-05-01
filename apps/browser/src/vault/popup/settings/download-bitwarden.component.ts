@@ -1,9 +1,12 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { RouterModule } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CardComponent, TypographyModule } from "@bitwarden/components";
+import { VaultNudgesService, VaultNudgeType } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
@@ -25,4 +28,16 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     CurrentAccountComponent,
   ],
 })
-export class DownloadBitwardenComponent {}
+export class DownloadBitwardenComponent implements OnInit {
+  constructor(
+    private vaultNudgeService: VaultNudgesService,
+    private accountService: AccountService,
+  ) {}
+
+  async ngOnInit() {
+    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    if (userId) {
+      await this.vaultNudgeService.dismissNudge(VaultNudgeType.DownloadBitwarden, userId);
+    }
+  }
+}
