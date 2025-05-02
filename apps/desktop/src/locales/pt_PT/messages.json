@@ -3712,5 +3712,35 @@
   },
   "move": {
     "message": "Mover"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Poupe tempo com o preenchimento automático"
+  },
+  "newLoginNudgeBody": {
+    "message": "Inclua um site para que esta credencial apareça como uma sugestão de preenchimento automático."
+  },
+  "newCardNudgeTitle": {
+    "message": "Pagamentos online sem problemas"
+  },
+  "newCardNudgeBody": {
+    "message": "Com os cartões, preencha facilmente formulários de pagamento de forma segura e exata."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplifique a criação de contas"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Com as identidades, preencha rapidamente formulários de registo ou de contacto longos."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Mantenha os seus dados sensíveis seguros"
+  },
+  "newNoteNudgeBody": {
+    "message": "Com as notas, armazene de forma segura dados sensíveis, como dados bancários ou de seguros."
+  },
+  "newSshNudgeTitle": {
+    "message": "Acesso SSH de fácil utilização pelos programadores"
+  },
+  "newSshNudgeBody": {
+    "message": "Guarde as suas chaves e ligue-se ao agente SSH para uma autenticação rápida e encriptada."
   }
 }
