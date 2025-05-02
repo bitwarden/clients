@@ -125,7 +125,6 @@ describe("SsoLoginStrategy", () => {
     );
 
     const userDecryptionOptions = new UserDecryptionOptions();
-    userDecryptionOptions.hasMasterPassword = true;
     userDecryptionOptionsService.userDecryptionOptions$ = of(userDecryptionOptions);
 
     ssoLoginStrategy = new SsoLoginStrategy(
