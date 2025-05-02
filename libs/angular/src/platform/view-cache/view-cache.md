@@ -55,7 +55,7 @@ If a particular route should be excluded from the history and not persisted, add
 Route persistence ensures that the user will land back on the route that they were on when the popup
 closed, but it does not persist any state or form data that the user may have modified. In order to
 persist that data, the component is responsible for registering that data with the
-[`ViewCacheService`](https://github.com/bitwarden/clients/blob/main/libs/angular/src/platform/abstractions/view-cache.service.ts).
+[`ViewCacheService`](./view-cache.service.ts).
 This is done prescriptively to ensure that only necessary data is cached and that it is done with
 intention by the component.
 

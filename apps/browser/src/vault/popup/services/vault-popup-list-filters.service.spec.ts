@@ -4,6 +4,7 @@ import { FormBuilder } from "@angular/forms";
 import { BehaviorSubject, skipWhile } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -19,8 +20,6 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-
-import { PopupViewCacheService } from "../../../platform/popup/view-cache/popup-view-cache.service";
 
 import {
   CachedFilterState,
@@ -123,7 +122,7 @@ describe("VaultPopupListFiltersService", () => {
           useValue: accountService,
         },
         {
-          provide: PopupViewCacheService,
+          provide: ViewCacheService,
           useValue: viewCacheService,
         },
       ],

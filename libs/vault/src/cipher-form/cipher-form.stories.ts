@@ -13,7 +13,7 @@ import {
 import { BehaviorSubject } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
-import { ViewCacheService } from "@bitwarden/angular/platform/abstractions/view-cache.service";
+import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
