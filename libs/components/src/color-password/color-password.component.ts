@@ -25,8 +25,8 @@ export class ColorPasswordComponent {
   password = input<string>("");
   showCount = input<boolean>(false);
 
+  // Convert to an array to handle cases that strings have special characters, i.e.: emoji.
   passwordCharArray = computed(() => {
-    // // Convert to an array to handle cases that strings have special characters, i.e.: emoji.
     return (this.password() ?? []) ? Array.from(this.password()) : [];
   });
 
