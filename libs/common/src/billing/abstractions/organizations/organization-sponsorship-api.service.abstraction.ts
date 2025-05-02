@@ -5,4 +5,6 @@ export abstract class OrganizationSponsorshipApiServiceAbstraction {
   abstract getOrganizationSponsorship(
     sponsoredOrgId: string,
   ): Promise<ListResponse<OrganizationSponsorshipInvitesResponse>>;
+
+  postResendSponsorshipOffer: (sponsoringOrgId: string, friendlyName?: string) => Promise<void>;
 }
