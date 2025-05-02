@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input } from "@angular/core";
+import { Component, Input, Output, EventEmitter } from "@angular/core";
 import { ReactiveFormsModule, FormsModule, FormControl } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -32,4 +32,10 @@ import {
 })
 export class TwoFactorAuthAuthenticatorComponent {
   @Input({ required: true }) tokenFormControl: FormControl | undefined = undefined;
+  @Output() tokenChange = new EventEmitter<{ token: string }>();
+
+  onTokenChange(event: Event) {
+    const tokenValue = (event.target as HTMLInputElement).value || "";
+    this.tokenChange.emit({ token: tokenValue });
+  }
 }

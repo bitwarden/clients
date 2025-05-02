@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Todas as aplicações"
   },
+  "appLogoLabel": {
+    "message": "Logótipo do Bitwarden"
+  },
   "criticalApplications": {
     "message": "Aplicações críticas"
   },
@@ -419,17 +422,8 @@
   "folder": {
     "message": "Pasta"
   },
-  "newCustomField": {
-    "message": "Novo campo personalizado"
-  },
   "value": {
     "message": "Valor"
-  },
-  "dragToSort": {
-    "message": "Arraste para ordenar"
-  },
-  "dragToReorder": {
-    "message": "Arraste para reordenar"
   },
   "cfTypeText": {
     "message": "Texto"
@@ -441,7 +435,7 @@
     "message": "Booleano"
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "Caixa de verificação"
   },
   "cfTypeLinked": {
     "message": "Associado",
@@ -4072,7 +4066,7 @@
   "updateBrowser": {
     "message": "Atualizar navegador"
   },
-  "generatingRiskInsights": {
+  "generatingYourRiskInsights": {
     "message": "A gerar as suas perceções de riscos..."
   },
   "updateBrowserDesc": {
@@ -6305,6 +6299,21 @@
   "sponsoredFamilies": {
     "message": "Plano Familiar gratuito Bitwarden"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Planos familiares patrocinados"
+  },
+  "noSponsoredFamilies": {
+    "message": "Sem planos familiares patrocinados"
+  },
+  "noSponsoredFamiliesDescription": {
+    "message": "Os planos familiares patrocinados de não membros serão apresentados aqui"
+  },
+  "sponsorFreeBitwardenFamilies": {
+    "message": "Os membros da sua organização são elegíveis para o plano Familiar Bitwarden gratuito. Pode patrocinar planos Familiares Bitwarden gratuitos para empregados que não sejam membros da sua organização Bitwarden. O patrocínio de um não membro requer um lugar disponível na sua organização."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "Quando remover um patrocínio ativo, ficará disponível um lugar na sua organização após a data de renovação da organização patrocinada."
+  },
   "sponsoredFamiliesEligible": {
     "message": "O utilizador e a sua família são elegíveis para o plano Familiar gratuito Bitwarden. Resgate com o seu e-mail pessoal para manter os seus dados seguros mesmo quando não estiver no trabalho."
   },
@@ -6319,6 +6328,18 @@
   },
   "sponsoredFamiliesSharedCollections": {
     "message": "Coleções partilhadas para segredos familiares"
+  },
+  "memberFamilies": {
+    "message": "Membros do plano familiar"
+  },
+  "noMemberFamilies": {
+    "message": "Sem membros do plano familiar"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Os membros que tenham resgatado planos familiares serão apresentados aqui"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Os membros da sua organização são elegíveis para os planos Familiares Bitwarden gratuitos. Aqui pode ver os membros que patrocinaram uma organização Familiar."
   },
   "badToken": {
     "message": "O link já não é válido. Peça ao patrocinador para reenviar a oferta."
@@ -7249,6 +7270,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Siga os passos abaixo para concluir o início de sessão."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Siga os passos abaixo para concluir o início de sessão com a sua chave de segurança."
+  },
   "launchDuo": {
     "message": "Iniciar o DUO"
   },
@@ -7982,6 +8006,9 @@
   },
   "inviteMember": {
     "message": "Convidar membro"
+  },
+  "addSponsorship": {
+    "message": "Adicionar patrocínio"
   },
   "needsConfirmation": {
     "message": "Precisa de confirmação"
@@ -10571,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Não permitir que os membros desbloqueiem a sua conta com um PIN."
   },
-  "limitedEventLogs": {
-    "message": "Os planos $PRODUCT_TYPE$ não têm acesso a registos de eventos reais",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Os registos de eventos não são armazenados para a sua organização. Atualize para um plano Equipas ou Empresarial para obter acesso total aos registos de eventos da organização."
   },
-  "upgradeForFullEvents": {
-    "message": "Obtenha acesso total aos registos de eventos da organização ao atualizar para um plano Equipas ou Empresarial."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Atualizar para dados de registo de eventos reais"
+  "upgradeEventLogTitleMessage": {
+    "message": "Atualize para ver os registos de eventos da sua organização."
   },
   "upgradeEventLogMessage": {
     "message": "Estes eventos são apenas exemplos e não refletem eventos reais na sua organização Bitwarden."
@@ -10600,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "Nova unidade de negócio"
+  },
+  "restart": {
+    "message": "Reiniciar"
   }
 }

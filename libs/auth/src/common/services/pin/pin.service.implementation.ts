@@ -172,9 +172,10 @@ export class PinService implements PinServiceAbstraction {
     const email = await firstValueFrom(
       this.accountService.accounts$.pipe(map((accounts) => accounts[userId].email)),
     );
-    const kdfConfig = await this.kdfConfigService.getKdfConfig();
+    const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
     const pinKey = await this.makePinKey(pin, email, kdfConfig);
-    return await this.encryptService.encrypt(userKey.key, pinKey);
+
+    return await this.encryptService.wrapSymmetricKey(userKey, pinKey);
   }
 
   async storePinKeyEncryptedUserKey(
@@ -292,7 +293,7 @@ export class PinService implements PinServiceAbstraction {
       const email = await firstValueFrom(
         this.accountService.accounts$.pipe(map((accounts) => accounts[userId].email)),
       );
-      const kdfConfig = await this.kdfConfigService.getKdfConfig();
+      const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
 
       const userKey: UserKey = await this.decryptUserKey(
         userId,
