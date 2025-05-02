@@ -33,9 +33,11 @@ export abstract class ChangePasswordService {
   abstract rotateUserKeyAndEncryptedDataLegacy(newPassword: string, user: Account): Promise<void>;
 
   /**
-   * Using credentials on the `PasswordInputResult`:
-   *  - verifies that the current password is correct (that is, it can decrypt the user key), and if so:
-   *  - builds a `PasswordRequest` object that gets POSTed to `"/accounts/password"`
+   * Changes the user's password and re-encrypts the user key with the `newMasterKey`.
+   * - Specifically, this method uses credentials from the `passwordInputResult` to:
+   *   1. Decrypt the user key with the `currentMasterKey`
+   *   2. Re-encrypt that user key with the `newMasterKey`, resulting in a `newMasterKeyEncryptedUserKey`
+   *   3. Build a `PasswordRequest` object that gets POSTed to `"/accounts/password"`
    *
    * @param passwordInputResult credentials object received from the `InputPasswordComponent`
    * @param userId the `userId`
