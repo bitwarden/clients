@@ -28,7 +28,6 @@ export enum VaultNudgeType {
    */
   EmptyVaultNudge = "empty-vault-nudge",
   HasVaultItems = "has-vault-items",
-  IntroCarouselDismissal = "intro-carousel-dismissal",
   AutofillNudge = "autofill-nudge",
   newLoginItemStatus = "new-login-item-status",
   newCardItemStatus = "new-card-item-status",

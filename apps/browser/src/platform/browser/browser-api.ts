@@ -133,18 +133,21 @@ export class BrowserApi {
     });
   }
 
-  static getBrowserClientVendor(win: Window): BrowserClientVendor {
-    const device = BrowserPlatformUtilsService.getDevice(win);
+  static getBrowserClientVendor(clientWindow: Window): BrowserClientVendor {
+    const device = BrowserPlatformUtilsService.getDevice(clientWindow);
 
     switch (device) {
       case DeviceType.ChromeExtension:
       case DeviceType.ChromeBrowser:
         return BrowserClientVendors.Chrome;
       case DeviceType.OperaExtension:
+      case DeviceType.OperaBrowser:
         return BrowserClientVendors.Opera;
       case DeviceType.EdgeExtension:
+      case DeviceType.EdgeBrowser:
         return BrowserClientVendors.Edge;
       case DeviceType.VivaldiExtension:
+      case DeviceType.VivaldiBrowser:
         return BrowserClientVendors.Vivaldi;
       default:
         return BrowserClientVendors.Unknown;
