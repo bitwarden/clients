@@ -58,6 +58,7 @@
                         type="button"
                         bitMenuItem
                         [attr.aria-label]="'resendEmailLabel' | i18n"
+                        *ngIf="!isSelfHosted && !o.validUntil"
                         (click)="resendEmail(o)"
                       >
                         <i aria-hidden="true" class="bwi bwi-envelope"></i>
