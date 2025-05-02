@@ -30,6 +30,7 @@ import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   VaultTimeout,
   VaultTimeoutAction,
@@ -38,6 +39,7 @@ import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -110,6 +112,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   biometricUnavailabilityReason: string;
   showChangeMasterPass = true;
   pinEnabled$: Observable<boolean> = of(true);
+  pm14939FeatureFlagEnabled = false;
 
   form = this.formBuilder.group({
     vaultTimeout: [null as VaultTimeout | null],
@@ -142,6 +145,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private biometricStateService: BiometricStateService,
     private toastService: ToastService,
     private biometricsService: BiometricsService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -221,6 +225,11 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       ),
     };
     this.form.patchValue(initialValues, { emitEvent: false });
+
+    // Check the extension approval feature flag
+    this.pm14939FeatureFlagEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM14939_ExtensionApproval,
+    );
 
     timer(0, 1000)
       .pipe(

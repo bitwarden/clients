@@ -104,6 +104,12 @@
           {{ "fingerprintPhrase" | i18n }}
         </button>
       </bit-item>
+      <bit-item *ngIf="pm14939FeatureFlagEnabled">
+        <button bit-item-content type="button" appStopClick routerLink="/device-management">
+          {{ "deviceManagement" | i18n }}
+          <i slot="end" class="bwi bwi-chevron-right" aria-hidden="true"></i>
+        </button>
+      </bit-item>
       <bit-item>
         <button bit-item-content type="button" appStopClick (click)="twoStep()">
           {{ "twoStepLogin" | i18n }}
