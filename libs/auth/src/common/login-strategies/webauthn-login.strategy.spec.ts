@@ -211,6 +211,8 @@ describe("WebAuthnLoginStrategy", () => {
       captchaSiteKey: "",
       resetMasterPassword: false,
       twoFactorProviders: null,
+      requiresTwoFactor: false,
+      requiresCaptcha: false,
     });
   });
 
