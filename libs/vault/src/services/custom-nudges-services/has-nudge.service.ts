@@ -18,8 +18,6 @@ export class HasNudgeService extends DefaultSingleNudgeService {
 
   private nudgeTypes: VaultNudgeType[] = [
     VaultNudgeType.EmptyVaultNudge,
-    VaultNudgeType.HasVaultItems,
-    VaultNudgeType.IntroCarouselDismissal,
     // add additional nudge types here as needed
   ];
 

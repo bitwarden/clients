@@ -5201,6 +5201,12 @@
   "changeAtRiskPassword": {
     "message": "Alterar palavra-passe em risco"
   },
+  "settingsVaultOptions": {
+    "message": "Opções do cofre"
+  },
+  "emptyVaultDescription": {
+    "message": "O cofre protege mais do que apenas as suas palavras-passe. Guarde aqui credenciais, IDs, cartões e notas de forma segura."
+  },
   "introCarouselLabel": {
     "message": "Bem-vindo ao Bitwarden"
   },
@@ -5227,5 +5233,50 @@
   },
   "secureDevicesBody": {
     "message": "Guarde palavras-passe ilimitadas em dispositivos ilimitados com as apps Bitwarden para telemóvel, navegador e computador."
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Importar palavras-passe existentes"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Utilize o importador para transferir rapidamente as credenciais para o Bitwarden sem as adicionar manualmente."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Importar agora"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Bem-vindo ao seu cofre!"
+  },
+  "hasItemsVaultNudgeBody": {
+    "message": "Preenchimento automático de itens para a página atual\nItens favoritos para um acesso fácil\nProcurar outra coisa no seu cofre"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Poupe tempo com o preenchimento automático"
+  },
+  "newLoginNudgeBody": {
+    "message": "Inclua um site para que esta credencial apareça como uma sugestão de preenchimento automático."
+  },
+  "newCardNudgeTitle": {
+    "message": "Pagamentos online sem problemas"
+  },
+  "newCardNudgeBody": {
+    "message": "Com os cartões, preencha facilmente formulários de pagamento de forma segura e exata."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplifique a criação de contas"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Com as identidades, preencha rapidamente formulários de registo ou de contacto longos."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Mantenha os seus dados sensíveis seguros"
+  },
+  "newNoteNudgeBody": {
+    "message": "Com as notas, armazene de forma segura dados sensíveis, como dados bancários ou de seguros."
+  },
+  "newSshNudgeTitle": {
+    "message": "Acesso SSH de fácil utilização pelos programadores"
+  },
+  "newSshNudgeBody": {
+    "message": "Guarde as suas chaves e ligue-se ao agente SSH para uma autenticação rápida e encriptada."
   }
 }
