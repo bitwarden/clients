@@ -1,7 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { APP_INITIALIZER, NgModule, NgZone } from "@angular/core";
-import { Router } from "@angular/router";
 import { merge, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -25,7 +24,6 @@ import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.
 import {
   AnonLayoutWrapperDataService,
   LoginComponentService,
-  LoginDecryptionOptionsService,
   TwoFactorAuthComponentService,
   TwoFactorAuthEmailComponentService,
   TwoFactorAuthDuoComponentService,
@@ -143,7 +141,6 @@ import { ForegroundLockService } from "../../auth/popup/accounts/foreground-lock
 import { ExtensionAnonLayoutWrapperDataService } from "../../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 import { ExtensionLoginComponentService } from "../../auth/popup/login/extension-login-component.service";
 import { ExtensionSsoComponentService } from "../../auth/popup/login/extension-sso-component.service";
-import { ExtensionLoginDecryptionOptionsService } from "../../auth/popup/login-decryption-options/extension-login-decryption-options.service";
 import { ExtensionLogoutService } from "../../auth/popup/logout/extension-logout.service";
 import { ExtensionTwoFactorAuthComponentService } from "../../auth/services/extension-two-factor-auth-component.service";
 import { ExtensionTwoFactorAuthDuoComponentService } from "../../auth/services/extension-two-factor-auth-duo-component.service";
@@ -659,11 +656,6 @@ const safeProviders: SafeProvider[] = [
     provide: SsoComponentService,
     useClass: ExtensionSsoComponentService,
     deps: [SyncService, AuthService, EnvironmentService, I18nServiceAbstraction, LogService],
-  }),
-  safeProvider({
-    provide: LoginDecryptionOptionsService,
-    useClass: ExtensionLoginDecryptionOptionsService,
-    deps: [MessagingServiceAbstraction, Router],
   }),
   safeProvider({
     provide: SshImportPromptService,
