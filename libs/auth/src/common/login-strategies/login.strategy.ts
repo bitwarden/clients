@@ -308,7 +308,6 @@ export abstract class LoginStrategy {
     return false;
   }
 
-  // TODO: update jsdoc
   /**
    * Checks if adminForcePasswordReset is true and sets the ForceSetPasswordReason.AdminForcePasswordReset flag in the master password service.
    * @param adminForcePasswordReset - The admin force password reset flag
