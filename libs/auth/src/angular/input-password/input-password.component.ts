@@ -1,11 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import {
-  ReactiveFormsModule,
-  FormBuilder,
-  Validators,
-  FormGroup,
-  FormControl,
-} from "@angular/forms";
+import { ReactiveFormsModule, FormBuilder, Validators, FormControl } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -73,6 +67,16 @@ export enum InputPasswordFlow {
   ChangePasswordWithOptionalUserKeyRotation,
 }
 
+interface InputPasswordForm {
+  newPassword: FormControl<string>;
+  newPasswordConfirm: FormControl<string>;
+  newPasswordHint: FormControl<string>;
+  checkForBreaches: FormControl<boolean>;
+
+  currentPassword?: FormControl<string>;
+  rotateUserKey?: FormControl<boolean>;
+}
+
 @Component({
   standalone: true,
   selector: "auth-input-password",
@@ -118,15 +122,18 @@ export class InputPasswordComponent implements OnInit {
   protected showErrorSummary = false;
   protected showPassword = false;
 
-  protected formGroup = this.formBuilder.nonNullable.group(
+  protected formGroup = this.formBuilder.nonNullable.group<InputPasswordForm>(
     {
-      newPassword: ["", [Validators.required, Validators.minLength(this.minPasswordLength)]],
-      newPasswordConfirm: ["", Validators.required],
-      newPasswordHint: [
-        "", // must be string (not null) because we check length in validation
-        [Validators.minLength(this.minHintLength), Validators.maxLength(this.maxHintLength)],
-      ],
-      checkForBreaches: [true],
+      newPassword: new FormControl("", [
+        Validators.required,
+        Validators.minLength(this.minPasswordLength),
+      ]) as FormControl<string>,
+      newPasswordConfirm: new FormControl("", Validators.required) as FormControl<string>,
+      newPasswordHint: new FormControl("", [
+        Validators.minLength(this.minHintLength),
+        Validators.maxLength(this.maxHintLength),
+      ]) as FormControl<string>,
+      checkForBreaches: new FormControl(true) as FormControl<boolean>,
     },
     {
       validators: [
@@ -181,19 +188,14 @@ export class InputPasswordComponent implements OnInit {
       this.flow === InputPasswordFlow.ChangePassword ||
       this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
     ) {
-      // https://github.com/angular/angular/issues/48794
-      (this.formGroup as FormGroup<any>).addControl(
+      this.formGroup.addControl(
         "currentPassword",
-        this.formBuilder.control("", Validators.required),
+        new FormControl("", Validators.required) as FormControl<string>,
       );
     }
 
     if (this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation) {
-      // https://github.com/angular/angular/issues/48794
-      (this.formGroup as FormGroup<any>).addControl(
-        "rotateUserKey",
-        this.formBuilder.control<boolean>(false),
-      );
+      this.formGroup.addControl("rotateUserKey", new FormControl(false) as FormControl<boolean>);
     }
   }
 
@@ -227,7 +229,7 @@ export class InputPasswordComponent implements OnInit {
       throw new Error("Email is required to create master key.");
     }
 
-    const currentPassword = this.formGroup.get("currentPassword")?.value || "";
+    const currentPassword = this.formGroup.controls.currentPassword?.value ?? "";
     const newPassword = this.formGroup.controls.newPassword.value;
     const newPasswordHint = this.formGroup.controls.newPasswordHint.value;
     const checkForBreaches = this.formGroup.controls.checkForBreaches.value;
@@ -327,7 +329,7 @@ export class InputPasswordComponent implements OnInit {
     }
 
     if (this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation) {
-      passwordInputResult.rotateUserKey = this.formGroup.get("rotateUserKey")?.value;
+      passwordInputResult.rotateUserKey = this.formGroup.controls.rotateUserKey?.value;
     }
 
     // 5. Emit cryptographic keys and other password related properties
@@ -474,9 +476,7 @@ export class InputPasswordComponent implements OnInit {
   }
 
   protected async rotateUserKeyClicked() {
-    const rotateUserKeyCtrl = this.formGroup.get(
-      "rotateUserKey",
-    ) as unknown as FormControl<boolean>;
+    const rotateUserKeyCtrl = this.formGroup.controls.rotateUserKey;
 
     const rotateUserKey = rotateUserKeyCtrl?.value;
 
