@@ -3712,5 +3712,35 @@
   },
   "move": {
     "message": "Áthelyezés"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Idő megtakarítás automatikus kitöltéssel"
+  },
+  "newLoginNudgeBody": {
+    "message": "Adjunk meg egy webhelyet, hogy ez a bejelentkezési név automatikusan kitöltendő javaslatként jelenjen meg."
+  },
+  "newCardNudgeTitle": {
+    "message": "Zökkenőmentes online fizetés"
+  },
+  "newCardNudgeBody": {
+    "message": "Kártyákkal könnyedén, biztonságosan és pontosan tölthetjük ki automatikusan a fizetési űrlapokat."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Egyszerűsítsük a fiókok létrehozását"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Azonosítókkal gyorsan automatikusan kitölthetjük a hosszú regisztrációs vagy kapcsolatfelvételi űrlapokat."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Tartsuk biztonságban az érzékeny adatokat"
+  },
+  "newNoteNudgeBody": {
+    "message": "Jegyzetekkel biztonságosan tárolhatjuk az érzékeny adatokat, például a banki vagy biztosítási adatokat."
+  },
+  "newSshNudgeTitle": {
+    "message": "Fejlesztőbarát SSH hozzáférés"
+  },
+  "newSshNudgeBody": {
+    "message": "Tároljuk a kulcsokat és csatlakozzunk az SSH-ügynökhöz a gyors, titkosított hitelesítéshez."
   }
 }

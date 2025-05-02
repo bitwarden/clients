@@ -2189,7 +2189,7 @@
     "message": "Identification"
   },
   "contactInfo": {
-    "message": "Contact information"
+    "message": "联系信息"
   },
   "allSends": {
     "message": "所有的 Send",
@@ -3550,7 +3550,7 @@
     "message": "未找到用于 SSO 登录的空闲端口。"
   },
   "securePasswordGenerated": {
-    "message": "安全的密码生成好了！别忘了在网站上也更新一下您的密码。"
+    "message": "安全的密码已生成！不要忘记在网站上更新您的密码。"
   },
   "useGeneratorHelpTextPartOne": {
     "message": "Use the generator",
@@ -3712,5 +3712,35 @@
   },
   "move": {
     "message": "移动"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBody": {
+    "message": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBody": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
   }
 }
