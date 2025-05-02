@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { inject } from "@angular/core";
 import { CanActivateFn, Router } from "@angular/router";
 
@@ -7,7 +5,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-import { RouterService } from "../../core/router.service";
+import { RouterService } from "../../../core/router.service";
 
 /**
  * Guard to persist and apply deep links to handle users who are not unlocked.
@@ -52,6 +50,16 @@ export function deepLinkGuard(): CanActivateFn {
     return true;
   };
 
+  /**
+   * Check if the URL is valid for deep linking. A valid url is described as not including
+   * "lock" or "login-initiated". Valid urls are only urls that are not part of login or
+   * decryption flows.
+   * We ignore the "lock" url because standard SSO flows will send users to the lock component.
+   * We ignore "login-initiated" because TDE users decrypting with master passwords are
+   * sent to the lock component.
+   * @param url The URL to check.
+   * @returns True if the URL is valid, false otherwise.
+   */
   function isValidUrl(url: string | null | undefined): boolean {
     if (Utils.isNullOrEmpty(url)) {
       return false;
