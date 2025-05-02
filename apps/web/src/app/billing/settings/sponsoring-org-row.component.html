@@ -1,5 +1,5 @@
 <td bitCell>
-  {{ sponsoringOrg.friendlyName }}
+  {{ sponsoringOrg.familySponsorshipFriendlyName }}
 </td>
 <td bitCell>{{ sponsoringOrg.name }}</td>
 <td bitCell>
@@ -7,7 +7,7 @@
 </td>
 <td bitCell>
   <button
-    *ngIf="!sponsoringOrg.toDelete"
+    *ngIf="!sponsoringOrg.familySponsorshipToDelete"
     type="button"
     bitIconButton="bwi-ellipsis-v"
     buttonType="main"
@@ -18,9 +18,13 @@
     <button
       type="button"
       bitMenuItem
-      *ngIf="!isSelfHosted && !sponsoringOrg.validUntil && !(isFreeFamilyPolicyEnabled$ | async)"
+      *ngIf="
+        !isSelfHosted &&
+        !sponsoringOrg.familySponsorshipValidUntil &&
+        !(isFreeFamilyPolicyEnabled$ | async)
+      "
       (click)="resendEmail()"
-      [attr.aria-label]="'resendEmailLabel' | i18n: sponsoringOrg.friendlyName"
+      [attr.aria-label]="'resendEmailLabel' | i18n: sponsoringOrg.familySponsorshipFriendlyName"
     >
       {{ "resendEmail" | i18n }}
     </button>
@@ -28,7 +32,7 @@
       type="button"
       bitMenuItem
       (click)="revokeSponsorship()"
-      [attr.aria-label]="'revokeAccountMessage' | i18n: sponsoringOrg.friendlyName"
+      [attr.aria-label]="'revokeAccountMessage' | i18n: sponsoringOrg.familySponsorshipFriendlyName"
     >
       <span class="tw-text-danger">{{ "remove" | i18n }}</span>
     </button>
