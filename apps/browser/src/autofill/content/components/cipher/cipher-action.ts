@@ -8,24 +8,24 @@ export function CipherAction({
   handleAction = () => {
     /* no-op */
   },
+  i18n,
   notificationType,
   theme,
 }: {
   handleAction?: (e: Event) => void;
+  i18n: { [key: string]: string };
   notificationType: typeof NotificationTypes.Change | typeof NotificationTypes.Add;
   theme: Theme;
 }) {
   return notificationType === NotificationTypes.Change
     ? BadgeButton({
         buttonAction: handleAction,
-        // @TODO localize
-        buttonText: "Update",
+        buttonText: i18n.notificationUpdate,
         theme,
       })
     : EditButton({
         buttonAction: handleAction,
-        // @TODO localize
-        buttonText: "Edit",
+        buttonText: i18n.notificationEditTooltip,
         theme,
       });
 }

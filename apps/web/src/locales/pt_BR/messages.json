@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Todas as aplicações"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden logo"
+  },
   "criticalApplications": {
     "message": "Aplicações críticas"
   },
@@ -419,17 +422,8 @@
   "folder": {
     "message": "Pasta"
   },
-  "newCustomField": {
-    "message": "Novo Campo Personalizado"
-  },
   "value": {
     "message": "Valor"
-  },
-  "dragToSort": {
-    "message": "Arrastar para ordenar"
-  },
-  "dragToReorder": {
-    "message": "Arraste para reorganizar"
   },
   "cfTypeText": {
     "message": "Texto"
@@ -4072,8 +4066,8 @@
   "updateBrowser": {
     "message": "Atualizar Navegador"
   },
-  "generatingRiskInsights": {
-    "message": "Gerando seu panorama de risco..."
+  "generatingYourRiskInsights": {
+    "message": "Generating your Risk Insights..."
   },
   "updateBrowserDesc": {
     "message": "Você está usando um navegador da Web não suportado. O cofre web pode não funcionar corretamente."
@@ -6305,6 +6299,21 @@
   "sponsoredFamilies": {
     "message": "Bitwarden Families Gratuito"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Sponsored families"
+  },
+  "noSponsoredFamilies": {
+    "message": "No sponsored families"
+  },
+  "noSponsoredFamiliesDescription": {
+    "message": "Sponsored non-member families plans will display here"
+  },
+  "sponsorFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Você e sua família estão elegíveis para o Bitwarden Families Gratuito. Resgate com seu e-mail pessoal para manter seus dados seguros mesmo quando você não estiver no trabalho."
   },
@@ -6319,6 +6328,18 @@
   },
   "sponsoredFamiliesSharedCollections": {
     "message": "Coleções compartilhadas de segredos de Família"
+  },
+  "memberFamilies": {
+    "message": "Member families"
+  },
+  "noMemberFamilies": {
+    "message": "No member families"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Members who have redeemed family plans will display here"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
   },
   "badToken": {
     "message": "O link não é mais válido. Peça ao patrocinador para reenviar a oferta."
@@ -7249,6 +7270,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Siga os passos abaixo para finalizar o login."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
+  },
   "launchDuo": {
     "message": "Abrir o Duo"
   },
@@ -7982,6 +8006,9 @@
   },
   "inviteMember": {
     "message": "Convidar membro"
+  },
+  "addSponsorship": {
+    "message": "Add sponsorship"
   },
   "needsConfirmation": {
     "message": "Precisa de confirmação"
@@ -10571,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Não permitir que os membros desbloqueiem sua conta com um PIN."
   },
-  "limitedEventLogs": {
-    "message": "Os planos $PRODUCT_TYPE$ não têm acesso aos registros de eventos reais",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Obtenha acesso completo aos logs de eventos da organização atualizando para um plano Times ou Empresarial."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Atualizar para dados reais do registro de eventos"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "Esses eventos são apenas exemplos e não refletem eventos reais na sua organização do Bitwarden."
@@ -10593,12 +10611,15 @@
     "message": "Organizações gratuitas podem ter até duas coleções. Faça o upgrade para um plano pago para adicionar mais coleções."
   },
   "businessUnit": {
-    "message": "Business Unit"
+    "message": "Unidades de Negócio"
   },
   "businessUnits": {
-    "message": "Business Units"
+    "message": "Unidades de Negócio"
   },
   "newBusinessUnit": {
-    "message": "New business unit"
+    "message": "Nova unidade de negócio"
+  },
+  "restart": {
+    "message": "Restart"
   }
 }

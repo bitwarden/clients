@@ -393,6 +393,64 @@
   "authenticatorKeyTotp": {
     "message": "Kimlik doğrulama anahtarı (TOTP)"
   },
+  "authenticatorKey": {
+    "message": "Kimlik doğrulama anahtarı"
+  },
+  "autofillOptions": {
+    "message": "Otomatik doldurma seçenekleri"
+  },
+  "websiteUri": {
+    "message": "Web sitesi (URI)"
+  },
+  "websiteUriCount": {
+    "message": "Web sitesi (URI) $COUNT$",
+    "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "websiteAdded": {
+    "message": "Web sitesi eklendi"
+  },
+  "addWebsite": {
+    "message": "Web sitesi ekle"
+  },
+  "deleteWebsite": {
+    "message": "Web sitesini sil"
+  },
+  "owner": {
+    "message": "Sahibi"
+  },
+  "addField": {
+    "message": "Alan ekle"
+  },
+  "fieldType": {
+    "message": "Alan türü"
+  },
+  "fieldLabel": {
+    "message": "Alan etiketi"
+  },
+  "add": {
+    "message": "Ekle"
+  },
+  "textHelpText": {
+    "message": "Güvenlik sorusu gibi veriler için metin alanlarını kullanın"
+  },
+  "hiddenHelpText": {
+    "message": "Parola gibi hassas verileri için gizli alanları kullanın"
+  },
+  "checkBoxHelpText": {
+    "message": "Formlardaki onay kutularını (örn. \"e-posta adresimi hatırla\") otomatik doldurmak isterseniz onay kutularını kullanın"
+  },
+  "linkedHelpText": {
+    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+  },
+  "linkedLabelHelpText": {
+    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+  },
   "folder": {
     "message": "Klasör"
   },
@@ -417,6 +475,9 @@
   "cfTypeLinked": {
     "message": "Bağlantılı",
     "description": "This describes a field that is 'linked' (related) to another field."
+  },
+  "cfTypeCheckbox": {
+    "message": "Onay kutusu"
   },
   "linkedValue": {
     "message": "Bağlı değer",
@@ -1915,6 +1976,43 @@
       }
     }
   },
+  "cardDetails": {
+    "message": "Kart bilgileri"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ bilgileri",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "learnMoreAboutAuthenticators": {
+    "message": "Kimlik doğrulayıcılar hakkında bilgi alın"
+  },
+  "copyTOTP": {
+    "message": "Kimlik doğrulama anahtarını kopyala (TOTP)"
+  },
+  "totpHelperTitle": {
+    "message": "Make 2-step verification seamless"
+  },
+  "totpHelper": {
+    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+  },
+  "totpHelperWithCapture": {
+    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+  },
+  "premium": {
+    "message": "Premium",
+    "description": "Premium membership"
+  },
+  "cardExpiredTitle": {
+    "message": "Kartın süresi dolmuş"
+  },
+  "cardExpiredMessage": {
+    "message": "Kartı yenilediyseniz kart bilgilerini güncelleyin"
+  },
   "verificationRequired": {
     "message": "Doğrulama gerekli",
     "description": "Default title for the user verification dialog."
@@ -2083,6 +2181,15 @@
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "Bir kuruluş ilkesi, kayıtları kişisel kasanıza içe aktarmayı engelledi."
+  },
+  "personalDetails": {
+    "message": "Kişisel bilgiler"
+  },
+  "identification": {
+    "message": "Kimlik"
+  },
+  "contactInfo": {
+    "message": "İletişim bilgileri"
   },
   "allSends": {
     "message": "Tüm Send'ler",
@@ -2517,6 +2624,9 @@
   },
   "generateEmail": {
     "message": "E-posta oluştur"
+  },
+  "usernameGenerator": {
+    "message": "Kullanıcı adı üreteci"
   },
   "spinboxBoundariesHint": {
     "message": "Değer $MIN$ ile $MAX$ arasında olmalıdır.",
@@ -3212,6 +3322,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Follow the steps below to finish logging in."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Güvenlik anahtarınızla girişi tamamlamak için aşağıdaki adımları izleyin."
+  },
   "launchDuo": {
     "message": "Duo'yu tarayıcıda aç"
   },
@@ -3436,6 +3549,17 @@
   "ssoError": {
     "message": "SSO girişi için açık port bulunamadı."
   },
+  "securePasswordGenerated": {
+    "message": "Güvenli parola üretildi. Web sitesindeki parolanızı da güncellemeyi unutmayın."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Üreteci kullanarak",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "güçlü ve benzersiz parola üretebilirsiniz",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
   },
@@ -3514,6 +3638,27 @@
   "setupTwoStepLogin": {
     "message": "İki adımlı girişi ayarlayın"
   },
+  "itemDetails": {
+    "message": "Kayıt ayrıntıları"
+  },
+  "itemName": {
+    "message": "Kayıt adı"
+  },
+  "loginCredentials": {
+    "message": "Hesap bilgileri"
+  },
+  "additionalOptions": {
+    "message": "Ek seçenekler"
+  },
+  "itemHistory": {
+    "message": "Kayıt geçmişi"
+  },
+  "lastEdited": {
+    "message": "Son düzenlenme"
+  },
+  "upload": {
+    "message": "Yükle"
+  },
   "newDeviceVerificationNoticeContentPage1": {
     "message": "Şubat 2025 itibarıyla Bitwarden, yeni cihazlardan yeni girişleri doğrulamanız için e-posta adresinize bir kod gönderecektir."
   },
@@ -3567,5 +3712,35 @@
   },
   "move": {
     "message": "Taşı"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBody": {
+    "message": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBody": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
   }
 }

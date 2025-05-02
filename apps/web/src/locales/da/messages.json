@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Alle applikationer"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden logo"
+  },
   "criticalApplications": {
     "message": "Kritiske apps"
   },
@@ -419,17 +422,8 @@
   "folder": {
     "message": "Mappe"
   },
-  "newCustomField": {
-    "message": "Nyt tilpasset felt"
-  },
   "value": {
     "message": "Værdi"
-  },
-  "dragToSort": {
-    "message": "Træk for at sortere"
-  },
-  "dragToReorder": {
-    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Tekst"
@@ -4072,8 +4066,8 @@
   "updateBrowser": {
     "message": "Opdatér browser"
   },
-  "generatingRiskInsights": {
-    "message": "Genererer risikoindsigter..."
+  "generatingYourRiskInsights": {
+    "message": "Generating your Risk Insights..."
   },
   "updateBrowserDesc": {
     "message": "Du bruger en ikke-understøttet webbrowser. Web-boksen fungerer muligvis ikke korrekt."
@@ -6305,6 +6299,21 @@
   "sponsoredFamilies": {
     "message": "Gratis Bitwarden Familier"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Sponsored families"
+  },
+  "noSponsoredFamilies": {
+    "message": "No sponsored families"
+  },
+  "noSponsoredFamiliesDescription": {
+    "message": "Sponsored non-member families plans will display here"
+  },
+  "sponsorFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Du og din familie er berettiget til gratis Bitwarden Familier. Indløs med din personlige e-mail for at holde dine data sikre, selv når du ikke er på arbejde."
   },
@@ -6319,6 +6328,18 @@
   },
   "sponsoredFamiliesSharedCollections": {
     "message": "Delte samlinger til Familiehemmeligheder"
+  },
+  "memberFamilies": {
+    "message": "Member families"
+  },
+  "noMemberFamilies": {
+    "message": "No member families"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Members who have redeemed family plans will display here"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
   },
   "badToken": {
     "message": "Linket er ikke længere gyldigt. Bed sponsoren sende et nyt tilbud."
@@ -7249,6 +7270,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Follow the steps below to finish logging in."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
+  },
   "launchDuo": {
     "message": "Start Duo"
   },
@@ -7982,6 +8006,9 @@
   },
   "inviteMember": {
     "message": "Invitér medlem"
+  },
+  "addSponsorship": {
+    "message": "Add sponsorship"
   },
   "needsConfirmation": {
     "message": "Behøver bekræftelse"
@@ -10571,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Do not allow members to unlock their account with a PIN."
   },
-  "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Get full access to organization event logs by upgrading to a Teams or Enterprise plan."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Upgrade for real event log data"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
@@ -10600,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "New business unit"
+  },
+  "restart": {
+    "message": "Restart"
   }
 }

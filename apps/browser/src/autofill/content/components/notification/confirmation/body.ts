@@ -16,16 +16,18 @@ const { css } = createEmotion({
 
 export type NotificationConfirmationBodyProps = {
   buttonText: string;
+  itemName: string;
   confirmationMessage: string;
   error?: string;
   messageDetails?: string;
   tasksAreComplete?: boolean;
   theme: Theme;
-  handleOpenVault: (e: Event) => void;
+  handleOpenVault: () => void;
 };
 
 export function NotificationConfirmationBody({
   buttonText,
+  itemName,
   confirmationMessage,
   error,
   messageDetails,
@@ -43,6 +45,7 @@ export function NotificationConfirmationBody({
       ${showConfirmationMessage
         ? NotificationConfirmationMessage({
             buttonText,
+            itemName,
             message: confirmationMessage,
             messageDetails,
             theme,

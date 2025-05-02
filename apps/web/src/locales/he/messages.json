@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "כל היישומים"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden logo"
+  },
   "criticalApplications": {
     "message": "יישומים קריטיים"
   },
@@ -419,17 +422,8 @@
   "folder": {
     "message": "תיקייה"
   },
-  "newCustomField": {
-    "message": "שדה מותאם אישית חדש"
-  },
   "value": {
     "message": "ערך"
-  },
-  "dragToSort": {
-    "message": "גרור כדי למיין"
-  },
-  "dragToReorder": {
-    "message": "גרור כדי לסדר מחדש"
   },
   "cfTypeText": {
     "message": "טקסט"
@@ -4072,8 +4066,8 @@
   "updateBrowser": {
     "message": "עדכן דפדפן"
   },
-  "generatingRiskInsights": {
-    "message": "יוצר את תובנות הסיכון שלך..."
+  "generatingYourRiskInsights": {
+    "message": "Generating your Risk Insights..."
   },
   "updateBrowserDesc": {
     "message": "אתה משתמש בדפדפן אינטרנט שאיננו נתמך. כספת הרשת עלולה שלא לפעול כראוי."
@@ -6305,6 +6299,21 @@
   "sponsoredFamilies": {
     "message": "Bitwarden למשפחות בחינם"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Sponsored families"
+  },
+  "noSponsoredFamilies": {
+    "message": "No sponsored families"
+  },
+  "noSponsoredFamiliesDescription": {
+    "message": "Sponsored non-member families plans will display here"
+  },
+  "sponsorFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+  },
   "sponsoredFamiliesEligible": {
     "message": "אתה והמשפחה שלך זכאים ל־Bitwarden למשפחות בחינם. ממש עם הדוא\"ל האישי שלך כדי לשמור על אבטחת הנתונים שלך אפילו כשאתה לא בעבודה."
   },
@@ -6319,6 +6328,18 @@
   },
   "sponsoredFamiliesSharedCollections": {
     "message": "אוספים משותפים עבור סודות משפחה"
+  },
+  "memberFamilies": {
+    "message": "Member families"
+  },
+  "noMemberFamilies": {
+    "message": "No member families"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Members who have redeemed family plans will display here"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
   },
   "badToken": {
     "message": "הקישור אינו חוקי עוד. אנא בקש מנותן החסות לשלוח שוב את ההצעה."
@@ -7249,6 +7270,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "עקוב אחר השלבים למטה כדי לסיים להיכנס."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
+  },
   "launchDuo": {
     "message": "פתח את Duo"
   },
@@ -7982,6 +8006,9 @@
   },
   "inviteMember": {
     "message": "הזמן חבר"
+  },
+  "addSponsorship": {
+    "message": "Add sponsorship"
   },
   "needsConfirmation": {
     "message": "צריך אישור"
@@ -10571,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "אל תאפשר לחברים לבטל את נעילת החשבון שלהם עם PIN."
   },
-  "limitedEventLogs": {
-    "message": "לתוכניות מסוג $PRODUCT_TYPE$ אין גישה ליומני אירועים אמיתיים",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "קבל גישה מלאה ליומני אירועים של ארגון על ידי שדרוג לתוכנית לצוותים או ארגונים."
-  },
-  "upgradeEventLogTitle": {
-    "message": "שדרג עבור נתוני יומן אירועים אמיתיים"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "האירועים האלה הם דוגמאות בלבד ולא משקפים אירועים אמיתיים בתוך ארגון ה־Bitwarden שלך."
@@ -10600,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "New business unit"
+  },
+  "restart": {
+    "message": "Restart"
   }
 }

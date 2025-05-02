@@ -2,6 +2,9 @@
   "appName": {
     "message": "Bitwarden"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden loqosu"
+  },
   "extName": {
     "message": "Bitwarden Parol Meneceri",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
@@ -883,6 +886,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Giriş prosesini tamamlamaq üçün aşağıdakı addımları izləyin."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Güvənlik açarınızla girişi tamamlamaq üçün aşağıdakı addımları izləyin."
+  },
   "restartRegistration": {
     "message": "Qeydiyyatı yenidən başlat"
   },
@@ -1056,23 +1062,49 @@
   "notificationAddSave": {
     "message": "Saxla"
   },
-  "loginSaveSuccessDetails": {
-    "message": "$USERNAME$ Bitwarden-də saxlanıldı.",
+  "notificationViewAria": {
+    "message": "$ITEMNAME$ bax, yeni pəncərədə açılır",
     "placeholders": {
-      "username": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is saved."
+    "description": "Aria label for the view button in notification bar confirmation message"
   },
-  "loginUpdatedSuccessDetails": {
-    "message": "$USERNAME$ Bitwarden-də güncəlləndi.",
+  "notificationEditTooltip": {
+    "message": "Saxlamazdan əvvəl düzəliş et",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "Yeni bildiriş"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: Yeni bildiriş",
+    "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
-      "username": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "loginSaveConfirmation": {
+    "message": "$ITEMNAME$ Bitwarden-də saxlanıldı.",
+    "placeholders": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is updated."
+    "description": "Shown to user after item is saved."
+  },
+  "loginUpdatedConfirmation": {
+    "message": "$ITEMNAME$ Bitwarden-də güncəlləndi.",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after item is updated."
   },
   "saveAsNewLoginAction": {
     "message": "Yeni giriş kimi saxla",
@@ -1082,12 +1114,12 @@
     "message": "Giriş məlumatlarını güncəllə",
     "description": "Button text for updating an existing login entry."
   },
-  "saveLoginPrompt": {
-    "message": "Giriş məlumatları saxlanılsın?",
+  "saveLogin": {
+    "message": "Girişi saxla",
     "description": "Prompt asking the user if they want to save their login details."
   },
-  "updateLoginPrompt": {
-    "message": "Mövcud giriş məlumatları güncəllənsin?",
+  "updateLogin": {
+    "message": "Mövcud giriş məlumatlarını güncəllə",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
@@ -1099,7 +1131,7 @@
     "description": "Message displayed when login details are successfully updated."
   },
   "loginUpdateTaskSuccess": {
-    "message": "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
+    "message": "Əhsən sizə! Özünüzü və $ORGANIZATION$ təşkilatını daha güvənli etmək üçün addımlar atdınız.",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -1108,7 +1140,7 @@
     "description": "Shown to user after login is updated."
   },
   "loginUpdateTaskSuccessAdditional": {
-    "message": "Thank you for making $ORGANIZATION$ more secure. You have $TASK_COUNT$ more passwords to update.",
+    "message": "$ORGANIZATION$ təşkilatını daha güvənli hala gətirdiyiniz üçün təşəkkürlər. Daha $TASK_COUNT$ parolunuz güncəllənməlidir.",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -1120,7 +1152,7 @@
     "description": "Shown to user after login is updated."
   },
   "nextSecurityTaskAction": {
-    "message": "Change next password",
+    "message": "Növbəti parolu dəyişdir",
     "description": "Message prompting user to undertake completion of another security task."
   },
   "saveFailure": {
@@ -3259,7 +3291,7 @@
     "message": "API açar"
   },
   "ssoKeyConnectorError": {
-    "message": "Açar bağlayıcı xətası: Açar Bağlayıcının mövcud olduğuna və düzgün işlədiyinə əmin olun."
+    "message": "Key connector xətası: \"Key connector\"un mövcud olduğuna və düzgün işlədiyinə əmin olun."
   },
   "premiumSubcriptionRequired": {
     "message": "Premium abunəlik tələb olunur"
@@ -4928,8 +4960,8 @@
     "message": "Parol yenidən yaradıldı",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Giriş Bitwarden-də saxlanılsın?",
+  "saveToBitwarden": {
+    "message": "\"Bitwarden\"də saxla",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
@@ -5169,6 +5201,12 @@
   "changeAtRiskPassword": {
     "message": "Riskli parolları dəyişdir"
   },
+  "settingsVaultOptions": {
+    "message": "Vault options"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
   "introCarouselLabel": {
     "message": "Bitwarden-ə xoş gəlmisiniz"
   },
@@ -5195,5 +5233,50 @@
   },
   "secureDevicesBody": {
     "message": "Bitwarden mobil, brauzer və masaüstü tətbiqləri ilə limitsiz cihaz arasında limitsiz parol saxlayın."
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Import existing passwords"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Use the importer to quickly transfer logins to Bitwarden without manually adding them."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Import now"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Welcome to your vault!"
+  },
+  "hasItemsVaultNudgeBody": {
+    "message": "Autofill items for the current page\nFavorite items for easy access\nSearch your vault for something else"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBody": {
+    "message": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBody": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
   }
 }

@@ -15,7 +15,6 @@ import { VerifyRecoverDeleteOrgComponent } from "../admin-console/organizations/
 import { AcceptFamilySponsorshipComponent } from "../admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { RecoverDeleteComponent } from "../auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "../auth/recover-two-factor.component";
-import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
 import { AccountComponent } from "../auth/settings/account/account.component";
 import { ChangeAvatarDialogComponent } from "../auth/settings/account/change-avatar-dialog.component";
@@ -42,6 +41,7 @@ import { SponsoredFamiliesComponent } from "../billing/settings/sponsored-famili
 import { SponsoringOrgRowComponent } from "../billing/settings/sponsoring-org-row.component";
 import { DynamicAvatarComponent } from "../components/dynamic-avatar.component";
 import { SelectableAvatarComponent } from "../components/selectable-avatar.component";
+import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import { FrontendLayoutComponent } from "../layouts/frontend-layout.component";
 import { HeaderModule } from "../layouts/header/header.module";
 import { ProductSwitcherModule } from "../layouts/product-switcher/product-switcher.module";
@@ -56,12 +56,12 @@ import { UnsecuredWebsitesReportComponent as OrgUnsecuredWebsitesReportComponent
 import { WeakPasswordsReportComponent as OrgWeakPasswordsReportComponent } from "../tools/reports/pages/organizations/weak-passwords-report.component";
 /* eslint no-restricted-imports: "error" */
 import { PremiumBadgeComponent } from "../vault/components/premium-badge.component";
-import { AddEditCustomFieldsComponent } from "../vault/individual-vault/add-edit-custom-fields.component";
 import { FolderAddEditComponent } from "../vault/individual-vault/folder-add-edit.component";
 import { OrganizationBadgeModule } from "../vault/individual-vault/organization-badge/organization-badge.module";
 import { PipesModule } from "../vault/individual-vault/pipes/pipes.module";
 import { PurgeVaultComponent } from "../vault/settings/purge-vault.component";
 
+import { FreeBitwardenFamiliesComponent } from "./../billing/members/free-bitwarden-families.component";
 import { EnvironmentSelectorModule } from "./../components/environment-selector/environment-selector.module";
 import { AccountFingerprintComponent } from "./components/account-fingerprint/account-fingerprint.component";
 import { SharedModule } from "./shared.module";
@@ -93,8 +93,6 @@ import { SharedModule } from "./shared.module";
   declarations: [
     AcceptFamilySponsorshipComponent,
     AccountComponent,
-    AddEditCustomFieldsComponent,
-    AddEditCustomFieldsComponent,
     ApiKeyComponent,
     ChangeEmailComponent,
     DeauthorizeSessionsComponent,
@@ -128,6 +126,7 @@ import { SharedModule } from "./shared.module";
     SelectableAvatarComponent,
     SetPasswordComponent,
     SponsoredFamiliesComponent,
+    FreeBitwardenFamiliesComponent,
     SponsoringOrgRowComponent,
     UpdatePasswordComponent,
     UpdateTempPasswordComponent,
@@ -138,8 +137,6 @@ import { SharedModule } from "./shared.module";
     UserVerificationModule,
     PremiumBadgeComponent,
     AccountComponent,
-    AddEditCustomFieldsComponent,
-    AddEditCustomFieldsComponent,
     ApiKeyComponent,
     ChangeEmailComponent,
     DeauthorizeSessionsComponent,
@@ -175,6 +172,7 @@ import { SharedModule } from "./shared.module";
     SelectableAvatarComponent,
     SetPasswordComponent,
     SponsoredFamiliesComponent,
+    FreeBitwardenFamiliesComponent,
     SponsoringOrgRowComponent,
     UpdateTempPasswordComponent,
     UpdatePasswordComponent,

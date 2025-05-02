@@ -6,7 +6,10 @@ import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import {
+  Aes256CbcHmacKey,
+  SymmetricCryptoKey,
+} from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 
 import { makeStaticByteArray } from "../../../../spec";
@@ -26,6 +29,124 @@ describe("EncryptService", () => {
     mockReset(logService);
 
     encryptService = new EncryptServiceImplementation(cryptoFunctionService, logService, true);
+  });
+
+  describe("wrapSymmetricKey", () => {
+    it("roundtrip encrypts and decrypts a symmetric key", async () => {
+      cryptoFunctionService.aesEncrypt.mockResolvedValue(makeStaticByteArray(64, 0));
+      cryptoFunctionService.randomBytes.mockResolvedValue(makeStaticByteArray(16) as CsprngArray);
+      cryptoFunctionService.hmac.mockResolvedValue(makeStaticByteArray(32));
+
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const wrappingKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const encString = await encryptService.wrapSymmetricKey(key, wrappingKey);
+      expect(encString.encryptionType).toEqual(EncryptionType.AesCbc256_HmacSha256_B64);
+      expect(encString.data).toEqual(Utils.fromBufferToB64(makeStaticByteArray(64, 0)));
+    });
+    it("fails if key toBeWrapped is null", async () => {
+      const wrappingKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+      await expect(encryptService.wrapSymmetricKey(null, wrappingKey)).rejects.toThrow(
+        "No keyToBeWrapped provided for wrapping.",
+      );
+    });
+    it("fails if wrapping key is null", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      await expect(encryptService.wrapSymmetricKey(key, null)).rejects.toThrow(
+        "No wrappingKey provided for wrapping.",
+      );
+    });
+    it("fails if type 0 key is provided with flag turned on", async () => {
+      (encryptService as any).blockType0 = true;
+      const mock32Key = mock<SymmetricCryptoKey>();
+      mock32Key.inner.mockReturnValue({
+        type: 0,
+        encryptionKey: makeStaticByteArray(32),
+      });
+
+      await expect(encryptService.wrapSymmetricKey(mock32Key, mock32Key)).rejects.toThrow(
+        "Type 0 encryption is not supported.",
+      );
+    });
+  });
+
+  describe("wrapDecapsulationKey", () => {
+    it("roundtrip encrypts and decrypts a decapsulation key", async () => {
+      cryptoFunctionService.aesEncrypt.mockResolvedValue(makeStaticByteArray(64, 0));
+      cryptoFunctionService.randomBytes.mockResolvedValue(makeStaticByteArray(16) as CsprngArray);
+      cryptoFunctionService.hmac.mockResolvedValue(makeStaticByteArray(32));
+
+      const wrappingKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const encString = await encryptService.wrapDecapsulationKey(
+        makeStaticByteArray(64),
+        wrappingKey,
+      );
+      expect(encString.encryptionType).toEqual(EncryptionType.AesCbc256_HmacSha256_B64);
+      expect(encString.data).toEqual(Utils.fromBufferToB64(makeStaticByteArray(64, 0)));
+    });
+    it("fails if decapsulation key is null", async () => {
+      const wrappingKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+      await expect(encryptService.wrapDecapsulationKey(null, wrappingKey)).rejects.toThrow(
+        "No decapsulation key provided for wrapping.",
+      );
+    });
+    it("fails if wrapping key is null", async () => {
+      const decapsulationKey = makeStaticByteArray(64);
+      await expect(encryptService.wrapDecapsulationKey(decapsulationKey, null)).rejects.toThrow(
+        "No wrappingKey provided for wrapping.",
+      );
+    });
+    it("throws if type 0 key is provided with flag turned on", async () => {
+      (encryptService as any).blockType0 = true;
+      const mock32Key = mock<SymmetricCryptoKey>();
+      mock32Key.inner.mockReturnValue({
+        type: 0,
+        encryptionKey: makeStaticByteArray(32),
+      });
+
+      await expect(
+        encryptService.wrapDecapsulationKey(new Uint8Array(200), mock32Key),
+      ).rejects.toThrow("Type 0 encryption is not supported.");
+    });
+  });
+
+  describe("wrapEncapsulationKey", () => {
+    it("roundtrip encrypts and decrypts an encapsulationKey key", async () => {
+      cryptoFunctionService.aesEncrypt.mockResolvedValue(makeStaticByteArray(64, 0));
+      cryptoFunctionService.randomBytes.mockResolvedValue(makeStaticByteArray(16) as CsprngArray);
+      cryptoFunctionService.hmac.mockResolvedValue(makeStaticByteArray(32));
+
+      const wrappingKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const encString = await encryptService.wrapEncapsulationKey(
+        makeStaticByteArray(64),
+        wrappingKey,
+      );
+      expect(encString.encryptionType).toEqual(EncryptionType.AesCbc256_HmacSha256_B64);
+      expect(encString.data).toEqual(Utils.fromBufferToB64(makeStaticByteArray(64, 0)));
+    });
+    it("fails if encapsulation key is null", async () => {
+      const wrappingKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+      await expect(encryptService.wrapEncapsulationKey(null, wrappingKey)).rejects.toThrow(
+        "No encapsulation key provided for wrapping.",
+      );
+    });
+    it("fails if wrapping key is null", async () => {
+      const encapsulationKey = makeStaticByteArray(64);
+      await expect(encryptService.wrapEncapsulationKey(encapsulationKey, null)).rejects.toThrow(
+        "No wrappingKey provided for wrapping.",
+      );
+    });
+    it("throws if type 0 key is provided with flag turned on", async () => {
+      (encryptService as any).blockType0 = true;
+      const mock32Key = mock<SymmetricCryptoKey>();
+      mock32Key.inner.mockReturnValue({
+        type: 0,
+        encryptionKey: makeStaticByteArray(32),
+      });
+
+      await expect(
+        encryptService.wrapEncapsulationKey(new Uint8Array(200), mock32Key),
+      ).rejects.toThrow("Type 0 encryption is not supported.");
+    });
   });
 
   describe("onServerConfigChange", () => {
@@ -63,7 +184,10 @@ describe("EncryptService", () => {
       (encryptService as any).blockType0 = true;
       const key = new SymmetricCryptoKey(makeStaticByteArray(32));
       const mock32Key = mock<SymmetricCryptoKey>();
-      mock32Key.key = makeStaticByteArray(32);
+      mock32Key.inner.mockReturnValue({
+        type: 0,
+        encryptionKey: makeStaticByteArray(32),
+      });
 
       await expect(encryptService.encrypt(null!, key)).rejects.toThrow(
         "Type 0 encryption is not supported.",
@@ -145,7 +269,10 @@ describe("EncryptService", () => {
       (encryptService as any).blockType0 = true;
       const key = new SymmetricCryptoKey(makeStaticByteArray(32));
       const mock32Key = mock<SymmetricCryptoKey>();
-      mock32Key.key = makeStaticByteArray(32);
+      mock32Key.inner.mockReturnValue({
+        type: 0,
+        encryptionKey: makeStaticByteArray(32),
+      });
 
       await expect(encryptService.encryptToBytes(plainValue, key)).rejects.toThrow(
         "Type 0 encryption is not supported.",
@@ -228,7 +355,7 @@ describe("EncryptService", () => {
       expect(cryptoFunctionService.aesDecrypt).toBeCalledWith(
         expect.toEqualBuffer(encBuffer.dataBytes),
         expect.toEqualBuffer(encBuffer.ivBytes),
-        expect.toEqualBuffer(key.encKey),
+        expect.toEqualBuffer(key.inner().encryptionKey),
         "cbc",
       );
 
@@ -249,7 +376,7 @@ describe("EncryptService", () => {
       expect(cryptoFunctionService.aesDecrypt).toBeCalledWith(
         expect.toEqualBuffer(encBuffer.dataBytes),
         expect.toEqualBuffer(encBuffer.ivBytes),
-        expect.toEqualBuffer(key.encKey),
+        expect.toEqualBuffer(key.inner().encryptionKey),
         "cbc",
       );
 
@@ -267,7 +394,7 @@ describe("EncryptService", () => {
 
       expect(cryptoFunctionService.hmac).toBeCalledWith(
         expect.toEqualBuffer(expectedMacData),
-        key.macKey,
+        (key.inner() as Aes256CbcHmacKey).authenticationKey,
         "sha256",
       );
 
@@ -411,6 +538,98 @@ describe("EncryptService", () => {
     });
   });
 
+  describe("encryptString", () => {
+    it("is a proxy to encrypt", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const plainValue = "data";
+      encryptService.encrypt = jest.fn();
+      await encryptService.encryptString(plainValue, key);
+      expect(encryptService.encrypt).toHaveBeenCalledWith(plainValue, key);
+    });
+  });
+
+  describe("encryptBytes", () => {
+    it("is a proxy to encrypt", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const plainValue = makeStaticByteArray(16, 1);
+      encryptService.encrypt = jest.fn();
+      await encryptService.encryptBytes(plainValue, key);
+      expect(encryptService.encrypt).toHaveBeenCalledWith(plainValue, key);
+    });
+  });
+
+  describe("encryptFileData", () => {
+    it("is a proxy to encryptToBytes", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const plainValue = makeStaticByteArray(16, 1);
+      encryptService.encryptToBytes = jest.fn();
+      await encryptService.encryptFileData(plainValue, key);
+      expect(encryptService.encryptToBytes).toHaveBeenCalledWith(plainValue, key);
+    });
+  });
+
+  describe("decryptString", () => {
+    it("is a proxy to decryptToUtf8", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const encString = new EncString(EncryptionType.AesCbc256_B64, "data");
+      encryptService.decryptToUtf8 = jest.fn();
+      await encryptService.decryptString(encString, key);
+      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(encString, key);
+    });
+  });
+
+  describe("decryptBytes", () => {
+    it("is a proxy to decryptToBytes", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const encString = new EncString(EncryptionType.AesCbc256_B64, "data");
+      encryptService.decryptToBytes = jest.fn();
+      await encryptService.decryptBytes(encString, key);
+      expect(encryptService.decryptToBytes).toHaveBeenCalledWith(encString, key);
+    });
+  });
+
+  describe("decryptFileData", () => {
+    it("is a proxy to decrypt", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const encString = new EncArrayBuffer(makeStaticByteArray(60, EncryptionType.AesCbc256_B64));
+      encryptService.decryptToBytes = jest.fn();
+      await encryptService.decryptFileData(encString, key);
+      expect(encryptService.decryptToBytes).toHaveBeenCalledWith(encString, key);
+    });
+  });
+
+  describe("unwrapDecapsulationKey", () => {
+    it("is a proxy to decryptBytes", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const encString = new EncString(EncryptionType.AesCbc256_B64, "data");
+      encryptService.decryptBytes = jest.fn();
+      await encryptService.unwrapDecapsulationKey(encString, key);
+      expect(encryptService.decryptBytes).toHaveBeenCalledWith(encString, key);
+    });
+  });
+
+  describe("unwrapEncapsulationKey", () => {
+    it("is a proxy to decryptBytes", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const encString = new EncString(EncryptionType.AesCbc256_B64, "data");
+      encryptService.decryptBytes = jest.fn();
+      await encryptService.unwrapEncapsulationKey(encString, key);
+      expect(encryptService.decryptBytes).toHaveBeenCalledWith(encString, key);
+    });
+  });
+
+  describe("unwrapSymmetricKey", () => {
+    it("is a proxy to decryptBytes", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const encString = new EncString(EncryptionType.AesCbc256_B64, "data");
+      const jestFn = jest.fn();
+      jestFn.mockResolvedValue(new Uint8Array(64));
+      encryptService.decryptBytes = jestFn;
+      await encryptService.unwrapSymmetricKey(encString, key);
+      expect(encryptService.decryptBytes).toHaveBeenCalledWith(encString, key);
+    });
+  });
+
   describe("rsa", () => {
     const data = makeStaticByteArray(64, 100);
     const testKey = new SymmetricCryptoKey(data);
@@ -442,13 +661,19 @@ describe("EncryptService", () => {
         const actual = await encryptService.encapsulateKeyUnsigned(testKey, publicKey);
 
         expect(cryptoFunctionService.rsaEncrypt).toBeCalledWith(
-          expect.toEqualBuffer(testKey.key),
+          expect.toEqualBuffer(testKey.toEncoded()),
           expect.toEqualBuffer(publicKey),
           "sha1",
         );
 
         expect(actual).toEqual(encString);
         expect(actual.dataBytes).toEqualBuffer(encryptedData);
+      });
+
+      it("throws if no data was provided", () => {
+        return expect(encryptService.rsaEncrypt(null, new Uint8Array(32))).rejects.toThrow(
+          "No data provided for encryption",
+        );
       });
     });
 
@@ -487,7 +712,7 @@ describe("EncryptService", () => {
           "sha1",
         );
 
-        expect(actual.key).toEqualBuffer(data);
+        expect(actual.toEncoded()).toEqualBuffer(data);
       });
     });
   });
