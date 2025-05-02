@@ -101,7 +101,7 @@
     "electron-updater": "6.3.9",
     "eslint": "8.57.1",
     "eslint-config-prettier": "10.1.2",
-    "eslint-import-resolver-typescript": "3.10.1",
+    "eslint-import-resolver-typescript": "4.3.4",
     "eslint-plugin-import": "2.31.0",
     "eslint-plugin-rxjs": "5.0.3",
     "eslint-plugin-rxjs-angular": "2.0.1",
