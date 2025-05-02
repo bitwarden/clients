@@ -35,6 +35,7 @@ export enum FeatureFlag {
   PM18794_ProviderPaymentMethod = "pm-18794-provider-payment-method",
   PM17772_AdminInitiatedSponsorships = "pm-17772-admin-initiated-sponsorships",
   PM19956_RequireProviderPaymentMethodDuringSetup = "pm-19956-require-provider-payment-method-during-setup",
+  UseOrganizationWarningsService = "use-organization-warnings-service",
 
   /* Data Insights and Reporting */
   CriticalApps = "pm-14466-risk-insights-critical-application",
@@ -123,6 +124,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM18794_ProviderPaymentMethod]: FALSE,
   [FeatureFlag.PM17772_AdminInitiatedSponsorships]: FALSE,
   [FeatureFlag.PM19956_RequireProviderPaymentMethodDuringSetup]: FALSE,
+  [FeatureFlag.UseOrganizationWarningsService]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
