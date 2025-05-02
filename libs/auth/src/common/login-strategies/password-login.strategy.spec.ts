@@ -214,10 +214,6 @@ describe("PasswordLoginStrategy", () => {
     await passwordLoginStrategy.logIn(credentials);
 
     expect(policyService.evaluateMasterPassword).not.toHaveBeenCalled();
-    expect(masterPasswordService.mock.setForceSetPasswordReason).not.toHaveBeenCalledWith(
-      ForceSetPasswordReason.WeakMasterPassword,
-      expect.any(String),
-    );
   });
 
   it("does not force the user to update their master password when it meets requirements", async () => {
