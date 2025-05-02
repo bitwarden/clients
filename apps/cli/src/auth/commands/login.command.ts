@@ -117,8 +117,9 @@ export class LoginCommand {
       ssoCodeVerifier = await this.passwordGenerationService.generatePassword(passwordOptions);
       const codeVerifierHash = await this.cryptoFunctionService.hash(ssoCodeVerifier, "sha256");
       const codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash);
+      const identifier = options.identifier ?? null;
       try {
-        const ssoParams = await this.openSsoPrompt(codeChallenge, state);
+        const ssoParams = await this.openSsoPrompt(codeChallenge, state, identifier);
         ssoCode = ssoParams.ssoCode;
         orgIdentifier = ssoParams.orgIdentifier;
       } catch {
@@ -729,6 +730,7 @@ export class LoginCommand {
   private async openSsoPrompt(
     codeChallenge: string,
     state: string,
+    identifier: string,
   ): Promise<{ ssoCode: string; orgIdentifier: string }> {
     const env = await firstValueFrom(this.environmentService.environment$);
 
@@ -777,6 +779,8 @@ export class LoginCommand {
               this.ssoRedirectUri,
               state,
               codeChallenge,
+              null,
+              identifier,
             );
             this.platformUtilsService.launchUri(webAppSsoUrl);
           });
