@@ -1,0 +1,42 @@
+<bit-item-group>
+  <bit-item
+    *ngFor="let device of devices"
+    [attr.tabindex]="hasPendingAuthRequest(device) ? 0 : null"
+    (click)="hasPendingAuthRequest(device) ? managePendingAuthRequest(device) : null"
+    (keydown.enter)="hasPendingAuthRequest(device) ? managePendingAuthRequest(device) : null"
+    [ngClass]="{ 'tw-cursor-pointer': hasPendingAuthRequest(device) }"
+    class="tw-mb-2"
+  >
+    <bit-item-content>
+      <i [class]="getDeviceIcon(device.type)" class="bwi-lg" slot="start" aria-hidden="true"></i>
+      {{ getDeviceTypeName(device.type) }}
+      <span *ngIf="isCurrentDevice(device)" bitBadge variant="primary" slot="default-trailing">
+        {{ "currentSession" | i18n }}
+      </span>
+      <span
+        *ngIf="hasPendingAuthRequest(device)"
+        bitBadge
+        variant="warning"
+        slot="default-trailing"
+      >
+        {{ "requestPending" | i18n }}
+      </span>
+
+      <ng-container slot="secondary">
+        <div
+          *ngIf="device.response?.isTrusted && !hasPendingAuthRequest(device)"
+          class="tw-text-muted"
+        >
+          {{ "trusted" | i18n }}
+        </div>
+        <div *ngIf="hasPendingAuthRequest(device)" class="tw-text-muted">
+          {{ "needsApproval" | i18n }}
+        </div>
+        <div>
+          <span class="tw-font-semibold">{{ "firstLogin" | i18n }}:</span>
+          {{ device.creationDate | date: "medium" }}
+        </div>
+      </ng-container>
+    </bit-item-content>
+  </bit-item>
+</bit-item-group>
