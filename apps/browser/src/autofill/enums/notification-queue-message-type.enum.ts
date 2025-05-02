@@ -3,6 +3,7 @@ const NotificationQueueMessageType = {
   ChangePassword: "change",
   UnlockVault: "unlock",
   AtRiskPassword: "at-risk-password",
+  Generic: "generic",
 } as const;
 
 type NotificationQueueMessageTypes =
