@@ -15,12 +15,11 @@
     <bit-no-items [icon]="vaultIcon">
       <ng-container slot="title">{{ "yourVaultIsEmpty" | i18n }}</ng-container>
       <ng-container slot="description">
-        <p bitTypography="body2" class="tw-mx-6">{{ "emptyVaultDescription" | i18n }}</p>
+        <p bitTypography="body2" class="tw-mx-6 tw-mt-2">{{ "emptyVaultDescription" | i18n }}</p>
       </ng-container>
-      <app-new-item-dropdown
-        slot="button"
-        [initialValues]="newItemItemValues$ | async"
-      ></app-new-item-dropdown>
+      <a slot="button" bitButton buttonType="secondary" [routerLink]="['/add-cipher']">
+        {{ "newLogin" | i18n }}
+      </a>
     </bit-no-items>
   </div>
 

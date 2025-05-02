@@ -1,4 +1,14 @@
-import { combineLatest, filter, map, merge, Observable, of, Subscription, switchMap } from "rxjs";
+import {
+  combineLatest,
+  filter,
+  map,
+  merge,
+  Observable,
+  of,
+  Subscription,
+  switchMap,
+  distinctUntilChanged,
+} from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -45,20 +55,30 @@ export class DefaultTaskService implements TaskService {
         .organizations$(userId)
         .pipe(map((orgs) => orgs.some((o) => o.useRiskInsights))),
       this.configService.getFeatureFlag$(FeatureFlag.SecurityTasks),
-    ]).pipe(map(([atLeastOneOrgEnabled, flagEnabled]) => atLeastOneOrgEnabled && flagEnabled));
+    ]).pipe(
+      map(([atLeastOneOrgEnabled, flagEnabled]) => atLeastOneOrgEnabled && flagEnabled),
+      distinctUntilChanged(),
+    );
   });
 
   tasks$ = perUserCache$((userId) => {
-    return this.taskState(userId).state$.pipe(
-      switchMap(async (tasks) => {
-        if (tasks == null) {
-          await this.fetchTasksFromApi(userId);
-          return null;
+    return this.tasksEnabled$(userId).pipe(
+      switchMap((enabled) => {
+        if (!enabled) {
+          return of([]);
         }
-        return tasks;
+        return this.taskState(userId).state$.pipe(
+          switchMap(async (tasks) => {
+            if (tasks == null) {
+              await this.fetchTasksFromApi(userId);
+              return null;
+            }
+            return tasks;
+          }),
+          filterOutNullish(),
+          map((tasks) => tasks.map((t) => new SecurityTask(t))),
+        );
       }),
-      filterOutNullish(),
-      map((tasks) => tasks.map((t) => new SecurityTask(t))),
     );
   });
 
