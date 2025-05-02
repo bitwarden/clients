@@ -18,7 +18,7 @@ export enum FeatureFlag {
   /* Auth */
   PM9112_DeviceApprovalPersistence = "pm-9112-device-approval-persistence",
   PM9115_TwoFactorExtensionDataPersistence = "pm-9115-two-factor-extension-data-persistence",
-  PM14938_ExtensionApproval = "pm-14938-extension-approval",
+  PM14939_ExtensionApproval = "pm-14939-extension-approval",
 
   /* Autofill */
   BlockBrowserInjectionsByDomain = "block-browser-injections-by-domain",
@@ -118,7 +118,7 @@ export const DefaultFeatureFlagValue = {
   /* Auth */
   [FeatureFlag.PM9112_DeviceApprovalPersistence]: FALSE,
   [FeatureFlag.PM9115_TwoFactorExtensionDataPersistence]: FALSE,
-  [FeatureFlag.PM14938_ExtensionApproval]: FALSE,
+  [FeatureFlag.PM14939_ExtensionApproval]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
