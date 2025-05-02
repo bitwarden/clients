@@ -356,7 +356,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
     this.cipherId = cipher.id;
     this.cipher = cipher;
     this.collections =
-      this.vaultFilterComponent?.collections.fullList.filter((c) =>
+      this.vaultFilterComponent?.collections?.fullList.filter((c) =>
         cipher.collectionIds.includes(c.id),
       ) ?? null;
     this.action = "view";
@@ -525,8 +525,11 @@ export class VaultV2Component implements OnInit, OnDestroy {
   }
 
   async addCipher(type: CipherType) {
+    if (this.action === "add") {
+      return;
+    }
     this.addType = type || this.activeFilter.cipherType;
-    this.cipherId = null;
+    this.cipher = new CipherView();
     await this.buildFormConfig("add");
     this.action = "add";
     this.prefillCipherFromFilter();
@@ -744,7 +747,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
 
   private prefillCipherFromFilter() {
     if (this.activeFilter.selectedCollectionId != null && this.vaultFilterComponent != null) {
-      const collections = this.vaultFilterComponent.collections.fullList.filter(
+      const collections = this.vaultFilterComponent.collections?.fullList.filter(
         (c) => c.id === this.activeFilter.selectedCollectionId,
       );
       if (collections.length > 0) {
