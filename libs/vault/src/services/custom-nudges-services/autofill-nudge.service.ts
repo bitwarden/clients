@@ -36,7 +36,7 @@ export class AutofillNudgeService extends DefaultSingleNudgeService {
       of(Date.now() - THIRTY_DAYS_MS),
     ]).pipe(
       map(([profileCreationDate, status, profileCutoff]) => {
-        const profileOlderThanCutoff = profileCreationDate.getTime() > profileCutoff;
+        const profileOlderThanCutoff = profileCreationDate.getTime() < profileCutoff;
         return {
           hasBadgeDismissed: status.hasBadgeDismissed || profileOlderThanCutoff,
           hasSpotlightDismissed: status.hasSpotlightDismissed || profileOlderThanCutoff,
