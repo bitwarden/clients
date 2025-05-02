@@ -5201,6 +5201,12 @@
   "changeAtRiskPassword": {
     "message": "Kockázatos jelszó megváltoztatása"
   },
+  "settingsVaultOptions": {
+    "message": "Széf opciók"
+  },
+  "emptyVaultDescription": {
+    "message": "A széf többre alkalmas, mint a jelszavak mentése. Menthetünk belépéseket, azonosítókat, kártyákat és feljegyzéseket teljes biztonságban."
+  },
   "introCarouselLabel": {
     "message": "Üdvözlet a Bitwardenben"
   },
@@ -5227,5 +5233,50 @@
   },
   "secureDevicesBody": {
     "message": "Mentsünk el a korlátlan jelszót korlátlan számú eszközön a Bitwarden mobil, böngésző és asztali alkalmazásokkal."
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Létező jelszavak importálása"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Az importálóval gyorsan átvihetünk bejelentkezéseket a Bitwardenbe anélkül, hogy manuálisan hozzáadnánk azokat."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Importálás most"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Üdvözlet a széfben!"
+  },
+  "hasItemsVaultNudgeBody": {
+    "message": "Az aktuális oldal elemeinek automatikus kitöltése\nKedvenc elemek a könnyű hozzáférés érdekében\nValami más keresése a széfben"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Idő megtakarítás automatikus kitöltéssel"
+  },
+  "newLoginNudgeBody": {
+    "message": "Adjunk meg egy webhelyet, hogy ez a bejelentkezési név automatikusan kitöltendő javaslatként jelenjen meg."
+  },
+  "newCardNudgeTitle": {
+    "message": "Zökkenőmentes online fizetés"
+  },
+  "newCardNudgeBody": {
+    "message": "Kártyákkal könnyedén, biztonságosan és pontosan tölthetjük ki automatikusan a fizetési űrlapokat."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Egyszerűsítsük a fiókok létrehozását"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Azonosítókkal gyorsan automatikusan kitölthetjük a hosszú regisztrációs vagy kapcsolatfelvételi űrlapokat."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Tartsuk biztonságban az érzékeny adatokat"
+  },
+  "newNoteNudgeBody": {
+    "message": "Jegyzetekkel biztonságosan tárolhatjuk az érzékeny adatokat, például a banki vagy biztosítási adatokat."
+  },
+  "newSshNudgeTitle": {
+    "message": "Fejlesztőbarát SSH hozzáférés"
+  },
+  "newSshNudgeBody": {
+    "message": "Tároljuk a kulcsokat és csatlakozzunk az SSH-ügynökhöz a gyors, titkosított hitelesítéshez."
   }
 }
