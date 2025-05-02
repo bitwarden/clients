@@ -6302,14 +6302,14 @@
   "sponsoredBitwardenFamilies": {
     "message": "赞助的家庭"
   },
-  "noSponsoredFamilies": {
-    "message": "没有赞助的家庭"
+  "noSponsoredFamiliesMessage": {
+    "message": "No sponsored families"
   },
-  "noSponsoredFamiliesDescription": {
-    "message": "已赞助的非成员家庭计划将显示在这里"
+  "nosponsoredFamiliesDetails": {
+    "message": "Sponsored non-member families plans will display here"
   },
-  "sponsorFreeBitwardenFamilies": {
-    "message": "您的组织成员有资格获得免费的 Bitwarden 家庭版计划。您可以为不是您的 Bitwarden 组织成员的员工赞助免费 Bitwarden 家庭。赞助非成员需要您的组织内有可用的席位。"
+  "sponsorshipFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "当您移除某个活动赞助时，该赞助席位将在被赞助组织的续费日期后释放给您的组织使用。"
@@ -6320,14 +6320,14 @@
   "sponsoredFamiliesEligibleCard": {
     "message": "立即兑换免费的 Bitwarden 家庭版计划，即使您不在工作中，也能确保您的数据安全。"
   },
-  "sponsoredFamiliesInclude": {
-    "message": "Bitwarden 家庭版计划包含"
+  "sponsoredFamiliesIncludeMessage": {
+    "message": "The Bitwarden for Families plan includes"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "最多 6 个用户的高级访问权限"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "用于家庭机密的共享集合"
+  "sponsoredFamiliesSharedCollectionsMessage": {
+    "message": "Shared collections for family members"
   },
   "memberFamilies": {
     "message": "成员家庭"
@@ -6340,6 +6340,15 @@
   },
   "membersWithSponsoredFamilies": {
     "message": "您的组织成员有资格获得免费的 Bitwarden 家庭版计划。在这里，您可以看到已赞助了家庭组织的成员。"
+  },
+  "organizationHasMemberMessage": {
+    "message": "A sponsorship cannot be sent to $EMAIL$ because they are a member of your organization.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "链接已失效。请让赞助方重新发送邀请。"
@@ -6392,8 +6401,8 @@
   "redeemedAccount": {
     "message": "账户已兑换"
   },
-  "revokeAccount": {
-    "message": "撤销账户 $NAME$",
+  "revokeAccountMessage": {
+    "message": "Revoke account $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6882,7 +6891,7 @@
     "message": "使用此用户名"
   },
   "securePasswordGenerated": {
-    "message": "安全的密码生成好了！别忘了在网站上也更新一下您的密码。"
+    "message": "安全的密码已生成！不要忘记在网站上更新您的密码。"
   },
   "useGeneratorHelpTextPartOne": {
     "message": "使用生成器",
@@ -10599,10 +10608,10 @@
     "message": "不允许成员使用 PIN 码解锁他们的账户。"
   },
   "upgradeForFullEventsMessage": {
-    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
+    "message": "不会为您的组织存储事件日志。升级到团队计划或企业计划以获取组织事件日志的完整访问权限。"
   },
   "upgradeEventLogTitleMessage": {
-    "message": "Upgrade to see event logs from your organization."
+    "message": "升级以查看您组织中的事件日志。"
   },
   "upgradeEventLogMessage": {
     "message": "这些事件仅为示例，并不反映您 Bitwarden 组织内的真实事件。"
@@ -10619,7 +10628,40 @@
   "newBusinessUnit": {
     "message": "新增业务单元"
   },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBody": {
+    "message": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBody": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  },
   "restart": {
-    "message": "Restart"
+    "message": "重新启动"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
   }
 }
