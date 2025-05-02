@@ -11,11 +11,11 @@ pub async fn set_autostart(autostart: bool, params: Vec<String>) -> Result<()> {
     match request.send().await.and_then(|r| r.response()) {
         Ok(response) => {
             println!("[ASHPD] Autostart enabled: {:?}", response);
-            return Ok(());
+            Ok(())
         }
         Err(err) => {
             println!("[ASHPD] Error enabling autostart: {}", err);
-            return Err(anyhow::anyhow!("error enabling autostart {}", err));
+            Err(anyhow::anyhow!("error enabling autostart {}", err))
         }
     }
 }
