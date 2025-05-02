@@ -15,22 +15,22 @@
   <ng-template bitRowDef let-row>
     <td bitCell class="tw-flex tw-gap-2">
       <div class="tw-flex tw-items-center tw-justify-center tw-w-10">
-        <i [class]="getDeviceIcon(row.type)" class="bwi-lg" aria-hidden="true"></i>
+        <i [class]="getDeviceIcon(row.deviceView.type)" class="bwi-lg" aria-hidden="true"></i>
       </div>
       <div>
-        <ng-container *ngIf="hasPendingAuthRequest(row)">
-          <a bitLink href="#" appStopClick (click)="managePendingAuthRequest(row)">
-            {{ getDeviceTypeName(row.type) }}
+        <ng-container *ngIf="hasPendingAuthRequest(row.deviceView)">
+          <a bitLink href="#" appStopClick (click)="managePendingAuthRequest(row.deviceView)">
+            {{ row.displayName }}
           </a>
 
           <span class="tw-text-sm tw-text-muted tw-block">
             {{ "needsApproval" | i18n }}
           </span>
         </ng-container>
-        <ng-container *ngIf="!hasPendingAuthRequest(row)">
-          {{ getDeviceTypeName(row.type) }}
+        <ng-container *ngIf="!hasPendingAuthRequest(row.deviceView)">
+          {{ row.displayName }}
           <span
-            *ngIf="row.response?.isTrusted && !hasPendingAuthRequest(row)"
+            *ngIf="row.deviceView.response?.isTrusted && !hasPendingAuthRequest(row.deviceView)"
             class="tw-text-sm tw-text-muted tw-block"
           >
             {{ "trusted" | i18n }}
@@ -39,13 +39,13 @@
       </div>
     </td>
     <td bitCell>
-      <span *ngIf="isCurrentDevice(row)" bitBadge variant="primary">{{
+      <span *ngIf="isCurrentDevice(row.deviceView)" bitBadge variant="primary">{{
         "currentSession" | i18n
       }}</span>
-      <span *ngIf="hasPendingAuthRequest(row)" bitBadge variant="warning">{{
+      <span *ngIf="hasPendingAuthRequest(row.deviceView)" bitBadge variant="warning">{{
         "requestPending" | i18n
       }}</span>
     </td>
-    <td bitCell>{{ row.creationDate | date: "medium" }}</td>
+    <td bitCell>{{ row.firstLogin | date: "medium" }}</td>
   </ng-template>
 </bit-table-scroll>

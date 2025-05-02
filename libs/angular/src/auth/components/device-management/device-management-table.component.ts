@@ -15,6 +15,17 @@ import {
 } from "@bitwarden/components";
 
 /**
+ * Interface for device data in a sortable format
+ */
+interface DeviceTableData {
+  id: string;
+  deviceView: DeviceView;
+  displayName: string;
+  loginStatus: string;
+  firstLogin: Date;
+}
+
+/**
  * Table-based view for device management
  * Shows devices in a sortable table format
  */
@@ -28,7 +39,7 @@ export class DeviceManagementTableComponent implements OnChanges {
   @Input() devices: DeviceView[] = [];
   @Input() currentDevice: DeviceView | undefined;
 
-  protected dataSource = new TableDataSource<DeviceView>();
+  protected dataSource = new TableDataSource<DeviceTableData>();
 
   constructor(
     private i18nService: I18nService,
@@ -37,8 +48,39 @@ export class DeviceManagementTableComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes["devices"]) {
-      this.dataSource.data = this.devices;
+      this.dataSource.data = this.mapDevicesToTableData(this.devices);
     }
+  }
+
+  /**
+   * Maps DeviceView objects to table data format for sorting
+   */
+  private mapDevicesToTableData(devices: DeviceView[]): DeviceTableData[] {
+    return devices.map((device) => ({
+      id: device.id || "",
+      deviceView: device,
+      displayName:
+        device.type !== undefined
+          ? this.getDeviceTypeName(device.type)
+          : this.i18nService.t("unknownDevice"),
+      loginStatus: this.getLoginStatus(device),
+      firstLogin: device.creationDate ? new Date(device.creationDate) : new Date(),
+    }));
+  }
+
+  /**
+   * Get login status text for a device
+   */
+  private getLoginStatus(device: DeviceView): string {
+    if (this.isCurrentDevice(device)) {
+      return this.i18nService.t("currentSession");
+    }
+
+    if (this.hasPendingAuthRequest(device)) {
+      return this.i18nService.t("requestPending");
+    }
+
+    return "";
   }
 
   /**
