@@ -62,11 +62,15 @@ export class NewItemNudgeComponent implements OnInit {
         this.nudgeBody = this.i18nService.t("newNoteNudgeBody");
         break;
 
-      case CipherType.SshKey:
+      case CipherType.SshKey: {
+        const sshPartOne = this.i18nService.t("newSshNudgeBodyOne");
+        const sshPartTwo = this.i18nService.t("newSshNudgeBodyTwo");
+
         this.dismissalNudgeType = VaultNudgeType.newSshItemStatus;
         this.nudgeTitle = this.i18nService.t("newSshNudgeTitle");
-        this.nudgeBody = this.i18nService.t("newSshNudgeBody");
+        this.nudgeBody = `${sshPartOne} <a href="https://bitwarden.com/help/ssh-agent" class="tw-text-primary-600 tw-font-bold" target="_blank">${sshPartTwo}</a>`;
         break;
+      }
       default:
         throw new Error("Unsupported cipher type");
     }
