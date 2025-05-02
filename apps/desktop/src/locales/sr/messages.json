@@ -393,6 +393,64 @@
   "authenticatorKeyTotp": {
     "message": "Једнократни код"
   },
+  "authenticatorKey": {
+    "message": "Кључ аутентификатора"
+  },
+  "autofillOptions": {
+    "message": "Опције Ауто-пуњења"
+  },
+  "websiteUri": {
+    "message": "Вебсајт (URI)"
+  },
+  "websiteUriCount": {
+    "message": "Сајт (URI) $COUNT$",
+    "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "websiteAdded": {
+    "message": "Вебсајт додат"
+  },
+  "addWebsite": {
+    "message": "Додај вебсајт"
+  },
+  "deleteWebsite": {
+    "message": "Обриши вебсајт"
+  },
+  "owner": {
+    "message": "Власник"
+  },
+  "addField": {
+    "message": "Додај поље"
+  },
+  "fieldType": {
+    "message": "Врста поља"
+  },
+  "fieldLabel": {
+    "message": "Ознака поља"
+  },
+  "add": {
+    "message": "Додај"
+  },
+  "textHelpText": {
+    "message": "Користите текстуална поља за податке као што су безбедносна питања"
+  },
+  "hiddenHelpText": {
+    "message": "Користите скривена поља за осетљиве податке као што је лозинка"
+  },
+  "checkBoxHelpText": {
+    "message": "Користите поља за потврду ако желите да аутоматски попуните поље за потврду обрасца, на пример имејл за памћење"
+  },
+  "linkedHelpText": {
+    "message": "Користите повезано поље када имате проблема са аутоматским попуњавањем за одређену веб локацију."
+  },
+  "linkedLabelHelpText": {
+    "message": "Унесите html Ид поља, име, aria-label, или placeholder."
+  },
   "folder": {
     "message": "Фасцикла"
   },
@@ -417,6 +475,9 @@
   "cfTypeLinked": {
     "message": "Повезано",
     "description": "This describes a field that is 'linked' (related) to another field."
+  },
+  "cfTypeCheckbox": {
+    "message": "Поље за потврду"
   },
   "linkedValue": {
     "message": "Вредност повезана",
@@ -1915,6 +1976,43 @@
       }
     }
   },
+  "cardDetails": {
+    "message": "Детаљи картице"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ детаљи",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "learnMoreAboutAuthenticators": {
+    "message": "Сазнајте више о аутентификаторима"
+  },
+  "copyTOTP": {
+    "message": "Копирати једнократни кôд (TOTP)"
+  },
+  "totpHelperTitle": {
+    "message": "Учините верификацију у 2 корака беспрекорном"
+  },
+  "totpHelper": {
+    "message": "Bitwarden може да чува и попуњава верификационе кодове у 2 корака. Копирајте и налепите кључ у ово поље."
+  },
+  "totpHelperWithCapture": {
+    "message": "Bitwarden може да чува и попуњава верификационе кодове у 2 корака. Изаберите икону камере да бисте направили снимак екрана QR кода за аутентификацију ове веб локације или копирајте и налепите кључ у ово поље."
+  },
+  "premium": {
+    "message": "Премијум",
+    "description": "Premium membership"
+  },
+  "cardExpiredTitle": {
+    "message": "Картица је истекла"
+  },
+  "cardExpiredMessage": {
+    "message": "Ако сте је обновили, ажурирајте податке о картици"
+  },
   "verificationRequired": {
     "message": "Потребдна верификација",
     "description": "Default title for the user verification dialog."
@@ -2073,7 +2171,7 @@
     "message": "Због смерница за предузећа, ограничено вам је чување предмета у вашем личном трезору. Промените опцију власништва у организацију и изаберите из доступних колекција."
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
-    "message": "Your new password cannot be the same as your current password."
+    "message": "Ваша нова лозинка не може бити иста као тренутна лозинка."
   },
   "hintEqualsPassword": {
     "message": "Ваш савет за лозинку не може да буде исти као лозинка."
@@ -2083,6 +2181,15 @@
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "Политика организације је блокирала увоз ставки у ваш појединачни сеф."
+  },
+  "personalDetails": {
+    "message": "Личне информације"
+  },
+  "identification": {
+    "message": "Идентификација"
+  },
+  "contactInfo": {
+    "message": "Контакт подаци"
   },
   "allSends": {
     "message": "Сва слања",
@@ -2517,6 +2624,9 @@
   },
   "generateEmail": {
     "message": "Генеришите имејл"
+  },
+  "usernameGenerator": {
+    "message": "Генератор корисничког имена"
   },
   "spinboxBoundariesHint": {
     "message": "Вредност мора бити између $MIN$ и $MAX$.",
@@ -3212,6 +3322,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Следите наведене кораке да бисте завршили пријављивање."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Следите наведене кораке да бисте завршили пријаву са својим безбедносним кључем."
+  },
   "launchDuo": {
     "message": "Покренути Duo у претраживачу"
   },
@@ -3436,6 +3549,17 @@
   "ssoError": {
     "message": "Нису пронађени портови за SSO пријаву."
   },
+  "securePasswordGenerated": {
+    "message": "Сигурна лозинка је генерисана! Не заборавите да ажурирате и своју лозинку на веб локацији."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Употребити генератор",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "да креирате јаку јединствену лозинку",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "Биометријско откључавање није доступно јер је пре тога потребно унети ПИН или лозинку за откључавање."
   },
@@ -3514,6 +3638,27 @@
   "setupTwoStepLogin": {
     "message": "Поставити дво-степенску пријаву"
   },
+  "itemDetails": {
+    "message": "Детаљи ставке"
+  },
+  "itemName": {
+    "message": "Име ставке"
+  },
+  "loginCredentials": {
+    "message": "Акредитиве за пријављивање"
+  },
+  "additionalOptions": {
+    "message": "Додатне опције"
+  },
+  "itemHistory": {
+    "message": "Историја предмета"
+  },
+  "lastEdited": {
+    "message": "Последња измена"
+  },
+  "upload": {
+    "message": "Отпреми"
+  },
   "newDeviceVerificationNoticeContentPage1": {
     "message": "Bitwarden ће послати кôд на имејл вашег налога за верификовање пријављивања са нових уређаја почевши од фебруара 2025."
   },
@@ -3566,6 +3711,36 @@
     "message": "Променити ризичну лозинку"
   },
   "move": {
-    "message": "Move"
+    "message": "Премести"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBody": {
+    "message": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBody": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
   }
 }
