@@ -27,11 +27,18 @@ describe("SyncServiceListener", () => {
         const emissionPromise = firstValueFrom(listener);
 
         syncService.fullSync.mockResolvedValueOnce(value);
-        messages.next({ forceSync: true, allowThrowOnError: false, requestId: "1" });
+        messages.next({
+          forceSync: true,
+          options: { allowThrowOnError: false, skipTokenRefresh: false },
+          requestId: "1",
+        });
 
         await emissionPromise;
 
-        expect(syncService.fullSync).toHaveBeenCalledWith(true, false);
+        expect(syncService.fullSync).toHaveBeenCalledWith(true, {
+          allowThrowOnError: false,
+          skipTokenRefresh: false,
+        });
         expect(messageSender.send).toHaveBeenCalledWith(FULL_SYNC_FINISHED, {
           successfully: value,
           errorMessage: null,
@@ -45,11 +52,18 @@ describe("SyncServiceListener", () => {
       const emissionPromise = firstValueFrom(listener);
 
       syncService.fullSync.mockRejectedValueOnce(new Error("SyncError"));
-      messages.next({ forceSync: true, allowThrowOnError: false, requestId: "1" });
+      messages.next({
+        forceSync: true,
+        options: { allowThrowOnError: false, skipTokenRefresh: false },
+        requestId: "1",
+      });
 
       await emissionPromise;
 
-      expect(syncService.fullSync).toHaveBeenCalledWith(true, false);
+      expect(syncService.fullSync).toHaveBeenCalledWith(true, {
+        allowThrowOnError: false,
+        skipTokenRefresh: false,
+      });
       expect(messageSender.send).toHaveBeenCalledWith(FULL_SYNC_FINISHED, {
         successfully: false,
         errorMessage: "SyncError",

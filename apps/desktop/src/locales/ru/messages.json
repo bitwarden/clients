@@ -157,7 +157,7 @@
     "message": "Код безопасности"
   },
   "identityName": {
-    "message": "Имя"
+    "message": "Название личности"
   },
   "company": {
     "message": "Компания"
@@ -393,6 +393,64 @@
   "authenticatorKeyTotp": {
     "message": "Ключ аутентификатора (TOTP)"
   },
+  "authenticatorKey": {
+    "message": "Authenticator key"
+  },
+  "autofillOptions": {
+    "message": "Autofill options"
+  },
+  "websiteUri": {
+    "message": "Website (URI)"
+  },
+  "websiteUriCount": {
+    "message": "Website (URI) $COUNT$",
+    "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "websiteAdded": {
+    "message": "Website added"
+  },
+  "addWebsite": {
+    "message": "Add website"
+  },
+  "deleteWebsite": {
+    "message": "Delete website"
+  },
+  "owner": {
+    "message": "Owner"
+  },
+  "addField": {
+    "message": "Add field"
+  },
+  "fieldType": {
+    "message": "Field type"
+  },
+  "fieldLabel": {
+    "message": "Field label"
+  },
+  "add": {
+    "message": "Add"
+  },
+  "textHelpText": {
+    "message": "Use text fields for data like security questions"
+  },
+  "hiddenHelpText": {
+    "message": "Use hidden fields for sensitive data like a password"
+  },
+  "checkBoxHelpText": {
+    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
+  },
+  "linkedHelpText": {
+    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+  },
+  "linkedLabelHelpText": {
+    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+  },
   "folder": {
     "message": "Папка"
   },
@@ -417,6 +475,9 @@
   "cfTypeLinked": {
     "message": "Связано",
     "description": "This describes a field that is 'linked' (related) to another field."
+  },
+  "cfTypeCheckbox": {
+    "message": "Checkbox"
   },
   "linkedValue": {
     "message": "Связанное значение",
@@ -833,18 +894,6 @@
   "continue": {
     "message": "Продолжить"
   },
-  "enterVerificationCodeApp": {
-    "message": "Введите 6-значный код подтверждения из вашего приложения-аутентификатора."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Введите 6-значный код подтверждения, который был отправлен на $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Отправлено письмо подтверждения на $EMAIL$.",
     "placeholders": {
@@ -854,17 +903,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Запомнить меня"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Не спрашивать на этом устройстве в течение 30 дней"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Отправить код подтверждения еще раз"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Использовать другой метод двухэтапной аутентификации"
   },
   "selectAnotherMethod": {
     "message": "Выбрать другой способ",
@@ -872,9 +912,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Использовать код восстановления"
-  },
-  "insertYubiKey": {
-    "message": "Вставьте свой YubiKey в USB-порт компьютера и нажмите его кнопку."
   },
   "insertU2f": {
     "message": "Вставьте ключ безопасности в USB-порт компьютера. Если у ключа есть кнопка, нажмите ее."
@@ -1939,6 +1976,43 @@
       }
     }
   },
+  "cardDetails": {
+    "message": "Card details"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ details",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "learnMoreAboutAuthenticators": {
+    "message": "Learn more about authenticators"
+  },
+  "copyTOTP": {
+    "message": "Copy Authenticator key (TOTP)"
+  },
+  "totpHelperTitle": {
+    "message": "Make 2-step verification seamless"
+  },
+  "totpHelper": {
+    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+  },
+  "totpHelperWithCapture": {
+    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+  },
+  "premium": {
+    "message": "Premium",
+    "description": "Premium membership"
+  },
+  "cardExpiredTitle": {
+    "message": "Expired card"
+  },
+  "cardExpiredMessage": {
+    "message": "If you've renewed it, update the card's information"
+  },
   "verificationRequired": {
     "message": "Требуется верификация",
     "description": "Default title for the user verification dialog."
@@ -2096,6 +2170,9 @@
   "personalOwnershipSubmitError": {
     "message": "В соответствии с корпоративной политикой вам запрещено сохранять элементы в личном хранилище. Измените владельца на организацию и выберите из доступных Коллекций."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Ваш новый пароль не может быть таким же, как текущий."
+  },
   "hintEqualsPassword": {
     "message": "Подсказка для пароля не может совпадать с паролем."
   },
@@ -2104,6 +2181,15 @@
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "Импорт элементов в ваше личное хранилище отключен политикой организации."
+  },
+  "personalDetails": {
+    "message": "Personal details"
+  },
+  "identification": {
+    "message": "Identification"
+  },
+  "contactInfo": {
+    "message": "Contact information"
   },
   "allSends": {
     "message": "Все Send’ы",
@@ -2538,6 +2624,9 @@
   },
   "generateEmail": {
     "message": "Сгенерировать email"
+  },
+  "usernameGenerator": {
+    "message": "Username generator"
   },
   "spinboxBoundariesHint": {
     "message": "Значение должно быть между $MIN$ и $MAX$.",
@@ -3224,9 +3313,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Ошибка при подключении к сервису Duo. Используйте другой метод двухэтапной аутентификации или обратитесь за помощью в Duo."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Запустите Duo и следуйте шагам для завершения авторизации."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Для вашего аккаунта требуется двухэтапная аутентификация Duo."
   },
@@ -3235,6 +3321,9 @@
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Следуйте указаниям ниже, чтобы завершить авторизацию."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Выполните следующие шаги, чтобы завершить авторизацию с помощью ключа безопасности."
   },
   "launchDuo": {
     "message": "Запустить Duo в браузере"
@@ -3460,6 +3549,17 @@
   "ssoError": {
     "message": "Не удалось найти свободные порты для авторизации SSO."
   },
+  "securePasswordGenerated": {
+    "message": "Secure password generated! Don't forget to also update your password on the website."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Use the generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "to create a strong unique password",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "Биометрическая разблокировка недоступна, поскольку сначала требуется разблокировка с помощью PIN-кода или пароля."
   },
@@ -3538,6 +3638,27 @@
   "setupTwoStepLogin": {
     "message": "Настроить двухэтапную аутентификацию"
   },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "Last edited"
+  },
+  "upload": {
+    "message": "Upload"
+  },
   "newDeviceVerificationNoticeContentPage1": {
     "message": "Начиная с февраля 2025 года Bitwarden будет отправлять код на электронную почту вашего аккаунта для подтверждения авторизации с новых устройств."
   },
@@ -3588,5 +3709,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Изменить пароль, подверженный риску"
+  },
+  "move": {
+    "message": "Переместить"
   }
 }

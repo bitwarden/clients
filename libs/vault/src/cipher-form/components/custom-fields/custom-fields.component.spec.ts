@@ -1,5 +1,4 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
-import { DialogRef } from "@angular/cdk/dialog";
 import { CdkDragDrop } from "@angular/cdk/drag-drop";
 import { DebugElement } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
@@ -17,7 +16,7 @@ import {
 } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
-import { BitPasswordInputToggleDirective, DialogService } from "@bitwarden/components";
+import { DialogRef, BitPasswordInputToggleDirective, DialogService } from "@bitwarden/components";
 
 import { CipherFormConfig } from "../../abstractions/cipher-form-config.service";
 import { CipherFormContainer } from "../../cipher-form-container";
@@ -46,7 +45,9 @@ describe("CustomFieldsComponent", () => {
     announce = jest.fn().mockResolvedValue(null);
     patchCipher = jest.fn();
     originalCipherView = new CipherView();
-    config = {} as CipherFormConfig;
+    config = {
+      collections: [],
+    } as CipherFormConfig;
 
     await TestBed.configureTestingModule({
       imports: [CustomFieldsComponent],
@@ -463,6 +464,92 @@ describe("CustomFieldsComponent", () => {
 
       // "reorder boolean label to position 4 of 4"
       expect(announce).toHaveBeenCalledWith("reorderFieldDown boolean label 4 4", "assertive");
+    });
+
+    it("hides reorder buttons when in partial edit mode", () => {
+      originalCipherView.fields = mockFieldViews;
+      config.mode = "partial-edit";
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      toggleItems = fixture.debugElement.queryAll(
+        By.css('button[data-testid="reorder-toggle-button"]'),
+      );
+
+      expect(toggleItems).toHaveLength(0);
+    });
+  });
+
+  it("shows all reorders button when in edit mode and viewPassword is true", () => {
+    originalCipherView.fields = mockFieldViews;
+    originalCipherView.viewPassword = true;
+    config.mode = "edit";
+
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    const toggleItems = fixture.debugElement.queryAll(
+      By.css('button[data-testid="reorder-toggle-button"]'),
+    );
+    expect(toggleItems).toHaveLength(4);
+  });
+
+  it("shows all reorder buttons except for hidden fields when in edit mode and viewPassword is false", () => {
+    originalCipherView.fields = mockFieldViews;
+    originalCipherView.viewPassword = false;
+    config.mode = "edit";
+
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    const toggleItems = fixture.debugElement.queryAll(
+      By.css('button[data-testid="reorder-toggle-button"]'),
+    );
+
+    expect(toggleItems).toHaveLength(3);
+  });
+
+  describe("edit button", () => {
+    it("hides the edit button when in partial-edit mode", () => {
+      originalCipherView.fields = mockFieldViews;
+      config.mode = "partial-edit";
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const editButtons = fixture.debugElement.queryAll(
+        By.css('button[data-testid="edit-custom-field-button"]'),
+      );
+      expect(editButtons).toHaveLength(0);
+    });
+
+    it("shows all the edit buttons when in edit mode and viewPassword is true", () => {
+      originalCipherView.fields = mockFieldViews;
+      originalCipherView.viewPassword = true;
+      config.mode = "edit";
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const editButtons = fixture.debugElement.queryAll(
+        By.css('button[data-testid="edit-custom-field-button"]'),
+      );
+      expect(editButtons).toHaveLength(4);
+    });
+
+    it("shows all the edit buttons except for hidden fields when in edit mode and viewPassword is false", () => {
+      originalCipherView.fields = mockFieldViews;
+      originalCipherView.viewPassword = false;
+      config.mode = "edit";
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const editButtons = fixture.debugElement.queryAll(
+        By.css('button[data-testid="edit-custom-field-button"]'),
+      );
+      expect(editButtons).toHaveLength(3);
     });
   });
 });

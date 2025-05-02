@@ -1,7 +1,7 @@
 import { mock } from "jest-mock-extended";
 
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -170,7 +170,7 @@ describe("PinService", () => {
         await sut.createPinKeyEncryptedUserKey(mockPin, mockUserKey, mockUserId);
 
         // Assert
-        expect(encryptService.encrypt).toHaveBeenCalledWith(mockUserKey.key, mockPinKey);
+        expect(encryptService.wrapSymmetricKey).toHaveBeenCalledWith(mockUserKey, mockPinKey);
       });
     });
 
@@ -434,7 +434,7 @@ describe("PinService", () => {
         .fn()
         .mockResolvedValue(pinKeyEncryptedUserKeyPersistant);
       sut.makePinKey = jest.fn().mockResolvedValue(mockPinKey);
-      encryptService.decryptToBytes.mockResolvedValue(mockUserKey.key);
+      encryptService.decryptToBytes.mockResolvedValue(mockUserKey.toEncoded());
     }
 
     function mockPinEncryptedKeyDataByPinLockType(pinLockType: PinLockType) {

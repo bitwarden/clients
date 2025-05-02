@@ -3,8 +3,8 @@
 import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { EncString, EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -172,9 +172,10 @@ export class PinService implements PinServiceAbstraction {
     const email = await firstValueFrom(
       this.accountService.accounts$.pipe(map((accounts) => accounts[userId].email)),
     );
-    const kdfConfig = await this.kdfConfigService.getKdfConfig();
+    const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
     const pinKey = await this.makePinKey(pin, email, kdfConfig);
-    return await this.encryptService.encrypt(userKey.key, pinKey);
+
+    return await this.encryptService.wrapSymmetricKey(userKey, pinKey);
   }
 
   async storePinKeyEncryptedUserKey(
@@ -224,7 +225,10 @@ export class PinService implements PinServiceAbstraction {
   }
 
   async makePinKey(pin: string, salt: string, kdfConfig: KdfConfig): Promise<PinKey> {
+    const start = Date.now();
     const pinKey = await this.keyGenerationService.deriveKeyFromPassword(pin, salt, kdfConfig);
+    this.logService.info(`[Pin Service] deriving pin key took ${Date.now() - start}ms`);
+
     return (await this.keyGenerationService.stretchKey(pinKey)) as PinKey;
   }
 
@@ -289,7 +293,7 @@ export class PinService implements PinServiceAbstraction {
       const email = await firstValueFrom(
         this.accountService.accounts$.pipe(map((accounts) => accounts[userId].email)),
       );
-      const kdfConfig = await this.kdfConfigService.getKdfConfig();
+      const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
 
       const userKey: UserKey = await this.decryptUserKey(
         userId,

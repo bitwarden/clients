@@ -393,6 +393,64 @@
   "authenticatorKeyTotp": {
     "message": "Удостоверителен ключ (TOTP)"
   },
+  "authenticatorKey": {
+    "message": "Ключ за удостоверяване"
+  },
+  "autofillOptions": {
+    "message": "Опции за автоматично попълване"
+  },
+  "websiteUri": {
+    "message": "Уеб сайт (адрес)"
+  },
+  "websiteUriCount": {
+    "message": "Уеб сайт (адрес) $COUNT$",
+    "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "websiteAdded": {
+    "message": "Уеб сайтът е добавен"
+  },
+  "addWebsite": {
+    "message": "Добавяне на уеб сайт"
+  },
+  "deleteWebsite": {
+    "message": "Изтриване на уеб сайт"
+  },
+  "owner": {
+    "message": "Собственик"
+  },
+  "addField": {
+    "message": "Добавяне на поле"
+  },
+  "fieldType": {
+    "message": "Тип на полето"
+  },
+  "fieldLabel": {
+    "message": "Етикет на полето"
+  },
+  "add": {
+    "message": "Добавяне"
+  },
+  "textHelpText": {
+    "message": "Използвайте текстови полета за обикновени данни, например въпроси за сигурност"
+  },
+  "hiddenHelpText": {
+    "message": "Използвайте скрити полета за чувствителни данни, например пароли"
+  },
+  "checkBoxHelpText": {
+    "message": "Използвайте полета за отметки, ако искате да попълвате автоматично такива полета във формуляри, например такова за запомняне на е-пощата"
+  },
+  "linkedHelpText": {
+    "message": "Използвайте свързано поле, когато имате проблеми с автоматичното попълване на конкретен уеб сайт."
+  },
+  "linkedLabelHelpText": {
+    "message": "Въведете подробности за полето от атрибутите му в HTML – id, name, aria-label или placeholder."
+  },
   "folder": {
     "message": "Папка"
   },
@@ -417,6 +475,9 @@
   "cfTypeLinked": {
     "message": "Свързано",
     "description": "This describes a field that is 'linked' (related) to another field."
+  },
+  "cfTypeCheckbox": {
+    "message": "Поле за отметка"
   },
   "linkedValue": {
     "message": "Свързана стойност",
@@ -833,18 +894,6 @@
   "continue": {
     "message": "Продължаване"
   },
-  "enterVerificationCodeApp": {
-    "message": "Въведете шестцифрения код за потвърждение от приложението за удостоверяване."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Въведете шестцифрения код за потвърждение, който е бил изпратен на $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Писмото за потвърждение е изпратено на $EMAIL$.",
     "placeholders": {
@@ -854,17 +903,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Запомняне"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Не ме питайте отново на това устройство за 30 дни"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Повторно изпращане на писмото за потвърждение"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Използвайте друг начин на двустепенно удостоверяване"
   },
   "selectAnotherMethod": {
     "message": "Изберете друг метод",
@@ -872,9 +912,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Използване на код за възстановяване"
-  },
-  "insertYubiKey": {
-    "message": "Поставете устройството на YubiKey в USB порт на компютъра и натиснете бутона на устройството."
   },
   "insertU2f": {
     "message": "Поставете устройството за удостоверяване в USB порт на компютъра. Ако на устройството има бутон, натиснете го."
@@ -1939,6 +1976,43 @@
       }
     }
   },
+  "cardDetails": {
+    "message": "Данни за картата"
+  },
+  "cardBrandDetails": {
+    "message": "Подробности за $BRAND$",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "learnMoreAboutAuthenticators": {
+    "message": "Научете повече за средствата за удостоверяване"
+  },
+  "copyTOTP": {
+    "message": "Копиране на удостоверителния ключ (TOTP)"
+  },
+  "totpHelperTitle": {
+    "message": "Направете 2-стъпковото удостоверяване безпроблемно и незабележимо"
+  },
+  "totpHelper": {
+    "message": "Битуорден може да съхранява и попълва кодовете за 2-стъпково потвърждаване. Копирайте ключа в това поле."
+  },
+  "totpHelperWithCapture": {
+    "message": "Битуорден може да съхранява и попълва кодовете за 2-стъпково потвърждаване. Изберете иконката с камера, за да направите екранна снимка на QR-кода от този уеб сайт или копирайте ключа в това поле."
+  },
+  "premium": {
+    "message": "Премиум",
+    "description": "Premium membership"
+  },
+  "cardExpiredTitle": {
+    "message": "Изтекла карта"
+  },
+  "cardExpiredMessage": {
+    "message": "Ако сте я подновили, актуализирайте информацията за картата"
+  },
   "verificationRequired": {
     "message": "Изисква се потвърждение",
     "description": "Default title for the user verification dialog."
@@ -2096,6 +2170,9 @@
   "personalOwnershipSubmitError": {
     "message": "Заради някоя политика за голяма организация не може да запазвате елементи в собствения си трезор. Променете собствеността да е на организация и изберете от наличните колекции."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Новата парола не може да бъде същата като текущата."
+  },
   "hintEqualsPassword": {
     "message": "Подсказването за паролата не може да съвпада с нея."
   },
@@ -2104,6 +2181,15 @@
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "Политика на организацията забранява да внасяте елементи в личния си трезор."
+  },
+  "personalDetails": {
+    "message": "Лични данни"
+  },
+  "identification": {
+    "message": "Идентификация"
+  },
+  "contactInfo": {
+    "message": "Информация за контакт"
   },
   "allSends": {
     "message": "Всички изпращания",
@@ -2538,6 +2624,9 @@
   },
   "generateEmail": {
     "message": "Генериране на електронна поща"
+  },
+  "usernameGenerator": {
+    "message": "Генератор на потребителски имена"
   },
   "spinboxBoundariesHint": {
     "message": "Стойността трябва да бъде между $MIN$ и $MAX$.",
@@ -3224,9 +3313,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Грешка при свързването с услугата на Duo. Използвайте друг метод за двустепенно удостоверяване или се свържете с Duo за съдействие."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Стартирайте Duo и следвайте инструкциите, за да завършите вписването."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Вашата регистрация изисква двустепенно удостоверяване чрез Duo."
   },
@@ -3235,6 +3321,9 @@
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Следвайте стъпките по-долу, за да завършите вписването."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Следвайте стъпките по-долу, за да завършите вписването си чрез устройството за удостоверяване."
   },
   "launchDuo": {
     "message": "Стартирайте Duo в браузъра"
@@ -3460,6 +3549,17 @@
   "ssoError": {
     "message": "Не могат да бъдат открити свободни портове за еднократната идентификация."
   },
+  "securePasswordGenerated": {
+    "message": "Създадена е сигурна парола! Не забравяйте и да промените паролата си в уеб сайта."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Използвайте генератора",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "за да създадете сигурна и уникална парола",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "Отключването с биометрични данни не е налично, тъй като първо се изисква отключване чрез ПИН или парола."
   },
@@ -3538,6 +3638,27 @@
   "setupTwoStepLogin": {
     "message": "Настройте двустепенно удостоверяване"
   },
+  "itemDetails": {
+    "message": "Подробности за елемента"
+  },
+  "itemName": {
+    "message": "Име на елемента"
+  },
+  "loginCredentials": {
+    "message": "Данни за вписване"
+  },
+  "additionalOptions": {
+    "message": "Допълнителни настройки"
+  },
+  "itemHistory": {
+    "message": "История на елемента"
+  },
+  "lastEdited": {
+    "message": "Последна промяна"
+  },
+  "upload": {
+    "message": "Качване"
+  },
   "newDeviceVerificationNoticeContentPage1": {
     "message": "Битуорден ще изпрати код до е-пощата Ви, за потвърждаване на вписването от нови устройства. Това ще започне от февруари 2025."
   },
@@ -3588,5 +3709,8 @@
   },
   "changeAtRiskPassword": {
     "message": "Промяна на парола в риск"
+  },
+  "move": {
+    "message": "Преместване"
   }
 }
