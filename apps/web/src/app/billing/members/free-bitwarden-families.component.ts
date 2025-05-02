@@ -176,7 +176,7 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
       return;
     }
 
-    await this.apiService.deleteRevokeSponsorship(sponsorship.sponsoringOrganizationUserId);
+    await this.apiService.deleteRevokeSponsorship(this.organizationId);
 
     this.toastService.showToast({
       variant: "success",
