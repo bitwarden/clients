@@ -11,6 +11,9 @@ import { NudgeStatus, VaultNudgeType } from "../vault-nudges.service";
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
+/**
+ * Custom Nudge Service to use for the Autofill Nudge in the Vault
+ */
 @Injectable({
   providedIn: "root",
 })
@@ -22,8 +25,8 @@ export class AutofillNudgeService extends DefaultSingleNudgeService {
     const profileDate$ = from(this.vaultProfileService.getProfileCreationDate(userId)).pipe(
       catchError(() => {
         this.logService.error("Error getting profile creation date");
-        // Default to the past to ensure the nudge is shown
-        return of(new Date("2024-12-31"));
+        // Default to today to ensure we show the nudge
+        return of(new Date());
       }),
     );
 

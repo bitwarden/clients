@@ -6,7 +6,7 @@
   </popup-header>
 
   <div class="tw-bg-background-alt">
-    <div *ngIf="(autofillNudgeStatus$ | async)?.hasSpotlightDismissed === false" class="tw-mb-6">
+    <div *ngIf="showSpotlightNudge$ | async" class="tw-mb-6">
       <bit-spotlight
         [title]="'autofillSpotlightTitle' | i18n"
         [subtitle]="'autofillSpotlightDesc' | i18n"

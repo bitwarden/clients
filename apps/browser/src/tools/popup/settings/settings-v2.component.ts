@@ -37,7 +37,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 export class SettingsV2Component implements OnInit {
   VaultNudgeType = VaultNudgeType;
   showVaultBadge$: Observable<NudgeStatus> = new Observable();
-  showAutofillBadge$: Observable<NudgeStatus> = new Observable();
+  showAutofillBadge$: Observable<boolean> = new Observable();
   activeUserId: UserId | null = null;
   protected browserClientVendor: BrowserClientVendor = BrowserClientVendors.Unknown;
 
@@ -61,9 +61,9 @@ export class SettingsV2Component implements OnInit {
     ]).pipe(
       map(([nudgeStatus, isOverridden]) => {
         if (isOverridden) {
-          return { hasBadgeDismissed: true, hasSpotlightDismissed: true };
+          return false;
         }
-        return nudgeStatus;
+        return nudgeStatus.hasBadgeDismissed === false;
       }),
     );
   }

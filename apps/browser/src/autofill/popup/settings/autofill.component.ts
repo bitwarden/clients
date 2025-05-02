@@ -11,10 +11,10 @@ import {
   FormControl,
 } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { Observable, firstValueFrom, map } from "rxjs";
+import { Observable, filter, firstValueFrom, map, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   AutofillOverlayVisibility,
@@ -55,12 +55,7 @@ import {
   SelectModule,
   TypographyModule,
 } from "@bitwarden/components";
-import {
-  NudgeStatus,
-  SpotlightComponent,
-  VaultNudgesService,
-  VaultNudgeType,
-} from "@bitwarden/vault";
+import { SpotlightComponent, VaultNudgesService, VaultNudgeType } from "@bitwarden/vault";
 
 import { AutofillBrowserSettingsService } from "../../../autofill/services/autofill-browser-settings.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -110,7 +105,14 @@ export class AutofillComponent implements OnInit {
   protected browserClientIsUnknown: boolean;
   protected autofillOnPageLoadFromPolicy$ =
     this.autofillSettingsService.activateAutofillOnPageLoadFromPolicy$;
-  protected autofillNudgeStatus$: Observable<NudgeStatus> = new Observable();
+  protected showSpotlightNudge$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+    filter((account): account is Account => account !== null),
+    switchMap((account) =>
+      this.vaultNudgesService
+        .showNudge$(VaultNudgeType.AutofillNudge, account.id)
+        .pipe(map((nudgeStatus) => !nudgeStatus.hasSpotlightDismissed)),
+    ),
+  );
 
   protected autofillOnPageLoadForm = new FormGroup({
     autofillOnPageLoad: new FormControl(),
@@ -325,19 +327,6 @@ export class AutofillComponent implements OnInit {
     this.showIdentitiesCurrentTab = await firstValueFrom(
       this.vaultSettingsService.showIdentitiesCurrentTab$,
     );
-
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-
-    this.autofillNudgeStatus$ = this.vaultNudgesService
-      .showNudge$(VaultNudgeType.AutofillNudge, activeUserId)
-      .pipe(
-        map((nudgeStatus) => {
-          if (this.defaultBrowserAutofillDisabled) {
-            return { hasBadgeDismissed: true, hasSpotlightDismissed: true };
-          }
-          return nudgeStatus;
-        }),
-      );
   }
 
   get spotlightButtonIcon() {
