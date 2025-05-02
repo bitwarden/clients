@@ -106,6 +106,7 @@ export class DeleteCommand {
         cipher.id,
         attachments[0].id,
         activeUserId,
+        false,
       );
       return Response.success();
     } catch (e) {
