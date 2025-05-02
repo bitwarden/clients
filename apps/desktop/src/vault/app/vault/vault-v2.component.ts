@@ -29,7 +29,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { CipherId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -756,6 +756,13 @@ export class VaultV2Component implements OnInit, OnDestroy {
     }
     if (this.activeFilter.selectedFolderId && this.activeFilter.selectedFolder) {
       this.folderId = this.activeFilter.selectedFolderId;
+    }
+
+    if (this.addOrganizationId && this.config) {
+      this.config.initialValues = {
+        ...this.config.initialValues,
+        organizationId: this.addOrganizationId as OrganizationId,
+      };
     }
   }
 
