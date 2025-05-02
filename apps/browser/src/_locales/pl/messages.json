@@ -5201,6 +5201,12 @@
   "changeAtRiskPassword": {
     "message": "Zmień hasło zagrożone"
   },
+  "settingsVaultOptions": {
+    "message": "Ustawienia Sejfu"
+  },
+  "emptyVaultDescription": {
+    "message": "Sejf chroni nie tylko Twoje hasła. Przechowuj tutaj bezpiecznie loginy, identyfikatory, karty i notatki."
+  },
   "introCarouselLabel": {
     "message": "Witaj w Bitwarden"
   },
@@ -5227,5 +5233,50 @@
   },
   "secureDevicesBody": {
     "message": "Zapisuj nieograniczoną liczbę haseł na nieograniczonej liczbie urządzeń dzięki aplikacjom Bitwarden na urządzenia mobilne, przeglądarki i komputery stacjonarne."
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Importuj istniejące hasła"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Użyj importera, aby szybko przenieść loginy do Bitwarden bez ręcznego dodawania ich."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Importuj teraz"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Witaj w Twoim Sejfie!"
+  },
+  "hasItemsVaultNudgeBody": {
+    "message": "Autouzupełnianie elementów dla bieżącej strony\nUlubione elementy dla łatwego dostępu\nPrzeszukaj swój sejf w poszukiwaniu czegoś innego"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Oszczędzaj czas dzięki autouzupełnianiu"
+  },
+  "newLoginNudgeBody": {
+    "message": "Dołącz stronę internetową, aby ten login pojawił się jako sugestia autouzupełniania."
+  },
+  "newCardNudgeTitle": {
+    "message": "Bezproblemowe zamówienia online"
+  },
+  "newCardNudgeBody": {
+    "message": "Z kartami łatwe autouzupełnianie formularzy płatności w sposób bezpieczny i dokładny."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Uprość tworzenie kont"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Z tożsamościami, szybko autouzupełnij długie formularze rejestracyjne lub kontaktowe."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Zachowaj bezpieczeństwo wrażliwych danych"
+  },
+  "newNoteNudgeBody": {
+    "message": "Z notatkami bezpiecznie przechowuj dane szczególnie chronione, takie jak dane bankowe lub ubezpieczeniowe."
+  },
+  "newSshNudgeTitle": {
+    "message": "Przyjazny dla deweloperów dostęp SSH"
+  },
+  "newSshNudgeBody": {
+    "message": "Przechowuj swoje klucze i połącz się z agentem SSH dla szybkiego, szyfrowanego uwierzytelniania."
   }
 }

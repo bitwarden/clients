@@ -2180,7 +2180,7 @@
     "message": "使用此用户名"
   },
   "securePasswordGenerated": {
-    "message": "安全的密码生成好了！别忘了在网站上也更新一下您的密码。"
+    "message": "安全的密码已生成！不要忘记在网站上更新您的密码。"
   },
   "useGeneratorHelpTextPartOne": {
     "message": "使用生成器",
@@ -5201,6 +5201,12 @@
   "changeAtRiskPassword": {
     "message": "更改有风险的密码"
   },
+  "settingsVaultOptions": {
+    "message": "密码库选项"
+  },
+  "emptyVaultDescription": {
+    "message": "密码库不仅保护您的密码。在这里还可以安全地存储登录、ID、支付卡和笔记。"
+  },
   "introCarouselLabel": {
     "message": "欢迎使用 Bitwarden"
   },
@@ -5227,5 +5233,50 @@
   },
   "secureDevicesBody": {
     "message": "使用 Bitwarden 移动端、浏览器和桌面 App 在无限制的设备上保存无限数量的密码。"
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "导入现有密码"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "使用导入器快速将登录传输到 Bitwarden 而无需手动添加。"
+  },
+  "emptyVaultNudgeButton": {
+    "message": "立即导入"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "欢迎来到您的密码库！"
+  },
+  "hasItemsVaultNudgeBody": {
+    "message": "自动填充项目用于当前页面\n收藏夹项目用于轻松访问\n搜索密码库用于其他目的"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBody": {
+    "message": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBody": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
   }
 }
