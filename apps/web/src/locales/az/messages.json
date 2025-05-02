@@ -422,17 +422,8 @@
   "folder": {
     "message": "Qovluq"
   },
-  "newCustomField": {
-    "message": "Yeni özəl xana"
-  },
   "value": {
     "message": "Dəyər"
-  },
-  "dragToSort": {
-    "message": "Sıralamaq üçün sürüklə"
-  },
-  "dragToReorder": {
-    "message": "Yenidən sıralamaq üçün sürüklə"
   },
   "cfTypeText": {
     "message": "Mətn"
@@ -7280,7 +7271,7 @@
     "message": "Giriş prosesini tamamlamaq üçün aşağıdakı addımları izləyin."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Follow the steps below to finish logging in with your security key."
+    "message": "Güvənlik açarınızla girişi tamamlamaq üçün aşağıdakı addımları izləyin."
   },
   "launchDuo": {
     "message": "DUO-nu başlat"
@@ -10607,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Üzvlərin öz hesablarının kilidini PIN ilə açmasına icazə verilməsin."
   },
-  "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$ planında real event log-larına müraciət yoxdur",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Teams və ya Enterprise planına yüksəldərək təşkilatın event log-larına tam müraciət əldə edin."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Real event log dataları üçün yüksəlt"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "Bu event-lər sadəcə nümunədir və Bitwarden təşkilatınızdakı real event-ləri əks etdirmir."
@@ -10636,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "Yeni biznes vahidi"
+  },
+  "restart": {
+    "message": "Restart"
   }
 }

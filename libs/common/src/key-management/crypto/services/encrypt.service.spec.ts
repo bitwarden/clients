@@ -538,6 +538,98 @@ describe("EncryptService", () => {
     });
   });
 
+  describe("encryptString", () => {
+    it("is a proxy to encrypt", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const plainValue = "data";
+      encryptService.encrypt = jest.fn();
+      await encryptService.encryptString(plainValue, key);
+      expect(encryptService.encrypt).toHaveBeenCalledWith(plainValue, key);
+    });
+  });
+
+  describe("encryptBytes", () => {
+    it("is a proxy to encrypt", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const plainValue = makeStaticByteArray(16, 1);
+      encryptService.encrypt = jest.fn();
+      await encryptService.encryptBytes(plainValue, key);
+      expect(encryptService.encrypt).toHaveBeenCalledWith(plainValue, key);
+    });
+  });
+
+  describe("encryptFileData", () => {
+    it("is a proxy to encryptToBytes", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const plainValue = makeStaticByteArray(16, 1);
+      encryptService.encryptToBytes = jest.fn();
+      await encryptService.encryptFileData(plainValue, key);
+      expect(encryptService.encryptToBytes).toHaveBeenCalledWith(plainValue, key);
+    });
+  });
+
+  describe("decryptString", () => {
+    it("is a proxy to decryptToUtf8", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const encString = new EncString(EncryptionType.AesCbc256_B64, "data");
+      encryptService.decryptToUtf8 = jest.fn();
+      await encryptService.decryptString(encString, key);
+      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(encString, key);
+    });
+  });
+
+  describe("decryptBytes", () => {
+    it("is a proxy to decryptToBytes", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const encString = new EncString(EncryptionType.AesCbc256_B64, "data");
+      encryptService.decryptToBytes = jest.fn();
+      await encryptService.decryptBytes(encString, key);
+      expect(encryptService.decryptToBytes).toHaveBeenCalledWith(encString, key);
+    });
+  });
+
+  describe("decryptFileData", () => {
+    it("is a proxy to decrypt", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const encString = new EncArrayBuffer(makeStaticByteArray(60, EncryptionType.AesCbc256_B64));
+      encryptService.decryptToBytes = jest.fn();
+      await encryptService.decryptFileData(encString, key);
+      expect(encryptService.decryptToBytes).toHaveBeenCalledWith(encString, key);
+    });
+  });
+
+  describe("unwrapDecapsulationKey", () => {
+    it("is a proxy to decryptBytes", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const encString = new EncString(EncryptionType.AesCbc256_B64, "data");
+      encryptService.decryptBytes = jest.fn();
+      await encryptService.unwrapDecapsulationKey(encString, key);
+      expect(encryptService.decryptBytes).toHaveBeenCalledWith(encString, key);
+    });
+  });
+
+  describe("unwrapEncapsulationKey", () => {
+    it("is a proxy to decryptBytes", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const encString = new EncString(EncryptionType.AesCbc256_B64, "data");
+      encryptService.decryptBytes = jest.fn();
+      await encryptService.unwrapEncapsulationKey(encString, key);
+      expect(encryptService.decryptBytes).toHaveBeenCalledWith(encString, key);
+    });
+  });
+
+  describe("unwrapSymmetricKey", () => {
+    it("is a proxy to decryptBytes", async () => {
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const encString = new EncString(EncryptionType.AesCbc256_B64, "data");
+      const jestFn = jest.fn();
+      jestFn.mockResolvedValue(new Uint8Array(64));
+      encryptService.decryptBytes = jestFn;
+      await encryptService.unwrapSymmetricKey(encString, key);
+      expect(encryptService.decryptBytes).toHaveBeenCalledWith(encString, key);
+    });
+  });
+
   describe("rsa", () => {
     const data = makeStaticByteArray(64, 100);
     const testKey = new SymmetricCryptoKey(data);
