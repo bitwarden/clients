@@ -45,7 +45,7 @@ export class AccountComponent {
 
     // Navigate out of account switching for unlocked accounts
     // locked or logged out account statuses are handled by background and app.component
-    if (result?.status === AuthenticationStatus.Unlocked) {
+    if (result?.authenticationStatus === AuthenticationStatus.Unlocked) {
       this.location.back();
       await this.biometricsService.setShouldAutopromptNow(false);
     } else {
