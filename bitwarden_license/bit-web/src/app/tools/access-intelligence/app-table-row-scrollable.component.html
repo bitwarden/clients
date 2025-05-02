@@ -1,9 +1,5 @@
 <ng-container>
-  <bit-table-scroll
-    [dataSource]="dataSource"
-    [rowSize]="53"
-    class="tw-table tw-w-full table-hover table-list"
-  >
+  <bit-table-scroll [dataSource]="dataSource" [rowSize]="53">
     <ng-container header>
       <th *ngIf="isCriticalAppsFeatureEnabled"></th>
       <th bitSortable="applicationName" bitCell>{{ "application" | i18n }}</th>
