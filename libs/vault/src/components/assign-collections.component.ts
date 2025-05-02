@@ -305,7 +305,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       this.organizationService.organizations$(userId).pipe(getOrganizationById(organizationId)),
     );
 
-    this.setReadOnlyCollectionNames(this.params.availableCollections);
+    this.setReadOnlyCollectionNames();
 
     this.availableCollections = this.params.availableCollections
       .filter((collection) => {
@@ -510,7 +510,15 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     }
   }
 
-  private setReadOnlyCollectionNames(collections: CollectionView[]) {
-    this.readOnlyCollectionNames = collections.filter((c) => c.readOnly).map((c) => c.name);
+  /**
+   * Only display collections that are read-only and are assigned to the ciphers.
+   */
+  private setReadOnlyCollectionNames() {
+    const { availableCollections, ciphers } = this.params;
+    this.readOnlyCollectionNames = availableCollections
+      .filter((c) => {
+        return c.readOnly && ciphers.some((cipher) => cipher.collectionIds.includes(c.id));
+      })
+      .map((c) => c.name);
   }
 }

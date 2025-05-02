@@ -34,11 +34,17 @@ describe("AssignCollectionsComponent", () => {
   editCollection.readOnly = false;
   editCollection.manage = true;
 
-  const readOnlyCollection = new CollectionView();
-  readOnlyCollection.id = "read-only-collection-id" as CollectionId;
-  readOnlyCollection.organizationId = "org-id" as OrganizationId;
-  readOnlyCollection.name = "Read Only Collection";
-  readOnlyCollection.readOnly = true;
+  const readOnlyCollection1 = new CollectionView();
+  readOnlyCollection1.id = "read-only-collection-id" as CollectionId;
+  readOnlyCollection1.organizationId = "org-id" as OrganizationId;
+  readOnlyCollection1.name = "Read Only Collection";
+  readOnlyCollection1.readOnly = true;
+
+  const readOnlyCollection2 = new CollectionView();
+  readOnlyCollection2.id = "read-only-collection-id-2" as CollectionId;
+  readOnlyCollection2.organizationId = "org-id" as OrganizationId;
+  readOnlyCollection2.name = "Read Only Collection 2";
+  readOnlyCollection2.readOnly = true;
 
   const params = {
     organizationId: "org-id" as OrganizationId,
@@ -46,11 +52,11 @@ describe("AssignCollectionsComponent", () => {
       {
         id: "cipher-id",
         name: "Cipher Name",
-        collectionIds: [],
+        collectionIds: [readOnlyCollection1.id],
         edit: true,
       } as unknown as CipherView,
     ],
-    availableCollections: [editCollection, readOnlyCollection],
+    availableCollections: [editCollection, readOnlyCollection1, readOnlyCollection2],
   } as CollectionAssignmentParams;
 
   const org = {
@@ -85,10 +91,10 @@ describe("AssignCollectionsComponent", () => {
       fixture.detectChanges();
     });
 
-    it("shows read-only hint", () => {
+    it("shows read-only hint for assigned collections", () => {
       const hint = fixture.debugElement.query(By.css('[data-testid="view-only-hint"]'));
 
-      expect(hint.nativeElement.textContent).toContain(
+      expect(hint.nativeElement.textContent.trim()).toBe(
         "cannotRemoveViewOnlyCollections Read Only Collection",
       );
     });
