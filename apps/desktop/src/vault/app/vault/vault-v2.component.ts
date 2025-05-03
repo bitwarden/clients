@@ -13,7 +13,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, Subject, takeUntil, switchMap } from "rxjs";
 import { filter, map, take } from "rxjs/operators";
 
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
@@ -29,7 +29,13 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import {
+  CipherId,
+  CollectionId,
+  CollectionId,
+  OrganizationId,
+  UserId,
+} from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -175,6 +181,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
     private cipherService: CipherService,
     private formConfigService: CipherFormConfigService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
+    private collectionService: CollectionService,
   ) {}
 
   async ngOnInit() {
@@ -207,6 +214,9 @@ export class VaultV2Component implements OnInit, OnDestroy {
                 break;
               case "newSecureNote":
                 await this.addCipher(CipherType.SecureNote).catch(() => {});
+                break;
+              case "newSshKey":
+                await this.addCipher(CipherType.SshKey).catch(() => {});
                 break;
               case "focusSearch":
                 (document.querySelector("#search") as HTMLInputElement)?.select();
@@ -534,34 +544,23 @@ export class VaultV2Component implements OnInit, OnDestroy {
     this.action = "add";
     this.prefillCipherFromFilter();
     await this.go().catch(() => {});
-  }
 
-  addCipherOptions() {
-    const menu: RendererMenuItem[] = [
-      {
-        label: this.i18nService.t("typeLogin"),
-        click: () => this.addCipherWithChangeDetection(CipherType.Login),
-      },
-      {
-        label: this.i18nService.t("typeCard"),
-        click: () => this.addCipherWithChangeDetection(CipherType.Card),
-      },
-      {
-        label: this.i18nService.t("typeIdentity"),
-        click: () => this.addCipherWithChangeDetection(CipherType.Identity),
-      },
-      {
-        label: this.i18nService.t("typeSecureNote"),
-        click: () => this.addCipherWithChangeDetection(CipherType.SecureNote),
-      },
-    ];
-    invokeMenu(menu);
+    if (type === CipherType.SshKey) {
+      this.toastService.showToast({
+        variant: "success",
+        title: "",
+        message: this.i18nService.t("sshKeyGenerated"),
+      });
+    }
   }
 
   async savedCipher(cipher: CipherView) {
     this.cipherId = null;
     this.action = "view";
     await this.vaultItemsComponent?.refresh().catch(() => {});
+    this.collections = await firstValueFrom(
+      this.collectionService.decryptedCollectionViews$(cipher.collectionIds as CollectionId[]),
+    );
     this.cipherId = cipher.id;
     this.cipher = cipher;
     if (this.activeUserId) {
