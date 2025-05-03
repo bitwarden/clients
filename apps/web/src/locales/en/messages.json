@@ -5761,6 +5761,15 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "Proceeding will log $NAME$ out of their current session, requiring them to log back in. Active sessions on other devices may continue to remain active for up to one hour.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "this user"
   },
