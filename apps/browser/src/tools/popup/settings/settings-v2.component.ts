@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { combineLatest, firstValueFrom, map, Observable } from "rxjs";
+import { firstValueFrom, map, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -53,19 +53,20 @@ export class SettingsV2Component implements OnInit {
       this.activeUserId,
     );
     this.browserClientVendor = BrowserApi.getBrowserClientVendor(window);
-    this.showAutofillBadge$ = combineLatest([
-      this.vaultNudgesService.showNudge$(VaultNudgeType.AutofillNudge, this.activeUserId),
-      this.autofillBrowserSettingsService.browserAutofillSettingOverridden$(
+    const isOverridden =
+      await this.autofillBrowserSettingsService.isBrowserAutofillSettingOverridden(
         this.browserClientVendor,
-      ),
-    ]).pipe(
-      map(([nudgeStatus, isOverridden]) => {
-        if (isOverridden) {
-          return false;
-        }
-        return nudgeStatus.hasBadgeDismissed === false;
-      }),
-    );
+      );
+    this.showAutofillBadge$ = this.vaultNudgesService
+      .showNudge$(VaultNudgeType.AutofillNudge, this.activeUserId)
+      .pipe(
+        map((nudgeStatus) => {
+          if (isOverridden) {
+            return false;
+          }
+          return nudgeStatus.hasBadgeDismissed === false;
+        }),
+      );
   }
 
   async dismissBadge(type: VaultNudgeType) {

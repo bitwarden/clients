@@ -190,11 +190,10 @@ export class AutofillComponent implements OnInit {
   async ngOnInit() {
     this.canOverrideBrowserAutofillSetting = !this.browserClientIsUnknown;
 
-    this.defaultBrowserAutofillDisabled = await firstValueFrom(
-      this.autofillBrowserSettingsService.browserAutofillSettingOverridden$(
+    this.defaultBrowserAutofillDisabled =
+      await this.autofillBrowserSettingsService.isBrowserAutofillSettingOverridden(
         this.browserClientVendor,
-      ),
-    );
+      );
 
     this.inlineMenuVisibility = await firstValueFrom(
       this.autofillSettingsService.inlineMenuVisibility$,
