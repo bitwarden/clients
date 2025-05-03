@@ -162,7 +162,7 @@ export class SsoComponent implements OnInit {
       this.initializeFromRedirectFromOtherClient(qParams);
     }
 
-    // Detect if we have landed here but only have an SSO identifier in the URL.
+    // Detect if we have landed here with an SSO identifier in the URL.
     // This is used by integrations that want to "short-circuit" the login to send users
     // directly to their IdP to simulate IdP-initiated SSO, so we submit automatically.
     if (qParams.identifier != null) {
