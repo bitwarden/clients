@@ -296,6 +296,8 @@ export class DesktopAutofillService implements OnDestroy {
         await this.adHocSync();
       }
     });
+
+    ipc.autofill.ready();
   }
 
   private convertRegistrationRequest(
