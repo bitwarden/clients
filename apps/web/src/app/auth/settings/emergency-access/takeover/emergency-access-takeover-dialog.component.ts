@@ -1,6 +1,17 @@
+import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
-import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
+import { ChangePasswordComponent } from "@bitwarden/auth/angular";
+import {
+  ButtonModule,
+  CalloutModule,
+  DIALOG_DATA,
+  DialogConfig,
+  DialogModule,
+  DialogService,
+  FormFieldModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 type EmergencyAccessTakeoverDialogData = {
   grantorName: string;
@@ -24,9 +35,18 @@ export enum EmergencyAccessTakeoverDialogResultType {
   standalone: true,
   selector: "auth-emergency-access-takeover-dialog",
   templateUrl: "./emergency-access-takeover-dialog.component.html",
+  imports: [
+    ButtonModule,
+    CommonModule,
+    CalloutModule,
+    ChangePasswordComponent,
+    DialogModule,
+    FormFieldModule,
+    I18nPipe,
+  ],
 })
 export class EmergencyAccessTakeoverDialogComponent {
-  constructor(@Inject(DIALOG_DATA) private dialogData: EmergencyAccessTakeoverDialogData) {}
+  constructor(@Inject(DIALOG_DATA) protected dialogData: EmergencyAccessTakeoverDialogData) {}
 
   /**
    * Strongly typed helper to open a EmergencyAccessTakeoverDialogComponent
