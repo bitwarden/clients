@@ -9,7 +9,7 @@ type EmergencyAccessTakeoverDialogData = {
   emergencyAccessId: string;
 };
 
-export enum EmergencyAccessTakeoverResultType {
+export enum EmergencyAccessTakeoverDialogResultType {
   Done = "done",
 }
 
@@ -37,7 +37,7 @@ export class EmergencyAccessTakeoverDialogComponent {
     dialogService: DialogService,
     dialogConfig: DialogConfig<EmergencyAccessTakeoverDialogData>,
   ) => {
-    return dialogService.open<EmergencyAccessTakeoverResultType>(
+    return dialogService.open<EmergencyAccessTakeoverDialogResultType>(
       EmergencyAccessTakeoverDialogComponent,
       dialogConfig,
     );
