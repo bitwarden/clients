@@ -5201,6 +5201,12 @@
   "changeAtRiskPassword": {
     "message": "Zmeniť rizikové heslá"
   },
+  "settingsVaultOptions": {
+    "message": "Možnosti trezoru"
+  },
+  "emptyVaultDescription": {
+    "message": "Trezor chráni viac ako len heslá. Môžete tu bezpečne ukladať prihlasovacie údaje, identifikačné údaje, karty a poznámky."
+  },
   "introCarouselLabel": {
     "message": "Vitajte v Bitwardene"
   },
@@ -5227,5 +5233,50 @@
   },
   "secureDevicesBody": {
     "message": "Ukladajte neobmedzený počet hesiel na neobmedzenom počte zariadení pomocou mobilných aplikácií, prehliadačov a desktopových aplikácií Bitwardenu."
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Import existujúcich hesiel"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Pomocou nástroja na import môžete rýchlo preniesť prihlasovacie údaje do Bitwardenu bez ručného pridávania."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Importovať teraz"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Vitajte vo svojom trezore!"
+  },
+  "hasItemsVaultNudgeBody": {
+    "message": "Automatické vypĺňanie položiek pre aktuálnu stránku\nObľúbené položky pre ľahký prístup\nVyhľadajte v trezore niečo iné"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Ušetrite čas s automatickým vypĺňaním"
+  },
+  "newLoginNudgeBody": {
+    "message": "Zadajte webovú stránku, aby sa tieto prihlasovacie údaje zobrazili ako návrh na automatické vyplnenie."
+  },
+  "newCardNudgeTitle": {
+    "message": "Bezproblémová online registrácia"
+  },
+  "newCardNudgeBody": {
+    "message": "S kartami môžete jednoducho, bezpečne a presne automaticky vypĺňať platobné formuláre."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Zjednodušenie vytvárania účtov"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Pomocou identít môžete rýchlo automaticky vypĺňať dlhé registračné alebo kontaktné formuláre."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Udržujte svoje citlivé údaje v bezpečí"
+  },
+  "newNoteNudgeBody": {
+    "message": "Pomocou poznámok môžete bezpečne ukladať citlivé údaje, napríklad bankové údaje alebo údaje o poistení."
+  },
+  "newSshNudgeTitle": {
+    "message": "Prístup SSH vhodný pre vývojárov"
+  },
+  "newSshNudgeBody": {
+    "message": "Uložte si kľúče a pripojte sa pomocou agenta SSH na rýchle šifrované overovanie."
   }
 }

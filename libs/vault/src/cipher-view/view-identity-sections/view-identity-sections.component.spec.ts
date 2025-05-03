@@ -43,7 +43,6 @@ describe("ViewIdentitySectionsComponent", () => {
         },
       } as CipherView;
 
-      component.ngOnInit();
       fixture.detectChanges();
 
       personalDetailSection = fixture.debugElement.query(By.directive(SectionHeaderComponent));
@@ -61,7 +60,6 @@ describe("ViewIdentitySectionsComponent", () => {
         },
       } as CipherView;
 
-      component.ngOnInit();
       fixture.detectChanges();
 
       const fields = fixture.debugElement.queryAll(By.directive(BitInputDirective));
@@ -86,7 +84,6 @@ describe("ViewIdentitySectionsComponent", () => {
         },
       } as CipherView;
 
-      component.ngOnInit();
       fixture.detectChanges();
 
       identificationDetailSection = fixture.debugElement.query(
@@ -106,7 +103,6 @@ describe("ViewIdentitySectionsComponent", () => {
         },
       } as CipherView;
 
-      component.ngOnInit();
       fixture.detectChanges();
 
       const fields = fixture.debugElement.queryAll(By.directive(BitInputDirective));
@@ -129,7 +125,6 @@ describe("ViewIdentitySectionsComponent", () => {
         },
       } as CipherView;
 
-      component.ngOnInit();
       fixture.detectChanges();
 
       contactDetailSection = fixture.debugElement.query(By.directive(SectionHeaderComponent));
@@ -151,7 +146,6 @@ describe("ViewIdentitySectionsComponent", () => {
         },
       } as CipherView;
 
-      component.ngOnInit();
       fixture.detectChanges();
 
       const fields = fixture.debugElement.queryAll(By.directive(BitInputDirective));
@@ -174,7 +168,6 @@ describe("ViewIdentitySectionsComponent", () => {
         },
       } as CipherView;
 
-      component.ngOnInit();
       fixture.detectChanges();
 
       let textarea = fixture.debugElement.query(By.css("textarea"));

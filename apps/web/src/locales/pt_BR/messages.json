@@ -422,17 +422,8 @@
   "folder": {
     "message": "Pasta"
   },
-  "newCustomField": {
-    "message": "Novo Campo Personalizado"
-  },
   "value": {
     "message": "Valor"
-  },
-  "dragToSort": {
-    "message": "Arrastar para ordenar"
-  },
-  "dragToReorder": {
-    "message": "Arraste para reorganizar"
   },
   "cfTypeText": {
     "message": "Texto"
@@ -10607,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Não permitir que os membros desbloqueiem sua conta com um PIN."
   },
-  "limitedEventLogs": {
-    "message": "Os planos $PRODUCT_TYPE$ não têm acesso aos registros de eventos reais",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Obtenha acesso completo aos logs de eventos da organização atualizando para um plano Times ou Empresarial."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Atualizar para dados reais do registro de eventos"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "Esses eventos são apenas exemplos e não refletem eventos reais na sua organização do Bitwarden."
@@ -10629,12 +10611,15 @@
     "message": "Organizações gratuitas podem ter até duas coleções. Faça o upgrade para um plano pago para adicionar mais coleções."
   },
   "businessUnit": {
-    "message": "Business Unit"
+    "message": "Unidades de Negócio"
   },
   "businessUnits": {
-    "message": "Business Units"
+    "message": "Unidades de Negócio"
   },
   "newBusinessUnit": {
-    "message": "New business unit"
+    "message": "Nova unidade de negócio"
+  },
+  "restart": {
+    "message": "Restart"
   }
 }

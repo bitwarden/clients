@@ -393,6 +393,64 @@
   "authenticatorKeyTotp": {
     "message": "Kľúč overovateľa (TOTP)"
   },
+  "authenticatorKey": {
+    "message": "Overovací kľúč"
+  },
+  "autofillOptions": {
+    "message": "Možnosti automatického vypĺňania"
+  },
+  "websiteUri": {
+    "message": "Webová stránka (URI)"
+  },
+  "websiteUriCount": {
+    "message": "Webová stránka (URI) $COUNT$",
+    "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "websiteAdded": {
+    "message": "Webová stránka pridaná"
+  },
+  "addWebsite": {
+    "message": "Pridať webovú stránku"
+  },
+  "deleteWebsite": {
+    "message": "Odstrániť webovú stránku"
+  },
+  "owner": {
+    "message": "Vlastník"
+  },
+  "addField": {
+    "message": "Pridať pole"
+  },
+  "fieldType": {
+    "message": "Typ poľa"
+  },
+  "fieldLabel": {
+    "message": "Názov poľa"
+  },
+  "add": {
+    "message": "Pridať"
+  },
+  "textHelpText": {
+    "message": "Textové polia používajte pre také údaje, ako sú bezpečnostné otázky"
+  },
+  "hiddenHelpText": {
+    "message": "Skryté polia požívajte pre citlivé údaje, ako je heslo"
+  },
+  "checkBoxHelpText": {
+    "message": "Ak chcete automaticky vyplniť začiarkávacie políčko formulára, napríklad zapamätať e-mail, použite začiarkávacie políčka"
+  },
+  "linkedHelpText": {
+    "message": "Ak máte problémy s automatickým vypĺňaním pre konkrétnu webovú stránku, použite prepojené pole."
+  },
+  "linkedLabelHelpText": {
+    "message": "Zadajte html atribút poľa id, name, aria-label, alebo placeholder."
+  },
   "folder": {
     "message": "Priečinok"
   },
@@ -417,6 +475,9 @@
   "cfTypeLinked": {
     "message": "Prepojené",
     "description": "This describes a field that is 'linked' (related) to another field."
+  },
+  "cfTypeCheckbox": {
+    "message": "Začiarkavacie políčko"
   },
   "linkedValue": {
     "message": "Prepojená hodnota",
@@ -1915,6 +1976,43 @@
       }
     }
   },
+  "cardDetails": {
+    "message": "Podrobnosti o karte"
+  },
+  "cardBrandDetails": {
+    "message": "Podrobnosti o $BRAND$",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "learnMoreAboutAuthenticators": {
+    "message": "Viac informácií o overovateľoch"
+  },
+  "copyTOTP": {
+    "message": "Kopírovať kľúč overovateľa (TOTP)"
+  },
+  "totpHelperTitle": {
+    "message": "Spravte dvojstupňové overenie bezproblémovým"
+  },
+  "totpHelper": {
+    "message": "Bitwarden umožňuje uložiť a vyplniť kódy dvojstupňového overenia. Skopírujte a vložte kľúč do tohto poľa."
+  },
+  "totpHelperWithCapture": {
+    "message": "Bitwarden umožňuje uložiť a vyplniť kódy dvojstupňového overenia. Vyberte ikonu fotoaparátu a zosnímajte obrazovku QR kódu overovacej aplikácie tejto webovej stránky alebo skopírujte a vložte kľúč do tohto poľa."
+  },
+  "premium": {
+    "message": "Prémium",
+    "description": "Premium membership"
+  },
+  "cardExpiredTitle": {
+    "message": "Exspirovaná karta"
+  },
+  "cardExpiredMessage": {
+    "message": "Ak ste kartu obnovili, aktualizujte jej údaje"
+  },
   "verificationRequired": {
     "message": "Vyžaduje sa overenie",
     "description": "Default title for the user verification dialog."
@@ -2083,6 +2181,15 @@
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "Zásady organizácie zablokovali importovanie položiek do vášho osobného trezoru."
+  },
+  "personalDetails": {
+    "message": "Osobné údaje"
+  },
+  "identification": {
+    "message": "Identifikácia"
+  },
+  "contactInfo": {
+    "message": "Kontaktné informácie"
   },
   "allSends": {
     "message": "Všetky Sendy",
@@ -2517,6 +2624,9 @@
   },
   "generateEmail": {
     "message": "Generovať e-mail"
+  },
+  "usernameGenerator": {
+    "message": "Generátor používateľského mena"
   },
   "spinboxBoundariesHint": {
     "message": "Hodnota musí byť medzi $MIN$ a $MAX$.",
@@ -3212,6 +3322,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Na dokončenie prihlásenia postupujte podľa pokynov."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Podľa nasledujúcich krokov dokončite prihlásenie pomocou bezpečnostného kľúča."
+  },
   "launchDuo": {
     "message": "Spustiť Duo v prehliadači"
   },
@@ -3436,6 +3549,17 @@
   "ssoError": {
     "message": "Pre prihlásenie SSO sa nepodarilo nájsť žiadne voľné porty."
   },
+  "securePasswordGenerated": {
+    "message": "Bezpečné heslo vygenerované! Nezabudnite tiež aktualizovať heslo na stránke."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Použite generátor",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "na vytvorenie silného, unikátneho hesla",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "Odomykanie biometrickými údajmi je nedostupné pretože je najskôr potrebné odomykanie pomocou PIN alebo hesla."
   },
@@ -3514,6 +3638,27 @@
   "setupTwoStepLogin": {
     "message": "Nastaviť dvojstupňové prihlásenie"
   },
+  "itemDetails": {
+    "message": "Podrobnosti o položke"
+  },
+  "itemName": {
+    "message": "Názov položky"
+  },
+  "loginCredentials": {
+    "message": "Prihlasovacie údaje"
+  },
+  "additionalOptions": {
+    "message": "Ďalšie možnosti"
+  },
+  "itemHistory": {
+    "message": "História položky"
+  },
+  "lastEdited": {
+    "message": "Posledná úprava"
+  },
+  "upload": {
+    "message": "Nahrať"
+  },
   "newDeviceVerificationNoticeContentPage1": {
     "message": "Bitwarden vám od februára 2025 pošle na e-mail vášho účtu kód na overenie prihlásenia z nových zariadení."
   },
@@ -3567,5 +3712,35 @@
   },
   "move": {
     "message": "Presunúť"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Ušetrite čas s automatickým vypĺňaním"
+  },
+  "newLoginNudgeBody": {
+    "message": "Zadajte webovú stránku, aby sa tieto prihlasovacie údaje zobrazili ako návrh na automatické vyplnenie."
+  },
+  "newCardNudgeTitle": {
+    "message": "Bezproblémová online registrácia"
+  },
+  "newCardNudgeBody": {
+    "message": "S kartami môžete jednoducho, bezpečne a presne automaticky vypĺňať platobné formuláre."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Zjednodušenie vytvárania účtov"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Pomocou identít môžete rýchlo automaticky vypĺňať dlhé registračné alebo kontaktné formuláre."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Udržujte svoje citlivé údaje v bezpečí"
+  },
+  "newNoteNudgeBody": {
+    "message": "Pomocou poznámok môžete bezpečne ukladať citlivé údaje, napríklad bankové údaje alebo údaje o poistení."
+  },
+  "newSshNudgeTitle": {
+    "message": "Prístup SSH vhodný pre vývojárov"
+  },
+  "newSshNudgeBody": {
+    "message": "Uložte si kľúče a pripojte sa pomocou agenta SSH na rýchle šifrované overovanie."
   }
 }
