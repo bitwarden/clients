@@ -26,7 +26,6 @@ import {
   WINDOW,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
-import { ModalService as ModalServiceAbstraction } from "@bitwarden/angular/services/modal.service";
 import {
   RegistrationFinishService as RegistrationFinishServiceAbstraction,
   LoginComponentService,
@@ -136,7 +135,6 @@ import { WebStorageServiceProvider } from "../platform/web-storage-service.provi
 import { EventService } from "./event.service";
 import { InitService } from "./init.service";
 import { ENV_URLS } from "./injection-tokens";
-import { ModalService } from "./modal.service";
 import { RouterService } from "./router.service";
 import { WebPlatformUtilsService } from "./web-platform-utils.service";
 
@@ -193,11 +191,6 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: PlatformUtilsService,
     useClass: WebPlatformUtilsService,
-    useAngularDecorators: true,
-  }),
-  safeProvider({
-    provide: ModalServiceAbstraction,
-    useClass: ModalService,
     useAngularDecorators: true,
   }),
   safeProvider({
