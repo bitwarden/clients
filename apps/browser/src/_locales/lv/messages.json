@@ -2,6 +2,9 @@
   "appName": {
     "message": "Bitwarden"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden logotips"
+  },
   "extName": {
     "message": "Bitwarden paroļu pārvaldnieks",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
@@ -434,7 +437,7 @@
     "message": "Sinhronizēt glabātavu"
   },
   "lastSync": {
-    "message": "Pēdējā sinhronizācija:"
+    "message": "Pēdējā sinhronizēšana:"
   },
   "passGen": {
     "message": "Paroļu veidotājs"
@@ -883,6 +886,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Jāseko zemāk esošajām norādēm, lai pabeigtu pieteikšanos."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Jāizpilda zemāk esošās darbības, lai pabeigtu pieteikšanos ar savu drošības atslēgu."
+  },
   "restartRegistration": {
     "message": "Sākt reģistrēšanos no jauna"
   },
@@ -941,10 +947,10 @@
     "message": "Noskaties mūsu uzsākšanas pamācību, lai uzzinātu, kā iegūt vislielāko labumu no pārlūka paplašinājuma!"
   },
   "syncingComplete": {
-    "message": "Sinhronizācija pabeigta"
+    "message": "Sinhronizēšana pabeigta"
   },
   "syncingFailed": {
-    "message": "Sinhronizācija neizdevās"
+    "message": "Sinhronizēšana neizdevās"
   },
   "passwordCopied": {
     "message": "Parole ievietota starpliktuvē"
@@ -1056,23 +1062,49 @@
   "notificationAddSave": {
     "message": "Jā, saglabāt"
   },
-  "loginSaveSuccessDetails": {
-    "message": "$USERNAME$ saglabāts Bitwarden.",
+  "notificationViewAria": {
+    "message": "Apskatīt $ITEMNAME$, tiks atvērts jaunā logā",
     "placeholders": {
-      "username": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is saved."
+    "description": "Aria label for the view button in notification bar confirmation message"
   },
-  "loginUpdatedSuccessDetails": {
-    "message": "$USERNAME$ atjaunināts Bitwarden.",
+  "notificationEditTooltip": {
+    "message": "Labot pirms saglabāšanas",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "Jauns paziņojums"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: jauns paziņojums",
+    "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
-      "username": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "loginSaveConfirmation": {
+    "message": "$ITEMNAME$ saglabāts Bitwarden.",
+    "placeholders": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is updated."
+    "description": "Shown to user after item is saved."
+  },
+  "loginUpdatedConfirmation": {
+    "message": "$ITEMNAME$ atjaunināts Bitwarden.",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after item is updated."
   },
   "saveAsNewLoginAction": {
     "message": "Saglabāt kā jaunu pieteikšanās vienumu",
@@ -1082,12 +1114,12 @@
     "message": "Atjaunināt pieteikšanās vienumu",
     "description": "Button text for updating an existing login entry."
   },
-  "saveLoginPrompt": {
-    "message": "Saglabāt pieteikšanās vienumu?",
+  "saveLogin": {
+    "message": "Saglabāt pieteikšanās vienumu",
     "description": "Prompt asking the user if they want to save their login details."
   },
-  "updateLoginPrompt": {
-    "message": "Atjaunināt esošo pieteikšanās vienumu?",
+  "updateLogin": {
+    "message": "Atjaunināt esošo pieteikšanās vienumu",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
@@ -1511,7 +1543,7 @@
     "message": "Jāievada e-pastā nosūtītais kods."
   },
   "selfHostedEnvironment": {
-    "message": "Pašuzturēta vide"
+    "message": "Pašmitināta vide"
   },
   "selfHostedBaseUrlHint": {
     "message": "Jānorāda sava pašizvietotā Bitward servera pamata URL. Piemērs: https://bitwarden.uznemums.lv"
@@ -2338,7 +2370,7 @@
     "message": "Netika atrastas atsvaidzināšanas pilnvaras vai API atslēgas. Lūgums mēģināt izrakstīties un atkal pieteikties."
   },
   "desktopSyncVerificationTitle": {
-    "message": "Darbvirsmas sinhronizācijas apstiprinājums"
+    "message": "Darbvirsmas sinhronizēšanas apliecinājums"
   },
   "desktopIntegrationVerificationText": {
     "message": "Lūgumus pārliecināties, ka darbvirsmas lietotne rāda šo atpazīšanas vārdkopu:"
@@ -2964,7 +2996,7 @@
     "message": "Nav atrasts neviens neatkārtojams identifikators"
   },
   "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ izmanto vienoto pieteikšanos ar pašizvietotu atslēgu serveri. Tās dalībniekiem vairs nav nepieciešama galvenā parole, lai pieteiktos.",
+    "message": "$ORGANIZATION$ izmanto vienoto pieteikšanos ar pašmitinātu atslēgu serveri. Tās dalībniekiem vairs nav nepieciešama galvenā parole, lai pieteiktos.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3283,7 +3315,7 @@
     "message": "Servera versija"
   },
   "selfHostedServer": {
-    "message": "pašizvietots"
+    "message": "pašmitināts"
   },
   "thirdParty": {
     "message": "Trešās puses"
@@ -5169,6 +5201,12 @@
   "changeAtRiskPassword": {
     "message": "Mainīt riskam pakļautu paroli"
   },
+  "settingsVaultOptions": {
+    "message": "Glabātavas iespējas"
+  },
+  "emptyVaultDescription": {
+    "message": "Glabātava aizsargā vairāk kā tikai paroles. Drošā veidā glabā šeit pieteikšanās vienumus, identitātes, kartes un piezīmes!"
+  },
   "introCarouselLabel": {
     "message": "Laipni lūdzam Bitwarden"
   },
@@ -5195,5 +5233,50 @@
   },
   "secureDevicesBody": {
     "message": "Neierobežotu paroļu skaitu var saglabāt neierobežotā ierīdžu daudzumā ar Bitwarden viedtālruņa, pārlūka un darbvirsmas lietotni."
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Ievietot esošas paroles"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Ievietotājs ir izmantojams, lai pieteikšanās vienumus ātri pārnest uz Bitwarden bez pašrocīgas to pievienošanas."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Ievietot tagad"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Laipni lūdzam Tavā glabātavā!"
+  },
+  "hasItemsVaultNudgeBody": {
+    "message": "Automātiskās aizpldes vienumu pašreizējai lapai\nIzlases vienumi vieglai piekļuvei\nPārējo var meklēt glabātavā"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Laika ietaupīšana ar automātisko aizpildi"
+  },
+  "newLoginNudgeBody": {
+    "message": "Iekļauj tīmekļvietni, lai šis pieteikšanās vienums parādītos kā automātiskās aizpildes ieteikums!"
+  },
+  "newCardNudgeTitle": {
+    "message": "Plūdena apmaksa tiešsaistē"
+  },
+  "newCardNudgeBody": {
+    "message": "Ar kartēm ir viegli automātiski aizpildīt maksājumu veidlapu droši un rūpīgi."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Kontu izveidošanas vienkāršošana"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Ar identitātēm var ātri automātiski aizpildīt garas reģistrēšanās vai saziņas veidlapas."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Turi savus jūtīgos datus drošībā"
+  },
+  "newNoteNudgeBody": {
+    "message": "Piezīmēs var droši glabāt jūtīgus datus, piemēram, bankas vai apdrošināšanas informāciju."
+  },
+  "newSshNudgeTitle": {
+    "message": "Izstrādātājiem draudzīga SSH piekļuve"
+  },
+  "newSshNudgeBody": {
+    "message": "Glabā savas atslēgas un savienojies ar SSH aģentu ātrai, šifrētai autentificēšanai!"
   }
 }

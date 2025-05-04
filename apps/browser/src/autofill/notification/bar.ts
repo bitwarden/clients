@@ -6,9 +6,11 @@ import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view
 
 import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
 import { NotificationCipherData } from "../content/components/cipher/types";
-import { OrgView } from "../content/components/common-types";
+import { CollectionView, OrgView } from "../content/components/common-types";
 import { NotificationConfirmationContainer } from "../content/components/notification/confirmation/container";
 import { NotificationContainer } from "../content/components/notification/container";
+import { selectedFolder as selectedFolderSignal } from "../content/components/signals/selected-folder";
+import { selectedVault as selectedVaultSignal } from "../content/components/signals/selected-vault";
 import { buildSvgDomElement } from "../utils";
 import { circleCheckIcon } from "../utils/svg-icons";
 
@@ -41,6 +43,7 @@ function load() {
     applyNotificationBarStyle();
   });
 }
+
 function applyNotificationBarStyle() {
   if (!useComponentBar) {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -132,7 +135,11 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
   }
 
   notificationBarIframeInitData = initData;
-  const { isVaultLocked, theme } = notificationBarIframeInitData;
+  const {
+    isVaultLocked,
+    removeIndividualVault: personalVaultDisallowed, // renamed to avoid local method collision
+    theme,
+  } = notificationBarIframeInitData;
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
 
@@ -140,7 +147,7 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
     document.body.innerHTML = "";
     // Current implementations utilize a require for scss files which creates the need to remove the node.
     document.head.querySelectorAll('link[rel="stylesheet"]').forEach((node) => node.remove());
-
+    const orgId = selectedVaultSignal.get();
     await Promise.all([
       new Promise<OrgView[]>((resolve) =>
         sendPlatformMessage({ command: "bgGetOrgData" }, resolve),
@@ -151,19 +158,25 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
       new Promise<NotificationCipherData[]>((resolve) =>
         sendPlatformMessage({ command: "bgGetDecryptedCiphers" }, resolve),
       ),
-    ]).then(([organizations, folders, ciphers]) => {
+      new Promise<CollectionView[]>((resolve) =>
+        sendPlatformMessage({ command: "bgGetCollectionData", orgId }, resolve),
+      ),
+    ]).then(([organizations, folders, ciphers, collections]) => {
       notificationBarIframeInitData = {
         ...notificationBarIframeInitData,
+        organizations,
         folders,
         ciphers,
-        organizations,
+        collections,
       };
+
       // @TODO use context to avoid prop drilling
       return render(
         NotificationContainer({
           ...notificationBarIframeInitData,
           type: notificationBarIframeInitData.type as NotificationType,
           theme: resolvedTheme,
+          personalVaultIsAllowed: !personalVaultDisallowed,
           handleCloseNotification,
           handleSaveAction,
           handleEditOrUpdateAction,
@@ -254,9 +267,21 @@ function handleCloseNotification(e: Event) {
 }
 
 function handleSaveAction(e: Event) {
+  const selectedVault = selectedVaultSignal.get();
+  const selectedFolder = selectedFolderSignal.get();
+
+  if (selectedVault.length > 1) {
+    openAddEditVaultItemPopout(e, {
+      organizationId: selectedVault,
+      folder: selectedFolder,
+    });
+    handleCloseNotification(e);
+    return;
+  }
+
   e.preventDefault();
 
-  sendSaveCipherMessage(removeIndividualVault());
+  sendSaveCipherMessage(removeIndividualVault(), selectedFolder);
   if (removeIndividualVault()) {
     return;
   }
@@ -349,6 +374,21 @@ function handleSaveCipherAttemptCompletedMessage(message: NotificationBarWindowM
     () => sendPlatformMessage({ command: "bgCloseNotificationBar", fadeOutNotification: true }),
     3000,
   );
+}
+
+function openAddEditVaultItemPopout(
+  e: Event,
+  options: {
+    cipherId?: string;
+    organizationId?: string;
+    folder?: string;
+  },
+) {
+  e.preventDefault();
+  sendPlatformMessage({
+    command: "bgOpenAddEditVaultItemPopout",
+    ...options,
+  });
 }
 
 function openViewVaultItemPopout(cipherId: string) {

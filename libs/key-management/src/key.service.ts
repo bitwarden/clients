@@ -26,7 +26,7 @@ import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/ke
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { KeySuffixOptions, HashPurpose } from "@bitwarden/common/platform/enums";
+import { KeySuffixOptions, HashPurpose, EncryptionType } from "@bitwarden/common/platform/enums";
 import { convertValues } from "@bitwarden/common/platform/misc/convert-values";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
@@ -346,7 +346,12 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     const iterations = hashPurpose === HashPurpose.LocalAuthorization ? 2 : 1;
-    const hash = await this.cryptoFunctionService.pbkdf2(key.key, password, "sha256", iterations);
+    const hash = await this.cryptoFunctionService.pbkdf2(
+      key.inner().encryptionKey,
+      password,
+      "sha256",
+      iterations,
+    );
     return Utils.fromBufferToB64(hash);
   }
 
@@ -823,13 +828,13 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     newSymKey: SymmetricCryptoKey,
   ): Promise<[T, EncString]> {
     let protectedSymKey: EncString;
-    if (encryptionKey.key.byteLength === 32) {
+    if (encryptionKey.inner().type === EncryptionType.AesCbc256_B64) {
       const stretchedEncryptionKey = await this.keyGenerationService.stretchKey(encryptionKey);
       protectedSymKey = await this.encryptService.wrapSymmetricKey(
         newSymKey,
         stretchedEncryptionKey,
       );
-    } else if (encryptionKey.key.byteLength === 64) {
+    } else if (encryptionKey.inner().type === EncryptionType.AesCbc256_HmacSha256_B64) {
       protectedSymKey = await this.encryptService.wrapSymmetricKey(newSymKey, encryptionKey);
     } else {
       throw new Error("Invalid key size.");

@@ -2,6 +2,9 @@
   "appName": {
     "message": "Bitwarden"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden лого"
+  },
   "extName": {
     "message": "Bitwarden Менаџер Лозинке",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
@@ -883,6 +886,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Следите наведене кораке да бисте завршили пријављивање."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Следите наведене кораке да бисте завршили пријаву са својим безбедносним кључем."
+  },
   "restartRegistration": {
     "message": "Поново покрените регистрацију"
   },
@@ -1056,23 +1062,49 @@
   "notificationAddSave": {
     "message": "Сачувај"
   },
-  "loginSaveSuccessDetails": {
-    "message": "$USERNAME$ сачуван и Bitwarden.",
+  "notificationViewAria": {
+    "message": "Преглед $ITEMNAME$, отвара се у новом прозору",
     "placeholders": {
-      "username": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is saved."
+    "description": "Aria label for the view button in notification bar confirmation message"
   },
-  "loginUpdatedSuccessDetails": {
-    "message": "$USERNAME$ ажурирано у Bitwarden.",
+  "notificationEditTooltip": {
+    "message": "Уреди пре сачувавања",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "Ново обавештење"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: Ново обавештење",
+    "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
-      "username": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "loginSaveConfirmation": {
+    "message": "$ITEMNAME$ сачувано и Bitwarden.",
+    "placeholders": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is updated."
+    "description": "Shown to user after item is saved."
+  },
+  "loginUpdatedConfirmation": {
+    "message": "$ITEMNAME$ ажурирано у Bitwarden.",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after item is updated."
   },
   "saveAsNewLoginAction": {
     "message": "Сачувати као нову пријаву",
@@ -1082,12 +1114,12 @@
     "message": "Ажурирати пријаву",
     "description": "Button text for updating an existing login entry."
   },
-  "saveLoginPrompt": {
-    "message": "Сачувати пријаву?",
+  "saveLogin": {
+    "message": "Сачувати пријаву",
     "description": "Prompt asking the user if they want to save their login details."
   },
-  "updateLoginPrompt": {
-    "message": "Ажурирајте постојећу пријаву?",
+  "updateLogin": {
+    "message": "Ажурирати постојећу пријаву",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
@@ -1099,7 +1131,7 @@
     "description": "Message displayed when login details are successfully updated."
   },
   "loginUpdateTaskSuccess": {
-    "message": "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
+    "message": "Одличан посао! Узели сте кораке да ви и $ORGANIZATION$ будете сигурнији.",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -1108,7 +1140,7 @@
     "description": "Shown to user after login is updated."
   },
   "loginUpdateTaskSuccessAdditional": {
-    "message": "Thank you for making $ORGANIZATION$ more secure. You have $TASK_COUNT$ more passwords to update.",
+    "message": "Хвала вам што сте осигурали $ORGANIZATION$. Имате још $TASK_COUNT$ лозинки за ажурирање.",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -1120,7 +1152,7 @@
     "description": "Shown to user after login is updated."
   },
   "nextSecurityTaskAction": {
-    "message": "Change next password",
+    "message": "Променити следећу лозинку",
     "description": "Message prompting user to undertake completion of another security task."
   },
   "saveFailure": {
@@ -2323,7 +2355,7 @@
     "message": "Политика приватности"
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
-    "message": "Your new password cannot be the same as your current password."
+    "message": "Ваша нова лозинка не може бити иста као тренутна лозинка."
   },
   "hintEqualsPassword": {
     "message": "Ваш савет за лозинку не може да буде исти као лозинка."
@@ -4929,7 +4961,7 @@
     "description": "Notification message for when a password has been regenerated"
   },
   "saveToBitwarden": {
-    "message": "Save to Bitwarden",
+    "message": "Сачувај у Bitwarden",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
@@ -5169,31 +5201,82 @@
   "changeAtRiskPassword": {
     "message": "Променити ризичну лозинку"
   },
+  "settingsVaultOptions": {
+    "message": "Опције сефа"
+  },
+  "emptyVaultDescription": {
+    "message": "Сеф штити више од само ваших лозинки. Овде безбедно чувајте безбедне пријаве, личне карте, картице и белешке."
+  },
   "introCarouselLabel": {
-    "message": "Welcome to Bitwarden"
+    "message": "Добродошли у Bitwarden"
   },
   "securityPrioritized": {
-    "message": "Security, prioritized"
+    "message": "Сигурност, приоритет"
   },
   "securityPrioritizedBody": {
-    "message": "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you."
+    "message": "Сачувај пријаве, картице и идентитете у свом безбедном сефу. Bitwarden користи шифровање од почетка-до-краја да заштити оно што вам је важно."
   },
   "quickLogin": {
-    "message": "Quick and easy login"
+    "message": "Брза и лака пријава"
   },
   "quickLoginBody": {
-    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+    "message": "Подесите биометријско откључавање и аутоматско попуњавање да бисте се пријавили на своје налоге без уноса ниједног слова."
   },
   "secureUser": {
-    "message": "Level up your logins"
+    "message": "Подигните ниво својих пријава"
   },
   "secureUserBody": {
-    "message": "Use the generator to create and save strong, unique passwords for all your accounts."
+    "message": "Користите генератор да креирате и сачувате јаке, јединствене лозинке за све ваше налоге."
   },
   "secureDevices": {
-    "message": "Your data, when and where you need it"
+    "message": "Ваши подаци, када и где су вам потребни"
   },
   "secureDevicesBody": {
-    "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
+    "message": "Сачувајте неограничене лозинке на неограниченим уређајима помоћу Bitwarden мобилних апликација, претраживача и десктоп апликација."
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Увоз постојеће лозинке"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Користите увозник да брзо преносите пријаве у Bitwarden без да их ручно додате."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Увези сада"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Добродошли у ваш сеф!"
+  },
+  "hasItemsVaultNudgeBody": {
+    "message": "Ауто-пуњење предмета за тренутну страницу\nОмиљени предмети за лак приступ\nПретражите сеф за нешто друго"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Уштедите време са ауто-пуњењем"
+  },
+  "newLoginNudgeBody": {
+    "message": "Укључите веб страницу тако да се ова пријава појављује као предлог за ауто-пуњење."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "Са картицама, лако и сигурносно попуните формуларе за плаћање."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Поједноставите креирање налога"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Са идентитетима, брзо попуните регистрације или контактних образаци."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Држите на сигурном своје осетљиве податке"
+  },
+  "newNoteNudgeBody": {
+    "message": "Са белешкама, сигурно чувајте осетљиве податке попут банкарског или подаци о осигурању."
+  },
+  "newSshNudgeTitle": {
+    "message": "Лак SSH приступ"
+  },
+  "newSshNudgeBody": {
+    "message": "Чувајте кључеве и повежите се са SSH агент за брзу, шифровану аутентификацију."
   }
 }

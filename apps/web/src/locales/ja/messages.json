@@ -422,17 +422,8 @@
   "folder": {
     "message": "フォルダー"
   },
-  "newCustomField": {
-    "message": "新規カスタムフィールド"
-  },
   "value": {
     "message": "値"
-  },
-  "dragToSort": {
-    "message": "ドラッグして並べ替え"
-  },
-  "dragToReorder": {
-    "message": "ドラッグして並べ替え"
   },
   "cfTypeText": {
     "message": "テキスト"
@@ -10607,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "PINによるアカウントのロック解除をメンバーに許可しません。"
   },
-  "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Get full access to organization event logs by upgrading to a Teams or Enterprise plan."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Upgrade for real event log data"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
@@ -10636,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "New business unit"
+  },
+  "restart": {
+    "message": "Restart"
   }
 }
