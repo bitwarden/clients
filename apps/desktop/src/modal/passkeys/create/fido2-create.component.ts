@@ -131,18 +131,22 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
     return !cipher.login || !cipher.login.hasUris || cipher.deletedDate;
   }
 
-  /* Determines whether a cipher contains a FIDO2 credential that is eligible for registration. */
+  /*
+   * Determines whether a cipher contains a FIDO2 credential that is eligible for registration.
+   * If the userHandle values are both empty they are not eligible, so ignore them.
+   * */
   eligibleFido2Credential(
     cipher: CipherView,
     lastRegistrationRequest: autofill.PasskeyRegistrationRequest,
   ) {
     return (
-      (cipher.login.fido2Credentials.some((passkey) => {
+      cipher.login.fido2Credentials.some((passkey) => {
         const passkeyUserHandle = Fido2Utils.stringToBuffer(passkey.userHandle) || new Uint8Array();
-        compareCredentialIds(passkeyUserHandle, new Uint8Array(lastRegistrationRequest.userHandle));
-      }) ||
-        this.cipherMatchesUserName(cipher, lastRegistrationRequest.userName)) &&
-      !this.invalidFido2Credential(cipher)
+        const lastRegistrationUserHandle = new Uint8Array(lastRegistrationRequest.userHandle);
+        if (passkeyUserHandle.length > 0 || lastRegistrationUserHandle.length > 0) {
+          compareCredentialIds(passkeyUserHandle, lastRegistrationUserHandle);
+        }
+      }) && !this.invalidFido2Credential(cipher)
     );
   }
 
