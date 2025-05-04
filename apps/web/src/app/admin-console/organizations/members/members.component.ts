@@ -848,18 +848,6 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     });
   }
 
-  get showBulkConfirmUsers(): boolean {
-    return this.dataSource
-      .getCheckedUsers()
-      .every((member) => member.status == this.userStatusType.Accepted);
-  }
-
-  get showBulkReinviteUsers(): boolean {
-    return this.dataSource
-      .getCheckedUsers()
-      .every((member) => member.status == this.userStatusType.Invited);
-  }
-
   get showBulkRestoreUsers(): boolean {
     return this.dataSource
       .getCheckedUsers()
