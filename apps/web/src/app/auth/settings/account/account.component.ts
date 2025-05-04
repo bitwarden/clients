@@ -1,14 +1,5 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
-import {
-  combineLatest,
-  firstValueFrom,
-  from,
-  lastValueFrom,
-  map,
-  Observable,
-  Subject,
-  takeUntil,
-} from "rxjs";
+import { firstValueFrom, from, lastValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -56,11 +47,11 @@ export class AccountComponent implements OnInit, OnDestroy {
 
     this.showChangeEmail$ = hasMasterPassword$;
 
-    this.showPurgeVault$ = combineLatest([userIsManagedByOrganization$]).pipe(
+    this.showPurgeVault$ = userIsManagedByOrganization$.pipe(
       map((userIsManagedByOrganization) => !userIsManagedByOrganization),
     );
 
-    this.showDeleteAccount$ = combineLatest([userIsManagedByOrganization$]).pipe(
+    this.showDeleteAccount$ = userIsManagedByOrganization$.pipe(
       map((userIsManagedByOrganization) => !userIsManagedByOrganization),
     );
 
