@@ -10,17 +10,14 @@
     }}</bit-callout>
 
     <auth-input-password
-      *ngIf="!initializing"
       [flow]="inputPasswordFlow"
       [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
       (onPasswordFormSubmit)="handlePasswordFormSubmit($event)"
     ></auth-input-password>
-
-    <auth-change-password [inputPasswordFlow]="inputPasswordFlow"></auth-change-password>
   </div>
 
   <ng-container bitDialogFooter>
-    <button type="submit" bitButton bitFormButton buttonType="primary">
+    <button type="button" bitButton bitFormButton buttonType="primary" (click)="submit()">
       {{ "save" | i18n }}
     </button>
     <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>
