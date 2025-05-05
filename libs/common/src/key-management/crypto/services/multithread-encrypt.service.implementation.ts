@@ -39,6 +39,10 @@ export class MultithreadEncryptServiceImplementation extends EncryptServiceImple
       return [];
     }
 
+    if (this.useSDKForDecryption) {
+      return await super.decryptItems(items, key);
+    }
+
     this.logService.info("Starting decryption using multithreading");
 
     if (this.worker == null) {
