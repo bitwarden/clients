@@ -40,20 +40,21 @@ export class RemovePasswordComponent implements OnInit {
       this.logService.info(
         "[Key Connector remove password] No active account found, redirecting to login.",
       );
-      await this.router.navigate([""]);
+      await this.router.navigate(["/"]);
       return;
     }
     this.activeUserId = activeAccount.id;
+
+    await this.syncService.fullSync(false);
 
     this.organization = await this.keyConnectorService.getManagingOrganization(this.activeUserId);
     if (this.organization == null) {
       this.logService.info(
         "[Key Connector remove password] No organization found, redirecting to login.",
       );
-      await this.router.navigate([""]);
+      await this.router.navigate(["/"]);
       return;
     }
-    await this.syncService.fullSync(false);
     this.loading = false;
   }
 
@@ -72,7 +73,7 @@ export class RemovePasswordComponent implements OnInit {
         message: this.i18nService.t("removedMasterPassword"),
       });
 
-      await this.router.navigate([""]);
+      await this.router.navigate(["/"]);
     } catch (e) {
       this.continuing = false;
 
@@ -100,7 +101,7 @@ export class RemovePasswordComponent implements OnInit {
         message: this.i18nService.t("leftOrganization"),
       });
 
-      await this.router.navigate([""]);
+      await this.router.navigate(["/"]);
     } catch (e) {
       this.leaving = false;
 
