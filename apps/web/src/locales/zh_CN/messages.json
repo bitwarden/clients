@@ -396,7 +396,7 @@
     "message": "过期的支付卡"
   },
   "cardExpiredMessage": {
-    "message": "如果您的支付卡已续期，请更新该卡的信息。"
+    "message": "如果您的支付卡已续期，请更新该卡的信息"
   },
   "expirationMonth": {
     "message": "过期月份"
@@ -2727,7 +2727,7 @@
     }
   },
   "bitwardenFamiliesPlan": {
-    "message": "Bitwarden 家庭版计划。"
+    "message": "Bitwarden 家庭计划。"
   },
   "addons": {
     "message": "附加项目"
@@ -3072,7 +3072,7 @@
     }
   },
   "planNameFamilies": {
-    "message": "家庭版"
+    "message": "家庭"
   },
   "planDescFamilies": {
     "message": "适用于个人使用，与家人和朋友共享。"
@@ -4067,7 +4067,7 @@
     "message": "更新浏览器"
   },
   "generatingYourRiskInsights": {
-    "message": "Generating your Risk Insights..."
+    "message": "正在生成您的风险洞察..."
   },
   "updateBrowserDesc": {
     "message": "您使用的是不受支持的网页浏览器。网页密码库可能无法正常运行。"
@@ -6302,14 +6302,14 @@
   "sponsoredBitwardenFamilies": {
     "message": "赞助的家庭"
   },
-  "noSponsoredFamilies": {
+  "noSponsoredFamiliesMessage": {
     "message": "没有赞助的家庭"
   },
-  "noSponsoredFamiliesDescription": {
+  "nosponsoredFamiliesDetails": {
     "message": "已赞助的非成员家庭计划将显示在这里"
   },
-  "sponsorFreeBitwardenFamilies": {
-    "message": "您的组织成员有资格获得免费的 Bitwarden 家庭版计划。您可以为不是您的 Bitwarden 组织成员的员工赞助免费 Bitwarden 家庭。赞助非成员需要您的组织内有可用的席位。"
+  "sponsorshipFreeBitwardenFamilies": {
+    "message": "您的组织成员有资格获得免费的 Bitwarden 家庭计划。您可以为不是您的 Bitwarden 组织成员的员工赞助免费 Bitwarden 家庭。赞助非成员需要您的组织内有可用的席位。"
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "当您移除某个活动赞助时，该赞助席位将在被赞助组织的续费日期后释放给您的组织使用。"
@@ -6318,16 +6318,16 @@
     "message": "您和您的家人有资格获得免费的 Bitwarden 家庭版计划。使用您的个人电子邮箱兑换，即使您不在工作中，也能确保您的数据安全。"
   },
   "sponsoredFamiliesEligibleCard": {
-    "message": "立即兑换免费的 Bitwarden 家庭版计划，即使您不在工作中，也能确保您的数据安全。"
+    "message": "立即兑换免费的 Bitwarden 家庭计划，即使您不在工作中，也能确保您的数据安全。"
   },
-  "sponsoredFamiliesInclude": {
-    "message": "Bitwarden 家庭版计划包含"
+  "sponsoredFamiliesIncludeMessage": {
+    "message": "Bitwarden 家庭计划包含"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "最多 6 个用户的高级访问权限"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "用于家庭机密的共享集合"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "适用于家庭成员的共享集合"
   },
   "memberFamilies": {
     "message": "成员家庭"
@@ -6339,7 +6339,16 @@
     "message": "已兑换家庭计划的成员将在这里显示"
   },
   "membersWithSponsoredFamilies": {
-    "message": "您的组织成员有资格获得免费的 Bitwarden 家庭版计划。在这里，您可以看到已赞助了家庭组织的成员。"
+    "message": "您的组织成员有资格获得免费的 Bitwarden 家庭计划。在这里，您可以看到已赞助了家庭组织的成员。"
+  },
+  "organizationHasMemberMessage": {
+    "message": "由于他们是您组织的成员，因此不能将赞助发送给 $EMAIL$。",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "链接已失效。请让赞助方重新发送邀请。"
@@ -6392,7 +6401,7 @@
   "redeemedAccount": {
     "message": "账户已兑换"
   },
-  "revokeAccount": {
+  "revokeAccountMessage": {
     "message": "撤销账户 $NAME$",
     "placeholders": {
       "name": {
@@ -6882,14 +6891,14 @@
     "message": "使用此用户名"
   },
   "securePasswordGenerated": {
-    "message": "安全的密码生成好了！别忘了在网站上也更新一下您的密码。"
+    "message": "安全的密码已生成！不要忘记在网站上更新您的密码。"
   },
   "useGeneratorHelpTextPartOne": {
     "message": "使用生成器",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
-    "message": "创建一个强大且唯一的密码",
+    "message": "创建强大且唯一的密码",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "service": {
@@ -10387,11 +10396,17 @@
   "doNotTrust": {
     "message": "不信任"
   },
+  "organizationNotTrusted": {
+    "message": "组织未被信任"
+  },
   "emergencyAccessTrustWarning": {
     "message": "为了您的账户安全，确认前请先确认：您已授予该用户紧急访问权限，以及其指纹与其账户中显示的指纹相匹配"
   },
   "orgTrustWarning": {
     "message": "为了您的账户安全，继续前请先确认：您是启用了账户恢复功能的该组织的成员，以及下方显示的指纹与此组织的指纹相匹配。"
+  },
+  "orgTrustWarning1": {
+    "message": "此组织有一个企业策略，将为您注册账户恢复。注册后将允许组织管理员更改您的主密码。继续前请先确认：您认识此组织，以及下方显示的指纹短语与此组织的指纹相匹配。"
   },
   "trustUser": {
     "message": "信任用户"
@@ -10599,10 +10614,10 @@
     "message": "不允许成员使用 PIN 码解锁他们的账户。"
   },
   "upgradeForFullEventsMessage": {
-    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
+    "message": "不会为您的组织存储事件日志。升级到团队计划或企业计划以获取组织事件日志的完整访问权限。"
   },
   "upgradeEventLogTitleMessage": {
-    "message": "Upgrade to see event logs from your organization."
+    "message": "升级以查看您组织中的事件日志。"
   },
   "upgradeEventLogMessage": {
     "message": "这些事件仅为示例，并不反映您 Bitwarden 组织内的真实事件。"
@@ -10619,7 +10634,40 @@
   "newBusinessUnit": {
     "message": "新增业务单元"
   },
+  "newLoginNudgeTitle": {
+    "message": "使用自动填充节省时间"
+  },
+  "newLoginNudgeBody": {
+    "message": "请包含网站，以便将此登录显示为自动填充建议。"
+  },
+  "newCardNudgeTitle": {
+    "message": "无缝在线结账"
+  },
+  "newCardNudgeBody": {
+    "message": "使用支付卡，安全准确地轻松自动填充付款表单。"
+  },
+  "newIdentityNudgeTitle": {
+    "message": "简化账户的创建"
+  },
+  "newIdentityNudgeBody": {
+    "message": "使用身份，快速自动填充冗长的注册或联系表单。"
+  },
+  "newNoteNudgeTitle": {
+    "message": "保持您的敏感数据的安全"
+  },
+  "newNoteNudgeBody": {
+    "message": "使用笔记，安全地存储敏感数据，例如银行或保险详细信息。"
+  },
+  "newSshNudgeTitle": {
+    "message": "开发人员友好的 SSH 访问权限"
+  },
+  "newSshNudgeBody": {
+    "message": "存储您的密钥并与 SSH 代理连接，以进行快速、加密的身份验证。"
+  },
   "restart": {
-    "message": "Restart"
+    "message": "重新启动"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在提供商的订阅页面输入该转账的对账单描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将失效。"
   }
 }
