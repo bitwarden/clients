@@ -6302,14 +6302,14 @@
   "sponsoredBitwardenFamilies": {
     "message": "Спонсоровані родини"
   },
-  "noSponsoredFamilies": {
-    "message": "Немає спонсорованих родин"
+  "noSponsoredFamiliesMessage": {
+    "message": "No sponsored families"
   },
-  "noSponsoredFamiliesDescription": {
-    "message": "Тут буде показано спонсоровані плани родин, які не є учасниками"
+  "nosponsoredFamiliesDetails": {
+    "message": "Sponsored non-member families plans will display here"
   },
-  "sponsorFreeBitwardenFamilies": {
-    "message": "Учасники вашої організації мають право на безплатний план Bitwarden Families. Ви можете спонсорувати безплатні плани Bitwarden Families для співробітників, які не є учасниками вашої організації Bitwarden. Для спонсорування користувачів, які не є учасниками організації, необхідні вільні місця в межах вашої організації."
+  "sponsorshipFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Якщо вилучити активне спонсорство, місце у вашій організації стане доступним після дати оновлення спонсорованої організації."
@@ -6320,14 +6320,14 @@
   "sponsoredFamiliesEligibleCard": {
     "message": "Активуйте сьогодні безплатний тарифний план Bitwarden Families, щоб зберігати свої дані захищеними, навіть коли ви не на роботі."
   },
-  "sponsoredFamiliesInclude": {
-    "message": "Тариф Bitwarden Families включає"
+  "sponsoredFamiliesIncludeMessage": {
+    "message": "The Bitwarden for Families plan includes"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Преміумдоступ до 6 користувачів"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Спільні збірки для обміну паролями"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Shared collections for family members"
   },
   "memberFamilies": {
     "message": "Родини учасників"
@@ -6340,6 +6340,15 @@
   },
   "membersWithSponsoredFamilies": {
     "message": "Учасники вашої організації мають право на безплатний план Bitwarden Families. Тут ви можете переглянути учасників, які спонсорують родинну організацію."
+  },
+  "organizationHasMemberMessage": {
+    "message": "A sponsorship cannot be sent to $EMAIL$ because they are a member of your organization.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "Посилання більше не дійсне. Попросіть спонсора повторно надіслати пропозицію."
@@ -6392,8 +6401,8 @@
   "redeemedAccount": {
     "message": "Обліковий запис активовано"
   },
-  "revokeAccount": {
-    "message": "Відкликати обліковий запис $NAME$",
+  "revokeAccountMessage": {
+    "message": "Revoke account $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -10387,11 +10396,17 @@
   "doNotTrust": {
     "message": "Не довіряти"
   },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
+  },
   "emergencyAccessTrustWarning": {
     "message": "Щоб захистити свій обліковий запис, підтверджуйте лише якщо ви надали цьому користувачу екстрений доступ, і його цифровий відбиток збігається з показаним в його обліковому записі."
   },
   "orgTrustWarning": {
     "message": "Щоб захистити свій обліковий запис, продовжуйте лише якщо ви є учасником цієї організації, маєте ввімкнене відновлення облікового запису, і показаний нижче цифровий відбиток збігається з відбитком організації."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
   },
   "trustUser": {
     "message": "Довіряти користувачу"
@@ -10619,7 +10634,40 @@
   "newBusinessUnit": {
     "message": "Новий бізнес-підрозділ"
   },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBody": {
+    "message": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBody": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  },
   "restart": {
     "message": "Restart"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
   }
 }
