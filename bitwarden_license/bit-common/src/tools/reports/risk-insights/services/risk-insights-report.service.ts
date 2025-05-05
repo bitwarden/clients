@@ -428,7 +428,7 @@ export class RiskInsightsReportService {
     const cipherUris: string[] = [];
     const uris = cipher.login?.uris ?? [];
     uris.map((u: { uri: string }) => {
-      const uri = Utils.getHostname(u.uri).replace("www.", "");
+      const uri = Utils.getDomain(u.uri);
       if (!cipherUris.includes(uri)) {
         cipherUris.push(uri);
       }
