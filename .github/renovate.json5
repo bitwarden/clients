@@ -52,6 +52,13 @@
       addLabels: ["hold"],
     },
     {
+      // By default, we send patch updates to the Dependency Dashboard and do not generate a PR.
+      // We want to generate PRs for a select number of dependencies to ensure we stay up to date on these.
+      matchPackageNames: ["browserslist", "electron", "rxjs", "typescript", "webpack"],
+      matchUpdateTypes: ["patch"],
+      dependencyDashboardApproval: false,
+    },
+    {
       // Disable major and minor updates for TypeScript and Zone.js because they are managed by Angular.
       matchPackageNames: ["typescript", "zone.js"],
       matchUpdateTypes: ["major", "minor"],
