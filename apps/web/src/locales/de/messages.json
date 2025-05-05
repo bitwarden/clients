@@ -6302,14 +6302,14 @@
   "sponsoredBitwardenFamilies": {
     "message": "Gesponserte Familien"
   },
-  "noSponsoredFamilies": {
-    "message": "Keine gesponserten Familien"
+  "noSponsoredFamiliesMessage": {
+    "message": "No sponsored families"
   },
-  "noSponsoredFamiliesDescription": {
-    "message": "Gesponserte Families-Tarife von Nicht-Mitgliedern werden hier angezeigt"
+  "nosponsoredFamiliesDetails": {
+    "message": "Sponsored non-member families plans will display here"
   },
-  "sponsorFreeBitwardenFamilies": {
-    "message": "Mitglieder deiner Organisation sind für den kostenlosen Bitwarden Families-Tarif berechtigt. Du kannst kostenlose Bitwarden Families-Tarife für Mitarbeiter sponsern, die kein Mitglied deiner Bitwarden Organisation sind. Das Sponsoring eines Nicht-Mitglieds erfordert einen verfügbaren Benutzerplatz in deiner Organisation."
+  "sponsorshipFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Wenn du ein aktives Sponsoring entfernst, steht dir nach dem Verlängerungsdatum der gesponserten Organisation ein Benutzerplatz in deiner Organisation zur Verfügung."
@@ -6320,14 +6320,14 @@
   "sponsoredFamiliesEligibleCard": {
     "message": "Löse deinen Free Bitwarden Families-Tarif heute ein, um deine Daten zu schützen, auch wenn du nicht am Arbeitsplatz bist."
   },
-  "sponsoredFamiliesInclude": {
-    "message": "Der Bitwarden Families-Tarif beinhaltet"
+  "sponsoredFamiliesIncludeMessage": {
+    "message": "The Bitwarden for Families plan includes"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Premium-Zugang für bis zu 6 Benutzer"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Gemeinsame Sammlungen für Familiengeheimnisse"
+  "sponsoredFamiliesSharedCollectionsMessage": {
+    "message": "Shared collections for family members"
   },
   "memberFamilies": {
     "message": "Mitgliederfamilien"
@@ -6340,6 +6340,15 @@
   },
   "membersWithSponsoredFamilies": {
     "message": "Mitglieder deiner Organisation sind für den kostenlosen Bitwarden Families-Tarif berechtigt. Hier kannst du Mitglieder sehen, die eine Familien-Organisation gesponsert haben."
+  },
+  "organizationHasMemberMessage": {
+    "message": "A sponsorship cannot be sent to $EMAIL$ because they are a member of your organization.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "Der Link ist nicht mehr gültig. Bitte lasse dir vom Sponsor das Angebot erneut senden."
@@ -6392,8 +6401,8 @@
   "redeemedAccount": {
     "message": "Konto eingelöst"
   },
-  "revokeAccount": {
-    "message": "Konto $NAME$ zurückziehen",
+  "revokeAccountMessage": {
+    "message": "Revoke account $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -10619,7 +10628,40 @@
   "newBusinessUnit": {
     "message": "Neuer Geschäftsbereich"
   },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBody": {
+    "message": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBody": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  },
   "restart": {
     "message": "Restart"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
   }
 }

@@ -6302,14 +6302,14 @@
   "sponsoredBitwardenFamilies": {
     "message": "Спонсируемые семьи"
   },
-  "noSponsoredFamilies": {
+  "noSponsoredFamiliesMessage": {
     "message": "Нет спонсируемых семей"
   },
-  "noSponsoredFamiliesDescription": {
-    "message": "Sponsored non-member families plans will display here"
+  "nosponsoredFamiliesDetails": {
+    "message": "Здесь будут показаны планы семей, не являющихся спонсорскими,"
   },
-  "sponsorFreeBitwardenFamilies": {
-    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  "sponsorshipFreeBitwardenFamilies": {
+    "message": "Члены вашей организации имеют право на бесплатный план Bitwarden Families. Вы можете спонсировать бесплатный Bitwarden Families для сотрудников, которые не являются членами вашей организации Bitwarden. Для спонсирования сотрудника, не являющегося членом организации, необходимо наличие свободного места в вашей организации."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
@@ -6320,14 +6320,14 @@
   "sponsoredFamiliesEligibleCard": {
     "message": "Воспользуйтесь бесплатным планом Bitwarden Families сегодня, чтобы обеспечить безопасность ваших данных, даже когда вы не на работе."
   },
-  "sponsoredFamiliesInclude": {
+  "sponsoredFamiliesIncludeMessage": {
     "message": "План Bitwarden Families включает"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Премиум-доступ для 6 пользователей"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Общие коллекции для семейных секретов"
+  "sponsoredFamiliesSharedCollectionsMessage": {
+    "message": "Общие коллекции для членов семьи"
   },
   "memberFamilies": {
     "message": "Члены семей"
@@ -6340,6 +6340,15 @@
   },
   "membersWithSponsoredFamilies": {
     "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
+  },
+  "organizationHasMemberMessage": {
+    "message": "Спонсорство не может быть отправлено $EMAIL$, поскольку он является членом вашей организации.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "Ссылка больше не действительна. Пожалуйста, попросите спонсора повторно отправить предложение."
@@ -6392,7 +6401,7 @@
   "redeemedAccount": {
     "message": "Аккаунт активирован"
   },
-  "revokeAccount": {
+  "revokeAccountMessage": {
     "message": "Отозвать аккаунт $NAME$",
     "placeholders": {
       "name": {
@@ -10619,7 +10628,40 @@
   "newBusinessUnit": {
     "message": "Новая бизнес-единица"
   },
+  "newLoginNudgeTitle": {
+    "message": "Экономьте время с помощью автозаполнения"
+  },
+  "newLoginNudgeBody": {
+    "message": "Включите сайт, чтобы этот логин отображался в качестве предложения для автозаполнения."
+  },
+  "newCardNudgeTitle": {
+    "message": "Оформление заказа через интернет"
+  },
+  "newCardNudgeBody": {
+    "message": "С помощью карт можно легко и безопасно автоматически заполнять формы оплаты."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Упрощение создания аккаунтов"
+  },
+  "newIdentityNudgeBody": {
+    "message": "С помощью личностей можно быстро заполнять длинные регистрационные или контактные формы."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Храните ваши конфиденциальные данные в безопасности"
+  },
+  "newNoteNudgeBody": {
+    "message": "С помощью заметок можно надежно хранить конфиденциальные данные, например, банковские или страховые реквизиты."
+  },
+  "newSshNudgeTitle": {
+    "message": "Удобный для разработчиков SSH-доступ"
+  },
+  "newSshNudgeBody": {
+    "message": "Храните свои ключи и подключайтесь с помощью агента SSH для быстрой и зашифрованной аутентификации."
+  },
   "restart": {
     "message": "Перезапустить"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Оплата с помощью банковского счета доступна только для клиентов в США. Вам потребуется подтвердить свой банковский счет. Мы сделаем микродепозит в течение следующих 1-2 рабочих дней. Введите код дескриптора выписки из этого депозита на странице подписки провайдера для подтверждения банковского счета. Неподтверждение банковского счета приведет к пропуску платежа и приостановке подписки."
   }
 }

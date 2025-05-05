@@ -6302,14 +6302,14 @@
   "sponsoredBitwardenFamilies": {
     "message": "Familles parrainées"
   },
-  "noSponsoredFamilies": {
-    "message": "Aucune famille parrainée"
+  "noSponsoredFamiliesMessage": {
+    "message": "No sponsored families"
   },
-  "noSponsoredFamiliesDescription": {
-    "message": "Les abonnements des familles non membres parrainées apparaîtront ici"
+  "nosponsoredFamiliesDetails": {
+    "message": "Sponsored non-member families plans will display here"
   },
-  "sponsorFreeBitwardenFamilies": {
-    "message": "Les membres de votre organisation sont éligibles pour les Familles Gratuites de Bitwarden. Vous pouvez parrainer Familles Gratuites de Bitwarden pour les employés qui ne sont pas membres de votre organisation Bitwarden. Parrainer un non-membre nécessite un siège disponible au sein de votre organisation."
+  "sponsorshipFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Lorsque vous supprimez un parrainage actif, une licence au sein de votre organisation sera disponible après la date de renouvellement de l'organisation parrainée."
@@ -6320,14 +6320,14 @@
   "sponsoredFamiliesEligibleCard": {
     "message": "Obtenez votre abonnement Bitwarden Familles gratuit aujourd'hui pour garder vos données en sécurité même lorsque vous n'êtes pas au travail."
   },
-  "sponsoredFamiliesInclude": {
-    "message": "L'abonnement Bitwarden Familles inclut"
+  "sponsoredFamiliesIncludeMessage": {
+    "message": "The Bitwarden for Families plan includes"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Accès Premium jusqu'à 6 utilisateurs"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Collections partagées pour les secrets de la famille"
+  "sponsoredFamiliesSharedCollectionsMessage": {
+    "message": "Shared collections for family members"
   },
   "memberFamilies": {
     "message": "Familles de membre"
@@ -6340,6 +6340,15 @@
   },
   "membersWithSponsoredFamilies": {
     "message": "Les membres de votre organisation sont éligibles à l'abonnement aux Familles Gratuites de Bitwarden. Vous pouvez voir ici les membres qui ont parrainé une organisation Familles."
+  },
+  "organizationHasMemberMessage": {
+    "message": "A sponsorship cannot be sent to $EMAIL$ because they are a member of your organization.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "Le lien n'est plus valide. Merci de demander à votre parrain de renvoyer l'offre."
@@ -6392,8 +6401,8 @@
   "redeemedAccount": {
     "message": "Compte récupéré"
   },
-  "revokeAccount": {
-    "message": "Révoquer le compte $NAME$",
+  "revokeAccountMessage": {
+    "message": "Revoke account $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -10599,10 +10608,10 @@
     "message": "Ne pas autoriser les membres à déverrouiller leur compte avec un NIP."
   },
   "upgradeForFullEventsMessage": {
-    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
+    "message": "Les journaux d'événements ne sont pas conservés pour votre organisation. Mettez à niveau vers un forfait Équipes ou Entreprise pour obtenir un accès complet aux journaux d'événements de l'organisation."
   },
   "upgradeEventLogTitleMessage": {
-    "message": "Upgrade to see event logs from your organization."
+    "message": "Mettez à niveau pour voir les journaux d'événements de votre organisation."
   },
   "upgradeEventLogMessage": {
     "message": "Ces événements sont des exemples et ne reflètent pas les événements réels au sein de votre organisation Bitwarden."
@@ -10619,7 +10628,40 @@
   "newBusinessUnit": {
     "message": "Nouvelle unité d'affaires"
   },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBody": {
+    "message": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBody": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  },
   "restart": {
     "message": "Redémarrer"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
   }
 }

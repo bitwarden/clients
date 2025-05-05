@@ -2007,6 +2007,21 @@
     "message": "Premium",
     "description": "Premium membership"
   },
+  "freeOrgsCannotUseAttachments": {
+    "message": "Gratis organisaties kunnen geen bijlagen gebruiken"
+  },
+  "singleFieldNeedsAttention": {
+    "message": "1 veld heeft je aandacht nodig."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ velden hebben je aandacht nodig.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "cardExpiredTitle": {
     "message": "Verlopen kaart"
   },
@@ -3152,6 +3167,30 @@
   "deviceTrusted": {
     "message": "Vertrouwd apparaat"
   },
+  "trustOrganization": {
+    "message": "Organisatie vertrouwen"
+  },
+  "trust": {
+    "message": "Vertrouwen"
+  },
+  "doNotTrust": {
+    "message": "Niet vertrouwen"
+  },
+  "organizationNotTrusted": {
+    "message": "Organisatie is niet vertrouwd"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Bevestig, voor de veiligheid van je account, alleen als je noodtoegang hebt verleend aan deze gebruiker en de vingerafdruk voldoet aan wat er in hun account wordt weergegeven"
+  },
+  "orgTrustWarning": {
+    "message": "Ga, voor de veiligheid van je account, alleen verder als je lid bent van deze organisatie, accountherstel hebt ingeschakeld en de hieronder weergegeven vingerafdruk overeenkomt met de vingerafdruk van de organisatie."
+  },
+  "orgTrustWarning1": {
+    "message": "Deze organisatie heeft een Enterprise-beleid dat je inschrijft voor accountherstel. Inschrijving stelt beheerders van de organisatie in staat om je wachtwoord te wijzigen. Ga alleen verder als je deze organisatie herkent en de vingerafdrukzin die hieronder wordt weergegeven overeenkomt met de vingerafdruk van de organisatie."
+  },
+  "trustUser": {
+    "message": "Gebruiker vertrouwen"
+  },
   "inputRequired": {
     "message": "Invoer vereist."
   },
@@ -3712,5 +3751,35 @@
   },
   "move": {
     "message": "Verplaatsen"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Tijd besparen met automatisch aanvullen"
+  },
+  "newLoginNudgeBody": {
+    "message": "Voeg een website toe zodat deze login wordt weergegeven als een automatische invulsuggestie."
+  },
+  "newCardNudgeTitle": {
+    "message": "Naadloos online afrekenen"
+  },
+  "newCardNudgeBody": {
+    "message": "Met kaarten gemakkelijk, veilig en accuraat automatisch invullen van betaalformulieren."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Vereenvoudig het aanmaken van accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Met identiteiten vul je lange registratie- of contactformulieren snel automatisch in."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Houd je gevoelige gegevens veilig"
+  },
+  "newNoteNudgeBody": {
+    "message": "Met notities veilig opslaan van gevoelige gegevens zoals bank- of verzekeringsgegevens."
+  },
+  "newSshNudgeTitle": {
+    "message": "Ontwikkelaars-vriendelijke SSH-toegang"
+  },
+  "newSshNudgeBody": {
+    "message": "Sla je sleutels op en verbind met de SSH-agent voor snelle, versleutelde authenticatie."
   }
 }
