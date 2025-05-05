@@ -148,7 +148,7 @@ export function NotificationButtonRow({
           ? [
               {
                 id: "collection",
-                label: "Collection", // @TODO localize
+                label: i18n.collection,
                 options: collectionOptions,
                 selectedSignal: selectedCollectionSignal,
               },
