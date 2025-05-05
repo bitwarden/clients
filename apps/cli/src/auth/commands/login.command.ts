@@ -106,7 +106,7 @@ export class LoginCommand {
       }
     } else if (options.sso != null && this.canInteract) {
       // If the optional identifier isn't provided, the option value is `true`.
-      const identifier = options.sso === true ? null : options.sso;
+      const orgSsoIdentifier = options.sso === true ? null : options.sso;
       const passwordOptions: any = {
         type: "password",
         length: 64,
@@ -120,7 +120,7 @@ export class LoginCommand {
       const codeVerifierHash = await this.cryptoFunctionService.hash(ssoCodeVerifier, "sha256");
       const codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash);
       try {
-        const ssoParams = await this.openSsoPrompt(codeChallenge, state, identifier);
+        const ssoParams = await this.openSsoPrompt(codeChallenge, state, orgSsoIdentifier);
         ssoCode = ssoParams.ssoCode;
         orgIdentifier = ssoParams.orgIdentifier;
       } catch {
@@ -731,7 +731,7 @@ export class LoginCommand {
   private async openSsoPrompt(
     codeChallenge: string,
     state: string,
-    identifier: string,
+    orgSsoIdentifier: string,
   ): Promise<{ ssoCode: string; orgIdentifier: string }> {
     const env = await firstValueFrom(this.environmentService.environment$);
 
@@ -781,7 +781,7 @@ export class LoginCommand {
               state,
               codeChallenge,
               null,
-              identifier,
+              orgSsoIdentifier,
             );
             this.platformUtilsService.launchUri(webAppSsoUrl);
           });
