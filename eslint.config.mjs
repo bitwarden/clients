@@ -277,6 +277,26 @@ export default tseslint.config(
       ]),
     },
   },
+  // Tailwind migrated clients & libs
+  {
+    files: ["apps/web/**/*.html", "bitwarden_license/bit-web/**/*.html", "libs/**/*.html"],
+    rules: {
+      "tailwindcss/no-custom-classname": [
+        "error",
+        {
+          // In migrated clients we only allow tailwind classes plus the following exceptions
+          whitelist: [
+            "((bwi)\\-?).*", // Font icons
+            "logo",
+            "logo-themed",
+            "file-selector",
+            "mfaType.*",
+            "filter.*", // Temporary until filters are migrated
+          ],
+        },
+      ],
+    },
+  },
 
   /// Team overrides
   {
