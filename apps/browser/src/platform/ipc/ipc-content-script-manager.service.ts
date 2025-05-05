@@ -18,7 +18,6 @@ export class IpcContentScriptManagerService {
       .getFeatureFlag$(FeatureFlag.IpcChannelFramework)
       .pipe(
         mergeMap(async (enabled) => {
-          console.log("IPC Content Script Manager Service enabled:", enabled);
           if (!enabled) {
             return;
           }
