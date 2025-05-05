@@ -64,7 +64,7 @@
                         {{ "resendInvitation" | i18n }}
                       </button>
 
-                      <hr class="m-0" />
+                      <hr class="tw-m-0" />
 
                       <button
                         type="button"
@@ -73,7 +73,7 @@
                         (click)="removeSponsorship(o)"
                       >
                         <i aria-hidden="true" class="bwi bwi-close tw-text-danger"></i>
-                        <span class="tw-text-danger pl-1">{{ "remove" | i18n }}</span>
+                        <span class="tw-text-danger tw-pl-1">{{ "remove" | i18n }}</span>
                       </button>
                     </bit-menu>
                   </td>
@@ -82,12 +82,12 @@
             }
           </ng-template>
         </bit-table>
-        <hr class="mt-0" />
+        <hr class="tw-mt-0" />
       </ng-container>
     } @else if (!loading()) {
       <div class="tw-my-5 tw-py-5 tw-flex tw-flex-col tw-items-center">
         <img class="tw-w-32" src="./../../../images/search.svg" alt="Search" />
-        <h4 class="mt-3" bitTypography="h4">{{ "noSponsoredFamiliesMessage" | i18n }}</h4>
+        <h4 class="tw-mt-3" bitTypography="h4">{{ "noSponsoredFamiliesMessage" | i18n }}</h4>
         <p bitTypography="body2">{{ "nosponsoredFamiliesDetails" | i18n }}</p>
       </div>
     }
