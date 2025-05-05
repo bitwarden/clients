@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
-import { ChangePasswordComponent } from "@bitwarden/auth/angular";
+import { ChangePasswordComponent, InputPasswordFlow } from "@bitwarden/auth/angular";
 import {
   ButtonModule,
   CalloutModule,
@@ -46,6 +46,8 @@ export enum EmergencyAccessTakeoverDialogResultType {
   ],
 })
 export class EmergencyAccessTakeoverDialogComponent {
+  inputPasswordFlow = InputPasswordFlow.ChangePasswordDelegation;
+
   constructor(@Inject(DIALOG_DATA) protected dialogData: EmergencyAccessTakeoverDialogData) {}
 
   /**

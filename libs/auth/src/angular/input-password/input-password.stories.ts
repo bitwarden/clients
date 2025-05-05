@@ -128,6 +128,7 @@ export default {
   ],
   args: {
     InputPasswordFlow: {
+      ChangePasswordDelegation: InputPasswordFlow.ChangePasswordDelegation,
       AccountRegistration: InputPasswordFlow.AccountRegistration,
       SetInitialPasswordAuthedUser: InputPasswordFlow.SetInitialPasswordAuthedUser,
       ChangePassword: InputPasswordFlow.ChangePassword,
@@ -149,6 +150,15 @@ export default {
 } as Meta;
 
 type Story = StoryObj<InputPasswordComponent>;
+
+export const ChangePasswordDelegation: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <auth-input-password [flow]="InputPasswordFlow.ChangePasswordDelegation"></auth-input-password>
+    `,
+  }),
+};
 
 export const AccountRegistration: Story = {
   render: (args) => ({

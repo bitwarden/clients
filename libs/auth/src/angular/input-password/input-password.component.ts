@@ -52,6 +52,10 @@ export enum InputPasswordFlow {
    * Form elements displayed:
    * - [Input] New password
    * - [Input] New password confirm
+   */
+  ChangePasswordDelegation,
+  /**
+   * All form elements above, plus:
    * - [Input] New password hint
    * - [Checkbox] Check for breaches
    */
@@ -70,9 +74,9 @@ export enum InputPasswordFlow {
 interface InputPasswordForm {
   newPassword: FormControl<string>;
   newPasswordConfirm: FormControl<string>;
-  newPasswordHint: FormControl<string>;
-  checkForBreaches: FormControl<boolean>;
 
+  newPasswordHint?: FormControl<string>;
+  checkForBreaches?: FormControl<boolean>;
   currentPassword?: FormControl<string>;
   rotateUserKey?: FormControl<boolean>;
 }
@@ -143,12 +147,6 @@ export class InputPasswordComponent implements OnInit {
           "newPasswordConfirm",
           this.i18nService.t("masterPassDoesntMatch"),
         ),
-        compareInputs(
-          ValidationGoal.InputsShouldNotMatch,
-          "newPassword",
-          "newPasswordHint",
-          this.i18nService.t("hintEqualsPassword"),
-        ),
       ],
     },
   );
@@ -184,6 +182,26 @@ export class InputPasswordComponent implements OnInit {
   }
 
   private addFormFieldsIfNecessary() {
+    if (this.flow !== InputPasswordFlow.ChangePasswordDelegation) {
+      this.formGroup.addControl(
+        "newPasswordHint",
+        new FormControl("", [
+          Validators.minLength(this.minHintLength),
+          Validators.maxLength(this.maxHintLength),
+        ]) as FormControl<string>,
+      );
+      this.formGroup.addControl("checkForBreaches", new FormControl(true) as FormControl<boolean>);
+
+      this.formGroup.addValidators([
+        compareInputs(
+          ValidationGoal.InputsShouldNotMatch,
+          "newPassword",
+          "newPasswordHint",
+          this.i18nService.t("hintEqualsPassword"),
+        ),
+      ]);
+    }
+
     if (
       this.flow === InputPasswordFlow.ChangePassword ||
       this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
@@ -240,8 +258,8 @@ export class InputPasswordComponent implements OnInit {
 
     const currentPassword = this.formGroup.controls.currentPassword?.value ?? "";
     const newPassword = this.formGroup.controls.newPassword.value;
-    const newPasswordHint = this.formGroup.controls.newPasswordHint.value;
-    const checkForBreaches = this.formGroup.controls.checkForBreaches.value;
+    const newPasswordHint = this.formGroup.controls.newPasswordHint?.value ?? "";
+    const checkForBreaches = this.formGroup.controls.checkForBreaches?.value ?? true;
 
     // 1. Determine kdfConfig
     if (this.flow === InputPasswordFlow.AccountRegistration) {
