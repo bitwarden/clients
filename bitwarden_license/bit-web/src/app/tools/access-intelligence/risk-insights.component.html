@@ -1,10 +1,7 @@
 <ng-container>
   <bit-layout>
-    <div class="tw-mb-1 tw-text-primary-600" bitTypography="body1">
-      {{ "accessIntelligence" | i18n }}
-    </div>
     <h1 bitTypography="h1">{{ "riskInsights" | i18n }}</h1>
-    <div class="tw-text-muted tw-max-w-4xl tw-mb-2">
+    <div class="tw-text-main tw-max-w-4xl tw-mb-2">
       {{ "reviewAtRiskPasswords" | i18n }}
     </div>
     <div
@@ -74,8 +71,10 @@
             "atRiskMembersDescription" | i18n
           }}</span>
           <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
-            <div bitTypography="body2" class="tw-font-bold">{{ "email" | i18n }}</div>
-            <div bitTypography="body2" class="tw-font-bold">{{ "atRiskPasswords" | i18n }}</div>
+            <div bitTypography="body2" class="tw-text-sm tw-font-bold">{{ "email" | i18n }}</div>
+            <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+              {{ "atRiskPasswords" | i18n }}
+            </div>
           </div>
           <ng-container *ngFor="let member of dataService.atRiskMemberDetails">
             <div class="tw-flex tw-justify-between tw-mt-2">
@@ -117,8 +116,12 @@
             "atRiskApplicationsDescription" | i18n
           }}</span>
           <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
-            <div bitTypography="body2" class="tw-font-bold">{{ "application" | i18n }}</div>
-            <div bitTypography="body2" class="tw-font-bold">{{ "atRiskPasswords" | i18n }}</div>
+            <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+              {{ "application" | i18n }}
+            </div>
+            <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+              {{ "atRiskPasswords" | i18n }}
+            </div>
           </div>
           <ng-container *ngFor="let app of dataService.atRiskAppDetails">
             <div class="tw-flex tw-justify-between tw-mt-2">
