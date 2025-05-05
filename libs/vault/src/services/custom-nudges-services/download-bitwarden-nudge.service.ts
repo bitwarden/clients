@@ -16,7 +16,7 @@ export class DownloadBitwardenNudgeService extends DefaultSingleNudgeService {
   private vaultProfileService = inject(VaultProfileService);
   private logService = inject(LogService);
 
-  shouldShowNudge$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
+  nudgeStatus$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
     const profileDate$ = from(this.vaultProfileService.getProfileCreationDate(userId)).pipe(
       catchError(() => {
         this.logService.error("Failed to load profile date:");
