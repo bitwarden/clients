@@ -610,6 +610,8 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  // TODO: PM-21212 - consolidate the logic of this method into the new LogoutService
+  // (requires creating a desktop specific implementation of the LogoutService)
   // Even though the userId parameter is no longer optional doesn't mean a message couldn't be
   // passing null-ish values to us.
   private async logOut(logoutReason: LogoutReason, userId: UserId) {
