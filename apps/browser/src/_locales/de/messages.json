@@ -3564,6 +3564,30 @@
   "deviceTrusted": {
     "message": "Gerät wird vertraut"
   },
+  "trustOrganization": {
+    "message": "Organisation vertrauen"
+  },
+  "trust": {
+    "message": "Vertrauen"
+  },
+  "doNotTrust": {
+    "message": "Nicht vertrauen"
+  },
+  "organizationNotTrusted": {
+    "message": "Organisation ist nicht vertrauenswürdig"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Bestätige zur Sicherheit deines Kontos nur, wenn du den Notfallzugriff diesem Benutzer gewährt hast und sein Fingerabdruck mit dem übereinstimmt, was in seinem Konto angezeigt wird"
+  },
+  "orgTrustWarning": {
+    "message": "Fahre zur Sicherheit deines Kontos nur fort, wenn du ein Mitglied dieser Organisation bist, die Kontowiederherstellung aktiviert hast und der unten angezeigte Fingerabdruck mit dem Fingerabdruck der Organisation übereinstimmt."
+  },
+  "orgTrustWarning1": {
+    "message": "Diese Organisation hat eine Unternehmensrichtlinie, die dich für die Kontowiederherstellung registriert. Die Registrierung wird es den Administratoren der Organisation erlauben, dein Passwort zu ändern. Fahre nur fort, wenn du diese Organisation kennst und die unten angezeigte Fingerabdruck-Phrase mit der der Organisation übereinstimmt."
+  },
+  "trustUser": {
+    "message": "Benutzer vertrauen"
+  },
   "sendsNoItemsTitle": {
     "message": "Keine aktiven Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5202,10 +5226,10 @@
     "message": "Gefährdetes Passwort ändern"
   },
   "settingsVaultOptions": {
-    "message": "Vault options"
+    "message": "Tresoroptionen"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "Der Tresor schützt mehr als nur deine Passwörter. Speicher hier sicher Zugangsdaten, Ausweise, Karten und Notizen."
   },
   "introCarouselLabel": {
     "message": "Willkommen bei Bitwarden"
@@ -5235,48 +5259,48 @@
     "message": "Speicher eine unbegrenzte Anzahl von Passwörtern auf unbegrenzt vielen Geräten mit Bitwarden-Apps für Smartphones, Browser und Desktop."
   },
   "emptyVaultNudgeTitle": {
-    "message": "Import existing passwords"
+    "message": "Vorhandene Passwörter importieren"
   },
   "emptyVaultNudgeBody": {
-    "message": "Use the importer to quickly transfer logins to Bitwarden without manually adding them."
+    "message": "Verwende den Importer, um Zugangsdaten schnell zu Bitwarden zu übertragen, ohne sie manuell hinzuzufügen."
   },
   "emptyVaultNudgeButton": {
-    "message": "Import now"
+    "message": "Jetzt importieren"
   },
   "hasItemsVaultNudgeTitle": {
-    "message": "Welcome to your vault!"
+    "message": "Willkommen in deinem Tresor!"
   },
   "hasItemsVaultNudgeBody": {
-    "message": "Autofill items for the current page\nFavorite items for easy access\nSearch your vault for something else"
+    "message": "Auto-Ausfüllen-Einträge für die aktuelle Seite\nFavoriten-Einträge für einfachen Zugriff\nDurchsuche deinen Tresor nach etwas anderem"
   },
   "newLoginNudgeTitle": {
-    "message": "Save time with autofill"
+    "message": "Spare Zeit mit Auto-Ausfüllen"
   },
   "newLoginNudgeBody": {
-    "message": "Include a Website so this login appears as an autofill suggestion."
+    "message": "Füge eine Website hinzu, damit diese Zugangsdaten als Auto-Ausfüllen-Vorschlag erscheinen."
   },
   "newCardNudgeTitle": {
-    "message": "Seamless online checkout"
+    "message": "Nahtlose Online-Kaufabwicklung"
   },
   "newCardNudgeBody": {
-    "message": "With cards, easily autofill payment forms securely and accurately."
+    "message": "Mit Karten kannst du Zahlungsformulare sicher und präzise einfach automatisch ausfüllen."
   },
   "newIdentityNudgeTitle": {
-    "message": "Simplify creating accounts"
+    "message": "Erstellung von Konten vereinfachen"
   },
   "newIdentityNudgeBody": {
-    "message": "With identities, quickly autofill long registration or contact forms."
+    "message": "Mit Identitäten kannst du lange Registrierungs- oder Kontaktformulare schnell automatisch ausfüllen."
   },
   "newNoteNudgeTitle": {
-    "message": "Keep your sensitive data safe"
+    "message": "Bewahre deine sensiblen Daten sicher auf"
   },
   "newNoteNudgeBody": {
-    "message": "With notes, securely store sensitive data like banking or insurance details."
+    "message": "Mit Notizen speicherst du sensible Daten wie Bank- oder Versicherungs-Informationen."
   },
   "newSshNudgeTitle": {
-    "message": "Developer-friendly SSH access"
+    "message": "Entwickler-freundlicher SSH-Zugriff"
   },
   "newSshNudgeBody": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+    "message": "Speicher deine Schlüssel und verbinden dich mit dem SSH-Agenten für eine schnelle und verschlüsselte Authentifizierung."
   }
 }

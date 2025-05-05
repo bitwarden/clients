@@ -171,7 +171,7 @@
     "message": "Kāda veida vienums tas ir?"
   },
   "name": {
-    "message": "Vārds"
+    "message": "Nosaukums"
   },
   "uri": {
     "message": "URI"
@@ -505,7 +505,7 @@
     "description": "A URL's host value. For example, the host of https://sub.domain.com:443 is 'sub.domain.com:443'."
   },
   "exact": {
-    "message": "Tiešs"
+    "message": "Tieši"
   },
   "startsWith": {
     "message": "Sākas ar"
@@ -6300,19 +6300,19 @@
     "message": "Bezmaksas Bitwarden ģimenēm"
   },
   "sponsoredBitwardenFamilies": {
-    "message": "Sponsored families"
+    "message": "Atbalstītas ģimenes"
   },
-  "noSponsoredFamilies": {
-    "message": "No sponsored families"
+  "noSponsoredFamiliesMessage": {
+    "message": "Nav atbalstītu ģimeņu"
   },
-  "noSponsoredFamiliesDescription": {
-    "message": "Sponsored non-member families plans will display here"
+  "nosponsoredFamiliesDetails": {
+    "message": "Šeit tiks attēloti atbalstītie ne-dalībnieku ģimeņu plāni"
   },
-  "sponsorFreeBitwardenFamilies": {
-    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  "sponsorshipFreeBitwardenFamilies": {
+    "message": "Tavas apvienības dalībnieki ir tiesīgi uz bezmaksas Bitwarden ģimenēm. Var atbalstīt bezmaksas Bitwarden ģimenēm darbiniekiem, kuri nav Tavas Bitwarden apvienības dalībnieki. Ne-dalībnieka atbalstīšanai ir nepieciešama brīva vieta apvienībā."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
-    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+    "message": "Kad tiek noņemta izmantota atbalsta dalība, apvienībā atbrīvosies vieta pēc atbalstītāš apvienības atjaunošanas datuma."
   },
   "sponsoredFamiliesEligible": {
     "message": "Tu un Tava ģimene esat atbilstīgi bezmaksas Bitwarden Families. Piesakies ar personīgo e-pasta adresi, lai turētu datus drošībā pat tad, kad neesi darbā!"
@@ -6320,26 +6320,35 @@
   "sponsoredFamiliesEligibleCard": {
     "message": "Izmanto savu bezmaksas Bitwarden ģimenēm šodien, lai turētu datus drošībā pat tad, kad neesi darbā."
   },
-  "sponsoredFamiliesInclude": {
+  "sponsoredFamiliesIncludeMessage": {
     "message": "Bitwarden ģimenēm iekļauj"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Premium piekļuve līdz 6 lietotājiem"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Ģimenes noslēpumu kopīgotie krājumi"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Kopīgoti krājumi ģimenes locekļiem"
   },
   "memberFamilies": {
-    "message": "Member families"
+    "message": "Dalībnieku ģimenes"
   },
   "noMemberFamilies": {
-    "message": "No member families"
+    "message": "Nav dalībnieku ģimenes"
   },
   "noMemberFamiliesDescription": {
-    "message": "Members who have redeemed family plans will display here"
+    "message": "Šeit tiks attēloti dalībnieki, kuri ir pieteikušies ģimeņu plāniem"
   },
   "membersWithSponsoredFamilies": {
-    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
+    "message": "Apvienības dalībnieki ir tiesīgi uz bezmaksas Bitwarden ģimenēm. Šeit var redzēt dalībniekus, kuri ir atbalstījuši ģimeņu apvienību."
+  },
+  "organizationHasMemberMessage": {
+    "message": "Atbalsta dalību nevar nosūtīt uz $EMAIL$, jo tā īpašnieks ir apvienības dalībnieks.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "Saite vairs nav derīga. Lūdz pabalstītāju atkārtoti nosūtīt piedāvājumu!"
@@ -6392,7 +6401,7 @@
   "redeemedAccount": {
     "message": "Izmantots konts"
   },
-  "revokeAccount": {
+  "revokeAccountMessage": {
     "message": "Atsaukt kontu $NAME$",
     "placeholders": {
       "name": {
@@ -6465,7 +6474,7 @@
     "message": "Nederīgs apstiprinājuma kods"
   },
   "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ izmanto vienoto pieteikšanos ar pašizvietotu atslēgu serveri. Tās dalībniekiem vairs nav nepieciešama galvenā parole, lai pieteiktos.",
+    "message": "$ORGANIZATION$ izmanto vienoto pieteikšanos ar pašmitinātu atslēgu serveri. Tās dalībniekiem vairs nav nepieciešama galvenā parole, lai pieteiktos.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6510,7 +6519,7 @@
     "message": "Key Connector"
   },
   "memberDecryptionKeyConnectorDescStart": {
-    "message": "Savienot pierakstīšanos ar vienoto pieteikšanos pašizvietotā atšifrēšanas atslēgu serverī. Šī iespēja nodrošina, ka dalībniekiem nebūs nepieciešama galvenā parole, lai atšifrētu glabātavas saturu.",
+    "message": "Savienot pierakstīšanos ar vienoto pieteikšanos pašmitinātā atšifrēšanas atslēgu serverī. Šī iespēja nodrošina, ka dalībniekiem nebūs nepieciešama galvenā parole, lai atšifrētu glabātavas saturu.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "memberDecryptionKeyConnectorDescLink": {
@@ -6573,13 +6582,13 @@
     "message": "Bezmaksas ar pabalstītājdarbību"
   },
   "viewBillingSyncToken": {
-    "message": "Skatīt norēķinu sinhronizācijas pilnvaru"
+    "message": "Apskatīt norēķinu sinhronizēšanas pilnvaru"
   },
   "generateBillingToken": {
     "message": "Izveidot norēķinu pilnvaru"
   },
   "copyPasteBillingSync": {
-    "message": "Ievietot starpliktuvē šo pilnvaru un ielīmēt to pašizvietotās apvienības norēķinu sinhronizācijas iestatījumos."
+    "message": "Ievietot starpliktuvē šo pilnvaru un ielīmēt to pašmitinātās apvienības norēķinu sinhronizēšanas iestatījumos."
   },
   "billingSyncCanAccess": {
     "message": "Norēķinu pilvara nodrošina piekļuvi šīs apvienības abonēšanas iestatījumiem un to labošanu."
@@ -6588,7 +6597,7 @@
     "message": "Pārvaldīt norēķinu pilnvaru"
   },
   "setUpBillingSync": {
-    "message": "Uzstādīt norēķinu sinhronizāciju"
+    "message": "Iestatīt norēķinu sinhronizēšanu"
   },
   "generateToken": {
     "message": "Izveidot pilnvaru"
@@ -6597,13 +6606,13 @@
     "message": "Nomainīt pilnvaru"
   },
   "rotateBillingSyncTokenWarning": {
-    "message": "Pēc turpināšanas būs nepieciešams atkārtoti uzstādīt norēķinu sinhronizāciju pašuzturētajā serverī."
+    "message": "Pēc turpināšanas pašmitinātajā serverī būs nepieciešams atkārtoti uzstādīt norēķinu sinhronizēšanu."
   },
   "rotateBillingSyncTokenTitle": {
-    "message": "Norēķinu sinhronizācijas pilnvaras nomaiņa padarīs nederīgu iepriekšējo."
+    "message": "Norēķinu sinhronizēšanas pilnvaras nomaiņa padarīs nederīgu iepriekšējo."
   },
   "selfHostedServer": {
-    "message": "pašizvietots"
+    "message": "pašmitināts"
   },
   "customEnvironment": {
     "message": "Pielāgota vide"
@@ -6639,16 +6648,16 @@
     "message": "Pašizvietošana"
   },
   "selfHostingEnterpriseOrganizationSectionCopy": {
-    "message": "Lai uzstādītu apvienību savā serverī, ir nepieciešams augšupielādēt licences datni. Lai nodrošinātu bezmaksas ģimeņu plānus un papildu norēķinu iespējas pašizvietotajai apvienībai, ir nepieciešams uzstādīt norēķinu sinhronizāciju."
+    "message": "Lai iestatītu apvienību savā serverī, ir nepieciešams augšupielādēt licences datni. Lai nodrošinātu bezmaksas ģimeņu plānus un papildu norēķinu iespējas pašmitinātajai apvienībai, ir nepieciešams uzstādīt norēķinu sinhronizēšanu."
   },
   "billingSyncApiKeyRotated": {
     "message": "Pilnvara nomainīta."
   },
   "billingSyncKeyDesc": {
-    "message": "Ir nepieciešama norēķinu sinhronizācijas pilnvara no mākoņa apvienības abonomenta iestatījumiem, lai pabeigtu šo veidlapu."
+    "message": "Ir nepieciešama norēķinu sinhronizēšanas pilnvara no mākoņa apvienības abonomenta iestatījumiem, lai pabeigtu šo veidlapu."
   },
   "billingSyncKey": {
-    "message": "Norēķinu sinhronizācijas pilnvara"
+    "message": "Norēķinu sinhronizēšanas pilnvara"
   },
   "automaticBillingSyncDesc": {
     "message": "Automātiska sinhronizēšana atslēdz Ģimenēm pabalstītājdarbību un ļauj sinhronizēt savu licenci bez datnes augšupielādes. Pēc atjauninājumu veikšanas Bitwarden mākoņa serverī jāatlasa \"Sinhronizēt licenci\", lai pielietotu izmaiņas."
@@ -6660,13 +6669,13 @@
     "message": "Neizmantots"
   },
   "sentAwaitingSync": {
-    "message": "Nosūtīts (gaida sinhronizāciju)"
+    "message": "Nosūtīts (gaida sinhronizēšanu)"
   },
   "sent": {
     "message": "Nosūtīts"
   },
   "requestRemoved": {
-    "message": "Noņemts (gaida sinhronizāciju)"
+    "message": "Noņemts (gaida sinhronizēšanu)"
   },
   "requested": {
     "message": "Pieprasīts"
@@ -6911,7 +6920,7 @@
     }
   },
   "awaitingSyncSingular": {
-    "message": "Pilnvara nomainīta pirms $DAYS$ dienas. Norēķinu sinhronizācijas pilnvara ir jāatjaunina pašizvietotās apvienības iestatījumos.",
+    "message": "Pilnvara nomainīta pirms $DAYS$ dienas. Norēķinu sinhronizēšanas pilnvara ir jāatjaunina pašmitinātās apvienības iestatījumos.",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -6920,7 +6929,7 @@
     }
   },
   "awaitingSyncPlural": {
-    "message": "Pilnvara nomainīta pirms $DAYS$ dienām. Norēķinu sinhronizācijas pilnvara ir jāatjaunina pašizvietotās apvienības iestatījumos.",
+    "message": "Pilnvara nomainīta pirms $DAYS$ dienām. Norēķinu sinhronizēšanas pilnvara ir jāatjaunina pašmitinātās apvienības iestatījumos.",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -6929,11 +6938,11 @@
     }
   },
   "lastSync": {
-    "message": "Pēdējā sinhronizācija",
+    "message": "Pēdējā sinhronizēšana",
     "description": "Used as a prefix to indicate the last time a sync occurred. Example \"Last sync 1968-11-16 00:00:00\""
   },
   "sponsorshipsSynced": {
-    "message": "Pašizvietotās pabalstītājdarbības vienādotas."
+    "message": "Pašminitātās pabalstītājdarbības sinhronizētas."
   },
   "billingManagedByProvider": {
     "message": "Pārvalda $PROVIDER$",
@@ -8008,7 +8017,7 @@
     "message": "Uzaicināt dalībnieku"
   },
   "addSponsorship": {
-    "message": "Add sponsorship"
+    "message": "Pievienot atbalsta dalību"
   },
   "needsConfirmation": {
     "message": "Nepieciešams apstiprinājums"
@@ -8122,7 +8131,7 @@
     "message": "Licenču un norēķinu pārvaldība"
   },
   "automaticSync": {
-    "message": "Automātiska sinhronizācija"
+    "message": "Automātiska sinhronizēšana"
   },
   "manualUpload": {
     "message": "Pašrocīga augšupielāde"
@@ -8140,10 +8149,10 @@
     "message": "Licence sekmīgi augšupielādēta"
   },
   "lastLicenseSync": {
-    "message": "Pēdējā licences sinhronizācija"
+    "message": "Pēdējā licences sinhronizēšana"
   },
   "billingSyncHelp": {
-    "message": "Norēķinu sinhronizācijas palīdzība"
+    "message": "Palīdzība par norēķinu sinhronizēšanu"
   },
   "licensePaidFeaturesHelp": {
     "message": "Palīdzība par licences apmaksātajām iespējām"
@@ -10387,11 +10396,17 @@
   "doNotTrust": {
     "message": "Neuzticēties"
   },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
+  },
   "emergencyAccessTrustWarning": {
     "message": "Lai nodrošinātu sava konta drošību, jāapstiprina tikai tad, ja šim lietotājam ir nodrošināta ārkārtas piekļuve un tā pirkstu nospiedums atbilsta tam, kas ir attēlots tā kontā"
   },
   "orgTrustWarning": {
     "message": "Lai nodrošinātu sava konta drošību, jāturpina tikai tad, ja esi šīs apvienības dalībnieks, ir iespējota konta atkope un zemāk attēlotais pirkstu nospiedums atbilst apvienības pirkstu nospiedumam."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
   },
   "trustUser": {
     "message": "Uzticēties lietotājam"
@@ -10619,7 +10634,40 @@
   "newBusinessUnit": {
     "message": "Jauna uzņēmējdarbības vienība"
   },
+  "newLoginNudgeTitle": {
+    "message": "Laika ietaupīšana ar automātisko aizpildi"
+  },
+  "newLoginNudgeBody": {
+    "message": "Iekļauj tīmekļvietni, lai šis pieteikšanās vienums parādītos kā automātiskās aizpildes ieteikums!"
+  },
+  "newCardNudgeTitle": {
+    "message": "Plūdena apmaksa tiešsaistē"
+  },
+  "newCardNudgeBody": {
+    "message": "Ar kartēm ir viegli automātiski aizpildīt maksājumu veidlapu droši un rūpīgi."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Kontu izveidošanas vienkāršošana"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Ar identitātēm var ātri automātiski aizpildīt garas reģistrēšanās vai saziņas veidlapas."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Turi savus jūtīgos datus drošībā"
+  },
+  "newNoteNudgeBody": {
+    "message": "Piezīmēs var droši glabāt jūtīgus datus, piemēram, bankas vai apdrošināšanas informāciju."
+  },
+  "newSshNudgeTitle": {
+    "message": "Izstrādātājiem draudzīga SSH piekļuve"
+  },
+  "newSshNudgeBody": {
+    "message": "Glabā savas atslēgas un savienojies ar SSH aģentu ātrai, šifrētai autentificēšanai!"
+  },
   "restart": {
     "message": "Palaist no jauna"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Apmaksa ar bankas kontu ir pieejama tikai klientiem Savienotajās Valstīs. Būs nepieciešams apliecināt savu bankas kontu. Mēs veiksim sīkiemaksu nākamās darba dienas vai divu laikā. Pēc tam šīs iemaksas uzdevuma aprakstā esošais kods būs jāievada pakalpojuma sniedzēja abonēšanas lapā, lai apliecinātu bankas kontu. Bankas konta apliecināšanas neveikšana beigsies ar nokavētu maksājumu un apturētu abonementu."
   }
 }

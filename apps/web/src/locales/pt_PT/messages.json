@@ -6302,13 +6302,13 @@
   "sponsoredBitwardenFamilies": {
     "message": "Planos familiares patrocinados"
   },
-  "noSponsoredFamilies": {
+  "noSponsoredFamiliesMessage": {
     "message": "Sem planos familiares patrocinados"
   },
-  "noSponsoredFamiliesDescription": {
+  "nosponsoredFamiliesDetails": {
     "message": "Os planos familiares patrocinados de não membros serão apresentados aqui"
   },
-  "sponsorFreeBitwardenFamilies": {
+  "sponsorshipFreeBitwardenFamilies": {
     "message": "Os membros da sua organização são elegíveis para o plano Familiar Bitwarden gratuito. Pode patrocinar planos Familiares Bitwarden gratuitos para empregados que não sejam membros da sua organização Bitwarden. O patrocínio de um não membro requer um lugar disponível na sua organização."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
@@ -6320,14 +6320,14 @@
   "sponsoredFamiliesEligibleCard": {
     "message": "Resgate hoje mesmo o seu plano Familiar gratuito Bitwarden para manter os seus dados seguros mesmo quando não está no trabalho."
   },
-  "sponsoredFamiliesInclude": {
+  "sponsoredFamiliesIncludeMessage": {
     "message": "O plano Bitwarden Familiar inclui"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Acesso Premium para um máximo de 6 utilizadores"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Coleções partilhadas para segredos familiares"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Coleções partilhadas para membros familiares"
   },
   "memberFamilies": {
     "message": "Membros do plano familiar"
@@ -6340,6 +6340,15 @@
   },
   "membersWithSponsoredFamilies": {
     "message": "Os membros da sua organização são elegíveis para os planos Familiares Bitwarden gratuitos. Aqui pode ver os membros que patrocinaram uma organização Familiar."
+  },
+  "organizationHasMemberMessage": {
+    "message": "Não pode ser enviado um patrocínio para $EMAIL$ porque é membro da sua organização.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "O link já não é válido. Peça ao patrocinador para reenviar a oferta."
@@ -6392,7 +6401,7 @@
   "redeemedAccount": {
     "message": "Conta resgatada"
   },
-  "revokeAccount": {
+  "revokeAccountMessage": {
     "message": "Revogar a conta $NAME$",
     "placeholders": {
       "name": {
@@ -10387,11 +10396,17 @@
   "doNotTrust": {
     "message": "Não confiar"
   },
+  "organizationNotTrusted": {
+    "message": "A organização não é de confiança"
+  },
   "emergencyAccessTrustWarning": {
     "message": "Para segurança da sua conta, confirme apenas se tiver concedido acesso de emergência a este utilizador e se a sua impressão digital corresponder à que é apresentada na sua conta"
   },
   "orgTrustWarning": {
     "message": "Para segurança da sua conta, prossiga apenas se for membro desta organização, tiver a recuperação de conta ativada e a impressão digital apresentada abaixo corresponder à impressão digital da organização."
+  },
+  "orgTrustWarning1": {
+    "message": "Esta organização tem uma política empresarial que o registará na recuperação de conta. A inscrição permitirá que os administradores da organização alterem a sua palavra-passe. Avance apenas se reconhecer esta organização e se a frase de impressão digital apresentada abaixo corresponder à impressão digital da organização."
   },
   "trustUser": {
     "message": "Confiar no utilizador"
@@ -10619,7 +10634,40 @@
   "newBusinessUnit": {
     "message": "Nova unidade de negócio"
   },
+  "newLoginNudgeTitle": {
+    "message": "Poupe tempo com o preenchimento automático"
+  },
+  "newLoginNudgeBody": {
+    "message": "Inclua um site para que esta credencial apareça como uma sugestão de preenchimento automático."
+  },
+  "newCardNudgeTitle": {
+    "message": "Pagamentos online sem problemas"
+  },
+  "newCardNudgeBody": {
+    "message": "Com os cartões, preencha facilmente formulários de pagamento de forma segura e exata."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplifique a criação de contas"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Com as identidades, preencha rapidamente formulários de registo ou de contacto longos."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Mantenha os seus dados sensíveis seguros"
+  },
+  "newNoteNudgeBody": {
+    "message": "Com as notas, armazene de forma segura dados sensíveis, como dados bancários ou de seguros."
+  },
+  "newSshNudgeTitle": {
+    "message": "Acesso SSH de fácil utilização pelos programadores"
+  },
+  "newSshNudgeBody": {
+    "message": "Guarde as suas chaves e ligue-se ao agente SSH para uma autenticação rápida e encriptada."
+  },
   "restart": {
     "message": "Reiniciar"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "O pagamento com uma conta bancária só está disponível para clientes nos Estados Unidos. Ser-lhe-á pedido que verifique a sua conta bancária. Efetuaremos um micro-depósito nos próximos 1-2 dias úteis. Introduza o código descritor do extrato deste depósito na página de subscrição do fornecedor para verificar a conta bancária. A não verificação da conta bancária resultará na falta de pagamento e na suspensão da sua subscrição."
   }
 }
