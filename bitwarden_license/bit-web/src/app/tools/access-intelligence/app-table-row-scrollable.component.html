@@ -2,6 +2,7 @@
   <bit-table-scroll [dataSource]="dataSource" [rowSize]="53">
     <ng-container header>
       <th *ngIf="isCriticalAppsFeatureEnabled"></th>
+      <th bitCell></th>
       <th bitSortable="applicationName" bitCell>{{ "application" | i18n }}</th>
       <th bitSortable="atRiskPasswordCount" bitCell>{{ "atRiskPasswords" | i18n }}</th>
       <th bitSortable="passwordCount" bitCell>{{ "totalPasswords" | i18n }}</th>
@@ -29,6 +30,9 @@
         [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
       >
         <i class="bwi bwi-star-f" *ngIf="row.isMarkedAsCritical"></i>
+      </td>
+      <td bitCell>
+        <app-vault-icon [cipher]="row.cipher"></app-vault-icon>
       </td>
       <td
         class="tw-cursor-pointer"
@@ -85,7 +89,7 @@
 
         <bit-menu #rowMenu>
           <button type="button" bitMenuItem (click)="unmarkAsCriticalApp(row.applicationName)">
-            <i aria-hidden="true" class="bwi bwi-star-f"></i> {{ "unmarkAsCriticalApp" | i18n }}
+            {{ "unmarkAsCriticalApp" | i18n }}
           </button>
         </bit-menu>
       </td>

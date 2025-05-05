@@ -1,10 +1,7 @@
 <ng-container>
   <bit-layout>
-    <div class="tw-mb-1 tw-text-primary-600" bitTypography="body1">
-      {{ "accessIntelligence" | i18n }}
-    </div>
     <h1 bitTypography="h1">{{ "riskInsights" | i18n }}</h1>
-    <div class="tw-text-muted tw-max-w-4xl tw-mb-2">
+    <div class="tw-text-main tw-max-w-4xl tw-mb-2">
       {{ "reviewAtRiskPasswords" | i18n }}
     </div>
     <div
@@ -71,17 +68,24 @@
         </bit-drawer-header>
         <bit-drawer-body>
           <span bitTypography="body1" class="tw-text-muted tw-text-sm">{{
-            "atRiskMembersDescription" | i18n
+            (dataService.atRiskMemberDetails.length > 0
+              ? "atRiskMembersDescription"
+              : "atRiskMembersDescriptionNone"
+            ) | i18n
           }}</span>
-          <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
-            <div bitTypography="body2" class="tw-font-bold">{{ "email" | i18n }}</div>
-            <div bitTypography="body2" class="tw-font-bold">{{ "atRiskPasswords" | i18n }}</div>
-          </div>
-          <ng-container *ngFor="let member of dataService.atRiskMemberDetails">
-            <div class="tw-flex tw-justify-between tw-mt-2">
-              <div>{{ member.email }}</div>
-              <div>{{ member.atRiskPasswordCount }}</div>
+          <ng-container *ngIf="dataService.atRiskMemberDetails.length > 0">
+            <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
+              <div bitTypography="body2" class="tw-text-sm tw-font-bold">{{ "email" | i18n }}</div>
+              <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+                {{ "atRiskPasswords" | i18n }}
+              </div>
             </div>
+            <ng-container *ngFor="let member of dataService.atRiskMemberDetails">
+              <div class="tw-flex tw-justify-between tw-mt-2">
+                <div>{{ member.email }}</div>
+                <div>{{ member.atRiskPasswordCount }}</div>
+              </div>
+            </ng-container>
           </ng-container>
         </bit-drawer-body>
       </ng-container>
@@ -95,7 +99,10 @@
           </div>
           <div bitTypography="body1" class="tw-text-muted tw-text-sm tw-mb-2">
             {{
-              "atRiskMembersDescriptionWithApp" | i18n: dataService.appAtRiskMembers.applicationName
+              (dataService.appAtRiskMembers.members.length > 0
+                ? "atRiskMembersDescriptionWithApp"
+                : "atRiskMembersDescriptionWithAppNone"
+              ) | i18n: dataService.appAtRiskMembers.applicationName
             }}
           </div>
           <div class="tw-mt-1">
@@ -114,17 +121,26 @@
 
         <bit-drawer-body>
           <span bitTypography="body2" class="tw-text-muted tw-text-sm">{{
-            "atRiskApplicationsDescription" | i18n
+            (dataService.atRiskAppDetails.length > 0
+              ? "atRiskApplicationsDescription"
+              : "atRiskApplicationsDescriptionNone"
+            ) | i18n
           }}</span>
-          <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
-            <div bitTypography="body2" class="tw-font-bold">{{ "application" | i18n }}</div>
-            <div bitTypography="body2" class="tw-font-bold">{{ "atRiskPasswords" | i18n }}</div>
-          </div>
-          <ng-container *ngFor="let app of dataService.atRiskAppDetails">
-            <div class="tw-flex tw-justify-between tw-mt-2">
-              <div>{{ app.applicationName }}</div>
-              <div>{{ app.atRiskPasswordCount }}</div>
+          <ng-container *ngIf="dataService.atRiskAppDetails.length > 0">
+            <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
+              <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+                {{ "application" | i18n }}
+              </div>
+              <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+                {{ "atRiskPasswords" | i18n }}
+              </div>
             </div>
+            <ng-container *ngFor="let app of dataService.atRiskAppDetails">
+              <div class="tw-flex tw-justify-between tw-mt-2">
+                <div>{{ app.applicationName }}</div>
+                <div>{{ app.atRiskPasswordCount }}</div>
+              </div>
+            </ng-container>
           </ng-container>
         </bit-drawer-body>
       </ng-container>
