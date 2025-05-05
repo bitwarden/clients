@@ -145,9 +145,6 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
       await this.logoutService.logout(userId);
       // navigate to root so redirect guard can properly route next active user or null user to correct page
       await this.router.navigate(["/"]);
-
-      // TODO: test scenario where next up account has timed out and logged out
-      // TODO: test https://bitwarden.atlassian.net/browse/PM-20323 - didn't work
     }
     this.loading = false;
   }
