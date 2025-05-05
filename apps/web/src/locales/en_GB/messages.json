@@ -6326,7 +6326,7 @@
   "sponsoredFamiliesPremiumAccess": {
     "message": "Premium access for up to 6 users"
   },
-  "sponsoredFamiliesSharedCollectionsMessage": {
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Shared collections for family members"
   },
   "memberFamilies": {
@@ -10396,11 +10396,17 @@
   "doNotTrust": {
     "message": "Do not trust"
   },
+  "organizationNotTrusted": {
+    "message": "Organisation is not trusted"
+  },
   "emergencyAccessTrustWarning": {
     "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
   },
   "orgTrustWarning": {
     "message": "For the security of your account, only proceed if you are a member of this organisation, have account recovery enabled, and the fingerprint displayed below matches the organisation's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organisation has an Enterprise policy that will enrol you in account recovery. Enrolment will allow organisation administrators to change your password. Only proceed if you recognise this organisation and the fingerprint phrase displayed below matches the organisation's fingerprint."
   },
   "trustUser": {
     "message": "Trust user"
