@@ -105,7 +105,7 @@ export class LoginCommand {
         return Response.badRequest("client_secret is required.");
       }
     } else if (options.sso != null && this.canInteract) {
-      // If the optional identifier isn't provided, the option value is `true`.
+      // If the optional Org SSO Identifier isn't provided, the option value is `true`.
       const orgSsoIdentifier = options.sso === true ? null : options.sso;
       const passwordOptions: any = {
         type: "password",
