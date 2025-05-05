@@ -184,6 +184,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     id: string,
     attachmentId: string,
     userId: UserId,
+    admin: boolean,
   ): Promise<CipherData>;
   abstract sortCiphersByLastUsed(a: CipherView, b: CipherView): number;
   abstract sortCiphersByLastUsedThenName(a: CipherView, b: CipherView): number;
