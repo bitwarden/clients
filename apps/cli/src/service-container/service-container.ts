@@ -684,10 +684,7 @@ export class ServiceContainer {
 
     this.cipherEncryptionService = new DefaultCipherEncryptionService(
       this.sdkService,
-      this.configService,
       this.logService,
-      this.encryptService,
-      this.keyService,
     );
 
     this.cipherService = new CipherService(
@@ -814,7 +811,6 @@ export class ServiceContainer {
       this.kdfConfigService,
       this.accountService,
       this.apiService,
-      this.cipherEncryptionService,
     );
 
     this.organizationExportService = new OrganizationVaultExportService(

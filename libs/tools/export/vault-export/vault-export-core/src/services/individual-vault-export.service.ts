@@ -13,7 +13,6 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { CipherWithIdExport, FolderWithIdExport } from "@bitwarden/common/models/export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
-import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -51,7 +50,6 @@ export class IndividualVaultExportService
     kdfConfigService: KdfConfigService,
     private accountService: AccountService,
     private apiService: ApiService,
-    private cipherEncryptionService: CipherEncryptionService,
   ) {
     super(pinService, encryptService, cryptoFunctionService, kdfConfigService);
   }
@@ -118,12 +116,10 @@ export class IndividualVaultExportService
       const cipherFolder = attachmentsFolder.folder(cipher.id);
       for (const attachment of cipher.attachments) {
         const response = await this.downloadAttachment(cipher.id, attachment.id);
-        const ciphersData = await firstValueFrom(this.cipherService.ciphers$(activeUserId));
-        const cipherDomain = new Cipher(ciphersData[cipher.id as CipherId]);
 
         try {
-          const decBuf = await this.cipherEncryptionService.getDecryptedAttachmentBuffer(
-            cipherDomain,
+          const decBuf = await this.cipherService.getDecryptedAttachmentBuffer(
+            cipher.id as CipherId,
             attachment,
             response,
             activeUserId,

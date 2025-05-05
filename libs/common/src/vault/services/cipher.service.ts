@@ -29,7 +29,7 @@ import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypt
 import { StateProvider } from "../../platform/state";
 import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid";
 import { OrgKey, UserKey } from "../../types/key";
-import { perUserCache$ } from "../../vault/utils/observable-utilities";
+import { filterOutNullish, perUserCache$ } from "../../vault/utils/observable-utilities";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
 import { CipherService as CipherServiceAbstraction } from "../abstractions/cipher.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
@@ -1389,6 +1389,43 @@ export class CipherService implements CipherServiceAbstraction {
     );
 
     return encryptedCiphers;
+  }
+
+  async getDecryptedAttachmentBuffer(
+    cipherId: CipherId,
+    attachment: AttachmentView,
+    response: Response,
+    userId: UserId,
+  ): Promise<Uint8Array> {
+    const useSdkDecryption = await this.configService.getFeatureFlag(
+      FeatureFlag.PM19941MigrateCipherDomainToSdk,
+    );
+
+    const cipherDomain = await firstValueFrom(
+      this.ciphers$(userId).pipe(map((ciphersData) => new Cipher(ciphersData[cipherId]))),
+    );
+
+    if (useSdkDecryption) {
+      const encryptedContent = await response.arrayBuffer();
+      return this.cipherEncryptionService.decryptAttachmentContent(
+        cipherDomain,
+        attachment,
+        new Uint8Array(encryptedContent),
+        userId,
+      );
+    }
+
+    const encBuf = await EncArrayBuffer.fromResponse(response);
+    const key =
+      attachment.key != null
+        ? attachment.key
+        : await firstValueFrom(
+            this.keyService.orgKeys$(userId).pipe(
+              filterOutNullish(),
+              map((orgKeys) => orgKeys[cipherDomain.organizationId as OrganizationId] as OrgKey),
+            ),
+          );
+    return await this.encryptService.decryptFileData(encBuf, key);
   }
 
   /**

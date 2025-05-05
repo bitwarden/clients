@@ -13,9 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { CipherId, EmergencyAccessId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
-import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { AsyncActionsModule, IconButtonModule, ToastService } from "@bitwarden/components";
@@ -51,7 +49,6 @@ export class DownloadAttachmentComponent {
     private stateProvider: StateProvider,
     private keyService: KeyService,
     private cipherService: CipherService,
-    private cipherEncryptionService: CipherEncryptionService,
   ) {
     this.stateProvider.activeUserId$
       .pipe(
@@ -98,11 +95,9 @@ export class DownloadAttachmentComponent {
 
     try {
       const userId = await firstValueFrom(this.stateProvider.activeUserId$);
-      const ciphersData = await firstValueFrom(this.cipherService.ciphers$(userId));
-      const cipherDomain = new Cipher(ciphersData[this.cipher.id as CipherId]);
 
-      const decBuf = await this.cipherEncryptionService.getDecryptedAttachmentBuffer(
-        cipherDomain,
+      const decBuf = await this.cipherService.getDecryptedAttachmentBuffer(
+        this.cipher.id as CipherId,
         this.attachment,
         response,
         userId,

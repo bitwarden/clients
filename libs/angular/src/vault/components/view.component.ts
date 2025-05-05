@@ -41,14 +41,12 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { CipherId, CollectionId, UserId } from "@bitwarden/common/types/guid";
-import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { Launchable } from "@bitwarden/common/vault/interfaces/launchable";
-import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -140,7 +138,6 @@ export class ViewComponent implements OnDestroy, OnInit {
     protected toastService: ToastService,
     private cipherAuthorizationService: CipherAuthorizationService,
     protected configService: ConfigService,
-    private cipherEncryptionService: CipherEncryptionService,
   ) {}
 
   ngOnInit() {
@@ -463,10 +460,8 @@ export class ViewComponent implements OnDestroy, OnInit {
 
     try {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      const ciphersData = await firstValueFrom(this.cipherService.ciphers$(activeUserId));
-      const cipherDomain = new Cipher(ciphersData[this.cipher.id as CipherId]);
-      const decBuf = await this.cipherEncryptionService.getDecryptedAttachmentBuffer(
-        cipherDomain,
+      const decBuf = await this.cipherService.getDecryptedAttachmentBuffer(
+        this.cipher.id as CipherId,
         attachment,
         response,
         activeUserId,

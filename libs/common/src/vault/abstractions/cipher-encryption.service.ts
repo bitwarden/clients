@@ -46,15 +46,15 @@ export abstract class CipherEncryptionService {
    *
    * @param cipher The encrypted cipher object that owns the attachment
    * @param attachment The attachment view object
-   * @param response The response object containing the encrypted content
+   * @param encryptedContent The encrypted content of the attachment
    * @param userId The user ID whose key will be used for decryption
    *
    * @returns A promise that resolves to the decrypted content
    */
-  abstract getDecryptedAttachmentBuffer(
+  abstract decryptAttachmentContent(
     cipher: Cipher,
     attachment: AttachmentView,
-    response: Response,
+    encryptedContent: Uint8Array,
     userId: UserId,
-  ): Promise<Uint8Array | null>;
+  ): Promise<Uint8Array>;
 }

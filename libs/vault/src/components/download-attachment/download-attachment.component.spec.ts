@@ -11,7 +11,6 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { StateProvider } from "@bitwarden/common/platform/state";
-import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
@@ -91,8 +90,10 @@ describe("DownloadAttachmentComponent", () => {
             getFeatureFlag,
           },
         },
-        { provide: CipherService, useValue: { ciphers$: () => ciphers$ } },
-        { provide: CipherEncryptionService, useValue: mock<CipherEncryptionService>() },
+        {
+          provide: CipherService,
+          useValue: { ciphers$: () => ciphers$, getDecryptedAttachmentBuffer: jest.fn() },
+        },
       ],
     }).compileComponents();
   });
@@ -158,10 +159,8 @@ describe("DownloadAttachmentComponent", () => {
         getAttachmentData.mockResolvedValue({ url: "https://www.downloadattachement.com" });
         fetchMock.mockResolvedValue({ status: 200 });
 
-        const cipherEncryptionService = TestBed.inject(
-          CipherEncryptionService,
-        ) as jest.Mocked<CipherEncryptionService>;
-        cipherEncryptionService.getDecryptedAttachmentBuffer.mockRejectedValue(new Error());
+        const cipherService = TestBed.inject(CipherService) as jest.Mocked<CipherService>;
+        cipherService.getDecryptedAttachmentBuffer.mockRejectedValue(new Error());
 
         await component.download();
 

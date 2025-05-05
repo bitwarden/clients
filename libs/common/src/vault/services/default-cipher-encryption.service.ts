@@ -1,31 +1,21 @@
 import { EMPTY, catchError, firstValueFrom, map } from "rxjs";
 
-import { KeyService } from "@bitwarden/key-management";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
-import { FeatureFlag } from "../../enums/feature-flag.enum";
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
-import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
-import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
-import { OrganizationId, UserId } from "../../types/guid";
-import { OrgKey } from "../../types/key";
+import { UserId } from "../../types/guid";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
 import { CipherType } from "../enums";
 import { Cipher } from "../models/domain/cipher";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 import { Fido2CredentialView } from "../models/view/fido2-credential.view";
-import { filterOutNullish } from "../utils/observable-utilities";
 
 export class DefaultCipherEncryptionService implements CipherEncryptionService {
   constructor(
     private sdkService: SdkService,
-    private configService: ConfigService,
     private logService: LogService,
-    private encryptService: EncryptService,
-    private keyService: KeyService,
   ) {}
 
   async decrypt(cipher: Cipher, userId: UserId): Promise<CipherView> {
@@ -156,43 +146,17 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     );
   }
 
-  async getDecryptedAttachmentBuffer(
-    cipher: Cipher,
-    attachment: AttachmentView,
-    response: Response,
-    userId: UserId,
-  ): Promise<Uint8Array | null> {
-    const useSdkDecryption = await this.configService.getFeatureFlag(
-      FeatureFlag.PM19941MigrateCipherDomainToSdk,
-    );
-
-    if (useSdkDecryption) {
-      const encryptedContent = await response.arrayBuffer();
-      return this.decryptAttachmentContent(
-        cipher,
-        attachment,
-        new Uint8Array(encryptedContent),
-        userId,
-      );
-    }
-
-    const encBuf = await EncArrayBuffer.fromResponse(response);
-    const key =
-      attachment.key != null
-        ? attachment.key
-        : await firstValueFrom(
-            this.keyService.orgKeys$(userId).pipe(
-              filterOutNullish(),
-              map((orgKeys) => orgKeys[cipher.organizationId as OrganizationId] as OrgKey),
-            ),
-          );
-    return await this.encryptService.decryptFileData(encBuf, key);
-  }
-
   /**
-   * Decrypts the content of an attachment using the sdk.
+   * Decrypts an attachment's content from a response object.
+   *
+   * @param cipher The encrypted cipher object that owns the attachment
+   * @param attachment The encrypted attachment object
+   * @param encryptedContent The encrypted content as a Uint8Array
+   * @param userId The user ID whose key will be used for decryption
+   *
+   * @returns A promise that resolves to the decrypted content
    */
-  private async decryptAttachmentContent(
+  async decryptAttachmentContent(
     cipher: Cipher,
     attachment: AttachmentView,
     encryptedContent: Uint8Array,

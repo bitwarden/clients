@@ -10,7 +10,6 @@ import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -160,7 +159,6 @@ describe("VaultExportService", () => {
   let accountService: MockProxy<AccountService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let apiService: MockProxy<ApiService>;
-  let cipherEncryptionService: MockProxy<CipherEncryptionService>;
 
   beforeEach(() => {
     cryptoFunctionService = mock<CryptoFunctionService>();
@@ -171,7 +169,6 @@ describe("VaultExportService", () => {
     encryptService = mock<EncryptService>();
     accountService = mock<AccountService>();
     apiService = mock<ApiService>();
-    cipherEncryptionService = mock<CipherEncryptionService>();
 
     kdfConfigService = mock<KdfConfigService>();
 
@@ -199,7 +196,6 @@ describe("VaultExportService", () => {
       kdfConfigService,
       accountService,
       apiService,
-      cipherEncryptionService,
     );
   });
 

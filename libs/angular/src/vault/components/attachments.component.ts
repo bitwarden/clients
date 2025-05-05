@@ -15,8 +15,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { UserId } from "@bitwarden/common/types/guid";
-import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -58,7 +57,6 @@ export class AttachmentsComponent implements OnInit {
     protected accountService: AccountService,
     protected toastService: ToastService,
     protected configService: ConfigService,
-    protected cipherEncryptionService: CipherEncryptionService,
   ) {}
 
   async ngOnInit() {
@@ -197,8 +195,8 @@ export class AttachmentsComponent implements OnInit {
 
     try {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      const decBuf = await this.cipherEncryptionService.getDecryptedAttachmentBuffer(
-        this.cipherDomain,
+      const decBuf = await this.cipherService.getDecryptedAttachmentBuffer(
+        this.cipherDomain.id as CipherId,
         attachment,
         response,
         activeUserId,
@@ -279,8 +277,8 @@ export class AttachmentsComponent implements OnInit {
             this.accountService.activeAccount$.pipe(getUserId),
           );
 
-          const decBuf = await this.cipherEncryptionService.getDecryptedAttachmentBuffer(
-            this.cipherDomain,
+          const decBuf = await this.cipherService.getDecryptedAttachmentBuffer(
+            this.cipherDomain.id as CipherId,
             attachment,
             response,
             activeUserId,

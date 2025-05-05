@@ -856,7 +856,6 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       AccountServiceAbstraction,
       ApiServiceAbstraction,
-      CipherEncryptionService,
     ],
   }),
   safeProvider({
@@ -1527,7 +1526,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CipherEncryptionService,
     useClass: DefaultCipherEncryptionService,
-    deps: [SdkService, ConfigService, LogService, EncryptService, KeyService],
+    deps: [SdkService, LogService],
   }),
 ];
 
