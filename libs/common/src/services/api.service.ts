@@ -637,6 +637,15 @@ export class ApiService implements ApiServiceAbstraction {
     return new AttachmentResponse(r);
   }
 
+  async getAttachmentDataAdmin(
+    cipherId: string,
+    attachmentId: string,
+  ): Promise<AttachmentResponse> {
+    const path = "/ciphers/" + cipherId + "/attachment/" + attachmentId + "/admin";
+    const r = await this.send("GET", path, null, true, true);
+    return new AttachmentResponse(r);
+  }
+
   async postCipherAttachment(
     id: string,
     request: AttachmentRequest,
@@ -673,7 +682,7 @@ export class ApiService implements ApiServiceAbstraction {
       "/ciphers/" + id + "/attachment/" + attachmentId + "/admin",
       null,
       true,
-      false,
+      true,
     );
   }
 
@@ -1677,16 +1686,6 @@ export class ApiService implements ApiServiceAbstraction {
       "POST",
       "/organization/sponsorship/redeem?sponsorshipToken=" + encodeURIComponent(sponsorshipToken),
       request,
-      true,
-      false,
-    );
-  }
-
-  async postResendSponsorshipOffer(sponsoringOrgId: string): Promise<void> {
-    return await this.send(
-      "POST",
-      "/organization/sponsorship/" + sponsoringOrgId + "/families-for-enterprise/resend",
-      null,
       true,
       false,
     );

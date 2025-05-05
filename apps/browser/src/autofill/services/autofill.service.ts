@@ -931,28 +931,37 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     if (!passwordFields.length) {
-      // No password fields on this page. Let's try to just fuzzy fill the username.
-      pageDetails.fields.forEach((f) => {
-        if (
-          !options.skipUsernameOnlyFill &&
-          f.viewable &&
-          (f.type === "text" || f.type === "email" || f.type === "tel") &&
-          AutofillService.fieldIsFuzzyMatch(f, AutoFillConstants.UsernameFieldNames)
-        ) {
-          usernames.push(f);
+      // If there are no passwords, username or TOTP fields may be present.
+      // username and TOTP fields are mutually exclusive
+      pageDetails.fields.forEach((field) => {
+        if (!field.viewable) {
+          return;
         }
 
-        if (
+        const isFillableTotpField =
           options.allowTotpAutofill &&
-          f.viewable &&
-          (f.type === "text" || f.type === "number") &&
-          (AutofillService.fieldIsFuzzyMatch(f, [
+          ["number", "tel", "text"].some((t) => t === field.type) &&
+          (AutofillService.fieldIsFuzzyMatch(field, [
             ...AutoFillConstants.TotpFieldNames,
             ...AutoFillConstants.AmbiguousTotpFieldNames,
           ]) ||
-            f.autoCompleteType === "one-time-code")
-        ) {
-          totps.push(f);
+            field.autoCompleteType === "one-time-code");
+
+        const isFillableUsernameField =
+          !options.skipUsernameOnlyFill &&
+          ["email", "tel", "text"].some((t) => t === field.type) &&
+          AutofillService.fieldIsFuzzyMatch(field, AutoFillConstants.UsernameFieldNames);
+
+        // Prefer more uniquely keyworded fields first.
+        switch (true) {
+          case isFillableTotpField:
+            totps.push(field);
+            return;
+          case isFillableUsernameField:
+            usernames.push(field);
+            return;
+          default:
+            return;
         }
       });
     }
@@ -2903,52 +2912,46 @@ export default class AutofillService implements AutofillServiceInterface {
   /**
    * Accepts a field and returns true if the field contains a
    * value that matches any of the names in the provided list.
+   *
+   * Returns boolean and attr of value that was matched as a tuple if showMatch is set to true.
+   *
    * @param {AutofillField} field
    * @param {string[]} names
-   * @returns {boolean}
+   * @param {boolean} showMatch
+   * @returns {boolean | [boolean, { attr: string; value: string }?]}
    */
-  static fieldIsFuzzyMatch(field: AutofillField, names: string[]): boolean {
-    if (AutofillService.hasValue(field.htmlID) && this.fuzzyMatch(names, field.htmlID)) {
-      return true;
-    }
-    if (AutofillService.hasValue(field.htmlName) && this.fuzzyMatch(names, field.htmlName)) {
-      return true;
-    }
-    if (
-      AutofillService.hasValue(field["label-tag"]) &&
-      this.fuzzyMatch(names, field["label-tag"])
-    ) {
-      return true;
-    }
-    if (AutofillService.hasValue(field.placeholder) && this.fuzzyMatch(names, field.placeholder)) {
-      return true;
-    }
-    if (
-      AutofillService.hasValue(field["label-left"]) &&
-      this.fuzzyMatch(names, field["label-left"])
-    ) {
-      return true;
-    }
-    if (
-      AutofillService.hasValue(field["label-top"]) &&
-      this.fuzzyMatch(names, field["label-top"])
-    ) {
-      return true;
-    }
-    if (
-      AutofillService.hasValue(field["label-aria"]) &&
-      this.fuzzyMatch(names, field["label-aria"])
-    ) {
-      return true;
-    }
-    if (
-      AutofillService.hasValue(field.dataSetValues) &&
-      this.fuzzyMatch(names, field.dataSetValues)
-    ) {
-      return true;
-    }
+  static fieldIsFuzzyMatch(
+    field: AutofillField,
+    names: string[],
+    showMatch: true,
+  ): [boolean, { attr: string; value: string }?];
+  static fieldIsFuzzyMatch(field: AutofillField, names: string[]): boolean;
+  static fieldIsFuzzyMatch(
+    field: AutofillField,
+    names: string[],
+    showMatch: boolean = false,
+  ): boolean | [boolean, { attr: string; value: string }?] {
+    const attrs = [
+      "htmlID",
+      "htmlName",
+      "label-tag",
+      "placeholder",
+      "label-left",
+      "label-top",
+      "label-aria",
+      "dataSetValues",
+    ];
 
-    return false;
+    for (const attr of attrs) {
+      const value = field[attr];
+      if (!AutofillService.hasValue(value)) {
+        continue;
+      }
+      if (this.fuzzyMatch(names, value)) {
+        return showMatch ? [true, { attr, value }] : true;
+      }
+    }
+    return showMatch ? [false] : false;
   }
 
   /**

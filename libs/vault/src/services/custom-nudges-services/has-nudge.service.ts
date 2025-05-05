@@ -5,7 +5,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { DefaultSingleNudgeService } from "../default-single-nudge.service";
-import { VaultNudgeType } from "../vault-nudges.service";
+import { NudgeStatus, VaultNudgeType } from "../vault-nudges.service";
 
 /**
  * Custom Nudge Service used for showing if the user has any existing nudge in the Vault.
@@ -17,28 +17,32 @@ export class HasNudgeService extends DefaultSingleNudgeService {
   private accountService = inject(AccountService);
 
   private nudgeTypes: VaultNudgeType[] = [
-    VaultNudgeType.HasVaultItems,
-    VaultNudgeType.IntroCarouselDismissal,
+    VaultNudgeType.EmptyVaultNudge,
     // add additional nudge types here as needed
   ];
 
   /**
    * Returns an observable that emits true if any of the provided nudge types are present
    */
-  shouldShowNudge$(): Observable<boolean> {
+  nudgeStatus$(): Observable<NudgeStatus> {
     return this.accountService.activeAccount$.pipe(
       switchMap((activeAccount) => {
         const userId: UserId | undefined = activeAccount?.id;
         if (!userId) {
-          return of(false);
+          return of({ hasBadgeDismissed: true, hasSpotlightDismissed: true });
         }
 
-        const nudgeObservables: Observable<boolean>[] = this.nudgeTypes.map((nudge) =>
-          super.shouldShowNudge$(nudge, userId),
+        const nudgeObservables: Observable<NudgeStatus>[] = this.nudgeTypes.map((nudge) =>
+          super.nudgeStatus$(nudge, userId),
         );
 
         return combineLatest(nudgeObservables).pipe(
-          map((nudgeStates) => nudgeStates.some((state) => state)),
+          map((nudgeStates) => {
+            return {
+              hasBadgeDismissed: true,
+              hasSpotlightDismissed: nudgeStates.some((state) => state.hasSpotlightDismissed),
+            };
+          }),
           distinctUntilChanged(),
         );
       }),
