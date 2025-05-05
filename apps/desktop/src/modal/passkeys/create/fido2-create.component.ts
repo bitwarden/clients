@@ -150,11 +150,6 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
     );
   }
 
-  /* Check if cipher's username matches the form input. */
-  cipherMatchesUserName(cipher: CipherView, userName: string): boolean {
-    return cipher.login.username === userName && !cipher.login.fido2Credentials;
-  }
-
   async addPasskeyToCipher(cipher: CipherView) {
     let isConfirmed = true;
 
