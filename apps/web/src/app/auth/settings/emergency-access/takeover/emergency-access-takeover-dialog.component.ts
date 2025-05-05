@@ -1,9 +1,8 @@
 import { CommonModule } from "@angular/common";
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnInit, ViewChild } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import {
-  ChangePasswordComponent,
   InputPasswordComponent,
   InputPasswordFlow,
   PasswordInputResult,
@@ -54,7 +53,6 @@ export enum EmergencyAccessTakeoverDialogResultType {
     ButtonModule,
     CommonModule,
     CalloutModule,
-    ChangePasswordComponent,
     DialogModule,
     FormFieldModule,
     I18nPipe,
@@ -62,9 +60,10 @@ export enum EmergencyAccessTakeoverDialogResultType {
   ],
 })
 export class EmergencyAccessTakeoverDialogComponent implements OnInit {
-  inputPasswordFlow = InputPasswordFlow.ChangePasswordDelegation;
+  @ViewChild(InputPasswordComponent)
+  inputPasswordComponent: InputPasswordComponent;
 
-  initializing = true;
+  inputPasswordFlow = InputPasswordFlow.ChangePasswordDelegation;
   masterPasswordPolicyOptions?: MasterPasswordPolicyOptions;
 
   constructor(
@@ -90,6 +89,10 @@ export class EmergencyAccessTakeoverDialogComponent implements OnInit {
       this.policyService.masterPasswordPolicyOptions$(userId, grantorPolicies),
     );
   }
+
+  submit = async () => {
+    await this.inputPasswordComponent.submit();
+  };
 
   async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
     try {

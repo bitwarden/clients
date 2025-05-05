@@ -242,13 +242,25 @@ export class InputPasswordComponent implements OnInit {
     }
   }
 
-  protected submit = async () => {
+  submit = async () => {
     this.verifyFlow();
 
     this.formGroup.markAllAsTouched();
 
     if (this.formGroup.invalid) {
       this.showErrorSummary = true;
+      return;
+    }
+
+    if (this.flow === InputPasswordFlow.ChangePasswordDelegation) {
+      const newPassword = this.formGroup.controls.newPassword.value;
+
+      const passwordInputResult: PasswordInputResult = {
+        newPassword,
+      };
+
+      this.onPasswordFormSubmit.emit(passwordInputResult);
+
       return;
     }
 
