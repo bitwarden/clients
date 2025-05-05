@@ -2,6 +2,8 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { DeviceManagementComponent } from "@bitwarden/angular/auth/components/device-management/device-management.component";
+import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { ChangePasswordComponent } from "../change-password.component";
 import { TwoFactorSetupComponent } from "../two-factor/two-factor-setup.component";
@@ -32,16 +34,15 @@ export const routes: Routes = [
         component: SecurityKeysComponent,
         data: { titleId: "keys" },
       },
-      {
-        path: "device-management-old",
-        component: DeviceManagementComponentOld,
-        data: { titleId: "devices" },
-      },
-      {
-        path: "device-management",
-        component: DeviceManagementComponent,
-        data: { titleId: "devices" },
-      },
+      ...featureFlaggedRoute({
+        defaultComponent: DeviceManagementComponentOld,
+        flaggedComponent: DeviceManagementComponent,
+        featureFlag: FeatureFlag.PM14939_ExtensionApproval,
+        routeOptions: {
+          path: "device-management",
+          data: { titleId: "devices" },
+        },
+      }),
     ],
   },
 ];
