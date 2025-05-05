@@ -11,7 +11,7 @@ import {
 import { BrowserApi } from "../browser/browser-api";
 
 export class IpcBackgroundService extends IpcService {
-  private communicationBackend: IpcCommunicationBackend;
+  private communicationBackend?: IpcCommunicationBackend;
 
   constructor(private logService: LogService) {
     super();
@@ -53,7 +53,7 @@ export class IpcBackgroundService extends IpcService {
           return;
         }
 
-        this.communicationBackend.deliver_message(
+        this.communicationBackend?.deliver_message(
           new IncomingMessage(message.message.payload, message.message.destination, {
             Web: { id: sender.tab.id },
           }),
