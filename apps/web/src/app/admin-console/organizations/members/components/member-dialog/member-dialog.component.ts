@@ -460,7 +460,13 @@ export class MemberDialogComponent implements OnDestroy {
     return Object.assign(p, partialPermissions);
   }
 
-  handleDependentPermissions() {
+  async handleDependentPermissions() {
+    const separateCustomRolePermissions = await this.configService.getFeatureFlag(
+      FeatureFlag.SeparateCustomRolePermissions,
+    );
+    if (separateCustomRolePermissions) {
+      return;
+    }
     // Manage Password Reset (Account Recovery) must have Manage Users enabled
     if (
       this.permissionsGroup.value.manageResetPassword &&
