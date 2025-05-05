@@ -105,6 +105,8 @@ export class LoginCommand {
         return Response.badRequest("client_secret is required.");
       }
     } else if (options.sso != null && this.canInteract) {
+      // If the optional identifier isn't provided, the option value is `true`.
+      const identifier = options.sso === true ? null : options.sso;
       const passwordOptions: any = {
         type: "password",
         length: 64,
@@ -117,7 +119,6 @@ export class LoginCommand {
       ssoCodeVerifier = await this.passwordGenerationService.generatePassword(passwordOptions);
       const codeVerifierHash = await this.cryptoFunctionService.hash(ssoCodeVerifier, "sha256");
       const codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash);
-      const identifier = options.identifier ?? null;
       try {
         const ssoParams = await this.openSsoPrompt(codeChallenge, state, identifier);
         ssoCode = ssoParams.ssoCode;
