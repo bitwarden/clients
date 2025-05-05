@@ -66,17 +66,24 @@ export function redirectToDuoFrameless(redirectUrl: string) {
    * This ensures that the redirect does not contain any malicious content
    * and is a valid Duo URL.
    * */
-  const duoRedirectUrlRegex = /^https:\/\/api-[a-zA-Z0-9]+\.(duosecurity|duofederal)\.com/;
-  // Check if the redirect URL matches the regex
-  if (!duoRedirectUrlRegex.test(redirectUrl)) {
-    throw new Error("Invalid redirect URL");
-  }
-  // At this point we know the URL to be valid, but we need to check for embedded credentials
+  const duoRedirectUrlRegex = /^api-[a-zA-Z0-9]+\.(duosecurity|duofederal)\.com$/;
   const validateUrl = new URL(redirectUrl);
-  // URLs should not contain
+
   // Check that no embedded credentials are present
   if (validateUrl.username || validateUrl.password) {
     throw new Error("Invalid redirect URL: embedded credentials not allowed");
+  }
+
+  // Check that the protocol is HTTPS
+  if (validateUrl.protocol !== "https:") {
+    throw new Error("Invalid redirect URL: invalid protocol");
+  }
+
+  // Check if the redirect hostname matches the regex
+  // Only check the hostname part of the URL to avoid over-zealous Regex expressions from matching
+  // and causing an Open Redirect vulnerability
+  if (!duoRedirectUrlRegex.test(validateUrl.host)) {
+    throw new Error("Invalid redirect URL");
   }
 
   window.location.href = decodeURIComponent(redirectUrl);

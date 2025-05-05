@@ -31,6 +31,25 @@ describe("duo-redirect", () => {
       expect(() => redirectToDuoFrameless(invalidUrl)).toThrow("Invalid redirect URL");
     });
 
+    it("should throw an error for a URL with a malicious subdomain", () => {
+      const maliciousSubdomainUrl = "https://api-a86d5bde.duosecurity.com.evil.com/?oauth";
+      expect(() => redirectToDuoFrameless(maliciousSubdomainUrl)).toThrow("Invalid redirect URL");
+    });
+
+    it("should throw an error for a URL using HTTP protocol", () => {
+      const maliciousSubdomainUrl = "http://api-a86d5bde.duosecurity.com/?oauth";
+      expect(() => redirectToDuoFrameless(maliciousSubdomainUrl)).toThrow(
+        "Invalid redirect URL: invalid protocol",
+      );
+    });
+
+    it("should throw an error for a URL with javascript code", () => {
+      const maliciousSubdomainUrl = "javascript://https://api-a86d5bde.duosecurity.com%0Aalert(1)";
+      expect(() => redirectToDuoFrameless(maliciousSubdomainUrl)).toThrow(
+        "Invalid redirect URL: invalid protocol",
+      );
+    });
+
     it("should throw an error for a non-HTTPS URL", () => {
       const nonHttpsUrl = "http://api-123.duosecurity.com/auth";
       expect(() => redirectToDuoFrameless(nonHttpsUrl)).toThrow("Invalid redirect URL");
