@@ -42,7 +42,7 @@ export function NotificationConfirmationContainer({
   type,
 }: NotificationConfirmationContainerProps) {
   const headerMessage = getHeaderMessage(i18n, type, error);
-  const confirmationMessage = getConfirmationMessage(i18n, itemName, type, error);
+  const confirmationMessage = getConfirmationMessage(i18n, type, error);
   const buttonText = error ? i18n.newItem : i18n.view;
 
   let messageDetails: string | undefined;
@@ -107,17 +107,13 @@ const notificationContainerStyles = (theme: Theme) => css`
 
 function getConfirmationMessage(
   i18n: { [key: string]: string },
-  itemName: string,
   type?: NotificationType,
   error?: string,
 ) {
-  const loginSaveConfirmation = chrome.i18n.getMessage("loginSaveConfirmation", [itemName]);
-  const loginUpdatedConfirmation = chrome.i18n.getMessage("loginUpdatedConfirmation", [itemName]);
-
   if (error) {
     return i18n.saveFailureDetails;
   }
-  return type === "add" ? loginSaveConfirmation : loginUpdatedConfirmation;
+  return type === "add" ? i18n.loginSaveConfirmation : i18n.loginUpdateConfirmation;
 }
 
 function getHeaderMessage(

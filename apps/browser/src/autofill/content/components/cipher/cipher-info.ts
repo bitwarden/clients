@@ -27,7 +27,9 @@ export function CipherInfo({ cipher, theme }: { cipher: NotificationCipherData; 
       </span>
 
       ${login?.username
-        ? html`<span class=${cipherInfoSecondaryTextStyles(theme)}>${login.username}</span>`
+        ? html`<span title=${login.username} class=${cipherInfoSecondaryTextStyles(theme)}
+            >${login.username}</span
+          >`
         : null}
     </div>
   `;

@@ -51,7 +51,7 @@ export function ButtonRow({ theme, primaryButton, selectButtons }: ButtonRowProp
 }
 
 const buttonRowStyles = css`
-  gap: 16px;
+  gap: ${spacing[4]};
   display: flex;
   align-items: center;
   justify-content: space-between;
