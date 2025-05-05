@@ -19,4 +19,18 @@ export class OrganizationSponsorshipApiService
     );
     return new ListResponse(r, OrganizationSponsorshipInvitesResponse);
   }
+
+  async postResendSponsorshipOffer(
+    sponsoringOrgId: string,
+    sponsoredFriendlyName?: string,
+  ): Promise<void> {
+    let url = "/organization/sponsorship/" + sponsoringOrgId + "/families-for-enterprise/resend";
+
+    // Add the query parameter if sponsoredOrgUserId is provided
+    if (sponsoredFriendlyName) {
+      url += `?sponsoredFriendlyName=${encodeURIComponent(sponsoredFriendlyName)}`;
+    }
+
+    return await this.apiService.send("POST", url, null, true, false);
+  }
 }

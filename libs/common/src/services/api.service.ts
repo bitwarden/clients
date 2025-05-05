@@ -1682,16 +1682,6 @@ export class ApiService implements ApiServiceAbstraction {
     );
   }
 
-  async postResendSponsorshipOffer(sponsoringOrgId: string): Promise<void> {
-    return await this.send(
-      "POST",
-      "/organization/sponsorship/" + sponsoringOrgId + "/families-for-enterprise/resend",
-      null,
-      true,
-      false,
-    );
-  }
-
   // Keep the running refreshTokenPromise to prevent parallel calls.
   protected refreshToken(): Promise<string> {
     if (this.refreshTokenPromise === undefined) {
