@@ -29,6 +29,7 @@ export type NotificationContainerProps = NotificationBarIframeInitData & {
   folders?: FolderView[];
   i18n: { [key: string]: string };
   organizations?: OrgView[];
+  personalVaultIsAllowed?: boolean;
   type: NotificationType; // @TODO typing override for generic `NotificationBarIframeInitData.type`
 };
 
@@ -41,6 +42,7 @@ export function NotificationContainer({
   folders,
   i18n,
   organizations,
+  personalVaultIsAllowed = true,
   theme = ThemeTypes.Light,
   type,
 }: NotificationContainerProps) {
@@ -71,6 +73,7 @@ export function NotificationContainer({
         i18n,
         notificationType: type,
         organizations,
+        personalVaultIsAllowed,
         theme,
       })}
     </div>

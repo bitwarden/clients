@@ -45,6 +45,7 @@ import { CardDetailsSectionComponent } from "./card-details-section/card-details
 import { IdentitySectionComponent } from "./identity/identity.component";
 import { ItemDetailsSectionComponent } from "./item-details/item-details-section.component";
 import { LoginDetailsSectionComponent } from "./login-details-section/login-details-section.component";
+import { NewItemNudgeComponent } from "./new-item-nudge/new-item-nudge.component";
 import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.component";
 
 @Component({
@@ -76,6 +77,7 @@ import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.componen
     NgIf,
     AdditionalOptionsSectionComponent,
     LoginDetailsSectionComponent,
+    NewItemNudgeComponent,
   ],
 })
 export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, CipherFormContainer {
@@ -241,6 +243,10 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
 
       if (this.config.mode === "clone") {
         this.updatedCipherView.id = null;
+
+        if (this.updatedCipherView.login) {
+          this.updatedCipherView.login.fido2Credentials = null;
+        }
       }
     } else {
       this.updatedCipherView.type = this.config.cipherType;

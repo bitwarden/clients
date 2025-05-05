@@ -422,17 +422,8 @@
   "folder": {
     "message": "Map"
   },
-  "newCustomField": {
-    "message": "Nieuw extra veld"
-  },
   "value": {
     "message": "Waarde"
-  },
-  "dragToSort": {
-    "message": "Slepen om te sorteren"
-  },
-  "dragToReorder": {
-    "message": "Sleep om te herschikken"
   },
   "cfTypeText": {
     "message": "Tekst"
@@ -10607,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Leden niet toestaan hun account te ontgrendelen met een pincode."
   },
-  "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$-abonnementen hebben geen toegang tot echte event logs",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Krijg volledige toegang tot event logs van de organisatie door te upgraden naar een Teams- of Enterprise-abonnement."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Upgrade voor echte event log gegevens"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "Deze evenementen zijn alleen voorbeelden en weerspiegelen geen echte evenementen binnen je Bitwarden organisatie."
@@ -10636,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "Nieuwe bedrijfseenheid"
+  },
+  "restart": {
+    "message": "Herstarten"
   }
 }

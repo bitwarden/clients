@@ -108,6 +108,34 @@ describe("Default task service", () => {
   });
 
   describe("tasks$", () => {
+    beforeEach(() => {
+      mockGetFeatureFlag$.mockReturnValue(new BehaviorSubject(true));
+      mockGetAllOrgs$.mockReturnValue(
+        new BehaviorSubject([
+          {
+            useRiskInsights: true,
+          },
+        ] as Organization[]),
+      );
+    });
+
+    it("should return an empty array if tasks are not enabled", async () => {
+      mockGetAllOrgs$.mockReturnValue(
+        new BehaviorSubject([
+          {
+            useRiskInsights: false,
+          },
+        ] as Organization[]),
+      );
+
+      const { tasks$ } = service;
+
+      const result = await firstValueFrom(tasks$("user-id" as UserId));
+
+      expect(result.length).toBe(0);
+      expect(mockApiSend).not.toHaveBeenCalled();
+    });
+
     it("should fetch tasks from the API when the state is null", async () => {
       mockApiSend.mockResolvedValue({
         data: [
@@ -153,6 +181,34 @@ describe("Default task service", () => {
   });
 
   describe("pendingTasks$", () => {
+    beforeEach(() => {
+      mockGetFeatureFlag$.mockReturnValue(new BehaviorSubject(true));
+      mockGetAllOrgs$.mockReturnValue(
+        new BehaviorSubject([
+          {
+            useRiskInsights: true,
+          },
+        ] as Organization[]),
+      );
+    });
+
+    it("should return an empty array if tasks are not enabled", async () => {
+      mockGetAllOrgs$.mockReturnValue(
+        new BehaviorSubject([
+          {
+            useRiskInsights: false,
+          },
+        ] as Organization[]),
+      );
+
+      const { pendingTasks$ } = service;
+
+      const result = await firstValueFrom(pendingTasks$("user-id" as UserId));
+
+      expect(result.length).toBe(0);
+      expect(mockApiSend).not.toHaveBeenCalled();
+    });
+
     it("should filter tasks to only pending tasks", async () => {
       fakeStateProvider.singleUser.mockFor("user-id" as UserId, SECURITY_TASKS, [
         {

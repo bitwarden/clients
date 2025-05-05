@@ -393,6 +393,64 @@
   "authenticatorKeyTotp": {
     "message": "Authentifizierungsschlüssel (TOTP)"
   },
+  "authenticatorKey": {
+    "message": "Authenticator-Schlüssel"
+  },
+  "autofillOptions": {
+    "message": "Auto-Ausfüllen-Optionen"
+  },
+  "websiteUri": {
+    "message": "Webseite (URI)"
+  },
+  "websiteUriCount": {
+    "message": "Webseite (URI) $COUNT$",
+    "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "websiteAdded": {
+    "message": "Webseite hinzugefügt"
+  },
+  "addWebsite": {
+    "message": "Webseite hinzufügen"
+  },
+  "deleteWebsite": {
+    "message": "Webseite löschen"
+  },
+  "owner": {
+    "message": "Besitzer"
+  },
+  "addField": {
+    "message": "Feld hinzufügen"
+  },
+  "fieldType": {
+    "message": "Feldtyp"
+  },
+  "fieldLabel": {
+    "message": "Feldbezeichnung"
+  },
+  "add": {
+    "message": "Hinzufügen"
+  },
+  "textHelpText": {
+    "message": "Verwende Textfelder für Daten wie Sicherheitsfragen"
+  },
+  "hiddenHelpText": {
+    "message": "Verwende versteckte Felder für vertrauliche Daten wie ein Passwort"
+  },
+  "checkBoxHelpText": {
+    "message": "Verwende Kontrollkästchen, wenn du das Kontrollkästchen eines Formulars automatisch ausfüllen möchtest, wie eine Erinnerungs-E-Mail"
+  },
+  "linkedHelpText": {
+    "message": "Verwende ein verknüpftes Feld, wenn du Probleme mit dem automatischen Ausfüllen einer bestimmten Webseite hast."
+  },
+  "linkedLabelHelpText": {
+    "message": "Gib die HTML-ID des Felds, Name, Aria-Label oder einen Platzhalter ein."
+  },
   "folder": {
     "message": "Ordner"
   },
@@ -417,6 +475,9 @@
   "cfTypeLinked": {
     "message": "Verknüpft",
     "description": "This describes a field that is 'linked' (related) to another field."
+  },
+  "cfTypeCheckbox": {
+    "message": "Kontrollkästchen"
   },
   "linkedValue": {
     "message": "Verknüpfter Wert",
@@ -1915,6 +1976,43 @@
       }
     }
   },
+  "cardDetails": {
+    "message": "Kartendetails"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$-Details",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "learnMoreAboutAuthenticators": {
+    "message": "Erfahre mehr über Authenticator-Apps"
+  },
+  "copyTOTP": {
+    "message": "Authenticator-Schlüssel kopieren (TOTP)"
+  },
+  "totpHelperTitle": {
+    "message": "Zwei-Faktor-Authentifizierung nahtlos gestalten"
+  },
+  "totpHelper": {
+    "message": "Bitwarden kann Zwei-Faktor-Authentifizierungsscodes speichern und ausfüllen. Kopiere und füge den Schlüssel in dieses Feld ein."
+  },
+  "totpHelperWithCapture": {
+    "message": "Bitwarden kann Zwei-Faktor-Authentifizierungsscodes speichern und ausfüllen. Wähle das Kamerasymbol aus, um einen Screenshot des Authenticator-QR-Codes dieser Website zu machen oder kopiere und füge den Schlüssel in dieses Feld ein."
+  },
+  "premium": {
+    "message": "Premium",
+    "description": "Premium membership"
+  },
+  "cardExpiredTitle": {
+    "message": "Abgelaufene Karte"
+  },
+  "cardExpiredMessage": {
+    "message": "Wenn du die Karte erneuert hast, aktualisiere die Angaben zur Karte"
+  },
   "verificationRequired": {
     "message": "Verifizierung erforderlich",
     "description": "Default title for the user verification dialog."
@@ -2083,6 +2181,15 @@
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "Eine Organisationsrichtlinie hat das Importieren von Einträgen in deinen persönlichen Tresor deaktiviert."
+  },
+  "personalDetails": {
+    "message": "Persönliche Details"
+  },
+  "identification": {
+    "message": "Identifikation"
+  },
+  "contactInfo": {
+    "message": "Kontaktinformationen"
   },
   "allSends": {
     "message": "Alle Sends",
@@ -2517,6 +2624,9 @@
   },
   "generateEmail": {
     "message": "E-Mail generieren"
+  },
+  "usernameGenerator": {
+    "message": "Benutzernamen-Generator"
   },
   "spinboxBoundariesHint": {
     "message": "Wert muss zwischen $MIN$ und $MAX$ liegen.",
@@ -3212,6 +3322,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Folge den Schritten unten, um die Anmeldung abzuschließen."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Folge den Schritten unten, um die Anmeldung mit deinem Sicherheitsschlüssel abzuschließen."
+  },
   "launchDuo": {
     "message": "Duo im Browser starten"
   },
@@ -3436,6 +3549,17 @@
   "ssoError": {
     "message": "Es konnten keine freien Ports für die SSO-Anmeldung gefunden werden."
   },
+  "securePasswordGenerated": {
+    "message": "Sicheres Passwort generiert! Vergiss nicht, auch dein Passwort auf der Website zu aktualisieren."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Verwende den Generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": ", um ein starkes einzigartiges Passwort zu erstellen",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "Biometrisches Entsperren ist nicht verfügbar, da zuerst mit PIN oder Passwort entsperrt werden muss."
   },
@@ -3514,6 +3638,27 @@
   "setupTwoStepLogin": {
     "message": "Zwei-Faktor-Authentifizierung einrichten"
   },
+  "itemDetails": {
+    "message": "Eintrag-Details"
+  },
+  "itemName": {
+    "message": "Eintrags-Name"
+  },
+  "loginCredentials": {
+    "message": "Zugangsdaten"
+  },
+  "additionalOptions": {
+    "message": "Weitere Optionen"
+  },
+  "itemHistory": {
+    "message": "Eintragsverlauf"
+  },
+  "lastEdited": {
+    "message": "Zuletzt bearbeitet"
+  },
+  "upload": {
+    "message": "Hochladen"
+  },
   "newDeviceVerificationNoticeContentPage1": {
     "message": "Ab Februar 2025 wird Bitwarden einen Code an deine Konto-E-Mail-Adresse senden, um Anmeldungen von neuen Geräten zu verifizieren."
   },
@@ -3567,5 +3712,35 @@
   },
   "move": {
     "message": "Verschieben"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBody": {
+    "message": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBody": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
   }
 }

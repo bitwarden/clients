@@ -422,17 +422,8 @@
   "folder": {
     "message": "Mappa"
   },
-  "newCustomField": {
-    "message": "Új egyedi mező"
-  },
   "value": {
     "message": "Érték"
-  },
-  "dragToSort": {
-    "message": "Húzás a rendezéshez"
-  },
-  "dragToReorder": {
-    "message": "Átrendezés áthúzással"
   },
   "cfTypeText": {
     "message": "Szöveg"
@@ -10607,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Nem engedjük meg a tagoknak, hogy PIN kóddal oldják fel fiókjuk zárolását."
   },
-  "limitedEventLogs": {
-    "message": "A $PRODUCT_TYPE$ csomagok nem férnek hozzá a valós eseménynaplókhoz.",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "A szervezet eseménynaplói nem tárolódnak. Váltsunk Teams vagy Enterprise csomagra, hogy teljes hozzáférést kapjunk a szervezet eseménynaplóihoz."
   },
-  "upgradeForFullEvents": {
-    "message": "Teljes hozzáférést kaphatunk a szervezeti eseménynaplókhoz, ha Teams vagy Enterprise csomagra térünk át."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Áttérés valós eseménynapló adatokhoz"
+  "upgradeEventLogTitleMessage": {
+    "message": "Frissítsünk, hogy megtekinthessük a szervezet eseménynaplóit."
   },
   "upgradeEventLogMessage": {
     "message": "Ezek az események csak példák és nem tükröznek valós eseményeket a Bitwarden szervezetén belül."
@@ -10636,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "Új üzleti egység"
+  },
+  "restart": {
+    "message": "Újraindítás"
   }
 }
