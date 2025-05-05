@@ -1,17 +1,32 @@
 import { CommonModule } from "@angular/common";
-import { Component, Inject } from "@angular/core";
+import { Component, Inject, OnInit } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
-import { ChangePasswordComponent, InputPasswordFlow } from "@bitwarden/auth/angular";
+import {
+  ChangePasswordComponent,
+  InputPasswordComponent,
+  InputPasswordFlow,
+  PasswordInputResult,
+} from "@bitwarden/auth/angular";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
   ButtonModule,
   CalloutModule,
   DIALOG_DATA,
   DialogConfig,
   DialogModule,
+  DialogRef,
   DialogService,
   FormFieldModule,
+  ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { EmergencyAccessService } from "../../../emergency-access";
 
 type EmergencyAccessTakeoverDialogData = {
   grantorName: string;
@@ -43,12 +58,58 @@ export enum EmergencyAccessTakeoverDialogResultType {
     DialogModule,
     FormFieldModule,
     I18nPipe,
+    InputPasswordComponent,
   ],
 })
-export class EmergencyAccessTakeoverDialogComponent {
+export class EmergencyAccessTakeoverDialogComponent implements OnInit {
   inputPasswordFlow = InputPasswordFlow.ChangePasswordDelegation;
 
-  constructor(@Inject(DIALOG_DATA) protected dialogData: EmergencyAccessTakeoverDialogData) {}
+  initializing = true;
+  masterPasswordPolicyOptions?: MasterPasswordPolicyOptions;
+
+  constructor(
+    @Inject(DIALOG_DATA) protected dialogData: EmergencyAccessTakeoverDialogData,
+    private accountService: AccountService,
+    private dialogRef: DialogRef<EmergencyAccessTakeoverDialogResultType>,
+    private emergencyAccessService: EmergencyAccessService,
+    private i18nService: I18nService,
+    private logService: LogService,
+    private policyService: PolicyService,
+    private toastService: ToastService,
+  ) {}
+
+  async ngOnInit() {
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    const userId = activeAccount?.id;
+
+    const grantorPolicies = await this.emergencyAccessService.getGrantorPolicies(
+      this.dialogData.emergencyAccessId,
+    );
+
+    this.masterPasswordPolicyOptions = await firstValueFrom(
+      this.policyService.masterPasswordPolicyOptions$(userId, grantorPolicies),
+    );
+  }
+
+  async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
+    try {
+      await this.emergencyAccessService.takeover(
+        this.dialogData.emergencyAccessId,
+        passwordInputResult.newPassword,
+        this.dialogData.grantorEmail,
+      );
+    } catch (e) {
+      this.logService.error(e);
+
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("unexpectedError"),
+      });
+    }
+
+    this.dialogRef.close(EmergencyAccessTakeoverDialogResultType.Done);
+  }
 
   /**
    * Strongly typed helper to open a EmergencyAccessTakeoverDialogComponent
