@@ -192,6 +192,15 @@ export class InputPasswordComponent implements OnInit {
         "currentPassword",
         new FormControl("", Validators.required) as FormControl<string>,
       );
+
+      this.formGroup.addValidators([
+        compareInputs(
+          ValidationGoal.InputsShouldNotMatch,
+          "currentPassword",
+          "newPassword",
+          this.i18nService.t("yourNewPasswordCannotBeTheSameAsYourCurrentPassword"),
+        ),
+      ]);
     }
 
     if (this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation) {
