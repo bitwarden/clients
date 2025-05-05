@@ -661,20 +661,23 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     return this.inlineMenuFido2Credentials.has(credentialId);
   }
 
+  /**
+   * When focused field data contains account creation field type of totp
+   * and there are totp fields in the current frame for page details return true
+   *
+   * @returns boolean
+   */
   private isTotpFieldForCurrentField(): boolean {
     if (!this.focusedFieldData) {
       return false;
     }
-    const { tabId, frameId } = this.focusedFieldData;
-    const pageDetailsMap = this.pageDetailsForTab[tabId];
-    if (!pageDetailsMap || !pageDetailsMap.has(frameId)) {
+    const totpFields = this.getTotpFields();
+    if (!totpFields) {
       return false;
     }
-    const pageDetail = pageDetailsMap.get(frameId);
     return (
-      pageDetail?.details?.fields?.every((field) =>
-        this.inlineMenuFieldQualificationService.isTotpField(field),
-      ) || false
+      totpFields.length > 0 &&
+      this.focusedFieldData?.accountCreationFieldType === InlineMenuAccountCreationFieldType.Totp
     );
   }
 
@@ -1399,7 +1402,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const pageDetailsMap = this.pageDetailsForTab[currentTabId];
     const pageDetails = pageDetailsMap?.get(currentFrameId);
 
-    const fields = pageDetails.details.fields;
+    const fields = pageDetails?.details?.fields || [];
     const totpFields = fields.filter((f) =>
       this.inlineMenuFieldQualificationService.isTotpField(f),
     );
@@ -1679,7 +1682,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       !this.focusedFieldMatchesFillType(
         focusedFieldData?.inlineMenuFillType,
         previousFocusedFieldData,
-      )
+      ) ||
+      // a TOTP field was just focused to - or unfocused from — a non-TOTP field
+      // may want to generalize this logic if cipher inline menu types exceed [general cipher, TOTP]
+      [focusedFieldData, previousFocusedFieldData].filter(
+        (fd) => fd?.accountCreationFieldType === InlineMenuAccountCreationFieldType.Totp,
+      ).length === 1
     ) {
       const updateAllCipherTypes = !this.focusedFieldMatchesFillType(
         CipherType.Login,

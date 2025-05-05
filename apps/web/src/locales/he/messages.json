@@ -422,17 +422,8 @@
   "folder": {
     "message": "תיקייה"
   },
-  "newCustomField": {
-    "message": "שדה מותאם אישית חדש"
-  },
   "value": {
     "message": "ערך"
-  },
-  "dragToSort": {
-    "message": "גרור כדי למיין"
-  },
-  "dragToReorder": {
-    "message": "גרור כדי לסדר מחדש"
   },
   "cfTypeText": {
     "message": "טקסט"
@@ -10607,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "אל תאפשר לחברים לבטל את נעילת החשבון שלהם עם PIN."
   },
-  "limitedEventLogs": {
-    "message": "לתוכניות מסוג $PRODUCT_TYPE$ אין גישה ליומני אירועים אמיתיים",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "קבל גישה מלאה ליומני אירועים של ארגון על ידי שדרוג לתוכנית לצוותים או ארגונים."
-  },
-  "upgradeEventLogTitle": {
-    "message": "שדרג עבור נתוני יומן אירועים אמיתיים"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "האירועים האלה הם דוגמאות בלבד ולא משקפים אירועים אמיתיים בתוך ארגון ה־Bitwarden שלך."
@@ -10636,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "New business unit"
+  },
+  "restart": {
+    "message": "Restart"
   }
 }

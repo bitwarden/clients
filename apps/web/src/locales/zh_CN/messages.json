@@ -411,10 +411,10 @@
     "message": "无缝两步验证"
   },
   "totpHelper": {
-    "message": "Bitwarden 可以存储并填充两步验证码。复制并粘贴密钥到此字段。"
+    "message": "Bitwarden 可以存储并填充两步验证码。将密钥复制并粘贴到此字段。"
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden 可以存储并填充两步验证码。选择相机图标来截取此网站的验证器二维码，或者手动复制并粘贴密钥到此字段。"
+    "message": "Bitwarden 可以存储并填充两步验证码。选择相机图标来拍摄此网站的验证器二维码，或将密钥复制并粘贴到此字段。"
   },
   "learnMoreAboutAuthenticators": {
     "message": "进一步了解验证器"
@@ -422,17 +422,8 @@
   "folder": {
     "message": "文件夹"
   },
-  "newCustomField": {
-    "message": "新增自定义字段"
-  },
   "value": {
     "message": "值"
-  },
-  "dragToSort": {
-    "message": "拖动排序"
-  },
-  "dragToReorder": {
-    "message": "拖动以重新排序"
   },
   "cfTypeText": {
     "message": "文本型"
@@ -4473,7 +4464,7 @@
     }
   },
   "encryptionKeyUpdateCannotProceed": {
-    "message": "无法继续加密密钥更新"
+    "message": "加密密钥更新无法继续"
   },
   "editFieldLabel": {
     "message": "编辑 $LABEL$",
@@ -6891,7 +6882,7 @@
     "message": "使用此用户名"
   },
   "securePasswordGenerated": {
-    "message": "安全密码生成好了！别忘了也在网站上更新一下您的密码。"
+    "message": "安全的密码生成好了！别忘了在网站上也更新一下您的密码。"
   },
   "useGeneratorHelpTextPartOne": {
     "message": "使用生成器",
@@ -7373,7 +7364,7 @@
     "description": "Description for the Projects field."
   },
   "lastEdited": {
-    "message": "上次编辑",
+    "message": "最后编辑于",
     "description": "The label for the date and time when a item was last edited."
   },
   "editSecret": {
@@ -10607,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "不允许成员使用 PIN 码解锁他们的账户。"
   },
-  "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$ 计划无法访问真实的事件日志",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "升级到团队版或企业版计划，即可获得对组织事件日志的完整访问权限。"
-  },
-  "upgradeEventLogTitle": {
-    "message": "升级以访问真实的事件日志数据"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "这些事件仅为示例，并不反映您 Bitwarden 组织内的真实事件。"
@@ -10636,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "新增业务单元"
+  },
+  "restart": {
+    "message": "Restart"
   }
 }

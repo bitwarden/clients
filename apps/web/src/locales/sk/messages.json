@@ -422,17 +422,8 @@
   "folder": {
     "message": "Priečinok"
   },
-  "newCustomField": {
-    "message": "Nové vlastné pole"
-  },
   "value": {
     "message": "Hodnota"
-  },
-  "dragToSort": {
-    "message": "Zoradiť presúvaním"
-  },
-  "dragToReorder": {
-    "message": "Potiahnutím zmeníte poradie"
   },
   "cfTypeText": {
     "message": "Text"
@@ -7280,7 +7271,7 @@
     "message": "Na dokončenie prihlásenia postupujte podľa pokynov."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Follow the steps below to finish logging in with your security key."
+    "message": "Podľa nasledujúcich krokov dokončite prihlásenie pomocou bezpečnostného kľúča."
   },
   "launchDuo": {
     "message": "Spustiť DUO"
@@ -10607,20 +10598,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Neumožnite vaším členom odomykať si konto PIN kódom."
   },
-  "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Prechodom na plán Teams alebo Enterprise získate úplný prístup k denníku udalostí organizácie."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Upgrade for real event log data"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
@@ -10636,5 +10618,8 @@
   },
   "newBusinessUnit": {
     "message": "Nová organizačná jednotka"
+  },
+  "restart": {
+    "message": "Restart"
   }
 }
