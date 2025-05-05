@@ -121,30 +121,21 @@ export class Fido2AuthenticatorService<ParentWindowReference>
       let userVerified = false;
       let credentialId: string;
       let pubKeyDer: ArrayBuffer;
-      let response;
+
+      const response = await userInterfaceSession.confirmNewCredential({
+        credentialName: params.rpEntity.name,
+        userName: params.userEntity.name,
+        userHandle: Fido2Utils.bufferToString(params.userEntity.id),
+        userVerification: params.requireUserVerification,
+        rpId: params.rpEntity.id,
+      });
 
       if (existingCipherIds.length > 0) {
-        response = await userInterfaceSession.confirmNewCredential({
-          credentialName: params.rpEntity.name,
-          userName: params.userEntity.name,
-          userHandle: Fido2Utils.bufferToString(params.userEntity.id),
-          userVerification: params.requireUserVerification,
-          rpId: params.rpEntity.id,
-        });
-
         this.logService?.info(
           `[Fido2Authenticator] Aborting due to excluded credential found in vault.`,
         );
         await userInterfaceSession.informExcludedCredential(existingCipherIds);
         throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.NotAllowed);
-      } else {
-        response = await userInterfaceSession.confirmNewCredential({
-          credentialName: params.rpEntity.name,
-          userName: params.userEntity.name,
-          userHandle: Fido2Utils.bufferToString(params.userEntity.id),
-          userVerification: params.requireUserVerification,
-          rpId: params.rpEntity.id,
-        });
       }
 
       const cipherId = response.cipherId;
