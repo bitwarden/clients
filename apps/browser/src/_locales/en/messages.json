@@ -5302,5 +5302,8 @@
   },
   "newSshNudgeBody": {
     "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  },
+  "noPermissionsViewPage": {
+    "message": "You do not have permissions to view this page. Try logging in with a different account."
   }
 }
