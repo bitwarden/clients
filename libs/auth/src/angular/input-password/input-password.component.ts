@@ -104,8 +104,8 @@ export class InputPasswordComponent implements OnInit {
   @Output() onSecondaryButtonClick = new EventEmitter<void>();
 
   @Input({ required: true }) flow!: InputPasswordFlow;
-  @Input({ required: true, transform: (val: string) => val.trim().toLowerCase() }) email!: string;
 
+  @Input({ transform: (val: string) => val?.trim().toLowerCase() }) email?: string;
   @Input() userId?: UserId;
   @Input() loading = false;
   @Input() masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
@@ -243,7 +243,7 @@ export class InputPasswordComponent implements OnInit {
   }
 
   protected submit = async () => {
-    this.verifyFlowAndUserId();
+    this.verifyFlow();
 
     this.formGroup.markAllAsTouched();
 
@@ -371,13 +371,16 @@ export class InputPasswordComponent implements OnInit {
    * We cannot mark the `userId` `@Input` as required because in an account registration
    * flow we will not have an active account `userId` to pass down.
    */
-  private verifyFlowAndUserId() {
+  private verifyFlow() {
     /**
      * There can be no active account (and thus no userId) in an account registration
      * flow. If there is a userId, it means the dev passed down the wrong InputPasswordFlow
      * from the parent component.
      */
-    if (this.flow === InputPasswordFlow.AccountRegistration) {
+    if (
+      this.flow === InputPasswordFlow.AccountRegistration ||
+      this.flow === InputPasswordFlow.ChangePasswordDelegation
+    ) {
       if (this.userId) {
         throw new Error(
           "There can be no userId in an account registration flow. Please pass down the appropriate InputPasswordFlow from the parent component.",
@@ -391,9 +394,28 @@ export class InputPasswordComponent implements OnInit {
      *  (a) passed down the wrong InputPasswordFlow, or
      *  (b) passed down the correct InputPasswordFlow but failed to pass down a userId
      */
-    if (this.flow !== InputPasswordFlow.AccountRegistration) {
+    if (
+      this.flow !== InputPasswordFlow.AccountRegistration &&
+      this.flow !== InputPasswordFlow.ChangePasswordDelegation
+    ) {
       if (!this.userId) {
         throw new Error("The selected InputPasswordFlow requires that a userId be passed down");
+      }
+    }
+
+    if (this.flow === InputPasswordFlow.ChangePasswordDelegation) {
+      if (this.email) {
+        throw new Error(
+          "There should be no email in a ChangePasswordDelegation flow. Please pass down the appropriate InputPasswordFlow from the parent component.",
+        );
+      }
+    }
+
+    if (this.flow !== InputPasswordFlow.ChangePasswordDelegation) {
+      if (!this.email) {
+        throw new Error(
+          "The selected InputPasswordFlow requires that an email be passed down to create a master key.",
+        );
       }
     }
   }

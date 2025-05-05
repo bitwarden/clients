@@ -9,6 +9,13 @@
       "emergencyAccessLoggedOutWarning" | i18n: dialogData.grantorName
     }}</bit-callout>
 
+    <auth-input-password
+      *ngIf="!initializing"
+      [flow]="inputPasswordFlow"
+      [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
+      (onPasswordFormSubmit)="handlePasswordFormSubmit($event)"
+    ></auth-input-password>
+
     <auth-change-password [inputPasswordFlow]="inputPasswordFlow"></auth-change-password>
   </div>
 
