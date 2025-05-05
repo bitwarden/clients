@@ -20,8 +20,8 @@ export class DownloadBitwardenNudgeService extends DefaultSingleNudgeService {
     const profileDate$ = from(this.vaultProfileService.getProfileCreationDate(userId)).pipe(
       catchError(() => {
         this.logService.error("Failed to load profile date:");
-        // Default to a date before to ensure the nudge is shown
-        return of(new Date("2024-12-24"));
+        // Default to today to ensure the nudge is shown
+        return of(new Date());
       }),
     );
 
@@ -31,7 +31,7 @@ export class DownloadBitwardenNudgeService extends DefaultSingleNudgeService {
       of(Date.now() - THIRTY_DAYS_MS),
     ]).pipe(
       map(([profileCreationDate, status, profileCutoff]) => {
-        const profileOlderThanCutoff = profileCreationDate.getTime() > profileCutoff;
+        const profileOlderThanCutoff = profileCreationDate.getTime() < profileCutoff;
         return {
           hasBadgeDismissed: status.hasBadgeDismissed || profileOlderThanCutoff,
           hasSpotlightDismissed: status.hasSpotlightDismissed || profileOlderThanCutoff,

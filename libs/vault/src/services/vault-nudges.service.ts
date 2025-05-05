@@ -28,7 +28,6 @@ export enum VaultNudgeType {
    */
   EmptyVaultNudge = "empty-vault-nudge",
   HasVaultItems = "has-vault-items",
-  IntroCarouselDismissal = "intro-carousel-dismissal",
   DownloadBitwarden = "download-bitwarden",
   newLoginItemStatus = "new-login-item-status",
   newCardItemStatus = "new-card-item-status",
@@ -91,14 +90,6 @@ export class VaultNudgesService {
         }
         return this.getNudgeService(nudge).nudgeStatus$(nudge, userId);
       }),
-    );
-  }
-
-  async undismissNudge(nudge: VaultNudgeType, userId: UserId) {
-    await this.getNudgeService(nudge).setNudgeStatus(
-      nudge,
-      { hasBadgeDismissed: false, hasSpotlightDismissed: false },
-      userId,
     );
   }
 
