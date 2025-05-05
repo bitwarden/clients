@@ -64,6 +64,7 @@ describe("RemovePasswordComponent", () => {
 
       expect(mockKeyConnectorService.getManagingOrganization).toHaveBeenCalledWith(userId);
       expect(mockSyncService.fullSync).toHaveBeenCalledWith(false);
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
     });
 
     it("should redirect to login when no active account is found", async () => {
