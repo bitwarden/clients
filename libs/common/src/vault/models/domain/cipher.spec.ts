@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 import { Jsonify } from "type-fest";
 
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { KeyService } from "@bitwarden/key-management";
 import {
   CipherType as SdkCipherType,
@@ -252,7 +253,9 @@ describe("Cipher DTO", () => {
       const encryptService = mock<EncryptService>();
       const cipherService = mock<CipherService>();
 
-      encryptService.decryptToBytes.mockResolvedValue(makeStaticByteArray(64));
+      encryptService.unwrapSymmetricKey.mockResolvedValue(
+        new SymmetricCryptoKey(makeStaticByteArray(64)),
+      );
 
       (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
@@ -373,7 +376,9 @@ describe("Cipher DTO", () => {
       const encryptService = mock<EncryptService>();
       const cipherService = mock<CipherService>();
 
-      encryptService.decryptToBytes.mockResolvedValue(makeStaticByteArray(64));
+      encryptService.unwrapSymmetricKey.mockResolvedValue(
+        new SymmetricCryptoKey(makeStaticByteArray(64)),
+      );
 
       (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
@@ -512,7 +517,9 @@ describe("Cipher DTO", () => {
       const encryptService = mock<EncryptService>();
       const cipherService = mock<CipherService>();
 
-      encryptService.decryptToBytes.mockResolvedValue(makeStaticByteArray(64));
+      encryptService.unwrapSymmetricKey.mockResolvedValue(
+        new SymmetricCryptoKey(makeStaticByteArray(64)),
+      );
 
       (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
@@ -675,7 +682,9 @@ describe("Cipher DTO", () => {
       const encryptService = mock<EncryptService>();
       const cipherService = mock<CipherService>();
 
-      encryptService.decryptToBytes.mockResolvedValue(makeStaticByteArray(64));
+      encryptService.unwrapSymmetricKey.mockResolvedValue(
+        new SymmetricCryptoKey(makeStaticByteArray(64)),
+      );
 
       (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
