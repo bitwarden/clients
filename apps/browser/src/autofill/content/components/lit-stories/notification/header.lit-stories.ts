@@ -1,4 +1,5 @@
 import { Meta, StoryObj } from "@storybook/web-components";
+import { html } from "lit";
 
 import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
@@ -25,7 +26,8 @@ export default {
   },
 } as Meta<NotificationHeaderProps>;
 
-const Template = (args: NotificationHeaderProps) => NotificationHeader({ ...args });
+const Template = (args: NotificationHeaderProps) =>
+  html`<div style="max-width:400px;">${NotificationHeader({ ...args })}</div>`;
 
 export const Default: StoryObj<NotificationHeaderProps> = {
   render: Template,
