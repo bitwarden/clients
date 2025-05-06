@@ -13,6 +13,7 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { CipherWithIdExport, FolderWithIdExport } from "@bitwarden/common/models/export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -59,19 +60,21 @@ export class IndividualVaultExportService
    * @param format The format of the export
    */
   async getExport(format: ExportFormat = "csv"): Promise<ExportedVault> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (format === "encrypted_json") {
-      return this.getEncryptedExport();
+      return this.getEncryptedExport(userId);
     } else if (format === "zip") {
-      return this.getDecryptedExportZip();
+      return this.getDecryptedExportZip(userId);
     }
-    return this.getDecryptedExport(format);
+    return this.getDecryptedExport(userId, format);
   }
 
-  /** Creates a password protected export of an individiual vault (My Vault) as a JSON file
+  /** Creates a password protected export of an individual vault (My Vault) as a JSON file
    * @param password The password to encrypt the export with
    * @returns A password-protected encrypted individual vault export
    */
   async getPasswordProtectedExport(password: string): Promise<ExportedVaultAsString> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const exportVault = await this.getExport("json");
 
     if (exportVault.type !== "text/plain") {
@@ -80,27 +83,26 @@ export class IndividualVaultExportService
 
     return {
       type: "text/plain",
-      data: await this.buildPasswordExport(exportVault.data, password),
+      data: await this.buildPasswordExport(userId, exportVault.data, password),
       fileName: ExportHelper.getFileName("", "encrypted_json"),
     } as ExportedVaultAsString;
   }
 
   /** Creates a unencrypted export of an individual vault including attachments
+   * @param activeUserId The user ID of the user requesting the export
    * @returns A unencrypted export including attachments
    */
-  async getDecryptedExportZip(): Promise<ExportedVaultAsBlob> {
+  async getDecryptedExportZip(activeUserId: UserId): Promise<ExportedVaultAsBlob> {
     const zip = new JSZip();
 
     // ciphers
-    const exportedVault = await this.getDecryptedExport("json");
+    const exportedVault = await this.getDecryptedExport(activeUserId, "json");
     zip.file("data.json", exportedVault.data);
 
     const attachmentsFolder = zip.folder("attachments");
     if (attachmentsFolder == null) {
       throw new Error("Error creating attachments folder");
     }
-
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     // attachments
     for (const cipher of await this.cipherService.getAllDecrypted(activeUserId)) {
@@ -155,17 +157,19 @@ export class IndividualVaultExportService
         attachment.key != null
           ? attachment.key
           : await this.keyService.getOrgKey(cipher.organizationId);
-      return await this.encryptService.decryptToBytes(encBuf, key);
+      return await this.encryptService.decryptFileData(encBuf, key);
     } catch {
       throw new Error("Error decrypting attachment");
     }
   }
 
-  private async getDecryptedExport(format: "json" | "csv"): Promise<ExportedVaultAsString> {
+  private async getDecryptedExport(
+    activeUserId: UserId,
+    format: "json" | "csv",
+  ): Promise<ExportedVaultAsString> {
     let decFolders: FolderView[] = [];
     let decCiphers: CipherView[] = [];
     const promises = [];
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     promises.push(
       firstValueFrom(this.folderService.folderViews$(activeUserId)).then((folders) => {
@@ -196,11 +200,10 @@ export class IndividualVaultExportService
     } as ExportedVaultAsString;
   }
 
-  private async getEncryptedExport(): Promise<ExportedVaultAsString> {
+  private async getEncryptedExport(activeUserId: UserId): Promise<ExportedVaultAsString> {
     let folders: Folder[] = [];
     let ciphers: Cipher[] = [];
     const promises = [];
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     promises.push(
       firstValueFrom(this.folderService.folders$(activeUserId)).then((f) => {
@@ -216,10 +219,8 @@ export class IndividualVaultExportService
 
     await Promise.all(promises);
 
-    const userKey = await this.keyService.getUserKeyWithLegacySupport(
-      await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
-    );
-    const encKeyValidation = await this.encryptService.encrypt(Utils.newGuid(), userKey);
+    const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId);
+    const encKeyValidation = await this.encryptService.encryptString(Utils.newGuid(), userKey);
 
     const jsonDoc: BitwardenEncryptedIndividualJsonExport = {
       encrypted: true,

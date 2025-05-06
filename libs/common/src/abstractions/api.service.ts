@@ -491,7 +491,6 @@ export abstract class ApiService {
     sponsorshipToken: string,
     request: OrganizationSponsorshipRedeemRequest,
   ) => Promise<void>;
-  postResendSponsorshipOffer: (sponsoringOrgId: string) => Promise<void>;
 
   getMasterKeyFromKeyConnector: (keyConnectorUrl: string) => Promise<KeyConnectorUserKeyResponse>;
   postUserKeyToKeyConnector: (

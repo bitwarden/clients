@@ -1,3 +1,5 @@
+import { OrganizationWarningsResponse } from "@bitwarden/common/billing/models/response/organization-warnings.response";
+
 import {
   BillingInvoiceResponse,
   BillingTransactionResponse,
@@ -14,6 +16,8 @@ export abstract class OrganizationBillingApiServiceAbstraction {
     id: string,
     startAfter?: string,
   ) => Promise<BillingTransactionResponse[]>;
+
+  abstract getWarnings: (id: string) => Promise<OrganizationWarningsResponse>;
 
   abstract setupBusinessUnit: (
     id: string,

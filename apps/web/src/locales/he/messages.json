@@ -6302,13 +6302,13 @@
   "sponsoredBitwardenFamilies": {
     "message": "Sponsored families"
   },
-  "noSponsoredFamilies": {
+  "noSponsoredFamiliesMessage": {
     "message": "No sponsored families"
   },
-  "noSponsoredFamiliesDescription": {
+  "nosponsoredFamiliesDetails": {
     "message": "Sponsored non-member families plans will display here"
   },
-  "sponsorFreeBitwardenFamilies": {
+  "sponsorshipFreeBitwardenFamilies": {
     "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
@@ -6320,14 +6320,14 @@
   "sponsoredFamiliesEligibleCard": {
     "message": "ממש את תוכנית Bitwarden למשפחות בחינם שלך היום כדי לשמור על אבטחת הנתונים שלך אפילו כשאתה לא בעבודה."
   },
-  "sponsoredFamiliesInclude": {
-    "message": "התוכנית Bitwarden למשפחות כוללת"
+  "sponsoredFamiliesIncludeMessage": {
+    "message": "The Bitwarden for Families plan includes"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "גישת פרימיום עד 6 משתמשים"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "אוספים משותפים עבור סודות משפחה"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Shared collections for family members"
   },
   "memberFamilies": {
     "message": "Member families"
@@ -6340,6 +6340,15 @@
   },
   "membersWithSponsoredFamilies": {
     "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
+  },
+  "organizationHasMemberMessage": {
+    "message": "A sponsorship cannot be sent to $EMAIL$ because they are a member of your organization.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "הקישור אינו חוקי עוד. אנא בקש מנותן החסות לשלוח שוב את ההצעה."
@@ -6392,8 +6401,8 @@
   "redeemedAccount": {
     "message": "החשבון מומש"
   },
-  "revokeAccount": {
-    "message": "בטל חשבון $NAME$",
+  "revokeAccountMessage": {
+    "message": "Revoke account $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -10387,11 +10396,17 @@
   "doNotTrust": {
     "message": "Do not trust"
   },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
+  },
   "emergencyAccessTrustWarning": {
     "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
   },
   "orgTrustWarning": {
     "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
   },
   "trustUser": {
     "message": "Trust user"
@@ -10619,7 +10634,40 @@
   "newBusinessUnit": {
     "message": "New business unit"
   },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBody": {
+    "message": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBody": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  },
   "restart": {
     "message": "Restart"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
   }
 }

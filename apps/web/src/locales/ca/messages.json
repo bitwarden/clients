@@ -3,7 +3,7 @@
     "message": "Totes les aplicacions"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "Logotip de Bitwarden"
   },
   "criticalApplications": {
     "message": "Aplicacions crítiques"
@@ -1172,7 +1172,7 @@
     "message": "Enter the code sent to your email"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Introduïu el codi de la vostra aplicació d'autenticació"
   },
   "pressYourYubiKeyToAuthenticate": {
     "message": "Press your YubiKey to authenticate"
@@ -1184,7 +1184,7 @@
     "message": "La sessió d'autenticació s'ha esgotat. Reinicieu el procés d'inici de sessió."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Verifiqueu la vostra identitat"
   },
   "weDontRecognizeThisDevice": {
     "message": "No reconeixem aquest dispositiu. Introduïu el codi que us hem enviat al correu electrònic per verificar la identitat."
@@ -1439,14 +1439,14 @@
     }
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "No ho torneu a preguntar en aquest dispositiu durant 30 dies"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "Utilitza el teu codi de recuperació"
   },
   "insertU2f": {
     "message": "Introduïu la vostra clau de seguretat al port USB de l'ordinador. Si té un botó, premeu-lo."
@@ -6302,13 +6302,13 @@
   "sponsoredBitwardenFamilies": {
     "message": "Sponsored families"
   },
-  "noSponsoredFamilies": {
+  "noSponsoredFamiliesMessage": {
     "message": "No sponsored families"
   },
-  "noSponsoredFamiliesDescription": {
+  "nosponsoredFamiliesDetails": {
     "message": "Sponsored non-member families plans will display here"
   },
-  "sponsorFreeBitwardenFamilies": {
+  "sponsorshipFreeBitwardenFamilies": {
     "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
@@ -6320,14 +6320,14 @@
   "sponsoredFamiliesEligibleCard": {
     "message": "Bescanvia el teu pla gratuït de Bitwarden per a famílies hui mateix per mantenir les teues dades segures fins i tot quan no estigues a la feina."
   },
-  "sponsoredFamiliesInclude": {
-    "message": "El pla Bitwarden per a Families inclou"
+  "sponsoredFamiliesIncludeMessage": {
+    "message": "The Bitwarden for Families plan includes"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Accés premium fins a 6 usuaris"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Col·leccions compartides de Secrets familiars"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Shared collections for family members"
   },
   "memberFamilies": {
     "message": "Member families"
@@ -6340,6 +6340,15 @@
   },
   "membersWithSponsoredFamilies": {
     "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
+  },
+  "organizationHasMemberMessage": {
+    "message": "A sponsorship cannot be sent to $EMAIL$ because they are a member of your organization.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "L'enllaç ja no és vàlid. Fes que el patrocinador torne a enviar l'oferta."
@@ -6392,8 +6401,8 @@
   "redeemedAccount": {
     "message": "Compte bescanviat"
   },
-  "revokeAccount": {
-    "message": "Revoca el compte $NAME$",
+  "revokeAccountMessage": {
+    "message": "Revoke account $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -10387,11 +10396,17 @@
   "doNotTrust": {
     "message": "Do not trust"
   },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
+  },
   "emergencyAccessTrustWarning": {
     "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
   },
   "orgTrustWarning": {
     "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
   },
   "trustUser": {
     "message": "Trust user"
@@ -10619,7 +10634,40 @@
   "newBusinessUnit": {
     "message": "Unitat de negoci nova"
   },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBody": {
+    "message": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBody": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  },
   "restart": {
     "message": "Restart"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
   }
 }

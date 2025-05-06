@@ -497,7 +497,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     return (
       !this.showChangePlan &&
       this.sub.plan.productTier !== ProductTierType.Enterprise &&
-      !this.sub.subscription.cancelled
+      !this.sub.subscription?.cancelled
     );
   }
 

@@ -3564,6 +3564,30 @@
   "deviceTrusted": {
     "message": "Device trusted"
   },
+  "trustOrganization": {
+    "message": "विश्वसनीय संगठन"
+  },
+  "trust": {
+    "message": "भरोसा करें"
+  },
+  "doNotTrust": {
+    "message": "भरोसा न करें"
+  },
+  "organizationNotTrusted": {
+    "message": "संगठन पर भरोसा नहीं है"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "अपने खाते की सुरक्षा के लिए, केवल तभी पुष्टि करें जब आपने इस उपयोगकर्ता को आपातकालीन पहुँच प्रदान की हो और उनका फिंगरप्रिंट उनके खाते में प्रदर्शित फिंगरप्रिंट से मेल खाता हो"
+  },
+  "orgTrustWarning": {
+    "message": "अपने खाते की सुरक्षा के लिए, केवल तभी आगे बढ़ें जब आप इस संगठन के सदस्य हों, खाता पुनर्प्राप्ति सक्षम हो, तथा नीचे प्रदर्शित फिंगरप्रिंट संगठन के फिंगरप्रिंट से मेल खाता हो।"
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+  },
+  "trustUser": {
+    "message": "उपयोगकर्ता पर भरोसा रखें"
+  },
   "sendsNoItemsTitle": {
     "message": "No active Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5201,6 +5225,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "settingsVaultOptions": {
+    "message": "Vault options"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
   "introCarouselLabel": {
     "message": "Welcome to Bitwarden"
   },
@@ -5227,5 +5257,50 @@
   },
   "secureDevicesBody": {
     "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Import existing passwords"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Use the importer to quickly transfer logins to Bitwarden without manually adding them."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Import now"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Welcome to your vault!"
+  },
+  "hasItemsVaultNudgeBody": {
+    "message": "Autofill items for the current page\nFavorite items for easy access\nSearch your vault for something else"
+  },
+  "newLoginNudgeTitle": {
+    "message": "स्वतः भरण से समय बचाएँ"
+  },
+  "newLoginNudgeBody": {
+    "message": "एक वेबसाइट शामिल करें ताकि यह लॉगिन एक स्वतः भरण सुझाव के रूप में दिखाई दे।"
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBody": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
   }
 }
