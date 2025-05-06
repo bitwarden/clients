@@ -3,20 +3,20 @@
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
-import { VerticalStep } from "./vertical-step.component";
+import { StepComponent } from "./step.component";
 
 @Component({
-  selector: "bit-vertical-step-content",
-  templateUrl: "vertical-step-content.component.html",
+  selector: "bit-step-content",
+  templateUrl: "step-content.component.html",
   standalone: true,
   imports: [CommonModule],
 })
-export class VerticalStepContentComponent {
+export class StepContentComponent {
   @Output() onSelectStep = new EventEmitter<void>();
 
   @Input() disabled = false;
   @Input() selected = false;
-  @Input() step: VerticalStep;
+  @Input() step: StepComponent;
   @Input() stepNumber: number;
 
   /**
