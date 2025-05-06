@@ -50,6 +50,7 @@ export class VaultPopupItemsService {
   private cachedSearchText = inject(PopupViewCacheService).signal<string>({
     key: "vault-search-text",
     initialValue: "",
+    persistNavigation: true,
   });
 
   readonly searchText$ = toObservable(this.cachedSearchText);
@@ -108,7 +109,7 @@ export class VaultPopupItemsService {
             this.cipherService.failedToDecryptCiphers$(userId),
           ]),
         ),
-        map(([ciphers, failedToDecryptCiphers]) => [...failedToDecryptCiphers, ...ciphers]),
+        map(([ciphers, failedToDecryptCiphers]) => [...(failedToDecryptCiphers || []), ...ciphers]),
       ),
     ),
     shareReplay({ refCount: true, bufferSize: 1 }),

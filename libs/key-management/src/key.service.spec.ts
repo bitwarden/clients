@@ -3,11 +3,11 @@ import { BehaviorSubject, bufferCount, firstValueFrom, lastValueFrom, of, take, 
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -249,14 +249,6 @@ describe("keyService", () => {
         await keyService.setUserKey(mockUserKey, mockUserId);
 
         expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(null, {
-          userId: mockUserId,
-        });
-      });
-
-      it("clears the old deprecated Auto key whenever a User Key is set", async () => {
-        await keyService.setUserKey(mockUserKey, mockUserId);
-
-        expect(stateService.setCryptoMasterKeyAuto).toHaveBeenCalledWith(null, {
           userId: mockUserId,
         });
       });
@@ -505,7 +497,7 @@ describe("keyService", () => {
       const output = new Uint8Array(64);
       output.set(encryptedPrivateKey.dataBytes);
       output.set(
-        key.key.subarray(0, 64 - encryptedPrivateKey.dataBytes.length),
+        key.toEncoded().subarray(0, 64 - encryptedPrivateKey.dataBytes.length),
         encryptedPrivateKey.dataBytes.length,
       );
       return output;
@@ -565,8 +557,8 @@ describe("keyService", () => {
         return Promise.resolve(fakePrivateKeyDecryption(encryptedPrivateKey, userKey));
       });
 
-      encryptService.rsaDecrypt.mockImplementation((data, privateKey) => {
-        return Promise.resolve(fakeOrgKeyDecryption(data, privateKey));
+      encryptService.decapsulateKeyUnsigned.mockImplementation((data, privateKey) => {
+        return Promise.resolve(new SymmetricCryptoKey(fakeOrgKeyDecryption(data, privateKey)));
       });
     }
 
@@ -744,6 +736,52 @@ describe("keyService", () => {
     });
   });
 
+  describe("getOrDeriveMasterKey", () => {
+    it("returns the master key if it is already available", async () => {
+      const getMasterKey = jest
+        .spyOn(masterPasswordService, "masterKey$")
+        .mockReturnValue(of("masterKey" as any));
+
+      const result = await keyService.getOrDeriveMasterKey("password", mockUserId);
+
+      expect(getMasterKey).toHaveBeenCalledWith(mockUserId);
+      expect(result).toEqual("masterKey");
+    });
+
+    it("derives the master key if it is not available", async () => {
+      const getMasterKey = jest
+        .spyOn(masterPasswordService, "masterKey$")
+        .mockReturnValue(of(null as any));
+
+      const deriveKeyFromPassword = jest
+        .spyOn(keyGenerationService, "deriveKeyFromPassword")
+        .mockResolvedValue("mockMasterKey" as any);
+
+      kdfConfigService.getKdfConfig$.mockReturnValue(of("mockKdfConfig" as any));
+
+      const result = await keyService.getOrDeriveMasterKey("password", mockUserId);
+
+      expect(getMasterKey).toHaveBeenCalledWith(mockUserId);
+      expect(deriveKeyFromPassword).toHaveBeenCalledWith("password", "email", "mockKdfConfig");
+      expect(result).toEqual("mockMasterKey");
+    });
+
+    it("throws an error if no user is found", async () => {
+      accountService.activeAccountSubject.next(null);
+
+      await expect(keyService.getOrDeriveMasterKey("password")).rejects.toThrow("No user found");
+    });
+
+    it("throws an error if no kdf config is found", async () => {
+      jest.spyOn(masterPasswordService, "masterKey$").mockReturnValue(of(null as any));
+      kdfConfigService.getKdfConfig$.mockReturnValue(of(null));
+
+      await expect(keyService.getOrDeriveMasterKey("password", mockUserId)).rejects.toThrow(
+        "No kdf found for user",
+      );
+    });
+  });
+
   describe("compareKeyHash", () => {
     type TestCase = {
       masterKey: MasterKey;
@@ -789,7 +827,7 @@ describe("keyService", () => {
         masterPasswordService.masterKeyHashSubject.next(storedMasterKeyHash);
 
         cryptoFunctionService.pbkdf2
-          .calledWith(masterKey.key, masterPassword as string, "sha256", 2)
+          .calledWith(masterKey.inner().encryptionKey, masterPassword as string, "sha256", 2)
           .mockResolvedValue(Utils.fromB64ToArray(mockReturnedHash));
 
         const actualDidMatch = await keyService.compareKeyHash(

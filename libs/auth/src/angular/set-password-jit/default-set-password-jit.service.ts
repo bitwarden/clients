@@ -44,7 +44,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
   async setPassword(credentials: SetPasswordCredentials): Promise<void> {
     const {
       masterKey,
-      masterKeyHash,
+      serverMasterKeyHash,
       localMasterKeyHash,
       hint,
       kdfConfig,
@@ -70,7 +70,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
     const [keyPair, keysRequest] = await this.makeKeyPairAndRequest(protectedUserKey);
 
     const request = new SetPasswordRequest(
-      masterKeyHash,
+      serverMasterKeyHash,
       protectedUserKey[1].encryptedString,
       hint,
       orgSsoIdentifier,
@@ -92,7 +92,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
     await this.masterPasswordService.setMasterKeyHash(localMasterKeyHash, userId);
 
     if (resetPasswordAutoEnroll) {
-      await this.handleResetPasswordAutoEnroll(masterKeyHash, orgId, userId);
+      await this.handleResetPasswordAutoEnroll(serverMasterKeyHash, orgId, userId);
     }
   }
 
@@ -161,7 +161,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
       throw new Error("userKey not found. Could not handle reset password auto enroll.");
     }
 
-    const encryptedUserKey = await this.encryptService.rsaEncrypt(userKey.key, publicKey);
+    const encryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(userKey, publicKey);
 
     const resetRequest = new OrganizationUserResetPasswordEnrollmentRequest();
     resetRequest.masterPasswordHash = masterKeyHash;

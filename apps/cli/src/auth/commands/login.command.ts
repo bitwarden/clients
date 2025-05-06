@@ -30,15 +30,16 @@ import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
 import { ClientType } from "@bitwarden/common/enums";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
@@ -366,9 +367,9 @@ export class LoginCommand {
         clientSecret == null
       ) {
         if (response.forcePasswordReset === ForceSetPasswordReason.AdminForcePasswordReset) {
-          return await this.updateTempPassword();
+          return await this.updateTempPassword(response.userId);
         } else if (response.forcePasswordReset === ForceSetPasswordReason.WeakMasterPassword) {
-          return await this.updateWeakPassword(password);
+          return await this.updateWeakPassword(response.userId, password);
         }
       }
 
@@ -430,7 +431,7 @@ export class LoginCommand {
     return Response.success(res);
   }
 
-  private async updateWeakPassword(currentPassword: string) {
+  private async updateWeakPassword(userId: UserId, currentPassword: string) {
     // If no interaction available, alert user to use web vault
     if (!this.canInteract) {
       await this.logoutCallback();
@@ -447,6 +448,7 @@ export class LoginCommand {
 
     try {
       const { newPasswordHash, newUserKey, hint } = await this.collectNewMasterPasswordDetails(
+        userId,
         "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now.",
       );
 
@@ -468,7 +470,7 @@ export class LoginCommand {
     }
   }
 
-  private async updateTempPassword() {
+  private async updateTempPassword(userId: UserId) {
     // If no interaction available, alert user to use web vault
     if (!this.canInteract) {
       await this.logoutCallback();
@@ -485,6 +487,7 @@ export class LoginCommand {
 
     try {
       const { newPasswordHash, newUserKey, hint } = await this.collectNewMasterPasswordDetails(
+        userId,
         "An organization administrator recently changed your master password. In order to access the vault, you must update your master password now.",
       );
 
@@ -509,10 +512,12 @@ export class LoginCommand {
    * Collect new master password and hint from the CLI. The collected password
    * is validated against any applicable master password policies, a new master
    * key is generated, and we use it to re-encrypt the user key
+   * @param userId - User ID of the account
    * @param prompt - Message that is displayed during the initial prompt
    * @param error
    */
   private async collectNewMasterPasswordDetails(
+    userId: UserId,
     prompt: string,
     error?: string,
   ): Promise<{
@@ -538,11 +543,12 @@ export class LoginCommand {
 
     // Master Password Validation
     if (masterPassword == null || masterPassword === "") {
-      return this.collectNewMasterPasswordDetails(prompt, "Master password is required.\n");
+      return this.collectNewMasterPasswordDetails(userId, prompt, "Master password is required.\n");
     }
 
     if (masterPassword.length < Utils.minimumPasswordLength) {
       return this.collectNewMasterPasswordDetails(
+        userId,
         prompt,
         `Master password must be at least ${Utils.minimumPasswordLength} characters long.\n`,
       );
@@ -555,7 +561,7 @@ export class LoginCommand {
     );
 
     const enforcedPolicyOptions = await firstValueFrom(
-      this.policyService.masterPasswordPolicyOptions$(),
+      this.policyService.masterPasswordPolicyOptions$(userId),
     );
 
     // Verify master password meets policy requirements
@@ -568,6 +574,7 @@ export class LoginCommand {
       )
     ) {
       return this.collectNewMasterPasswordDetails(
+        userId,
         prompt,
         "Your new master password does not meet the policy requirements.\n",
       );
@@ -585,6 +592,7 @@ export class LoginCommand {
     // Re-type Validation
     if (masterPassword !== masterPasswordRetype) {
       return this.collectNewMasterPasswordDetails(
+        userId,
         prompt,
         "Master password confirmation does not match.\n",
       );
@@ -597,7 +605,7 @@ export class LoginCommand {
       message: "Master Password Hint (optional):",
     });
     const masterPasswordHint = hint.input;
-    const kdfConfig = await this.kdfConfigService.getKdfConfig();
+    const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
 
     // Create new key and hash new password
     const newMasterKey = await this.keyService.makeMasterKey(

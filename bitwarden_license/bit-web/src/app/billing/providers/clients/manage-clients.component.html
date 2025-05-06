@@ -1,44 +1,30 @@
-<app-header>
+<app-header [title]="pageTitle">
   <bit-search [placeholder]="'search' | i18n" [formControl]="searchControl"></bit-search>
-  <ng-container *ngIf="addExistingOrgsFromProviderPortal$ | async; else addExistingOrgsDisabled">
-    <button
-      bitButton
-      buttonType="primary"
-      type="button"
-      [bitMenuTriggerFor]="clientMenu"
-      appA11yTitle="{{ 'add' | i18n }}"
-    >
-      <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
-      {{ "add" | i18n }}
+  <button
+    bitButton
+    buttonType="primary"
+    type="button"
+    [bitMenuTriggerFor]="clientMenu"
+    appA11yTitle="{{ 'add' | i18n }}"
+  >
+    <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+    {{ "add" | i18n }}
+  </button>
+  <bit-menu #clientMenu>
+    <button type="button" bitMenuItem (click)="createClient()">
+      <i aria-hidden="true" class="bwi bwi-business"></i>
+      {{ newClientButtonLabel }}
     </button>
-    <bit-menu #clientMenu>
-      <button type="button" bitMenuItem (click)="createClient()">
-        <i aria-hidden="true" class="bwi bwi-business"></i>
-        {{ "newClient" | i18n }}
-      </button>
-      <button type="button" bitMenuItem (click)="addExistingOrganization()">
-        <i aria-hidden="true" class="bwi bwi-sitemap"></i>
-        {{ "existingOrganization" | i18n }}
-      </button>
-    </bit-menu>
-  </ng-container>
-  <ng-template #addExistingOrgsDisabled>
-    <a
-      type="button"
-      bitButton
-      *ngIf="isProviderAdmin"
-      buttonType="primary"
-      (click)="createClient()"
-    >
-      <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
-      {{ "addNewOrganization" | i18n }}
-    </a>
-  </ng-template>
+    <button type="button" bitMenuItem (click)="addExistingOrganization()">
+      <i aria-hidden="true" class="bwi bwi-filter"></i>
+      {{ "existingOrganization" | i18n }}
+    </button>
+  </bit-menu>
 </app-header>
 
 <ng-container *ngIf="loading">
   <i
-    class="bwi bwi-spinner bwi-spin text-muted"
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
     title="{{ 'loading' | i18n }}"
     aria-hidden="true"
   ></i>
@@ -46,9 +32,9 @@
 </ng-container>
 
 <ng-container *ngIf="!loading">
-  <bit-table-scroll [dataSource]="dataSource" [rowSize]="53" class="table table-hover table-list">
+  <bit-table-scroll [dataSource]="dataSource" [rowSize]="53" class="tw-overflow-hidden">
     <ng-container header>
-      <th colspan="2" bitCell bitSortable="organizationName" default>{{ "client" | i18n }}</th>
+      <th colspan="2" bitCell bitSortable="organizationName" default>{{ clientColumnHeader }}</th>
       <th bitCell bitSortable="seats">{{ "assigned" | i18n }}</th>
       <th bitCell bitSortable="occupiedSeats">{{ "used" | i18n }}</th>
       <th bitCell bitSortable="remainingSeats">{{ "remaining" | i18n }}</th>

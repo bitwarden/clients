@@ -65,6 +65,7 @@ describe("RemovePasswordComponent", () => {
 
       expect(mockKeyConnectorService.getManagingOrganization).toHaveBeenCalledWith(userId);
       expect(mockSyncService.fullSync).toHaveBeenCalledWith(false);
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
     });
 
     it("should redirect to login when no active account is found", async () => {
@@ -72,7 +73,7 @@ describe("RemovePasswordComponent", () => {
 
       await component.ngOnInit();
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith([""]);
+      expect(mockRouter.navigate).toHaveBeenCalledWith(["/"]);
     });
 
     it("should redirect to login when no organization is found", async () => {
@@ -82,7 +83,9 @@ describe("RemovePasswordComponent", () => {
 
       await component.ngOnInit();
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith([""]);
+      expect(mockKeyConnectorService.getManagingOrganization).toHaveBeenCalledWith(userId);
+      expect(mockSyncService.fullSync).toHaveBeenCalledWith(false);
+      expect(mockRouter.navigate).toHaveBeenCalledWith(["/"]);
     });
   });
 
@@ -130,7 +133,7 @@ describe("RemovePasswordComponent", () => {
         variant: "success",
         message: "removed master password",
       });
-      expect(mockRouter.navigate).toHaveBeenCalledWith([""]);
+      expect(mockRouter.navigate).toHaveBeenCalledWith(["/"]);
     });
 
     it("should handle errors and show error toast", async () => {
@@ -200,7 +203,7 @@ describe("RemovePasswordComponent", () => {
         variant: "success",
         message: "left organization",
       });
-      expect(mockRouter.navigate).toHaveBeenCalledWith([""]);
+      expect(mockRouter.navigate).toHaveBeenCalledWith(["/"]);
     });
 
     it("should handle error response and show error toast", async () => {

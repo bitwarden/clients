@@ -1,3 +1,5 @@
+import { OrganizationWarningsResponse } from "@bitwarden/common/billing/models/response/organization-warnings.response";
+
 import { ApiService } from "../../../abstractions/api.service";
 import { OrganizationBillingApiServiceAbstraction } from "../../abstractions/organizations/organization-billing-api.service.abstraction";
 import {
@@ -48,5 +50,37 @@ export class OrganizationBillingApiService implements OrganizationBillingApiServ
       true,
     );
     return r?.map((i: any) => new BillingTransactionResponse(i)) || [];
+  }
+
+  async getWarnings(id: string): Promise<OrganizationWarningsResponse> {
+    const response = await this.apiService.send(
+      "GET",
+      `/organizations/${id}/billing/warnings`,
+      null,
+      true,
+      true,
+    );
+
+    return new OrganizationWarningsResponse(response);
+  }
+
+  async setupBusinessUnit(
+    id: string,
+    request: {
+      userId: string;
+      token: string;
+      providerKey: string;
+      organizationKey: string;
+    },
+  ): Promise<string> {
+    const response = await this.apiService.send(
+      "POST",
+      `/organizations/${id}/billing/setup-business-unit`,
+      request,
+      true,
+      true,
+    );
+
+    return response as string;
   }
 }

@@ -7,7 +7,6 @@ import {
   EnvironmentSelectorRouteData,
   ExtensionDefaultOverlayPosition,
 } from "@bitwarden/angular/auth/components/environment-selector.component";
-import { unauthUiRefreshSwap } from "@bitwarden/angular/auth/functions/unauth-ui-refresh-route-swap";
 import {
   activeAuthGuard,
   authGuard,
@@ -58,8 +57,6 @@ import {
 } from "../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
-import { TwoFactorOptionsComponentV1 } from "../auth/popup/two-factor-options-v1.component";
-import { TwoFactorComponentV1 } from "../auth/popup/two-factor-v1.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
@@ -82,10 +79,12 @@ import { ImportBrowserV2Component } from "../tools/popup/settings/import/import-
 import { SettingsV2Component } from "../tools/popup/settings/settings-v2.component";
 import { canAccessAtRiskPasswords } from "../vault/guards/at-risk-passwords.guard";
 import { clearVaultStateGuard } from "../vault/guards/clear-vault-state.guard";
+import { IntroCarouselGuard } from "../vault/guards/intro-carousel.guard";
 import { AtRiskPasswordsComponent } from "../vault/popup/components/at-risk-passwords/at-risk-passwords.component";
 import { AddEditV2Component } from "../vault/popup/components/vault-v2/add-edit/add-edit-v2.component";
 import { AssignCollections } from "../vault/popup/components/vault-v2/assign-collections/assign-collections.component";
 import { AttachmentsV2Component } from "../vault/popup/components/vault-v2/attachments/attachments-v2.component";
+import { IntroCarouselComponent } from "../vault/popup/components/vault-v2/intro-carousel/intro-carousel.component";
 import { PasswordHistoryV2Component } from "../vault/popup/components/vault-v2/vault-password-history-v2/vault-password-history-v2.component";
 import { VaultV2Component } from "../vault/popup/components/vault-v2/vault-v2.component";
 import { ViewV2Component } from "../vault/popup/components/vault-v2/view-v2/view-v2.component";
@@ -142,32 +141,6 @@ const routes: Routes = [
     canActivate: [fido2AuthGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
-  ...unauthUiRefreshSwap(
-    TwoFactorComponentV1,
-    ExtensionAnonLayoutWrapperComponent,
-    {
-      path: "2fa",
-      canActivate: [unauthGuardFn(unauthRouteOverrides)],
-      data: { elevation: 1 } satisfies RouteDataProperties,
-    },
-    {
-      path: "2fa",
-      canActivate: [unauthGuardFn(unauthRouteOverrides), TwoFactorAuthGuard],
-      children: [
-        {
-          path: "",
-          component: TwoFactorAuthComponent,
-        },
-      ],
-      data: {
-        elevation: 1,
-        pageTitle: {
-          key: "verifyYourIdentity",
-        },
-        showBackButton: true,
-      } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
-    },
-  ),
   {
     path: "",
     component: ExtensionAnonLayoutWrapperComponent,
@@ -190,12 +163,6 @@ const routes: Routes = [
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
     ],
-  },
-  {
-    path: "2fa-options",
-    component: TwoFactorOptionsComponentV1,
-    canActivate: [unauthGuardFn(unauthRouteOverrides)],
-    data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
     path: "device-verification",
@@ -371,7 +338,6 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
-
   {
     path: "",
     component: ExtensionAnonLayoutWrapperComponent,
@@ -419,7 +385,7 @@ const routes: Routes = [
       },
       {
         path: "login",
-        canActivate: [unauthGuardFn(unauthRouteOverrides)],
+        canActivate: [unauthGuardFn(unauthRouteOverrides), IntroCarouselGuard],
         data: {
           pageIcon: VaultIcon,
           pageTitle: {
@@ -567,6 +533,23 @@ const routes: Routes = [
           },
         ],
       },
+      {
+        path: "2fa",
+        canActivate: [unauthGuardFn(unauthRouteOverrides), TwoFactorAuthGuard],
+        children: [
+          {
+            path: "",
+            component: TwoFactorAuthComponent,
+          },
+        ],
+        data: {
+          elevation: 1,
+          pageTitle: {
+            key: "verifyYourIdentity",
+          },
+          showBackButton: true,
+        } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
+      },
     ],
   },
   {
@@ -605,6 +588,22 @@ const routes: Routes = [
     component: MoreFromBitwardenPageV2Component,
     canActivate: [authGuard],
     data: { elevation: 2 } satisfies RouteDataProperties,
+  },
+  {
+    path: "intro-carousel",
+    component: ExtensionAnonLayoutWrapperComponent,
+    canActivate: [],
+    data: { elevation: 0, doNotSaveUrl: true } satisfies RouteDataProperties,
+    children: [
+      {
+        path: "",
+        component: IntroCarouselComponent,
+        data: {
+          hideIcon: true,
+          hideFooter: true,
+        },
+      },
+    ],
   },
   {
     path: "new-device-notice",

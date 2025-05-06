@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef } from "@angular/cdk/dialog";
 import { Directive, ViewChild, ViewContainerRef, OnDestroy } from "@angular/core";
 import {
   BehaviorSubject,
@@ -22,7 +21,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { TableDataSource, DialogService } from "@bitwarden/components";
+import { DialogRef, TableDataSource, DialogService } from "@bitwarden/components";
 import {
   CipherFormConfig,
   CipherFormConfigService,
@@ -68,7 +67,7 @@ export class CipherReportComponent implements OnDestroy {
     protected i18nService: I18nService,
     private syncService: SyncService,
     private cipherFormConfigService: CipherFormConfigService,
-    private adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
+    protected adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
   ) {
     this.organizations$ = this.accountService.activeAccount$.pipe(
       getUserId,
@@ -208,12 +207,16 @@ export class CipherReportComponent implements OnDestroy {
 
     // If the dialog was closed by deleting the cipher, refresh the report.
     if (result === VaultItemDialogResult.Deleted || result === VaultItemDialogResult.Saved) {
-      await this.load();
+      await this.refresh(result, cipher);
     }
   }
 
   protected async setCiphers() {
     this.allCiphers = [];
+  }
+
+  protected async refresh(result: VaultItemDialogResult, cipher: CipherView) {
+    await this.load();
   }
 
   protected async repromptCipher(c: CipherView) {

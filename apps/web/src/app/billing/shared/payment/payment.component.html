@@ -13,7 +13,7 @@
         *ngIf="showBankAccount"
       >
         <bit-label>
-          <i class="bwi bwi-fw bwi-bank" aria-hidden="true"></i>
+          <i class="bwi bwi-fw bwi-billing" aria-hidden="true"></i>
           {{ "bankAccount" | i18n }}
         </bit-label>
       </bit-radio-button>
@@ -46,7 +46,7 @@
         <app-payment-label for="stripe-card-number" required>
           {{ "number" | i18n }}
         </app-payment-label>
-        <div id="stripe-card-number" class="form-control stripe-form-control"></div>
+        <div id="stripe-card-number" class="tw-stripe-form-control"></div>
       </div>
       <div class="tw-col-span-1 tw-flex tw-items-end">
         <img
@@ -59,7 +59,7 @@
         <app-payment-label for="stripe-card-expiry" required>
           {{ "expiration" | i18n }}
         </app-payment-label>
-        <div id="stripe-card-expiry" class="form-control stripe-form-control"></div>
+        <div id="stripe-card-expiry" class="tw-stripe-form-control"></div>
       </div>
       <div class="tw-col-span-1">
         <app-payment-label for="stripe-card-cvc" required>
@@ -74,14 +74,14 @@
             <i class="bwi bwi-question-circle" aria-hidden="true"></i>
           </a>
         </app-payment-label>
-        <div id="stripe-card-cvc" class="form-control stripe-form-control"></div>
+        <div id="stripe-card-cvc" class="tw-stripe-form-control"></div>
       </div>
     </div>
   </ng-container>
   <!-- Bank Account -->
   <ng-container *ngIf="showBankAccount && usingBankAccount">
     <bit-callout type="warning" title="{{ 'verifyBankAccount' | i18n }}">
-      {{ "verifyBankAccountWithStatementDescriptorWarning" | i18n }}
+      {{ bankAccountWarning }}
     </bit-callout>
     <div class="tw-grid tw-grid-cols-2 tw-gap-4 tw-mb-4" formGroupName="bankInformation">
       <bit-form-field class="tw-col-span-1" disableMargin>

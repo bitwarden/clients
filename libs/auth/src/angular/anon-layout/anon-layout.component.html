@@ -10,14 +10,14 @@
     [routerLink]="['/']"
     class="tw-w-[128px] tw-block tw-mb-12 [&>*]:tw-align-top"
   >
-    <bit-icon [icon]="logo"></bit-icon>
+    <bit-icon [icon]="logo" [ariaLabel]="'appLogoLabel' | i18n"></bit-icon>
   </a>
 
   <div
     class="tw-text-center tw-mb-4 sm:tw-mb-6"
     [ngClass]="{ 'tw-max-w-md tw-mx-auto': titleAreaMaxWidth === 'md' }"
   >
-    <div class="tw-mx-auto tw-max-w-24 sm:tw-max-w-28 md:tw-max-w-32">
+    <div *ngIf="!hideIcon" class="tw-mx-auto tw-max-w-24 sm:tw-max-w-28 md:tw-max-w-32">
       <bit-icon [icon]="icon"></bit-icon>
     </div>
 

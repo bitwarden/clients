@@ -229,7 +229,9 @@ describe("KeyConnectorService", () => {
       // Arrange
       const masterKey = getMockMasterKey();
       masterPasswordService.masterKeySubject.next(masterKey);
-      const keyConnectorRequest = new KeyConnectorUserKeyRequest(masterKey.encKeyB64);
+      const keyConnectorRequest = new KeyConnectorUserKeyRequest(
+        Utils.fromBufferToB64(masterKey.inner().encryptionKey),
+      );
 
       jest.spyOn(apiService, "postUserKeyToKeyConnector").mockResolvedValue();
 
@@ -247,7 +249,9 @@ describe("KeyConnectorService", () => {
     it("should handle errors thrown during migration", async () => {
       // Arrange
       const masterKey = getMockMasterKey();
-      const keyConnectorRequest = new KeyConnectorUserKeyRequest(masterKey.encKeyB64);
+      const keyConnectorRequest = new KeyConnectorUserKeyRequest(
+        Utils.fromBufferToB64(masterKey.inner().encryptionKey),
+      );
       masterPasswordService.masterKeySubject.next(masterKey);
       const error = new Error("Failed to post user key to key connector");
       jest.spyOn(apiService, "postUserKeyToKeyConnector").mockRejectedValue(error);

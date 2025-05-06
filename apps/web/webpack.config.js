@@ -122,7 +122,7 @@ const plugins = [
   new HtmlWebpackPlugin({
     template: "./src/connectors/sso.html",
     filename: "sso-connector.html",
-    chunks: ["connectors/sso"],
+    chunks: ["connectors/sso", "styles"],
   }),
   new HtmlWebpackPlugin({
     template: "./src/connectors/redirect.html",
@@ -142,7 +142,7 @@ const plugins = [
   new HtmlWebpackPlugin({
     template: "./src/connectors/duo-redirect.html",
     filename: "duo-redirect-connector.html",
-    chunks: ["connectors/duo-redirect"],
+    chunks: ["connectors/duo-redirect", "styles"],
   }),
   new HtmlWebpackPlugin({
     template: "./src/404.html",

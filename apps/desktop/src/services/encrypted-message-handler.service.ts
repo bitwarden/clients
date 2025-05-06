@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -144,10 +144,14 @@ export class EncryptedMessageHandlerService {
 
     const credentialCreatePayload = payload as CredentialCreatePayload;
 
-    if (
-      credentialCreatePayload.name == null ||
-      (await this.policyService.policyAppliesToUser(PolicyType.PersonalOwnership))
-    ) {
+    const policyApplies$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+      ),
+    );
+
+    if (credentialCreatePayload.name == null || (await firstValueFrom(policyApplies$))) {
       return { status: "failure" };
     }
 

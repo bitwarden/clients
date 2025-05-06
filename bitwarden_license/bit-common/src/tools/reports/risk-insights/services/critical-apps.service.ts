@@ -81,7 +81,7 @@ export class CriticalAppsService {
     // add the new entries to the criticalAppsList
     const updatedList = [...this.criticalAppsList.value];
     for (const responseItem of dbResponse) {
-      const decryptedUrl = await this.encryptService.decryptToUtf8(
+      const decryptedUrl = await this.encryptService.decryptString(
         new EncString(responseItem.uri),
         key,
       );
@@ -138,7 +138,7 @@ export class CriticalAppsService {
 
         const results = response.map(async (r: PasswordHealthReportApplicationsResponse) => {
           const encrypted = new EncString(r.uri);
-          const uri = await this.encryptService.decryptToUtf8(encrypted, key);
+          const uri = await this.encryptService.decryptString(encrypted, key);
           return { id: r.id, organizationId: r.organizationId, uri: uri };
         });
         return forkJoin(results);
@@ -164,7 +164,7 @@ export class CriticalAppsService {
     newEntries: string[],
   ): Promise<PasswordHealthReportApplicationsRequest[]> {
     const criticalAppsPromises = newEntries.map(async (url) => {
-      const encryptedUrlName = await this.encryptService.encrypt(url, key);
+      const encryptedUrlName = await this.encryptService.encryptString(url, key);
       return {
         organizationId: orgId,
         url: encryptedUrlName?.encryptedString?.toString() ?? "",

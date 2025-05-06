@@ -51,7 +51,7 @@ describe("FamiliesPolicyService", () => {
     organizationService.organizations$.mockReturnValue(of(organizations));
 
     const policies = [{ organizationId: "org1", enabled: true }] as Policy[];
-    policyService.getAll$.mockReturnValue(of(policies));
+    policyService.policiesByType$.mockReturnValue(of(policies));
 
     const result = await firstValueFrom(service.isFreeFamilyPolicyEnabled$());
     expect(result).toBe(true);
@@ -64,7 +64,7 @@ describe("FamiliesPolicyService", () => {
     organizationService.organizations$.mockReturnValue(of(organizations));
 
     const policies = [{ organizationId: "org1", enabled: false }] as Policy[];
-    policyService.getAll$.mockReturnValue(of(policies));
+    policyService.policiesByType$.mockReturnValue(of(policies));
 
     const result = await firstValueFrom(service.isFreeFamilyPolicyEnabled$());
     expect(result).toBe(false);
