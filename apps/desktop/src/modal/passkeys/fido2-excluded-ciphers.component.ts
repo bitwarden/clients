@@ -1,0 +1,123 @@
+import { CommonModule } from "@angular/common";
+import { Component, OnInit, OnDestroy } from "@angular/core";
+import { RouterModule, Router } from "@angular/router";
+import { BehaviorSubject, firstValueFrom, map, Observable } from "rxjs";
+
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { BitwardenShield } from "@bitwarden/auth/angular";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import {
+  compareCredentialIds,
+  parseCredentialId,
+} from "@bitwarden/common/platform/services/fido2/credential-id-utils";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  BadgeModule,
+  ButtonModule,
+  DialogModule,
+  IconModule,
+  ItemModule,
+  SectionComponent,
+  TableModule,
+  SectionHeaderComponent,
+  BitIconButtonComponent,
+} from "@bitwarden/components";
+
+import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
+import {
+  DesktopFido2UserInterfaceService,
+  DesktopFido2UserInterfaceSession,
+} from "../../autofill/services/desktop-fido2-user-interface.service";
+import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
+
+import { Fido2PasskeyExistsIcon } from "./fido2-passkey-exists-icon";
+
+@Component({
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    SectionHeaderComponent,
+    BitIconButtonComponent,
+    TableModule,
+    JslibModule,
+    IconModule,
+    ButtonModule,
+    DialogModule,
+    SectionComponent,
+    ItemModule,
+    BadgeModule,
+  ],
+  templateUrl: "fido2-excluded-ciphers.component.html",
+})
+export class Fido2ExcludedCiphersComponent implements OnInit, OnDestroy {
+  session?: DesktopFido2UserInterfaceSession = null;
+  private ciphersSubject = new BehaviorSubject<CipherView[]>([]);
+  ciphers$: Observable<CipherView[]> = this.ciphersSubject.asObservable();
+  containsExcludedCiphers: boolean = false;
+  readonly Icons = { BitwardenShield };
+  protected fido2PasskeyExistsIcon = Fido2PasskeyExistsIcon;
+
+  constructor(
+    private readonly desktopSettingsService: DesktopSettingsService,
+    private readonly fido2UserInterfaceService: DesktopFido2UserInterfaceService,
+    private readonly accountService: AccountService,
+    private readonly cipherService: CipherService,
+    private readonly desktopAutofillService: DesktopAutofillService,
+    private readonly domainSettingsService: DomainSettingsService,
+    private readonly logService: LogService,
+    private readonly router: Router,
+  ) {}
+
+  async ngOnInit() {
+    await this.accountService.setShowHeader(false);
+    this.session = this.fido2UserInterfaceService.getCurrentSession();
+    const lastRegistrationRequest = this.desktopAutofillService.lastRegistrationRequest;
+    const rpid = await this.session.getRpId();
+    const equivalentDomains = await firstValueFrom(
+      this.domainSettingsService.getUrlEquivalentDomains(rpid),
+    );
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
+
+    this.cipherService
+      .getAllDecrypted(activeUserId)
+      .then((ciphers) => {
+        const excludedCiphers = ciphers.filter((cipher) => {
+          const credentialId = cipher.login.hasFido2Credentials
+            ? parseCredentialId(cipher.login.fido2Credentials[0]?.credentialId)
+            : new Uint8Array();
+          if (!cipher.login || !cipher.login.hasUris) {
+            return false;
+          }
+
+          return (
+            cipher.login.matchesUri(rpid, equivalentDomains) &&
+            compareCredentialIds(
+              credentialId,
+              new Uint8Array(lastRegistrationRequest.excludedCredentials[0]),
+            )
+          );
+        });
+
+        this.containsExcludedCiphers = excludedCiphers.length > 0;
+        this.ciphersSubject.next(excludedCiphers);
+      })
+      .catch((error) => this.logService.error(error));
+  }
+
+  async ngOnDestroy() {
+    await this.accountService.setShowHeader(true);
+  }
+
+  async closeModal() {
+    await this.router.navigate(["/"]);
+    await this.desktopSettingsService.setModalMode(false);
+    this.session.notifyConfirmCreateCredential(false);
+    this.session.confirmChosenCipher(null);
+  }
+}

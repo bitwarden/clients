@@ -328,6 +328,11 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
   async informExcludedCredential(existingCipherIds: string[]): Promise<void> {
     this.logService.warning("informExcludedCredential", existingCipherIds);
+
+    // make the cipherIds available to the UI.
+    this.availableCipherIdsSubject.next(existingCipherIds);
+
+    await this.showUi("/fido2-excluded", this.windowObject.windowXy);
   }
 
   async ensureUnlockedVault(): Promise<void> {

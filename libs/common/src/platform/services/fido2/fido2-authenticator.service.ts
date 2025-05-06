@@ -109,6 +109,17 @@ export class Fido2AuthenticatorService<ParentWindowReference>
         await this.syncService.fullSync(false);
       }
 
+      const existingCipherIds = await this.findExcludedCredentials(
+        params.excludeCredentialDescriptorList,
+      );
+      if (existingCipherIds.length > 0) {
+        this.logService?.info(
+          `[Fido2Authenticator] Aborting due to excluded credential found in vault.`,
+        );
+        await userInterfaceSession.informExcludedCredential(existingCipherIds);
+        throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.NotAllowed);
+      }
+
       let cipher: CipherView;
       let fido2Credential: Fido2CredentialView;
       let keyPair: CryptoKeyPair;
@@ -122,19 +133,6 @@ export class Fido2AuthenticatorService<ParentWindowReference>
         userVerification: params.requireUserVerification,
         rpId: params.rpEntity.id,
       });
-
-      const existingCipherIds = await this.findExcludedCredentials(
-        params.excludeCredentialDescriptorList,
-      );
-
-      if (existingCipherIds.length > 0) {
-        this.logService?.info(
-          `[Fido2Authenticator] Aborting due to excluded credential found in vault.`,
-        );
-        await userInterfaceSession.informExcludedCredential(existingCipherIds);
-        throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.NotAllowed);
-      }
-
       const cipherId = response.cipherId;
       userVerified = response.userVerified;
 
