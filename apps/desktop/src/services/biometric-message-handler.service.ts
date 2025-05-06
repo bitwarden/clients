@@ -91,12 +91,27 @@ export class BiometricMessageHandlerService {
     private i18nService: I18nService,
   ) {
     combineLatest([
-      this.desktopSettingService.browserIntegrationFingerprintEnabled$,
       this.desktopSettingService.browserIntegrationEnabled$,
+      this.desktopSettingService.browserIntegrationFingerprintEnabled$,
     ])
       .pipe(
-        concatMap(async () => {
-          await this.connectedApps.clear();
+        concatMap(async ([browserIntegrationEnabled, browserIntegrationFingerprintEnabled]) => {
+          if (!browserIntegrationEnabled) {
+            this.logService.info("[Native Messaging IPC] Clearing connected apps");
+            await this.connectedApps.clear();
+          } else if (!browserIntegrationFingerprintEnabled) {
+            this.logService.info(
+              "[Native Messaging IPC] Browser integration fingerprint validation is disabled, untrusting all connected apps",
+            );
+            const connected = await this.connectedApps.list();
+            for (const appId of connected) {
+              const connectedApp = await this.connectedApps.get(appId);
+              if (connectedApp != null) {
+                connectedApp.trusted = false;
+                await this.connectedApps.set(appId, connectedApp);
+              }
+            }
+          }
         }),
       )
       .subscribe();

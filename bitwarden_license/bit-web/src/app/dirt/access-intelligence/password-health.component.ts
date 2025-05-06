@@ -7,8 +7,8 @@ import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { RiskInsightsReportService } from "@bitwarden/bit-common/tools/reports/risk-insights";
-import { CipherHealthReportDetail } from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
+import { RiskInsightsReportService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { CipherHealthReportDetail } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   BadgeModule,

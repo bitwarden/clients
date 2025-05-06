@@ -10,7 +10,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   MemberCipherDetailsApiService,
   PasswordHealthService,
-} from "@bitwarden/bit-common/tools/reports/risk-insights";
+} from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
