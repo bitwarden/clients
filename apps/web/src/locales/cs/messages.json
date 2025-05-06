@@ -6302,13 +6302,13 @@
   "sponsoredBitwardenFamilies": {
     "message": "Sponzorované rodiny"
   },
-  "noSponsoredFamilies": {
+  "noSponsoredFamiliesMessage": {
     "message": "Žádné sponzorované rodiny"
   },
-  "noSponsoredFamiliesDescription": {
+  "nosponsoredFamiliesDetails": {
     "message": "Zde se zobrazí sponzorované plány rodin, které nejsou členy"
   },
-  "sponsorFreeBitwardenFamilies": {
+  "sponsorshipFreeBitwardenFamilies": {
     "message": "Členové vaší organizace mají nárok na bezplatné rodiny Bitwarden. Můžete sponzorovat zdarma rodiny Bitwarden pro zaměstnance, kteří nejsou členy Vaší organizace Bitwarden. Sponzorování nečlena vyžaduje dostupné místo ve Vaší organizaci."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
@@ -6320,14 +6320,14 @@
   "sponsoredFamiliesEligibleCard": {
     "message": "Uplatněte ještě dnes svůj plán Bitwarden pro rodinu zdarma, aby byla Vaše data bezpečná, i když nejste v práci."
   },
-  "sponsoredFamiliesInclude": {
-    "message": "Plán Bitwarden pro rodinu zdarma obsahuje"
+  "sponsoredFamiliesIncludeMessage": {
+    "message": "Plán Bitwarden pro rodiny zahrnuje"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Prémiový přístup až pro 6 uživatelů"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Sdílené kolekce pro tajné klíče rodiny"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Sdílené kolekce pro členy rodiny"
   },
   "memberFamilies": {
     "message": "Rodiny členů"
@@ -6340,6 +6340,15 @@
   },
   "membersWithSponsoredFamilies": {
     "message": "Členové Vaší organizace mají nárok na bezplatné rodiny Bitwarden. Zde můžete vidět členy, kteří sponzorovali organizaci rodin."
+  },
+  "organizationHasMemberMessage": {
+    "message": "Sponzorství nemůže být odesláno do $EMAIL$, protože je členem Vaší organizace.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "Odkaz již není platný. Požádejte sponzora o opakované odeslání nabídky."
@@ -6392,7 +6401,7 @@
   "redeemedAccount": {
     "message": "Účet byl uplatněn"
   },
-  "revokeAccount": {
+  "revokeAccountMessage": {
     "message": "Odvolat účet $NAME$",
     "placeholders": {
       "name": {
@@ -10387,11 +10396,17 @@
   "doNotTrust": {
     "message": "Nedůvěřovat"
   },
+  "organizationNotTrusted": {
+    "message": "Organizace není důvěryhodná"
+  },
   "emergencyAccessTrustWarning": {
     "message": "Pro zabezpečení Vašeho účtu potvrďte jen v případě, že jste tomuto uživateli udělili nouzový přístup a jeho otisk prstu odpovídá tomu, co je zobrazeno v jeho účtu."
   },
   "orgTrustWarning": {
     "message": "Pro zabezpečení Vašeho účtu pokračujte jen v případě, že jste členem této organizace, máte povoleno obnovení účtu a zobrazený otisk prstu níže odpovídá otisku prstu organizace."
+  },
+  "orgTrustWarning1": {
+    "message": "Tato organizace má firemní zásady, které Vás zapíšou do obnovy účtu. Zápis umožní správcům organizace změnit Vaše heslo. Pokračujte jen v případě, že znáte tuto organizaci a fráze otisku prstu zobrazenou níže odpovídá otisku prstu organizace."
   },
   "trustUser": {
     "message": "Důvěřovat uživateli"
@@ -10599,10 +10614,10 @@
     "message": "Nepovolí členům odemknout svůj účet pomocí PIN."
   },
   "upgradeForFullEventsMessage": {
-    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
+    "message": "Logy událostí nejsou uloženy pro Vaši organizaci. Aktualizujte na Týmy nebo plán Enterprise a získejte plný přístup k logům událostí."
   },
   "upgradeEventLogTitleMessage": {
-    "message": "Upgrade to see event logs from your organization."
+    "message": "Aktualizujte pro zobrazení logů událostí z Vaší organizace."
   },
   "upgradeEventLogMessage": {
     "message": "Tyto události jsou jen příklady a neodrážejí skutečné události v rámci Vaší organizace Bitwarden."
@@ -10619,7 +10634,40 @@
   "newBusinessUnit": {
     "message": "Nová obchodní jednotka"
   },
+  "newLoginNudgeTitle": {
+    "message": "Ušetřete čas s automatickým vyplňováním"
+  },
+  "newLoginNudgeBody": {
+    "message": "Zahrne webovou stránku, takže se toto přihlášení objeví jako návrh automatického vyplňování."
+  },
+  "newCardNudgeTitle": {
+    "message": "Bezproblémová online pokladna"
+  },
+  "newCardNudgeBody": {
+    "message": "Karty - snadné, bezpečné a přesné vyplňování platebních formulářů."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Jednodušší vytváření účtů"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Identity - rychlé automatické vyplňování dlouhých registračních nebo kontaktních formulářů."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Udržujte svá citlivá data v bezpečí"
+  },
+  "newNoteNudgeBody": {
+    "message": "Poznámky - bezpečné ukládání citlivých údajů, jako jsou bankovní nebo pojišťovací údaje."
+  },
+  "newSshNudgeTitle": {
+    "message": "Přístup SSH pro vývojáře"
+  },
+  "newSshNudgeBody": {
+    "message": "Uložte své klíče a připojte se k SSH agentovi pro rychlé a šifrované ověření."
+  },
   "restart": {
     "message": "Restartovat"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Platba bankovním účtem je dostupná jen pro zákazníky ve Spojených státech. Budete požádáni o ověření svého bankovního účtu. Mikrovklad provedeme během následujících 1-2 pracovních dnů. Pro ověření bankovního účtu zadejte kód popisu výpisu z této zálohy na stránce předplatného poskytovatele. Pokud bankovní účet neověříte, bude to mít za následek zmeškání platby a pozastavení předplatného."
   }
 }
