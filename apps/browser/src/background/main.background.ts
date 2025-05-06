@@ -1521,6 +1521,7 @@ export default class MainBackground {
         this.messagingService.send("goHome");
       } else if (nextAccountStatus === AuthenticationStatus.Locked) {
         this.messagingService.send("locked", { userId: userId });
+        // TODO: solve the TDE lock case
       } else if (forcePasswordReset) {
         this.messagingService.send("update-temp-password", { userId: userId });
       } else {

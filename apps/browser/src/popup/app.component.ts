@@ -124,6 +124,19 @@ export class AppComponent implements OnInit, OnDestroy {
             (msg.userId == null || msg.userId == this.activeUserId)
           ) {
             await this.biometricsService.setShouldAutopromptNow(false);
+
+            // const tdeEnabled = await firstValueFrom(deviceTrustService.supportsDeviceTrust$);
+            // const everHadUserKey = await firstValueFrom(keyService.everHadUserKey$);
+            //  if(tdeEnabled && !everHadUserKey) {
+            //     logService.info(
+            //       "Sending user to TDE decryption options. AuthStatus is %s. TDE support is %s. Ever had user key is %s.",
+            //       AuthenticationStatus[authStatus],
+            //       tdeEnabled,
+            //       everHadUserKey,
+            //     );
+
+            // return router.createUrlTree([routes.notDecrypted], { queryParams: route.queryParams });
+
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.router.navigate(["lock"]);
