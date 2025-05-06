@@ -18,7 +18,11 @@ import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { FingerprintDialogComponent, LoginApprovalComponent } from "@bitwarden/auth/angular";
-import { DESKTOP_SSO_CALLBACK, LogoutReason } from "@bitwarden/auth/common";
+import {
+  DESKTOP_SSO_CALLBACK,
+  LogoutReason,
+  UserDecryptionOptionsServiceAbstraction,
+} from "@bitwarden/auth/common";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -158,6 +162,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private organizationService: OrganizationService,
     private deviceTrustToastService: DeviceTrustToastService,
+    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
   }
@@ -416,7 +421,26 @@ export class AppComponent implements OnInit, OnDestroy {
               )) != ForceSetPasswordReason.None;
             if (locked) {
               this.modalService.closeAll();
-              await this.router.navigate(["lock"]);
+
+              // We only have to handle TDE lock on "switchAccount" message scenarios but not normal
+              // lock scenarios since the user will have always decrypted the vault at least once in those cases.
+              const tdeEnabled = await firstValueFrom(
+                this.userDecryptionOptionsService
+                  .userDecryptionOptionsById$(message.userId)
+                  .pipe(
+                    map(
+                      (decryptionOptions) =>
+                        decryptionOptions?.trustedDeviceOption != null ?? false,
+                    ),
+                  ),
+              );
+
+              const everHadUserKey = await firstValueFrom(this.keyService.everHadUserKey$);
+              if (tdeEnabled && !everHadUserKey) {
+                await this.router.navigate(["login-initiated"]);
+              } else {
+                await this.router.navigate(["lock"]);
+              }
             } else if (forcedPasswordReset) {
               // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
               // eslint-disable-next-line @typescript-eslint/no-floating-promises
