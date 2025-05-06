@@ -142,6 +142,10 @@ import { AttachmentResponse } from "../vault/models/response/attachment.response
 import { CipherResponse } from "../vault/models/response/cipher.response";
 import { OptionalCipherResponse } from "../vault/models/response/optional-cipher.response";
 
+export type HttpOperations = {
+  createRequest: (url: string, request: RequestInit) => Request;
+};
+
 /**
  * @deprecated The `ApiService` class is deprecated and calls should be extracted into individual
  * api services. The `send` method is still allowed to be used within api services. For background
@@ -169,6 +173,7 @@ export class ApiService implements ApiServiceAbstraction {
     private logService: LogService,
     private logoutCallback: (logoutReason: LogoutReason) => Promise<void>,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    private readonly httpOperations: HttpOperations,
     private customUserAgent: string = null,
   ) {
     this.device = platformUtilsService.getDevice();
@@ -223,7 +228,7 @@ export class ApiService implements ApiServiceAbstraction {
     const env = await firstValueFrom(this.environmentService.environment$);
 
     const response = await this.fetch(
-      new Request(env.getIdentityUrl() + "/connect/token", {
+      this.httpOperations.createRequest(env.getIdentityUrl() + "/connect/token", {
         body: this.qsStringify(identityToken),
         credentials: await this.getCredentials(),
         cache: "no-store",
@@ -1434,7 +1439,7 @@ export class ApiService implements ApiServiceAbstraction {
     }
     const env = await firstValueFrom(this.environmentService.environment$);
     const response = await this.fetch(
-      new Request(env.getEventsUrl() + "/collect", {
+      this.httpOperations.createRequest(env.getEventsUrl() + "/collect", {
         cache: "no-store",
         credentials: await this.getCredentials(),
         method: "POST",
@@ -1481,7 +1486,7 @@ export class ApiService implements ApiServiceAbstraction {
     const authHeader = await this.getActiveBearerToken();
 
     const response = await this.fetch(
-      new Request(keyConnectorUrl + "/user-keys", {
+      this.httpOperations.createRequest(keyConnectorUrl + "/user-keys", {
         cache: "no-store",
         method: "GET",
         headers: new Headers({
@@ -1506,7 +1511,7 @@ export class ApiService implements ApiServiceAbstraction {
     const authHeader = await this.getActiveBearerToken();
 
     const response = await this.fetch(
-      new Request(keyConnectorUrl + "/user-keys", {
+      this.httpOperations.createRequest(keyConnectorUrl + "/user-keys", {
         cache: "no-store",
         method: "POST",
         headers: new Headers({
@@ -1526,7 +1531,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   async getKeyConnectorAlive(keyConnectorUrl: string) {
     const response = await this.fetch(
-      new Request(keyConnectorUrl + "/alive", {
+      this.httpOperations.createRequest(keyConnectorUrl + "/alive", {
         cache: "no-store",
         method: "GET",
         headers: new Headers({
@@ -1595,7 +1600,7 @@ export class ApiService implements ApiServiceAbstraction {
     const env = await firstValueFrom(this.environmentService.environment$);
     const path = `/sso/prevalidate?domainHint=${encodeURIComponent(identifier)}`;
     const response = await this.fetch(
-      new Request(env.getIdentityUrl() + path, {
+      this.httpOperations.createRequest(env.getIdentityUrl() + path, {
         cache: "no-store",
         credentials: await this.getCredentials(),
         headers: headers,
@@ -1736,7 +1741,7 @@ export class ApiService implements ApiServiceAbstraction {
     const env = await firstValueFrom(this.environmentService.environment$);
     const decodedToken = await this.tokenService.decodeAccessToken();
     const response = await this.fetch(
-      new Request(env.getIdentityUrl() + "/connect/token", {
+      this.httpOperations.createRequest(env.getIdentityUrl() + "/connect/token", {
         body: this.qsStringify({
           grant_type: "refresh_token",
           client_id: decodedToken.client_id,
@@ -1845,7 +1850,7 @@ export class ApiService implements ApiServiceAbstraction {
     };
     requestInit.headers = requestHeaders;
     requestInit.body = requestBody;
-    const response = await this.fetch(new Request(requestUrl, requestInit));
+    const response = await this.fetch(this.httpOperations.createRequest(requestUrl, requestInit));
 
     const responseType = response.headers.get("content-type");
     const responseIsJson = responseType != null && responseType.indexOf("application/json") !== -1;

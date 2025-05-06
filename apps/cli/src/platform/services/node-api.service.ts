@@ -39,6 +39,7 @@ export class NodeApiService extends ApiService {
       logService,
       logoutCallback,
       vaultTimeoutSettingsService,
+      { createRequest: (url, request) => new Request(url, request) },
       customUserAgent,
     );
   }
