@@ -4,10 +4,11 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.e
 
 import { NotificationTypes } from "../../../../notification/abstractions/notification-bar";
 import { CipherAction } from "../../cipher/cipher-action";
+import { I18n } from "../../common-types";
 
 type Args = {
   handleAction?: (e: Event) => void;
-  i18n: { [key: string]: string };
+  i18n: I18n;
   notificationType: typeof NotificationTypes.Change | typeof NotificationTypes.Add;
   theme: Theme;
 };

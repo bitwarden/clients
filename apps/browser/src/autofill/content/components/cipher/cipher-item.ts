@@ -8,6 +8,7 @@ import {
   NotificationType,
   NotificationTypes,
 } from "../../../notification/abstractions/notification-bar";
+import { I18n } from "../common-types";
 
 import { CipherAction } from "./cipher-action";
 import { CipherIcon } from "./cipher-icon";
@@ -25,7 +26,7 @@ export function CipherItem({
 }: {
   cipher: NotificationCipherData;
   handleAction?: (e: Event) => void;
-  i18n: { [key: string]: string };
+  i18n: I18n;
   notificationType?: NotificationType;
   theme: Theme;
 }) {

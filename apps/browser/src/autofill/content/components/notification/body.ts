@@ -6,6 +6,7 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { NotificationType } from "../../../notification/abstractions/notification-bar";
 import { CipherItem } from "../cipher";
 import { NotificationCipherData } from "../cipher/types";
+import { I18n } from "../common-types";
 import { scrollbarStyles, spacing, themes, typography } from "../constants/styles";
 import { ItemRow } from "../rows/item-row";
 
@@ -24,7 +25,7 @@ export function NotificationBody({
 }: {
   ciphers?: NotificationCipherData[];
   customClasses?: string[];
-  i18n: { [key: string]: string };
+  i18n: I18n;
   notificationType?: NotificationType;
   theme: Theme;
   handleEditOrUpdateAction: (e: Event) => void;

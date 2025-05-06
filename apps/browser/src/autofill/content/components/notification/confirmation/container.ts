@@ -9,6 +9,7 @@ import {
   NotificationType,
   NotificationTypes,
 } from "../../../../notification/abstractions/notification-bar";
+import { I18n } from "../../common-types";
 import { themes, spacing } from "../../constants/styles";
 import {
   NotificationHeader,
@@ -24,7 +25,7 @@ export type NotificationConfirmationContainerProps = NotificationBarIframeInitDa
   handleOpenTasks: (e: Event) => void;
 } & {
   error?: string;
-  i18n: { [key: string]: string };
+  i18n: I18n;
   itemName: string;
   task?: NotificationTaskInfo;
   type: NotificationType;
@@ -106,7 +107,7 @@ const notificationContainerStyles = (theme: Theme) => css`
 `;
 
 function getConfirmationMessage(
-  i18n: { [key: string]: string },
+  i18n: I18n,
   itemName: string,
   type?: NotificationType,
   error?: string,
@@ -120,11 +121,7 @@ function getConfirmationMessage(
   return type === "add" ? loginSaveConfirmation : loginUpdatedConfirmation;
 }
 
-function getHeaderMessage(
-  i18n: { [key: string]: string },
-  type?: NotificationType,
-  error?: string,
-) {
+function getHeaderMessage(i18n: I18n, type?: NotificationType, error?: string) {
   if (error) {
     return i18n.saveFailure;
   }

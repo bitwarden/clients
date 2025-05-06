@@ -6,11 +6,12 @@ import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-repromp
 
 import { NotificationType } from "../../../../notification/abstractions/notification-bar";
 import { NotificationCipherData } from "../../cipher/types";
+import { I18n } from "../../common-types";
 import { NotificationBody } from "../../notification/body";
 
 type Args = {
   ciphers: NotificationCipherData[];
-  i18n: { [key: string]: string };
+  i18n: I18n;
   notificationType: NotificationType;
   theme: Theme;
   handleEditOrUpdateAction: (e: Event) => void;
