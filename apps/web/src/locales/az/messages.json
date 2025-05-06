@@ -6302,13 +6302,13 @@
   "sponsoredBitwardenFamilies": {
     "message": "Sponsorlu ailələr"
   },
-  "noSponsoredFamilies": {
+  "noSponsoredFamiliesMessage": {
     "message": "Sponsorlu ailələr yoxdur"
   },
-  "noSponsoredFamiliesDescription": {
+  "nosponsoredFamiliesDetails": {
     "message": "Sponsorlu üzv olmayan ailələr planı burada görünəcək"
   },
-  "sponsorFreeBitwardenFamilies": {
+  "sponsorshipFreeBitwardenFamilies": {
     "message": "Təşkilatınızın üzvləri Ödənişsiz Bitwarden Ailələr planından yararlana bilər. Bitwarden təşkilatınızın üzvü olmayan işçilər üçün \"Ödənişsiz Bitwarden Ailələr\"ə sponsor ola bilərsiniz. Üzv olmayan birinə sponsorluq etmək üçün təşkilatınızda mövcud yer olmalıdır."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
@@ -6320,14 +6320,14 @@
   "sponsoredFamiliesEligibleCard": {
     "message": "İşdə olmadığınız vaxtlarda belə datanızı güvənli saxlamaq üçün Ailələr üçün nəzərdə tutulan Ödənişsiz Bitwarden planını bu gün istifadə edin."
   },
-  "sponsoredFamiliesInclude": {
+  "sponsoredFamiliesIncludeMessage": {
     "message": "Ailələr üçün Bitwarden planı bunları ehtiva edir"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "6 istifadəçiyə qədər Premium müraciət"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Ailə sirləri üçün paylaşılan kolleksiyalar"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Ailə üzvləri üçün paylaşılan kolleksiyalar"
   },
   "memberFamilies": {
     "message": "Üzv ailələr"
@@ -6340,6 +6340,15 @@
   },
   "membersWithSponsoredFamilies": {
     "message": "Təşkilatınızın üzvləri Ödənişsiz Bitwarden Ailələr planından yararlana bilər. Burada Ailələr təşkilatına sponsorluq edən üzvləri görə bilərsiniz."
+  },
+  "organizationHasMemberMessage": {
+    "message": "$EMAIL$ ünvanına sponsorluq göndərilə bilmir, çünki təşkilatınızın üzvü deyil.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "Keçid, artıq etibarlı deyil. Lütfən sponsorun təklifi yenidən göndərməsini təmin edin."
@@ -6392,7 +6401,7 @@
   "redeemedAccount": {
     "message": "İstifadə edilən hesab"
   },
-  "revokeAccount": {
+  "revokeAccountMessage": {
     "message": "$NAME$ hesabını ləğv et",
     "placeholders": {
       "name": {
@@ -10387,11 +10396,17 @@
   "doNotTrust": {
     "message": "Güvənmə"
   },
+  "organizationNotTrusted": {
+    "message": "Təşkilata güvənilmir"
+  },
   "emergencyAccessTrustWarning": {
     "message": "Hesabınızın təhlükəsizliyi üçün yalnız bu istifadəçiyə fövqəladə hal müraciəti icazəsini verdiyinizi və onun barmaq izinin hesabında görünən barmaq izi ilə uyuşduğunu təsdiqləyin"
   },
   "orgTrustWarning": {
     "message": "Hesabınızın təhlükəsizliyi üçün yalnız bu təşkilatın üzvüsünüzsə, hesab geri qaytarma fəaldırsa və aşağıda görünən barmaq izi təşkilatın barmaq izi ilə uyuşursa davam edin."
+  },
+  "orgTrustWarning1": {
+    "message": "Bu təşkilat, sahib olduğu Müəssisə siyasəti ilə sizi hesabın qaytarılması prosesinə yazdıracaq. Yazılma, təşkilat inzibatçılarının parolunuzu dəyişdirməsinə imkan verəcək. Yalnız bu təşkilatı tanıyırsınızsa və aşağıda görünən barmaq izi ifadəsi, təşkilatın barmaq izi ifadəsi ilə uyuşursa davam edin."
   },
   "trustUser": {
     "message": "İstifadəçiyə güvən"
@@ -10599,10 +10614,10 @@
     "message": "Üzvlərin öz hesablarının kilidini PIN ilə açmasına icazə verilməsin."
   },
   "upgradeForFullEventsMessage": {
-    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
+    "message": "Event log-ları təşkilatınız üçün saxlanılmır. Təşkilatın event log-larına tam müraciət əldə etmək üçün Teams və ya Enterprise planına yüksəldin."
   },
   "upgradeEventLogTitleMessage": {
-    "message": "Upgrade to see event logs from your organization."
+    "message": "Təşkilatınızın event log-larını görmək üçün yüksəldin."
   },
   "upgradeEventLogMessage": {
     "message": "Bu event-lər sadəcə nümunədir və Bitwarden təşkilatınızdakı real event-ləri əks etdirmir."
@@ -10619,7 +10634,40 @@
   "newBusinessUnit": {
     "message": "Yeni biznes vahidi"
   },
+  "newLoginNudgeTitle": {
+    "message": "Avto-doldurma ilə vaxta qənaət edin"
+  },
+  "newLoginNudgeBody": {
+    "message": "Bir veb sayt daxil edin ki, bu giriş məlumatları avto-doldurma təklifi kimi görünsün."
+  },
+  "newCardNudgeTitle": {
+    "message": "Problemsiz onlayn ödəniş"
+  },
+  "newCardNudgeBody": {
+    "message": "Kartlarla, ödəniş xanalarını təhlükəsiz və doğru şəkildə avtomatik doldurun."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Hesab yaratmanı sadələşdirin"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Kimliklərinizlə, uzun qeydiyyat və ya əlaqə xanalarını daha tez avtomatik doldurun."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Həssas datalarınızı güvənli şəkildə saxlayın"
+  },
+  "newNoteNudgeBody": {
+    "message": "Notlarla, bankçılıq və ya sığorta təfsilatları kimi həssas dataları təhlükəsiz saxlayın."
+  },
+  "newSshNudgeTitle": {
+    "message": "Gəlişdirici dostu SSH müraciəti"
+  },
+  "newSshNudgeBody": {
+    "message": "Açarlarınızı saxlayın və sürətli, şifrələnmiş kimlik doğrulama üçün SSH agentinə bağlayın."
+  },
   "restart": {
-    "message": "Restart"
+    "message": "Yenidən başlat"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Bank hesabı ilə ödəniş, yalnız Amerika Birləşmiş Ştatlarındakı müştərilər üçün əlçatandır. Bank hesabınızı doğrulamağınız tələb olunacaq. Növbəti 1-2 iş günü ərzində mikro depozit qoyacağıq. Bank hesabını doğrulamaq üçün bu depozitdəki çıxarış deskriptor kodunu təşkilatın abunəlik səhifəsində daxil edin. Bank hesabı doğrulanmadıqda ödəniş buraxılacaq və abunəliyiniz dayandırılacaq."
   }
 }

@@ -129,6 +129,8 @@
     {
       matchPackageNames: [
         "@angular-eslint/schematics",
+        "@typescript-eslint/rule-tester",
+        "@typescript-eslint/utils",
         "angular-eslint",
         "eslint-config-prettier",
         "eslint-import-resolver-typescript",
@@ -149,6 +151,8 @@
     {
       matchPackageNames: [
         "@angular-eslint/schematics",
+        "@typescript-eslint/rule-tester",
+        "@typescript-eslint/utils",
         "angular-eslint",
         "eslint-config-prettier",
         "eslint-import-resolver-typescript",
@@ -313,8 +317,6 @@
         "@storybook/angular",
         "@storybook/manager-api",
         "@storybook/theming",
-        "@typescript-eslint/utils",
-        "@typescript-eslint/rule-tester",
         "@types/react",
         "autoprefixer",
         "bootstrap",

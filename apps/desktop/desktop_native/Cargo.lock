@@ -937,6 +937,7 @@ dependencies = [
  "windows-future",
  "zbus",
  "zbus_polkit",
+ "zeroizing-alloc",
 ]
 
 [[package]]
@@ -1491,9 +1492,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.169"
+version = "0.2.172"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5aba8db14291edd000dfcc4d620c7ebfb122c613afb886ca8803fa4e128a20a"
+checksum = "d750af042f7ef4f724306de029d18836c26c1765a54a6a3f094cbd23a7267ffa"
 
 [[package]]
 name = "libloading"
@@ -3910,6 +3911,12 @@ dependencies = [
  "quote",
  "syn",
 ]
+
+[[package]]
+name = "zeroizing-alloc"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ebff5e6b81c1c7dca2d0bd333b2006da48cb37dbcae5a8da888f31fcb3c19934"
 
 [[package]]
 name = "zvariant"

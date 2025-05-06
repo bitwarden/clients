@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { Directive } from "@angular/core";
 import { Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
@@ -10,6 +11,7 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -96,8 +98,8 @@ export class UpdatePasswordComponent extends BaseChangePasswordComponent {
       });
       return false;
     }
-
-    this.kdfConfig = await this.kdfConfigService.getKdfConfig();
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
     return true;
   }
 

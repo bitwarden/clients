@@ -1131,7 +1131,7 @@
     "description": "Message displayed when login details are successfully updated."
   },
   "loginUpdateTaskSuccess": {
-    "message": "干得好！您采取了使您和 $ORGANIZATION$ 更加安全的措施。",
+    "message": "干得好！您采取了使您和 $ORGANIZATION$ 更加安全的步骤。",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -2180,14 +2180,14 @@
     "message": "使用此用户名"
   },
   "securePasswordGenerated": {
-    "message": "安全的密码生成好了！别忘了在网站上也更新一下您的密码。"
+    "message": "安全的密码已生成！不要忘记在网站上更新您的密码。"
   },
   "useGeneratorHelpTextPartOne": {
     "message": "使用生成器",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
-    "message": "创建一个强大且唯一的密码",
+    "message": "创建强大且唯一的密码",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultCustomization": {
@@ -3564,6 +3564,30 @@
   "deviceTrusted": {
     "message": "设备已信任"
   },
+  "trustOrganization": {
+    "message": "信任组织"
+  },
+  "trust": {
+    "message": "信任"
+  },
+  "doNotTrust": {
+    "message": "不信任"
+  },
+  "organizationNotTrusted": {
+    "message": "组织未被信任"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "为了您的账户安全，确认前请先确认：您已授予该用户紧急访问权限，以及其指纹与其账户中显示的指纹相匹配"
+  },
+  "orgTrustWarning": {
+    "message": "为了您的账户安全，继续前请先确认：您是启用了账户恢复功能的该组织的成员，以及下方显示的指纹与此组织的指纹相匹配。"
+  },
+  "orgTrustWarning1": {
+    "message": "此组织有一个企业策略，将为您注册账户恢复。注册后将允许组织管理员更改您的主密码。继续前请先确认：您认识此组织，以及下方显示的指纹短语与此组织的指纹相匹配。"
+  },
+  "trustUser": {
+    "message": "信任用户"
+  },
   "sendsNoItemsTitle": {
     "message": "没有活跃的 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4603,7 +4627,7 @@
     "message": "过期的支付卡"
   },
   "cardExpiredMessage": {
-    "message": "如果您的支付卡已续期，请更新该卡的信息。"
+    "message": "如果您的支付卡已续期，请更新该卡的信息"
   },
   "cardDetails": {
     "message": "支付卡详细信息"
@@ -5201,6 +5225,12 @@
   "changeAtRiskPassword": {
     "message": "更改有风险的密码"
   },
+  "settingsVaultOptions": {
+    "message": "密码库选项"
+  },
+  "emptyVaultDescription": {
+    "message": "密码库不仅保护您的密码。在这里还可以安全地存储登录、ID、支付卡和笔记。"
+  },
   "introCarouselLabel": {
     "message": "欢迎使用 Bitwarden"
   },
@@ -5227,5 +5257,50 @@
   },
   "secureDevicesBody": {
     "message": "使用 Bitwarden 移动端、浏览器和桌面 App 在无限制的设备上保存无限数量的密码。"
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "导入现有密码"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "使用导入器快速将登录传输到 Bitwarden 而无需手动添加。"
+  },
+  "emptyVaultNudgeButton": {
+    "message": "立即导入"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "欢迎来到您的密码库！"
+  },
+  "hasItemsVaultNudgeBody": {
+    "message": "自动填充项目用于当前页面\n收藏夹项目用于轻松访问\n搜索密码库用于其他目的"
+  },
+  "newLoginNudgeTitle": {
+    "message": "使用自动填充节省时间"
+  },
+  "newLoginNudgeBody": {
+    "message": "请包含网站，以便将此登录显示为自动填充建议。"
+  },
+  "newCardNudgeTitle": {
+    "message": "无缝在线结账"
+  },
+  "newCardNudgeBody": {
+    "message": "使用支付卡，安全准确地轻松自动填充付款表单。"
+  },
+  "newIdentityNudgeTitle": {
+    "message": "简化账户的创建"
+  },
+  "newIdentityNudgeBody": {
+    "message": "使用身份，快速自动填充冗长的注册或联系表单。"
+  },
+  "newNoteNudgeTitle": {
+    "message": "保持您的敏感数据的安全"
+  },
+  "newNoteNudgeBody": {
+    "message": "使用笔记，安全地存储敏感数据，例如银行或保险详细信息。"
+  },
+  "newSshNudgeTitle": {
+    "message": "开发人员友好的 SSH 访问权限"
+  },
+  "newSshNudgeBody": {
+    "message": "存储您的密钥并与 SSH 代理连接，以进行快速、加密的身份验证。"
   }
 }

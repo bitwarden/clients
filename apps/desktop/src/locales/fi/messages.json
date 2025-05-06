@@ -394,16 +394,16 @@
     "message": "Todennusavain (TOTP)"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "Todennusavain"
   },
   "autofillOptions": {
-    "message": "Autofill options"
+    "message": "Automaattitäytön asetukset"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Verkkosivusto (URI)"
   },
   "websiteUriCount": {
-    "message": "Website (URI) $COUNT$",
+    "message": "Verkkosivusto (URI) $COUNT$",
     "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -413,43 +413,43 @@
     }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Verkkosivusto lisättiin"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Lisää verkkosivusto"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Poista verkkosivusto"
   },
   "owner": {
-    "message": "Owner"
+    "message": "Omistaja"
   },
   "addField": {
-    "message": "Add field"
+    "message": "Lisää kenttä"
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "Kentän tyyppi"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "Kentän nimi"
   },
   "add": {
-    "message": "Add"
+    "message": "Lisää"
   },
   "textHelpText": {
-    "message": "Use text fields for data like security questions"
+    "message": "Käytä tekstikenttiä esimerkiksi turvakysymysten kaltaisille tiedoille"
   },
   "hiddenHelpText": {
-    "message": "Use hidden fields for sensitive data like a password"
+    "message": "Käytä piilotettuja kenttiä esimerkiksi salasanojen kaltaisille arkaluonteisille tiedoille"
   },
   "checkBoxHelpText": {
-    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
+    "message": "Käytä valintaruutuja esimerkiksi sähköpostiosoitteen muistamisen kaltaisten valintaruutujen automaattiseen merkintään"
   },
   "linkedHelpText": {
-    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+    "message": "Käytä linkitettyjä kenttiä kohdatessasi sivustokohtaisia automaattitäytön ongelmia."
   },
   "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+    "message": "Syötä kentän HTML-koodista löytyvä id-, name-, aria-label- tai placeholder-arvo."
   },
   "folder": {
     "message": "Kansio"
@@ -477,7 +477,7 @@
     "description": "This describes a field that is 'linked' (related) to another field."
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "Valintaruutu"
   },
   "linkedValue": {
     "message": "Linkitetty arvo",
@@ -1977,10 +1977,10 @@
     }
   },
   "cardDetails": {
-    "message": "Card details"
+    "message": "Kortin tiedot"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$ details",
+    "message": "$BRAND$-tiedot",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -1989,29 +1989,44 @@
     }
   },
   "learnMoreAboutAuthenticators": {
-    "message": "Learn more about authenticators"
+    "message": "Lue lisää todentajista"
   },
   "copyTOTP": {
-    "message": "Copy Authenticator key (TOTP)"
+    "message": "Kopioi todennusavain (TOTP)"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "Tee kaksivaiheisesta kirjautumisesta saumatonta"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden voi säilyttää ja täyttää kaksivaiheisen kirjautumisen koodit. Kopioi ja liitä todennusavain tähän kenttään."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden voi säilyttää ja täyttää kaksivaiheisen kirjautumisen koodit. Kamerakuvakkeella voit kaapata todennusavaimen avoimen sivun QR-koodista automaattisesti, tai voit kopioida ja liittää sen tähän kenttään manuaalisesti."
   },
   "premium": {
     "message": "Premium",
     "description": "Premium membership"
   },
+  "freeOrgsCannotUseAttachments": {
+    "message": "Free organizations cannot use attachments"
+  },
+  "singleFieldNeedsAttention": {
+    "message": "1 field needs your attention."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ fields need your attention.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "cardExpiredTitle": {
-    "message": "Expired card"
+    "message": "Vanhentunut kortti"
   },
   "cardExpiredMessage": {
-    "message": "If you've renewed it, update the card's information"
+    "message": "Jos olet uudistanut kortin, päivitä sen tiedot"
   },
   "verificationRequired": {
     "message": "Vahvistus vaaditaan",
@@ -2183,13 +2198,13 @@
     "message": "Organisaatiokäytäntö estää kohteiden tuonnin yksityiseen holviisi."
   },
   "personalDetails": {
-    "message": "Personal details"
+    "message": "Henkilökohtaiset tiedot"
   },
   "identification": {
     "message": "Identification"
   },
   "contactInfo": {
-    "message": "Contact information"
+    "message": "Yhteystiedot"
   },
   "allSends": {
     "message": "Kaikki Sendit",
@@ -2626,7 +2641,7 @@
     "message": "Luo sähköpostiosoite"
   },
   "usernameGenerator": {
-    "message": "Username generator"
+    "message": "Käyttäjätunnusgeneraattori"
   },
   "spinboxBoundariesHint": {
     "message": "Arvon tulee olla väliltä $MIN$—$MAX$.",
@@ -3152,6 +3167,30 @@
   "deviceTrusted": {
     "message": "Laitteeseen luotettu"
   },
+  "trustOrganization": {
+    "message": "Trust organization"
+  },
+  "trust": {
+    "message": "Trust"
+  },
+  "doNotTrust": {
+    "message": "Do not trust"
+  },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+  },
+  "orgTrustWarning": {
+    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+  },
+  "trustUser": {
+    "message": "Trust user"
+  },
   "inputRequired": {
     "message": "Syöte vaaditaan."
   },
@@ -3550,10 +3589,10 @@
     "message": "Kertakirjautumiselle ei löytynyt vapaita portteja."
   },
   "securePasswordGenerated": {
-    "message": "Secure password generated! Don't forget to also update your password on the website."
+    "message": "Turvallinen salasana luotiin! Muista vaihtaa se myös verkkosivuston tiliasetuksiin."
   },
   "useGeneratorHelpTextPartOne": {
-    "message": "Use the generator",
+    "message": "Käytä generaattoria",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
@@ -3567,10 +3606,10 @@
     "message": "Biometrinen lukituksen avaus ei ole tällä hetkellä käytettävissä."
   },
   "biometricsStatusHelptextAutoSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "Biometrinen avaus ei ole käytettävissä virheellisesti määritettyjen järjestelmätiedostojen takia."
   },
   "biometricsStatusHelptextManualSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "Biometrinen avaus ei ole käytettävissä virheellisesti määritettyjen järjestelmätiedostojen takia."
   },
   "biometricsStatusHelptextNotEnabledLocally": {
     "message": "Biometrinen avaus ei ole käytettävissä, koska sitä ei ole otettu käyttöön osoitteelle $EMAIL$ Bitwardenin työpöytäsovelluksessa.",
@@ -3597,7 +3636,7 @@
     "message": "Warning: Agent Forwarding"
   },
   "agentForwardingWarningText": {
-    "message": "This request comes from a remote device that you are logged into"
+    "message": "Tämä pyyntö tulee etälaitteelta, johon olet kirjautunut"
   },
   "sshkeyApprovalMessageInfix": {
     "message": "pyytää pääsyä"
@@ -3639,25 +3678,25 @@
     "message": "Määritä kaksivaiheinen kirjautuminen"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "Kohteen tiedot"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "Kohteen nimi"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Kirjautumistiedot"
   },
   "additionalOptions": {
-    "message": "Additional options"
+    "message": "Lisävalinnat"
   },
   "itemHistory": {
-    "message": "Item history"
+    "message": "Kohteen historia"
   },
   "lastEdited": {
     "message": "Last edited"
   },
   "upload": {
-    "message": "Upload"
+    "message": "Lähetä"
   },
   "newDeviceVerificationNoticeContentPage1": {
     "message": "Bitwarden lähettää tilisi sähköpostiosoitteeseen koodin, jolla voit vahvistaa kirjautumiset uusista laitteista helmikuusta 2025 alkaen."
@@ -3712,5 +3751,35 @@
   },
   "move": {
     "message": "Siirrä"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBody": {
+    "message": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBody": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
   }
 }

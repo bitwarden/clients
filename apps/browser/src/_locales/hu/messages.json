@@ -3564,6 +3564,30 @@
   "deviceTrusted": {
     "message": "Az eszköz megbízható."
   },
+  "trustOrganization": {
+    "message": "Bizalmi szervezet"
+  },
+  "trust": {
+    "message": "Bizalom"
+  },
+  "doNotTrust": {
+    "message": "Nincs bizalom"
+  },
+  "organizationNotTrusted": {
+    "message": "A szervezet nem megbízható."
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "A fiók biztonság érdekében csak akkor erősítsük meg, ha vészhelyzeti hozzáférést biztosítottunk ehhez a felhasználóhoz és az ujjlenyomata megegyezik a fiókjukban megjelenítettekkel."
+  },
+  "orgTrustWarning": {
+    "message": "A fiók biztonsága érdekében csak akkor folytassuk, ha tagja vagyunk ennek a szervezetnek, engedélyezve van a fiók helyreállítása és az alább megjelenített ujjlenyomat megegyezik a szervezet ujjlenyomatával."
+  },
+  "orgTrustWarning1": {
+    "message": "Ennek a szervezetnek van egy vállalati szabályzata, amely regisztrál bennünket a fiók helyreállítási szolgáltatásba. A regisztráció lehetővé teszi a szervezet rendszergazdái számára, hogy megváltoztassák a jelszavunkat. Csak akkor folytassuk, ha felismerjük ezt a szervezetet és az alább megjelenített ujjlenyomat-kifejezés megegyezik a szervezet ujjlenyomatával."
+  },
+  "trustUser": {
+    "message": "Megbízható felhasználó"
+  },
   "sendsNoItemsTitle": {
     "message": "Nincsenek natív Send elemek.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5201,6 +5225,12 @@
   "changeAtRiskPassword": {
     "message": "Kockázatos jelszó megváltoztatása"
   },
+  "settingsVaultOptions": {
+    "message": "Széf opciók"
+  },
+  "emptyVaultDescription": {
+    "message": "A széf többre alkalmas, mint a jelszavak mentése. Menthetünk belépéseket, azonosítókat, kártyákat és feljegyzéseket teljes biztonságban."
+  },
   "introCarouselLabel": {
     "message": "Üdvözlet a Bitwardenben"
   },
@@ -5227,5 +5257,50 @@
   },
   "secureDevicesBody": {
     "message": "Mentsünk el a korlátlan jelszót korlátlan számú eszközön a Bitwarden mobil, böngésző és asztali alkalmazásokkal."
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Létező jelszavak importálása"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Az importálóval gyorsan átvihetünk bejelentkezéseket a Bitwardenbe anélkül, hogy manuálisan hozzáadnánk azokat."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Importálás most"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Üdvözlet a széfben!"
+  },
+  "hasItemsVaultNudgeBody": {
+    "message": "Az aktuális oldal elemeinek automatikus kitöltése\nKedvenc elemek a könnyű hozzáférés érdekében\nValami más keresése a széfben"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Idő megtakarítás automatikus kitöltéssel"
+  },
+  "newLoginNudgeBody": {
+    "message": "Adjunk meg egy webhelyet, hogy ez a bejelentkezési név automatikusan kitöltendő javaslatként jelenjen meg."
+  },
+  "newCardNudgeTitle": {
+    "message": "Zökkenőmentes online fizetés"
+  },
+  "newCardNudgeBody": {
+    "message": "Kártyákkal könnyedén, biztonságosan és pontosan tölthetjük ki automatikusan a fizetési űrlapokat."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Egyszerűsítsük a fiókok létrehozását"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Azonosítókkal gyorsan automatikusan kitölthetjük a hosszú regisztrációs vagy kapcsolatfelvételi űrlapokat."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Tartsuk biztonságban az érzékeny adatokat"
+  },
+  "newNoteNudgeBody": {
+    "message": "Jegyzetekkel biztonságosan tárolhatjuk az érzékeny adatokat, például a banki vagy biztosítási adatokat."
+  },
+  "newSshNudgeTitle": {
+    "message": "Fejlesztőbarát SSH hozzáférés"
+  },
+  "newSshNudgeBody": {
+    "message": "Tároljuk a kulcsokat és csatlakozzunk az SSH-ügynökhöz a gyors, titkosított hitelesítéshez."
   }
 }
