@@ -206,7 +206,7 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
         this.cipherDomain,
         file,
         this.activeUserId,
-        (await this.getOrganization())?.canEditAllCiphers,
+        this.organization.canEditAllCiphers,
       );
 
       // re-decrypt the cipher to update the attachments
