@@ -19,7 +19,7 @@ export const Default: StoryObj<StepperComponent> = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-stepper>
+      <bit-stepper [orientation]="orientation">
         <bit-step
           label="This is the label"
           subLabel="This is the sub label"
@@ -60,4 +60,11 @@ export const Default: StoryObj<StepperComponent> = {
     </bit-stepper>
     `,
   }),
+};
+
+export const Horizontal: StoryObj<StepperComponent> = {
+  ...Default,
+  args: {
+    orientation: "horizontal",
+  },
 };
