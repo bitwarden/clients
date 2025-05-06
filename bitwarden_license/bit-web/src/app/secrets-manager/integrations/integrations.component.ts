@@ -95,6 +95,13 @@ export class IntegrationsComponent {
         type: IntegrationType.Integration,
         newBadgeExpiration: "2024-8-12",
       },
+      {
+        name: "Terraform Provider",
+        linkURL: "https://github.com/bitwarden/terraform-provider-bitwarden-sm",
+        image: "../../../../../../../images/secrets-manager/integrations/terraform.svg",
+        type: IntegrationType.Integration,
+        newBadgeExpiration: "2025-4-12",
+      },
     ];
   }
 
