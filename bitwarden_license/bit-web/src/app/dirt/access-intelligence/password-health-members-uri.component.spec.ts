@@ -6,7 +6,7 @@ import { of } from "rxjs";
 import {
   MemberCipherDetailsApiService,
   PasswordHealthService,
-} from "@bitwarden/bit-common/tools/reports/risk-insights";
+} from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
