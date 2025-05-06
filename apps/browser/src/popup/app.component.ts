@@ -127,6 +127,8 @@ export class AppComponent implements OnInit, OnDestroy {
           ) {
             await this.biometricsService.setShouldAutopromptNow(false);
 
+            // When user is locked, normally we can just send them the lock screen.
+            // However, for account switching scenarios, we need to consider the TDE lock state.
             const tdeEnabled = await firstValueFrom(
               this.userDecryptionOptionsService
                 .userDecryptionOptionsById$(msg.userId)
