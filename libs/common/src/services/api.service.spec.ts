@@ -162,30 +162,6 @@ describe("ApiService", () => {
         message: "Something bad happened.",
       },
     },
-    {
-      name: "text/xml response (going away)",
-      input: {
-        text: () => Promise.resolve("<xml></xml>"),
-        headers: new Headers({
-          "content-type": "text/xml",
-        }),
-      },
-      error: {
-        message: "<xml></xml>",
-      },
-    },
-    {
-      name: "text/html response (going away)",
-      input: {
-        text: () => Promise.resolve("<html></html>"),
-        headers: new Headers({
-          "content-type": "text/html",
-        }),
-      },
-      error: {
-        message: "<html></html>",
-      },
-    },
   ];
 
   it.each(errorData)(

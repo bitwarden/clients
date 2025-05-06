@@ -1919,7 +1919,7 @@ export class ApiService implements ApiServiceAbstraction {
     let responseJson: any = null;
     if (this.isJsonResponse(response)) {
       responseJson = await response.json();
-    } else if (this.isTextResponse(response)) {
+    } else if (this.isTextPlainResponse(response)) {
       responseJson = { Message: await response.text() };
     }
 
@@ -1975,8 +1975,8 @@ export class ApiService implements ApiServiceAbstraction {
     return typeHeader != null && typeHeader.indexOf("application/json") > -1;
   }
 
-  private isTextResponse(response: Response): boolean {
+  private isTextPlainResponse(response: Response): boolean {
     const typeHeader = response.headers.get("content-type");
-    return typeHeader != null && typeHeader.indexOf("text") > -1;
+    return typeHeader != null && typeHeader.indexOf("text/plain") > -1;
   }
 }
