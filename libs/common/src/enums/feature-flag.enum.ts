@@ -21,7 +21,6 @@ export enum FeatureFlag {
 
   /* Autofill */
   BlockBrowserInjectionsByDomain = "block-browser-injections-by-domain",
-  DelayFido2PageScriptInitWithinMv2 = "delay-fido2-page-script-init-within-mv2",
   EnableNewCardCombinedExpiryAutofill = "enable-new-card-combined-expiry-autofill",
   GenerateIdentityFillScriptRefactor = "generate-identity-fill-script-refactor",
   IdpAutoSubmitLogin = "idp-auto-submit-login",
@@ -89,7 +88,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Autofill */
   [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,
-  [FeatureFlag.DelayFido2PageScriptInitWithinMv2]: FALSE,
   [FeatureFlag.EnableNewCardCombinedExpiryAutofill]: FALSE,
   [FeatureFlag.GenerateIdentityFillScriptRefactor]: FALSE,
   [FeatureFlag.IdpAutoSubmitLogin]: FALSE,
