@@ -16,20 +16,21 @@ const { css } = createEmotion({
   key: componentClassPrefix,
 });
 
+export type NotificationBodyProps = {
+  ciphers?: NotificationCipherData[];
+  i18n: I18n;
+  notificationType?: NotificationType;
+  theme: Theme;
+  handleEditOrUpdateAction: (e: Event) => void;
+};
+
 export function NotificationBody({
   ciphers = [],
   i18n,
   notificationType,
   theme = ThemeTypes.Light,
   handleEditOrUpdateAction,
-}: {
-  ciphers?: NotificationCipherData[];
-  customClasses?: string[];
-  i18n: I18n;
-  notificationType?: NotificationType;
-  theme: Theme;
-  handleEditOrUpdateAction: (e: Event) => void;
-}) {
+}: NotificationBodyProps) {
   // @TODO get client vendor from context
   const isSafari = false;
 

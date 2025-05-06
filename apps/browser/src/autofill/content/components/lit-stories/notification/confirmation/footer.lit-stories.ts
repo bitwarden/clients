@@ -7,6 +7,7 @@ import {
   NotificationConfirmationFooter,
   NotificationConfirmationFooterProps,
 } from "../../../notification/confirmation/footer";
+import { mockI18n } from "../../mock-data";
 
 export default {
   title: "Components/Notifications/Confirmation/Footer",
@@ -15,9 +16,7 @@ export default {
   },
   args: {
     handleButtonClick: () => alert("Action button triggered"),
-    i18n: {
-      nextSecurityTaskAction: "Change next password",
-    },
+    i18n: mockI18n({}),
     theme: ThemeTypes.Light,
   },
   parameters: {

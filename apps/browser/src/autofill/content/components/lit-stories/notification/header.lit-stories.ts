@@ -1,15 +1,8 @@
 import { Meta, StoryObj } from "@storybook/web-components";
 
-import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
-import { NotificationHeader } from "../../notification/header";
-
-type Args = {
-  message: string;
-  standalone: boolean;
-  theme: Theme;
-  handleCloseNotification: (e: Event) => void;
-};
+import { NotificationHeader, NotificationHeaderProps } from "../../notification/header";
 
 export default {
   title: "Components/Notifications/Header",
@@ -30,10 +23,10 @@ export default {
       url: "https://www.figma.com/design/LEhqLAcBPY8uDKRfU99n9W/Autofill-notification-redesign?node-id=32-3461&m=dev",
     },
   },
-} as Meta<Args>;
+} as Meta<NotificationHeaderProps>;
 
-const Template = (args: Args) => NotificationHeader({ ...args });
+const Template = (args: NotificationHeaderProps) => NotificationHeader({ ...args });
 
-export const Default: StoryObj<Args> = {
+export const Default: StoryObj<NotificationHeaderProps> = {
   render: Template,
 };
