@@ -2,25 +2,25 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { ButtonComponent } from "../button";
 
-import { VerticalStep } from "./vertical-step.component";
-import { VerticalStepperComponent } from "./vertical-stepper.component";
+import { StepComponent } from "./step.component";
+import { StepperComponent } from "./stepper.component";
 
 export default {
-  title: "Component Library/Vertical Stepper",
-  component: VerticalStepperComponent,
+  title: "Component Library/Stepper",
+  component: StepperComponent,
   decorators: [
     moduleMetadata({
-      imports: [ButtonComponent, VerticalStep],
+      imports: [ButtonComponent, StepComponent],
     }),
   ],
 } as Meta;
 
-export const Default: StoryObj<VerticalStepperComponent> = {
+export const Default: StoryObj<StepperComponent> = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-vertical-stepper>
-        <bit-vertical-step
+      <bit-stepper>
+        <bit-step
           label="This is the label"
           subLabel="This is the sub label"
         >
@@ -32,8 +32,8 @@ export const Default: StoryObj<VerticalStepperComponent> = {
             >
               Some button label
             </button>
-        </bit-vertical-step>
-        <bit-vertical-step
+        </bit-step>
+        <bit-step
             label="Another label"
         >
             <p>Another step</p>
@@ -44,8 +44,8 @@ export const Default: StoryObj<VerticalStepperComponent> = {
             >
               Some button label
             </button>
-        </bit-vertical-step>
-        <bit-vertical-step
+        </bit-step>
+        <bit-step
             label="The last label"
         >
             <p>The last step</p>
@@ -56,8 +56,8 @@ export const Default: StoryObj<VerticalStepperComponent> = {
             >
             Some button label
             </button>
-        </bit-vertical-step>
-    </bit-vertical-stepper>
+        </bit-step>
+    </bit-stepper>
     `,
   }),
 };

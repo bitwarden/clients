@@ -41,4 +41,4 @@ export * from "./toast";
 export * from "./toggle-group";
 export * from "./typography";
 export * from "./utils";
-export * from "./vertical-stepper";
+export * from "./stepper";
