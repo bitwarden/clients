@@ -73,7 +73,11 @@
 
   <!-- ATTACHMENTS SECTION -->
   <ng-container *ngIf="cipher.attachments">
-    <app-attachments-v2-view [emergencyAccessId]="emergencyAccessId" [cipher]="cipher">
+    <app-attachments-v2-view
+      [emergencyAccessId]="emergencyAccessId"
+      [cipher]="cipher"
+      [admin]="isAdminConsole"
+    >
     </app-attachments-v2-view>
   </ng-container>
 

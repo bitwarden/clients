@@ -8,12 +8,12 @@ import {
   CriticalAppsService,
   RiskInsightsDataService,
   RiskInsightsReportService,
-} from "@bitwarden/bit-common/tools/reports/risk-insights";
+} from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import {
   ApplicationHealthReportDetail,
   ApplicationHealthReportDetailWithCriticalFlag,
   ApplicationHealthReportSummary,
-} from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
+} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
 import {
   getOrganizationById,
   OrganizationService,
