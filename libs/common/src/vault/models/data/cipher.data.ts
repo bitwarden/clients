@@ -39,7 +39,8 @@ export class CipherData {
   passwordHistory?: PasswordHistoryData[];
   collectionIds?: string[];
   creationDate: string;
-  deletedDate: string;
+  deletedDate: string | null;
+  archivedDate: string | null;
   reprompt: CipherRepromptType;
   key: string;
 
@@ -63,6 +64,7 @@ export class CipherData {
     this.collectionIds = collectionIds != null ? collectionIds : response.collectionIds;
     this.creationDate = response.creationDate;
     this.deletedDate = response.deletedDate;
+    this.archivedDate = response.archivedDate;
     this.reprompt = response.reprompt;
     this.key = response.key;
 

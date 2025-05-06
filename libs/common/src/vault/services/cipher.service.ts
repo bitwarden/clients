@@ -4,6 +4,10 @@ import { combineLatest, filter, firstValueFrom, map, Observable, Subject, switch
 import { SemVer } from "semver";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import {
+  CipherBulkArchiveRequest,
+  CipherBulkUnarchiveRequest,
+} from "@bitwarden/common/vault/models/request/cipher-bulk-archive.request";
 import { KeyService } from "@bitwarden/key-management";
 
 import { ApiService } from "../../abstractions/api.service";
@@ -207,6 +211,7 @@ export class CipherService implements CipherServiceAbstraction {
     cipher.type = model.type;
     cipher.collectionIds = model.collectionIds;
     cipher.revisionDate = model.revisionDate;
+    cipher.archivedDate = model.archivedDate;
     cipher.reprompt = model.reprompt;
     cipher.edit = model.edit;
 
@@ -534,10 +539,18 @@ export class CipherService implements CipherServiceAbstraction {
     );
     defaultMatch ??= await firstValueFrom(this.domainSettingsService.defaultUriMatchStrategy$);
 
+    const archiveFeatureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM19148_InnovationArchive,
+    );
+
     return ciphers.filter((cipher) => {
       const cipherIsLogin = cipher.type === CipherType.Login && cipher.login !== null;
 
       if (cipher.deletedDate !== null) {
+        return false;
+      }
+
+      if (archiveFeatureEnabled && cipher.isArchived) {
         return false;
       }
 
@@ -562,8 +575,16 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
   ): Promise<CipherView[]> {
     const ciphers = await this.getAllDecrypted(userId);
+    const archiveFeatureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM19148_InnovationArchive,
+    );
     return ciphers
-      .filter((cipher) => cipher.deletedDate == null && type.includes(cipher.type))
+      .filter(
+        (cipher) =>
+          cipher.deletedDate == null &&
+          (!archiveFeatureEnabled || !cipher.isArchived) &&
+          type.includes(cipher.type),
+      )
       .sort((a, b) => this.sortCiphersByLastUsedThenName(a, b));
   }
 
@@ -1297,6 +1318,46 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     await this.restore({ id: id, revisionDate: response.revisionDate }, userId);
+  }
+
+  async archiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void> {
+    const request = new CipherBulkArchiveRequest(Array.isArray(ids) ? ids : [ids]);
+    const r = await this.apiService.send("PUT", "/ciphers/archive", request, true, true);
+    const response = new ListResponse(r, CipherResponse);
+
+    await this.updateEncryptedCipherState((ciphers) => {
+      for (const cipher of response.data) {
+        const localCipher = ciphers[cipher.id as CipherId];
+
+        if (localCipher == null) {
+          continue;
+        }
+
+        localCipher.archivedDate = cipher.archivedDate;
+        localCipher.revisionDate = cipher.revisionDate;
+      }
+      return ciphers;
+    }, userId);
+  }
+
+  async unarchiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void> {
+    const request = new CipherBulkUnarchiveRequest(Array.isArray(ids) ? ids : [ids]);
+    const r = await this.apiService.send("PUT", "/ciphers/unarchive", request, true, true);
+    const response = new ListResponse(r, CipherResponse);
+
+    await this.updateEncryptedCipherState((ciphers) => {
+      for (const cipher of response.data) {
+        const localCipher = ciphers[cipher.id as CipherId];
+
+        if (localCipher == null) {
+          continue;
+        }
+
+        localCipher.archivedDate = cipher.archivedDate;
+        localCipher.revisionDate = cipher.revisionDate;
+      }
+      return ciphers;
+    }, userId);
   }
 
   /**

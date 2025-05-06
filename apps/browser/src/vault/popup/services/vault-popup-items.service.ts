@@ -24,6 +24,8 @@ import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -115,14 +117,22 @@ export class VaultPopupItemsService {
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
+  private archiveFeatureFlag$ = this.configService.getFeatureFlag$(
+    FeatureFlag.PM19148_InnovationArchive,
+  );
+
   private _activeCipherList$: Observable<PopupCipherView[]> = this._allDecryptedCiphers$.pipe(
     switchMap((ciphers) =>
-      combineLatest([this.organizations$, this.collectionService.decryptedCollections$]).pipe(
-        map(([organizations, collections]) => {
+      combineLatest([
+        this.organizations$,
+        this.collectionService.decryptedCollections$,
+        this.archiveFeatureFlag$,
+      ]).pipe(
+        map(([organizations, collections, archiveFeatureEnabled]) => {
           const orgMap = Object.fromEntries(organizations.map((org) => [org.id, org]));
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
           return ciphers
-            .filter((c) => !c.isDeleted)
+            .filter((c) => !c.isDeleted && (!archiveFeatureEnabled || !c.isArchived))
             .map(
               (cipher) =>
                 new PopupCipherView(
@@ -296,6 +306,21 @@ export class VaultPopupItemsService {
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
+  /**
+   * Observable that contains the list of ciphers that have been archived.
+   */
+  archivedCiphers$: Observable<PopupCipherView[]> = this._allDecryptedCiphers$.pipe(
+    map((ciphers) => {
+      return (
+        ciphers
+          .filter((cipher) => cipher.isArchived && !cipher.isDeleted)
+          // Archived ciphers are individual only and never belong to an organization/collection
+          .map((cipher) => new PopupCipherView(cipher))
+      );
+    }),
+    shareReplay({ refCount: false, bufferSize: 1 }),
+  );
+
   constructor(
     private cipherService: CipherService,
     private vaultSettingsService: VaultSettingsService,
@@ -307,6 +332,7 @@ export class VaultPopupItemsService {
     private syncService: SyncService,
     private accountService: AccountService,
     private ngZone: NgZone,
+    private configService: ConfigService,
   ) {}
 
   applyFilter(newSearchText: string) {

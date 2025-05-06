@@ -1,6 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject,
+} from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
   BehaviorSubject,
@@ -49,7 +57,9 @@ import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -148,11 +158,13 @@ const SearchTextDebounceInterval = 200;
   ],
 })
 export class VaultComponent implements OnInit, OnDestroy {
+  private configService: ConfigService = inject(ConfigService);
   @ViewChild("vaultFilter", { static: true }) filterComponent: VaultFilterComponent;
 
   trashCleanupWarning: string = null;
   kdfIterations: number;
   activeFilter: VaultFilter = new VaultFilter();
+  archiveItemEnabled$: Observable<boolean>;
 
   protected noItemIcon = Icons.Search;
   protected performingInitialLoad = true;
@@ -270,7 +282,11 @@ export class VaultComponent implements OnInit, OnDestroy {
     private trialFlowService: TrialFlowService,
     private organizationBillingService: OrganizationBillingServiceAbstraction,
     private billingNotificationService: BillingNotificationService,
-  ) {}
+  ) {
+    this.archiveItemEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.PM19148_InnovationArchive,
+    );
+  }
 
   async ngOnInit() {
     this.trashCleanupWarning = this.i18nService.t(
@@ -346,12 +362,13 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.cipherService.cipherViews$(activeUserId).pipe(filter((c) => c !== null)),
       filter$,
       this.currentSearchText$,
+      this.archiveItemEnabled$,
     ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText]) => {
+      concatMap(async ([ciphers, filter, searchText, archiveEnabled]) => {
         const failedCiphers =
           (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
-        const filterFunction = createFilterFunction(filter);
+        const filterFunction = createFilterFunction(filter, archiveEnabled);
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
 

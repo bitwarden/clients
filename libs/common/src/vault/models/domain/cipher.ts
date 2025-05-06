@@ -53,7 +53,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   passwordHistory: Password[];
   collectionIds: string[];
   creationDate: Date;
-  deletedDate: Date;
+  deletedDate: Date | null;
+  archivedDate: Date | null;
   reprompt: CipherRepromptType;
   key: EncString;
 
@@ -92,6 +93,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     this.localData = localData;
     this.creationDate = obj.creationDate != null ? new Date(obj.creationDate) : null;
     this.deletedDate = obj.deletedDate != null ? new Date(obj.deletedDate) : null;
+    this.archivedDate = obj.archivedDate != null ? new Date(obj.archivedDate) : null;
     this.reprompt = obj.reprompt;
 
     switch (this.type) {
@@ -248,6 +250,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     c.reprompt = this.reprompt;
     c.key = this.key?.encryptedString;
     c.permissions = this.permissions;
+    c.archivedDate = this.archivedDate != null ? this.archivedDate.toISOString() : null;
 
     this.buildDataModel(this, c, {
       name: null,
@@ -300,6 +303,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     const fields = obj.fields?.map((f: any) => Field.fromJSON(f));
     const passwordHistory = obj.passwordHistory?.map((ph: any) => Password.fromJSON(ph));
     const key = EncString.fromJSON(obj.key);
+    const archivedDate = obj.archivedDate == null ? null : new Date(obj.archivedDate);
 
     Object.assign(domain, obj, {
       name,
@@ -310,6 +314,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       fields,
       passwordHistory,
       key,
+      archivedDate,
     });
 
     switch (obj.type) {

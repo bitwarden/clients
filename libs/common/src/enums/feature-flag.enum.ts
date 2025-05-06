@@ -63,6 +63,9 @@ export enum FeatureFlag {
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
+
+  /* Innovation */
+  PM19148_InnovationArchive = "pm-19148-innovation-archive",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -134,6 +137,9 @@ export const DefaultFeatureFlagValue = {
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,
+
+  /* Innovation */
+  [FeatureFlag.PM19148_InnovationArchive]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

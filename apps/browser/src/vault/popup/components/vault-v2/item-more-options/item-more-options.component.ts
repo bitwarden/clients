@@ -3,14 +3,17 @@
 import { CommonModule } from "@angular/common";
 import { booleanAttribute, Component, Input, OnInit } from "@angular/core";
 import { Router, RouterModule } from "@angular/router";
-import { BehaviorSubject, firstValueFrom, map, switchMap } from "rxjs";
+import { BehaviorSubject, firstValueFrom, map, of, switchMap } from "rxjs";
 import { filter } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -72,6 +75,24 @@ export class ItemMoreOptionsComponent implements OnInit {
     switchMap((c) => this.cipherAuthorizationService.canCloneCipher$(c)),
   );
 
+  /**
+   * Observable that emits a boolean value indicating if the user is authorized to archive the cipher.
+   * @protected
+   */
+  protected canArchive$ = this.configService
+    .getFeatureFlag$(FeatureFlag.PM19148_InnovationArchive)
+    .pipe(
+      switchMap((enabled) => {
+        if (!enabled) {
+          return of(false);
+        }
+        return this._cipher$.pipe(
+          filter((c) => c != null),
+          map((c) => !c.isArchived && c.organizationId == null),
+        );
+      }),
+    );
+
   /** Boolean dependent on the current user having access to an organization */
   protected hasOrganizations = false;
 
@@ -86,6 +107,7 @@ export class ItemMoreOptionsComponent implements OnInit {
     private accountService: AccountService,
     private organizationService: OrganizationService,
     private cipherAuthorizationService: CipherAuthorizationService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -194,6 +216,25 @@ export class ItemMoreOptionsComponent implements OnInit {
 
     await this.router.navigate(["/assign-collections"], {
       queryParams: { cipherId: this.cipher.id },
+    });
+  }
+
+  async archive() {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "archiveItem" },
+      content: { key: "archiveItemConfirmDesc" },
+      type: "info",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.cipherService.archiveWithServer(this.cipher.id as CipherId, activeUserId);
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("itemSentToArchive"),
     });
   }
 }

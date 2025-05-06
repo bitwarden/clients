@@ -8,6 +8,7 @@ import { VaultFilter } from "../models/vault-filter.model";
 @Directive()
 export class StatusFilterComponent {
   @Input() hideFavorites = false;
+  @Input() hideArchive = false;
   @Input() hideTrash = false;
   @Output() onFilterChange: EventEmitter<VaultFilter> = new EventEmitter<VaultFilter>();
   @Input() activeFilter: VaultFilter;

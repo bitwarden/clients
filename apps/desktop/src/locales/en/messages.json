@@ -522,6 +522,9 @@
   "deleteAttachment": {
     "message": "Delete attachment"
   },
+  "archiveItemConfirmation": {
+    "message": "Do you really want to archive this item?"
+  },
   "deleteItemConfirmation": {
     "message": "Do you really want to send to the trash?"
   },
@@ -1942,6 +1945,10 @@
   "lock": {
     "message": "Lock",
     "description": "Verb form: to make secure or inaccessible by"
+  },
+  "archive": {
+    "message": "Archive",
+    "description": "Noun: a special folder to hold archived items"
   },
   "trash": {
     "message": "Trash",

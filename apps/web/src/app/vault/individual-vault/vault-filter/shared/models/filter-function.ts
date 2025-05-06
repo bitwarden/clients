@@ -6,7 +6,10 @@ import { All, RoutedVaultFilterModel } from "./routed-vault-filter.model";
 
 export type FilterFunction = (cipher: CipherView) => boolean;
 
-export function createFilterFunction(filter: RoutedVaultFilterModel): FilterFunction {
+export function createFilterFunction(
+  filter: RoutedVaultFilterModel,
+  archiveEnabled?: boolean,
+): FilterFunction {
   return (cipher) => {
     if (filter.type === "favorites" && !cipher.favorite) {
       return false;
@@ -32,6 +35,15 @@ export function createFilterFunction(filter: RoutedVaultFilterModel): FilterFunc
     // Hide trash unless explicitly selected
     if (filter.type !== "trash" && cipher.isDeleted) {
       return false;
+    }
+    // Archive filter logic is only applied if the feature flag is enabled
+    if (archiveEnabled) {
+      if (filter.type === "archive" && !cipher.isArchived) {
+        return false;
+      }
+      if (filter.type !== "archive" && cipher.isArchived) {
+        return false;
+      }
     }
     // No folder
     if (filter.folderId === Unassigned && cipher.folderId !== null) {

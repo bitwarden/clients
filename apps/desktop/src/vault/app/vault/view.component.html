@@ -674,6 +674,11 @@
       <i class="bwi bwi-files bwi-fw bwi-lg" aria-hidden="true"></i>
     </button>
   </ng-container>
+  <div class="right">
+    <button type="button" (click)="archive()" class="danger" [appA11yTitle]="'archive' | i18n">
+      <i class="bwi bwi-archive bwi-lg bwi-fw" aria-hidden="true"></i>
+    </button>
+  </div>
   <div class="right" *ngIf="canDeleteCipher$ | async">
     <button
       type="button"

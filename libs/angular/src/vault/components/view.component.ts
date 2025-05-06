@@ -212,6 +212,41 @@ export class ViewComponent implements OnDestroy, OnInit {
     return false;
   }
 
+  async archive(): Promise<boolean> {
+    if (!(await this.promptPassword())) {
+      return;
+    }
+
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "archiveItem" },
+      content: {
+        key: "archiveItemConfirmation",
+      },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return false;
+    }
+
+    try {
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.deleteCipher(activeUserId);
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t(
+          this.cipher.isDeleted ? "permanentlyDeletedItem" : "deletedItem",
+        ),
+      });
+      this.onDeletedCipher.emit(this.cipher);
+    } catch (e) {
+      this.logService.error(e);
+    }
+
+    return true;
+  }
+
   async delete(): Promise<boolean> {
     if (!(await this.promptPassword())) {
       return;

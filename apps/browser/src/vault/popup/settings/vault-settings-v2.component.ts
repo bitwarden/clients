@@ -3,6 +3,7 @@ import { Component, OnInit } from "@angular/core";
 import { Router, RouterModule } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ItemModule, ToastOptions, ToastService } from "@bitwarden/components";
@@ -10,7 +11,6 @@ import { ItemModule, ToastOptions, ToastService } from "@bitwarden/components";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
-import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
@@ -22,7 +22,6 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     JslibModule,
     RouterModule,
     PopupPageComponent,
-    PopupFooterComponent,
     PopupHeaderComponent,
     PopOutComponent,
     ItemModule,
@@ -73,4 +72,6 @@ export class VaultSettingsV2Component implements OnInit {
       this.lastSync = this.i18nService.t("never");
     }
   }
+
+  protected readonly FeatureFlag = FeatureFlag;
 }
