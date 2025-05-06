@@ -79,12 +79,13 @@ export enum InputPasswordFlow {
 }
 
 interface InputPasswordForm {
+  currentPassword?: FormControl<string>;
+
   newPassword: FormControl<string>;
   newPasswordConfirm: FormControl<string>;
-
   newPasswordHint?: FormControl<string>;
+
   checkForBreaches?: FormControl<boolean>;
-  currentPassword?: FormControl<string>;
   rotateUserKey?: FormControl<boolean>;
 }
 
