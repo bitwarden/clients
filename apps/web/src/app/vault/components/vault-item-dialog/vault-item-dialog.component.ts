@@ -20,7 +20,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { CipherId, CollectionId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
@@ -441,14 +441,15 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const dialogRef = this.dialogService.open<AttachmentDialogCloseResult, { cipherId: CipherId }>(
-      AttachmentsV2Component,
-      {
-        data: {
-          cipherId: this.formConfig.originalCipher?.id as CipherId,
-        },
+    const dialogRef = this.dialogService.open<
+      AttachmentDialogCloseResult,
+      { cipherId: CipherId; organizationId?: OrganizationId }
+    >(AttachmentsV2Component, {
+      data: {
+        cipherId: this.formConfig.originalCipher?.id as CipherId,
+        organizationId: this.formConfig.originalCipher?.organizationId as OrganizationId,
       },
-    );
+    });
 
     const result = await firstValueFrom(dialogRef.closed);
 
@@ -459,14 +460,29 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       const activeUserId = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.id)),
       );
-      const updatedCipher = await this.cipherService.get(
-        this.formConfig.originalCipher?.id,
-        activeUserId,
-      );
 
-      const updatedCipherView = await updatedCipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, activeUserId),
-      );
+      let updatedCipherView: CipherView;
+
+      if (this.formConfig.admin) {
+        const cipherResponse = await this.apiService.getCipherAdmin(
+          this.formConfig.originalCipher?.id,
+        );
+        const cipherData = new CipherData(cipherResponse);
+        const cipher = new Cipher(cipherData);
+
+        updatedCipherView = await cipher.decrypt(
+          await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
+        );
+      } else {
+        const updatedCipher = await this.cipherService.get(
+          this.formConfig.originalCipher?.id,
+          activeUserId,
+        );
+
+        updatedCipherView = await updatedCipher.decrypt(
+          await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, activeUserId),
+        );
+      }
 
       this.cipherFormComponent.patchCipher((currentCipher) => {
         currentCipher.attachments = updatedCipherView.attachments;

@@ -92,7 +92,7 @@ describe("BitwardenPasswordProtectedImporter", () => {
     });
 
     it("succeeds with default jdoc", async () => {
-      encryptService.decryptToUtf8.mockReturnValue(Promise.resolve(emptyUnencryptedExport));
+      encryptService.decryptString.mockReturnValue(Promise.resolve(emptyUnencryptedExport));
 
       expect((await importer.parse(JSON.stringify(jDoc))).success).toEqual(true);
     });

@@ -99,6 +99,7 @@ describe("DeleteAttachmentComponent", () => {
       "5555-444-3333",
       "222-3333-4444",
       "UserId",
+      false,
     );
   });
 
