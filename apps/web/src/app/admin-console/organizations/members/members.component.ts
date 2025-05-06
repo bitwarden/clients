@@ -107,6 +107,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   accountDeprovisioningEnabled = false;
 
   protected canUseSecretsManager$: Observable<boolean>;
+  protected showUserManagementControls$: Observable<boolean>;
 
   // Fixed sizes used for cdkVirtualScroll
   protected rowHeight = 69;
@@ -240,6 +241,15 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   async ngOnInit() {
     this.accountDeprovisioningEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.AccountDeprovisioning,
+    );
+    const separateCustomRolePermissionsEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.SeparateCustomRolePermissions,
+    );
+    this.showUserManagementControls$ = separateCustomRolePermissionsEnabled$.pipe(
+      map(
+        (separateCustomRolePermissionsEnabled) =>
+          !separateCustomRolePermissionsEnabled || this.organization.canManageUsers,
+      ),
     );
   }
 
