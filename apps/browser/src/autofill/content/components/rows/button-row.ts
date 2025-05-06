@@ -62,7 +62,7 @@ const buttonRowStyles = css`
 
   > button {
     max-width: min-content;
-    flex: 1 1 50%;
+    flex: 1 1 25%;
   }
 
   > div {
