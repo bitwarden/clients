@@ -49,26 +49,33 @@ import { PasswordInputResult } from "./password-input-result";
  */
 export enum InputPasswordFlow {
   /**
-   * Form elements displayed:
-   * - [Input] New password
-   * - [Input] New password confirm
+   * Form Fields: `[newPassword, newPasswordConfirm, newPasswordHint, checkForBreaches]`
+   *
+   * Note: this flow does not involve an active account `userId`
    */
-  ChangePasswordDelegation,
+  SetInitialPasswordAccountRegistration,
   /**
-   * All form elements above, plus:
-   * - [Input] New password hint
-   * - [Checkbox] Check for breaches
+   * Form Fields: `[newPassword, newPasswordConfirm, newPasswordHint, checkForBreaches]`
    */
-  AccountRegistration, // important: this flow does not involve an activeAccount/userId
   SetInitialPasswordAuthedUser,
-  /*
-   * All form elements above, plus: [Input] Current password (as the first element in the UI)
+  /**
+   * Form Fields: `[currentPassword, newPassword, newPasswordConfirm, newPasswordHint, checkForBreaches]`
    */
   ChangePassword,
   /**
-   * All form elements above, plus: [Checkbox] Rotate account encryption key (as the last element in the UI)
+   * Form Fields: `[currentPassword, newPassword, newPasswordConfirm, newPasswordHint, checkForBreaches, rotateUserKey]`
    */
   ChangePasswordWithOptionalUserKeyRotation,
+  /**
+   * This flow is used when a user changes the password for another user's account, such as:
+   * - Emergency Access Takeover
+   * - Account Recovery
+   *
+   * Form Fields: `[newPassword, newPasswordConfirm]`
+   *
+   * Note: this flow does not involve an active account `email`
+   */
+  ChangePasswordDelegation,
 }
 
 interface InputPasswordForm {
@@ -260,7 +267,7 @@ export class InputPasswordComponent implements OnInit {
     const checkForBreaches = this.formGroup.controls.checkForBreaches?.value ?? true;
 
     // 1. Determine kdfConfig
-    if (this.flow === InputPasswordFlow.AccountRegistration) {
+    if (this.flow === InputPasswordFlow.SetInitialPasswordAccountRegistration) {
       this.kdfConfig = DEFAULT_KDF_CONFIG;
     } else {
       if (!this.userId) {
@@ -376,7 +383,7 @@ export class InputPasswordComponent implements OnInit {
      * from the parent component.
      */
     if (
-      this.flow === InputPasswordFlow.AccountRegistration ||
+      this.flow === InputPasswordFlow.SetInitialPasswordAccountRegistration ||
       this.flow === InputPasswordFlow.ChangePasswordDelegation
     ) {
       if (this.userId) {
@@ -393,7 +400,7 @@ export class InputPasswordComponent implements OnInit {
      *  (b) passed down the correct InputPasswordFlow but failed to pass down a userId
      */
     if (
-      this.flow !== InputPasswordFlow.AccountRegistration &&
+      this.flow !== InputPasswordFlow.SetInitialPasswordAccountRegistration &&
       this.flow !== InputPasswordFlow.ChangePasswordDelegation
     ) {
       if (!this.userId) {
