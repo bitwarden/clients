@@ -114,8 +114,8 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
 
   private get addNewFolder(): MenuItemConstructorOptions {
     return {
-      id: "addNewFolder",
-      label: this.localize("addNewFolder"),
+      id: "newFolder",
+      label: this.localize("newFolder"),
       click: () => this.sendMessage("newFolder"),
       enabled: !this._isLocked,
     };
