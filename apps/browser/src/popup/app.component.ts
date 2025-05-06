@@ -142,6 +142,7 @@ export class AppComponent implements OnInit, OnDestroy {
             const everHadUserKey = await firstValueFrom(this.keyService.everHadUserKey$);
             if (tdeEnabled && !everHadUserKey) {
               await this.router.navigate(["login-initiated"]);
+              return;
             }
 
             await this.router.navigate(["lock"]);
