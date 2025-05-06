@@ -71,6 +71,9 @@ export enum InputPasswordFlow {
    * - Emergency Access Takeover
    * - Account Recovery
    *
+   * Since both of those processes use a dialog, the `InputPasswordComponent` will not display
+   * buttons for `ChangePasswordDelegation` because the dialog will have its own buttons.
+   *
    * Form Fields: `[newPassword, newPasswordConfirm]`
    *
    * Note: this flow does not involve an active account `email`

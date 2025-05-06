@@ -152,15 +152,6 @@ export default {
 
 type Story = StoryObj<InputPasswordComponent>;
 
-export const ChangePasswordDelegation: Story = {
-  render: (args) => ({
-    props: args,
-    template: `
-      <auth-input-password [flow]="InputPasswordFlow.ChangePasswordDelegation"></auth-input-password>
-    `,
-  }),
-};
-
 export const SetInitialPasswordAccountRegistration: Story = {
   render: (args) => ({
     props: args,
@@ -199,12 +190,23 @@ export const ChangePasswordWithOptionalUserKeyRotation: Story = {
   }),
 };
 
+export const ChangePasswordDelegation: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <auth-input-password [flow]="InputPasswordFlow.ChangePasswordDelegation"></auth-input-password>
+      <br />
+      <div>Note: no buttons here as this flow is expected to be used in a dialog, which will have its own buttons</div>
+    `,
+  }),
+};
+
 export const WithPolicies: Story = {
   render: (args) => ({
     props: args,
     template: `
       <auth-input-password
-        [flow]="InputPasswordFlow.SetInitialPasswordAuthedUser"
+        [flow]="InputPasswordFlow.SetInitialPasswordAccountRegistration"
         [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
       ></auth-input-password>
     `,
