@@ -94,8 +94,8 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
                 .ciphers()
                 .decrypt_fido2_credentials(sdkCipherView);
 
-              // TEMPORARY: Manually decrypt the keyValue for Fido2 credentials
-              // since we don't currently use the SDK for Fido2 Authentication.
+              // TODO (PM-21259): Remove manual keyValue decryption for FIDO2 credentials.
+              // This is a temporary workaround until we can use the SDK for FIDO2 authentication.
               const decryptedKeyValue = ref.value
                 .vault()
                 .ciphers()
