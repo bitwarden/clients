@@ -1,13 +1,13 @@
 import { NgModule } from "@angular/core";
 
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
-import { CriticalAppsService } from "@bitwarden/bit-common/tools/reports/risk-insights";
+import { CriticalAppsService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import {
   CriticalAppsApiService,
   MemberCipherDetailsApiService,
   RiskInsightsDataService,
   RiskInsightsReportService,
-} from "@bitwarden/bit-common/tools/reports/risk-insights/services";
+} from "@bitwarden/bit-common/dirt/reports/risk-insights/services";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";

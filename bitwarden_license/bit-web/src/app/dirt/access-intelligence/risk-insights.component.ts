@@ -9,12 +9,12 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   CriticalAppsService,
   RiskInsightsDataService,
-} from "@bitwarden/bit-common/tools/reports/risk-insights";
+} from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import {
   ApplicationHealthReportDetail,
   DrawerType,
   PasswordHealthReportApplicationsResponse,
-} from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
+} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";

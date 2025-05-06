@@ -199,6 +199,7 @@ export abstract class ApiService {
     attachmentId: string,
     emergencyAccessId?: string,
   ) => Promise<AttachmentResponse>;
+  getAttachmentDataAdmin: (cipherId: string, attachmentId: string) => Promise<AttachmentResponse>;
   getCiphersOrganization: (organizationId: string) => Promise<ListResponse<CipherResponse>>;
   postCipher: (request: CipherRequest) => Promise<CipherResponse>;
   postCipherCreate: (request: CipherCreateRequest) => Promise<CipherResponse>;

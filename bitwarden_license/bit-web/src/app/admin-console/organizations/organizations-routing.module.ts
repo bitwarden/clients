@@ -74,9 +74,9 @@ const routes: Routes = [
           {
             path: "member-access-report",
             loadComponent: () =>
-              import(
-                "../../tools/reports/member-access-report/member-access-report.component"
-              ).then((mod) => mod.MemberAccessReportComponent),
+              import("../../dirt/reports/member-access-report/member-access-report.component").then(
+                (mod) => mod.MemberAccessReportComponent,
+              ),
             data: {
               titleId: "memberAccessReport",
             },
@@ -87,7 +87,7 @@ const routes: Routes = [
       {
         path: "access-intelligence",
         loadChildren: () =>
-          import("../../tools/access-intelligence/access-intelligence.module").then(
+          import("../../dirt/access-intelligence/access-intelligence.module").then(
             (m) => m.AccessIntelligenceModule,
           ),
       },
