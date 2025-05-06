@@ -153,6 +153,13 @@ export default tseslint.config(
           ],
         },
       ],
+      "no-restricted-syntax": [
+        "warn",
+        {
+          selector: "TSEnumDeclaration",
+          message: "Switching to using consts instead of enums.",
+        },
+      ],
       "import/no-unresolved": "off", // TODO: Look into turning off once each package is an actual package.,
     },
   },
