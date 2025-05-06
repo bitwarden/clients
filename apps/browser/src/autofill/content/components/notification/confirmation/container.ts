@@ -119,7 +119,7 @@ function getConfirmationMessage(
   if (error) {
     return i18n.saveFailureDetails;
   }
-  return type === "add" ? loginSaveConfirmation : loginUpdatedConfirmation;
+  return type === NotificationTypes.Add ? loginSaveConfirmation : loginUpdatedConfirmation;
 }
 
 function getHeaderMessage(i18n: I18n, type?: NotificationType, error?: string) {

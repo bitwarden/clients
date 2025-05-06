@@ -21,7 +21,7 @@ export default {
     theme: ThemeTypes.Light,
     handleAction: () => alert("Clicked"),
     notificationType: NotificationTypes.Change,
-    i18n: mockI18n({}),
+    i18n: mockI18n,
   },
 } as Meta<CipherItemProps>;
 

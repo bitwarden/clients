@@ -19,7 +19,7 @@ export default {
   args: {
     collections: mockCollections,
     folders: mockFolders,
-    i18n: mockI18n({}),
+    i18n: mockI18n,
     notificationType: NotificationTypes.Add,
     organizations: mockOrganizations,
     theme: ThemeTypes.Light,

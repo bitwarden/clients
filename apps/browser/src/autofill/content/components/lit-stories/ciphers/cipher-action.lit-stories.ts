@@ -22,7 +22,7 @@ export default {
     handleAction: () => {
       alert("Action triggered!");
     },
-    i18n: mockI18n({}),
+    i18n: mockI18n,
   },
 } as Meta<CipherActionProps>;
 

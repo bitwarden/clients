@@ -16,7 +16,7 @@ export default {
   },
   args: {
     handleButtonClick: () => alert("Action button triggered"),
-    i18n: mockI18n({}),
+    i18n: mockI18n,
     theme: ThemeTypes.Light,
   },
   parameters: {

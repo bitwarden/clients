@@ -94,48 +94,84 @@ export const mockCiphers = [
   },
 ];
 
-export function mockI18n({
-  itemName = "Paypal login",
-  organizationName = "Wayne Enterprises",
-  taskCount = 0,
-}: {
-  itemName?: string;
-  organizationName?: string;
-  taskCount?: number;
-}) {
-  return {
-    appName: "Bitwarden",
-    close: "Close",
-    collection: "Collection",
-    folder: "Folder",
-    loginSaveSuccess: "Login saved",
-    loginSaveConfirmation: `${itemName} saved to Bitwarden.`,
-    loginUpdateSuccess: "Login updated",
-    loginUpdateConfirmation: `${itemName} updated in Bitwarden.`,
-    loginUpdateTaskSuccess: `Great job! You took the steps to make you and ${organizationName} more secure.`,
-    loginUpdateTaskSuccessAdditional: `Thank you for making ${organizationName} more secure. You have ${taskCount} more passwords to update.`,
-    nextSecurityTaskAction: "Change next password",
-    newItem: "New item",
-    never: "Never",
-    myVault: "My vault",
-    notificationAddDesc: "Should Bitwarden remember this password for you?",
-    notificationAddSave: "Save",
-    notificationChangeDesc: "Do you want to update this password in Bitwarden?",
-    notificationUpdate: "Update",
-    notificationEdit: "Edit",
-    notificationEditTooltip: "Edit before saving",
-    notificationUnlock: "Unlock",
-    notificationUnlockDesc: "Unlock your Bitwarden vault to complete the autofill request.",
-    notificationViewAria: `View ${itemName}, opens in new window`,
-    saveAction: "Save",
-    saveAsNewLoginAction: "Save as new login",
-    saveFailure: "Error saving",
-    saveFailureDetails: "Oh no! We couldn't save this. Try entering the details manually.",
-    saveLogin: "Save login",
-    typeLogin: "Login",
-    updateLoginAction: "Update login",
-    updateLogin: "Update existing login",
-    vault: "Vault",
-    view: "View",
-  };
+export const mockTasks = [
+  {
+    orgName: "Acme, Inc.",
+    remainingTasksCount: 0,
+  },
+];
+
+export const mockI18n = {
+  appName: "Bitwarden",
+  close: "Close",
+  collection: "Collection",
+  folder: "Folder",
+  loginSaveSuccess: "Login saved",
+  loginSaveConfirmation: "$ITEMNAME$ saved to Bitwarden.",
+  loginUpdateSuccess: "Login updated",
+  loginUpdatedConfirmation: "$ITEMNAME$ updated in Bitwarden.",
+  loginUpdateTaskSuccess:
+    "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
+  loginUpdateTaskSuccessAdditional:
+    "Thank you for making $ORGANIZATION$ more secure. You have $TASK_COUNT$ more passwords to update.",
+  nextSecurityTaskAction: "Change next password",
+  newItem: "New item",
+  never: "Never",
+  myVault: "My vault",
+  notificationAddDesc: "Should Bitwarden remember this password for you?",
+  notificationAddSave: "Save",
+  notificationChangeDesc: "Do you want to update this password in Bitwarden?",
+  notificationUpdate: "Update",
+  notificationEdit: "Edit",
+  notificationEditTooltip: "Edit before saving",
+  notificationUnlock: "Unlock",
+  notificationUnlockDesc: "Unlock your Bitwarden vault to complete the autofill request.",
+  notificationViewAria: `View $ITEMNAME$, opens in new window`,
+  saveAction: "Save",
+  saveAsNewLoginAction: "Save as new login",
+  saveFailure: "Error saving",
+  saveFailureDetails: "Oh no! We couldn't save this. Try entering the details manually.",
+  saveLogin: "Save login",
+  typeLogin: "Login",
+  updateLoginAction: "Update login",
+  updateLogin: "Update existing login",
+  vault: "Vault",
+  view: "View",
+} as const;
+
+type i18nMessageName = keyof typeof mockI18n;
+type i18nMessageValue = (typeof mockI18n)[i18nMessageName];
+
+/**
+ * Very basic mock of {@link chrome.i18n.getMessage} to enable stories
+ *
+ * @param {i18nMessageName} messageName must match a key in {@link mockI18n}
+ * @param {(string | string[])} [substitutions]
+ * @return {*}  {(i18nMessageValue | string)}
+ */
+export function mockBrowserI18nGetMessage(
+  messageName: i18nMessageName,
+  substitutions?: string | string[],
+): i18nMessageValue | string {
+  let normalizedSubstitutions: string[] = [];
+
+  if (substitutions) {
+    normalizedSubstitutions =
+      typeof substitutions === "string"
+        ? [substitutions]
+        : substitutions.length
+          ? substitutions
+          : [];
+  }
+
+  if (normalizedSubstitutions.length) {
+    const resolvedString = normalizedSubstitutions.reduce((builtString, substitution) => {
+      // Replace first found match each iteration, in order
+      return builtString.replace(/\$[A-Z_]+\$/, substitution);
+    }, mockI18n[messageName] || "");
+
+    return resolvedString;
+  }
+
+  return mockI18n[messageName];
 }
