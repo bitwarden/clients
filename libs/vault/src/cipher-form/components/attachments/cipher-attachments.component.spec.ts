@@ -32,6 +32,7 @@ import { DeleteAttachmentComponent } from "./delete-attachment/delete-attachment
 class MockDownloadAttachmentComponent {
   @Input() attachment: AttachmentView;
   @Input() cipher: CipherView;
+  @Input() admin: boolean = false;
 }
 
 describe("CipherAttachmentsComponent", () => {

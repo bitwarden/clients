@@ -394,16 +394,16 @@
     "message": "验证器密钥 (TOTP)"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "验证器密钥"
   },
   "autofillOptions": {
-    "message": "Autofill options"
+    "message": "自动填充选项"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "网站 (URI)"
   },
   "websiteUriCount": {
-    "message": "Website (URI) $COUNT$",
+    "message": "网站 (URI) $COUNT$",
     "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -413,43 +413,43 @@
     }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "网址已添加"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "添加网站"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "删除网站"
   },
   "owner": {
-    "message": "Owner"
+    "message": "所有者"
   },
   "addField": {
-    "message": "Add field"
+    "message": "添加字段"
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "字段类型"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "字段标签"
   },
   "add": {
-    "message": "Add"
+    "message": "添加"
   },
   "textHelpText": {
-    "message": "Use text fields for data like security questions"
+    "message": "对于如安全问题之类的数据，请使用文本型字段"
   },
   "hiddenHelpText": {
-    "message": "Use hidden fields for sensitive data like a password"
+    "message": "对于如密码之类的敏感数据，请使用隐藏型字段"
   },
   "checkBoxHelpText": {
-    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
+    "message": "如果您想自动勾选表单复选框（例如记住电子邮箱），请使用复选框型字段"
   },
   "linkedHelpText": {
-    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+    "message": "当您处理特定网站的自动填充问题时，请使用链接型字段"
   },
   "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+    "message": "输入字段的 html ID、名称、aria-label 或占位符。"
   },
   "folder": {
     "message": "文件夹"
@@ -477,7 +477,7 @@
     "description": "This describes a field that is 'linked' (related) to another field."
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "复选框型"
   },
   "linkedValue": {
     "message": "链接的值",
@@ -1977,10 +1977,10 @@
     }
   },
   "cardDetails": {
-    "message": "Card details"
+    "message": "支付卡详细信息"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$ details",
+    "message": "$BRAND$ 详细信息",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -1989,13 +1989,13 @@
     }
   },
   "learnMoreAboutAuthenticators": {
-    "message": "Learn more about authenticators"
+    "message": "进一步了解验证器"
   },
   "copyTOTP": {
-    "message": "Copy Authenticator key (TOTP)"
+    "message": "复制验证器密钥 (TOTP)"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "无缝两步验证"
   },
   "totpHelper": {
     "message": "Bitwarden 可以存储并填充两步验证码。将密钥复制并粘贴到此字段。"
@@ -2004,14 +2004,29 @@
     "message": "Bitwarden 可以存储并填充两步验证码。选择相机图标来拍摄此网站的验证器二维码，或将密钥复制并粘贴到此字段。"
   },
   "premium": {
-    "message": "Premium",
+    "message": "高级会员",
     "description": "Premium membership"
   },
+  "freeOrgsCannotUseAttachments": {
+    "message": "免费组织无法使用附件"
+  },
+  "singleFieldNeedsAttention": {
+    "message": "有 1 个字段需要您注意。"
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "有 $COUNT$ 个字段需要您注意。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "cardExpiredTitle": {
-    "message": "Expired card"
+    "message": "过期的支付卡"
   },
   "cardExpiredMessage": {
-    "message": "If you've renewed it, update the card's information"
+    "message": "如果您的支付卡已续期，请更新该卡的信息"
   },
   "verificationRequired": {
     "message": "需要验证",
@@ -2183,13 +2198,13 @@
     "message": "组织策略已阻止将项目导入您的个人密码库。"
   },
   "personalDetails": {
-    "message": "Personal details"
+    "message": "个人详细信息"
   },
   "identification": {
-    "message": "Identification"
+    "message": "身份"
   },
   "contactInfo": {
-    "message": "Contact information"
+    "message": "联系信息"
   },
   "allSends": {
     "message": "所有的 Send",
@@ -2626,7 +2641,7 @@
     "message": "生成电子邮箱"
   },
   "usernameGenerator": {
-    "message": "Username generator"
+    "message": "用户名生成器"
   },
   "spinboxBoundariesHint": {
     "message": "值必须在 $MIN$ 和 $MAX$ 之间。",
@@ -3152,6 +3167,30 @@
   "deviceTrusted": {
     "message": "设备已信任"
   },
+  "trustOrganization": {
+    "message": "信任组织"
+  },
+  "trust": {
+    "message": "信任"
+  },
+  "doNotTrust": {
+    "message": "不信任"
+  },
+  "organizationNotTrusted": {
+    "message": "组织未被信任"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "为了您的账户安全，确认前请先确认：您已授予该用户紧急访问权限，以及其指纹与其账户中显示的指纹相匹配"
+  },
+  "orgTrustWarning": {
+    "message": "为了您的账户安全，继续前请先确认：您是启用了账户恢复功能的该组织的成员，以及下方显示的指纹与此组织的指纹相匹配。"
+  },
+  "orgTrustWarning1": {
+    "message": "此组织有一个企业策略，将为您注册账户恢复。注册后将允许组织管理员更改您的主密码。继续前请先确认：您认识此组织，以及下方显示的指纹短语与此组织的指纹相匹配。"
+  },
+  "trustUser": {
+    "message": "信任用户"
+  },
   "inputRequired": {
     "message": "必须输入内容。"
   },
@@ -3550,14 +3589,14 @@
     "message": "未找到用于 SSO 登录的空闲端口。"
   },
   "securePasswordGenerated": {
-    "message": "安全的密码生成好了！别忘了在网站上也更新一下您的密码。"
+    "message": "安全的密码已生成！不要忘记在网站上更新您的密码。"
   },
   "useGeneratorHelpTextPartOne": {
-    "message": "Use the generator",
+    "message": "使用生成器",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
-    "message": "to create a strong unique password",
+    "message": "创建强大且唯一的密码",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "biometricsStatusHelptextUnlockNeeded": {
@@ -3639,19 +3678,19 @@
     "message": "设置两步登录"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "项目详细信息"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "项目名称"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "登录凭据"
   },
   "additionalOptions": {
-    "message": "Additional options"
+    "message": "附加选项"
   },
   "itemHistory": {
-    "message": "Item history"
+    "message": "项目历史记录"
   },
   "lastEdited": {
     "message": "最后编辑于"
@@ -3712,5 +3751,35 @@
   },
   "move": {
     "message": "移动"
+  },
+  "newLoginNudgeTitle": {
+    "message": "使用自动填充节省时间"
+  },
+  "newLoginNudgeBody": {
+    "message": "请包含网站，以便将此登录显示为自动填充建议。"
+  },
+  "newCardNudgeTitle": {
+    "message": "无缝在线结账"
+  },
+  "newCardNudgeBody": {
+    "message": "使用支付卡，安全准确地轻松自动填充付款表单。"
+  },
+  "newIdentityNudgeTitle": {
+    "message": "简化账户的创建"
+  },
+  "newIdentityNudgeBody": {
+    "message": "使用身份，快速自动填充冗长的注册或联系表单。"
+  },
+  "newNoteNudgeTitle": {
+    "message": "保持您的敏感数据的安全"
+  },
+  "newNoteNudgeBody": {
+    "message": "使用笔记，安全地存储敏感数据，例如银行或保险详细信息。"
+  },
+  "newSshNudgeTitle": {
+    "message": "开发人员友好的 SSH 访问权限"
+  },
+  "newSshNudgeBody": {
+    "message": "存储您的密钥并与 SSH 代理连接，以进行快速、加密的身份验证。"
   }
 }
