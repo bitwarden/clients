@@ -45,6 +45,7 @@ export function NotificationConfirmationContainer({
   const headerMessage = getHeaderMessage(i18n, type, error);
   const confirmationMessage = getConfirmationMessage(i18n, itemName, type, error);
   const buttonText = error ? i18n.newItem : i18n.view;
+  const buttonAria = chrome.i18n.getMessage("notificationViewAria", [itemName]);
 
   let messageDetails: string | undefined;
   let remainingTasksCount: number | undefined;
@@ -71,8 +72,8 @@ export function NotificationConfirmationContainer({
         theme,
       })}
       ${NotificationConfirmationBody({
+        buttonAria,
         buttonText,
-        itemName,
         confirmationMessage,
         tasksAreComplete,
         messageDetails,

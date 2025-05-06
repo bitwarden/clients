@@ -13,16 +13,16 @@ type Args = {
 export default {
   title: "Components/Buttons/Edit Button",
   argTypes: {
+    buttonAction: { control: false },
     buttonText: { control: "text" },
     disabled: { control: "boolean" },
     theme: { control: "select", options: [...Object.values(ThemeTypes)] },
-    buttonAction: { control: false },
   },
   args: {
+    buttonAction: () => alert("Clicked"),
     buttonText: "Click Me",
     disabled: false,
     theme: ThemeTypes.Light,
-    buttonAction: () => alert("Clicked"),
   },
   parameters: {
     design: {
