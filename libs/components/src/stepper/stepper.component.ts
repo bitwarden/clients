@@ -27,4 +27,9 @@ export class StepperComponent extends CdkStepper {
   selectStepByIndex(index: number): void {
     this.selectedIndex = index;
   }
+
+  /**
+   * UID for `[attr.aria-controls]`
+   */
+  protected contentId = Math.random().toString(36).substring(2);
 }
