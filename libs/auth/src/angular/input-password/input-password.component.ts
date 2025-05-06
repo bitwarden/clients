@@ -51,7 +51,7 @@ export enum InputPasswordFlow {
   /**
    * Form Fields: `[newPassword, newPasswordConfirm, newPasswordHint, checkForBreaches]`
    *
-   * Note: this flow does not involve an active account `userId`
+   * Note: this flow does not receive an active account `userId` as an `@Input`
    */
   SetInitialPasswordAccountRegistration,
   /**
@@ -76,7 +76,7 @@ export enum InputPasswordFlow {
    *
    * Form Fields: `[newPassword, newPasswordConfirm]`
    *
-   * Note: this flow does not involve an active account `email`
+   * Note: this flow does not receive an active account `userId` or `email` as `@Input`s
    */
   ChangePasswordDelegation,
 }
@@ -387,58 +387,47 @@ export class InputPasswordComponent implements OnInit {
   };
 
   /**
-   * This method prevents a dev from passing down the wrong `InputPasswordFlow`
-   * from the parent component or from failing to pass down a `userId` for flows
-   * that require it.
-   *
-   * We cannot mark the `userId` `@Input` as required because in an account registration
-   * flow we will not have an active account `userId` to pass down.
+   * We cannot mark the `userId` or `email` `@Input`s as required because some flows
+   * require them, and some do not. This method enforces that:
+   * - Certain flows MUST have a `userId` and/or `email` passed down
+   * - Certain flows must NOT have a `userId` and/or `email` passed down
    */
   private verifyFlow() {
-    /**
-     * There can be no active account (and thus no userId) in an account registration
-     * flow. If there is a userId, it means the dev passed down the wrong InputPasswordFlow
-     * from the parent component.
-     */
+    /** UserId checks */
+
+    // These flows require that an active account userId must NOT be passed down
     if (
       this.flow === InputPasswordFlow.SetInitialPasswordAccountRegistration ||
       this.flow === InputPasswordFlow.ChangePasswordDelegation
     ) {
       if (this.userId) {
-        throw new Error(
-          "There can be no userId in an account registration flow. Please pass down the appropriate InputPasswordFlow from the parent component.",
-        );
+        throw new Error("There should be no active account userId passed down in a this flow.");
       }
     }
 
-    /**
-     * There MUST be an active account (and thus a userId) in all other flows.
-     * If no userId is passed down, it means the dev either:
-     *  (a) passed down the wrong InputPasswordFlow, or
-     *  (b) passed down the correct InputPasswordFlow but failed to pass down a userId
-     */
+    // All other flows require that an active account userId MUST be passed down
     if (
       this.flow !== InputPasswordFlow.SetInitialPasswordAccountRegistration &&
       this.flow !== InputPasswordFlow.ChangePasswordDelegation
     ) {
       if (!this.userId) {
-        throw new Error("The selected InputPasswordFlow requires that a userId be passed down");
+        throw new Error("This flow requires that an active account userId be passed down.");
       }
     }
 
+    /** Email checks */
+
+    // This flow requires that an email must NOT be passed down
     if (this.flow === InputPasswordFlow.ChangePasswordDelegation) {
       if (this.email) {
-        throw new Error(
-          "There should be no email in a ChangePasswordDelegation flow. Please pass down the appropriate InputPasswordFlow from the parent component.",
-        );
+        throw new Error("There should be no email passed down in this flow.");
       }
     }
 
+    // All other flows require that an email MUST be passed down
     if (this.flow !== InputPasswordFlow.ChangePasswordDelegation) {
       if (!this.email) {
-        throw new Error(
-          "The selected InputPasswordFlow requires that an email be passed down to create a master key.",
-        );
+        throw new Error("This flow requires that an email be passed down.");
       }
     }
   }
