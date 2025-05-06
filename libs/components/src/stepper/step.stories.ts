@@ -1,31 +1,31 @@
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
-import { VerticalStep } from "./vertical-step.component";
-import { VerticalStepperComponent } from "./vertical-stepper.component";
+import { StepComponent } from "./step.component";
+import { StepperComponent } from "./stepper.component";
 
 export default {
-  title: "Component Library/Vertical Stepper/Vertical Step",
-  component: VerticalStep,
+  title: "Component Library/Stepper/Step",
+  component: StepComponent,
   decorators: [
     moduleMetadata({
-      imports: [VerticalStepperComponent],
+      imports: [StepperComponent],
     }),
   ],
 } as Meta;
 
-export const Default: StoryObj<VerticalStep> = {
+export const Default: StoryObj<StepComponent> = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-vertical-stepper>
-        <bit-vertical-step
+      <bit-stepper>
+        <bit-step
           label="This is the label"
           subLabel="This is the sub label"
           [applyBorder]="applyBorder"
         >
           <p>Your custom step content appears in here. You can add whatever content you'd like</p>
-        </bit-vertical-step>
-    </bit-vertical-stepper>
+        </bit-step>
+    </bit-stepper>
     `,
   }),
   args: {

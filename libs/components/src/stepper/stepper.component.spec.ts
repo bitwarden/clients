@@ -1,19 +1,19 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, DebugElement } from "@angular/core";
+import { Component } from "@angular/core";
 import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
-import { By } from "@angular/platform-browser";
+// import { By } from "@angular/platform-browser";
 
-import { VerticalStepperModule } from "./index";
+import { StepperModule } from "./index";
 
-describe("VerticalStepper", () => {
+describe("Stepper", () => {
   let fixture: ComponentFixture<TestApp>;
   let testAppComponent: TestApp;
   // let buttonDebugElement: DebugElement;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [VerticalStepperModule],
+      imports: [StepperModule],
       declarations: [TestApp],
     });
 
@@ -35,15 +35,14 @@ describe("VerticalStepper", () => {
 @Component({
   selector: "test-app",
   template: `
-    <bit-vertical-stepper>
-      <bit-vertical-step label="Step 1">
+    <bit-stepper>
+      <bit-step label="Step 1">
         <p>Step 1 content</p>
-      </bit-vertical-step>
-      <bit-vertical-step label="Step 2">
+      </bit-step>
+      <bit-step label="Step 2">
         <p>Step 2 content</p>
-      </bit-vertical-step>
-    </bit-vertical-stepper>
+      </bit-step>
+    </bit-stepper>
   `,
 })
-class TestApp {
-}
+class TestApp {}

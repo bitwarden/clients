@@ -2,18 +2,18 @@ import { CdkStepper } from "@angular/cdk/stepper";
 import { CommonModule } from "@angular/common";
 import { Component, QueryList } from "@angular/core";
 
-import { VerticalStepContentComponent } from "./vertical-step-content.component";
-import { VerticalStep } from "./vertical-step.component";
+import { StepContentComponent } from "./step-content.component";
+import { StepComponent } from "./step.component";
 
 @Component({
-  selector: "bit-vertical-stepper",
-  templateUrl: "vertical-stepper.component.html",
-  providers: [{ provide: CdkStepper, useExisting: VerticalStepperComponent }],
-  imports: [CommonModule, VerticalStepContentComponent],
+  selector: "bit-stepper",
+  templateUrl: "stepper.component.html",
+  providers: [{ provide: CdkStepper, useExisting: StepperComponent }],
+  imports: [CommonModule, StepContentComponent],
   standalone: true,
 })
-export class VerticalStepperComponent extends CdkStepper {
-  override readonly steps: QueryList<VerticalStep>;
+export class StepperComponent extends CdkStepper {
+  override readonly steps: QueryList<StepComponent>;
 
   isStepDisabled(index: number) {
     if (this.selectedIndex !== index) {

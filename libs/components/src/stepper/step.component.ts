@@ -3,13 +3,13 @@ import { CommonModule } from "@angular/common";
 import { Component, input } from "@angular/core";
 
 @Component({
-  selector: "bit-vertical-step",
-  templateUrl: "vertical-step.component.html",
-  providers: [{ provide: CdkStep, useExisting: VerticalStep }],
+  selector: "bit-step",
+  templateUrl: "step.component.html",
+  providers: [{ provide: CdkStep, useExisting: StepComponent }],
   standalone: true,
   imports: [CommonModule],
 })
-export class VerticalStep extends CdkStep {
+export class StepComponent extends CdkStep {
   subLabel = input();
   applyBorder = input<boolean>(true);
 }
