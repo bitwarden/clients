@@ -152,6 +152,9 @@ export class VaultComponent implements OnInit, OnDestroy {
           case "newSecureNote":
             await this.addCipher(CipherType.SecureNote);
             break;
+          case "newSshKey":
+            await this.addCipher(CipherType.SshKey);
+            break;
           case "focusSearch":
             (document.querySelector("#search") as HTMLInputElement).select();
             detectChanges = false;
@@ -471,6 +474,14 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.cipherId = null;
     this.prefillNewCipherFromFilter();
     this.go();
+
+    if (type === CipherType.SshKey) {
+      this.toastService.showToast({
+        variant: "success",
+        title: "",
+        message: this.i18nService.t("sshKeyGenerated"),
+      });
+    }
   }
 
   addCipherOptions() {
