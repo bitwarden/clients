@@ -50,6 +50,13 @@ export class WebIpcService extends IpcService {
           return;
         }
 
+        if (
+          typeof message.message.destination !== "object" ||
+          message.message.destination.Web == undefined
+        ) {
+          return;
+        }
+
         this.communicationBackend?.deliver_message(
           new IncomingMessage(
             new Uint8Array(message.message.payload),
