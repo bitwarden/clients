@@ -109,19 +109,12 @@ export class Fido2AuthenticatorService<ParentWindowReference>
         await this.syncService.fullSync(false);
       }
 
-      const existingCipherIds = await this.findExcludedCredentials(
-        params.excludeCredentialDescriptorList,
-      );
-
-      await userInterfaceSession.ensureUnlockedVault();
-
       let cipher: CipherView;
       let fido2Credential: Fido2CredentialView;
       let keyPair: CryptoKeyPair;
       let userVerified = false;
       let credentialId: string;
       let pubKeyDer: ArrayBuffer;
-
       const response = await userInterfaceSession.confirmNewCredential({
         credentialName: params.rpEntity.name,
         userName: params.userEntity.name,
@@ -129,6 +122,10 @@ export class Fido2AuthenticatorService<ParentWindowReference>
         userVerification: params.requireUserVerification,
         rpId: params.rpEntity.id,
       });
+
+      const existingCipherIds = await this.findExcludedCredentials(
+        params.excludeCredentialDescriptorList,
+      );
 
       if (existingCipherIds.length > 0) {
         this.logService?.info(
