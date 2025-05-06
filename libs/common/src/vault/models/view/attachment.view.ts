@@ -71,11 +71,11 @@ export class AttachmentView implements View {
     }
 
     const view = new AttachmentView();
-    view.id = obj.id;
-    view.url = obj.url;
-    view.size = obj.size;
-    view.sizeName = obj.sizeName;
-    view.fileName = obj.fileName;
+    view.id = obj.id ?? null;
+    view.url = obj.url ?? null;
+    view.size = obj.size ?? null;
+    view.sizeName = obj.sizeName ?? null;
+    view.fileName = obj.fileName ?? null;
     view.encryptedKey = new EncString(obj.key);
 
     return view;
