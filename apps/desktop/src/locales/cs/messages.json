@@ -2007,6 +2007,21 @@
     "message": "Premium",
     "description": "Premium membership"
   },
+  "freeOrgsCannotUseAttachments": {
+    "message": "Volné organizace nemohou používat přílohy"
+  },
+  "singleFieldNeedsAttention": {
+    "message": "1 pole vyžaduje Vaši pozornost."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ polí vyžaduje Vaši pozornost.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "cardExpiredTitle": {
     "message": "Prošlá karta"
   },
@@ -3152,6 +3167,30 @@
   "deviceTrusted": {
     "message": "Zařízení zařazeno mezi důvěryhodné"
   },
+  "trustOrganization": {
+    "message": "Důvěřovat organizaci"
+  },
+  "trust": {
+    "message": "Důvěřovat"
+  },
+  "doNotTrust": {
+    "message": "Nedůvěřovat"
+  },
+  "organizationNotTrusted": {
+    "message": "Organizace není důvěryhodná"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Pro zabezpečení Vašeho účtu potvrďte jen v případě, že jste tomuto uživateli udělili nouzový přístup a jeho otisk prstu odpovídá tomu, co je zobrazeno v jeho účtu."
+  },
+  "orgTrustWarning": {
+    "message": ""
+  },
+  "orgTrustWarning1": {
+    "message": "Tato organizace má firemní zásady, které Vás zapíšou do obnovy účtu. Zápis umožní správcům organizace změnit Vaše heslo. Pokračujte jen v případě, že znáte tuto organizaci a fráze otisku prstu zobrazenou níže odpovídá otisku prstu organizace."
+  },
+  "trustUser": {
+    "message": "Důvěřovat uživateli"
+  },
   "inputRequired": {
     "message": "Je vyžadován vstup."
   },
@@ -3712,5 +3751,35 @@
   },
   "move": {
     "message": "Přesunout"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Ušetřete čas s automatickým vyplňováním"
+  },
+  "newLoginNudgeBody": {
+    "message": "Zahrne webovou stránku, takže se toto přihlášení objeví jako návrh automatického vyplňování."
+  },
+  "newCardNudgeTitle": {
+    "message": "Bezproblémová online pokladna"
+  },
+  "newCardNudgeBody": {
+    "message": "Karty - snadné, bezpečné a přesné vyplňování platebních formulářů."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Jednodušší vytváření účtů"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Identity - rychlé automatické vyplňování dlouhých registračních nebo kontaktních formulářů."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Udržujte svá citlivá data v bezpečí"
+  },
+  "newNoteNudgeBody": {
+    "message": "Poznámky - bezpečné ukládání citlivých údajů, jako jsou bankovní nebo pojišťovací údaje."
+  },
+  "newSshNudgeTitle": {
+    "message": "Přístup SSH pro vývojáře"
+  },
+  "newSshNudgeBody": {
+    "message": "Uložte své klíče a připojte se k SSH agentovi pro rychlé a šifrované ověření."
   }
 }

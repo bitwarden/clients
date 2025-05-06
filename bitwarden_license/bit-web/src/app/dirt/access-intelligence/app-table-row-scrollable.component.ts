@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { ApplicationHealthReportDetailWithCriticalFlag } from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
+import { ApplicationHealthReportDetailWithCriticalFlag } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
 import { MenuModule, TableDataSource, TableModule } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";

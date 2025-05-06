@@ -542,7 +542,12 @@ export default class NotificationBackground {
    * @param tab - The tab that the message was sent from
    */
   private async unlockVault(message: NotificationBackgroundExtensionMessage, tab: chrome.tabs.Tab) {
+    const notificationRefreshFlagEnabled = await this.getNotificationFlag();
     if (message.data?.skipNotification) {
+      return;
+    }
+
+    if (notificationRefreshFlagEnabled) {
       return;
     }
 

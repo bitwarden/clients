@@ -3564,6 +3564,30 @@
   "deviceTrusted": {
     "message": "Dôveryhodné zariadenie"
   },
+  "trustOrganization": {
+    "message": "Dôverovať organizácii"
+  },
+  "trust": {
+    "message": "Dôverovať"
+  },
+  "doNotTrust": {
+    "message": "Nedôverovať"
+  },
+  "organizationNotTrusted": {
+    "message": "Organizácia nie je dôveryhodná"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Pre bezpečnosť vášho účtu stačí overiť, ze ste tomuto používateľovi udelili núdzový pristúp, a že odtlačok sa zhoduje s odtlačkom zobrazenom v používateľovom účte"
+  },
+  "orgTrustWarning": {
+    "message": "Pre bezpečnosť vášho účtu pokračujte, iba ak ste členom organizácie, máte povolenú obnovu účtu a odtlačok sa zhoduje s odtlačkom organizácie."
+  },
+  "orgTrustWarning1": {
+    "message": "Táto organizácia má pravidlá spoločnosti, ktoré vás zaregistrujú do obnovy účtu. Zápis umožní správcom organizácie zmeniť vaše heslo. Pokračujte len vtedy, ak túto organizáciu poznáte a nižšie zobrazená fráza odtlačku prsta sa zhoduje s odtlačkom prsta organizácie."
+  },
+  "trustUser": {
+    "message": "Dôverovať používateľovi"
+  },
   "sendsNoItemsTitle": {
     "message": "Žiadne aktívne Sendy",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5201,6 +5225,12 @@
   "changeAtRiskPassword": {
     "message": "Zmeniť rizikové heslá"
   },
+  "settingsVaultOptions": {
+    "message": "Možnosti trezoru"
+  },
+  "emptyVaultDescription": {
+    "message": "Trezor chráni viac ako len heslá. Môžete tu bezpečne ukladať prihlasovacie údaje, identifikačné údaje, karty a poznámky."
+  },
   "introCarouselLabel": {
     "message": "Vitajte v Bitwardene"
   },
@@ -5227,5 +5257,50 @@
   },
   "secureDevicesBody": {
     "message": "Ukladajte neobmedzený počet hesiel na neobmedzenom počte zariadení pomocou mobilných aplikácií, prehliadačov a desktopových aplikácií Bitwardenu."
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Import existujúcich hesiel"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Pomocou nástroja na import môžete rýchlo preniesť prihlasovacie údaje do Bitwardenu bez ručného pridávania."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Importovať teraz"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Vitajte vo svojom trezore!"
+  },
+  "hasItemsVaultNudgeBody": {
+    "message": "Automatické vypĺňanie položiek pre aktuálnu stránku\nObľúbené položky pre ľahký prístup\nVyhľadajte v trezore niečo iné"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Ušetrite čas s automatickým vypĺňaním"
+  },
+  "newLoginNudgeBody": {
+    "message": "Zadajte webovú stránku, aby sa tieto prihlasovacie údaje zobrazili ako návrh na automatické vyplnenie."
+  },
+  "newCardNudgeTitle": {
+    "message": "Bezproblémová online registrácia"
+  },
+  "newCardNudgeBody": {
+    "message": "S kartami môžete jednoducho, bezpečne a presne automaticky vypĺňať platobné formuláre."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Zjednodušenie vytvárania účtov"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Pomocou identít môžete rýchlo automaticky vypĺňať dlhé registračné alebo kontaktné formuláre."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Udržujte svoje citlivé údaje v bezpečí"
+  },
+  "newNoteNudgeBody": {
+    "message": "Pomocou poznámok môžete bezpečne ukladať citlivé údaje, napríklad bankové údaje alebo údaje o poistení."
+  },
+  "newSshNudgeTitle": {
+    "message": "Prístup SSH vhodný pre vývojárov"
+  },
+  "newSshNudgeBody": {
+    "message": "Uložte si kľúče a pripojte sa pomocou agenta SSH na rýchle šifrované overovanie."
   }
 }

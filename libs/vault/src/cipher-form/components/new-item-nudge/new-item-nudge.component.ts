@@ -35,12 +35,15 @@ export class NewItemNudgeComponent implements OnInit {
     this.activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     switch (this.configType) {
-      case CipherType.Login:
+      case CipherType.Login: {
+        const nudgeBodyOne = this.i18nService.t("newLoginNudgeBodyOne");
+        const nudgeBodyBold = this.i18nService.t("newLoginNudgeBodyBold");
+        const nudgeBodyTwo = this.i18nService.t("newLoginNudgeBodyTwo");
         this.dismissalNudgeType = VaultNudgeType.newLoginItemStatus;
         this.nudgeTitle = this.i18nService.t("newLoginNudgeTitle");
-        this.nudgeBody = this.i18nService.t("newLoginNudgeBody");
+        this.nudgeBody = `${nudgeBodyOne} <strong>${nudgeBodyBold}</strong> ${nudgeBodyTwo}`;
         break;
-
+      }
       case CipherType.Card:
         this.dismissalNudgeType = VaultNudgeType.newCardItemStatus;
         this.nudgeTitle = this.i18nService.t("newCardNudgeTitle");
@@ -59,11 +62,15 @@ export class NewItemNudgeComponent implements OnInit {
         this.nudgeBody = this.i18nService.t("newNoteNudgeBody");
         break;
 
-      case CipherType.SshKey:
+      case CipherType.SshKey: {
+        const sshPartOne = this.i18nService.t("newSshNudgeBodyOne");
+        const sshPartTwo = this.i18nService.t("newSshNudgeBodyTwo");
+
         this.dismissalNudgeType = VaultNudgeType.newSshItemStatus;
         this.nudgeTitle = this.i18nService.t("newSshNudgeTitle");
-        this.nudgeBody = this.i18nService.t("newSshNudgeBody");
+        this.nudgeBody = `${sshPartOne} <a href="https://bitwarden.com/help/ssh-agent" class="tw-text-primary-600 tw-font-bold" target="_blank">${sshPartTwo}</a>`;
         break;
+      }
       default:
         throw new Error("Unsupported cipher type");
     }
