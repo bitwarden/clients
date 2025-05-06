@@ -3,8 +3,8 @@ import { BrowserWindow } from "electron";
 import { WindowState } from "./models/domain/window-state";
 
 // change as needed, however limited by mainwindow minimum size
-const popupWidth = 680;
-const popupHeight = 500;
+const popupWidth = 600;
+const popupHeight = 600;
 
 type Position = { x: number; y: number };
 
@@ -40,7 +40,7 @@ function positionWindow(window: BrowserWindow, position?: Position) {
 }
 
 export function applyMainWindowStyles(window: BrowserWindow, existingWindowState: WindowState) {
-  window.setMinimumSize(680, 500);
+  window.setMinimumSize(600, 500);
 
   // need to guard against null/undefined values
 
