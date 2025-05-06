@@ -19,8 +19,8 @@ export default {
   args: {
     cipher: mockCiphers[0],
     theme: ThemeTypes.Light,
-    handleAction: () => alert("Clicked"),
     notificationType: NotificationTypes.Change,
+    handleAction: () => alert("Clicked"),
     i18n: mockI18n,
   },
 } as Meta<CipherItemProps>;

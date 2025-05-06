@@ -18,10 +18,10 @@ export default {
   },
   args: {
     ciphers: mockCiphers,
-    handleEditOrUpdateAction: () => window.alert("clicked!"),
-    i18n: mockI18n,
     notificationType: NotificationTypes.Change,
     theme: ThemeTypes.Light,
+    handleEditOrUpdateAction: () => window.alert("clicked!"),
+    i18n: mockI18n,
   },
   parameters: {
     design: {

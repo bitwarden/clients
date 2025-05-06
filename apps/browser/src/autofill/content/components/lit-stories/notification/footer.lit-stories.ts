@@ -19,11 +19,11 @@ export default {
   args: {
     collections: mockCollections,
     folders: mockFolders,
-    i18n: mockI18n,
     notificationType: NotificationTypes.Add,
     organizations: mockOrganizations,
     theme: ThemeTypes.Light,
     handleSaveAction: () => alert("Save action triggered"),
+    i18n: mockI18n,
   },
   parameters: {
     design: {

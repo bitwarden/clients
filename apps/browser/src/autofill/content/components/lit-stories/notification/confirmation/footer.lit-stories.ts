@@ -15,9 +15,9 @@ export default {
     theme: { control: "select", options: [...Object.values(ThemeTypes)] },
   },
   args: {
+    theme: ThemeTypes.Light,
     handleButtonClick: () => alert("Action button triggered"),
     i18n: mockI18n,
-    theme: ThemeTypes.Light,
   },
   parameters: {
     design: {

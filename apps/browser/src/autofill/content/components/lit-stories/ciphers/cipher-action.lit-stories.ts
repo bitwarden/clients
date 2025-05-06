@@ -19,9 +19,7 @@ export default {
   args: {
     theme: ThemeTypes.Light,
     notificationType: NotificationTypes.Change,
-    handleAction: () => {
-      alert("Action triggered!");
-    },
+    handleAction: () => alert("Action triggered!"),
     i18n: mockI18n,
   },
 } as Meta<CipherActionProps>;
