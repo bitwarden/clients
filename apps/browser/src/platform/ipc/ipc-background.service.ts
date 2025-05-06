@@ -30,7 +30,7 @@ export class IpcBackgroundService extends IpcService {
                 type: "bitwarden-ipc-message",
                 message: {
                   destination: message.destination,
-                  payload: message.payload,
+                  payload: [...message.payload],
                   topic: message.topic,
                 },
               } satisfies IpcMessage,
@@ -54,9 +54,13 @@ export class IpcBackgroundService extends IpcService {
         }
 
         this.communicationBackend?.deliver_message(
-          new IncomingMessage(message.message.payload, message.message.destination, {
-            Web: { id: sender.tab.id },
-          }),
+          new IncomingMessage(
+            new Uint8Array(message.message.payload),
+            message.message.destination,
+            {
+              Web: { id: sender.tab.id },
+            },
+          ),
         );
       });
 
