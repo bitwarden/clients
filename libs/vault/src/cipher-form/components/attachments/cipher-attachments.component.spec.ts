@@ -2,7 +2,6 @@ import { Component, Input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
-import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -103,7 +102,7 @@ describe("CipherAttachmentsComponent", () => {
         },
         {
           provide: OrganizationService,
-          useValue: { organizations$: jest.fn().mockReturnValue(of(organization)) },
+          useValue: mock<OrganizationService>(),
         },
       ],
     })
