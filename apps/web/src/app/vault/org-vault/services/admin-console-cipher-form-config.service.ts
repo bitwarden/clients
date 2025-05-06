@@ -100,7 +100,7 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
     };
   }
 
-  private async getCipher(id: CipherId | null, organization: Organization): Promise<Cipher | null> {
+  async getCipher(id: CipherId | null, organization: Organization): Promise<Cipher | null> {
     if (id == null) {
       return null;
     }
