@@ -1,12 +1,12 @@
 {
   "allApplications": {
-    "message": "All applications"
+    "message": "Alle programmer"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "Bitwarden-logo"
   },
   "criticalApplications": {
-    "message": "Critical applications"
+    "message": "Kritiske programmer"
   },
   "noCriticalAppsAtRisk": {
     "message": "No critical applications at risk"
@@ -205,10 +205,10 @@
     "message": "Notater"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Privat notat"
   },
   "note": {
-    "message": "Note"
+    "message": "Notat"
   },
   "customFields": {
     "message": "Tilpassede felter"
@@ -300,7 +300,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Vil du auto-utfylle ved sideinnlasting?"
   },
   "number": {
     "message": "Nummer"
@@ -408,7 +408,7 @@
     "message": "Autentiseringsnøkkel (TOTP)"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "Gjør 2-trinnsbekreftelse sømløs"
   },
   "totpHelper": {
     "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
@@ -791,7 +791,7 @@
     "description": "Copy password to clipboard"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase",
+    "message": "Kopier passordfrase",
     "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
@@ -835,7 +835,7 @@
     "message": "Kopiér telefonnummer"
   },
   "copyEmail": {
-    "message": "Copy email"
+    "message": "Kopier e-postadresse"
   },
   "copyCompany": {
     "message": "Kopiér firma"
@@ -1031,7 +1031,7 @@
     "message": "Nei"
   },
   "location": {
-    "message": "Location"
+    "message": "Sted"
   },
   "loginOrCreateNewAccount": {
     "message": "Logg på eller opprett en ny konto for å få tilgang til ditt sikre hvelv."
@@ -1061,7 +1061,7 @@
     "message": "Logg inn med passnøkkel"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Bruk singulær pålogging"
   },
   "welcomeBack": {
     "message": "Velkommen tilbake"
@@ -1154,7 +1154,7 @@
     "message": "Velg et sterkt passord"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Finish creating your account by setting a password"
+    "message": "Fullfør opprettelsen av kontoen din ved å bestemme et passord"
   },
   "newAroundHere": {
     "message": "Er du ny her?"
@@ -1169,16 +1169,16 @@
     "message": "Logg inn på Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Skriv inn koden du har fått tilsendt på e-post"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Skriv inn koden fra autentiseringsappen din"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Trykk på YubiKey-en for å autentisere"
   },
   "authenticationTimeout": {
-    "message": "Authentication timeout"
+    "message": "Tidsavbrudd for autentisering"
   },
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
@@ -1266,7 +1266,7 @@
     "message": "Be om passordhint"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
-    "message": "Enter your account email address and your password hint will be sent to you"
+    "message": "Skriv inn e-postadressen til kontoen din, så får du tilsendt et hint om passordet ditt"
   },
   "getMasterPasswordHint": {
     "message": "Få et hint om hovedpassordet"
@@ -1403,10 +1403,10 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Bekreft tilgang"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Nekt tilgang"
   },
   "notificationSentDeviceAnchor": {
     "message": "nett-app"
@@ -1439,14 +1439,14 @@
     }
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "Ikke spør igjen på denne enheten på 30 dager"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Velg en annen metode",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "Bruk gjenopprettingskoden din"
   },
   "insertU2f": {
     "message": "Sett din sikkerhetsnøkkel inn i din datamaskins USB-uttak. Dersom den har en knapp, trykk på den."
@@ -1464,7 +1464,7 @@
     "message": "2-trinnsinnloggingsalternativer"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "Velg 2-trinnspåloggingsmetode"
   },
   "recoveryCodeDesc": {
     "message": "Har du mistet tilgang til alle dine 2-trinnsleverandører? Bruk din gjenopprettingskode til å fjerne alle 2-trinnsleverandører fra din konto."
@@ -1486,7 +1486,7 @@
     "message": "Bruk en YubiKey for å få tilgang til kontoen din. Virker med enheter av typene YubiKey 4, 4 Nano, 4C, og NEO."
   },
   "duoDescV2": {
-    "message": "Enter a code generated by Duo Security.",
+    "message": "Skriv inn en kode generert av Duo Security.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
@@ -1509,7 +1509,7 @@
     "message": "(Migrert fra FIDO)"
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "Åpne i ny fane"
   },
   "emailTitle": {
     "message": "E-post"
@@ -1572,7 +1572,7 @@
     "message": "Kopier UUID"
   },
   "errorRefreshingAccessToken": {
-    "message": "Access Token Refresh Error"
+    "message": "Feil ved oppdatering av tilgangssjetongen"
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "No refresh token or API keys found. Please try logging out and logging back in."
@@ -2207,7 +2207,7 @@
     "message": "Opphev tilgang"
   },
   "revoke": {
-    "message": "Revoke"
+    "message": "Tilbakekall"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Denne 2-trinnsleverandøren er aktivert på din konto."
@@ -4173,7 +4173,7 @@
     "message": "Hvis du ikke klarer å få tilgang til kontoen din gjennom dine vanlige 2-trinnsinnloggingsmetoder, kan du bruke din 2-trinnsinnloggingsgjenopprettingskode til å deaktivere alle 2-trinnsinnloggingsleverandører på din konto."
   },
   "logInBelowUsingYourSingleUseRecoveryCode": {
-    "message": "Log in below using your single-use recovery code. This will turn off all two-step providers on your account."
+    "message": "Logg inn med din én-gangs gjenopprettingskode. Dette vil skru av alle 2-trinnsleverandører på kontoen din."
   },
   "recoverAccountTwoStep": {
     "message": "Få tilbake tilgangen til din kontos 2-trinnsinnlogging"
@@ -4467,7 +4467,7 @@
     "message": "Encryption key update cannot proceed"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Rediger $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4567,7 +4567,7 @@
     "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
   },
   "unsubscribe": {
-    "message": "Unsubscribe"
+    "message": "Avabonner"
   },
   "atAnyTime": {
     "message": "når som helst."
@@ -4790,7 +4790,7 @@
     "message": "Sett minimumskrav til hovedpassordets styrke."
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "Passordstyrke-score: $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -5079,14 +5079,14 @@
     "message": "Organisasjonens eiere og administratorer er unntatt fra denne policyens håndheving."
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "Begrens visninger"
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "Ingen kan se denne Send-en etter at grensen er nådd.",
     "description": "Displayed under the limit views field on Send"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "$ACCESSCOUNT$ visninger igjen",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -5096,11 +5096,11 @@
     }
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Send-detaljer",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
-    "message": "Text to share"
+    "message": "Teksten som skal deles"
   },
   "sendTypeFile": {
     "message": "Fil"
@@ -5109,7 +5109,7 @@
     "message": "Tekst"
   },
   "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
+    "message": "Legg til et valgfritt passord for at mottakerne skal få tilgang til denne Send-en.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
@@ -5194,7 +5194,7 @@
     "message": "Venter på sletting"
   },
   "hideTextByDefault": {
-    "message": "Hide text by default"
+    "message": "Skjul tekst som standard"
   },
   "expired": {
     "message": "Utløpt"
@@ -5665,7 +5665,7 @@
     "message": "Det oppstod en feil ved lagring av slettingen og utløpsdatoene."
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "Skjul E-postadressen din fra seere."
   },
   "webAuthnFallbackMsg": {
     "message": "For å verifisere din 2FA vennligst klikk knappen nedenfor."
@@ -5674,7 +5674,7 @@
     "message": "Autentiser WebAuthn"
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "Les sikkerhetsnøkkel"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Awaiting security key interaction..."
@@ -5725,7 +5725,7 @@
     }
   },
   "eventAdminPasswordReset": {
-    "message": "Superpassordtilbakestilling for brukeren $ID$.",
+    "message": "Hovedpassordtilbakestilling for brukeren $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -5812,7 +5812,7 @@
     "message": "Forespørsel om hovedpassord på nytt"
   },
   "passwordConfirmation": {
-    "message": "Superpassord bekreftelse"
+    "message": "Hovedpassord-bekreftelse"
   },
   "passwordConfirmationDesc": {
     "message": "Denne handlingen er beskyttet. For å fortsette, skriv inn hovedpassordet på nytt for å bekrefte identiteten din."
@@ -6105,7 +6105,7 @@
     }
   },
   "vaultTimeoutPolicyInEffect1": {
-    "message": "$HOURS$ hour(s) and $MINUTES$ minute(s) maximum.",
+    "message": "Maks $HOURS$ time(r) og $MINUTES$ minutt(er).",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -6302,13 +6302,13 @@
   "sponsoredBitwardenFamilies": {
     "message": "Sponsored families"
   },
-  "noSponsoredFamilies": {
+  "noSponsoredFamiliesMessage": {
     "message": "No sponsored families"
   },
-  "noSponsoredFamiliesDescription": {
+  "nosponsoredFamiliesDetails": {
     "message": "Sponsored non-member families plans will display here"
   },
-  "sponsorFreeBitwardenFamilies": {
+  "sponsorshipFreeBitwardenFamilies": {
     "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
@@ -6320,14 +6320,14 @@
   "sponsoredFamiliesEligibleCard": {
     "message": "Løs inn din Free Bitwarden for Familier-abonnement i dag for å holde dataene sikre, selv om du ikke er på jobb."
   },
-  "sponsoredFamiliesInclude": {
-    "message": "Bitwarden for familier-abonnementet inkluderer"
+  "sponsoredFamiliesIncludeMessage": {
+    "message": "The Bitwarden for Families plan includes"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Premiumtilgang for opptil 6 brukere"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Delte samlinger til familie-hemmeligheter"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Shared collections for family members"
   },
   "memberFamilies": {
     "message": "Member families"
@@ -6340,6 +6340,15 @@
   },
   "membersWithSponsoredFamilies": {
     "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
+  },
+  "organizationHasMemberMessage": {
+    "message": "A sponsorship cannot be sent to $EMAIL$ because they are a member of your organization.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "Lenken er ikke lenger gyldig. Vennligst ha sponsor på nytt tilbudet."
@@ -6392,8 +6401,8 @@
   "redeemedAccount": {
     "message": "Konto innløst"
   },
-  "revokeAccount": {
-    "message": "Opphev konto $NAME$",
+  "revokeAccountMessage": {
+    "message": "Revoke account $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -7025,7 +7034,7 @@
     }
   },
   "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ avslo forespørselen din: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -7059,7 +7068,7 @@
     }
   },
   "forwarderNoUrl": {
-    "message": "Invalid $SERVICENAME$ url.",
+    "message": "Ugyldig $SERVICENAME$-url.",
     "description": "Displayed when the url of the forwarding service wasn't supplied.",
     "placeholders": {
       "servicename": {
@@ -7262,7 +7271,7 @@
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
   "duoRequiredByOrgForAccount": {
-    "message": "Duo two-step login is required for your account."
+    "message": "Duo-totrinnspålogging er påkrevd for kontoen din."
   },
   "duoTwoFactorRequiredPageSubtitle": {
     "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
@@ -8366,7 +8375,7 @@
     }
   },
   "inputTrimValidator": {
-    "message": "Input must not contain only whitespace.",
+    "message": "Inndataen kan ikke bare inneholde tomrom.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
   },
   "dismiss": {
@@ -8406,7 +8415,7 @@
     "message": "Enhetsgodkjennelse kreves"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Velg en godkjenningsmetode nedenfor"
   },
   "rememberThisDevice": {
     "message": "Husk denne enheten"
@@ -8641,7 +8650,7 @@
     "message": "Innlogging godkjent"
   },
   "userEmailMissing": {
-    "message": "User email missing"
+    "message": "Brukerens e-postadresse mangler"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
     "message": "Active user email not found. Logging you out."
@@ -8803,7 +8812,7 @@
     "message": "Har du allerede en konto?"
   },
   "toggleSideNavigation": {
-    "message": "Toggle side navigation"
+    "message": "Skru av/på sidenavigering"
   },
   "skipToContent": {
     "message": "Hopp frem til innholdet"
@@ -8950,7 +8959,7 @@
     "message": "Read release blog"
   },
   "adminConsole": {
-    "message": "Admin Console"
+    "message": "Administrasjonskonsoll"
   },
   "providerPortal": {
     "message": "Provider Portal"
@@ -9604,7 +9613,7 @@
     "message": "An error occurred while previewing the invoice. Please try again later."
   },
   "unverified": {
-    "message": "Unverified"
+    "message": "Ubekreftet"
   },
   "verified": {
     "message": "Verifisert"
@@ -9720,7 +9729,7 @@
     "message": "Contact your provider admin to purchase additional seats."
   },
   "open": {
-    "message": "Open",
+    "message": "Åpne",
     "description": "The status of an invoice."
   },
   "uncollectible": {
@@ -10070,7 +10079,7 @@
     "message": "Bruk tekstfelter for data som sikkerhetsspørsmål"
   },
   "hiddenHelpText": {
-    "message": "Use hidden fields for sensitive data like a password"
+    "message": "Bruk skjulte felter for sensitive data, for eksempel passord"
   },
   "checkBoxHelpText": {
     "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
@@ -10261,10 +10270,10 @@
     }
   },
   "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
+    "message": "Nei, det gjør jeg ikke"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
+    "message": "Ja, jeg har pålitelig tilgang til e-posten min"
   },
   "turnOnTwoStepLogin": {
     "message": "Slå på 2-trinnsinnlogging"
@@ -10379,13 +10388,16 @@
     "message": "Trust and confirm user"
   },
   "trustOrganization": {
-    "message": "Trust organization"
+    "message": "Stol på organisasjon"
   },
   "trust": {
-    "message": "Trust"
+    "message": "Stol på"
   },
   "doNotTrust": {
-    "message": "Do not trust"
+    "message": "Ikke stol på"
+  },
+  "organizationNotTrusted": {
+    "message": "Organisasjonen har ikke blitt stolt på"
   },
   "emergencyAccessTrustWarning": {
     "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
@@ -10393,38 +10405,41 @@
   "orgTrustWarning": {
     "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
   },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+  },
   "trustUser": {
-    "message": "Trust user"
+    "message": "Stol på brukler"
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "Passordet du skrev inn er feil."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "Importer"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "Bekreft passordet"
   },
   "enterSshKeyPasswordDesc": {
     "message": "Enter the password for the SSH key."
   },
   "enterSshKeyPassword": {
-    "message": "Enter password"
+    "message": "Skriv inn passord"
   },
   "invalidSshKey": {
-    "message": "The SSH key is invalid"
+    "message": "SSH-nøkkelen er ugyldig"
   },
   "sshKeyTypeUnsupported": {
     "message": "The SSH key type is not supported"
   },
   "importSshKeyFromClipboard": {
-    "message": "Import key from clipboard"
+    "message": "Importer nøkkel fra utklippstavlen"
   },
   "sshKeyImported": {
-    "message": "SSH key imported successfully"
+    "message": "SSH-nøkkelen ble vellykket importert"
   },
   "copySSHPrivateKey": {
-    "message": "Copy private key"
+    "message": "Kopiér privat nøkkel"
   },
   "openingExtension": {
     "message": "Opening the Bitwarden browser extension"
@@ -10619,7 +10634,40 @@
   "newBusinessUnit": {
     "message": "New business unit"
   },
+  "newLoginNudgeTitle": {
+    "message": "Spar tid med auto-utfylling"
+  },
+  "newLoginNudgeBody": {
+    "message": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Forenkle oppretting av kontoer"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Beskytt dine sensitive data"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Utviklervennlig SSH-tilgang"
+  },
+  "newSshNudgeBody": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  },
   "restart": {
-    "message": "Restart"
+    "message": "Omstart"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
   }
 }

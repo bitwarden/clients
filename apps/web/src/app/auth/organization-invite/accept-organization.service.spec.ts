@@ -95,7 +95,7 @@ describe("AcceptOrganizationInviteService", () => {
       encryptService.wrapDecapsulationKey.mockResolvedValue({
         encryptedString: "string",
       } as EncString);
-      encryptService.encrypt.mockResolvedValue({ encryptedString: "string" } as EncString);
+      encryptService.encryptString.mockResolvedValue({ encryptedString: "string" } as EncString);
       const invite = createOrgInvite({ initOrganization: true });
 
       const result = await sut.validateAndAcceptInvite(invite);
