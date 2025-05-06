@@ -16,7 +16,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { NewDeviceVerificationNoticeService } from "@bitwarden/vault";
 
 import { RecoverTwoFactorComponent } from "./recover-two-factor.component";
 
@@ -35,7 +34,6 @@ describe("RecoverTwoFactorComponent", () => {
   let mockConfigService: MockProxy<ConfigService>;
   let mockLoginSuccessHandlerService: MockProxy<LoginSuccessHandlerService>;
   let mockLogService: MockProxy<LogService>;
-  let mockNewDeviceVerificationNoticeService: MockProxy<NewDeviceVerificationNoticeService>;
 
   beforeEach(() => {
     mockRouter = mock<Router>();
@@ -48,7 +46,6 @@ describe("RecoverTwoFactorComponent", () => {
     mockConfigService = mock<ConfigService>();
     mockLoginSuccessHandlerService = mock<LoginSuccessHandlerService>();
     mockLogService = mock<LogService>();
-    mockNewDeviceVerificationNoticeService = mock<NewDeviceVerificationNoticeService>();
 
     TestBed.configureTestingModule({
       declarations: [RecoverTwoFactorComponent],
@@ -63,10 +60,6 @@ describe("RecoverTwoFactorComponent", () => {
         { provide: ConfigService, useValue: mockConfigService },
         { provide: LoginSuccessHandlerService, useValue: mockLoginSuccessHandlerService },
         { provide: LogService, useValue: mockLogService },
-        {
-          provide: NewDeviceVerificationNoticeService,
-          useValue: mockNewDeviceVerificationNoticeService,
-        },
       ],
       imports: [I18nPipe],
       // FIXME(PM-18598): Replace unknownElements and unknownProperties with actual imports
@@ -102,9 +95,6 @@ describe("RecoverTwoFactorComponent", () => {
         title: "",
         message: mockI18nService.t("youHaveBeenLoggedIn"),
       });
-      expect(
-        mockNewDeviceVerificationNoticeService.updateNewDeviceVerificationSkipNoticeState,
-      ).toHaveBeenCalledWith(authResult.userId, true);
       expect(mockRouter.navigate).toHaveBeenCalledWith(["/settings/security/two-factor"]);
     });
 

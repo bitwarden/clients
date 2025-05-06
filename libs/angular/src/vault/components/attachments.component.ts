@@ -343,7 +343,12 @@ export class AttachmentsComponent implements OnInit {
   }
 
   protected deleteCipherAttachment(attachmentId: string, userId: UserId) {
-    return this.cipherService.deleteAttachmentWithServer(this.cipher.id, attachmentId, userId);
+    return this.cipherService.deleteAttachmentWithServer(
+      this.cipher.id,
+      attachmentId,
+      userId,
+      false,
+    );
   }
 
   protected async reupload(attachment: AttachmentView) {

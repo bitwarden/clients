@@ -437,7 +437,7 @@
     "message": "Sinhronizēt glabātavu"
   },
   "lastSync": {
-    "message": "Pēdējā sinhronizācija:"
+    "message": "Pēdējā sinhronizēšana:"
   },
   "passGen": {
     "message": "Paroļu veidotājs"
@@ -947,10 +947,10 @@
     "message": "Noskaties mūsu uzsākšanas pamācību, lai uzzinātu, kā iegūt vislielāko labumu no pārlūka paplašinājuma!"
   },
   "syncingComplete": {
-    "message": "Sinhronizācija pabeigta"
+    "message": "Sinhronizēšana pabeigta"
   },
   "syncingFailed": {
-    "message": "Sinhronizācija neizdevās"
+    "message": "Sinhronizēšana neizdevās"
   },
   "passwordCopied": {
     "message": "Parole ievietota starpliktuvē"
@@ -1543,7 +1543,7 @@
     "message": "Jāievada e-pastā nosūtītais kods."
   },
   "selfHostedEnvironment": {
-    "message": "Pašuzturēta vide"
+    "message": "Pašmitināta vide"
   },
   "selfHostedBaseUrlHint": {
     "message": "Jānorāda sava pašizvietotā Bitward servera pamata URL. Piemērs: https://bitwarden.uznemums.lv"
@@ -2008,7 +2008,7 @@
     "description": "A URL's host value. For example, the host of https://sub.domain.com:443 is 'sub.domain.com:443'."
   },
   "exact": {
-    "message": "Tiešs"
+    "message": "Tieši"
   },
   "startsWith": {
     "message": "Sākas ar"
@@ -2370,7 +2370,7 @@
     "message": "Netika atrastas atsvaidzināšanas pilnvaras vai API atslēgas. Lūgums mēģināt izrakstīties un atkal pieteikties."
   },
   "desktopSyncVerificationTitle": {
-    "message": "Darbvirsmas sinhronizācijas apstiprinājums"
+    "message": "Darbvirsmas sinhronizēšanas apliecinājums"
   },
   "desktopIntegrationVerificationText": {
     "message": "Lūgumus pārliecināties, ka darbvirsmas lietotne rāda šo atpazīšanas vārdkopu:"
@@ -2996,7 +2996,7 @@
     "message": "Nav atrasts neviens neatkārtojams identifikators"
   },
   "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ izmanto vienoto pieteikšanos ar pašizvietotu atslēgu serveri. Tās dalībniekiem vairs nav nepieciešama galvenā parole, lai pieteiktos.",
+    "message": "$ORGANIZATION$ izmanto vienoto pieteikšanos ar pašmitinātu atslēgu serveri. Tās dalībniekiem vairs nav nepieciešama galvenā parole, lai pieteiktos.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3315,7 +3315,7 @@
     "message": "Servera versija"
   },
   "selfHostedServer": {
-    "message": "pašizvietots"
+    "message": "pašmitināts"
   },
   "thirdParty": {
     "message": "Trešās puses"
@@ -3563,6 +3563,30 @@
   },
   "deviceTrusted": {
     "message": "Ierīce ir uzticama"
+  },
+  "trustOrganization": {
+    "message": "Uzticēties apvienībai"
+  },
+  "trust": {
+    "message": "Uzticēties"
+  },
+  "doNotTrust": {
+    "message": "Neuzticēties"
+  },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Lai nodrošinātu sava konta drošību, jāapstiprina tikai tad, ja šim lietotājam ir nodrošināta ārkārtas piekļuve un tā pirkstu nospiedums atbilsta tam, kas ir attēlots tā kontā"
+  },
+  "orgTrustWarning": {
+    "message": "Lai nodrošinātu sava konta drošību, jāturpina tikai tad, ja esi šīs apvienības dalībnieks, ir iespējota konta atkope un zemāk attēlotais pirkstu nospiedums atbilst apvienības pirkstu nospiedumam."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+  },
+  "trustUser": {
+    "message": "Uzticēties lietotājam"
   },
   "sendsNoItemsTitle": {
     "message": "Nav spēkā esošu Send",
@@ -5201,6 +5225,12 @@
   "changeAtRiskPassword": {
     "message": "Mainīt riskam pakļautu paroli"
   },
+  "settingsVaultOptions": {
+    "message": "Glabātavas iespējas"
+  },
+  "emptyVaultDescription": {
+    "message": "Glabātava aizsargā vairāk kā tikai paroles. Drošā veidā glabā šeit pieteikšanās vienumus, identitātes, kartes un piezīmes!"
+  },
   "introCarouselLabel": {
     "message": "Laipni lūdzam Bitwarden"
   },
@@ -5227,5 +5257,50 @@
   },
   "secureDevicesBody": {
     "message": "Neierobežotu paroļu skaitu var saglabāt neierobežotā ierīdžu daudzumā ar Bitwarden viedtālruņa, pārlūka un darbvirsmas lietotni."
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Ievietot esošas paroles"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Ievietotājs ir izmantojams, lai pieteikšanās vienumus ātri pārnest uz Bitwarden bez pašrocīgas to pievienošanas."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Ievietot tagad"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Laipni lūdzam Tavā glabātavā!"
+  },
+  "hasItemsVaultNudgeBody": {
+    "message": "Automātiskās aizpldes vienumu pašreizējai lapai\nIzlases vienumi vieglai piekļuvei\nPārējo var meklēt glabātavā"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Laika ietaupīšana ar automātisko aizpildi"
+  },
+  "newLoginNudgeBody": {
+    "message": "Iekļauj tīmekļvietni, lai šis pieteikšanās vienums parādītos kā automātiskās aizpildes ieteikums!"
+  },
+  "newCardNudgeTitle": {
+    "message": "Plūdena apmaksa tiešsaistē"
+  },
+  "newCardNudgeBody": {
+    "message": "Ar kartēm ir viegli automātiski aizpildīt maksājumu veidlapu droši un rūpīgi."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Kontu izveidošanas vienkāršošana"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Ar identitātēm var ātri automātiski aizpildīt garas reģistrēšanās vai saziņas veidlapas."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Turi savus jūtīgos datus drošībā"
+  },
+  "newNoteNudgeBody": {
+    "message": "Piezīmēs var droši glabāt jūtīgus datus, piemēram, bankas vai apdrošināšanas informāciju."
+  },
+  "newSshNudgeTitle": {
+    "message": "Izstrādātājiem draudzīga SSH piekļuve"
+  },
+  "newSshNudgeBody": {
+    "message": "Glabā savas atslēgas un savienojies ar SSH aģentu ātrai, šifrētai autentificēšanai!"
   }
 }

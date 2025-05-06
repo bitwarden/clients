@@ -81,6 +81,8 @@ const moduleRules = [
         loader: "babel-loader",
         options: {
           configFile: "../../babel.config.json",
+          cacheDirectory: ENV === "development",
+          compact: ENV !== "development",
         },
       },
     ],
@@ -205,6 +207,20 @@ const mainConfig = {
     "content/send-on-installed-message": "./src/vault/content/send-on-installed-message.ts",
     "content/send-popup-open-message": "./src/vault/content/send-popup-open-message.ts",
   },
+  cache:
+    ENV !== "development"
+      ? false
+      : {
+          type: "filesystem",
+          name: "main-cache",
+          cacheDirectory: path.resolve(__dirname, "../../node_modules/.cache/webpack-browser-main"),
+          buildDependencies: {
+            config: [__filename],
+          },
+        },
+  snapshot: {
+    unmanagedPaths: [path.resolve(__dirname, "../../node_modules/@bitwarden/")],
+  },
   optimization: {
     minimize: ENV !== "development",
     minimizer: [
@@ -263,6 +279,7 @@ const mainConfig = {
       fs: false,
       path: require.resolve("path-browserify"),
     },
+    cache: true,
   },
   output: {
     filename: "[name].js",
@@ -357,6 +374,23 @@ if (manifestVersion == 2) {
       ],
       noParse: /argon2(-simd)?\.wasm$/,
     },
+    cache:
+      ENV !== "development"
+        ? false
+        : {
+            type: "filesystem",
+            name: "background-cache",
+            cacheDirectory: path.resolve(
+              __dirname,
+              "../../node_modules/.cache/webpack-browser-background",
+            ),
+            buildDependencies: {
+              config: [__filename],
+            },
+          },
+    snapshot: {
+      unmanagedPaths: [path.resolve(__dirname, "../../node_modules/@bitwarden/")],
+    },
     experiments: {
       asyncWebAssembly: true,
     },
@@ -369,6 +403,7 @@ if (manifestVersion == 2) {
         fs: false,
         path: require.resolve("path-browserify"),
       },
+      cache: true,
     },
     dependencies: ["main"],
     plugins: [...requiredPlugins],
