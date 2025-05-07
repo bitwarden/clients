@@ -50,11 +50,15 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
   }
 
   get showBulkConfirmUsers(): boolean {
-    return this.dataSource.acceptedUserCount > 0;
+    return this.dataSource
+      .getCheckedUsers()
+      .every((member) => member.status == this.userStatusType.Accepted);
   }
 
   get showBulkReinviteUsers(): boolean {
-    return this.dataSource.invitedUserCount > 0;
+    return this.dataSource
+      .getCheckedUsers()
+      .every((member) => member.status == this.userStatusType.Invited);
   }
 
   abstract userType: typeof OrganizationUserType | typeof ProviderUserType;

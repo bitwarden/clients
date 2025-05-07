@@ -126,4 +126,31 @@ describe("Vault Nudges Service", () => {
       expect(result).toBe(false);
     });
   });
+
+  describe("HasActiveBadges", () => {
+    it("should return true if a nudgeType with hasBadgeDismissed === false", async () => {
+      TestBed.overrideProvider(EmptyVaultNudgeService, {
+        useValue: {
+          nudgeStatus$: () => of({ hasBadgeDismissed: false, hasSpotlightDismissed: false }),
+        },
+      });
+      const service = testBed.inject(VaultNudgesService);
+
+      const result = await firstValueFrom(service.hasActiveBadges$("user-id" as UserId));
+
+      expect(result).toBe(true);
+    });
+    it("should return false if all nudgeTypes have hasBadgeDismissed === true", async () => {
+      TestBed.overrideProvider(EmptyVaultNudgeService, {
+        useValue: {
+          nudgeStatus$: () => of({ hasBadgeDismissed: true, hasSpotlightDismissed: true }),
+        },
+      });
+      const service = testBed.inject(VaultNudgesService);
+
+      const result = await firstValueFrom(service.hasActiveBadges$("user-id" as UserId));
+
+      expect(result).toBe(false);
+    });
+  });
 });
