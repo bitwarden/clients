@@ -2,8 +2,7 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { NEVER, firstValueFrom, switchMap } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -11,13 +10,11 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
-import { CipherId, EmergencyAccessId, OrganizationId } from "@bitwarden/common/types/guid";
-import { OrgKey } from "@bitwarden/common/types/key";
+import { CipherId, EmergencyAccessId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { AsyncActionsModule, IconButtonModule, ToastService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
 
 @Component({
   standalone: true,
@@ -41,29 +38,14 @@ export class DownloadAttachmentComponent {
   /** When accessing from the admin console, we will want to call the admin endpoint */
   @Input() admin?: boolean = false;
 
-  /** The organization key if the cipher is associated with one */
-  private orgKey: OrgKey | null = null;
-
   constructor(
     private i18nService: I18nService,
     private apiService: ApiService,
     private fileDownloadService: FileDownloadService,
     private toastService: ToastService,
     private stateProvider: StateProvider,
-    private keyService: KeyService,
     private cipherService: CipherService,
-  ) {
-    this.stateProvider.activeUserId$
-      .pipe(
-        switchMap((userId) => (userId !== null ? this.keyService.orgKeys$(userId) : NEVER)),
-        takeUntilDestroyed(),
-      )
-      .subscribe((data: Record<OrganizationId, OrgKey> | null) => {
-        if (data) {
-          this.orgKey = data[this.cipher.organizationId as OrganizationId];
-        }
-      });
-  }
+  ) {}
 
   /** Download the attachment */
   download = async () => {

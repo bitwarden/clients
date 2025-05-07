@@ -16,7 +16,6 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ToastService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
 
 import { PasswordRepromptService } from "../../services/password-reprompt.service";
 
@@ -77,7 +76,6 @@ describe("DownloadAttachmentComponent", () => {
       imports: [DownloadAttachmentComponent],
       providers: [
         { provide: EncryptService, useValue: mock<EncryptService>() },
-        { provide: KeyService, useValue: mock<KeyService>() },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: StateProvider, useValue: { activeUserId$ } },
         { provide: ToastService, useValue: { showToast } },
