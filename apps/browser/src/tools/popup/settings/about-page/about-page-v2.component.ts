@@ -1,10 +1,12 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ItemModule } from "@bitwarden/components";
@@ -47,11 +49,16 @@ export class AboutPageV2Component {
     private dialogService: DialogService,
     private environmentService: EnvironmentService,
     private platformUtilsService: PlatformUtilsService,
+    private configService: ConfigService,
   ) {}
 
   about() {
     this.dialogService.open(AboutDialogComponent);
   }
+
+  isNudgeFeatureEnabled$ = this.configService
+    .getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge)
+    .pipe(map((isEnabled) => isEnabled));
 
   async launchHelp() {
     const confirmed = await this.dialogService.openSimpleDialog({
