@@ -200,6 +200,8 @@ export class ChangePasswordComponent implements OnInit {
       throw new Error("activeAccount not found");
     }
 
+    // By this point the change password operation has completed,
+    // so the `newPassword` is now the user's current password.
     await this.changePasswordService.rotateUserKeyAndEncryptedDataLegacy(
       newPassword,
       this.activeAccount,

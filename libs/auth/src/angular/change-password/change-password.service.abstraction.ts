@@ -26,11 +26,14 @@ export abstract class ChangePasswordService {
    * - does so by calling the underlying deprecated method on the `UserKeyRotationService`
    * - implemented in Web only
    *
-   * @param newPassword the new password
+   * @param currentPassword — the current password (used for validation)
    * @param user the user account
    * @throws if called from a non-Web client
    */
-  abstract rotateUserKeyAndEncryptedDataLegacy(newPassword: string, user: Account): Promise<void>;
+  abstract rotateUserKeyAndEncryptedDataLegacy(
+    currentPassword: string,
+    user: Account,
+  ): Promise<void>;
 
   /**
    * Changes the user's password and re-encrypts the user key with the `newMasterKey`.
