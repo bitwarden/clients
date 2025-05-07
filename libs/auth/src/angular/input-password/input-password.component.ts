@@ -124,16 +124,16 @@ export class InputPasswordComponent implements OnInit {
 
   protected formGroup = this.formBuilder.nonNullable.group<InputPasswordForm>(
     {
-      newPassword: new FormControl("", [
+      newPassword: this.formBuilder.nonNullable.control("", [
         Validators.required,
         Validators.minLength(this.minPasswordLength),
-      ]) as FormControl<string>,
-      newPasswordConfirm: new FormControl("", Validators.required) as FormControl<string>,
-      newPasswordHint: new FormControl("", [
+      ]),
+      newPasswordConfirm: this.formBuilder.nonNullable.control("", Validators.required),
+      newPasswordHint: this.formBuilder.nonNullable.control("", [
         Validators.minLength(this.minHintLength),
         Validators.maxLength(this.maxHintLength),
-      ]) as FormControl<string>,
-      checkForBreaches: new FormControl(true) as FormControl<boolean>,
+      ]),
+      checkForBreaches: this.formBuilder.nonNullable.control(true),
     },
     {
       validators: [
@@ -190,7 +190,7 @@ export class InputPasswordComponent implements OnInit {
     ) {
       this.formGroup.addControl(
         "currentPassword",
-        new FormControl("", Validators.required) as FormControl<string>,
+        this.formBuilder.nonNullable.control("", Validators.required),
       );
 
       this.formGroup.addValidators([
@@ -204,7 +204,7 @@ export class InputPasswordComponent implements OnInit {
     }
 
     if (this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation) {
-      this.formGroup.addControl("rotateUserKey", new FormControl(false) as FormControl<boolean>);
+      this.formGroup.addControl("rotateUserKey", this.formBuilder.nonNullable.control(false));
     }
   }
 
