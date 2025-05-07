@@ -114,7 +114,7 @@ interface InputPasswordForm {
   ],
 })
 export class InputPasswordComponent implements OnInit {
-  @ViewChild(PasswordStrengthV2Component) passwordStrengthComponent!: PasswordStrengthV2Component;
+  @ViewChild(PasswordStrengthV2Component) passwordStrengthComponent: PasswordStrengthV2Component;
 
   @Output() onPasswordFormSubmit = new EventEmitter<PasswordInputResult>();
   @Output() onSecondaryButtonClick = new EventEmitter<void>();
@@ -610,18 +610,16 @@ export class InputPasswordComponent implements OnInit {
     }
   }
 
-  protected getPasswordStrengthScore(score: PasswordStrengthScore) {
-    this.passwordStrengthScore = score;
-  }
-
   protected async generatePassword() {
     const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
     this.formGroup.patchValue({
       newPassword: await this.passwordGenerationService.generatePassword(options),
     });
-    this.passwordStrengthComponent.updatePasswordStrength(
-      this.formGroup.controls.newPassword.value,
-    );
+    this.passwordStrengthComponent.updatePasswordStrength(this.formGroup.value.newPassword);
+  }
+
+  protected getPasswordStrengthScore(score: PasswordStrengthScore) {
+    this.passwordStrengthScore = score;
   }
 
   copy() {
