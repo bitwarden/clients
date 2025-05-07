@@ -57,7 +57,8 @@ window.addEventListener("load", async () => {
  * @param redirectUrl the duo auth url
  */
 export function redirectToDuoFrameless(redirectUrl: string) {
-  // Validation for duo redirect URL to prevent open redirect or XSS vulnerabilities
+  // Validation for Duo redirect URL to prevent open redirect or XSS vulnerabilities
+  // Only used for Duo 2FA redirects in the extension
   /**
    * This regex checks for the following:
    * The hostname must start with a subdomain that begins with "api-" followed by a
