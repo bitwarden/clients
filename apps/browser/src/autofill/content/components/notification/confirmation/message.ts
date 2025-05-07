@@ -6,8 +6,8 @@ import { Theme } from "@bitwarden/common/platform/enums";
 import { themes, typography } from "../../constants/styles";
 
 export type NotificationConfirmationMessageProps = {
+  buttonAria?: string;
   buttonText?: string;
-  itemName: string;
   message?: string;
   messageDetails?: string;
   handleClick: () => void;
@@ -15,15 +15,13 @@ export type NotificationConfirmationMessageProps = {
 };
 
 export function NotificationConfirmationMessage({
+  buttonAria,
   buttonText,
-  itemName,
   message,
   messageDetails,
   handleClick,
   theme,
 }: NotificationConfirmationMessageProps) {
-  const buttonAria = chrome.i18n.getMessage("notificationViewAria", [itemName]);
-
   return html`
     <div>
       ${message || buttonText

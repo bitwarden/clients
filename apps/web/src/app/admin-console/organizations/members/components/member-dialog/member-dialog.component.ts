@@ -152,10 +152,6 @@ export class MemberDialogComponent implements OnDestroy {
     manageResetPassword: false,
   });
 
-  protected accountDeprovisioningEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
-    FeatureFlag.AccountDeprovisioning,
-  );
-
   protected isExternalIdVisible$ = this.configService
     .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
     .pipe(
@@ -673,11 +669,9 @@ export class MemberDialogComponent implements OnDestroy {
     const showWarningDialog = combineLatest([
       this.organization$,
       this.deleteManagedMemberWarningService.warningAcknowledged(this.params.organizationId),
-      this.accountDeprovisioningEnabled$,
     ]).pipe(
       map(
-        ([organization, acknowledged, featureFlagEnabled]) =>
-          featureFlagEnabled &&
+        ([organization, acknowledged]) =>
           organization.canManageUsers &&
           organization.productTierType === ProductTierType.Enterprise &&
           !acknowledged,
@@ -720,9 +714,8 @@ export class MemberDialogComponent implements OnDestroy {
       message: this.i18nService.t("organizationUserDeleted", this.params.name),
     });
 
-    if (await firstValueFrom(this.accountDeprovisioningEnabled$)) {
-      await this.deleteManagedMemberWarningService.acknowledgeWarning(this.params.organizationId);
-    }
+    await this.deleteManagedMemberWarningService.acknowledgeWarning(this.params.organizationId);
+
     this.close(MemberDialogResult.Deleted);
   };
 

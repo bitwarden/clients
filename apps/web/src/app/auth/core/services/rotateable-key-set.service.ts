@@ -58,7 +58,7 @@ export class RotateableKeySetService {
       throw new Error("failed to rotate key set: newUserKey is required");
     }
 
-    const publicKey = await this.encryptService.decryptToBytes(
+    const publicKey = await this.encryptService.unwrapEncapsulationKey(
       keySet.encryptedPublicKey,
       oldUserKey,
     );

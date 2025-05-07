@@ -6309,7 +6309,7 @@
     "message": "Спонсорираните семейни планове за не-членове ще се показват тук"
   },
   "sponsorshipFreeBitwardenFamilies": {
-    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+    "message": "Членовете на организацията Ви могат да се възползват от безплатен семеен план за Битуорден. Можете да спонсорирате безплатния семеен план и за служителите, които не са членове на организацията Ви в Битуорден. Спонсорирането на не-членове изисква свободно място в организацията Ви."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
@@ -6321,13 +6321,13 @@
     "message": "Redeem your Free Bitwarden for Families plan today to keep your data secure even when you are not at work."
   },
   "sponsoredFamiliesIncludeMessage": {
-    "message": "The Bitwarden for Families plan includes"
+    "message": "Семейният план на Битуорден включва"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Premium access for up to 6 users"
   },
-  "sponsoredFamiliesSharedCollectionsMessage": {
-    "message": "Shared collections for family members"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Споделени колекции за членове на семейството"
   },
   "memberFamilies": {
     "message": "Member families"
@@ -6342,7 +6342,7 @@
     "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
   },
   "organizationHasMemberMessage": {
-    "message": "A sponsorship cannot be sent to $EMAIL$ because they are a member of your organization.",
+    "message": "Не можете да приложите спонсориране към $EMAIL$, тъй като този потребител е член на организацията Ви.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -6402,7 +6402,7 @@
     "message": "Регистрацията е присвоена"
   },
   "revokeAccountMessage": {
-    "message": "Revoke account $NAME$",
+    "message": "Отнемане на достъпа на $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -10396,11 +10396,17 @@
   "doNotTrust": {
     "message": "Да не се дава доверие"
   },
+  "organizationNotTrusted": {
+    "message": "Организацията не е доверена"
+  },
   "emergencyAccessTrustWarning": {
     "message": "С оглед на сигурността на акаунта Ви, потвърдете само, ако сте дали на този потребител достъп за спешни случаи и ако отпечатъкът му съвпада с това, което се вижда в акаунта му"
   },
   "orgTrustWarning": {
     "message": "С оглед на сигурността на акаунта Ви, продължете само, ако сте член на тази организация, ако възстановяването на акаунта Ви е включено и ако отпечатъкът показан по-долу съвпада с този на организацията."
+  },
+  "orgTrustWarning1": {
+    "message": "Тази организация има политика от плана за големи организации, която ще Ви включи в схемата за възстановяване на акаунти. Това включване ще позволи на администраторите да променят паролата Ви. Продължете само, ако разпознавате тази организация и уникалната фраза показана по-долу съвпада с отпечатъка на организацията."
   },
   "trustUser": {
     "message": "Даване на доверие на потребителя"
@@ -10629,39 +10635,39 @@
     "message": "Нова бизнес единица"
   },
   "newLoginNudgeTitle": {
-    "message": "Save time with autofill"
+    "message": "Спестете време с автоматично попълване"
   },
   "newLoginNudgeBody": {
-    "message": "Include a Website so this login appears as an autofill suggestion."
+    "message": "Добавете уеб сайт, за да може тези данни за вписване да се появяват като предложение за автоматично попълване."
   },
   "newCardNudgeTitle": {
-    "message": "Seamless online checkout"
+    "message": "Безпроблемни плащания"
   },
   "newCardNudgeBody": {
-    "message": "With cards, easily autofill payment forms securely and accurately."
+    "message": "С възможността за запазване на карти, можете лесно да ги попълвате автоматично във формулярите – сигурно и точно."
   },
   "newIdentityNudgeTitle": {
-    "message": "Simplify creating accounts"
+    "message": "Опростено създаване на акаунти"
   },
   "newIdentityNudgeBody": {
-    "message": "With identities, quickly autofill long registration or contact forms."
+    "message": "С възможността за запазване на самоличности, можете лесно да попълвате автоматично дълги формуляри за регистрация или връзка с уеб сайт."
   },
   "newNoteNudgeTitle": {
-    "message": "Keep your sensitive data safe"
+    "message": "Пазете тайните си на сигурно място"
   },
   "newNoteNudgeBody": {
-    "message": "With notes, securely store sensitive data like banking or insurance details."
+    "message": "С възможността за запазване на бележки, можете да съхранявате тайна информация, като например банкови и застрахователни данни."
   },
   "newSshNudgeTitle": {
-    "message": "Developer-friendly SSH access"
+    "message": "Улеснен достъп за разработчици чрез SSH"
   },
   "newSshNudgeBody": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+    "message": "Съхранявайте ключове и използвайте връзка чрез SSH агента, за бързо и шифровано удостоверяване."
   },
   "restart": {
     "message": "Повторно пускане"
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
-    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "Плащането чрез банкова сметка е налично само за клиенти от САЩ. Ще трябва да потвърдите банковата си сметка. В следващите 1-2 работни дни ще направим малък депозит. Въведете кода от описанието на трансакцията в страницата за абонаменти на доставчика, за да потвърдите банковата сметка. Ако не потвърдите банковата сметка, може да пропуснете плащането и абонаментът Ви да бъде спрян."
   }
 }

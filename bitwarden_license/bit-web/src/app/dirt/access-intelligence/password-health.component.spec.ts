@@ -3,7 +3,7 @@ import { ActivatedRoute, convertToParamMap } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { RiskInsightsReportService } from "@bitwarden/bit-common/tools/reports/risk-insights";
+import { RiskInsightsReportService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { TableModule } from "@bitwarden/components";
 import { LooseComponentsModule } from "@bitwarden/web-vault/app/shared";
