@@ -21,7 +21,6 @@ import {
   DialogModule,
   DialogRef,
   DialogService,
-  FormFieldModule,
   ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -55,7 +54,6 @@ export enum EmergencyAccessTakeoverDialogResultType {
     CommonModule,
     CalloutModule,
     DialogModule,
-    FormFieldModule,
     I18nPipe,
     InputPasswordComponent,
   ],
