@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { filter, firstValueFrom, map, Observable, shareReplay, switchMap } from "rxjs";
+import { filter, firstValueFrom, Observable, shareReplay, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -51,9 +51,9 @@ export class SettingsV2Component {
     ),
   );
 
-  isNudgeFeatureEnabled$ = this.configService
-    .getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge)
-    .pipe(map((isEnabled) => isEnabled));
+  protected isNudgeFeatureEnabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.PM8851_BrowserOnboardingNudge,
+  );
 
   constructor(
     private readonly vaultNudgesService: VaultNudgesService,

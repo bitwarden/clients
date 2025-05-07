@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DeviceType } from "@bitwarden/common/enums";
@@ -56,9 +56,9 @@ export class AboutPageV2Component {
     this.dialogService.open(AboutDialogComponent);
   }
 
-  isNudgeFeatureEnabled$ = this.configService
-    .getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge)
-    .pipe(map((isEnabled) => isEnabled));
+  protected isNudgeFeatureEnabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.PM8851_BrowserOnboardingNudge,
+  );
 
   async launchHelp() {
     const confirmed = await this.dialogService.openSimpleDialog({
