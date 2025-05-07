@@ -15,17 +15,19 @@ const { css } = createEmotion({
   key: componentClassPrefix,
 });
 
+export type NotificationHeaderProps = {
+  message?: string;
+  standalone?: boolean;
+  theme: Theme;
+  handleCloseNotification: (e: Event) => void;
+};
+
 export function NotificationHeader({
   message,
   standalone = false,
   theme = ThemeTypes.Light,
   handleCloseNotification,
-}: {
-  message?: string;
-  standalone?: boolean;
-  theme: Theme;
-  handleCloseNotification: (e: Event) => void;
-}) {
+}: NotificationHeaderProps) {
   const showIcon = true;
   const isDismissable = true;
 

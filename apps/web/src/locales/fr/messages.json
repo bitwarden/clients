@@ -6302,14 +6302,14 @@
   "sponsoredBitwardenFamilies": {
     "message": "Familles parrainées"
   },
-  "noSponsoredFamilies": {
+  "noSponsoredFamiliesMessage": {
     "message": "Aucune famille parrainée"
   },
-  "noSponsoredFamiliesDescription": {
+  "nosponsoredFamiliesDetails": {
     "message": "Les abonnements des familles non membres parrainées apparaîtront ici"
   },
-  "sponsorFreeBitwardenFamilies": {
-    "message": "Les membres de votre organisation sont éligibles pour les Familles Gratuites de Bitwarden. Vous pouvez parrainer Familles Gratuites de Bitwarden pour les employés qui ne sont pas membres de votre organisation Bitwarden. Parrainer un non-membre nécessite un siège disponible au sein de votre organisation."
+  "sponsorshipFreeBitwardenFamilies": {
+    "message": "Les membres de votre organisation sont éligibles pour les Familles Gratuites de Bitwarden. Vous pouvez parrainer Familles Gratuites de Bitwarden pour les employés qui ne sont pas membres de votre organisation Bitwarden. Parrainer un non-membre nécessite une licence disponible au sein de votre organisation."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Lorsque vous supprimez un parrainage actif, une licence au sein de votre organisation sera disponible après la date de renouvellement de l'organisation parrainée."
@@ -6320,14 +6320,14 @@
   "sponsoredFamiliesEligibleCard": {
     "message": "Obtenez votre abonnement Bitwarden Familles gratuit aujourd'hui pour garder vos données en sécurité même lorsque vous n'êtes pas au travail."
   },
-  "sponsoredFamiliesInclude": {
+  "sponsoredFamiliesIncludeMessage": {
     "message": "L'abonnement Bitwarden Familles inclut"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Accès Premium jusqu'à 6 utilisateurs"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Collections partagées pour les secrets de la famille"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Collections partagées pour les membres de la famille"
   },
   "memberFamilies": {
     "message": "Familles de membre"
@@ -6340,6 +6340,15 @@
   },
   "membersWithSponsoredFamilies": {
     "message": "Les membres de votre organisation sont éligibles à l'abonnement aux Familles Gratuites de Bitwarden. Vous pouvez voir ici les membres qui ont parrainé une organisation Familles."
+  },
+  "organizationHasMemberMessage": {
+    "message": "Un parrainage ne peut pas être envoyé à $EMAIL$ car il est membre de votre organisation.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "Le lien n'est plus valide. Merci de demander à votre parrain de renvoyer l'offre."
@@ -6392,7 +6401,7 @@
   "redeemedAccount": {
     "message": "Compte récupéré"
   },
-  "revokeAccount": {
+  "revokeAccountMessage": {
     "message": "Révoquer le compte $NAME$",
     "placeholders": {
       "name": {
@@ -10387,11 +10396,17 @@
   "doNotTrust": {
     "message": "Ne pas faire confiance"
   },
+  "organizationNotTrusted": {
+    "message": "L'organisation n'est pas fiable"
+  },
   "emergencyAccessTrustWarning": {
     "message": "Pour la sécurité de votre compte, confirmez seulement si vous avez accordé l'accès d'urgence à cet utilisateur et que sa phrase d'empreinte correspond à ce qui est affiché dans son compte"
   },
   "orgTrustWarning": {
     "message": "Pour la sécurité de votre compte, continuez seulement si vous êtes un membre de cette organisation, avez la récupération de compte activée et que la phrase d'empreinte correspond à celle de l'organisation."
+  },
+  "orgTrustWarning1": {
+    "message": "Cette organisation a une politique de sécurité Entreprise qui vous inscrira dans la récupération de votre compte. L'inscription permettra aux administrateurs de l'organisation de changer votre mot de passe. Continuez seulement si vous reconnaissez cette organisation et que la phrase d'empreinte affichée ci-dessous correspond à l'empreinte de l'organisation."
   },
   "trustUser": {
     "message": "Faire confiance à l'utilisateur"
@@ -10599,10 +10614,10 @@
     "message": "Ne pas autoriser les membres à déverrouiller leur compte avec un NIP."
   },
   "upgradeForFullEventsMessage": {
-    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
+    "message": "Les journaux d'événements ne sont pas conservés pour votre organisation. Mettez à niveau vers un forfait Équipes ou Entreprise pour obtenir un accès complet aux journaux d'événements de l'organisation."
   },
   "upgradeEventLogTitleMessage": {
-    "message": "Upgrade to see event logs from your organization."
+    "message": "Mettez à niveau pour voir les journaux d'événements de votre organisation."
   },
   "upgradeEventLogMessage": {
     "message": "Ces événements sont des exemples et ne reflètent pas les événements réels au sein de votre organisation Bitwarden."
@@ -10619,7 +10634,40 @@
   "newBusinessUnit": {
     "message": "Nouvelle unité d'affaires"
   },
+  "newLoginNudgeTitle": {
+    "message": "Gagnez du temps avec le remplissage automatique"
+  },
+  "newLoginNudgeBody": {
+    "message": "Inclure une adresse de site web pour que cet identifiant apparaisse comme une suggestion de remplissage automatique."
+  },
+  "newCardNudgeTitle": {
+    "message": "Paiement en ligne transparent"
+  },
+  "newCardNudgeBody": {
+    "message": "Avec les cartes, remplissez facilement les formulaires de paiement en toute sécurité et avec précision."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplifier la création de comptes"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Avec les identités, remplissez rapidement de longs formulaires d'inscription ou de contact."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Gardez vos données sensibles en sécurité"
+  },
+  "newNoteNudgeBody": {
+    "message": "Avec les notes, conservez en toute sécurité des données sensibles comme les informations bancaires ou d'assurances."
+  },
+  "newSshNudgeTitle": {
+    "message": "Accès SSH convivial pour les développeurs"
+  },
+  "newSshNudgeBody": {
+    "message": "Enregistrez vos clés et connectez-vous avec l'agent SSH pour une authentification rapide et chiffrée."
+  },
   "restart": {
     "message": "Redémarrer"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Le paiement avec un compte bancaire est seulement disponible pour les clients aux États-Unis. Vous devrez procéder à la vérification de votre compte bancaire. Nous effectuerons un micro-dépôt dans les 1-2 prochains jours ouvrables. Entrez le code de la transaction de ce dépôt sur la page d'abonnement de votre fournisseur pour compléter la vérification du compte bancaire. Si vous ne complétez pas la vérification de votre compte bancaire résultera en un paiement manqué et votre abonnement sera suspendu."
   }
 }

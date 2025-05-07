@@ -8,7 +8,9 @@ import { themes, typography } from "../../../content/components/constants/styles
 import { CipherInfoIndicatorIcons } from "./cipher-indicator-icons";
 import { NotificationCipherData } from "./types";
 
-export function CipherInfo({ cipher, theme }: { cipher: NotificationCipherData; theme: Theme }) {
+export type CipherInfoProps = { cipher: NotificationCipherData; theme: Theme };
+
+export function CipherInfo({ cipher, theme }: CipherInfoProps) {
   const { name, login, organizationCategories } = cipher;
   const hasIndicatorIcons = organizationCategories?.length;
 

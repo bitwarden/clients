@@ -55,7 +55,6 @@ export class OrganizationLayoutComponent implements OnInit {
   protected readonly logo = AdminConsoleLogo;
 
   protected orgFilter = (org: Organization) => canAccessOrgAdmin(org);
-  protected domainVerificationNavigationTextKey: string;
 
   protected integrationPageEnabled$: Observable<boolean>;
 
@@ -145,12 +144,6 @@ export class OrganizationLayoutComponent implements OnInit {
     );
 
     this.integrationPageEnabled$ = this.organization$.pipe(map((org) => org.canAccessIntegrations));
-
-    this.domainVerificationNavigationTextKey = (await this.configService.getFeatureFlag(
-      FeatureFlag.AccountDeprovisioning,
-    ))
-      ? "claimedDomains"
-      : "domainVerification";
 
     this.canShowPoliciesTab$ = this.organization$.pipe(
       switchMap((organization) =>
