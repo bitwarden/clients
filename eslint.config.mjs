@@ -154,7 +154,7 @@ export default tseslint.config(
         },
       ],
       "no-restricted-syntax": [
-        "warn",
+        "error",
         {
           selector: "TSEnumDeclaration",
           message: "Switching to using consts instead of enums.",
@@ -207,6 +207,10 @@ export default tseslint.config(
     rules: {
       "no-restricted-syntax": [
         "error",
+        {
+          selector: "TSEnumDeclaration",
+          message: "Switching to using consts instead of enums.",
+        },
         {
           message:
             "Using addListener in the browser popup produces a memory leak in Safari, use `BrowserApi.addListener` instead",
