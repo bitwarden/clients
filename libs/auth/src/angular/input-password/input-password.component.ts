@@ -596,4 +596,18 @@ export class InputPasswordComponent implements OnInit {
   protected getPasswordStrengthScore(score: PasswordStrengthScore) {
     this.passwordStrengthScore = score;
   }
+
+  copy() {
+    const value = this.formGroup.value.newPassword;
+    if (value == null) {
+      return;
+    }
+
+    this.platformUtilsService.copyToClipboard(value, { window: window });
+    this.toastService.showToast({
+      variant: "info",
+      title: null,
+      message: this.i18nService.t("valueCopied", this.i18nService.t("password")),
+    });
+  }
 }
