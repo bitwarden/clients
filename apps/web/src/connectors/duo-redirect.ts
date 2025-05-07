@@ -57,11 +57,11 @@ window.addEventListener("load", async () => {
  * @param redirectUrl the duo auth url
  */
 export function redirectToDuoFrameless(redirectUrl: string) {
-  // Regex to match a valid duo redirect URL
+  // Validation for duo redirect URL to prevent open redirect or XSS vulnerabilities
   /**
    * This regex checks for the following:
-   * The string must start with "https://api-"
-   * Followed by a subdomain that can contain letters, numbers
+   * The hostname must start with a subdomain that begins with "api-" followed by a
+   * string that can contain letters or numbers of indeterminate length
    * Followed by either "duosecurity.com" or "duofederal.com"
    * This ensures that the redirect does not contain any malicious content
    * and is a valid Duo URL.
@@ -79,14 +79,23 @@ export function redirectToDuoFrameless(redirectUrl: string) {
     throw new Error("Invalid redirect URL: invalid protocol");
   }
 
+  // Check that the port is not specified
+  if (validateUrl.port && validateUrl.port !== "443") {
+    throw new Error("Invalid redirect URL: port not allowed");
+  }
+
+  if (validateUrl.pathname !== "/oauth/v1/authorize") {
+    throw new Error("Invalid redirect URL: invalid pathname");
+  }
+
   // Check if the redirect hostname matches the regex
   // Only check the hostname part of the URL to avoid over-zealous Regex expressions from matching
-  // and causing an Open Redirect vulnerability
-  if (!duoRedirectUrlRegex.test(validateUrl.host)) {
+  // and causing an Open Redirect vulnerability. Always use hostname instead of host, because host includes port if specified.
+  if (!duoRedirectUrlRegex.test(validateUrl.hostname)) {
     throw new Error("Invalid redirect URL");
   }
 
-  window.location.href = decodeURIComponent(redirectUrl);
+  window.location.href = redirectUrl;
 }
 
 /**
