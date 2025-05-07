@@ -10,6 +10,7 @@ import {
   HasItemsNudgeService,
   EmptyVaultNudgeService,
   AutofillNudgeService,
+  DownloadBitwardenNudgeService,
   NewItemNudgeService,
 } from "./custom-nudges-services";
 import { DefaultSingleNudgeService, SingleNudgeService } from "./default-single-nudge.service";
@@ -29,6 +30,7 @@ export enum VaultNudgeType {
   EmptyVaultNudge = "empty-vault-nudge",
   HasVaultItems = "has-vault-items",
   AutofillNudge = "autofill-nudge",
+  DownloadBitwarden = "download-bitwarden",
   newLoginItemStatus = "new-login-item-status",
   newCardItemStatus = "new-card-item-status",
   newIdentityItemStatus = "new-identity-item-status",
@@ -54,10 +56,11 @@ export class VaultNudgesService {
    * Each nudge type can have its own service to determine when to show the nudge
    * @private
    */
-  private customNudgeServices: any = {
+  private customNudgeServices: Partial<Record<VaultNudgeType, SingleNudgeService>> = {
     [VaultNudgeType.HasVaultItems]: inject(HasItemsNudgeService),
     [VaultNudgeType.EmptyVaultNudge]: inject(EmptyVaultNudgeService),
     [VaultNudgeType.AutofillNudge]: inject(AutofillNudgeService),
+    [VaultNudgeType.DownloadBitwarden]: inject(DownloadBitwardenNudgeService),
     [VaultNudgeType.newLoginItemStatus]: this.newItemNudgeService,
     [VaultNudgeType.newCardItemStatus]: this.newItemNudgeService,
     [VaultNudgeType.newIdentityItemStatus]: this.newItemNudgeService,

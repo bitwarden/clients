@@ -9,7 +9,7 @@ import { debounceTime, map } from "rxjs";
 import {
   MemberCipherDetailsApiService,
   PasswordHealthService,
-} from "@bitwarden/bit-common/tools/reports/risk-insights";
+} from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";

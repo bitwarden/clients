@@ -1,10 +1,10 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { firstValueFrom, map, Observable } from "rxjs";
+import { filter, firstValueFrom, map, Observable, shareReplay, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
 import { BrowserClientVendor } from "@bitwarden/common/autofill/types";
@@ -41,6 +41,23 @@ export class SettingsV2Component implements OnInit {
   activeUserId: UserId | null = null;
   protected browserClientVendor: BrowserClientVendor = BrowserClientVendors.Unknown;
 
+  private authenticatedAccount$: Observable<Account> = this.accountService.activeAccount$.pipe(
+    filter((account): account is Account => account !== null),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  downloadBitwardenNudgeStatus$: Observable<NudgeStatus> = this.authenticatedAccount$.pipe(
+    switchMap((account) =>
+      this.vaultNudgesService.showNudge$(VaultNudgeType.DownloadBitwarden, account.id),
+    ),
+  );
+
+  showVauffltBadge$: Observable<NudgeStatus> = this.authenticatedAccount$.pipe(
+    switchMap((account) =>
+      this.vaultNudgesService.showNudge$(VaultNudgeType.EmptyVaultNudge, account.id),
+    ),
+  );
+
   constructor(
     private readonly vaultNudgesService: VaultNudgesService,
     private readonly accountService: AccountService,
@@ -71,7 +88,8 @@ export class SettingsV2Component implements OnInit {
 
   async dismissBadge(type: VaultNudgeType) {
     if (!(await firstValueFrom(this.showVaultBadge$)).hasBadgeDismissed) {
-      await this.vaultNudgesService.dismissNudge(type, this.activeUserId as UserId, true);
+      const account = await firstValueFrom(this.authenticatedAccount$);
+      await this.vaultNudgesService.dismissNudge(type, account.id as UserId, true);
     }
   }
 }

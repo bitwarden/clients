@@ -3,6 +3,7 @@ import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
@@ -55,6 +56,14 @@ describe("Vault Nudges Service", () => {
         },
         { provide: CipherService, useValue: mock<CipherService>() },
         { provide: LogService, useValue: mock<LogService>() },
+        {
+          provide: AccountService,
+          useValue: mock<AccountService>(),
+        },
+        {
+          provide: LogService,
+          useValue: mock<LogService>(),
+        },
       ],
     });
   });

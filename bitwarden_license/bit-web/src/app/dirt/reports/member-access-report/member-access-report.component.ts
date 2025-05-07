@@ -20,9 +20,9 @@ import {
   MemberDialogResult,
   MemberDialogTab,
 } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/member-dialog";
+import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
-import { exportToCSV } from "@bitwarden/web-vault/app/tools/reports/report-utils";
 
 import { MemberAccessReportApiService } from "./services/member-access-report-api.service";
 import { MemberAccessReportServiceAbstraction } from "./services/member-access-report.abstraction";
