@@ -110,7 +110,7 @@ export class VaultNudgesService {
     // Add more nudge types here if they have the settings badge feature
     const nudgeTypes = [VaultNudgeType.EmptyVaultNudge];
 
-    const nudgeTypesWithBadge = nudgeTypes.map((nudge) => {
+    const nudgeTypesWithBadge$ = nudgeTypes.map((nudge) => {
       return this.getNudgeService(nudge)
         .nudgeStatus$(nudge, userId)
         .pipe(
@@ -119,7 +119,7 @@ export class VaultNudgesService {
         );
     });
 
-    return combineLatest(nudgeTypesWithBadge).pipe(
+    return combineLatest(nudgeTypesWithBadge$).pipe(
       map((results) => results.some((result) => result === true)),
     );
   }
