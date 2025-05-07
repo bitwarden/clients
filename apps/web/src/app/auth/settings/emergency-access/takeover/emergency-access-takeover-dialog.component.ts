@@ -10,6 +10,7 @@ import {
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
@@ -78,15 +79,13 @@ export class EmergencyAccessTakeoverDialogComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-    const userId = activeAccount?.id;
-
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const grantorPolicies = await this.emergencyAccessService.getGrantorPolicies(
       this.dialogData.emergencyAccessId,
     );
 
     this.masterPasswordPolicyOptions = await firstValueFrom(
-      this.policyService.masterPasswordPolicyOptions$(userId, grantorPolicies),
+      this.policyService.masterPasswordPolicyOptions$(activeUserId, grantorPolicies),
     );
   }
 
