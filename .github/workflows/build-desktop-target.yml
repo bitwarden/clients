@@ -9,10 +9,9 @@ name: Build Desktop on PR Target
 
 on:
   pull_request_target:
-    types: [opened, synchronize]
-    branches-ignore:
-      - 'l10n_master'
-      - 'cf-pages'
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
     paths:
       - 'apps/desktop/**'
       - 'libs/**'
