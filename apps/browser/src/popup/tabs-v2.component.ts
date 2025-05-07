@@ -1,29 +1,28 @@
 import { Component } from "@angular/core";
-import { combineLatest, map, Observable } from "rxjs";
+import { combineLatest, map, Observable, switchMap } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Icons } from "@bitwarden/components";
-import { HasNudgeService } from "@bitwarden/vault";
+import { VaultNudgesService } from "@bitwarden/vault";
 
 import { NavButton } from "../platform/popup/layout/popup-tab-navigation.component";
 
 @Component({
   selector: "app-tabs-v2",
   templateUrl: "./tabs-v2.component.html",
-  providers: [HasNudgeService],
 })
 export class TabsV2Component {
-  constructor(
-    private readonly hasNudgeService: HasNudgeService,
-    private readonly configService: ConfigService,
-  ) {}
-
+  private hasActiveBadges$ = this.accountService.activeAccount$
+    .pipe(getUserId)
+    .pipe(switchMap((userId) => this.vaultNudgesService.hasActiveBadges$(userId)));
   protected navButtons$: Observable<NavButton[]> = combineLatest([
     this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge),
-    this.hasNudgeService.nudgeStatus$(),
+    this.hasActiveBadges$,
   ]).pipe(
-    map(([onboardingFeatureEnabled, nudgeStatus]) => {
+    map(([onboardingFeatureEnabled, hasBadges]) => {
       return [
         {
           label: "vault",
@@ -48,9 +47,14 @@ export class TabsV2Component {
           page: "/tabs/settings",
           icon: Icons.SettingsInactive,
           iconActive: Icons.SettingsActive,
-          showBerry: onboardingFeatureEnabled && !nudgeStatus.hasSpotlightDismissed,
+          showBerry: onboardingFeatureEnabled && hasBadges,
         },
       ];
     }),
   );
+  constructor(
+    private vaultNudgesService: VaultNudgesService,
+    private accountService: AccountService,
+    private readonly configService: ConfigService,
+  ) {}
 }
