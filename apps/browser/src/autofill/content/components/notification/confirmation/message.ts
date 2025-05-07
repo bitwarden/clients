@@ -6,7 +6,9 @@ import { Theme } from "@bitwarden/common/platform/enums";
 import { themes, typography } from "../../constants/styles";
 
 export type NotificationConfirmationMessageProps = {
+  buttonAria?: string;
   buttonText?: string;
+  itemName?: string;
   message?: string;
   messageDetails?: string;
   handleClick: (e: Event) => void;
@@ -14,6 +16,7 @@ export type NotificationConfirmationMessageProps = {
 };
 
 export function NotificationConfirmationMessage({
+  buttonAria,
   buttonText,
   message,
   messageDetails,
@@ -35,6 +38,10 @@ export function NotificationConfirmationMessage({
                       title=${buttonText}
                       class=${notificationConfirmationButtonTextStyles(theme)}
                       @click=${handleClick}
+                      @keydown=${(e: KeyboardEvent) => handleButtonKeyDown(e, () => handleClick(e))}
+                      aria-label=${buttonAria}
+                      tabindex="0"
+                      role="button"
                     >
                       ${buttonText}
                     </a>
@@ -81,3 +88,10 @@ const AdditionalMessageStyles = ({ theme }: { theme: Theme }) => css`
   font-size: 14px;
   color: ${themes[theme].text.muted};
 `;
+
+function handleButtonKeyDown(event: KeyboardEvent, handleClick: () => void) {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    handleClick();
+  }
+}
