@@ -1,11 +1,10 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { firstValueFrom, Observable } from "rxjs";
+import { filter, firstValueFrom, Observable, shareReplay, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BadgeComponent, ItemModule } from "@bitwarden/components";
 import { NudgeStatus, VaultNudgesService, VaultNudgeType } from "@bitwarden/vault";
@@ -30,26 +29,35 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     BadgeComponent,
   ],
 })
-export class SettingsV2Component implements OnInit {
+export class SettingsV2Component {
   VaultNudgeType = VaultNudgeType;
-  showVaultBadge$: Observable<NudgeStatus> = new Observable();
-  activeUserId: UserId | null = null;
+
+  private authenticatedAccount$: Observable<Account> = this.accountService.activeAccount$.pipe(
+    filter((account): account is Account => account !== null),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  downloadBitwardenNudgeStatus$: Observable<NudgeStatus> = this.authenticatedAccount$.pipe(
+    switchMap((account) =>
+      this.vaultNudgesService.showNudge$(VaultNudgeType.DownloadBitwarden, account.id),
+    ),
+  );
+
+  showVaultBadge$: Observable<NudgeStatus> = this.authenticatedAccount$.pipe(
+    switchMap((account) =>
+      this.vaultNudgesService.showNudge$(VaultNudgeType.EmptyVaultNudge, account.id),
+    ),
+  );
 
   constructor(
     private readonly vaultNudgesService: VaultNudgesService,
     private readonly accountService: AccountService,
   ) {}
-  async ngOnInit() {
-    this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    this.showVaultBadge$ = this.vaultNudgesService.showNudge$(
-      VaultNudgeType.EmptyVaultNudge,
-      this.activeUserId,
-    );
-  }
 
   async dismissBadge(type: VaultNudgeType) {
     if (!(await firstValueFrom(this.showVaultBadge$)).hasBadgeDismissed) {
-      await this.vaultNudgesService.dismissNudge(type, this.activeUserId as UserId, true);
+      const account = await firstValueFrom(this.authenticatedAccount$);
+      await this.vaultNudgesService.dismissNudge(type, account.id as UserId, true);
     }
   }
 }

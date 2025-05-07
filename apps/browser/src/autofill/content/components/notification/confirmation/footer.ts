@@ -4,11 +4,12 @@ import { html } from "lit";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { ActionButton } from "../../buttons/action-button";
+import { I18n } from "../../common-types";
 import { spacing, themes } from "../../constants/styles";
 import { ExternalLink } from "../../icons";
 
 export type NotificationConfirmationFooterProps = {
-  i18n: { [key: string]: string };
+  i18n: I18n;
   theme: Theme;
   handleButtonClick: (event: Event) => void;
 };

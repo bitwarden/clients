@@ -40,6 +40,11 @@ import { SponsoredFamiliesComponent } from "../billing/settings/sponsored-famili
 import { SponsoringOrgRowComponent } from "../billing/settings/sponsoring-org-row.component";
 import { DynamicAvatarComponent } from "../components/dynamic-avatar.component";
 import { SelectableAvatarComponent } from "../components/selectable-avatar.component";
+import { ExposedPasswordsReportComponent as OrgExposedPasswordsReportComponent } from "../dirt/reports/pages/organizations/exposed-passwords-report.component";
+import { InactiveTwoFactorReportComponent as OrgInactiveTwoFactorReportComponent } from "../dirt/reports/pages/organizations/inactive-two-factor-report.component";
+import { ReusedPasswordsReportComponent as OrgReusedPasswordsReportComponent } from "../dirt/reports/pages/organizations/reused-passwords-report.component";
+import { UnsecuredWebsitesReportComponent as OrgUnsecuredWebsitesReportComponent } from "../dirt/reports/pages/organizations/unsecured-websites-report.component";
+import { WeakPasswordsReportComponent as OrgWeakPasswordsReportComponent } from "../dirt/reports/pages/organizations/weak-passwords-report.component";
 import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import { FrontendLayoutComponent } from "../layouts/frontend-layout.component";
 import { HeaderModule } from "../layouts/header/header.module";
@@ -48,11 +53,6 @@ import { UserLayoutComponent } from "../layouts/user-layout.component";
 import { DomainRulesComponent } from "../settings/domain-rules.component";
 import { PreferencesComponent } from "../settings/preferences.component";
 /* eslint no-restricted-imports: "off" -- Temporarily disabled until Tools refactors these out of this module */
-import { ExposedPasswordsReportComponent as OrgExposedPasswordsReportComponent } from "../tools/reports/pages/organizations/exposed-passwords-report.component";
-import { InactiveTwoFactorReportComponent as OrgInactiveTwoFactorReportComponent } from "../tools/reports/pages/organizations/inactive-two-factor-report.component";
-import { ReusedPasswordsReportComponent as OrgReusedPasswordsReportComponent } from "../tools/reports/pages/organizations/reused-passwords-report.component";
-import { UnsecuredWebsitesReportComponent as OrgUnsecuredWebsitesReportComponent } from "../tools/reports/pages/organizations/unsecured-websites-report.component";
-import { WeakPasswordsReportComponent as OrgWeakPasswordsReportComponent } from "../tools/reports/pages/organizations/weak-passwords-report.component";
 /* eslint no-restricted-imports: "error" */
 import { PremiumBadgeComponent } from "../vault/components/premium-badge.component";
 import { FolderAddEditComponent } from "../vault/individual-vault/folder-add-edit.component";

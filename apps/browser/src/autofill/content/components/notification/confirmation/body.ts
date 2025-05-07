@@ -15,21 +15,23 @@ const { css } = createEmotion({
 });
 
 export type NotificationConfirmationBodyProps = {
+  buttonAria: string;
   buttonText: string;
-  itemName: string;
   confirmationMessage: string;
   error?: string;
+  itemName?: string;
   messageDetails?: string;
   tasksAreComplete?: boolean;
   theme: Theme;
-  handleOpenVault: () => void;
+  handleOpenVault: (e: Event) => void;
 };
 
 export function NotificationConfirmationBody({
+  buttonAria,
   buttonText,
-  itemName,
   confirmationMessage,
   error,
+  itemName,
   messageDetails,
   tasksAreComplete,
   theme,
@@ -44,6 +46,7 @@ export function NotificationConfirmationBody({
       <div class=${iconContainerStyles(error)}>${IconComponent({ theme })}</div>
       ${showConfirmationMessage
         ? NotificationConfirmationMessage({
+            buttonAria,
             buttonText,
             itemName,
             message: confirmationMessage,
