@@ -66,6 +66,10 @@ import { GroupApiService } from "../core";
 import { OrganizationUserView } from "../core/views/organization-user.view";
 import { openEntityEventsDialog } from "../manage/entity-events.component";
 
+import {
+  AccountRecoveryDialogComponent,
+  AccountRecoveryDialogResult,
+} from "./components/account-recovery/account-recovery-dialog.component";
 import { BulkConfirmDialogComponent } from "./components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "./components/bulk/bulk-delete-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "./components/bulk/bulk-enable-sm-dialog.component";
@@ -749,18 +753,38 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   async resetPassword(user: OrganizationUserView) {
-    const dialogRef = ResetPasswordComponent.open(this.dialogService, {
-      data: {
-        name: this.userNamePipe.transform(user),
-        email: user != null ? user.email : null,
-        organizationId: this.organization.id,
-        id: user != null ? user.id : null,
-      },
-    });
+    const changePasswordRefactorFlag = await this.configService.getFeatureFlag(
+      FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
+    );
 
-    const result = await lastValueFrom(dialogRef.closed);
-    if (result === ResetPasswordDialogResult.Ok) {
-      await this.load();
+    if (changePasswordRefactorFlag) {
+      const dialogRef = AccountRecoveryDialogComponent.open(this.dialogService, {
+        data: {
+          name: this.userNamePipe.transform(user),
+          email: user != null ? user.email : null,
+          organizationId: this.organization.id,
+          id: user != null ? user.id : null,
+        },
+      });
+
+      const result = await lastValueFrom(dialogRef.closed);
+      if (result === AccountRecoveryDialogResult.Ok) {
+        await this.load();
+      }
+    } else {
+      const dialogRef = ResetPasswordComponent.open(this.dialogService, {
+        data: {
+          name: this.userNamePipe.transform(user),
+          email: user != null ? user.email : null,
+          organizationId: this.organization.id,
+          id: user != null ? user.id : null,
+        },
+      });
+
+      const result = await lastValueFrom(dialogRef.closed);
+      if (result === ResetPasswordDialogResult.Ok) {
+        await this.load();
+      }
     }
   }
 
