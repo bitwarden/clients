@@ -263,35 +263,19 @@ export class InputPasswordComponent implements OnInit {
       return;
     }
 
+    const currentPassword = this.formGroup.controls.currentPassword?.value ?? "";
+    const newPassword = this.formGroup.controls.newPassword.value;
+    const newPasswordHint = this.formGroup.controls.newPasswordHint?.value ?? "";
+    const checkForBreaches = this.formGroup.controls.checkForBreaches?.value ?? true;
+
     if (this.flow === InputPasswordFlow.ChangePasswordDelegation) {
-      const newPassword = this.formGroup.controls.newPassword.value;
-
-      const newPasswordVerified = await this.verifyNewPassword(
-        newPassword,
-        this.passwordStrengthScore,
-        false,
-      );
-      if (!newPasswordVerified) {
-        return;
-      }
-
-      const passwordInputResult: PasswordInputResult = {
-        newPassword,
-      };
-
-      this.onPasswordFormSubmit.emit(passwordInputResult);
-
+      await this.handleChangePasswordDelegationFlow(newPassword);
       return;
     }
 
     if (!this.email) {
       throw new Error("Email is required to create master key.");
     }
-
-    const currentPassword = this.formGroup.controls.currentPassword?.value ?? "";
-    const newPassword = this.formGroup.controls.newPassword.value;
-    const newPasswordHint = this.formGroup.controls.newPasswordHint?.value ?? "";
-    const checkForBreaches = this.formGroup.controls.checkForBreaches?.value ?? true;
 
     // 1. Determine kdfConfig
     if (this.flow === InputPasswordFlow.SetInitialPasswordAccountRegistration) {
@@ -439,6 +423,23 @@ export class InputPasswordComponent implements OnInit {
         throw new Error("This flow requires that an email be passed down.");
       }
     }
+  }
+
+  private async handleChangePasswordDelegationFlow(newPassword: string) {
+    const newPasswordVerified = await this.verifyNewPassword(
+      newPassword,
+      this.passwordStrengthScore,
+      false,
+    );
+    if (!newPasswordVerified) {
+      return;
+    }
+
+    const passwordInputResult: PasswordInputResult = {
+      newPassword,
+    };
+
+    this.onPasswordFormSubmit.emit(passwordInputResult);
   }
 
   /**
