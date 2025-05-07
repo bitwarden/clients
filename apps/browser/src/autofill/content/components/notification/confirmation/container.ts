@@ -9,6 +9,7 @@ import {
   NotificationType,
   NotificationTypes,
 } from "../../../../notification/abstractions/notification-bar";
+import { I18n } from "../../common-types";
 import { themes, spacing } from "../../constants/styles";
 import {
   NotificationHeader,
@@ -20,11 +21,11 @@ import { NotificationConfirmationFooter } from "./footer";
 
 export type NotificationConfirmationContainerProps = NotificationBarIframeInitData & {
   handleCloseNotification: (e: Event) => void;
-  handleOpenVault: () => void;
+  handleOpenVault: (e: Event) => void;
   handleOpenTasks: (e: Event) => void;
 } & {
   error?: string;
-  i18n: { [key: string]: string };
+  i18n: I18n;
   itemName: string;
   task?: NotificationTaskInfo;
   type: NotificationType;
@@ -44,6 +45,7 @@ export function NotificationConfirmationContainer({
   const headerMessage = getHeaderMessage(i18n, type, error);
   const confirmationMessage = getConfirmationMessage(i18n, itemName, type, error);
   const buttonText = error ? i18n.newItem : i18n.view;
+  const buttonAria = chrome.i18n.getMessage("notificationViewAria", [itemName]);
 
   let messageDetails: string | undefined;
   let remainingTasksCount: number | undefined;
@@ -70,11 +72,13 @@ export function NotificationConfirmationContainer({
         theme,
       })}
       ${NotificationConfirmationBody({
+        buttonAria,
         buttonText,
-        itemName,
         confirmationMessage,
-        tasksAreComplete,
+        error,
+        itemName,
         messageDetails,
+        tasksAreComplete,
         theme,
         handleOpenVault,
       })}
@@ -106,7 +110,7 @@ const notificationContainerStyles = (theme: Theme) => css`
 `;
 
 function getConfirmationMessage(
-  i18n: { [key: string]: string },
+  i18n: I18n,
   itemName: string,
   type?: NotificationType,
   error?: string,
@@ -117,14 +121,10 @@ function getConfirmationMessage(
   if (error) {
     return i18n.saveFailureDetails;
   }
-  return type === "add" ? loginSaveConfirmation : loginUpdatedConfirmation;
+  return type === NotificationTypes.Add ? loginSaveConfirmation : loginUpdatedConfirmation;
 }
 
-function getHeaderMessage(
-  i18n: { [key: string]: string },
-  type?: NotificationType,
-  error?: string,
-) {
+function getHeaderMessage(i18n: I18n, type?: NotificationType, error?: string) {
   if (error) {
     return i18n.saveFailure;
   }

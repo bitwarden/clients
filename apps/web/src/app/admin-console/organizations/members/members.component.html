@@ -345,7 +345,7 @@
                   {{ "revokeAccess" | i18n }}
                 </button>
                 <button
-                  *ngIf="!accountDeprovisioningEnabled || !u.managedByOrganization"
+                  *ngIf="!u.managedByOrganization"
                   type="button"
                   bitMenuItem
                   (click)="remove(u)"
@@ -355,7 +355,7 @@
                   </span>
                 </button>
                 <button
-                  *ngIf="accountDeprovisioningEnabled && u.managedByOrganization"
+                  *ngIf="u.managedByOrganization"
                   type="button"
                   bitMenuItem
                   (click)="deleteUser(u)"
