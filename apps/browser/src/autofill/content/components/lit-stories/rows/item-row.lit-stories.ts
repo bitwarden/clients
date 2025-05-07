@@ -1,14 +1,8 @@
 import { Meta, StoryObj } from "@storybook/web-components";
-import { TemplateResult } from "lit";
 
-import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
-import { ItemRow } from "../../rows/item-row";
-
-type Args = {
-  theme: Theme;
-  children: TemplateResult | TemplateResult[];
-};
+import { ItemRow, ItemRowProps } from "../../rows/item-row";
 
 export default {
   title: "Components/Rows/Item Row",
@@ -19,10 +13,10 @@ export default {
   args: {
     theme: ThemeTypes.Light,
   },
-} as Meta<Args>;
+} as Meta<ItemRowProps>;
 
-const Template = (args: Args) => ItemRow({ ...args });
+const Template = (args: ItemRowProps) => ItemRow({ ...args });
 
-export const Default: StoryObj<Args> = {
+export const Default: StoryObj<ItemRowProps> = {
   render: Template,
 };

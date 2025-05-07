@@ -102,7 +102,7 @@ export class DownloadAttachmentComponent {
     try {
       const encBuf = await EncArrayBuffer.fromResponse(response);
       const key = this.attachment.key != null ? this.attachment.key : this.orgKey;
-      const decBuf = await this.encryptService.decryptToBytes(encBuf, key);
+      const decBuf = await this.encryptService.decryptFileData(encBuf, key);
       this.fileDownloadService.download({
         fileName: this.attachment.fileName,
         blobData: decBuf,
