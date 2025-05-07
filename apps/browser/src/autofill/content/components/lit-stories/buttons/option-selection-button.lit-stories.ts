@@ -2,21 +2,26 @@ import { Meta, StoryObj } from "@storybook/web-components";
 
 import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
-import { EditButton, EditButtonProps } from "../../buttons/edit-button";
+import {
+  OptionSelectionButton,
+  OptionSelectionButtonProps,
+} from "../../buttons/option-selection-button";
 
 export default {
-  title: "Components/Buttons/Edit Button",
+  title: "Components/Buttons/Option Selection Button",
   argTypes: {
-    buttonAction: { control: false },
-    buttonText: { control: "text" },
     disabled: { control: "boolean" },
+    handleButtonClick: { control: false },
+    text: { control: "text" },
     theme: { control: "select", options: [...Object.values(ThemeTypes)] },
+    toggledOn: { control: "boolean" },
   },
   args: {
-    buttonAction: () => alert("Clicked"),
-    buttonText: "Click Me",
     disabled: false,
+    handleButtonClick: () => alert("Clicked"),
+    text: "Click Me",
     theme: ThemeTypes.Light,
+    toggledOn: false,
   },
   parameters: {
     design: {
@@ -24,10 +29,10 @@ export default {
       url: "https://www.figma.com/design/LEhqLAcBPY8uDKRfU99n9W/Autofill-notification-redesign?node-id=502-24633&t=2O7uCAkwRZCcjumm-4",
     },
   },
-} as Meta<EditButtonProps>;
+} as Meta<OptionSelectionButtonProps>;
 
-const Template = (args: EditButtonProps) => EditButton({ ...args });
+const Template = (args: OptionSelectionButtonProps) => OptionSelectionButton({ ...args });
 
-export const Default: StoryObj<EditButtonProps> = {
+export const Default: StoryObj<OptionSelectionButtonProps> = {
   render: Template,
 };
