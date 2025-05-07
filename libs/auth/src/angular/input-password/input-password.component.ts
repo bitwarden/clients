@@ -266,6 +266,15 @@ export class InputPasswordComponent implements OnInit {
     if (this.flow === InputPasswordFlow.ChangePasswordDelegation) {
       const newPassword = this.formGroup.controls.newPassword.value;
 
+      const newPasswordVerified = await this.verifyNewPassword(
+        newPassword,
+        this.passwordStrengthScore,
+        false,
+      );
+      if (!newPasswordVerified) {
+        return;
+      }
+
       const passwordInputResult: PasswordInputResult = {
         newPassword,
       };
