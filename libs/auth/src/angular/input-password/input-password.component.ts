@@ -652,7 +652,7 @@ export class InputPasswordComponent implements OnInit {
     this.platformUtilsService.copyToClipboard(value, { window: window });
     this.toastService.showToast({
       variant: "info",
-      title: "",
+      title: null,
       message: this.i18nService.t("valueCopied", this.i18nService.t("password")),
     });
   }
