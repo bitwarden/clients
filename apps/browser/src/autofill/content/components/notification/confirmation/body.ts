@@ -19,6 +19,7 @@ export type NotificationConfirmationBodyProps = {
   buttonText: string;
   confirmationMessage: string;
   error?: string;
+  itemName?: string;
   messageDetails?: string;
   tasksAreComplete?: boolean;
   theme: Theme;
@@ -30,6 +31,7 @@ export function NotificationConfirmationBody({
   buttonText,
   confirmationMessage,
   error,
+  itemName,
   messageDetails,
   tasksAreComplete,
   theme,
@@ -46,6 +48,7 @@ export function NotificationConfirmationBody({
         ? NotificationConfirmationMessage({
             buttonAria,
             buttonText,
+            itemName,
             message: confirmationMessage,
             messageDetails,
             theme,
