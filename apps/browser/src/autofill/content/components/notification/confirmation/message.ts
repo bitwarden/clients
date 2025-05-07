@@ -8,6 +8,7 @@ import { themes, typography } from "../../constants/styles";
 export type NotificationConfirmationMessageProps = {
   buttonAria?: string;
   buttonText?: string;
+  itemName?: string;
   message?: string;
   messageDetails?: string;
   handleClick: (e: Event) => void;
