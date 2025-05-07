@@ -275,11 +275,7 @@
           {{ "revoke" | i18n }}
         </button>
         <button
-          *ngIf="
-            this.editMode &&
-            (!(accountDeprovisioningEnabled$ | async) ||
-              !(editParams$ | async)?.managedByOrganization)
-          "
+          *ngIf="this.editMode && !(editParams$ | async)?.managedByOrganization"
           type="button"
           buttonType="danger"
           bitButton
@@ -290,11 +286,7 @@
           {{ "remove" | i18n }}
         </button>
         <button
-          *ngIf="
-            this.editMode &&
-            (accountDeprovisioningEnabled$ | async) &&
-            (editParams$ | async)?.managedByOrganization
-          "
+          *ngIf="this.editMode && (editParams$ | async)?.managedByOrganization"
           type="button"
           buttonType="danger"
           bitButton

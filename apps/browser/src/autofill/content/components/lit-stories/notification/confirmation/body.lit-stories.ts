@@ -11,6 +11,7 @@ export default {
   title: "Components/Notifications/Confirmation/Body",
   argTypes: {
     error: { control: "text" },
+    buttonAria: { control: "text" },
     buttonText: { control: "text" },
     confirmationMessage: { control: "text" },
     messageDetails: { control: "text" },
@@ -18,9 +19,12 @@ export default {
   },
   args: {
     error: "",
+    buttonAria: "View",
     buttonText: "View",
     confirmationMessage: "[item name] updated in Bitwarden.",
     messageDetails: "You can view it in your vault.",
+    tasksAreComplete: false,
+    handleOpenVault: () => window.alert("Link was clicked!"),
     theme: ThemeTypes.Light,
   },
   parameters: {

@@ -47,12 +47,12 @@ export default {
         </app-onboarding-task>
         <app-onboarding-task
           [title]="'createProject' | i18n"
-          icon="bwi-collection"
+          icon="bwi-collection-shared"
           [completed]="createProject"
         ></app-onboarding-task>
         <app-onboarding-task
           [title]="'importSecrets' | i18n"
-          icon="bwi-download"
+          icon="bwi-import"
           [completed]="importSecrets$ | async"
         ></app-onboarding-task>
         <app-onboarding-task

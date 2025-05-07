@@ -6,24 +6,23 @@ import { Theme } from "@bitwarden/common/platform/enums";
 import { themes, typography } from "../../constants/styles";
 
 export type NotificationConfirmationMessageProps = {
+  buttonAria?: string;
   buttonText?: string;
-  itemName: string;
+  itemName?: string;
   message?: string;
   messageDetails?: string;
-  handleClick: () => void;
+  handleClick: (e: Event) => void;
   theme: Theme;
 };
 
 export function NotificationConfirmationMessage({
+  buttonAria,
   buttonText,
-  itemName,
   message,
   messageDetails,
   handleClick,
   theme,
 }: NotificationConfirmationMessageProps) {
-  const buttonAria = chrome.i18n.getMessage("notificationViewAria", [itemName]);
-
   return html`
     <div>
       ${message || buttonText
@@ -39,7 +38,7 @@ export function NotificationConfirmationMessage({
                       title=${buttonText}
                       class=${notificationConfirmationButtonTextStyles(theme)}
                       @click=${handleClick}
-                      @keydown=${(e: KeyboardEvent) => handleButtonKeyDown(e, handleClick)}
+                      @keydown=${(e: KeyboardEvent) => handleButtonKeyDown(e, () => handleClick(e))}
                       aria-label=${buttonAria}
                       tabindex="0"
                       role="button"
