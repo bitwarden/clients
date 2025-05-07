@@ -10,6 +10,7 @@ import {
 export default {
   title: "Components/Notifications/Confirmation/Message",
   argTypes: {
+    buttonAria: { control: "text" },
     buttonText: { control: "text" },
     message: { control: "text" },
     messageDetails: { control: "text" },
@@ -19,6 +20,7 @@ export default {
     buttonText: "View",
     message: "[item name] updated in Bitwarden.",
     messageDetails: "It was added to your vault.",
+    handleClick: () => window.alert("link was clicked!"),
     theme: ThemeTypes.Light,
   },
   parameters: {
