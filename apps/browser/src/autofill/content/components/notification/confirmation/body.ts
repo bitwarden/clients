@@ -19,7 +19,7 @@ export type NotificationConfirmationBodyProps = {
   buttonText: string;
   confirmationMessage: string;
   error?: string;
-  itemName: string;
+  itemName?: string;
   messageDetails?: string;
   tasksAreComplete?: boolean;
   theme: Theme;
