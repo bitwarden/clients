@@ -4,9 +4,10 @@
   enabledManagers: ["cargo", "github-actions", "npm"],
   packageRules: [
     {
+      // Group all Github Action minor updates together to reduce PR noise.
       groupName: "Github Action Minor",
       matchManagers: ["github-actions"],
-      matchUpdateTypes: ["minor", "patch"],
+      matchUpdateTypes: ["minor"],
       addLabels: ["hold"],
     },
     {
@@ -38,49 +39,17 @@
       enabled: false,
     },
     {
-      // Renovate should manage patch updates for TypeScript and Zone.js, despite ignoring major and minor.
-      matchPackageNames: ["typescript", "zone.js"],
-      matchUpdateTypes: "patch",
+      // Renovate should manage minor and patch updates for TypeScript, despite ignoring major.
+      matchPackageNames: ["typescript"],
+      matchUpdateTypes: ["minor", "patch"],
     },
     {
-      // We want to update all the Jest-related packages together, to reduce PR noise.
-      groupName: "jest",
-      matchPackageNames: ["@types/jest", "jest", "ts-jest", "jest-preset-angular"],
+      // Renovate should manage minor updates for zone.js, despite ignoring major.
+      matchPackageNames: ["zone.js"],
+      matchUpdateTypes: ["minor"],
     },
     {
-      // We need to group all napi-related packages together to avoid build errors caused by version incompatibilities.
-      groupName: "napi",
-      matchPackageNames: ["napi", "napi-build", "napi-derive"],
-    },
-    {
-      // We need to group all macOS/iOS binding-related packages together to avoid build errors caused by version incompatibilities.
-      groupName: "macOS/iOS bindings",
-      matchPackageNames: ["core-foundation", "security-framework", "security-framework-sys"],
-    },
-    {
-      // We need to group all zbus-related packages together to avoid build errors caused by version incompatibilities.
-      groupName: "zbus",
-      matchPackageNames: ["zbus", "zbus_polkit"],
-    },
-    {
-      matchPackageNames: [
-        "base64-loader",
-        "buffer",
-        "bufferutil",
-        "core-js",
-        "css-loader",
-        "html-loader",
-        "mini-css-extract-plugin",
-        "postcss",
-        "postcss-loader",
-        "process",
-        "sass",
-        "sass-loader",
-        "style-loader",
-        "ts-loader",
-        "url",
-        "util",
-      ],
+      matchPackageNames: ["buffer", "bufferutil", "core-js", "process", "url", "util"],
       description: "Admin Console owned dependencies",
       commitMessagePrefix: "[deps] AC:",
       reviewers: ["team:team-admin-console-dev"],
@@ -131,8 +100,8 @@
         "lint-staged",
         "typescript-eslint",
       ],
-      groupName: "Linting minor-patch",
-      matchUpdateTypes: ["minor", "patch"],
+      groupName: "Linting minor updates",
+      matchUpdateTypes: ["minor"],
     },
     {
       matchPackageNames: [
@@ -188,6 +157,7 @@
         "anyhow",
         "arboard",
         "babel-loader",
+        "base64-loader",
         "base64",
         "bindgen",
         "browserslist",
@@ -195,6 +165,7 @@
         "bytes",
         "core-foundation",
         "copy-webpack-plugin",
+        "css-loader",
         "dirs",
         "electron",
         "electron-builder",
@@ -206,6 +177,7 @@
         "futures",
         "hex",
         "homedir",
+        "html-loader",
         "html-webpack-injector",
         "html-webpack-plugin",
         "interprocess",
@@ -214,6 +186,7 @@
         "libc",
         "log",
         "lowdb",
+        "mini-css-extract-plugin",
         "napi",
         "napi-build",
         "napi-derive",
@@ -224,15 +197,21 @@
         "oslog",
         "pin-project",
         "pkg",
+        "postcss",
+        "postcss-loader",
         "rand",
         "rxjs",
+        "sass",
+        "sass-loader",
         "scopeguard",
         "security-framework",
         "security-framework-sys",
         "serde",
         "serde_json",
         "simplelog",
+        "style-loader",
         "sysinfo",
+        "ts-loader",
         "tsconfig-paths-webpack-plugin",
         "type-fest",
         "typenum",
@@ -253,6 +232,52 @@
       description: "Platform owned dependencies",
       commitMessagePrefix: "[deps] Platform:",
       reviewers: ["team:team-platform-dev"],
+    },
+    {
+      // We need to group all napi-related packages together to avoid build errors caused by version incompatibilities.
+      groupName: "napi",
+      matchPackageNames: ["napi", "napi-build", "napi-derive"],
+    },
+    {
+      // We need to group all macOS/iOS binding-related packages together to avoid build errors caused by version incompatibilities.
+      groupName: "macOS/iOS bindings",
+      matchPackageNames: ["core-foundation", "security-framework", "security-framework-sys"],
+    },
+    {
+      // We need to group all zbus-related packages together to avoid build errors caused by version incompatibilities.
+      groupName: "zbus",
+      matchPackageNames: ["zbus", "zbus_polkit"],
+    },
+    {
+      // We group all webpack build-related minor and patch updates together to reduce PR noise.
+      // We include patch updates here because we want PRs for webpack patch updates and it's in this group.
+      matchPackageNames: [
+        "@babel/core",
+        "@babel/preset-env",
+        "babel-loader",
+        "base64-loader",
+        "browserslist",
+        "copy-webpack-plugin",
+        "css-loader",
+        "html-loader",
+        "html-webpack-injector",
+        "html-webpack-plugin",
+        "mini-css-extract-plugin",
+        "postcss-loader",
+        "postcss",
+        "sass-loader",
+        "sass",
+        "style-loader",
+        "ts-loader",
+        "tsconfig-paths-webpack-plugin",
+        "webpack-cli",
+        "webpack-dev-server",
+        "webpack-node-externals",
+        "webpack",
+      ],
+      description: "webpack-related build dependencies",
+      groupName: "webpack minor updates",
+      matchUpdateTypes: ["minor", "patch"],
     },
     {
       matchPackageNames: [
@@ -302,6 +327,7 @@
     {
       matchPackageNames: [
         "@types/jest",
+        "jest",
         "jest-junit",
         "jest-mock-extended",
         "jest-preset-angular",
@@ -311,6 +337,11 @@
       description: "Secrets Manager owned dependencies",
       commitMessagePrefix: "[deps] SM:",
       reviewers: ["team:team-secrets-manager-dev"],
+    },
+    {
+      // We need to update several Jest-related packages together, for version compatibility.
+      groupName: "jest",
+      matchPackageNames: ["@types/jest", "jest", "ts-jest", "jest-preset-angular"],
     },
     {
       matchPackageNames: [
