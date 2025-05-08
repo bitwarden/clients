@@ -80,7 +80,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
   protected focusVisibleWithin = signal(false);
   @HostListener("focusin", ["$event.target"])
   onFocusIn(target: HTMLElement) {
-    this.focusVisibleWithin.set(target.matches(".fvw-target:focus-visible"));
+    this.focusVisibleWithin.set(target.matches("[data-fvw-target]:focus-visible"));
   }
   @HostListener("focusout")
   onFocusOut() {

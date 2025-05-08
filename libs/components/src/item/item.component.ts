@@ -19,7 +19,7 @@ import { ItemActionComponent } from "./item-action.component";
   providers: [{ provide: A11yRowDirective, useExisting: ItemComponent }],
   host: {
     class:
-      "tw-block tw-box-border tw-overflow-hidden tw-flex tw-bg-background [&:has(.item-main-content_button:hover,.item-main-content_a:hover)]:tw-cursor-pointer [&:has(.item-main-content_button:hover,.item-main-content_a:hover)]:tw-bg-primary-100 tw-text-main tw-border-solid tw-border-b tw-border-0 [&:not(bit-layout_*)]:tw-rounded-lg bit-compact:[&:not(bit-layout_*)]:tw-rounded-none bit-compact:[&:not(bit-layout_*)]:last-of-type:tw-rounded-b-lg bit-compact:[&:not(bit-layout_*)]:first-of-type:tw-rounded-t-lg tw-min-h-9 tw-mb-1.5 bit-compact:tw-mb-0",
+      "tw-block tw-box-border tw-overflow-hidden tw-flex tw-bg-background [&:has([data-item-main-content]_button:hover,[data-item-main-content]_a:hover)]:tw-cursor-pointer [&:has([data-item-main-content]_button:hover,[data-item-main-content]_a:hover)]:tw-bg-primary-100 tw-text-main tw-border-solid tw-border-b tw-border-0 [&:not(bit-layout_*)]:tw-rounded-lg bit-compact:[&:not(bit-layout_*)]:tw-rounded-none bit-compact:[&:not(bit-layout_*)]:last-of-type:tw-rounded-b-lg bit-compact:[&:not(bit-layout_*)]:first-of-type:tw-rounded-t-lg tw-min-h-9 tw-mb-1.5 bit-compact:tw-mb-0",
   },
 })
 export class ItemComponent extends A11yRowDirective {
@@ -29,7 +29,7 @@ export class ItemComponent extends A11yRowDirective {
   protected focusVisibleWithin = signal(false);
   @HostListener("focusin", ["$event.target"])
   onFocusIn(target: HTMLElement) {
-    this.focusVisibleWithin.set(target.matches(".fvw-target:focus-visible"));
+    this.focusVisibleWithin.set(target.matches("[data-fvw-target]:focus-visible"));
   }
   @HostListener("focusout")
   onFocusOut() {
