@@ -77,13 +77,20 @@ export function deepLinkGuard(): CanActivateFn {
     }
     const lowerCaseUrl: string = url.toLocaleLowerCase();
 
-    // Login --> Deep link to vault item --> deepLinkGuard catches & saves --> user lands on login page
-    // User logs in via SSO with TDE on untrusted device --> user lands on login-initiated page
-    // User has MP so attempts to unlock via MP --> user goes to lock page
-    // Lock page is guarded by deepLinkGuard. Previously, it would save the login-initiated url
-    // as a deep link which would overwrite the vault item deep link.
+    /**
+     * "Login-initiated" ignored because it is used for TDE users decrypting from a new device. A TDE user
+     * can opt to decrypt using their password. Decrypting with a password will send the user to the lock component,
+     * which is protected by the deep link guard. We don't persist the `login-initiated` url because it is not a
+     * valid deep-link. We don't want users to be sent to the login-initiated url when they are unlocked.
+     * If we did navigate to the login-initiated url, the user would get caught by the TDE Guard and be sent
+     * to the vault and not the intended deep link.
+     *
+     * "Lock" is ignored because users cannot deep-link to the lock component if they are already unlocked.
+     * Users logging in with SSO will be sent to the lock component after they are authenticated with their IdP.
+     * SSO users would be navigated to the "lock" component loop if we persisted the "lock" url.
+     */
 
-    if (lowerCaseUrl.includes("login-initiated") || lowerCaseUrl.includes("lock")) {
+    if (lowerCaseUrl.includes("/login-initiated") || lowerCaseUrl.includes("/lock")) {
       return false;
     }
 
