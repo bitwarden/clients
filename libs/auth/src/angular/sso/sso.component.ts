@@ -541,14 +541,6 @@ export class SsoComponent implements OnInit {
     });
   }
 
-  private async handleForcePasswordReset(orgIdentifier: string) {
-    await this.router.navigate(["update-temp-password"], {
-      queryParams: {
-        identifier: orgIdentifier,
-      },
-    });
-  }
-
   private async handleSuccessfulLogin() {
     await this.router.navigate(["lock"]);
   }

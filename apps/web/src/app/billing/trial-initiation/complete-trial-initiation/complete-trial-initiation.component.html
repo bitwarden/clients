@@ -48,6 +48,7 @@
             ? SubscriptionProduct.SecretsManager
             : SubscriptionProduct.PasswordManager
         "
+        [trialLength]="trialLength"
         (steppedBack)="previousStep()"
         (organizationCreated)="createdOrganization($event)"
       >
@@ -58,6 +59,7 @@
         [email]="email"
         [orgLabel]="orgLabel"
         [product]="this.product"
+        [trialLength]="trialLength"
       ></app-trial-confirmation-details>
       <div class="tw-mb-3 tw-flex">
         <a

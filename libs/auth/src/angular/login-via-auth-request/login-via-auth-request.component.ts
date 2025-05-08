@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { IsActiveMatchOptions, Router, RouterModule } from "@angular/router";
-import { firstValueFrom, map } from "rxjs";
+import { Observable, filter, firstValueFrom, map, merge, race, take, timer } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -19,7 +19,6 @@ import { AuthRequestType } from "@bitwarden/common/auth/enums/auth-request-type"
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/admin-auth-req-storable";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { AuthRequest } from "@bitwarden/common/auth/models/request/auth.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { LoginViaAuthRequestView } from "@bitwarden/common/auth/models/view/login-via-auth-request.view";
@@ -178,7 +177,26 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
   private async initStandardAuthRequestFlow(): Promise<void> {
     this.flow = Flow.StandardAuthRequest;
 
-    this.email = (await firstValueFrom(this.loginEmailService.loginEmail$)) || undefined;
+    // For a standard flow, we can get the user's email from two different places:
+    // 1. The loginEmailService, which is the email that the user is trying to log in with. This is cleared
+    // when the user logs in successfully.  We can use this when the user is using Login with Device.
+    // 2. With TDE Login with Another Device, the user is already logged in and we just need to get
+    // a decryption key, so we can use the active account's email.
+    const activeAccountEmail$: Observable<string | undefined> =
+      this.accountService.activeAccount$.pipe(map((a) => a?.email));
+    const loginEmail$: Observable<string | null> = this.loginEmailService.loginEmail$;
+
+    // Use merge as we want to get the first value from either observable.
+    const firstEmail$ = merge(loginEmail$, activeAccountEmail$).pipe(
+      filter((e): e is string => !!e), // convert null/undefined to false and filter out so we narrow type to string
+      take(1), // complete after first value
+    );
+
+    const emailRetrievalTimeout$ = timer(2500).pipe(map(() => undefined as undefined));
+
+    // Wait for either the first email or the timeout to occur so we can proceed
+    // neither above observable will complete, so we have to add a timeout
+    this.email = await firstValueFrom(race(firstEmail$, emailRetrievalTimeout$));
 
     if (!this.email) {
       await this.handleMissingEmail();
@@ -801,8 +819,6 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
   private async handlePostLoginNavigation(loginResponse: AuthResult) {
     if (loginResponse.requiresTwoFactor) {
       await this.router.navigate(["2fa"]);
-    } else if (loginResponse.forcePasswordReset != ForceSetPasswordReason.None) {
-      await this.router.navigate(["update-temp-password"]);
     } else {
       await this.handleSuccessfulLoginNavigation(loginResponse.userId);
     }

@@ -117,7 +117,7 @@ export class VaultHeaderComponent {
   }
 
   get icon() {
-    return this.filter.collectionId !== undefined ? "bwi-collection" : "";
+    return this.filter.collectionId !== undefined ? "bwi-collection-shared" : "";
   }
 
   protected get showBreadcrumbs() {

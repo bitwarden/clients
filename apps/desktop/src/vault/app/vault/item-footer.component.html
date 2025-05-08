@@ -44,7 +44,7 @@
     <button
       type="button"
       class="primary"
-      *ngIf="cipher.id && !cipher?.organizationId && !cipher.isDeleted && action !== 'clone'"
+      *ngIf="cipher.id && !cipher?.organizationId && !cipher.isDeleted && action === 'view'"
       (click)="clone()"
       appA11yTitle="{{ 'clone' | i18n }}"
     >

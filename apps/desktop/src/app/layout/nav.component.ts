@@ -14,12 +14,12 @@ export class NavComponent {
   items: any[] = [
     {
       link: "/vault",
-      icon: "bwi-lock-f",
+      icon: "bwi-vault",
       label: this.i18nService.translate("myVault"),
     },
     {
       link: "/send",
-      icon: "bwi-send-f",
+      icon: "bwi-send",
       label: "Send",
     },
   ];

@@ -56,7 +56,7 @@
     <tr bitRow alignContent="top" *ngFor="let r of rows$ | async">
       <td bitCell class="tw-flex-col">
         <div>{{ r.email }}</div>
-        <code class="tw-text-sm">{{ r.publicKey | fingerprint: r.email | async }}</code>
+        <code class="tw-text-sm">{{ r.fingerprintPhrase }}</code>
       </td>
       <td bitCell class="tw-flex-col">
         <div>{{ r.requestDeviceType }}</div>

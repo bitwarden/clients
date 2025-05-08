@@ -3,8 +3,6 @@
 import { UserId } from "../../../types/guid";
 import { TwoFactorProviderType } from "../../enums/two-factor-provider-type";
 
-import { ForceSetPasswordReason } from "./force-set-password-reason";
-
 export class AuthResult {
   userId: UserId;
   // TODO: PM-3287 - Remove this after 3 releases of backwards compatibility. - Target release 2023.12 for removal
@@ -15,7 +13,6 @@ export class AuthResult {
    * */
   resetMasterPassword = false;
 
-  forcePasswordReset: ForceSetPasswordReason = ForceSetPasswordReason.None;
   twoFactorProviders: Partial<Record<TwoFactorProviderType, Record<string, string>>> = null;
   ssoEmail2FaSessionToken?: string;
   email: string;
