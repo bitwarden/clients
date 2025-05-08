@@ -148,8 +148,14 @@ export class GeneratorMetadataProvider {
         const policies$ = this.application.policy
           .policiesByType$(PolicyType.PasswordGenerator, id)
           .pipe(
-            map((p) => availableAlgorithms(p).filter((a) => this._metadata.has(a))),
-            memoizedMap((p) => new Set(p), { key: (p) => JSON.stringify(p) }),
+            map((p) =>
+              availableAlgorithms(p)
+                .filter((a) => this._metadata.has(a))
+                .sort(),
+            ),
+            // interning the set transformation lets `distinctUntilChanged()` eliminate
+            // repeating policy emissions using reference equality
+            memoizedMap((a) => new Set(a), { key: (a) => a.join(":") }),
             distinctUntilChanged(),
             // complete policy emissions otherwise `switchMap` holds `available$` open indefinitely
             takeUntil(anyComplete(id$)),
