@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
@@ -17,7 +17,6 @@ import { EmergencyViewDialogComponent } from "./emergency-view-dialog.component"
   providers: [{ provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService }],
 })
 export class EmergencyAccessViewComponent implements OnInit {
-  @ViewChild("attachments", { read: ViewContainerRef, static: true })
   id: EmergencyAccessId | null = null;
   ciphers: CipherView[] = [];
   loaded = false;

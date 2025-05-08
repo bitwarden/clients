@@ -5,6 +5,8 @@ import { mock } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -53,6 +55,10 @@ describe("CipherAttachmentsComponent", () => {
     decrypt: () => cipherView,
   };
 
+  const organization = new Organization();
+  organization.type = OrganizationUserType.Admin;
+  organization.allowAdminAccessToAllCollectionItems = true;
+
   const cipherServiceGet = jest.fn().mockResolvedValue(cipherDomain);
   const saveAttachmentWithServer = jest.fn().mockResolvedValue(cipherDomain);
 
@@ -70,6 +76,7 @@ describe("CipherAttachmentsComponent", () => {
         {
           provide: CipherService,
           useValue: {
+            organization,
             get: cipherServiceGet,
             saveAttachmentWithServer,
             getKeyForCipherKeyDecryption: () => Promise.resolve(null),
@@ -240,9 +247,11 @@ describe("CipherAttachmentsComponent", () => {
 
       beforeEach(() => {
         component.attachmentForm.controls.file.setValue(file);
+        component.organization = organization;
       });
 
-      it("calls `saveAttachmentWithServer`", async () => {
+      it("calls `saveAttachmentWithServer` with admin=false when admin permission is false for organization", async () => {
+        component.organization.allowAdminAccessToAllCollectionItems = false;
         await component.submit();
 
         expect(saveAttachmentWithServer).toHaveBeenCalledWith(
@@ -253,10 +262,8 @@ describe("CipherAttachmentsComponent", () => {
         );
       });
 
-      it("calls `saveAttachmentWithServer` with isAdmin=true when using admin API", async () => {
-        // Set isAdmin to true to use admin API
-        Object.defineProperty(component, "isAdmin", { value: true });
-
+      it("calls `saveAttachmentWithServer` with admin=true when using admin API", async () => {
+        component.organization.allowAdminAccessToAllCollectionItems = true;
         await component.submit();
 
         expect(saveAttachmentWithServer).toHaveBeenCalledWith(cipherDomain, file, mockUserId, true);

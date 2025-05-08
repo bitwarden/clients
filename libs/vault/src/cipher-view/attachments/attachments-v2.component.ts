@@ -17,6 +17,7 @@ import { CipherAttachmentsComponent } from "../../cipher-form/components/attachm
 
 export interface AttachmentsDialogParams {
   cipherId: CipherId;
+  admin?: boolean;
   organizationId?: OrganizationId;
 }
 
@@ -44,6 +45,7 @@ export interface AttachmentDialogCloseResult {
 })
 export class AttachmentsV2Component {
   cipherId: CipherId;
+  admin: boolean = false;
   organizationId?: OrganizationId;
   attachmentFormId = CipherAttachmentsComponent.attachmentFormID;
 
@@ -58,6 +60,7 @@ export class AttachmentsV2Component {
   ) {
     this.cipherId = params.cipherId;
     this.organizationId = params.organizationId;
+    this.admin = params.admin ?? false;
   }
 
   /**

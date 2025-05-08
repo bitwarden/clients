@@ -14,7 +14,7 @@
     <ng-container>
       <bit-breadcrumb
         *ngFor="let collection of collections"
-        icon="bwi-collection"
+        icon="bwi-collection-shared"
         [route]="[]"
         [queryParams]="{ collectionId: collection.id }"
         queryParamsHandling="merge"
@@ -35,7 +35,6 @@
         [bitMenuTriggerFor]="editCollectionMenu"
         size="small"
         type="button"
-        aria-haspopup="true"
       ></button>
       <bit-menu #editCollectionMenu>
         <ng-container *ngIf="canEditCollection">
@@ -115,7 +114,7 @@
           id="newItemDropdown"
           appA11yTitle="{{ 'new' | i18n }}"
         >
-          <i class="bwi bwi-plus-f" aria-hidden="true"></i>
+          <i class="bwi bwi-plus" aria-hidden="true"></i>
           {{ "new" | i18n }}<i class="bwi tw-ml-2" aria-hidden="true"></i>
         </button>
         <bit-menu #addOptions aria-labelledby="newItemDropdown">
@@ -140,7 +139,7 @@
           <ng-container *ngIf="canCreateCollection">
             <bit-menu-divider *ngIf="canCreateCipher"></bit-menu-divider>
             <button type="button" bitMenuItem (click)="addCollection()">
-              <i class="bwi bwi-fw bwi-collection" aria-hidden="true"></i>
+              <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
               {{ "collection" | i18n }}
             </button>
           </ng-container>
