@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
@@ -37,10 +37,11 @@ import {
   AuthRequestServiceAbstraction,
   InternalUserDecryptionOptionsServiceAbstraction,
 } from "../abstractions";
+import { UserDecryptionOptions } from "../models";
 import { SsoLoginCredentials } from "../models/domain/login-credentials";
 
 import { identityTokenResponseFactory } from "./login.strategy.spec";
-import { SsoLoginStrategy } from "./sso-login.strategy";
+import { SsoLoginStrategy, SsoLoginStrategyData } from "./sso-login.strategy";
 
 describe("SsoLoginStrategy", () => {
   let accountService: FakeAccountService;
@@ -123,8 +124,11 @@ describe("SsoLoginStrategy", () => {
       mockVaultTimeoutBSub.asObservable(),
     );
 
+    const userDecryptionOptions = new UserDecryptionOptions();
+    userDecryptionOptionsService.userDecryptionOptions$ = of(userDecryptionOptions);
+
     ssoLoginStrategy = new SsoLoginStrategy(
-      null,
+      {} as SsoLoginStrategyData,
       keyConnectorService,
       deviceTrustService,
       authRequestService,

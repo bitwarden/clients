@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
@@ -43,11 +43,6 @@ import { DeleteOrganizationDialogResult, openDeleteOrganizationDialog } from "./
   templateUrl: "account.component.html",
 })
 export class AccountComponent implements OnInit, OnDestroy {
-  @ViewChild("apiKeyTemplate", { read: ViewContainerRef, static: true })
-  apiKeyModalRef: ViewContainerRef;
-  @ViewChild("rotateApiKeyTemplate", { read: ViewContainerRef, static: true })
-  rotateApiKeyModalRef: ViewContainerRef;
-
   selfHosted = false;
   canEditSubscription = true;
   loading = true;

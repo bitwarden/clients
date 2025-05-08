@@ -172,6 +172,7 @@ export class Program extends BaseProgram {
             async () => await this.serviceContainer.logout(),
             this.serviceContainer.kdfConfigService,
             this.serviceContainer.ssoUrlService,
+            this.serviceContainer.masterPasswordService,
           );
           const response = await command.run(email, password, options);
           this.processResponse(response, true);

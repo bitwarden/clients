@@ -89,6 +89,9 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
   /** The organization ID if this cipher belongs to an organization */
   @Input() organizationId?: OrganizationId;
 
+  /** Denotes if the action is occurring from within the admin console */
+  @Input() admin: boolean = false;
+
   /** An optional submit button, whose loading/disabled state will be tied to the form state. */
   @Input() submitBtn?: ButtonComponent;
 
@@ -98,6 +101,7 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
   /** Emits after a file has been successfully removed */
   @Output() onRemoveSuccess = new EventEmitter<void>();
 
+  organization: Organization;
   cipher: CipherView;
 
   attachmentForm: CipherAttachmentForm = this.formBuilder.group({
@@ -106,7 +110,6 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
 
   private cipherDomain: Cipher;
   private activeUserId: UserId;
-  private isAdmin = false;
   private destroy$ = inject(DestroyRef);
 
   constructor(
@@ -130,6 +133,8 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
 
   async ngOnInit(): Promise<void> {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    // Get the organization to check admin permissions
+    this.organization = await this.getOrganization();
     this.cipherDomain = await this.getCipher(this.cipherId);
 
     this.cipher = await this.cipherDomain.decrypt(
@@ -201,7 +206,7 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
         this.cipherDomain,
         file,
         this.activeUserId,
-        this.isAdmin,
+        this.organization?.canEditAllCiphers,
       );
 
       // re-decrypt the cipher to update the attachments
@@ -254,11 +259,8 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
       return localCipher;
     }
 
-    // Get the organization to check admin permissions
-    const organization = await this.getOrganization();
     // Only try the admin API if the user has admin permissions
-    if (organization != null && organization.canEditAllCiphers) {
-      this.isAdmin = true;
+    if (this.organization != null && this.organization.canEditAllCiphers) {
       const cipherResponse = await this.apiService.getCipherAdmin(id);
       const cipherData = new CipherData(cipherResponse);
       return new Cipher(cipherData);

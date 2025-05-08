@@ -19,7 +19,6 @@ import { AuthRequestType } from "@bitwarden/common/auth/enums/auth-request-type"
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/admin-auth-req-storable";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { AuthRequest } from "@bitwarden/common/auth/models/request/auth.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { LoginViaAuthRequestView } from "@bitwarden/common/auth/models/view/login-via-auth-request.view";
@@ -820,8 +819,6 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
   private async handlePostLoginNavigation(loginResponse: AuthResult) {
     if (loginResponse.requiresTwoFactor) {
       await this.router.navigate(["2fa"]);
-    } else if (loginResponse.forcePasswordReset != ForceSetPasswordReason.None) {
-      await this.router.navigate(["update-temp-password"]);
     } else {
       await this.handleSuccessfulLoginNavigation(loginResponse.userId);
     }
