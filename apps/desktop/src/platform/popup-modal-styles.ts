@@ -8,10 +8,14 @@ const popupHeight = 600;
 
 type Position = { x: number; y: number };
 
-export function applyPopupModalStyles(window: BrowserWindow, position?: Position) {
+export function applyPopupModalStyles(
+  window: BrowserWindow,
+  showTrafficButtons: boolean = true,
+  position?: Position,
+) {
   window.unmaximize();
   window.setSize(popupWidth, popupHeight);
-  window.setWindowButtonVisibility?.(false);
+  window.setWindowButtonVisibility?.(showTrafficButtons);
   window.setMenuBarVisibility?.(false);
   window.setResizable(false);
   window.setAlwaysOnTop(true);
