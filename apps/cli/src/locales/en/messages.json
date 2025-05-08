@@ -184,5 +184,8 @@
         "example": "JustTrust.us"
       }
     }
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   }
 }
