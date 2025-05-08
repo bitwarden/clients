@@ -8,7 +8,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { isEnterpriseOrgGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/is-enterprise-org.guard";
 import { organizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-permissions.guard";
 import { OrganizationLayoutComponent } from "@bitwarden/web-vault/app/admin-console/organizations/layouts/organization-layout.component";
-import { deepLinkGuard } from "@bitwarden/web-vault/app/auth/guards/deep-link.guard";
+import { deepLinkGuard } from "@bitwarden/web-vault/app/auth/guards/deep-link/deep-link.guard";
 
 import { SsoComponent } from "../../auth/sso/sso.component";
 
