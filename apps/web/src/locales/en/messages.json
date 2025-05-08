@@ -9414,11 +9414,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Manage billing from the Provider Portal"
   },
+  "continueSettingUp": {
+    "message": "Continue setting up Bitwarden"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Continue setting up your free trial of Bitwarden"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Continue setting up Bitwarden Password Manager"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Continue setting up your free trial of Bitwarden Password Manager"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Continue setting up Bitwarden Secrets Manager"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Continue setting up your free trial of Bitwarden Secrets Manager"
