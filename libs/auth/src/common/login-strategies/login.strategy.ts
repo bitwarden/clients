@@ -277,17 +277,7 @@ export abstract class LoginStrategy {
 
     result.resetMasterPassword = response.resetMasterPassword;
 
-    // Convert boolean to enum and set the state for the master password service to
-    // so we know when we reach the auth guard that we need to guide them properly to admin
-    // password reset.
-    if (response.forcePasswordReset) {
-      result.forcePasswordReset = ForceSetPasswordReason.AdminForcePasswordReset;
-
-      await this.masterPasswordService.setForceSetPasswordReason(
-        ForceSetPasswordReason.AdminForcePasswordReset,
-        userId,
-      );
-    }
+    await this.processForceSetPasswordReason(response.forcePasswordReset, userId);
 
     if (response.twoFactorToken != null) {
       // note: we can read email from access token b/c it was saved in saveAccountInformation
@@ -316,6 +306,30 @@ export abstract class LoginStrategy {
   // check on password logins
   protected encryptionKeyMigrationRequired(response: IdentityTokenResponse): boolean {
     return false;
+  }
+
+  /**
+   * Checks if adminForcePasswordReset is true and sets the ForceSetPasswordReason.AdminForcePasswordReset flag in the master password service.
+   * @param adminForcePasswordReset - The admin force password reset flag
+   * @param userId - The user ID
+   * @returns a promise that resolves to a boolean indicating whether the admin force password reset flag was set
+   */
+  async processForceSetPasswordReason(
+    adminForcePasswordReset: boolean,
+    userId: UserId,
+  ): Promise<boolean> {
+    if (!adminForcePasswordReset) {
+      return false;
+    }
+
+    // set the flag in the master password service so we know when we reach the auth guard
+    // that we need to guide them properly to admin password reset.
+    await this.masterPasswordService.setForceSetPasswordReason(
+      ForceSetPasswordReason.AdminForcePasswordReset,
+      userId,
+    );
+
+    return true;
   }
 
   protected async createKeyPairForOldAccount(userId: UserId) {
