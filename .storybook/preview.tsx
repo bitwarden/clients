@@ -23,6 +23,7 @@ const preview: Preview = {
       },
       defaultTheme: "light",
     }),
+    wrapperDecorator,
   ],
   parameters: {
     a11y: {
