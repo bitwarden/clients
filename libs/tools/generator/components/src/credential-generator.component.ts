@@ -97,7 +97,7 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
    *  @warning this may reveal sensitive information in plaintext.
    */
   @Input()
-  debug: boolean = false;
+  debug: boolean = true;
 
   // this `log` initializer is overridden in `ngOnInit`
   private log: SemanticLogger = disabledSemanticLoggerProvider({});
