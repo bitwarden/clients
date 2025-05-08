@@ -14,7 +14,7 @@ const testRunnerConfig: TestRunnerConfig = {
   async postVisit(page, context) {
     await page.waitForSelector("#storybook-root");
     // https://github.com/abhinaba-ghosh/axe-playwright#parameters-on-checka11y-axerun
-    return await checkA11y(
+    await checkA11y(
       // Playwright page instance.
       page,
 
