@@ -5,6 +5,8 @@ import { filter, firstValueFrom, Observable, shareReplay, switchMap } from "rxjs
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BadgeComponent, ItemModule } from "@bitwarden/components";
 import { NudgeStatus, VaultNudgesService, VaultNudgeType } from "@bitwarden/vault";
@@ -49,9 +51,14 @@ export class SettingsV2Component {
     ),
   );
 
+  protected isNudgeFeatureEnabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.PM8851_BrowserOnboardingNudge,
+  );
+
   constructor(
     private readonly vaultNudgesService: VaultNudgesService,
     private readonly accountService: AccountService,
+    private readonly configService: ConfigService,
   ) {}
 
   async dismissBadge(type: VaultNudgeType) {

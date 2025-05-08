@@ -273,7 +273,7 @@ function handleSaveAction(e: Event) {
   if (selectedVault.length > 1) {
     openAddEditVaultItemPopout(e, {
       organizationId: selectedVault,
-      folder: selectedFolder,
+      ...(selectedFolder?.length > 1 ? { folder: selectedFolder } : {}),
     });
     handleCloseNotification(e);
     return;
