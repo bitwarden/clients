@@ -3,7 +3,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -36,7 +36,7 @@ import {
   imports: [CommonModule, InputPasswordComponent, JslibModule],
 })
 export class SetPasswordJitComponent implements OnInit {
-  protected InputPasswordFlow = InputPasswordFlow;
+  protected inputPasswordFlow = InputPasswordFlow.SetInitialPasswordAuthedUser;
   protected email: string;
   protected masterPasswordPolicyOptions: MasterPasswordPolicyOptions;
   protected orgId: string;
@@ -60,9 +60,9 @@ export class SetPasswordJitComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.email = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.email)),
-    );
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    this.userId = activeAccount?.id;
+    this.email = activeAccount?.email;
 
     await this.syncService.fullSync(true);
     this.syncLoading = false;
@@ -97,14 +97,12 @@ export class SetPasswordJitComponent implements OnInit {
   protected async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
     this.submitting = true;
 
-    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-
     const credentials: SetPasswordCredentials = {
       ...passwordInputResult,
       orgSsoIdentifier: this.orgSsoIdentifier,
       orgId: this.orgId,
       resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
-      userId,
+      userId: this.userId,
     };
 
     try {

@@ -16,6 +16,7 @@ export enum FeatureFlag {
 
   /* Auth */
   PM9112_DeviceApprovalPersistence = "pm-9112-device-approval-persistence",
+  PM16117_ChangeExistingPasswordRefactor = "pm-16117-change-existing-password-refactor",
   PM9115_TwoFactorExtensionDataPersistence = "pm-9115-two-factor-extension-data-persistence",
 
   /* Autofill */
@@ -113,6 +114,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Auth */
   [FeatureFlag.PM9112_DeviceApprovalPersistence]: FALSE,
+  [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,
   [FeatureFlag.PM9115_TwoFactorExtensionDataPersistence]: FALSE,
 
   /* Billing */

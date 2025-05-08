@@ -131,7 +131,7 @@ export class ChangePasswordComponent
         content:
           this.i18nService.t("updateEncryptionKeyWarning") +
           " " +
-          this.i18nService.t("updateEncryptionKeyExportWarning") +
+          this.i18nService.t("updateEncryptionKeyAccountExportWarning") +
           " " +
           this.i18nService.t("rotateEncKeyConfirmation"),
         type: "warning",

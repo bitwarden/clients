@@ -20,7 +20,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
-import { PBKDF2KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService, KdfConfig } from "@bitwarden/key-management";
 
 import {
   SetPasswordCredentials,
@@ -43,10 +43,10 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
 
   async setPassword(credentials: SetPasswordCredentials): Promise<void> {
     const {
-      masterKey,
-      serverMasterKeyHash,
-      localMasterKeyHash,
-      hint,
+      newMasterKey,
+      newServerMasterKeyHash,
+      newLocalMasterKeyHash,
+      newPasswordHint,
       kdfConfig,
       orgSsoIdentifier,
       orgId,
@@ -60,7 +60,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
       }
     }
 
-    const protectedUserKey = await this.makeProtectedUserKey(masterKey, userId);
+    const protectedUserKey = await this.makeProtectedUserKey(newMasterKey, userId);
     if (protectedUserKey == null) {
       throw new Error("protectedUserKey not found. Could not set password.");
     }
@@ -70,12 +70,12 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
     const [keyPair, keysRequest] = await this.makeKeyPairAndRequest(protectedUserKey);
 
     const request = new SetPasswordRequest(
-      serverMasterKeyHash,
+      newServerMasterKeyHash,
       protectedUserKey[1].encryptedString,
-      hint,
+      newPasswordHint,
       orgSsoIdentifier,
       keysRequest,
-      kdfConfig.kdfType, // kdfConfig is always DEFAULT_KDF_CONFIG (see InputPasswordComponent)
+      kdfConfig.kdfType,
       kdfConfig.iterations,
     );
 
@@ -85,14 +85,14 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
 
     // User now has a password so update account decryption options in state
-    await this.updateAccountDecryptionProperties(masterKey, kdfConfig, protectedUserKey, userId);
+    await this.updateAccountDecryptionProperties(newMasterKey, kdfConfig, protectedUserKey, userId);
 
     await this.keyService.setPrivateKey(keyPair[1].encryptedString, userId);
 
-    await this.masterPasswordService.setMasterKeyHash(localMasterKeyHash, userId);
+    await this.masterPasswordService.setMasterKeyHash(newLocalMasterKeyHash, userId);
 
     if (resetPasswordAutoEnroll) {
-      await this.handleResetPasswordAutoEnroll(serverMasterKeyHash, orgId, userId);
+      await this.handleResetPasswordAutoEnroll(newServerMasterKeyHash, orgId, userId);
     }
   }
 
@@ -127,7 +127,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
 
   private async updateAccountDecryptionProperties(
     masterKey: MasterKey,
-    kdfConfig: PBKDF2KdfConfig,
+    kdfConfig: KdfConfig,
     protectedUserKey: [UserKey, EncString],
     userId: UserId,
   ) {
