@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @import "@angular/cdk/a11y-prebuilt.css";
 @import "@angular/cdk/text-field-prebuilt.css";
 @import "./reset.css";
@@ -118,47 +122,81 @@
   --tw-ring-offset-color: #1f242e;
 }
 
-/**
- * tw-break-words does not work with table cells:
- * https://github.com/tailwindlabs/tailwindcss/issues/835
- */
-td.tw-break-words {
-  overflow-wrap: anywhere;
+hr {
+  border-color: rgba(0, 0, 0, 0.1);
 }
 
-/**
- * tw-list-none hides summary arrow in Firefox & Chrome but not Safari:
- * https://github.com/tailwindlabs/tailwindcss/issues/924#issuecomment-915509785
- */
-summary.tw-list-none::marker,
-summary.tw-list-none::-webkit-details-marker {
-  display: none;
+html.theme_dark hr {
+  border-color: #4c525f;
 }
 
-/**
- * Arbitrary values can't be used with `text-align`:
- * https://github.com/tailwindlabs/tailwindcss/issues/802#issuecomment-849013311
- */
-.tw-text-unset {
-  text-align: unset;
+@layer base {
+  body {
+    @apply tw-text-base tw-text-main;
+  }
+
+  p {
+    @apply tw-mb-4;
+  }
+
+  ul {
+    @apply tw-mb-4 tw-list-disc tw-ps-10;
+  }
+
+  ul ul,
+  ul ol {
+    @apply tw-mb-0;
+  }
+
+  /* Bootstrap considered this to have higher priority than classes */
+  [hidden]:where(:not([hidden="until-found"])) {
+    display: none !important;
+  }
 }
 
-/**
- * Bootstrap uses z-index: 1050 for modals, dialogs and drag-and-drop previews should appear above them.
- * When bootstrap is removed, test if these styles are still needed and that overlays display properly over other content.
- * CL-483
- */
-.cdk-drag-preview,
-.cdk-overlay-container,
-.cdk-global-overlay-wrapper,
-.cdk-overlay-connected-position-bounding-box,
-.cdk-overlay-backdrop,
-.cdk-overlay-pane {
-  z-index: 2000 !important;
-}
+@layer components {
+  /**
+  * tw-break-words does not work with table cells:
+  * https://github.com/tailwindlabs/tailwindcss/issues/835
+  */
+  td.tw-break-words {
+    overflow-wrap: anywhere;
+  }
 
-.cdk-global-scrollblock {
-  position: relative;
-  height: 100%;
-  overflow: hidden;
+  /**
+  * tw-list-none hides summary arrow in Firefox & Chrome but not Safari:
+  * https://github.com/tailwindlabs/tailwindcss/issues/924#issuecomment-915509785
+  */
+  summary.tw-list-none::marker,
+  summary.tw-list-none::-webkit-details-marker {
+    display: none;
+  }
+
+  /**
+  * Arbitrary values can't be used with `text-align`:
+  * https://github.com/tailwindlabs/tailwindcss/issues/802#issuecomment-849013311
+  */
+  .tw-text-unset {
+    text-align: unset;
+  }
+
+  /**
+  * Bootstrap uses z-index: 1050 for modals, dialogs and drag-and-drop previews should appear above them.
+  * When bootstrap is removed, test if these styles are still needed and that overlays display properly over other content.
+  * CL-483
+  */
+  .cdk-drag-preview,
+  .cdk-overlay-container,
+  .cdk-global-overlay-wrapper,
+  .cdk-overlay-connected-position-bounding-box,
+  .cdk-overlay-backdrop,
+  .cdk-overlay-pane {
+    z-index: 2000 !important;
+  }
+
+  .cdk-global-scrollblock {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+  }
 }

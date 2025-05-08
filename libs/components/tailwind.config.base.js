@@ -125,6 +125,28 @@ module.exports = {
         600: rgba("--color-notification-600"),
       },
     },
+    fontFamily: {
+      sans: [
+        '"DM Sans"',
+        '"Helvetica Neue"',
+        "Helvetica",
+        "Arial",
+        "sans-serif",
+        '"Apple Color Emoji"',
+        '"Segoe UI Emoji"',
+        '"Segoe UI Symbol"',
+      ],
+      serif: ["ui-serif", "Georgia", "Cambria", '"Times New Roman"', "Times", "serif"],
+      mono: [
+        "Menlo",
+        "SFMono-Regular",
+        "Monaco",
+        "Consolas",
+        '"Liberation Mono"',
+        '"Courier New"',
+        "monospace",
+      ],
+    },
     ringOffsetColor: ({ theme }) => ({
       DEFAULT: theme("colors.background"),
       ...theme("colors"),
