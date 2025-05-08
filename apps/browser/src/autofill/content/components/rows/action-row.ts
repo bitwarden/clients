@@ -5,15 +5,13 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { spacing, themes, typography } from "../../../content/components/constants/styles";
 
-export function ActionRow({
-  handleAction,
-  itemText,
-  theme = ThemeTypes.Light,
-}: {
+export type ActionRowProps = {
   itemText: string;
   handleAction?: (e: Event) => void;
   theme: Theme;
-}) {
+};
+
+export function ActionRow({ handleAction, itemText, theme = ThemeTypes.Light }: ActionRowProps) {
   return html`
     <button type="button" @click=${handleAction} class=${actionRowStyles(theme)} title=${itemText}>
       <span>${itemText}</span>

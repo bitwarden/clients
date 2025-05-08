@@ -84,8 +84,13 @@ export const Default: Story = {
       props: args,
       template: /* HTML */ `<bit-layout>
         <bit-side-nav>
-          <bit-nav-group text="Password Managers" icon="bwi-collection" [open]="true">
-            <bit-nav-group text="Favorites" icon="bwi-collection" variant="tree" [open]="true">
+          <bit-nav-group text="Password Managers" icon="bwi-collection-shared" [open]="true">
+            <bit-nav-group
+              text="Favorites"
+              icon="bwi-collection-shared"
+              variant="tree"
+              [open]="true"
+            >
               <bit-nav-item text="Bitwarden" route="bitwarden"></bit-nav-item>
               <bit-nav-divider></bit-nav-divider>
             </bit-nav-group>
