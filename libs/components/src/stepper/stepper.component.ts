@@ -17,7 +17,7 @@ export class StepperComponent extends CdkStepper {
   resizeWidthsMap = new Map([
     [2, 600],
     [3, 768],
-    [4, 900]
+    [4, 900],
   ]);
 
   isStepDisabled(index: number) {
@@ -40,7 +40,9 @@ export class StepperComponent extends CdkStepper {
     const numberOfSteps = this.steps.length;
 
     if (this.initialOrientation === "horizontal") {
-      this.orientation = width < this.resizeWidthsMap.get(numberOfSteps) ? "vertical": "horizontal";
+      this.orientation =
+        width < this.resizeWidthsMap.get(numberOfSteps) ? "vertical" : "horizontal";
+      // This is a method of CdkStepper. Their docs define it as: 'Marks the component to be change detected'
       this._stateChanged();
     }
   }
