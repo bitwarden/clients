@@ -23,7 +23,7 @@
         <i slot="end" class="bwi bwi-external-link" aria-hidden="true"></i>
       </button>
     </bit-item>
-    <bit-item>
+    <bit-item *ngIf="!(isNudgeFeatureEnabled$ | async)">
       <a bit-item-content routerLink="/more-from-bitwarden">
         {{ "moreFromBitwarden" | i18n }}
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>

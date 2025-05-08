@@ -296,13 +296,9 @@ describe("LoginStrategy", () => {
 
       const expected = new AuthResult();
       expected.userId = userId;
-      expected.forcePasswordReset = ForceSetPasswordReason.AdminForcePasswordReset;
       expected.resetMasterPassword = true;
-      expected.twoFactorProviders = {} as Partial<
-        Record<TwoFactorProviderType, Record<string, string>>
-      >;
-      expected.captchaSiteKey = "";
       expected.twoFactorProviders = null;
+      expected.captchaSiteKey = "";
       expect(result).toEqual(expected);
     });
 
@@ -316,13 +312,9 @@ describe("LoginStrategy", () => {
 
       const expected = new AuthResult();
       expected.userId = userId;
-      expected.forcePasswordReset = ForceSetPasswordReason.AdminForcePasswordReset;
       expected.resetMasterPassword = false;
-      expected.twoFactorProviders = {} as Partial<
-        Record<TwoFactorProviderType, Record<string, string>>
-      >;
-      expected.captchaSiteKey = "";
       expected.twoFactorProviders = null;
+      expected.captchaSiteKey = "";
       expect(result).toEqual(expected);
 
       expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(

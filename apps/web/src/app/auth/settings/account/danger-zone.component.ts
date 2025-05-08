@@ -1,12 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
-import { Observable } from "rxjs";
+import { Component } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { TypographyModule } from "@bitwarden/components";
 
 /**
@@ -18,13 +15,4 @@ import { TypographyModule } from "@bitwarden/components";
   standalone: true,
   imports: [TypographyModule, JslibModule, CommonModule],
 })
-export class DangerZoneComponent implements OnInit {
-  constructor(private configService: ConfigService) {}
-  accountDeprovisioningEnabled$: Observable<boolean>;
-
-  ngOnInit(): void {
-    this.accountDeprovisioningEnabled$ = this.configService.getFeatureFlag$(
-      FeatureFlag.AccountDeprovisioning,
-    );
-  }
-}
+export class DangerZoneComponent {}

@@ -56,7 +56,7 @@
     </div>
     <div class="tw-flex tw-space-x-2">
       <button type="submit" buttonType="primary" bitButton [loading]="form.loading">
-        {{ "startTrial" | i18n }}
+        {{ (trialLength > 0 ? "startTrial" : "submit") | i18n }}
       </button>
       <button bitButton type="button" buttonType="secondary" (click)="stepBack()">Back</button>
     </div>

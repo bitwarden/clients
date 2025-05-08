@@ -67,7 +67,6 @@ import { SendAddEditComponent as SendAddEditV2Component } from "../tools/popup/s
 import { SendCreatedComponent } from "../tools/popup/send-v2/send-created/send-created.component";
 import { SendV2Component } from "../tools/popup/send-v2/send-v2.component";
 import { AboutPageV2Component } from "../tools/popup/settings/about-page/about-page-v2.component";
-import { MoreFromBitwardenPageV2Component } from "../tools/popup/settings/about-page/more-from-bitwarden-page-v2.component";
 import { ExportBrowserV2Component } from "../tools/popup/settings/export/export-browser-v2.component";
 import { ImportBrowserV2Component } from "../tools/popup/settings/import/import-browser-v2.component";
 import { SettingsV2Component } from "../tools/popup/settings/settings-v2.component";
@@ -83,7 +82,9 @@ import { PasswordHistoryV2Component } from "../vault/popup/components/vault-v2/v
 import { VaultV2Component } from "../vault/popup/components/vault-v2/vault-v2.component";
 import { ViewV2Component } from "../vault/popup/components/vault-v2/view-v2/view-v2.component";
 import { AppearanceV2Component } from "../vault/popup/settings/appearance-v2.component";
+import { DownloadBitwardenComponent } from "../vault/popup/settings/download-bitwarden.component";
 import { FoldersV2Component } from "../vault/popup/settings/folders-v2.component";
+import { MoreFromBitwardenPageV2Component } from "../vault/popup/settings/more-from-bitwarden-page-v2.component";
 import { TrashComponent } from "../vault/popup/settings/trash.component";
 import { VaultSettingsV2Component } from "../vault/popup/settings/vault-settings-v2.component";
 
@@ -580,6 +581,12 @@ const routes: Routes = [
   {
     path: "more-from-bitwarden",
     component: MoreFromBitwardenPageV2Component,
+    canActivate: [authGuard],
+    data: { elevation: 2 } satisfies RouteDataProperties,
+  },
+  {
+    path: "download-bitwarden",
+    component: DownloadBitwardenComponent,
     canActivate: [authGuard],
     data: { elevation: 2 } satisfies RouteDataProperties,
   },

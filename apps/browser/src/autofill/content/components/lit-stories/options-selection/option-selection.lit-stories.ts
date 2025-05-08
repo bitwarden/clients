@@ -7,11 +7,11 @@ import { Option } from "../../common-types";
 import { themes } from "../../constants/styles";
 import { User, Business } from "../../icons";
 import "../../option-selection/option-selection";
-import { mockOrganizationData } from "../mock-data";
+import { mockOrganizations } from "../mock-data";
 
 const mockOptions: Option[] = [
   { icon: User, text: "My Vault", value: "0" },
-  ...mockOrganizationData.map(({ id, name }) => ({ icon: Business, text: name, value: id })),
+  ...mockOrganizations.map(({ id, name }) => ({ icon: Business, text: name, value: id })),
 ];
 
 type ComponentProps = {

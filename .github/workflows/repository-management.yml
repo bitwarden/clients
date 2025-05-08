@@ -66,7 +66,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Generate GH App token
-        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1.12.0
+        uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # v2.0.3
         id: app-token
         with:
           app-id: ${{ secrets.BW_GHAPP_ID }}
@@ -115,7 +115,7 @@ jobs:
           version: ${{ inputs.version_number_override }}
 
       - name: Generate GH App token
-        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1.12.0
+        uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # v2.0.3
         id: app-token
         with:
           app-id: ${{ secrets.BW_GHAPP_ID }}
@@ -452,7 +452,7 @@ jobs:
       - setup
     steps:
       - name: Generate GH App token
-        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1.12.0
+        uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # v2.0.3
         id: app-token
         with:
           app-id: ${{ secrets.BW_GHAPP_ID }}
