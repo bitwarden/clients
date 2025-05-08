@@ -141,6 +141,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
   cipher: CipherView | null = new CipherView();
   collections: CollectionView[] | null = null;
   config: CipherFormConfig | null = null;
+  isSubmitting = false;
 
   protected canAccessAttachments$ = this.accountService.activeAccount$.pipe(
     filter((account): account is Account => !!account),
@@ -560,6 +561,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
     await this.vaultItemsComponent?.load(this.activeFilter.buildFilter()).catch(() => {});
     await this.go().catch(() => {});
     await this.vaultItemsComponent?.refresh().catch(() => {});
+    this.isSubmitting = false;
   }
 
   async deleteCipher() {
@@ -734,6 +736,11 @@ export class VaultV2Component implements OnInit, OnDestroy {
       this.changeDetectorRef.detectChanges();
     });
   }
+
+  protected onSubmit = async () => {
+    this.isSubmitting = true;
+    return Promise.resolve(true);
+  };
 
   private prefillCipherFromFilter() {
     if (this.activeFilter.selectedCollectionId != null && this.vaultFilterComponent != null) {
