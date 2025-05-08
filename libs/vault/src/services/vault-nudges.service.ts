@@ -34,6 +34,7 @@ export enum VaultNudgeType {
   newIdentityItemStatus = "new-identity-item-status",
   newNoteItemStatus = "new-note-item-status",
   newSshItemStatus = "new-ssh-item-status",
+  GeneratorNudgeStatus = "generator-nudge-status",
 }
 
 export const VAULT_NUDGE_DISMISSED_DISK_KEY = new UserKeyDefinition<

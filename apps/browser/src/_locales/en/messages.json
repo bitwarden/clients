@@ -3588,12 +3588,12 @@
   "trustUser":{
     "message": "Trust user"
   },
-  "sendsNoItemsTitle": {
-    "message": "No active Sends",
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendsNoItemsMessage": {
-    "message": "Use Send to securely share encrypted information with anyone.",
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {

@@ -58,8 +58,6 @@ import {
 } from "@bitwarden/generator-core";
 import { GeneratorHistoryService } from "@bitwarden/generator-history";
 
-import { VaultNudgesService, VaultNudgeType } from "../../../../vault/src";
-
 // constants used to identify navigation selections that are not
 // generator algorithms
 const IDENTIFIER = "identifier";
@@ -72,7 +70,6 @@ const NONE_SELECTED = "none";
 })
 export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestroy {
   private readonly destroyed = new Subject<void>();
-  protected generatorSpotlightBody: string = "";
 
   constructor(
     private generatorService: CredentialGeneratorService,
@@ -84,7 +81,6 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
     private zone: NgZone,
     private formBuilder: FormBuilder,
     private ariaLive: LiveAnnouncer,
-    private vaultNudgesService: VaultNudgesService,
   ) {}
 
   /** Binds the component to a specific user's settings. When this input is not provided,
@@ -152,9 +148,6 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
   });
 
   async ngOnInit() {
-    const nudgeBodyOne = this.i18nService.t("generatorNudgeBodyOne");
-    const nudgeBodyTwo = this.i18nService.t("generatorNudgeBodyTwo");
-    this.generatorSpotlightBody = `${nudgeBodyOne} <i class="bwi bwi-generate"></i> ${nudgeBodyTwo}`;
     this.log = ifEnabledSemanticLoggerProvider(this.debug, this.logService, {
       type: "CredentialGeneratorComponent",
     });
@@ -612,13 +605,5 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
     this.onGenerated.complete();
 
     this.log.debug("component destroyed");
-  }
-
-  protected readonly VaultNudgeType = VaultNudgeType;
-
-  async dismissGeneratorSpotlight(type: VaultNudgeType) {
-    // this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    // const account = await firstValueFrom(this.account$);
-    await this.vaultNudgesService.dismissNudge(type, this.account.id as UserId);
   }
 }

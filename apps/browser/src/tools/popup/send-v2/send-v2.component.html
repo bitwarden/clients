@@ -21,8 +21,8 @@
     class="tw-flex tw-flex-col tw-h-full tw-justify-center"
   >
     <bit-no-items [icon]="noItemIcon" class="tw-text-main">
-      <ng-container slot="title">{{ "sendsNoItemsTitle" | i18n }}</ng-container>
-      <ng-container slot="description">{{ "sendsNoItemsMessage" | i18n }}</ng-container>
+      <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
+      <ng-container slot="description">{{ "sendsBodyNoItems" | i18n }}</ng-container>
       <tools-new-send-dropdown
         [hideIcon]="true"
         *ngIf="!sendsDisabled"

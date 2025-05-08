@@ -17,7 +17,6 @@ import {
   ToggleGroupModule,
   TypographyModule,
 } from "@bitwarden/components";
-import { SpotlightComponent } from "@bitwarden/vault/src";
 
 import { CatchallSettingsComponent } from "./catchall-settings.component";
 import { CredentialGeneratorComponent } from "./credential-generator.component";
@@ -49,7 +48,6 @@ import { UsernameSettingsComponent } from "./username-settings.component";
     SelectModule,
     ToggleGroupModule,
     TypographyModule,
-    SpotlightComponent,
   ],
   declarations: [
     CatchallSettingsComponent,
