@@ -128,7 +128,9 @@ export default {
   ],
   args: {
     InputPasswordFlow: {
-      AccountRegistration: InputPasswordFlow.AccountRegistration,
+      ChangePasswordDelegation: InputPasswordFlow.ChangePasswordDelegation,
+      SetInitialPasswordAccountRegistration:
+        InputPasswordFlow.SetInitialPasswordAccountRegistration,
       SetInitialPasswordAuthedUser: InputPasswordFlow.SetInitialPasswordAuthedUser,
       ChangePassword: InputPasswordFlow.ChangePassword,
       ChangePasswordWithOptionalUserKeyRotation:
@@ -150,11 +152,11 @@ export default {
 
 type Story = StoryObj<InputPasswordComponent>;
 
-export const AccountRegistration: Story = {
+export const SetInitialPasswordAccountRegistration: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <auth-input-password [flow]="InputPasswordFlow.AccountRegistration"></auth-input-password>
+      <auth-input-password [flow]="InputPasswordFlow.SetInitialPasswordAccountRegistration"></auth-input-password>
     `,
   }),
 };
@@ -188,12 +190,23 @@ export const ChangePasswordWithOptionalUserKeyRotation: Story = {
   }),
 };
 
+export const ChangePasswordDelegation: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <auth-input-password [flow]="InputPasswordFlow.ChangePasswordDelegation"></auth-input-password>
+      <br />
+      <div>Note: no buttons here as this flow is expected to be used in a dialog, which will have its own buttons</div>
+    `,
+  }),
+};
+
 export const WithPolicies: Story = {
   render: (args) => ({
     props: args,
     template: `
       <auth-input-password
-        [flow]="InputPasswordFlow.SetInitialPasswordAuthedUser"
+        [flow]="InputPasswordFlow.SetInitialPasswordAccountRegistration"
         [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
       ></auth-input-password>
     `,
@@ -205,7 +218,7 @@ export const SecondaryButton: Story = {
     props: args,
     template: `
       <auth-input-password
-        [flow]="InputPasswordFlow.AccountRegistration"
+        [flow]="InputPasswordFlow.SetInitialPasswordAccountRegistration"
         [secondaryButtonText]="{ key: 'cancel' }"
         (onSecondaryButtonClick)="onSecondaryButtonClick()"
       ></auth-input-password>
@@ -218,7 +231,7 @@ export const SecondaryButtonWithPlaceHolderText: Story = {
     props: args,
     template: `
       <auth-input-password
-        [flow]="InputPasswordFlow.AccountRegistration"
+        [flow]="InputPasswordFlow.SetInitialPasswordAccountRegistration"
         [secondaryButtonText]="{ key: 'backTo', placeholders: ['homepage'] }"
         (onSecondaryButtonClick)="onSecondaryButtonClick()"
       ></auth-input-password>
@@ -231,7 +244,7 @@ export const InlineButton: Story = {
     props: args,
     template: `
       <auth-input-password
-        [flow]="InputPasswordFlow.AccountRegistration"
+        [flow]="InputPasswordFlow.SetInitialPasswordAccountRegistration"
         [inlineButtons]="true"
       ></auth-input-password>
     `,
@@ -243,7 +256,7 @@ export const InlineButtons: Story = {
     props: args,
     template: `
       <auth-input-password
-        [flow]="InputPasswordFlow.AccountRegistration"
+        [flow]="InputPasswordFlow.SetInitialPasswordAccountRegistration"
         [secondaryButtonText]="{ key: 'cancel' }"
         [inlineButtons]="true"
         (onSecondaryButtonClick)="onSecondaryButtonClick()"

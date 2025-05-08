@@ -1,0 +1,27 @@
+<bit-dialog dialogSize="large">
+  <span bitDialogTitle>
+    {{ "takeover" | i18n }}
+    <small class="tw-text-muted" *ngIf="dialogData.grantorName">{{ dialogData.grantorName }}</small>
+  </span>
+
+  <div bitDialogContent>
+    <bit-callout type="warning">{{
+      "emergencyAccessLoggedOutWarning" | i18n: dialogData.grantorName
+    }}</bit-callout>
+
+    <auth-input-password
+      [flow]="inputPasswordFlow"
+      [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
+      (onPasswordFormSubmit)="handlePasswordFormSubmit($event)"
+    ></auth-input-password>
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button type="button" bitButton buttonType="primary" (click)="submit()">
+      {{ "save" | i18n }}
+    </button>
+    <button type="button" bitButton buttonType="secondary" bitDialogClose>
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>
