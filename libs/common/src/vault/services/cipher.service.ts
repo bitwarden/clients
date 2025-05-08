@@ -1,6 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { combineLatest, filter, firstValueFrom, map, Observable, Subject, switchMap } from "rxjs";
+import {
+  combineLatest,
+  defer,
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  Subject,
+  switchMap,
+} from "rxjs";
 import { SemVer } from "semver";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -88,6 +97,8 @@ export class CipherService implements CipherServiceAbstraction {
    */
   private clearCipherViewsForUser$: Subject<UserId> = new Subject<UserId>();
 
+  private getAllDecryptedCache: (userId: UserId) => Observable<CipherView[]>;
+
   constructor(
     private keyService: KeyService,
     private domainSettingsService: DomainSettingsService,
@@ -103,7 +114,11 @@ export class CipherService implements CipherServiceAbstraction {
     private stateProvider: StateProvider,
     private accountService: AccountService,
     private logService: LogService,
-  ) {}
+  ) {
+    this.getAllDecryptedCache = perUserCache$((userId) =>
+      defer(async () => await this.getAllDecrypted(userId)),
+    );
+  }
 
   localData$(userId: UserId): Observable<Record<CipherId, LocalData>> {
     return this.localDataState(userId).state$.pipe(map((data) => data ?? {}));
@@ -515,8 +530,13 @@ export class CipherService implements CipherServiceAbstraction {
     includeOtherTypes?: CipherType[],
     defaultMatch: UriMatchStrategySetting = null,
   ): Promise<CipherView[]> {
-    const ciphers = await this.getAllDecrypted(userId);
-    return await this.filterCiphersForUrl(ciphers, url, includeOtherTypes, defaultMatch);
+    return await firstValueFrom(
+      this.getAllDecryptedCache(userId).pipe(
+        switchMap(async (ciphers) =>
+          this.filterCiphersForUrl(ciphers, url, includeOtherTypes, defaultMatch),
+        ),
+      ),
+    );
   }
 
   async filterCiphersForUrl(
