@@ -1,9 +1,8 @@
 import { CdkStepper } from "@angular/cdk/stepper";
 import { CommonModule } from "@angular/common";
-import { Component, QueryList } from "@angular/core";
+import { Component } from "@angular/core";
 
 import { StepContentComponent } from "./step-content.component";
-import { StepComponent } from "./step.component";
 
 @Component({
   selector: "bit-stepper",
@@ -13,8 +12,6 @@ import { StepComponent } from "./step.component";
   standalone: true,
 })
 export class StepperComponent extends CdkStepper {
-  override readonly steps: QueryList<StepComponent>;
-
   isStepDisabled(index: number) {
     if (this.selectedIndex !== index) {
       return this.selectedIndex === index - 1
