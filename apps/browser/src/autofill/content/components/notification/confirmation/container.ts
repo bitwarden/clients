@@ -21,7 +21,7 @@ import { NotificationConfirmationFooter } from "./footer";
 
 export type NotificationConfirmationContainerProps = NotificationBarIframeInitData & {
   handleCloseNotification: (e: Event) => void;
-  handleOpenVault: () => void;
+  handleOpenVault: (e: Event) => void;
   handleOpenTasks: (e: Event) => void;
 } & {
   error?: string;
@@ -75,8 +75,10 @@ export function NotificationConfirmationContainer({
         buttonAria,
         buttonText,
         confirmationMessage,
-        tasksAreComplete,
+        error,
+        itemName,
         messageDetails,
+        tasksAreComplete,
         theme,
         handleOpenVault,
       })}

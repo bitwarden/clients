@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { of, switchMap } from "rxjs";
+import { combineLatest, map, Observable, of, shareReplay, switchMap } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -103,5 +103,27 @@ export class VaultNudgesService {
       ? { hasBadgeDismissed: true, hasSpotlightDismissed: false }
       : { hasBadgeDismissed: true, hasSpotlightDismissed: true };
     await this.getNudgeService(nudge).setNudgeStatus(nudge, dismissedStatus, userId);
+  }
+
+  /**
+   * Check if there are any active badges for the user to show Berry notification in Tabs
+   * @param userId
+   */
+  hasActiveBadges$(userId: UserId): Observable<boolean> {
+    // Add more nudge types here if they have the settings badge feature
+    const nudgeTypes = [VaultNudgeType.EmptyVaultNudge];
+
+    const nudgeTypesWithBadge$ = nudgeTypes.map((nudge) => {
+      return this.getNudgeService(nudge)
+        .nudgeStatus$(nudge, userId)
+        .pipe(
+          map((status) => !status?.hasBadgeDismissed),
+          shareReplay({ refCount: false, bufferSize: 1 }),
+        );
+    });
+
+    return combineLatest(nudgeTypesWithBadge$).pipe(
+      map((results) => results.some((result) => result === true)),
+    );
   }
 }
