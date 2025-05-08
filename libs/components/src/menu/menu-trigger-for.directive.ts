@@ -16,11 +16,7 @@ import { filter, mergeWith } from "rxjs/operators";
 
 import { MenuComponent } from "./menu.component";
 
-@Directive({
-  selector: "[bitMenuTriggerFor]",
-  exportAs: "menuTrigger",
-  standalone: true,
-})
+@Directive({ selector: "[bitMenuTriggerFor]", exportAs: "menuTrigger", standalone: true })
 export class MenuTriggerForDirective implements OnDestroy {
   @HostBinding("attr.aria-expanded") isOpen = false;
   @HostBinding("attr.aria-haspopup") get hasPopup(): "menu" | "dialog" {
@@ -42,18 +38,10 @@ export class MenuTriggerForDirective implements OnDestroy {
       .position()
       .flexibleConnectedTo(this.elementRef)
       .withPositions([
-        {
-          originX: "start",
-          originY: "bottom",
-          overlayX: "start",
-          overlayY: "top",
-        },
-        {
-          originX: "end",
-          originY: "bottom",
-          overlayX: "end",
-          overlayY: "top",
-        },
+        { originX: "start", originY: "bottom", overlayX: "start", overlayY: "top" },
+        { originX: "end", originY: "bottom", overlayX: "end", overlayY: "top" },
+        { originX: "start", originY: "top", overlayX: "start", overlayY: "bottom" },
+        { originX: "end", originY: "top", overlayX: "end", overlayY: "bottom" },
       ])
       .withLockedPosition(true)
       .withFlexibleDimensions(false)
