@@ -78,12 +78,15 @@ export class DefaultCredentialGeneratorService implements CredentialGeneratorSer
 
     // load the active profile's settings
     const settings$ = zip(request$, metadata$).pipe(
+      map(
+        ([request, metadata]) =>
+          [{ ...request, profile: request.profile ?? Profile.account }, metadata] as const,
+      ),
       memoizedMap(
         ([request, metadata]) => {
-          const profile = request.profile ?? Profile.account;
-          const algorithm = metadata.id;
+          const [profile, algorithm] = [request.profile, metadata.id];
 
-          // settings stays hot and buffers the most recent value in the cache
+          // settings$ stays hot and buffers the most recent value in the cache
           // for the next `request`
           const settings$ = this.settings(metadata, { account$ }, profile).pipe(
             tap(() => this.log.debug({ algorithm, profile }, "settings update received")),
@@ -101,7 +104,7 @@ export class DefaultCredentialGeneratorService implements CredentialGeneratorSer
           this.log.debug({ algorithm, profile }, "settings cached");
           return settings$;
         },
-        { key: ([, metadata]) => metadata.id },
+        { key: ([request, metadata]) => `${metadata.id}:${request.profile}` },
       ),
       switchAll(),
     );
