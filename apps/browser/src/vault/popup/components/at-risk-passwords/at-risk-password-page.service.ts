@@ -1,12 +1,16 @@
 import { inject, Injectable } from "@angular/core";
-import { map, Observable } from "rxjs";
+import { combineLatest, map, Observable, of, shareReplay, switchMap } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   AT_RISK_PASSWORDS_PAGE_DISK,
   StateProvider,
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 
 const AUTOFILL_CALLOUT_DISMISSED_KEY = new UserKeyDefinition<boolean>(
   AT_RISK_PASSWORDS_PAGE_DISK,
@@ -26,9 +30,14 @@ const GETTING_STARTED_CAROUSEL_DISMISSED_KEY = new UserKeyDefinition<boolean>(
   },
 );
 
-@Injectable()
+@Injectable({
+  providedIn: "root",
+})
 export class AtRiskPasswordPageService {
   private stateProvider = inject(StateProvider);
+  private accountService = inject(AccountService);
+  private taskService = inject(TaskService);
+  private cipherService = inject(CipherService);
 
   isCalloutDismissed(userId: UserId): Observable<boolean> {
     return this.stateProvider
@@ -51,4 +60,39 @@ export class AtRiskPasswordPageService {
       .getUser(userId, GETTING_STARTED_CAROUSEL_DISMISSED_KEY)
       .update(() => true);
   }
+
+  activeUserData$ = this.accountService.activeAccount$.pipe(
+    filterOutNullish(),
+    switchMap((user) =>
+      combineLatest([
+        this.taskService.pendingTasks$(user.id),
+        this.cipherService.cipherViews$(user.id).pipe(
+          filterOutNullish(),
+          map((ciphers) => Object.fromEntries(ciphers.map((c) => [c.id, c]))),
+        ),
+        of(user),
+      ]),
+    ),
+    map(([tasks, ciphers, user]) => ({
+      tasks,
+      ciphers,
+      userId: user.id,
+    })),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  atRiskItems$ = this.activeUserData$.pipe(
+    map(({ tasks, ciphers }) =>
+      tasks
+        .filter(
+          (t) =>
+            t.type === SecurityTaskType.UpdateAtRiskCredential &&
+            t.cipherId != null &&
+            ciphers[t.cipherId] != null &&
+            ciphers[t.cipherId].edit &&
+            ciphers[t.cipherId].viewPassword,
+        )
+        .map((t) => ciphers[t.cipherId!]),
+    ),
+  );
 }

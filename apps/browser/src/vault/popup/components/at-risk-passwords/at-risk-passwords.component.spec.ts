@@ -2,7 +2,7 @@ import { Component, Input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, of } from "rxjs";
+import { BehaviorSubject, combineLatest, firstValueFrom, map, of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
@@ -15,6 +15,7 @@ import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { EndUserNotificationService } from "@bitwarden/common/vault/notifications";
@@ -118,6 +119,29 @@ describe("AtRiskPasswordsComponent", () => {
     mockDialogService.open.mockClear();
     mockConfigService.getFeatureFlag.mockClear();
     mockAtRiskPasswordPageService.isCalloutDismissed.mockReturnValue(calloutDismissed$);
+
+    mockAtRiskPasswordPageService.activeUserData$ = combineLatest([mockTasks$, mockCiphers$]).pipe(
+      map(([tasks, ciphers]) => {
+        return {
+          tasks: tasks,
+          ciphers: Object.fromEntries(ciphers.map((c) => [c.id, c])),
+          userId: "user" as UserId,
+        };
+      }),
+    );
+
+    mockAtRiskPasswordPageService.atRiskItems$ = mockAtRiskPasswordPageService.activeUserData$.pipe(
+      map(({ tasks, ciphers }) =>
+        tasks
+          .filter(
+            (t) =>
+              t.type === SecurityTaskType.UpdateAtRiskCredential &&
+              t.cipherId != null &&
+              ciphers[t.cipherId] != null,
+          )
+          .map((t) => ciphers[t.cipherId!]),
+      ),
+    );
 
     await TestBed.configureTestingModule({
       imports: [AtRiskPasswordsComponent],
