@@ -14,7 +14,13 @@
           [attr.aria-controls]="contentId"
           role="tab"
         >
-          @if (!step.completed) {
+          @if (step.completed) {
+            <span
+              class="tw-me-3.5 tw-size-9 tw-rounded-full tw-bg-primary-600 tw-font-bold tw-leading-9 tw-text-contrast"
+            >
+              <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
+            </span>
+          } @else {
             <span
               class="tw-me-3.5 tw-size-9 tw-rounded-full tw-font-bold tw-leading-9"
               [ngClass]="{
@@ -25,13 +31,6 @@
               }"
             >
               {{ $index + 1 }}
-            </span>
-          }
-          @if (step.completed) {
-            <span
-              class="tw-me-3.5 tw-size-9 tw-rounded-full tw-bg-primary-600 tw-font-bold tw-leading-9 tw-text-contrast"
-            >
-              <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
             </span>
           }
           <div class="tw-leading-snug tw-text-left">
@@ -72,7 +71,13 @@
         [attr.aria-controls]="contentId"
         role="tab"
       >
-        @if (!step.completed) {
+        @if (step.completed) {
+          <span
+            class="tw-me-3.5 tw-size-9 tw-rounded-full tw-bg-primary-600 tw-font-bold tw-leading-9 tw-text-contrast"
+          >
+            <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
+          </span>
+        } @else {
           <span
             class="tw-me-3.5 tw-size-9 tw-rounded-full tw-font-bold tw-leading-9"
             [ngClass]="{
@@ -83,13 +88,6 @@
             }"
           >
             {{ $index + 1 }}
-          </span>
-        }
-        @if (step.completed) {
-          <span
-            class="tw-me-3.5 tw-size-9 tw-rounded-full tw-bg-primary-600 tw-font-bold tw-leading-9 tw-text-contrast"
-          >
-            <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
           </span>
         }
         <div class="tw-leading-snug tw-text-left">
@@ -103,7 +101,7 @@
       <div role="tabpanel" [attr.id]="contentId" [hidden]="!selected">
         <div
           class="tw-ms-7 tw-border-solid tw-border-0 tw-border-s tw-border-secondary-300"
-          [ngClass]="{ 'tw-min-h-6': !isLast }"
+          [ngClass]="{ 'tw-min-h-6 tw-ps-8 tw-py-2': !isLast }"
         >
           @if (selectedIndex === $index) {
             <div [ngTemplateOutlet]="selected.content"></div>
