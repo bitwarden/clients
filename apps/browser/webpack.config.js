@@ -324,8 +324,6 @@ if (manifestVersion == 2) {
   // Manifest V2 background pages can be run through the regular build pipeline.
   // Since it's a standard webpage.
   mainConfig.entry.background = "./src/platform/background.ts";
-  mainConfig.entry["content/fido2-page-script-append-mv2"] =
-    "./src/autofill/fido2/content/fido2-page-script-append.mv2.ts";
   mainConfig.entry["content/fido2-page-script-delay-append-mv2"] =
     "./src/autofill/fido2/content/fido2-page-script-delay-append.mv2.ts";
 
