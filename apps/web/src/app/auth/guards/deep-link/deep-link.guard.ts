@@ -27,8 +27,15 @@ export function deepLinkGuard(): CanActivateFn {
     // Evaluate State
     /** before anything else, check if the user is already unlocked. */
     if (authStatus === AuthenticationStatus.Unlocked) {
-      const persistedPreLoginUrl = await routerService.getAndClearLoginRedirectUrl();
+      const persistedPreLoginUrl: string | undefined =
+        await routerService.getAndClearLoginRedirectUrl();
+      if (persistedPreLoginUrl === undefined) {
+        // Url us undefined, so there is nothing to navigate to.
+        return true;
+      }
+      // Check if the url is empty or null
       if (!Utils.isNullOrEmpty(persistedPreLoginUrl)) {
+        // const urlTree: string | UrlTree = persistedPreLoginUrl;
         return router.navigateByUrl(persistedPreLoginUrl);
       }
       return true;
@@ -44,7 +51,7 @@ export function deepLinkGuard(): CanActivateFn {
      */
     if (isValidUrl(currentUrl)) {
       await routerService.persistLoginRedirectUrl(currentUrl);
-    } else if (isValidUrl(transientPreviousUrl)) {
+    } else if (isValidUrl(transientPreviousUrl) && transientPreviousUrl !== undefined) {
       await routerService.persistLoginRedirectUrl(transientPreviousUrl);
     }
     return true;
@@ -61,12 +68,14 @@ export function deepLinkGuard(): CanActivateFn {
    * @returns True if the URL is valid, false otherwise.
    */
   function isValidUrl(url: string | null | undefined): boolean {
+    if (url === undefined) {
+      return false;
+    }
+
     if (Utils.isNullOrEmpty(url)) {
       return false;
     }
-    const lowerCaseUrl = url.toLocaleLowerCase();
-
-    // TODO: explain why these lock states are exempted.
+    const lowerCaseUrl: string = url.toLocaleLowerCase();
 
     // Login --> Deep link to vault item --> deepLinkGuard catches & saves --> user lands on login page
     // User logs in via SSO with TDE on untrusted device --> user lands on login-initiated page
