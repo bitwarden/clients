@@ -1,4 +1,4 @@
-export const errorMessage = "Switching to using consts instead of enums.";
+export const errorMessage = "Enums are discouraged, please use a const object instead";
 
 export default {
   meta: {
