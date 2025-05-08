@@ -14,6 +14,7 @@ import {
   BannerModule,
   ButtonModule,
   I18nMockService,
+  Icons,
   IconButtonModule,
   ItemModule,
   NoItemsModule,
@@ -81,7 +82,7 @@ class VaultComponent {
   selector: "mock-add-button",
   template: `
     <button bitButton size="small" buttonType="primary" type="button">
-      <i class="bwi bwi-plus-f" aria-hidden="true"></i>
+      <i class="bwi bwi-plus" aria-hidden="true"></i>
       Add
     </button>
   `,
@@ -405,26 +406,26 @@ const navButtons = (showBerry = false) => [
   {
     label: "vault",
     page: "/tabs/vault",
-    iconKey: "lock",
-    iconKeyActive: "lock-f",
+    icon: Icons.VaultInactive,
+    iconActive: Icons.VaultActive,
   },
   {
     label: "generator",
     page: "/tabs/generator",
-    iconKey: "generate",
-    iconKeyActive: "generate-f",
+    icon: Icons.GeneratorInactive,
+    iconActive: Icons.GeneratorActive,
   },
   {
     label: "send",
     page: "/tabs/send",
-    iconKey: "send",
-    iconKeyActive: "send-f",
+    icon: Icons.SendInactive,
+    iconActive: Icons.SendActive,
   },
   {
     label: "settings",
     page: "/tabs/settings",
-    iconKey: "cog",
-    iconKeyActive: "cog-f",
+    icon: Icons.SettingsInactive,
+    iconActive: Icons.SettingsActive,
     showBerry: showBerry,
   },
 ];

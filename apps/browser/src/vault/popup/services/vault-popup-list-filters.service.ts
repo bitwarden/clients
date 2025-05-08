@@ -461,7 +461,7 @@ export class VaultPopupListFiltersService {
       });
     }),
     map((collections) =>
-      collections.nestedList.map((c) => this.convertToChipSelectOption(c, "bwi-collection")),
+      collections.nestedList.map((c) => this.convertToChipSelectOption(c, "bwi-collection-shared")),
     ),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );

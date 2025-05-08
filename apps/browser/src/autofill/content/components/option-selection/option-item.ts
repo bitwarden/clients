@@ -12,16 +12,12 @@ const { css } = createEmotion({
   key: optionItemTagName,
 });
 
-export function OptionItem({
-  icon,
-  text,
-  value,
-  theme,
-  handleSelection,
-}: Option & {
+export type OptionItemProps = Option & {
   theme: Theme;
   handleSelection: () => void;
-}) {
+};
+
+export function OptionItem({ icon, text, value, theme, handleSelection }: OptionItemProps) {
   const handleSelectionKeyUpProxy = (event: KeyboardEvent) => {
     const listenedForKeys = new Set(["Enter", "Space"]);
     if (listenedForKeys.has(event.code) && event.target instanceof Element) {
