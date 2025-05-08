@@ -58,8 +58,9 @@ export class CredentialGeneratorComponent implements OnInit {
   async ngOnInit() {
     const nudgeBodyOne = this.i18nService.t("generatorNudgeBodyOne");
     const nudgeBodyTwo = this.i18nService.t("generatorNudgeBodyTwo");
+    const nudgeBodyAria = this.i18nService.t("generatorNudgeIconAria");
     this.generatorSpotlightTitle = this.i18nService.t("generatorNudgeTitle");
-    this.generatorSpotlightBody = `${nudgeBodyOne} <i class="bwi bwi-generate"></i> ${nudgeBodyTwo}`;
+    this.generatorSpotlightBody = `<span aria-label="${nudgeBodyAria}">${nudgeBodyOne} <i class="bwi bwi-generate"></i> ${nudgeBodyTwo}</span>`;
   }
 
   async dismissGeneratorSpotlight(type: VaultNudgeType) {
