@@ -481,9 +481,8 @@ export class AutofillComponent implements OnInit {
     }
 
     await BrowserApi.updateDefaultBrowserAutofillSettings(!this.defaultBrowserAutofillDisabled);
-    await this.vaultNudgesService.dismissNudge(
-      VaultNudgeType.AutofillNudge,
-      await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
+    this.autofillBrowserSettingsService.setDefaultBrowserAutofillDisabled(
+      this.defaultBrowserAutofillDisabled,
     );
   }
 

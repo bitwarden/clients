@@ -1,13 +1,18 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { filter, firstValueFrom, map, Observable, shareReplay, switchMap } from "rxjs";
+import {
+  combineLatest,
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  shareReplay,
+  switchMap,
+} from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
-import { BrowserClientVendor } from "@bitwarden/common/autofill/types";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BadgeComponent, ItemModule } from "@bitwarden/components";
 import { NudgeStatus, VaultNudgesService, VaultNudgeType } from "@bitwarden/vault";
@@ -36,10 +41,8 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 })
 export class SettingsV2Component implements OnInit {
   VaultNudgeType = VaultNudgeType;
-  showVaultBadge$: Observable<NudgeStatus> = new Observable();
-  showAutofillBadge$: Observable<boolean> = new Observable();
   activeUserId: UserId | null = null;
-  protected browserClientVendor: BrowserClientVendor = BrowserClientVendors.Unknown;
+  protected isBrowserAutofillSettingOverridden = false;
 
   private authenticatedAccount$: Observable<Account> = this.accountService.activeAccount$.pipe(
     filter((account): account is Account => account !== null),
@@ -52,9 +55,22 @@ export class SettingsV2Component implements OnInit {
     ),
   );
 
-  showVauffltBadge$: Observable<NudgeStatus> = this.authenticatedAccount$.pipe(
+  showVaultBadge$: Observable<NudgeStatus> = this.authenticatedAccount$.pipe(
     switchMap((account) =>
       this.vaultNudgesService.showNudge$(VaultNudgeType.EmptyVaultNudge, account.id),
+    ),
+  );
+
+  showAutofillBadge$: Observable<boolean> = combineLatest([
+    this.autofillBrowserSettingsService.defaultBrowserAutofillDisabled$,
+    this.authenticatedAccount$,
+  ]).pipe(
+    switchMap(([defaultBrowserAutofillDisabled, account]) =>
+      this.vaultNudgesService.showNudge$(VaultNudgeType.AutofillNudge, account.id).pipe(
+        map((nudgeStatus) => {
+          return !defaultBrowserAutofillDisabled && nudgeStatus.hasBadgeDismissed === false;
+        }),
+      ),
     ),
   );
 
@@ -63,26 +79,11 @@ export class SettingsV2Component implements OnInit {
     private readonly accountService: AccountService,
     private readonly autofillBrowserSettingsService: AutofillBrowserSettingsService,
   ) {}
+
   async ngOnInit() {
-    this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    this.showVaultBadge$ = this.vaultNudgesService.showNudge$(
-      VaultNudgeType.EmptyVaultNudge,
-      this.activeUserId,
-    );
-    this.browserClientVendor = BrowserApi.getBrowserClientVendor(window);
-    const isOverridden =
+    this.isBrowserAutofillSettingOverridden =
       await this.autofillBrowserSettingsService.isBrowserAutofillSettingOverridden(
-        this.browserClientVendor,
-      );
-    this.showAutofillBadge$ = this.vaultNudgesService
-      .showNudge$(VaultNudgeType.AutofillNudge, this.activeUserId)
-      .pipe(
-        map((nudgeStatus) => {
-          if (isOverridden) {
-            return false;
-          }
-          return nudgeStatus.hasBadgeDismissed === false;
-        }),
+        BrowserApi.getBrowserClientVendor(window),
       );
   }
 

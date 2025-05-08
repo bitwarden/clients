@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { BehaviorSubject, Observable } from "rxjs";
 
 import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
 import { BrowserClientVendor } from "@bitwarden/common/autofill/types";
@@ -13,12 +14,19 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 })
 export class AutofillBrowserSettingsService {
   async isBrowserAutofillSettingOverridden(browserClient: BrowserClientVendor) {
-    if (browserClient === BrowserClientVendors.Unknown) {
-      return false;
-    }
+    return (
+      browserClient !== BrowserClientVendors.Unknown &&
+      (await BrowserApi.permissionsGranted(["privacy"])) &&
+      BrowserApi.browserAutofillSettingsOverridden()
+    );
+  }
 
-    if (await BrowserApi.permissionsGranted(["privacy"])) {
-      return BrowserApi.browserAutofillSettingsOverridden();
-    }
+  private _defaultBrowserAutofillDisabled$ = new BehaviorSubject<boolean>(false);
+
+  defaultBrowserAutofillDisabled$: Observable<boolean> =
+    this._defaultBrowserAutofillDisabled$.asObservable();
+
+  setDefaultBrowserAutofillDisabled(value: boolean) {
+    this._defaultBrowserAutofillDisabled$.next(value);
   }
 }
