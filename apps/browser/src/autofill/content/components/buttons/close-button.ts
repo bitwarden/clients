@@ -6,13 +6,12 @@ import { Theme } from "@bitwarden/common/platform/enums";
 import { spacing, themes } from "../constants/styles";
 import { Close as CloseIcon } from "../icons";
 
-export function CloseButton({
-  handleCloseNotification,
-  theme,
-}: {
+export type CloseButtonProps = {
   handleCloseNotification: (e: Event) => void;
   theme: Theme;
-}) {
+};
+
+export function CloseButton({ handleCloseNotification, theme }: CloseButtonProps) {
   return html`
     <button type="button" class=${closeButtonStyles(theme)} @click=${handleCloseNotification}>
       ${CloseIcon({ theme })}
@@ -35,5 +34,6 @@ const closeButtonStyles = (theme: Theme) => css`
   > svg {
     width: 20px;
     height: 20px;
+    vertical-align: middle;
   }
 `;

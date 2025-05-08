@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { importProvidersFrom, signal } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
 import { action } from "@storybook/addon-actions";
 import {
   applicationConfig,
@@ -33,7 +34,9 @@ import { AsyncActionsModule, ButtonModule, ItemModule, ToastService } from "@bit
 import {
   CipherFormConfig,
   CipherFormGenerationService,
+  NudgeStatus,
   PasswordRepromptService,
+  VaultNudgesService,
 } from "@bitwarden/vault";
 // FIXME: remove `/apps` import from `/libs`
 // FIXME: remove `src` and fix import
@@ -46,6 +49,7 @@ import { CipherFormService } from "./abstractions/cipher-form.service";
 import { TotpCaptureService } from "./abstractions/totp-capture.service";
 import { CipherFormModule } from "./cipher-form.module";
 import { CipherFormComponent } from "./components/cipher-form.component";
+import { NewItemNudgeComponent } from "./components/new-item-nudge/new-item-nudge.component";
 import { CipherFormCacheService } from "./services/default-cipher-form-cache.service";
 
 const defaultConfig: CipherFormConfig = {
@@ -131,8 +135,23 @@ export default {
   component: CipherFormComponent,
   decorators: [
     moduleMetadata({
-      imports: [CipherFormModule, AsyncActionsModule, ButtonModule, ItemModule],
+      imports: [
+        CipherFormModule,
+        AsyncActionsModule,
+        ButtonModule,
+        ItemModule,
+        NewItemNudgeComponent,
+      ],
       providers: [
+        {
+          provide: VaultNudgesService,
+          useValue: {
+            showNudge$: new BehaviorSubject({
+              hasBadgeDismissed: true,
+              hasSpotlightDismissed: true,
+            } as NudgeStatus),
+          },
+        },
         {
           provide: CipherFormService,
           useClass: TestAddEditFormService,
@@ -223,6 +242,14 @@ export default {
           provide: ConfigService,
           useValue: {
             getFeatureFlag: () => Promise.resolve(false),
+          },
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              queryParams: {},
+            },
           },
         },
       ],

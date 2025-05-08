@@ -42,7 +42,7 @@
               *ngFor="let c of collections$ | async"
               [value]="c"
               [label]="c.name"
-              icon="bwi-collection"
+              icon="bwi-collection-shared"
             />
           </ng-container>
         </bit-select>
@@ -165,7 +165,12 @@
     </ng-container>
     -->
         <ng-container
-          *ngIf="format === 'chromecsv' || format === 'operacsv' || format === 'vivaldicsv'"
+          *ngIf="
+            format === 'chromecsv' ||
+            format === 'operacsv' ||
+            format === 'vivaldicsv' ||
+            format === 'edgecsv'
+          "
         >
           <span *ngIf="format !== 'chromecsv'">
             The process is exactly the same as importing from Google Chrome.

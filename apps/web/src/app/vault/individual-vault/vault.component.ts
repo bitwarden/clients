@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef } from "@angular/cdk/dialog";
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
@@ -14,6 +13,7 @@ import {
   Subject,
 } from "rxjs";
 import {
+  catchError,
   concatMap,
   debounceTime,
   filter,
@@ -24,7 +24,6 @@ import {
   take,
   takeUntil,
   tap,
-  catchError,
 } from "rxjs/operators";
 
 import {
@@ -65,10 +64,14 @@ import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-repromp
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
-import { DialogService, Icons, ToastService } from "@bitwarden/components";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
+import { DialogRef, DialogService, Icons, ToastService } from "@bitwarden/components";
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
+  AttachmentDialogCloseResult,
+  AttachmentDialogResult,
+  AttachmentsV2Component,
   CipherFormConfig,
   CollectionAssignmentResult,
   DecryptionFailureDialogComponent,
@@ -76,7 +79,10 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
-import { getNestedCollectionTree } from "../../admin-console/organizations/collections";
+import {
+  getNestedCollectionTree,
+  getFlatCollectionTree,
+} from "../../admin-console/organizations/collections";
 import {
   CollectionDialogAction,
   CollectionDialogTabType,
@@ -96,11 +102,6 @@ import { VaultItem } from "../components/vault-items/vault-item";
 import { VaultItemEvent } from "../components/vault-items/vault-item-event";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
 
-import {
-  AttachmentDialogCloseResult,
-  AttachmentDialogResult,
-  AttachmentsV2Component,
-} from "./attachments-v2.component";
 import {
   BulkDeleteDialogResult,
   openBulkDeleteDialog,
@@ -139,7 +140,6 @@ const SearchTextDebounceInterval = 200;
     VaultFilterModule,
     VaultItemsModule,
     SharedModule,
-    DecryptionFailureDialogComponent,
   ],
   providers: [
     RoutedVaultFilterService,
@@ -349,9 +349,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
       concatMap(async ([ciphers, filter, searchText]) => {
-        const failedCiphers = await firstValueFrom(
-          this.cipherService.failedToDecryptCiphers$(activeUserId),
-        );
+        const failedCiphers =
+          (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
         const filterFunction = createFilterFunction(filter);
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
@@ -376,31 +375,35 @@ export class VaultComponent implements OnInit, OnDestroy {
         if (filter.collectionId === undefined || filter.collectionId === Unassigned) {
           return [];
         }
-        let collectionsToReturn = [];
+        let searchableCollectionNodes: TreeNode<CollectionView>[] = [];
         if (filter.organizationId !== undefined && filter.collectionId === All) {
-          collectionsToReturn = collections
-            .filter((c) => c.node.organizationId === filter.organizationId)
-            .map((c) => c.node);
+          searchableCollectionNodes = collections.filter(
+            (c) => c.node.organizationId === filter.organizationId,
+          );
         } else if (filter.collectionId === All) {
-          collectionsToReturn = collections.map((c) => c.node);
+          searchableCollectionNodes = collections;
         } else {
           const selectedCollection = ServiceUtils.getTreeNodeObjectFromList(
             collections,
             filter.collectionId,
           );
-          collectionsToReturn = selectedCollection?.children.map((c) => c.node) ?? [];
+          searchableCollectionNodes = selectedCollection?.children ?? [];
         }
 
         if (await this.searchService.isSearchable(activeUserId, searchText)) {
-          collectionsToReturn = this.searchPipe.transform(
-            collectionsToReturn,
+          // Flatten the tree for searching through all levels
+          const flatCollectionTree: CollectionView[] =
+            getFlatCollectionTree(searchableCollectionNodes);
+
+          return this.searchPipe.transform(
+            flatCollectionTree,
             searchText,
             (collection) => collection.name,
             (collection) => collection.id,
           );
         }
 
-        return collectionsToReturn;
+        return searchableCollectionNodes.map((treeNode: TreeNode<CollectionView>) => treeNode.node);
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
@@ -473,6 +476,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     firstSetup$
       .pipe(
         switchMap(() => this.cipherService.failedToDecryptCiphers$(activeUserId)),
+        filterOutNullish(),
         map((ciphers) => ciphers.filter((c) => !c.isDeleted)),
         filter((ciphers) => ciphers.length > 0),
         take(1),
@@ -529,6 +533,10 @@ export class VaultComponent implements OnInit, OnDestroy {
           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
           this.performingInitialLoad = false;
           this.refreshing = false;
+
+          // Explicitly mark for check to ensure the view is updated
+          // Some sources are not always emitted within the Angular zone (e.g. ciphers updated via WS notifications)
+          this.changeDetectorRef.markForCheck();
         },
       );
   }
@@ -651,6 +659,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
       cipherId: cipher.id as CipherId,
+      organizationId: cipher.organizationId as OrganizationId,
     });
 
     const result: AttachmentDialogCloseResult = await lastValueFrom(dialogRef.closed);

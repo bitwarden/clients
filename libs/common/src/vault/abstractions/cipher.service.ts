@@ -31,7 +31,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    *
    * An empty array indicates that all ciphers were successfully decrypted.
    */
-  abstract failedToDecryptCiphers$(userId: UserId): Observable<CipherView[]>;
+  abstract failedToDecryptCiphers$(userId: UserId): Observable<CipherView[] | null>;
   abstract clearCache(userId: UserId): Promise<void>;
   abstract encrypt(
     model: CipherView,
@@ -184,6 +184,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     id: string,
     attachmentId: string,
     userId: UserId,
+    admin: boolean,
   ): Promise<CipherData>;
   abstract sortCiphersByLastUsed(a: CipherView, b: CipherView): number;
   abstract sortCiphersByLastUsedThenName(a: CipherView, b: CipherView): number;

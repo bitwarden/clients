@@ -14,6 +14,14 @@ export const CipherRepromptTypes = {
 
 type CipherRepromptType = (typeof CipherRepromptTypes)[keyof typeof CipherRepromptTypes];
 
+export type OrganizationCategory =
+  (typeof OrganizationCategories)[keyof typeof OrganizationCategories];
+
+export const OrganizationCategories = {
+  business: "business",
+  family: "family",
+} as const;
+
 export type WebsiteIconData = {
   imageEnabled: boolean;
   image: string;
@@ -50,4 +58,5 @@ export type NotificationCipherData = BaseCipherData<typeof CipherTypes.Login> & 
   login?: {
     username: string;
   };
+  organizationCategories?: OrganizationCategory[];
 };

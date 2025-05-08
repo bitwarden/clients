@@ -6,6 +6,7 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { NotificationType } from "../../../notification/abstractions/notification-bar";
 import { CipherItem } from "../cipher";
 import { NotificationCipherData } from "../cipher/types";
+import { I18n } from "../common-types";
 import { scrollbarStyles, spacing, themes, typography } from "../constants/styles";
 import { ItemRow } from "../rows/item-row";
 
@@ -15,18 +16,21 @@ const { css } = createEmotion({
   key: componentClassPrefix,
 });
 
-export function NotificationBody({
-  ciphers = [],
-  notificationType,
-  theme = ThemeTypes.Light,
-  handleEditOrUpdateAction,
-}: {
+export type NotificationBodyProps = {
   ciphers?: NotificationCipherData[];
-  customClasses?: string[];
+  i18n: I18n;
   notificationType?: NotificationType;
   theme: Theme;
   handleEditOrUpdateAction: (e: Event) => void;
-}) {
+};
+
+export function NotificationBody({
+  ciphers = [],
+  i18n,
+  notificationType,
+  theme = ThemeTypes.Light,
+  handleEditOrUpdateAction,
+}: NotificationBodyProps) {
   // @TODO get client vendor from context
   const isSafari = false;
 
@@ -37,6 +41,7 @@ export function NotificationBody({
           theme,
           children: CipherItem({
             cipher,
+            i18n,
             notificationType,
             theme,
             handleAction: handleEditOrUpdateAction,

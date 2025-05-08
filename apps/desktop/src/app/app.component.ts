@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef } from "@angular/cdk/dialog";
 import {
   Component,
   NgZone,
@@ -12,7 +11,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { filter, firstValueFrom, map, Subject, takeUntil, timeout, withLatestFrom } from "rxjs";
+import { filter, firstValueFrom, map, Subject, switchMap, takeUntil, timeout } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
@@ -30,7 +29,6 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -56,7 +54,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { DialogService, ToastOptions, ToastService } from "@bitwarden/components";
+import { DialogRef, DialogService, ToastOptions, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 
@@ -821,27 +819,26 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private async deleteAccount() {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.AccountDeprovisioning).pipe(
-        withLatestFrom(this.organizationService.organizations$(userId)),
-        map(async ([accountDeprovisioningEnabled, organization]) => {
-          if (
-            accountDeprovisioningEnabled &&
-            organization.some((o) => o.userIsManagedByOrganization === true)
-          ) {
-            await this.dialogService.openSimpleDialog({
-              title: { key: "cannotDeleteAccount" },
-              content: { key: "cannotDeleteAccountDesc" },
-              cancelButtonText: null,
-              acceptButtonText: { key: "close" },
-              type: "danger",
-            });
-          } else {
-            DeleteAccountComponent.open(this.dialogService);
-          }
-        }),
+    const userIsManaged = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.organizationService.organizations$(userId)),
+        map((orgs) => orgs.some((o) => o.userIsManagedByOrganization === true)),
       ),
     );
+
+    if (userIsManaged) {
+      await this.dialogService.openSimpleDialog({
+        title: { key: "cannotDeleteAccount" },
+        content: { key: "cannotDeleteAccountDesc" },
+        cancelButtonText: null,
+        acceptButtonText: { key: "close" },
+        type: "danger",
+      });
+
+      return;
+    }
+
+    DeleteAccountComponent.open(this.dialogService);
   }
 }

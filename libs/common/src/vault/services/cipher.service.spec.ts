@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, map, of } from "rxjs";
 
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherDecryptionKeys, KeyService } from "@bitwarden/key-management";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
@@ -121,6 +122,7 @@ describe("Cipher Service", () => {
   const bulkEncryptService = mock<BulkEncryptService>();
   const configService = mock<ConfigService>();
   accountService = mockAccountServiceWith(mockUserId);
+  const logService = mock<LogService>();
   const stateProvider = new FakeStateProvider(accountService);
 
   const userId = "TestUserId" as UserId;
@@ -129,8 +131,8 @@ describe("Cipher Service", () => {
   let cipherObj: Cipher;
 
   beforeEach(() => {
-    encryptService.encryptToBytes.mockReturnValue(Promise.resolve(ENCRYPTED_BYTES));
-    encryptService.encrypt.mockReturnValue(Promise.resolve(new EncString(ENCRYPTED_TEXT)));
+    encryptService.encryptFileData.mockReturnValue(Promise.resolve(ENCRYPTED_BYTES));
+    encryptService.encryptString.mockReturnValue(Promise.resolve(new EncString(ENCRYPTED_TEXT)));
 
     (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
@@ -148,6 +150,7 @@ describe("Cipher Service", () => {
       configService,
       stateProvider,
       accountService,
+      logService,
     );
 
     cipherObj = new Cipher(cipherData);
@@ -271,12 +274,15 @@ describe("Cipher Service", () => {
       cipherView = new CipherView();
       cipherView.type = CipherType.Login;
 
-      encryptService.decryptToBytes.mockReturnValue(Promise.resolve(makeStaticByteArray(64)));
+      encryptService.unwrapSymmetricKey.mockResolvedValue(
+        new SymmetricCryptoKey(makeStaticByteArray(64)),
+      );
       configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(true));
       keyService.makeCipherKey.mockReturnValue(
         Promise.resolve(new SymmetricCryptoKey(makeStaticByteArray(64)) as CipherKey),
       );
-      encryptService.encrypt.mockImplementation(encryptText);
+      encryptService.encryptString.mockImplementation(encryptText);
+      encryptService.wrapSymmetricKey.mockResolvedValue(new EncString("Re-encrypted Cipher Key"));
 
       jest.spyOn(cipherService as any, "getAutofillOnPageLoadDefault").mockResolvedValue(true);
     });
@@ -431,9 +437,11 @@ describe("Cipher Service", () => {
         .spyOn(cipherService, "failedToDecryptCiphers$")
         .mockImplementation((userId: UserId) => failedCiphers);
 
-      encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(32));
+      encryptService.unwrapSymmetricKey.mockResolvedValue(
+        new SymmetricCryptoKey(new Uint8Array(32)),
+      );
       encryptedKey = new EncString("Re-encrypted Cipher Key");
-      encryptService.encrypt.mockResolvedValue(encryptedKey);
+      encryptService.wrapSymmetricKey.mockResolvedValue(encryptedKey);
 
       keyService.makeCipherKey.mockResolvedValue(
         new SymmetricCryptoKey(new Uint8Array(32)) as CipherKey,

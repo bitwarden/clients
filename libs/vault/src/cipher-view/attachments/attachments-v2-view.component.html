@@ -11,9 +11,11 @@
       <ng-container slot="end">
         <bit-item-action>
           <app-download-attachment
+            [admin]="admin"
             [cipher]="cipher"
             [attachment]="attachment"
             [checkPwReprompt]="true"
+            [emergencyAccessId]="emergencyAccessId"
           ></app-download-attachment>
         </bit-item-action>
       </ng-container>
