@@ -113,6 +113,35 @@
       "GenericName": "Password Manager"
     }
   },
+  "linuxarm64": {
+    "category": "Utility",
+    "synopsis": "A secure and free password manager for all of your devices.",
+    "extraFiles": [
+      {
+        "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
+        "to": "desktop_proxy"
+      }
+    ],
+    "target": [
+      {
+        "target": "deb",
+        "arch": "arm64"
+      },
+      {
+        "target": "AppImage",
+        "arch": "arm64"
+      },
+      {
+        "target": "rpm",
+        "arch": "arm64"
+      }
+    ],
+    "desktop": {
+      "Name": "Bitwarden",
+      "Type": "Application",
+      "GenericName": "Password Manager"
+    }
+  },
   "dmg": {
     "icon": "dmg.icns",
     "sign": false,
