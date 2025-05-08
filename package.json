@@ -124,7 +124,7 @@
     "prettier": "3.5.3",
     "prettier-plugin-tailwindcss": "0.6.11",
     "process": "0.11.10",
-    "remark-gfm": "4.0.0",
+    "remark-gfm": "4.0.1",
     "rimraf": "6.0.1",
     "sass": "1.83.4",
     "sass-loader": "16.0.4",
