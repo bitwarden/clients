@@ -460,14 +460,29 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       const activeUserId = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.id)),
       );
-      const updatedCipher = await this.cipherService.get(
-        this.formConfig.originalCipher?.id,
-        activeUserId,
-      );
 
-      const updatedCipherView = await updatedCipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, activeUserId),
-      );
+      let updatedCipherView: CipherView;
+
+      if (this.formConfig.admin) {
+        const cipherResponse = await this.apiService.getCipherAdmin(
+          this.formConfig.originalCipher?.id,
+        );
+        const cipherData = new CipherData(cipherResponse);
+        const cipher = new Cipher(cipherData);
+
+        updatedCipherView = await cipher.decrypt(
+          await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
+        );
+      } else {
+        const updatedCipher = await this.cipherService.get(
+          this.formConfig.originalCipher?.id,
+          activeUserId,
+        );
+
+        updatedCipherView = await updatedCipher.decrypt(
+          await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, activeUserId),
+        );
+      }
 
       this.cipherFormComponent.patchCipher((currentCipher) => {
         currentCipher.attachments = updatedCipherView.attachments;

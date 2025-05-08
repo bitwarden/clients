@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom, lastValueFrom, map, Observable, switchMap } from "rxjs";
 import { first } from "rxjs/operators";
@@ -33,9 +33,6 @@ import { PolicyEditComponent, PolicyEditDialogResult } from "./policy-edit.compo
   templateUrl: "policies.component.html",
 })
 export class PoliciesComponent implements OnInit {
-  @ViewChild("editTemplate", { read: ViewContainerRef, static: true })
-  editModalRef: ViewContainerRef;
-
   loading = true;
   organizationId: string;
   policies: BasePolicy[];

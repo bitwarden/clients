@@ -31,4 +31,9 @@ export enum ForceSetPasswordReason {
    * Occurs when TDE is disabled and master password has to be set.
    */
   TdeOffboarding,
+
+  /**
+   * Occurs when a new SSO user is JIT provisioned and needs to set their master password.
+   */
+  SsoNewJitProvisionedUser,
 }

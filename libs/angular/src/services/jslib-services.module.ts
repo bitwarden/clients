@@ -312,7 +312,7 @@ import {
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
-import { NewDeviceVerificationNoticeService, PasswordRepromptService } from "@bitwarden/vault";
+import { PasswordRepromptService } from "@bitwarden/vault";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -586,7 +586,11 @@ const safeProviders: SafeProvider[] = [
     useClass: AvatarService,
     deps: [ApiServiceAbstraction, StateProvider],
   }),
-  safeProvider({ provide: LogService, useFactory: () => new ConsoleLogService(false), deps: [] }),
+  safeProvider({
+    provide: LogService,
+    useFactory: () => new ConsoleLogService(process.env.NODE_ENV === "development"),
+    deps: [],
+  }),
   safeProvider({
     provide: CollectionService,
     useClass: DefaultCollectionService,
@@ -1455,7 +1459,6 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultLoginDecryptionOptionsService,
     deps: [MessagingServiceAbstraction],
   }),
-  safeProvider(NewDeviceVerificationNoticeService),
   safeProvider({
     provide: UserAsymmetricKeysRegenerationApiService,
     useClass: DefaultUserAsymmetricKeysRegenerationApiService,

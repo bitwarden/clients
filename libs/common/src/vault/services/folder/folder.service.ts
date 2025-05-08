@@ -84,7 +84,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
   async encrypt(model: FolderView, key: SymmetricCryptoKey): Promise<Folder> {
     const folder = new Folder();
     folder.id = model.id;
-    folder.name = await this.encryptService.encrypt(model.name, key);
+    folder.name = await this.encryptService.encryptString(model.name, key);
     return folder;
   }
 
