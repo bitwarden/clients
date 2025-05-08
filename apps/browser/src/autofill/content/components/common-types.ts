@@ -3,6 +3,10 @@ import { TemplateResult } from "lit";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { Theme } from "@bitwarden/common/platform/enums";
 
+export type I18n = {
+  [key: string]: string;
+};
+
 export type IconProps = {
   color?: string;
   disabled?: boolean;

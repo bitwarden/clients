@@ -9,7 +9,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
  */
 export enum FeatureFlag {
   /* Admin Console Team */
-  AccountDeprovisioning = "pm-10308-account-deprovisioning",
   VerifiedSsoDomainEndpoint = "pm-12337-refactor-sso-details-endpoint",
   LimitItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission",
   SsoExternalIdVisibility = "pm-18630-sso-external-id-visibility",
@@ -80,7 +79,6 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.AccountDeprovisioning]: FALSE,
   [FeatureFlag.VerifiedSsoDomainEndpoint]: FALSE,
   [FeatureFlag.LimitItemDeletion]: FALSE,
   [FeatureFlag.SsoExternalIdVisibility]: FALSE,

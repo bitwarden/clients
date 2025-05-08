@@ -1,16 +1,11 @@
 import { Meta, StoryObj } from "@storybook/web-components";
 
-import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
 import { NotificationTypes } from "../../../../notification/abstractions/notification-bar";
-import { CipherAction } from "../../cipher/cipher-action";
+import { CipherAction, CipherActionProps } from "../../cipher/cipher-action";
+import { mockI18n } from "../mock-data";
 
-type Args = {
-  handleAction?: (e: Event) => void;
-  i18n: { [key: string]: string };
-  notificationType: typeof NotificationTypes.Change | typeof NotificationTypes.Add;
-  theme: Theme;
-};
 export default {
   title: "Components/Ciphers/Cipher Action",
   argTypes: {
@@ -24,14 +19,13 @@ export default {
   args: {
     theme: ThemeTypes.Light,
     notificationType: NotificationTypes.Change,
-    handleAction: () => {
-      alert("Action triggered!");
-    },
+    handleAction: () => alert("Action triggered!"),
+    i18n: mockI18n,
   },
-} as Meta<Args>;
+} as Meta<CipherActionProps>;
 
-const Template = (args: Args) => CipherAction({ ...args });
+const Template = (args: CipherActionProps) => CipherAction({ ...args });
 
-export const Default: StoryObj<Args> = {
+export const Default: StoryObj<CipherActionProps> = {
   render: Template,
 };
