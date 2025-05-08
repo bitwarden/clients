@@ -141,6 +141,7 @@
       matchPackageNames: [
         "@babel/core",
         "@babel/preset-env",
+        "@bitwarden/sdk-internal",
         "@electron/fuses",
         "@electron/notarize",
         "@electron/rebuild",
@@ -327,7 +328,6 @@
     {
       matchPackageNames: [
         "@types/jest",
-        "jest",
         "jest-junit",
         "jest-mock-extended",
         "jest-preset-angular",
