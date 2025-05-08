@@ -106,13 +106,15 @@ export class OverlayNotificationsContentService
    * @param message - The message containing the data for closing the notification bar.
    */
   private handleCloseNotificationBarMessage(message: NotificationsExtensionMessage) {
+    const closedByUser =
+      typeof message.data?.closedByUser === "boolean" ? message.data.closedByUser : true;
     if (message.data?.fadeOutNotification) {
       setElementStyles(this.notificationBarIframeElement, { opacity: "0" }, true);
-      globalThis.setTimeout(() => this.closeNotificationBar(true), 150);
+      globalThis.setTimeout(() => this.closeNotificationBar(closedByUser), 150);
       return;
     }
 
-    this.closeNotificationBar(true);
+    this.closeNotificationBar(closedByUser);
   }
 
   /**
