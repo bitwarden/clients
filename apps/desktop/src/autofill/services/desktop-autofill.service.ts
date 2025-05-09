@@ -49,6 +49,7 @@ import type { NativeWindowObject } from "./desktop-fido2-user-interface.service"
 @Injectable()
 export class DesktopAutofillService implements OnDestroy {
   private destroy$ = new Subject<void>();
+  private registrationRequest: autofill.PasskeyRegistrationRequest;
 
   constructor(
     private logService: LogService,
@@ -184,8 +185,14 @@ export class DesktopAutofillService implements OnDestroy {
     });
   }
 
+  get lastRegistrationRequest() {
+    return this.registrationRequest;
+  }
+
   listenIpc() {
     ipc.autofill.listenPasskeyRegistration(async (clientId, sequenceNumber, request, callback) => {
+      this.registrationRequest = request;
+
       this.logService.warning("listenPasskeyRegistration", clientId, sequenceNumber, request);
       this.logService.warning(
         "listenPasskeyRegistration2",

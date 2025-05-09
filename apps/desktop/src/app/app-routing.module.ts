@@ -56,6 +56,7 @@ import { SetPasswordComponent } from "../auth/set-password.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import { Fido2CreateComponent } from "../modal/passkeys/create/fido2-create.component";
+import { Fido2ExcludedCiphersComponent } from "../modal/passkeys/fido2-excluded-ciphers.component";
 import { Fido2VaultComponent } from "../modal/passkeys/fido2-vault.component";
 import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 import { VaultComponent } from "../vault/app/vault/vault.component";
@@ -169,6 +170,10 @@ const routes: Routes = [
   {
     path: "fido2-creation",
     component: Fido2CreateComponent,
+  },
+  {
+    path: "fido2-excluded",
+    component: Fido2ExcludedCiphersComponent,
   },
   {
     path: "",
