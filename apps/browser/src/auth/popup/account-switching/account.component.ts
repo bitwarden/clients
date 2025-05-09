@@ -47,8 +47,7 @@ export class AccountComponent {
     // Navigate out of account switching for unlocked accounts
     // locked or logged out account statuses are handled by background and app.component
     if (result?.authenticationStatus === AuthenticationStatus.Unlocked) {
-      // navigate to root so redirect guard can properly route next active user or null user to correct page
-      await this.router.navigate(["/"]);
+      await this.router.navigate(["vault"]);
       await this.biometricsService.setShouldAutopromptNow(false);
     } else {
       await this.biometricsService.setShouldAutopromptNow(true);
