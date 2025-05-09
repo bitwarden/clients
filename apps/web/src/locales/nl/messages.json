@@ -6326,7 +6326,7 @@
   "sponsoredFamiliesPremiumAccess": {
     "message": "Premium-toegang voor maximaal 6 gebruikers"
   },
-  "sponsoredFamiliesSharedCollectionsMessage": {
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Gedeelde collecties voor familieleden"
   },
   "memberFamilies": {
@@ -10396,11 +10396,17 @@
   "doNotTrust": {
     "message": "Niet vertrouwen"
   },
+  "organizationNotTrusted": {
+    "message": "Organisatie is niet vertrouwd"
+  },
   "emergencyAccessTrustWarning": {
     "message": "Bevestig, voor de veiligheid van je account, alleen als je noodtoegang hebt verleend aan deze gebruiker en de vingerafdruk voldoet aan wat er in hun account wordt weergegeven"
   },
   "orgTrustWarning": {
     "message": "Ga, voor de veiligheid van je account, alleen verder als je lid bent van deze organisatie, accountherstel hebt ingeschakeld en de hieronder weergegeven vingerafdruk overeenkomt met de vingerafdruk van de organisatie."
+  },
+  "orgTrustWarning1": {
+    "message": "Deze organisatie heeft een Enterprise-beleid dat je inschrijft voor accountherstel. Inschrijving stelt beheerders van de organisatie in staat om je wachtwoord te wijzigen. Ga alleen verder als je deze organisatie herkent en de vingerafdrukzin die hieronder wordt weergegeven overeenkomt met de vingerafdruk van de organisatie."
   },
   "trustUser": {
     "message": "Gebruiker vertrouwen"

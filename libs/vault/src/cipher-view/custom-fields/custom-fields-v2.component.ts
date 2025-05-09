@@ -21,6 +21,7 @@ import {
   SectionHeaderComponent,
   TypographyModule,
   CheckboxModule,
+  ColorPasswordModule,
 } from "@bitwarden/components";
 
 import { VaultAutosizeReadOnlyTextArea } from "../../directives/readonly-textarea.directive";
@@ -40,6 +41,7 @@ import { VaultAutosizeReadOnlyTextArea } from "../../directives/readonly-textare
     SectionHeaderComponent,
     TypographyModule,
     CheckboxModule,
+    ColorPasswordModule,
     VaultAutosizeReadOnlyTextArea,
   ],
 })
@@ -50,6 +52,11 @@ export class CustomFieldV2Component implements OnInit {
 
   /** Indexes of hidden fields that are revealed */
   revealedHiddenFields: number[] = [];
+
+  /**
+   * Indicates whether the hidden field's character count should be shown
+   */
+  showHiddenValueCountFields: number[] = [];
 
   constructor(
     private i18nService: I18nService,
@@ -67,6 +74,15 @@ export class CustomFieldV2Component implements OnInit {
 
   get canViewPassword() {
     return this.cipher.viewPassword;
+  }
+
+  toggleCharacterCount(index: number) {
+    const fieldIndex = this.showHiddenValueCountFields.indexOf(index);
+    if (fieldIndex > -1) {
+      this.showHiddenValueCountFields.splice(fieldIndex, 1);
+    } else {
+      this.showHiddenValueCountFields.push(index);
+    }
   }
 
   async toggleHiddenField(hiddenFieldVisible: boolean, index: number) {

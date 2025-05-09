@@ -6326,7 +6326,7 @@
   "sponsoredFamiliesPremiumAccess": {
     "message": "Konto Premium dla maksymalnie 6 użytkowników"
   },
-  "sponsoredFamiliesSharedCollectionsMessage": {
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Udostępnione kolekcje dla sekretów rodziny"
   },
   "memberFamilies": {
@@ -10396,11 +10396,17 @@
   "doNotTrust": {
     "message": "Nie ufaj"
   },
+  "organizationNotTrusted": {
+    "message": "Organizacja nie jest zaufana"
+  },
   "emergencyAccessTrustWarning": {
     "message": "Dla bezpieczeństwa Twojego konta potwierdź tylko, jeśli przyznano temu użytkownikowi dostęp awaryjny i jego odcisk palca pasuje do tego, co widnieje na jego koncie"
   },
   "orgTrustWarning": {
     "message": "Dla zapewnienia bezpieczeństwa konta kontynuuj tylko wtedy, gdy jesteś członkiem tej organizacji, włączono odzyskiwanie konta, a odcisk palca wyświetlany poniżej pasuje do odcisku palca organizacji."
+  },
+  "orgTrustWarning1": {
+    "message": "Polityka korporacyjna tej organizacji umożliwia zapisanie Cię do programu odzyskiwania kont. Rejestracja umożliwi administratorom organizacji zmianę Twojego hasła. Możesz kontynuować tylko wtedy, gdy znasz tę organizację, a odcisk palca pokazany poniżej pasuje do odcisku palca tej organizacji."
   },
   "trustUser": {
     "message": "Zaufaj użytkownikowi"

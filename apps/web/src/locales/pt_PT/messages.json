@@ -6326,7 +6326,7 @@
   "sponsoredFamiliesPremiumAccess": {
     "message": "Acesso Premium para um máximo de 6 utilizadores"
   },
-  "sponsoredFamiliesSharedCollectionsMessage": {
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Coleções partilhadas para membros familiares"
   },
   "memberFamilies": {
@@ -10396,11 +10396,17 @@
   "doNotTrust": {
     "message": "Não confiar"
   },
+  "organizationNotTrusted": {
+    "message": "A organização não é de confiança"
+  },
   "emergencyAccessTrustWarning": {
     "message": "Para segurança da sua conta, confirme apenas se tiver concedido acesso de emergência a este utilizador e se a sua impressão digital corresponder à que é apresentada na sua conta"
   },
   "orgTrustWarning": {
     "message": "Para segurança da sua conta, prossiga apenas se for membro desta organização, tiver a recuperação de conta ativada e a impressão digital apresentada abaixo corresponder à impressão digital da organização."
+  },
+  "orgTrustWarning1": {
+    "message": "Esta organização tem uma política empresarial que o registará na recuperação de conta. A inscrição permitirá que os administradores da organização alterem a sua palavra-passe. Avance apenas se reconhecer esta organização e se a frase de impressão digital apresentada abaixo corresponder à impressão digital da organização."
   },
   "trustUser": {
     "message": "Confiar no utilizador"

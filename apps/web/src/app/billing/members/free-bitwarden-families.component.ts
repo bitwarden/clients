@@ -145,7 +145,10 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
   }
 
   async resendEmail(sponsorship: OrganizationSponsorshipInvitesResponse) {
-    await this.apiService.postResendSponsorshipOffer(sponsorship.sponsoringOrganizationUserId);
+    await this.organizationSponsorshipApiService.postResendSponsorshipOffer(
+      this.organizationId,
+      sponsorship.friendlyName,
+    );
     this.toastService.showToast({
       variant: "success",
       title: undefined,

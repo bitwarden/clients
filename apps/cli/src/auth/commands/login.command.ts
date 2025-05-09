@@ -32,6 +32,7 @@ import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request
 import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -77,6 +78,7 @@ export class LoginCommand {
     protected logoutCallback: () => Promise<void>,
     protected kdfConfigService: KdfConfigService,
     protected ssoUrlService: SsoUrlService,
+    protected masterPasswordService: MasterPasswordServiceAbstraction,
   ) {}
 
   async run(email: string, password: string, options: OptionValues) {
@@ -361,14 +363,14 @@ export class LoginCommand {
       await this.syncService.fullSync(true);
 
       // Handle updating passwords if NOT using an API Key for authentication
-      if (
-        response.forcePasswordReset != ForceSetPasswordReason.None &&
-        clientId == null &&
-        clientSecret == null
-      ) {
-        if (response.forcePasswordReset === ForceSetPasswordReason.AdminForcePasswordReset) {
+      if (clientId == null && clientSecret == null) {
+        const forceSetPasswordReason = await firstValueFrom(
+          this.masterPasswordService.forceSetPasswordReason$(response.userId),
+        );
+
+        if (forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset) {
           return await this.updateTempPassword(response.userId);
-        } else if (response.forcePasswordReset === ForceSetPasswordReason.WeakMasterPassword) {
+        } else if (forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword) {
           return await this.updateWeakPassword(response.userId, password);
         }
       }

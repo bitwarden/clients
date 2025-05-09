@@ -1,12 +1,17 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { IpcService } from "@bitwarden/common/platform/ipc";
-import { IpcClient } from "@bitwarden/sdk-internal";
+import { IpcMessage, isIpcMessage, IpcService } from "@bitwarden/common/platform/ipc";
+import {
+  IpcClient,
+  IpcCommunicationBackend,
+  IncomingMessage,
+  OutgoingMessage,
+} from "@bitwarden/sdk-internal";
 
-import { BackgroundCommunicationBackend } from "./background-communication-backend";
+import { BrowserApi } from "../browser/browser-api";
 
 export class IpcBackgroundService extends IpcService {
-  private communicationProvider?: BackgroundCommunicationBackend;
+  private communicationBackend?: IpcCommunicationBackend;
 
   constructor(private logService: LogService) {
     super();
@@ -16,9 +21,46 @@ export class IpcBackgroundService extends IpcService {
     try {
       // This function uses classes and functions defined in the SDK, so we need to wait for the SDK to load.
       await SdkLoadService.Ready;
-      this.communicationProvider = new BackgroundCommunicationBackend();
+      this.communicationBackend = new IpcCommunicationBackend({
+        async send(message: OutgoingMessage): Promise<void> {
+          if (typeof message.destination === "object") {
+            await BrowserApi.tabSendMessage(
+              { id: message.destination.Web.id } as chrome.tabs.Tab,
+              {
+                type: "bitwarden-ipc-message",
+                message: {
+                  destination: message.destination,
+                  payload: message.payload,
+                  topic: message.topic,
+                },
+              } satisfies IpcMessage,
+              { frameId: 0 },
+            );
+            return;
+          }
 
-      await super.initWithClient(new IpcClient(this.communicationProvider));
+          throw new Error("Destination not supported.");
+        },
+      });
+
+      BrowserApi.messageListener("platform.ipc", (message, sender) => {
+        if (!isIpcMessage(message)) {
+          return;
+        }
+
+        if (sender.tab?.id === undefined || sender.tab.id === chrome.tabs.TAB_ID_NONE) {
+          // Ignore messages from non-tab sources
+          return;
+        }
+
+        this.communicationBackend?.deliver_message(
+          new IncomingMessage(message.message.payload, message.message.destination, {
+            Web: { id: sender.tab.id },
+          }),
+        );
+      });
+
+      await super.initWithClient(new IpcClient(this.communicationBackend));
     } catch (e) {
       this.logService.error("[IPC] Initialization failed", e);
     }
