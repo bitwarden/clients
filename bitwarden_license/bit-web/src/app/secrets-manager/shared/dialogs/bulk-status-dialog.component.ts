@@ -1,7 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
+
+import { DialogRef, DIALOG_DATA } from "@bitwarden/components";
 
 export interface BulkStatusDetails {
   title: string;

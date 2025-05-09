@@ -25,11 +25,30 @@ export type OptionalInitialValues = {
   username?: string;
   password?: string;
   name?: string;
+  // Credit Card Information
   cardholderName?: string;
   number?: string;
   expMonth?: string;
   expYear?: string;
   code?: string;
+  // Identity Information
+  title?: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  company?: string;
+  ssn?: string;
+  passportNumber?: string;
+  licenseNumber?: string;
+  email?: string;
+  phone?: string;
+  address1?: string;
+  address2?: string;
+  address3?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
 };
 
 /**

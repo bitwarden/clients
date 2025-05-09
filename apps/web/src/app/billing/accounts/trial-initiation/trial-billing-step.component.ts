@@ -55,6 +55,7 @@ export class TrialBillingStepComponent implements OnInit {
   @ViewChild(ManageTaxInformationComponent) taxInfoComponent: ManageTaxInformationComponent;
   @Input() organizationInfo: OrganizationInfo;
   @Input() subscriptionProduct: SubscriptionProduct = SubscriptionProduct.PasswordManager;
+  @Input() trialLength: number;
   @Output() steppedBack = new EventEmitter();
   @Output() organizationCreated = new EventEmitter<OrganizationCreatedEvent>();
 

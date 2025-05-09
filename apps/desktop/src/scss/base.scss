@@ -147,3 +147,8 @@ div:not(.modal)::-webkit-scrollbar-thumb,
 .mx-auto {
   margin-left: auto !important;
 }
+
+.vault-v2 button:not([bitbutton]):not([biticonbutton]) i.bwi,
+a i.bwi {
+  margin-right: 0.25rem;
+}

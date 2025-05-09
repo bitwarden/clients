@@ -55,6 +55,7 @@ rsa = { workspace = true }
 ed25519 = { workspace = true, features = ["pkcs8"] }
 bytes = { workspace = true }
 sysinfo = { workspace = true, features = ["windows"] }
+zeroizing-alloc = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
 widestring = { workspace = true, optional = true }
@@ -70,6 +71,7 @@ windows = { workspace = true, features = [
     "Win32_UI_WindowsAndMessaging",
     "Win32_System_Pipes",
 ], optional = true }
+windows-future = { workspace = true }
 
 [target.'cfg(windows)'.dev-dependencies]
 keytar = { workspace = true }

@@ -24,18 +24,6 @@
   }
 }
 
-#hcaptcha_iframe {
-  border: none;
-  transition: height 0.25s linear;
-  width: 100%;
-}
-
-.list-group-2fa {
-  .logo-2fa {
-    min-width: 120px;
-  }
-}
-
 @each $mfaType in $mfaTypes {
   .mfaType#{$mfaType} {
     content: url("../images/two-factor/" + $mfaType + ".png");
@@ -63,14 +51,6 @@
   @include themify($themes) {
     content: url("../images/two-factor/7" + themed("mfaLogoSuffix"));
     max-width: 120px;
-  }
-}
-
-.recovery-code-img {
-  @include themify($themes) {
-    content: url("../images/two-factor/rc" + themed("mfaLogoSuffix"));
-    max-width: 100px;
-    max-height: 45px;
   }
 }
 

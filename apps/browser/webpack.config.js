@@ -81,6 +81,8 @@ const moduleRules = [
         loader: "babel-loader",
         options: {
           configFile: "../../babel.config.json",
+          cacheDirectory: ENV === "development",
+          compact: ENV !== "development",
         },
       },
     ],
@@ -135,16 +137,6 @@ const plugins = [
     filename: "overlay/menu.html",
     chunks: ["overlay/menu"],
   }),
-  new HtmlWebpackPlugin({
-    template: "./src/autofill/deprecated/overlay/pages/button/legacy-button.html",
-    filename: "overlay/button.html",
-    chunks: ["overlay/button"],
-  }),
-  new HtmlWebpackPlugin({
-    template: "./src/autofill/deprecated/overlay/pages/list/legacy-list.html",
-    filename: "overlay/list.html",
-    chunks: ["overlay/list"],
-  }),
   new CopyWebpackPlugin({
     patterns: [
       {
@@ -197,15 +189,13 @@ const mainConfig = {
       "./src/autofill/content/bootstrap-autofill-overlay-menu.ts",
     "content/bootstrap-autofill-overlay-notifications":
       "./src/autofill/content/bootstrap-autofill-overlay-notifications.ts",
-    "content/bootstrap-legacy-autofill-overlay":
-      "./src/autofill/deprecated/content/bootstrap-legacy-autofill-overlay.ts",
     "content/autofiller": "./src/autofill/content/autofiller.ts",
     "content/auto-submit-login": "./src/autofill/content/auto-submit-login.ts",
-    "content/notificationBar": "./src/autofill/content/notification-bar.ts",
     "content/contextMenuHandler": "./src/autofill/content/context-menu-handler.ts",
     "content/content-message-handler": "./src/autofill/content/content-message-handler.ts",
     "content/fido2-content-script": "./src/autofill/fido2/content/fido2-content-script.ts",
     "content/fido2-page-script": "./src/autofill/fido2/content/fido2-page-script.ts",
+    "content/ipc-content-script": "./src/platform/ipc/content/ipc-content-script.ts",
     "notification/bar": "./src/autofill/notification/bar.ts",
     "overlay/menu-button":
       "./src/autofill/overlay/inline-menu/pages/button/bootstrap-autofill-inline-menu-button.ts",
@@ -213,13 +203,23 @@ const mainConfig = {
       "./src/autofill/overlay/inline-menu/pages/list/bootstrap-autofill-inline-menu-list.ts",
     "overlay/menu":
       "./src/autofill/overlay/inline-menu/pages/menu-container/bootstrap-autofill-inline-menu-container.ts",
-    "overlay/button":
-      "./src/autofill/deprecated/overlay/pages/button/bootstrap-autofill-overlay-button.deprecated.ts",
-    "overlay/list":
-      "./src/autofill/deprecated/overlay/pages/list/bootstrap-autofill-overlay-list.deprecated.ts",
     "encrypt-worker": "../../libs/common/src/key-management/crypto/services/encrypt.worker.ts",
     "content/send-on-installed-message": "./src/vault/content/send-on-installed-message.ts",
     "content/send-popup-open-message": "./src/vault/content/send-popup-open-message.ts",
+  },
+  cache:
+    ENV !== "development"
+      ? false
+      : {
+          type: "filesystem",
+          name: "main-cache",
+          cacheDirectory: path.resolve(__dirname, "../../node_modules/.cache/webpack-browser-main"),
+          buildDependencies: {
+            config: [__filename],
+          },
+        },
+  snapshot: {
+    unmanagedPaths: [path.resolve(__dirname, "../../node_modules/@bitwarden/")],
   },
   optimization: {
     minimize: ENV !== "development",
@@ -279,6 +279,7 @@ const mainConfig = {
       fs: false,
       path: require.resolve("path-browserify"),
     },
+    cache: true,
   },
   output: {
     filename: "[name].js",
@@ -373,6 +374,23 @@ if (manifestVersion == 2) {
       ],
       noParse: /argon2(-simd)?\.wasm$/,
     },
+    cache:
+      ENV !== "development"
+        ? false
+        : {
+            type: "filesystem",
+            name: "background-cache",
+            cacheDirectory: path.resolve(
+              __dirname,
+              "../../node_modules/.cache/webpack-browser-background",
+            ),
+            buildDependencies: {
+              config: [__filename],
+            },
+          },
+    snapshot: {
+      unmanagedPaths: [path.resolve(__dirname, "../../node_modules/@bitwarden/")],
+    },
     experiments: {
       asyncWebAssembly: true,
     },
@@ -385,6 +403,7 @@ if (manifestVersion == 2) {
         fs: false,
         path: require.resolve("path-browserify"),
       },
+      cache: true,
     },
     dependencies: ["main"],
     plugins: [...requiredPlugins],

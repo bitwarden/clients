@@ -54,12 +54,20 @@ export class DefaultBillingAccountProfileStateService implements BillingAccountP
     hasPremiumFromAnyOrganization: boolean,
     userId: UserId,
   ): Promise<void> {
-    await this.stateProvider.getUser(userId, BILLING_ACCOUNT_PROFILE_KEY_DEFINITION).update((_) => {
-      return {
-        hasPremiumPersonally: hasPremiumPersonally,
-        hasPremiumFromAnyOrganization: hasPremiumFromAnyOrganization,
-      };
-    });
+    await this.stateProvider.getUser(userId, BILLING_ACCOUNT_PROFILE_KEY_DEFINITION).update(
+      (_) => {
+        return {
+          hasPremiumPersonally: hasPremiumPersonally,
+          hasPremiumFromAnyOrganization: hasPremiumFromAnyOrganization,
+        };
+      },
+      {
+        shouldUpdate: (state) =>
+          state == null ||
+          state.hasPremiumFromAnyOrganization !== hasPremiumFromAnyOrganization ||
+          state.hasPremiumPersonally !== hasPremiumPersonally,
+      },
+    );
   }
 
   canViewSubscription$(userId: UserId): Observable<boolean> {
@@ -68,15 +76,18 @@ export class DefaultBillingAccountProfileStateService implements BillingAccountP
       this.hasPremiumFromAnyOrganization$(userId),
     ]).pipe(
       concatMap(async ([hasPremiumPersonally, hasPremiumFromOrg]) => {
-        const isCloud = !this.platformUtilsService.isSelfHost();
-
-        let billing = null;
-        if (isCloud) {
-          billing = await this.apiService.getUserBillingHistory();
+        if (hasPremiumPersonally === true || !hasPremiumFromOrg === true) {
+          return true;
         }
 
-        const cloudAndBillingHistory = isCloud && !billing?.hasNoHistory;
-        return hasPremiumPersonally || !hasPremiumFromOrg || cloudAndBillingHistory;
+        const isCloud = !this.platformUtilsService.isSelfHost();
+
+        if (isCloud) {
+          const billing = await this.apiService.getUserBillingHistory();
+          return !billing?.hasNoHistory;
+        }
+
+        return false;
       }),
     );
   }

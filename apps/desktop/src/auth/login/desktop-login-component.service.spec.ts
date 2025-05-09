@@ -6,7 +6,7 @@ import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
 import { SsoUrlService } from "@bitwarden/auth/common";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import {
   Environment,
   EnvironmentService,
@@ -107,22 +107,17 @@ describe("DesktopLoginComponentService", () => {
   });
 
   describe("redirectToSso", () => {
-    // Array of all permutations of isAppImage, isSnapStore, and isDev
+    // Array of all permutations of isAppImage and isDev
     const permutations = [
-      [true, false, false], // Case 1: isAppImage true
-      [false, true, false], // Case 2: isSnapStore true
-      [false, false, true], // Case 3: isDev true
-      [true, true, false], // Case 4: isAppImage and isSnapStore true
-      [true, false, true], // Case 5: isAppImage and isDev true
-      [false, true, true], // Case 6: isSnapStore and isDev true
-      [true, true, true], // Case 7: all true
-      [false, false, false], // Case 8: all false
+      [true, false], // Case 1: isAppImage true
+      [false, true], // Case 2: isDev true
+      [true, true], // Case 3: all true
+      [false, false], // Case 4: all false
     ];
 
-    permutations.forEach(([isAppImage, isSnapStore, isDev]) => {
-      it(`executes correct logic for isAppImage=${isAppImage}, isSnapStore=${isSnapStore}, isDev=${isDev}`, async () => {
+    permutations.forEach(([isAppImage, isDev]) => {
+      it(`executes correct logic for isAppImage=${isAppImage}, isDev=${isDev}`, async () => {
         (global as any).ipc.platform.isAppImage = isAppImage;
-        (global as any).ipc.platform.isSnapStore = isSnapStore;
         (global as any).ipc.platform.isDev = isDev;
 
         const email = "test@bitwarden.com";
@@ -136,7 +131,7 @@ describe("DesktopLoginComponentService", () => {
 
         await service.redirectToSsoLogin(email);
 
-        if (isAppImage || isSnapStore || isDev) {
+        if (isAppImage || isDev) {
           expect(ipc.platform.localhostCallbackService.openSsoPrompt).toHaveBeenCalledWith(
             codeChallenge,
             state,

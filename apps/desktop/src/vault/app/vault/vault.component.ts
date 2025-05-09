@@ -91,6 +91,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   userHasPremiumAccess = false;
   activeFilter: VaultFilter = new VaultFilter();
   activeUserId: UserId;
+  cipherRepromptId: string | null = null;
 
   private modal: ModalRef = null;
   private componentIsDestroyed$ = new Subject<boolean>();
@@ -149,6 +150,9 @@ export class VaultComponent implements OnInit, OnDestroy {
             break;
           case "newSecureNote":
             await this.addCipher(CipherType.SecureNote);
+            break;
+          case "newSshKey":
+            await this.addCipher(CipherType.SshKey);
             break;
           case "focusSearch":
             (document.querySelector("#search") as HTMLInputElement).select();
@@ -297,6 +301,8 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   async viewCipher(cipher: CipherView) {
     if (!(await this.canNavigateAway("view", cipher))) {
+      return;
+    } else if (!(await this.passwordReprompt(cipher))) {
       return;
     }
 
@@ -467,6 +473,14 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.cipherId = null;
     this.prefillNewCipherFromFilter();
     this.go();
+
+    if (type === CipherType.SshKey) {
+      this.toastService.showToast({
+        variant: "success",
+        title: "",
+        message: this.i18nService.t("sshKeyGenerated"),
+      });
+    }
   }
 
   addCipherOptions() {
@@ -766,9 +780,8 @@ export class VaultComponent implements OnInit, OnDestroy {
   private copyValue(cipher: CipherView, value: string, labelI18nKey: string, aType: string) {
     this.functionWithChangeDetection(async () => {
       if (
-        cipher.reprompt !== CipherRepromptType.None &&
         this.passwordRepromptService.protectedFields().includes(aType) &&
-        !(await this.passwordRepromptService.showPasswordPrompt())
+        !(await this.passwordReprompt(cipher))
       ) {
         return;
       }
@@ -821,9 +834,17 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   private async passwordReprompt(cipher: CipherView) {
-    return (
-      cipher.reprompt === CipherRepromptType.None ||
-      (await this.passwordRepromptService.showPasswordPrompt())
-    );
+    if (cipher.reprompt === CipherRepromptType.None) {
+      this.cipherRepromptId = null;
+      return true;
+    }
+    if (this.cipherRepromptId === cipher.id) {
+      return true;
+    }
+    const repromptResult = await this.passwordRepromptService.showPasswordPrompt();
+    if (repromptResult) {
+      this.cipherRepromptId = cipher.id;
+    }
+    return repromptResult;
   }
 }

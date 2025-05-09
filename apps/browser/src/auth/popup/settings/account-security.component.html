@@ -23,7 +23,7 @@
         <bit-form-control
           class="tw-pl-5"
           [disableMargin]="!((pinEnabled$ | async) || this.form.value.pin)"
-          *ngIf="this.form.value.biometric && showAutoPrompt"
+          *ngIf="this.form.value.biometric"
         >
           <input
             bitCheckbox
