@@ -4,8 +4,6 @@ import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
 import { TwoFactorProviderType } from "../../enums/two-factor-provider-type";
 
-import { ForceSetPasswordReason } from "./force-set-password-reason";
-
 export class AuthResult {
   userId: UserId;
   captchaSiteKey = "";
@@ -17,7 +15,6 @@ export class AuthResult {
    * */
   resetMasterPassword = false;
 
-  forcePasswordReset: ForceSetPasswordReason = ForceSetPasswordReason.None;
   twoFactorProviders: Partial<Record<TwoFactorProviderType, Record<string, string>>> = null;
   ssoEmail2FaSessionToken?: string;
   email: string;

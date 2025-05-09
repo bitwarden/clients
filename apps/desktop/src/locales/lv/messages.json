@@ -237,6 +237,24 @@
   "enableSshAgentHelp": {
     "message": "SSH aģents ir izstrādātājiem paredzēts pakalpojums, kas ļauj parakstīt SSH pieprasījumus tieši no savas Bitwarden glabātavas."
   },
+  "sshAgentPromptBehavior": {
+    "message": "Vaicāt autorizēšanu, kad izmanto SSH aģentu"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "Izvēlēties, kā apstrādāt SSH-agent autorizēšanās pieprasījumus."
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "Atcerēties SSH autorizēšanās"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "Vienmēr"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "Nekad"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "Atcerēties līdz glabātavas aizslēgšanai"
+  },
   "premiumRequired": {
     "message": "Nepieciešams Premium"
   },
@@ -426,6 +444,12 @@
   },
   "addField": {
     "message": "Pievienot lauku"
+  },
+  "editField": {
+    "message": "Labot lauku"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Vai tiešām neatgriezeniski izdzēst šo pielikumu?"
   },
   "fieldType": {
     "message": "Lauka veids"
@@ -980,7 +1004,7 @@
     "message": "Atlasīt divpakāpju pieteikšanās veidu"
   },
   "selfHostedEnvironment": {
-    "message": "Pašuzturēta vide"
+    "message": "Pašmitināta vide"
   },
   "selfHostedBaseUrlHint": {
     "message": "Jānorāda sava pašizvietotā Bitward servera pamata URL. Piemērs: https://bitwarden.uznemums.lv"
@@ -1145,10 +1169,10 @@
     "message": "Iegūt pārlūka paplašinājumu"
   },
   "syncingComplete": {
-    "message": "Sinhronizācija pabeigta"
+    "message": "Sinhronizēšana pabeigta"
   },
   "syncingFailed": {
-    "message": "Sinhronizācija neizdevās"
+    "message": "Sinhronizēšana neizdevās"
   },
   "yourVaultIsLocked": {
     "message": "Glabātava ir aizslēgta. Jāapliecina sava identitāte, lai turpinātu."
@@ -1612,7 +1636,7 @@
     "description": "A URL's host value. For example, the host of https://sub.domain.com:443 is 'sub.domain.com:443'."
   },
   "exact": {
-    "message": "Tiešs"
+    "message": "Tieši"
   },
   "startsWith": {
     "message": "Sākas ar"
@@ -2006,6 +2030,21 @@
   "premium": {
     "message": "Premium",
     "description": "Premium membership"
+  },
+  "freeOrgsCannotUseAttachments": {
+    "message": "Bezmaksas apvienības nevar izmantot pielikumus"
+  },
+  "singleFieldNeedsAttention": {
+    "message": "1 laukam jāpievērš uzmanība."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ laukiem ir jāpievērš uzmanība.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
   },
   "cardExpiredTitle": {
     "message": "Beidzies kartes derīgums"
@@ -2508,7 +2547,7 @@
     "message": "Galvenā parole tika noņemta."
   },
   "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ izmanto vienoto pieteikšanos ar pašizvietotu atslēgu serveri. Tās dalībniekiem vairs nav nepieciešama galvenā parole, lai pieteiktos.",
+    "message": "$ORGANIZATION$ izmanto vienoto pieteikšanos ar pašmitinātu atslēgu serveri. Tās dalībniekiem vairs nav nepieciešama galvenā parole, lai pieteiktos.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3123,7 +3162,7 @@
     "description": "European Union"
   },
   "selfHostedServer": {
-    "message": "pašizvietots"
+    "message": "pašmitināts"
   },
   "accessDenied": {
     "message": "Piekļuve liegta. Nav nepieciešamo atļauju, lai skatītu šo lapu."
@@ -3151,6 +3190,30 @@
   },
   "deviceTrusted": {
     "message": "Ierīce ir uzticama"
+  },
+  "trustOrganization": {
+    "message": "Uzticēties apvienībai"
+  },
+  "trust": {
+    "message": "Uzticēties"
+  },
+  "doNotTrust": {
+    "message": "Neuzticēties"
+  },
+  "organizationNotTrusted": {
+    "message": "Apvienība nav uzticama"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Lai nodrošinātu sava konta drošību, jāapstiprina tikai tad, ja šim lietotājam ir nodrošināta ārkārtas piekļuve un tā pirkstu nospiedums atbilsta tam, kas ir attēlots tā kontā"
+  },
+  "orgTrustWarning": {
+    "message": "Lai nodrošinātu sava konta drošību, jāturpina tikai tad, ja esi šīs apvienības dalībnieks, ir iespējota konta atkope un zemāk attēlotais pirkstu nospiedums atbilst apvienības pirkstu nospiedumam."
+  },
+  "orgTrustWarning1": {
+    "message": "Šai apvienībai ir uzņēmējdarbības pamatnostādne, kas Tevi iekļaus konta atkopē. Iekļaušana ļaus apvienības pārvaldītājiem nomainīt Tavu paroli. Turpini tikai tad, ja zini šo apvienību un zemāk attēlotā pirkstu nospieduma vārdkopa atbilst apvienības pirkstu nospiedumam!"
+  },
+  "trustUser": {
+    "message": "Uzticēties lietotājam"
   },
   "inputRequired": {
     "message": "Jāievada vērtība."
@@ -3632,63 +3695,6 @@
   "fileSavedToDevice": {
     "message": "Datne saglabāta ierīcē. Tā ir atrodama ierīces lejupielāžu mapē."
   },
-  "importantNotice": {
-    "message": "Svarīgs paziņojums"
-  },
-  "setupTwoStepLogin": {
-    "message": "Iestatīt divpakāpju pieteikšanos"
-  },
-  "itemDetails": {
-    "message": "Vienuma dati"
-  },
-  "itemName": {
-    "message": "Vienuma nosaukums"
-  },
-  "loginCredentials": {
-    "message": "Pieteikšanās dati"
-  },
-  "additionalOptions": {
-    "message": "Papildu iespējas"
-  },
-  "itemHistory": {
-    "message": "Vienuma vēsture"
-  },
-  "lastEdited": {
-    "message": "Pēdējoreiz labots"
-  },
-  "upload": {
-    "message": "Augšupielādēt"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden, sākot ar 2025. gada februāri, nosūtīs kodu uz konta e-pasta adresi, lai apliecinātu pieteikšanos jaunās ierīcēs."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Var iestatīt divpakāpju pieteikšanos kā citu veidu, kā aizsargāt savu kontu, vai iestatīt savu e-pasta adresi uz tādu, kurai ir piekļuve."
-  },
-  "remindMeLater": {
-    "message": "Atgādināt man vēlāk"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Vai ir uzticama piekļuve savai e-pasta adresei $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Nē, nav"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Jā, varu uzticami piekļūt savam e-pastam"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Ieslēgt divpakāpju pieteikšanos"
-  },
-  "changeAcctEmail": {
-    "message": "Mainīt konta e-pasta adresi"
-  },
   "allowScreenshots": {
     "message": "Atļaut ekrāna tveršanu"
   },
@@ -3712,5 +3718,54 @@
   },
   "move": {
     "message": "Pārvietot"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Laika ietaupīšana ar automātisko aizpildi"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Iekļauj",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "tīmekļvietni,",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "lai šis pieteikšanās vienums parādītos kā automātiskās aizpildes ieteikums!",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Plūdena apmaksa tiešsaistē"
+  },
+  "newCardNudgeBody": {
+    "message": "Ar kartēm ir viegli automātiski aizpildīt maksājumu veidlapu droši un rūpīgi."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Kontu izveidošanas vienkāršošana"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Ar identitātēm var ātri automātiski aizpildīt garas reģistrēšanās vai saziņas veidlapas."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Turi savus jūtīgos datus drošībā"
+  },
+  "newNoteNudgeBody": {
+    "message": "Piezīmēs var droši glabāt jūtīgus datus, piemēram, bankas vai apdrošināšanas informāciju."
+  },
+  "newSshNudgeTitle": {
+    "message": "Izstrādātājiem draudzīga SSH piekļuve"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Glabā savas atslēgas un savienojies ar SSH aģentu ātrai, šifrētai autentificēšanai!",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Uzzināt vairāk par SSH aģentu",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

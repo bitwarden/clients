@@ -440,6 +440,22 @@
                   "enableSshAgentDesc" | i18n
                 }}</small>
               </div>
+              <div class="form-group" *ngIf="this.form.value.enableSshAgent">
+                <label for="sshAgentPromptBehavior">{{ "sshAgentPromptBehavior" | i18n }}</label>
+                <select
+                  id="sshAgentPromptBehavior"
+                  aria-describedby="sshAgentPromptBehaviorHelp"
+                  formControlName="sshAgentPromptBehavior"
+                  (change)="saveSshAgentPromptBehavior()"
+                >
+                  <option *ngFor="let o of sshAgentPromptBehaviorOptions" [ngValue]="o.value">
+                    {{ o.name }}
+                  </option>
+                </select>
+                <small id="sshAgentPromptBehaviorHelp" class="help-block">{{
+                  "sshAgentPromptBehaviorDesc" | i18n
+                }}</small>
+              </div>
               <div class="form-group" *ngIf="!isLinux">
                 <div class="checkbox">
                   <label for="allowScreenshots">

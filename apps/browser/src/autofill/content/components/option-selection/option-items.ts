@@ -14,19 +14,21 @@ const { css } = createEmotion({
   key: optionItemsTagName,
 });
 
+export type OptionItemsProps = {
+  theme: Theme;
+  topOffset: number;
+  label?: string;
+  options: Option[];
+  handleOptionSelection: (selectedOption: Option) => void;
+};
+
 export function OptionItems({
   theme,
   topOffset,
   label,
   options,
   handleOptionSelection,
-}: {
-  theme: Theme;
-  topOffset: number;
-  label?: string;
-  options: Option[];
-  handleOptionSelection: (selectedOption: Option) => void;
-}) {
+}: OptionItemsProps) {
   // @TODO get client vendor from context
   const isSafari = false;
 
