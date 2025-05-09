@@ -446,10 +446,10 @@
     "message": "Pievienot lauku"
   },
   "editField": {
-    "message": "Edit field"
+    "message": "Labot lauku"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Are you sure you want to permanently delete this attachment?"
+    "message": "Vai tiešām neatgriezeniski izdzēst šo pielikumu?"
   },
   "fieldType": {
     "message": "Lauka veids"

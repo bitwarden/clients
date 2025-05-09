@@ -446,10 +446,10 @@
     "message": "Pridať pole"
   },
   "editField": {
-    "message": "Edit field"
+    "message": "Upraviť pole"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Are you sure you want to permanently delete this attachment?"
+    "message": "Naozaj chcete natrvalo odstrániť túto prílohu?"
   },
   "fieldType": {
     "message": "Typ poľa"

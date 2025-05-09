@@ -113,7 +113,7 @@
     "message": "Verifizierungscode (TOTP)"
   },
   "website": {
-    "message": "Webseite"
+    "message": "Website"
   },
   "notes": {
     "message": "Notizen"
@@ -446,10 +446,10 @@
     "message": "Feld hinzufügen"
   },
   "editField": {
-    "message": "Edit field"
+    "message": "Feld bearbeiten"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Are you sure you want to permanently delete this attachment?"
+    "message": "Bist du sicher, dass du diesen Anhang dauerhaft löschen möchtest?"
   },
   "fieldType": {
     "message": "Feldtyp"
@@ -2774,7 +2774,7 @@
     "description": "Displayed with the address on the forwarding service's configuration screen."
   },
   "forwarderGeneratedByWithWebsite": {
-    "message": "Webseite: $WEBSITE$. Von Bitwarden generiert.",
+    "message": "Website: $WEBSITE$. Von Bitwarden generiert.",
     "description": "Displayed with the address on the forwarding service's configuration screen.",
     "placeholders": {
       "WEBSITE": {

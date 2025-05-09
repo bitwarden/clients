@@ -446,10 +446,10 @@
     "message": "Добавяне на поле"
   },
   "editField": {
-    "message": "Edit field"
+    "message": "Редактиране на полето"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Are you sure you want to permanently delete this attachment?"
+    "message": "Наистина ли искате да изтриете завинаги този прикачен файл?"
   },
   "fieldType": {
     "message": "Тип на полето"

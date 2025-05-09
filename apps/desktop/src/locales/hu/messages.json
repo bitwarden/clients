@@ -446,10 +446,10 @@
     "message": "Mező hozzáadása"
   },
   "editField": {
-    "message": "Edit field"
+    "message": "Mező szerkesztése"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Are you sure you want to permanently delete this attachment?"
+    "message": "Biztosan véglegesen törlésre kerüljön ez a melléklet?"
   },
   "fieldType": {
     "message": "Mezőtípus"
