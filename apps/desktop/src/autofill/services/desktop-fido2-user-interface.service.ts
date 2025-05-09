@@ -138,7 +138,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       // make the cipherIds available to the UI.
       this.availableCipherIdsSubject.next(cipherIds);
 
-      await this.showUi("/fido2-assertion", this.windowObject.windowXy);
+      await this.showUi("/fido2-assertion", this.windowObject.windowXy, false);
 
       const chosenCipherResponse = await this.waitForUiChosenCipher();
 
@@ -224,7 +224,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     this.rpId.next(rpId);
 
     try {
-      await this.showUi("/fido2-creation", this.windowObject.windowXy);
+      await this.showUi("/fido2-creation", this.windowObject.windowXy, false);
 
       // Wait for the UI to wrap up
       const confirmation = await this.waitForUiNewCredentialConfirmation();
@@ -260,10 +260,11 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   private async showUi(
     route: string,
     position?: { x: number; y: number },
+    showTrafficButtons?: boolean,
     disableRedirect?: boolean,
   ): Promise<void> {
     // Load the UI:
-    await this.desktopSettingsService.setModalMode(true, position);
+    await this.desktopSettingsService.setModalMode(true, showTrafficButtons, position);
     await this.router.navigate([
       route,
       {
@@ -332,7 +333,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     // make the cipherIds available to the UI.
     this.availableCipherIdsSubject.next(existingCipherIds);
 
-    await this.showUi("/fido2-excluded", this.windowObject.windowXy);
+    await this.showUi("/fido2-excluded", this.windowObject.windowXy, false);
   }
 
   async ensureUnlockedVault(): Promise<void> {
@@ -340,7 +341,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
     const status = await firstValueFrom(this.authService.activeAccountStatus$);
     if (status !== AuthenticationStatus.Unlocked) {
-      await this.showUi("/lock", this.windowObject.windowXy, true);
+      await this.showUi("/lock", this.windowObject.windowXy, true, true);
 
       let status2: AuthenticationStatus;
       try {

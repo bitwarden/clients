@@ -90,7 +90,7 @@ export class WindowMain {
           } else if (!lastValue.isModalModeActive && newValue.isModalModeActive) {
             // Apply the popup modal styles
             this.logService.info("Applying popup modal styles", newValue.modalPosition);
-            applyPopupModalStyles(this.win, newValue.modalPosition);
+            applyPopupModalStyles(this.win, newValue.showTrafficButtons, newValue.modalPosition);
             this.win.show();
           }
         }),
