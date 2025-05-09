@@ -16,6 +16,7 @@ export type NotificationsExtensionMessage = {
     height?: number;
     error?: string;
     fadeOutNotification?: boolean;
+    params: object;
   };
 };
 

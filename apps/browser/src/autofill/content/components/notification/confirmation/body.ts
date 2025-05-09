@@ -59,13 +59,14 @@ export function NotificationConfirmationBody({
   `;
 }
 
-const iconContainerStyles = (error?: string) => css`
+// Allow sharing of styles between notifications (@TODO isolate structural/presentational component layer)
+export const iconContainerStyles = (error?: string | boolean) => css`
   > svg {
     width: ${!error ? "50px" : "40px"};
     height: fit-content;
   }
 `;
-const notificationConfirmationBodyStyles = ({ theme }: { theme: Theme }) => css`
+export const notificationConfirmationBodyStyles = ({ theme }: { theme: Theme }) => css`
   gap: ${spacing[4]};
   display: flex;
   align-items: center;

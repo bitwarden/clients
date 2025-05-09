@@ -3,7 +3,10 @@
 import { firstValueFrom, switchMap, map, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -54,6 +57,7 @@ import {
 import { CollectionView } from "../content/components/common-types";
 import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
+import { TemporaryNotificationChangeLoginService } from "../services/notification-change-login-password.service";
 
 import {
   AddChangePasswordQueueMessage,
@@ -84,6 +88,8 @@ export default class NotificationBackground {
     bgAdjustNotificationBar: ({ message, sender }) =>
       this.handleAdjustNotificationBarMessage(message, sender),
     bgChangedPassword: ({ message, sender }) => this.changedPassword(message, sender),
+    bgOpenAtRisksPasswordNotification: ({ message, sender }) =>
+      this.openAtRisksPasswordNotification(message, sender),
     bgCloseNotificationBar: ({ message, sender }) =>
       this.handleCloseNotificationBarMessage(message, sender),
     bgOpenAtRisksPasswords: ({ message, sender }) =>
@@ -338,12 +344,17 @@ export default class NotificationBackground {
     tab: chrome.tabs.Tab,
     notificationQueueMessage: NotificationQueueMessageItem,
   ) {
-    const notificationType = notificationQueueMessage.type;
+    const {
+      type: notificationType,
+      wasVaultLocked: isVaultLocked,
+      launchTimestamp,
+      ...params
+    } = notificationQueueMessage;
 
     const typeData: NotificationTypeData = {
-      isVaultLocked: notificationQueueMessage.wasVaultLocked,
+      isVaultLocked,
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
-      launchTimestamp: notificationQueueMessage.launchTimestamp,
+      launchTimestamp,
     };
 
     switch (notificationType) {
@@ -355,6 +366,7 @@ export default class NotificationBackground {
     await BrowserApi.tabSendMessageData(tab, "openNotificationBar", {
       type: notificationType,
       typeData,
+      params,
     });
   }
 
@@ -370,6 +382,46 @@ export default class NotificationBackground {
         this.notificationQueue.splice(i, 1);
       }
     }
+  }
+
+  /**
+   * Sends a message to trigger the at risk password notification
+   *
+   * @param message - The extension message
+   * @param sender - The contextual sender of the message
+   */
+  async openAtRisksPasswordNotification(
+    message: NotificationBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    const { activeUserId, securityTask, cipher } = message.data;
+    const domain = Utils.getDomain(sender.tab.url);
+    const passwordChangeUri =
+      await new TemporaryNotificationChangeLoginService().getChangePasswordUrl(cipher);
+
+    const addLoginIsEnabled = await this.getEnableAddedLoginPrompt();
+    const wasVaultLocked = AuthenticationStatus.Locked && addLoginIsEnabled;
+
+    const organization = await firstValueFrom(
+      this.organizationService
+        .organizations$(activeUserId)
+        .pipe(getOrganizationById(securityTask.organizationId)),
+    );
+
+    this.removeTabFromNotificationQueue(sender.tab);
+    const launchTimestamp = new Date().getTime();
+    const queueMessage: NotificationQueueMessageItem = {
+      domain,
+      wasVaultLocked,
+      type: NotificationQueueMessageType.AtRiskPassword,
+      passwordChangeUri,
+      organizationName: organization.name,
+      tab: sender.tab,
+      launchTimestamp,
+      expires: new Date(launchTimestamp + NOTIFICATION_BAR_LIFESPAN_MS),
+    };
+    this.notificationQueue.push(queueMessage);
+    await this.checkNotificationQueue(sender.tab);
   }
 
   /**
@@ -867,7 +919,7 @@ export default class NotificationBackground {
     return null;
   }
 
-  private async getSecurityTasks(userId: UserId) {
+  async getSecurityTasks(userId: UserId) {
     let tasks: SecurityTask[] = [];
 
     if (userId) {

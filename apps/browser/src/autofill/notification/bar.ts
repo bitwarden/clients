@@ -7,6 +7,7 @@ import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view
 import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
 import { NotificationCipherData } from "../content/components/cipher/types";
 import { CollectionView, OrgView } from "../content/components/common-types";
+import { AtRiskNotification } from "../content/components/notification/at-risk-password/container";
 import { NotificationConfirmationContainer } from "../content/components/notification/confirmation/container";
 import { NotificationContainer } from "../content/components/notification/container";
 import { selectedFolder as selectedFolderSignal } from "../content/components/signals/selected-folder";
@@ -19,6 +20,7 @@ import {
   NotificationBarWindowMessage,
   NotificationBarIframeInitData,
   NotificationType,
+  NotificationTypes,
 } from "./abstractions/notification-bar";
 
 const logService = new ConsoleLogService(false);
@@ -55,27 +57,29 @@ function applyNotificationBarStyle() {
 function getI18n() {
   return {
     appName: chrome.i18n.getMessage("appName"),
+    atRiskPassword: chrome.i18n.getMessage("atRiskPassword"),
+    changePassword: chrome.i18n.getMessage("changePassword"),
     close: chrome.i18n.getMessage("close"),
     collection: chrome.i18n.getMessage("collection"),
     folder: chrome.i18n.getMessage("folder"),
-    loginSaveSuccess: chrome.i18n.getMessage("loginSaveSuccess"),
     loginSaveConfirmation: chrome.i18n.getMessage("loginSaveConfirmation"),
-    loginUpdateSuccess: chrome.i18n.getMessage("loginUpdateSuccess"),
+    loginSaveSuccess: chrome.i18n.getMessage("loginSaveSuccess"),
     loginUpdateConfirmation: chrome.i18n.getMessage("loginUpdatedConfirmation"),
+    loginUpdateSuccess: chrome.i18n.getMessage("loginUpdateSuccess"),
     loginUpdateTaskSuccess: chrome.i18n.getMessage("loginUpdateTaskSuccess"),
     loginUpdateTaskSuccessAdditional: chrome.i18n.getMessage("loginUpdateTaskSuccessAdditional"),
-    nextSecurityTaskAction: chrome.i18n.getMessage("nextSecurityTaskAction"),
-    newItem: chrome.i18n.getMessage("newItem"),
-    never: chrome.i18n.getMessage("never"),
     myVault: chrome.i18n.getMessage("myVault"),
+    never: chrome.i18n.getMessage("never"),
+    newItem: chrome.i18n.getMessage("newItem"),
+    nextSecurityTaskAction: chrome.i18n.getMessage("nextSecurityTaskAction"),
     notificationAddDesc: chrome.i18n.getMessage("notificationAddDesc"),
     notificationAddSave: chrome.i18n.getMessage("notificationAddSave"),
     notificationChangeDesc: chrome.i18n.getMessage("notificationChangeDesc"),
-    notificationUpdate: chrome.i18n.getMessage("notificationChangeSave"),
     notificationEdit: chrome.i18n.getMessage("edit"),
     notificationEditTooltip: chrome.i18n.getMessage("notificationEditTooltip"),
     notificationUnlock: chrome.i18n.getMessage("notificationUnlock"),
     notificationUnlockDesc: chrome.i18n.getMessage("notificationUnlockDesc"),
+    notificationUpdate: chrome.i18n.getMessage("notificationChangeSave"),
     notificationViewAria: chrome.i18n.getMessage("notificationViewAria"),
     saveAction: chrome.i18n.getMessage("notificationAddSave"),
     saveAsNewLoginAction: chrome.i18n.getMessage("saveAsNewLoginAction"),
@@ -83,8 +87,8 @@ function getI18n() {
     saveFailureDetails: chrome.i18n.getMessage("saveFailureDetails"),
     saveLogin: chrome.i18n.getMessage("saveLogin"),
     typeLogin: chrome.i18n.getMessage("typeLogin"),
-    updateLoginAction: chrome.i18n.getMessage("updateLoginAction"),
     updateLogin: chrome.i18n.getMessage("updateLogin"),
+    updateLoginAction: chrome.i18n.getMessage("updateLoginAction"),
     vault: chrome.i18n.getMessage("vault"),
     view: chrome.i18n.getMessage("view"),
   };
@@ -147,7 +151,24 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
     document.body.innerHTML = "";
     // Current implementations utilize a require for scss files which creates the need to remove the node.
     document.head.querySelectorAll('link[rel="stylesheet"]').forEach((node) => node.remove());
+
+    // Handle AtRiskPasswordNotification render
+    if (notificationBarIframeInitData.type === NotificationTypes.AtRiskPassword) {
+      return render(
+        AtRiskNotification({
+          ...notificationBarIframeInitData,
+          type: notificationBarIframeInitData.type as NotificationType,
+          theme: resolvedTheme,
+          i18n,
+          params: initData.params,
+          handleCloseNotification,
+        }),
+        document.body,
+      );
+    }
+
     const orgId = selectedVaultSignal.get();
+
     await Promise.all([
       new Promise<OrgView[]>((resolve) =>
         sendPlatformMessage({ command: "bgGetOrgData" }, resolve),

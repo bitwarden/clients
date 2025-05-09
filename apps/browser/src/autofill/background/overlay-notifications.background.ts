@@ -1,9 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Subject, switchMap, timer } from "rxjs";
+import { firstValueFrom, Subject, switchMap, timer } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { CLEAR_NOTIFICATION_LOGIN_DATA_DURATION } from "@bitwarden/common/autofill/constants";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { UserId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { SecurityTask, SecurityTaskStatus, TaskService } from "@bitwarden/common/vault/tasks";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { generateDomainMatchPatterns, isInvalidResponseStatusCode } from "../utils";
@@ -35,6 +41,9 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   constructor(
     private logService: LogService,
     private notificationBackground: NotificationBackground,
+    private taskService: TaskService,
+    private accountService: AccountService,
+    private cipherService: CipherService,
   ) {}
 
   /**
@@ -435,6 +444,31 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
         { tab },
       );
       this.clearCompletedWebRequest(requestId, tab);
+      return;
+    }
+
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    const { cipher, securityTask } = await this.getSecurityTaskAndCipherForLoginData(
+      modifyLoginData,
+      activeUserId,
+    );
+    const shouldTriggerAtRiskPasswordNotification: boolean = typeof securityTask !== "undefined";
+
+    if (shouldTriggerAtRiskPasswordNotification) {
+      await this.notificationBackground.openAtRisksPasswordNotification(
+        {
+          command: "bgOpenAtRisksPasswordNotification",
+          data: {
+            activeUserId,
+            cipher,
+            securityTask,
+          },
+        },
+        { tab },
+      );
+      this.clearCompletedWebRequest(requestId, tab);
     }
   };
 
@@ -457,6 +491,45 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   private shouldTriggerAddLoginNotification = (modifyLoginData: ModifyLoginCipherFormData) => {
     return modifyLoginData?.username && (modifyLoginData.password || modifyLoginData.newPassword);
   };
+
+  /**
+   * If there is a security task for this cipher at login, return the task, cipher view, and uri.
+   *
+   * @param modifyLoginData - The modified login form data
+   * @param activeUserId - The currently logged in user ID
+   */
+  private async getSecurityTaskAndCipherForLoginData(
+    modifyLoginData: ModifyLoginCipherFormData,
+    activeUserId: UserId,
+  ): Promise<{
+    securityTask: SecurityTask | undefined;
+    cipher: CipherView | undefined;
+    uri: ModifyLoginCipherFormData["uri"];
+  }> {
+    const shouldGetTasks: boolean = await this.notificationBackground.getNotificationFlag();
+    if (!shouldGetTasks) {
+      return { cipher: undefined, securityTask: undefined, uri: modifyLoginData.uri };
+    }
+
+    const tasks: SecurityTask[] = await this.notificationBackground.getSecurityTasks(activeUserId);
+    const ciphers: CipherView[] = await this.cipherService.getAllDecryptedForUrl(
+      modifyLoginData.uri,
+      activeUserId,
+    );
+
+    const cipherIds: CipherView["id"][] = ciphers.map((c) => c.id);
+
+    const securityTask =
+      tasks.length > 0 &&
+      tasks.find(
+        (task) =>
+          task.status === SecurityTaskStatus.Pending && cipherIds.indexOf(task.cipherId) > -1,
+      );
+
+    const cipher = ciphers.find((cipher) => cipher.id === securityTask.cipherId);
+
+    return { securityTask, cipher, uri: modifyLoginData.uri };
+  }
 
   /**
    * Clears the completed web request and removes the modified login form data for the tab.
