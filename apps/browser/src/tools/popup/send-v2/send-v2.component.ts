@@ -9,6 +9,8 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { ButtonModule, CalloutModule, Icons, NoItemsModule } from "@bitwarden/components";
 import {
@@ -61,6 +63,7 @@ export class SendV2Component implements OnInit, OnDestroy {
   protected title: string = "allSends";
   protected noItemIcon = NoSendsIcon;
   protected noResultsIcon = Icons.NoResults;
+  protected onboardingNudgesFlag: boolean = false;
 
   protected sendsDisabled = false;
 
@@ -69,6 +72,7 @@ export class SendV2Component implements OnInit, OnDestroy {
     protected sendListFiltersService: SendListFiltersService,
     private policyService: PolicyService,
     private accountService: AccountService,
+    private configService: ConfigService,
   ) {
     combineLatest([
       this.sendItemsService.emptyList$,
@@ -109,7 +113,11 @@ export class SendV2Component implements OnInit, OnDestroy {
       });
   }
 
-  ngOnInit(): void {}
+  async ngOnInit(): Promise<void> {
+    this.onboardingNudgesFlag = await this.configService.getFeatureFlag(
+      FeatureFlag.PM8851_BrowserOnboardingNudge,
+    );
+  }
 
   ngOnDestroy(): void {}
 }
