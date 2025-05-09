@@ -39,7 +39,7 @@ import {
   USER_EVER_HAD_USER_KEY,
   USER_KEY,
 } from "@bitwarden/common/platform/services/key-state/user-key.state";
-import { ActiveUserState, StateProvider } from "@bitwarden/common/platform/state";
+import { StateProvider } from "@bitwarden/common/platform/state";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import {
@@ -61,10 +61,6 @@ import {
 import { KdfConfig } from "./models/kdf-config";
 
 export class DefaultKeyService implements KeyServiceAbstraction {
-  private readonly activeUserEverHadUserKey: ActiveUserState<boolean>;
-
-  readonly everHadUserKey$: Observable<boolean>;
-
   readonly activeUserOrgKeys$: Observable<Record<OrganizationId, OrgKey>>;
 
   constructor(
@@ -80,13 +76,15 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     protected stateProvider: StateProvider,
     protected kdfConfigService: KdfConfigService,
   ) {
-    // User Key
-    this.activeUserEverHadUserKey = stateProvider.getActive(USER_EVER_HAD_USER_KEY);
-    this.everHadUserKey$ = this.activeUserEverHadUserKey.state$.pipe(map((x) => x ?? false));
-
     this.activeUserOrgKeys$ = this.stateProvider.activeUserId$.pipe(
       switchMap((userId) => (userId != null ? this.orgKeys$(userId) : NEVER)),
     ) as Observable<Record<OrganizationId, OrgKey>>;
+  }
+
+  everHadUserKey$(userId: UserId): Observable<boolean> {
+    return this.stateProvider
+      .getUser(userId, USER_EVER_HAD_USER_KEY)
+      .state$.pipe(map((x) => x ?? false));
   }
 
   async setUserKey(key: UserKey, userId: UserId): Promise<void> {
