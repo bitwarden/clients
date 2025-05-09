@@ -102,7 +102,7 @@ describe("AssignCollectionsComponent", () => {
     it("does not show read only collections in the list", () => {
       expect(component["availableCollections"]).toEqual([
         {
-          icon: "bwi-collection",
+          icon: "bwi-collection-shared",
           id: editCollection.id,
           labelName: editCollection.name,
           listName: editCollection.name,
