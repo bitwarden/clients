@@ -239,7 +239,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
         const collectionCopy = new CollectionView() as CollectionFilter;
         collectionCopy.id = c.id;
         collectionCopy.organizationId = c.organizationId;
-        collectionCopy.icon = "bwi-collection";
+        collectionCopy.icon = "bwi-collection-shared";
         if (c instanceof CollectionAdminView) {
           collectionCopy.groups = c.groups;
           collectionCopy.assigned = c.assigned;

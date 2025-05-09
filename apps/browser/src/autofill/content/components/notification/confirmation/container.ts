@@ -43,7 +43,7 @@ export function NotificationConfirmationContainer({
   type,
 }: NotificationConfirmationContainerProps) {
   const headerMessage = getHeaderMessage(i18n, type, error);
-  const confirmationMessage = getConfirmationMessage(i18n, itemName, type, error);
+  const confirmationMessage = getConfirmationMessage(i18n, type, error);
   const buttonText = error ? i18n.newItem : i18n.view;
   const buttonAria = chrome.i18n.getMessage("notificationViewAria", [itemName]);
 
@@ -109,19 +109,13 @@ const notificationContainerStyles = (theme: Theme) => css`
   }
 `;
 
-function getConfirmationMessage(
-  i18n: I18n,
-  itemName: string,
-  type?: NotificationType,
-  error?: string,
-) {
-  const loginSaveConfirmation = chrome.i18n.getMessage("loginSaveConfirmation", [itemName]);
-  const loginUpdatedConfirmation = chrome.i18n.getMessage("loginUpdatedConfirmation", [itemName]);
-
+function getConfirmationMessage(i18n: I18n, type?: NotificationType, error?: string) {
   if (error) {
     return i18n.saveFailureDetails;
   }
-  return type === NotificationTypes.Add ? loginSaveConfirmation : loginUpdatedConfirmation;
+  return type === NotificationTypes.Add
+    ? i18n.loginSaveConfirmation
+    : i18n.loginUpdatedConfirmation;
 }
 
 function getHeaderMessage(i18n: I18n, type?: NotificationType, error?: string) {

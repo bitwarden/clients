@@ -362,7 +362,7 @@ describe("VaultPopupListFiltersService", () => {
 
     it("sets collection icon", (done) => {
       service.collections$.subscribe((collections) => {
-        expect(collections.every(({ icon }) => icon === "bwi-collection")).toBeTruthy();
+        expect(collections.every(({ icon }) => icon === "bwi-collection-shared")).toBeTruthy();
         done();
       });
     });

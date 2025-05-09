@@ -237,6 +237,24 @@
   "enableSshAgentHelp": {
     "message": "SSH 代理是一个针对开发者的服务，允许您直接从 Bitwarden 密码库签署 SSH 请求。"
   },
+  "sshAgentPromptBehavior": {
+    "message": "使用 SSH 代理时提示授权"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "选择如何处理 SSH 代理授权请求。"
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "记住 SSH 授权"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "总是"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "从不"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "记住直到密码库被锁定"
+  },
   "premiumRequired": {
     "message": "需要高级版"
   },
@@ -426,6 +444,12 @@
   },
   "addField": {
     "message": "添加字段"
+  },
+  "editField": {
+    "message": "Edit field"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Are you sure you want to permanently delete this attachment?"
   },
   "fieldType": {
     "message": "字段类型"
@@ -3671,63 +3695,6 @@
   "fileSavedToDevice": {
     "message": "文件已保存到设备。可以在设备下载中进行管理。"
   },
-  "importantNotice": {
-    "message": "重要通知"
-  },
-  "setupTwoStepLogin": {
-    "message": "设置两步登录"
-  },
-  "itemDetails": {
-    "message": "项目详细信息"
-  },
-  "itemName": {
-    "message": "项目名称"
-  },
-  "loginCredentials": {
-    "message": "登录凭据"
-  },
-  "additionalOptions": {
-    "message": "附加选项"
-  },
-  "itemHistory": {
-    "message": "项目历史记录"
-  },
-  "lastEdited": {
-    "message": "最后编辑于"
-  },
-  "upload": {
-    "message": "上传"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "从 2025 年 02 月起，当有来自新设备的登录时，Bitwarden 将向您的账户电子邮箱发送验证码。"
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "您可以设置两步登录作为保护账户的替代方法，或将您的电子邮箱更改为您可以访问的电子邮箱。"
-  },
-  "remindMeLater": {
-    "message": "稍后提醒我"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "您能可正常访问您的电子邮箱 $EMAIL$ 吗？",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "不，我不能"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "是的，我可以正常访问我的电子邮箱"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "启用两步登录"
-  },
-  "changeAcctEmail": {
-    "message": "更改账户电子邮箱"
-  },
   "allowScreenshots": {
     "message": "允许屏幕截图"
   },
@@ -3755,8 +3722,20 @@
   "newLoginNudgeTitle": {
     "message": "使用自动填充节省时间"
   },
-  "newLoginNudgeBody": {
-    "message": "请包含网站，以便将此登录显示为自动填充建议。"
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "无缝在线结账"
@@ -3779,7 +3758,14 @@
   "newSshNudgeTitle": {
     "message": "开发人员友好的 SSH 访问权限"
   },
-  "newSshNudgeBody": {
-    "message": "存储您的密钥并与 SSH 代理连接，以进行快速、加密的身份验证。"
+  "newSshNudgeBodyOne": {
+    "message": "存储您的密钥并与 SSH 代理连接，以进行快速、加密的身份验证。",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "进一步了解 SSH 代理",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

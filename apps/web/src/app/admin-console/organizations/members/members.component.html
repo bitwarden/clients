@@ -307,7 +307,8 @@
                   <i aria-hidden="true" class="bwi bwi-users"></i> {{ "groups" | i18n }}
                 </button>
                 <button type="button" bitMenuItem (click)="edit(u, memberTab.Collections)">
-                  <i aria-hidden="true" class="bwi bwi-collection"></i> {{ "collections" | i18n }}
+                  <i aria-hidden="true" class="bwi bwi-collection-shared"></i>
+                  {{ "collections" | i18n }}
                 </button>
                 <bit-menu-divider></bit-menu-divider>
                 <button
@@ -373,4 +374,3 @@
     </cdk-virtual-scroll-viewport>
   </ng-container>
 </ng-container>
-<ng-template #resetPasswordTemplate></ng-template>

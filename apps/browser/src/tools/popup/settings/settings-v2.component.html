@@ -17,7 +17,15 @@
     <bit-item>
       <a bit-item-content routerLink="/autofill">
         <i slot="start" class="bwi bwi-check-circle" aria-hidden="true"></i>
-        {{ "autofill" | i18n }}
+        <div class="tw-flex tw-items-center tw-justify-center">
+          <p class="tw-pr-2">{{ "autofill" | i18n }}</p>
+          <span
+            *ngIf="!isBrowserAutofillSettingOverridden && (showAutofillBadge$ | async)"
+            bitBadge
+            variant="notification"
+            >1</span
+          >
+        </div>
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
     </bit-item>
@@ -54,7 +62,7 @@
     </bit-item>
     <bit-item>
       <a bit-item-content routerLink="/appearance">
-        <i slot="start" class="bwi bwi-eye" aria-hidden="true"></i>
+        <i slot="start" class="bwi bwi-brush" aria-hidden="true"></i>
         {{ "appearance" | i18n }}
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
@@ -66,7 +74,7 @@
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
     </bit-item>
-    <bit-item>
+    <bit-item *ngIf="isNudgeFeatureEnabled$ | async">
       <a bit-item-content routerLink="/download-bitwarden">
         <i slot="start" class="bwi bwi-mobile" aria-hidden="true"></i>
         <div class="tw-flex tw-items-center tw-justify-center">
@@ -81,7 +89,7 @@
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
     </bit-item>
-    <bit-item>
+    <bit-item *ngIf="isNudgeFeatureEnabled$ | async">
       <a bit-item-content routerLink="/more-from-bitwarden">
         <i slot="start" class="bwi bwi-filter" aria-hidden="true"></i>
         {{ "moreFromBitwarden" | i18n }}

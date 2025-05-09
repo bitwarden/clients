@@ -39,7 +39,7 @@ export class DownloadAttachmentComponent {
   // Required for fetching attachment data when viewed from cipher via emergency access
   @Input() emergencyAccessId?: EmergencyAccessId;
 
-  /** When accessing from the admin console, we will want to call the admin endpoint */
+  /** When owners/admins can mange all items and when accessing from the admin console, use the admin endpoint */
   @Input() admin?: boolean = false;
 
   /** The organization key if the cipher is associated with one */

@@ -9,6 +9,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import {
   HasItemsNudgeService,
   EmptyVaultNudgeService,
+  AutofillNudgeService,
   DownloadBitwardenNudgeService,
   NewItemNudgeService,
 } from "./custom-nudges-services";
@@ -28,6 +29,7 @@ export enum VaultNudgeType {
    */
   EmptyVaultNudge = "empty-vault-nudge",
   HasVaultItems = "has-vault-items",
+  AutofillNudge = "autofill-nudge",
   DownloadBitwarden = "download-bitwarden",
   newLoginItemStatus = "new-login-item-status",
   newCardItemStatus = "new-card-item-status",
@@ -57,6 +59,7 @@ export class VaultNudgesService {
   private customNudgeServices: Partial<Record<VaultNudgeType, SingleNudgeService>> = {
     [VaultNudgeType.HasVaultItems]: inject(HasItemsNudgeService),
     [VaultNudgeType.EmptyVaultNudge]: inject(EmptyVaultNudgeService),
+    [VaultNudgeType.AutofillNudge]: inject(AutofillNudgeService),
     [VaultNudgeType.DownloadBitwarden]: inject(DownloadBitwardenNudgeService),
     [VaultNudgeType.newLoginItemStatus]: this.newItemNudgeService,
     [VaultNudgeType.newCardItemStatus]: this.newItemNudgeService,

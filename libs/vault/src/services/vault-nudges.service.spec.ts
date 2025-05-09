@@ -55,6 +55,7 @@ describe("Vault Nudges Service", () => {
           useValue: mock<ApiService>(),
         },
         { provide: CipherService, useValue: mock<CipherService>() },
+        { provide: LogService, useValue: mock<LogService>() },
         {
           provide: AccountService,
           useValue: mock<AccountService>(),

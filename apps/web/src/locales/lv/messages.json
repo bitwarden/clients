@@ -5054,9 +5054,6 @@
   "singleOrgBlockCreateMessage": {
     "message": "Pašreizējā apvienībā ir nosacījums, kas neļauj pievienoties vairāk kā vienai apvienībai. Lūgums sazināties ar savas apvienības pārvaldītājiem vai pieteikties no cita Bitwarden konta."
   },
-  "singleOrgPolicyWarning": {
-    "message": "Apvienības dalībnieki, kas nav īpašnieki vai pārvaldītāji un jau ir dalībnieki citā apvienībā, tiks atbrīvoti."
-  },
   "singleOrgPolicyMemberWarning": {
     "message": "Pamatnostādnei neatbilstoši dalībniekiem tiks piešķirts stāvoklis \"Atsaukts\", līdz viņī pametīs visas pārējās apvienības. Pārvaldītāji ir izņēmums, un viņi var atjaunot dalībniekus, tiklīdz ir īstenota atbilstība pamatnostādnei."
   },
@@ -5885,15 +5882,6 @@
   },
   "fingerprintPhrase": {
     "message": "Atpazīšanas vārdkopa:"
-  },
-  "removeUsers": {
-    "message": "Noņemt lietotājus"
-  },
-  "revokeUsers": {
-    "message": "Atsaukt lietotāju piekļuvi"
-  },
-  "restoreUsers": {
-    "message": "Atjaunot lietotāju piekļuvi"
   },
   "error": {
     "message": "Kļūda"
@@ -7836,12 +7824,6 @@
   "noDomainsSubText": {
     "message": "Savienošanās ar domēnu ļauj dalībniekiem pieteikšanās ar SSO laikā izlaist vienotās pieteikšanās identifikatora lauku."
   },
-  "verifyDomain": {
-    "message": "Apstiprināt domēnu"
-  },
-  "reverifyDomain": {
-    "message": "Atkārtoti apstiprināt domēnu"
-  },
   "copyDnsTxtRecord": {
     "message": "Ievietot starpliktuvē DNS TXT ierakstu"
   },
@@ -7850,18 +7832,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "TXT ieraksts ir jāievieto starpliktuvē un jāielīmē DNS nodrošinātāja pārvaldības lapā."
-  },
-  "domainNameInputHint": {
-    "message": "Piemērs: mansdomens.lv. Apakšdomēniem ir nepieciešams apstiprināt atsevišķus ierakstus."
-  },
-  "automaticDomainVerification": {
-    "message": "Automātiska domēnu apstiprināšana"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden mēģinās pārbaudīt domēnu 3 reizes pirmajās 72 stundās. Ja domēnu nevarēs apliecināt, būs jāpārbauda DNS ieraksts saimniekdatorā un pašrocīgi tas jāapliecina. Domēns tiks noņemts no apvienības pēc 7 dienām, ja tas nebūs apliecināts"
-  },
-  "invalidDomainNameMessage": {
-    "message": "Ievadītā vērtība ir nederīga. Piemēram: mansdomens.lv. Apakšdomēniem ir nepieciešams apstiprināt atsevišķus ierakstus."
   },
   "removeDomain": {
     "message": "Noņemt domēnu"
@@ -7875,9 +7845,6 @@
   "domainSaved": {
     "message": "Domēns ir saglabāts"
   },
-  "domainVerified": {
-    "message": "Domēns ir apliecināts"
-  },
   "duplicateDomainError": {
     "message": "Vienu domēnu nevar pieprasīt divreiz."
   },
@@ -7889,21 +7856,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ nav apstiprināts. Jāpārbauda DNS ieraksts.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Apstiprināts"
-  },
-  "domainStatusUnverified": {
-    "message": "Nav apstiprināts"
   },
   "domainNameTh": {
     "message": "Nosaukums"
@@ -7931,24 +7883,6 @@
   },
   "removedDomain": {
     "message": "Domēns $DOMAIN$ ir noņemts",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ ir apstiprināts",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ nav apstiprināts",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -9479,11 +9413,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Norēķinus var pārvaldīt Nodrošinātāju portālā"
   },
+  "continueSettingUp": {
+    "message": "Turpināt Bitwarden iestatīšanu"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Turpināt iestatīt savu Bitwarden bezmaksas izmēģinājumu"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Turpināt Bitwarden paroļu pārvaldnieka iestatīšanu"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Turpināt iestatīt savu Bitwarden paroļu pārvaldnieka bezmaksas izmēģinājumu"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Turpināt Bitwarden noslēpumu pārvaldnieka iestatīšanu"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Turpināt iestatīt savu Bitwarden noslēpumu pārvaldnieka bezmaksas izmēģinājumu"
@@ -10245,42 +10188,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Svarīgs paziņojums"
-  },
-  "setupTwoStepLogin": {
-    "message": "Iestatīt divpakāpju pieteikšanos"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden, sākot ar 2025. gada februāri, nosūtīs kodu uz konta e-pasta adresi, lai apliecinātu pieteikšanos no jaunām ierīcēm."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Var iestatīt divpakāpju pieteikšanos kā citu veidu, kā aizsargāt savu kontu, vai iestatīt savu e-pasta adresi uz tādu, kurai ir piekļuve."
-  },
-  "remindMeLater": {
-    "message": "Atgādināt man vēlāk"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Vai ir uzticama piekļuve savai e-pasta adresei $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Nē, nav"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Jā, varu uzticami piekļūt savam e-pastam"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Ieslēgt divpakāpju pieteikšanos"
-  },
-  "changeAcctEmail": {
-    "message": "Mainīt konta e-pasta adresi"
-  },
   "removeMembers": {
     "message": "Noņemt dalībniekus"
   },
@@ -10397,7 +10304,7 @@
     "message": "Neuzticēties"
   },
   "organizationNotTrusted": {
-    "message": "Organization is not trusted"
+    "message": "Apvienība nav uzticama"
   },
   "emergencyAccessTrustWarning": {
     "message": "Lai nodrošinātu sava konta drošību, jāapstiprina tikai tad, ja šim lietotājam ir nodrošināta ārkārtas piekļuve un tā pirkstu nospiedums atbilsta tam, kas ir attēlots tā kontā"
@@ -10406,7 +10313,7 @@
     "message": "Lai nodrošinātu sava konta drošību, jāturpina tikai tad, ja esi šīs apvienības dalībnieks, ir iespējota konta atkope un zemāk attēlotais pirkstu nospiedums atbilst apvienības pirkstu nospiedumam."
   },
   "orgTrustWarning1": {
-    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+    "message": "Šai apvienībai ir uzņēmējdarbības pamatnostādne, kas Tevi iekļaus konta atkopē. Iekļaušana ļaus apvienības pārvaldītājiem nomainīt Tavu paroli. Turpini tikai tad, ja zini šo apvienību un zemāk attēlotā pirkstu nospieduma vārdkopa atbilst apvienības pirkstu nospiedumam!"
   },
   "trustUser": {
     "message": "Uzticēties lietotājam"
@@ -10637,8 +10544,20 @@
   "newLoginNudgeTitle": {
     "message": "Laika ietaupīšana ar automātisko aizpildi"
   },
-  "newLoginNudgeBody": {
-    "message": "Iekļauj tīmekļvietni, lai šis pieteikšanās vienums parādītos kā automātiskās aizpildes ieteikums!"
+  "newLoginNudgeBodyOne": {
+    "message": "Iekļauj",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "tīmekļvietni,",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "lai šis pieteikšanās vienums parādītos kā automātiskās aizpildes ieteikums!",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Plūdena apmaksa tiešsaistē"
@@ -10661,8 +10580,15 @@
   "newSshNudgeTitle": {
     "message": "Izstrādātājiem draudzīga SSH piekļuve"
   },
-  "newSshNudgeBody": {
-    "message": "Glabā savas atslēgas un savienojies ar SSH aģentu ātrai, šifrētai autentificēšanai!"
+  "newSshNudgeBodyOne": {
+    "message": "Glabā savas atslēgas un savienojies ar SSH aģentu ātrai, šifrētai autentificēšanai!",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Uzzināt vairāk par SSH aģentu",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "restart": {
     "message": "Palaist no jauna"
