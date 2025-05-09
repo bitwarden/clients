@@ -3500,6 +3500,12 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Remember this device to make future logins seamless"
   },
+  "manageDevices": {
+    "message": "Manage devices"
+  },
+  "devices": {
+    "message": "Devices"
+  },
   "deviceApprovalRequired": {
     "message": "Device approval required. Select an approval option below:"
   },
