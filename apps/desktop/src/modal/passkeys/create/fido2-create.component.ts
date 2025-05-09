@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
+import { autofill } from "desktop_native/napi";
 import { BehaviorSubject, firstValueFrom, map, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -8,14 +9,7 @@ import { BitwardenShield } from "@bitwarden/auth/angular";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-<<<<<<< HEAD
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
-=======
-import {
-  compareCredentialIds,
-  parseCredentialId,
-} from "@bitwarden/common/platform/services/fido2/credential-id-utils";
->>>>>>> e4221d4d56 (Show existing login items in the UI)
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -92,7 +86,6 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
     this.cipherService
       .getAllDecrypted(activeUserId)
       .then((ciphers) => {
-<<<<<<< HEAD
         const relevantCiphers = ciphers.filter((cipher) => {
           const userHandle = Fido2Utils.bufferToString(
             new Uint8Array(lastRegistrationRequest.userHandle),
@@ -104,50 +97,36 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
           );
         });
         this.ciphersSubject.next(relevantCiphers);
-=======
-        if (lastRegistrationRequest.excludedCredentials.length > 0) {
-          const excludedCiphers = ciphers.filter((cipher) => {
-            const credentialId = cipher.login.hasFido2Credentials
-              ? parseCredentialId(cipher.login.fido2Credentials[0]?.credentialId)
-              : new Uint8Array();
-            if (!cipher.login || !cipher.login.hasUris) {
-              return false;
-            }
-
-            return (
-              cipher.login.matchesUri(rpid, equivalentDomains) &&
-              compareCredentialIds(
-                credentialId,
-                new Uint8Array(lastRegistrationRequest.excludedCredentials[0]),
-              )
-            );
-          });
-
-          this.containsExcludedCiphers = excludedCiphers.length > 0;
-          this.ciphersSubject.next(excludedCiphers);
-        } else {
-          const relevantCiphers = ciphers.filter((cipher) => {
-            const credentialId = cipher.login.hasFido2Credentials
-              ? Array.from(parseCredentialId(cipher.login.fido2Credentials[0]?.credentialId))
-              : [];
-            if (!cipher.login || !cipher.login.hasUris) {
-              return false;
-            }
-
-            return (
-              cipher.login.matchesUri(rpid, equivalentDomains) &&
-              !lastRegistrationRequest.excludedCredentials.includes(credentialId)
-            );
-          });
-          this.ciphersSubject.next(relevantCiphers);
-        }
->>>>>>> e4221d4d56 (Show existing login items in the UI)
       })
       .catch((error) => this.logService.error(error));
   }
 
   async ngOnDestroy() {
     await this.accountService.setShowHeader(true);
+  }
+
+  /* Check that a credential is a valid Fido2 credential for the URL and not be in the bin. */
+  invalidFido2Credential(cipher: CipherView) {
+    return !cipher.login || !cipher.login.hasUris || cipher.deletedDate;
+  }
+
+  /*
+   * Determines whether a cipher contains a FIDO2 credential that is eligible for registration.
+   * If the userHandle values are both empty they are not eligible, so ignore them.
+   * */
+  eligibleFido2Credential(
+    cipher: CipherView,
+    lastRegistrationRequest: autofill.PasskeyRegistrationRequest,
+  ) {
+    return (
+      cipher.login.fido2Credentials.some((passkey) => {
+        const passkeyUserHandle = Fido2Utils.stringToBuffer(passkey.userHandle) || new Uint8Array();
+        const lastRegistrationUserHandle = new Uint8Array(lastRegistrationRequest.userHandle);
+        if (passkeyUserHandle.length > 0 || lastRegistrationUserHandle.length > 0) {
+          compareCredentialIds(passkeyUserHandle, lastRegistrationUserHandle);
+        }
+      }) && !this.invalidFido2Credential(cipher)
+    );
   }
 
   async addPasskeyToCipher(cipher: CipherView) {
