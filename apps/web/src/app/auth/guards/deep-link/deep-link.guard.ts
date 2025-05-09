@@ -68,7 +68,7 @@ export function deepLinkGuard(): CanActivateFn {
    * @returns True if the URL is valid, false otherwise.
    */
   function isValidUrl(url: string | null | undefined): boolean {
-    if (url === undefined) {
+    if (url === undefined || url === null) {
       return false;
     }
 
