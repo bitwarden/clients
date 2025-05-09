@@ -9414,19 +9414,19 @@
     "message": "Управление на плащанията от Портала за доставчици"
   },
   "continueSettingUp": {
-    "message": "Continue setting up Bitwarden"
+    "message": "Продължете настройването на Битуорден"
   },
   "continueSettingUpFreeTrial": {
     "message": "Продължете настройването на безплатния пробен период на Буторден"
   },
   "continueSettingUpPasswordManager": {
-    "message": "Continue setting up Bitwarden Password Manager"
+    "message": "Продължете настройването на Управителя на пароли Битуорден"
   },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Продължете настройването на безплатния пробен период на Управлението на пароли на Буторден"
   },
   "continueSettingUpSecretsManager": {
-    "message": "Continue setting up Bitwarden Secrets Manager"
+    "message": "Продължете настройването на Управлелието на тайни в Битуорден"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Продължете настройването на безплатния пробен период на Управлението на тайни на Буторден"
