@@ -19,6 +19,7 @@ import { KeyService } from "@bitwarden/key-management";
 import { ConvertToKeyConnectorCommand } from "../../key-management/convert-to-key-connector.command";
 import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";
+import { I18nService } from "../../platform/services/i18n.service";
 import { CliUtils } from "../../utils";
 
 export class UnlockCommand {
@@ -33,6 +34,7 @@ export class UnlockCommand {
     private environmentService: EnvironmentService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private logout: () => Promise<void>,
+    private i18nService: I18nService,
   ) {}
 
   async run(password: string, cmdOptions: Record<string, any>) {
@@ -78,6 +80,7 @@ export class UnlockCommand {
         this.environmentService,
         this.organizationApiService,
         this.logout,
+        this.i18nService,
       );
       const convertResponse = await convertToKeyConnectorCommand.run();
       if (!convertResponse.success) {

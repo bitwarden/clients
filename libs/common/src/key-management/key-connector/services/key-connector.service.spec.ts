@@ -45,6 +45,8 @@ describe("KeyConnectorService", () => {
     key: "eO9nVlVl3I3sU6O+CyK0kEkpGtl/auT84Hig2WTXmZtDTqYtKpDvUPfjhgMOHf+KQzx++TVS2AOLYq856Caa7w==",
   });
 
+  const keyConnectorUrl = "https://key-connector-url.com";
+
   beforeEach(() => {
     jest.clearAllMocks();
 
@@ -124,27 +126,9 @@ describe("KeyConnectorService", () => {
     it("should return the managing organization with key connector enabled", async () => {
       // Arrange
       const orgs = [
-        organizationData(
-          true,
-          true,
-          "https://key-connector-url.com",
-          OrganizationUserType.User,
-          false,
-        ),
-        organizationData(
-          false,
-          true,
-          "https://key-connector-url.com",
-          OrganizationUserType.User,
-          false,
-        ),
-        organizationData(
-          true,
-          false,
-          "https://key-connector-url.com",
-          OrganizationUserType.User,
-          false,
-        ),
+        organizationData(true, true, keyConnectorUrl, OrganizationUserType.User, false),
+        organizationData(false, true, keyConnectorUrl, OrganizationUserType.User, false),
+        organizationData(true, false, keyConnectorUrl, OrganizationUserType.User, false),
         organizationData(true, true, "https://other-url.com", OrganizationUserType.User, false),
       ];
       organizationService.organizations$.mockReturnValue(of(orgs));
@@ -159,20 +143,8 @@ describe("KeyConnectorService", () => {
     it("should return undefined if no managing organization with key connector enabled is found", async () => {
       // Arrange
       const orgs = [
-        organizationData(
-          true,
-          false,
-          "https://key-connector-url.com",
-          OrganizationUserType.User,
-          false,
-        ),
-        organizationData(
-          false,
-          false,
-          "https://key-connector-url.com",
-          OrganizationUserType.User,
-          false,
-        ),
+        organizationData(true, false, keyConnectorUrl, OrganizationUserType.User, false),
+        organizationData(false, false, keyConnectorUrl, OrganizationUserType.User, false),
       ];
       organizationService.organizations$.mockReturnValue(of(orgs));
 
@@ -186,8 +158,8 @@ describe("KeyConnectorService", () => {
     it("should return undefined if user is Owner or Admin", async () => {
       // Arrange
       const orgs = [
-        organizationData(true, true, "https://key-connector-url.com", 0, false),
-        organizationData(true, true, "https://key-connector-url.com", 1, false),
+        organizationData(true, true, keyConnectorUrl, 0, false),
+        organizationData(true, true, keyConnectorUrl, 1, false),
       ];
       organizationService.organizations$.mockReturnValue(of(orgs));
 
@@ -201,20 +173,8 @@ describe("KeyConnectorService", () => {
     it("should return undefined if user is a Provider", async () => {
       // Arrange
       const orgs = [
-        organizationData(
-          true,
-          true,
-          "https://key-connector-url.com",
-          OrganizationUserType.User,
-          true,
-        ),
-        organizationData(
-          false,
-          true,
-          "https://key-connector-url.com",
-          OrganizationUserType.User,
-          true,
-        ),
+        organizationData(true, true, keyConnectorUrl, OrganizationUserType.User, true),
+        organizationData(false, true, keyConnectorUrl, OrganizationUserType.User, true),
       ];
       organizationService.organizations$.mockReturnValue(of(orgs));
 
@@ -229,7 +189,7 @@ describe("KeyConnectorService", () => {
   describe("setMasterKeyFromUrl", () => {
     it("should set the master key from the provided URL", async () => {
       // Arrange
-      const url = "https://key-connector-url.com";
+      const url = keyConnectorUrl;
 
       apiService.getMasterKeyFromKeyConnector.mockResolvedValue(mockMasterKeyResponse);
 
@@ -247,7 +207,7 @@ describe("KeyConnectorService", () => {
 
     it("should handle errors thrown during the process", async () => {
       // Arrange
-      const url = "https://key-connector-url.com";
+      const url = keyConnectorUrl;
 
       const error = new Error("Failed to get master key");
       apiService.getMasterKeyFromKeyConnector.mockRejectedValue(error);
@@ -267,29 +227,20 @@ describe("KeyConnectorService", () => {
   describe("migrateUser", () => {
     it("should migrate the user to the key connector", async () => {
       // Arrange
-      const organization = organizationData(
-        true,
-        true,
-        "https://key-connector-url.com",
-        OrganizationUserType.User,
-        false,
-      );
       const masterKey = getMockMasterKey();
       masterPasswordService.masterKeySubject.next(masterKey);
       const keyConnectorRequest = new KeyConnectorUserKeyRequest(
         Utils.fromBufferToB64(masterKey.inner().encryptionKey),
       );
 
-      jest.spyOn(keyConnectorService, "getManagingOrganization").mockResolvedValue(organization);
       jest.spyOn(apiService, "postUserKeyToKeyConnector").mockResolvedValue();
 
       // Act
-      await keyConnectorService.migrateUser(mockUserId);
+      await keyConnectorService.migrateUser(keyConnectorUrl, mockUserId);
 
       // Assert
-      expect(keyConnectorService.getManagingOrganization).toHaveBeenCalled();
       expect(apiService.postUserKeyToKeyConnector).toHaveBeenCalledWith(
-        organization.keyConnectorUrl,
+        keyConnectorUrl,
         keyConnectorRequest,
       );
       expect(apiService.postConvertToKeyConnector).toHaveBeenCalled();
@@ -297,34 +248,23 @@ describe("KeyConnectorService", () => {
 
     it("should handle errors thrown during migration", async () => {
       // Arrange
-      const organization = organizationData(
-        true,
-        true,
-        "https://key-connector-url.com",
-        OrganizationUserType.User,
-        false,
-      );
       const masterKey = getMockMasterKey();
       const keyConnectorRequest = new KeyConnectorUserKeyRequest(
         Utils.fromBufferToB64(masterKey.inner().encryptionKey),
       );
-      const error = new Error("Failed to post user key to key connector");
-      organizationService.organizations$.mockReturnValue(of([organization]));
-
       masterPasswordService.masterKeySubject.next(masterKey);
-      jest.spyOn(keyConnectorService, "getManagingOrganization").mockResolvedValue(organization);
+      const error = new Error("Failed to post user key to key connector");
       jest.spyOn(apiService, "postUserKeyToKeyConnector").mockRejectedValue(error);
       jest.spyOn(logService, "error");
 
       try {
         // Act
-        await keyConnectorService.migrateUser(mockUserId);
+        await keyConnectorService.migrateUser(keyConnectorUrl, mockUserId);
       } catch {
         // Assert
         expect(logService.error).toHaveBeenCalledWith(error);
-        expect(keyConnectorService.getManagingOrganization).toHaveBeenCalled();
         expect(apiService.postUserKeyToKeyConnector).toHaveBeenCalledWith(
-          organization.keyConnectorUrl,
+          keyConnectorUrl,
           keyConnectorRequest,
         );
       }
@@ -336,7 +276,7 @@ describe("KeyConnectorService", () => {
       const organization = organizationData(
         true,
         true,
-        "https://key-connector-url.com",
+        keyConnectorUrl,
         OrganizationUserType.User,
         false,
       );
@@ -364,7 +304,7 @@ describe("KeyConnectorService", () => {
       const organization = organizationData(
         true,
         false,
-        "https://key-connector-url.com",
+        keyConnectorUrl,
         OrganizationUserType.User,
         false,
       );
@@ -379,7 +319,7 @@ describe("KeyConnectorService", () => {
       const organization = organizationData(
         true,
         true,
-        "https://key-connector-url.com",
+        keyConnectorUrl,
         OrganizationUserType.Admin,
         false,
       );
@@ -394,7 +334,7 @@ describe("KeyConnectorService", () => {
       const organization = organizationData(
         true,
         true,
-        "https://key-connector-url.com",
+        keyConnectorUrl,
         OrganizationUserType.Owner,
         false,
       );
@@ -409,7 +349,7 @@ describe("KeyConnectorService", () => {
       const organization = organizationData(
         true,
         true,
-        "https://key-connector-url.com",
+        keyConnectorUrl,
         OrganizationUserType.User,
         true,
       );

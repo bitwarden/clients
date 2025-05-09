@@ -90,18 +90,14 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     );
   }
 
-  async migrateUser(userId: UserId) {
-    const organization = await this.getManagingOrganization(userId);
+  async migrateUser(keyConnectorUrl: string, userId: UserId) {
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
     const keyConnectorRequest = new KeyConnectorUserKeyRequest(
       Utils.fromBufferToB64(masterKey.inner().encryptionKey),
     );
 
     try {
-      await this.apiService.postUserKeyToKeyConnector(
-        organization.keyConnectorUrl,
-        keyConnectorRequest,
-      );
+      await this.apiService.postUserKeyToKeyConnector(keyConnectorUrl, keyConnectorRequest);
     } catch (e) {
       this.handleKeyConnectorError(e);
     }
@@ -112,9 +108,9 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
   }
 
   // TODO: UserKey should be renamed to MasterKey and typed accordingly
-  async setMasterKeyFromUrl(url: string, userId: UserId) {
+  async setMasterKeyFromUrl(keyConnectorUrl: string, userId: UserId) {
     try {
-      const masterKeyResponse = await this.apiService.getMasterKeyFromKeyConnector(url);
+      const masterKeyResponse = await this.apiService.getMasterKeyFromKeyConnector(keyConnectorUrl);
       const keyArr = Utils.fromB64ToArray(masterKeyResponse.key);
       const masterKey = new SymmetricCryptoKey(keyArr) as MasterKey;
       await this.masterPasswordService.setMasterKey(masterKey, userId);
@@ -192,7 +188,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     throw new Error("Key Connector error");
   }
 
-  private findManagingOrganization(organizations: Organization[]) {
+  private findManagingOrganization(organizations: Organization[]): Organization | undefined {
     return organizations.find(
       (o) =>
         o.keyConnectorEnabled &&

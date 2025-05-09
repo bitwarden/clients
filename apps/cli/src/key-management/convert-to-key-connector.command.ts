@@ -11,6 +11,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 
 import { Response } from "../models/response";
 import { MessageResponse } from "../models/response/message.response";
+import { I18nService } from "../platform/services/i18n.service";
 
 export class ConvertToKeyConnectorCommand {
   constructor(
@@ -19,6 +20,7 @@ export class ConvertToKeyConnectorCommand {
     private environmentService: EnvironmentService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private logout: () => Promise<void>,
+    private i18nService: I18nService,
   ) {}
 
   async run(): Promise<Response> {
@@ -28,8 +30,7 @@ export class ConvertToKeyConnectorCommand {
       await this.logout();
       return Response.error(
         new MessageResponse(
-          "An organization you are a member of is using Key Connector. " +
-            "In order to access the vault, you must opt-in to Key Connector now via the web vault. You have been logged out.",
+          this.i18nService.t("organizationUsingKeyConnectorOptInLoggedOut"),
           null,
         ),
       );
@@ -40,20 +41,22 @@ export class ConvertToKeyConnectorCommand {
     const answer: inquirer.Answers = await inquirer.createPromptModule({ output: process.stderr })({
       type: "list",
       name: "convert",
-      message:
-        organization.name +
-        " is using a self-hosted key server. A master password is no longer required to log in for members of this organization. ",
+      message: this.i18nService.t(
+        "removeMasterPasswordForOrganizationUserKeyConnector",
+        organization.name,
+        organization.keyConnectorUrl,
+      ),
       choices: [
         {
-          name: "Remove master password and unlock",
+          name: this.i18nService.t("removeMasterPasswordAndUnlock"),
           value: "remove",
         },
         {
-          name: "Leave organization and unlock",
+          name: this.i18nService.t("leaveOrganizationAndUnlock"),
           value: "leave",
         },
         {
-          name: "Log out",
+          name: this.i18nService.t("logOut"),
           value: "exit",
         },
       ],
@@ -61,7 +64,7 @@ export class ConvertToKeyConnectorCommand {
 
     if (answer.convert === "remove") {
       try {
-        await this.keyConnectorService.migrateUser(this.userId);
+        await this.keyConnectorService.migrateUser(organization.keyConnectorUrl, this.userId);
       } catch (e) {
         await this.logout();
         throw e;
@@ -79,7 +82,7 @@ export class ConvertToKeyConnectorCommand {
       return Response.success();
     } else {
       await this.logout();
-      return Response.error("You have been logged out.");
+      return Response.error(this.i18nService.t("youHaveBeenLoggedOut"));
     }
   }
 }
