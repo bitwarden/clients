@@ -185,6 +185,7 @@ import { I18nService } from "../platform/services/i18n.service";
 import { LowdbStorageService } from "../platform/services/lowdb-storage.service";
 import { NodeApiService } from "../platform/services/node-api.service";
 import { NodeEnvSecureStorageService } from "../platform/services/node-env-secure-storage.service";
+import { SendDownloadService } from "../tools/send/services/send-download.service";
 
 // Polyfills
 global.DOMParser = new jsdom.JSDOM().window.DOMParser;
@@ -283,6 +284,7 @@ export class ServiceContainer {
   cipherAuthorizationService: CipherAuthorizationService;
   ssoUrlService: SsoUrlService;
   masterPasswordApiService: MasterPasswordApiServiceAbstraction;
+  sendDownloadService: SendDownloadService;
   bulkEncryptService: FallbackBulkEncryptService;
 
   constructor() {
@@ -856,6 +858,16 @@ export class ServiceContainer {
     );
 
     this.masterPasswordApiService = new MasterPasswordApiService(this.apiService, this.logService);
+
+    this.sendDownloadService = new SendDownloadService(
+      this.environmentService,
+      this.encryptService,
+      this.apiService,
+      this.platformUtilsService,
+      this.keyService,
+      this.cryptoFunctionService,
+      this.sendApiService,
+    );
   }
 
   async logout() {

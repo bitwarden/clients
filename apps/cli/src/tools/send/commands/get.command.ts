@@ -14,6 +14,7 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { DownloadCommand } from "../../../commands/download.command";
 import { Response } from "../../../models/response";
 import { SendResponse } from "../models/send.response";
+import { SendDownloadService } from "../services/send-download.service";
 
 export class SendGetCommand extends DownloadCommand {
   constructor(
@@ -22,6 +23,7 @@ export class SendGetCommand extends DownloadCommand {
     private searchService: SearchService,
     encryptService: EncryptService,
     apiService: ApiService,
+    private sendDownloadService: SendDownloadService,
   ) {
     super(encryptService, apiService);
   }
@@ -44,7 +46,7 @@ export class SendGetCommand extends DownloadCommand {
       Response.success(new SendResponse(s, webVaultUrl));
     if (!serveCommand && options?.text != null) {
       filter = (s) => {
-        return filter(s) && s.text != null;
+        return s.text != null;
       };
       selector = async (s) => {
         // Write to stdout and response success so we get the text string only to stdout
@@ -65,6 +67,10 @@ export class SendGetCommand extends DownloadCommand {
       } else {
         return Response.notFound();
       }
+    }
+
+    if (options?.file || options?.output || options?.raw) {
+      return this.sendDownloadService.download(sends, options);
     }
 
     return selector(sends);
