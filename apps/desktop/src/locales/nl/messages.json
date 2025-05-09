@@ -237,6 +237,24 @@
   "enableSshAgentHelp": {
     "message": "De SSH-agent is een dienst gericht op ontwikkelaars waarmee je SSH-verzoeken rechtstreeks vanuit je Bitwarden-kluis kunt ondertekenen."
   },
+  "sshAgentPromptBehavior": {
+    "message": "Toestemming vragen bij het gebruik van SSH-agent"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "Kies hoe om te gaan met SSH-agent autorisatieverzoeken."
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "SSH-autorisaties onthouden"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "Altijd"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "Nooit"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "Onthoud tot de kluis is vergrendeld"
+  },
   "premiumRequired": {
     "message": "Premium vereist"
   },
@@ -426,6 +444,12 @@
   },
   "addField": {
     "message": "Veld toevoegen"
+  },
+  "editField": {
+    "message": "Edit field"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Are you sure you want to permanently delete this attachment?"
   },
   "fieldType": {
     "message": "Veldtype"
@@ -3671,63 +3695,6 @@
   "fileSavedToDevice": {
     "message": "Bestand op apparaat opgeslagen. Beheer vanaf de downloads op je apparaat."
   },
-  "importantNotice": {
-    "message": "Belangrijke melding"
-  },
-  "setupTwoStepLogin": {
-    "message": "Tweestapsaanmelding instellen"
-  },
-  "itemDetails": {
-    "message": "Itemdetails"
-  },
-  "itemName": {
-    "message": "Itemnaam"
-  },
-  "loginCredentials": {
-    "message": "Login referenties"
-  },
-  "additionalOptions": {
-    "message": "Extra opties"
-  },
-  "itemHistory": {
-    "message": "Itemgeschiedenis"
-  },
-  "lastEdited": {
-    "message": "Laatst gewijzigd"
-  },
-  "upload": {
-    "message": "Uploaden"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Vanaf februari 2025 stuurt Bitwarden een code naar het e-mailadres van je account om inloggen op nieuwe apparaten te verifiëren."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Je kunt tweestapsaanmelding instellen als een alternatieve manier om je account te beschermen of je e-mailadres te veranderen naar een waar je toegang toe hebt."
-  },
-  "remindMeLater": {
-    "message": "Herinner me later"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Heb je betrouwbare toegang tot je e-mail, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Nee, dat heb ik niet"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Ja, ik heb betrouwbare toegang tot mijn e-mail"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Tweestapsaanmelding inschakelen"
-  },
-  "changeAcctEmail": {
-    "message": "E-mailadres van het account veranderen"
-  },
   "allowScreenshots": {
     "message": "Schermopname toestaan"
   },
@@ -3755,8 +3722,20 @@
   "newLoginNudgeTitle": {
     "message": "Tijd besparen met automatisch aanvullen"
   },
-  "newLoginNudgeBody": {
-    "message": "Voeg een website toe zodat deze login wordt weergegeven als een automatische invulsuggestie."
+  "newLoginNudgeBodyOne": {
+    "message": "Voeg een",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "toe zodat deze login wordt weergegeven als een automatische invulsuggestie.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Naadloos online afrekenen"
@@ -3779,7 +3758,14 @@
   "newSshNudgeTitle": {
     "message": "Ontwikkelaars-vriendelijke SSH-toegang"
   },
-  "newSshNudgeBody": {
-    "message": "Sla je sleutels op en verbind met de SSH-agent voor snelle, versleutelde authenticatie."
+  "newSshNudgeBodyOne": {
+    "message": "Sla je sleutels op en verbind met de SSH-agent voor snelle, versleutelde authenticatie.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Meer informatie over SSH-agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }
