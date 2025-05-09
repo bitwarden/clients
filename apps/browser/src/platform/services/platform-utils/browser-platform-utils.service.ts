@@ -103,7 +103,7 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return this.getDevice() === DeviceType.VivaldiExtension;
   }
 
-  static isSafari(globalContext: Window | ServiceWorkerGlobalScope): boolean {
+  private static isSafari(globalContext: Window | ServiceWorkerGlobalScope): boolean {
     // Opera masquerades as Safari, so make sure we're not there first
     return (
       !BrowserPlatformUtilsService.isOpera(globalContext) &&
@@ -113,6 +113,10 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
 
   private static safariVersion(): string {
     return navigator.userAgent.match("Version/([0-9.]*)")?.[1];
+  }
+
+  isSafari(): boolean {
+    return this.getDevice() === DeviceType.SafariExtension;
   }
 
   /**
@@ -127,10 +131,6 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     const version = BrowserPlatformUtilsService.safariVersion();
     const parts = version?.split(".")?.map((v) => Number(v));
     return parts?.[0] < 16 || (parts?.[0] === 16 && parts?.[1] === 0);
-  }
-
-  isSafari(): boolean {
-    return this.getDevice() === DeviceType.SafariExtension;
   }
 
   isIE(): boolean {
