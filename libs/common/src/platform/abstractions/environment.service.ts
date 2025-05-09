@@ -134,4 +134,11 @@ export abstract class EnvironmentService {
    * @deprecated Use {@link getEnvironment$} instead.
    */
   abstract getEnvironment(userId?: string): Promise<Environment | undefined>;
+
+  /**
+   * Get the managed environment configuration if one exists.
+   * @typeParam T - The type of the managed environment configuration.
+   * @returns A promise that resolves to the managed environment configuration or null if it doesn't exist.
+   */
+  abstract getManagedEnvironment<T = unknown>(): Promise<T | null>;
 }

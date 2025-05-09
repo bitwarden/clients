@@ -100,6 +100,13 @@ export class WebEnvironmentService extends DefaultEnvironmentService {
     // This return shouldn't matter as we are about to leave the current window
     return chosenRegionConfig.urls;
   }
+
+  /**
+   * No-op for web environment service.
+   */
+  async getManagedEnvironment(): Promise<null> {
+    return null;
+  }
 }
 
 export class WebCloudEnvironment extends CloudEnvironment {

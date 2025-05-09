@@ -293,6 +293,13 @@ export class DefaultEnvironmentService implements EnvironmentService {
     const global = await firstValueFrom(this.globalState.state$);
     await this.stateProvider.getUser(userId, USER_ENVIRONMENT_KEY).update(() => global);
   }
+
+  /**
+   * No-op for default environment service.
+   */
+  async getManagedEnvironment<T = unknown>(): Promise<T | null> {
+    return null;
+  }
 }
 
 function formatUrl(url: string): string {

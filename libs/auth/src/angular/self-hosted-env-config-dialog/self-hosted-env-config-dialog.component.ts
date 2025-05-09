@@ -1,5 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
+import { DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import {
@@ -11,12 +10,13 @@ import {
   ValidationErrors,
   ValidatorFn,
 } from "@angular/forms";
-import { Subject, firstValueFrom, take, filter, takeUntil } from "rxjs";
+import { Subject, firstValueFrom, filter, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   EnvironmentService,
   Region,
+  Urls,
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import {
   DialogRef,
@@ -81,19 +81,17 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
       disableClose: false,
     });
 
-    const dialogResult = await firstValueFrom(dialogRef.closed);
-
-    return dialogResult;
+    return (await firstValueFrom(dialogRef.closed)) ?? false;
   }
 
   formGroup = this.formBuilder.group(
     {
-      baseUrl: [null],
-      webVaultUrl: [null],
-      apiUrl: [null],
-      identityUrl: [null],
-      iconsUrl: [null],
-      notificationsUrl: [null],
+      baseUrl: [""],
+      webVaultUrl: [""],
+      apiUrl: [""],
+      identityUrl: [""],
+      iconsUrl: [""],
+      notificationsUrl: [""],
     },
     { validators: selfHostedEnvSettingsFormValidator() },
   );
@@ -133,32 +131,43 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
     private environmentService: EnvironmentService,
   ) {}
 
-  ngOnInit() {
-    /**
-     * Populate the form with the current self-hosted environment settings.
-     */
+  async ngOnInit() {
     this.environmentService.environment$
       .pipe(
-        take(1),
         filter((env) => {
           const region = env.getRegion();
           return region === Region.SelfHosted;
         }),
         takeUntil(this.destroy$),
       )
-      .subscribe({
-        next: (env) => {
-          const urls = env.getUrls();
-          this.formGroup.patchValue({
-            baseUrl: urls.base || "",
-            webVaultUrl: urls.webVault || "",
-            apiUrl: urls.api || "",
-            identityUrl: urls.identity || "",
-            iconsUrl: urls.icons || "",
-            notificationsUrl: urls.notifications || "",
-          });
-        },
+      .subscribe((env) => {
+        const urls = env.getUrls();
+        this.formGroup.patchValue({
+          baseUrl: urls.base || "",
+          webVaultUrl: urls.webVault || "",
+          apiUrl: urls.api || "",
+          identityUrl: urls.identity || "",
+          iconsUrl: urls.icons || "",
+          notificationsUrl: urls.notifications || "",
+        });
       });
+
+    // Check if all form fields are empty
+    const allFieldsEmpty =
+      !this.baseUrl.value &&
+      !this.webVaultUrl.value &&
+      !this.apiUrl.value &&
+      !this.identityUrl.value &&
+      !this.iconsUrl.value &&
+      !this.notificationsUrl.value;
+
+    // If all fields are empty, set the environment to the managed environment as a fallback
+    if (allFieldsEmpty) {
+      const managedEnvironment = await this.environmentService.getManagedEnvironment<Urls>();
+      if (managedEnvironment) {
+        await this.environmentService.setEnvironment(Region.SelfHosted, managedEnvironment);
+      }
+    }
   }
 
   submit = async () => {
