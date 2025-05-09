@@ -7,13 +7,13 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { BadgeSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/badge-settings.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import MainBackground from "../../background/main.background";
 import IconDetails from "../../vault/background/models/icon-details";
 import { BrowserApi } from "../browser/browser-api";
+import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
 
 export type BadgeOptions = {
   tab?: chrome.tabs.Tab;
@@ -28,7 +28,6 @@ export class UpdateBadge {
   private badgeAction: typeof chrome.action | typeof chrome.browserAction;
   private sidebarAction: OperaSidebarAction | FirefoxSidebarAction;
   private win: Window & typeof globalThis;
-  private platformUtilsService: PlatformUtilsService;
 
   constructor(win: Window & typeof globalThis, services: MainBackground) {
     this.badgeAction = BrowserApi.getBrowserAction();
@@ -39,7 +38,6 @@ export class UpdateBadge {
     this.authService = services.authService;
     this.cipherService = services.cipherService;
     this.accountService = services.accountService;
-    this.platformUtilsService = services.platformUtilsService;
   }
 
   async run(opts?: { tabId?: number; windowId?: number }): Promise<void> {
@@ -131,7 +129,7 @@ export class UpdateBadge {
         38: "/images/icon38" + iconSuffix + ".png",
       },
     };
-    if (windowId && this.platformUtilsService.isFirefox()) {
+    if (windowId && BrowserPlatformUtilsService.isFirefox()) {
       options.windowId = windowId;
     }
 
@@ -206,7 +204,9 @@ export class UpdateBadge {
   }
 
   private get useSyncApiCalls() {
-    return this.platformUtilsService.isFirefox() || this.platformUtilsService.isSafari();
+    return (
+      BrowserPlatformUtilsService.isFirefox() || BrowserPlatformUtilsService.isSafari(this.win)
+    );
   }
 
   private isOperaSidebar(
