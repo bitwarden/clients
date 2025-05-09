@@ -5054,9 +5054,6 @@
   "singleOrgBlockCreateMessage": {
     "message": "Jelenlegi szervezetének van olyan irányelve, amely nem engedélyezi, hogy több szervezethez csatlakozzunk. Lépjünk kapcsolatba szervezetünk adminisztrátorával vagy regisztráljunk egy másik Bitwarden fiókból."
   },
-  "singleOrgPolicyWarning": {
-    "message": "A szervezet azon tagjait, akik nem tulajdonosok vagy rendszergazdák, és már egy másik szervezet tagjai, eltávolítjáara kerülnek a szervezetből."
-  },
   "singleOrgPolicyMemberWarning": {
     "message": "A nem megfelelő tagok visszavont státuszba kerülnek mindaddig, amíg ki nem lépnek az összes többi szervezetből. Az adminisztrátorok mentesülnek és visszaállíthatják a tagokat, ha megfelelnek a megfelelőségnek."
   },
@@ -5885,15 +5882,6 @@
   },
   "fingerprintPhrase": {
     "message": "Ujjlenyomat kifejezés:"
-  },
-  "removeUsers": {
-    "message": "Felhasználók eltávolítása"
-  },
-  "revokeUsers": {
-    "message": "Felhasználók visszavonása"
-  },
-  "restoreUsers": {
-    "message": "Felhasználók helyreállítása"
   },
   "error": {
     "message": "Hiba"
@@ -7836,12 +7824,6 @@
   "noDomainsSubText": {
     "message": "A domain csatlakoztatása lehetővé teszi a tagoknak, hogy kihagyják az SSO azonosító mezőt az SSO-val bejelentkezés során."
   },
-  "verifyDomain": {
-    "message": "Domain ellenőrzése"
-  },
-  "reverifyDomain": {
-    "message": "Domain ismételt ellenőrzése"
-  },
   "copyDnsTxtRecord": {
     "message": "DNS TXT rekord másolása"
   },
@@ -7850,18 +7832,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "A TXT rekord másolása és bellesztése a DNS szolgáltatóba."
-  },
-  "domainNameInputHint": {
-    "message": "Példa: mydomain.com. Az aldomainekhez külön bejegyzések szükségesek az ellenőrzéshez."
-  },
-  "automaticDomainVerification": {
-    "message": "Automatikus domain ellenőrzés"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "A Bitwarden az első 72 óra során háromszor kísérli meg a domain ellenőrzését. Ha a domain nem ellenőrizhető, ellenőrizzük a DNS rekordot a kiszolgálón és ellenőrizzük azt  manuálisan. A domain 7 napon belül eltávolításra kerül, ha nem kerül ellenőrzésre."
-  },
-  "invalidDomainNameMessage": {
-    "message": "A bemeneti formátum nem érvényes. Formátum: mydomain.com. Az aldomainekhez külön bejegyzések szükségesek az ellenőrzéshez."
   },
   "removeDomain": {
     "message": "Domain eltávolítása"
@@ -7875,9 +7845,6 @@
   "domainSaved": {
     "message": "A domain mentésre került."
   },
-  "domainVerified": {
-    "message": "A domain ellenőrzésre került."
-  },
   "duplicateDomainError": {
     "message": "Nem igényelhető kétszer ugyanaz a domain."
   },
@@ -7889,21 +7856,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ nincs ellenőrizve. Ellenőrizzük a DNS rekordot.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Ellenőrzött"
-  },
-  "domainStatusUnverified": {
-    "message": "Nem ellenőrzött"
   },
   "domainNameTh": {
     "message": "Név"
@@ -7931,24 +7883,6 @@
   },
   "removedDomain": {
     "message": "$DOMAIN$ domain eltávolításra került.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ ellenőrzésre került.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ nem lett ellenőrizve.",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -9479,11 +9413,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "A számlázás kezelése a szolgáltatói portálon keresztül"
   },
+  "continueSettingUp": {
+    "message": "A Bitwarden beüzemelésének folytatása"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Folytassuk a Bitwarden ingyenes próbaverziójának beállítását."
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Folytassuk a Bitwarden jelszókezelő beüzemelését."
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Folytassuk a Bitwarden jelszókezelő ingyenes próbaverziójának beállítását."
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Folytassuk a Bitwarden titkos kód kezelő beüzemelését."
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Folytassuk a Bitwarden titkos kód kezelő ingyenes próbaverziójának beállítását."
@@ -10245,42 +10188,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Fontos megjegyzés"
-  },
-  "setupTwoStepLogin": {
-    "message": "Kétfaktoros bejelentkezés beállítása"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "A Bitwarden 2025 februárjától kódot küld a fiókhoz tartozó email-címre, amellyel ellenőrizhetők az új eszközökről történő bejelentkezések."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "A fiók védelmének alternatív módjaként beállíthatunk kétlépcsős bejelentkezést vagy módosíthatjuk az email címet egy elérhetőre."
-  },
-  "remindMeLater": {
-    "message": "Emlékeztetés később"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Megbízható a hozzáférés $EMAIL$ email címhez?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Nem, nem érem el"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Igen, megbízhatóan hozzáférek az emailjeimhez"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Kétlépéses bejelentkezés bekapcsolása"
-  },
-  "changeAcctEmail": {
-    "message": "Fiók email cím megváltoztatása"
-  },
   "removeMembers": {
     "message": "Tagok eltávolítása"
   },
@@ -10637,8 +10544,20 @@
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
   },
-  "newLoginNudgeBody": {
-    "message": "Include a Website so this login appears as an autofill suggestion."
+  "newLoginNudgeBodyOne": {
+    "message": "Bevonás:",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Webhely",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "így ez a bejelentkezés automatikus kitöltési javaslatként jelenik meg.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Seamless online checkout"
@@ -10661,8 +10580,15 @@
   "newSshNudgeTitle": {
     "message": "Developer-friendly SSH access"
   },
-  "newSshNudgeBody": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  "newSshNudgeBodyOne": {
+    "message": "Tároljuk el a kulcsokat és csatlakozzunk az SSH ügynökhöz a gyors, titkosított hitelesítéshez.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "További információ az SSH ügynökről",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "restart": {
     "message": "Újraindítás"

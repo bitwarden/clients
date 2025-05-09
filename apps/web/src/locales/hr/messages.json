@@ -3318,7 +3318,7 @@
     "message": "Vanjski id je nešifrirana referenca koju koristi Bitwarden Directory Connector i API."
   },
   "ssoExternalId": {
-    "message": "SSO External ID"
+    "message": "SSO vanjski Id"
   },
   "ssoExternalIdDesc": {
     "message": "SSO External ID is an unencrypted reference between Bitwarden and your configured SSO provider."
@@ -5054,9 +5054,6 @@
   "singleOrgBlockCreateMessage": {
     "message": "Tvoja organizacija ima pravilo koje ti ne dozvoljava pridruživanje drugim organizacijama. Molimo kontaktiraj administratora svoje organizacije ili se prijavi s privatnim Bitwarden računom."
   },
-  "singleOrgPolicyWarning": {
-    "message": "Članovi organizacije koji nisu Vlasnici ili Administratori, a već su članovi neke druge organizacije, biti će uklonjeni iz tvoje organizacije."
-  },
   "singleOrgPolicyMemberWarning": {
     "message": "Nesukladni članovi bit će opozvani dok ne napuste sve druge organizacije. Administratori su izuzeti i mogu vratiti članove nakon što se ispuni usklađenost."
   },
@@ -5884,16 +5881,7 @@
     "message": "Otisak prsta"
   },
   "fingerprintPhrase": {
-    "message": "Fingerprint phrase:"
-  },
-  "removeUsers": {
-    "message": "Ukloni korisnike"
-  },
-  "revokeUsers": {
-    "message": "Opozovi korisnike"
-  },
-  "restoreUsers": {
-    "message": "Obnovi korisnike"
+    "message": "Jedinstvena fraza:"
   },
   "error": {
     "message": "Greška"
@@ -6300,7 +6288,7 @@
     "message": "Besplatan Bitwarden Families"
   },
   "sponsoredBitwardenFamilies": {
-    "message": "Sponsored families"
+    "message": "Sponzorirani obiteljski paket"
   },
   "noSponsoredFamiliesMessage": {
     "message": "No sponsored families"
@@ -7836,12 +7824,6 @@
   "noDomainsSubText": {
     "message": "Povezivanje domene omogućuje članovima da preskoče polje SSO identifikatora tijekom SSO prijave."
   },
-  "verifyDomain": {
-    "message": "Potvrdi domenu"
-  },
-  "reverifyDomain": {
-    "message": "Ponovno potvrdi domenu"
-  },
   "copyDnsTxtRecord": {
     "message": "Kopiraj DNS TXT record"
   },
@@ -7850,18 +7832,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "Kopiraj i zalijepi TXT zapis kod svog DNS pružatelja usluga."
-  },
-  "domainNameInputHint": {
-    "message": "Primjer: mojadomena.hr Poddomene zahtijevaju zasebne unose za provjeru."
-  },
-  "automaticDomainVerification": {
-    "message": "Automatska potvrda domene"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden će pokušati potvrditi domenu 3 puta tijekom prva 72 sata. Ako se domena ne može potvrditi, provjeri DNS zapis na svom poslužitelju i ručno potvrdi. Domena će, ako se ne potvrdi, biti uklonjena iz vaše organizacije nakon 7 dana"
-  },
-  "invalidDomainNameMessage": {
-    "message": "Unos nije važeći. Format: mojadomena.hr Poddomene zahtijevaju zasebne unose za provjeru."
   },
   "removeDomain": {
     "message": "Ukloni domenu"
@@ -7875,9 +7845,6 @@
   "domainSaved": {
     "message": "Domena spremljena"
   },
-  "domainVerified": {
-    "message": "Domena potvrđena"
-  },
   "duplicateDomainError": {
     "message": "Ne možeš dvaput zatražiti istu domenu."
   },
@@ -7889,21 +7856,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ nije potvrđena. Provjeri svoj DNS zapis.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Potvrđena"
-  },
-  "domainStatusUnverified": {
-    "message": "Nije potvrđena"
   },
   "domainNameTh": {
     "message": "Naziv"
@@ -7931,24 +7883,6 @@
   },
   "removedDomain": {
     "message": "$DOMAIN$ domena uklonjena",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ potvrđena",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ nije potvrđena",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -9479,11 +9413,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Upravljanje naplatom s Portala pružatelja usluga"
   },
+  "continueSettingUp": {
+    "message": "Continue setting up Bitwarden"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Nastavi s postavljanjem besplatne probe Bitwardena"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Continue setting up Bitwarden Password Manager"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Nastavi s postavljanjem besplatne probe Bitwarden Upravitelja Lozinki"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Continue setting up Bitwarden Secrets Manager"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Nastavi s postavljanjem besplatne probe Btwarden Secrets Managera"
@@ -10245,42 +10188,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Važna napomena"
-  },
-  "setupTwoStepLogin": {
-    "message": "Postavi dvostruku autentifikaciju"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden će, počevši od veljače 2025., za provjeru prijava s novih uređaja poslati kôd na e-poštu tvog računa."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Prijavu dvostrukom autentifikacijom možeš postaviti kao alternativni način zaštite svog računa ili promijeni svoju e-poštu u onu kojoj možeš pristupiti."
-  },
-  "remindMeLater": {
-    "message": "Podsjeti me kasnije"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Imaš li pouzdan pristup svojoj e-pošti: $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Ne, nemam"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Da, pouzdano mogu pristupiti svojoj e-pošti"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Uključi prijavu dvostrukom autentifikacijom"
-  },
-  "changeAcctEmail": {
-    "message": "Promjeni e-poštu računa"
-  },
   "removeMembers": {
     "message": "Ukloni članove"
   },
@@ -10385,16 +10292,16 @@
     "message": "Your master password and encryption keys have been updated. Your other devices have been logged out."
   },
   "trustUserEmergencyAccess": {
-    "message": "Trust and confirm user"
+    "message": "Vjeruj i potvrdi korisnika"
   },
   "trustOrganization": {
-    "message": "Trust organization"
+    "message": "Vjeruj organizaciji"
   },
   "trust": {
-    "message": "Trust"
+    "message": "Vjeruj"
   },
   "doNotTrust": {
-    "message": "Do not trust"
+    "message": "Nemoj vjerovati"
   },
   "organizationNotTrusted": {
     "message": "Organization is not trusted"
@@ -10635,37 +10542,56 @@
     "message": "New business unit"
   },
   "newLoginNudgeTitle": {
-    "message": "Save time with autofill"
+    "message": "Uštedi vrijeme s auto-ispunom"
   },
-  "newLoginNudgeBody": {
-    "message": "Include a Website so this login appears as an autofill suggestion."
+  "newLoginNudgeBodyOne": {
+    "message": "Uključi",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "web stranicu",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "kako bi ova prijava bila predložena u auto-ispuni.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Seamless online checkout"
   },
   "newCardNudgeBody": {
-    "message": "With cards, easily autofill payment forms securely and accurately."
+    "message": "S karticama jednostavno i sigurno automatski ispunjavaš obrasce za plaćanje."
   },
   "newIdentityNudgeTitle": {
-    "message": "Simplify creating accounts"
+    "message": "Pojednostavi stvaranje računa"
   },
   "newIdentityNudgeBody": {
-    "message": "With identities, quickly autofill long registration or contact forms."
+    "message": "S identitetima brzo automatski ispunjavaš duge registracijske i kontaktne obrasce."
   },
   "newNoteNudgeTitle": {
-    "message": "Keep your sensitive data safe"
+    "message": "Čuvaj svoje osjetljive podatke na sigurnom"
   },
   "newNoteNudgeBody": {
-    "message": "With notes, securely store sensitive data like banking or insurance details."
+    "message": "S bilješkama sigurno pohrani svoje osjetljive podatke poput podataka o banci ili osiguranju."
   },
   "newSshNudgeTitle": {
     "message": "Developer-friendly SSH access"
   },
-  "newSshNudgeBody": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  "newSshNudgeBodyOne": {
+    "message": "Pohrani svoje ključeve i poveži se sa SSH agentom za brzu, šifriranu autentifikaciju.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Saznaj više o SSH agentu",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "restart": {
-    "message": "Restart"
+    "message": "Saznaj više o SSH agentu"
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."

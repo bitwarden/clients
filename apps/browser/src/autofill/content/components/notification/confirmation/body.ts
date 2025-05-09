@@ -3,7 +3,7 @@ import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { themes } from "../../constants/styles";
+import { spacing, themes } from "../../constants/styles";
 import { Celebrate, Keyhole, Warning } from "../../illustrations";
 
 import { NotificationConfirmationMessage } from "./message";
@@ -66,7 +66,7 @@ const iconContainerStyles = (error?: string) => css`
   }
 `;
 const notificationConfirmationBodyStyles = ({ theme }: { theme: Theme }) => css`
-  gap: 16px;
+  gap: ${spacing[4]};
   display: flex;
   align-items: center;
   justify-content: flex-start;
