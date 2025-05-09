@@ -118,7 +118,7 @@ export const DefaultFeatureFlagValue = {
   /* Auth */
   [FeatureFlag.PM9112_DeviceApprovalPersistence]: FALSE,
   [FeatureFlag.PM9115_TwoFactorExtensionDataPersistence]: FALSE,
-  [FeatureFlag.PM14939_ExtensionApproval]: FALSE,
+  [FeatureFlag.PM14939_ExtensionApproval]: true,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,

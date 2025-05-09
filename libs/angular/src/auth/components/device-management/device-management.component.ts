@@ -1,12 +1,11 @@
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, OnInit, inject } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/auth/common";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import { DeviceView } from "@bitwarden/common/auth/abstractions/devices/views/device.view";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ButtonModule, PopoverModule } from "@bitwarden/components";
 
@@ -14,64 +13,54 @@ import { DeviceManagementItemGroupComponent } from "./device-management-item-gro
 import { DeviceManagementTableComponent } from "./device-management-table.component";
 
 /**
- * Parent component that decides which view to render based on viewport width
- * Responsible for fetching device data for child components
+ * The `DeviceManagementComponent` fetches user devices and passes them down
+ * to a child component for display.
+ *
+ * The specific child component that gets displayed depends on the viewport width:
+ * - Medium to Large screens = `bit-table` view
+ * - Small screens = `bit-item-group` view
  */
 @Component({
+  standalone: true,
   selector: "auth-device-management",
   templateUrl: "./device-management.component.html",
-  standalone: true,
   imports: [
-    CommonModule,
-    JslibModule,
     ButtonModule,
-    PopoverModule,
-    DeviceManagementTableComponent,
+    CommonModule,
     DeviceManagementItemGroupComponent,
+    DeviceManagementTableComponent,
+    JslibModule,
+    PopoverModule,
   ],
 })
 export class DeviceManagementComponent implements OnInit {
-  protected loading = true;
   protected asyncActionLoading = false;
-  protected devices: DeviceView[] = [];
-  protected currentDevice: DeviceView | undefined;
-
-  private destroyRef = inject(DestroyRef);
+  protected currentDevice?: DeviceView;
+  protected devices?: DeviceView[];
+  protected initializing = true;
+  protected showHeaderInfo = false;
 
   constructor(
-    protected deviceManagementComponentService: DeviceManagementComponentServiceAbstraction,
+    private deviceManagementComponentService: DeviceManagementComponentServiceAbstraction,
     private devicesService: DevicesServiceAbstraction,
-    private i18nService: I18nService,
     private validationService: ValidationService,
-  ) {}
-
-  async ngOnInit() {
-    try {
-      await this.loadDevices();
-    } catch (error) {
-      this.validationService.showError(error);
-    }
+  ) {
+    this.showHeaderInfo = this.deviceManagementComponentService.showHeaderInformation();
   }
 
-  /**
-   * Load current device and all devices
-   */
-  private async loadDevices(): Promise<void> {
+  async ngOnInit() {
     try {
       const currentDevice = await firstValueFrom(this.devicesService.getCurrentDevice$());
       const devices = await firstValueFrom(this.devicesService.getDevices$());
 
-      if (!currentDevice || !devices) {
-        this.loading = false;
-        return;
+      if (currentDevice && devices) {
+        this.currentDevice = new DeviceView(currentDevice);
+        this.devices = devices;
       }
-
-      this.currentDevice = new DeviceView(currentDevice);
-      this.devices = devices;
-    } catch (error) {
-      this.validationService.showError(error);
+    } catch (e) {
+      this.validationService.showError(e);
     } finally {
-      this.loading = false;
+      this.initializing = false;
     }
   }
 }
