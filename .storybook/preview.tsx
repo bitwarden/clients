@@ -26,6 +26,13 @@ const preview: Preview = {
     wrapperDecorator,
   ],
   parameters: {
+    a11y: {
+      element: "#storybook-root",
+      manual: true,
+      options: {
+        runOnly: ["section508", "wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"],
+      },
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,
