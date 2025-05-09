@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import {
   Component,
+  DestroyRef,
   NgZone,
   OnDestroy,
   OnInit,
@@ -16,6 +17,7 @@ import { filter, firstValueFrom, map, Subject, switchMap, takeUntil, timeout } f
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
+import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { FingerprintDialogComponent, LoginApprovalComponent } from "@bitwarden/auth/angular";
 import { DESKTOP_SSO_CALLBACK, LogoutReason } from "@bitwarden/auth/common";
@@ -156,8 +158,13 @@ export class AppComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private organizationService: OrganizationService,
     private deviceTrustToastService: DeviceTrustToastService,
+    private readonly destroyRef: DestroyRef,
+    private readonly documentLangSetter: DocumentLangSetter,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
+
+    const langSubscription = this.documentLangSetter.start();
+    this.destroyRef.onDestroy(() => langSubscription.unsubscribe());
   }
 
   ngOnInit() {
