@@ -6,13 +6,15 @@ import { firstValueFrom, from, lastValueFrom, map } from "rxjs";
 import { debounceTime, first, switchMap } from "rxjs/operators";
 
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { ProviderStatusType, ProviderUserType } from "@bitwarden/common/admin-console/enums";
+import {
+  ProviderStatusType,
+  ProviderType,
+  ProviderUserType,
+} from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import {
@@ -69,9 +71,10 @@ export class ManageClientsComponent {
 
   protected searchControl = new FormControl("", { nonNullable: true });
   protected plans: PlanResponse[] = [];
-  protected addExistingOrgsFromProviderPortal$ = this.configService.getFeatureFlag$(
-    FeatureFlag.PM15179_AddExistingOrgsFromProviderPortal,
-  );
+
+  pageTitle = this.i18nService.t("clients");
+  clientColumnHeader = this.i18nService.t("client");
+  newClientButtonLabel = this.i18nService.t("newClient");
 
   constructor(
     private billingApiService: BillingApiServiceAbstraction,
@@ -83,7 +86,6 @@ export class ManageClientsComponent {
     private toastService: ToastService,
     private validationService: ValidationService,
     private webProviderService: WebProviderService,
-    private configService: ConfigService,
     private billingNotificationService: BillingNotificationService,
   ) {
     this.activatedRoute.queryParams.pipe(first(), takeUntilDestroyed()).subscribe((queryParams) => {
@@ -124,6 +126,11 @@ export class ManageClientsComponent {
   async load() {
     try {
       this.provider = await firstValueFrom(this.providerService.get$(this.providerId));
+      if (this.provider?.providerType === ProviderType.BusinessUnit) {
+        this.pageTitle = this.i18nService.t("businessUnits");
+        this.clientColumnHeader = this.i18nService.t("businessUnit");
+        this.newClientButtonLabel = this.i18nService.t("newBusinessUnit");
+      }
       this.isProviderAdmin = this.provider?.type === ProviderUserType.ProviderAdmin;
       this.dataSource.data = (
         await this.billingApiService.getProviderClientOrganizations(this.providerId)

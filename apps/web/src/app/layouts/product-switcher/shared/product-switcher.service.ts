@@ -19,6 +19,7 @@ import {
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
+import { ProviderType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -153,6 +154,11 @@ export class ProductSwitcherService {
       // TODO: This should be migrated to an Observable provided by the provider service and moved to the combineLatest above. See AC-2092.
       const providers = await this.providerService.getAll();
 
+      const providerPortalName =
+        providers[0]?.providerType === ProviderType.BusinessUnit
+          ? "Business Unit Portal"
+          : "Provider Portal";
+
       const orgsMarketingRoute = this.platformUtilsService.isSelfHost()
         ? {
             route: "https://bitwarden.com/products/business/",
@@ -201,7 +207,7 @@ export class ProductSwitcherService {
           isActive: this.router.url.includes("/organizations/"),
         },
         provider: {
-          name: "Provider Portal",
+          name: providerPortalName,
           icon: "bwi-provider",
           appRoute: ["/providers", providers[0]?.id],
           isActive: this.router.url.includes("/providers/"),

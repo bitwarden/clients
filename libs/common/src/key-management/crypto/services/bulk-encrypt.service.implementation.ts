@@ -4,13 +4,21 @@ import { firstValueFrom, fromEvent, filter, map, takeUntil, defaultIfEmpty, Subj
 import { Jsonify } from "type-fest";
 
 import { BulkEncryptService } from "@bitwarden/common/key-management/crypto/abstractions/bulk-encrypt.service";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Decryptable } from "@bitwarden/common/platform/interfaces/decryptable.interface";
 import { InitializerMetadata } from "@bitwarden/common/platform/interfaces/initializer-metadata.interface";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { getClassInitializer } from "@bitwarden/common/platform/services/cryptography/get-class-initializer";
+
+import {
+  DefaultFeatureFlagValue,
+  FeatureFlag,
+  getFeatureFlagValue,
+} from "../../../enums/feature-flag.enum";
+import { ServerConfig } from "../../../platform/abstractions/config/server-config";
+import { buildDecryptMessage, buildSetConfigMessage } from "../types/worker-command.type";
 
 // TTL (time to live) is not strictly required but avoids tying up memory resources if inactive
 const workerTTL = 60000; // 1 minute
@@ -20,6 +28,8 @@ const minNumberOfItemsForMultithreading = 400;
 export class BulkEncryptServiceImplementation implements BulkEncryptService {
   private workers: Worker[] = [];
   private timeout: any;
+  private currentServerConfig: ServerConfig | undefined = undefined;
+  protected useSDKForDecryption: boolean = DefaultFeatureFlagValue[FeatureFlag.UseSDKForDecryption];
 
   private clear$ = new Subject<void>();
 
@@ -44,7 +54,7 @@ export class BulkEncryptServiceImplementation implements BulkEncryptService {
       return [];
     }
 
-    if (typeof window === "undefined") {
+    if (typeof window === "undefined" || this.useSDKForDecryption) {
       this.logService.info("Window not available in BulkEncryptService, decrypting sequentially");
       const results = [];
       for (let i = 0; i < items.length; i++) {
@@ -55,6 +65,12 @@ export class BulkEncryptServiceImplementation implements BulkEncryptService {
 
     const decryptedItems = await this.getDecryptedItemsFromWorkers(items, key);
     return decryptedItems;
+  }
+
+  onServerConfigChange(newConfig: ServerConfig): void {
+    this.currentServerConfig = newConfig;
+    this.useSDKForDecryption = getFeatureFlagValue(newConfig, FeatureFlag.UseSDKForDecryption);
+    this.updateWorkerServerConfigs(newConfig);
   }
 
   /**
@@ -93,6 +109,9 @@ export class BulkEncryptServiceImplementation implements BulkEncryptService {
           ),
         );
       }
+      if (this.currentServerConfig != undefined) {
+        this.updateWorkerServerConfigs(this.currentServerConfig);
+      }
     }
 
     const itemsPerWorker = Math.floor(items.length / this.workers.length);
@@ -108,17 +127,18 @@ export class BulkEncryptServiceImplementation implements BulkEncryptService {
         itemsForWorker.push(...items.slice(end));
       }
 
-      const request = {
-        id: Utils.newGuid(),
+      const id = Utils.newGuid();
+      const request = buildDecryptMessage({
+        id,
         items: itemsForWorker,
         key: key,
-      };
+      });
 
-      worker.postMessage(JSON.stringify(request));
+      worker.postMessage(request);
       results.push(
         firstValueFrom(
           fromEvent(worker, "message").pipe(
-            filter((response: MessageEvent) => response.data?.id === request.id),
+            filter((response: MessageEvent) => response.data?.id === id),
             map((response) => JSON.parse(response.data.items)),
             map((items) =>
               items.map((jsonItem: Jsonify<T>) => {
@@ -141,6 +161,13 @@ export class BulkEncryptServiceImplementation implements BulkEncryptService {
     this.restartTimeout();
 
     return decryptedItems;
+  }
+
+  private updateWorkerServerConfigs(newConfig: ServerConfig) {
+    this.workers.forEach((worker) => {
+      const request = buildSetConfigMessage({ newConfig });
+      worker.postMessage(request);
+    });
   }
 
   private clear() {

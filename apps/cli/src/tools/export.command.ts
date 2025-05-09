@@ -10,8 +10,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   ExportFormat,
@@ -30,7 +28,6 @@ export class ExportCommand {
     private policyService: PolicyService,
     private eventCollectionService: EventCollectionService,
     private accountService: AccountService,
-    private configService: ConfigService,
   ) {}
 
   async run(options: OptionValues): Promise<Response> {
@@ -54,13 +51,6 @@ export class ExportCommand {
     // Any other case => returns the options.format
     const format =
       password && options.format == "json" ? "encrypted_json" : (options.format ?? "csv");
-
-    if (
-      format == "zip" &&
-      !(await this.configService.getFeatureFlag(FeatureFlag.ExportAttachments))
-    ) {
-      return Response.badRequest("Exporting attachments is not supported in this environment.");
-    }
 
     if (!this.isSupportedExportFormat(format)) {
       return Response.badRequest(

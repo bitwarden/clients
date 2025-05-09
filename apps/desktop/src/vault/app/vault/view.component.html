@@ -535,7 +535,7 @@
               *ngIf="u.canLaunch"
               (click)="launch(u)"
             >
-              <i class="bwi bwi-lg bwi-share-square" aria-hidden="true"></i>
+              <i class="bwi bwi-lg bwi-external-link" aria-hidden="true"></i>
             </button>
             <button
               type="button"
@@ -656,7 +656,11 @@
       class="primary"
       (click)="restore()"
       appA11yTitle="{{ 'restore' | i18n }}"
-      *ngIf="cipher.isDeleted"
+      *ngIf="
+        (limitItemDeletion$ | async)
+          ? (canRestoreCipher$ | async) && cipher.isDeleted
+          : cipher.isDeleted
+      "
     >
       <i class="bwi bwi-undo bwi-fw bwi-lg" aria-hidden="true"></i>
     </button>

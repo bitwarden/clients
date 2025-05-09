@@ -3,9 +3,9 @@
 import { firstValueFrom, map } from "rxjs";
 
 import {
-  CollectionService,
   CollectionData,
   CollectionDetailsResponse,
+  CollectionService,
 } from "@bitwarden/admin-console/common";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -54,6 +54,7 @@ import { MessageSender } from "../messaging";
 import { StateProvider } from "../state";
 
 import { CoreSyncService } from "./core-sync.service";
+import { SyncOptions } from "./sync.service";
 
 export class DefaultSyncService extends CoreSyncService {
   syncInProgress = false;
@@ -102,12 +103,20 @@ export class DefaultSyncService extends CoreSyncService {
     );
   }
 
-  override async fullSync(forceSync: boolean, allowThrowOnError = false): Promise<boolean> {
+  override async fullSync(
+    forceSync: boolean,
+    allowThrowOnErrorOrOptions?: boolean | SyncOptions,
+  ): Promise<boolean> {
+    const { allowThrowOnError = false, skipTokenRefresh = false } =
+      typeof allowThrowOnErrorOrOptions === "boolean"
+        ? { allowThrowOnError: allowThrowOnErrorOrOptions }
+        : (allowThrowOnErrorOrOptions ?? {});
+
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     this.syncStarted();
     const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
     if (authStatus === AuthenticationStatus.LoggedOut) {
-      return this.syncCompleted(false);
+      return this.syncCompleted(false, userId);
     }
 
     const now = new Date();
@@ -116,18 +125,20 @@ export class DefaultSyncService extends CoreSyncService {
       needsSync = await this.needsSyncing(forceSync);
     } catch (e) {
       if (allowThrowOnError) {
-        this.syncCompleted(false);
+        this.syncCompleted(false, userId);
         throw e;
       }
     }
 
     if (!needsSync) {
       await this.setLastSync(now, userId);
-      return this.syncCompleted(false);
+      return this.syncCompleted(false, userId);
     }
 
     try {
-      await this.apiService.refreshIdentityToken();
+      if (!skipTokenRefresh) {
+        await this.apiService.refreshIdentityToken();
+      }
       const response = await this.apiService.getSync();
 
       await this.syncProfile(response.profile);
@@ -139,13 +150,13 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncPolicies(response.policies, response.profile.id);
 
       await this.setLastSync(now, userId);
-      return this.syncCompleted(true);
+      return this.syncCompleted(true, userId);
     } catch (e) {
       if (allowThrowOnError) {
-        this.syncCompleted(false);
+        this.syncCompleted(false, userId);
         throw e;
       } else {
-        return this.syncCompleted(false);
+        return this.syncCompleted(false, userId);
       }
     }
   }

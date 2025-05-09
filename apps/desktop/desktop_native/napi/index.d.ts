@@ -182,3 +182,16 @@ export declare namespace autofill {
 export declare namespace crypto {
   export function argon2(secret: Buffer, salt: Buffer, iterations: number, memory: number, parallelism: number): Promise<Buffer>
 }
+export declare namespace passkey_authenticator {
+  export function register(): void
+}
+export declare namespace logging {
+  export const enum LogLevel {
+    Trace = 0,
+    Debug = 1,
+    Info = 2,
+    Warn = 3,
+    Error = 4
+  }
+  export function initNapiLog(jsLogFn: (err: Error | null, arg0: LogLevel, arg1: string) => any): void
+}

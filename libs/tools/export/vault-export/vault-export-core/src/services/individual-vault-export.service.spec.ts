@@ -5,9 +5,9 @@ import { BehaviorSubject, of } from "rxjs";
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-ids.export";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -209,7 +209,7 @@ describe("VaultExportService", () => {
     folderService.folderViews$.mockReturnValue(of(UserFolderViews));
     folderService.folders$.mockReturnValue(of(UserFolders));
     kdfConfigService.getKdfConfig.mockResolvedValue(DEFAULT_KDF_CONFIG);
-    encryptService.encrypt.mockResolvedValue(new EncString("encrypted"));
+    encryptService.encryptString.mockResolvedValue(new EncString("encrypted"));
     apiService.getAttachmentData.mockResolvedValue(attachmentResponse);
 
     exportService = new IndividualVaultExportService(
@@ -313,7 +313,7 @@ describe("VaultExportService", () => {
 
         cipherService.getAllDecrypted.mockResolvedValue([cipherView]);
         folderService.getAllDecryptedFromState.mockResolvedValue([]);
-        encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(255));
+        encryptService.decryptFileData.mockResolvedValue(new Uint8Array(255));
 
         global.fetch = jest.fn(() =>
           Promise.resolve({
@@ -338,7 +338,7 @@ describe("VaultExportService", () => {
 
       cipherService.getAllDecrypted.mockResolvedValue([cipherView]);
       folderService.getAllDecryptedFromState.mockResolvedValue([]);
-      encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(255));
+      encryptService.decryptFileData.mockResolvedValue(new Uint8Array(255));
 
       global.fetch = jest.fn(() =>
         Promise.resolve({
@@ -362,7 +362,7 @@ describe("VaultExportService", () => {
       cipherView.attachments = [attachmentView];
       cipherService.getAllDecrypted.mockResolvedValue([cipherView]);
       folderService.getAllDecryptedFromState.mockResolvedValue([]);
-      encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(255));
+      encryptService.decryptFileData.mockResolvedValue(new Uint8Array(255));
       global.fetch = jest.fn(() =>
         Promise.resolve({
           status: 200,
@@ -427,7 +427,7 @@ describe("VaultExportService", () => {
       });
 
       it("has a mac property", async () => {
-        encryptService.encrypt.mockResolvedValue(mac);
+        encryptService.encryptString.mockResolvedValue(mac);
         exportedVault = await exportService.getPasswordProtectedExport(password);
         exportString = exportedVault.data;
         exportObject = JSON.parse(exportString);
@@ -436,7 +436,7 @@ describe("VaultExportService", () => {
       });
 
       it("has data property", async () => {
-        encryptService.encrypt.mockResolvedValue(data);
+        encryptService.encryptString.mockResolvedValue(data);
         exportedVault = await exportService.getPasswordProtectedExport(password);
         exportString = exportedVault.data;
         exportObject = JSON.parse(exportString);

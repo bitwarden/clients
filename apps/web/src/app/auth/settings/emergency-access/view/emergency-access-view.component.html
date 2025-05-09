@@ -19,7 +19,7 @@
             >
             <ng-container *ngIf="currentCipher.organizationId">
               <i
-                class="bwi bwi-collection"
+                class="bwi bwi-collection-shared"
                 appStopProp
                 title="{{ 'shared' | i18n }}"
                 aria-hidden="true"
@@ -38,28 +38,6 @@
             <br />
             <small class="tw-text-xs">{{ currentCipher.subTitle }}</small>
           </td>
-          <td bitCell>
-            <div *ngIf="currentCipher.hasAttachments">
-              <button
-                [bitMenuTriggerFor]="optionsMenu"
-                type="button"
-                buttonType="main"
-                bitIconButton="bwi-ellipsis-v"
-                appA11yTitle="{{ 'options' | i18n }}"
-              ></button>
-              <bit-menu #optionsMenu>
-                <button
-                  type="button"
-                  bitMenuItem
-                  appStopClick
-                  (click)="viewAttachments(currentCipher)"
-                >
-                  <i class="bwi bwi-fw bwi-paperclip" aria-hidden="true"></i>
-                  {{ "attachments" | i18n }}
-                </button>
-              </bit-menu>
-            </div>
-          </td>
         </tr>
       </ng-template>
     </bit-table>
@@ -73,5 +51,3 @@
     <span class="tw-sr-only">{{ "loading" | i18n }}</span>
   </ng-container>
 </div>
-<ng-template #cipherAddEdit></ng-template>
-<ng-template #attachments></ng-template>

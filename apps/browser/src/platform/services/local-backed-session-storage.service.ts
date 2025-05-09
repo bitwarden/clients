@@ -90,7 +90,6 @@ export class LocalBackedSessionStorageService
           this.logService.warning(
             `Possible unnecessary write to local session storage. Key: ${key}`,
           );
-          this.logService.warning(obj as any);
         }
       } catch (err) {
         this.logService.warning(`Error while comparing values for key: ${key}`);

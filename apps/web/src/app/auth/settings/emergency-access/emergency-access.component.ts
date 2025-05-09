@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { lastValueFrom, Observable, firstValueFrom, switchMap } from "rxjs";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
@@ -44,12 +44,6 @@ import {
   templateUrl: "emergency-access.component.html",
 })
 export class EmergencyAccessComponent implements OnInit {
-  @ViewChild("addEdit", { read: ViewContainerRef, static: true }) addEditModalRef: ViewContainerRef;
-  @ViewChild("takeoverTemplate", { read: ViewContainerRef, static: true })
-  takeoverModalRef: ViewContainerRef;
-  @ViewChild("confirmTemplate", { read: ViewContainerRef, static: true })
-  confirmModalRef: ViewContainerRef;
-
   loaded = false;
   canAccessPremium$: Observable<boolean>;
   trustedContacts: GranteeEmergencyAccess[];

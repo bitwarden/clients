@@ -9,6 +9,9 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { getClassInitializer } from "@bitwarden/common/platform/services/cryptography/get-class-initializer";
 
+import { ServerConfig } from "../../../platform/abstractions/config/server-config";
+import { buildDecryptMessage, buildSetConfigMessage } from "../types/worker-command.type";
+
 import { EncryptServiceImplementation } from "./encrypt.service.implementation";
 
 // TTL (time to live) is not strictly required but avoids tying up memory resources if inactive
@@ -20,6 +23,7 @@ const workerTTL = 3 * 60000; // 3 minutes
 export class MultithreadEncryptServiceImplementation extends EncryptServiceImplementation {
   private worker: Worker;
   private timeout: any;
+  private currentServerConfig: ServerConfig | undefined = undefined;
 
   private clear$ = new Subject<void>();
 
@@ -35,29 +39,39 @@ export class MultithreadEncryptServiceImplementation extends EncryptServiceImple
       return [];
     }
 
+    if (this.useSDKForDecryption) {
+      return await super.decryptItems(items, key);
+    }
+
     this.logService.info("Starting decryption using multithreading");
 
-    this.worker ??= new Worker(
-      new URL(
-        /* webpackChunkName: 'encrypt-worker' */
-        "@bitwarden/common/key-management/crypto/services/encrypt.worker.ts",
-        import.meta.url,
-      ),
-    );
+    if (this.worker == null) {
+      this.worker = new Worker(
+        new URL(
+          /* webpackChunkName: 'encrypt-worker' */
+          "@bitwarden/common/key-management/crypto/services/encrypt.worker.ts",
+          import.meta.url,
+        ),
+      );
+      if (this.currentServerConfig !== undefined) {
+        this.updateWorkerServerConfig(this.currentServerConfig);
+      }
+    }
 
     this.restartTimeout();
 
-    const request = {
-      id: Utils.newGuid(),
+    const id = Utils.newGuid();
+    const request = buildDecryptMessage({
+      id,
       items: items,
       key: key,
-    };
+    });
 
-    this.worker.postMessage(JSON.stringify(request));
+    this.worker.postMessage(request);
 
     return await firstValueFrom(
       fromEvent(this.worker, "message").pipe(
-        filter((response: MessageEvent) => response.data?.id === request.id),
+        filter((response: MessageEvent) => response.data?.id === id),
         map((response) => JSON.parse(response.data.items)),
         map((items) =>
           items.map((jsonItem: Jsonify<T>) => {
@@ -69,6 +83,19 @@ export class MultithreadEncryptServiceImplementation extends EncryptServiceImple
         defaultIfEmpty([]),
       ),
     );
+  }
+
+  override onServerConfigChange(newConfig: ServerConfig): void {
+    this.currentServerConfig = newConfig;
+    super.onServerConfigChange(newConfig);
+    this.updateWorkerServerConfig(newConfig);
+  }
+
+  private updateWorkerServerConfig(newConfig: ServerConfig) {
+    if (this.worker != null) {
+      const request = buildSetConfigMessage({ newConfig });
+      this.worker.postMessage(request);
+    }
   }
 
   private clear() {

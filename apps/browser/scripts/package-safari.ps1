@@ -52,7 +52,7 @@ foreach ($subBuildPath in $subBuildPaths) {
                 "--verbose",
                 "--force",
                 "--sign",
-                "4B9662CAB74E8E4F4ECBDD9EDEF2543659D95E3C",
+                "588E3F1724AE018EBA762E42279DAE85B313E3ED",
                 "--entitlements",
                 $entitlementsPath
             )

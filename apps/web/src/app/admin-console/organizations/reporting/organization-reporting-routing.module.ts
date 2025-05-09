@@ -9,11 +9,11 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
-import { ExposedPasswordsReportComponent } from "../../../tools/reports/pages/organizations/exposed-passwords-report.component";
-import { InactiveTwoFactorReportComponent } from "../../../tools/reports/pages/organizations/inactive-two-factor-report.component";
-import { ReusedPasswordsReportComponent } from "../../../tools/reports/pages/organizations/reused-passwords-report.component";
-import { UnsecuredWebsitesReportComponent } from "../../../tools/reports/pages/organizations/unsecured-websites-report.component";
-import { WeakPasswordsReportComponent } from "../../../tools/reports/pages/organizations/weak-passwords-report.component";
+import { ExposedPasswordsReportComponent } from "../../../dirt/reports/pages/organizations/exposed-passwords-report.component";
+import { InactiveTwoFactorReportComponent } from "../../../dirt/reports/pages/organizations/inactive-two-factor-report.component";
+import { ReusedPasswordsReportComponent } from "../../../dirt/reports/pages/organizations/reused-passwords-report.component";
+import { UnsecuredWebsitesReportComponent } from "../../../dirt/reports/pages/organizations/unsecured-websites-report.component";
+import { WeakPasswordsReportComponent } from "../../../dirt/reports/pages/organizations/weak-passwords-report.component";
 /* eslint no-restricted-imports: "error" */
 import { isPaidOrgGuard } from "../guards/is-paid-org.guard";
 import { organizationPermissionsGuard } from "../guards/org-permissions.guard";

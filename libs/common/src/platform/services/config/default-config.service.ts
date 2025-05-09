@@ -17,11 +17,7 @@ import { SemVer } from "semver";
 
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import {
-  DefaultFeatureFlagValue,
-  FeatureFlag,
-  FeatureFlagValueType,
-} from "../../../enums/feature-flag.enum";
+import { FeatureFlag, getFeatureFlagValue } from "../../../enums/feature-flag.enum";
 import { UserId } from "../../../types/guid";
 import { ConfigApiServiceAbstraction } from "../../abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "../../abstractions/config/config.service";
@@ -123,26 +119,13 @@ export class DefaultConfigService implements ConfigService {
   }
 
   getFeatureFlag$<Flag extends FeatureFlag>(key: Flag) {
-    return this.serverConfig$.pipe(
-      map((serverConfig) => this.getFeatureFlagValue(serverConfig, key)),
-    );
-  }
-
-  private getFeatureFlagValue<Flag extends FeatureFlag>(
-    serverConfig: ServerConfig | null,
-    flag: Flag,
-  ) {
-    if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
-      return DefaultFeatureFlagValue[flag];
-    }
-
-    return serverConfig.featureStates[flag] as FeatureFlagValueType<Flag>;
+    return this.serverConfig$.pipe(map((serverConfig) => getFeatureFlagValue(serverConfig, key)));
   }
 
   userCachedFeatureFlag$<Flag extends FeatureFlag>(key: Flag, userId: UserId) {
     return this.stateProvider
       .getUser(userId, USER_SERVER_CONFIG)
-      .state$.pipe(map((config) => this.getFeatureFlagValue(config, key)));
+      .state$.pipe(map((config) => getFeatureFlagValue(config, key)));
   }
 
   async getFeatureFlag<Flag extends FeatureFlag>(key: Flag) {

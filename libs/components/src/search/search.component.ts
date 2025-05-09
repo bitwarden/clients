@@ -49,7 +49,7 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   @Input() autocomplete: string;
 
   getFocusTarget() {
-    return this.input.nativeElement;
+    return this.input?.nativeElement;
   }
 
   onChange(searchText: string) {

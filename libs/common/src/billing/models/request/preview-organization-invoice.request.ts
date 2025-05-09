@@ -1,4 +1,4 @@
-import { PlanType } from "../../enums";
+import { PlanSponsorshipType, PlanType } from "../../enums";
 
 export class PreviewOrganizationInvoiceRequest {
   organizationId?: string;
@@ -21,6 +21,7 @@ export class PreviewOrganizationInvoiceRequest {
 
 class PasswordManager {
   plan: PlanType;
+  sponsoredPlan?: PlanSponsorshipType;
   seats: number;
   additionalStorage: number;
 

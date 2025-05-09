@@ -1,19 +1,23 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, HostBinding, Input } from "@angular/core";
+import { Component, Input } from "@angular/core";
 import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 
 import { Icon, isIcon } from "./icon";
 
 @Component({
   selector: "bit-icon",
+  host: {
+    "[attr.aria-hidden]": "!ariaLabel",
+    "[attr.aria-label]": "ariaLabel",
+    "[innerHtml]": "innerHtml",
+  },
   template: ``,
   standalone: true,
 })
 export class BitIconComponent {
+  innerHtml: SafeHtml | null = null;
+
   @Input() set icon(icon: Icon) {
     if (!isIcon(icon)) {
-      this.innerHtml = "";
       return;
     }
 
@@ -21,7 +25,7 @@ export class BitIconComponent {
     this.innerHtml = this.domSanitizer.bypassSecurityTrustHtml(svg);
   }
 
-  @HostBinding() innerHtml: SafeHtml;
+  @Input() ariaLabel: string | undefined = undefined;
 
   constructor(private domSanitizer: DomSanitizer) {}
 }

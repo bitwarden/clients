@@ -12,18 +12,19 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { EndUserNotificationService } from "@bitwarden/common/vault/notifications";
+import { NotificationView } from "@bitwarden/common/vault/notifications/models";
+import { SecurityTask, SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
   ChangeLoginPasswordService,
   DefaultChangeLoginPasswordService,
   PasswordRepromptService,
-  SecurityTask,
-  SecurityTaskType,
-  TaskService,
 } from "@bitwarden/vault";
 
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
@@ -68,6 +69,7 @@ describe("AtRiskPasswordsComponent", () => {
   let mockTasks$: BehaviorSubject<SecurityTask[]>;
   let mockCiphers$: BehaviorSubject<CipherView[]>;
   let mockOrgs$: BehaviorSubject<Organization[]>;
+  let mockNotifications$: BehaviorSubject<NotificationView[]>;
   let mockInlineMenuVisibility$: BehaviorSubject<InlineMenuVisibilitySetting>;
   let calloutDismissed$: BehaviorSubject<boolean>;
   const setInlineMenuVisibility = jest.fn();
@@ -75,6 +77,7 @@ describe("AtRiskPasswordsComponent", () => {
   const mockAtRiskPasswordPageService = mock<AtRiskPasswordPageService>();
   const mockChangeLoginPasswordService = mock<ChangeLoginPasswordService>();
   const mockDialogService = mock<DialogService>();
+  const mockConfigService = mock<ConfigService>();
 
   beforeEach(async () => {
     mockTasks$ = new BehaviorSubject<SecurityTask[]>([
@@ -103,6 +106,7 @@ describe("AtRiskPasswordsComponent", () => {
         name: "Org 1",
       } as Organization,
     ]);
+    mockNotifications$ = new BehaviorSubject<NotificationView[]>([]);
 
     mockInlineMenuVisibility$ = new BehaviorSubject<InlineMenuVisibilitySetting>(
       AutofillOverlayVisibility.Off,
@@ -112,6 +116,7 @@ describe("AtRiskPasswordsComponent", () => {
     setInlineMenuVisibility.mockClear();
     mockToastService.showToast.mockClear();
     mockDialogService.open.mockClear();
+    mockConfigService.getFeatureFlag.mockClear();
     mockAtRiskPasswordPageService.isCalloutDismissed.mockReturnValue(calloutDismissed$);
 
     await TestBed.configureTestingModule({
@@ -135,6 +140,12 @@ describe("AtRiskPasswordsComponent", () => {
             cipherViews$: () => mockCiphers$,
           },
         },
+        {
+          provide: EndUserNotificationService,
+          useValue: {
+            unreadNotifications$: () => mockNotifications$,
+          },
+        },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user" }) } },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
@@ -147,6 +158,7 @@ describe("AtRiskPasswordsComponent", () => {
           },
         },
         { provide: ToastService, useValue: mockToastService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     })
       .overrideModule(JslibModule, {

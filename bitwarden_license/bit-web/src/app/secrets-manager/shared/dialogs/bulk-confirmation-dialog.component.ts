@@ -1,5 +1,6 @@
-import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
+
+import { DialogRef, DIALOG_DATA } from "@bitwarden/components";
 
 export interface BulkConfirmationDetails {
   title: string;

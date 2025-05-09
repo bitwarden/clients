@@ -36,6 +36,7 @@ export const Variants: Story = {
       <button class="tw-mx-1" bitBadge variant="danger" [truncate]="truncate">Danger</button>
       <button class="tw-mx-1" bitBadge variant="warning" [truncate]="truncate">Warning</button>
       <button class="tw-mx-1" bitBadge variant="info" [truncate]="truncate">Info</button>
+      <button class="tw-mx-1" bitBadge variant="notification" [truncate]="truncate">Notification</button>
       <br/><br/>
       <span class="tw-text-main tw-mx-1">Hover</span>
       <button class="tw-mx-1 tw-test-hover" bitBadge variant="primary" [truncate]="truncate">Primary</button>
@@ -44,6 +45,7 @@ export const Variants: Story = {
       <button class="tw-mx-1 tw-test-hover" bitBadge variant="danger" [truncate]="truncate">Danger</button>
       <button class="tw-mx-1 tw-test-hover" bitBadge variant="warning" [truncate]="truncate">Warning</button>
       <button class="tw-mx-1 tw-test-hover" bitBadge variant="info" [truncate]="truncate">Info</button>
+      <button class="tw-mx-1 tw-test-hover" bitBadge variant="notification" [truncate]="truncate">Notification</button>
       <br/><br/>
       <span class="tw-text-main tw-mx-1">Focus Visible</span>
       <button class="tw-mx-1 tw-test-focus-visible" bitBadge variant="primary" [truncate]="truncate">Primary</button>
@@ -52,6 +54,7 @@ export const Variants: Story = {
       <button class="tw-mx-1 tw-test-focus-visible" bitBadge variant="danger" [truncate]="truncate">Danger</button>
       <button class="tw-mx-1 tw-test-focus-visible" bitBadge variant="warning" [truncate]="truncate">Warning</button>
       <button class="tw-mx-1 tw-test-focus-visible" bitBadge variant="info" [truncate]="truncate">Info</button>
+      <button class="tw-mx-1 tw-test-focus-visible" bitBadge variant="notification" [truncate]="truncate">Notification</button>
       <br/><br/>
       <span class="tw-text-main tw-mx-1">Disabled</span>
       <button disabled class="tw-mx-1" bitBadge variant="primary" [truncate]="truncate">Primary</button>
@@ -60,6 +63,7 @@ export const Variants: Story = {
       <button disabled class="tw-mx-1" bitBadge variant="danger" [truncate]="truncate">Danger</button>
       <button disabled class="tw-mx-1" bitBadge variant="warning" [truncate]="truncate">Warning</button>
       <button disabled class="tw-mx-1" bitBadge variant="info" [truncate]="truncate">Info</button>
+      <button disabled class="tw-mx-1" bitBadge variant="notification" [truncate]="truncate">Notification</button>
     `,
   }),
 };
@@ -109,6 +113,13 @@ export const Info: Story = {
   ...Primary,
   args: {
     variant: "info",
+  },
+};
+
+export const Notification: Story = {
+  ...Primary,
+  args: {
+    variant: "notification",
   },
 };
 

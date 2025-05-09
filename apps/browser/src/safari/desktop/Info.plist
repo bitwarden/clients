@@ -25,7 +25,7 @@
 		<key>LSMinimumSystemVersion</key>
 		<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 		<key>NSHumanReadableCopyright</key>
-		<string>Copyright © 2015-2024 Bitwarden Inc. All rights reserved.</string>
+		<string>Copyright © 2015-2025 Bitwarden Inc. All rights reserved.</string>
 		<key>NSMainStoryboardFile</key>
 		<string>Main</string>
 		<key>NSPrincipalClass</key>
