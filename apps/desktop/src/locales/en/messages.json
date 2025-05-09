@@ -3545,6 +3545,12 @@
       }
     }
   },
+  "new": {
+    "message": "New"
+  },
+  "premium": {
+    "message": "Premium"
+  },
   "backTo": {
     "message": "Back to $NAME$",
     "description": "Navigate back to a previous folder or collection",
