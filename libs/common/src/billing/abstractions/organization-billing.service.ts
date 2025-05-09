@@ -39,6 +39,7 @@ export type BillingInformation = {
 export type PaymentInformation = {
   paymentMethod: [string, PaymentMethodType];
   billing: BillingInformation;
+  skipTrial?: boolean;
 };
 
 export type SubscriptionInformation = {

@@ -174,6 +174,7 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     const [paymentToken, paymentMethodType] = information.paymentMethod;
     request.paymentToken = paymentToken;
     request.paymentMethodType = paymentMethodType;
+    request.skipTrial = information.skipTrial;
 
     const billingInformation = information.billing;
     request.billingAddressPostalCode = billingInformation.postalCode;
