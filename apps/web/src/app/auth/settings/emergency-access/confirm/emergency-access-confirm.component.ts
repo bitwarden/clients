@@ -8,6 +8,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { DialogConfig, DialogRef, DIALOG_DATA, DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum EmergencyAccessConfirmDialogResult {
   Confirmed = "confirmed",
 }
