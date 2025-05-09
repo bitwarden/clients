@@ -101,7 +101,7 @@
         "typescript-eslint",
       ],
       groupName: "Linting minor updates",
-      matchUpdateTypes: ["minor"],
+      matchUpdateTypes: ["minor", "patch"],
     },
     {
       matchPackageNames: [
