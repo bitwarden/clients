@@ -84,7 +84,7 @@
     "@webcomponents/custom-elements": "1.6.0",
     "@yao-pkg/pkg": "5.16.1",
     "angular-eslint": "18.4.3",
-    "autoprefixer": "10.4.20",
+    "autoprefixer": "10.4.21",
     "babel-loader": "9.2.1",
     "base64-loader": "1.0.0",
     "browserslist": "4.23.2",
