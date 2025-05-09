@@ -189,7 +189,7 @@
     "message": "複製備註"
   },
   "copy": {
-    "message": "Copy",
+    "message": "複製",
     "description": "Copy to clipboard"
   },
   "fill": {
@@ -541,7 +541,7 @@
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
-    "message": "企業原則之要求已在你的產生器選項中生效",
+    "message": "企業原則之要求已在您的產生器選項中生效。",
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchVault": {
@@ -799,7 +799,7 @@
     "message": "您已成功建立新帳號！"
   },
   "youHaveBeenLoggedIn": {
-    "message": "你已經登入！"
+    "message": "您已經登入！"
   },
   "youSuccessfullyLoggedIn": {
     "message": "登入成功"
@@ -860,7 +860,7 @@
     "message": "已登出"
   },
   "loggedOutDesc": {
-    "message": "你已經登出了你的帳號。"
+    "message": "您已經登出了您的帳號。"
   },
   "loginExpired": {
     "message": "您的登入階段已過期。"
@@ -872,7 +872,7 @@
     "message": "登入 Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "輸入傳送到您電子郵件信箱的驗證碼"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
     "message": "Enter the code from your authenticator app"
@@ -1076,7 +1076,7 @@
     "description": "Tooltip and Aria label for edit button on cipher item"
   },
   "newNotification": {
-    "message": "New notification"
+    "message": "新通知"
   },
   "labelWithNotification": {
     "message": "$LABEL$: New notification",
@@ -1477,13 +1477,13 @@
     "message": "將您的安全鑰匙插入電腦的 USB 連接埠，然後觸摸其按鈕（如有的話）。"
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "在新分頁中開啟"
   },
   "webAuthnAuthenticate": {
     "message": "驗證 WebAuthn"
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "讀取安全金鑰"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Awaiting security key interaction..."
@@ -1501,7 +1501,7 @@
     "message": "兩步驟登入選項"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "選擇兩步驟登入方法"
   },
   "recoveryCodeDesc": {
     "message": "無法使用任何雙因素提供程式嗎？請使用您的復原碼以停用您帳戶的所有雙因素提供程式。"
@@ -1605,7 +1605,7 @@
     "message": "適用於所有已登入的帳戶。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "關閉你的瀏覽器內建密碼管理器設定以避免衝突。"
+    "message": "關閉您的瀏覽器內建密碼管理器設定以避免衝突。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
     "message": "編輯瀏覽器設定"
@@ -1695,7 +1695,7 @@
     "message": "透過拖曳來排序"
   },
   "dragToReorder": {
-    "message": "Drag to reorder"
+    "message": "拖曳以重新排序"
   },
   "cfTypeText": {
     "message": "文字型"
@@ -3564,6 +3564,30 @@
   "deviceTrusted": {
     "message": "裝置已信任"
   },
+  "trustOrganization": {
+    "message": "Trust organization"
+  },
+  "trust": {
+    "message": "Trust"
+  },
+  "doNotTrust": {
+    "message": "Do not trust"
+  },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+  },
+  "orgTrustWarning": {
+    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+  },
+  "trustUser": {
+    "message": "Trust user"
+  },
   "sendsNoItemsTitle": {
     "message": "沒有可用的 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4488,6 +4512,27 @@
       }
     }
   },
+  "downloadBitwarden": {
+    "message": "Download Bitwarden"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Download Bitwarden on all devices"
+  },
+  "getTheMobileApp": {
+    "message": "Get the mobile app"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Access your passwords on the go with the Bitwarden mobile app."
+  },
+  "getTheDesktopApp": {
+    "message": "Get the desktop app"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Download from bitwarden.com now"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "您確定要永久刪除此附檔嗎？"
   },
@@ -5111,42 +5156,6 @@
   "beta": {
     "message": "測試版"
   },
-  "importantNotice": {
-    "message": "重要通知"
-  },
-  "setupTwoStepLogin": {
-    "message": "啟動兩階段登入"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "從 2025 年 2 月開始，Bitwarden 會傳送代碼到您的帳號電子郵件中來驗證新裝置的登入。"
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "您可以啟動兩階段認證來保護您的帳號或更改您可以存取的電子郵件位址。"
-  },
-  "remindMeLater": {
-    "message": "稍後再提醒我"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "您可以存取您的電子郵件位址 $EMAIL$ 嗎？",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "不，我不行"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "是，我可以存取我的電子郵件位址"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "啟動兩階段登入"
-  },
-  "changeAcctEmail": {
-    "message": "更改帳號電子郵件位址"
-  },
   "extensionWidth": {
     "message": "擴充套件寬度"
   },
@@ -5252,8 +5261,20 @@
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
   },
-  "newLoginNudgeBody": {
-    "message": "Include a Website so this login appears as an autofill suggestion."
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Seamless online checkout"
@@ -5276,7 +5297,14 @@
   "newSshNudgeTitle": {
     "message": "Developer-friendly SSH access"
   },
-  "newSshNudgeBody": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

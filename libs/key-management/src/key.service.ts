@@ -1045,9 +1045,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
               if (BaseEncryptedOrganizationKey.isProviderEncrypted(encrypted)) {
                 if (providerKeys == null) {
-                  throw new Error("No provider keys found.");
+                  continue;
                 }
-                decrypted = await encrypted.decrypt(this.encryptService, providerKeys);
+                decrypted = await encrypted.decrypt(this.encryptService, providerKeys!);
               } else {
                 decrypted = await encrypted.decrypt(this.encryptService, userPrivateKey);
               }

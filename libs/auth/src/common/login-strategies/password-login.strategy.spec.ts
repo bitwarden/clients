@@ -184,7 +184,6 @@ describe("PasswordLoginStrategy", () => {
           provider: null,
           token: null,
         }),
-        captchaResponse: undefined,
       }),
     );
   });
@@ -211,20 +210,18 @@ describe("PasswordLoginStrategy", () => {
   it("does not force the user to update their master password when there are no requirements", async () => {
     apiService.postIdentityToken.mockResolvedValueOnce(identityTokenResponseFactory());
 
-    const result = await passwordLoginStrategy.logIn(credentials);
+    await passwordLoginStrategy.logIn(credentials);
 
     expect(policyService.evaluateMasterPassword).not.toHaveBeenCalled();
-    expect(result.forcePasswordReset).toEqual(ForceSetPasswordReason.None);
   });
 
   it("does not force the user to update their master password when it meets requirements", async () => {
     passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 5 } as any);
     policyService.evaluateMasterPassword.mockReturnValue(true);
 
-    const result = await passwordLoginStrategy.logIn(credentials);
+    await passwordLoginStrategy.logIn(credentials);
 
     expect(policyService.evaluateMasterPassword).toHaveBeenCalled();
-    expect(result.forcePasswordReset).toEqual(ForceSetPasswordReason.None);
   });
 
   it("forces the user to update their master password on successful login when it does not meet master password policy requirements", async () => {
@@ -232,14 +229,13 @@ describe("PasswordLoginStrategy", () => {
     policyService.evaluateMasterPassword.mockReturnValue(false);
     tokenService.decodeAccessToken.mockResolvedValue({ sub: userId });
 
-    const result = await passwordLoginStrategy.logIn(credentials);
+    await passwordLoginStrategy.logIn(credentials);
 
     expect(policyService.evaluateMasterPassword).toHaveBeenCalled();
     expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
       ForceSetPasswordReason.WeakMasterPassword,
       userId,
     );
-    expect(result.forcePasswordReset).toEqual(ForceSetPasswordReason.WeakMasterPassword);
   });
 
   it("forces the user to update their master password on successful 2FA login when it does not meet master password policy requirements", async () => {
@@ -257,30 +253,23 @@ describe("PasswordLoginStrategy", () => {
 
     // First login request fails requiring 2FA
     apiService.postIdentityToken.mockResolvedValueOnce(token2FAResponse);
-    const firstResult = await passwordLoginStrategy.logIn(credentials);
+    await passwordLoginStrategy.logIn(credentials);
 
     // Second login request succeeds
     apiService.postIdentityToken.mockResolvedValueOnce(
       identityTokenResponseFactory(masterPasswordPolicy),
     );
-    const secondResult = await passwordLoginStrategy.logInTwoFactor(
-      {
-        provider: TwoFactorProviderType.Authenticator,
-        token: "123456",
-        remember: false,
-      },
-      "",
-    );
+    await passwordLoginStrategy.logInTwoFactor({
+      provider: TwoFactorProviderType.Authenticator,
+      token: "123456",
+      remember: false,
+    });
 
-    // First login attempt should not save the force password reset options
-    expect(firstResult.forcePasswordReset).toEqual(ForceSetPasswordReason.None);
-
-    // Second login attempt should save the force password reset options and return in result
+    // Second login attempt should save the force password reset options
     expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
       ForceSetPasswordReason.WeakMasterPassword,
       userId,
     );
-    expect(secondResult.forcePasswordReset).toEqual(ForceSetPasswordReason.WeakMasterPassword);
   });
 
   it("handles new device verification login with OTP", async () => {
@@ -298,7 +287,6 @@ describe("PasswordLoginStrategy", () => {
         newDeviceOtp: deviceVerificationOtp,
       }),
     );
-    expect(result.forcePasswordReset).toBe(ForceSetPasswordReason.None);
     expect(result.resetMasterPassword).toBe(false);
     expect(result.userId).toBe(userId);
   });

@@ -168,7 +168,7 @@ describe("LoginCredentialsViewComponent", () => {
 
         const passwordColor = passwordField.query(By.directive(ColorPasswordComponent));
 
-        expect(passwordColor.componentInstance.password).toBe(cipher.login.password);
+        expect(passwordColor.componentInstance.password()).toBe(cipher.login.password);
       });
 
       it("records event", () => {

@@ -3564,6 +3564,30 @@
   "deviceTrusted": {
     "message": "Устройството е доверено"
   },
+  "trustOrganization": {
+    "message": "Даване на доверие на организацията"
+  },
+  "trust": {
+    "message": "Даване на доверие"
+  },
+  "doNotTrust": {
+    "message": "Да не се дава доверие"
+  },
+  "organizationNotTrusted": {
+    "message": "Организацията не е доверена"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "С оглед на сигурността на акаунта Ви, потвърдете само, ако сте дали на този потребител достъп за спешни случаи и ако отпечатъкът му съвпада с това, което се вижда в акаунта му"
+  },
+  "orgTrustWarning": {
+    "message": "С оглед на сигурността на акаунта Ви, продължете само, ако сте член на тази организация, ако възстановяването на акаунта Ви е включено и ако отпечатъкът показан по-долу съвпада с този на организацията."
+  },
+  "orgTrustWarning1": {
+    "message": "Тази организация има политика от плана за големи организации, която ще Ви включи в схемата за възстановяване на акаунти. Това включване ще позволи на администраторите да променят паролата Ви. Продължете само, ако разпознавате тази организация и уникалната фраза показана по-долу съвпада с отпечатъка на организацията."
+  },
+  "trustUser": {
+    "message": "Даване на доверие на потребителя"
+  },
   "sendsNoItemsTitle": {
     "message": "Няма активни Изпращания",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4488,6 +4512,27 @@
       }
     }
   },
+  "downloadBitwarden": {
+    "message": "Сваляне на Битуорден"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Сваляне на Битуорден на всички устройства"
+  },
+  "getTheMobileApp": {
+    "message": "Свалете мобилното приложение"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Разполагайте с паролите си дори когато сте в движение, с мобилното приложение на Битуорден."
+  },
+  "getTheDesktopApp": {
+    "message": "Свалете настолното приложение"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Използвайте трезора си без браузър. Можете да настроите отключване с биометрични данни, за да ускорите отключването както в настолното приложение, така и в добавката за браузъра."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Свалете от bitwarden.com сега"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Наистина ли искате да изтриете завинаги този прикачен файл?"
   },
@@ -5111,42 +5156,6 @@
   "beta": {
     "message": "Бета"
   },
-  "importantNotice": {
-    "message": "Важно съобщение"
-  },
-  "setupTwoStepLogin": {
-    "message": "Настройте двустепенно удостоверяване"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Битуорден ще изпрати код до е-пощата Ви, за потвърждаване на вписването от нови устройства. Това ще започне от февруари 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Можете да настроите двустепенно удостоверяване, като различен метод на защита, или ако е необходимо да промените е-пощата си с такава, до която имате достъп."
-  },
-  "remindMeLater": {
-    "message": "Напомнете ми по-късно"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Имате ли сигурен достъп до е-пощата си – $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Не, нямам"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Да, имам достъп до е-пощата си"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Включване на двустепенното удостоверяване"
-  },
-  "changeAcctEmail": {
-    "message": "Промяна на е-пощата"
-  },
   "extensionWidth": {
     "message": "Ширина на разширението"
   },
@@ -5250,33 +5259,52 @@
     "message": "Елементи за авт. попълване в текущата страница\nЛюбими елементи за лесен достъп\nПотърсете в трезора си за нещо друго"
   },
   "newLoginNudgeTitle": {
-    "message": "Save time with autofill"
+    "message": "Спестете време с автоматично попълване"
   },
-  "newLoginNudgeBody": {
-    "message": "Include a Website so this login appears as an autofill suggestion."
+  "newLoginNudgeBodyOne": {
+    "message": "Добавете",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "уеб сайт",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": ", за да може тези данни за вписване да се появяват като предложение за автоматично попълване.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
-    "message": "Seamless online checkout"
+    "message": "Безпроблемни плащания"
   },
   "newCardNudgeBody": {
-    "message": "With cards, easily autofill payment forms securely and accurately."
+    "message": "С възможността за запазване на карти, можете лесно да ги попълвате автоматично във формулярите – сигурно и точно."
   },
   "newIdentityNudgeTitle": {
-    "message": "Simplify creating accounts"
+    "message": "Опростено създаване на акаунти"
   },
   "newIdentityNudgeBody": {
-    "message": "With identities, quickly autofill long registration or contact forms."
+    "message": "С възможността за запазване на самоличности, можете лесно да попълвате автоматично дълги формуляри за регистрация или връзка с уеб сайт."
   },
   "newNoteNudgeTitle": {
-    "message": "Keep your sensitive data safe"
+    "message": "Пазете тайните си на сигурно място"
   },
   "newNoteNudgeBody": {
-    "message": "With notes, securely store sensitive data like banking or insurance details."
+    "message": "С възможността за запазване на бележки, можете да съхранявате тайна информация, като например банкови и застрахователни данни."
   },
   "newSshNudgeTitle": {
-    "message": "Developer-friendly SSH access"
+    "message": "Улеснен достъп за разработчици чрез SSH"
   },
-  "newSshNudgeBody": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  "newSshNudgeBodyOne": {
+    "message": "Съхранявайте ключове и използвайте връзка чрез SSH агента, за бързо и шифровано удостоверяване.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Научете повече относно SSH-агента",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

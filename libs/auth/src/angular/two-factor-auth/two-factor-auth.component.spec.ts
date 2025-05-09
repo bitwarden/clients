@@ -260,7 +260,6 @@ describe("TwoFactorAuthComponent", () => {
         // Assert
         expect(mockLoginStrategyService.logInTwoFactor).toHaveBeenCalledWith(
           new TokenTwoFactorRequest(component.selectedProviderType, token, remember),
-          "",
         );
       });
 
