@@ -1,5 +1,6 @@
 import { ServerConfig } from "../../../platform/abstractions/config/server-config";
 import { Decryptable } from "../../../platform/interfaces/decryptable.interface";
+import { Encrypted } from "../../../platform/interfaces/encrypted";
 import { InitializerMetadata } from "../../../platform/interfaces/initializer-metadata.interface";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { EncString } from "../../../platform/models/domain/enc-string";
