@@ -4512,6 +4512,27 @@
       }
     }
   },
+  "downloadBitwarden": {
+    "message": "Сваляне на Битуорден"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Сваляне на Битуорден на всички устройства"
+  },
+  "getTheMobileApp": {
+    "message": "Свалете мобилното приложение"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Разполагайте с паролите си дори когато сте в движение, с мобилното приложение на Битуорден."
+  },
+  "getTheDesktopApp": {
+    "message": "Свалете настолното приложение"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Използвайте трезора си без браузър. Можете да настроите отключване с биометрични данни, за да ускорите отключването както в настолното приложение, така и в добавката за браузъра."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Свалете от bitwarden.com сега"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Наистина ли искате да изтриете завинаги този прикачен файл?"
   },
@@ -5135,42 +5156,6 @@
   "beta": {
     "message": "Бета"
   },
-  "importantNotice": {
-    "message": "Важно съобщение"
-  },
-  "setupTwoStepLogin": {
-    "message": "Настройте двустепенно удостоверяване"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Битуорден ще изпрати код до е-пощата Ви, за потвърждаване на вписването от нови устройства. Това ще започне от февруари 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Можете да настроите двустепенно удостоверяване, като различен метод на защита, или ако е необходимо да промените е-пощата си с такава, до която имате достъп."
-  },
-  "remindMeLater": {
-    "message": "Напомнете ми по-късно"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Имате ли сигурен достъп до е-пощата си – $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Не, нямам"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Да, имам достъп до е-пощата си"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Включване на двустепенното удостоверяване"
-  },
-  "changeAcctEmail": {
-    "message": "Промяна на е-пощата"
-  },
   "extensionWidth": {
     "message": "Ширина на разширението"
   },
@@ -5276,8 +5261,20 @@
   "newLoginNudgeTitle": {
     "message": "Спестете време с автоматично попълване"
   },
-  "newLoginNudgeBody": {
-    "message": "Добавете уеб сайт, за да може тези данни за вписване да се появяват като предложение за автоматично попълване."
+  "newLoginNudgeBodyOne": {
+    "message": "Добавете",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "уеб сайт",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": ", за да може тези данни за вписване да се появяват като предложение за автоматично попълване.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Безпроблемни плащания"
@@ -5300,7 +5297,14 @@
   "newSshNudgeTitle": {
     "message": "Улеснен достъп за разработчици чрез SSH"
   },
-  "newSshNudgeBody": {
-    "message": "Съхранявайте ключове и използвайте връзка чрез SSH агента, за бързо и шифровано удостоверяване."
+  "newSshNudgeBodyOne": {
+    "message": "Съхранявайте ключове и използвайте връзка чрез SSH агента, за бързо и шифровано удостоверяване.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Научете повече относно SSH-агента",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

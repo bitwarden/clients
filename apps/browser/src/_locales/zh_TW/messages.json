@@ -4512,6 +4512,27 @@
       }
     }
   },
+  "downloadBitwarden": {
+    "message": "Download Bitwarden"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Download Bitwarden on all devices"
+  },
+  "getTheMobileApp": {
+    "message": "Get the mobile app"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Access your passwords on the go with the Bitwarden mobile app."
+  },
+  "getTheDesktopApp": {
+    "message": "Get the desktop app"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Download from bitwarden.com now"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "您確定要永久刪除此附檔嗎？"
   },
@@ -5135,42 +5156,6 @@
   "beta": {
     "message": "測試版"
   },
-  "importantNotice": {
-    "message": "重要通知"
-  },
-  "setupTwoStepLogin": {
-    "message": "啟動兩階段登入"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "從 2025 年 2 月開始，Bitwarden 會傳送代碼到您的帳號電子郵件中來驗證新裝置的登入。"
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "您可以啟動兩階段認證來保護您的帳號或更改您可以存取的電子郵件位址。"
-  },
-  "remindMeLater": {
-    "message": "稍後再提醒我"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "您可以存取您的電子郵件位址 $EMAIL$ 嗎？",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "不，我不行"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "是，我可以存取我的電子郵件位址"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "啟動兩階段登入"
-  },
-  "changeAcctEmail": {
-    "message": "更改帳號電子郵件位址"
-  },
   "extensionWidth": {
     "message": "擴充套件寬度"
   },
@@ -5276,8 +5261,20 @@
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
   },
-  "newLoginNudgeBody": {
-    "message": "Include a Website so this login appears as an autofill suggestion."
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Seamless online checkout"
@@ -5300,7 +5297,14 @@
   "newSshNudgeTitle": {
     "message": "Developer-friendly SSH access"
   },
-  "newSshNudgeBody": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }
