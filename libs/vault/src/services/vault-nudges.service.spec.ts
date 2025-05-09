@@ -2,7 +2,10 @@ import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -47,7 +50,20 @@ describe("Vault Nudges Service", () => {
           provide: EmptyVaultNudgeService,
           useValue: mock<EmptyVaultNudgeService>(),
         },
+        {
+          provide: ApiService,
+          useValue: mock<ApiService>(),
+        },
         { provide: CipherService, useValue: mock<CipherService>() },
+        { provide: LogService, useValue: mock<LogService>() },
+        {
+          provide: AccountService,
+          useValue: mock<AccountService>(),
+        },
+        {
+          provide: LogService,
+          useValue: mock<LogService>(),
+        },
       ],
     });
   });
@@ -107,6 +123,33 @@ describe("Vault Nudges Service", () => {
       const result = await firstValueFrom(
         service.showNudge$(VaultNudgeType.HasVaultItems, "user-id" as UserId),
       );
+
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("HasActiveBadges", () => {
+    it("should return true if a nudgeType with hasBadgeDismissed === false", async () => {
+      TestBed.overrideProvider(EmptyVaultNudgeService, {
+        useValue: {
+          nudgeStatus$: () => of({ hasBadgeDismissed: false, hasSpotlightDismissed: false }),
+        },
+      });
+      const service = testBed.inject(VaultNudgesService);
+
+      const result = await firstValueFrom(service.hasActiveBadges$("user-id" as UserId));
+
+      expect(result).toBe(true);
+    });
+    it("should return false if all nudgeTypes have hasBadgeDismissed === true", async () => {
+      TestBed.overrideProvider(EmptyVaultNudgeService, {
+        useValue: {
+          nudgeStatus$: () => of({ hasBadgeDismissed: true, hasSpotlightDismissed: true }),
+        },
+      });
+      const service = testBed.inject(VaultNudgesService);
+
+      const result = await firstValueFrom(service.hasActiveBadges$("user-id" as UserId));
 
       expect(result).toBe(false);
     });

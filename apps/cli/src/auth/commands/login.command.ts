@@ -32,7 +32,7 @@ import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request
 import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
-import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -77,6 +77,7 @@ export class LoginCommand {
     protected logoutCallback: () => Promise<void>,
     protected kdfConfigService: KdfConfigService,
     protected ssoUrlService: SsoUrlService,
+    protected masterPasswordService: MasterPasswordServiceAbstraction,
   ) {}
 
   async run(email: string, password: string, options: OptionValues) {
@@ -220,24 +221,13 @@ export class LoginCommand {
         );
       } else {
         response = await this.loginStrategyService.logIn(
-          new PasswordLoginCredentials(email, password, null, twoFactor),
+          new PasswordLoginCredentials(email, password, twoFactor),
         );
       }
       if (response.requiresEncryptionKeyMigration) {
         return Response.error(
           "Encryption key migration required. Please login through the web vault to update your encryption key.",
         );
-      }
-      if (response.captchaSiteKey) {
-        const credentials = new PasswordLoginCredentials(email, password);
-        const handledResponse = await this.handleCaptchaRequired(twoFactor, credentials);
-
-        // Error Response
-        if (handledResponse instanceof Response) {
-          return handledResponse;
-        } else {
-          response = handledResponse;
-        }
       }
       if (response.requiresTwoFactor) {
         const twoFactorProviders = await this.twoFactorService.getSupportedProviders(null);
@@ -310,7 +300,6 @@ export class LoginCommand {
 
         response = await this.loginStrategyService.logInTwoFactor(
           new TokenTwoFactorRequest(selectedProvider.type, twoFactorToken),
-          null,
         );
       }
 
@@ -334,18 +323,6 @@ export class LoginCommand {
         response = await this.loginStrategyService.logInNewDeviceVerification(newDeviceToken);
       }
 
-      if (response.captchaSiteKey) {
-        const twoFactorRequest = new TokenTwoFactorRequest(selectedProvider.type, twoFactorToken);
-        const handledResponse = await this.handleCaptchaRequired(twoFactorRequest);
-
-        // Error Response
-        if (handledResponse instanceof Response) {
-          return handledResponse;
-        } else {
-          response = handledResponse;
-        }
-      }
-
       if (response.requiresTwoFactor) {
         return Response.error("Login failed.");
       }
@@ -361,14 +338,14 @@ export class LoginCommand {
       await this.syncService.fullSync(true);
 
       // Handle updating passwords if NOT using an API Key for authentication
-      if (
-        response.forcePasswordReset != ForceSetPasswordReason.None &&
-        clientId == null &&
-        clientSecret == null
-      ) {
-        if (response.forcePasswordReset === ForceSetPasswordReason.AdminForcePasswordReset) {
+      if (clientId == null && clientSecret == null) {
+        const forceSetPasswordReason = await firstValueFrom(
+          this.masterPasswordService.forceSetPasswordReason$(response.userId),
+        );
+
+        if (forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset) {
           return await this.updateTempPassword(response.userId);
-        } else if (response.forcePasswordReset === ForceSetPasswordReason.WeakMasterPassword) {
+        } else if (forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword) {
           return await this.updateWeakPassword(response.userId, password);
         }
       }
@@ -625,48 +602,6 @@ export class LoginCommand {
     const newUserKey = await this.keyService.encryptUserKeyWithMasterKey(newMasterKey, userKey);
 
     return { newPasswordHash, newUserKey: newUserKey, hint: masterPasswordHint };
-  }
-
-  private async handleCaptchaRequired(
-    twoFactorRequest: TokenTwoFactorRequest,
-    credentials: PasswordLoginCredentials = null,
-  ): Promise<AuthResult | Response> {
-    const badCaptcha = Response.badRequest(
-      "Your authentication request has been flagged and will require user interaction to proceed.\n" +
-        "Please use your API key to validate this request and ensure BW_CLIENTSECRET is correct, if set.\n" +
-        "(https://bitwarden.com/help/cli-auth-challenges)",
-    );
-
-    try {
-      const captchaClientSecret = await this.apiClientSecret(true);
-      if (Utils.isNullOrWhitespace(captchaClientSecret)) {
-        return badCaptcha;
-      }
-
-      let authResultResponse: AuthResult = null;
-      if (credentials != null) {
-        credentials.captchaToken = captchaClientSecret;
-        credentials.twoFactor = twoFactorRequest;
-        authResultResponse = await this.loginStrategyService.logIn(credentials);
-      } else {
-        authResultResponse = await this.loginStrategyService.logInTwoFactor(
-          twoFactorRequest,
-          captchaClientSecret,
-        );
-      }
-
-      return authResultResponse;
-    } catch (e) {
-      if (
-        e instanceof ErrorResponse ||
-        (e.constructor.name === ErrorResponse.name &&
-          (e as ErrorResponse).message.includes("Captcha is invalid"))
-      ) {
-        return badCaptcha;
-      } else {
-        return Response.error(e);
-      }
-    }
   }
 
   private async apiClientId(): Promise<string> {

@@ -10,12 +10,14 @@
       <ng-container slot="end">
         <bit-item-action>
           <app-download-attachment
+            [admin]="admin && organization?.canEditAllCiphers"
             [cipher]="cipher"
             [attachment]="attachment"
           ></app-download-attachment>
         </bit-item-action>
         <bit-item-action>
           <app-delete-attachment
+            [admin]="admin && organization?.canEditAllCiphers"
             [cipherId]="cipher.id"
             [attachment]="attachment"
             (onDeletionSuccess)="removeAttachment(attachment)"

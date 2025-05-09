@@ -55,7 +55,9 @@ describe("NewItemNudgeComponent", () => {
 
     expect(component.showNewItemSpotlight).toBe(true);
     expect(component.nudgeTitle).toBe("newLoginNudgeTitle");
-    expect(component.nudgeBody).toBe("newLoginNudgeBody");
+    expect(component.nudgeBody).toBe(
+      "newLoginNudgeBodyOne <strong>newLoginNudgeBodyBold</strong> newLoginNudgeBodyTwo",
+    );
     expect(component.dismissalNudgeType).toBe(VaultNudgeType.newLoginItemStatus);
   });
 
