@@ -521,8 +521,10 @@ export class CipherService implements CipherServiceAbstraction {
   ): Promise<CipherView[]> {
     return await firstValueFrom(
       this.cipherViews$(userId).pipe(
-        switchMap(async (ciphers) =>
-          this.filterCiphersForUrl(ciphers, url, includeOtherTypes, defaultMatch),
+        filter((c) => c != null),
+        switchMap(
+          async (ciphers) =>
+            await this.filterCiphersForUrl(ciphers, url, includeOtherTypes, defaultMatch),
         ),
       ),
     );
