@@ -315,6 +315,7 @@ describe("KeyConnectorService", () => {
           name: "TEST_KEY_CONNECTOR_ORG",
           usePolicies: true,
           useSso: true,
+          useOrganizationDomains: true,
           useKeyConnector: usesKeyConnector,
           useScim: true,
           useGroups: true,
