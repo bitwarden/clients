@@ -237,6 +237,24 @@
   "enableSshAgentHelp": {
     "message": "SSH agenti, SSH tələblərini birbaşa Bitwarden seyfinizdən imzalamağa imkan verən developerlərə yönəlmiş bir xidmətdir."
   },
+  "sshAgentPromptBehavior": {
+    "message": "Ask for authorization when using SSH agent"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "Choose how to handle SSH-agent authorization requests."
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "Remember SSH authorizations"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "Always"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "Never"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "Remember until vault is locked"
+  },
   "premiumRequired": {
     "message": "Premium üzvlük lazımdır"
   },
@@ -426,6 +444,12 @@
   },
   "addField": {
     "message": "Xana əlavə et"
+  },
+  "editField": {
+    "message": "Edit field"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Are you sure you want to permanently delete this attachment?"
   },
   "fieldType": {
     "message": "Xana növü"
@@ -3671,63 +3695,6 @@
   "fileSavedToDevice": {
     "message": "Fayl cihazda saxlanıldı. Endirilənləri cihazınızdan idarə edin."
   },
-  "importantNotice": {
-    "message": "Vacib bildiriş"
-  },
-  "setupTwoStepLogin": {
-    "message": "İki addımlı girişi qur"
-  },
-  "itemDetails": {
-    "message": "Element detalları"
-  },
-  "itemName": {
-    "message": "Element adı"
-  },
-  "loginCredentials": {
-    "message": "Giriş məlumatları"
-  },
-  "additionalOptions": {
-    "message": "Əlavə seçimlər"
-  },
-  "itemHistory": {
-    "message": "Element tarixçəsi"
-  },
-  "lastEdited": {
-    "message": "Son düzəliş"
-  },
-  "upload": {
-    "message": "Yüklə"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden, 2025-ci ilin Fevral ayından etibarən yeni cihazlardan gələn girişləri doğrulamaq üçün hesabınızın e-poçtuna bir kod göndərəcək."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Hesabınızı qorumaq üçün alternativ bir yol kimi iki addımlı girişi qura və ya e-poçtunuzu müraciət edə biləcəyiniz e-poçtla dəyişdirə bilərsiniz."
-  },
-  "remindMeLater": {
-    "message": "Daha sonra xatırlat"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "$EMAIL$ e-poçtunuza güvənli şəkildə müraciət edə bilirsiniz?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Xeyr, edə bilmirəm"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Bəli, e-poçtuma güvənli şəkildə müraciət edə bilirəm"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "İki addımlı girişi işə sal"
-  },
-  "changeAcctEmail": {
-    "message": "Hesabın e-poçtunu dəyişdir"
-  },
   "allowScreenshots": {
     "message": "Ekranı çəkməyə icazə ver"
   },
@@ -3755,8 +3722,20 @@
   "newLoginNudgeTitle": {
     "message": "Avto-doldurma ilə vaxta qənaət edin"
   },
-  "newLoginNudgeBody": {
-    "message": "Bir veb sayt daxil edin ki, bu giriş məlumatları avto-doldurma təklifi kimi görünsün."
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Problemsiz onlayn ödəniş"
@@ -3779,7 +3758,14 @@
   "newSshNudgeTitle": {
     "message": "Gəlişdirici dostu SSH müraciəti"
   },
-  "newSshNudgeBody": {
-    "message": "Açarlarınızı saxlayın və sürətli, şifrələnmiş kimlik doğrulama üçün SSH agentinə bağlayın."
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }
