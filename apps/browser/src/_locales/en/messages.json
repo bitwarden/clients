@@ -3588,6 +3588,14 @@
   "trustUser":{
     "message": "Trust user"
   },
+  "sendsNoItemsTitle": {
+    "message": "No active Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Use Send to securely share encrypted information with anyone.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendsTitleNoItems": {
     "message": "Send sensitive information safely",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5322,6 +5330,6 @@
   },
   "generatorNudgeBodyAria": {
     "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
-    "description": "Aria label for the body content of the generator nudge",
+    "description": "Aria label for the body content of the generator nudge"
   }
 }
