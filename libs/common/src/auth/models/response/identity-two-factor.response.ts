@@ -4,8 +4,6 @@ import { TwoFactorProviderType } from "../../enums/two-factor-provider-type";
 import { MasterPasswordPolicyResponse } from "./master-password-policy.response";
 
 export class IdentityTwoFactorResponse extends BaseResponse {
-  // contains available two-factor providers
-  twoFactorProviders: TwoFactorProviderType[];
   // a map of two-factor providers to necessary data for completion
   twoFactorProviders2: Record<TwoFactorProviderType, Record<string, string>>;
   captchaToken: string;
@@ -16,7 +14,6 @@ export class IdentityTwoFactorResponse extends BaseResponse {
   constructor(response: any) {
     super(response);
     this.captchaToken = this.getResponseProperty("CaptchaBypassToken");
-    this.twoFactorProviders = this.getResponseProperty("TwoFactorProviders");
     this.twoFactorProviders2 = this.getResponseProperty("TwoFactorProviders2");
     this.masterPasswordPolicy = new MasterPasswordPolicyResponse(
       this.getResponseProperty("MasterPasswordPolicy"),
