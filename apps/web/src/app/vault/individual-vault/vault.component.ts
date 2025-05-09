@@ -79,7 +79,10 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
-import { getNestedCollectionTree } from "../../admin-console/organizations/collections";
+import {
+  getNestedCollectionTree,
+  getFlatCollectionTree,
+} from "../../admin-console/organizations/collections";
 import {
   CollectionDialogAction,
   CollectionDialogTabType,
@@ -372,31 +375,35 @@ export class VaultComponent implements OnInit, OnDestroy {
         if (filter.collectionId === undefined || filter.collectionId === Unassigned) {
           return [];
         }
-        let collectionsToReturn = [];
+        let searchableCollectionNodes: TreeNode<CollectionView>[] = [];
         if (filter.organizationId !== undefined && filter.collectionId === All) {
-          collectionsToReturn = collections
-            .filter((c) => c.node.organizationId === filter.organizationId)
-            .map((c) => c.node);
+          searchableCollectionNodes = collections.filter(
+            (c) => c.node.organizationId === filter.organizationId,
+          );
         } else if (filter.collectionId === All) {
-          collectionsToReturn = collections.map((c) => c.node);
+          searchableCollectionNodes = collections;
         } else {
           const selectedCollection = ServiceUtils.getTreeNodeObjectFromList(
             collections,
             filter.collectionId,
           );
-          collectionsToReturn = selectedCollection?.children.map((c) => c.node) ?? [];
+          searchableCollectionNodes = selectedCollection?.children ?? [];
         }
 
         if (await this.searchService.isSearchable(activeUserId, searchText)) {
-          collectionsToReturn = this.searchPipe.transform(
-            collectionsToReturn,
+          // Flatten the tree for searching through all levels
+          const flatCollectionTree: CollectionView[] =
+            getFlatCollectionTree(searchableCollectionNodes);
+
+          return this.searchPipe.transform(
+            flatCollectionTree,
             searchText,
             (collection) => collection.name,
             (collection) => collection.id,
           );
         }
 
-        return collectionsToReturn;
+        return searchableCollectionNodes.map((treeNode: TreeNode<CollectionView>) => treeNode.node);
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );

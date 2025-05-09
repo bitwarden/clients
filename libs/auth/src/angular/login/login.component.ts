@@ -539,7 +539,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       // If we load an email into the form, we need to initialize it for the login process as well
       // so that other login components can use it.
       // We do this here as it's possible that a user doesn't edit the email field before submitting.
-      this.loginEmailService.setLoginEmail(storedEmail);
+      await this.loginEmailService.setLoginEmail(storedEmail);
     } else {
       this.formGroup.controls.rememberEmail.setValue(false);
     }

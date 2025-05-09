@@ -18,9 +18,9 @@ export class TabsV2Component {
 
   protected navButtons$ = combineLatest([
     this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge),
-    this.hasNudgeService.shouldShowNudge$(),
+    this.hasNudgeService.nudgeStatus$(),
   ]).pipe(
-    map(([onboardingFeatureEnabled, showNudge]) => {
+    map(([onboardingFeatureEnabled, nudgeStatus]) => {
       return [
         {
           label: "vault",
@@ -45,7 +45,7 @@ export class TabsV2Component {
           page: "/tabs/settings",
           iconKey: "cog",
           iconKeyActive: "cog-f",
-          showBerry: onboardingFeatureEnabled && showNudge,
+          showBerry: onboardingFeatureEnabled && !nudgeStatus.hasSpotlightDismissed,
         },
       ];
     }),

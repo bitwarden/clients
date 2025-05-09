@@ -14,7 +14,7 @@ export function CipherInfo({ cipher, theme }: { cipher: NotificationCipherData; 
 
   return html`
     <div>
-      <span class=${cipherInfoPrimaryTextStyles(theme)}>
+      <span title=${name} class=${cipherInfoPrimaryTextStyles(theme)}>
         ${[
           name,
           hasIndicatorIcons

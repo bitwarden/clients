@@ -59,7 +59,7 @@ describe("CriticalAppsService", () => {
       { id: "id2", organizationId: "org1", uri: "https://example.org" },
     ] as PasswordHealthReportApplicationsResponse[];
 
-    encryptService.encrypt.mockResolvedValue(new EncString("encryptedUrlName"));
+    encryptService.encryptString.mockResolvedValue(new EncString("encryptedUrlName"));
     criticalAppsApiService.saveCriticalApps.mockReturnValue(of(response));
 
     // act
@@ -67,7 +67,7 @@ describe("CriticalAppsService", () => {
 
     // expectations
     expect(keyService.getOrgKey).toHaveBeenCalledWith("org1");
-    expect(encryptService.encrypt).toHaveBeenCalledTimes(2);
+    expect(encryptService.encryptString).toHaveBeenCalledTimes(2);
     expect(criticalAppsApiService.saveCriticalApps).toHaveBeenCalledWith(request);
   });
 
@@ -95,7 +95,7 @@ describe("CriticalAppsService", () => {
       { id: "id1", organizationId: "org1", uri: "test" },
     ] as PasswordHealthReportApplicationsResponse[];
 
-    encryptService.encrypt.mockResolvedValue(new EncString("encryptedUrlName"));
+    encryptService.encryptString.mockResolvedValue(new EncString("encryptedUrlName"));
     criticalAppsApiService.saveCriticalApps.mockReturnValue(of(response));
 
     // act
@@ -103,7 +103,7 @@ describe("CriticalAppsService", () => {
 
     // expectations
     expect(keyService.getOrgKey).toHaveBeenCalledWith("org1");
-    expect(encryptService.encrypt).toHaveBeenCalledTimes(1);
+    expect(encryptService.encryptString).toHaveBeenCalledTimes(1);
     expect(criticalAppsApiService.saveCriticalApps).toHaveBeenCalledWith(request);
   });
 
@@ -114,7 +114,7 @@ describe("CriticalAppsService", () => {
       { id: "id2", organizationId: "org1", uri: "https://example.org" },
     ] as PasswordHealthReportApplicationsResponse[];
 
-    encryptService.decryptToUtf8.mockResolvedValue("https://example.com");
+    encryptService.decryptString.mockResolvedValue("https://example.com");
     criticalAppsApiService.getCriticalApps.mockReturnValue(of(response));
 
     const mockRandomBytes = new Uint8Array(64) as CsprngArray;
@@ -125,7 +125,7 @@ describe("CriticalAppsService", () => {
     flush();
 
     expect(keyService.getOrgKey).toHaveBeenCalledWith(orgId.toString());
-    expect(encryptService.decryptToUtf8).toHaveBeenCalledTimes(2);
+    expect(encryptService.decryptString).toHaveBeenCalledTimes(2);
     expect(criticalAppsApiService.getCriticalApps).toHaveBeenCalledWith(orgId);
   }));
 
