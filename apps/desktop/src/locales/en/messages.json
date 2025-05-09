@@ -3586,6 +3586,9 @@
   "passkeyAlreadyExists": {
     "message": "A passkey already exists for this application."
   },
+  "applicationDoesNotSupportDuplicates": {
+    "message": "This application does not support duplicates."
+  },
   "closeBitwarden": {
     "message": "Close Bitwarden"
   },

@@ -22,7 +22,6 @@
   </bit-section>
 
   <bit-section class="tw-bg-background-alt tw-p-4 tw-flex tw-flex-col tw-grow">
-    <div *ngIf="containsExcludedCiphers">{{ "passkeyAlreadyExists" | i18n }}</div>
     <bit-item *ngFor="let c of ciphers$ | async" class="">
       <button type="button" bit-item-content (click)="chooseCipher(c)">
         <app-vault-icon [cipher]="c" slot="start"></app-vault-icon>
