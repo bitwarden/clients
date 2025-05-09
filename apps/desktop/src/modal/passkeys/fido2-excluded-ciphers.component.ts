@@ -1,18 +1,11 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
-import { BehaviorSubject, firstValueFrom, map, Observable } from "rxjs";
+import { BehaviorSubject, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BitwardenShield } from "@bitwarden/auth/angular";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import {
-  compareCredentialIds,
-  parseCredentialId,
-} from "@bitwarden/common/platform/services/fido2/credential-id-utils";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeModule,
@@ -26,7 +19,6 @@ import {
   BitIconButtonComponent,
 } from "@bitwarden/components";
 
-import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import {
   DesktopFido2UserInterfaceService,
   DesktopFido2UserInterfaceSession,
@@ -65,49 +57,12 @@ export class Fido2ExcludedCiphersComponent implements OnInit, OnDestroy {
     private readonly desktopSettingsService: DesktopSettingsService,
     private readonly fido2UserInterfaceService: DesktopFido2UserInterfaceService,
     private readonly accountService: AccountService,
-    private readonly cipherService: CipherService,
-    private readonly desktopAutofillService: DesktopAutofillService,
-    private readonly domainSettingsService: DomainSettingsService,
-    private readonly logService: LogService,
     private readonly router: Router,
   ) {}
 
   async ngOnInit() {
     await this.accountService.setShowHeader(false);
     this.session = this.fido2UserInterfaceService.getCurrentSession();
-    const lastRegistrationRequest = this.desktopAutofillService.lastRegistrationRequest;
-    const rpid = await this.session.getRpId();
-    const equivalentDomains = await firstValueFrom(
-      this.domainSettingsService.getUrlEquivalentDomains(rpid),
-    );
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
-
-    this.cipherService
-      .getAllDecrypted(activeUserId)
-      .then((ciphers) => {
-        const excludedCiphers = ciphers.filter((cipher) => {
-          const credentialId = cipher.login.hasFido2Credentials
-            ? parseCredentialId(cipher.login.fido2Credentials[0]?.credentialId)
-            : new Uint8Array();
-          if (!cipher.login || !cipher.login.hasUris) {
-            return false;
-          }
-
-          return (
-            cipher.login.matchesUri(rpid, equivalentDomains) &&
-            compareCredentialIds(
-              credentialId,
-              new Uint8Array(lastRegistrationRequest.excludedCredentials[0]),
-            )
-          );
-        });
-
-        this.containsExcludedCiphers = excludedCiphers.length > 0;
-        this.ciphersSubject.next(excludedCiphers);
-      })
-      .catch((error) => this.logService.error(error));
   }
 
   async ngOnDestroy() {
