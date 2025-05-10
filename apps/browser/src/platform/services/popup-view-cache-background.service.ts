@@ -1,4 +1,4 @@
-import { switchMap, delay, filter, concatMap } from "rxjs";
+import { switchMap, delay, filter, concatMap, map, first, of } from "rxjs";
 
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import {
@@ -12,6 +12,7 @@ import {
   GlobalStateProvider,
 } from "@bitwarden/common/platform/state";
 
+import { BrowserApi } from "../browser/browser-api";
 import { fromChromeEvent } from "../browser/from-chrome-event";
 
 const popupClosedPortName = "new_popup";
@@ -21,6 +22,12 @@ export type ViewCacheOptions = {
    * Optional flag to persist the cached value between navigation events.
    */
   persistNavigation?: boolean;
+
+  /**
+   * When set, the cached value will be cleared when the user changes tabs.
+   * @optional
+   */
+  clearOnTabChange?: true;
 };
 
 export type ViewCacheState = {
@@ -126,6 +133,37 @@ export class PopupViewCacheBackgroundService {
               toScheduler(this.taskSchedulerService, ScheduledTaskNames.clearPopupViewCache),
             ),
           ),
+        ),
+      )
+      .subscribe();
+
+    // On tab changed, excluding extension tabs
+    fromChromeEvent(chrome.tabs.onActivated)
+      .pipe(
+        switchMap((tabs) => BrowserApi.getTab(tabs[0].tabId)!),
+        switchMap((tab) => {
+          // FireFox sets the `url` to "about:blank" and won't populate the `url` until the `onUpdated` event
+          if (tab.url !== "about:blank") {
+            return of(tab);
+          }
+
+          return fromChromeEvent(chrome.tabs.onUpdated).pipe(
+            first(),
+            switchMap(([tabId]) => BrowserApi.getTab(tabId)!),
+          );
+        }),
+        map((tab) => tab.url || tab.pendingUrl),
+        filter((url) => !url?.startsWith(chrome.runtime.getURL(""))),
+        switchMap(() =>
+          this.popupViewCacheState.update((state) => {
+            if (!state) {
+              return null;
+            }
+            // Only remove keys that are marked with `clearOnTabChange`
+            return Object.fromEntries(
+              Object.entries(state).filter(([, { options }]) => !options?.clearOnTabChange),
+            );
+          }),
         ),
       )
       .subscribe();
