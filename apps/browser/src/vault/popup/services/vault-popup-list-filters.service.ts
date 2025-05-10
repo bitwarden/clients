@@ -15,6 +15,7 @@ import {
 } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { DynamicTreeNode } from "@bitwarden/angular/vault/vault-filter/models/dynamic-tree-node.model";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -39,8 +40,6 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { ChipSelectOption } from "@bitwarden/components";
-
-import { PopupViewCacheService } from "../../../platform/popup/view-cache/popup-view-cache.service";
 
 const FILTER_VISIBILITY_KEY = new KeyDefinition<boolean>(VAULT_SETTINGS_DISK, "filterVisibility", {
   deserializer: (obj) => obj,
@@ -178,7 +177,7 @@ export class VaultPopupListFiltersService {
     private policyService: PolicyService,
     private stateProvider: StateProvider,
     private accountService: AccountService,
-    private viewCacheService: PopupViewCacheService,
+    private viewCacheService: ViewCacheService,
   ) {
     this.filterForm.controls.organization.valueChanges
       .pipe(takeUntilDestroyed())
