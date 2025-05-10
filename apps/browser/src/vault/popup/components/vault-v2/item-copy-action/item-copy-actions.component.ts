@@ -15,6 +15,7 @@ import { VaultPopupCopyButtonsService } from "../../../services/vault-popup-copy
 type CipherItem = {
   value: string;
   key: string;
+  field?: string;
 };
 
 @Component({
@@ -43,15 +44,23 @@ export class ItemCopyActionsComponent {
     );
   }
 
+  /*
+   * singleCopiableLogin uses appCopyField instead of appCopyClick. This allows for the TOTP
+   * code to be copied correctly. See #14167
+   */
   get singleCopiableLogin() {
     const loginItems: CipherItem[] = [
-      { value: this.cipher.login.username, key: "username" },
-      { value: this.cipher.login.password, key: "password" },
-      { value: this.cipher.login.totp, key: "totp" },
+      { value: this.cipher.login.username, key: "copyUsername", field: "username" },
+      { value: this.cipher.login.password, key: "copyPassword", field: "password" },
+      { value: this.cipher.login.totp, key: "copyVerificationCode", field: "totp" },
     ];
     // If both the password and username are visible but the password is hidden, return the username
     if (!this.cipher.viewPassword && this.cipher.login.username && this.cipher.login.password) {
-      return { value: this.cipher.login.username, key: this.i18nService.t("username") };
+      return {
+        value: this.cipher.login.username,
+        key: this.i18nService.t("copyUsername"),
+        field: "username",
+      };
     }
     return this.findSingleCopiableItem(loginItems);
   }
@@ -78,12 +87,10 @@ export class ItemCopyActionsComponent {
    * Given a list of CipherItems, if there is only one item with a value,
    * return it with the translated key. Otherwise return null
    */
-  findSingleCopiableItem(items: { value: string; key: string }[]): CipherItem | null {
-    const singleItemWithValue = items.find(
-      (key) => key.value && items.every((f) => f === key || !f.value),
-    );
-    return singleItemWithValue
-      ? { value: singleItemWithValue.value, key: this.i18nService.t(singleItemWithValue.key) }
+  findSingleCopiableItem(items: CipherItem[]): CipherItem | null {
+    const itemsWithValue = items.filter(({ value }) => !!value);
+    return itemsWithValue.length === 1
+      ? { ...itemsWithValue[0], key: this.i18nService.t(itemsWithValue[0].key) }
       : null;
   }
 
