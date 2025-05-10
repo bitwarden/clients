@@ -108,6 +108,10 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
     return false;
   }
 
+  supportsSyncDomains(): boolean {
+    return false;
+  }
+
   showToast(
     type: "error" | "success" | "warning" | "info",
     title: string,

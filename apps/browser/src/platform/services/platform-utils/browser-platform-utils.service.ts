@@ -221,6 +221,10 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return true;
   }
 
+  supportsSyncDomains(): boolean {
+    return true;
+  }
+
   abstract showToast(
     type: "error" | "success" | "warning" | "info",
     title: string,
