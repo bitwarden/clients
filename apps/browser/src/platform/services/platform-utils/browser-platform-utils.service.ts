@@ -26,6 +26,10 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
       return this.deviceCache;
     }
 
+    // ORDERING MATTERS HERE
+    // Ordered from most specific to least specific. We try to discern the greatest detail
+    // for the type of extension the user is on by checking specific cases first and as we go down
+    // the list we hope to catch all by the most generic clients they could be on.
     if (BrowserPlatformUtilsService.isFirefox()) {
       this.deviceCache = DeviceType.FirefoxExtension;
     } else if (BrowserPlatformUtilsService.isOpera(globalContext)) {
