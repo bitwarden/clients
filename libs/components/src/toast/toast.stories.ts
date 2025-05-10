@@ -7,6 +7,7 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { ButtonModule } from "../button";
+import { Icons } from "../icon";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { ToastComponent } from "./toast.component";
@@ -76,10 +77,10 @@ export const Default: Story = {
     props: args,
     template: `
       <div class="tw-flex tw-flex-col tw-min-w tw-max-w-[--bit-toast-width]">
-        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" (onClose)="onClose()" variant="success"></bit-toast>
-        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" (onClose)="onClose()" variant="info"></bit-toast>
-        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" (onClose)="onClose()" variant="warning"></bit-toast>
-        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" (onClose)="onClose()" variant="error"></bit-toast>
+        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" [icon]="icon" (onClose)="onClose()" variant="success"></bit-toast>
+        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" [icon]="icon" (onClose)="onClose()" variant="info"></bit-toast>
+        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" [icon]="icon" (onClose)="onClose()" variant="warning"></bit-toast>
+        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" [icon]="icon" (onClose)="onClose()" variant="error"></bit-toast>
       </div>
     `,
   }),
@@ -96,6 +97,24 @@ export const LongContent: Story = {
       "Lorem ipsum dolor sit amet, consectetur adipisci",
       "Lorem ipsum dolor sit amet, consectetur adipisci",
     ],
+  },
+};
+
+export const WithCustomIconFromFont: Story = {
+  ...Default,
+  args: {
+    title: "Foo",
+    message: ["With custom icon from font"],
+    icon: "bwi-send-f",
+  },
+};
+
+export const WithCustomIconUsingSvg: Story = {
+  ...Default,
+  args: {
+    title: "Foo",
+    message: ["With custom svg icon"],
+    icon: Icons.Search,
   },
 };
 
