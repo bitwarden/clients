@@ -74,7 +74,7 @@ export class WebProviderService {
 
     const [publicKey, encryptedPrivateKey] = await this.keyService.makeKeyPair(organizationKey);
 
-    const encryptedCollectionName = await this.encryptService.encrypt(
+    const encryptedCollectionName = await this.encryptService.encryptString(
       this.i18nService.t("defaultCollection"),
       organizationKey,
     );
