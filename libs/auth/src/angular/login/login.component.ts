@@ -46,6 +46,8 @@ import { LoginComponentService, PasswordPolicies } from "./login-component.servi
 
 const BroadcasterSubscriptionId = "LoginComponent";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum LoginUiState {
   EMAIL_ENTRY = "EmailEntry",
   MASTER_PASSWORD_ENTRY = "MasterPasswordEntry",

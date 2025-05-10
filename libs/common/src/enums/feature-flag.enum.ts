@@ -7,6 +7,8 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
  *
  * Flags should be grouped by team to have visibility of ownership and cleanup.
  */
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
   VerifiedSsoDomainEndpoint = "pm-12337-refactor-sso-details-endpoint",

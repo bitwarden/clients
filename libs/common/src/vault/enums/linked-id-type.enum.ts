@@ -1,12 +1,16 @@
 export type LinkedIdType = LoginLinkedId | CardLinkedId | IdentityLinkedId;
 
 // LoginView
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum LoginLinkedId {
   Username = 100,
   Password = 101,
 }
 
 // CardView
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum CardLinkedId {
   CardholderName = 300,
   ExpMonth = 301,
@@ -17,6 +21,8 @@ export enum CardLinkedId {
 }
 
 // IdentityView
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum IdentityLinkedId {
   Title = 400,
   MiddleName = 401,

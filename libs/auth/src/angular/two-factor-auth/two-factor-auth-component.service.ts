@@ -1,10 +1,14 @@
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum LegacyKeyMigrationAction {
   PREVENT_LOGIN_AND_SHOW_REQUIRE_MIGRATION_WARNING,
   NAVIGATE_TO_MIGRATION_COMPONENT,
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum DuoLaunchAction {
   DIRECT_LAUNCH,
   SINGLE_ACTION_POPOUT,

@@ -1,4 +1,6 @@
 // Increment by 100 for each new set of events
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum EventType {
   User_LoggedIn = 1000,
   User_ChangedPassword = 1001,

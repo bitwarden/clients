@@ -5,6 +5,8 @@ import {
   AssertCredentialResult,
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-client.service.abstraction";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum MessageType {
   CredentialCreationRequest,
   CredentialCreationResponse,

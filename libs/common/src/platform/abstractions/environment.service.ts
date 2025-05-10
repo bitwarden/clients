@@ -17,6 +17,8 @@ export type Urls = {
 /**
  * A subset of available regions, additional regions can be loaded through configuration.
  */
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum Region {
   US = "US",
   EU = "EU",

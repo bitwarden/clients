@@ -35,6 +35,8 @@ import { WebCipherFormGenerationService } from "../services/web-cipher-form-gene
 /**
  * The result of the AddEditCipherDialogV2 component.
  */
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum AddEditCipherDialogResult {
   Edited = "edited",
   Added = "added",

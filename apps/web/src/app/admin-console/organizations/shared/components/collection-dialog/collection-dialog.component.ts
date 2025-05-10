@@ -65,6 +65,8 @@ import {
 } from "../access-selector/access-selector.models";
 import { AccessSelectorModule } from "../access-selector/access-selector.module";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum CollectionDialogTabType {
   Info = 0,
   Access = 1,
@@ -76,6 +78,8 @@ export enum CollectionDialogTabType {
  * @readonly
  * @enum {string}
  */
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum ButtonType {
   /** Displayed when the user has reached the maximum number of collections allowed for the organization. */
   Upgrade = "upgrade",
@@ -103,6 +107,8 @@ export interface CollectionDialogResult {
   collection: CollectionResponse | CollectionView;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum CollectionDialogAction {
   Saved = "saved",
   Canceled = "canceled",

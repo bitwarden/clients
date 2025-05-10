@@ -6,6 +6,8 @@ export interface Data {
   [key: string]: FskEntry;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FskEntryTypesEnum {
   Login = 1,
   CreditCard = 2,

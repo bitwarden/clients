@@ -37,6 +37,8 @@ import { PasswordHealthMembersURIComponent } from "./password-health-members-uri
 import { PasswordHealthMembersComponent } from "./password-health-members.component";
 import { PasswordHealthComponent } from "./password-health.component";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum RiskInsightsTabType {
   AllApps = 0,
   CriticalApps = 1,

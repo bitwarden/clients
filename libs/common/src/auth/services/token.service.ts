@@ -43,6 +43,8 @@ import {
   SECURITY_STAMP_MEMORY,
 } from "./token.state";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum TokenStorageLocation {
   Disk = "disk",
   SecureStorage = "secureStorage",

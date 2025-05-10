@@ -29,6 +29,8 @@ export interface BulkDeleteDialogParams {
   unassignedCiphers?: string[];
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum BulkDeleteDialogResult {
   Deleted = "deleted",
   Canceled = "canceled",

@@ -43,6 +43,8 @@ export interface BulkCollectionsDialogParams {
   collections: CollectionView[];
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum BulkCollectionsDialogResult {
   Saved = "saved",
   Canceled = "canceled",
