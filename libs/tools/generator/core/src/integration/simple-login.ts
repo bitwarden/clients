@@ -4,6 +4,7 @@ import {
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
 import { VendorId } from "@bitwarden/common/tools/extension";
+import { Vendor } from "@bitwarden/common/tools/extension/vendor/data";
 import { IntegrationContext, IntegrationId } from "@bitwarden/common/tools/integration";
 import {
   ApiSettings,
@@ -104,7 +105,7 @@ const forwarder = Object.freeze({
 
 // integration-wide configuration
 export const SimpleLogin = Object.freeze({
-  id: "simplelogin" as IntegrationId & VendorId,
+  id: Vendor.simplelogin as IntegrationId & VendorId,
   name: "SimpleLogin",
   selfHost: "maybe",
   extends: ["forwarder"],

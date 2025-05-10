@@ -14,7 +14,7 @@ import { BoundDependency } from "@bitwarden/common/tools/dependencies";
 import { ExtensionSite } from "@bitwarden/common/tools/extension";
 import { SemanticLogger } from "@bitwarden/common/tools/log";
 import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
-import { anyComplete, pin } from "@bitwarden/common/tools/rx";
+import { anyComplete, memoizedMap, pin } from "@bitwarden/common/tools/rx";
 import { UserStateSubject } from "@bitwarden/common/tools/state/user-state-subject";
 import { UserStateSubjectDependencyProvider } from "@bitwarden/common/tools/state/user-state-subject-dependency-provider";
 
@@ -29,7 +29,7 @@ import {
   Algorithms,
   Types,
 } from "../metadata";
-import { availableAlgorithms_vNext } from "../policies/available-algorithms-policy";
+import { availableAlgorithms } from "../policies/available-algorithms-policy";
 import { CredentialPreference } from "../types";
 import {
   AlgorithmRequest,
@@ -148,8 +148,15 @@ export class GeneratorMetadataProvider {
         const policies$ = this.application.policy
           .policiesByType$(PolicyType.PasswordGenerator, id)
           .pipe(
-            map((p) => availableAlgorithms_vNext(p).filter((a) => this._metadata.has(a))),
-            map((p) => new Set(p)),
+            map((p) =>
+              availableAlgorithms(p)
+                .filter((a) => this._metadata.has(a))
+                .sort(),
+            ),
+            // interning the set transformation lets `distinctUntilChanged()` eliminate
+            // repeating policy emissions using reference equality
+            memoizedMap((a) => new Set(a), { key: (a) => a.join(":") }),
+            distinctUntilChanged(),
             // complete policy emissions otherwise `switchMap` holds `available$` open indefinitely
             takeUntil(anyComplete(id$)),
           );

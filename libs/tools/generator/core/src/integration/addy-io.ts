@@ -4,6 +4,7 @@ import {
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
 import { VendorId } from "@bitwarden/common/tools/extension";
+import { Vendor } from "@bitwarden/common/tools/extension/vendor/data";
 import { IntegrationContext, IntegrationId } from "@bitwarden/common/tools/integration";
 import {
   ApiSettings,
@@ -101,7 +102,7 @@ const forwarder = Object.freeze({
 
 export const AddyIo = Object.freeze({
   // integration
-  id: "anonaddy" as IntegrationId & VendorId,
+  id: Vendor.addyio as IntegrationId & VendorId,
   name: "Addy.io",
   extends: ["forwarder"],
 

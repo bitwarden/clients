@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   Component,
   EventEmitter,
@@ -17,7 +15,7 @@ import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   CredentialGeneratorService,
   EffUsernameGenerationOptions,
-  Generators,
+  BuiltIn,
 } from "@bitwarden/generator-core";
 
 /** Options group for usernames */
@@ -27,7 +25,6 @@ import {
 })
 export class UsernameSettingsComponent implements OnInit, OnChanges, OnDestroy {
   /** Instantiates the component
-   *  @param accountService queries user availability
    *  @param generatorService settings and policy logic
    *  @param formBuilder reactive form controls
    */
@@ -37,9 +34,11 @@ export class UsernameSettingsComponent implements OnInit, OnChanges, OnDestroy {
   ) {}
 
   /** Binds the component to a specific user's settings.
+   *  @remarks this is initialized to null but since it's a required input it'll
+   *     never have that value in practice.
    */
   @Input({ required: true })
-  account: Account;
+  account: Account = null!;
 
   protected account$ = new ReplaySubject<Account>(1);
 
@@ -52,19 +51,19 @@ export class UsernameSettingsComponent implements OnInit, OnChanges, OnDestroy {
   /** Emits settings updates and completes if the settings become unavailable.
    * @remarks this does not emit the initial settings. If you would like
    *   to receive live settings updates including the initial update,
-   *   use `CredentialGeneratorService.settings$(...)` instead.
+   *   use `CredentialGeneratorService.settings(...)` instead.
    */
   @Output()
   readonly onUpdated = new EventEmitter<EffUsernameGenerationOptions>();
 
   /** The template's control bindings */
   protected settings = this.formBuilder.group({
-    wordCapitalize: [Generators.username.settings.initial.wordCapitalize],
-    wordIncludeNumber: [Generators.username.settings.initial.wordIncludeNumber],
+    wordCapitalize: [false],
+    wordIncludeNumber: [false],
   });
 
   async ngOnInit() {
-    const settings = await this.generatorService.settings(Generators.username, {
+    const settings = await this.generatorService.settings(BuiltIn.effWordList, {
       account$: this.account$,
     });
 
@@ -78,7 +77,7 @@ export class UsernameSettingsComponent implements OnInit, OnChanges, OnDestroy {
     this.saveSettings
       .pipe(
         withLatestFrom(this.settings.valueChanges),
-        map(([, settings]) => settings),
+        map(([, settings]) => settings as EffUsernameGenerationOptions),
         takeUntil(this.destroyed$),
       )
       .subscribe(settings);
