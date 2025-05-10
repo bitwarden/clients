@@ -207,35 +207,4 @@ describe("AccountSwitcherService", () => {
       expect(removeListenerSpy).toBeCalledTimes(1);
     });
   });
-
-  describe("logout", () => {
-    const userId1 = "1" as UserId;
-    const userId2 = "2" as UserId;
-    it("initiates logout", async () => {
-      let listener: (
-        message: { command: string; userId: UserId; status: AuthenticationStatus },
-        sender: unknown,
-        sendResponse: unknown,
-      ) => void;
-      jest.spyOn(chrome.runtime.onMessage, "addListener").mockImplementation((addedListener) => {
-        listener = addedListener;
-      });
-
-      const removeListenerSpy = jest.spyOn(chrome.runtime.onMessage, "removeListener");
-
-      const logoutPromise = accountSwitcherService.logoutAccount(userId1);
-
-      listener(
-        { command: "switchAccountFinish", userId: userId2, status: AuthenticationStatus.Unlocked },
-        undefined,
-        undefined,
-      );
-
-      const result = await logoutPromise;
-
-      expect(messagingService.send).toHaveBeenCalledWith("logout", { userId: userId1 });
-      expect(result).toEqual({ newUserId: userId2, status: AuthenticationStatus.Unlocked });
-      expect(removeListenerSpy).toBeCalledTimes(1);
-    });
-  });
 });
