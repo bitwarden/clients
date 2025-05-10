@@ -168,7 +168,7 @@ export class DuckDuckGoMessageHandlerService {
     payload: DecryptedCommandData,
     key: SymmetricCryptoKey,
   ): Promise<EncString> {
-    return await this.encryptService.encrypt(JSON.stringify(payload), key);
+    return await this.encryptService.encryptString(JSON.stringify(payload), key);
   }
 
   private async decryptPayload(message: EncryptedMessage): Promise<DecryptedCommandData> {
@@ -188,10 +188,9 @@ export class DuckDuckGoMessageHandlerService {
     }
 
     try {
-      let decryptedResult = await this.encryptService.decryptToUtf8(
+      let decryptedResult = await this.encryptService.decryptString(
         message.encryptedCommand as EncString,
         this.duckduckgoSharedSecret,
-        "ddg-shared-key",
       );
 
       decryptedResult = this.trimNullCharsFromMessage(decryptedResult);
