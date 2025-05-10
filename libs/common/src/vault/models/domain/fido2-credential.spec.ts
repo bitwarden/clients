@@ -167,6 +167,45 @@ describe("Fido2Credential", () => {
       expect(Fido2Credential.fromJSON(null)).toBeNull();
     });
   });
+
+  describe("SDK Fido2Credential Mapping", () => {
+    it("should map to SDK Fido2Credential", () => {
+      const data: Fido2CredentialData = {
+        credentialId: "credentialId",
+        keyType: "public-key",
+        keyAlgorithm: "ECDSA",
+        keyCurve: "P-256",
+        keyValue: "keyValue",
+        rpId: "rpId",
+        userHandle: "userHandle",
+        userName: "userName",
+        counter: "2",
+        rpName: "rpName",
+        userDisplayName: "userDisplayName",
+        discoverable: "discoverable",
+        creationDate: mockDate.toISOString(),
+      };
+
+      const credential = new Fido2Credential(data);
+      const sdkCredential = credential.toSdkFido2Credential();
+
+      expect(sdkCredential).toEqual({
+        credentialId: "credentialId",
+        keyType: "public-key",
+        keyAlgorithm: "ECDSA",
+        keyCurve: "P-256",
+        keyValue: "keyValue",
+        rpId: "rpId",
+        userHandle: "userHandle",
+        userName: "userName",
+        counter: "2",
+        rpName: "rpName",
+        userDisplayName: "userDisplayName",
+        discoverable: "discoverable",
+        creationDate: mockDate.toISOString(),
+      });
+    });
+  });
 });
 
 function createEncryptedEncString(s: string): EncString {

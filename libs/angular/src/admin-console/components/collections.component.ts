@@ -50,9 +50,7 @@ export class CollectionsComponent implements OnInit {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     this.cipherDomain = await this.loadCipher(activeUserId);
     this.collectionIds = this.loadCipherCollections();
-    this.cipher = await this.cipherDomain.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, activeUserId),
-    );
+    this.cipher = await this.cipherService.decrypt(this.cipherDomain, activeUserId);
     this.collections = await this.loadCollections();
 
     this.collections.forEach((c) => ((c as any).checked = false));

@@ -1,3 +1,5 @@
+import { LoginUriView as SdkLoginUriView, UriMatchType } from "@bitwarden/sdk-internal";
+
 import { UriMatchStrategy, UriMatchStrategySetting } from "../../../models/domain/domain-service";
 import { Utils } from "../../../platform/misc/utils";
 
@@ -182,6 +184,26 @@ describe("LoginUriView", () => {
         const actual = uri.matchesUri(exampleUris.standard, exampleUris.noEquivalentDomains());
         expect(actual).toBe(false);
       });
+    });
+  });
+
+  describe("fromSdkLoginUriView", () => {
+    it("should return undefined when the input is null", () => {
+      const result = LoginUriView.fromSdkLoginUriView(null as unknown as SdkLoginUriView);
+      expect(result).toBeUndefined();
+    });
+
+    it("should create a LoginUriView from a SdkLoginUriView", () => {
+      const sdkLoginUriView = {
+        uri: "https://example.com",
+        match: UriMatchType.Host,
+      } as SdkLoginUriView;
+
+      const loginUriView = LoginUriView.fromSdkLoginUriView(sdkLoginUriView);
+
+      expect(loginUriView).toBeInstanceOf(LoginUriView);
+      expect(loginUriView!.uri).toBe(sdkLoginUriView.uri);
+      expect(loginUriView!.match).toBe(sdkLoginUriView.match);
     });
   });
 });

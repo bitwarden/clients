@@ -65,6 +65,20 @@ export function makeSymmetricCryptoKey<T extends SymmetricCryptoKey>(
 export const mockFromJson = (stub: any) => (stub + "_fromJSON") as any;
 
 /**
+ * Use to mock a return value of a static fromSdk method.
+ */
+export const mockFromSdk = (stub: any) => {
+  if (typeof stub === "object") {
+    return {
+      ...stub,
+      __fromSdk: true,
+    };
+  }
+
+  return `${stub}_fromSdk`;
+};
+
+/**
  * Tracks the emissions of the given observable.
  *
  * Call this function before you expect any emissions and then use code that will cause the observable to emit values,

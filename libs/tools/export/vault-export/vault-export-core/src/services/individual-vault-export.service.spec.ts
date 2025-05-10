@@ -10,7 +10,7 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-ids.export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -172,6 +172,8 @@ describe("VaultExportService", () => {
   let apiService: MockProxy<ApiService>;
   let fetchMock: jest.Mock;
 
+  const userId = "" as UserId;
+
   beforeEach(() => {
     cryptoFunctionService = mock<CryptoFunctionService>();
     cipherService = mock<CipherService>();
@@ -185,7 +187,6 @@ describe("VaultExportService", () => {
 
     keyService.userKey$.mockReturnValue(new BehaviorSubject("mockOriginalUserKey" as any));
 
-    const userId = "" as UserId;
     const accountInfo: AccountInfo = {
       email: "",
       emailVerified: true,
@@ -338,7 +339,9 @@ describe("VaultExportService", () => {
 
       cipherService.getAllDecrypted.mockResolvedValue([cipherView]);
       folderService.getAllDecryptedFromState.mockResolvedValue([]);
-      encryptService.decryptFileData.mockResolvedValue(new Uint8Array(255));
+      cipherService.getDecryptedAttachmentBuffer.mockRejectedValue(
+        new Error("Error decrypting attachment"),
+      );
 
       global.fetch = jest.fn(() =>
         Promise.resolve({
@@ -356,13 +359,17 @@ describe("VaultExportService", () => {
     it("contains attachments with folders", async () => {
       const cipherData = new CipherData();
       cipherData.id = "mock-id";
+      const cipherRecord: Record<CipherId, CipherData> = {
+        ["mock-id" as CipherId]: cipherData,
+      };
       const cipherView = new CipherView(new Cipher(cipherData));
       const attachmentView = new AttachmentView(new Attachment(new AttachmentData()));
       attachmentView.fileName = "mock-file-name";
       cipherView.attachments = [attachmentView];
+      cipherService.ciphers$.mockReturnValue(of(cipherRecord));
       cipherService.getAllDecrypted.mockResolvedValue([cipherView]);
       folderService.getAllDecryptedFromState.mockResolvedValue([]);
-      encryptService.decryptFileData.mockResolvedValue(new Uint8Array(255));
+      cipherService.getDecryptedAttachmentBuffer.mockResolvedValue(new Uint8Array(255));
       global.fetch = jest.fn(() =>
         Promise.resolve({
           status: 200,

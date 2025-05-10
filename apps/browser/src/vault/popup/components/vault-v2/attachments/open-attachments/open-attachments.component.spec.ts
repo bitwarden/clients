@@ -81,6 +81,7 @@ describe("OpenAttachmentsComponent", () => {
           useValue: {
             get: getCipher,
             getKeyForCipherKeyDecryption: () => Promise.resolve(null),
+            decrypt: jest.fn().mockResolvedValue(cipherView),
           },
         },
         {

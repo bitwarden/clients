@@ -14,6 +14,7 @@ import { LocalData } from "../models/data/local.data";
 import { Cipher } from "../models/domain/cipher";
 import { Field } from "../models/domain/field";
 import { CipherWithIdRequest } from "../models/request/cipher-with-id.request";
+import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 import { FieldView } from "../models/view/field.view";
 import { AddEditCipherInfo } from "../types/add-edit-cipher-info";
@@ -215,4 +216,28 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   ): Promise<CipherWithIdRequest[]>;
   abstract getNextCardCipher(userId: UserId): Promise<CipherView>;
   abstract getNextIdentityCipher(userId: UserId): Promise<CipherView>;
+
+  /**
+   * Decrypts a cipher using either the SDK or the legacy method based on the feature flag.
+   * @param cipher The cipher to decrypt.
+   * @param userId The user ID to use for decryption.
+   * @returns A promise that resolves to the decrypted cipher view.
+   */
+  abstract decrypt(cipher: Cipher, userId: UserId): Promise<CipherView>;
+  /**
+   * Decrypts an attachment's content from a response object.
+   *
+   * @param cipherId The ID of the cipher that owns the attachment
+   * @param attachment The attachment view object
+   * @param response The response object containing the encrypted content
+   * @param userId The user ID whose key will be used for decryption
+   *
+   * @returns A promise that resolves to the decrypted content
+   */
+  abstract getDecryptedAttachmentBuffer(
+    cipherId: CipherId,
+    attachment: AttachmentView,
+    response: Response,
+    userId: UserId,
+  ): Promise<Uint8Array | null>;
 }

@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { LoginView as SdkLoginView } from "@bitwarden/sdk-internal";
+
 import { UriMatchStrategySetting } from "../../../models/domain/domain-service";
 import { Utils } from "../../../platform/misc/utils";
 import { DeepJsonify } from "../../../types/deep-jsonify";
@@ -98,6 +100,29 @@ export class LoginView extends ItemView {
       passwordRevisionDate,
       uris,
       fido2Credentials,
+    });
+  }
+
+  /**
+   * Converts the SDK LoginView to a LoginView.
+   *
+   * Note: FIDO2 credentials remain encrypted at this stage.
+   * Unlike other fields that are decrypted as part of the LoginView, the SDK maintains
+   * the FIDO2 credentials in encrypted form. We can decrypt them later using a separate
+   * call to client.vault().ciphers().decrypt_fido2_credentials().
+   */
+  static fromSdkLoginView(obj: SdkLoginView): LoginView | undefined {
+    if (obj == null) {
+      return undefined;
+    }
+
+    const passwordRevisionDate =
+      obj.passwordRevisionDate == null ? null : new Date(obj.passwordRevisionDate);
+    const uris = obj.uris?.map((uri) => LoginUriView.fromSdkLoginUriView(uri));
+
+    return Object.assign(new LoginView(), obj, {
+      passwordRevisionDate,
+      uris,
     });
   }
 }

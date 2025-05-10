@@ -11,7 +11,6 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { OrgKey, UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -66,11 +65,7 @@ export class AssignCollections {
         route.queryParams.pipe(
           switchMap(async ({ cipherId }) => {
             const cipherDomain = await this.cipherService.get(cipherId, userId);
-            const key: UserKey | OrgKey = await this.cipherService.getKeyForCipherKeyDecryption(
-              cipherDomain,
-              userId,
-            );
-            return cipherDomain.decrypt(key);
+            return await this.cipherService.decrypt(cipherDomain, userId);
           }),
         ),
       ),

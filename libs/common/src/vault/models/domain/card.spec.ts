@@ -99,4 +99,21 @@ describe("Card", () => {
       expect(Card.fromJSON(null)).toBeNull();
     });
   });
+
+  describe("toSdkCard", () => {
+    it("should map to SDK Card", () => {
+      const card = new Card(data);
+
+      const sdkCard = card.toSdkCard();
+
+      expect(sdkCard).toEqual({
+        cardholderName: "encHolder",
+        brand: "encBrand",
+        number: "encNumber",
+        expMonth: "encMonth",
+        expYear: "encYear",
+        code: "encCode",
+      });
+    });
+  });
 });

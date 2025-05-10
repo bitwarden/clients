@@ -1,6 +1,8 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { Jsonify } from "type-fest";
 
+import { UriMatchType } from "@bitwarden/sdk-internal";
+
 import { mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
@@ -116,6 +118,19 @@ describe("LoginUri", () => {
 
     it("returns null if object is null", () => {
       expect(LoginUri.fromJSON(null)).toBeNull();
+    });
+  });
+
+  describe("SDK Login Uri Mapping", () => {
+    it("should map to SDK login uri", () => {
+      const loginUri = new LoginUri(data);
+      const sdkLoginUri = loginUri.toSdkLoginUri();
+
+      expect(sdkLoginUri).toEqual({
+        uri: "encUri",
+        uriChecksum: "encUriChecksum",
+        match: UriMatchType.Domain,
+      });
     });
   });
 });

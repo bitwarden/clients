@@ -3,7 +3,6 @@
 import { inject, Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -21,13 +20,10 @@ function isSetEqual(a: Set<string>, b: Set<string>) {
 export class DefaultCipherFormService implements CipherFormService {
   private cipherService: CipherService = inject(CipherService);
   private accountService: AccountService = inject(AccountService);
-  private apiService: ApiService = inject(ApiService);
 
   async decryptCipher(cipher: Cipher): Promise<CipherView> {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    return await cipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-    );
+    return await this.cipherService.decrypt(cipher, activeUserId);
   }
 
   async saveCipher(cipher: CipherView, config: CipherFormConfig): Promise<CipherView> {
@@ -46,9 +42,7 @@ export class DefaultCipherFormService implements CipherFormService {
     // Creating a new cipher
     if (cipher.id == null) {
       savedCipher = await this.cipherService.createWithServer(encryptedCipher, config.admin);
-      return await savedCipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(savedCipher, activeUserId),
-      );
+      return await this.cipherService.decrypt(savedCipher, activeUserId);
     }
 
     if (config.originalCipher == null) {
@@ -100,8 +94,6 @@ export class DefaultCipherFormService implements CipherFormService {
       return null;
     }
 
-    return await savedCipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(savedCipher, activeUserId),
-    );
+    return await this.cipherService.decrypt(savedCipher, activeUserId);
   }
 }

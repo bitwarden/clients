@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { Card as SdkCard } from "@bitwarden/sdk-internal";
+
 import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
@@ -84,5 +86,21 @@ export class Card extends Domain {
       expYear,
       code,
     });
+  }
+
+  /**
+   *  Maps Card to SDK format.
+   *
+   * @returns {SdkCard} The SDK card object.
+   */
+  toSdkCard(): SdkCard {
+    return {
+      cardholderName: this.cardholderName?.toJSON(),
+      brand: this.brand?.toJSON(),
+      number: this.number?.toJSON(),
+      expMonth: this.expMonth?.toJSON(),
+      expYear: this.expYear?.toJSON(),
+      code: this.code?.toJSON(),
+    };
   }
 }

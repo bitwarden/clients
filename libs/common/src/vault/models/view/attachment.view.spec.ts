@@ -1,4 +1,7 @@
+import { AttachmentView as SdkAttachmentView } from "@bitwarden/sdk-internal";
+
 import { mockFromJson } from "../../../../spec";
+import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 
 import { AttachmentView } from "./attachment.view";
@@ -14,5 +17,57 @@ describe("AttachmentView", () => {
     });
 
     expect(actual.key).toEqual("encKeyB64_fromJSON");
+  });
+
+  describe("fromSdkAttachmentView", () => {
+    it("should return undefined when the input is null", () => {
+      const result = AttachmentView.fromSdkAttachmentView(null as unknown as any);
+      expect(result).toBeUndefined();
+    });
+
+    it("should return an AttachmentView from an SdkAttachmentView", () => {
+      const sdkAttachmentView = {
+        id: "id",
+        url: "url",
+        size: "size",
+        sizeName: "sizeName",
+        fileName: "fileName",
+        key: "encKeyB64_fromString",
+      } as SdkAttachmentView;
+
+      const result = AttachmentView.fromSdkAttachmentView(sdkAttachmentView);
+
+      expect(result).toMatchObject({
+        id: "id",
+        url: "url",
+        size: "size",
+        sizeName: "sizeName",
+        fileName: "fileName",
+        key: null,
+        encryptedKey: new EncString(sdkAttachmentView.key as string),
+      });
+    });
+  });
+
+  describe("toSdkAttachmentView", () => {
+    it("should convert AttachmentView to SdkAttachmentView", () => {
+      const attachmentView = new AttachmentView();
+      attachmentView.id = "id";
+      attachmentView.url = "url";
+      attachmentView.size = "size";
+      attachmentView.sizeName = "sizeName";
+      attachmentView.fileName = "fileName";
+      attachmentView.encryptedKey = new EncString("encKeyB64");
+
+      const result = attachmentView.toSdkAttachmentView();
+      expect(result).toEqual({
+        id: "id",
+        url: "url",
+        size: "size",
+        sizeName: "sizeName",
+        fileName: "fileName",
+        key: "encKeyB64",
+      });
+    });
   });
 });

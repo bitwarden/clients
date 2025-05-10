@@ -12,14 +12,12 @@ import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/a
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { CipherWithIdExport, FolderWithIdExport } from "@bitwarden/common/models/export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
-import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
@@ -118,8 +116,19 @@ export class IndividualVaultExportService
       const cipherFolder = attachmentsFolder.folder(cipher.id);
       for (const attachment of cipher.attachments) {
         const response = await this.downloadAttachment(cipher.id, attachment.id);
-        const decBuf = await this.decryptAttachment(cipher, attachment, response);
-        cipherFolder.file(attachment.fileName, decBuf);
+
+        try {
+          const decBuf = await this.cipherService.getDecryptedAttachmentBuffer(
+            cipher.id as CipherId,
+            attachment,
+            response,
+            activeUserId,
+          );
+
+          cipherFolder.file(attachment.fileName, decBuf);
+        } catch {
+          throw new Error("Error decrypting attachment");
+        }
       }
     }
 
@@ -144,23 +153,6 @@ export class IndividualVaultExportService
       throw new Error("Error downloading attachment");
     }
     return response;
-  }
-
-  private async decryptAttachment(
-    cipher: CipherView,
-    attachment: AttachmentView,
-    response: Response,
-  ) {
-    try {
-      const encBuf = await EncArrayBuffer.fromResponse(response);
-      const key =
-        attachment.key != null
-          ? attachment.key
-          : await this.keyService.getOrgKey(cipher.organizationId);
-      return await this.encryptService.decryptFileData(encBuf, key);
-    } catch {
-      throw new Error("Error decrypting attachment");
-    }
   }
 
   private async getDecryptedExport(

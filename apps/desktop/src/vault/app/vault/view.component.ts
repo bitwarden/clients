@@ -72,7 +72,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
     accountService: AccountService,
     toastService: ToastService,
     cipherAuthorizationService: CipherAuthorizationService,
-    private configService: ConfigService,
+    configService: ConfigService,
   ) {
     super(
       cipherService,
@@ -100,6 +100,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
       billingAccountProfileStateService,
       toastService,
       cipherAuthorizationService,
+      configService,
     );
   }
 
