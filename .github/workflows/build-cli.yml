@@ -152,10 +152,74 @@ jobs:
       - name: Build & Package Unix
         run: npm run dist:${{ matrix.license_type.build_prefix }}:${{ env.SHORT_RUNNER_OS }}${{ matrix.os.target_suffix }} --quiet
 
+      - name: Login to Azure
+        if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        with:
+          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+
+      - name: Retrieve secrets
+        if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
+        id: retrieve-secrets-macos
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "macos-bws-notarization-apple-id,
+            macos-bws-notarization-team-id,
+            macos-bws-notarization-password,
+            macos-bws-certificate-name,
+            macos-bws-installer-certificate-name"
+
+      - name: Get certificates
+        run: |
+          mkdir -p $HOME/certificates
+
+          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-app-cert |
+            jq -r .value | base64 -d > $HOME/certificates/devid-app-cert.p12
+
+      - name: Set up keychain
+        if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
+        env:
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          DEVID_CERT_PASSWORD: ${{ secrets.DEVID_CERT_PASSWORD }}
+        run: |
+          security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p $KEYCHAIN_PASSWORD build.keychain
+          security set-keychain-settings -lut 1200 build.keychain
+
+          security import "$HOME/certificates/devid-app-cert.p12" -k build.keychain -P "" \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
+
+      - name: Sign binary
+        if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
+        env:
+          MACOS_CERTIFICATE_NAME: ${{ steps.retrieve-secrets-macos.outputs.macos-bws-certificate-name }}
+        run: codesign --sign "$MACOS_CERTIFICATE_NAME" --verbose=3 --force --options=runtime --timestamp ./dist/${{ matrix.license_type.build_prefix }}/${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}/bw
+
       - name: Zip Unix
         run: |
           cd ./dist/${{ matrix.license_type.build_prefix }}/${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}
           zip ../../bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-${{ env._PACKAGE_VERSION }}.zip ./bw
+
+      - name: Notarize app
+        if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
+        env:
+          MACOS_NOTARIZATION_APPLE_ID: ${{ steps.retrieve-secrets-macos.outputs.macos-bws-notarization-apple-id }}
+          MACOS_NOTARIZATION_TEAM_ID: ${{ steps.retrieve-secrets-macos.outputs.macos-bws-notarization-team-id }}
+          MACOS_NOTARIZATION_PWD: ${{ steps.retrieve-secrets-macos.outputs.macos-bws-notarization-password }}
+          MACOS_CERTIFICATE_NAME: ${{ steps.retrieve-secrets-macos.outputs.macos-bws-certificate-name }}
+        run: |
+
+          echo "Create keychain profile"
+          xcrun notarytool store-credentials "notarytool-profile" --apple-id "$MACOS_NOTARIZATION_APPLE_ID" --team-id "$MACOS_NOTARIZATION_TEAM_ID" --password "$MACOS_NOTARIZATION_PWD"
+
+          codesign --sign "$MACOS_CERTIFICATE_NAME" --verbose=3 --force --options=runtime --timestamp ./dist/bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-${{ env._PACKAGE_VERSION }}.zip
+
+          echo "Notarize app"
+          xcrun notarytool submit ./dist/bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-${{ env._PACKAGE_VERSION }}.zip --keychain-profile "notarytool-profile" --wait
 
       - name: Version Test
         run: |
