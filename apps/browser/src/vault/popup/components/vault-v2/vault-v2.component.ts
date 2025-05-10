@@ -49,9 +49,7 @@ import {
   NewItemDropdownV2Component,
   NewItemInitialValues,
 } from "./new-item-dropdown/new-item-dropdown-v2.component";
-import { NewSettingsCalloutComponent } from "./new-settings-callout/new-settings-callout.component";
 import { VaultHeaderV2Component } from "./vault-header/vault-header-v2.component";
-import { VaultPageService } from "./vault-page.service";
 
 import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
 
@@ -81,11 +79,9 @@ enum VaultState {
     ScrollingModule,
     VaultHeaderV2Component,
     AtRiskPasswordCalloutComponent,
-    NewSettingsCalloutComponent,
     SpotlightComponent,
     RouterModule,
   ],
-  providers: [VaultPageService],
 })
 export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(CdkVirtualScrollableElement) virtualScrollElement?: CdkVirtualScrollableElement;
@@ -142,7 +138,6 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   protected noResultsIcon = Icons.NoResults;
 
   protected VaultStateEnum = VaultState;
-  protected showNewCustomizationSettingsCallout = false;
 
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
