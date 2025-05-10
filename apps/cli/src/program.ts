@@ -118,7 +118,10 @@ export class Program extends BaseProgram {
       .description("Log into a user account.")
       .option("--method <method>", "Two-step login method.")
       .option("--code <code>", "Two-step login code.")
-      .option("--sso", "Log in with Single-Sign On.")
+      .option(
+        "--sso [identifier]",
+        "Log in with Single-Sign On with optional organization identifier.",
+      )
       .option("--apikey", "Log in with an Api Key.")
       .option("--passwordenv <passwordenv>", "Environment variable storing your password")
       .option(

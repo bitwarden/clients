@@ -106,6 +106,8 @@ export class LoginCommand {
         return Response.badRequest("client_secret is required.");
       }
     } else if (options.sso != null && this.canInteract) {
+      // If the optional Org SSO Identifier isn't provided, the option value is `true`.
+      const orgSsoIdentifier = options.sso === true ? null : options.sso;
       const passwordOptions: any = {
         type: "password",
         length: 64,
@@ -119,7 +121,7 @@ export class LoginCommand {
       const codeVerifierHash = await this.cryptoFunctionService.hash(ssoCodeVerifier, "sha256");
       const codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash);
       try {
-        const ssoParams = await this.openSsoPrompt(codeChallenge, state);
+        const ssoParams = await this.openSsoPrompt(codeChallenge, state, orgSsoIdentifier);
         ssoCode = ssoParams.ssoCode;
         orgIdentifier = ssoParams.orgIdentifier;
       } catch {
@@ -664,6 +666,7 @@ export class LoginCommand {
   private async openSsoPrompt(
     codeChallenge: string,
     state: string,
+    orgSsoIdentifier: string,
   ): Promise<{ ssoCode: string; orgIdentifier: string }> {
     const env = await firstValueFrom(this.environmentService.environment$);
 
@@ -712,6 +715,8 @@ export class LoginCommand {
               this.ssoRedirectUri,
               state,
               codeChallenge,
+              null,
+              orgSsoIdentifier,
             );
             this.platformUtilsService.launchUri(webAppSsoUrl);
           });
