@@ -19,6 +19,7 @@ import {
   RegistrationStartSecondaryComponent,
   RegistrationStartSecondaryComponentData,
   SetPasswordJitComponent,
+  SetInitialPasswordComponent,
   RegistrationLinkExpiredComponent,
   LoginComponent,
   LoginSecondaryContentComponent,
@@ -313,6 +314,10 @@ const routes: Routes = [
             component: SendAccessExplainerComponent,
           },
         ],
+      },
+      {
+        path: "set-initial-password",
+        component: SetInitialPasswordComponent,
       },
       {
         path: "set-password-jit",
