@@ -49,6 +49,7 @@ export abstract class EncryptService {
     key: SymmetricCryptoKey,
     decryptTrace?: string,
   ): Promise<Uint8Array | null>;
+
   /**
    * @deprecated Replaced by BulkEncryptService, remove once the feature is tested and the featureflag PM-4154-multi-worker-encryption-service is removed
    * @param items The items to decrypt

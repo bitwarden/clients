@@ -58,6 +58,9 @@ function setupUserKeyValidation(
   cipher.notes = mockEnc("EncryptedString");
   cipher.key = mockEnc("EncKey");
   cipherService.getAll.mockResolvedValue([cipher]);
+  encryptService.unwrapSymmetricKey.mockResolvedValue(
+    new SymmetricCryptoKey(makeStaticByteArray(64)),
+  );
   encryptService.decryptToBytes.mockResolvedValue(makeStaticByteArray(64));
   encryptService.decryptString.mockResolvedValue("mockDecryptedString");
   (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);

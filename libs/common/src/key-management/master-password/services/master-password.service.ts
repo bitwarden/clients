@@ -174,21 +174,13 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
       throw new Error("No master key found.");
     }
 
-    let decUserKey: Uint8Array;
+    let decUserKey: SymmetricCryptoKey;
 
     if (userKey.encryptionType === EncryptionType.AesCbc256_B64) {
-      decUserKey = await this.encryptService.decryptToBytes(
-        userKey,
-        masterKey,
-        "Content: User Key; Encrypting Key: Master Key",
-      );
+      decUserKey = await this.encryptService.unwrapSymmetricKey(userKey, masterKey);
     } else if (userKey.encryptionType === EncryptionType.AesCbc256_HmacSha256_B64) {
       const newKey = await this.keyGenerationService.stretchKey(masterKey);
-      decUserKey = await this.encryptService.decryptToBytes(
-        userKey,
-        newKey,
-        "Content: User Key; Encrypting Key: Stretched Master Key",
-      );
+      decUserKey = await this.encryptService.unwrapSymmetricKey(userKey, newKey);
     } else {
       throw new Error("Unsupported encryption type.");
     }
@@ -198,6 +190,6 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
       return null;
     }
 
-    return new SymmetricCryptoKey(decUserKey) as UserKey;
+    return decUserKey as UserKey;
   }
 }

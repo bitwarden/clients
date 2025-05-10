@@ -623,9 +623,9 @@ describe("deviceTrustService", () => {
       });
 
       it("successfully returns the user key when provided keys (including device key) can decrypt it", async () => {
-        const decryptToBytesSpy = jest
-          .spyOn(encryptService, "decryptToBytes")
-          .mockResolvedValue(new Uint8Array(userKeyBytesLength));
+        const unwrapDecapsulationKeySpy = jest
+          .spyOn(encryptService, "unwrapDecapsulationKey")
+          .mockResolvedValue(new Uint8Array(2048));
         const rsaDecryptSpy = jest
           .spyOn(encryptService, "decapsulateKeyUnsigned")
           .mockResolvedValue(new SymmetricCryptoKey(new Uint8Array(userKeyBytesLength)));
@@ -638,13 +638,13 @@ describe("deviceTrustService", () => {
         );
 
         expect(result).toEqual(mockUserKey);
-        expect(decryptToBytesSpy).toHaveBeenCalledTimes(1);
+        expect(unwrapDecapsulationKeySpy).toHaveBeenCalledTimes(1);
         expect(rsaDecryptSpy).toHaveBeenCalledTimes(1);
       });
 
       it("returns null and removes device key when the decryption fails", async () => {
-        const decryptToBytesSpy = jest
-          .spyOn(encryptService, "decryptToBytes")
+        const unwrapDecapsulationKeySpy = jest
+          .spyOn(encryptService, "unwrapDecapsulationKey")
           .mockRejectedValue(new Error("Decryption error"));
         const setDeviceKeySpy = jest.spyOn(deviceTrustService as any, "setDeviceKey");
 
@@ -656,7 +656,7 @@ describe("deviceTrustService", () => {
         );
 
         expect(result).toBeNull();
-        expect(decryptToBytesSpy).toHaveBeenCalledTimes(1);
+        expect(unwrapDecapsulationKeySpy).toHaveBeenCalledTimes(1);
         expect(setDeviceKeySpy).toHaveBeenCalledTimes(1);
         expect(setDeviceKeySpy).toHaveBeenCalledWith(mockUserId, null);
       });
@@ -704,8 +704,8 @@ describe("deviceTrustService", () => {
             DeviceResponse,
           ),
         );
-        encryptService.decryptToBytes.mockResolvedValue(null);
-        encryptService.encrypt.mockResolvedValue(new EncString("test_encrypted_data"));
+        encryptService.decryptBytes.mockResolvedValue(null);
+        encryptService.encryptString.mockResolvedValue(new EncString("test_encrypted_data"));
         encryptService.encapsulateKeyUnsigned.mockResolvedValue(
           new EncString("test_encrypted_data"),
         );
@@ -752,9 +752,11 @@ describe("deviceTrustService", () => {
             DeviceResponse,
           ),
         );
-        encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(64));
-        encryptService.encrypt.mockResolvedValue(new EncString("test_encrypted_data"));
-        encryptService.rsaEncrypt.mockResolvedValue(new EncString("test_encrypted_data"));
+        encryptService.unwrapEncapsulationKey.mockResolvedValue(new Uint8Array(64));
+        encryptService.wrapEncapsulationKey.mockResolvedValue(new EncString("test_encrypted_data"));
+        encryptService.encapsulateKeyUnsigned.mockResolvedValue(
+          new EncString("test_encrypted_data"),
+        );
 
         const protectedDeviceResponse = new ProtectedDeviceResponse({
           id: "",
@@ -862,13 +864,15 @@ describe("deviceTrustService", () => {
           });
 
           // Mock the decryption of the public key with the old user key
-          encryptService.decryptToBytes.mockImplementationOnce((_encValue, privateKeyValue) => {
-            expect(privateKeyValue.inner().type).toBe(EncryptionType.AesCbc256_HmacSha256_B64);
-            expect(new Uint8Array(privateKeyValue.toEncoded())[0]).toBe(FakeOldUserKeyMarker);
-            const data = new Uint8Array(250);
-            data.fill(FakeDecryptedPublicKeyMarker, 0, 1);
-            return Promise.resolve(data);
-          });
+          encryptService.unwrapEncapsulationKey.mockImplementationOnce(
+            (_encValue, privateKeyValue) => {
+              expect(privateKeyValue.inner().type).toBe(EncryptionType.AesCbc256_HmacSha256_B64);
+              expect(new Uint8Array(privateKeyValue.toEncoded())[0]).toBe(FakeOldUserKeyMarker);
+              const data = new Uint8Array(250);
+              data.fill(FakeDecryptedPublicKeyMarker, 0, 1);
+              return Promise.resolve(data);
+            },
+          );
 
           // Mock the encryption of the new user key with the decrypted public key
           encryptService.encapsulateKeyUnsigned.mockImplementationOnce((data, publicKey) => {
