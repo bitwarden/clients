@@ -1,13 +1,18 @@
 // FIXME: Update this file to be type safe
 // @ts-strict-ignore
-import { concatMap, first, from, map, Observable, zip } from "rxjs";
+import { concatMap, first, firstValueFrom, from, map, Observable, takeWhile, zip } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { KeyService } from "@bitwarden/key-management";
 
 import {
   ApplicationHealthReportDetail,
@@ -20,8 +25,11 @@ import {
   MemberDetailsFlat,
   WeakPasswordDetail,
   WeakPasswordScore,
+  RiskInsightsReport,
+  GetRiskInsightsReportResponse,
 } from "../models/password-health";
 
+import { CriticalAppsService } from "./critical-apps.service";
 import { MemberCipherDetailsApiService } from "./member-cipher-details-api.service";
 
 export class RiskInsightsReportService {
@@ -30,6 +38,10 @@ export class RiskInsightsReportService {
     private auditService: AuditService,
     private cipherService: CipherService,
     private memberCipherDetailsApiService: MemberCipherDetailsApiService,
+    private keyService: KeyService,
+    private encryptService: EncryptService,
+    private criticalAppsService: CriticalAppsService,
+    private keyGeneratorService: KeyGenerationService,
   ) {}
 
   /**
@@ -160,6 +172,106 @@ export class RiskInsightsReportService {
       totalApplicationCount: reports.length,
       totalAtRiskApplicationCount: reports.filter((app) => app.atRiskPasswordCount > 0).length,
     };
+  }
+
+  async generateEncryptedRiskInsightsReport(
+    organizationId: OrganizationId,
+    details: ApplicationHealthReportDetail[],
+    summary: ApplicationHealthReportSummary,
+  ): Promise<RiskInsightsReport> {
+    const orgKey = await this.keyService.getOrgKey(organizationId as string);
+    if (orgKey === null) {
+      throw new Error("Organization key not found");
+    }
+
+    const reportContentEncryptionKey = await this.keyGeneratorService.createKey(512);
+    const reportEncrypted = await this.encryptService.encryptString(
+      JSON.stringify(details),
+      reportContentEncryptionKey,
+    );
+
+    const wrappedReportContentEncryptionKey = await this.encryptService.wrapSymmetricKey(
+      reportContentEncryptionKey,
+      orgKey,
+    );
+
+    const reportDataWithWrappedKey = {
+      data: reportEncrypted.encryptedString,
+      key: wrappedReportContentEncryptionKey.encryptedString,
+    };
+
+    const encryptedReportDataWithWrappedKey = await this.encryptService.encryptString(
+      JSON.stringify(reportDataWithWrappedKey),
+      orgKey,
+    );
+
+    const criticalApps = await firstValueFrom(
+      this.criticalAppsService
+        .getAppsListForOrg(organizationId)
+        .pipe(takeWhile((apps) => apps !== null && apps.length > 0)),
+    );
+
+    const riskInsightReport = {
+      organizationId: organizationId,
+      date: new Date().toISOString(),
+      reportData: encryptedReportDataWithWrappedKey.encryptedString,
+      totalMembers: summary.totalMemberCount,
+      totalAtRiskMembers: summary.totalAtRiskMemberCount,
+      totalApplications: summary.totalApplicationCount,
+      totalAtRiskApplications: summary.totalAtRiskApplicationCount,
+      totalCriticalApplications: criticalApps.length,
+    };
+
+    return riskInsightReport;
+  }
+
+  async decryptRiskInsightsReport(
+    organizationId: OrganizationId,
+    riskInsightsReportResponse: GetRiskInsightsReportResponse,
+  ): Promise<[ApplicationHealthReportDetail[], ApplicationHealthReportSummary]> {
+    try {
+      const orgKey = await this.keyService.getOrgKey(organizationId as string);
+      if (orgKey === null) {
+        throw new Error("Organization key not found");
+      }
+
+      const decryptedReportDataWithWrappedKey = await this.encryptService.decryptString(
+        new EncString(riskInsightsReportResponse.reportData),
+        orgKey,
+      );
+
+      const reportDataInJson = JSON.parse(decryptedReportDataWithWrappedKey);
+      const reportEncrypted = reportDataInJson.data;
+      const wrappedReportContentEncryptionKey = reportDataInJson.key;
+
+      const freshWrappedReportContentEncryptionKey = new EncString(
+        wrappedReportContentEncryptionKey,
+      );
+
+      const unwrappedReportContentEncryptionKey = await this.encryptService.unwrapSymmetricKey(
+        freshWrappedReportContentEncryptionKey,
+        orgKey,
+      );
+
+      const reportUnencrypted = await this.encryptService.decryptString(
+        new EncString(reportEncrypted),
+        unwrappedReportContentEncryptionKey,
+      );
+
+      const reportJson: ApplicationHealthReportDetail[] = JSON.parse(reportUnencrypted);
+
+      const summary: ApplicationHealthReportSummary = {
+        totalMemberCount: riskInsightsReportResponse.totalMembers,
+        totalAtRiskMemberCount: riskInsightsReportResponse.totalAtRiskMembers,
+        totalApplicationCount: riskInsightsReportResponse.totalApplications,
+        totalAtRiskApplicationCount: riskInsightsReportResponse.totalAtRiskApplications,
+      };
+
+      return [reportJson, summary];
+    } catch {
+      // console.error("Error decrypting risk insights report :", error);
+      return [null, null];
+    }
   }
 
   /**

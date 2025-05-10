@@ -113,7 +113,7 @@ export class RiskInsightsComponent implements OnInit {
         switchMap((orgId: string | null) => {
           if (orgId) {
             this.organizationId = orgId;
-            this.dataService.fetchApplicationsReport(orgId);
+            // this.dataService.fetchApplicationsReport(orgId);
             this.isLoading$ = this.dataService.isLoading$;
             this.isRefreshing$ = this.dataService.isRefreshing$;
             this.dataLastUpdated$ = this.dataService.dataLastUpdated$;

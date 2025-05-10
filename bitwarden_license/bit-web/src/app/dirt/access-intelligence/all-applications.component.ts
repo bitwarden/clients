@@ -2,10 +2,20 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, debounceTime, firstValueFrom, map, Observable, of, skipWhile } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  debounceTime,
+  firstValueFrom,
+  map,
+  Observable,
+  of,
+  switchMap,
+} from "rxjs";
 
 import {
   CriticalAppsService,
+  RiskInsightsApiService,
   RiskInsightsDataService,
   RiskInsightsReportService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
@@ -24,6 +34,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
   Icons,
@@ -74,6 +85,21 @@ export class AllApplicationsComponent implements OnInit {
   isLoading$: Observable<boolean> = of(false);
   isCriticalAppsFeatureEnabled = false;
 
+  private atRiskInsightsReport = new BehaviorSubject<{
+    data: ApplicationHealthReportDetailWithCriticalFlag[];
+    organization: Organization;
+    summary: ApplicationHealthReportSummary;
+  }>({
+    data: [],
+    organization: new Organization(),
+    summary: {
+      totalMemberCount: 0,
+      totalAtRiskMemberCount: 0,
+      totalApplicationCount: 0,
+      totalAtRiskApplicationCount: 0,
+    },
+  });
+
   async ngOnInit() {
     this.isCriticalAppsFeatureEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.CriticalApps,
@@ -88,23 +114,51 @@ export class AllApplicationsComponent implements OnInit {
         .pipe(getOrganizationById(organizationId));
 
       combineLatest([
-        this.dataService.applications$,
+        this.riskInsightsApiService.getRiskInsightsReport(organizationId as OrganizationId),
         this.criticalAppsService.getAppsListForOrg(organizationId),
         organization$,
+        this.dataService.applications$,
       ])
         .pipe(
-          takeUntilDestroyed(this.destroyRef),
-          skipWhile(([_, __, organization]) => !organization),
-          map(([applications, criticalApps, organization]) => {
+          switchMap(async ([reportArchive, criticalApps, organization, appHealthReport]) => {
+            if (reportArchive == null) {
+              const report = await firstValueFrom(this.dataService.applications$);
+
+              if (report == null) {
+                this.dataService.fetchApplicationsReport(organizationId as OrganizationId);
+              }
+
+              return {
+                report,
+                criticalApps,
+                organization,
+                fromDb: false,
+              };
+            } else {
+              const [report] = await this.reportService.decryptRiskInsightsReport(
+                organizationId as OrganizationId,
+                reportArchive,
+              );
+
+              return {
+                report,
+                criticalApps,
+                organization,
+                fromDb: true,
+              };
+            }
+          }),
+          map(({ report, criticalApps, organization, fromDb }) => {
             const criticalUrls = criticalApps.map((ca) => ca.uri);
-            const data = applications?.map((app) => ({
+            const data = report?.map((app) => ({
               ...app,
               isMarkedAsCritical: criticalUrls.includes(app.applicationName),
             })) as ApplicationHealthReportDetailWithCriticalFlag[];
-            return { data, organization };
+            return { data, organization, fromDb };
           }),
+          takeUntilDestroyed(this.destroyRef),
         )
-        .subscribe(({ data, organization }) => {
+        .subscribe(({ data, organization, fromDb }) => {
           if (data) {
             this.dataSource.data = data;
             this.applicationSummary = this.reportService.generateApplicationsSummary(data);
@@ -112,7 +166,50 @@ export class AllApplicationsComponent implements OnInit {
           if (organization) {
             this.organization = organization;
           }
+
+          if (!fromDb && data && organization) {
+            this.atRiskInsightsReport.next({
+              data,
+              organization,
+              summary: this.applicationSummary,
+            });
+          }
         });
+
+      // combineLatest([
+      //   this.dataService.applications$,
+      //   this.criticalAppsService.getAppsListForOrg(organizationId),
+      //   organization$,
+      // ])
+      //   .pipe(
+      //     takeUntilDestroyed(this.destroyRef),
+      //     skipWhile(([_, __, organization]) => !organization),
+      //     map(([applications, criticalApps, organization]) => {
+      //       const criticalUrls = criticalApps.map((ca) => ca.uri);
+      //       const data = applications?.map((app) => ({
+      //         ...app,
+      //         isMarkedAsCritical: criticalUrls.includes(app.applicationName),
+      //       })) as ApplicationHealthReportDetailWithCriticalFlag[];
+      //       return { data, organization };
+      //     }),
+      //   )
+      //   .subscribe(({ data, organization }) => {
+      //     if (data) {
+      //       this.dataSource.data = data;
+      //       this.applicationSummary = this.reportService.generateApplicationsSummary(data);
+      //     }
+      //     if (organization) {
+      //       this.organization = organization;
+      //     }
+
+      //     if (data && organization) {
+      //       this.atRiskInsightsReport.next({
+      //         data,
+      //         organization,
+      //         summary: this.applicationSummary,
+      //       });
+      //     }
+      //   });
 
       this.isLoading$ = this.dataService.isLoading$;
     }
@@ -129,10 +226,48 @@ export class AllApplicationsComponent implements OnInit {
     protected reportService: RiskInsightsReportService,
     private accountService: AccountService,
     protected criticalAppsService: CriticalAppsService,
+    protected riskInsightsApiService: RiskInsightsApiService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
       .subscribe((v) => (this.dataSource.filter = v));
+
+    this.atRiskInsightsReport
+      .asObservable()
+      .pipe(
+        debounceTime(500),
+        switchMap(async (report) => {
+          if (report && report.organization?.id && report.data && report.summary) {
+            const data = await this.reportService.generateEncryptedRiskInsightsReport(
+              report.organization.id as OrganizationId,
+              report.data,
+              report.summary,
+            );
+            return data;
+          }
+          return null;
+        }),
+        switchMap(async (reportData) => {
+          if (reportData) {
+            const request = { data: reportData };
+            try {
+              const response = await firstValueFrom(
+                this.riskInsightsApiService.saveRiskInsightsReport(
+                  this.organization.id as OrganizationId,
+                  request,
+                ),
+              );
+              return response;
+            } catch {
+              /* continue as usual */
+            }
+
+            return null;
+          }
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
   }
 
   goToCreateNewLoginItem = async () => {

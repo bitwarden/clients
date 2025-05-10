@@ -49,6 +49,10 @@ export class CriticalAppsService {
 
   // Get a list of critical apps for a given organization
   getAppsListForOrg(orgId: string): Observable<PasswordHealthReportApplicationsResponse[]> {
+    if (this.criticalAppsList.value.length === 0) {
+      return of([]);
+    }
+
     return this.criticalAppsList
       .asObservable()
       .pipe(map((apps) => apps.filter((app) => app.organizationId === orgId)));
