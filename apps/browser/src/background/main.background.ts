@@ -264,6 +264,7 @@ import { BrowserApi } from "../platform/browser/browser-api";
 import { flagEnabled } from "../platform/flags";
 import { IpcBackgroundService } from "../platform/ipc/ipc-background.service";
 import { IpcContentScriptManagerService } from "../platform/ipc/ipc-content-script-manager.service";
+import { IpcPongService } from "../platform/ipc/ipc-pong.service";
 import { UpdateBadge } from "../platform/listeners/update-badge";
 /* eslint-disable no-restricted-imports */
 import { ChromeMessageSender } from "../platform/messaging/chrome-message.sender";
@@ -411,6 +412,7 @@ export default class MainBackground {
 
   ipcContentScriptManagerService: IpcContentScriptManagerService;
   ipcService: IpcService;
+  ipcPongService: IpcPongService;
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
@@ -1334,6 +1336,8 @@ export default class MainBackground {
       this.authService,
       this.logService,
     );
+
+    this.ipcPongService = new IpcPongService(this.ipcService);
   }
 
   async bootstrap() {
@@ -1408,6 +1412,7 @@ export default class MainBackground {
 
     await this.initOverlayAndTabsBackground();
     await this.ipcService.init();
+    await this.ipcPongService.init();
 
     return new Promise<void>((resolve) => {
       setTimeout(async () => {
