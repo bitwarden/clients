@@ -1,4 +1,5 @@
 <bit-table-scroll [dataSource]="dataSource" [rowSize]="50">
+  <!-- Table Header -->
   <ng-container header>
     <th
       *ngFor="let col of columnConfig"
@@ -12,40 +13,46 @@
       {{ col.title }}
     </th>
   </ng-container>
-  <ng-template bitRowDef let-row>
+
+  <!-- Table Rows -->
+  <ng-template bitRowDef let-device>
+    <!-- Column: Device Name -->
     <td bitCell class="tw-flex tw-gap-2">
       <div class="tw-flex tw-items-center tw-justify-center tw-w-10">
-        <i [class]="getDeviceIcon(row.deviceView.type)" class="bwi-lg" aria-hidden="true"></i>
+        <i [class]="device.icon" class="bwi-lg" aria-hidden="true"></i>
       </div>
-      <div>
-        <ng-container *ngIf="hasPendingAuthRequest(row.deviceView)">
-          <a bitLink href="#" appStopClick (click)="managePendingAuthRequest(row.deviceView)">
-            {{ row.displayName }}
-          </a>
 
-          <span class="tw-text-sm tw-text-muted tw-block">
-            {{ "needsApproval" | i18n }}
-          </span>
-        </ng-container>
-        <ng-container *ngIf="!hasPendingAuthRequest(row.deviceView)">
-          {{ row.displayName }}
-          <span
-            *ngIf="row.deviceView.response?.isTrusted && !hasPendingAuthRequest(row.deviceView)"
-            class="tw-text-sm tw-text-muted tw-block"
-          >
-            {{ "trusted" | i18n }}
-          </span>
-        </ng-container>
-      </div>
+      @if (device.pendingAuthRequest) {
+        <a
+          bitLink
+          href="#"
+          appStopClick
+          (click)="managePendingAuthRequest(device.pendingAuthRequest)"
+        >
+          {{ device.displayName }}
+        </a>
+        <span class="tw-text-sm tw-text-muted tw-block">
+          {{ "needsApproval" | i18n }}
+        </span>
+      } @else {
+        <span>{{ device.displayName }}</span>
+        <span *ngIf="device.isTrusted" class="tw-text-sm tw-text-muted tw-block">
+          {{ "trusted" | i18n }}
+        </span>
+      }
     </td>
+
+    <!-- Column: Login Status -->
     <td bitCell>
-      <span *ngIf="isCurrentDevice(row.deviceView)" bitBadge variant="primary">{{
-        "currentSession" | i18n
-      }}</span>
-      <span *ngIf="hasPendingAuthRequest(row.deviceView)" bitBadge variant="warning">{{
-        "requestPending" | i18n
-      }}</span>
+      <span *ngIf="device.isCurrentDevice" bitBadge variant="primary">
+        {{ "currentSession" | i18n }}
+      </span>
+      <span *ngIf="device.pendingAuthRequest" bitBadge variant="warning">
+        {{ "requestPending" | i18n }}
+      </span>
     </td>
-    <td bitCell>{{ row.firstLogin | date: "medium" }}</td>
+
+    <!-- Column: First Login -->
+    <td bitCell>{{ device.firstLogin | date: "medium" }}</td>
   </ng-template>
 </bit-table-scroll>

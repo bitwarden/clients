@@ -3,11 +3,13 @@ import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LoginApprovalComponent } from "@bitwarden/auth/angular";
+import { DevicePendingAuthRequest } from "@bitwarden/common/auth/abstractions/devices/responses/device.response";
 import { DeviceView } from "@bitwarden/common/auth/abstractions/devices/views/device.view";
 import { DeviceType, DeviceTypeMetadata } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   BadgeModule,
+  ButtonModule,
   DialogService,
   LinkModule,
   TableDataSource,
@@ -18,74 +20,31 @@ import {
  * Interface for device data in a sortable format
  */
 interface DeviceTableData {
-  id: string;
-  deviceView: DeviceView;
   displayName: string;
-  loginStatus: string;
   firstLogin: Date;
+  icon: string;
+  id: string;
+  isCurrentDevice: boolean;
+  isTrusted: boolean;
+  loginStatus: string;
+  pendingAuthRequest: DevicePendingAuthRequest | null;
 }
 
 /**
- * Table-based view for device management
- * Shows devices in a sortable table format
+ * Displays a sortable table view of user dervices
  */
 @Component({
+  standalone: true,
   selector: "auth-device-management-table",
   templateUrl: "./device-management-table.component.html",
-  standalone: true,
-  imports: [CommonModule, JslibModule, BadgeModule, LinkModule, TableModule],
+  imports: [BadgeModule, ButtonModule, CommonModule, JslibModule, LinkModule, TableModule],
 })
 export class DeviceManagementTableComponent implements OnChanges {
+  @Input() currentDevice?: DeviceView;
   @Input() devices: DeviceView[] = [];
-  @Input() currentDevice: DeviceView | undefined;
 
   protected dataSource = new TableDataSource<DeviceTableData>();
 
-  constructor(
-    private i18nService: I18nService,
-    private dialogService: DialogService,
-  ) {}
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes["devices"]) {
-      this.dataSource.data = this.mapDevicesToTableData(this.devices);
-    }
-  }
-
-  /**
-   * Maps DeviceView objects to table data format for sorting
-   */
-  private mapDevicesToTableData(devices: DeviceView[]): DeviceTableData[] {
-    return devices.map((device) => ({
-      id: device.id || "",
-      deviceView: device,
-      displayName:
-        device.type !== undefined
-          ? this.getDeviceTypeName(device.type)
-          : this.i18nService.t("unknownDevice"),
-      loginStatus: this.getLoginStatus(device),
-      firstLogin: device.creationDate ? new Date(device.creationDate) : new Date(),
-    }));
-  }
-
-  /**
-   * Get login status text for a device
-   */
-  private getLoginStatus(device: DeviceView): string {
-    if (this.isCurrentDevice(device)) {
-      return this.i18nService.t("currentSession");
-    }
-
-    if (this.hasPendingAuthRequest(device)) {
-      return this.i18nService.t("requestPending");
-    }
-
-    return "";
-  }
-
-  /**
-   * Column configuration for the table
-   */
   protected readonly columnConfig = [
     {
       name: "displayName",
@@ -107,24 +66,60 @@ export class DeviceManagementTableComponent implements OnChanges {
     },
   ];
 
+  constructor(
+    private i18nService: I18nService,
+    private dialogService: DialogService,
+  ) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes["devices"]) {
+      this.dataSource.data = this.mapDevicesToTableData(this.devices);
+    }
+  }
+
   /**
-   * Check if a device is the current device
+   * Maps DeviceView objects to table data format for sorting
    */
-  isCurrentDevice(device: DeviceView): boolean {
+  private mapDevicesToTableData(devices: DeviceView[]): DeviceTableData[] {
+    return devices.map(
+      (device: DeviceView): DeviceTableData => ({
+        id: device.id || "",
+        displayName:
+          device.type !== undefined
+            ? this.getDeviceTypeName(device.type)
+            : this.i18nService.t("unknownDevice"),
+        loginStatus: this.getLoginStatus(device),
+        firstLogin: device.creationDate ? new Date(device.creationDate) : new Date(),
+
+        isTrusted: device.response?.isTrusted,
+        isCurrentDevice: this.isCurrentDevice(device),
+        icon: this.getDeviceIcon(device.type),
+        pendingAuthRequest: device.response?.devicePendingAuthRequest,
+      }),
+    );
+  }
+
+  private getLoginStatus(device: DeviceView): string {
+    if (this.isCurrentDevice(device)) {
+      return this.i18nService.t("currentSession");
+    }
+
+    if (this.hasPendingAuthRequest(device)) {
+      return this.i18nService.t("requestPending");
+    }
+
+    return "";
+  }
+
+  private isCurrentDevice(device: DeviceView): boolean {
     return device.id === this.currentDevice?.id;
   }
 
-  /**
-   * Check if a device has a pending auth request
-   */
-  hasPendingAuthRequest(device: DeviceView): boolean {
+  private hasPendingAuthRequest(device: DeviceView): boolean {
     return device.response?.devicePendingAuthRequest != null;
   }
 
-  /**
-   * Get the icon for a device type
-   */
-  getDeviceIcon(type: DeviceType): string {
+  private getDeviceIcon(type: DeviceType): string {
     const defaultIcon = "bwi bwi-desktop";
     const categoryIconMap: Record<string, string> = {
       webVault: "bwi bwi-browser",
@@ -157,13 +152,9 @@ export class DeviceManagementTableComponent implements OnChanges {
   /**
    * Open a dialog to approve or deny a pending auth request for a device
    */
-  async managePendingAuthRequest(device: DeviceView) {
-    if (!device.response?.devicePendingAuthRequest) {
-      return;
-    }
-
+  protected async managePendingAuthRequest(pendingAuthRequest: DevicePendingAuthRequest) {
     const dialogRef = LoginApprovalComponent.open(this.dialogService, {
-      notificationId: device.response.devicePendingAuthRequest.id,
+      notificationId: pendingAuthRequest.id,
     });
 
     await dialogRef.closed.toPromise();

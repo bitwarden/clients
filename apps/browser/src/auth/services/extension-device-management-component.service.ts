@@ -2,7 +2,6 @@ import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/auth/com
 
 /**
  * Browser extension implementation of the device management component service
- * Hides header information as this is specifically for the browser extension client
  */
 export class ExtensionDeviceManagementComponentService
   implements DeviceManagementComponentServiceAbstraction
