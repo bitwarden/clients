@@ -81,12 +81,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     ) as Observable<Record<OrganizationId, OrgKey>>;
   }
 
-  everHadUserKey$(userId: UserId): Observable<boolean> {
-    return this.stateProvider
-      .getUser(userId, USER_EVER_HAD_USER_KEY)
-      .state$.pipe(map((x) => x ?? false));
-  }
-
   async setUserKey(key: UserKey, userId: UserId): Promise<void> {
     if (key == null) {
       throw new Error("No key provided. Lock the user to clear the key");
@@ -135,6 +129,12 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
     const key = await this.getUserKey(activeUserId);
     await this.setUserKey(key, activeUserId);
+  }
+
+  everHadUserKey$(userId: UserId): Observable<boolean> {
+    return this.stateProvider
+      .getUser(userId, USER_EVER_HAD_USER_KEY)
+      .state$.pipe(map((x) => x ?? false));
   }
 
   getInMemoryUserKeyFor$(userId: UserId): Observable<UserKey> {
