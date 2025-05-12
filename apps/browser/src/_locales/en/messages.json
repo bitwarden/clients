@@ -5267,6 +5267,9 @@
   "secureDevicesBody": {
     "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
   },
+  "nudgeBadgeAria": {
+    "message": "1 notification"
+  },
   "emptyVaultNudgeTitle": {
     "message": "Import existing passwords"
   },
