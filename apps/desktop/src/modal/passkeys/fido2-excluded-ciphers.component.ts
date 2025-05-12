@@ -1,12 +1,10 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
-import { BehaviorSubject, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BitwardenShield } from "@bitwarden/auth/angular";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeModule,
   ButtonModule,
@@ -47,9 +45,6 @@ import { Fido2PasskeyExistsIcon } from "./fido2-passkey-exists-icon";
 })
 export class Fido2ExcludedCiphersComponent implements OnInit, OnDestroy {
   session?: DesktopFido2UserInterfaceSession = null;
-  private ciphersSubject = new BehaviorSubject<CipherView[]>([]);
-  ciphers$: Observable<CipherView[]> = this.ciphersSubject.asObservable();
-  containsExcludedCiphers: boolean = false;
   readonly Icons = { BitwardenShield };
   protected fido2PasskeyExistsIcon = Fido2PasskeyExistsIcon;
 
