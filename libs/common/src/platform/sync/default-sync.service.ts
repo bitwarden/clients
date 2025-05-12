@@ -59,6 +59,9 @@ import { SyncOptions } from "./sync.service";
 export class DefaultSyncService extends CoreSyncService {
   syncInProgress = false;
 
+  /** The promise associated with any in-flight sync operations. When null, no sync is in-flight. */
+  private inFlightSync: Promise<boolean> | null = null;
+
   constructor(
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     accountService: AccountService,
@@ -107,7 +110,16 @@ export class DefaultSyncService extends CoreSyncService {
     forceSync: boolean,
     allowThrowOnErrorOrOptions?: boolean | SyncOptions,
   ): Promise<boolean> {
-    return this._fullSync(forceSync, allowThrowOnErrorOrOptions);
+    if (this.inFlightSync !== null) {
+      return this.inFlightSync;
+    }
+
+    this.inFlightSync = this._fullSync(forceSync, allowThrowOnErrorOrOptions).finally(() => {
+      // Reset the in-flight sync promise when it completes
+      this.inFlightSync = null;
+    });
+
+    return this.inFlightSync;
   }
 
   private async needsSyncing(forceSync: boolean) {
