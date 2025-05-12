@@ -21,14 +21,10 @@ export const Default: StoryObj<StepComponent> = {
         <bit-step
           label="This is the label"
           subLabel="This is the sub label"
-          [applyBorder]="applyBorder"
         >
           <p>Your custom step content appears in here. You can add whatever content you'd like</p>
         </bit-step>
     </bit-stepper>
     `,
   }),
-  args: {
-    applyBorder: true,
-  },
 };
