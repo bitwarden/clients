@@ -304,7 +304,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
         return collection.canEditItems(org);
       })
       .map((c) => ({
-        icon: "bwi-collection",
+        icon: "bwi-collection-shared",
         id: c.id,
         labelName: c.name,
         listName: c.name,
@@ -317,7 +317,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     if (this.params.activeCollection) {
       this.selectCollections([
         {
-          icon: "bwi-collection",
+          icon: "bwi-collection-shared",
           id: this.params.activeCollection.id,
           labelName: this.params.activeCollection.name,
           listName: this.params.activeCollection.name,
@@ -345,7 +345,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
           collection.id !== this.params.activeCollection?.id,
       )
       .map((collection) => ({
-        icon: "bwi-collection",
+        icon: "bwi-collection-shared",
         id: collection.id,
         labelName: collection.labelName,
         listName: collection.listName,
@@ -409,7 +409,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       )
       .subscribe((collections) => {
         this.availableCollections = collections.map((c) => ({
-          icon: "bwi-collection",
+          icon: "bwi-collection-shared",
           id: c.id,
           labelName: c.name,
           listName: c.name,

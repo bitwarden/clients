@@ -16,7 +16,7 @@
     [cipherId]="cipherId"
     [collectionId]="activeFilter?.selectedCollectionId"
     (onCloneCipher)="cloneCipherWithoutPasswordPrompt($event)"
-    (onEditCipher)="editCipherWithoutPasswordPrompt($event)"
+    (onEditCipher)="editCipher($event)"
     (onViewCipherPasswordHistory)="viewCipherPasswordHistory($event)"
     (onRestoredCipher)="restoredCipher($event)"
     (onDeletedCipher)="deletedCipher($event)"

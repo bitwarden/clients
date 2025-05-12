@@ -18,7 +18,10 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { ToastService } from "../../../../components/src/toast";
-import { InputPasswordComponent } from "../input-password/input-password.component";
+import {
+  InputPasswordComponent,
+  InputPasswordFlow,
+} from "../input-password/input-password.component";
 import { PasswordInputResult } from "../input-password/password-input-result";
 
 import {
@@ -33,6 +36,7 @@ import {
   imports: [CommonModule, InputPasswordComponent, JslibModule],
 })
 export class SetPasswordJitComponent implements OnInit {
+  protected InputPasswordFlow = InputPasswordFlow;
   protected email: string;
   protected masterPasswordPolicyOptions: MasterPasswordPolicyOptions;
   protected orgId: string;

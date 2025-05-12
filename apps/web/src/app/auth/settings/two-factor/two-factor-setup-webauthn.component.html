@@ -5,23 +5,23 @@
     [subtitle]="'webAuthnTitle' | i18n"
   >
     <ng-container bitDialogContent>
-      <app-callout
+      <bit-callout
         type="success"
         title="{{ 'enabled' | i18n }}"
         icon="bwi bwi-check-circle"
         *ngIf="enabled"
       >
         {{ "twoStepLoginProviderEnabled" | i18n }}
-      </app-callout>
-      <app-callout type="warning">
+      </bit-callout>
+      <bit-callout type="warning">
         <p bitTypography="body1">{{ "twoFactorWebAuthnWarning1" | i18n }}</p>
-      </app-callout>
+      </bit-callout>
       <img class="tw-float-right tw-ml-5 mfaType7" alt="FIDO2 WebAuthn logo" />
       <ul class="bwi-ul">
         <li *ngFor="let k of keys; let i = index" #removeKeyBtn [appApiAction]="k.removePromise">
           <i class="bwi bwi-li bwi-key"></i>
           <span *ngIf="!k.configured || !k.name" bitTypography="body1" class="tw-font-bold">
-            {{ "webAuthnkeyX" | i18n: i + 1 }}
+            {{ "webAuthnkeyX" | i18n: (i + 1).toString() }}
           </span>
           <span *ngIf="k.configured && k.name" bitTypography="body1" class="tw-font-bold">
             {{ k.name }}

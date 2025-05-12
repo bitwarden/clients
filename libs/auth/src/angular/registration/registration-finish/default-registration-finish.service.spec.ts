@@ -52,7 +52,6 @@ describe("DefaultRegistrationFinishService", () => {
     let userKey: UserKey;
     let userKeyEncString: EncString;
     let userKeyPair: [string, EncString];
-    let capchaBypassToken: string;
 
     beforeEach(() => {
       email = "test@email.com";
@@ -60,18 +59,17 @@ describe("DefaultRegistrationFinishService", () => {
       masterKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as MasterKey;
       passwordInputResult = {
         masterKey: masterKey,
-        masterKeyHash: "masterKeyHash",
+        serverMasterKeyHash: "serverMasterKeyHash",
         localMasterKeyHash: "localMasterKeyHash",
         kdfConfig: DEFAULT_KDF_CONFIG,
         hint: "hint",
-        password: "password",
+        newPassword: "password",
       };
 
       userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
       userKeyEncString = new EncString("userKeyEncrypted");
 
       userKeyPair = ["publicKey", new EncString("privateKey")];
-      capchaBypassToken = "capchaBypassToken";
     });
 
     it("throws an error if the user key cannot be created", async () => {
@@ -82,18 +80,12 @@ describe("DefaultRegistrationFinishService", () => {
       );
     });
 
-    it("registers the user and returns a captcha bypass token when given valid email verification input", async () => {
+    it("registers the user when given valid email verification input", async () => {
       keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-      accountApiService.registerFinish.mockResolvedValue(capchaBypassToken);
+      accountApiService.registerFinish.mockResolvedValue();
 
-      const result = await service.finishRegistration(
-        email,
-        passwordInputResult,
-        emailVerificationToken,
-      );
-
-      expect(result).toEqual(capchaBypassToken);
+      await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
 
       expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
       expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
@@ -101,7 +93,7 @@ describe("DefaultRegistrationFinishService", () => {
         expect.objectContaining({
           email,
           emailVerificationToken: emailVerificationToken,
-          masterPasswordHash: passwordInputResult.masterKeyHash,
+          masterPasswordHash: passwordInputResult.serverMasterKeyHash,
           masterPasswordHint: passwordInputResult.hint,
           userSymmetricKey: userKeyEncString.encryptedString,
           userAsymmetricKeys: {

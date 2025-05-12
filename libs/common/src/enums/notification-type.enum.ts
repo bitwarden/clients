@@ -26,4 +26,6 @@ export enum NotificationType {
   SyncOrganizationCollectionSettingChanged = 19,
   Notification = 20,
   NotificationStatus = 21,
+
+  PendingSecurityTasks = 22,
 }

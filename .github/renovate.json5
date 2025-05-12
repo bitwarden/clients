@@ -4,10 +4,10 @@
   enabledManagers: ["cargo", "github-actions", "npm"],
   packageRules: [
     {
-      // Group all build/test/lint workflows for GitHub Actions together for Platform
-      // Since they are code owners we don't need to assign a review team in Renovate
-      // Any changes here should also be reflected in CODEOWNERS
-      groupName: "github-action minor",
+      // Group all build/test/lint workflows for GitHub Actions together for Platform.
+      // Since they are code owners we don't need to assign a review team in Renovate.
+      // Any changes here should also be reflected in CODEOWNERS.
+      groupName: "github-action",
       matchManagers: ["github-actions"],
       matchFileNames: [
         "./github/workflows/automatic-issue-responses.yml",
@@ -30,10 +30,10 @@
       commitMessagePrefix: "[deps] Platform:",
     },
     {
-      // Group all release-related workflows for GitHub Actions together for BRE
-      // Since they are code owners we don't need to assign a review team in Renovate
-      // Any changes here should also be reflected in CODEOWNERS
-      groupName: "github-action minor",
+      // Group all release-related workflows for GitHub Actions together for BRE.
+      // Since they are code owners we don't need to assign a review team in Renovate.
+      // Any changes here should also be reflected in CODEOWNERS.
+      groupName: "github-action",
       matchManagers: ["github-actions"],
       matchFileNames: [
         "./github/workflows/brew-bump-desktop.yml",
@@ -49,9 +49,17 @@
         "./github/workflows/release-web.yml",
       ],
       commitMessagePrefix: "[deps] BRE:",
+      addLabels: ["hold"],
     },
     {
-      // Disable major and minor updates for TypeScript and Zone.js because they are managed by Angular
+      // By default, we send patch updates to the Dependency Dashboard and do not generate a PR.
+      // We want to generate PRs for a select number of dependencies to ensure we stay up to date on these.
+      matchPackageNames: ["browserslist", "electron", "rxjs", "typescript", "webpack"],
+      matchUpdateTypes: ["patch"],
+      dependencyDashboardApproval: false,
+    },
+    {
+      // Disable major and minor updates for TypeScript and Zone.js because they are managed by Angular.
       matchPackageNames: ["typescript", "zone.js"],
       matchUpdateTypes: ["major", "minor"],
       description: "Determined by Angular",
@@ -72,27 +80,27 @@
       enabled: false,
     },
     {
-      // Renovate should manage patch updates for TypeScript and Zone.js, despite ignoring major and minor
+      // Renovate should manage patch updates for TypeScript and Zone.js, despite ignoring major and minor.
       matchPackageNames: ["typescript", "zone.js"],
       matchUpdateTypes: "patch",
     },
     {
-      // We want to update all the Jest-related packages together, to reduce PR noise
+      // We want to update all the Jest-related packages together, to reduce PR noise.
       groupName: "jest",
       matchPackageNames: ["@types/jest", "jest", "ts-jest", "jest-preset-angular"],
     },
     {
-      // We need to group all napi-related packages together to avoid build errors caused by version incompatibilities
+      // We need to group all napi-related packages together to avoid build errors caused by version incompatibilities.
       groupName: "napi",
       matchPackageNames: ["napi", "napi-build", "napi-derive"],
     },
     {
-      // We need to group all macOS/iOS binding-related packages together to avoid build errors caused by version incompatibilities
+      // We need to group all macOS/iOS binding-related packages together to avoid build errors caused by version incompatibilities.
       groupName: "macOS/iOS bindings",
       matchPackageNames: ["core-foundation", "security-framework", "security-framework-sys"],
     },
     {
-      // We need to group all zbus-related packages together to avoid build errors caused by version incompatibilities
+      // We need to group all zbus-related packages together to avoid build errors caused by version incompatibilities.
       groupName: "zbus",
       matchPackageNames: ["zbus", "zbus_polkit"],
     },
@@ -128,6 +136,8 @@
     {
       matchPackageNames: [
         "@angular-eslint/schematics",
+        "@typescript-eslint/rule-tester",
+        "@typescript-eslint/utils",
         "angular-eslint",
         "eslint-config-prettier",
         "eslint-import-resolver-typescript",
@@ -148,6 +158,8 @@
     {
       matchPackageNames: [
         "@angular-eslint/schematics",
+        "@typescript-eslint/rule-tester",
+        "@typescript-eslint/utils",
         "angular-eslint",
         "eslint-config-prettier",
         "eslint-import-resolver-typescript",
@@ -250,6 +262,7 @@
         "napi-derive",
         "node-forge",
         "node-ipc",
+        "nx",
         "oo7",
         "oslog",
         "pin-project",
@@ -275,6 +288,7 @@
         "webpack-node-externals",
         "widestring",
         "windows",
+        "windows-future",
         "windows-registry",
         "zbus",
         "zbus_polkit",
@@ -298,6 +312,7 @@
         "@angular/platform-browser",
         "@angular/platform",
         "@angular/router",
+        "axe-playwright",
         "@compodoc/compodoc",
         "@ng-select/ng-select",
         "@storybook/addon-a11y",
@@ -306,12 +321,11 @@
         "@storybook/addon-essentials",
         "@storybook/addon-interactions",
         "@storybook/addon-links",
+        "@storybook/test-runner",
         "@storybook/addon-themes",
         "@storybook/angular",
         "@storybook/manager-api",
         "@storybook/theming",
-        "@typescript-eslint/utils",
-        "@typescript-eslint/rule-tester",
         "@types/react",
         "autoprefixer",
         "bootstrap",

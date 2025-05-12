@@ -293,7 +293,7 @@ describe("TokenService", () => {
 
           const mockEncryptedAccessToken = "encryptedAccessToken";
 
-          encryptService.encrypt.mockResolvedValue({
+          encryptService.encryptString.mockResolvedValue({
             encryptedString: mockEncryptedAccessToken,
           } as any);
 
@@ -504,7 +504,7 @@ describe("TokenService", () => {
             .nextState("encryptedAccessToken");
 
           secureStorageService.get.mockResolvedValue(accessTokenKeyB64);
-          encryptService.decryptToUtf8.mockResolvedValue("decryptedAccessToken");
+          encryptService.decryptString.mockResolvedValue("decryptedAccessToken");
 
           // Need to have global active id set to the user id
           if (!userId) {
@@ -1515,7 +1515,7 @@ describe("TokenService", () => {
             .nextState(encryptedAccessToken);
 
           secureStorageService.get.mockResolvedValue(accessTokenKeyB64);
-          encryptService.decryptToUtf8.mockRejectedValue(new Error("Decryption error"));
+          encryptService.decryptString.mockRejectedValue(new Error("Decryption error"));
 
           // Act
           const result = await tokenService.getAccessToken(userIdFromAccessToken);

@@ -48,3 +48,6 @@ storybook-static
 
 # Local app configuration
 apps/**/config/local.json
+
+# Nx
+.nx

@@ -12,10 +12,10 @@ import {
   startWith,
   switchMap,
   take,
-  tap,
 } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { DynamicTreeNode } from "@bitwarden/angular/vault/vault-filter/models/dynamic-tree-node.model";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -40,8 +40,6 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { ChipSelectOption } from "@bitwarden/components";
-
-import { PopupViewCacheService } from "../../../platform/popup/view-cache/popup-view-cache.service";
 
 const FILTER_VISIBILITY_KEY = new KeyDefinition<boolean>(VAULT_SETTINGS_DISK, "filterVisibility", {
   deserializer: (obj) => obj,
@@ -179,7 +177,7 @@ export class VaultPopupListFiltersService {
     private policyService: PolicyService,
     private stateProvider: StateProvider,
     private accountService: AccountService,
-    private viewCacheService: PopupViewCacheService,
+    private viewCacheService: ViewCacheService,
   ) {
     this.filterForm.controls.organization.valueChanges
       .pipe(takeUntilDestroyed())
@@ -189,6 +187,7 @@ export class VaultPopupListFiltersService {
       key: "vault-filters",
       initialValue: {},
       deserializer: (v) => v,
+      persistNavigation: true,
     });
 
     this.deserializeFilters(cachedFilters());
@@ -360,10 +359,10 @@ export class VaultPopupListFiltersService {
     switchMap((userId) => {
       // Observable of cipher views
       const cipherViews$ = this.cipherService.cipherViews$(userId).pipe(
-        tap((cipherViews) => {
-          this.cipherViews = Object.values(cipherViews);
+        map((ciphers) => {
+          this.cipherViews = ciphers ? Object.values(ciphers) : [];
+          return this.cipherViews;
         }),
-        map((ciphers) => Object.values(ciphers)),
       );
 
       return combineLatest([
@@ -461,7 +460,7 @@ export class VaultPopupListFiltersService {
       });
     }),
     map((collections) =>
-      collections.nestedList.map((c) => this.convertToChipSelectOption(c, "bwi-collection")),
+      collections.nestedList.map((c) => this.convertToChipSelectOption(c, "bwi-collection-shared")),
     ),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );

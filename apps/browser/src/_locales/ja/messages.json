@@ -2,6 +2,9 @@
   "appName": {
     "message": "Bitwarden"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden logo"
+  },
   "extName": {
     "message": "Bitwarden パスワードマネージャー",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
@@ -883,6 +886,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "以下の手順に従ってログインを完了してください。"
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
+  },
   "restartRegistration": {
     "message": "登録を再度始める"
   },
@@ -1056,23 +1062,49 @@
   "notificationAddSave": {
     "message": "保存する"
   },
-  "loginSaveSuccessDetails": {
-    "message": "$USERNAME$ を Bitwarden に保存しました。",
+  "notificationViewAria": {
+    "message": "View $ITEMNAME$, opens in new window",
     "placeholders": {
-      "username": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is saved."
+    "description": "Aria label for the view button in notification bar confirmation message"
   },
-  "loginUpdatedSuccessDetails": {
-    "message": "$USERNAME$ を Bitwarden 内で更新しました。",
+  "notificationEditTooltip": {
+    "message": "Edit before saving",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "New notification"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: New notification",
+    "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
-      "username": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "loginSaveConfirmation": {
+    "message": "$ITEMNAME$ saved to Bitwarden.",
+    "placeholders": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is updated."
+    "description": "Shown to user after item is saved."
+  },
+  "loginUpdatedConfirmation": {
+    "message": "$ITEMNAME$ updated in Bitwarden.",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after item is updated."
   },
   "saveAsNewLoginAction": {
     "message": "新規のログイン情報として保存",
@@ -1082,12 +1114,12 @@
     "message": "ログイン情報を更新",
     "description": "Button text for updating an existing login entry."
   },
-  "saveLoginPrompt": {
-    "message": "ログイン情報を保存しますか？",
+  "saveLogin": {
+    "message": "Save login",
     "description": "Prompt asking the user if they want to save their login details."
   },
-  "updateLoginPrompt": {
-    "message": "既存のログイン情報を更新しますか？",
+  "updateLogin": {
+    "message": "Update existing login",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
@@ -1097,6 +1129,31 @@
   "loginUpdateSuccess": {
     "message": "ログイン情報が更新されました",
     "description": "Message displayed when login details are successfully updated."
+  },
+  "loginUpdateTaskSuccess": {
+    "message": "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Thank you for making $ORGANIZATION$ more secure. You have $TASK_COUNT$ more passwords to update.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Change next password",
+    "description": "Message prompting user to undertake completion of another security task."
   },
   "saveFailure": {
     "message": "保存エラー",
@@ -1391,23 +1448,11 @@
   "premiumRequiredDesc": {
     "message": "この機能を使うにはプレミアム会員になってください。"
   },
-  "enterVerificationCodeApp": {
-    "message": "認証アプリに表示された6桁の認証コードを入力してください。"
-  },
   "authenticationTimeout": {
     "message": "認証のタイムアウト"
   },
   "authenticationSessionTimedOut": {
     "message": "認証セッションの有効期限が切れました。ログインプロセスを再開してください。"
-  },
-  "enterVerificationCodeEmail": {
-    "message": "$EMAIL$に送信された6桁の認証コードを入力してください。",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "$EMAIL$に認証コードを送信しました。",
@@ -1418,17 +1463,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "情報を保存する"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "このデバイスで30日間再表示しない"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "確認コードをメールで再送"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "他の2段階認証方法を使用"
   },
   "selectAnotherMethod": {
     "message": "別の方法を選択",
@@ -1437,17 +1473,8 @@
   "useYourRecoveryCode": {
     "message": "リカバリーコードを使用する"
   },
-  "insertYubiKey": {
-    "message": " YubiKey を USB ポートに挿入し、ボタンをタッチしてください。"
-  },
   "insertU2f": {
     "message": "セキュリティキーを USB ポートに挿入し、ボタンがある場合はボタンをタッチしてください。"
-  },
-  "webAuthnNewTab": {
-    "message": "WebAuthn 2FA 認証を開始するには、下のボタンをクリックして新しいタブを開き、新しいタブの指示に従ってください。"
-  },
-  "webAuthnNewTabOpen": {
-    "message": "新しいタブを開く"
   },
   "openInNewTab": {
     "message": "新しいタブで開く"
@@ -2327,6 +2354,9 @@
   "privacyPolicy": {
     "message": "プライバシーポリシー"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "新しいパスワードを現在のパスワードと同じにすることはできません。"
+  },
   "hintEqualsPassword": {
     "message": "パスワードのヒントをパスワードと同じにすることはできません。"
   },
@@ -2534,14 +2564,14 @@
     "message": "組織で使用するパスワードが脆弱である、または再利用されているか流出しており、危険な状態です。",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
+  "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "危険な状態にあるログイン情報の一覧表示の例"
   },
   "generatePasswordSlideDesc": {
     "message": "Bitwarden の自動入力メニューで、強力で一意なパスワードをすぐに生成しましょう。",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
+  "generatePasswordSlideImgAltPeriod": {
     "message": "Bitwarden の自動入力メニューで、生成されたパスワードが表示されている例"
   },
   "updateInBitwarden": {
@@ -2551,7 +2581,7 @@
     "message": "続いて、 Bitwarden がパスワードマネージャーに保存されたパスワードを更新するよう促します。",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
+  "updateInBitwardenSlideImgAltPeriod": {
     "message": "ユーザーにログイン情報を更新するよう促す Bitwarden の通知例"
   },
   "turnOnAutofill": {
@@ -3534,6 +3564,30 @@
   "deviceTrusted": {
     "message": "信頼されたデバイス"
   },
+  "trustOrganization": {
+    "message": "Trust organization"
+  },
+  "trust": {
+    "message": "Trust"
+  },
+  "doNotTrust": {
+    "message": "Do not trust"
+  },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+  },
+  "orgTrustWarning": {
+    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+  },
+  "trustUser": {
+    "message": "Trust user"
+  },
   "sendsNoItemsTitle": {
     "message": "アクティブな Send なし",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3848,14 +3902,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Duo サービスへの接続中にエラーが発生しました。異なる二段階ログイン方法を使用するか、Duo に連絡してください。"
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "ログインを完了するには DUO を起動し手順に従ってください。"
-  },
   "duoRequiredForAccount": {
     "message": "アカウントには Duo 二段階認証が必要です。"
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "ログインを完了するために拡張機能を開きます。"
   },
   "popoutExtension": {
     "message": "拡張機能のポップアップ"
@@ -4280,7 +4328,7 @@
     }
   },
   "viewItemTitleWithField": {
-    "message": "View item - $ITEMNAME$ - $FIELD$",
+    "message": "アイテムを表示 - $ITEMNAME$ - $FIELD$",
     "description": "Title for a link that opens a view for an item.",
     "placeholders": {
       "itemname": {
@@ -4304,7 +4352,7 @@
     }
   },
   "autofillTitleWithField": {
-    "message": "Autofill - $ITEMNAME$ - $FIELD$",
+    "message": "自動入力 - $ITEMNAME$ - $FIELD$",
     "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
@@ -4463,6 +4511,27 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadBitwarden": {
+    "message": "Download Bitwarden"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Download Bitwarden on all devices"
+  },
+  "getTheMobileApp": {
+    "message": "Get the mobile app"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Access your passwords on the go with the Bitwarden mobile app."
+  },
+  "getTheDesktopApp": {
+    "message": "Get the desktop app"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Download from bitwarden.com now"
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "この添付ファイルを完全に削除してもよろしいですか？"
@@ -4936,8 +5005,8 @@
     "message": "パスワードを再生成しました",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Bitwarden にログイン情報を保存しますか？",
+  "saveToBitwarden": {
+    "message": "Save to Bitwarden",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
@@ -5087,42 +5156,6 @@
   "beta": {
     "message": "ベータ"
   },
-  "importantNotice": {
-    "message": "重要なお知らせ"
-  },
-  "setupTwoStepLogin": {
-    "message": "2段階認証を設定する"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden は2025年2月以降、新しいデバイスからのログイン時にアカウントのメールアドレスに確認コードを送信します。"
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "代わりに2段階認証によるログインでアカウントを保護するか、メールアドレスをあなたがアクセスできるものに変更できます。"
-  },
-  "remindMeLater": {
-    "message": "後で再通知"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "メールアドレス $EMAIL$ は、確実にアクセスできるものですか？",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "いいえ、違います。"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "はい、メールアドレスには私が確実にアクセスできます"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "2段階認証によるログインを有効にする"
-  },
-  "changeAcctEmail": {
-    "message": "アカウントのメールアドレスを変更する"
-  },
   "extensionWidth": {
     "message": "拡張機能の幅"
   },
@@ -5176,5 +5209,102 @@
   },
   "changeAtRiskPassword": {
     "message": "危険なパスワードの変更"
+  },
+  "settingsVaultOptions": {
+    "message": "Vault options"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "introCarouselLabel": {
+    "message": "Bitwarden へようこそ"
+  },
+  "securityPrioritized": {
+    "message": "セキュリティが優先"
+  },
+  "securityPrioritizedBody": {
+    "message": "ログイン情報、カード、ID を安全な保管庫に保存します。 Bitwarden はゼロ知識、エンドツーエンドの暗号化を使用して、あなたにとって重要なものを保護します。"
+  },
+  "quickLogin": {
+    "message": "すばやく簡単にログイン"
+  },
+  "quickLoginBody": {
+    "message": "生体認証によるロック解除と自動入力を設定すると、文字を一切入力することなく各種アカウントにログインすることができます。"
+  },
+  "secureUser": {
+    "message": "ログインをレベルアップ"
+  },
+  "secureUserBody": {
+    "message": "パスワード生成機能を使用すると、すべてのアカウントで強力な一意のパスワードを作成して保存できます。"
+  },
+  "secureDevices": {
+    "message": "必要なデータを、いつでもどこでも"
+  },
+  "secureDevicesBody": {
+    "message": "Bitwarden のモバイル、ブラウザ、デスクトップアプリでは、保存できるパスワード数やデバイス数に制限はありません。"
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Import existing passwords"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Use the importer to quickly transfer logins to Bitwarden without manually adding them."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Import now"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Welcome to your vault!"
+  },
+  "hasItemsVaultNudgeBody": {
+    "message": "Autofill items for the current page\nFavorite items for easy access\nSearch your vault for something else"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

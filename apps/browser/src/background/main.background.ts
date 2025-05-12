@@ -39,7 +39,6 @@ import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/
 import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification-api.service.abstraction";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
@@ -71,11 +70,13 @@ import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/bill
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { BulkEncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/bulk-encrypt.service.implementation";
 import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import { FallbackBulkEncryptService } from "@bitwarden/common/key-management/crypto/services/fallback-bulk-encrypt.service";
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/multithread-encrypt.service.implementation";
+import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
@@ -91,7 +92,6 @@ import {
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Fido2ActiveRequestManager as Fido2ActiveRequestManagerAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-active-request-manager.abstraction";
 import { Fido2AuthenticatorService as Fido2AuthenticatorServiceAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-authenticator.service.abstraction";
@@ -111,6 +111,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -145,7 +146,6 @@ import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/no
 import { StateService } from "@bitwarden/common/platform/services/state.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
-import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
 import {
   ActiveUserStateProvider,
   DerivedStateProvider,
@@ -191,6 +191,10 @@ import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/a
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
+  DefaultEndUserNotificationService,
+  EndUserNotificationService,
+} from "@bitwarden/common/vault/notifications";
+import {
   CipherAuthorizationService,
   DefaultCipherAuthorizationService,
 } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -200,6 +204,7 @@ import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
+import { DefaultTaskService, TaskService } from "@bitwarden/common/vault/tasks";
 import {
   legacyPasswordGenerationServiceFactory,
   legacyUsernameGenerationServiceFactory,
@@ -243,7 +248,6 @@ import WebRequestBackground from "../autofill/background/web-request.background"
 import { CipherContextMenuHandler } from "../autofill/browser/cipher-context-menu-handler";
 import { ContextMenuClickedHandler } from "../autofill/browser/context-menu-clicked-handler";
 import { MainContextMenuHandler } from "../autofill/browser/main-context-menu-handler";
-import LegacyOverlayBackground from "../autofill/deprecated/background/overlay.background.deprecated";
 import { Fido2Background as Fido2BackgroundAbstraction } from "../autofill/fido2/background/abstractions/fido2.background";
 import { Fido2Background } from "../autofill/fido2/background/fido2.background";
 import {
@@ -258,6 +262,8 @@ import { BackgroundBrowserBiometricsService } from "../key-management/biometrics
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { flagEnabled } from "../platform/flags";
+import { IpcBackgroundService } from "../platform/ipc/ipc-background.service";
+import { IpcContentScriptManagerService } from "../platform/ipc/ipc-content-script-manager.service";
 import { UpdateBadge } from "../platform/listeners/update-badge";
 /* eslint-disable no-restricted-imports */
 import { ChromeMessageSender } from "../platform/messaging/chrome-message.sender";
@@ -399,7 +405,12 @@ export default class MainBackground {
   sdkService: SdkService;
   sdkLoadService: SdkLoadService;
   cipherAuthorizationService: CipherAuthorizationService;
+  endUserNotificationService: EndUserNotificationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
+  taskService: TaskService;
+
+  ipcContentScriptManagerService: IpcContentScriptManagerService;
+  ipcService: IpcService;
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
@@ -655,9 +666,7 @@ export default class MainBackground {
       this.kdfConfigService,
       this.keyGenerationService,
       this.logService,
-      this.masterPasswordService,
       this.stateProvider,
-      this.stateService,
     );
 
     this.keyService = new DefaultKeyService(
@@ -672,14 +681,6 @@ export default class MainBackground {
       this.accountService,
       this.stateProvider,
       this.kdfConfigService,
-    );
-
-    this.biometricsService = new BackgroundBrowserBiometricsService(
-      runtimeNativeMessagingBackground,
-      this.logService,
-      this.keyService,
-      this.biometricStateService,
-      this.messagingService,
     );
 
     this.appIdService = new AppIdService(this.storageService, this.logService);
@@ -701,6 +702,15 @@ export default class MainBackground {
       VaultTimeoutStringType.OnRestart, // default vault timeout
     );
 
+    this.biometricsService = new BackgroundBrowserBiometricsService(
+      runtimeNativeMessagingBackground,
+      this.logService,
+      this.keyService,
+      this.biometricStateService,
+      this.messagingService,
+      this.vaultTimeoutSettingsService,
+    );
+
     this.apiService = new ApiService(
       this.tokenService,
       this.platformUtilsService,
@@ -710,6 +720,7 @@ export default class MainBackground {
       this.logService,
       (logoutReason: LogoutReason, userId?: UserId) => this.logout(logoutReason, userId),
       this.vaultTimeoutSettingsService,
+      { createRequest: (url, request) => new Request(url, request) },
     );
 
     this.fileUploadService = new FileUploadService(this.logService, this.apiService);
@@ -859,6 +870,7 @@ export default class MainBackground {
       this.configService,
       this.stateProvider,
       this.accountService,
+      this.logService,
     );
     this.folderService = new FolderService(
       this.keyService,
@@ -1178,11 +1190,23 @@ export default class MainBackground {
       this.authService,
       () => this.generatePasswordToClipboard(),
     );
+
+    this.taskService = new DefaultTaskService(
+      this.stateProvider,
+      this.apiService,
+      this.organizationService,
+      this.configService,
+      this.authService,
+      this.notificationsService,
+      messageListener,
+    );
+
     this.notificationBackground = new NotificationBackground(
       this.accountService,
       this.authService,
       this.autofillService,
       this.cipherService,
+      this.collectionService,
       this.configService,
       this.domainSettingsService,
       this.environmentService,
@@ -1192,11 +1216,12 @@ export default class MainBackground {
       this.policyService,
       this.themeStateService,
       this.userNotificationSettingsService,
+      this.taskService,
+      this.messagingService,
     );
 
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(
       this.logService,
-      this.configService,
       this.notificationBackground,
     );
 
@@ -1298,6 +1323,17 @@ export default class MainBackground {
     );
 
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
+
+    this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
+    this.ipcService = new IpcBackgroundService(this.logService);
+
+    this.endUserNotificationService = new DefaultEndUserNotificationService(
+      this.stateProvider,
+      this.apiService,
+      this.notificationsService,
+      this.authService,
+      this.logService,
+    );
   }
 
   async bootstrap() {
@@ -1309,6 +1345,13 @@ export default class MainBackground {
     await this.sdkLoadService.loadAndInit();
     // Only the "true" background should run migrations
     await this.stateService.init({ runMigrations: true });
+
+    this.configService.serverConfig$.subscribe((newConfig) => {
+      if (newConfig != null) {
+        this.encryptService.onServerConfigChange(newConfig);
+        this.bulkEncryptService.onServerConfigChange(newConfig);
+      }
+    });
 
     // This is here instead of in in the InitService b/c we don't plan for
     // side effects to run in the Browser InitService.
@@ -1364,6 +1407,7 @@ export default class MainBackground {
     }
 
     await this.initOverlayAndTabsBackground();
+    await this.ipcService.init();
 
     return new Promise<void>((resolve) => {
       setTimeout(async () => {
@@ -1371,6 +1415,14 @@ export default class MainBackground {
         await this.fullSync(false);
         this.backgroundSyncService.init();
         this.notificationsService.startListening();
+
+        if (await this.configService.getFeatureFlag(FeatureFlag.SecurityTasks)) {
+          this.taskService.listenForTaskNotifications();
+        }
+
+        if (await this.configService.getFeatureFlag(FeatureFlag.EndUserNotifications)) {
+          this.endUserNotificationService.listenForEndUserNotifications();
+        }
         resolve();
       }, 500);
     });
@@ -1459,9 +1511,6 @@ export default class MainBackground {
       }
 
       nextAccountStatus = await this.authService.getAuthStatus(userId);
-      const forcePasswordReset =
-        (await firstValueFrom(this.masterPasswordService.forceSetPasswordReason$(userId))) !=
-        ForceSetPasswordReason.None;
 
       await this.systemService.clearPendingClipboard();
 
@@ -1469,8 +1518,6 @@ export default class MainBackground {
         this.messagingService.send("goHome");
       } else if (nextAccountStatus === AuthenticationStatus.Locked) {
         this.messagingService.send("locked", { userId: userId });
-      } else if (forcePasswordReset) {
-        this.messagingService.send("update-temp-password", { userId: userId });
       } else {
         this.messagingService.send("unlocked", { userId: userId });
         await this.refreshBadge();
@@ -1614,6 +1661,26 @@ export default class MainBackground {
     }
   }
 
+  /** Opens the `/at-risk-passwords` page within the popup */
+  async openAtRisksPasswordsPage() {
+    const browserAction = BrowserApi.getBrowserAction();
+
+    try {
+      // Set route of the popup before attempting to open it.
+      // If the vault is locked, this won't have an effect as the auth guards will
+      // redirect the user to the login page.
+      await browserAction.setPopup({ popup: "popup/index.html#/at-risk-passwords" });
+
+      await this.openPopup();
+    } finally {
+      // Reset the popup route to the default route so any subsequent
+      // popup openings will not open to the at-risk-passwords page.
+      await browserAction.setPopup({
+        popup: "popup/index.html#/",
+      });
+    }
+  }
+
   async reseedStorage() {
     if (
       !this.platformUtilsService.isChrome() &&
@@ -1660,44 +1727,25 @@ export default class MainBackground {
       return;
     }
 
-    const inlineMenuPositioningImprovementsEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.InlineMenuPositioningImprovements,
+    this.overlayBackground = new OverlayBackground(
+      this.logService,
+      this.cipherService,
+      this.autofillService,
+      this.authService,
+      this.environmentService,
+      this.domainSettingsService,
+      this.autofillSettingsService,
+      this.i18nService,
+      this.platformUtilsService,
+      this.vaultSettingsService,
+      this.fido2ActiveRequestManager,
+      this.inlineMenuFieldQualificationService,
+      this.themeStateService,
+      this.totpService,
+      this.accountService,
+      () => this.generatePassword(),
+      (password) => this.addPasswordToHistory(password),
     );
-
-    if (!inlineMenuPositioningImprovementsEnabled) {
-      this.overlayBackground = new LegacyOverlayBackground(
-        this.cipherService,
-        this.autofillService,
-        this.authService,
-        this.environmentService,
-        this.domainSettingsService,
-        this.autofillSettingsService,
-        this.i18nService,
-        this.platformUtilsService,
-        this.themeStateService,
-        this.accountService,
-      );
-    } else {
-      this.overlayBackground = new OverlayBackground(
-        this.logService,
-        this.cipherService,
-        this.autofillService,
-        this.authService,
-        this.environmentService,
-        this.domainSettingsService,
-        this.autofillSettingsService,
-        this.i18nService,
-        this.platformUtilsService,
-        this.vaultSettingsService,
-        this.fido2ActiveRequestManager,
-        this.inlineMenuFieldQualificationService,
-        this.themeStateService,
-        this.totpService,
-        this.accountService,
-        () => this.generatePassword(),
-        (password) => this.addPasswordToHistory(password),
-      );
-    }
 
     this.tabsBackground = new TabsBackground(
       this,

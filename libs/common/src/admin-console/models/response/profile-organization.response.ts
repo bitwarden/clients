@@ -55,6 +55,8 @@ export class ProfileOrganizationResponse extends BaseResponse {
   allowAdminAccessToAllCollectionItems: boolean;
   userIsManagedByOrganization: boolean;
   useRiskInsights: boolean;
+  useAdminSponsoredFamilies: boolean;
+  isAdminInitiated: boolean;
 
   constructor(response: any) {
     super(response);
@@ -121,5 +123,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
     );
     this.userIsManagedByOrganization = this.getResponseProperty("UserIsManagedByOrganization");
     this.useRiskInsights = this.getResponseProperty("UseRiskInsights");
+    this.useAdminSponsoredFamilies = this.getResponseProperty("UseAdminSponsoredFamilies");
+    this.isAdminInitiated = this.getResponseProperty("IsAdminInitiated");
   }
 }

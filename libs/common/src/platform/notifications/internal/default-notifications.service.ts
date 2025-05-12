@@ -7,6 +7,7 @@ import {
   map,
   mergeMap,
   Observable,
+  share,
   switchMap,
 } from "rxjs";
 
@@ -66,6 +67,7 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
           map((notification) => [notification, activeAccountId] as const),
         );
       }),
+      share(), // Multiple subscribers should only create a single connection to the server
     );
   }
 
@@ -151,14 +153,14 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
         await this.syncService.syncUpsertCipher(
           notification.payload as SyncCipherNotification,
           notification.type === NotificationType.SyncCipherUpdate,
-          payloadUserId,
+          userId,
         );
         break;
       case NotificationType.SyncCipherDelete:
       case NotificationType.SyncLoginDelete:
         await this.syncService.syncDeleteCipher(
           notification.payload as SyncCipherNotification,
-          payloadUserId,
+          userId,
         );
         break;
       case NotificationType.SyncFolderCreate:

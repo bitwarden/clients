@@ -52,10 +52,12 @@
           {{ "permission" | i18n }}
         </th>
         <th bitCell class="tw-w-12 tw-text-right">
+          @let featureFlaggedDisable =
+            (limitItemDeletion$ | async) ? (disableMenu$ | async) : disableMenu;
           <button
-            [disabled]="disabled || isEmpty || disableMenu"
+            [disabled]="disabled || isEmpty || featureFlaggedDisable"
             [bitMenuTriggerFor]="headerMenu"
-            [attr.title]="disableMenu ? ('missingPermissions' | i18n) : ''"
+            [attr.title]="featureFlaggedDisable ? ('missingPermissions' | i18n) : ''"
             bitIconButton="bwi-ellipsis-v"
             size="small"
             type="button"
@@ -83,7 +85,7 @@
               bitMenuItem
               (click)="assignToCollections()"
             >
-              <i class="bwi bwi-fw bwi-collection" aria-hidden="true"></i>
+              <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
               {{ "assignToCollections" | i18n }}
             </button>
             <button

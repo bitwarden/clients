@@ -6,7 +6,11 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, Subject, switchMap, takeUntil } from "rxjs";
 
-import { PasswordInputResult, RegistrationFinishService } from "@bitwarden/auth/angular";
+import {
+  InputPasswordFlow,
+  PasswordInputResult,
+  RegistrationFinishService,
+} from "@bitwarden/auth/angular";
 import { LoginStrategyServiceAbstraction, PasswordLoginCredentials } from "@bitwarden/auth/common";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -47,6 +51,8 @@ export type InitiationPath =
 export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   @ViewChild("stepper", { static: false }) verticalStepper: VerticalStepperComponent;
 
+  InputPasswordFlow = InputPasswordFlow;
+
   /** Password Manager or Secrets Manager */
   product: ProductType;
   /** The tier of product being subscribed to */
@@ -79,6 +85,8 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   emailVerificationToken: string;
   loading = false;
   productTierValue: number;
+
+  trialLength: number;
 
   orgInfoFormGroup = this.formBuilder.group({
     name: ["", { validators: [Validators.required, Validators.maxLength(50)], updateOn: "change" }],
@@ -153,6 +161,8 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
 
         this.useTrialStepper = true;
       }
+
+      this.trialLength = qParams.trialLength ? parseInt(qParams.trialLength) : 7;
 
       // Are they coming from an email for sponsoring a families organization
       // After logging in redirect them to setup the families sponsorship
@@ -356,14 +366,9 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const captchaToken = await this.finishRegistration(passwordInputResult);
+    await this.finishRegistration(passwordInputResult);
 
-    if (captchaToken == null) {
-      this.submitting = false;
-      return;
-    }
-
-    await this.logIn(passwordInputResult.password, captchaToken);
+    await this.logIn(passwordInputResult.newPassword);
 
     this.submitting = false;
 
@@ -379,14 +384,9 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** Logs the user in based using the token received by the `finishRegistration` method */
-  private async logIn(masterPassword: string, captchaBypassToken: string): Promise<void> {
-    const credentials = new PasswordLoginCredentials(
-      this.email,
-      masterPassword,
-      captchaBypassToken,
-      null,
-    );
+  /** Logs the user in */
+  private async logIn(masterPassword: string): Promise<void> {
+    const credentials = new PasswordLoginCredentials(this.email, masterPassword);
 
     await this.loginStrategyService.logIn(credentials);
   }

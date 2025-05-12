@@ -1,4 +1,3 @@
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import {
   AfterViewInit,
@@ -21,6 +20,8 @@ import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstraction
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
+  DIALOG_DATA,
+  DialogRef,
   AsyncActionsModule,
   BitSubmitDirective,
   ButtonComponent,

@@ -66,7 +66,7 @@ describe("Menu", () => {
 @Component({
   selector: "test-app",
   template: `
-    <button type="button" [bitMenuTriggerFor]="testMenu" class="testclass">Open menu</button>
+    <button type="button" [bitMenuTriggerFor]="testMenu">Open menu</button>
 
     <bit-menu #testMenu>
       <a id="item1" bitMenuItem>Item 1</a>

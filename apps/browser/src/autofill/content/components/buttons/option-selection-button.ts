@@ -44,7 +44,7 @@ export function OptionSelectionButton({
   `;
 }
 
-const iconSize = "15px";
+const iconSize = "16px";
 
 const selectionButtonStyles = ({
   disabled,
@@ -94,7 +94,8 @@ const selectionButtonStyles = ({
 
   > svg {
     max-width: ${iconSize};
-    height: fit-content;
+    max-height: ${iconSize};
+    height: auto;
   }
 `;
 

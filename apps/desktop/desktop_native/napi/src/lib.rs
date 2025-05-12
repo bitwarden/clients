@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate napi_derive;
 
+mod passkey_authenticator_internal;
 mod registry;
 
 #[napi]
@@ -794,5 +795,73 @@ pub mod crypto {
             .map_err(|e| napi::Error::from_reason(e.to_string()))
             .map(|v| v.to_vec())
             .map(Buffer::from)
+    }
+}
+
+#[napi]
+pub mod passkey_authenticator {
+    #[napi]
+    pub fn register() -> napi::Result<()> {
+        crate::passkey_authenticator_internal::register().map_err(|e| {
+            napi::Error::from_reason(format!("Passkey registration failed - Error: {e} - {e:?}"))
+        })
+    }
+}
+
+#[napi]
+pub mod logging {
+    use log::{Level, Metadata, Record};
+    use napi::threadsafe_function::{
+        ErrorStrategy::CalleeHandled, ThreadsafeFunction, ThreadsafeFunctionCallMode,
+    };
+    use std::sync::OnceLock;
+    struct JsLogger(OnceLock<ThreadsafeFunction<(LogLevel, String), CalleeHandled>>);
+    static JS_LOGGER: JsLogger = JsLogger(OnceLock::new());
+
+    #[napi]
+    pub enum LogLevel {
+        Trace,
+        Debug,
+        Info,
+        Warn,
+        Error,
+    }
+
+    impl From<Level> for LogLevel {
+        fn from(level: Level) -> Self {
+            match level {
+                Level::Trace => LogLevel::Trace,
+                Level::Debug => LogLevel::Debug,
+                Level::Info => LogLevel::Info,
+                Level::Warn => LogLevel::Warn,
+                Level::Error => LogLevel::Error,
+            }
+        }
+    }
+
+    #[napi]
+    pub fn init_napi_log(js_log_fn: ThreadsafeFunction<(LogLevel, String), CalleeHandled>) {
+        let _ = JS_LOGGER.0.set(js_log_fn);
+        let _ = log::set_logger(&JS_LOGGER);
+        log::set_max_level(log::LevelFilter::Debug);
+    }
+
+    impl log::Log for JsLogger {
+        fn enabled(&self, metadata: &Metadata) -> bool {
+            metadata.level() <= log::max_level()
+        }
+
+        fn log(&self, record: &Record) {
+            if !self.enabled(record.metadata()) {
+                return;
+            }
+            let Some(logger) = self.0.get() else {
+                return;
+            };
+            let msg = (record.level().into(), record.args().to_string());
+            let _ = logger.call(Ok(msg), ThreadsafeFunctionCallMode::NonBlocking);
+        }
+
+        fn flush(&self) {}
     }
 }

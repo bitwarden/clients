@@ -61,6 +61,6 @@ export class BrowserExtensionPromptComponent implements OnInit, OnDestroy {
   }
 
   openExtension(): void {
-    this.browserExtensionPromptService.openExtension();
+    this.browserExtensionPromptService.openExtension(true);
   }
 }

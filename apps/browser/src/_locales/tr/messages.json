@@ -2,6 +2,9 @@
   "appName": {
     "message": "Bitwarden"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden logosu"
+  },
   "extName": {
     "message": "Bitwarden Parola Yöneticisi",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
@@ -881,7 +884,10 @@
     "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Follow the steps below to finish logging in."
+    "message": "Girişi tamamlamak için aşağıdaki adımları izleyin."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Güvenlik anahtarınızla girişi tamamlamak için aşağıdaki adımları izleyin."
   },
   "restartRegistration": {
     "message": "Kaydı yeniden başlat"
@@ -1056,23 +1062,49 @@
   "notificationAddSave": {
     "message": "Kaydet"
   },
-  "loginSaveSuccessDetails": {
-    "message": "$USERNAME$ Bitwarden'a kaydedildi.",
+  "notificationViewAria": {
+    "message": "$ITEMNAME$ kaydını görüntüle. Yeni pencerede açılır",
     "placeholders": {
-      "username": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is saved."
+    "description": "Aria label for the view button in notification bar confirmation message"
   },
-  "loginUpdatedSuccessDetails": {
-    "message": "$USERNAME$ Bitwarden'da güncellendi.",
+  "notificationEditTooltip": {
+    "message": "Kaydetmeden önce düzenle",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "Yeni bildirim"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: Yeni bildirim",
+    "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
-      "username": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "loginSaveConfirmation": {
+    "message": "$ITEMNAME$ Bitwarden'a kaydedildi.",
+    "placeholders": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is updated."
+    "description": "Shown to user after item is saved."
+  },
+  "loginUpdatedConfirmation": {
+    "message": "$ITEMNAME$ Bitwarden'da güncellendi.",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after item is updated."
   },
   "saveAsNewLoginAction": {
     "message": "Yeni hesap olarak kaydet",
@@ -1082,12 +1114,12 @@
     "message": "Hesabı güncelle",
     "description": "Button text for updating an existing login entry."
   },
-  "saveLoginPrompt": {
-    "message": "Hesap kaydedilsin mi?",
+  "saveLogin": {
+    "message": "Hesabı kaydet",
     "description": "Prompt asking the user if they want to save their login details."
   },
-  "updateLoginPrompt": {
-    "message": "Mevcut hesap güncellensin mi?",
+  "updateLogin": {
+    "message": "Mevcut hesabı güncelle",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
@@ -1097,6 +1129,31 @@
   "loginUpdateSuccess": {
     "message": "Hesap güncellendi",
     "description": "Message displayed when login details are successfully updated."
+  },
+  "loginUpdateTaskSuccess": {
+    "message": "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Thank you for making $ORGANIZATION$ more secure. You have $TASK_COUNT$ more passwords to update.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Change next password",
+    "description": "Message prompting user to undertake completion of another security task."
   },
   "saveFailure": {
     "message": "Kaydetme hatası",
@@ -1391,23 +1448,11 @@
   "premiumRequiredDesc": {
     "message": "Bu özelliği kullanmak için premium üyelik gereklidir."
   },
-  "enterVerificationCodeApp": {
-    "message": "Kimlik doğrulama uygulamanızdaki 6 haneli doğrulama kodunu girin."
-  },
   "authenticationTimeout": {
     "message": "Kimlik doğrulama zaman aşımı"
   },
   "authenticationSessionTimedOut": {
     "message": "Kimlik doğrulama oturumu zaman aşımına uğradı. Lütfen giriş sürecini yeniden başlatın."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "$EMAIL$ adresine e-postayla gönderdiğimiz 6 haneli doğrulama kodunu girin.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Doğrulama e-postası $EMAIL$ adresine gönderildi.",
@@ -1418,36 +1463,18 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Beni hatırla"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Doğrulama kodunu yeniden gönder"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Başka bir iki aşamalı giriş yöntemini kullan"
+    "message": "Bu cihazda 30 gün boyunca sorma"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Başka bir yöntem seç",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
-  },
-  "insertYubiKey": {
-    "message": "YubiKey'i bilgisayarınızın USB portuna takın, ardından düğmesine dokunun."
+    "message": "Kurtarma kodu kullan"
   },
   "insertU2f": {
     "message": "Güvenlik anahtarınızı bilgisayarınızın USB portuna takın. Düğmesi varsa dokunun."
-  },
-  "webAuthnNewTab": {
-    "message": "WebAuthn iki aşamalı doğrulamayı başlatmak için aşağıdaki düğmeye tıklayın ve açılan sekmedeki yönergeleri takip edin."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Yeni sekme aç"
   },
   "openInNewTab": {
     "message": "Yeni sekmede aç"
@@ -1456,7 +1483,7 @@
     "message": "WebAutn ile doğrula"
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "Güvenlik anahtarını oku"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Awaiting security key interaction..."
@@ -1474,7 +1501,7 @@
     "message": "İki aşamalı giriş seçenekleri"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "İki aşamalı giriş yöntemini seçin"
   },
   "recoveryCodeDesc": {
     "message": "İki aşamalı doğrulama sağlayıcılarınıza ulaşamıyor musunuz? Kurtarma kodunuzu kullanarak hesabınızdaki tüm iki aşamalı giriş sağlayıcılarını devre dışı bırakabilirsiniz."
@@ -2179,7 +2206,7 @@
     "message": "Customize your vault experience with quick copy actions, compact mode, and more!"
   },
   "newCustomizationOptionsCalloutLink": {
-    "message": "View all Appearance settings"
+    "message": "Görünüm ayarlarının hepsini göster"
   },
   "lock": {
     "message": "Kilitle",
@@ -2326,6 +2353,9 @@
   },
   "privacyPolicy": {
     "message": "Gizlilik Politikası"
+  },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
   },
   "hintEqualsPassword": {
     "message": "Parola ipucunuz parolanızla aynı olamaz."
@@ -2534,15 +2564,15 @@
     "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Illustration of a list of logins that are at-risk"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
   },
   "generatePasswordSlideDesc": {
     "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
   },
   "updateInBitwarden": {
     "message": "Update in Bitwarden"
@@ -2551,8 +2581,8 @@
     "message": "Bitwarden will then prompt you to update the password in the password manager.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
   },
   "turnOnAutofill": {
     "message": "Otomatik doldurmayı etkinleştir"
@@ -3534,6 +3564,30 @@
   "deviceTrusted": {
     "message": "Cihaza güvenildi"
   },
+  "trustOrganization": {
+    "message": "Trust organization"
+  },
+  "trust": {
+    "message": "Trust"
+  },
+  "doNotTrust": {
+    "message": "Güvenme"
+  },
+  "organizationNotTrusted": {
+    "message": "Kuruluş güvenilir değil"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+  },
+  "orgTrustWarning": {
+    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+  },
+  "trustUser": {
+    "message": "Trust user"
+  },
   "sendsNoItemsTitle": {
     "message": "Aktif Send yok",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3848,14 +3902,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Duo'yu açın ve girişi tamamlamak için adımları izleyin."
-  },
   "duoRequiredForAccount": {
     "message": "Hesabınız için Duo iki adımlı giriş gereklidir."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Giriş işlemini tamamlamak için uzantıyı dışarı alın."
   },
   "popoutExtension": {
     "message": "Uzantıyı dışarı al"
@@ -4464,6 +4512,27 @@
       }
     }
   },
+  "downloadBitwarden": {
+    "message": "Bitwarden’ı indirin"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Bitwarden’ı tüm cihazlarınıza indirin"
+  },
+  "getTheMobileApp": {
+    "message": "Mobil uygulamayı indirin"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Parolalarınıza Bitwarden mobil uygulaması sayesinde her yerden ulaşın."
+  },
+  "getTheDesktopApp": {
+    "message": "Masaüstü uygulamasını indirin"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Kasanıza tarayıcıyı kullanmadan erişin, biyometri ile kilit açmayı etkinleştirerek hem masaüstü uygulamasından hem de tarayıcı uzantısından kilit açmayı geliştirin."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Şimdi bitwarden.com’dan indirin"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Bu dosyayı kalıcı olarak silmek istediğinizden emin misiniz?"
   },
@@ -4936,8 +5005,8 @@
     "message": "Parola yeniden üretildi",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Hesap Bitwarden'a kaydedilsin mi?",
+  "saveToBitwarden": {
+    "message": "Bitwarden’a kaydet",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
@@ -5087,42 +5156,6 @@
   "beta": {
     "message": "Beta"
   },
-  "importantNotice": {
-    "message": "Önemli uyarı"
-  },
-  "setupTwoStepLogin": {
-    "message": "İki adımlı girişi ayarla"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Şubat 2025 itibarıyla Bitwarden, yeni cihazlardan yeni girişleri doğrulamanız için e-posta adresinize bir kod gönderecektir."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Hesabınızı korumanın alternatif bir yolu olarak iki adımlı girişi etkinleştirebilirsiniz. Aksi halde e-posta adresinizin doğru olduğundan emin olmalısınız."
-  },
-  "remindMeLater": {
-    "message": "Daha sonra hatırlat"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "$EMAIL$ adresinize sağlıklı bir şekilde erişebiliyor musunuz?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Hayır, erişemiyorum"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Evet, e-postalarıma sağlıklı bir şekilde erişebiliyorum"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "İki adımlı girişi etkinleştir"
-  },
-  "changeAcctEmail": {
-    "message": "Hesap e-postasını değiştir"
-  },
   "extensionWidth": {
     "message": "Uzantı genişliği"
   },
@@ -5176,5 +5209,102 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "settingsVaultOptions": {
+    "message": "Kasa seçenekleri"
+  },
+  "emptyVaultDescription": {
+    "message": "Kasanız sadece parolalarınız için değil. Hesaplarınızı, kimliklerinizi, kredi kartlarınızı ve notlarınızı da güvenle burada depolayabilirsiniz."
+  },
+  "introCarouselLabel": {
+    "message": "Bitwarden’a hoş geldiniz"
+  },
+  "securityPrioritized": {
+    "message": "Önce güvenlik"
+  },
+  "securityPrioritizedBody": {
+    "message": "Hesaplarınızı, kartlarınızı ve kimliklerinizi güvenli kasanıza kaydedin. Bitwarden'ın sıfır bilgi ispatlı uçtan uca şifrelemesi sizin için önemli olan her şeyi korur."
+  },
+  "quickLogin": {
+    "message": "Hızlı ve kolay giriş"
+  },
+  "quickLoginBody": {
+    "message": "Hesaplarınıza parola yazmadan giriş yapmak için biyometrik kilit açmayı ayarlayabilirsiniz."
+  },
+  "secureUser": {
+    "message": "Hesaplarınızı güçlendirin"
+  },
+  "secureUserBody": {
+    "message": "Hesaplarınız için güçlü ve benzersiz parolalar oluşturmak amacıyla üreteci kullanabilirsiniz."
+  },
+  "secureDevices": {
+    "message": "Verilerinize her zaman, her yerden ulaşın"
+  },
+  "secureDevicesBody": {
+    "message": "Bitwarden mobil, tarayıcı ve masaüstü uygulamalarıyla istediğiniz kadar cihaza istediğiniz kadar parola kaydedebilirsiniz."
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Mevcut parolaları içe aktar"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Use the importer to quickly transfer logins to Bitwarden without manually adding them."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Şimdi içe aktar"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Kasanıza hoş geldiniz!"
+  },
+  "hasItemsVaultNudgeBody": {
+    "message": "Autofill items for the current page\nFavorite items for easy access\nSearch your vault for something else"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Otomatik doldurmayla zaman kazanın"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Bu hesabın otomatik doldurma önerisi olarak görünmesi için bir",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "web sitesi",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "ekleyin.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Kesintisiz çevrimiçi alışveriş"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Hesap oluşturmak artık daha basit"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Hassas verilerinizi güvende tutun"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

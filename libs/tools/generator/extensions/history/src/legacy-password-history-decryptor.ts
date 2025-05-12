@@ -19,7 +19,7 @@ export class LegacyPasswordHistoryDecryptor {
 
     const promises = (history ?? []).map(async (item) => {
       const encrypted = new EncString(item.password);
-      const decrypted = await this.encryptService.decryptToUtf8(encrypted, key);
+      const decrypted = await this.encryptService.decryptString(encrypted, key);
       return new GeneratedPasswordHistory(decrypted, item.date);
     });
 

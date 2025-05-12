@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -9,6 +8,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import {
+  DIALOG_DATA,
   AsyncActionsModule,
   ButtonModule,
   DialogModule,
@@ -25,6 +25,7 @@ export type AddEditCustomFieldDialogData = {
   cipherType: CipherType;
   /** When provided, dialog will display edit label variants */
   editLabelConfig?: { index: number; label: string };
+  disallowHiddenField?: boolean;
 };
 
 @Component({
@@ -68,6 +69,9 @@ export class AddEditCustomFieldDialogComponent {
     this.variant = data.editLabelConfig ? "edit" : "add";
 
     this.fieldTypeOptions = this.fieldTypeOptions.filter((option) => {
+      if (this.data.disallowHiddenField && option.value === FieldType.Hidden) {
+        return false;
+      }
       // Filter out the Linked field type for Secure Notes
       if (this.data.cipherType === CipherType.SecureNote) {
         return option.value !== FieldType.Linked;

@@ -16,7 +16,7 @@ let nextId = 0;
 export class RadioButtonComponent {
   @HostBinding("attr.id") @Input() id = `bit-radio-button-${nextId++}`;
   @HostBinding("class") get classList() {
-    return [this.block ? "tw-block" : "tw-inline-block", "tw-mb-1"];
+    return [this.block ? "tw-block" : "tw-inline-block", "tw-mb-1", "[&_bit-hint]:tw-mt-0"];
   }
 
   @Input() value: unknown;

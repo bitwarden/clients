@@ -15,7 +15,6 @@ import {
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
-import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
@@ -43,11 +42,6 @@ import {
   VaultIcon,
 } from "@bitwarden/auth/angular";
 import { LockComponent } from "@bitwarden/key-management-ui";
-import {
-  NewDeviceVerificationNoticePageOneComponent,
-  NewDeviceVerificationNoticePageTwoComponent,
-  VaultIcons,
-} from "@bitwarden/vault";
 
 import { fido2AuthGuard } from "../auth/guards/fido2-auth.guard";
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
@@ -55,7 +49,6 @@ import {
   ExtensionAnonLayoutWrapperComponent,
   ExtensionAnonLayoutWrapperData,
 } from "../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
-import { RemovePasswordComponent } from "../auth/popup/remove-password.component";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
@@ -65,6 +58,7 @@ import { BlockedDomainsComponent } from "../autofill/popup/settings/blocked-doma
 import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
+import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import BrowserPopupUtils from "../platform/popup/browser-popup-utils";
 import { popupRouterCacheGuard } from "../platform/popup/view-cache/popup-router-cache.service";
 import { CredentialGeneratorHistoryComponent } from "../tools/popup/generator/credential-generator-history.component";
@@ -73,21 +67,24 @@ import { SendAddEditComponent as SendAddEditV2Component } from "../tools/popup/s
 import { SendCreatedComponent } from "../tools/popup/send-v2/send-created/send-created.component";
 import { SendV2Component } from "../tools/popup/send-v2/send-v2.component";
 import { AboutPageV2Component } from "../tools/popup/settings/about-page/about-page-v2.component";
-import { MoreFromBitwardenPageV2Component } from "../tools/popup/settings/about-page/more-from-bitwarden-page-v2.component";
 import { ExportBrowserV2Component } from "../tools/popup/settings/export/export-browser-v2.component";
 import { ImportBrowserV2Component } from "../tools/popup/settings/import/import-browser-v2.component";
 import { SettingsV2Component } from "../tools/popup/settings/settings-v2.component";
 import { canAccessAtRiskPasswords } from "../vault/guards/at-risk-passwords.guard";
 import { clearVaultStateGuard } from "../vault/guards/clear-vault-state.guard";
+import { IntroCarouselGuard } from "../vault/guards/intro-carousel.guard";
 import { AtRiskPasswordsComponent } from "../vault/popup/components/at-risk-passwords/at-risk-passwords.component";
 import { AddEditV2Component } from "../vault/popup/components/vault-v2/add-edit/add-edit-v2.component";
 import { AssignCollections } from "../vault/popup/components/vault-v2/assign-collections/assign-collections.component";
 import { AttachmentsV2Component } from "../vault/popup/components/vault-v2/attachments/attachments-v2.component";
+import { IntroCarouselComponent } from "../vault/popup/components/vault-v2/intro-carousel/intro-carousel.component";
 import { PasswordHistoryV2Component } from "../vault/popup/components/vault-v2/vault-password-history-v2/vault-password-history-v2.component";
 import { VaultV2Component } from "../vault/popup/components/vault-v2/vault-v2.component";
 import { ViewV2Component } from "../vault/popup/components/vault-v2/view-v2/view-v2.component";
 import { AppearanceV2Component } from "../vault/popup/settings/appearance-v2.component";
+import { DownloadBitwardenComponent } from "../vault/popup/settings/download-bitwarden.component";
 import { FoldersV2Component } from "../vault/popup/settings/folders-v2.component";
+import { MoreFromBitwardenPageV2Component } from "../vault/popup/settings/more-from-bitwarden-page-v2.component";
 import { TrashComponent } from "../vault/popup/settings/trash.component";
 import { VaultSettingsV2Component } from "../vault/popup/settings/vault-settings-v2.component";
 
@@ -383,7 +380,7 @@ const routes: Routes = [
       },
       {
         path: "login",
-        canActivate: [unauthGuardFn(unauthRouteOverrides)],
+        canActivate: [unauthGuardFn(unauthRouteOverrides), IntroCarouselGuard],
         data: {
           pageIcon: VaultIcon,
           pageTitle: {
@@ -588,29 +585,23 @@ const routes: Routes = [
     data: { elevation: 2 } satisfies RouteDataProperties,
   },
   {
-    path: "new-device-notice",
+    path: "download-bitwarden",
+    component: DownloadBitwardenComponent,
+    canActivate: [authGuard],
+    data: { elevation: 2 } satisfies RouteDataProperties,
+  },
+  {
+    path: "intro-carousel",
     component: ExtensionAnonLayoutWrapperComponent,
     canActivate: [],
+    data: { elevation: 0, doNotSaveUrl: true } satisfies RouteDataProperties,
     children: [
       {
         path: "",
-        component: NewDeviceVerificationNoticePageOneComponent,
+        component: IntroCarouselComponent,
         data: {
-          pageIcon: VaultIcons.ExclamationTriangle,
-          pageTitle: {
-            key: "importantNotice",
-          },
+          hideIcon: true,
           hideFooter: true,
-        },
-      },
-      {
-        path: "setup",
-        component: NewDeviceVerificationNoticePageTwoComponent,
-        data: {
-          pageIcon: VaultIcons.UserLock,
-          pageTitle: {
-            key: "setupTwoStepLogin",
-          },
         },
       },
     ],
@@ -632,7 +623,7 @@ const routes: Routes = [
       {
         path: "vault",
         component: VaultV2Component,
-        canActivate: [authGuard, NewDeviceVerificationNoticeGuard],
+        canActivate: [authGuard],
         canDeactivate: [clearVaultStateGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
       },

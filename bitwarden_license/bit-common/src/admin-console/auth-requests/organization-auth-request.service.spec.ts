@@ -7,6 +7,7 @@ import {
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationAuthRequestApiService } from "./organization-auth-request-api.service";
@@ -82,6 +83,64 @@ describe("OrganizationAuthRequestService", () => {
     });
   });
 
+  describe("listPendingRequestsWithDetails", () => {
+    it("should retrieve the fingerprint phrase for each request and return the new result", async () => {
+      jest.spyOn(organizationAuthRequestApiService, "listPendingRequests");
+
+      const organizationId = "organizationId";
+
+      const pendingAuthRequest = new PendingAuthRequestView();
+      pendingAuthRequest.id = "requestId1";
+      pendingAuthRequest.userId = "userId1";
+      pendingAuthRequest.organizationUserId = "userId1";
+      pendingAuthRequest.email = "email1";
+      pendingAuthRequest.publicKey = "publicKey1";
+      pendingAuthRequest.requestDeviceIdentifier = "requestDeviceIdentifier1";
+      pendingAuthRequest.requestDeviceType = "requestDeviceType1";
+      pendingAuthRequest.requestIpAddress = "requestIpAddress1";
+      pendingAuthRequest.creationDate = new Date();
+      const mockPendingAuthRequests = [pendingAuthRequest];
+      organizationAuthRequestApiService.listPendingRequests
+        .calledWith(organizationId)
+        .mockResolvedValue(mockPendingAuthRequests);
+
+      const fingerprintPhrase = ["fingerprint", "phrase"];
+      keyService.getFingerprint
+        .calledWith(pendingAuthRequest.email, expect.any(Uint8Array))
+        .mockResolvedValue(fingerprintPhrase);
+
+      const result =
+        await organizationAuthRequestService.listPendingRequestsWithFingerprint(organizationId);
+
+      expect(result).toHaveLength(1);
+      expect(result).toEqual([
+        { ...pendingAuthRequest, fingerprintPhrase: fingerprintPhrase.join("-") },
+      ]);
+      expect(organizationAuthRequestApiService.listPendingRequests).toHaveBeenCalledWith(
+        organizationId,
+      );
+    });
+
+    it("should return empty list if no results and not call keyService", async () => {
+      jest.spyOn(organizationAuthRequestApiService, "listPendingRequests");
+
+      const organizationId = "organizationId";
+
+      organizationAuthRequestApiService.listPendingRequests
+        .calledWith(organizationId)
+        .mockResolvedValue([]);
+
+      const result =
+        await organizationAuthRequestService.listPendingRequestsWithFingerprint(organizationId);
+
+      expect(result).toHaveLength(0);
+      expect(keyService.getFingerprint).not.toHaveBeenCalled();
+      expect(organizationAuthRequestApiService.listPendingRequests).toHaveBeenCalledWith(
+        organizationId,
+      );
+    });
+  });
+
   describe("denyPendingRequests", () => {
     it("should deny the specified pending auth requests", async () => {
       jest.spyOn(organizationAuthRequestApiService, "denyPendingRequests");
@@ -124,8 +183,10 @@ describe("OrganizationAuthRequestService", () => {
       );
 
       const encryptedUserKey = new EncString("encryptedUserKey");
-      encryptService.rsaDecrypt.mockResolvedValue(new Uint8Array(32));
-      encryptService.rsaEncrypt.mockResolvedValue(encryptedUserKey);
+      encryptService.decapsulateKeyUnsigned.mockResolvedValue(
+        new SymmetricCryptoKey(new Uint8Array(32)),
+      );
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(encryptedUserKey);
 
       const mockPendingAuthRequest = new PendingAuthRequestView();
       mockPendingAuthRequest.id = "requestId1";
@@ -166,8 +227,10 @@ describe("OrganizationAuthRequestService", () => {
       );
 
       const encryptedUserKey = new EncString("encryptedUserKey");
-      encryptService.rsaDecrypt.mockResolvedValue(new Uint8Array(32));
-      encryptService.rsaEncrypt.mockResolvedValue(encryptedUserKey);
+      encryptService.decapsulateKeyUnsigned.mockResolvedValue(
+        new SymmetricCryptoKey(new Uint8Array(32)),
+      );
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(encryptedUserKey);
 
       const mockPendingAuthRequest = new PendingAuthRequestView();
       mockPendingAuthRequest.id = "requestId1";

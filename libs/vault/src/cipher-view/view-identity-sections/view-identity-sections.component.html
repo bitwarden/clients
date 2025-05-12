@@ -1,4 +1,4 @@
-<bit-section *ngIf="showPersonalDetails">
+<bit-section *ngIf="hasPersonalDetails">
   <bit-section-header>
     <h2 bitTypography="h6">{{ "personalDetails" | i18n }}</h2>
   </bit-section-header>
@@ -66,7 +66,7 @@
   </read-only-cipher-card>
 </bit-section>
 
-<bit-section *ngIf="showIdentificationDetails">
+<bit-section *ngIf="hasIdentificationDetails">
   <bit-section-header>
     <h2 bitTypography="h6">{{ "identification" | i18n }}</h2>
   </bit-section-header>
@@ -155,7 +155,7 @@
   </read-only-cipher-card>
 </bit-section>
 
-<bit-section *ngIf="showContactDetails">
+<bit-section *ngIf="hasContactDetails">
   <bit-section-header>
     <h2 bitTypography="h6">{{ "contactInfo" | i18n }}</h2>
   </bit-section-header>

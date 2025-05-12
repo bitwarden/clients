@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "すべてのアプリ"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden logo"
+  },
   "criticalApplications": {
     "message": "きわめて重要なアプリ"
   },
@@ -419,17 +422,8 @@
   "folder": {
     "message": "フォルダー"
   },
-  "newCustomField": {
-    "message": "新規カスタムフィールド"
-  },
   "value": {
     "message": "値"
-  },
-  "dragToSort": {
-    "message": "ドラッグして並べ替え"
-  },
-  "dragToReorder": {
-    "message": "ドラッグして並べ替え"
   },
   "cfTypeText": {
     "message": "テキスト"
@@ -1435,18 +1429,6 @@
       }
     }
   },
-  "enterVerificationCodeApp": {
-    "message": "認証アプリに表示された6桁の認証コードを入力してください。"
-  },
-  "enterVerificationCodeEmail": {
-    "message": "$EMAIL$ に送信された6桁の認証コードを入力してください。",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "$EMAIL$ に認証コードを送信しました。",
     "placeholders": {
@@ -1456,17 +1438,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "情報を保存する"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "このデバイスで30日間再表示しない"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "確認コードをメールで再送"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "他の2段階認証方法を使用"
   },
   "selectAnotherMethod": {
     "message": "別の方法を選択",
@@ -1474,9 +1447,6 @@
   },
   "useYourRecoveryCode": {
     "message": "リカバリーコードを使用する"
-  },
-  "insertYubiKey": {
-    "message": "YubiKey を USB ポートに挿入し、ボタンをタッチしてください。"
   },
   "insertU2f": {
     "message": "セキュリティキーを USB ポートに挿入し、ボタンがある場合はボタンをタッチしてください。"
@@ -3347,6 +3317,12 @@
   "externalIdDesc": {
     "message": "外部 ID は参照用や、ユーザーディレクトリーなどの外部システムへリソースをリンクするために使用できます。"
   },
+  "ssoExternalId": {
+    "message": "SSO External ID"
+  },
+  "ssoExternalIdDesc": {
+    "message": "SSO External ID is an unencrypted reference between Bitwarden and your configured SSO provider."
+  },
   "nestCollectionUnder": {
     "message": "コレクションを入れ子にする"
   },
@@ -4090,8 +4066,8 @@
   "updateBrowser": {
     "message": "ブラウザを更新"
   },
-  "generatingRiskInsights": {
-    "message": "リスク分析を生成しています..."
+  "generatingYourRiskInsights": {
+    "message": "Generating your Risk Insights..."
   },
   "updateBrowserDesc": {
     "message": "サポートされていないブラウザを使用しています。ウェブ保管庫が正しく動作しないかもしれません。"
@@ -5078,9 +5054,6 @@
   "singleOrgBlockCreateMessage": {
     "message": "現在の組織には、複数の組織に参加することを許可していないポリシーがあります。 組織の管理者に連絡するか、別の Bitwarden アカウントから登録してください。"
   },
-  "singleOrgPolicyWarning": {
-    "message": "オーナーまたは管理者でなく、すでに他の組織のメンバーであるメンバーは組織から削除されます。"
-  },
   "singleOrgPolicyMemberWarning": {
     "message": "ポリシーに準拠していないメンバーは、他のすべての組織から退出するまで失効状態になります。これは管理者には適用されず、管理者はコンプライアンスが満たされたメンバーを復元できます。"
   },
@@ -5709,6 +5682,9 @@
   "webAuthnSuccess": {
     "message": "WebAuthn が正常に認証されました！このタブを閉じることができます。"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "パスワードのヒントをパスワードと同じにすることはできません。"
   },
@@ -5904,14 +5880,8 @@
   "fingerprint": {
     "message": "指紋"
   },
-  "removeUsers": {
-    "message": "ユーザーを削除"
-  },
-  "revokeUsers": {
-    "message": "ユーザーを取り消す"
-  },
-  "restoreUsers": {
-    "message": "ユーザーの復元"
+  "fingerprintPhrase": {
+    "message": "Fingerprint phrase:"
   },
   "error": {
     "message": "エラー"
@@ -6317,20 +6287,56 @@
   "sponsoredFamilies": {
     "message": "Bitwarden 家族向けプランを無償で"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Sponsored families"
+  },
+  "noSponsoredFamiliesMessage": {
+    "message": "No sponsored families"
+  },
+  "nosponsoredFamiliesDetails": {
+    "message": "Sponsored non-member families plans will display here"
+  },
+  "sponsorshipFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+  },
   "sponsoredFamiliesEligible": {
     "message": "あなたとご家族は、 Bitwarden 家族向けプランを無償でご利用いただけます。 個人用のメールアドレスで引き換えて、仕事以外でもデータを安全に保ちましょう。"
   },
   "sponsoredFamiliesEligibleCard": {
     "message": "Bitwarden 家族向けプランを今すぐ無償で引き換えて、仕事以外でもデータを安全に保管しましょう。"
   },
-  "sponsoredFamiliesInclude": {
-    "message": "Bitwarden 家族向けプランには以下の機能が含まれます"
+  "sponsoredFamiliesIncludeMessage": {
+    "message": "The Bitwarden for Families plan includes"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "最大 6 人のプレミアム機能へのアクセス"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "家族のシークレットのために共有されたコレクション"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Shared collections for family members"
+  },
+  "memberFamilies": {
+    "message": "Member families"
+  },
+  "noMemberFamilies": {
+    "message": "No member families"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Members who have redeemed family plans will display here"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
+  },
+  "organizationHasMemberMessage": {
+    "message": "A sponsorship cannot be sent to $EMAIL$ because they are a member of your organization.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "リンクは無効になりました。スポンサーにオファーを再送信してもらってください。"
@@ -6383,8 +6389,8 @@
   "redeemedAccount": {
     "message": "引き換えに使用したアカウント"
   },
-  "revokeAccount": {
-    "message": "アカウント $NAME$ を取り消す",
+  "revokeAccountMessage": {
+    "message": "Revoke account $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -7252,9 +7258,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Duo サービスへの接続中にエラーが発生しました。異なる二段階ログイン方法を使用するか、Duo に連絡してください。"
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "ログインを完了するには DUO を起動し手順に従ってください。"
-  },
   "duoRequiredByOrgForAccount": {
     "message": "アカウントには DUO 二段階認証が必要です。"
   },
@@ -7263,6 +7266,9 @@
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "以下の手順に従ってログインを完了してください。"
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
   },
   "launchDuo": {
     "message": "DUO を起動"
@@ -7818,12 +7824,6 @@
   "noDomainsSubText": {
     "message": "ドメインを接続すると、メンバーは SSO でログインする際に SSO 識別子フィールドをスキップできます。"
   },
-  "verifyDomain": {
-    "message": "ドメインを確認"
-  },
-  "reverifyDomain": {
-    "message": "ドメインを再確認する"
-  },
   "copyDnsTxtRecord": {
     "message": "DNS TXT レコードをコピー"
   },
@@ -7832,18 +7832,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "TXT レコードをコピーして DNS プロバイダーに貼り付けてください。"
-  },
-  "domainNameInputHint": {
-    "message": "例: mydomain.com サブドメインを検証するには別々のエントリが必要です。"
-  },
-  "automaticDomainVerification": {
-    "message": "ドメインの自動認証"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden は最初の 72 時間以内にドメインの検証を3回試みます。 ドメインが検証できない場合は、ホストの DNS レコードを確認し、手動で検証してください。 認証されていない場合、ドメインは7日後に組織から削除されます。"
-  },
-  "invalidDomainNameMessage": {
-    "message": "入力されたものは有効な形式ではありません。フォーマット例: mydomain.com サブドメインは検証するために個別のエントリを必要とします。"
   },
   "removeDomain": {
     "message": "ドメインを削除"
@@ -7857,9 +7845,6 @@
   "domainSaved": {
     "message": "ドメインを保存しました"
   },
-  "domainVerified": {
-    "message": "ドメインを認証しました"
-  },
   "duplicateDomainError": {
     "message": "同じドメインを二度要求することはできません。"
   },
@@ -7871,21 +7856,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ は認証されていません。DNS レコードを確認してください。",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "認証済み"
-  },
-  "domainStatusUnverified": {
-    "message": "未認証"
   },
   "domainNameTh": {
     "message": "名前"
@@ -7913,24 +7883,6 @@
   },
   "removedDomain": {
     "message": "ドメイン $DOMAIN$ を削除しました",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ を認証しました",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ は認証されていません",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -7997,6 +7949,9 @@
   },
   "inviteMember": {
     "message": "メンバーを招待する"
+  },
+  "addSponsorship": {
+    "message": "Add sponsorship"
   },
   "needsConfirmation": {
     "message": "確認が必要"
@@ -8735,8 +8690,8 @@
   "limitCollectionDeletionDesc": {
     "message": "コレクションの削除を所有者と管理者のみに制限"
   },
-  "limitItemDeletionDesc": {
-    "message": "Limit item deletion to members with the Can manage permission"
+  "limitItemDeletionDescription": {
+    "message": "Limit item deletion to members with the Manage collection permissions"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "所有者と管理者はすべてのコレクションとアイテムを管理できます"
@@ -9458,11 +9413,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "プロバイダーポータルからの請求を管理"
   },
+  "continueSettingUp": {
+    "message": "Continue setting up Bitwarden"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Bitwarden の無料トライアルのセットアップを続ける"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Continue setting up Bitwarden Password Manager"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Bitwarden パスワードマネージャーの無料トライアルのセットアップを続けます"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Continue setting up Bitwarden Secrets Manager"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Bitwarden シークレットマネージャーの無料トライアルのセットアップを続けます"
@@ -10224,42 +10188,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Important notice"
-  },
-  "setupTwoStepLogin": {
-    "message": "Set up two-step login"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
-  },
-  "remindMeLater": {
-    "message": "Remind me later"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
-  },
-  "changeAcctEmail": {
-    "message": "Change account email"
-  },
   "removeMembers": {
     "message": "メンバーを削除"
   },
@@ -10356,6 +10284,39 @@
   },
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
+  },
+  "rotationCompletedTitle": {
+    "message": "Key rotation successful"
+  },
+  "rotationCompletedDesc": {
+    "message": "Your master password and encryption keys have been updated. Your other devices have been logged out."
+  },
+  "trustUserEmergencyAccess": {
+    "message": "Trust and confirm user"
+  },
+  "trustOrganization": {
+    "message": "Trust organization"
+  },
+  "trust": {
+    "message": "Trust"
+  },
+  "doNotTrust": {
+    "message": "Do not trust"
+  },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+  },
+  "orgTrustWarning": {
+    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+  },
+  "trustUser": {
+    "message": "Trust user"
   },
   "sshKeyWrongPassword": {
     "message": "入力されたパスワードが間違っています。"
@@ -10526,6 +10487,30 @@
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
   },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "Fingerprint phrase for $NUM_USERS$ contacts for which you have enabled emergency access.",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "Fingerprint phrase for the organization $ORG_NAME$ for which you have enabled account recovery.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "Rotating your encryption keys will require you to trust keys of any organizations that can recover your account, and any contacts that you have enabled emergency access for. To continue, make sure you can verify the following:"
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "Untrusted encryption keys"
+  },
   "changeAtRiskPassword": {
     "message": "危険なパスワードの変更"
   },
@@ -10535,25 +10520,80 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "PINによるアカウントのロック解除をメンバーに許可しません。"
   },
-  "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Get full access to organization event logs by upgrading to a Teams or Enterprise plan."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Upgrade for real event log data"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
   },
   "cannotCreateCollection": {
     "message": "無料版の組織ではコレクションは 2 つまでです。さらにコレクションを追加するには有料プランにアップグレードしてください。"
+  },
+  "businessUnit": {
+    "message": "Business Unit"
+  },
+  "businessUnits": {
+    "message": "Business Units"
+  },
+  "newBusinessUnit": {
+    "message": "New business unit"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "restart": {
+    "message": "Restart"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
   }
 }

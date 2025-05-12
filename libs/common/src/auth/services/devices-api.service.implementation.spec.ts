@@ -89,6 +89,24 @@ describe("DevicesApiServiceImplementation", () => {
     });
   });
 
+  describe("untrustDevices", () => {
+    it("calls api with correct parameters", async () => {
+      const deviceIds = ["device1", "device2"];
+      apiService.send.mockResolvedValue(true);
+
+      await devicesApiService.untrustDevices(deviceIds);
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/devices/untrust",
+        {
+          devices: deviceIds,
+        },
+        true,
+        false,
+      );
+    });
+  });
+
   describe("error handling", () => {
     it("propagates api errors", async () => {
       const error = new Error("API Error");

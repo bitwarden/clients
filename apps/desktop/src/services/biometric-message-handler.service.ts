@@ -4,8 +4,8 @@ import { combineLatest, concatMap, firstValueFrom, map } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -91,12 +91,27 @@ export class BiometricMessageHandlerService {
     private i18nService: I18nService,
   ) {
     combineLatest([
-      this.desktopSettingService.browserIntegrationFingerprintEnabled$,
       this.desktopSettingService.browserIntegrationEnabled$,
+      this.desktopSettingService.browserIntegrationFingerprintEnabled$,
     ])
       .pipe(
-        concatMap(async () => {
-          await this.connectedApps.clear();
+        concatMap(async ([browserIntegrationEnabled, browserIntegrationFingerprintEnabled]) => {
+          if (!browserIntegrationEnabled) {
+            this.logService.info("[Native Messaging IPC] Clearing connected apps");
+            await this.connectedApps.clear();
+          } else if (!browserIntegrationFingerprintEnabled) {
+            this.logService.info(
+              "[Native Messaging IPC] Browser integration fingerprint validation is disabled, untrusting all connected apps",
+            );
+            const connected = await this.connectedApps.list();
+            for (const appId of connected) {
+              const connectedApp = await this.connectedApps.get(appId);
+              if (connectedApp != null) {
+                connectedApp.trusted = false;
+                await this.connectedApps.set(appId, connectedApp);
+              }
+            }
+          }
         }),
       )
       .subscribe();
@@ -160,7 +175,7 @@ export class BiometricMessageHandlerService {
     }
 
     const message: LegacyMessage = JSON.parse(
-      await this.encryptService.decryptToUtf8(
+      await this.encryptService.decryptString(
         rawMessage as EncString,
         SymmetricCryptoKey.fromString(sessionSecret),
       ),
@@ -350,7 +365,7 @@ export class BiometricMessageHandlerService {
       throw new Error("Session secret is missing");
     }
 
-    const encrypted = await this.encryptService.encrypt(
+    const encrypted = await this.encryptService.encryptString(
       JSON.stringify(message),
       SymmetricCryptoKey.fromString(sessionSecret),
     );

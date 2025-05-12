@@ -1,4 +1,3 @@
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { Component, Input, Output, EventEmitter } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
@@ -7,6 +6,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 import { AlgorithmInfo } from "@bitwarden/generator-core";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 

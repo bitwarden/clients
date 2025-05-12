@@ -1,4 +1,4 @@
-import { EncString, EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
 import { PinKey, UserKey } from "@bitwarden/common/types/key";
 import { KdfConfig } from "@bitwarden/key-management";
@@ -89,17 +89,6 @@ export abstract class PinServiceAbstraction {
    * Clears the user's PIN, encrypted by the UserKey.
    */
   abstract clearUserKeyEncryptedPin(userId: UserId): Promise<void>;
-
-  /**
-   * Gets the old MasterKey, encrypted by the PinKey (formerly called `pinProtected`).
-   * Deprecated and used for migration purposes only.
-   */
-  abstract getOldPinKeyEncryptedMasterKey: (userId: UserId) => Promise<EncryptedString | null>;
-
-  /**
-   * Clears the old MasterKey, encrypted by the PinKey.
-   */
-  abstract clearOldPinKeyEncryptedMasterKey: (userId: UserId) => Promise<void>;
 
   /**
    * Makes a PinKey from the provided PIN.

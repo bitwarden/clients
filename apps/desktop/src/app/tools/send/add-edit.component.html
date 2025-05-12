@@ -282,14 +282,9 @@
     </div>
   </div>
   <div class="footer">
-    <button
-      type="submit"
-      class="primary btn-submit"
-      appA11yTitle="{{ 'save' | i18n }}"
-      *ngIf="!disableSend"
-    >
+    <button type="submit" class="primary btn-submit" *ngIf="!disableSend">
       <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-      <span><i class="bwi bwi-save-changes bwi-lg bwi-fw" aria-hidden="true"></i></span>
+      {{ "save" | i18n }}
     </button>
     <button type="button" (click)="cancel()">
       {{ "cancel" | i18n }}

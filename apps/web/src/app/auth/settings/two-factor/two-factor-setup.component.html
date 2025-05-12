@@ -1,7 +1,7 @@
 <app-header *ngIf="organizationId != null"></app-header>
 
 <bit-container>
-  <div class="tabbed-header" *ngIf="organizationId == null">
+  <div class="tw-mt-6 tw-mb-2 tw-pb-2.5" *ngIf="organizationId == null">
     <h1 *ngIf="!organizationId || !isEnterpriseOrg">{{ "twoStepLogin" | i18n }}</h1>
     <h1 *ngIf="organizationId && isEnterpriseOrg">{{ "twoStepLoginEnforcement" | i18n }}</h1>
   </div>
@@ -35,7 +35,7 @@
     {{ "providers" | i18n }}
     <small *ngIf="loading">
       <i
-        class="bwi bwi-spinner bwi-spin bwi-fw text-muted"
+        class="bwi bwi-spinner bwi-spin bwi-fw tw-text-muted"
         title="{{ 'loading' | i18n }}"
         aria-hidden="true"
       ></i>
@@ -45,32 +45,32 @@
   <bit-callout type="warning" *ngIf="showPolicyWarning">
     {{ "twoStepLoginPolicyUserWarning" | i18n }}
   </bit-callout>
-  <ul class="list-group list-group-2fa">
-    <li *ngFor="let p of providers" class="list-group-item d-flex align-items-center">
-      <div class="logo-2fa d-flex justify-content-center">
-        <auth-two-factor-icon [provider]="p.type" [name]="p.name" />
+  <bit-item-group [attr.aria-label]="'providers' | i18n">
+    <bit-item *ngFor="let p of providers" class="tw-py-4">
+      <div slot="start" class="tw-min-w-[120px] tw-flex tw-justify-center">
+        <auth-two-factor-icon class="tw-flex tw-items-center" [provider]="p.type" [name]="p.name" />
       </div>
-      <div class="mx-4">
-        <h3 class="mb-0">
+      <div bit-item-content class="tw-px-4">
+        <h3 class="tw-mb-0">
           <div
-            class="font-weight-semibold tw-text-base"
+            class="tw-font-semibold tw-text-base"
             [style]="p.enabled || p.premium ? 'display:inline-block' : ''"
           >
             {{ p.name }}
           </div>
           <ng-container *ngIf="p.enabled">
             <i
-              class="bwi bwi-check text-success bwi-fw"
+              class="bwi bwi-check tw-text-success-600 bwi-fw tw-ml-2"
               title="{{ 'enabled' | i18n }}"
               aria-hidden="true"
             ></i>
             <span class="tw-sr-only">{{ "enabled" | i18n }}</span>
           </ng-container>
-          <app-premium-badge *ngIf="p.premium"></app-premium-badge>
+          <app-premium-badge class="tw-ml-2" *ngIf="p.premium"></app-premium-badge>
         </h3>
-        {{ p.description }}
+        <div class="tw-mt-2 tw-text-wrap">{{ p.description }}</div>
       </div>
-      <div class="ml-auto">
+      <bit-item-action slot="end">
         <button
           type="button"
           bitButton
@@ -80,12 +80,7 @@
         >
           {{ "manage" | i18n }}
         </button>
-      </div>
-    </li>
-  </ul>
+      </bit-item-action>
+    </bit-item>
+  </bit-item-group>
 </bit-container>
-
-<ng-template #duoTemplate></ng-template>
-<ng-template #emailTemplate></ng-template>
-<ng-template #yubikeyTemplate></ng-template>
-<ng-template #webAuthnTemplate></ng-template>
