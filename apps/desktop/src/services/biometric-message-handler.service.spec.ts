@@ -347,7 +347,7 @@ describe("BiometricMessageHandlerService", () => {
           trusted: false,
         }),
       );
-      encryptService.decryptToUtf8.mockResolvedValue(
+      encryptService.decryptString.mockResolvedValue(
         JSON.stringify({
           command: "biometricUnlock",
           messageId: 0,
@@ -382,7 +382,7 @@ describe("BiometricMessageHandlerService", () => {
       ngZone.run.mockReturnValue({
         closed: of(true),
       });
-      encryptService.decryptToUtf8.mockResolvedValue(
+      encryptService.decryptString.mockResolvedValue(
         JSON.stringify({
           command: BiometricsCommands.UnlockWithBiometricsForUser,
           messageId: 0,
@@ -433,7 +433,7 @@ describe("BiometricMessageHandlerService", () => {
       ngZone.run.mockReturnValue({
         closed: of(false),
       });
-      encryptService.decryptToUtf8.mockResolvedValue(
+      encryptService.decryptString.mockResolvedValue(
         JSON.stringify({
           command: BiometricsCommands.UnlockWithBiometricsForUser,
           messageId: 0,
@@ -480,7 +480,7 @@ describe("BiometricMessageHandlerService", () => {
           trusted: true,
         }),
       );
-      encryptService.decryptToUtf8.mockResolvedValue(
+      encryptService.decryptString.mockResolvedValue(
         JSON.stringify({
           command: BiometricsCommands.UnlockWithBiometricsForUser,
           messageId: 0,

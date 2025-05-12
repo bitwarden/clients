@@ -23,10 +23,9 @@
     type="button"
     buttonType="primary"
     *ngIf="buttonText"
-    (click)="handleButtonClick()"
+    (click)="handleButtonClick($event)"
   >
     {{ buttonText }}
+    <i *ngIf="buttonIcon" [ngClass]="buttonIcon" class="bwi tw-ml-1" aria-hidden="true"></i>
   </button>
-
-  <ng-content></ng-content>
 </div>

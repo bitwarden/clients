@@ -61,7 +61,7 @@ function getI18n() {
     loginSaveSuccess: chrome.i18n.getMessage("loginSaveSuccess"),
     loginSaveConfirmation: chrome.i18n.getMessage("loginSaveConfirmation"),
     loginUpdateSuccess: chrome.i18n.getMessage("loginUpdateSuccess"),
-    loginUpdateConfirmation: chrome.i18n.getMessage("loginUpdatedConfirmation"),
+    loginUpdatedConfirmation: chrome.i18n.getMessage("loginUpdatedConfirmation"),
     loginUpdateTaskSuccess: chrome.i18n.getMessage("loginUpdateTaskSuccess"),
     loginUpdateTaskSuccessAdditional: chrome.i18n.getMessage("loginUpdateTaskSuccessAdditional"),
     nextSecurityTaskAction: chrome.i18n.getMessage("nextSecurityTaskAction"),
@@ -273,7 +273,7 @@ function handleSaveAction(e: Event) {
   if (selectedVault.length > 1) {
     openAddEditVaultItemPopout(e, {
       organizationId: selectedVault,
-      folder: selectedFolder,
+      ...(selectedFolder?.length > 1 ? { folder: selectedFolder } : {}),
     });
     handleCloseNotification(e);
     return;

@@ -4512,6 +4512,27 @@
       }
     }
   },
+  "downloadBitwarden": {
+    "message": "Bitwarden letöltése"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Bitwarden letöltése minden eszközön"
+  },
+  "getTheMobileApp": {
+    "message": "Mobilalkalmazás beszerzése"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Útközben is hozzáférhetünk a jelszabkhoz a Bitwarden mobilalkalmazással."
+  },
+  "getTheDesktopApp": {
+    "message": "Asztali alkalmazás beszerzése"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Hozzáférhetünk a széfhez böngésző nélkül, majd állítsuk be a feloldást biometrikus adatokkal, hogy felgyorsítsuk a feloldást mind az asztali alkalmazásban, mind a böngésző bővítményben."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Letöltés most a bitwarden.com webhelyről"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Biztosan véglegesen törlésre kerüljön ez a melléklet?"
   },
@@ -5135,42 +5156,6 @@
   "beta": {
     "message": "Béta"
   },
-  "importantNotice": {
-    "message": "Fontos megjegyzés"
-  },
-  "setupTwoStepLogin": {
-    "message": "Kétlépéses bejelentkezés beüzemelése"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "A Bitwarden 2025 februárjától kódot küld a fiókhoz tartozó email-címre, amellyel ellenőrizhetők az új eszközökről történő bejelentkezések."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "A fiók védelmének alternatív módjaként beállíthatunk kétlépcsős bejelentkezést vagy módosíthatjuk az email címet egy elérhetőre."
-  },
-  "remindMeLater": {
-    "message": "Emlékeztetés később"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Megbízható a hozzáférés $EMAIL$ email címhez?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Nem, nem érem el"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Igen, megbízhatóan hozzáférek az emailjeimhez"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Kétlépéses bejelentkezés bekapcsolása"
-  },
-  "changeAcctEmail": {
-    "message": "Fiók email cím megváltoztatása"
-  },
   "extensionWidth": {
     "message": "Kiterjesztés szélesség"
   },
@@ -5276,8 +5261,20 @@
   "newLoginNudgeTitle": {
     "message": "Idő megtakarítás automatikus kitöltéssel"
   },
-  "newLoginNudgeBody": {
-    "message": "Adjunk meg egy webhelyet, hogy ez a bejelentkezési név automatikusan kitöltendő javaslatként jelenjen meg."
+  "newLoginNudgeBodyOne": {
+    "message": "Bevonás:",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Webhely",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "így ez a bejelentkezés automatikus kitöltési javaslatként jelenik meg.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Zökkenőmentes online fizetés"
@@ -5300,7 +5297,14 @@
   "newSshNudgeTitle": {
     "message": "Fejlesztőbarát SSH hozzáférés"
   },
-  "newSshNudgeBody": {
-    "message": "Tároljuk a kulcsokat és csatlakozzunk az SSH-ügynökhöz a gyors, titkosított hitelesítéshez."
+  "newSshNudgeBodyOne": {
+    "message": "Tároljuk el a kulcsokat és csatlakozzunk az SSH ügynökhöz a gyors, titkosított hitelesítéshez.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "További információ az SSH ügynökről",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

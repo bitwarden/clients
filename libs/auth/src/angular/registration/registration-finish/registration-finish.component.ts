@@ -151,9 +151,8 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
 
   async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
     this.submitting = true;
-    let captchaBypassToken: string = null;
     try {
-      captchaBypassToken = await this.registrationFinishService.finishRegistration(
+      await this.registrationFinishService.finishRegistration(
         this.email,
         passwordInputResult,
         this.emailVerificationToken,
@@ -178,12 +177,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
 
     // login with the new account
     try {
-      const credentials = new PasswordLoginCredentials(
-        this.email,
-        passwordInputResult.newPassword,
-        captchaBypassToken,
-        null,
-      );
+      const credentials = new PasswordLoginCredentials(this.email, passwordInputResult.newPassword);
 
       const authenticationResult = await this.loginStrategyService.logIn(credentials);
 

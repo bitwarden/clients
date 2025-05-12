@@ -237,6 +237,24 @@
   "enableSshAgentHelp": {
     "message": "SSH агент је услуга намењена програмерима која вам омогућава да потпишете SSH захтеве директно из вашег Bitwarden сефа."
   },
+  "sshAgentPromptBehavior": {
+    "message": "Ask for authorization when using SSH agent"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "Choose how to handle SSH-agent authorization requests."
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "Remember SSH authorizations"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "Always"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "Never"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "Remember until vault is locked"
+  },
   "premiumRequired": {
     "message": "Потребан Премијум"
   },
@@ -426,6 +444,12 @@
   },
   "addField": {
     "message": "Додај поље"
+  },
+  "editField": {
+    "message": "Edit field"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Are you sure you want to permanently delete this attachment?"
   },
   "fieldType": {
     "message": "Врста поља"
@@ -3671,63 +3695,6 @@
   "fileSavedToDevice": {
     "message": "Датотека је сачувана на уређају. Управљајте преузимањима са свог уређаја."
   },
-  "importantNotice": {
-    "message": "Важно обавештење"
-  },
-  "setupTwoStepLogin": {
-    "message": "Поставити дво-степенску пријаву"
-  },
-  "itemDetails": {
-    "message": "Детаљи ставке"
-  },
-  "itemName": {
-    "message": "Име ставке"
-  },
-  "loginCredentials": {
-    "message": "Акредитиве за пријављивање"
-  },
-  "additionalOptions": {
-    "message": "Додатне опције"
-  },
-  "itemHistory": {
-    "message": "Историја предмета"
-  },
-  "lastEdited": {
-    "message": "Последња измена"
-  },
-  "upload": {
-    "message": "Отпреми"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden ће послати кôд на имејл вашег налога за верификовање пријављивања са нових уређаја почевши од фебруара 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Можете да подесите пријаву у два корака као алтернативни начин да заштитите свој налог или да промените свој имејл у један који можете да приступите."
-  },
-  "remindMeLater": {
-    "message": "Подсети ме касније"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Да ли имате поуздан приступ својим имејлом, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Не, ненам"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Да, могу поуздано да приступим овим имејлом"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Упалити дво-степенску пријаву"
-  },
-  "changeAcctEmail": {
-    "message": "Променити имејл налога"
-  },
   "allowScreenshots": {
     "message": "Дозволи снимање екрана"
   },
@@ -3755,8 +3722,20 @@
   "newLoginNudgeTitle": {
     "message": "Уштедите време са ауто-пуњењем"
   },
-  "newLoginNudgeBody": {
-    "message": "Укључите веб страницу тако да се ова пријава појављује као предлог за ауто-пуњење."
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Лако онлајн плачање"
@@ -3779,7 +3758,14 @@
   "newSshNudgeTitle": {
     "message": "Лак SSH приступ"
   },
-  "newSshNudgeBody": {
-    "message": "Чувајте кључеве и повежите се са SSH агент за брзу, шифровану аутентификацију."
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

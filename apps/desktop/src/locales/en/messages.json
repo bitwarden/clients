@@ -445,6 +445,12 @@
   "addField": {
     "message": "Add field"
   },
+  "editField": {
+    "message": "Edit field"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Are you sure you want to permanently delete this attachment?"
+  },
   "fieldType": {
     "message": "Field type"
   },
@@ -1719,39 +1725,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "“File password”  and “Confirm file password“ do not match."
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha Url",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Load accessibility cookie"
-  },
-  "registerAccessibilityUser": {
-    "message": "Register as an accessibility user at",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Copy and paste the link sent to your email below"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Enter URL to load accessibility cookie for hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "hCaptcha Url is required",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Invalid Url"
-  },
   "done": {
     "message": "Done"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Accessibility cookie saved!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "No accessibility cookie saved"
   },
   "warning": {
     "message": "WARNING",
@@ -3640,6 +3615,27 @@
   },
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
+  },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "Last edited"
+  },
+  "upload": {
+    "message": "Upload"
   },
   "authorize": {
     "message": "Authorize"
