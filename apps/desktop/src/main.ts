@@ -201,7 +201,7 @@ export class Main {
       (win) => this.trayMain.setupWindowListeners(win),
     );
     this.messagingMain = new MessagingMain(this, this.desktopSettingsService);
-    this.updaterMain = new UpdaterMain(this.i18nService, this.windowMain);
+    this.updaterMain = new UpdaterMain(this.i18nService, this.logService, this.windowMain);
 
     const messageSubject = new Subject<Message<Record<string, unknown>>>();
     this.messagingService = MessageSender.combine(
