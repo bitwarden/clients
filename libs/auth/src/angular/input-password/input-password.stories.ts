@@ -36,9 +36,9 @@ export default {
           provide: AccountService,
           useValue: {
             activeAccount$: of({
-              id: "test-user-id" as UserId,
-              name: "Test User 1",
-              email: "test@email.com",
+              id: "1" as UserId,
+              name: "User",
+              email: "user@email.com",
               emailVerified: true,
             }),
           },
@@ -58,7 +58,7 @@ export default {
         {
           provide: KdfConfigService,
           useValue: {
-            getKdfConfig: () => Promise.resolve(DEFAULT_KDF_CONFIG),
+            getKdfConfig$: () => of(DEFAULT_KDF_CONFIG),
           },
         },
         {
@@ -134,6 +134,8 @@ export default {
       ChangePasswordWithOptionalUserKeyRotation:
         InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation,
     },
+    userId: "1" as UserId,
+    email: "user@email.com",
     masterPasswordPolicyOptions: {
       minComplexity: 4,
       minLength: 14,
@@ -154,7 +156,10 @@ export const AccountRegistration: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <auth-input-password [flow]="InputPasswordFlow.AccountRegistration"></auth-input-password>
+      <auth-input-password
+        [flow]="InputPasswordFlow.AccountRegistration"
+        [email]="email"
+      ></auth-input-password>
     `,
   }),
 };
@@ -163,7 +168,11 @@ export const SetInitialPasswordAuthedUser: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <auth-input-password [flow]="InputPasswordFlow.SetInitialPasswordAuthedUser"></auth-input-password>
+      <auth-input-password
+        [flow]="InputPasswordFlow.SetInitialPasswordAuthedUser"
+        [email]="email"
+        [userId]="userId"
+      ></auth-input-password>
     `,
   }),
 };
@@ -172,7 +181,11 @@ export const ChangePassword: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <auth-input-password [flow]="InputPasswordFlow.ChangePassword"></auth-input-password>
+      <auth-input-password
+        [flow]="InputPasswordFlow.ChangePassword"
+        [email]="email"
+        [userId]="userId"
+      ></auth-input-password>
     `,
   }),
 };
@@ -183,6 +196,8 @@ export const ChangePasswordWithOptionalUserKeyRotation: Story = {
     template: `
       <auth-input-password
         [flow]="InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation"
+        [email]="email"
+        [userId]="userId"
       ></auth-input-password>
     `,
   }),
@@ -194,6 +209,8 @@ export const WithPolicies: Story = {
     template: `
       <auth-input-password
         [flow]="InputPasswordFlow.SetInitialPasswordAuthedUser"
+        [email]="email"
+        [userId]="userId"
         [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
       ></auth-input-password>
     `,
@@ -206,6 +223,7 @@ export const SecondaryButton: Story = {
     template: `
       <auth-input-password
         [flow]="InputPasswordFlow.AccountRegistration"
+        [email]="email"
         [secondaryButtonText]="{ key: 'cancel' }"
         (onSecondaryButtonClick)="onSecondaryButtonClick()"
       ></auth-input-password>
@@ -219,6 +237,7 @@ export const SecondaryButtonWithPlaceHolderText: Story = {
     template: `
       <auth-input-password
         [flow]="InputPasswordFlow.AccountRegistration"
+        [email]="email"
         [secondaryButtonText]="{ key: 'backTo', placeholders: ['homepage'] }"
         (onSecondaryButtonClick)="onSecondaryButtonClick()"
       ></auth-input-password>
@@ -232,6 +251,7 @@ export const InlineButton: Story = {
     template: `
       <auth-input-password
         [flow]="InputPasswordFlow.AccountRegistration"
+        [email]="email"
         [inlineButtons]="true"
       ></auth-input-password>
     `,
@@ -244,6 +264,7 @@ export const InlineButtons: Story = {
     template: `
       <auth-input-password
         [flow]="InputPasswordFlow.AccountRegistration"
+        [email]="email"
         [secondaryButtonText]="{ key: 'cancel' }"
         [inlineButtons]="true"
         (onSecondaryButtonClick)="onSecondaryButtonClick()"
