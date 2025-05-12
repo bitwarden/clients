@@ -12,7 +12,7 @@
               'hover:tw-bg-secondary-100': !isStepDisabled($index) && step.editable,
             }"
             [attr.aria-selected]="selectedIndex === $index"
-            [attr.aria-controls]="contentId"
+            [attr.aria-controls]="contentId + $index"
             role="tab"
           >
             @if (step.completed) {
@@ -49,16 +49,16 @@
           }
         }
       </div>
-      @for (step of steps; track $index; let isLast = $last) {
-        <div role="tabpanel" [attr.id]="contentId" [hidden]="!selected">
-          @if (selectedIndex === $index) {
-            <div [ngTemplateOutlet]="selected.content"></div>
-          }
-        </div>
-      }
     </div>
+    @for (step of steps; track $index; let isLast = $last) {
+      <div role="tabpanel" [attr.id]="contentId + $index" [hidden]="!selected">
+        @if (selectedIndex === $index) {
+          <div [ngTemplateOutlet]="selected.content"></div>
+        }
+      </div>
+    }
   } @else {
-    <div role="tablist" class="tw-p-5">
+    <div role="tablist">
       @for (step of steps; track $index; let isLast = $last) {
         <button
           type="button"
@@ -69,7 +69,7 @@
             'hover:tw-bg-secondary-100': !isStepDisabled($index) && step.editable,
           }"
           [attr.aria-selected]="selectedIndex === $index"
-          [attr.aria-controls]="contentId"
+          [attr.aria-controls]="contentId + $index"
           role="tab"
         >
           @if (step.completed) {
@@ -99,17 +99,19 @@
             }
           </div>
         </button>
-        <div role="tabpanel" [attr.id]="contentId" [hidden]="!selected">
-          <div
-            class="tw-ms-7 tw-border-solid tw-border-0 tw-border-s tw-border-secondary-300"
-            [ngClass]="{ 'tw-min-h-6 tw-ps-8 tw-py-2': !isLast }"
-          >
-            @if (selectedIndex === $index) {
-              <div [ngTemplateOutlet]="selected.content"></div>
-            }
-          </div>
-        </div>
       }
     </div>
+    @for (step of steps; track $index; let isLast = $last) {
+      <div role="tabpanel" [attr.id]="contentId + $index" [hidden]="!selected">
+        <div
+          class="tw-ms-7 tw-border-solid tw-border-0 tw-border-s tw-border-secondary-300"
+          [ngClass]="{ 'tw-min-h-6 tw-ps-8 tw-py-2': !isLast }"
+        >
+          @if (selectedIndex === $index) {
+            <div [ngTemplateOutlet]="selected.content"></div>
+          }
+        </div>
+      </div>
+    }
   }
 </div>
