@@ -113,6 +113,11 @@ function getConfirmationMessage(i18n: I18n, type?: NotificationType, error?: str
   if (error) {
     return i18n.saveFailureDetails;
   }
+
+  /* @TODO This partial string return and later concatenation with the cipher name is needed 
+   * to handle cipher name overflow cases, but is risky for i18n concerns. Fix concatenation 
+   * with cipher name overflow when a tag replacement solution is available.
+   */
   return type === NotificationTypes.Add
     ? i18n.notificationLoginSaveConfirmation
     : i18n.notificationLoginUpdatedConfirmation;
