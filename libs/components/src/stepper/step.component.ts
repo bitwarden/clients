@@ -11,5 +11,4 @@ import { Component, input } from "@angular/core";
 })
 export class StepComponent extends CdkStep {
   subLabel = input();
-  applyBorder = input<boolean>(true);
 }
