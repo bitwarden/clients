@@ -16,6 +16,7 @@ export class AutofillBrowserSettingsService {
   async isBrowserAutofillSettingOverridden(browserClient: BrowserClientVendor) {
     return (
       browserClient !== BrowserClientVendors.Unknown &&
+      (await BrowserApi.permissionsGranted(["privacy"])) &&
       (await BrowserApi.browserAutofillSettingsOverridden())
     );
   }
