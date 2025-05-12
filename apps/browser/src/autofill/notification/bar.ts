@@ -61,7 +61,7 @@ function getI18n() {
     loginSaveSuccess: chrome.i18n.getMessage("loginSaveSuccess"),
     loginSaveConfirmation: chrome.i18n.getMessage("loginSaveConfirmation"),
     loginUpdateSuccess: chrome.i18n.getMessage("loginUpdateSuccess"),
-    loginUpdateConfirmation: chrome.i18n.getMessage("loginUpdatedConfirmation"),
+    loginUpdatedConfirmation: chrome.i18n.getMessage("loginUpdatedConfirmation"),
     loginUpdateTaskSuccess: chrome.i18n.getMessage("loginUpdateTaskSuccess"),
     loginUpdateTaskSuccessAdditional: chrome.i18n.getMessage("loginUpdateTaskSuccessAdditional"),
     nextSecurityTaskAction: chrome.i18n.getMessage("nextSecurityTaskAction"),
@@ -192,7 +192,7 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
       ? chrome.runtime.getURL("images/icon38_locked.png")
       : chrome.runtime.getURL("images/icon38.png");
 
-    setupLogoLink(i18n);
+    setupLogoLink(i18n.appName);
 
     // i18n for "Add" template
     const addTemplate = document.getElementById("template-add") as HTMLTemplateElement;
@@ -273,7 +273,7 @@ function handleSaveAction(e: Event) {
   if (selectedVault.length > 1) {
     openAddEditVaultItemPopout(e, {
       organizationId: selectedVault,
-      folder: selectedFolder,
+      ...(selectedFolder?.length > 1 ? { folder: selectedFolder } : {}),
     });
     handleCloseNotification(e);
     return;
@@ -417,7 +417,8 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
       error,
       itemName: itemName ?? i18n.typeLogin,
       task,
-      handleOpenVault: () => cipherId && openViewVaultItemPopout(cipherId),
+      handleOpenVault: (e: Event) =>
+        cipherId ? openViewVaultItemPopout(cipherId) : openAddEditVaultItemPopout(e, {}),
       handleOpenTasks: () => sendPlatformMessage({ command: "bgOpenAtRisksPasswords" }),
     }),
     document.body,
@@ -523,9 +524,9 @@ function handleWindowMessage(event: MessageEvent) {
   handler({ message });
 }
 
-function setupLogoLink(i18n: Record<string, string>) {
+function setupLogoLink(linkText: string) {
   const logoLink = document.getElementById("logo-link") as HTMLAnchorElement;
-  logoLink.title = i18n.appName;
+  logoLink.title = linkText;
   const setWebVaultUrlLink = (webVaultURL: string) => {
     const newVaultURL = webVaultURL && decodeURIComponent(webVaultURL);
     if (newVaultURL && newVaultURL !== logoLink.href) {

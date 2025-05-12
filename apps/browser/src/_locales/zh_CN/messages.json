@@ -4512,6 +4512,27 @@
       }
     }
   },
+  "downloadBitwarden": {
+    "message": "下载 Bitwarden"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "在所有设备上下载 Bitwarden"
+  },
+  "getTheMobileApp": {
+    "message": "获取移动 App"
+  },
+  "getTheMobileAppDesc": {
+    "message": "使用 Bitwarden 移动 App，随时随地访问您的密码。"
+  },
+  "getTheDesktopApp": {
+    "message": "获取桌面 App"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "不使用浏览器访问您的密码库，然后设置生物识别解锁，从而在桌面 App 和浏览器扩展中实现快速解锁。"
+  },
+  "downloadFromBitwardenNow": {
+    "message": "立即从 bitwarden.com 下载"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "您确定要永久删除此附件吗？"
   },
@@ -5135,42 +5156,6 @@
   "beta": {
     "message": "Beta 版"
   },
-  "importantNotice": {
-    "message": "重要通知"
-  },
-  "setupTwoStepLogin": {
-    "message": "设置两步登录"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "从 2025 年 02 月起，当有来自新设备的登录时，Bitwarden 将向您的账户电子邮箱发送验证码。"
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "您可以设置两步登录作为保护账户的替代方法，或将您的电子邮箱更改为您可以访问的电子邮箱。"
-  },
-  "remindMeLater": {
-    "message": "稍后提醒我"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "您可以正常访问您的电子邮箱 $EMAIL$ 吗？",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "不，我不能"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "是的，我可以正常访问我的电子邮箱"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "启用两步登录"
-  },
-  "changeAcctEmail": {
-    "message": "更改账户电子邮箱"
-  },
   "extensionWidth": {
     "message": "扩展宽度"
   },
@@ -5276,8 +5261,20 @@
   "newLoginNudgeTitle": {
     "message": "使用自动填充节省时间"
   },
-  "newLoginNudgeBody": {
-    "message": "请包含网站，以便将此登录显示为自动填充建议。"
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "无缝在线结账"
@@ -5300,7 +5297,14 @@
   "newSshNudgeTitle": {
     "message": "开发人员友好的 SSH 访问权限"
   },
-  "newSshNudgeBody": {
-    "message": "存储您的密钥并与 SSH 代理连接，以进行快速、加密的身份验证。"
+  "newSshNudgeBodyOne": {
+    "message": "存储您的密钥并与 SSH 代理连接，以进行快速、加密的身份验证。",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "进一步了解 SSH 代理",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

@@ -120,7 +120,7 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
   private async makeOrganizationKeys(): Promise<OrganizationKeys> {
     const [encryptedKey, key] = await this.keyService.makeOrgKey<OrgKey>();
     const [publicKey, encryptedPrivateKey] = await this.keyService.makeKeyPair(key);
-    const encryptedCollectionName = await this.encryptService.encrypt(
+    const encryptedCollectionName = await this.encryptService.encryptString(
       this.i18nService.t("defaultCollection"),
       key,
     );

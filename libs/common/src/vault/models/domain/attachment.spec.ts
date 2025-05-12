@@ -77,7 +77,10 @@ describe("Attachment", () => {
       attachment.key = mockEnc("key");
       attachment.fileName = mockEnc("fileName");
 
-      encryptService.decryptToBytes.mockResolvedValue(makeStaticByteArray(32));
+      encryptService.decryptFileData.mockResolvedValue(makeStaticByteArray(32));
+      encryptService.unwrapSymmetricKey.mockResolvedValue(
+        new SymmetricCryptoKey(makeStaticByteArray(64)),
+      );
 
       const view = await attachment.decrypt(null);
 
@@ -105,7 +108,7 @@ describe("Attachment", () => {
         await attachment.decrypt(null, "", providedKey);
 
         expect(keyService.getUserKeyWithLegacySupport).not.toHaveBeenCalled();
-        expect(encryptService.decryptToBytes).toHaveBeenCalledWith(attachment.key, providedKey);
+        expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(attachment.key, providedKey);
       });
 
       it("gets an organization key if required", async () => {
@@ -115,7 +118,7 @@ describe("Attachment", () => {
         await attachment.decrypt("orgId", "", null);
 
         expect(keyService.getOrgKey).toHaveBeenCalledWith("orgId");
-        expect(encryptService.decryptToBytes).toHaveBeenCalledWith(attachment.key, orgKey);
+        expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(attachment.key, orgKey);
       });
 
       it("gets the user's decryption key if required", async () => {
@@ -125,7 +128,7 @@ describe("Attachment", () => {
         await attachment.decrypt(null, "", null);
 
         expect(keyService.getUserKeyWithLegacySupport).toHaveBeenCalled();
-        expect(encryptService.decryptToBytes).toHaveBeenCalledWith(attachment.key, userKey);
+        expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(attachment.key, userKey);
       });
     });
   });
