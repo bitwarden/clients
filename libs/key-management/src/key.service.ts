@@ -738,7 +738,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     const storePin = await this.shouldStoreKey(KeySuffixOptions.Pin, userId);
     if (storePin) {
       // Decrypt userKeyEncryptedPin with user key
-      const pin = await this.encryptService.decryptToUtf8(
+      const pin = await this.encryptService.decryptString(
         (await this.pinService.getUserKeyEncryptedPin(userId))!,
         key,
       );
@@ -945,10 +945,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       return null;
     }
 
-    return (await this.encryptService.decryptToBytes(
+    return (await this.encryptService.unwrapDecapsulationKey(
       new EncString(encryptedPrivateKey),
       key,
-      "Content: Encrypted Private Key",
     )) as UserPrivateKey;
   }
 
