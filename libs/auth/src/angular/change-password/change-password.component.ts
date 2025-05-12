@@ -33,8 +33,7 @@ export class ChangePasswordComponent implements OnInit {
   userId?: UserId;
   masterPasswordPolicyOptions?: MasterPasswordPolicyOptions;
   initializing = true;
-  userkeyRotationV2 = false;
-  formPromise?: Promise<any>;
+  submitting = false;
 
   constructor(
     private accountService: AccountService,
@@ -63,6 +62,8 @@ export class ChangePasswordComponent implements OnInit {
   }
 
   async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
+    this.submitting = true;
+
     try {
       if (passwordInputResult.rotateUserKey) {
         if (this.activeAccount == null) {
@@ -102,6 +103,8 @@ export class ChangePasswordComponent implements OnInit {
         title: "",
         message: this.i18nService.t("errorOccurred"),
       });
+    } finally {
+      this.submitting = false;
     }
   }
 }
