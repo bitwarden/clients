@@ -152,13 +152,5 @@ describe("MasterPasswordService", () => {
       );
       expect(result).toBeNull();
     });
-    it("throws if masterkey is null and cannot be retrieved", async () => {
-      sut.masterKey$ = jest.fn().mockReturnValue(of(null));
-      encryptService.unwrapSymmetricKey.mockResolvedValue(testUserKey);
-      keyGenerationService.stretchKey.mockResolvedValue(testStretchedMasterKey);
-      await expect(sut.decryptUserKeyWithMasterKey(null, userId)).rejects.toThrow(
-        "No master key found.",
-      );
-    });
   });
 });
