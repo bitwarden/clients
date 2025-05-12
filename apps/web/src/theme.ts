@@ -13,7 +13,7 @@ const setTheme = () => {
     return parsedGlobalState ? parsedGlobalState.theme : null;
   };
 
-  const defaultTheme = "light";
+  const defaultTheme = "system";
   const htmlEl = document.documentElement;
   let theme = defaultTheme;
 
