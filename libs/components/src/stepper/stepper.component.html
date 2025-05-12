@@ -9,7 +9,7 @@
             (click)="selectStepByIndex($index)"
             class="tw-flex tw-p-3 tw-items-center tw-border-none tw-bg-transparent tw-shrink-0"
             [ngClass]="{
-              'hover:tw-bg-secondary-100': !disabled && step.editable,
+              'hover:tw-bg-secondary-100': !isStepDisabled($index) && step.editable,
             }"
             [attr.aria-selected]="selectedIndex === $index"
             [attr.aria-controls]="contentId"
@@ -27,8 +27,8 @@
                 [ngClass]="{
                   'tw-bg-primary-600 tw-text-contrast': selectedIndex === $index,
                   'tw-bg-secondary-300 tw-text-main':
-                    !selectedIndex === $index && !disabled && step.editable,
-                  'tw-bg-transparent tw-text-muted': disabled,
+                    !selectedIndex === $index && !isStepDisabled($index) && step.editable,
+                  'tw-bg-transparent tw-text-muted': isStepDisabled($index),
                 }"
               >
                 {{ $index + 1 }}
@@ -66,7 +66,7 @@
           (click)="selectStepByIndex($index)"
           class="tw-flex tw-p-3 tw-w-full tw-items-center tw-border-none tw-bg-transparent"
           [ngClass]="{
-            'hover:tw-bg-secondary-100': !disabled && step.editable,
+            'hover:tw-bg-secondary-100': !isStepDisabled($index) && step.editable,
           }"
           [attr.aria-selected]="selectedIndex === $index"
           [attr.aria-controls]="contentId"
@@ -84,8 +84,8 @@
               [ngClass]="{
                 'tw-bg-primary-600 tw-text-contrast': selectedIndex === $index,
                 'tw-bg-secondary-300 tw-text-main':
-                  !selectedIndex === $index && !disabled && step.editable,
-                'tw-bg-transparent tw-text-muted': disabled,
+                  !selectedIndex === $index && !isStepDisabled($index) && step.editable,
+                'tw-bg-transparent tw-text-muted': isStepDisabled($index),
               }"
             >
               {{ $index + 1 }}
