@@ -10,11 +10,11 @@ import { StepComponent } from "./step.component";
   selector: "bit-stepper",
   templateUrl: "stepper.component.html",
   providers: [{ provide: CdkStepper, useExisting: StepperComponent }],
-  imports: [CommonModule, ResizeObserverDirective, StepComponent],
+  imports: [CommonModule, ResizeObserverDirective],
   standalone: true,
 })
 export class StepperComponent extends CdkStepper {
-  resizeWidthsMap = new Map([
+  private resizeWidthsMap = new Map([
     [2, 600],
     [3, 768],
     [4, 900],
