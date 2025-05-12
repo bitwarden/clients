@@ -39,7 +39,6 @@ import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/
 import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification-api.service.abstraction";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
@@ -721,6 +720,7 @@ export default class MainBackground {
       this.logService,
       (logoutReason: LogoutReason, userId?: UserId) => this.logout(logoutReason, userId),
       this.vaultTimeoutSettingsService,
+      { createRequest: (url, request) => new Request(url, request) },
     );
 
     this.fileUploadService = new FileUploadService(this.logService, this.apiService);
@@ -1511,9 +1511,6 @@ export default class MainBackground {
       }
 
       nextAccountStatus = await this.authService.getAuthStatus(userId);
-      const forcePasswordReset =
-        (await firstValueFrom(this.masterPasswordService.forceSetPasswordReason$(userId))) !=
-        ForceSetPasswordReason.None;
 
       await this.systemService.clearPendingClipboard();
 
@@ -1521,8 +1518,6 @@ export default class MainBackground {
         this.messagingService.send("goHome");
       } else if (nextAccountStatus === AuthenticationStatus.Locked) {
         this.messagingService.send("locked", { userId: userId });
-      } else if (forcePasswordReset) {
-        this.messagingService.send("update-temp-password", { userId: userId });
       } else {
         this.messagingService.send("unlocked", { userId: userId });
         await this.refreshBadge();

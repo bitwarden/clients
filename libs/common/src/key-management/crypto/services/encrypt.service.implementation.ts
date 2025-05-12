@@ -18,6 +18,7 @@ import {
   Aes256CbcKey,
   SymmetricCryptoKey,
 } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import {
   DefaultFeatureFlagValue,
@@ -28,6 +29,7 @@ import { ServerConfig } from "../../../platform/abstractions/config/server-confi
 import { EncryptService } from "../abstractions/encrypt.service";
 
 export class EncryptServiceImplementation implements EncryptService {
+  protected useSDKForDecryption: boolean = DefaultFeatureFlagValue[FeatureFlag.UseSDKForDecryption];
   private blockType0: boolean = DefaultFeatureFlagValue[FeatureFlag.PM17987_BlockType0];
 
   constructor(
@@ -132,6 +134,13 @@ export class EncryptServiceImplementation implements EncryptService {
 
   // Handle updating private properties to turn on/off feature flags.
   onServerConfigChange(newConfig: ServerConfig): void {
+    const oldFlagValue = this.useSDKForDecryption;
+    this.useSDKForDecryption = getFeatureFlagValue(newConfig, FeatureFlag.UseSDKForDecryption);
+    this.logService.debug(
+      "[EncryptService] Updated sdk decryption flag",
+      oldFlagValue,
+      this.useSDKForDecryption,
+    );
     this.blockType0 = getFeatureFlagValue(newConfig, FeatureFlag.PM17987_BlockType0);
   }
 
@@ -228,6 +237,15 @@ export class EncryptServiceImplementation implements EncryptService {
     key: SymmetricCryptoKey,
     decryptContext: string = "no context",
   ): Promise<string> {
+    if (this.useSDKForDecryption) {
+      this.logService.debug("decrypting with SDK");
+      if (encString == null || encString.encryptedString == null) {
+        throw new Error("encString is null or undefined");
+      }
+      return PureCrypto.symmetric_decrypt(encString.encryptedString, key.toEncoded());
+    }
+    this.logService.debug("decrypting with javascript");
+
     if (key == null) {
       throw new Error("No key provided for decryption.");
     }
@@ -291,6 +309,25 @@ export class EncryptServiceImplementation implements EncryptService {
     key: SymmetricCryptoKey,
     decryptContext: string = "no context",
   ): Promise<Uint8Array | null> {
+    if (this.useSDKForDecryption) {
+      this.logService.debug("[EncryptService] Decrypting bytes with SDK");
+      if (
+        encThing.encryptionType == null ||
+        encThing.ivBytes == null ||
+        encThing.dataBytes == null
+      ) {
+        throw new Error("Cannot decrypt, missing type, IV, or data bytes.");
+      }
+      const buffer = EncArrayBuffer.fromParts(
+        encThing.encryptionType,
+        encThing.ivBytes,
+        encThing.dataBytes,
+        encThing.macBytes,
+      ).buffer;
+      return PureCrypto.symmetric_decrypt_array_buffer(buffer, key.toEncoded());
+    }
+    this.logService.debug("[EncryptService] Decrypting bytes with javascript");
+
     if (key == null) {
       throw new Error("No encryption key provided.");
     }

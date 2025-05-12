@@ -237,6 +237,24 @@
   "enableSshAgentHelp": {
     "message": "O agente SSH é um serviço direcionado a programadores que lhe permite assinar pedidos SSH diretamente do seu cofre Bitwarden."
   },
+  "sshAgentPromptBehavior": {
+    "message": "Pedir autorização ao utilizar o agente SSH"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "Escolha como tratar os pedidos de autorização do agente SSH."
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "Recordar as autorizações SSH"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "Sempre"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "Nunca"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "Recordar até que o cofre seja bloqueado"
+  },
   "premiumRequired": {
     "message": "É necessária uma subscrição Premium"
   },
@@ -426,6 +444,12 @@
   },
   "addField": {
     "message": "Adicionar campo"
+  },
+  "editField": {
+    "message": "Editar campo"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Tem a certeza de que pretende eliminar permanentemente este anexo?"
   },
   "fieldType": {
     "message": "Tipo de campo"
@@ -2007,6 +2031,21 @@
     "message": "Premium",
     "description": "Premium membership"
   },
+  "freeOrgsCannotUseAttachments": {
+    "message": "As organizações gratuitas não podem utilizar anexos"
+  },
+  "singleFieldNeedsAttention": {
+    "message": "1 campo precisa da sua atenção."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ campos precisam da sua atenção.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "cardExpiredTitle": {
     "message": "Cartão expirado"
   },
@@ -3152,6 +3191,30 @@
   "deviceTrusted": {
     "message": "Dispositivo de confiança"
   },
+  "trustOrganization": {
+    "message": "Confiar na organização"
+  },
+  "trust": {
+    "message": "Confiar"
+  },
+  "doNotTrust": {
+    "message": "Não confiar"
+  },
+  "organizationNotTrusted": {
+    "message": "A organização não é de confiança"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Para segurança da sua conta, confirme apenas se tiver concedido acesso de emergência a este utilizador e se a sua impressão digital corresponder à que é apresentada na sua conta"
+  },
+  "orgTrustWarning": {
+    "message": "Para segurança da sua conta, prossiga apenas se for membro desta organização, tiver a recuperação de conta ativada e a impressão digital apresentada abaixo corresponder à impressão digital da organização."
+  },
+  "orgTrustWarning1": {
+    "message": "Esta organização tem uma política empresarial que o registará na recuperação de conta. A inscrição permitirá que os administradores da organização alterem a sua palavra-passe. Avance apenas se reconhecer esta organização e se a frase de impressão digital apresentada abaixo corresponder à impressão digital da organização."
+  },
+  "trustUser": {
+    "message": "Confiar no utilizador"
+  },
   "inputRequired": {
     "message": "Campo obrigatório."
   },
@@ -3632,63 +3695,6 @@
   "fileSavedToDevice": {
     "message": "Ficheiro guardado no dispositivo. Faça a gestão a partir das transferências do seu dispositivo."
   },
-  "importantNotice": {
-    "message": "Aviso importante"
-  },
-  "setupTwoStepLogin": {
-    "message": "Definir a verificação de dois passos"
-  },
-  "itemDetails": {
-    "message": "Detalhes do item"
-  },
-  "itemName": {
-    "message": "Nome do item"
-  },
-  "loginCredentials": {
-    "message": "Credenciais de início de sessão"
-  },
-  "additionalOptions": {
-    "message": "Opções adicionais"
-  },
-  "itemHistory": {
-    "message": "Histórico do item"
-  },
-  "lastEdited": {
-    "message": "Última edição"
-  },
-  "upload": {
-    "message": "Carregar"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "O Bitwarden enviará um código para o e-mail da sua conta para verificar as credenciais de novos dispositivos a partir de fevereiro de 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Pode configurar a verificação de dois passos como forma alternativa de proteger a sua conta ou alterar o seu e-mail para um a que possa aceder."
-  },
-  "remindMeLater": {
-    "message": "Lembrar-me mais tarde"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Tem um acesso fiável ao seu e-mail, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Não, não tenho"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Sim, consigo aceder de forma fiável ao meu e-mail"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Ativar a verificação de dois passos"
-  },
-  "changeAcctEmail": {
-    "message": "Alterar o e-mail da conta"
-  },
   "allowScreenshots": {
     "message": "Permitir a captura de ecrã"
   },
@@ -3716,8 +3722,20 @@
   "newLoginNudgeTitle": {
     "message": "Poupe tempo com o preenchimento automático"
   },
-  "newLoginNudgeBody": {
-    "message": "Inclua um site para que esta credencial apareça como uma sugestão de preenchimento automático."
+  "newLoginNudgeBodyOne": {
+    "message": "Inclua um",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "site",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "para que esta credencial apareça como uma sugestão de preenchimento automático.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Pagamentos online sem problemas"
@@ -3740,7 +3758,14 @@
   "newSshNudgeTitle": {
     "message": "Acesso SSH de fácil utilização pelos programadores"
   },
-  "newSshNudgeBody": {
-    "message": "Guarde as suas chaves e ligue-se ao agente SSH para uma autenticação rápida e encriptada."
+  "newSshNudgeBodyOne": {
+    "message": "Guarde as suas chaves e ligue-se ao agente SSH para uma autenticação rápida e encriptada.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Saiba mais sobre o agente SSH",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

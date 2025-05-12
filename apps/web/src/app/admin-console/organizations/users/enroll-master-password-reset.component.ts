@@ -18,8 +18,8 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { AccountRecoveryTrustComponent } from "@bitwarden/key-management-ui";
 
-import { OrganizationTrustComponent } from "../manage/organization-trust.component";
 import { OrganizationUserResetPasswordService } from "../members/services/organization-user-reset-password/organization-user-reset-password.service";
 
 interface EnrollMasterPasswordResetData {
@@ -62,7 +62,7 @@ export class EnrollMasterPasswordReset {
             await userVerificationService.buildRequest<OrganizationUserResetPasswordEnrollmentRequest>(
               secret,
             );
-          const dialogRef = OrganizationTrustComponent.open(dialogService, {
+          const dialogRef = AccountRecoveryTrustComponent.open(dialogService, {
             name: data.organization.name,
             orgId: data.organization.id,
             publicKey,
