@@ -22,20 +22,6 @@ export abstract class ChangePasswordService {
   ): Promise<void>;
 
   /**
-   * Creates a new user key and re-encrypts all required data with it.
-   * - does so by calling the underlying deprecated method on the `UserKeyRotationService`
-   * - implemented in Web only
-   *
-   * @param currentPassword — the current password (used for validation)
-   * @param user the user account
-   * @throws if called from a non-Web client
-   */
-  abstract rotateUserKeyAndEncryptedDataLegacy(
-    currentPassword: string,
-    user: Account,
-  ): Promise<void>;
-
-  /**
    * Changes the user's password and re-encrypts the user key with the `newMasterKey`.
    * - Specifically, this method uses credentials from the `passwordInputResult` to:
    *   1. Decrypt the user key with the `currentMasterKey`

@@ -60,17 +60,4 @@ describe("WebChangePasswordService", () => {
       ).toHaveBeenCalledWith(currentPassword, newPassword, user, newPasswordHint);
     });
   });
-
-  describe("rotateUserKeyAndEncryptedDataLegacy()", () => {
-    it("should call the method with the same name on the UserKeyRotationService with the correct arguments", async () => {
-      // Arrange & Act
-      await sut.rotateUserKeyAndEncryptedDataLegacy(newPassword, user);
-
-      // Assert
-      expect(userKeyRotationService.rotateUserKeyAndEncryptedDataLegacy).toHaveBeenCalledWith(
-        newPassword,
-        user,
-      );
-    });
-  });
 });

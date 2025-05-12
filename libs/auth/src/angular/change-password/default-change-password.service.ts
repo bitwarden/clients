@@ -22,10 +22,6 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     throw new Error("rotateUserKeyMasterPasswordAndEncryptedData() is only implemented in Web");
   }
 
-  async rotateUserKeyAndEncryptedDataLegacy(currentPassword: string, user: Account): Promise<void> {
-    throw new Error("rotateUserKeyAndEncryptedDataLegacy() is only implemented in Web");
-  }
-
   async changePassword(passwordInputResult: PasswordInputResult, userId: UserId) {
     if (!userId) {
       throw new Error("userId not found");

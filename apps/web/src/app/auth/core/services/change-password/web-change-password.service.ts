@@ -31,11 +31,4 @@ export class WebChangePasswordService
       newPasswordHint,
     );
   }
-
-  override async rotateUserKeyAndEncryptedDataLegacy(
-    currentPassword: string,
-    user: Account,
-  ): Promise<void> {
-    await this.userKeyRotationService.rotateUserKeyAndEncryptedDataLegacy(currentPassword, user);
-  }
 }

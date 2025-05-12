@@ -174,16 +174,4 @@ describe("DefaultChangePasswordService", () => {
       );
     });
   });
-
-  describe("rotateUserKeyAndEncryptedDataLegacy()", () => {
-    it("should throw an error (the method is only implemented in Web)", async () => {
-      // Act
-      const testFn = sut.rotateUserKeyAndEncryptedDataLegacy("newPassword", user);
-
-      // Assert
-      await expect(testFn).rejects.toThrow(
-        "rotateUserKeyAndEncryptedDataLegacy() is only implemented in Web",
-      );
-    });
-  });
 });
