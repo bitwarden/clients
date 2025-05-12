@@ -118,11 +118,7 @@ export class LocalBackedSessionStorageService
       return null;
     }
 
-    const valueJson = await this.encryptService.decryptString(
-      new EncString(local),
-      encKey,
-      "browser-session-key",
-    );
+    const valueJson = await this.encryptService.decryptString(new EncString(local), encKey);
     if (valueJson == null) {
       // error with decryption, value is lost, delete state and start over
       await this.localStorage.remove(this.sessionStorageKey(key));

@@ -50,11 +50,7 @@ describe("LocalBackedSessionStorage", () => {
       const result = await sut.get("test");
       // FIXME: Remove when updating file. Eslint update
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      expect(encryptService.decryptString).toHaveBeenCalledWith(
-        encrypted,
-        sessionKey,
-        "browser-session-key",
-      ),
+      expect(encryptService.decryptString).toHaveBeenCalledWith(encrypted, sessionKey),
         expect(result).toEqual("decrypted");
     });
 
@@ -73,11 +69,7 @@ describe("LocalBackedSessionStorage", () => {
       const result = await sut.get("test");
       // FIXME: Remove when updating file. Eslint update
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      expect(encryptService.decryptString).toHaveBeenCalledWith(
-        encrypted,
-        sessionKey,
-        "browser-session-key",
-      ),
+      expect(encryptService.decryptString).toHaveBeenCalledWith(encrypted, sessionKey),
         expect(result).toEqual("decrypted");
     });
 
