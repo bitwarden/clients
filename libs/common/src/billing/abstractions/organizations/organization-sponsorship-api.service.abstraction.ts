@@ -10,4 +10,9 @@ export abstract class OrganizationSponsorshipApiServiceAbstraction {
     sponsoringOrgId: string,
     friendlyName?: string,
   ): Promise<void>;
+
+  deleteRevokeSponsorship: (
+    sponsoringOrganizationId: string,
+    isAdminInitiated?: boolean,
+  ) => Promise<void>;
 }
