@@ -1,11 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { MasterKey, PinKey } from "@bitwarden/common/types/key";
 import { KdfConfig, PBKDF2KdfConfig, Argon2KdfConfig, KdfType } from "@bitwarden/key-management";
 
 import { CryptoFunctionService } from "../../key-management/crypto/abstractions/crypto-function.service";
 import { CsprngArray } from "../../types/csprng";
 import { KeyGenerationService as KeyGenerationServiceAbstraction } from "../abstractions/key-generation.service";
+import { EncryptionType } from "../enums";
 import { Utils } from "../misc/utils";
 import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
@@ -79,7 +79,13 @@ export class KeyGenerationService implements KeyGenerationServiceAbstraction {
     return new SymmetricCryptoKey(key);
   }
 
-  async stretchKey(key: MasterKey | PinKey): Promise<SymmetricCryptoKey> {
+  async stretchKey(key: SymmetricCryptoKey): Promise<SymmetricCryptoKey> {
+    // The key to be stretched is actually usually the output of a KDF, and not actually meant for AesCbc256_B64 encryption,
+    // but has the same key length. Only 256-bit key materials should be stretched.
+    if (key.inner().type != EncryptionType.AesCbc256_B64) {
+      throw new Error("Key passed into stretchKey is not a 256-bit key.");
+    }
+
     const newKey = new Uint8Array(64);
     // Master key and pin key are always 32 bytes
     const encKey = await this.cryptoFunctionService.hkdfExpand(

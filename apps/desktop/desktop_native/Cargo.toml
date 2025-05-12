@@ -11,7 +11,7 @@ publish = false
 [workspace.dependencies]
 aes = "=0.8.4"
 anyhow = "=1.0.94"
-arboard = { version = "=3.4.1", default-features = false }
+arboard = { version = "=3.5.0", default-features = false }
 argon2 = "=0.5.3" 
 base64 = "=0.22.1"
 bindgen = "0.71.1"

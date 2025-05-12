@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -45,7 +45,7 @@ import { VaultAutosizeReadOnlyTextArea } from "../../directives/readonly-textare
     VaultAutosizeReadOnlyTextArea,
   ],
 })
-export class CustomFieldV2Component implements OnInit {
+export class CustomFieldV2Component implements OnInit, OnChanges {
   @Input() cipher: CipherView;
   fieldType = FieldType;
   fieldOptions: any;
@@ -65,6 +65,12 @@ export class CustomFieldV2Component implements OnInit {
 
   ngOnInit(): void {
     this.fieldOptions = this.getLinkedFieldsOptionsForCipher();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes["cipher"]) {
+      this.revealedHiddenFields = [];
+    }
   }
 
   getLinkedType(linkedId: LinkedIdType) {

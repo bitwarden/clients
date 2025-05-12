@@ -12,7 +12,11 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 
 import { FakeStateProvider, mockAccountServiceWith } from "../../../common/spec";
 
-import { HasItemsNudgeService, EmptyVaultNudgeService } from "./custom-nudges-services";
+import {
+  HasItemsNudgeService,
+  EmptyVaultNudgeService,
+  DownloadBitwardenNudgeService,
+} from "./custom-nudges-services";
 import { DefaultSingleNudgeService } from "./default-single-nudge.service";
 import { VaultNudgesService, VaultNudgeType } from "./vault-nudges.service";
 
@@ -24,6 +28,8 @@ describe("Vault Nudges Service", () => {
     getFeatureFlag$: jest.fn().mockReturnValue(of(true)),
     getFeatureFlag: jest.fn().mockReturnValue(true),
   };
+
+  const vaultNudgeServices = [EmptyVaultNudgeService, DownloadBitwardenNudgeService];
 
   beforeEach(async () => {
     fakeStateProvider = new FakeStateProvider(mockAccountServiceWith("user-id" as UserId));
@@ -45,6 +51,10 @@ describe("Vault Nudges Service", () => {
         {
           provide: HasItemsNudgeService,
           useValue: mock<HasItemsNudgeService>(),
+        },
+        {
+          provide: DownloadBitwardenNudgeService,
+          useValue: mock<DownloadBitwardenNudgeService>(),
         },
         {
           provide: EmptyVaultNudgeService,
@@ -130,11 +140,14 @@ describe("Vault Nudges Service", () => {
 
   describe("HasActiveBadges", () => {
     it("should return true if a nudgeType with hasBadgeDismissed === false", async () => {
-      TestBed.overrideProvider(EmptyVaultNudgeService, {
-        useValue: {
-          nudgeStatus$: () => of({ hasBadgeDismissed: false, hasSpotlightDismissed: false }),
-        },
+      vaultNudgeServices.forEach((service) => {
+        TestBed.overrideProvider(service, {
+          useValue: {
+            nudgeStatus$: () => of({ hasBadgeDismissed: false, hasSpotlightDismissed: false }),
+          },
+        });
       });
+
       const service = testBed.inject(VaultNudgesService);
 
       const result = await firstValueFrom(service.hasActiveBadges$("user-id" as UserId));
@@ -142,10 +155,12 @@ describe("Vault Nudges Service", () => {
       expect(result).toBe(true);
     });
     it("should return false if all nudgeTypes have hasBadgeDismissed === true", async () => {
-      TestBed.overrideProvider(EmptyVaultNudgeService, {
-        useValue: {
-          nudgeStatus$: () => of({ hasBadgeDismissed: true, hasSpotlightDismissed: true }),
-        },
+      vaultNudgeServices.forEach((service) => {
+        TestBed.overrideProvider(service, {
+          useValue: {
+            nudgeStatus$: () => of({ hasBadgeDismissed: true, hasSpotlightDismissed: false }),
+          },
+        });
       });
       const service = testBed.inject(VaultNudgesService);
 

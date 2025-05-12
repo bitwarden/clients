@@ -61,7 +61,7 @@ function getI18n() {
     loginSaveSuccess: chrome.i18n.getMessage("loginSaveSuccess"),
     loginSaveConfirmation: chrome.i18n.getMessage("loginSaveConfirmation"),
     loginUpdateSuccess: chrome.i18n.getMessage("loginUpdateSuccess"),
-    loginUpdateConfirmation: chrome.i18n.getMessage("loginUpdatedConfirmation"),
+    loginUpdatedConfirmation: chrome.i18n.getMessage("loginUpdatedConfirmation"),
     loginUpdateTaskSuccess: chrome.i18n.getMessage("loginUpdateTaskSuccess"),
     loginUpdateTaskSuccessAdditional: chrome.i18n.getMessage("loginUpdateTaskSuccessAdditional"),
     nextSecurityTaskAction: chrome.i18n.getMessage("nextSecurityTaskAction"),
