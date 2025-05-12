@@ -3,7 +3,7 @@ import { html } from "lit";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { Option, OrgView, FolderView, CollectionView } from "../common-types";
+import { Option, OrgView, FolderView, I18n, CollectionView } from "../common-types";
 import { Business, Family, Folder, User, CollectionShared } from "../icons";
 import { ButtonRow } from "../rows/button-row";
 import { selectedCollection as selectedCollectionSignal } from "../signals/selected-collection";
@@ -24,48 +24,56 @@ function getVaultIconByProductTier(productTierType?: ProductTierType): Option["i
   }
 }
 
+// Value represents default selector state outside of data-driven state
+const defaultNoneSelectValue = "0";
+
 export type NotificationButtonRowProps = {
+  collections?: CollectionView[];
   folders?: FolderView[];
-  i18n: { [key: string]: string };
+  i18n: I18n;
   organizations?: OrgView[];
   primaryButton: {
     text: string;
     handlePrimaryButtonClick: (args: any) => void;
   };
-  collections?: CollectionView[];
+  personalVaultIsAllowed: boolean;
   theme: Theme;
 };
 
 export function NotificationButtonRow({
-  folders,
   collections,
+  folders,
   i18n,
   organizations,
   primaryButton,
+  personalVaultIsAllowed,
   theme,
 }: NotificationButtonRowProps) {
   const currentUserVaultOption: Option = {
     icon: User,
     default: true,
     text: i18n.myVault,
-    value: "0",
+    value: defaultNoneSelectValue,
   };
-  const organizationOptions: Option[] = organizations?.length
-    ? organizations.reduce(
-        (options, { id, name, productTierType }: OrgView) => {
-          const icon = getVaultIconByProductTier(productTierType);
-          return [
-            ...options,
-            {
-              icon,
-              text: name,
-              value: id,
-            },
-          ];
-        },
-        [currentUserVaultOption],
-      )
-    : ([] as Option[]);
+
+  // Do not include user vault if disallowed by org policy
+  const initialVaultOptions = [
+    ...(personalVaultIsAllowed ? [currentUserVaultOption] : []),
+  ] as Option[];
+
+  const vaultOptions: Option[] = organizations?.length
+    ? organizations.reduce((options, { id, name, productTierType }: OrgView) => {
+        const icon = getVaultIconByProductTier(productTierType);
+        return [
+          ...options,
+          {
+            icon,
+            text: name,
+            value: id,
+          },
+        ];
+      }, initialVaultOptions)
+    : initialVaultOptions;
 
   const folderOptions: Option[] = folders?.length
     ? folders.reduce<Option[]>(
@@ -74,7 +82,7 @@ export function NotificationButtonRow({
           {
             icon: Folder,
             text: name,
-            value: id === null ? "0" : id,
+            value: id === null ? defaultNoneSelectValue : id,
             default: id === null,
           },
         ],
@@ -89,7 +97,7 @@ export function NotificationButtonRow({
           {
             icon: CollectionShared,
             text: name,
-            value: id === null ? "0" : id,
+            value: id === null ? defaultNoneSelectValue : id,
             default: id === null,
           },
         ],
@@ -97,17 +105,31 @@ export function NotificationButtonRow({
       )
     : [];
 
+  if (vaultOptions.length === 1) {
+    selectedVaultSignal?.set(vaultOptions[0].value);
+
+    // If the individual vault is disabled by a vault policy,
+    // a collection selection is required
+    if (
+      !personalVaultIsAllowed &&
+      collections?.length &&
+      selectedCollectionSignal.get() === defaultNoneSelectValue
+    ) {
+      selectedCollectionSignal?.set(collections[0].id);
+    }
+  }
+
   return html`
     ${ButtonRow({
       theme,
       primaryButton,
       selectButtons: [
-        ...(organizationOptions.length > 1
+        ...(vaultOptions.length > 1
           ? [
               {
                 id: "organization",
                 label: i18n.vault,
-                options: organizationOptions,
+                options: vaultOptions,
                 selectedSignal: selectedVaultSignal,
               },
             ]
@@ -126,7 +148,7 @@ export function NotificationButtonRow({
           ? [
               {
                 id: "collection",
-                label: "Collection", // @TODO localize
+                label: i18n.collection,
                 options: collectionOptions,
                 selectedSignal: selectedCollectionSignal,
               },

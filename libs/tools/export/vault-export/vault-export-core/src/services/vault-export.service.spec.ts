@@ -175,7 +175,7 @@ describe("VaultExportService", () => {
     folderService.folderViews$.mockReturnValue(of(UserFolderViews));
     folderService.folders$.mockReturnValue(of(UserFolders));
     kdfConfigService.getKdfConfig.mockResolvedValue(DEFAULT_KDF_CONFIG);
-    encryptService.encrypt.mockResolvedValue(new EncString("encrypted"));
+    encryptService.encryptString.mockResolvedValue(new EncString("encrypted"));
     keyService.userKey$.mockReturnValue(new BehaviorSubject("mockOriginalUserKey" as any));
     const userId = "" as UserId;
     const accountInfo: AccountInfo = {
@@ -282,7 +282,7 @@ describe("VaultExportService", () => {
       });
 
       it("has a mac property", async () => {
-        encryptService.encrypt.mockResolvedValue(mac);
+        encryptService.encryptString.mockResolvedValue(mac);
 
         exportedVault = await exportService.getPasswordProtectedExport(password);
 
@@ -293,7 +293,7 @@ describe("VaultExportService", () => {
       });
 
       it("has data property", async () => {
-        encryptService.encrypt.mockResolvedValue(data);
+        encryptService.encryptString.mockResolvedValue(data);
 
         exportedVault = await exportService.getPasswordProtectedExport(password);
 

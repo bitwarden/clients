@@ -8,7 +8,6 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { EncString, EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import {
   PIN_DISK,
   PIN_MEMORY,
@@ -172,7 +171,7 @@ export class PinService implements PinServiceAbstraction {
     const email = await firstValueFrom(
       this.accountService.accounts$.pipe(map((accounts) => accounts[userId].email)),
     );
-    const kdfConfig = await this.kdfConfigService.getKdfConfig();
+    const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
     const pinKey = await this.makePinKey(pin, email, kdfConfig);
 
     return await this.encryptService.wrapSymmetricKey(userKey, pinKey);
@@ -221,7 +220,7 @@ export class PinService implements PinServiceAbstraction {
       throw new Error("No UserKey provided. Cannot create userKeyEncryptedPin.");
     }
 
-    return await this.encryptService.encrypt(pin, userKey);
+    return await this.encryptService.encryptString(pin, userKey);
   }
 
   async makePinKey(pin: string, salt: string, kdfConfig: KdfConfig): Promise<PinKey> {
@@ -293,7 +292,7 @@ export class PinService implements PinServiceAbstraction {
       const email = await firstValueFrom(
         this.accountService.accounts$.pipe(map((accounts) => accounts[userId].email)),
       );
-      const kdfConfig = await this.kdfConfigService.getKdfConfig();
+      const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
 
       const userKey: UserKey = await this.decryptUserKey(
         userId,
@@ -339,9 +338,9 @@ export class PinService implements PinServiceAbstraction {
     }
 
     const pinKey = await this.makePinKey(pin, salt, kdfConfig);
-    const userKey = await this.encryptService.decryptToBytes(pinKeyEncryptedUserKey, pinKey);
+    const userKey = await this.encryptService.unwrapSymmetricKey(pinKeyEncryptedUserKey, pinKey);
 
-    return new SymmetricCryptoKey(userKey) as UserKey;
+    return userKey as UserKey;
   }
 
   /**
@@ -377,7 +376,7 @@ export class PinService implements PinServiceAbstraction {
     this.validateUserId(userId, "Cannot validate PIN.");
 
     const userKeyEncryptedPin = await this.getUserKeyEncryptedPin(userId);
-    const decryptedPin = await this.encryptService.decryptToUtf8(userKeyEncryptedPin, userKey);
+    const decryptedPin = await this.encryptService.decryptString(userKeyEncryptedPin, userKey);
 
     const isPinValid = this.cryptoFunctionService.compareFast(decryptedPin, pin);
     return isPinValid;

@@ -18,11 +18,11 @@
     "@bitwarden/node": "file:../../../libs/node",
     "module-alias": "2.2.3",
     "ts-node": "10.9.2",
-    "uuid": "11.0.5",
+    "uuid": "11.1.0",
     "yargs": "17.7.2"
   },
   "devDependencies": {
-    "@types/node": "22.10.7",
+    "@types/node": "22.14.1",
     "typescript": "5.4.2"
   },
   "_moduleAliases": {

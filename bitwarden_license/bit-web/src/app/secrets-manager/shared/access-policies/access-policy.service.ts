@@ -350,7 +350,7 @@ export class AccessPolicyService {
       ...this.createBaseAccessPolicyView(response),
       grantedProjectId: response.grantedProjectId,
       grantedProjectName: response.grantedProjectName
-        ? await this.encryptService.decryptToUtf8(
+        ? await this.encryptService.decryptString(
             new EncString(response.grantedProjectName),
             organizationKey,
           )
@@ -394,7 +394,7 @@ export class AccessPolicyService {
           ...this.createBaseAccessPolicyView(response),
           serviceAccountId: response.serviceAccountId,
           serviceAccountName: response.serviceAccountName
-            ? await this.encryptService.decryptToUtf8(
+            ? await this.encryptService.decryptString(
                 new EncString(response.serviceAccountName),
                 orgKey,
               )
@@ -420,7 +420,7 @@ export class AccessPolicyService {
 
         if (r.type === "serviceAccount" || r.type === "project") {
           view.name = r.name
-            ? await this.encryptService.decryptToUtf8(new EncString(r.name), orgKey)
+            ? await this.encryptService.decryptString(new EncString(r.name), orgKey)
             : null;
         } else {
           view.name = r.name;

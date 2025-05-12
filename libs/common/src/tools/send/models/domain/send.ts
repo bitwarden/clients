@@ -79,7 +79,8 @@ export class Send extends Domain {
 
     try {
       const sendKeyEncryptionKey = await keyService.getUserKey();
-      model.key = await encryptService.decryptToBytes(this.key, sendKeyEncryptionKey);
+      // model.key is a seed used to derive a key, not a SymmetricCryptoKey
+      model.key = await encryptService.decryptBytes(this.key, sendKeyEncryptionKey);
       model.cryptoKey = await keyService.makeSendKey(model.key);
       // FIXME: Remove when updating file. Eslint update
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

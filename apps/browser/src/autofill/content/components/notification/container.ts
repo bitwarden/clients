@@ -9,7 +9,7 @@ import {
   NotificationType,
 } from "../../../notification/abstractions/notification-bar";
 import { NotificationCipherData } from "../cipher/types";
-import { CollectionView, FolderView, OrgView } from "../common-types";
+import { CollectionView, FolderView, I18n, OrgView } from "../common-types";
 import { themes, spacing } from "../constants/styles";
 
 import { NotificationBody, componentClassPrefix as notificationBodyClassPrefix } from "./body";
@@ -27,8 +27,9 @@ export type NotificationContainerProps = NotificationBarIframeInitData & {
   ciphers?: NotificationCipherData[];
   collections?: CollectionView[];
   folders?: FolderView[];
-  i18n: { [key: string]: string };
+  i18n: I18n;
   organizations?: OrgView[];
+  personalVaultIsAllowed?: boolean;
   type: NotificationType; // @TODO typing override for generic `NotificationBarIframeInitData.type`
 };
 
@@ -41,6 +42,7 @@ export function NotificationContainer({
   folders,
   i18n,
   organizations,
+  personalVaultIsAllowed = true,
   theme = ThemeTypes.Light,
   type,
 }: NotificationContainerProps) {
@@ -71,6 +73,7 @@ export function NotificationContainer({
         i18n,
         notificationType: type,
         organizations,
+        personalVaultIsAllowed,
         theme,
       })}
     </div>
@@ -96,7 +99,7 @@ const notificationContainerStyles = (theme: Theme) => css`
   }
 `;
 
-function getHeaderMessage(i18n: { [key: string]: string }, type?: NotificationType) {
+function getHeaderMessage(i18n: I18n, type?: NotificationType) {
   switch (type) {
     case NotificationTypes.Add:
       return i18n.saveLogin;

@@ -7,7 +7,7 @@
         <div class="tw-grid tw-grid-cols-12 tw-gap-4">
           <div class="tw-col-span-12">
             <bit-form-field>
-              <bit-label>{{ "email" | i18n }}:</bit-label>
+              <bit-label>{{ "email" | i18n }}</bit-label>
               <input
                 bitInput
                 inputmode="email"
@@ -19,13 +19,12 @@
           </div>
           <div class="tw-col-span-12">
             <bit-form-field>
-              <bit-label>{{ "notes" | i18n }}:</bit-label>
+              <bit-label>{{ "notes" | i18n }}</bit-label>
               <input
                 bitInput
                 inputmode="text"
                 formControlName="sponsorshipNote"
                 [attr.aria-invalid]="sponsorshipNoteControl.invalid"
-                appInputStripSpaces
               />
             </bit-form-field>
           </div>
@@ -34,7 +33,15 @@
     </div>
 
     <ng-container bitDialogFooter>
-      <button bitButton bitFormButton type="button" buttonType="primary" (click)="save()">
+      <button
+        bitButton
+        bitFormButton
+        type="button"
+        buttonType="primary"
+        [loading]="loading"
+        [disabled]="loading"
+        (click)="save()"
+      >
         {{ "save" | i18n }}
       </button>
       <button bitButton type="button" buttonType="secondary" [bitDialogClose]="false">

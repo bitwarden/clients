@@ -7,7 +7,7 @@ import {
   NotificationType,
   NotificationTypes,
 } from "../../../notification/abstractions/notification-bar";
-import { OrgView, FolderView, CollectionView } from "../common-types";
+import { OrgView, FolderView, I18n, CollectionView } from "../common-types";
 import { spacing, themes } from "../constants/styles";
 
 import { NotificationButtonRow } from "./button-row";
@@ -15,9 +15,10 @@ import { NotificationButtonRow } from "./button-row";
 export type NotificationFooterProps = {
   collections?: CollectionView[];
   folders?: FolderView[];
-  i18n: { [key: string]: string };
+  i18n: I18n;
   notificationType?: NotificationType;
   organizations?: OrgView[];
+  personalVaultIsAllowed: boolean;
   theme: Theme;
   handleSaveAction: (e: Event) => void;
 };
@@ -28,6 +29,7 @@ export function NotificationFooter({
   i18n,
   notificationType,
   organizations,
+  personalVaultIsAllowed,
   theme,
   handleSaveAction,
 }: NotificationFooterProps) {
@@ -46,6 +48,7 @@ export function NotificationFooter({
               handlePrimaryButtonClick: handleSaveAction,
               text: primaryButtonText,
             },
+            personalVaultIsAllowed,
             theme,
           })
         : nothing}

@@ -150,10 +150,11 @@
                     >{{
                       "costPerMember"
                         | i18n
-                          : ((selectableProduct.isAnnual
-                              ? selectableProduct.PasswordManager.seatPrice / 12
-                              : selectableProduct.PasswordManager.seatPrice
-                            )
+                          : (((this.sub.useSecretsManager
+                              ? selectableProduct.SecretsManager.seatPrice
+                              : 0) +
+                              selectableProduct.PasswordManager.seatPrice) /
+                              (selectableProduct.isAnnual ? 12 : 1)
                               | currency: "$")
                     }}
                   </b>
@@ -983,7 +984,7 @@
     </div>
     <ng-container bitDialogFooter>
       <button bitButton bitFormButton buttonType="primary" type="submit">
-        {{ sub.subscription.status === "canceled" ? ("restart" | i18n) : ("upgrade" | i18n) }}
+        {{ submitButtonLabel }}
       </button>
       <button bitButton buttonType="secondary" type="button" [bitDialogClose]="ResultType.Closed">
         {{ "cancel" | i18n }}

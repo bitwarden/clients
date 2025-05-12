@@ -136,11 +136,13 @@ import {
 import { AccountBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/account/account-billing-api.service.abstraction";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
+import { OrganizationSponsorshipApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-sponsorship-api.service.abstraction";
 import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
 import { AccountBillingApiService } from "@bitwarden/common/billing/services/account/account-billing-api.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { BillingApiService } from "@bitwarden/common/billing/services/billing-api.service";
 import { OrganizationBillingApiService } from "@bitwarden/common/billing/services/organization/organization-billing-api.service";
+import { OrganizationSponsorshipApiService } from "@bitwarden/common/billing/services/organization/organization-sponsorship-api.service";
 import { OrganizationBillingService } from "@bitwarden/common/billing/services/organization-billing.service";
 import { TaxService } from "@bitwarden/common/billing/services/tax.service";
 import { BulkEncryptService } from "@bitwarden/common/key-management/crypto/abstractions/bulk-encrypt.service";
@@ -310,7 +312,7 @@ import {
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
-import { NewDeviceVerificationNoticeService, PasswordRepromptService } from "@bitwarden/vault";
+import { PasswordRepromptService } from "@bitwarden/vault";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -335,6 +337,7 @@ import {
   CLIENT_TYPE,
   DEFAULT_VAULT_TIMEOUT,
   ENV_ADDITIONAL_REGIONS,
+  HTTP_OPERATIONS,
   INTRAPROCESS_MESSAGING_SUBJECT,
   LOCALES_DIRECTORY,
   LOCKED_CALLBACK,
@@ -584,7 +587,11 @@ const safeProviders: SafeProvider[] = [
     useClass: AvatarService,
     deps: [ApiServiceAbstraction, StateProvider],
   }),
-  safeProvider({ provide: LogService, useFactory: () => new ConsoleLogService(false), deps: [] }),
+  safeProvider({
+    provide: LogService,
+    useFactory: () => new ConsoleLogService(process.env.NODE_ENV === "development"),
+    deps: [],
+  }),
   safeProvider({
     provide: CollectionService,
     useClass: DefaultCollectionService,
@@ -695,6 +702,10 @@ const safeProviders: SafeProvider[] = [
     deps: [ToastService, I18nServiceAbstraction],
   }),
   safeProvider({
+    provide: HTTP_OPERATIONS,
+    useValue: { createRequest: (url, request) => new Request(url, request) },
+  }),
+  safeProvider({
     provide: ApiServiceAbstraction,
     useClass: ApiService,
     deps: [
@@ -706,6 +717,7 @@ const safeProviders: SafeProvider[] = [
       LogService,
       LOGOUT_CALLBACK,
       VaultTimeoutSettingsService,
+      HTTP_OPERATIONS,
     ],
   }),
   safeProvider({
@@ -1062,6 +1074,11 @@ const safeProviders: SafeProvider[] = [
     // rather than updating the OrganizationService directly. Instead OrganizationService
     // subscribes to sync notifications and will update itself based on that.
     deps: [ApiServiceAbstraction, SyncService],
+  }),
+  safeProvider({
+    provide: OrganizationSponsorshipApiServiceAbstraction,
+    useClass: OrganizationSponsorshipApiService,
+    deps: [ApiServiceAbstraction],
   }),
   safeProvider({
     provide: OrganizationBillingApiServiceAbstraction,
@@ -1448,7 +1465,6 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultLoginDecryptionOptionsService,
     deps: [MessagingServiceAbstraction],
   }),
-  safeProvider(NewDeviceVerificationNoticeService),
   safeProvider({
     provide: UserAsymmetricKeysRegenerationApiService,
     useClass: DefaultUserAsymmetricKeysRegenerationApiService,
