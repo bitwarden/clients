@@ -107,7 +107,7 @@ export const mockI18n = {
   collection: "Collection",
   folder: "Folder",
   loginSaveSuccess: "Login saved",
-  loginSaveConfirmation: "saved to Bitwarden.",
+  notificationLoginSaveConfirmation: "saved to Bitwarden.",
   loginUpdateSuccess: "Login updated",
   loginUpdatedConfirmation: "updated in Bitwarden.",
   loginUpdateTaskSuccess:
