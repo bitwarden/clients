@@ -109,7 +109,7 @@ export const mockI18n = {
   loginSaveSuccess: "Login saved",
   notificationLoginSaveConfirmation: "saved to Bitwarden.",
   loginUpdateSuccess: "Login updated",
-  loginUpdatedConfirmation: "updated in Bitwarden.",
+  notificationLoginUpdatedConfirmation: "updated in Bitwarden.",
   loginUpdateTaskSuccess:
     "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
   loginUpdateTaskSuccessAdditional:
