@@ -4,13 +4,13 @@ import { Component, Input, QueryList } from "@angular/core";
 
 import { ResizeObserverDirective } from "../resize-observer/resize-observer.directive";
 
-import { Step } from "./step.component";
+import { StepComponent } from "./step.component";
 
 @Component({
   selector: "bit-stepper",
   templateUrl: "stepper.component.html",
   providers: [{ provide: CdkStepper, useExisting: StepperComponent }],
-  imports: [CommonModule, ResizeObserverDirective, Step],
+  imports: [CommonModule, ResizeObserverDirective, StepComponent],
   standalone: true,
 })
 export class StepperComponent extends CdkStepper {
@@ -19,7 +19,7 @@ export class StepperComponent extends CdkStepper {
     [3, 768],
     [4, 900],
   ]);
-  override readonly steps: QueryList<Step>;
+  override readonly steps: QueryList<StepComponent>;
 
   private internalOrientation: StepperOrientation = undefined;
   private initialOrientation: StepperOrientation = undefined;
