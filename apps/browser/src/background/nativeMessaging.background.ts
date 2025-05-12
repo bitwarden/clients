@@ -357,7 +357,7 @@ export class NativeMessagingBackground {
       await this.secureCommunication();
     }
 
-    return await this.encryptService.encrypt(
+    return await this.encryptService.encryptString(
       JSON.stringify(message),
       this.secureChannel!.sharedSecret!,
     );
@@ -401,10 +401,9 @@ export class NativeMessagingBackground {
         return;
       }
       message = JSON.parse(
-        await this.encryptService.decryptToUtf8(
+        await this.encryptService.decryptString(
           rawMessage as EncString,
           this.secureChannel.sharedSecret,
-          "ipc-desktop-ipc-channel-key",
         ),
       );
     } else {

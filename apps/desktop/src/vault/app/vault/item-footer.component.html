@@ -2,14 +2,13 @@
   <ng-container *ngIf="!cipher.decryptionFailure">
     <button
       #submitBtn
-      bitButton
       form="cipherForm"
       type="submit"
       *ngIf="action !== 'view'"
       class="primary"
       appA11yTitle="{{ 'save' | i18n }}"
     >
-      <i class="bwi bwi-save-changes bwi-lg bwi-fw" [hidden]="isSubmitting" aria-hidden="true"></i>
+      <span [hidden]="isSubmitting">{{ "save" | i18n }}</span>
       <i
         class="bwi bwi-spinner bwi-spin bwi-lg bwi-fw"
         [hidden]="!isSubmitting"
@@ -44,7 +43,7 @@
     <button
       type="button"
       class="primary"
-      *ngIf="cipher.id && !cipher?.organizationId && !cipher.isDeleted && action !== 'clone'"
+      *ngIf="cipher.id && !cipher?.organizationId && !cipher.isDeleted && action === 'view'"
       (click)="clone()"
       appA11yTitle="{{ 'clone' | i18n }}"
     >

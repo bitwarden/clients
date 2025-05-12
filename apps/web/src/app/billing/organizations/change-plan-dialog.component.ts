@@ -12,7 +12,7 @@ import {
 } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { Subject, firstValueFrom, map, switchMap, takeUntil } from "rxjs";
+import { firstValueFrom, map, Subject, switchMap, takeUntil } from "rxjs";
 
 import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -31,10 +31,10 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   BillingApiServiceAbstraction,
   BillingInformation,
+  OrganizationBillingServiceAbstraction as OrganizationBillingService,
   OrganizationInformation,
   PaymentInformation,
   PlanInformation,
-  OrganizationBillingServiceAbstraction as OrganizationBillingService,
 } from "@bitwarden/common/billing/abstractions";
 import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
 import {
@@ -744,7 +744,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
     const doSubmit = async (): Promise<string> => {
       let orgId: string = null;
-      if (this.isSubscriptionCanceled) {
+      if (this.sub?.subscription?.status === "canceled") {
         await this.restartSubscription();
         orgId = this.organizationId;
       } else {
@@ -1088,5 +1088,16 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       this.isPaymentSourceEmpty() ||
       this.isSubscriptionCanceled
     );
+  }
+
+  get submitButtonLabel(): string {
+    if (
+      this.organization.productTierType !== ProductTierType.Free &&
+      this.sub.subscription.status === "canceled"
+    ) {
+      return this.i18nService.t("restart");
+    } else {
+      return this.i18nService.t("upgrade");
+    }
   }
 }

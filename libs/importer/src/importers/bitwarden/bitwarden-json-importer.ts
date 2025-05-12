@@ -72,7 +72,7 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
         keyForDecryption = await this.keyService.getUserKeyWithLegacySupport();
       }
       const encKeyValidation = new EncString(results.encKeyValidation_DO_NOT_EDIT);
-      const encKeyValidationDecrypt = await this.encryptService.decryptToUtf8(
+      const encKeyValidationDecrypt = await this.encryptService.decryptString(
         encKeyValidation,
         keyForDecryption,
       );

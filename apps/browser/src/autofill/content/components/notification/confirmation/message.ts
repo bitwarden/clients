@@ -3,18 +3,20 @@ import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { themes, typography } from "../../constants/styles";
+import { spacing, themes, typography } from "../../constants/styles";
 
 export type NotificationConfirmationMessageProps = {
+  buttonAria?: string;
   buttonText?: string;
-  itemName: string;
+  itemName?: string;
   message?: string;
   messageDetails?: string;
-  handleClick: () => void;
+  handleClick: (e: Event) => void;
   theme: Theme;
 };
 
 export function NotificationConfirmationMessage({
+  buttonAria,
   buttonText,
   itemName,
   message,
@@ -22,33 +24,35 @@ export function NotificationConfirmationMessage({
   handleClick,
   theme,
 }: NotificationConfirmationMessageProps) {
-  const buttonAria = chrome.i18n.getMessage("notificationViewAria", [itemName]);
-
   return html`
-    <div>
+    <div class=${containerStyles}>
       ${message || buttonText
         ? html`
-            <span
-              title=${message || buttonText}
-              class=${notificationConfirmationMessageStyles(theme)}
-            >
-              ${message || nothing}
-              ${buttonText
-                ? html`
-                    <a
-                      title=${buttonText}
-                      class=${notificationConfirmationButtonTextStyles(theme)}
-                      @click=${handleClick}
-                      @keydown=${(e: KeyboardEvent) => handleButtonKeyDown(e, handleClick)}
-                      aria-label=${buttonAria}
-                      tabindex="0"
-                      role="button"
-                    >
-                      ${buttonText}
-                    </a>
-                  `
-                : nothing}
-            </span>
+            <div class=${singleLineWrapperStyles}>
+              <span class=${itemNameStyles(theme)} title=${itemName}> ${itemName} </span>
+              <span
+                title=${message || buttonText}
+                class=${notificationConfirmationMessageStyles(theme)}
+              >
+                ${message || nothing}
+                ${buttonText
+                  ? html`
+                      <a
+                        title=${buttonText}
+                        class=${notificationConfirmationButtonTextStyles(theme)}
+                        @click=${handleClick}
+                        @keydown=${(e: KeyboardEvent) =>
+                          handleButtonKeyDown(e, () => handleClick(e))}
+                        aria-label=${buttonAria}
+                        tabindex="0"
+                        role="button"
+                      >
+                        ${buttonText}
+                      </a>
+                    `
+                  : nothing}
+              </span>
+            </div>
           `
         : nothing}
       ${messageDetails
@@ -58,13 +62,25 @@ export function NotificationConfirmationMessage({
   `;
 }
 
+const containerStyles = css`
+  display: flex;
+  flex-direction: column;
+  gap: ${spacing[1]};
+  width: 100%;
+`;
+
+const singleLineWrapperStyles = css`
+  display: inline;
+  white-space: normal;
+  word-break: break-word;
+`;
+
 const baseTextStyles = css`
-  flex-grow: 1;
   overflow-x: hidden;
   text-align: left;
   text-overflow: ellipsis;
   line-height: 24px;
-  font-family: "DM Sans", sans-serif;
+  font-family: Roboto, sans-serif;
   font-size: 16px;
 `;
 
@@ -73,6 +89,22 @@ const notificationConfirmationMessageStyles = (theme: Theme) => css`
 
   color: ${themes[theme].text.main};
   font-weight: 400;
+  white-space: normal;
+  word-break: break-word;
+  display: inline;
+`;
+
+const itemNameStyles = (theme: Theme) => css`
+  ${baseTextStyles}
+
+  color: ${themes[theme].text.main};
+  font-weight: 400;
+  white-space: nowrap;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  vertical-align: bottom;
 `;
 
 const notificationConfirmationButtonTextStyles = (theme: Theme) => css`

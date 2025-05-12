@@ -1,7 +1,7 @@
 import { Directive, HostBinding, HostListener, Input, OnChanges, Optional } from "@angular/core";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { MenuItemDirective } from "@bitwarden/components";
+import { MenuItemDirective, BitIconButtonComponent } from "@bitwarden/components";
 import { CopyAction, CopyCipherFieldService } from "@bitwarden/vault";
 
 /**
@@ -33,6 +33,7 @@ export class CopyCipherFieldDirective implements OnChanges {
   constructor(
     private copyCipherFieldService: CopyCipherFieldService,
     @Optional() private menuItemDirective?: MenuItemDirective,
+    @Optional() private iconButtonComponent?: BitIconButtonComponent,
   ) {}
 
   @HostBinding("attr.disabled")
@@ -64,6 +65,11 @@ export class CopyCipherFieldDirective implements OnChanges {
       (this.action === "totp" && !(await this.copyCipherFieldService.totpAllowed(this.cipher)))
         ? true
         : null;
+
+    // When used on an icon button, update the disabled state of the button component
+    if (this.iconButtonComponent) {
+      this.iconButtonComponent.disabled.set(this.disabled ?? false);
+    }
 
     // If the directive is used on a menu item, update the menu item to prevent keyboard navigation
     if (this.menuItemDirective) {
