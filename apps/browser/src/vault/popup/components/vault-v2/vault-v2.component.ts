@@ -19,6 +19,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -92,6 +93,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   VaultNudgeType = VaultNudgeType;
   cipherType = CipherType;
+  hasItemsVaultNudgeBody: string = "";
   private activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
   showEmptyVaultSpotlight$: Observable<boolean> = this.activeUserId$.pipe(
     switchMap((userId) =>
@@ -101,7 +103,13 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   );
   showHasItemsVaultSpotlight$: Observable<boolean> = this.activeUserId$.pipe(
     switchMap((userId) => this.vaultNudgesService.showNudge$(VaultNudgeType.HasVaultItems, userId)),
-    map((nudgeStatus) => !nudgeStatus.hasSpotlightDismissed),
+    map((nudgeStatus) => {
+      const lineOne = this.i18nService.t("hasItemsVaultNudgeBodyOne");
+      const lineTwo = this.i18nService.t("hasItemsVaultNudgeBodyTwo");
+      const lineThree = this.i18nService.t("hasItemsVaultNudgeBodyThree");
+      this.hasItemsVaultNudgeBody = `<li>${lineOne}</li><li>${lineTwo}</li><li>${lineThree}</li>`;
+      return !nudgeStatus.hasSpotlightDismissed;
+    }),
   );
 
   activeUserId: UserId | null = null;
@@ -156,6 +164,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private introCarouselService: IntroCarouselService,
     private vaultNudgesService: VaultNudgesService,
     private router: Router,
+    private i18nService: I18nService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,

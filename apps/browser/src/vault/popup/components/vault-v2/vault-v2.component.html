@@ -44,7 +44,7 @@
       <div class="tw-mb-4" *ngIf="showHasItemsVaultSpotlight$ | async">
         <bit-spotlight
           [title]="'hasItemsVaultNudgeTitle' | i18n"
-          [subtitle]="'hasItemsVaultNudgeBody' | i18n"
+          [subtitle]="hasItemsVaultNudgeBody"
           (onDismiss)="dismissVaultNudgeSpotlight(VaultNudgeType.HasVaultItems)"
         >
         </bit-spotlight>
