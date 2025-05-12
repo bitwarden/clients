@@ -208,11 +208,9 @@ describe("WebAuthnLoginStrategy", () => {
 
     expect(authResult).toBeInstanceOf(AuthResult);
     expect(authResult).toMatchObject({
-      captchaSiteKey: "",
       resetMasterPassword: false,
       twoFactorProviders: null,
       requiresTwoFactor: false,
-      requiresCaptcha: false,
     });
   });
 
