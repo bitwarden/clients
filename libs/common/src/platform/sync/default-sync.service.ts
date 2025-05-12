@@ -107,58 +107,7 @@ export class DefaultSyncService extends CoreSyncService {
     forceSync: boolean,
     allowThrowOnErrorOrOptions?: boolean | SyncOptions,
   ): Promise<boolean> {
-    const { allowThrowOnError = false, skipTokenRefresh = false } =
-      typeof allowThrowOnErrorOrOptions === "boolean"
-        ? { allowThrowOnError: allowThrowOnErrorOrOptions }
-        : (allowThrowOnErrorOrOptions ?? {});
-
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
-    this.syncStarted();
-    const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
-    if (authStatus === AuthenticationStatus.LoggedOut) {
-      return this.syncCompleted(false, userId);
-    }
-
-    const now = new Date();
-    let needsSync = false;
-    try {
-      needsSync = await this.needsSyncing(forceSync);
-    } catch (e) {
-      if (allowThrowOnError) {
-        this.syncCompleted(false, userId);
-        throw e;
-      }
-    }
-
-    if (!needsSync) {
-      await this.setLastSync(now, userId);
-      return this.syncCompleted(false, userId);
-    }
-
-    try {
-      if (!skipTokenRefresh) {
-        await this.apiService.refreshIdentityToken();
-      }
-      const response = await this.apiService.getSync();
-
-      await this.syncProfile(response.profile);
-      await this.syncFolders(response.folders, response.profile.id);
-      await this.syncCollections(response.collections, response.profile.id);
-      await this.syncCiphers(response.ciphers, response.profile.id);
-      await this.syncSends(response.sends, response.profile.id);
-      await this.syncSettings(response.domains, response.profile.id);
-      await this.syncPolicies(response.policies, response.profile.id);
-
-      await this.setLastSync(now, userId);
-      return this.syncCompleted(true, userId);
-    } catch (e) {
-      if (allowThrowOnError) {
-        this.syncCompleted(false, userId);
-        throw e;
-      } else {
-        return this.syncCompleted(false, userId);
-      }
-    }
+    return this._fullSync(forceSync, allowThrowOnErrorOrOptions);
   }
 
   private async needsSyncing(forceSync: boolean) {
@@ -361,5 +310,63 @@ export class DefaultSyncService extends CoreSyncService {
       });
     }
     return await this.policyService.replace(policies, userId);
+  }
+
+  private async _fullSync(
+    forceSync: boolean,
+    allowThrowOnErrorOrOptions?: boolean | SyncOptions,
+  ): Promise<boolean> {
+    const { allowThrowOnError = false, skipTokenRefresh = false } =
+      typeof allowThrowOnErrorOrOptions === "boolean"
+        ? { allowThrowOnError: allowThrowOnErrorOrOptions }
+        : (allowThrowOnErrorOrOptions ?? {});
+
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    this.syncStarted();
+    const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
+    if (authStatus === AuthenticationStatus.LoggedOut) {
+      return this.syncCompleted(false, userId);
+    }
+
+    const now = new Date();
+    let needsSync = false;
+    try {
+      needsSync = await this.needsSyncing(forceSync);
+    } catch (e) {
+      if (allowThrowOnError) {
+        this.syncCompleted(false, userId);
+        throw e;
+      }
+    }
+
+    if (!needsSync) {
+      await this.setLastSync(now, userId);
+      return this.syncCompleted(false, userId);
+    }
+
+    try {
+      if (!skipTokenRefresh) {
+        await this.apiService.refreshIdentityToken();
+      }
+      const response = await this.apiService.getSync();
+
+      await this.syncProfile(response.profile);
+      await this.syncFolders(response.folders, response.profile.id);
+      await this.syncCollections(response.collections, response.profile.id);
+      await this.syncCiphers(response.ciphers, response.profile.id);
+      await this.syncSends(response.sends, response.profile.id);
+      await this.syncSettings(response.domains, response.profile.id);
+      await this.syncPolicies(response.policies, response.profile.id);
+
+      await this.setLastSync(now, userId);
+      return this.syncCompleted(true, userId);
+    } catch (e) {
+      if (allowThrowOnError) {
+        this.syncCompleted(false, userId);
+        throw e;
+      } else {
+        return this.syncCompleted(false, userId);
+      }
+    }
   }
 }
