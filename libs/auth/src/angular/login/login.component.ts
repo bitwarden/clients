@@ -17,7 +17,6 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
@@ -307,10 +306,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     await this.loginSuccessHandlerService.run(authResult.userId);
 
     // Determine where to send the user next
-    if (authResult.forcePasswordReset != ForceSetPasswordReason.None) {
-      await this.router.navigate(["update-temp-password"]);
-      return;
-    }
+    // The AuthGuard will handle routing to update-temp-password based on state
 
     // TODO: PM-18269 - evaluate if we can combine this with the
     // password evaluation done in the password login strategy.
@@ -536,6 +532,10 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (storedEmail) {
       this.formGroup.controls.email.setValue(storedEmail);
       this.formGroup.controls.rememberEmail.setValue(true);
+      // If we load an email into the form, we need to initialize it for the login process as well
+      // so that other login components can use it.
+      // We do this here as it's possible that a user doesn't edit the email field before submitting.
+      await this.loginEmailService.setLoginEmail(storedEmail);
     } else {
       this.formGroup.controls.rememberEmail.setValue(false);
     }

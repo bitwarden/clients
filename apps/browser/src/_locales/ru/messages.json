@@ -2,6 +2,9 @@
   "appName": {
     "message": "Bitwarden"
   },
+  "appLogoLabel": {
+    "message": "Логотип Bitwarden"
+  },
   "extName": {
     "message": "Bitwarden - Менеджер паролей",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
@@ -883,6 +886,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Следуйте указаниям ниже, чтобы завершить авторизацию."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Выполните следующие шаги, чтобы завершить авторизацию с помощью ключа безопасности."
+  },
   "restartRegistration": {
     "message": "Перезапустить регистрацию"
   },
@@ -1056,23 +1062,49 @@
   "notificationAddSave": {
     "message": "Сохранить"
   },
-  "loginSaveSuccessDetails": {
-    "message": "$USERNAME$ сохранен в Bitwarden.",
+  "notificationViewAria": {
+    "message": "Просмотр $ITEMNAME$, откроется в новом окне",
     "placeholders": {
-      "username": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is saved."
+    "description": "Aria label for the view button in notification bar confirmation message"
   },
-  "loginUpdatedSuccessDetails": {
-    "message": "$USERNAME$ обновлен в Bitwarden.",
+  "notificationEditTooltip": {
+    "message": "Изменить перед сохранением",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "Новое уведомление"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: Новое уведомление",
+    "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
-      "username": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "loginSaveConfirmation": {
+    "message": "$ITEMNAME$ сохранен в Bitwarden.",
+    "placeholders": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is updated."
+    "description": "Shown to user after item is saved."
+  },
+  "loginUpdatedConfirmation": {
+    "message": "$ITEMNAME$ обновлен в Bitwarden.",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after item is updated."
   },
   "saveAsNewLoginAction": {
     "message": "Сохранить как новый логин",
@@ -1082,12 +1114,12 @@
     "message": "Обновить логин",
     "description": "Button text for updating an existing login entry."
   },
-  "saveLoginPrompt": {
-    "message": "Сохранить логин?",
+  "saveLogin": {
+    "message": "Сохранить логин",
     "description": "Prompt asking the user if they want to save their login details."
   },
-  "updateLoginPrompt": {
-    "message": "Обновить существующий логин?",
+  "updateLogin": {
+    "message": "Обновить существующий логин",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
@@ -3532,6 +3564,30 @@
   "deviceTrusted": {
     "message": "Доверенное устройство"
   },
+  "trustOrganization": {
+    "message": "Доверенная организация"
+  },
+  "trust": {
+    "message": "Доверять"
+  },
+  "doNotTrust": {
+    "message": "Не доверять"
+  },
+  "organizationNotTrusted": {
+    "message": "Организации не доверяют"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "В целях обеспечения безопасности вашего аккаунта подтверждайте только в том случае, если вы предоставили этому пользователю экстренный доступ и его отпечаток совпадает с отображаемым в его аккаунте"
+  },
+  "orgTrustWarning": {
+    "message": "В целях обеспечения безопасности вашего аккаунта продолжайте только в том случае, если вы являетесь членом этой организации, у вас включено восстановление аккаунта, а отображаемый ниже отпечаток совпадает с отпечатком организации."
+  },
+  "orgTrustWarning1": {
+    "message": "В этой организации действует политика, которая позволит вам участвовать в восстановлении аккаунта. Регистрация позволит администраторам организации изменить ваш пароль. Продолжайте, только если вы знаете эту организацию и фраза отпечатков, показанная ниже, совпадает с отпечатками организации."
+  },
+  "trustUser": {
+    "message": "Доверенный пользователь"
+  },
   "sendsNoItemsTitle": {
     "message": "Нет активных Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4456,6 +4512,27 @@
       }
     }
   },
+  "downloadBitwarden": {
+    "message": "Скачать Bitwarden"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Скачать Bitwarden на все устройства"
+  },
+  "getTheMobileApp": {
+    "message": "Скачать мобильное приложение"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Доступ к вашим паролям через мобильное приложение Bitwarden."
+  },
+  "getTheDesktopApp": {
+    "message": "Скачать приложение для компьютера"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Получите доступ к хранилищу без браузера, затем настройте разблокировку с помощью биометрии для ускорения разблокировки в приложении для компьютера и расширении браузера."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Скачать с bitwarden.com"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Вы уверены, что хотите навсегда удалить это вложение?"
   },
@@ -4928,8 +5005,8 @@
     "message": "Пароль сгенерирован",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Сохранить логин в Bitwarden?",
+  "saveToBitwarden": {
+    "message": "Сохранить в Bitwarden",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
@@ -5079,42 +5156,6 @@
   "beta": {
     "message": "Beta"
   },
-  "importantNotice": {
-    "message": "Важное уведомление"
-  },
-  "setupTwoStepLogin": {
-    "message": "Настроить двухэтапную аутентификацию"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Начиная с февраля 2025 года Bitwarden будет отправлять код на электронную почту вашего аккаунта для подтверждения авторизации с новых устройств."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "В качестве альтернативного способа защиты учетной записи вы можете настроить двухэтапную аутентификацию или сменить электронную почту на ту, к которой вы можете получить доступ."
-  },
-  "remindMeLater": {
-    "message": "Напомнить позже"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Есть ли у вас надежный доступ к электронной почте $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Нет, не знаю"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Да, я имею надежный доступ к своей электронной почте"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Включить двухэтапную аутентификацию"
-  },
-  "changeAcctEmail": {
-    "message": "Изменить email аккаунта"
-  },
   "extensionWidth": {
     "message": "Ширина расширения"
   },
@@ -5169,6 +5210,12 @@
   "changeAtRiskPassword": {
     "message": "Изменить пароль, подверженный риску"
   },
+  "settingsVaultOptions": {
+    "message": "Настройки хранилища"
+  },
+  "emptyVaultDescription": {
+    "message": "Хранилище защищает не только ваши пароли. Логины, идентификаторы, карты и заметки в нем надежно защищены."
+  },
   "introCarouselLabel": {
     "message": "Добро пожаловать в Bitwarden"
   },
@@ -5195,5 +5242,69 @@
   },
   "secureDevicesBody": {
     "message": "Сохраняйте неограниченное количество паролей на неограниченном количестве устройств с помощью мобильных, браузерных и десктопных приложений Bitwarden."
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Импорт существующих паролей"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Используйте импортер, чтобы быстро перенести логины в Bitwarden без их ручного добавления."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Импортировать сейчас"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Добро пожаловать в ваше хранилище!"
+  },
+  "hasItemsVaultNudgeBody": {
+    "message": "Автозаполнение элементов для текущей страницы\nИзбранные элементы для легкого доступа\nПоиск в хранилище для чего-либо еще"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Экономьте время с помощью автозаполнения"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Включите",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "сайт",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "чтобы этот логин отображался в качестве предложения для автозаполнения.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Оформление заказа через интернет"
+  },
+  "newCardNudgeBody": {
+    "message": "С помощью карт можно легко и безопасно автоматически заполнять формы оплаты."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Упрощение создания аккаунтов"
+  },
+  "newIdentityNudgeBody": {
+    "message": "С помощью личностей можно быстро заполнять длинные регистрационные или контактные формы."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Храните ваши конфиденциальные данные в безопасности"
+  },
+  "newNoteNudgeBody": {
+    "message": "С помощью заметок можно надежно хранить конфиденциальные данные, например, банковские или страховые реквизиты."
+  },
+  "newSshNudgeTitle": {
+    "message": "Удобный для разработчиков SSH-доступ"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Храните свои ключи и подключайтесь с помощью агента SSH для быстрой и зашифрованной аутентификации.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Узнайте больше об агенте SSH",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

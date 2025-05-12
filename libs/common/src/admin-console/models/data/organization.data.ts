@@ -60,6 +60,7 @@ export class OrganizationData {
   allowAdminAccessToAllCollectionItems: boolean;
   userIsManagedByOrganization: boolean;
   useRiskInsights: boolean;
+  useAdminSponsoredFamilies: boolean;
 
   constructor(
     response?: ProfileOrganizationResponse,
@@ -122,6 +123,7 @@ export class OrganizationData {
     this.allowAdminAccessToAllCollectionItems = response.allowAdminAccessToAllCollectionItems;
     this.userIsManagedByOrganization = response.userIsManagedByOrganization;
     this.useRiskInsights = response.useRiskInsights;
+    this.useAdminSponsoredFamilies = response.useAdminSponsoredFamilies;
 
     this.isMember = options.isMember;
     this.isProviderUser = options.isProviderUser;

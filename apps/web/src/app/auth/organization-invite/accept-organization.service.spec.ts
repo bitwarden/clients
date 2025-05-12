@@ -24,7 +24,6 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
-import { OrganizationTrustComponent } from "../../admin-console/organizations/manage/organization-trust.component";
 import { I18nService } from "../../core/i18n.service";
 
 import {
@@ -93,7 +92,10 @@ describe("AcceptOrganizationInviteService", () => {
         "orgPublicKey",
         { encryptedString: "string" } as EncString,
       ]);
-      encryptService.encrypt.mockResolvedValue({ encryptedString: "string" } as EncString);
+      encryptService.wrapDecapsulationKey.mockResolvedValue({
+        encryptedString: "string",
+      } as EncString);
+      encryptService.encryptString.mockResolvedValue({ encryptedString: "string" } as EncString);
       const invite = createOrgInvite({ initOrganization: true });
 
       const result = await sut.validateAndAcceptInvite(invite);
@@ -200,11 +202,6 @@ describe("AcceptOrganizationInviteService", () => {
         encryptedString: "encryptedString",
       } as EncString);
 
-      jest.mock("../../admin-console/organizations/manage/organization-trust.component");
-      OrganizationTrustComponent.open = jest.fn().mockReturnValue({
-        closed: new BehaviorSubject(true),
-      });
-
       await globalState.update(() => invite);
 
       policyService.getResetPasswordPolicyOptions.mockReturnValue([
@@ -217,7 +214,6 @@ describe("AcceptOrganizationInviteService", () => {
       const result = await sut.validateAndAcceptInvite(invite);
 
       expect(result).toBe(true);
-      expect(OrganizationTrustComponent.open).toHaveBeenCalled();
       expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(
         { key: "userKey" },
         Utils.fromB64ToArray("publicKey"),

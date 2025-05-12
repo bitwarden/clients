@@ -39,7 +39,6 @@ import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/
 import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification-api.service.abstraction";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
@@ -192,6 +191,10 @@ import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/a
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
+  DefaultEndUserNotificationService,
+  EndUserNotificationService,
+} from "@bitwarden/common/vault/notifications";
+import {
   CipherAuthorizationService,
   DefaultCipherAuthorizationService,
 } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -245,7 +248,6 @@ import WebRequestBackground from "../autofill/background/web-request.background"
 import { CipherContextMenuHandler } from "../autofill/browser/cipher-context-menu-handler";
 import { ContextMenuClickedHandler } from "../autofill/browser/context-menu-clicked-handler";
 import { MainContextMenuHandler } from "../autofill/browser/main-context-menu-handler";
-import LegacyOverlayBackground from "../autofill/deprecated/background/overlay.background.deprecated";
 import { Fido2Background as Fido2BackgroundAbstraction } from "../autofill/fido2/background/abstractions/fido2.background";
 import { Fido2Background } from "../autofill/fido2/background/fido2.background";
 import {
@@ -403,6 +405,7 @@ export default class MainBackground {
   sdkService: SdkService;
   sdkLoadService: SdkLoadService;
   cipherAuthorizationService: CipherAuthorizationService;
+  endUserNotificationService: EndUserNotificationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
   taskService: TaskService;
 
@@ -717,6 +720,7 @@ export default class MainBackground {
       this.logService,
       (logoutReason: LogoutReason, userId?: UserId) => this.logout(logoutReason, userId),
       this.vaultTimeoutSettingsService,
+      { createRequest: (url, request) => new Request(url, request) },
     );
 
     this.fileUploadService = new FileUploadService(this.logService, this.apiService);
@@ -1202,6 +1206,7 @@ export default class MainBackground {
       this.authService,
       this.autofillService,
       this.cipherService,
+      this.collectionService,
       this.configService,
       this.domainSettingsService,
       this.environmentService,
@@ -1321,6 +1326,14 @@ export default class MainBackground {
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
     this.ipcService = new IpcBackgroundService(this.logService);
+
+    this.endUserNotificationService = new DefaultEndUserNotificationService(
+      this.stateProvider,
+      this.apiService,
+      this.notificationsService,
+      this.authService,
+      this.logService,
+    );
   }
 
   async bootstrap() {
@@ -1407,6 +1420,9 @@ export default class MainBackground {
           this.taskService.listenForTaskNotifications();
         }
 
+        if (await this.configService.getFeatureFlag(FeatureFlag.EndUserNotifications)) {
+          this.endUserNotificationService.listenForEndUserNotifications();
+        }
         resolve();
       }, 500);
     });
@@ -1495,9 +1511,6 @@ export default class MainBackground {
       }
 
       nextAccountStatus = await this.authService.getAuthStatus(userId);
-      const forcePasswordReset =
-        (await firstValueFrom(this.masterPasswordService.forceSetPasswordReason$(userId))) !=
-        ForceSetPasswordReason.None;
 
       await this.systemService.clearPendingClipboard();
 
@@ -1505,8 +1518,6 @@ export default class MainBackground {
         this.messagingService.send("goHome");
       } else if (nextAccountStatus === AuthenticationStatus.Locked) {
         this.messagingService.send("locked", { userId: userId });
-      } else if (forcePasswordReset) {
-        this.messagingService.send("update-temp-password", { userId: userId });
       } else {
         this.messagingService.send("unlocked", { userId: userId });
         await this.refreshBadge();
@@ -1716,44 +1727,25 @@ export default class MainBackground {
       return;
     }
 
-    const inlineMenuPositioningImprovementsEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.InlineMenuPositioningImprovements,
+    this.overlayBackground = new OverlayBackground(
+      this.logService,
+      this.cipherService,
+      this.autofillService,
+      this.authService,
+      this.environmentService,
+      this.domainSettingsService,
+      this.autofillSettingsService,
+      this.i18nService,
+      this.platformUtilsService,
+      this.vaultSettingsService,
+      this.fido2ActiveRequestManager,
+      this.inlineMenuFieldQualificationService,
+      this.themeStateService,
+      this.totpService,
+      this.accountService,
+      () => this.generatePassword(),
+      (password) => this.addPasswordToHistory(password),
     );
-
-    if (!inlineMenuPositioningImprovementsEnabled) {
-      this.overlayBackground = new LegacyOverlayBackground(
-        this.cipherService,
-        this.autofillService,
-        this.authService,
-        this.environmentService,
-        this.domainSettingsService,
-        this.autofillSettingsService,
-        this.i18nService,
-        this.platformUtilsService,
-        this.themeStateService,
-        this.accountService,
-      );
-    } else {
-      this.overlayBackground = new OverlayBackground(
-        this.logService,
-        this.cipherService,
-        this.autofillService,
-        this.authService,
-        this.environmentService,
-        this.domainSettingsService,
-        this.autofillSettingsService,
-        this.i18nService,
-        this.platformUtilsService,
-        this.vaultSettingsService,
-        this.fido2ActiveRequestManager,
-        this.inlineMenuFieldQualificationService,
-        this.themeStateService,
-        this.totpService,
-        this.accountService,
-        () => this.generatePassword(),
-        (password) => this.addPasswordToHistory(password),
-      );
-    }
 
     this.tabsBackground = new TabsBackground(
       this,

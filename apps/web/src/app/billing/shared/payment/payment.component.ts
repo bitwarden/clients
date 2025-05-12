@@ -8,6 +8,7 @@ import { takeUntil } from "rxjs/operators";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
 import { TokenizedPaymentSourceRequest } from "@bitwarden/common/billing/models/request/tokenized-payment-source.request";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { SharedModule } from "../../../shared";
 import { BillingServicesModule, BraintreeService, StripeService } from "../../services";
@@ -37,6 +38,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
   /** If provided, will be invoked with the tokenized payment source during form submission. */
   @Input() protected onSubmit?: (request: TokenizedPaymentSourceRequest) => Promise<void>;
 
+  @Input() private bankAccountWarningOverride?: string;
+
   @Output() submitted = new EventEmitter<PaymentMethodType>();
 
   private destroy$ = new Subject<void>();
@@ -56,6 +59,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
   constructor(
     private billingApiService: BillingApiServiceAbstraction,
     private braintreeService: BraintreeService,
+    private i18nService: I18nService,
     private stripeService: StripeService,
   ) {}
 
@@ -199,5 +203,13 @@ export class PaymentComponent implements OnInit, OnDestroy {
 
   private get usingStripe(): boolean {
     return this.usingBankAccount || this.usingCard;
+  }
+
+  get bankAccountWarning(): string {
+    if (this.bankAccountWarningOverride) {
+      return this.bankAccountWarningOverride;
+    } else {
+      return this.i18nService.t("verifyBankAccountWithStatementDescriptorWarning");
+    }
   }
 }

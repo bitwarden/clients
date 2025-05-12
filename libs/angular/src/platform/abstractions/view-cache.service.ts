@@ -18,6 +18,11 @@ type BaseCacheOptions<T> = {
 
   /** An optional injector. Required if the method is called outside of an injection context. */
   injector?: Injector;
+
+  /**
+   * Optional flag to persist the cached value between navigation events.
+   */
+  persistNavigation?: boolean;
 } & (T extends JsonValue ? Deserializer<T> : Required<Deserializer<T>>);
 
 export type SignalCacheOptions<T> = BaseCacheOptions<T> & {

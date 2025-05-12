@@ -6,6 +6,16 @@
   </popup-header>
 
   <div class="tw-bg-background-alt">
+    <div *ngIf="!defaultBrowserAutofillDisabled && (showSpotlightNudge$ | async)" class="tw-mb-6">
+      <bit-spotlight
+        [title]="'autofillSpotlightTitle' | i18n"
+        [subtitle]="'autofillSpotlightDesc' | i18n"
+        [buttonText]="spotlightButtonText"
+        (onDismiss)="dismissSpotlight()"
+        (onButtonClick)="openURI($event, disablePasswordManagerURI)"
+        [buttonIcon]="spotlightButtonIcon"
+      ></bit-spotlight>
+    </div>
     <bit-section>
       <bit-section-header>
         <h2 bitTypography="h6">{{ "autofillSuggestionsSectionTitle" | i18n }}</h2>
@@ -43,10 +53,7 @@
             </a>
           </bit-hint>
         </bit-form-control>
-        <bit-form-control
-          *ngIf="inlineMenuPositioningImprovementsEnabled && enableInlineMenu"
-          class="tw-ml-5"
-        >
+        <bit-form-control *ngIf="enableInlineMenu" class="tw-ml-5">
           <input
             bitCheckbox
             id="show-inline-menu-identities"
@@ -58,10 +65,7 @@
             {{ "showInlineMenuIdentitiesLabel" | i18n }}
           </bit-label>
         </bit-form-control>
-        <bit-form-control
-          *ngIf="inlineMenuPositioningImprovementsEnabled && enableInlineMenu"
-          class="tw-ml-5"
-        >
+        <bit-form-control *ngIf="enableInlineMenu" class="tw-ml-5">
           <input
             bitCheckbox
             id="show-inline-menu-cards"

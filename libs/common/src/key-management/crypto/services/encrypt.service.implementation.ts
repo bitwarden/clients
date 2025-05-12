@@ -18,6 +18,7 @@ import {
   Aes256CbcKey,
   SymmetricCryptoKey,
 } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import {
   DefaultFeatureFlagValue,
@@ -28,6 +29,7 @@ import { ServerConfig } from "../../../platform/abstractions/config/server-confi
 import { EncryptService } from "../abstractions/encrypt.service";
 
 export class EncryptServiceImplementation implements EncryptService {
+  protected useSDKForDecryption: boolean = DefaultFeatureFlagValue[FeatureFlag.UseSDKForDecryption];
   private blockType0: boolean = DefaultFeatureFlagValue[FeatureFlag.PM17987_BlockType0];
 
   constructor(
@@ -36,8 +38,109 @@ export class EncryptServiceImplementation implements EncryptService {
     protected logMacFailures: boolean,
   ) {}
 
+  // Proxy functions; Their implementation are temporary before moving at this level to the SDK
+  async encryptString(plainValue: string, key: SymmetricCryptoKey): Promise<EncString> {
+    return this.encrypt(plainValue, key);
+  }
+
+  async encryptBytes(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncString> {
+    return this.encrypt(plainValue, key);
+  }
+
+  async encryptFileData(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncArrayBuffer> {
+    return this.encryptToBytes(plainValue, key);
+  }
+
+  async decryptString(encString: EncString, key: SymmetricCryptoKey): Promise<string> {
+    return this.decryptToUtf8(encString, key);
+  }
+
+  async decryptBytes(encString: EncString, key: SymmetricCryptoKey): Promise<Uint8Array> {
+    return this.decryptToBytes(encString, key);
+  }
+
+  async decryptFileData(encBuffer: EncArrayBuffer, key: SymmetricCryptoKey): Promise<Uint8Array> {
+    return this.decryptToBytes(encBuffer, key);
+  }
+
+  async wrapDecapsulationKey(
+    decapsulationKeyPkcs8: Uint8Array,
+    wrappingKey: SymmetricCryptoKey,
+  ): Promise<EncString> {
+    if (decapsulationKeyPkcs8 == null) {
+      throw new Error("No decapsulation key provided for wrapping.");
+    }
+
+    if (wrappingKey == null) {
+      throw new Error("No wrappingKey provided for wrapping.");
+    }
+
+    return await this.encryptUint8Array(decapsulationKeyPkcs8, wrappingKey);
+  }
+
+  async wrapEncapsulationKey(
+    encapsulationKeySpki: Uint8Array,
+    wrappingKey: SymmetricCryptoKey,
+  ): Promise<EncString> {
+    if (encapsulationKeySpki == null) {
+      throw new Error("No encapsulation key provided for wrapping.");
+    }
+
+    if (wrappingKey == null) {
+      throw new Error("No wrappingKey provided for wrapping.");
+    }
+
+    return await this.encryptUint8Array(encapsulationKeySpki, wrappingKey);
+  }
+
+  async wrapSymmetricKey(
+    keyToBeWrapped: SymmetricCryptoKey,
+    wrappingKey: SymmetricCryptoKey,
+  ): Promise<EncString> {
+    if (keyToBeWrapped == null) {
+      throw new Error("No keyToBeWrapped provided for wrapping.");
+    }
+
+    if (wrappingKey == null) {
+      throw new Error("No wrappingKey provided for wrapping.");
+    }
+
+    return await this.encryptUint8Array(keyToBeWrapped.toEncoded(), wrappingKey);
+  }
+
+  async unwrapDecapsulationKey(
+    wrappedDecapsulationKey: EncString,
+    wrappingKey: SymmetricCryptoKey,
+  ): Promise<Uint8Array> {
+    return this.decryptBytes(wrappedDecapsulationKey, wrappingKey);
+  }
+  async unwrapEncapsulationKey(
+    wrappedEncapsulationKey: EncString,
+    wrappingKey: SymmetricCryptoKey,
+  ): Promise<Uint8Array> {
+    return this.decryptBytes(wrappedEncapsulationKey, wrappingKey);
+  }
+  async unwrapSymmetricKey(
+    keyToBeUnwrapped: EncString,
+    wrappingKey: SymmetricCryptoKey,
+  ): Promise<SymmetricCryptoKey> {
+    return new SymmetricCryptoKey(await this.decryptBytes(keyToBeUnwrapped, wrappingKey));
+  }
+
+  async hash(value: string | Uint8Array, algorithm: "sha1" | "sha256" | "sha512"): Promise<string> {
+    const hashArray = await this.cryptoFunctionService.hash(value, algorithm);
+    return Utils.fromBufferToB64(hashArray);
+  }
+
   // Handle updating private properties to turn on/off feature flags.
   onServerConfigChange(newConfig: ServerConfig): void {
+    const oldFlagValue = this.useSDKForDecryption;
+    this.useSDKForDecryption = getFeatureFlagValue(newConfig, FeatureFlag.UseSDKForDecryption);
+    this.logService.debug(
+      "[EncryptService] Updated sdk decryption flag",
+      oldFlagValue,
+      this.useSDKForDecryption,
+    );
     this.blockType0 = getFeatureFlagValue(newConfig, FeatureFlag.PM17987_BlockType0);
   }
 
@@ -47,7 +150,7 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     if (this.blockType0) {
-      if (key.encType === EncryptionType.AesCbc256_B64 || key.key.byteLength < 64) {
+      if (key.inner().type === EncryptionType.AesCbc256_B64) {
         throw new Error("Type 0 encryption is not supported.");
       }
     }
@@ -56,22 +159,40 @@ export class EncryptServiceImplementation implements EncryptService {
       return Promise.resolve(null);
     }
 
-    let plainBuf: Uint8Array;
     if (typeof plainValue === "string") {
-      plainBuf = Utils.fromUtf8ToArray(plainValue);
+      return this.encryptUint8Array(Utils.fromUtf8ToArray(plainValue), key);
     } else {
-      plainBuf = plainValue;
+      return this.encryptUint8Array(plainValue, key);
+    }
+  }
+
+  private async encryptUint8Array(
+    plainValue: Uint8Array,
+    key: SymmetricCryptoKey,
+  ): Promise<EncString> {
+    if (key == null) {
+      throw new Error("No encryption key provided.");
+    }
+
+    if (this.blockType0) {
+      if (key.inner().type === EncryptionType.AesCbc256_B64) {
+        throw new Error("Type 0 encryption is not supported.");
+      }
+    }
+
+    if (plainValue == null) {
+      return Promise.resolve(null);
     }
 
     const innerKey = key.inner();
     if (innerKey.type === EncryptionType.AesCbc256_HmacSha256_B64) {
-      const encObj = await this.aesEncrypt(plainBuf, innerKey);
+      const encObj = await this.aesEncrypt(plainValue, innerKey);
       const iv = Utils.fromBufferToB64(encObj.iv);
       const data = Utils.fromBufferToB64(encObj.data);
       const mac = Utils.fromBufferToB64(encObj.mac);
       return new EncString(innerKey.type, data, iv, mac);
     } else if (innerKey.type === EncryptionType.AesCbc256_B64) {
-      const encObj = await this.aesEncryptLegacy(plainBuf, innerKey);
+      const encObj = await this.aesEncryptLegacy(plainValue, innerKey);
       const iv = Utils.fromBufferToB64(encObj.iv);
       const data = Utils.fromBufferToB64(encObj.data);
       return new EncString(innerKey.type, data, iv);
@@ -84,7 +205,7 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     if (this.blockType0) {
-      if (key.encType === EncryptionType.AesCbc256_B64 || key.key.byteLength < 64) {
+      if (key.inner().type === EncryptionType.AesCbc256_B64) {
         throw new Error("Type 0 encryption is not supported.");
       }
     }
@@ -116,6 +237,15 @@ export class EncryptServiceImplementation implements EncryptService {
     key: SymmetricCryptoKey,
     decryptContext: string = "no context",
   ): Promise<string> {
+    if (this.useSDKForDecryption) {
+      this.logService.debug("decrypting with SDK");
+      if (encString == null || encString.encryptedString == null) {
+        throw new Error("encString is null or undefined");
+      }
+      return PureCrypto.symmetric_decrypt(encString.encryptedString, key.toEncoded());
+    }
+    this.logService.debug("decrypting with javascript");
+
     if (key == null) {
       throw new Error("No key provided for decryption.");
     }
@@ -124,7 +254,7 @@ export class EncryptServiceImplementation implements EncryptService {
     if (encString.encryptionType !== innerKey.type) {
       this.logDecryptError(
         "Key encryption type does not match payload encryption type",
-        key.encType,
+        innerKey.type,
         encString.encryptionType,
         decryptContext,
       );
@@ -148,7 +278,7 @@ export class EncryptServiceImplementation implements EncryptService {
       if (!macsEqual) {
         this.logMacFailed(
           "decryptToUtf8 MAC comparison failed. Key or payload has changed.",
-          key.encType,
+          innerKey.type,
           encString.encryptionType,
           decryptContext,
         );
@@ -179,6 +309,25 @@ export class EncryptServiceImplementation implements EncryptService {
     key: SymmetricCryptoKey,
     decryptContext: string = "no context",
   ): Promise<Uint8Array | null> {
+    if (this.useSDKForDecryption) {
+      this.logService.debug("[EncryptService] Decrypting bytes with SDK");
+      if (
+        encThing.encryptionType == null ||
+        encThing.ivBytes == null ||
+        encThing.dataBytes == null
+      ) {
+        throw new Error("Cannot decrypt, missing type, IV, or data bytes.");
+      }
+      const buffer = EncArrayBuffer.fromParts(
+        encThing.encryptionType,
+        encThing.ivBytes,
+        encThing.dataBytes,
+        encThing.macBytes,
+      ).buffer;
+      return PureCrypto.symmetric_decrypt_array_buffer(buffer, key.toEncoded());
+    }
+    this.logService.debug("[EncryptService] Decrypting bytes with javascript");
+
     if (key == null) {
       throw new Error("No encryption key provided.");
     }
@@ -191,7 +340,7 @@ export class EncryptServiceImplementation implements EncryptService {
     if (encThing.encryptionType !== inner.type) {
       this.logDecryptError(
         "Encryption key type mismatch",
-        key.encType,
+        inner.type,
         encThing.encryptionType,
         decryptContext,
       );
@@ -200,19 +349,23 @@ export class EncryptServiceImplementation implements EncryptService {
 
     if (inner.type === EncryptionType.AesCbc256_HmacSha256_B64) {
       if (encThing.macBytes == null) {
-        this.logDecryptError("Mac missing", key.encType, encThing.encryptionType, decryptContext);
+        this.logDecryptError("Mac missing", inner.type, encThing.encryptionType, decryptContext);
         return null;
       }
 
       const macData = new Uint8Array(encThing.ivBytes.byteLength + encThing.dataBytes.byteLength);
       macData.set(new Uint8Array(encThing.ivBytes), 0);
       macData.set(new Uint8Array(encThing.dataBytes), encThing.ivBytes.byteLength);
-      const computedMac = await this.cryptoFunctionService.hmac(macData, key.macKey, "sha256");
+      const computedMac = await this.cryptoFunctionService.hmac(
+        macData,
+        inner.authenticationKey,
+        "sha256",
+      );
       const macsMatch = await this.cryptoFunctionService.compare(encThing.macBytes, computedMac);
       if (!macsMatch) {
         this.logMacFailed(
           "MAC comparison failed. Key or payload has changed.",
-          key.encType,
+          inner.type,
           encThing.encryptionType,
           decryptContext,
         );
@@ -222,14 +375,14 @@ export class EncryptServiceImplementation implements EncryptService {
       return await this.cryptoFunctionService.aesDecrypt(
         encThing.dataBytes,
         encThing.ivBytes,
-        key.encKey,
+        inner.encryptionKey,
         "cbc",
       );
     } else if (inner.type === EncryptionType.AesCbc256_B64) {
       return await this.cryptoFunctionService.aesDecrypt(
         encThing.dataBytes,
         encThing.ivBytes,
-        key.encKey,
+        inner.encryptionKey,
         "cbc",
       );
     }
@@ -270,11 +423,6 @@ export class EncryptServiceImplementation implements EncryptService {
       results.push(await items[i].decrypt(key));
     }
     return results;
-  }
-
-  async hash(value: string | Uint8Array, algorithm: "sha1" | "sha256" | "sha512"): Promise<string> {
-    const hashArray = await this.cryptoFunctionService.hash(value, algorithm);
-    return Utils.fromBufferToB64(hashArray);
   }
 
   private async aesEncrypt(data: Uint8Array, key: Aes256CbcHmacKey): Promise<EncryptedObject> {

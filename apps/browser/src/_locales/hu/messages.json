@@ -2,6 +2,9 @@
   "appName": {
     "message": "Bitwarden"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden logó"
+  },
   "extName": {
     "message": "Bitwarden Password Manager",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
@@ -883,6 +886,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Kövessük az alábbi lépéseket a bejelentkezés befejezéséhez."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Kövessük az alábbi lépéseket a biztonsági kulccsal bejelentkezés befejezéséhez."
+  },
   "restartRegistration": {
     "message": "Restart registration"
   },
@@ -1056,23 +1062,49 @@
   "notificationAddSave": {
     "message": "Mentés"
   },
-  "loginSaveSuccessDetails": {
-    "message": "$USERNAME$ mentésre került a Bitwardenben.",
+  "notificationViewAria": {
+    "message": "$ITEMNAME$ megtekintése, megnyitás új ablakban",
     "placeholders": {
-      "username": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is saved."
+    "description": "Aria label for the view button in notification bar confirmation message"
   },
-  "loginUpdatedSuccessDetails": {
-    "message": "$USERNAME$ frissítésre került a Bitwardenben.",
+  "notificationEditTooltip": {
+    "message": "Szerkesztés mentés előtt",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "Új értesítés"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: Új értesítés",
+    "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
-      "username": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "loginSaveConfirmation": {
+    "message": "$ITEMNAME$ mentésre került a Bitwardenben.",
+    "placeholders": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is updated."
+    "description": "Shown to user after item is saved."
+  },
+  "loginUpdatedConfirmation": {
+    "message": "$ITEMNAME$ frissítésre került a Bitwardenben.",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after item is updated."
   },
   "saveAsNewLoginAction": {
     "message": "Mentés új bejelentkezésként",
@@ -1082,12 +1114,12 @@
     "message": "Bejelentkezés frissítése",
     "description": "Button text for updating an existing login entry."
   },
-  "saveLoginPrompt": {
-    "message": "Bejelentkezés mentése?",
+  "saveLogin": {
+    "message": "Bejelentkezés mentése",
     "description": "Prompt asking the user if they want to save their login details."
   },
-  "updateLoginPrompt": {
-    "message": "Létező bejelentkezés frissítése?",
+  "updateLogin": {
+    "message": "Létező bejelentkezés frissítése",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
@@ -3532,6 +3564,30 @@
   "deviceTrusted": {
     "message": "Az eszköz megbízható."
   },
+  "trustOrganization": {
+    "message": "Bizalmi szervezet"
+  },
+  "trust": {
+    "message": "Bizalom"
+  },
+  "doNotTrust": {
+    "message": "Nincs bizalom"
+  },
+  "organizationNotTrusted": {
+    "message": "A szervezet nem megbízható."
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "A fiók biztonság érdekében csak akkor erősítsük meg, ha vészhelyzeti hozzáférést biztosítottunk ehhez a felhasználóhoz és az ujjlenyomata megegyezik a fiókjukban megjelenítettekkel."
+  },
+  "orgTrustWarning": {
+    "message": "A fiók biztonsága érdekében csak akkor folytassuk, ha tagja vagyunk ennek a szervezetnek, engedélyezve van a fiók helyreállítása és az alább megjelenített ujjlenyomat megegyezik a szervezet ujjlenyomatával."
+  },
+  "orgTrustWarning1": {
+    "message": "Ennek a szervezetnek van egy vállalati szabályzata, amely regisztrál bennünket a fiók helyreállítási szolgáltatásba. A regisztráció lehetővé teszi a szervezet rendszergazdái számára, hogy megváltoztassák a jelszavunkat. Csak akkor folytassuk, ha felismerjük ezt a szervezetet és az alább megjelenített ujjlenyomat-kifejezés megegyezik a szervezet ujjlenyomatával."
+  },
+  "trustUser": {
+    "message": "Megbízható felhasználó"
+  },
   "sendsNoItemsTitle": {
     "message": "Nincsenek natív Send elemek.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4456,6 +4512,27 @@
       }
     }
   },
+  "downloadBitwarden": {
+    "message": "Bitwarden letöltése"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Bitwarden letöltése minden eszközön"
+  },
+  "getTheMobileApp": {
+    "message": "Mobilalkalmazás beszerzése"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Útközben is hozzáférhetünk a jelszabkhoz a Bitwarden mobilalkalmazással."
+  },
+  "getTheDesktopApp": {
+    "message": "Asztali alkalmazás beszerzése"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Hozzáférhetünk a széfhez böngésző nélkül, majd állítsuk be a feloldást biometrikus adatokkal, hogy felgyorsítsuk a feloldást mind az asztali alkalmazásban, mind a böngésző bővítményben."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Letöltés most a bitwarden.com webhelyről"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Biztosan véglegesen törlésre kerüljön ez a melléklet?"
   },
@@ -4928,8 +5005,8 @@
     "message": "A jelszó generálásra került.",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Bejelentkezés mentése a Bitwardenbe?",
+  "saveToBitwarden": {
+    "message": "Mentés a Bitwardenbe",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
@@ -5079,42 +5156,6 @@
   "beta": {
     "message": "Béta"
   },
-  "importantNotice": {
-    "message": "Fontos megjegyzés"
-  },
-  "setupTwoStepLogin": {
-    "message": "Kétlépéses bejelentkezés beüzemelése"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "A Bitwarden 2025 februárjától kódot küld a fiókhoz tartozó email-címre, amellyel ellenőrizhetők az új eszközökről történő bejelentkezések."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "A fiók védelmének alternatív módjaként beállíthatunk kétlépcsős bejelentkezést vagy módosíthatjuk az email címet egy elérhetőre."
-  },
-  "remindMeLater": {
-    "message": "Emlékeztetés később"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Megbízható a hozzáférés $EMAIL$ email címhez?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Nem, nem érem el"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Igen, megbízhatóan hozzáférek az emailjeimhez"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Kétlépéses bejelentkezés bekapcsolása"
-  },
-  "changeAcctEmail": {
-    "message": "Fiók email cím megváltoztatása"
-  },
   "extensionWidth": {
     "message": "Kiterjesztés szélesség"
   },
@@ -5169,6 +5210,12 @@
   "changeAtRiskPassword": {
     "message": "Kockázatos jelszó megváltoztatása"
   },
+  "settingsVaultOptions": {
+    "message": "Széf opciók"
+  },
+  "emptyVaultDescription": {
+    "message": "A széf többre alkalmas, mint a jelszavak mentése. Menthetünk belépéseket, azonosítókat, kártyákat és feljegyzéseket teljes biztonságban."
+  },
   "introCarouselLabel": {
     "message": "Üdvözlet a Bitwardenben"
   },
@@ -5195,5 +5242,69 @@
   },
   "secureDevicesBody": {
     "message": "Mentsünk el a korlátlan jelszót korlátlan számú eszközön a Bitwarden mobil, böngésző és asztali alkalmazásokkal."
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Létező jelszavak importálása"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Az importálóval gyorsan átvihetünk bejelentkezéseket a Bitwardenbe anélkül, hogy manuálisan hozzáadnánk azokat."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Importálás most"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Üdvözlet a széfben!"
+  },
+  "hasItemsVaultNudgeBody": {
+    "message": "Az aktuális oldal elemeinek automatikus kitöltése\nKedvenc elemek a könnyű hozzáférés érdekében\nValami más keresése a széfben"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Idő megtakarítás automatikus kitöltéssel"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Bevonás:",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Webhely",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "így ez a bejelentkezés automatikus kitöltési javaslatként jelenik meg.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Zökkenőmentes online fizetés"
+  },
+  "newCardNudgeBody": {
+    "message": "Kártyákkal könnyedén, biztonságosan és pontosan tölthetjük ki automatikusan a fizetési űrlapokat."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Egyszerűsítsük a fiókok létrehozását"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Azonosítókkal gyorsan automatikusan kitölthetjük a hosszú regisztrációs vagy kapcsolatfelvételi űrlapokat."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Tartsuk biztonságban az érzékeny adatokat"
+  },
+  "newNoteNudgeBody": {
+    "message": "Jegyzetekkel biztonságosan tárolhatjuk az érzékeny adatokat, például a banki vagy biztosítási adatokat."
+  },
+  "newSshNudgeTitle": {
+    "message": "Fejlesztőbarát SSH hozzáférés"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Tároljuk el a kulcsokat és csatlakozzunk az SSH ügynökhöz a gyors, titkosított hitelesítéshez.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "További információ az SSH ügynökről",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

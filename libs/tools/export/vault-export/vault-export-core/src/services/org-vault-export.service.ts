@@ -18,7 +18,7 @@ import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/a
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { CipherWithIdExport, CollectionWithIdExport } from "@bitwarden/common/models/export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
@@ -67,6 +67,7 @@ export class OrganizationVaultExportService
     password: string,
     onlyManagedCollections: boolean,
   ): Promise<ExportedVaultAsString> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const exportVault = await this.getOrganizationExport(
       organizationId,
       "json",
@@ -75,7 +76,7 @@ export class OrganizationVaultExportService
 
     return {
       type: "text/plain",
-      data: await this.buildPasswordExport(exportVault.data, password),
+      data: await this.buildPasswordExport(userId, exportVault.data, password),
       fileName: ExportHelper.getFileName("org", "encrypted_json"),
     } as ExportedVaultAsString;
   }
@@ -102,12 +103,13 @@ export class OrganizationVaultExportService
     if (format === "zip") {
       throw new Error("Zip export not supported for organization");
     }
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     if (format === "encrypted_json") {
       return {
         type: "text/plain",
         data: onlyManagedCollections
-          ? await this.getEncryptedManagedExport(organizationId)
+          ? await this.getEncryptedManagedExport(userId, organizationId)
           : await this.getOrganizationEncryptedExport(organizationId),
         fileName: ExportHelper.getFileName("org", "encrypted_json"),
       } as ExportedVaultAsString;
@@ -116,20 +118,20 @@ export class OrganizationVaultExportService
     return {
       type: "text/plain",
       data: onlyManagedCollections
-        ? await this.getDecryptedManagedExport(organizationId, format)
-        : await this.getOrganizationDecryptedExport(organizationId, format),
+        ? await this.getDecryptedManagedExport(userId, organizationId, format)
+        : await this.getOrganizationDecryptedExport(userId, organizationId, format),
       fileName: ExportHelper.getFileName("org", format),
     } as ExportedVaultAsString;
   }
 
   private async getOrganizationDecryptedExport(
+    activeUserId: UserId,
     organizationId: string,
     format: "json" | "csv",
   ): Promise<string> {
     const decCollections: CollectionView[] = [];
     const decCiphers: CipherView[] = [];
     const promises = [];
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     promises.push(
       this.apiService.getOrganizationExport(organizationId).then((exportData) => {
@@ -210,6 +212,7 @@ export class OrganizationVaultExportService
   }
 
   private async getDecryptedManagedExport(
+    activeUserId: UserId,
     organizationId: string,
     format: "json" | "csv",
   ): Promise<string> {
@@ -217,7 +220,6 @@ export class OrganizationVaultExportService
     let allDecCiphers: CipherView[] = [];
     let decCollections: CollectionView[] = [];
     const promises = [];
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     promises.push(
       this.collectionService.getAllDecrypted().then(async (collections) => {
@@ -245,12 +247,14 @@ export class OrganizationVaultExportService
     return this.buildJsonExport(decCollections, decCiphers);
   }
 
-  private async getEncryptedManagedExport(organizationId: string): Promise<string> {
+  private async getEncryptedManagedExport(
+    activeUserId: UserId,
+    organizationId: string,
+  ): Promise<string> {
     let encCiphers: Cipher[] = [];
     let allCiphers: Cipher[] = [];
     let encCollections: Collection[] = [];
     const promises = [];
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     promises.push(
       this.collectionService.getAll().then((collections) => {
@@ -282,7 +286,7 @@ export class OrganizationVaultExportService
     ciphers: Cipher[],
   ): Promise<string> {
     const orgKey = await this.keyService.getOrgKey(organizationId);
-    const encKeyValidation = await this.encryptService.encrypt(Utils.newGuid(), orgKey);
+    const encKeyValidation = await this.encryptService.encryptString(Utils.newGuid(), orgKey);
 
     const jsonDoc: BitwardenEncryptedOrgJsonExport = {
       encrypted: true,

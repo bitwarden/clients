@@ -14,6 +14,7 @@ import { AuthRequestPushNotification } from "@bitwarden/common/models/response/n
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import {
   AUTH_REQUEST_DISK_LOCAL,
   StateProvider,
@@ -120,7 +121,10 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
       keyToEncrypt = await this.keyService.getUserKey();
     }
 
-    const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(keyToEncrypt, pubKey);
+    const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(
+      keyToEncrypt as SymmetricCryptoKey,
+      pubKey,
+    );
 
     const response = new PasswordlessAuthRequest(
       encryptedKey.encryptedString,
