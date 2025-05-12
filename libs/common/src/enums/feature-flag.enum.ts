@@ -55,7 +55,6 @@ export enum FeatureFlag {
   /* Vault */
   PM8851_BrowserOnboardingNudge = "pm-8851-browser-onboarding-nudge",
   PM9111ExtensionPersistAddEditForm = "pm-9111-extension-persist-add-edit-form",
-  VaultBulkManagementAction = "vault-bulk-management-action",
   SecurityTasks = "security-tasks",
   CipherKeyEncryption = "cipher-key-encryption",
   PM18520_UpdateDesktopCipherForm = "pm-18520-desktop-cipher-forms",
@@ -107,7 +106,6 @@ export const DefaultFeatureFlagValue = {
   /* Vault */
   [FeatureFlag.PM8851_BrowserOnboardingNudge]: FALSE,
   [FeatureFlag.PM9111ExtensionPersistAddEditForm]: FALSE,
-  [FeatureFlag.VaultBulkManagementAction]: FALSE,
   [FeatureFlag.SecurityTasks]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
   [FeatureFlag.PM18520_UpdateDesktopCipherForm]: FALSE,
