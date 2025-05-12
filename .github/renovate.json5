@@ -5,7 +5,7 @@
   packageRules: [
     {
       // Group all Github Action minor updates together to reduce PR noise.
-      groupName: "Github Action Minor",
+      groupName: "Minor github-actions updates",
       matchManagers: ["github-actions"],
       matchUpdateTypes: ["minor"],
       addLabels: ["hold"],
@@ -100,7 +100,7 @@
         "lint-staged",
         "typescript-eslint",
       ],
-      groupName: "Linting minor updates",
+      groupName: "Minor and patch linting updates",
       matchUpdateTypes: ["minor", "patch"],
     },
     {
@@ -277,7 +277,7 @@
         "webpack",
       ],
       description: "webpack-related build dependencies",
-      groupName: "webpack minor updates",
+      groupName: "Minor and patch webpack updates",
       matchUpdateTypes: ["minor", "patch"],
     },
     {
