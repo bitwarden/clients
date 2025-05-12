@@ -2,7 +2,7 @@ import { CdkStepper, StepperOrientation } from "@angular/cdk/stepper";
 import { CommonModule } from "@angular/common";
 import { Component, Input, QueryList } from "@angular/core";
 
-import { ResizeObserverDirective } from "../resize-observer/resize-observer.directive";
+import { ResizeObserverDirective } from "../resize-observer";
 
 import { StepComponent } from "./step.component";
 
