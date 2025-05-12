@@ -27,7 +27,7 @@
                 [ngClass]="{
                   'tw-bg-primary-600 tw-text-contrast': selectedIndex === $index,
                   'tw-bg-secondary-300 tw-text-main':
-                    !selectedIndex === $index && !isStepDisabled($index) && step.editable,
+                    selectedIndex !== $index && !isStepDisabled($index) && step.editable,
                   'tw-bg-transparent tw-text-muted': isStepDisabled($index),
                 }"
               >
@@ -84,7 +84,7 @@
               [ngClass]="{
                 'tw-bg-primary-600 tw-text-contrast': selectedIndex === $index,
                 'tw-bg-secondary-300 tw-text-main':
-                  !selectedIndex === $index && !isStepDisabled($index) && step.editable,
+                  selectedIndex !== $index && !isStepDisabled($index) && step.editable,
                 'tw-bg-transparent tw-text-muted': isStepDisabled($index),
               }"
             >
