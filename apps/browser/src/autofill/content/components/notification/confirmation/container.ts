@@ -114,8 +114,8 @@ function getConfirmationMessage(i18n: I18n, type?: NotificationType, error?: str
     return i18n.saveFailureDetails;
   }
   return type === NotificationTypes.Add
-    ? i18n.loginSaveConfirmation
-    : i18n.loginUpdatedConfirmation;
+    ? i18n.notificationLoginSaveConfirmation
+    : i18n.notificationLoginUpdatedConfirmation;
 }
 
 function getHeaderMessage(i18n: I18n, type?: NotificationType, error?: string) {
