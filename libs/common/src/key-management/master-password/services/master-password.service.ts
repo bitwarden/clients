@@ -180,6 +180,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
       try {
         decUserKey = await this.encryptService.unwrapSymmetricKey(userKey, masterKey);
       } catch {
+        this.logService.warning("Failed to decrypt user key with master key.");
         return null;
       }
     } else if (userKey.encryptionType === EncryptionType.AesCbc256_HmacSha256_B64) {
@@ -187,6 +188,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
         const newKey = await this.keyGenerationService.stretchKey(masterKey);
         decUserKey = await this.encryptService.unwrapSymmetricKey(userKey, newKey);
       } catch {
+        this.logService.warning("Failed to decrypt user key with stretched master key.");
         return null;
       }
     } else {
@@ -194,7 +196,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     }
 
     if (decUserKey == null) {
-      this.logService.warning("Failed to decrypt user key with master key.");
+      this.logService.warning("Failed to decrypt user key with master key, user key is null.");
       return null;
     }
 
