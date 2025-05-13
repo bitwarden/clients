@@ -19,15 +19,16 @@ export class StepperComponent extends CdkStepper {
     [3, 768],
     [4, 900],
   ]);
-  override readonly steps: QueryList<StepComponent>;
 
-  private internalOrientation: StepperOrientation = undefined;
-  private initialOrientation: StepperOrientation = undefined;
+  override readonly steps!: QueryList<StepComponent>;
+
+  private internalOrientation: StepperOrientation | undefined = undefined;
+  private initialOrientation: StepperOrientation | undefined = undefined;
 
   // overriding CdkStepper orientation input so we can default to vertical
   @Input()
   override get orientation() {
-    return this.internalOrientation;
+    return this.internalOrientation || "vertical";
   }
   override set orientation(value: StepperOrientation) {
     if (!this.internalOrientation) {
@@ -41,11 +42,11 @@ export class StepperComponent extends CdkStepper {
 
   handleResize(entry: ResizeObserverEntry) {
     if (this.initialOrientation === "horizontal") {
-      const width = entry.contentRect.width;
+      const stepperContainerWidth = entry.contentRect.width;
       const numberOfSteps = this.steps.length;
+      const breakpoint = this.resizeWidthsMap.get(numberOfSteps) || 450;
 
-      this.orientation =
-        width < this.resizeWidthsMap.get(numberOfSteps) ? "vertical" : "horizontal";
+      this.orientation = stepperContainerWidth < breakpoint ? "vertical" : "horizontal";
       // This is a method of CdkStepper. Their docs define it as: 'Marks the component to be change detected'
       this._stateChanged();
     }
