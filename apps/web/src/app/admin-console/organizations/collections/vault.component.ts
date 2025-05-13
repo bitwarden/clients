@@ -132,6 +132,8 @@ import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 const BroadcasterSubscriptionId = "OrgVaultComponent";
 const SearchTextDebounceInterval = 200;
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum AddAccessStatusType {
   All = 0,
   AddAccess = 1,

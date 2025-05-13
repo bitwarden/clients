@@ -27,6 +27,8 @@ import { DialogService, ToastService } from "@bitwarden/components";
 
 import { BillingSyncKeyComponent } from "./billing-sync-key.component";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum LicenseOptions {
   SYNC = 0,
   UPLOAD = 1,

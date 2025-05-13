@@ -556,6 +556,15 @@ export class LockComponent implements OnInit, OnDestroy {
       masterPasswordVerificationResponse!.masterKey,
       this.activeAccount.id,
     );
+    if (userKey == null) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("invalidMasterPassword"),
+      });
+      return;
+    }
+
     await this.setUserKeyAndContinue(userKey, true);
   }
 

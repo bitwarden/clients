@@ -1079,7 +1079,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: OrganizationSponsorshipApiServiceAbstraction,
     useClass: OrganizationSponsorshipApiService,
-    deps: [ApiServiceAbstraction],
+    deps: [ApiServiceAbstraction, PlatformUtilsServiceAbstraction],
   }),
   safeProvider({
     provide: OrganizationBillingApiServiceAbstraction,
