@@ -1,8 +1,7 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { RouterLink } from "@angular/router";
-import { combineLatest, switchMap } from "rxjs";
+import { combineLatest, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -14,13 +13,13 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { ButtonModule, CalloutModule, Icons, NoItemsModule } from "@bitwarden/components";
 import {
-  NoSendsIcon,
   NewSendDropdownComponent,
-  SendListItemsContainerComponent,
+  NoSendsIcon,
   SendItemsService,
-  SendSearchComponent,
   SendListFiltersComponent,
   SendListFiltersService,
+  SendListItemsContainerComponent,
+  SendSearchComponent,
 } from "@bitwarden/send-ui";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
@@ -48,14 +47,13 @@ export enum SendState {
     JslibModule,
     CommonModule,
     ButtonModule,
-    RouterLink,
     NewSendDropdownComponent,
     SendListItemsContainerComponent,
     SendListFiltersComponent,
     SendSearchComponent,
   ],
 })
-export class SendV2Component implements OnInit, OnDestroy {
+export class SendV2Component implements OnDestroy {
   sendType = SendType;
   sendState = SendState;
 
@@ -65,7 +63,9 @@ export class SendV2Component implements OnInit, OnDestroy {
   protected title: string = "allSends";
   protected noItemIcon = NoSendsIcon;
   protected noResultsIcon = Icons.NoResults;
-  protected onboardingNudgesFlag: boolean = false;
+  protected onboardingNudgesFlag$: Observable<boolean> = this.configService.getFeatureFlag$(
+    FeatureFlag.PM8851_BrowserOnboardingNudge,
+  );
 
   protected sendsDisabled = false;
 
@@ -113,12 +113,6 @@ export class SendV2Component implements OnInit, OnDestroy {
       .subscribe((sendsDisabled) => {
         this.sendsDisabled = sendsDisabled;
       });
-  }
-
-  async ngOnInit(): Promise<void> {
-    this.onboardingNudgesFlag = await this.configService.getFeatureFlag(
-      FeatureFlag.PM8851_BrowserOnboardingNudge,
-    );
   }
 
   ngOnDestroy(): void {}
