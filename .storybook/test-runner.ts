@@ -1,7 +1,4 @@
-import {
-  //   waitForPageReady,
-  type TestRunnerConfig,
-} from "@storybook/test-runner";
+import { type TestRunnerConfig } from "@storybook/test-runner";
 import { injectAxe, checkA11y } from "axe-playwright";
 
 const testRunnerConfig: TestRunnerConfig = {

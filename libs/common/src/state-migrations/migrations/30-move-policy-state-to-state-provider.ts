@@ -3,6 +3,8 @@
 import { KeyDefinitionLike, MigrationHelper } from "../migration-helper";
 import { Migrator } from "../migrator";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum PolicyType {
   TwoFactorAuthentication = 0, // Requires users to have 2fa enabled
   MasterPassword = 1, // Sets minimum requirements for master password complexity

@@ -475,7 +475,6 @@ export abstract class ApiService {
   getSponsorshipSyncStatus: (
     sponsoredOrgId: string,
   ) => Promise<OrganizationSponsorshipSyncStatusResponse>;
-  deleteRevokeSponsorship: (sponsoringOrganizationId: string) => Promise<void>;
   deleteRemoveSponsorship: (sponsoringOrgId: string) => Promise<void>;
   postPreValidateSponsorshipToken: (
     sponsorshipToken: string,
