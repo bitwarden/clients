@@ -4512,6 +4512,27 @@
       }
     }
   },
+  "downloadBitwarden": {
+    "message": "Bitwarden downloaden"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Bitwarden op alle apparaten downloaden"
+  },
+  "getTheMobileApp": {
+    "message": "De mobiele app downloaden"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Toegang tot je wachtwoorden onderweg met de mobiele Bitwarden-app."
+  },
+  "getTheDesktopApp": {
+    "message": "De desktop-app downloaden"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Toegang tot je kluis zonder browser, vervolgens ontgrendelen met biometrische gegevens om sneller te ontgrendelen in zowel de desktopapp als browserextensie."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Nu van bitwarden.com downloaden"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Weet je zeker dat je deze bijlage definitief wilt verwijderen?"
   },
@@ -5135,42 +5156,6 @@
   "beta": {
     "message": "Beta"
   },
-  "importantNotice": {
-    "message": "Belangrijke mededeling"
-  },
-  "setupTwoStepLogin": {
-    "message": "Tweestapsaanmelding instellen"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Vanaf februari 2025 stuurt Bitwarden een code naar het e-mailadres van je account om inloggen op nieuwe apparaten te verifiëren."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Je kunt tweestapsaanmelding instellen als een alternatieve manier om je account te beschermen of je e-mailadres te veranderen naar een waar je toegang toe hebt."
-  },
-  "remindMeLater": {
-    "message": "Herinner me later"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Heb je betrouwbare toegang tot je e-mail, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Nee, dat heb ik niet"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Ja, ik heb betrouwbare toegang tot mijn e-mail"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Tweestapsaanmelding inschakelen"
-  },
-  "changeAcctEmail": {
-    "message": "E-mailadres van het account veranderen"
-  },
   "extensionWidth": {
     "message": "Extensiebreedte"
   },
@@ -5276,8 +5261,20 @@
   "newLoginNudgeTitle": {
     "message": "Tijd besparen met automatisch aanvullen"
   },
-  "newLoginNudgeBody": {
-    "message": "Voeg een website toe zodat deze login wordt weergegeven als een automatische invulsuggestie."
+  "newLoginNudgeBodyOne": {
+    "message": "Voeg een",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "toe zodat deze login wordt weergegeven als een automatische invulsuggestie.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Naadloos online afrekenen"
@@ -5300,7 +5297,14 @@
   "newSshNudgeTitle": {
     "message": "Ontwikkelaars-vriendelijke SSH-toegang"
   },
-  "newSshNudgeBody": {
-    "message": "Sla je sleutels op en verbind met de SSH-agent voor snelle, versleutelde authenticatie."
+  "newSshNudgeBodyOne": {
+    "message": "Sla je sleutels op en verbind met de SSH-agent voor snelle, versleutelde authenticatie.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Meer informatie over SSH-agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

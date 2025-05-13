@@ -202,7 +202,7 @@ export class AttachmentsComponent implements OnInit {
         attachment.key != null
           ? attachment.key
           : await this.keyService.getOrgKey(this.cipher.organizationId);
-      const decBuf = await this.encryptService.decryptToBytes(encBuf, key);
+      const decBuf = await this.encryptService.decryptFileData(encBuf, key);
       this.fileDownloadService.download({
         fileName: attachment.fileName,
         blobData: decBuf,
@@ -281,7 +281,7 @@ export class AttachmentsComponent implements OnInit {
             attachment.key != null
               ? attachment.key
               : await this.keyService.getOrgKey(this.cipher.organizationId);
-          const decBuf = await this.encryptService.decryptToBytes(encBuf, key);
+          const decBuf = await this.encryptService.decryptFileData(encBuf, key);
           const activeUserId = await firstValueFrom(
             this.accountService.activeAccount$.pipe(getUserId),
           );

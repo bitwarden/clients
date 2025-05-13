@@ -3,7 +3,7 @@ import { html } from "lit";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { Option, OrgView, FolderView, CollectionView } from "../common-types";
+import { Option, OrgView, FolderView, I18n, CollectionView } from "../common-types";
 import { Business, Family, Folder, User, CollectionShared } from "../icons";
 import { ButtonRow } from "../rows/button-row";
 import { selectedCollection as selectedCollectionSignal } from "../signals/selected-collection";
@@ -30,7 +30,7 @@ const defaultNoneSelectValue = "0";
 export type NotificationButtonRowProps = {
   collections?: CollectionView[];
   folders?: FolderView[];
-  i18n: { [key: string]: string };
+  i18n: I18n;
   organizations?: OrgView[];
   primaryButton: {
     text: string;
@@ -148,7 +148,7 @@ export function NotificationButtonRow({
           ? [
               {
                 id: "collection",
-                label: "Collection", // @TODO localize
+                label: i18n.collection,
                 options: collectionOptions,
                 selectedSignal: selectedCollectionSignal,
               },

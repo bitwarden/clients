@@ -4512,6 +4512,27 @@
       }
     }
   },
+  "downloadBitwarden": {
+    "message": "Stáhnout Bitwarden"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Stáhnout Bitwarden na všech zařízeních"
+  },
+  "getTheMobileApp": {
+    "message": "Získejte mobilní aplikaci"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Přistupujte k Vašim heslům pomocí mobilní aplikace Bitwarden."
+  },
+  "getTheDesktopApp": {
+    "message": "Získejte desktopovou aplikaci"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Přistupujte k Vašemu trezoru bez prohlížeče a poté nastavte odemknutí s biometrikou jak v desktopové aplikaci, tak v rozšíření prohlížeče."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Stáhnout z bitwarden.com nyní"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Opravdu chcete tuto přílohu navždy smazat?"
   },
@@ -5135,42 +5156,6 @@
   "beta": {
     "message": "Beta"
   },
-  "importantNotice": {
-    "message": "Důležité upozornění"
-  },
-  "setupTwoStepLogin": {
-    "message": "Nastavit dvoufázové přihlášení"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden odešle kód na e-mail Vašeho účtu pro ověření přihlášení z nových zařízení počínaje únorem 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Dvoufázové přihlášení můžete nastavit jako alternativní způsob ochrany Vašeho účtu nebo změnit svůj e-mail na ten, k němuž můžete přistupovat."
-  },
-  "remindMeLater": {
-    "message": "Připomenout později"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Máte spolehlivý přístup ke svému e-mailu $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Ne, nemám"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Ano, ke svému e-mailu mám přístup"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Zapnout dvoufázové přihlášení"
-  },
-  "changeAcctEmail": {
-    "message": "Změnit e-mail účtu"
-  },
   "extensionWidth": {
     "message": "Šířka rozšíření"
   },
@@ -5276,8 +5261,20 @@
   "newLoginNudgeTitle": {
     "message": "Ušetřete čas s automatickým vyplňováním"
   },
-  "newLoginNudgeBody": {
-    "message": "Zahrne webovou stránku, takže se toto přihlášení objeví jako návrh automatického vyplňování."
+  "newLoginNudgeBodyOne": {
+    "message": "Zahrne",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "webovou stránku, ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "takže se toto přihlášení objeví jako návrh automatického vyplňování.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Bezproblémová online pokladna"
@@ -5300,7 +5297,14 @@
   "newSshNudgeTitle": {
     "message": "Přístup SSH pro vývojáře"
   },
-  "newSshNudgeBody": {
-    "message": "Uložte své klíče a připojte se k SSH agentovi pro rychlé a šifrované ověření."
+  "newSshNudgeBodyOne": {
+    "message": "Uložte své klíče a připojte se k SSH agentovi pro rychlé a šifrované ověření.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Další informace o SSH agentovi",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }
