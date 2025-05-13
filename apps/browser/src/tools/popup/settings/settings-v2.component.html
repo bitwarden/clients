@@ -23,6 +23,7 @@
             *ngIf="!isBrowserAutofillSettingOverridden && (showAutofillBadge$ | async)"
             bitBadge
             variant="notification"
+            [attr.aria-label]="'nudgeBadgeAria' | i18n"
             >1</span
           >
         </div>
@@ -53,6 +54,7 @@
             *ngIf="!(showVaultBadge$ | async)?.hasBadgeDismissed"
             bitBadge
             variant="notification"
+            [attr.aria-label]="'nudgeBadgeAria' | i18n"
             >1</span
           >
         </div>
@@ -83,6 +85,7 @@
             *ngIf="(downloadBitwardenNudgeStatus$ | async)?.hasBadgeDismissed === false"
             bitBadge
             variant="notification"
+            [attr.aria-label]="'nudgeBadgeAria' | i18n"
             >1
           </span>
         </div>

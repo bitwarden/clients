@@ -74,11 +74,15 @@ type ChangePlanDialogParams = {
   productTierType: ProductTierType;
 };
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum ChangePlanDialogResultType {
   Closed = "closed",
   Submitted = "submitted",
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum PlanCardState {
   Selected = "selected",
   NotSelected = "not_selected",
