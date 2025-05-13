@@ -40,10 +40,15 @@ import { SponsoredFamiliesComponent } from "../billing/settings/sponsored-famili
 import { SponsoringOrgRowComponent } from "../billing/settings/sponsoring-org-row.component";
 import { DynamicAvatarComponent } from "../components/dynamic-avatar.component";
 import { SelectableAvatarComponent } from "../components/selectable-avatar.component";
+// eslint-disable-next-line no-restricted-imports -- Temporarily disabled until Tools refactors these out of this module
 import { ExposedPasswordsReportComponent as OrgExposedPasswordsReportComponent } from "../dirt/reports/pages/organizations/exposed-passwords-report.component";
+// eslint-disable-next-line no-restricted-imports -- Temporarily disabled until Tools refactors these out of this module
 import { InactiveTwoFactorReportComponent as OrgInactiveTwoFactorReportComponent } from "../dirt/reports/pages/organizations/inactive-two-factor-report.component";
+// eslint-disable-next-line no-restricted-imports -- Temporarily disabled until Tools refactors these out of this module
 import { ReusedPasswordsReportComponent as OrgReusedPasswordsReportComponent } from "../dirt/reports/pages/organizations/reused-passwords-report.component";
+// eslint-disable-next-line no-restricted-imports -- Temporarily disabled until Tools refactors these out of this module
 import { UnsecuredWebsitesReportComponent as OrgUnsecuredWebsitesReportComponent } from "../dirt/reports/pages/organizations/unsecured-websites-report.component";
+// eslint-disable-next-line no-restricted-imports -- Temporarily disabled until Tools refactors these out of this module
 import { WeakPasswordsReportComponent as OrgWeakPasswordsReportComponent } from "../dirt/reports/pages/organizations/weak-passwords-report.component";
 import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import { FrontendLayoutComponent } from "../layouts/frontend-layout.component";
@@ -52,8 +57,6 @@ import { ProductSwitcherModule } from "../layouts/product-switcher/product-switc
 import { UserLayoutComponent } from "../layouts/user-layout.component";
 import { DomainRulesComponent } from "../settings/domain-rules.component";
 import { PreferencesComponent } from "../settings/preferences.component";
-/* eslint no-restricted-imports: "off" -- Temporarily disabled until Tools refactors these out of this module */
-/* eslint no-restricted-imports: "error" */
 import { PremiumBadgeComponent } from "../vault/components/premium-badge.component";
 import { FolderAddEditComponent } from "../vault/individual-vault/folder-add-edit.component";
 import { OrganizationBadgeModule } from "../vault/individual-vault/organization-badge/organization-badge.module";
