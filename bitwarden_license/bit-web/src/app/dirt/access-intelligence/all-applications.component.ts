@@ -162,7 +162,7 @@ export class AllApplicationsComponent implements OnInit {
       this.toastService.showToast({
         variant: "success",
         title: "",
-        message: this.i18nService.t("applicationsMarkedAsCritical"),
+        message: this.i18nService.t("applicationsMarkedAsCriticalSuccess"),
       });
     } finally {
       this.selectedUrls.clear();
