@@ -664,6 +664,10 @@ export class BrowserApi {
    * Identifies if the browser autofill settings are overridden by the extension.
    */
   static async browserAutofillSettingsOverridden(): Promise<boolean> {
+    if (!(await BrowserApi.permissionsGranted(["privacy"]))) {
+      return false;
+    }
+
     const checkOverrideStatus = (details: chrome.types.ChromeSettingGetResult<boolean>) =>
       details.levelOfControl === "controlled_by_this_extension" && !details.value;
 
