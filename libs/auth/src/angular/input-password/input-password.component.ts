@@ -47,6 +47,8 @@ import { PasswordInputResult } from "./password-input-result";
  * Determines which form elements will be displayed in the UI
  * and which cryptographic keys will be created and emitted.
  */
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum InputPasswordFlow {
   /**
    * Form elements displayed:

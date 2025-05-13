@@ -19,7 +19,7 @@ import {
   FormCacheOptions,
   SignalCacheOptions,
   ViewCacheService,
-} from "@bitwarden/angular/platform/abstractions/view-cache.service";
+} from "@bitwarden/angular/platform/view-cache";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { GlobalStateProvider } from "@bitwarden/common/platform/state";
 
