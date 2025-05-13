@@ -1,6 +1,7 @@
+import { Directionality } from "@angular/cdk/bidi";
 import { CdkStepper, StepperOrientation } from "@angular/cdk/stepper";
 import { CommonModule } from "@angular/common";
-import { Component, Input, QueryList } from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, Input, QueryList } from "@angular/core";
 
 import { ResizeObserverDirective } from "../resize-observer";
 
@@ -14,6 +15,14 @@ import { StepComponent } from "./step.component";
   standalone: true,
 })
 export class StepperComponent extends CdkStepper {
+  constructor(
+    _dir: Directionality,
+    _changeDetectorRef: ChangeDetectorRef,
+    _elementRef: ElementRef<HTMLElement>,
+  ) {
+    super(_dir, _changeDetectorRef, _elementRef);
+  }
+
   private resizeWidthsMap = new Map([
     [2, 600],
     [3, 768],

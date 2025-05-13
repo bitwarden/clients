@@ -1,5 +1,4 @@
-import { CdkStep } from "@angular/cdk/stepper";
-import { CommonModule } from "@angular/common";
+import { CdkStep, CdkStepper } from "@angular/cdk/stepper";
 import { Component, input } from "@angular/core";
 
 @Component({
@@ -7,8 +6,11 @@ import { Component, input } from "@angular/core";
   templateUrl: "step.component.html",
   providers: [{ provide: CdkStep, useExisting: StepComponent }],
   standalone: true,
-  imports: [CommonModule],
 })
 export class StepComponent extends CdkStep {
   subLabel = input();
+
+  constructor(stepper: CdkStepper) {
+    super(stepper);
+  }
 }
