@@ -106,10 +106,12 @@
       >
         <div
           class="tw-ms-7 tw-border-solid tw-border-0 tw-border-s tw-border-secondary-300"
-          [ngClass]="{ 'tw-min-h-6 tw-ps-8 tw-py-2': !isLast }"
+          [ngClass]="{ 'tw-min-h-6': !isLast }"
         >
           @if (selectedIndex === $index) {
-            <div [ngTemplateOutlet]="selected.content"></div>
+            <div class="tw-ps-8 tw-py-2">
+              <div [ngTemplateOutlet]="selected.content"></div>
+            </div>
           }
         </div>
       </div>
