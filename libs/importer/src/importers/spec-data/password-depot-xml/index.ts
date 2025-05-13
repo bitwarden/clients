@@ -5,3 +5,4 @@ export { EncryptedFileData } from "./encrypted-file.xml";
 export { PasswordTestData } from "./password.xml";
 export { CreditCardTestData } from "./credit-card.xml";
 export { IdentityTestData } from "./identity.xml";
+export { RDPTestData } from "./rdp.xml";

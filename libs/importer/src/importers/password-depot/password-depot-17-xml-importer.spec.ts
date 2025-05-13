@@ -11,6 +11,7 @@ import {
   MissingPasswordsNodeData,
   PasswordTestData,
   IdentityTestData,
+  RDPTestData,
 } from "../spec-data/password-depot-xml";
 
 import { PasswordDepot17XmlImporter } from "./password-depot-17-xml-importer";
@@ -130,6 +131,21 @@ describe("Password Depot 17 Xml Importer", () => {
     expect(cipher.identity.postalCode).toBe("zipCode");
     expect(cipher.identity.country).toBe("country");
     expect(cipher.identity.phone).toBe("phoneNumber");
+  });
+
+  it("should parse RDP type", async () => {
+    const importer = new PasswordDepot17XmlImporter();
+    const result = await importer.parse(RDPTestData);
+
+    const cipher = result.ciphers.shift();
+    expect(cipher.type).toBe(CipherType.Login);
+    expect(cipher.name).toBe("rdp type");
+    expect(cipher.notes).toBe("someNote");
+
+    expect(cipher.login).not.toBeNull();
+    expect(cipher.login.username).toBe("someUser");
+    expect(cipher.login.password).toBe("somePassword");
+    expect(cipher.login.uri).toBe("ms-rd:subscribe?url=https://contoso.com");
   });
 
   it("should parse favourites and set them on the target item", async () => {

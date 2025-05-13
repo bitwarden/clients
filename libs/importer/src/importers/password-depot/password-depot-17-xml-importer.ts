@@ -128,16 +128,24 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
           const type = entryField.textContent;
           switch (type) {
             case "0":
+              // Passwords
               cipher.type = CipherType.Login;
               cipher.login = new LoginView();
               break;
             case "1":
+              // Credit cards
               cipher.type = CipherType.Card;
               cipher.card = new CardView();
               break;
             case "3":
+              // Identity
               cipher.type = CipherType.Identity;
               cipher.identity = new IdentityView();
+              break;
+            case "8":
+              // RDP
+              cipher.type = CipherType.Login;
+              cipher.login = new LoginView();
               break;
           }
           continue;
@@ -294,7 +302,7 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
   // Parses credit card fields and adds them to the cipher
   private parseIdentityCustomFields(customField: FieldView, cipher: CipherView): boolean {
     if (customField.name === "IDS_IdentityName") {
-      this.processFullName(cipher, customField.value)
+      this.processFullName(cipher, customField.value);
       return true;
     }
 
@@ -360,7 +368,6 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
 
     return false;
   }
-
 
   // Parses the favourites-node from the XML file, which contains a base64 encoded string
   // The string contains the fingerprints/GUIDs of the favourited entries, separated by new lines
