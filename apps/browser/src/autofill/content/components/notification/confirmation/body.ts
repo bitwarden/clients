@@ -48,6 +48,7 @@ export function NotificationConfirmationBody({
         ? NotificationConfirmationMessage({
             buttonAria,
             buttonText,
+            error,
             itemName,
             message: confirmationMessage,
             messageDetails,

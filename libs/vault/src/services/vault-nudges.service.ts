@@ -9,6 +9,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import {
   HasItemsNudgeService,
   EmptyVaultNudgeService,
+  AutofillNudgeService,
   DownloadBitwardenNudgeService,
   NewItemNudgeService,
 } from "./custom-nudges-services";
@@ -22,12 +23,15 @@ export type NudgeStatus = {
 /**
  * Enum to list the various nudge types, to be used by components/badges to show/hide the nudge
  */
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum VaultNudgeType {
   /** Nudge to show when user has no items in their vault
    * Add future nudges here
    */
   EmptyVaultNudge = "empty-vault-nudge",
   HasVaultItems = "has-vault-items",
+  AutofillNudge = "autofill-nudge",
   DownloadBitwarden = "download-bitwarden",
   newLoginItemStatus = "new-login-item-status",
   newCardItemStatus = "new-card-item-status",
@@ -58,6 +62,7 @@ export class VaultNudgesService {
   private customNudgeServices: Partial<Record<VaultNudgeType, SingleNudgeService>> = {
     [VaultNudgeType.HasVaultItems]: inject(HasItemsNudgeService),
     [VaultNudgeType.EmptyVaultNudge]: inject(EmptyVaultNudgeService),
+    [VaultNudgeType.AutofillNudge]: inject(AutofillNudgeService),
     [VaultNudgeType.DownloadBitwarden]: inject(DownloadBitwardenNudgeService),
     [VaultNudgeType.newLoginItemStatus]: this.newItemNudgeService,
     [VaultNudgeType.newCardItemStatus]: this.newItemNudgeService,
@@ -112,7 +117,7 @@ export class VaultNudgesService {
    */
   hasActiveBadges$(userId: UserId): Observable<boolean> {
     // Add more nudge types here if they have the settings badge feature
-    const nudgeTypes = [VaultNudgeType.EmptyVaultNudge];
+    const nudgeTypes = [VaultNudgeType.EmptyVaultNudge, VaultNudgeType.DownloadBitwarden];
 
     const nudgeTypesWithBadge$ = nudgeTypes.map((nudge) => {
       return this.getNudgeService(nudge)

@@ -9,7 +9,6 @@ import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
-import { IdentityCaptchaResponse } from "@bitwarden/common/auth/models/response/identity-captcha.response";
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
@@ -30,8 +29,6 @@ export class PasswordLoginStrategyData implements LoginStrategyData {
 
   /** User's entered email obtained pre-login. Always present in MP login. */
   userEnteredEmail: string;
-  /** If 2fa is required, token is returned to bypass captcha */
-  captchaBypassToken?: string;
   /** The local version of the user's master key hash */
   localMasterKeyHash: string;
   /** The user's master key */
@@ -79,7 +76,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
   }
 
   override async logIn(credentials: PasswordLoginCredentials) {
-    const { email, masterPassword, captchaToken, twoFactor } = credentials;
+    const { email, masterPassword, twoFactor } = credentials;
 
     const data = new PasswordLoginStrategyData();
     data.masterKey = await this.loginStrategyService.makePreloginKey(masterPassword, email);
@@ -96,7 +93,6 @@ export class PasswordLoginStrategy extends LoginStrategy {
     data.tokenRequest = new PasswordTokenRequest(
       email,
       serverMasterKeyHash,
-      captchaToken,
       await this.buildTwoFactor(twoFactor, email),
       await this.buildDeviceRequest(),
     );
@@ -105,23 +101,12 @@ export class PasswordLoginStrategy extends LoginStrategy {
 
     const [authResult, identityResponse] = await this.startLogIn();
 
-    if (identityResponse instanceof IdentityCaptchaResponse) {
-      return authResult;
-    }
-
     await this.evaluateMasterPasswordIfRequired(identityResponse, credentials, authResult);
 
     return authResult;
   }
 
-  override async logInTwoFactor(
-    twoFactor: TokenTwoFactorRequest,
-    captchaResponse: string,
-  ): Promise<AuthResult> {
-    const data = this.cache.value;
-    data.tokenRequest.captchaResponse = captchaResponse ?? data.captchaBypassToken;
-    this.cache.next(data);
-
+  override async logInTwoFactor(twoFactor: TokenTwoFactorRequest): Promise<AuthResult> {
     const result = await super.logInTwoFactor(twoFactor);
 
     return result;

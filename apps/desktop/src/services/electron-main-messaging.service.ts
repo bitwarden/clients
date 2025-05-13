@@ -52,10 +52,6 @@ export class ElectronMainMessagingService implements MessageSender {
       return windowMain.win?.isVisible();
     });
 
-    ipcMain.handle("getCookie", async (event, options) => {
-      return await this.windowMain.session.cookies.get(options);
-    });
-
     ipcMain.handle("loginRequest", async (event, options) => {
       const alert = new Notification({
         title: options.alertTitle,

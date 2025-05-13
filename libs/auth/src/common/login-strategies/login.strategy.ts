@@ -13,7 +13,6 @@ import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { UserApiTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/user-api-token.request";
 import { WebAuthnLoginTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/webauthn-login-token.request";
-import { IdentityCaptchaResponse } from "@bitwarden/common/auth/models/response/identity-captcha.response";
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
@@ -56,7 +55,6 @@ import { CacheData } from "../services/login-strategies/login-strategy.state";
 type IdentityResponse =
   | IdentityTokenResponse
   | IdentityTwoFactorResponse
-  | IdentityCaptchaResponse
   | IdentityDeviceVerificationResponse;
 
 export abstract class LoginStrategyData {
@@ -66,7 +64,6 @@ export abstract class LoginStrategyData {
     | SsoTokenRequest
     | WebAuthnLoginTokenRequest
     | undefined;
-  captchaBypassToken?: string;
 
   /** User's entered email obtained pre-login. */
   abstract userEnteredEmail?: string;
@@ -108,10 +105,7 @@ export abstract class LoginStrategy {
       | WebAuthnLoginCredentials,
   ): Promise<AuthResult>;
 
-  async logInTwoFactor(
-    twoFactor: TokenTwoFactorRequest,
-    captchaResponse: string | null = null,
-  ): Promise<AuthResult> {
+  async logInTwoFactor(twoFactor: TokenTwoFactorRequest): Promise<AuthResult> {
     const data = this.cache.value;
     if (!data.tokenRequest) {
       throw new Error("Token request is undefined");
@@ -133,8 +127,6 @@ export abstract class LoginStrategy {
 
     if (response instanceof IdentityTwoFactorResponse) {
       return [await this.processTwoFactorResponse(response), response];
-    } else if (response instanceof IdentityCaptchaResponse) {
-      return [await this.processCaptchaResponse(response), response];
     } else if (response instanceof IdentityTokenResponse) {
       return [await this.processTokenResponse(response), response];
     } else if (response instanceof IdentityDeviceVerificationResponse) {
@@ -362,7 +354,6 @@ export abstract class LoginStrategy {
     result.twoFactorProviders = response.twoFactorProviders2;
 
     await this.twoFactorService.setProviders(response);
-    this.cache.next({ ...this.cache.value, captchaBypassToken: response.captchaToken ?? null });
     result.ssoEmail2FaSessionToken = response.ssoEmail2faSessionToken;
 
     result.email = response.email ?? "";
@@ -377,12 +368,6 @@ export abstract class LoginStrategy {
     if (email) {
       await this.tokenService.clearTwoFactorToken(email);
     }
-  }
-
-  private async processCaptchaResponse(response: IdentityCaptchaResponse): Promise<AuthResult> {
-    const result = new AuthResult();
-    result.captchaSiteKey = response.siteKey;
-    return result;
   }
 
   /**
@@ -407,7 +392,7 @@ export abstract class LoginStrategy {
 
   /**
    * Handles the response from the server when a device verification is required.
-   * It sets the requiresDeviceVerification flag to true and caches the captcha token if it came back.
+   * It sets the requiresDeviceVerification flag to true.
    *
    * @param {IdentityDeviceVerificationResponse} response - The response from the server indicating that device verification is required.
    * @returns {Promise<AuthResult>} - A promise that resolves to an AuthResult object
@@ -417,9 +402,6 @@ export abstract class LoginStrategy {
   ): Promise<AuthResult> {
     const result = new AuthResult();
     result.requiresDeviceVerification = true;
-
-    // Extend cached data with captcha bypass token if it came back.
-    this.cache.next({ ...this.cache.value, captchaBypassToken: response.captchaToken ?? null });
     return result;
   }
 }
