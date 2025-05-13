@@ -20,7 +20,7 @@ export const CreditCardTestData = `<?xml version="1.0" encoding="utf-8"?>
                 <password>4222422242224222</password>
                 <username>some CC holder</username>
                 <url></url>
-                <comment></comment>
+                <comment>someComment</comment>
                 <lastmodified fmt="dd.mm.yyyy hh:mm:ss">08.05.2025 12:09:47</lastmodified>
                 <expirydate fmt="dd.mm.yyyy">08.05.2026</expirydate>
                 <importance>1</importance>

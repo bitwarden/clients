@@ -97,6 +97,7 @@ describe("Password Depot 17 Xml Importer", () => {
 
     const cipher = result.ciphers.shift();
     expect(cipher.name).toBe("some CreditCard");
+    expect(cipher.notes).toBe("someComment");
 
     expect(cipher.card).not.toBeNull();
 
