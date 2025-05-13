@@ -355,6 +355,7 @@ export class RiskInsightsReportService {
       atRiskMemberDetails: existingUriDetail ? existingUriDetail.atRiskMemberDetails : [],
       atRiskPasswordCount: existingUriDetail ? existingUriDetail.atRiskPasswordCount : 0,
       atRiskMemberCount: existingUriDetail ? existingUriDetail.atRiskMemberDetails.length : 0,
+      cipher: newUriDetail.cipher,
     } as ApplicationHealthReportDetail;
 
     if (isAtRisk) {
@@ -399,6 +400,7 @@ export class RiskInsightsReportService {
       exposedPasswordDetail: detail.exposedPasswordDetail,
       cipherMembers: detail.cipherMembers,
       trimmedUri: uri,
+      cipher: detail as CipherView,
     };
   }
 
