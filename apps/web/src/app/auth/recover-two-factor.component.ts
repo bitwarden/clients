@@ -80,12 +80,7 @@ export class RecoverTwoFactorComponent implements OnInit {
       remember: false,
     };
 
-    const credentials = new PasswordLoginCredentials(
-      email,
-      this.masterPassword,
-      "",
-      twoFactorRequest,
-    );
+    const credentials = new PasswordLoginCredentials(email, this.masterPassword, twoFactorRequest);
 
     try {
       const authResult = await this.loginStrategyService.logIn(credentials);
