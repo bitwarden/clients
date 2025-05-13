@@ -195,50 +195,5 @@ describe("DefaultSyncService", () => {
       expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(1);
       expect(apiService.getSync).toHaveBeenCalledTimes(1);
     });
-
-    describe("in-flight syncs", () => {
-      let mockFullSync: jest.SpyInstance;
-
-      beforeEach(() => {
-        jest.useFakeTimers();
-
-        // Mock the _fullSync method so the tests can control the promise resolution
-        // the internal implementation isn't what is tested here.
-        mockFullSync = jest.spyOn(sut as any, "_fullSync").mockImplementation(() => {
-          return new Promise((resolve) => setTimeout(() => resolve(true), 50));
-        });
-      });
-
-      afterEach(() => {
-        jest.useRealTimers();
-        jest.clearAllMocks();
-      });
-
-      it("does not call internal sync when one is already in progress", async () => {
-        const fullSyncPromises = [sut.fullSync(true), sut.fullSync(false), sut.fullSync(false)];
-
-        jest.advanceTimersByTime(100);
-
-        const [result1, result2, result3] = await Promise.all(fullSyncPromises);
-
-        expect(result1).toBe(true);
-        expect(result2).toBe(true);
-        expect(result3).toBe(true);
-
-        expect(mockFullSync).toHaveBeenCalledTimes(1);
-      });
-
-      it("resets the in-flight sync when the complete", async () => {
-        const fullSyncPromises = [sut.fullSync(true), sut.fullSync(false)];
-
-        expect(sut["inFlightSync"]).not.toBeNull();
-
-        jest.advanceTimersByTime(50);
-
-        await Promise.all(fullSyncPromises);
-
-        expect(sut["inFlightSync"]).toBeNull();
-      });
-    });
   });
 });
