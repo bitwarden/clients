@@ -178,6 +178,13 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
       if (customFieldObject == null) {
         return;
       }
+
+      if (cipher.type === CipherType.Card) {
+        if (this.parseCreditCardCustomFields(customFieldObject, cipher)) {
+          return;
+        }
+      }
+
       this.processKvp(
         cipher,
         customFieldObject.name,
@@ -213,5 +220,35 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
     // const type = typeEl != null ? typeEl.textContent : null;
 
     return { name: key, value: value, type: FieldType.Text, linkedId: null } as FieldView;
+  }
+
+  // Parses credit card fields and adds them to the cipher
+  private parseCreditCardCustomFields(customField: FieldView, cipher: CipherView): boolean {
+    if (customField.name === "IDS_CardHolder") {
+      cipher.card.cardholderName = customField.value;
+      return true;
+    }
+
+    if (customField.name === "IDS_CardNumber") {
+      cipher.card.number = customField.value;
+      return true;
+    }
+
+    if (customField.name === "IDS_CardExpires") {
+      this.setCardExpiration(cipher, customField.value);
+      return true;
+    }
+
+    if (customField.name === "IDS_CardCode") {
+      cipher.card.code = customField.value;
+      return true;
+    }
+
+    if (customField.name === "IDS_CardCode") {
+      cipher.card.code = customField.value;
+      return true;
+    }
+
+    return false;
   }
 }

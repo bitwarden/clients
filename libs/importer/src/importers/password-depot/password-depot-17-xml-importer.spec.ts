@@ -7,6 +7,7 @@ import {
   EncryptedFileData,
   InvalidRootNodeData,
   InvalidVersionData,
+  CreditCardTestData,
   MissingPasswordsNodeData,
   PasswordTestData,
 } from "../spec-data/password-depot-xml";
@@ -88,6 +89,22 @@ describe("Password Depot 17 Xml Importer", () => {
 
     expect(cipher.fields[2].name).toBe("importance");
     expect(cipher.fields[2].value).toBe("0");
+  });
+
+  it("should parse credit cards", async () => {
+    const importer = new PasswordDepot17XmlImporter();
+    const result = await importer.parse(CreditCardTestData);
+
+    const cipher = result.ciphers.shift();
+    expect(cipher.name).toBe("some CreditCard");
+
+    expect(cipher.card).not.toBeNull();
+
+    expect(cipher.card.cardholderName).toBe("some CC holder");
+    expect(cipher.card.number).toBe("4222422242224222");
+    expect(cipher.card.expMonth).toBe("5");
+    expect(cipher.card.expYear).toBe("2026");
+    expect(cipher.card.code).toBe("123");
   });
 
   it("should parse groups nodes into collections when importing into an organization", async () => {
