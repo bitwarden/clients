@@ -158,6 +158,10 @@ export class DefaultSyncService extends CoreSyncService {
       // Store the promise so multiple calls to sync are not made
       if (this.inFlightApiCalls.sync === null) {
         this.inFlightApiCalls.sync = this.apiService.getSync();
+      } else {
+        this.logService.debug(
+          "Sync: Sync network call already in progress, returning existing promise",
+        );
       }
 
       const response = await this.inFlightApiCalls.sync;
