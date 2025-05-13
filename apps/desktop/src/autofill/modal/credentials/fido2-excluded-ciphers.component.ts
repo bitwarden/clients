@@ -17,11 +17,11 @@ import {
   BitIconButtonComponent,
 } from "@bitwarden/components";
 
+import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
 import {
   DesktopFido2UserInterfaceService,
   DesktopFido2UserInterfaceSession,
-} from "../../autofill/services/desktop-fido2-user-interface.service";
-import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
+} from "../../services/desktop-fido2-user-interface.service";
 
 import { Fido2PasskeyExistsIcon } from "./fido2-passkey-exists-icon";
 

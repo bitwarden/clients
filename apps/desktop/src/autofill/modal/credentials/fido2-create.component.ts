@@ -27,11 +27,11 @@ import {
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { DesktopAutofillService } from "../../../autofill/services/desktop-autofill.service";
+import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
 import {
   DesktopFido2UserInterfaceService,
   DesktopFido2UserInterfaceSession,
-} from "../../../autofill/services/desktop-fido2-user-interface.service";
-import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
+} from "../../services/desktop-fido2-user-interface.service";
 
 @Component({
   standalone: true,
