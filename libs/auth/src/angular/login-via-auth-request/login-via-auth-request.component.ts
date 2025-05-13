@@ -23,12 +23,10 @@ import { AuthRequest } from "@bitwarden/common/auth/models/request/auth.request"
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { LoginViaAuthRequestView } from "@bitwarden/common/auth/models/view/login-via-auth-request.view";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -42,6 +40,8 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legac
 import { AuthRequestApiService } from "../../common/abstractions/auth-request-api.service";
 import { LoginViaAuthRequestCacheService } from "../../common/services/auth-request/default-login-via-auth-request-cache.service";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum Flow {
   StandardAuthRequest, // when user clicks "Login with device" from /login or "Approve from your other device" from /login-initiated
   AdminAuthRequest, // when user clicks "Request admin approval" from /login-initiated
@@ -101,7 +101,6 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     private validationService: ValidationService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private loginViaAuthRequestCacheService: LoginViaAuthRequestCacheService,
-    private configService: ConfigService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
 
@@ -132,7 +131,6 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     // Get the authStatus early because we use it in both flows
     this.authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
-    await this.loginViaAuthRequestCacheService.init();
 
     const userHasAuthenticatedViaSSO = this.authStatus === AuthenticationStatus.Locked;
 
@@ -410,23 +408,21 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       const authRequestResponse: AuthRequestResponse =
         await this.authRequestApiService.postAuthRequest(authRequest);
 
-      if (await this.configService.getFeatureFlag(FeatureFlag.PM9112_DeviceApprovalPersistence)) {
-        if (!this.authRequestKeyPair.privateKey) {
-          this.logService.error("No private key when trying to cache the login view.");
-          return;
-        }
-
-        if (!this.accessCode) {
-          this.logService.error("No access code when trying to cache the login view.");
-          return;
-        }
-
-        this.loginViaAuthRequestCacheService.cacheLoginView(
-          authRequestResponse.id,
-          this.authRequestKeyPair.privateKey,
-          this.accessCode,
-        );
+      if (!this.authRequestKeyPair.privateKey) {
+        this.logService.error("No private key when trying to cache the login view.");
+        return;
       }
+
+      if (!this.accessCode) {
+        this.logService.error("No access code when trying to cache the login view.");
+        return;
+      }
+
+      this.loginViaAuthRequestCacheService.cacheLoginView(
+        authRequestResponse.id,
+        this.authRequestKeyPair.privateKey,
+        this.accessCode,
+      );
 
       if (authRequestResponse.id) {
         await this.anonymousHubService.createHubConnection(authRequestResponse.id);
