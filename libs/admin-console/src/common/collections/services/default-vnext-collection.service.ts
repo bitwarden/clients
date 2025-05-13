@@ -113,7 +113,7 @@ export class DefaultvNextCollectionService implements vNextCollectionService {
     collection.organizationId = model.organizationId;
     collection.readOnly = model.readOnly;
     collection.externalId = model.externalId;
-    collection.name = await this.encryptService.encrypt(model.name, key);
+    collection.name = await this.encryptService.encryptString(model.name, key);
     return collection;
   }
 

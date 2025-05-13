@@ -103,6 +103,12 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
         click: () => this.sendMessage("newSecureNote"),
         accelerator: "CmdOrCtrl+Shift+S",
       },
+      {
+        id: "typeSshKey",
+        label: this.localize("typeSshKey"),
+        click: () => this.sendMessage("newSshKey"),
+        accelerator: "CmdOrCtrl+Shift+K",
+      },
     ];
   }
 

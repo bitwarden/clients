@@ -12,7 +12,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 
-import { ReportVariant, reports, ReportType, ReportEntry } from "../../../tools/reports";
+import { ReportVariant, reports, ReportType, ReportEntry } from "../../../dirt/reports";
 
 @Component({
   selector: "app-org-reports-home",

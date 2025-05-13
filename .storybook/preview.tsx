@@ -26,6 +26,9 @@ const preview: Preview = {
     wrapperDecorator,
   ],
   parameters: {
+    a11y: {
+      element: "#storybook-root",
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,

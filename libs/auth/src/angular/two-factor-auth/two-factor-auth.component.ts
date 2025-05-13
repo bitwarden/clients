@@ -335,7 +335,6 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     try {
       this.formPromise = this.loginStrategyService.logInTwoFactor(
         new TokenTwoFactorRequest(this.selectedProviderType, tokenValue, rememberValue),
-        "", // TODO: PM-15162 - deprecate captchaResponse
       );
       const authResult: AuthResult = await this.formPromise;
       this.logService.info("Successfully submitted two factor token");
@@ -573,25 +572,6 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
         identifier: orgIdentifier,
       },
     });
-  }
-
-  /**
-   * Determines if a user needs to reset their password based on certain conditions.
-   * Users can be forced to reset their password via an admin or org policy disallowing weak passwords.
-   * Note: this is different from the SSO component login flow as a user can
-   * login with MP and then have to pass 2FA to finish login and we can actually
-   * evaluate if they have a weak password at that time.
-   *
-   * @param {AuthResult} authResult - The authentication result.
-   * @returns {boolean} Returns true if a password reset is required, false otherwise.
-   */
-  private isForcePasswordResetRequired(authResult: AuthResult): boolean {
-    const forceResetReasons = [
-      ForceSetPasswordReason.AdminForcePasswordReset,
-      ForceSetPasswordReason.WeakMasterPassword,
-    ];
-
-    return forceResetReasons.includes(authResult.forcePasswordReset);
   }
 
   showContinueButton() {

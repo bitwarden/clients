@@ -3,7 +3,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
-import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import {
   ButtonModule,
   DialogModule,
@@ -17,11 +17,15 @@ import { CipherAttachmentsComponent } from "../../cipher-form/components/attachm
 
 export interface AttachmentsDialogParams {
   cipherId: CipherId;
+  admin?: boolean;
+  organizationId?: OrganizationId;
 }
 
 /**
  * Enum representing the possible results of the attachment dialog.
  */
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum AttachmentDialogResult {
   Uploaded = "uploaded",
   Removed = "removed",
@@ -43,6 +47,8 @@ export interface AttachmentDialogCloseResult {
 })
 export class AttachmentsV2Component {
   cipherId: CipherId;
+  admin: boolean = false;
+  organizationId?: OrganizationId;
   attachmentFormId = CipherAttachmentsComponent.attachmentFormID;
 
   /**
@@ -55,6 +61,8 @@ export class AttachmentsV2Component {
     @Inject(DIALOG_DATA) public params: AttachmentsDialogParams,
   ) {
     this.cipherId = params.cipherId;
+    this.organizationId = params.organizationId;
+    this.admin = params.admin ?? false;
   }
 
   /**

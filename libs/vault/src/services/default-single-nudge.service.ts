@@ -4,15 +4,19 @@ import { map, Observable } from "rxjs";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { VAULT_NUDGE_DISMISSED_DISK_KEY, VaultNudgeType } from "./vault-nudges.service";
+import {
+  NudgeStatus,
+  VAULT_NUDGE_DISMISSED_DISK_KEY,
+  VaultNudgeType,
+} from "./vault-nudges.service";
 
 /**
  * Base interface for handling a nudge's status
  */
 export interface SingleNudgeService {
-  shouldShowNudge$(nudgeType: VaultNudgeType, userId: UserId): Observable<boolean>;
+  nudgeStatus$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus>;
 
-  setNudgeStatus(nudgeType: VaultNudgeType, dismissed: boolean, userId: UserId): Promise<void>;
+  setNudgeStatus(nudgeType: VaultNudgeType, newStatus: NudgeStatus, userId: UserId): Promise<void>;
 }
 
 /**
@@ -24,28 +28,29 @@ export interface SingleNudgeService {
 export class DefaultSingleNudgeService implements SingleNudgeService {
   stateProvider = inject(StateProvider);
 
-  protected isDismissed$(nudgeType: VaultNudgeType, userId: UserId): Observable<boolean> {
+  protected getNudgeStatus$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
     return this.stateProvider
       .getUser(userId, VAULT_NUDGE_DISMISSED_DISK_KEY)
-      .state$.pipe(map((nudges) => nudges?.includes(nudgeType) ?? false));
+      .state$.pipe(
+        map(
+          (nudges) =>
+            nudges?.[nudgeType] ?? { hasBadgeDismissed: false, hasSpotlightDismissed: false },
+        ),
+      );
   }
 
-  shouldShowNudge$(nudgeType: VaultNudgeType, userId: UserId): Observable<boolean> {
-    return this.isDismissed$(nudgeType, userId).pipe(map((dismissed) => !dismissed));
+  nudgeStatus$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
+    return this.getNudgeStatus$(nudgeType, userId);
   }
 
   async setNudgeStatus(
     nudgeType: VaultNudgeType,
-    dismissed: boolean,
+    status: NudgeStatus,
     userId: UserId,
   ): Promise<void> {
     await this.stateProvider.getUser(userId, VAULT_NUDGE_DISMISSED_DISK_KEY).update((nudges) => {
-      nudges ??= [];
-      if (dismissed) {
-        nudges.push(nudgeType);
-      } else {
-        nudges = nudges.filter((n) => n !== nudgeType);
-      }
+      nudges ??= {};
+      nudges[nudgeType] = status;
       return nudges;
     });
   }

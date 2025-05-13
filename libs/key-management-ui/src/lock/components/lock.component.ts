@@ -121,8 +121,6 @@ export class LockComponent implements OnInit, OnDestroy {
   showPassword = false;
   private enforcedMasterPasswordOptions?: MasterPasswordPolicyOptions = undefined;
 
-  forcePasswordResetRoute = "update-temp-password";
-
   formGroup: FormGroup | null = null;
 
   // Browser extension properties:
@@ -558,6 +556,15 @@ export class LockComponent implements OnInit, OnDestroy {
       masterPasswordVerificationResponse!.masterKey,
       this.activeAccount.id,
     );
+    if (userKey == null) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("invalidMasterPassword"),
+      });
+      return;
+    }
+
     await this.setUserKeyAndContinue(userKey, true);
   }
 
@@ -605,8 +612,6 @@ export class LockComponent implements OnInit, OnDestroy {
             ForceSetPasswordReason.WeakMasterPassword,
             userId,
           );
-          await this.router.navigate([this.forcePasswordResetRoute]);
-          return;
         }
       } catch (e) {
         // Do not prevent unlock if there is an error evaluating policies

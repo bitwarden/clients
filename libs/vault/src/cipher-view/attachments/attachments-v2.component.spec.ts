@@ -2,10 +2,12 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock } from "jest-mock-extended";
 
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 
@@ -20,8 +22,10 @@ describe("AttachmentsV2Component", () => {
   let fixture: ComponentFixture<AttachmentsV2Component>;
 
   const mockCipherId: CipherId = "cipher-id" as CipherId;
+  const mockOrganizationId: OrganizationId = "organization-id" as OrganizationId;
   const mockParams: AttachmentsDialogParams = {
     cipherId: mockCipherId,
+    organizationId: mockOrganizationId,
   };
 
   beforeEach(async () => {
@@ -34,6 +38,8 @@ describe("AttachmentsV2Component", () => {
         { provide: CipherService, useValue: mock<CipherService>() },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: AccountService, useValue: mock<AccountService>() },
+        { provide: ApiService, useValue: mock<ApiService>() },
+        { provide: OrganizationService, useValue: mock<OrganizationService>() },
       ],
     }).compileComponents();
 
@@ -42,9 +48,10 @@ describe("AttachmentsV2Component", () => {
     fixture.detectChanges();
   });
 
-  it("initializes without errors and with the correct cipherId", () => {
+  it("initializes without errors and with the correct cipherId and organizationId", () => {
     expect(component).toBeTruthy();
     expect(component.cipherId).toBe(mockParams.cipherId);
+    expect(component.organizationId).toBe(mockParams.organizationId);
   });
 
   it("closes the dialog with 'uploaded' result on uploadSuccessful", () => {
