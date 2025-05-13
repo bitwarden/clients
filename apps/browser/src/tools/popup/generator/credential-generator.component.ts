@@ -1,5 +1,5 @@
 import { AsyncPipe, CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
@@ -8,7 +8,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { ItemModule } from "@bitwarden/components";
+import { ItemModule, TypographyModule } from "@bitwarden/components";
 import { GeneratorModule } from "@bitwarden/generator-components";
 import { SpotlightComponent, VaultNudgesService, VaultNudgeType } from "@bitwarden/vault";
 
@@ -35,12 +35,11 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     SpotlightComponent,
     AsyncPipe,
     CommonModule,
+    TypographyModule,
   ],
 })
-export class CredentialGeneratorComponent implements OnInit {
+export class CredentialGeneratorComponent {
   protected readonly VaultNudgeType = VaultNudgeType;
-  protected generatorSpotlightTitle: string = "";
-  protected generatorSpotlightBody: string = "";
   private activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
   protected showGeneratorSpotlight$: Observable<boolean> = this.activeUserId$.pipe(
     switchMap((userId) =>
@@ -54,14 +53,6 @@ export class CredentialGeneratorComponent implements OnInit {
     private i18nService: I18nService,
     private accountService: AccountService,
   ) {}
-
-  async ngOnInit() {
-    const nudgeBodyOne = this.i18nService.t("generatorNudgeBodyOne");
-    const nudgeBodyTwo = this.i18nService.t("generatorNudgeBodyTwo");
-    const nudgeBodyAria = this.i18nService.t("generatorNudgeIconAria");
-    this.generatorSpotlightTitle = this.i18nService.t("generatorNudgeTitle");
-    this.generatorSpotlightBody = `<span aria-label="${nudgeBodyAria}">${nudgeBodyOne} <i class="bwi bwi-generate"></i> ${nudgeBodyTwo}</span>`;
-  }
 
   async dismissGeneratorSpotlight(type: VaultNudgeType) {
     const activeUserId = await firstValueFrom(this.activeUserId$);
