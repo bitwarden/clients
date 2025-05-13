@@ -1,23 +1,27 @@
 import {
+  BehaviorSubject,
+  catchError,
   combineLatest,
   concatMap,
-  Observable,
-  shareReplay,
-  map,
   distinctUntilChanged,
-  tap,
-  switchMap,
-  catchError,
-  BehaviorSubject,
+  map,
+  Observable,
   of,
+  shareReplay,
+  switchMap,
   takeWhile,
+  tap,
   throwIfEmpty,
 } from "rxjs";
 
-import { KeyService, KdfConfigService, KdfConfig, KdfType } from "@bitwarden/key-management";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
+import { KdfConfig, KdfConfigService, KdfType, KeyService } from "@bitwarden/key-management";
 import {
   BitwardenClient,
   ClientSettings,
+  Cipher as SdkCipher,
+  CipherStore as SdkCipherStore,
   DeviceType as SdkDeviceType,
 } from "@bitwarden/sdk-internal";
 
@@ -66,6 +70,7 @@ export class DefaultSdkService implements SdkService {
     private accountService: AccountService,
     private kdfConfigService: KdfConfigService,
     private keyService: KeyService,
+    private cipherService: CipherService,
     private userAgent: string | null = null,
   ) {}
 
@@ -150,7 +155,15 @@ export class DefaultSdkService implements SdkService {
             const settings = this.toSettings(env);
             const client = await this.sdkClientFactory.createSdkClient(settings);
 
-            await this.initializeClient(client, account, kdfParams, privateKey, userKey, orgKeys);
+            await this.initializeClient(
+              userId,
+              client,
+              account,
+              kdfParams,
+              privateKey,
+              userKey,
+              orgKeys,
+            );
 
             return client;
           };
@@ -180,6 +193,7 @@ export class DefaultSdkService implements SdkService {
   }
 
   private async initializeClient(
+    userId: UserId,
     client: BitwardenClient,
     account: AccountInfo,
     kdfParams: KdfConfig,
@@ -214,6 +228,42 @@ export class DefaultSdkService implements SdkService {
           .map(([k, v]) => [k, v.key]),
       ),
     });
+
+    class CipherStoreImpl implements SdkCipherStore {
+      constructor(
+        private userId: UserId,
+        private cipherService: CipherService,
+      ) {}
+
+      async get(id: string): Promise<SdkCipher | null> {
+        const cipher = await this.cipherService.get(id, userId);
+        if (cipher === null) {
+          return null;
+        }
+        return cipher.toSdkCipher();
+      }
+      list(): Promise<SdkCipher[]> {
+        return this.cipherService.getAll(userId).then((l) => l.map((c) => c.toSdkCipher()));
+      }
+      async set(id: string, value: SdkCipher): Promise<void> {
+        await this.cipherService.upsert(Cipher.fromSdkCipher(value).toCipherData());
+      }
+      remove(id: string): Promise<void> {
+        return this.cipherService.delete(id, userId);
+      }
+    }
+
+    // Initialize the cipher store
+    client.store().register_cipher_store(new CipherStoreImpl(userId, this.cipherService));
+
+    try {
+      const result = await client.store().print_the_ciphers();
+      // eslint-disable-next-line
+      console.log("Ciphers: " + result);
+    } catch (e) {
+      // eslint-disable-next-line
+      console.error("Error printing ciphers: " + e);
+    }
   }
 
   private toSettings(env: Environment): ClientSettings {
