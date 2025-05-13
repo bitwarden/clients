@@ -8,6 +8,7 @@ import { BitwardenShield } from "@bitwarden/auth/angular";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { guidToStandardFormat } from "@bitwarden/common/platform/services/fido2/guid-utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -92,7 +93,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
 
           return (
             cipher.login.matchesUri(rpid, equivalentDomains) &&
-            this.cipherHasNoOtherPasskeys(cipher, userHandle)
+            Fido2Utils.cipherHasNoOtherPasskeys(cipher, userHandle)
           );
         });
         this.ciphersSubject.next(relevantCiphers);
@@ -102,18 +103,6 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
 
   async ngOnDestroy() {
     await this.accountService.setShowHeader(true);
-  }
-
-  /**
-   * This methods returns true if a cipher either has no passkeys, or has a passkey matching with userHandle
-   * @param userHandle
-   */
-  cipherHasNoOtherPasskeys(cipher: CipherView, userHandle: string): boolean {
-    if (cipher.login.fido2Credentials == null || cipher.login.fido2Credentials.length === 0) {
-      return true;
-    }
-
-    return cipher.login.fido2Credentials.some((passkey) => passkey.userHandle === userHandle);
   }
 
   async addPasskeyToCipher(cipher: CipherView) {
