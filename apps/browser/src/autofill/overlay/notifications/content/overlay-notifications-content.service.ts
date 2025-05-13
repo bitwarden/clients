@@ -19,6 +19,7 @@ export class OverlayNotificationsContentService
   private removeTabFromNotificationQueueTypes = new Set(["add", "change"]);
   private notificationRefreshFlag: boolean = false;
   private notificationBarElementStyles: Partial<CSSStyleDeclaration> = {
+    height: "82px",
     width: "430px",
     maxWidth: "calc(100% - 20px)",
     minHeight: "initial",
@@ -56,7 +57,7 @@ export class OverlayNotificationsContentService
     void sendExtensionMessage("checkNotificationQueue");
     void sendExtensionMessage("notificationRefreshFlagValue").then((notificationRefreshFlag) => {
       this.notificationRefreshFlag = !!notificationRefreshFlag;
-      this.setBarHeight();
+      this.setNotificationRefreshBarHeight();
     });
   }
 
@@ -223,7 +224,7 @@ export class OverlayNotificationsContentService
       this.notificationBarElement.id = "bit-notification-bar";
 
       setElementStyles(this.notificationBarElement, this.notificationBarElementStyles, true);
-      this.setBarHeight();
+      this.setNotificationRefreshBarHeight();
 
       this.notificationBarElement.appendChild(this.notificationBarIframeElement);
     }
@@ -236,15 +237,16 @@ export class OverlayNotificationsContentService
    * Skips if the notification bar element has not yet been created.
    *
    */
-  private setBarHeight() {
+  private setNotificationRefreshBarHeight() {
+    const isNotificationV3 = !!this.notificationRefreshFlag;
+
     if (!this.notificationBarElement) {
       return;
     }
 
-    const isNotificationV3 = !!this.notificationRefreshFlag;
-    const styles = isNotificationV3 ? { height: "400px", right: "0" } : { height: "82px" };
-
-    setElementStyles(this.notificationBarElement, styles, true);
+    if (isNotificationV3) {
+      setElementStyles(this.notificationBarElement, { height: "400px", right: "0" }, true);
+    }
   }
 
   /**
