@@ -11,9 +11,11 @@ import { ImportResult } from "../../models/import-result";
 import { BaseImporter } from "../base-importer";
 import { Importer } from "../importer";
 
-// The PasswordDepot17XmlImporter class is responsible for importing password data from Password Depot 17 XML files
-// It extends the BaseImporter class and implements the Importer interface
-// It provides methods to parse the XML data, extract relevant information, and create cipher objects
+/**
+ * Importer for Password Depot 17 xml files.
+ * @see https://www.password-depot.de/
+ * It provides methods to parse the XML data, extract relevant information, and create cipher objects
+ */
 export class PasswordDepot17XmlImporter extends BaseImporter implements Importer {
   result = new ImportResult();
 
