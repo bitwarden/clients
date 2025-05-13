@@ -19,6 +19,8 @@ import { Importer } from "../importer";
 export class PasswordDepot17XmlImporter extends BaseImporter implements Importer {
   result = new ImportResult();
 
+  _favouritesLookupTable = new Set<string>();
+
   // Parse the XML data from the Password Depot export file and extracts the relevant information
   parse(data: string): Promise<ImportResult> {
     const doc: XMLDocument = this.parseXml(data);
@@ -71,6 +73,8 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
       this.result.success = false;
       return Promise.resolve(this.result);
     }
+
+    this.buildFavouritesLookupTable(rootNode);
 
     this.traverse(passwordsNode, true, "");
 
@@ -148,6 +152,14 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
           if (entryField.tagName === "url") {
             cipher.login.uris = this.makeUriArray(entryField.textContent);
             continue;
+          }
+        }
+
+        // fingerprint is the GUID of the entry
+        // Base on the previously parsed favourites, we can identify an entry and set the favorite flag accordingly
+        if (entryField.tagName === "fingerprint") {
+          if (this._favouritesLookupTable.has(entryField.textContent)) {
+            cipher.favorite = true;
           }
         }
 
@@ -252,5 +264,26 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
     }
 
     return false;
+  }
+
+  // Parses the favourites-node from the XML file, which contains a base64 encoded string
+  // The string contains the fingerprints/GUIDs of the favourited entries, separated by new lines
+  private buildFavouritesLookupTable(rootNode: Element): void {
+    const favouritesNode = this.querySelectorDirectChild(rootNode, "favorites");
+    if (favouritesNode == null) {
+      return;
+    }
+
+    const decodedBase64String = atob(favouritesNode.textContent);
+    if (decodedBase64String.indexOf("\r\n") > 0) {
+      decodedBase64String.split("\r\n").forEach((line) => {
+        this._favouritesLookupTable.add(line);
+      });
+      return;
+    }
+
+    decodedBase64String.split("\n").forEach((line) => {
+      this._favouritesLookupTable.add(line);
+    });
   }
 }

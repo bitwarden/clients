@@ -107,6 +107,23 @@ describe("Password Depot 17 Xml Importer", () => {
     expect(cipher.card.code).toBe("123");
   });
 
+  it("should parse favourites and set them on the target item", async () => {
+    const importer = new PasswordDepot17XmlImporter();
+    const result = await importer.parse(PasswordTestData);
+
+    let cipher = result.ciphers.shift();
+    expect(cipher.name).toBe("password type");
+    expect(cipher.favorite).toBe(false);
+
+    cipher = result.ciphers.shift();
+    expect(cipher.name).toBe("password type (2)");
+    expect(cipher.favorite).toBe(true);
+
+    cipher = result.ciphers.shift();
+    expect(cipher.name).toBe("password type (3)");
+    expect(cipher.favorite).toBe(true);
+  });
+
   it("should parse groups nodes into collections when importing into an organization", async () => {
     const importer = new PasswordDepot17XmlImporter();
     importer.organizationId = "someOrgId";

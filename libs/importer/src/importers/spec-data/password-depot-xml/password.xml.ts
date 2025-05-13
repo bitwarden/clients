@@ -160,6 +160,50 @@ export const PasswordTestData = `<?xml version="1.0" encoding="utf-8"?>
                 <islink>0</islink>
                 <linkeditem></linkeditem>
             </item>
+             <item>
+                <description>password type (3)</description>
+                <type>0</type>
+                <password>p6J&lt;]fmjv!:H&amp;iJ7/Mwt@3i8</password>
+                <username>someUser</username>
+                <url></url>
+                <comment>someComment</comment>
+                <lastmodified fmt="dd.mm.yyyy hh:mm:ss">07.05.2025 13:37:56</lastmodified>
+                <expirydate fmt="dd.mm.yyyy">07.05.2025</expirydate>
+                <importance>0</importance>
+                <fingerprint>BF74FF86-FA39-4584-8E96-FA950C249DF8</fingerprint>
+                <template>&lt;USER&gt;&lt;TAB&gt;&lt;PASS&gt;&lt;ENTER&gt;</template>
+                <imageindex>0</imageindex>
+                <imagecustom>0</imagecustom>
+                <wndtitle></wndtitle>
+                <paramstr></paramstr>
+                <category>Allgemein</category>
+                <custombrowser></custombrowser>
+                <autocompletemethod>0</autocompletemethod>
+                <loginid></loginid>
+                <passid></passid>
+                <created fmt="dd.mm.yyyy hh:mm:ss">07.05.2025 13:36:48</created>
+                <lastaccessed fmt="dd.mm.yyyy hh:mm:ss">07.05.2025 13:36:48</lastaccessed>
+                <donotaddon>0</donotaddon>
+                <markassafe>0</markassafe>
+                <safemode>0</safemode>
+                <rndtype>1</rndtype>
+                <rndcustom></rndcustom>
+                <usagecount>0</usagecount>
+                <keephistory>2</keephistory>
+                <tags>someTag</tags>
+                <author>DJSMI</author>
+                <ownerid></ownerid>
+                <warnmsg></warnmsg>
+                <warnlvl>0</warnlvl>
+                <warnverify></warnverify>
+                <serverrqrd>0</serverrqrd>
+                <secret></secret>
+                <istemplate>0</istemplate>
+                <infotemplate></infotemplate>
+                <usetabs>161</usetabs>
+                <islink>0</islink>
+                <linkeditem></linkeditem>
+            </item>
         </group>
     </passwords>
     <recyclebin>
@@ -167,7 +211,7 @@ export const PasswordTestData = `<?xml version="1.0" encoding="utf-8"?>
     <infotemplates>
     </infotemplates>
     <favorites>
-        QUY3NEZGODYtRkUzOS00NTg0LThFOTYtRkU5NTBDMjg5REY4DQo=
+        QUY3NEZGODYtRkUzOS00NTg0LThFOTYtRkU5NTBDMjg5REY4CkJGNzRGRjg2LUZBMzktNDU4NC04RTk2LUZBOTUwQzI0OURGOA==
     </favorites>
     <sitestoignore>
 
