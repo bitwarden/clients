@@ -17,9 +17,8 @@ export class OverlayNotificationsContentService
   private notificationBarIframeElement: HTMLIFrameElement | null = null;
   private currentNotificationBarType: string | null = null;
   private removeTabFromNotificationQueueTypes = new Set(["add", "change"]);
-  private notificationRefreshFlag: boolean;
+  private notificationRefreshFlag: boolean = false;
   private notificationBarElementStyles: Partial<CSSStyleDeclaration> = {
-    height: "82px",
     width: "430px",
     maxWidth: "calc(100% - 20px)",
     minHeight: "initial",
@@ -57,6 +56,7 @@ export class OverlayNotificationsContentService
     void sendExtensionMessage("checkNotificationQueue");
     void sendExtensionMessage("notificationRefreshFlagValue").then((notificationRefreshFlag) => {
       this.notificationRefreshFlag = !!notificationRefreshFlag;
+      this.setBarHeight();
     });
   }
 
@@ -223,13 +223,28 @@ export class OverlayNotificationsContentService
       this.notificationBarElement.id = "bit-notification-bar";
 
       setElementStyles(this.notificationBarElement, this.notificationBarElementStyles, true);
-
-      if (this.notificationRefreshFlag) {
-        setElementStyles(this.notificationBarElement, { height: "400px", right: "0" }, true);
-      }
+      this.setBarHeight();
 
       this.notificationBarElement.appendChild(this.notificationBarIframeElement);
     }
+  }
+
+  /**
+   * Sets the height of the notification bar based on the value of `notificationRefreshFlag`.
+   * If the flag is `true`, the bar is expanded to 400px and aligned right.
+   * If the flag is `false`, `null`, or `undefined`, it defaults to height of 82px.
+   * Skips if the notification bar element has not yet been created.
+   *
+   */
+  private setBarHeight() {
+    if (!this.notificationBarElement) {
+      return;
+    }
+
+    const isNotificationV3 = !!this.notificationRefreshFlag;
+    const styles = isNotificationV3 ? { height: "400px", right: "0" } : { height: "82px" };
+
+    setElementStyles(this.notificationBarElement, styles, true);
   }
 
   /**
