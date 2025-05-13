@@ -92,9 +92,7 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
   }
 
   async chooseCipher(cipher: CipherView) {
-    if (this.containsExcludedCiphers) {
-      this.session?.confirmChosenCipher(cipher.id, false);
-    } else if (
+    if (
       cipher.reprompt !== CipherRepromptType.None &&
       !(await this.passwordRepromptService.showPasswordPrompt())
     ) {
