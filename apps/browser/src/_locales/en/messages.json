@@ -695,9 +695,6 @@
   "invalidMasterPassword": {
     "message": "Invalid master password"
   },
-  "invalidCurrentMasterPassword": {
-    "message": "Invalid current master password"
-  },
   "vaultTimeout": {
     "message": "Vault timeout"
   },

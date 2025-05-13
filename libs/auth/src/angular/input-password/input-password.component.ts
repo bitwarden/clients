@@ -398,28 +398,16 @@ export class InputPasswordComponent implements OnInit {
       throw new Error("userId not passed down");
     }
 
-    try {
-      const decryptedUserKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
-        currentMasterKey,
-        this.userId,
-      );
+    const decryptedUserKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
+      currentMasterKey,
+      this.userId,
+    );
 
-      // Catches scenario where decryptUserKeyWithMasterKey() returns null
-      if (decryptedUserKey == null) {
-        this.toastService.showToast({
-          variant: "error",
-          title: "",
-          message: this.i18nService.t("invalidCurrentMasterPassword"),
-        });
-
-        return false;
-      }
-    } catch {
-      // Catches scenario where an error is thrown in the decryptUserKeyWithMasterKey() operation
+    if (decryptedUserKey == null) {
       this.toastService.showToast({
         variant: "error",
         title: "",
-        message: this.i18nService.t("invalidCurrentMasterPassword"),
+        message: this.i18nService.t("invalidMasterPassword"),
       });
 
       return false;

@@ -1208,9 +1208,6 @@
   "invalidMasterPassword": {
     "message": "Invalid master password"
   },
-  "invalidCurrentMasterPassword": {
-    "message": "Invalid current master password"
-  },
   "twoStepLoginConfirmation": {
     "message": "Two-step login makes your account more secure by requiring you to verify your login with another device such as a security key, authenticator app, SMS, phone call, or email. Two-step login can be set up on the bitwarden.com web vault. Do you want to visit the website now?"
   },
