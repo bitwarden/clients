@@ -54,10 +54,20 @@ import { MessageSender } from "../messaging";
 import { StateProvider } from "../state";
 
 import { CoreSyncService } from "./core-sync.service";
+import { SyncResponse } from "./sync.response";
 import { SyncOptions } from "./sync.service";
 
 export class DefaultSyncService extends CoreSyncService {
   syncInProgress = false;
+
+  /** The promises associated with any in-flight api calls. */
+  private inFlightApiCalls: {
+    refreshToken: Promise<void> | null;
+    sync: Promise<SyncResponse> | null;
+  } = {
+    refreshToken: null,
+    sync: null,
+  };
 
   constructor(
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -137,9 +147,20 @@ export class DefaultSyncService extends CoreSyncService {
 
     try {
       if (!skipTokenRefresh) {
-        await this.apiService.refreshIdentityToken();
+        // Store the promise so multiple calls to refresh the token are not made
+        if (this.inFlightApiCalls.refreshToken === null) {
+          this.inFlightApiCalls.refreshToken = this.apiService.refreshIdentityToken();
+        }
+
+        await this.inFlightApiCalls.refreshToken;
       }
-      const response = await this.apiService.getSync();
+
+      // Store the promise so multiple calls to sync are not made
+      if (this.inFlightApiCalls.sync === null) {
+        this.inFlightApiCalls.sync = this.apiService.getSync();
+      }
+
+      const response = await this.inFlightApiCalls.sync;
 
       await this.syncProfile(response.profile);
       await this.syncFolders(response.folders, response.profile.id);
@@ -158,6 +179,9 @@ export class DefaultSyncService extends CoreSyncService {
       } else {
         return this.syncCompleted(false, userId);
       }
+    } finally {
+      this.inFlightApiCalls.refreshToken = null;
+      this.inFlightApiCalls.sync = null;
     }
   }
 
