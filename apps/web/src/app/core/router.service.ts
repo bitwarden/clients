@@ -74,6 +74,9 @@ export class RouterService {
 
         const titleId: string = child?.snapshot?.data?.titleId;
         const rawTitle: string = child?.snapshot?.data?.title;
+
+        // TODO: Eslint upgrade. Please resolve this since the ?? does nothing
+        // eslint-disable-next-line no-constant-binary-expression
         const updateUrl = !child?.snapshot?.data?.doNotSaveUrl ?? true;
 
         if (titleId != null || rawTitle != null) {

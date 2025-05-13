@@ -92,6 +92,8 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
         this.parseIdRecord(cipher, row);
       }
 
+      // TODO: Eslint upgrade. Please resolve this  since the null check does nothing
+      // eslint-disable-next-line no-constant-binary-expression
       if ((rowKeys[0] === "type") != null && rowKeys[1] === "title") {
         this.parsePersonalInformationRecord(cipher, row);
       }

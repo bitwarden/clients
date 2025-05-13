@@ -62,6 +62,8 @@ export class PopupRouterCacheService {
             child = child.firstChild;
           }
 
+          // TODO: Eslint upgrade. Please resolve this since the ?? does nothing
+          // eslint-disable-next-line no-constant-binary-expression
           return !child?.data?.doNotSaveUrl ?? true;
         }),
         switchMap((event) => this.push(event.url)),
