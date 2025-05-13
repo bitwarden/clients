@@ -139,18 +139,7 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
         }
 
         if (cipher.type === CipherType.Login) {
-          if (entryField.tagName === "username") {
-            cipher.login.username = entryField.textContent;
-            continue;
-          }
-
-          if (entryField.tagName === "password") {
-            cipher.login.password = decodeURI(entryField.textContent);
-            continue;
-          }
-
-          if (entryField.tagName === "url") {
-            cipher.login.uris = this.makeUriArray(entryField.textContent);
+          if (this.parseLoginFields(entryField, cipher)) {
             continue;
           }
         }
@@ -206,6 +195,26 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
         customFieldObject.type,
       );
     });
+  }
+
+  // Parses login fields and adds them to the cipher
+  private parseLoginFields(entryField: Element, cipher: CipherView): boolean {
+    if (entryField.tagName === "username") {
+      cipher.login.username = entryField.textContent;
+      return true;
+    }
+
+    if (entryField.tagName === "password") {
+      cipher.login.password = decodeURI(entryField.textContent);
+      return true;
+    }
+
+    if (entryField.tagName === "url") {
+      cipher.login.uris = this.makeUriArray(entryField.textContent);
+      return true;
+    }
+
+    return false;
   }
 
   // Parses a custom field and adds it to the cipher
