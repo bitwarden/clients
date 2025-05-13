@@ -3,7 +3,6 @@ import log from "electron-log";
 import { autoUpdater, UpdateDownloadedEvent, VerifyUpdateSupport } from "electron-updater";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { isAppImage, isDev, isMacAppStore, isWindowsPortable, isWindowsStore } from "../utils";
 
@@ -17,11 +16,10 @@ export class UpdaterMain {
   private doingUpdateCheckWithFeedback = false;
   private canUpdate = false;
   private updateDownloaded: UpdateDownloadedEvent = null;
-  private originalRolloutFunction: VerifyUpdateSupport;
+  private originalRolloutFunction: VerifyUpdateSupport = null;
 
   constructor(
     private i18nService: I18nService,
-    private logService: LogService,
     private windowMain: WindowMain,
   ) {
     autoUpdater.logger = log;
@@ -41,16 +39,10 @@ export class UpdaterMain {
     global.setInterval(async () => await this.checkForUpdate(), UpdaterCheckInterval);
 
     autoUpdater.on("checking-for-update", () => {
-      this.logService.debug("[Updater] Checking for update...");
       this.doingUpdateCheck = true;
     });
 
     autoUpdater.on("update-available", async (info) => {
-      this.logService.debug(
-        `[Updater] Update available (with feedback: ${this.doingUpdateCheckWithFeedback})`,
-        info,
-      );
-
       if (this.doingUpdateCheckWithFeedback) {
         if (this.windowMain.win == null) {
           this.reset();
@@ -77,8 +69,6 @@ export class UpdaterMain {
     });
 
     autoUpdater.on("update-not-available", async (info) => {
-      this.logService.debug("[Updater] No update available", info);
-
       if (this.doingUpdateCheckWithFeedback && this.windowMain.win != null) {
         await dialog.showMessageBox(this.windowMain.win, {
           message: this.i18nService.t("noUpdatesAvailable"),
@@ -92,8 +82,6 @@ export class UpdaterMain {
     });
 
     autoUpdater.on("update-downloaded", async (info) => {
-      this.logService.debug("[Updater] Update downloaded", info);
-
       if (this.windowMain.win == null) {
         return;
       }
@@ -103,8 +91,6 @@ export class UpdaterMain {
     });
 
     autoUpdater.on("error", (error) => {
-      this.logService.error("[Updater] Error in auto-updater", error);
-
       if (this.doingUpdateCheckWithFeedback) {
         dialog.showErrorBox(
           this.i18nService.t("updateError"),
@@ -127,7 +113,6 @@ export class UpdaterMain {
     }
 
     if (this.doingUpdateCheck) {
-      this.logService.debug("[Updater] Already checking for update");
       return;
     }
 
