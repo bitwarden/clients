@@ -23,7 +23,7 @@ export type RunCommandResult<C extends CommandDefinition> = C["output"];
 export class NativeAutofillMain {
   private ipcServer: autofill.IpcServer | null;
   private messageBuffer: BufferedMessage[] = [];
-  private serverReady = false;
+  private listenerReady = false;
 
   constructor(
     private logService: LogService,
@@ -34,11 +34,11 @@ export class NativeAutofillMain {
    * Safely sends a message to the renderer, buffering it if the server isn't ready yet
    */
   private safeSend(channel: string, data: any) {
-    if (this.serverReady && this.windowMain.win?.webContents) {
+    if (this.listenerReady && this.windowMain.win?.webContents) {
       this.windowMain.win.webContents.send(channel, data);
     } else {
       this.logService.info(
-        `Buffering message to ${channel} until server is ready. Call .ready() to flush.`,
+        `Buffering message to ${channel} until server is ready. Call .listenerReady() to flush.`,
       );
       this.messageBuffer.push({ channel, data });
     }
@@ -129,8 +129,8 @@ export class NativeAutofillMain {
       },
     );
 
-    ipcMain.on("autofill.ready", async () => {
-      this.serverReady = true;
+    ipcMain.on("autofill.listenerReady", async () => {
+      this.listenerReady = true;
       this.logService.info(
         `Listener is ready, flushing ${this.messageBuffer.length} buffered messages`,
       );
