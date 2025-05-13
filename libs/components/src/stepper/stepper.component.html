@@ -67,7 +67,7 @@
         [ngClass]="{
           'hover:tw-bg-secondary-100': !isStepDisabled($index) && step.editable,
         }"
-        [attr.id]="contentId + 'accordiion' + $index"
+        [attr.id]="contentId + 'accordion' + $index"
         [attr.aria-expanded]="selectedIndex === $index"
         [attr.aria-controls]="contentId + $index"
       >
@@ -101,7 +101,7 @@
       <div
         [attr.id]="contentId + $index"
         [hidden]="!selected"
-        [attr.aria-labelledby]="contentId + 'accordiion' + $index"
+        [attr.aria-labelledby]="contentId + 'accordion' + $index"
         role="region"
       >
         <div
