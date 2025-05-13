@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
-import { autofill } from "desktop_native/napi";
+import type { autofill } from "desktop_native/napi";
 import { BehaviorSubject, firstValueFrom, map, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -75,10 +75,6 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
     await this.accountService.setShowHeader(false);
     this.session = this.fido2UserInterfaceService.getCurrentSession();
     const lastRegistrationRequest = this.desktopAutofillService.lastRegistrationRequest;
-    const rpid = await this.session.getRpId();
-    const equivalentDomains = await firstValueFrom(
-      this.domainSettingsService.getUrlEquivalentDomains(rpid),
-    );
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
@@ -123,8 +119,10 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
         const passkeyUserHandle = Fido2Utils.stringToBuffer(passkey.userHandle) || new Uint8Array();
         const lastRegistrationUserHandle = new Uint8Array(lastRegistrationRequest.userHandle);
         if (passkeyUserHandle.length > 0 || lastRegistrationUserHandle.length > 0) {
-          compareCredentialIds(passkeyUserHandle, lastRegistrationUserHandle);
+          return compareCredentialIds(passkeyUserHandle, lastRegistrationUserHandle);
         }
+
+        return false;
       }) && !this.invalidFido2Credential(cipher)
     );
   }
