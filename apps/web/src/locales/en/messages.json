@@ -1348,6 +1348,9 @@
   "invalidMasterPassword": {
     "message": "Invalid master password"
   },
+  "invalidCurrentMasterPassword": {
+    "message": "Invalid current master password"
+  },
   "invalidFilePassword": {
     "message": "Invalid file password, please use the password you entered when you created the export file."
   },
