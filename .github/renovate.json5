@@ -136,6 +136,7 @@
     {
       matchPackageNames: [
         "@angular-eslint/schematics",
+        "@eslint/compat",
         "@typescript-eslint/rule-tester",
         "@typescript-eslint/utils",
         "angular-eslint",
@@ -158,6 +159,7 @@
     {
       matchPackageNames: [
         "@angular-eslint/schematics",
+        "@eslint/compat",
         "@typescript-eslint/rule-tester",
         "@typescript-eslint/utils",
         "angular-eslint",
