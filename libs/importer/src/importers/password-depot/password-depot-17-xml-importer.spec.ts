@@ -10,6 +10,7 @@ import {
   CreditCardTestData,
   MissingPasswordsNodeData,
   PasswordTestData,
+  IdentityTestData,
 } from "../spec-data/password-depot-xml";
 
 import { PasswordDepot17XmlImporter } from "./password-depot-17-xml-importer";
@@ -106,6 +107,29 @@ describe("Password Depot 17 Xml Importer", () => {
     expect(cipher.card.expMonth).toBe("5");
     expect(cipher.card.expYear).toBe("2026");
     expect(cipher.card.code).toBe("123");
+  });
+
+  it("should parse identity type", async () => {
+    const importer = new PasswordDepot17XmlImporter();
+    const result = await importer.parse(IdentityTestData);
+
+    const cipher = result.ciphers.shift();
+    expect(cipher.name).toBe("identity type");
+    expect(cipher.notes).toBe("someNote");
+
+    expect(cipher.identity).not.toBeNull();
+
+    expect(cipher.identity.firstName).toBe("firstName");
+    expect(cipher.identity.lastName).toBe("surName");
+    expect(cipher.identity.email).toBe("email");
+    expect(cipher.identity.company).toBe("someCompany");
+    expect(cipher.identity.address1).toBe("someStreet");
+    expect(cipher.identity.address2).toBe("address 2");
+    expect(cipher.identity.city).toBe("town");
+    expect(cipher.identity.state).toBe("state");
+    expect(cipher.identity.postalCode).toBe("zipCode");
+    expect(cipher.identity.country).toBe("country");
+    expect(cipher.identity.phone).toBe("phoneNumber");
   });
 
   it("should parse favourites and set them on the target item", async () => {

@@ -5,6 +5,7 @@ import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
 import { ImportResult } from "../../models/import-result";
@@ -134,6 +135,10 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
               cipher.type = CipherType.Card;
               cipher.card = new CardView();
               break;
+            case "3":
+              cipher.type = CipherType.Identity;
+              cipher.identity = new IdentityView();
+              break;
           }
           continue;
         }
@@ -182,10 +187,21 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
         return;
       }
 
-      if (cipher.type === CipherType.Card) {
-        if (this.parseCreditCardCustomFields(customFieldObject, cipher)) {
-          return;
-        }
+      switch (cipher.type) {
+        case CipherType.Login:
+          break;
+        case CipherType.Card:
+          if (this.parseCreditCardCustomFields(customFieldObject, cipher)) {
+            return;
+          }
+          break;
+        case CipherType.Identity:
+          if (this.parseIdentityCustomFields(customFieldObject, cipher)) {
+            return;
+          }
+          break;
+        default:
+          break;
       }
 
       this.processKvp(
@@ -274,6 +290,77 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
 
     return false;
   }
+
+  // Parses credit card fields and adds them to the cipher
+  private parseIdentityCustomFields(customField: FieldView, cipher: CipherView): boolean {
+    if (customField.name === "IDS_IdentityName") {
+      this.processFullName(cipher, customField.value)
+      return true;
+    }
+
+    if (customField.name === "IDS_IdentityEmail") {
+      cipher.identity.email = customField.value;
+      return true;
+    }
+
+    if (customField.name === "IDS_IdentityFirstName") {
+      cipher.identity.firstName = customField.value;
+      return true;
+    }
+
+    if (customField.name === "IDS_IdentityLastName") {
+      cipher.identity.lastName = customField.value;
+      return true;
+    }
+
+    if (customField.name === "IDS_IdentityCompany") {
+      cipher.identity.company = customField.value;
+      return true;
+    }
+
+    if (customField.name === "IDS_IdentityAddress1") {
+      cipher.identity.address1 = customField.value;
+      return true;
+    }
+
+    if (customField.name === "IDS_IdentityAddress2") {
+      cipher.identity.address2 = customField.value;
+      return true;
+    }
+
+    if (customField.name === "IDS_IdentityCity") {
+      cipher.identity.city = customField.value;
+      return true;
+    }
+
+    if (customField.name === "IDS_IdentityState") {
+      cipher.identity.state = customField.value;
+      return true;
+    }
+
+    if (customField.name === "IDS_IdentityState") {
+      cipher.identity.state = customField.value;
+      return true;
+    }
+
+    if (customField.name === "IDS_IdentityZIP") {
+      cipher.identity.postalCode = customField.value;
+      return true;
+    }
+
+    if (customField.name === "IDS_IdentityCountry") {
+      cipher.identity.country = customField.value;
+      return true;
+    }
+
+    if (customField.name === "IDS_IdentityPhone") {
+      cipher.identity.phone = customField.value;
+      return true;
+    }
+
+    return false;
+  }
+
 
   // Parses the favourites-node from the XML file, which contains a base64 encoded string
   // The string contains the fingerprints/GUIDs of the favourited entries, separated by new lines
