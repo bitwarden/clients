@@ -224,7 +224,8 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "@types/react": "18.3.20",
-    "replacestream": "4.0.3"
+    "replacestream": "4.0.3",
+    "parse5": "<7.3.0"
   },
   "lint-staged": {
     "*": "prettier --cache --ignore-unknown --write",
