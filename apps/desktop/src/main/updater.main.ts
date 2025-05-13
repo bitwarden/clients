@@ -42,7 +42,7 @@ export class UpdaterMain {
       this.doingUpdateCheck = true;
     });
 
-    autoUpdater.on("update-available", async (info) => {
+    autoUpdater.on("update-available", async () => {
       if (this.doingUpdateCheckWithFeedback) {
         if (this.windowMain.win == null) {
           this.reset();
@@ -68,7 +68,7 @@ export class UpdaterMain {
       }
     });
 
-    autoUpdater.on("update-not-available", async (info) => {
+    autoUpdater.on("update-not-available", async () => {
       if (this.doingUpdateCheckWithFeedback && this.windowMain.win != null) {
         await dialog.showMessageBox(this.windowMain.win, {
           message: this.i18nService.t("noUpdatesAvailable"),
