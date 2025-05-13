@@ -134,7 +134,7 @@ function displayHandoffMessage(client: string) {
     const button = document.createElement("button");
     button.textContent = localeService.t("close");
     button.className =
-      "tw-bg-primary-600 tw-text-contrast tw-px-3 tw-py-2 tw-rounded-md tw-transition tw-border-transparent tw-text-center tw-no-underline hover:tw-no-underline focus:tw-outline-none";
+      "tw-bg-primary-600 tw-text-contrast tw-px-4 tw-py-2 tw-rounded-md tw-transition tw-border-transparent tw-text-center tw-no-underline hover:tw-no-underline focus:tw-outline-none";
 
     button.addEventListener("click", () => {
       window.close();
