@@ -61,6 +61,7 @@ export class OrganizationData {
   userIsManagedByOrganization: boolean;
   useRiskInsights: boolean;
   useAdminSponsoredFamilies: boolean;
+  isAdminInitiated: boolean;
 
   constructor(
     response?: ProfileOrganizationResponse,
@@ -124,6 +125,7 @@ export class OrganizationData {
     this.userIsManagedByOrganization = response.userIsManagedByOrganization;
     this.useRiskInsights = response.useRiskInsights;
     this.useAdminSponsoredFamilies = response.useAdminSponsoredFamilies;
+    this.isAdminInitiated = response.isAdminInitiated;
 
     this.isMember = options.isMember;
     this.isProviderUser = options.isProviderUser;

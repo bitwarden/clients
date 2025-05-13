@@ -1,11 +1,7 @@
 import { Injectable, signal, WritableSignal } from "@angular/core";
 import type { FormGroup } from "@angular/forms";
 
-import {
-  FormCacheOptions,
-  SignalCacheOptions,
-  ViewCacheService,
-} from "../abstractions/view-cache.service";
+import { FormCacheOptions, SignalCacheOptions, ViewCacheService } from "./view-cache.service";
 
 /**
  * The functionality of the {@link ViewCacheService} is only needed in the browser extension popup,
