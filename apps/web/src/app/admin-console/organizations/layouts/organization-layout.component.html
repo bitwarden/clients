@@ -14,7 +14,7 @@
       ></bit-nav-item>
     </bit-nav-group>
     <bit-nav-item
-      icon="bwi-collection"
+      icon="bwi-collection-shared"
       [text]="'collections' | i18n"
       route="vault"
       *ngIf="canShowVaultTab(organization)"
@@ -98,7 +98,7 @@
       <bit-nav-item
         [text]="'policies' | i18n"
         route="settings/policies"
-        *ngIf="organization.canManagePolicies"
+        *ngIf="canShowPoliciesTab$ | async"
       ></bit-nav-item>
       <bit-nav-item
         [text]="'twoStepLogin' | i18n"
@@ -116,7 +116,7 @@
         *ngIf="canAccessExport$ | async"
       ></bit-nav-item>
       <bit-nav-item
-        [text]="domainVerificationNavigationTextKey | i18n"
+        [text]="'claimedDomains' | i18n"
         route="settings/domain-verification"
         *ngIf="organization?.canManageDomainVerification"
       ></bit-nav-item>

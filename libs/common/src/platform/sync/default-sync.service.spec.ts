@@ -1,0 +1,199 @@
+import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
+
+import { CollectionService } from "@bitwarden/admin-console/common";
+import {
+  LogoutReason,
+  UserDecryptionOptions,
+  UserDecryptionOptionsServiceAbstraction,
+} from "@bitwarden/auth/common";
+import { KeyService } from "@bitwarden/key-management";
+
+import { Matrix } from "../../../spec/matrix";
+import { ApiService } from "../../abstractions/api.service";
+import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
+import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
+import { ProviderService } from "../../admin-console/abstractions/provider.service";
+import { Account, AccountService } from "../../auth/abstractions/account.service";
+import { AuthService } from "../../auth/abstractions/auth.service";
+import { AvatarService } from "../../auth/abstractions/avatar.service";
+import { TokenService } from "../../auth/abstractions/token.service";
+import { AuthenticationStatus } from "../../auth/enums/authentication-status";
+import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
+import { BillingAccountProfileStateService } from "../../billing/abstractions";
+import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
+import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
+import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
+import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
+import { UserId } from "../../types/guid";
+import { CipherService } from "../../vault/abstractions/cipher.service";
+import { FolderApiServiceAbstraction } from "../../vault/abstractions/folder/folder-api.service.abstraction";
+import { InternalFolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
+import { LogService } from "../abstractions/log.service";
+import { StateService } from "../abstractions/state.service";
+import { MessageSender } from "../messaging";
+import { StateProvider } from "../state";
+
+import { DefaultSyncService } from "./default-sync.service";
+import { SyncResponse } from "./sync.response";
+
+describe("DefaultSyncService", () => {
+  let masterPasswordAbstraction: MockProxy<InternalMasterPasswordServiceAbstraction>;
+  let accountService: MockProxy<AccountService>;
+  let apiService: MockProxy<ApiService>;
+  let domainSettingsService: MockProxy<DomainSettingsService>;
+  let folderService: MockProxy<InternalFolderService>;
+  let cipherService: MockProxy<CipherService>;
+  let keyService: MockProxy<KeyService>;
+  let collectionService: MockProxy<CollectionService>;
+  let messageSender: MockProxy<MessageSender>;
+  let policyService: MockProxy<InternalPolicyService>;
+  let sendService: MockProxy<InternalSendService>;
+  let logService: MockProxy<LogService>;
+  let keyConnectorService: MockProxy<KeyConnectorService>;
+  let stateService: MockProxy<StateService>;
+  let providerService: MockProxy<ProviderService>;
+  let folderApiService: MockProxy<FolderApiServiceAbstraction>;
+  let organizationService: MockProxy<InternalOrganizationServiceAbstraction>;
+  let sendApiService: MockProxy<SendApiService>;
+  let userDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
+  let avatarService: MockProxy<AvatarService>;
+  let logoutCallback: jest.Mock<Promise<void>, [logoutReason: LogoutReason, userId?: UserId]>;
+  let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
+  let tokenService: MockProxy<TokenService>;
+  let authService: MockProxy<AuthService>;
+  let stateProvider: MockProxy<StateProvider>;
+
+  let sut: DefaultSyncService;
+
+  beforeEach(() => {
+    masterPasswordAbstraction = mock();
+    accountService = mock();
+    apiService = mock();
+    domainSettingsService = mock();
+    folderService = mock();
+    cipherService = mock();
+    keyService = mock();
+    collectionService = mock();
+    messageSender = mock();
+    policyService = mock();
+    sendService = mock();
+    logService = mock();
+    keyConnectorService = mock();
+    stateService = mock();
+    providerService = mock();
+    folderApiService = mock();
+    organizationService = mock();
+    sendApiService = mock();
+    userDecryptionOptionsService = mock();
+    avatarService = mock();
+    logoutCallback = jest.fn();
+    billingAccountProfileStateService = mock();
+    tokenService = mock();
+    authService = mock();
+    stateProvider = mock();
+
+    sut = new DefaultSyncService(
+      masterPasswordAbstraction,
+      accountService,
+      apiService,
+      domainSettingsService,
+      folderService,
+      cipherService,
+      keyService,
+      collectionService,
+      messageSender,
+      policyService,
+      sendService,
+      logService,
+      keyConnectorService,
+      stateService,
+      providerService,
+      folderApiService,
+      organizationService,
+      sendApiService,
+      userDecryptionOptionsService,
+      avatarService,
+      logoutCallback,
+      billingAccountProfileStateService,
+      tokenService,
+      authService,
+      stateProvider,
+    );
+  });
+
+  const user1 = "user1" as UserId;
+
+  describe("fullSync", () => {
+    beforeEach(() => {
+      accountService.activeAccount$ = of({ id: user1 } as Account);
+      Matrix.autoMockMethod(authService.authStatusFor$, () => of(AuthenticationStatus.Unlocked));
+      apiService.getSync.mockResolvedValue(
+        new SyncResponse({
+          profile: {
+            id: user1,
+          },
+          folders: [],
+          collections: [],
+          ciphers: [],
+          sends: [],
+          domains: [],
+          policies: [],
+        }),
+      );
+      Matrix.autoMockMethod(userDecryptionOptionsService.userDecryptionOptionsById$, () =>
+        of({ hasMasterPassword: true } satisfies UserDecryptionOptions),
+      );
+      stateProvider.getUser.mockReturnValue(mock());
+    });
+
+    it("does a token refresh when option missing from options", async () => {
+      await sut.fullSync(true, { allowThrowOnError: false });
+
+      expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(1);
+      expect(apiService.getSync).toHaveBeenCalledTimes(1);
+    });
+
+    it("does a token refresh when boolean passed in", async () => {
+      await sut.fullSync(true, false);
+
+      expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(1);
+      expect(apiService.getSync).toHaveBeenCalledTimes(1);
+    });
+
+    it("does a token refresh when skipTokenRefresh option passed in with false and allowThrowOnError also passed in", async () => {
+      await sut.fullSync(true, { allowThrowOnError: false, skipTokenRefresh: false });
+
+      expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(1);
+      expect(apiService.getSync).toHaveBeenCalledTimes(1);
+    });
+
+    it("does a token refresh when skipTokenRefresh option passed in with false by itself", async () => {
+      await sut.fullSync(true, { skipTokenRefresh: false });
+
+      expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(1);
+      expect(apiService.getSync).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not do a token refresh when skipTokenRefresh passed in as true", async () => {
+      await sut.fullSync(true, { skipTokenRefresh: true });
+
+      expect(apiService.refreshIdentityToken).not.toHaveBeenCalled();
+      expect(apiService.getSync).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not do a token refresh when skipTokenRefresh passed in as true and allowThrowOnError also passed in", async () => {
+      await sut.fullSync(true, { allowThrowOnError: false, skipTokenRefresh: true });
+
+      expect(apiService.refreshIdentityToken).not.toHaveBeenCalled();
+      expect(apiService.getSync).toHaveBeenCalledTimes(1);
+    });
+
+    it("does a token refresh when nothing passed in", async () => {
+      await sut.fullSync(true);
+
+      expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(1);
+      expect(apiService.getSync).toHaveBeenCalledTimes(1);
+    });
+  });
+});

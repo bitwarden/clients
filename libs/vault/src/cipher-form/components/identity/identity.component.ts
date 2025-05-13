@@ -132,22 +132,22 @@ export class IdentitySectionComponent implements OnInit {
 
   private initFromExistingCipher(existingIdentity: IdentityView) {
     this.identityForm.patchValue({
-      firstName: this.initialValues.firstName ?? existingIdentity.firstName,
-      middleName: this.initialValues.middleName ?? existingIdentity.middleName,
-      lastName: this.initialValues.lastName ?? existingIdentity.lastName,
-      company: this.initialValues.company ?? existingIdentity.company,
-      ssn: this.initialValues.ssn ?? existingIdentity.ssn,
-      passportNumber: this.initialValues.passportNumber ?? existingIdentity.passportNumber,
-      licenseNumber: this.initialValues.licenseNumber ?? existingIdentity.licenseNumber,
-      email: this.initialValues.email ?? existingIdentity.email,
-      phone: this.initialValues.phone ?? existingIdentity.phone,
-      address1: this.initialValues.address1 ?? existingIdentity.address1,
-      address2: this.initialValues.address2 ?? existingIdentity.address2,
-      address3: this.initialValues.address3 ?? existingIdentity.address3,
-      city: this.initialValues.city ?? existingIdentity.city,
-      state: this.initialValues.state ?? existingIdentity.state,
-      postalCode: this.initialValues.postalCode ?? existingIdentity.postalCode,
-      country: this.initialValues.country ?? existingIdentity.country,
+      firstName: this.initialValues?.firstName ?? existingIdentity.firstName,
+      middleName: this.initialValues?.middleName ?? existingIdentity.middleName,
+      lastName: this.initialValues?.lastName ?? existingIdentity.lastName,
+      company: this.initialValues?.company ?? existingIdentity.company,
+      ssn: this.initialValues?.ssn ?? existingIdentity.ssn,
+      passportNumber: this.initialValues?.passportNumber ?? existingIdentity.passportNumber,
+      licenseNumber: this.initialValues?.licenseNumber ?? existingIdentity.licenseNumber,
+      email: this.initialValues?.email ?? existingIdentity.email,
+      phone: this.initialValues?.phone ?? existingIdentity.phone,
+      address1: this.initialValues?.address1 ?? existingIdentity.address1,
+      address2: this.initialValues?.address2 ?? existingIdentity.address2,
+      address3: this.initialValues?.address3 ?? existingIdentity.address3,
+      city: this.initialValues?.city ?? existingIdentity.city,
+      state: this.initialValues?.state ?? existingIdentity.state,
+      postalCode: this.initialValues?.postalCode ?? existingIdentity.postalCode,
+      country: this.initialValues?.country ?? existingIdentity.country,
     });
   }
 

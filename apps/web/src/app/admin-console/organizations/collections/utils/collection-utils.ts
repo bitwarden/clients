@@ -37,6 +37,27 @@ export function getNestedCollectionTree(
   return nodes;
 }
 
+export function getFlatCollectionTree(
+  nodes: TreeNode<CollectionAdminView>[],
+): CollectionAdminView[];
+export function getFlatCollectionTree(nodes: TreeNode<CollectionView>[]): CollectionView[];
+export function getFlatCollectionTree(
+  nodes: TreeNode<CollectionView | CollectionAdminView>[],
+): (CollectionView | CollectionAdminView)[] {
+  if (!nodes || nodes.length === 0) {
+    return [];
+  }
+
+  return nodes.flatMap((node) => {
+    if (!node.children || node.children.length === 0) {
+      return [node.node];
+    }
+
+    const children = getFlatCollectionTree(node.children);
+    return [node.node, ...children];
+  });
+}
+
 function cloneCollection(collection: CollectionView): CollectionView;
 function cloneCollection(collection: CollectionAdminView): CollectionAdminView;
 function cloneCollection(

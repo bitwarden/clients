@@ -1,15 +1,8 @@
 import { Meta, StoryObj } from "@storybook/web-components";
 
-import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
-import { ActionButton } from "../../buttons/action-button";
-
-type Args = {
-  buttonText: string;
-  disabled: boolean;
-  theme: Theme;
-  handleClick: (e: Event) => void;
-};
+import { ActionButton, ActionButtonProps } from "../../buttons/action-button";
 
 export default {
   title: "Components/Buttons/Action Button",
@@ -31,10 +24,10 @@ export default {
       url: "https://www.figma.com/design/LEhqLAcBPY8uDKRfU99n9W/Autofill-notification-redesign?node-id=487-14755&t=2O7uCAkwRZCcjumm-4",
     },
   },
-} as Meta<Args>;
+} as Meta<ActionButtonProps>;
 
-const Template = (args: Args) => ActionButton({ ...args });
+const Template = (args: ActionButtonProps) => ActionButton({ ...args });
 
-export const Default: StoryObj<Args> = {
+export const Default: StoryObj<ActionButtonProps> = {
   render: Template,
 };

@@ -1,6 +1,7 @@
 import * as argon2 from "argon2-browser";
 import * as forge from "node-forge";
 
+import { EncryptionType } from "../../../platform/enums";
 import { Utils } from "../../../platform/misc/utils";
 import {
   CbcDecryptParameters,
@@ -247,37 +248,26 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     mac: string | null,
     key: SymmetricCryptoKey,
   ): CbcDecryptParameters<string> {
-    const p = {} as CbcDecryptParameters<string>;
-    if (key.meta != null) {
-      p.encKey = key.meta.encKeyByteString;
-      p.macKey = key.meta.macKeyByteString;
+    const innerKey = key.inner();
+    if (innerKey.type === EncryptionType.AesCbc256_B64) {
+      return {
+        iv: forge.util.decode64(iv),
+        data: forge.util.decode64(data),
+        encKey: forge.util.createBuffer(innerKey.encryptionKey).getBytes(),
+      } as CbcDecryptParameters<string>;
+    } else if (innerKey.type === EncryptionType.AesCbc256_HmacSha256_B64) {
+      const macData = forge.util.decode64(iv) + forge.util.decode64(data);
+      return {
+        iv: forge.util.decode64(iv),
+        data: forge.util.decode64(data),
+        encKey: forge.util.createBuffer(innerKey.encryptionKey).getBytes(),
+        macKey: forge.util.createBuffer(innerKey.authenticationKey).getBytes(),
+        mac: forge.util.decode64(mac!),
+        macData,
+      } as CbcDecryptParameters<string>;
+    } else {
+      throw new Error("Unsupported encryption type.");
     }
-
-    if (p.encKey == null) {
-      p.encKey = forge.util.decode64(key.encKeyB64);
-    }
-    p.data = forge.util.decode64(data);
-    p.iv = forge.util.decode64(iv);
-    p.macData = p.iv + p.data;
-    if (p.macKey == null && key.macKeyB64 != null) {
-      p.macKey = forge.util.decode64(key.macKeyB64);
-    }
-    if (mac != null) {
-      p.mac = forge.util.decode64(mac);
-    }
-
-    // cache byte string keys for later
-    if (key.meta == null) {
-      key.meta = {};
-    }
-    if (key.meta.encKeyByteString == null) {
-      key.meta.encKeyByteString = p.encKey;
-    }
-    if (p.macKey != null && key.meta.macKeyByteString == null) {
-      key.meta.macKeyByteString = p.macKey;
-    }
-
-    return p;
   }
 
   aesDecryptFast({

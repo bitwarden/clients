@@ -58,6 +58,8 @@ import { AddEditGroupDetail } from "./../core/views/add-edit-group-detail";
 /**
  * Indices for the available tabs in the dialog
  */
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum GroupAddEditTabType {
   Info = 0,
   Members = 1,
@@ -82,6 +84,8 @@ export interface GroupAddEditDialogParams {
   initialTab?: GroupAddEditTabType;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum GroupAddEditDialogResultType {
   Saved = "saved",
   Canceled = "canceled",

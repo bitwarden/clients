@@ -41,6 +41,8 @@ import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper
 
 import { LoginDecryptionOptionsService } from "./login-decryption-options.service";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum State {
   NewUser,
   ExistingUserUntrustedDevice,
@@ -284,7 +286,6 @@ export class LoginDecryptionOptionsComponent implements OnInit {
   }
 
   protected async approveFromOtherDevice() {
-    this.loginEmailService.setLoginEmail(this.email);
     await this.router.navigate(["/login-with-device"]);
   }
 
@@ -297,7 +298,6 @@ export class LoginDecryptionOptionsComponent implements OnInit {
   }
 
   protected async requestAdminApproval() {
-    this.loginEmailService.setLoginEmail(this.email);
     await this.router.navigate(["/admin-approval-requested"]);
   }
 

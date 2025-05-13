@@ -21,6 +21,8 @@ export interface AddCreditDialogData {
   organizationId: string;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum AddCreditDialogResult {
   Added = "added",
   Cancelled = "cancelled",
@@ -76,7 +78,7 @@ export class AddCreditDialogComponent implements OnInit {
   async ngOnInit() {
     if (this.organizationId != null) {
       if (this.creditAmount == null) {
-        this.creditAmount = "20.00";
+        this.creditAmount = "0.00";
       }
       this.ppButtonCustomField = "organization_id:" + this.organizationId;
       const userId = await firstValueFrom(
@@ -93,7 +95,7 @@ export class AddCreditDialogComponent implements OnInit {
       }
     } else {
       if (this.creditAmount == null) {
-        this.creditAmount = "10.00";
+        this.creditAmount = "0.00";
       }
       const [userId, email] = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => [a?.id, a?.email])),

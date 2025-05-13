@@ -17,7 +17,7 @@ import { MasterKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { KeyService } from "@bitwarden/key-management";
 
-import { ConvertToKeyConnectorCommand } from "../../commands/convert-to-key-connector.command";
+import { ConvertToKeyConnectorCommand } from "../../key-management/convert-to-key-connector.command";
 import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";
 import { CliUtils } from "../../utils";
