@@ -88,6 +88,7 @@ import {
   YotiCsvImporter,
   ZohoVaultCsvImporter,
   PasswordXPCsvImporter,
+  PasswordDepot17XmlImporter,
 } from "../importers";
 import { Importer } from "../importers/importer";
 import {
@@ -346,6 +347,8 @@ export class ImportService implements ImportServiceAbstraction {
         return new PasswordXPCsvImporter();
       case "netwrixpasswordsecure":
         return new NetwrixPasswordSecureCsvImporter();
+      case "passworddepot17xml":
+        return new PasswordDepot17XmlImporter();
       default:
         return null;
     }
