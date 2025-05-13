@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
-
-import {
+import type {
   AssertCredentialResult,
   CreateCredentialResult,
 } from "../../abstractions/fido2/fido2-client.service.abstraction";
