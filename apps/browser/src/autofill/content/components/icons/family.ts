@@ -8,7 +8,7 @@ export function Family({ color, disabled, theme }: IconProps) {
   const shapeColor = disabled ? themes[theme].secondary["300"] : color || themes[theme].text.main;
 
   return html`
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" aria-hidden="true">
       <path
         class=${css(buildIconColorRule(shapeColor, ruleNames.fill))}
         fill-rule="evenodd"
