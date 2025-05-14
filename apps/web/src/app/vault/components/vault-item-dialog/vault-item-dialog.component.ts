@@ -95,6 +95,8 @@ export interface VaultItemDialogParams {
   restore?: (c: CipherView) => Promise<boolean>;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum VaultItemDialogResult {
   /**
    * A cipher was saved (created or updated).
@@ -479,9 +481,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
           activeUserId,
         );
 
-        updatedCipherView = await updatedCipher.decrypt(
-          await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, activeUserId),
-        );
+        updatedCipherView = await this.cipherService.decrypt(updatedCipher, activeUserId);
       }
 
       this.cipherFormComponent.patchCipher((currentCipher) => {
@@ -518,9 +518,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       return;
     }
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    return await config.originalCipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(config.originalCipher, activeUserId),
-    );
+    return await this.cipherService.decrypt(config.originalCipher, activeUserId);
   }
 
   private updateTitle() {

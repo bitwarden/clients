@@ -3571,10 +3571,10 @@
     "message": "Trust"
   },
   "doNotTrust": {
-    "message": "Do not trust"
+    "message": "Güvenme"
   },
   "organizationNotTrusted": {
-    "message": "Organization is not trusted"
+    "message": "Kuruluş güvenilir değil"
   },
   "emergencyAccessTrustWarning": {
     "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
@@ -4512,6 +4512,27 @@
       }
     }
   },
+  "downloadBitwarden": {
+    "message": "Bitwarden’ı indirin"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Bitwarden’ı tüm cihazlarınıza indirin"
+  },
+  "getTheMobileApp": {
+    "message": "Mobil uygulamayı indirin"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Parolalarınıza Bitwarden mobil uygulaması sayesinde her yerden ulaşın."
+  },
+  "getTheDesktopApp": {
+    "message": "Masaüstü uygulamasını indirin"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Kasanıza tarayıcıyı kullanmadan erişin, biyometri ile kilit açmayı etkinleştirerek hem masaüstü uygulamasından hem de tarayıcı uzantısından kilit açmayı geliştirin."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Şimdi bitwarden.com’dan indirin"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Bu dosyayı kalıcı olarak silmek istediğinizden emin misiniz?"
   },
@@ -5135,42 +5156,6 @@
   "beta": {
     "message": "Beta"
   },
-  "importantNotice": {
-    "message": "Önemli uyarı"
-  },
-  "setupTwoStepLogin": {
-    "message": "İki adımlı girişi ayarla"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Şubat 2025 itibarıyla Bitwarden, yeni cihazlardan yeni girişleri doğrulamanız için e-posta adresinize bir kod gönderecektir."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Hesabınızı korumanın alternatif bir yolu olarak iki adımlı girişi etkinleştirebilirsiniz. Aksi halde e-posta adresinizin doğru olduğundan emin olmalısınız."
-  },
-  "remindMeLater": {
-    "message": "Daha sonra hatırlat"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "$EMAIL$ adresinize sağlıklı bir şekilde erişebiliyor musunuz?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Hayır, erişemiyorum"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Evet, e-postalarıma sağlıklı bir şekilde erişebiliyorum"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "İki adımlı girişi etkinleştir"
-  },
-  "changeAcctEmail": {
-    "message": "Hesap e-postasını değiştir"
-  },
   "extensionWidth": {
     "message": "Uzantı genişliği"
   },
@@ -5276,8 +5261,20 @@
   "newLoginNudgeTitle": {
     "message": "Otomatik doldurmayla zaman kazanın"
   },
-  "newLoginNudgeBody": {
-    "message": "Include a Website so this login appears as an autofill suggestion."
+  "newLoginNudgeBodyOne": {
+    "message": "Bu hesabın otomatik doldurma önerisi olarak görünmesi için bir",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "web sitesi",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "ekleyin.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Kesintisiz çevrimiçi alışveriş"
@@ -5300,7 +5297,14 @@
   "newSshNudgeTitle": {
     "message": "Developer-friendly SSH access"
   },
-  "newSshNudgeBody": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

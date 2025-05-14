@@ -46,11 +46,15 @@ export abstract class Fido2AuthenticatorService<ParentWindowReference> {
   silentCredentialDiscovery: (rpId: string) => Promise<Fido2CredentialView[]>;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum Fido2AlgorithmIdentifier {
   ES256 = -7,
   RS256 = -257,
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum Fido2AuthenticatorErrorCode {
   Unknown = "UnknownError",
   NotSupported = "NotSupportedError",

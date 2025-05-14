@@ -366,14 +366,9 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const captchaToken = await this.finishRegistration(passwordInputResult);
+    await this.finishRegistration(passwordInputResult);
 
-    if (captchaToken == null) {
-      this.submitting = false;
-      return;
-    }
-
-    await this.logIn(passwordInputResult.newPassword, captchaToken);
+    await this.logIn(passwordInputResult.newPassword);
 
     this.submitting = false;
 
@@ -389,14 +384,9 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** Logs the user in based using the token received by the `finishRegistration` method */
-  private async logIn(masterPassword: string, captchaBypassToken: string): Promise<void> {
-    const credentials = new PasswordLoginCredentials(
-      this.email,
-      masterPassword,
-      captchaBypassToken,
-      null,
-    );
+  /** Logs the user in */
+  private async logIn(masterPassword: string): Promise<void> {
+    const credentials = new PasswordLoginCredentials(this.email, masterPassword);
 
     await this.loginStrategyService.logIn(credentials);
   }

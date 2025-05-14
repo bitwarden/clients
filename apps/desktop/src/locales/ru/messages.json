@@ -237,6 +237,24 @@
   "enableSshAgentHelp": {
     "message": "Агент SSH - это сервис, ориентированный на разработчиков, позволяющий подписывать запросы SSH непосредственно из вашего хранилища Bitwarden."
   },
+  "sshAgentPromptBehavior": {
+    "message": "Запрашивать авторизацию при использовании агента SSH"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "Выберите способ обработки запросов авторизации агентом SSH."
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "Запоминать авторизации SSH"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "Всегда"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "Никогда"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "Помнить до блокировки хранилища"
+  },
   "premiumRequired": {
     "message": "Требуется Премиум"
   },
@@ -426,6 +444,12 @@
   },
   "addField": {
     "message": "Добавить поле"
+  },
+  "editField": {
+    "message": "Изменить поле"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Вы уверены, что хотите навсегда удалить это вложение?"
   },
   "fieldType": {
     "message": "Тип поля"
@@ -3671,63 +3695,6 @@
   "fileSavedToDevice": {
     "message": "Файл сохранен на устройстве. Управляйте им из загрузок устройства."
   },
-  "importantNotice": {
-    "message": "Важное уведомление"
-  },
-  "setupTwoStepLogin": {
-    "message": "Настроить двухэтапную аутентификацию"
-  },
-  "itemDetails": {
-    "message": "Информация об элементе"
-  },
-  "itemName": {
-    "message": "Название элемента"
-  },
-  "loginCredentials": {
-    "message": "Данные для авторизации"
-  },
-  "additionalOptions": {
-    "message": "Дополнительные настройки"
-  },
-  "itemHistory": {
-    "message": "История элемента"
-  },
-  "lastEdited": {
-    "message": "Последнее изменение"
-  },
-  "upload": {
-    "message": "Загрузить"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Начиная с февраля 2025 года Bitwarden будет отправлять код на электронную почту вашего аккаунта для подтверждения авторизации с новых устройств."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "В качестве альтернативного способа защиты учетной записи вы можете настроить двухэтапную аутентификацию или сменить электронную почту на ту, к которой вы можете получить доступ."
-  },
-  "remindMeLater": {
-    "message": "Напомнить позже"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Есть ли у вас надежный доступ к электронной почте $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Нет, не знаю"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Да, я имею надежный доступ к своей электронной почте"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Включить двухэтапную аутентификацию"
-  },
-  "changeAcctEmail": {
-    "message": "Изменить email аккаунта"
-  },
   "allowScreenshots": {
     "message": "Разрешить захват экрана"
   },
@@ -3755,8 +3722,20 @@
   "newLoginNudgeTitle": {
     "message": "Экономьте время с помощью автозаполнения"
   },
-  "newLoginNudgeBody": {
-    "message": "Включите сайт, чтобы этот логин отображался в качестве предложения для автозаполнения."
+  "newLoginNudgeBodyOne": {
+    "message": "Включите",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "сайт",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "чтобы этот логин отображался в качестве предложения для автозаполнения.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Оформление заказа через интернет"
@@ -3779,7 +3758,14 @@
   "newSshNudgeTitle": {
     "message": "Удобный для разработчиков SSH-доступ"
   },
-  "newSshNudgeBody": {
-    "message": "Храните свои ключи и подключайтесь с помощью агента SSH для быстрой и зашифрованной аутентификации."
+  "newSshNudgeBodyOne": {
+    "message": "Храните свои ключи и подключайтесь с помощью агента SSH для быстрой и зашифрованной аутентификации.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Узнайте больше об агенте SSH",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }
