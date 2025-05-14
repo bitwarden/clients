@@ -10,21 +10,21 @@ import { Profile } from "../data";
 import { CoreProfileMetadata } from "../profile-metadata";
 import { isCoreProfile } from "../util";
 
-import password from "./random-password";
+import sdkPassword from "./sdk-random-password";
 
 const dependencyProvider = mock<GeneratorDependencyProvider>();
 
 describe("password - characters generator metadata", () => {
   describe("engine.create", () => {
     it("returns an email randomizer", () => {
-      expect(password.engine.create(dependencyProvider)).toBeInstanceOf(SdkPasswordRandomizer);
+      expect(sdkPassword.engine.create(dependencyProvider)).toBeInstanceOf(SdkPasswordRandomizer);
     });
   });
 
   describe("profiles[account]", () => {
     let accountProfile: CoreProfileMetadata<PasswordGenerationOptions> = null!;
     beforeEach(() => {
-      const profile = password.profiles[Profile.account];
+      const profile = sdkPassword.profiles[Profile.account];
       if (isCoreProfile(profile!)) {
         accountProfile = profile;
       } else {

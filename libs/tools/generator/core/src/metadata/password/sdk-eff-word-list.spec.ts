@@ -10,21 +10,23 @@ import { Profile } from "../data";
 import { CoreProfileMetadata } from "../profile-metadata";
 import { isCoreProfile } from "../util";
 
-import effPassphrase from "./eff-word-list";
+import sdkEffPassphrase from "./sdk-eff-word-list";
 
 const dependencyProvider = mock<GeneratorDependencyProvider>();
 
 describe("password - eff words generator metadata", () => {
   describe("engine.create", () => {
     it("returns an email randomizer", () => {
-      expect(effPassphrase.engine.create(dependencyProvider)).toBeInstanceOf(SdkPasswordRandomizer);
+      expect(sdkEffPassphrase.engine.create(dependencyProvider)).toBeInstanceOf(
+        SdkPasswordRandomizer,
+      );
     });
   });
 
   describe("profiles[account]", () => {
     let accountProfile: CoreProfileMetadata<PassphraseGenerationOptions> | null = null;
     beforeEach(() => {
-      const profile = effPassphrase.profiles[Profile.account];
+      const profile = sdkEffPassphrase.profiles[Profile.account];
       if (isCoreProfile(profile!)) {
         accountProfile = profile;
       } else {
