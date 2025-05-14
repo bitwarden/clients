@@ -1,3 +1,4 @@
+import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit, ViewChild } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
@@ -68,14 +69,23 @@ type AccountRecoveryDialogResultType =
   standalone: true,
   selector: "app-account-recovery-dialog",
   templateUrl: "account-recovery-dialog.component.html",
-  imports: [ButtonModule, CalloutModule, DialogModule, I18nPipe, InputPasswordComponent],
+  imports: [
+    ButtonModule,
+    CalloutModule,
+    CommonModule,
+    DialogModule,
+    I18nPipe,
+    InputPasswordComponent,
+  ],
 })
 export class AccountRecoveryDialogComponent implements OnInit {
   @ViewChild(InputPasswordComponent)
-  inputPasswordComponent: InputPasswordComponent;
+  inputPasswordComponent!: InputPasswordComponent;
 
   inputPasswordFlow = InputPasswordFlow.ChangePasswordDelegation;
   masterPasswordPolicyOptions?: MasterPasswordPolicyOptions;
+  receivedPasswordInputResult = false;
+  submitting = false;
 
   get loggedOutWarningName() {
     return this.dialogData.name != null ? this.dialogData.name : this.i18nService.t("thisUser");
@@ -100,11 +110,25 @@ export class AccountRecoveryDialogComponent implements OnInit {
     );
   }
 
-  submit = async () => {
-    await this.inputPasswordComponent.submit();
+  handlePrimaryButtonClick = async () => {
+    try {
+      this.submitting = true;
+      await this.inputPasswordComponent.submit();
+    } catch {
+      // Flip to false if submit() throws an error
+      this.submitting = false;
+    }
+
+    // Flip to false if submit() returns early without a PasswordInputResult
+    // emission due to form validation errors or new password doesn't meet org policy reqs.
+    if (!this.receivedPasswordInputResult) {
+      this.submitting = false;
+    }
   };
 
   async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
+    this.receivedPasswordInputResult = Boolean(passwordInputResult);
+
     try {
       await this.resetPasswordService.resetMasterPassword(
         passwordInputResult.newPassword,
