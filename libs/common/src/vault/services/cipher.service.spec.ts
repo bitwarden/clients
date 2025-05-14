@@ -6,7 +6,7 @@ import { CipherDecryptionKeys, KeyService } from "@bitwarden/key-management";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
 import { FakeStateProvider } from "../../../spec/fake-state-provider";
-import { makeStaticByteArray } from "../../../spec/utils";
+import { makeStaticByteArray, makeSymmetricCryptoKey } from "../../../spec/utils";
 import { ApiService } from "../../abstractions/api.service";
 import { SearchService } from "../../abstractions/search.service";
 import { AutofillSettingsService } from "../../autofill/services/autofill-settings.service";
@@ -24,6 +24,7 @@ import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypt
 import { ContainerService } from "../../platform/services/container.service";
 import { CipherId, UserId } from "../../types/guid";
 import { CipherKey, OrgKey, UserKey } from "../../types/key";
+import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
 import { FieldType } from "../enums";
 import { CipherRepromptType } from "../enums/cipher-reprompt-type";
@@ -34,6 +35,7 @@ import { Cipher } from "../models/domain/cipher";
 import { CipherCreateRequest } from "../models/request/cipher-create.request";
 import { CipherPartialRequest } from "../models/request/cipher-partial.request";
 import { CipherRequest } from "../models/request/cipher.request";
+import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 import { LoginUriView } from "../models/view/login-uri.view";
 
@@ -124,6 +126,7 @@ describe("Cipher Service", () => {
   accountService = mockAccountServiceWith(mockUserId);
   const logService = mock<LogService>();
   const stateProvider = new FakeStateProvider(accountService);
+  const cipherEncryptionService = mock<CipherEncryptionService>();
 
   const userId = "TestUserId" as UserId;
 
@@ -151,6 +154,7 @@ describe("Cipher Service", () => {
       stateProvider,
       accountService,
       logService,
+      cipherEncryptionService,
     );
 
     cipherObj = new Cipher(cipherData);
@@ -476,6 +480,87 @@ describe("Cipher Service", () => {
       await expect(
         cipherService.getRotatedData(originalUserKey, newUserKey, mockUserId),
       ).rejects.toThrow("Cannot rotate ciphers when decryption failures are present");
+    });
+  });
+
+  describe("decrypt", () => {
+    it("should call decrypt method of CipherEncryptionService when feature flag is true", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+      cipherEncryptionService.decrypt.mockResolvedValue(new CipherView(cipherObj));
+
+      const result = await cipherService.decrypt(cipherObj, userId);
+
+      expect(result).toEqual(new CipherView(cipherObj));
+      expect(cipherEncryptionService.decrypt).toHaveBeenCalledWith(cipherObj, userId);
+    });
+
+    it("should call legacy decrypt when feature flag is false", async () => {
+      const mockUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
+      configService.getFeatureFlag.mockResolvedValue(false);
+      cipherService.getKeyForCipherKeyDecryption = jest.fn().mockResolvedValue(mockUserKey);
+      encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(32));
+      jest.spyOn(cipherObj, "decrypt").mockResolvedValue(new CipherView(cipherObj));
+
+      const result = await cipherService.decrypt(cipherObj, userId);
+
+      expect(result).toEqual(new CipherView(cipherObj));
+      expect(cipherObj.decrypt).toHaveBeenCalledWith(mockUserKey);
+    });
+  });
+
+  describe("getDecryptedAttachmentBuffer", () => {
+    const mockEncryptedContent = new Uint8Array([1, 2, 3]);
+    const mockDecryptedContent = new Uint8Array([4, 5, 6]);
+
+    it("should use SDK when feature flag is enabled", async () => {
+      const cipher = new Cipher(cipherData);
+      const attachment = new AttachmentView(cipher.attachments![0]);
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      jest.spyOn(cipherService, "ciphers$").mockReturnValue(of({ [cipher.id]: cipherData }));
+      cipherEncryptionService.decryptAttachmentContent.mockResolvedValue(mockDecryptedContent);
+      const mockResponse = {
+        arrayBuffer: jest.fn().mockResolvedValue(mockEncryptedContent.buffer),
+      } as unknown as Response;
+
+      const result = await cipherService.getDecryptedAttachmentBuffer(
+        cipher.id as CipherId,
+        attachment,
+        mockResponse,
+        userId,
+      );
+
+      expect(result).toEqual(mockDecryptedContent);
+      expect(cipherEncryptionService.decryptAttachmentContent).toHaveBeenCalledWith(
+        cipher,
+        attachment,
+        mockEncryptedContent,
+        userId,
+      );
+    });
+
+    it("should use legacy decryption when feature flag is enabled", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+      const cipher = new Cipher(cipherData);
+      const attachment = new AttachmentView(cipher.attachments![0]);
+      attachment.key = makeSymmetricCryptoKey(64);
+
+      const mockResponse = {
+        arrayBuffer: jest.fn().mockResolvedValue(mockEncryptedContent.buffer),
+      } as unknown as Response;
+      const mockEncBuf = {} as EncArrayBuffer;
+      EncArrayBuffer.fromResponse = jest.fn().mockResolvedValue(mockEncBuf);
+      encryptService.decryptFileData.mockResolvedValue(mockDecryptedContent);
+
+      const result = await cipherService.getDecryptedAttachmentBuffer(
+        cipher.id as CipherId,
+        attachment,
+        mockResponse,
+        userId,
+      );
+
+      expect(result).toEqual(mockDecryptedContent);
+      expect(encryptService.decryptFileData).toHaveBeenCalledWith(mockEncBuf, attachment.key);
     });
   });
 });

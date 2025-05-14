@@ -39,11 +39,15 @@ export class NavItemComponent extends NavBaseComponent {
   }
 
   /**
-   * The design spec calls for the an outline to wrap the entire element when the template's anchor/button has :focus-visible.
-   * Usually, we would use :focus-within for this. However, that matches when a child element has :focus instead of :focus-visible.
+   * The design spec calls for the an outline to wrap the entire element when the template's
+   * anchor/button has :focus-visible. Usually, we would use :focus-within for this. However, that
+   * matches when a child element has :focus instead of :focus-visible.
    *
-   * Currently, the browser does not have a pseudo selector that combines these two, e.g. :focus-visible-within (WICG/focus-visible#151)
-   * To make our own :focus-visible-within functionality, we use event delegation on the host and manually check if the focus target (denoted with the .fvw class) matches :focus-visible. We then map that state to some styles, so the entire component can have an outline.
+   * Currently, the browser does not have a pseudo selector that combines these two, e.g.
+   * :focus-visible-within (WICG/focus-visible#151). To make our own :focus-visible-within
+   * functionality, we use event delegation on the host and manually check if the focus target
+   * (denoted with the data-fvw attribute) matches :focus-visible. We then map that state to some
+   * styles, so the entire component can have an outline.
    */
   protected focusVisibleWithin$ = new BehaviorSubject(false);
   protected fvwStyles$ = this.focusVisibleWithin$.pipe(
@@ -53,7 +57,7 @@ export class NavItemComponent extends NavBaseComponent {
   );
   @HostListener("focusin", ["$event.target"])
   onFocusIn(target: HTMLElement) {
-    this.focusVisibleWithin$.next(target.matches(".fvw:focus-visible"));
+    this.focusVisibleWithin$.next(target.matches("[data-fvw]:focus-visible"));
   }
   @HostListener("focusout")
   onFocusOut() {
