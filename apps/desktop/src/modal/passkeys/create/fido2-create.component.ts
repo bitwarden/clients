@@ -55,7 +55,6 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
   session?: DesktopFido2UserInterfaceSession = null;
   private ciphersSubject = new BehaviorSubject<CipherView[]>([]);
   ciphers$: Observable<CipherView[]> = this.ciphersSubject.asObservable();
-  containsExcludedCiphers: boolean = false;
   readonly Icons = { BitwardenShield };
 
   constructor(

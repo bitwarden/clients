@@ -53,7 +53,6 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
   private ciphersSubject = new BehaviorSubject<CipherView[]>([]);
   ciphers$: Observable<CipherView[]> = this.ciphersSubject.asObservable();
   private cipherIdsSubject = new BehaviorSubject<string[]>([]);
-  protected containsExcludedCiphers: boolean = false;
   cipherIds$: Observable<string[]>;
   readonly Icons = { BitwardenShield };
 
