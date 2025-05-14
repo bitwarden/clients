@@ -23,6 +23,8 @@ export type NudgeStatus = {
 /**
  * Enum to list the various nudge types, to be used by components/badges to show/hide the nudge
  */
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum VaultNudgeType {
   /** Nudge to show when user has no items in their vault
    * Add future nudges here
@@ -114,7 +116,7 @@ export class VaultNudgesService {
    */
   hasActiveBadges$(userId: UserId): Observable<boolean> {
     // Add more nudge types here if they have the settings badge feature
-    const nudgeTypes = [VaultNudgeType.EmptyVaultNudge];
+    const nudgeTypes = [VaultNudgeType.EmptyVaultNudge, VaultNudgeType.DownloadBitwarden];
 
     const nudgeTypesWithBadge$ = nudgeTypes.map((nudge) => {
       return this.getNudgeService(nudge)

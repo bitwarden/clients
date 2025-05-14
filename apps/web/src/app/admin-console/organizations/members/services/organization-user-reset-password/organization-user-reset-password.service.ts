@@ -112,7 +112,7 @@ export class OrganizationUserResetPasswordService
     if (orgSymKey == null) {
       throw new Error("No org key found");
     }
-    const decPrivateKey = await this.encryptService.decryptToBytes(
+    const decPrivateKey = await this.encryptService.unwrapDecapsulationKey(
       new EncString(response.encryptedPrivateKey),
       orgSymKey,
     );
