@@ -28,7 +28,6 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-
 interface RequestSponsorshipForm {
   sponsorshipEmail: FormControl<string | null>;
   sponsorshipNote: FormControl<string | null>;
