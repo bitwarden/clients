@@ -12,6 +12,7 @@ import {
   AutofillNudgeService,
   DownloadBitwardenNudgeService,
   NewItemNudgeService,
+  AccountSecurityNudgeService,
 } from "./custom-nudges-services";
 import { DefaultSingleNudgeService, SingleNudgeService } from "./default-single-nudge.service";
 
@@ -38,6 +39,7 @@ export enum VaultNudgeType {
   newIdentityItemStatus = "new-identity-item-status",
   newNoteItemStatus = "new-note-item-status",
   newSshItemStatus = "new-ssh-item-status",
+  AccountSecurity = "account-security",
 }
 
 export const VAULT_NUDGE_DISMISSED_DISK_KEY = new UserKeyDefinition<
@@ -68,6 +70,7 @@ export class VaultNudgesService {
     [VaultNudgeType.newIdentityItemStatus]: this.newItemNudgeService,
     [VaultNudgeType.newNoteItemStatus]: this.newItemNudgeService,
     [VaultNudgeType.newSshItemStatus]: this.newItemNudgeService,
+    [VaultNudgeType.AccountSecurity]: inject(AccountSecurityNudgeService),
   };
 
   /**
