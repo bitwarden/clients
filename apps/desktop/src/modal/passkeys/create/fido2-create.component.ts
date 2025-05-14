@@ -9,7 +9,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
-import { guidToStandardFormat } from "@bitwarden/common/platform/services/fido2/guid-utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -86,7 +85,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
       .getAllDecrypted(activeUserId)
       .then((ciphers) => {
         const relevantCiphers = ciphers.filter((cipher) => {
-          const userHandle = guidToStandardFormat(
+          const userHandle = Fido2Utils.bufferToString(
             new Uint8Array(lastRegistrationRequest.userHandle),
           );
 
