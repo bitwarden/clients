@@ -13,7 +13,7 @@ const { css } = createEmotion({
 });
 
 export type OptionItemProps = Option & {
-  contextLabel: string;
+  contextLabel?: string;
   theme: Theme;
   handleSelection: () => void;
 };
@@ -37,6 +37,10 @@ export function OptionItem({
 
   const iconProps: IconProps = { color: themes[theme].text.main, theme };
   const itemIcon = icon?.(iconProps);
+  const ariaLabel =
+    contextLabel && text
+      ? chrome.i18n.getMessage("selectItemAriaLabel", [contextLabel, text])
+      : text;
 
   return html`<div
     class=${optionItemStyles}
@@ -44,7 +48,7 @@ export function OptionItem({
     tabindex="0"
     title=${text}
     role="option"
-    aria-label=${chrome.i18n.getMessage("selectItemAriaLabel", [contextLabel, text])}
+    aria-label=${ariaLabel}
     @click=${handleSelection}
     @keyup=${handleSelectionKeyUpProxy}
   >
