@@ -52,6 +52,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, SimpleDialogOptions, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -762,8 +763,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         data: {
           name: this.userNamePipe.transform(user),
           email: user != null ? user.email : null,
-          organizationId: this.organization.id,
-          id: user != null ? user.id : null,
+          organizationId: this.organization.id as OrganizationId,
+          organizationUserId: user != null ? user.id : null,
         },
       });
 
