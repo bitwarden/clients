@@ -10,10 +10,16 @@ import {
   OnChanges,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { skip, takeUntil, Subject, map, withLatestFrom, ReplaySubject } from "rxjs";
+import { skip, takeUntil, Subject, map, withLatestFrom, ReplaySubject, tap } from "rxjs";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import {
+  SemanticLogger,
+  disabledSemanticLoggerProvider,
+  ifEnabledSemanticLoggerProvider,
+} from "@bitwarden/common/tools/log";
 import {
   CredentialGeneratorService,
   PassphraseGenerationOptions,
@@ -42,7 +48,19 @@ export class PassphraseSettingsComponent implements OnInit, OnChanges, OnDestroy
     private formBuilder: FormBuilder,
     private generatorService: CredentialGeneratorService,
     private i18nService: I18nService,
+    private logService: LogService,
   ) {}
+
+  /** Send structured debug logs from the credential generator component
+   *  to the debugger console.
+   *
+   *  @warning this may reveal sensitive information in plaintext.
+   */
+  @Input()
+  debug: boolean = false;
+
+  // this `log` initializer is overridden in `ngOnInit`
+  private log: SemanticLogger = disabledSemanticLoggerProvider({});
 
   /** Binds the component to a specific user's settings.
    *  @remarks this is initialized to null but since it's a required input it'll
@@ -82,13 +100,20 @@ export class PassphraseSettingsComponent implements OnInit, OnChanges, OnDestroy
   });
 
   async ngOnInit() {
+    this.log = ifEnabledSemanticLoggerProvider(this.debug, this.logService, {
+      type: "PassphraseSettingsComponent",
+    });
+
     const settings = await this.generatorService.settings(BuiltIn.passphrase, {
       account$: this.account$,
     });
 
     // skips reactive event emissions to break a subscription cycle
     settings.withConstraints$
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(
+        tap((content) => this.log.debug(content, "passphrase settings loaded with constraints")),
+        takeUntil(this.destroyed$),
+      )
       .subscribe(({ state, constraints }) => {
         this.settings.patchValue(state, { emitEvent: false });
 
@@ -107,7 +132,13 @@ export class PassphraseSettingsComponent implements OnInit, OnChanges, OnDestroy
       });
 
     // the first emission is the current value; subsequent emissions are updates
-    settings.pipe(skip(1), takeUntil(this.destroyed$)).subscribe(this.onUpdated);
+    settings
+      .pipe(
+        skip(1),
+        tap((settings) => this.log.debug(settings, "passphrase settings onUpdate event")),
+        takeUntil(this.destroyed$),
+      )
+      .subscribe(this.onUpdated);
 
     // explain policy & disable policy-overridden fields
     this.generatorService
@@ -125,6 +156,9 @@ export class PassphraseSettingsComponent implements OnInit, OnChanges, OnDestroy
     this.saveSettings
       .pipe(
         withLatestFrom(this.settings.valueChanges),
+        tap(([source, form]) =>
+          this.log.debug({ source, form }, "save passphrase settings request"),
+        ),
         map(([, settings]) => settings as PassphraseGenerationOptions),
         takeUntil(this.destroyed$),
       )
@@ -135,8 +169,8 @@ export class PassphraseSettingsComponent implements OnInit, OnChanges, OnDestroy
   protected wordSeparatorMaxLength: number = 0;
 
   private saveSettings = new Subject<string>();
-  save(site: string = "component api call") {
-    this.saveSettings.next(site);
+  save(source: string = "component api call") {
+    this.saveSettings.next(source);
   }
 
   /** display binding for enterprise policy notice */

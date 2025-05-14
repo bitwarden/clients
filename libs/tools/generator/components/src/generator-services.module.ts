@@ -7,6 +7,8 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { KeyServiceLegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/key-service-legacy-encryptor-provider";
 import { LegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/legacy-encryptor-provider";
@@ -17,7 +19,11 @@ import { DefaultFields, DefaultSites, Extension } from "@bitwarden/common/tools/
 import { RuntimeExtensionRegistry } from "@bitwarden/common/tools/extension/runtime-extension-registry";
 import { VendorExtensions, Vendors } from "@bitwarden/common/tools/extension/vendor";
 import { RestClient } from "@bitwarden/common/tools/integration/rpc";
-import { disabledSemanticLoggerProvider } from "@bitwarden/common/tools/log";
+import {
+  LogProvider,
+  disabledSemanticLoggerProvider,
+  enableLogForTypes,
+} from "@bitwarden/common/tools/log";
 import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
 import { UserStateSubjectDependencyProvider } from "@bitwarden/common/tools/state/user-state-subject-dependency-provider";
 import {
@@ -75,8 +81,16 @@ const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("S
         state: StateProvider,
         policy: PolicyService,
         registry: ExtensionRegistry,
+        logger: LogService,
+        environment: PlatformUtilsService,
       ) => {
-        const log = disabledSemanticLoggerProvider;
+        let log: LogProvider;
+        if (environment.isDev()) {
+          log = enableLogForTypes(logger, []);
+        } else {
+          log = disabledSemanticLoggerProvider;
+        }
+
         const extension = new ExtensionService(registry, {
           encryptor,
           state,
@@ -89,7 +103,14 @@ const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("S
           log,
         };
       },
-      deps: [LegacyEncryptorProvider, StateProvider, PolicyService, ExtensionRegistry],
+      deps: [
+        LegacyEncryptorProvider,
+        StateProvider,
+        PolicyService,
+        ExtensionRegistry,
+        LogService,
+        PlatformUtilsService,
+      ],
     }),
     safeProvider({
       provide: GENERATOR_SERVICE_PROVIDER,
