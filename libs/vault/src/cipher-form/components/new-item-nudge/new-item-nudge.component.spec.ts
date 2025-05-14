@@ -58,7 +58,7 @@ describe("NewItemNudgeComponent", () => {
     expect(component.nudgeBody).toBe(
       "newLoginNudgeBodyOne <strong>newLoginNudgeBodyBold</strong> newLoginNudgeBodyTwo",
     );
-    expect(component.dismissalNudgeType).toBe(VaultNudgeType.newLoginItemStatus);
+    expect(component.dismissalNudgeType).toBe(VaultNudgeType.NewLoginItemStatus);
   });
 
   it("should set nudge title and body for CipherType.Card type", async () => {
@@ -71,7 +71,7 @@ describe("NewItemNudgeComponent", () => {
     expect(component.showNewItemSpotlight).toBe(true);
     expect(component.nudgeTitle).toBe("newCardNudgeTitle");
     expect(component.nudgeBody).toBe("newCardNudgeBody");
-    expect(component.dismissalNudgeType).toBe(VaultNudgeType.newCardItemStatus);
+    expect(component.dismissalNudgeType).toBe(VaultNudgeType.NewCardItemStatus);
   });
 
   it("should not show anything if spotlight has been dismissed", async () => {
@@ -82,12 +82,12 @@ describe("NewItemNudgeComponent", () => {
     await component.ngOnInit();
 
     expect(component.showNewItemSpotlight).toBe(false);
-    expect(component.dismissalNudgeType).toBe(VaultNudgeType.newIdentityItemStatus);
+    expect(component.dismissalNudgeType).toBe(VaultNudgeType.NewIdentityItemStatus);
   });
 
   it("should set showNewItemSpotlight to false when user dismisses spotlight", async () => {
     component.showNewItemSpotlight = true;
-    component.dismissalNudgeType = VaultNudgeType.newLoginItemStatus;
+    component.dismissalNudgeType = VaultNudgeType.NewLoginItemStatus;
     component.activeUserId = "test-user-id" as UserId;
 
     const dismissSpy = jest.spyOn(vaultNudgesService, "dismissNudge").mockResolvedValue();
@@ -96,7 +96,7 @@ describe("NewItemNudgeComponent", () => {
 
     expect(component.showNewItemSpotlight).toBe(false);
     expect(dismissSpy).toHaveBeenCalledWith(
-      VaultNudgeType.newLoginItemStatus,
+      VaultNudgeType.NewLoginItemStatus,
       component.activeUserId,
     );
   });

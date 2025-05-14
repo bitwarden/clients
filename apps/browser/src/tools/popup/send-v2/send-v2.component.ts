@@ -8,8 +8,6 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { ButtonModule, CalloutModule, Icons, NoItemsModule } from "@bitwarden/components";
 import {
@@ -21,6 +19,7 @@ import {
   SendListItemsContainerComponent,
   SendSearchComponent,
 } from "@bitwarden/send-ui";
+import { VaultNudgesService, VaultNudgeType } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
@@ -63,8 +62,11 @@ export class SendV2Component implements OnDestroy {
   protected title: string = "allSends";
   protected noItemIcon = NoSendsIcon;
   protected noResultsIcon = Icons.NoResults;
-  protected onboardingNudgesFlag$: Observable<boolean> = this.configService.getFeatureFlag$(
-    FeatureFlag.PM8851_BrowserOnboardingNudge,
+  private activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
+  protected showSendSpotlight$: Observable<boolean> = this.activeUserId$.pipe(
+    switchMap((userId) =>
+      this.vaultNudgesService.showNudgeSpotlight$(VaultNudgeType.SendNudgeStatus, userId),
+    ),
   );
 
   protected sendsDisabled = false;
@@ -74,7 +76,7 @@ export class SendV2Component implements OnDestroy {
     protected sendListFiltersService: SendListFiltersService,
     private policyService: PolicyService,
     private accountService: AccountService,
-    private configService: ConfigService,
+    private vaultNudgesService: VaultNudgesService,
   ) {
     combineLatest([
       this.sendItemsService.emptyList$,

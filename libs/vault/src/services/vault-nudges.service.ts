@@ -33,12 +33,13 @@ export enum VaultNudgeType {
   HasVaultItems = "has-vault-items",
   AutofillNudge = "autofill-nudge",
   DownloadBitwarden = "download-bitwarden",
-  newLoginItemStatus = "new-login-item-status",
-  newCardItemStatus = "new-card-item-status",
-  newIdentityItemStatus = "new-identity-item-status",
-  newNoteItemStatus = "new-note-item-status",
-  newSshItemStatus = "new-ssh-item-status",
+  NewLoginItemStatus = "new-login-item-status",
+  NewCardItemStatus = "new-card-item-status",
+  NewIdentityItemStatus = "new-identity-item-status",
+  NewNoteItemStatus = "new-note-item-status",
+  NewSshItemStatus = "new-ssh-item-status",
   GeneratorNudgeStatus = "generator-nudge-status",
+  SendNudgeStatus = "send-nudge-status",
 }
 
 export const VAULT_NUDGE_DISMISSED_DISK_KEY = new UserKeyDefinition<
@@ -64,11 +65,11 @@ export class VaultNudgesService {
     [VaultNudgeType.EmptyVaultNudge]: inject(EmptyVaultNudgeService),
     [VaultNudgeType.AutofillNudge]: inject(AutofillNudgeService),
     [VaultNudgeType.DownloadBitwarden]: inject(DownloadBitwardenNudgeService),
-    [VaultNudgeType.newLoginItemStatus]: this.newItemNudgeService,
-    [VaultNudgeType.newCardItemStatus]: this.newItemNudgeService,
-    [VaultNudgeType.newIdentityItemStatus]: this.newItemNudgeService,
-    [VaultNudgeType.newNoteItemStatus]: this.newItemNudgeService,
-    [VaultNudgeType.newSshItemStatus]: this.newItemNudgeService,
+    [VaultNudgeType.NewLoginItemStatus]: this.newItemNudgeService,
+    [VaultNudgeType.NewCardItemStatus]: this.newItemNudgeService,
+    [VaultNudgeType.NewIdentityItemStatus]: this.newItemNudgeService,
+    [VaultNudgeType.NewNoteItemStatus]: this.newItemNudgeService,
+    [VaultNudgeType.NewSshItemStatus]: this.newItemNudgeService,
   };
 
   /**
@@ -81,6 +82,32 @@ export class VaultNudgesService {
 
   private getNudgeService(nudge: VaultNudgeType): SingleNudgeService {
     return this.customNudgeServices[nudge] ?? this.defaultNudgeService;
+  }
+
+  showNudgeSpotlight$(nudge: VaultNudgeType, userId: UserId): Observable<boolean> {
+    return this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge).pipe(
+      switchMap((hasVaultNudgeFlag) => {
+        if (!hasVaultNudgeFlag) {
+          return of(false);
+        }
+        return this.getNudgeService(nudge)
+          .nudgeStatus$(nudge, userId)
+          .pipe(map((nudgeStatus) => !nudgeStatus.hasSpotlightDismissed));
+      }),
+    );
+  }
+
+  showNudgeBadge$(nudge: VaultNudgeType, userId: UserId): Observable<boolean> {
+    return this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge).pipe(
+      switchMap((hasVaultNudgeFlag) => {
+        if (!hasVaultNudgeFlag) {
+          return of(false);
+        }
+        return this.getNudgeService(nudge)
+          .nudgeStatus$(nudge, userId)
+          .pipe(map((nudgeStatus) => !nudgeStatus.hasBadgeDismissed));
+      }),
+    );
   }
 
   /**

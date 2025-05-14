@@ -30,6 +30,7 @@ import {
   SendListFiltersComponent,
   SendListFiltersService,
 } from "@bitwarden/send-ui";
+import { VaultNudgesService } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
@@ -121,6 +122,7 @@ describe("SendV2Component", () => {
         { provide: SendListFiltersService, useValue: sendListFiltersService },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
         { provide: PolicyService, useValue: policyService },
+        { provide: VaultNudgesService, useValue: mock<VaultNudgesService>() },
       ],
     }).compileComponents();
 

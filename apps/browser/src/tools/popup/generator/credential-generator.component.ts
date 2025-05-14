@@ -1,12 +1,11 @@
 import { AsyncPipe, CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { firstValueFrom, map, Observable, switchMap } from "rxjs";
+import { firstValueFrom, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ItemModule, TypographyModule } from "@bitwarden/components";
 import { GeneratorModule } from "@bitwarden/generator-components";
@@ -43,14 +42,12 @@ export class CredentialGeneratorComponent {
   private activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
   protected showGeneratorSpotlight$: Observable<boolean> = this.activeUserId$.pipe(
     switchMap((userId) =>
-      this.vaultNudgesService.showNudge$(VaultNudgeType.GeneratorNudgeStatus, userId),
+      this.vaultNudgesService.showNudgeSpotlight$(VaultNudgeType.GeneratorNudgeStatus, userId),
     ),
-    map((nudgeStatus) => !nudgeStatus.hasSpotlightDismissed),
   );
 
   constructor(
     private vaultNudgesService: VaultNudgesService,
-    private i18nService: I18nService,
     private accountService: AccountService,
   ) {}
 

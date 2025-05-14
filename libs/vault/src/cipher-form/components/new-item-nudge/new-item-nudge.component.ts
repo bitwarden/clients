@@ -39,25 +39,25 @@ export class NewItemNudgeComponent implements OnInit {
         const nudgeBodyOne = this.i18nService.t("newLoginNudgeBodyOne");
         const nudgeBodyBold = this.i18nService.t("newLoginNudgeBodyBold");
         const nudgeBodyTwo = this.i18nService.t("newLoginNudgeBodyTwo");
-        this.dismissalNudgeType = VaultNudgeType.newLoginItemStatus;
+        this.dismissalNudgeType = VaultNudgeType.NewLoginItemStatus;
         this.nudgeTitle = this.i18nService.t("newLoginNudgeTitle");
         this.nudgeBody = `${nudgeBodyOne} <strong>${nudgeBodyBold}</strong> ${nudgeBodyTwo}`;
         break;
       }
       case CipherType.Card:
-        this.dismissalNudgeType = VaultNudgeType.newCardItemStatus;
+        this.dismissalNudgeType = VaultNudgeType.NewCardItemStatus;
         this.nudgeTitle = this.i18nService.t("newCardNudgeTitle");
         this.nudgeBody = this.i18nService.t("newCardNudgeBody");
         break;
 
       case CipherType.Identity:
-        this.dismissalNudgeType = VaultNudgeType.newIdentityItemStatus;
+        this.dismissalNudgeType = VaultNudgeType.NewIdentityItemStatus;
         this.nudgeTitle = this.i18nService.t("newIdentityNudgeTitle");
         this.nudgeBody = this.i18nService.t("newIdentityNudgeBody");
         break;
 
       case CipherType.SecureNote:
-        this.dismissalNudgeType = VaultNudgeType.newNoteItemStatus;
+        this.dismissalNudgeType = VaultNudgeType.NewNoteItemStatus;
         this.nudgeTitle = this.i18nService.t("newNoteNudgeTitle");
         this.nudgeBody = this.i18nService.t("newNoteNudgeBody");
         break;
@@ -66,7 +66,7 @@ export class NewItemNudgeComponent implements OnInit {
         const sshPartOne = this.i18nService.t("newSshNudgeBodyOne");
         const sshPartTwo = this.i18nService.t("newSshNudgeBodyTwo");
 
-        this.dismissalNudgeType = VaultNudgeType.newSshItemStatus;
+        this.dismissalNudgeType = VaultNudgeType.NewSshItemStatus;
         this.nudgeTitle = this.i18nService.t("newSshNudgeTitle");
         this.nudgeBody = `${sshPartOne} <a href="https://bitwarden.com/help/ssh-agent" class="tw-text-primary-600 tw-font-bold" target="_blank">${sshPartTwo}</a>`;
         break;

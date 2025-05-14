@@ -30,19 +30,19 @@ export class NewItemNudgeService extends DefaultSingleNudgeService {
         let currentType: CipherType;
 
         switch (nudgeType) {
-          case VaultNudgeType.newLoginItemStatus:
+          case VaultNudgeType.NewLoginItemStatus:
             currentType = CipherType.Login;
             break;
-          case VaultNudgeType.newCardItemStatus:
+          case VaultNudgeType.NewCardItemStatus:
             currentType = CipherType.Card;
             break;
-          case VaultNudgeType.newIdentityItemStatus:
+          case VaultNudgeType.NewIdentityItemStatus:
             currentType = CipherType.Identity;
             break;
-          case VaultNudgeType.newNoteItemStatus:
+          case VaultNudgeType.NewNoteItemStatus:
             currentType = CipherType.SecureNote;
             break;
-          case VaultNudgeType.newSshItemStatus:
+          case VaultNudgeType.NewSshItemStatus:
             currentType = CipherType.SshKey;
             break;
         }
