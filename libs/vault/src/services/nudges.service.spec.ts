@@ -110,7 +110,7 @@ describe("Vault Nudges Service", () => {
     });
   });
 
-  describe("VaultNudgesService", () => {
+  describe("NudgesService", () => {
     it("should return true, the proper value from the custom nudge service nudgeStatus$", async () => {
       TestBed.overrideProvider(HasItemsNudgeService, {
         useValue: { nudgeStatus$: () => of(true) },
@@ -118,7 +118,7 @@ describe("Vault Nudges Service", () => {
       const service = testBed.inject(NudgesService);
 
       const result = await firstValueFrom(
-        service.showNudge$(NudgeType.HasVaultItems, "user-id" as UserId),
+        service.showNudgeStatus$(NudgeType.HasVaultItems, "user-id" as UserId),
       );
 
       expect(result).toBe(true);
@@ -131,7 +131,37 @@ describe("Vault Nudges Service", () => {
       const service = testBed.inject(NudgesService);
 
       const result = await firstValueFrom(
-        service.showNudge$(NudgeType.HasVaultItems, "user-id" as UserId),
+        service.showNudgeStatus$(NudgeType.HasVaultItems, "user-id" as UserId),
+      );
+
+      expect(result).toBe(false);
+    });
+
+    it("should return showNudgeSpotlight$ false if hasSpotLightDismissed is true", async () => {
+      TestBed.overrideProvider(HasItemsNudgeService, {
+        useValue: {
+          nudgeStatus$: () => of({ hasSpotlightDismissed: true, hasBadgeDismissed: true }),
+        },
+      });
+      const service = testBed.inject(NudgesService);
+
+      const result = await firstValueFrom(
+        service.showNudgeSpotlight$(NudgeType.HasVaultItems, "user-id" as UserId),
+      );
+
+      expect(result).toBe(false);
+    });
+
+    it("should return showNudgeBadge$ false when hasBadgeDismissed is true", async () => {
+      TestBed.overrideProvider(HasItemsNudgeService, {
+        useValue: {
+          nudgeStatus$: () => of({ hasSpotlightDismissed: true, hasBadgeDismissed: true }),
+        },
+      });
+      const service = testBed.inject(NudgesService);
+
+      const result = await firstValueFrom(
+        service.showNudgeBadge$(NudgeType.HasVaultItems, "user-id" as UserId),
       );
 
       expect(result).toBe(false);

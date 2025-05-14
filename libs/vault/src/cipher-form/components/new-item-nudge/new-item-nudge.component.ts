@@ -28,7 +28,7 @@ export class NewItemNudgeComponent implements OnInit {
   constructor(
     private i18nService: I18nService,
     private accountService: AccountService,
-    private vaultNudgesService: NudgesService,
+    private nudgesService: NudgesService,
   ) {}
 
   async ngOnInit() {
@@ -82,16 +82,12 @@ export class NewItemNudgeComponent implements OnInit {
 
   async dismissNewItemSpotlight() {
     if (this.dismissalNudgeType && this.activeUserId) {
-      await this.vaultNudgesService.dismissNudge(
-        this.dismissalNudgeType,
-        this.activeUserId as UserId,
-      );
+      await this.nudgesService.dismissNudge(this.dismissalNudgeType, this.activeUserId as UserId);
       this.showNewItemSpotlight = false;
     }
   }
 
   async checkHasSpotlightDismissed(nudgeType: NudgeType, userId: UserId): Promise<boolean> {
-    return !(await firstValueFrom(this.vaultNudgesService.showNudge$(nudgeType, userId)))
-      .hasSpotlightDismissed;
+    return await firstValueFrom(this.nudgesService.showNudgeSpotlight$(nudgeType, userId));
   }
 }

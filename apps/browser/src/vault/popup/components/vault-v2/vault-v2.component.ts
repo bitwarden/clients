@@ -32,10 +32,10 @@ import {
 } from "@bitwarden/components";
 import {
   DecryptionFailureDialogComponent,
-  SpotlightComponent,
-  VaultIcons,
   NudgesService,
   NudgeType,
+  SpotlightComponent,
+  VaultIcons,
 } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
@@ -100,12 +100,12 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   cipherType = CipherType;
   private activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
   showEmptyVaultSpotlight$: Observable<boolean> = this.activeUserId$.pipe(
-    switchMap((userId) => this.vaultNudgesService.showNudge$(NudgeType.EmptyVaultNudge, userId)),
-    map((nudgeStatus) => !nudgeStatus.hasSpotlightDismissed),
+    switchMap((userId) =>
+      this.nudgesService.showNudgeSpotlight$(NudgeType.EmptyVaultNudge, userId),
+    ),
   );
   showHasItemsVaultSpotlight$: Observable<boolean> = this.activeUserId$.pipe(
-    switchMap((userId) => this.vaultNudgesService.showNudge$(NudgeType.HasVaultItems, userId)),
-    map((nudgeStatus) => !nudgeStatus.hasSpotlightDismissed),
+    switchMap((userId) => this.nudgesService.showNudgeSpotlight$(NudgeType.HasVaultItems, userId)),
   );
 
   activeUserId: UserId | null = null;
@@ -157,7 +157,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private dialogService: DialogService,
     private vaultCopyButtonsService: VaultPopupCopyButtonsService,
     private introCarouselService: IntroCarouselService,
-    private vaultNudgesService: NudgesService,
+    private nudgesService: NudgesService,
     private router: Router,
     private i18nService: I18nService,
   ) {
@@ -228,7 +228,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async dismissVaultNudgeSpotlight(type: NudgeType) {
-    await this.vaultNudgesService.dismissNudge(type, this.activeUserId as UserId);
+    await this.nudgesService.dismissNudge(type, this.activeUserId as UserId);
   }
 
   protected readonly FeatureFlag = FeatureFlag;

@@ -82,6 +82,11 @@ export class NudgesService {
     return this.customNudgeServices[nudge] ?? this.defaultNudgeService;
   }
 
+  /**
+   * Check if a nudge Spotlight should be shown to the user
+   * @param nudge
+   * @param userId
+   */
   showNudgeSpotlight$(nudge: NudgeType, userId: UserId): Observable<boolean> {
     return this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge).pipe(
       switchMap((hasVaultNudgeFlag) => {
@@ -95,6 +100,11 @@ export class NudgesService {
     );
   }
 
+  /**
+   * Check if a nudge Badge should be shown to the user
+   * @param nudge
+   * @param userId
+   */
   showNudgeBadge$(nudge: NudgeType, userId: UserId): Observable<boolean> {
     return this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge).pipe(
       switchMap((hasVaultNudgeFlag) => {
@@ -113,7 +123,7 @@ export class NudgesService {
    * @param nudge
    * @param userId
    */
-  showNudge$(nudge: NudgeType, userId: UserId) {
+  showNudgeStatus$(nudge: NudgeType, userId: UserId) {
     return this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge).pipe(
       switchMap((hasVaultNudgeFlag) => {
         if (!hasVaultNudgeFlag) {
