@@ -4,6 +4,7 @@ import {
   PasswordGeneratorRequest,
 } from "@bitwarden/sdk-internal";
 
+import { Type } from "../metadata";
 import {
   CredentialGenerator,
   GenerateRequest,
@@ -40,7 +41,7 @@ export class SdkPasswordRandomizer
 
       return new GeneratedCredential(
         password,
-        "password",
+        Type.password,
         Date.now(),
         request.source,
         request.website,
@@ -52,7 +53,7 @@ export class SdkPasswordRandomizer
 
       return new GeneratedCredential(
         passphrase,
-        "passphrase",
+        Type.password,
         Date.now(),
         request.source,
         request.website,
@@ -64,17 +65,18 @@ export class SdkPasswordRandomizer
 }
 
 function convertPasswordRequest(settings: PasswordGenerationOptions): PasswordGeneratorRequest {
+  //return settings as PassphraseGeneratorRequest;
   return {
-    lowercase: settings.lowercase,
-    uppercase: settings.uppercase,
-    numbers: settings.number,
-    special: settings.special,
-    length: settings.length,
-    avoidAmbiguous: settings.ambiguous,
-    minLowercase: settings.minLowercase,
-    minUppercase: settings.minUppercase,
-    minNumber: settings.minNumber,
-    minSpecial: settings.minSpecial,
+    lowercase: settings.lowercase!,
+    uppercase: settings.uppercase!,
+    numbers: settings.number!,
+    special: settings.special!,
+    length: settings.length!,
+    avoidAmbiguous: settings.ambiguous!,
+    minLowercase: settings.minLowercase!,
+    minUppercase: settings.minUppercase!,
+    minNumber: settings.minNumber!,
+    minSpecial: settings.minSpecial!,
   };
 }
 
@@ -82,10 +84,10 @@ function convertPassphraseRequest(
   settings: PassphraseGenerationOptions,
 ): PassphraseGeneratorRequest {
   return {
-    numWords: settings.numWords,
-    wordSeparator: settings.wordSeparator,
-    capitalize: settings.capitalize,
-    includeNumber: settings.includeNumber,
+    numWords: settings.numWords!,
+    wordSeparator: settings.wordSeparator!,
+    capitalize: settings.capitalize!,
+    includeNumber: settings.includeNumber!,
   };
 }
 

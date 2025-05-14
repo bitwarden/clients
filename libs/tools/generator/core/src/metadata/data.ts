@@ -9,10 +9,10 @@ export const Algorithm = Object.freeze({
   passphrase: "passphrase",
 
   /** A password composed of random characters, retrieved from SDK */
-  sdkPassword: "sdkpassword",
+  sdkPassword: "sdkPassword",
 
   /** A password composed of random words from the EFF word list, retrieved from SDK */
-  sdkPassphrase: "sdkpassphrase",
+  sdkPassphrase: "sdkPassphrase",
 
   /** A username composed of words from the EFF word list */
   username: "username",
