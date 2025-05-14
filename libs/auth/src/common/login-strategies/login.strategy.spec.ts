@@ -11,7 +11,6 @@ import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
-import { IdentityCaptchaResponse } from "@bitwarden/common/auth/models/response/identity-captcha.response";
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
@@ -59,7 +58,6 @@ const accessToken = "ACCESS_TOKEN";
 const refreshToken = "REFRESH_TOKEN";
 const userKey = "USER_KEY";
 const privateKey = "PRIVATE_KEY";
-const captchaSiteKey = "CAPTCHA_SITE_KEY";
 const kdf = 0;
 const kdfIterations = 10000;
 const userId = Utils.newGuid() as UserId;
@@ -298,7 +296,6 @@ describe("LoginStrategy", () => {
       expected.userId = userId;
       expected.resetMasterPassword = true;
       expected.twoFactorProviders = null;
-      expected.captchaSiteKey = "";
       expect(result).toEqual(expected);
     });
 
@@ -314,35 +311,12 @@ describe("LoginStrategy", () => {
       expected.userId = userId;
       expected.resetMasterPassword = false;
       expected.twoFactorProviders = null;
-      expected.captchaSiteKey = "";
       expect(result).toEqual(expected);
 
       expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
         ForceSetPasswordReason.AdminForcePasswordReset,
         userId,
       );
-    });
-
-    it("rejects login if CAPTCHA is required", async () => {
-      // Sample CAPTCHA response
-      const tokenResponse = new IdentityCaptchaResponse({
-        error: "invalid_grant",
-        error_description: "Captcha required.",
-        HCaptcha_SiteKey: captchaSiteKey,
-      });
-
-      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-      masterPasswordService.masterKeySubject.next(masterKey);
-      masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(userKey);
-
-      const result = await passwordLoginStrategy.logIn(credentials);
-
-      expect(stateService.addAccount).not.toHaveBeenCalled();
-      expect(messagingService.send).not.toHaveBeenCalled();
-
-      const expected = new AuthResult();
-      expected.captchaSiteKey = captchaSiteKey;
-      expect(result).toEqual(expected);
     });
 
     it("makes a new public and private key for an old account", async () => {
@@ -492,7 +466,6 @@ describe("LoginStrategy", () => {
       cache.tokenRequest = new PasswordTokenRequest(
         email,
         masterPasswordHash,
-        "",
         new TokenTwoFactorRequest(),
       );
 
@@ -524,7 +497,6 @@ describe("LoginStrategy", () => {
 
       await passwordLoginStrategy.logInTwoFactor(
         new TokenTwoFactorRequest(twoFactorProviderType, twoFactorToken, twoFactorRemember),
-        "",
       );
 
       expect(apiService.postIdentityToken).toHaveBeenCalledWith(
@@ -541,13 +513,11 @@ describe("LoginStrategy", () => {
 
   describe("Device verification", () => {
     it("processes device verification response", async () => {
-      const captchaToken = "test-captcha-token";
       const deviceVerificationResponse = new IdentityDeviceVerificationResponse({
         error: "invalid_grant",
         error_description: "Device verification required.",
         email: "test@bitwarden.com",
         deviceVerificationRequest: true,
-        captchaToken: captchaToken,
       });
 
       apiService.postIdentityToken.mockResolvedValue(deviceVerificationResponse);
@@ -556,7 +526,6 @@ describe("LoginStrategy", () => {
       cache.tokenRequest = new PasswordTokenRequest(
         email,
         masterPasswordHash,
-        "",
         new TokenTwoFactorRequest(),
       );
 

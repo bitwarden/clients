@@ -14,6 +14,7 @@ import {
   ExtensionCommand,
   ExtensionCommandType,
   NOTIFICATION_BAR_LIFESPAN_MS,
+  UPDATE_PASSWORD,
 } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
@@ -104,6 +105,8 @@ export default class NotificationBackground {
       this.removeTabFromNotificationQueue(sender.tab),
     bgReopenUnlockPopout: ({ sender }) => this.openUnlockPopout(sender.tab),
     bgSaveCipher: ({ message, sender }) => this.handleSaveCipherMessage(message, sender),
+    bgHandleReprompt: ({ message, sender }: any) =>
+      this.handleCipherUpdateRepromptResponse(message),
     bgUnlockPopoutOpened: ({ message, sender }) => this.unlockVault(message, sender.tab),
     checkNotificationQueue: ({ sender }) => this.checkNotificationQueue(sender.tab),
     collectPageDetailsResponse: ({ message }) =>
@@ -631,6 +634,17 @@ export default class NotificationBackground {
     await this.saveOrUpdateCredentials(sender.tab, message.edit, message.folder);
   }
 
+  async handleCipherUpdateRepromptResponse(message: NotificationBackgroundExtensionMessage) {
+    if (message.success) {
+      await this.saveOrUpdateCredentials(message.tab, false, undefined, true);
+    } else {
+      await BrowserApi.tabSendMessageData(message.tab, "saveCipherAttemptCompleted", {
+        error: "Password reprompt failed",
+      });
+      return;
+    }
+  }
+
   /**
    * Saves or updates credentials based on the message within the
    * notification queue that is associated with the specified tab.
@@ -639,7 +653,12 @@ export default class NotificationBackground {
    * @param edit - Identifies if the credentials should be edited or simply added
    * @param folderId - The folder to add the cipher to
    */
-  private async saveOrUpdateCredentials(tab: chrome.tabs.Tab, edit: boolean, folderId?: string) {
+  private async saveOrUpdateCredentials(
+    tab: chrome.tabs.Tab,
+    edit: boolean,
+    folderId?: string,
+    skipReprompt: boolean = false,
+  ) {
     for (let i = this.notificationQueue.length - 1; i >= 0; i--) {
       const queueMessage = this.notificationQueue[i];
       if (
@@ -654,17 +673,25 @@ export default class NotificationBackground {
         continue;
       }
 
-      this.notificationQueue.splice(i, 1);
-
       const activeUserId = await firstValueFrom(
         this.accountService.activeAccount$.pipe(getOptionalUserId),
       );
 
       if (queueMessage.type === NotificationQueueMessageType.ChangePassword) {
         const cipherView = await this.getDecryptedCipherById(queueMessage.cipherId, activeUserId);
-        await this.updatePassword(cipherView, queueMessage.newPassword, edit, tab, activeUserId);
+
+        await this.updatePassword(
+          cipherView,
+          queueMessage.newPassword,
+          edit,
+          tab,
+          activeUserId,
+          skipReprompt,
+        );
         return;
       }
+
+      this.notificationQueue.splice(i, 1);
 
       // If the vault was locked, check if a cipher needs updating instead of creating a new one
       if (queueMessage.wasVaultLocked) {
@@ -725,6 +752,7 @@ export default class NotificationBackground {
     edit: boolean,
     tab: chrome.tabs.Tab,
     userId: UserId,
+    skipReprompt: boolean = false,
   ) {
     cipherView.login.password = newPassword;
 
@@ -757,6 +785,12 @@ export default class NotificationBackground {
             orgName: taskOrgName,
           }
         : undefined;
+
+      if (cipherView.reprompt && !skipReprompt) {
+        await this.autofillService.isPasswordRepromptRequired(cipherView, tab, UPDATE_PASSWORD);
+
+        return;
+      }
 
       await this.cipherService.updateWithServer(cipher);
 
@@ -860,9 +894,7 @@ export default class NotificationBackground {
   private async getDecryptedCipherById(cipherId: string, userId: UserId) {
     const cipher = await this.cipherService.get(cipherId, userId);
     if (cipher != null && cipher.type === CipherType.Login) {
-      return await cipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(cipher, userId),
-      );
+      return await this.cipherService.decrypt(cipher, userId);
     }
     return null;
   }

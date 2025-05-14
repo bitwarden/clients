@@ -5054,9 +5054,6 @@
   "singleOrgBlockCreateMessage": {
     "message": "La tua organizzazione corrente ha una politica che non ti consente di unirti ad altre organizzazioni. Contatta gli amministratori della tua organizzazione o registrati da un altro account Bitwarden."
   },
-  "singleOrgPolicyWarning": {
-    "message": "I membri dell'organizzazione che non sono proprietari o amministratori e sono membri di un'altra organizzazione saranno rimossi dalla tua organizzazione."
-  },
   "singleOrgPolicyMemberWarning": {
     "message": "I membri non conformi entreranno in stato 'revocato' finché non lasceranno tutte le altre organizzazioni. Gli amministratori sono esenti e possono ripristinare i membri una volta soddisfatta la conformità."
   },
@@ -5885,15 +5882,6 @@
   },
   "fingerprintPhrase": {
     "message": "Fingerprint phrase:"
-  },
-  "removeUsers": {
-    "message": "Rimuovi utenti"
-  },
-  "revokeUsers": {
-    "message": "Revoca utenti"
-  },
-  "restoreUsers": {
-    "message": "Ripristina utenti"
   },
   "error": {
     "message": "Errore"
@@ -7836,12 +7824,6 @@
   "noDomainsSubText": {
     "message": "Connettere un dominio permette ai membri di non usare il campo dell'identificatore SSO durante l'accesso con SSO."
   },
-  "verifyDomain": {
-    "message": "Verifica dominio"
-  },
-  "reverifyDomain": {
-    "message": "Verifica dominio di nuovo"
-  },
   "copyDnsTxtRecord": {
     "message": "Copia rapporti TXT DNS"
   },
@@ -7850,18 +7832,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "Copia e incolla il rapporto TXT nel tuo fornitore di DNS."
-  },
-  "domainNameInputHint": {
-    "message": "Esempio: miodominio.com. I sottodomini devono essere inseriti separatamente per essere verificati."
-  },
-  "automaticDomainVerification": {
-    "message": "Verifica del dominio automatica"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden proverà a verificare il dominio 3 volte durante le prime 72 ore. Se il dominio non può essere verificato, controlla il rapporto DNS nel tuo host e verificalo manualmente. Il dominio sarà rimosso dalla tua organizzazione in 7 giorni se non è verificato"
-  },
-  "invalidDomainNameMessage": {
-    "message": "L'input non è un formato valido. Formato: miodominio.com. I sottodomini devono essere inseriti separatamente per essere verificati."
   },
   "removeDomain": {
     "message": "Rimuovi dominio"
@@ -7875,9 +7845,6 @@
   "domainSaved": {
     "message": "Dominio salvato"
   },
-  "domainVerified": {
-    "message": "Dominio verificato"
-  },
   "duplicateDomainError": {
     "message": "Non puoi attestare lo stesso dominio due volte."
   },
@@ -7889,21 +7856,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ non verificato. Controlla il rapporto DNS.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Verificato"
-  },
-  "domainStatusUnverified": {
-    "message": "Non verificato"
   },
   "domainNameTh": {
     "message": "Nome"
@@ -7931,24 +7883,6 @@
   },
   "removedDomain": {
     "message": "Dominio $DOMAIN$ rimosso",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ verificato",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ non verificato",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -9479,11 +9413,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Gestisci la fatturazione dal Portale del Fornitore"
   },
+  "continueSettingUp": {
+    "message": "Continue setting up Bitwarden"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Continua a configurare la tua prova gratuita di Bitwarden"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Continue setting up Bitwarden Password Manager"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Continua a configurare la tua prova gratuita di Bitwarden Password Manager"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Continue setting up Bitwarden Secrets Manager"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Continua a configurare la tua prova gratuita di Bitwarden Secrets Manager"
@@ -10245,42 +10188,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Avviso importante"
-  },
-  "setupTwoStepLogin": {
-    "message": "Imposta l'accesso in due passaggi"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden invierà un codice all'email del tuo account per verificare gli accessi da nuovi dispositivi."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Puoi impostare l'accesso in due passaggi per proteggere il tuo account, oppure scegliere una email alla quale puoi accedere."
-  },
-  "remindMeLater": {
-    "message": "Ricordamelo più tardi"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Confermi di poter accedere all'email $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Sì, ho accesso all'email"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Attiva l'accesso in due passaggi"
-  },
-  "changeAcctEmail": {
-    "message": "Cambia l'email dell'account"
-  },
   "removeMembers": {
     "message": "Rimuovi membri"
   },
@@ -10637,8 +10544,20 @@
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
   },
-  "newLoginNudgeBody": {
-    "message": "Include a Website so this login appears as an autofill suggestion."
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Seamless online checkout"
@@ -10661,8 +10580,15 @@
   "newSshNudgeTitle": {
     "message": "Developer-friendly SSH access"
   },
-  "newSshNudgeBody": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "restart": {
     "message": "Restart"
